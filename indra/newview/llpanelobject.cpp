@@ -138,6 +138,26 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
 	
+	// PhysicsShapeType combobox
+	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
+	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsParam, this);
+
+	// PhysicsGravity
+	mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
+	childSetCommitCallback("Physics Gravity", onCommitPhysicsParam, this);
+
+	// PhysicsFriction
+	mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
+	childSetCommitCallback("Physics Friction", onCommitPhysicsParam, this);
+	
+	// PhysicsDensity
+	mSpinPhysicsDensity = getChild<LLSpinCtrl>("Physics Density");
+	childSetCommitCallback("Physics Density", onCommitPhysicsParam, this);
+
+	// PhysicsRestitution
+	mSpinPhysicsRestitution = getChild<LLSpinCtrl>("Physics Restitution");
+	childSetCommitCallback("Physics Restitution", onCommitPhysicsParam, this);
+
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
@@ -524,6 +544,21 @@ void LLPanelObject::getState( )
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+
+	mComboPhysicsShapeType->setCurrentByIndex(objectp->getPhysicsShapeType());
+	mComboPhysicsShapeType->setEnabled(editable);
+	
+	mSpinPhysicsGravity->set(objectp->getPhysicsGravity());
+	mSpinPhysicsGravity->setEnabled(editable);
+
+	mSpinPhysicsFriction->set(objectp->getPhysicsFriction());
+	mSpinPhysicsFriction->setEnabled(editable);
+	
+	mSpinPhysicsDensity->set(objectp->getPhysicsDensity());
+	mSpinPhysicsDensity->setEnabled(editable);
+	
+	mSpinPhysicsRestitution->set(objectp->getPhysicsRestitution());
+	mSpinPhysicsRestitution->setEnabled(editable);
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
@@ -1227,6 +1262,33 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
+#include "llsdutil.h"
+class CostResponder : public LLHTTPClient::Responder
+{
+public:
+	CostResponder(U32 id) { mID = id; }
+	virtual void result(const LLSD& content) { llinfos << ll_pretty_print_sd(content) << llendl; }
+
+	U32 mID;
+};
+
+void LLPanelObject::sendPhysicsParam()
+{
+	U8 type = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	F32 gravity = mSpinPhysicsGravity->get();
+	F32 friction = mSpinPhysicsFriction->get();
+	F32 density = mSpinPhysicsDensity->get();
+	F32 restitution = mSpinPhysicsRestitution->get();
+	
+	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, friction, 
+																density, restitution);
+
+	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
+	LLSD body = LLSD::emptyArray();
+	
+	body.append(LLSelectMgr::getInstance()->getSelection()->getFirstObject()->getID());
+	
+	LLHTTPClient::post( url, body, new CostResponder(body[0].asInteger()) );
 void LLPanelObject::sendCastShadows()
 {
 	BOOL value = mCheckCastShadows->get();
@@ -1900,6 +1962,12 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	
+	mSpinPhysicsGravity->setEnabled(FALSE);
+	mSpinPhysicsFriction->setEnabled(FALSE);
+	mSpinPhysicsDensity->setEnabled(FALSE);
+	mSpinPhysicsRestitution->setEnabled(FALSE);
+							 
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
@@ -1990,6 +2058,13 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
+}
+
+// static
+void LLPanelObject::onCommitPhysicsParam(LLUICtrl* ctrl, void* userdata )
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+	self->sendPhysicsParam();
 }
 
 // static

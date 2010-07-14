@@ -207,10 +207,11 @@ BOOL LLHUDText::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		}
 
 		LLVector3 dir = end-start;
-		F32 t = 0.f;
+		F32 a,b,t;
 
-		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, NULL, NULL, &t, FALSE) ||
-			LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, NULL, NULL, &t, FALSE) )
+
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a, b, t, FALSE) ||
+			LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, a, b, t, FALSE) )
 		{
 			if (t <= 1.f)
 			{
@@ -565,6 +566,18 @@ void LLHUDText::renderText(BOOL for_select)
 void LLHUDText::setStringUTF8(const std::string &wtext)
 {
 	setString(utf8str_to_wstring(wtext));
+}
+
+std::string LLHUDText::getString()
+{
+	std::ostringstream ostr;
+	for (U32 i = 0; i < mTextSegments.size(); ++i)
+	{
+		const std::string str = wstring_to_utf8str(mTextSegments[i].getText());
+		ostr << str;
+	}
+
+	return ostr.str();
 }
 
 void LLHUDText::setString(const LLWString &wtext)

@@ -61,7 +61,7 @@ BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 
 LLShaderFeatures::LLShaderFeatures()
 : calculatesLighting(false), isShiny(false), isFullbright(false), hasWaterFog(false),
-hasTransport(false), hasSkinning(false), hasAtmospherics(false), isSpecular(false),
+hasTransport(false), hasSkinning(false), hasObjectSkinning(false), hasAtmospherics(false), isSpecular(false),
 hasGamma(false), hasLighting(false), calculatesAtmospherics(false)
 {
 }
@@ -124,7 +124,7 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	{
 		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
-		if (mShaderLevel > 0)
+		if (shaderhandle > 0)
 		{
 			attachObject(shaderhandle);
 		}
@@ -715,6 +715,18 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 	}
 
 	return -1;
+}
+
+GLint LLGLSLShader::getAttribLocation(U32 attrib)
+{
+	if (attrib < mAttribute.size())
+	{
+		return mAttribute[attrib];
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 void LLGLSLShader::uniform1i(const string& uniform, GLint v)

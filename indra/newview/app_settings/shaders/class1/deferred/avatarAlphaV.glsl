@@ -17,7 +17,7 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
-varying vec4 vary_position;
+varying vec3 vary_position;
 varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_normal;
@@ -41,7 +41,7 @@ void main()
 	norm = normalize(norm);
 		
 	gl_Position = gl_ProjectionMatrix * pos;
-	vary_position = pos;
+	vary_position = pos.xyz;
 	vary_normal = norm;	
 	
 	calcAtmospherics(pos.xyz);

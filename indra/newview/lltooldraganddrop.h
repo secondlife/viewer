@@ -43,6 +43,7 @@
 #include "llpermissions.h"
 #include "llwindow.h"
 #include "llviewerinventory.h"
+#include "llvolume.h" //for LL_MESH_ENABLED
 
 class LLToolDragAndDrop;
 class LLViewerRegion;
@@ -154,6 +155,10 @@ protected:
 							   MASK mask, BOOL drop);
 	EAcceptance dad3dTextureObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
+#if LL_MESH_ENABLED
+	EAcceptance dad3dMeshObject(LLViewerObject* obj, S32 face,
+								   MASK mask, BOOL drop);
+#endif
 //	EAcceptance dad3dTextureSelf(LLViewerObject* obj, S32 face,
 //								 MASK mask, BOOL drop);
 	EAcceptance dad3dWearItem(LLViewerObject* obj, S32 face,
@@ -185,6 +190,11 @@ protected:
 	EAcceptance dad3dActivateGesture(LLViewerObject *obj, S32 face,
 								 MASK mask, BOOL drop);
 
+	// helper called by methods above to handle "application" of an item
+	// to an object (texture applied to face, mesh applied to shape, etc.)
+	EAcceptance dad3dApplyToObject(LLViewerObject* obj, S32 face, MASK mask, BOOL drop, EDragAndDropType cargo_type);
+		
+	
 	// set the LLToolDragAndDrop's cursor based on the given acceptance
 	ECursorType acceptanceToCursor( EAcceptance acceptance );
 
@@ -235,6 +245,13 @@ public:
 									LLInventoryItem* item,
 									ESource source,
 									const LLUUID& src_id);
+#if LL_MESH_ENABLED
+	static void dropMesh(LLViewerObject* hit_obj,
+						 LLInventoryItem* item,
+						 ESource source,
+						 const LLUUID& src_id);
+#endif
+	
 	//static void	dropTextureOneFaceAvatar(LLVOAvatar* avatar,S32 hit_face,
 	//									 LLInventoryItem* item)
 

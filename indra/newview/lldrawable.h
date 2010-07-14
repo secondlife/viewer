@@ -41,6 +41,7 @@
 #include "v4math.h"
 #include "m4math.h"
 #include "v4coloru.h"
+#include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
 #include "llmemtype.h"
@@ -66,6 +67,17 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 class LLDrawable : public LLRefCount
 {
 public:
+	LLDrawable(const LLDrawable& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLDrawable& operator=(const LLDrawable& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static void initClass();
 
 	LLDrawable()				{ init(); }
@@ -94,14 +106,14 @@ public:
 	const LLVector3&	  getPosition() const			{ return mXform.getPosition(); }
 	const LLVector3&      getWorldPosition() const		{ return mXform.getPositionW(); }
 	const LLVector3		  getPositionAgent() const;
-	const LLVector3d&	  getPositionGroup() const		{ return mPositionGroup; }
+	const LLVector4a&	  getPositionGroup() const		{ return *mPositionGroup; }
 	const LLVector3&	  getScale() const				{ return mCurrentScale; }
 	void				  setScale(const LLVector3& scale) { mCurrentScale = scale; }
 	const LLQuaternion&   getWorldRotation() const		{ return mXform.getWorldRotation(); }
 	const LLQuaternion&   getRotation() const			{ return mXform.getRotation(); }
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
 	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
-	F64					  getBinRadius() const			{ return mBinRadius; }
+	F32					  getBinRadius() const			{ return mBinRadius; }
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
@@ -155,7 +167,7 @@ public:
 		
 	void updateSpecialHoverCursor(BOOL enabled);
 
-	virtual void shiftPos(const LLVector3 &shift_vector);
+	virtual void shiftPos(const LLVector4a &shift_vector);
 
 	S32 getGeneration() const					{ return mGeneration; }
 
@@ -173,11 +185,12 @@ public:
 	const LLVector3& getBounds(LLVector3& min, LLVector3& max) const;
 	virtual void updateSpatialExtents();
 	virtual void updateBinRadius();
-	const LLVector3* getSpatialExtents() const;
-	void setSpatialExtents(LLVector3 min, LLVector3 max);
-	void setPositionGroup(const LLVector3d& pos);
-	void setPositionGroup(const LLVector3& pos) { setPositionGroup(LLVector3d(pos)); }
+	const LLVector4a* getSpatialExtents() const;
+	void setSpatialExtents(const LLVector3& min, const LLVector3& max);
+	void setSpatialExtents(const LLVector4a& min, const LLVector4a& max);
 
+	void setPositionGroup(const LLVector4a& pos);
+	
 	void setRenderType(S32 type) 				{ mRenderType = type; }
 	BOOL isRenderType(S32 type) 				{ return mRenderType == type; }
 	S32  getRenderType()						{ return mRenderType; }
@@ -288,6 +301,9 @@ public:
 private:
 	typedef std::vector<LLFace*> face_list_t;
 	
+	LLVector4a*		mExtents;
+	LLVector4a*		mPositionGroup;
+		
 	U32				mState;
 	S32				mRenderType;
 	LLPointer<LLViewerObject> mVObjp;
@@ -297,9 +313,7 @@ private:
 	
 	mutable U32		mVisible;
 	F32				mRadius;
-	LLVector3		mExtents[2];
-	LLVector3d		mPositionGroup;
-	F64				mBinRadius;
+	F32				mBinRadius;
 	S32				mGeneration;
 	
 	LLVector3		mCurrentScale;
