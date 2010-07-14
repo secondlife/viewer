@@ -567,7 +567,8 @@ void LLPanelMainInventory::draw()
 
 void LLPanelMainInventory::updateItemcountText()
 {
-	LLLocale locale(LLLocale::USER_LOCALE);
+	// *TODO: Calling setlocale() on each frame may be inefficient.
+	LLLocale locale(LLStringUtil::getLocale());
 	std::string item_count_string;
 	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
 
