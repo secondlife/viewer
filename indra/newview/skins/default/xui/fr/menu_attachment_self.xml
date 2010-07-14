@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Attachment Pie">
 	<menu_item_call label="Toucher" name="Attachment Object Touch"/>
-	<menu_item_call label="Éditer" name="Edit..."/>
+	<menu_item_call label="Modifier" name="Edit..."/>
 	<menu_item_call label="Détacher" name="Detach"/>
 	<menu_item_call label="Me lever" name="Stand Up"/>
 	<menu_item_call label="Changer de tenue" name="Change Outfit"/>
