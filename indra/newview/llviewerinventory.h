@@ -302,7 +302,7 @@ private:
 
 class LLInventoryCallbackManager : public LLDestroyClass<LLInventoryCallbackManager>
 {
-	friend LLDestroyClass<LLInventoryCallbackManager>;
+	friend class LLDestroyClass<LLInventoryCallbackManager>;
 public:
 	LLInventoryCallbackManager();
 	~LLInventoryCallbackManager();

@@ -371,7 +371,7 @@ LLIMWellWindow::ObjectRowPanel::~ObjectRowPanel()
 //---------------------------------------------------------------------------------
 void LLIMWellWindow::ObjectRowPanel::onClosePanel()
 {
-	LLScriptFloaterManager::getInstance()->onRemoveNotification(mChiclet->getSessionId());
+	LLScriptFloaterManager::getInstance()->removeNotification(mChiclet->getSessionId());
 }
 
 void LLIMWellWindow::ObjectRowPanel::initChiclet(const LLUUID& notification_id, bool new_message/* = false*/)
@@ -832,7 +832,7 @@ void LLIMWellWindow::closeAllImpl()
 		ObjectRowPanel* obj_panel = dynamic_cast <ObjectRowPanel*> (panel);
 		if (obj_panel)
 		{
-			LLScriptFloaterManager::instance().onRemoveNotification(*iter);
+			LLScriptFloaterManager::instance().removeNotification(*iter);
 		}
 	}
 }

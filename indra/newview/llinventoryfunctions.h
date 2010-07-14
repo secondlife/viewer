@@ -174,6 +174,25 @@ protected:
 	LLAssetType::EType mType;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsOfAssetType
+//
+// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// the item or category is of asset type passed in during construction.
+// Link types are treated as links, not as the types they point to.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsOfAssetType : public LLInventoryCollectFunctor
+{
+public:
+	LLIsOfAssetType(LLAssetType::EType type) : mType(type) {}
+	virtual ~LLIsOfAssetType() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	LLAssetType::EType mType;
+};
+
 class LLIsTypeWithPermissions : public LLInventoryCollectFunctor
 {
 public:
