@@ -71,6 +71,7 @@
 #include "llsdutil.h"
 #include "llsidepanelappearance.h"
 #include "lltoggleablemenu.h"
+#include "llvoavatarself.h"
 #include "llwearablelist.h"
 #include "llwearableitemslist.h"
 #include "llwearabletype.h"
@@ -347,8 +348,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("folder_view");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
-	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
+	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 
 	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
 
@@ -388,7 +389,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
-	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
@@ -442,6 +443,9 @@ void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 		mListViewFilterCmbBox->setVisible(false);
 
 		showWearablesFilter();
+
+		// Reset mWearableItemsList position to top. See EXT-8180.
+		mWearableItemsList->goToTop();
 	}
 
 	//switching button bars
@@ -619,15 +623,52 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 {
 	static LLShopURLDispatcher url_resolver;
 
+	// will contain the resultant URL
 	std::string url;
-	std::vector<LLPanel*> selected_items;
-	mCOFWearables->getSelectedItems(selected_items);
 
-	ESex sex = gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE;
+	if (isAgentAvatarValid())
+	{
+		// try to get wearable type from 'Add More' panel first (EXT-7639)
+		LLWearableType::EType type = getAddMorePanelSelectionType();
+
+		if (type == LLWearableType::WT_NONE)
+		{
+			type = getCOFWearablesSelectionType();
+		}
+
+		ESex sex = gAgentAvatarp->getSex();
+
+		// WT_INVALID comes for attachments
+		if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+		{
+			url = url_resolver.resolveURL(type, sex);
+		}
+
+		if (url.empty())
+		{
+			url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
+		}
+	}
+	else
+	{
+		llwarns << "Agent avatar is invalid" << llendl;
+
+		// the second argument is not important in this case: generic market place will be opened
+		url = url_resolver.resolveURL(LLWearableType::WT_NONE, SEX_FEMALE);
+	}
+
+	LLWeb::loadURLExternal(url);
+}
+
+LLWearableType::EType LLPanelOutfitEdit::getCOFWearablesSelectionType() const
+{
+	std::vector<LLPanel*> selected_items;
+	LLWearableType::EType type = LLWearableType::WT_NONE;
+
+	mCOFWearables->getSelectedItems(selected_items);
 
 	if (selected_items.size() == 1)
 	{
-		LLWearableType::EType type = LLWearableType::WT_NONE;
 		LLPanel* item = selected_items.front();
 
 		// LLPanelDummyClothingListItem is lower then LLPanelInventoryListItemBase in hierarchy tree
@@ -639,20 +680,45 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 		{
 			type = real_item->getWearableType();
 		}
+	}
 
-		// WT_INVALID comes for attachments
-		if (type != LLWearableType::WT_INVALID)
+	return type;
+}
+
+LLWearableType::EType LLPanelOutfitEdit::getAddMorePanelSelectionType() const
+{
+	LLWearableType::EType type = LLWearableType::WT_NONE;
+
+	if (mAddWearablesPanel != NULL && mAddWearablesPanel->getVisible())
+	{
+		if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
 		{
-			url = url_resolver.resolveURL(type, sex);
+			std::set<LLUUID> selected_uuids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+
+			if (selected_uuids.size() == 1)
+			{
+				type = getWearableTypeByItemUUID(*(selected_uuids.begin()));
+			}
+		}
+		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
+		{
+			std::vector<LLUUID> selected_uuids;
+			mWearableItemsList->getSelectedUUIDs(selected_uuids);
+
+			if (selected_uuids.size() == 1)
+			{
+				type = getWearableTypeByItemUUID(selected_uuids.front());
+			}
 		}
 	}
 
-	if (url.empty())
-	{
-		url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
-	}
+	return type;
+}
 
-	LLWeb::loadURLExternal(url);
+LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID& item_uuid) const
+{
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_uuid);
+	return (item != NULL) ? item->getWearableType() : LLWearableType::WT_NONE;
 }
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
@@ -672,7 +738,7 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onInventorySelectionChange()
+void LLPanelOutfitEdit::updatePlusButton()
 {
 	uuid_vec_t selected_items;
 	getSelectedItemsUUID(selected_items);
@@ -915,6 +981,9 @@ void LLPanelOutfitEdit::updateVerbs()
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
 	updateCurrentOutfitName();
+
+	//updating state of "Wear Item" button previously known as "Plus" button
+	updatePlusButton();
 }
 
 bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel)
@@ -949,9 +1018,6 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 {
 	showAddWearablesPanel(true);
 	showWearablesListView();
-
-	// Reset mWearableItemsList position to top. See EXT-8180.
-	mWearableItemsList->goToTop();
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
 	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));
