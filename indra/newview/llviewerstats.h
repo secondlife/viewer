@@ -197,6 +197,61 @@ public:
 	
 	void addToMessage(LLSD &body) const;
 
+	struct  StatsAccumulator
+	{
+		S32 mCount;
+		F32 mSum;
+		F32 mSumOfSquares;
+		U32 mCountOfNextUpdatesToIgnore;
+
+		inline void push( F32 val )
+		{
+			if ( mCountOfNextUpdatesToIgnore > 0 )
+			{
+				mCountOfNextUpdatesToIgnore--;
+				return;
+			}
+			
+			mCount++;
+			mSum += val;
+			mSumOfSquares += val * val;
+		}
+		
+		inline F32 getMean() const
+		{
+			return (mCount == 0) ? 0.f : ((F32)mSum)/mCount;
+		}
+		
+		inline F32 getStdDev() const
+		{
+			const F32 mean = getMean();
+			return (mCount == 0) ? 0.f : sqrt( mSumOfSquares/mCount - (mean * mean) );
+		}
+		
+		inline U32 getCount() const
+		{
+			return mCount;
+		}
+
+		inline void reset()
+		{
+			mCount = 0;
+			mSum = mSumOfSquares = 0.f;
+			mCountOfNextUpdatesToIgnore = 0;
+		}
+		
+		inline LLSD getData() const
+		{
+			LLSD data;
+			data["mean"] = getMean();
+			data["std_dev"] = getStdDev();
+			data["count"] = (S32)mCount;
+			return data;
+		}
+	};
+
+	StatsAccumulator mAgentPositionSnaps;
+	
 private:
 	F64	mStats[ST_COUNT];
 

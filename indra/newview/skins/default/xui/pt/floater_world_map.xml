@@ -20,13 +20,13 @@
 		</text>
 		<check_box label="Terra à Venda" name="land_for_sale_chk"/>
 		<text name="land_sale_label">
-			Venda de terreno
+			Terreno à venda
 		</text>
 		<text name="by_owner_label">
-			o proprietário
+			pelo dono
 		</text>
 		<text name="auction_label">
-			leilão de terrenos
+			leilão
 		</text>
 		<button label="Voltar ao meu início" label_selected="Voltar ao meu início" name="Go Home" tool_tip="Teletransportar para meu início"/>
 		<text name="Home_label">
@@ -37,7 +37,7 @@
 		</text>
 		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
-			Público geral
+			Geral
 		</text>
 		<check_box label="Mature" name="events_mature_chk"/>
 		<text name="events_mature_label">
