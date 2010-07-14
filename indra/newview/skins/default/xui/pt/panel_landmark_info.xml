@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="landmark_info">
-	<string name="title_create_landmark" value="Criar Landmark"/>
-	<string name="title_edit_landmark" value="Editar Landmark"/>
-	<string name="title_landmark" value="Landmark"/>
-	<string name="not_available" value="(N\A)"/>
+	<string name="title_create_landmark" value="Criar marco"/>
+	<string name="title_edit_landmark" value="Editar marco"/>
+	<string name="title_landmark" value="Marco"/>
+	<string name="not_available" value="(N/A)"/>
 	<string name="unknown" value="(desconhecido)"/>
 	<string name="public" value="(público)"/>
 	<string name="server_update_text">
 		Informação do lugar não disponível sem atualização do servidor.
 	</string>
 	<string name="server_error_text">
-		Informações sobre esta localização não está disponível neste momento, por favor, tente novamente mais tarde.
+		No momento não há informações sobre este lugar; por favor tente novamente mais tarde.
 	</string>
 	<string name="server_forbidden_text">
-		Informações sobre esta localização está indisponível devido a restrições de acesso. Por favor, verifique as permissões com o proprietário da parcela.
+		Os dados deste lugar não estão indisponíveis devido a restrições de acesso. Verifique as permissões com o proprietário do terreno ou parcela.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Atrás"/>
-	<text name="title" value="Perfil do Lugar"/>
+	<text name="title" value="Perfil do lugar"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="maturity_value" value="desconhecido"/>
@@ -31,7 +31,7 @@
 			<panel name="landmark_edit_panel">
 				<text name="title_label" value="Título:"/>
 				<text name="notes_label" value="Minhas notas:"/>
-				<text name="folder_label" value="Localização da Landmark:"/>
+				<text name="folder_label" value="Localização do marco:"/>
 			</panel>
 		</panel>
 	</scroll_container>

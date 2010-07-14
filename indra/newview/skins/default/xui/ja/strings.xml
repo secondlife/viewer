@@ -1615,6 +1615,9 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD（右下）
 	</string>
+	<string name="Bad attachment point">
+		装着先が正しくありません
+	</string>
 	<string name="CursorPos">
 		[LINE] 行目、[COLUMN] 列目
 	</string>
@@ -1627,14 +1630,20 @@
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
-	<string name="PanelContentsNewScript">
-		新規スクリプト
-	</string>
 	<string name="PanelContentsTooltip">
 		オブジェクトの中身
 	</string>
+	<string name="PanelContentsNewScript">
+		新規スクリプト
+	</string>
 	<string name="BusyModeResponseDefault">
 		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
+	</string>
+	<string name="NoOutfits">
+		アウトフィットがまだありません。[secondlife:///app/search/all/ 検索]をお試しください。
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。
 	</string>
 	<string name="MuteByName">
 		（名称別）

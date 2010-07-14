@@ -13,7 +13,7 @@
 		<text name="currentlook_name">
 			MyOutfit With a really Long Name like MOOSE
 		</text>
-		<button label="" name="edit_outfit_btn" tool_tip="Diese Outfit bearbeiten"/>
+		<button label="" name="edit_outfit_btn" tool_tip="Dieses Outfit bearbeiten"/>
 	</panel>
 	<filter_editor label="Outfits filtern" name="Filter"/>
 </panel>

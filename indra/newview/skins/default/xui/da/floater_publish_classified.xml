@@ -5,7 +5,7 @@
 
 Husk, annonceomkostninger kan ikke refunderes.
 	</text>
-	<spinner label="Pris for annonce:" name="price_for_listing" tool_tip="Pris for optagelse af annonce." value="50"/>
+	<spinner label="Pris: L$" name="price_for_listing" tool_tip="Pris for optagelse af annonce." value="50"/>
 	<text name="l$_text" value="L$"/>
 	<text name="more_info_text">
 		Mere info (link til hjælp om annoncer)

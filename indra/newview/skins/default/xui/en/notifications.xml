@@ -819,7 +819,7 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
    icon="alertmodal.tga"
    name="DeleteOutfits"
    type="alertmodal">
-    Delete the selected outfit/s?
+    Delete the selected outfit?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
