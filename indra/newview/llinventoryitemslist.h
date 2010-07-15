@@ -68,6 +68,10 @@ public:
 	 */
 	void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
 
+	virtual bool selectItemByValue(const LLSD& value, bool select = true);
+
+	void updateSelection();
+
 	/**
 	 * Idle routine used to refresh the list regardless of the current list
 	 * visibility, unlike draw() which is called only for the visible list.
@@ -104,6 +108,9 @@ protected:
 private:
 	uuid_vec_t mIDs; // IDs of items that were added in refreshList().
 					 // Will be used in refresh() to determine added and removed ids
+
+	uuid_vec_t mSelectTheseIDs; // IDs that will be selected if list is not loaded till now
+
 	bool mNeedsRefresh;
 
 	bool mForceRefresh;

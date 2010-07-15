@@ -83,7 +83,7 @@ public:
 	static LLVBOPool sDynamicVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-	
+
 	static BOOL	sUseStreamDraw;
 
 	static void initClass(bool use_vbo);
