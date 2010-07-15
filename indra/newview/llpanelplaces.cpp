@@ -1089,6 +1089,8 @@ void LLPanelPlaces::updateVerbs()
 
 	if (is_place_info_visible)
 	{
+		mShowOnMapBtn->setEnabled(have_3d_pos);
+
 		if (is_agent_place_info_visible)
 		{
 			// We don't need to teleport to the current location
