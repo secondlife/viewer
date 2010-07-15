@@ -114,7 +114,6 @@ LLLoadedCallbackEntry::LLLoadedCallbackEntry(loaded_callback_func cb,
 					  BOOL need_imageraw, // Needs image raw for the callback
 					  void* userdata,
 					  LLLoadedCallbackEntry::source_callback_list_t* src_callback_list,
-					  void* source,
 					  LLViewerFetchedTexture* target,
 					  BOOL pause) 
 	: mCallback(cb),
@@ -123,7 +122,6 @@ LLLoadedCallbackEntry::LLLoadedCallbackEntry(loaded_callback_func cb,
 	  mNeedsImageRaw(need_imageraw),
 	  mUserData(userdata),
 	  mSourceCallbackList(src_callback_list),
-	  mSource(source),
 	  mPaused(pause)
 {
 	if(mSourceCallbackList)
@@ -145,10 +143,10 @@ void LLLoadedCallbackEntry::removeTexture(LLViewerFetchedTexture* tex)
 }
 
 //static 
-void LLLoadedCallbackEntry::cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list, void* src)
+void LLLoadedCallbackEntry::cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
 	//clear texture callbacks.
-	if(!callback_list->empty())
+	if(callback_list && !callback_list->empty())
 	{
 		for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = callback_list->begin();
 				iter != callback_list->end(); ++iter)
@@ -156,7 +154,7 @@ void LLLoadedCallbackEntry::cleanUpCallbackList(LLLoadedCallbackEntry::source_ca
 			LLViewerFetchedTexture* tex = gTextureList.findImage(*iter) ;
 			if(tex)
 			{
-				tex->deleteCallbackEntry(src) ;			
+				tex->deleteCallbackEntry(callback_list) ;			
 			}
 		}
 		callback_list->clear() ;
@@ -514,6 +512,7 @@ LLViewerTexture::LLViewerTexture(const LLImageRaw* raw, BOOL usemipmaps)
 
 LLViewerTexture::~LLViewerTexture()
 {
+	cleanup();
 	sImageCount--;
 }
 
@@ -547,7 +546,6 @@ S8 LLViewerTexture::getType() const
 	return LLViewerTexture::LOCAL_TEXTURE ;
 }
 
-//virtual
 void LLViewerTexture::cleanup()
 {
 	mFaceList.clear() ;
@@ -1186,7 +1184,6 @@ S8 LLViewerFetchedTexture::getType() const
 	return LLViewerTexture::FETCHED_TEXTURE ;
 }
 
-//virtual
 void LLViewerFetchedTexture::cleanup()
 {
 	for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
@@ -1208,8 +1205,6 @@ void LLViewerFetchedTexture::cleanup()
 	mCachedRawDiscardLevel = -1 ;
 	mCachedRawImageReady = FALSE ;
 	mSavedRawImage = NULL ;
-
-	LLViewerTexture::cleanup();
 }
 
 void LLViewerFetchedTexture::setForSculpt()
@@ -2038,7 +2033,7 @@ void LLViewerFetchedTexture::setIsMissingAsset()
 }
 
 void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_callback,
-									   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux, void* userdata, void* src,
+									   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux, void* userdata, 
 									   LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause)
 {
 	//
@@ -2057,9 +2052,9 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 
 	if(mPauseLoadedCallBacks && !pause)
 	{
-		unpauseLoadedCallbacks(src) ;
+		unpauseLoadedCallbacks(src_callback_list) ;
 	}
-	LLLoadedCallbackEntry* entryp = new LLLoadedCallbackEntry(loaded_callback, discard_level, keep_imageraw, userdata, src_callback_list, src, this, pause);
+	LLLoadedCallbackEntry* entryp = new LLLoadedCallbackEntry(loaded_callback, discard_level, keep_imageraw, userdata, src_callback_list, this, pause);
 	mLoadedCallbackList.push_back(entryp);	
 
 	mNeedsAux |= needs_aux;
@@ -2074,9 +2069,9 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 	}
 }
 
-void LLViewerFetchedTexture::deleteCallbackEntry(void* src)
+void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
-	if(mLoadedCallbackList.empty())
+	if(mLoadedCallbackList.empty() || !callback_list)
 	{
 		return ;
 	}
@@ -2087,13 +2082,13 @@ void LLViewerFetchedTexture::deleteCallbackEntry(void* src)
 			iter != mLoadedCallbackList.end(); )
 	{
 		LLLoadedCallbackEntry *entryp = *iter;
-		if(entryp->mSource == src)
+		if(entryp->mSourceCallbackList == callback_list)
 		{
 			// We never finished loading the image.  Indicate failure.
 			// Note: this allows mLoadedCallbackUserData to be cleaned up.
 			entryp->mCallback(FALSE, this, NULL, NULL, 0, TRUE, entryp->mUserData);
-			delete entryp;
 			iter = mLoadedCallbackList.erase(iter) ;
+			delete entryp;
 		}
 		else
 		{
@@ -2132,14 +2127,20 @@ void LLViewerFetchedTexture::deleteCallbackEntry(void* src)
 	}
 }
 
-void LLViewerFetchedTexture::unpauseLoadedCallbacks(void* src)
+void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
+	if(!callback_list)
+	{
+		mPauseLoadedCallBacks = FALSE ;
+		return ;
+	}
+
 	BOOL need_raw = FALSE ;
 	for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
 			iter != mLoadedCallbackList.end(); )
 	{
 		LLLoadedCallbackEntry *entryp = *iter++;
-		if(entryp->mSource == src)
+		if(entryp->mSourceCallbackList == callback_list)
 		{
 			entryp->mPaused = FALSE ;
 			if(entryp->mNeedsImageRaw)
@@ -2155,15 +2156,20 @@ void LLViewerFetchedTexture::unpauseLoadedCallbacks(void* src)
 	}
 }
 
-void LLViewerFetchedTexture::pauseLoadedCallbacks(void* src)
+void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
+	if(!callback_list)
+	{
+		return ;
+	}
+
 	bool paused = true ;
 
 	for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
 			iter != mLoadedCallbackList.end(); )
 	{
 		LLLoadedCallbackEntry *entryp = *iter++;
-		if(entryp->mSource == src)
+		if(entryp->mSourceCallbackList == callback_list)
 		{
 			entryp->mPaused = TRUE ;
 		}
@@ -2340,10 +2346,6 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				BOOL final = mRawDiscardLevel <= entryp->mDesiredDiscard ? TRUE : FALSE;
 				//llinfos << "Running callback for " << getID() << llendl;
 				//llinfos << mRawImage->getWidth() << "x" << mRawImage->getHeight() << llendl;
-				if (final)
-				{
-					//llinfos << "Final!" << llendl;
-				}
 				entryp->mLastUsedDiscard = mRawDiscardLevel;
 				entryp->mCallback(TRUE, this, mRawImage, mAuxRawImage, mRawDiscardLevel, final, entryp->mUserData);
 				if (final)
