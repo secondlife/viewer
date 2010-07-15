@@ -16,13 +16,7 @@
 		rozpoczął rozmowę głosową w czacie konferencji.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		dołączył/dołączyła do &apos;[GROUP]&apos; rozmowy głosowej.
-	</floater.string>
-	<floater.string name="VoiceInviteQuestionGroup">
-		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do rozmowy z &apos;[GROUP]&apos;?
-	</floater.string>
-	<floater.string name="VoiceInviteQuestionDefault">
-		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do tej rozmowy głosowej?
+		zaczyna rozmowę z grupą [GROUP].
 	</floater.string>
 	<text name="question">
 		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do tej rozmowy głosowej?

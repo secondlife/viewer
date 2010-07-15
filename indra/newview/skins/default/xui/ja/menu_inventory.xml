@@ -76,10 +76,11 @@
 	<menu_item_call label="非アクティブ" name="Deactivate"/>
 	<menu_item_call label="別名で保存する" name="Save As"/>
 	<menu_item_call label="自分から取り外す" name="Detach From Yourself"/>
-	<menu_item_call label="装着" name="Wearable And Object Wear"/>
+	<menu_item_call label="装着" name="Object Wear"/>
 	<menu label="装着先" name="Attach To"/>
 	<menu label="HUD 装着先" name="Attach To HUD"/>
 	<menu_item_call label="編集" name="Wearable Edit"/>
+	<menu_item_call label="装着" name="Wearable Wear"/>
 	<menu_item_call label="追加" name="Wearable Add"/>
 	<menu_item_call label="取り外す" name="Take Off"/>
 	<menu_item_call label="－－オプションなし－－" name="--no options--"/>

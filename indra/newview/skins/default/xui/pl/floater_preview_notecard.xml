@@ -9,6 +9,9 @@
 	<floater.string name="Title">
 		Notka: [NAME]
 	</floater.string>
+	<floater.string label="Zapisz" label_selected="Zapisz" name="Save">
+		Zapisz
+	</floater.string>
 	<text name="desc txt">
 		Opis:
 	</text>
@@ -16,5 +19,4 @@
 		Ładowanie...
 	</text_editor>
 	<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-	<button label="Usuń" label_selected="Usuń" name="Delete"/>
 </floater>

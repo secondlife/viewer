@@ -582,7 +582,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	else
 	{
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
-		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name);
+		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? display_name : LLTrans::getString("AvatarNameWaiting"));
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 	adjustParticipant(avatar_id);

@@ -355,10 +355,6 @@ Tem certeza de que quer prosseguir?
 		Excluir destaque &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Apagar"/>
 	</notification>
-	<notification name="DeleteOutfits">
-		Excluir look(s) selecionado(s)?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
-	</notification>
 	<notification name="PromptGoToEventsPage">
 		Ir até a página web de enventos [SECOND_LIFE] ?
 		<url name="url">
@@ -2026,6 +2022,11 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 		Fazendo o upload das fotos do site da web e do mundo...
 (Leva cerca de 5 minutos)
 	</notification>
+	<notification name="UploadConfirmation">
+		O upload custa L$ [AMOUNT].
+Deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Upload"/>
+	</notification>
 	<notification name="UploadPayment">
 		Você paga L$[AMOUNT] para fazer o upload.
 	</notification>
@@ -2441,6 +2442,9 @@ Do objeto: [OBJECTNAME], dono: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Falhou ao procurar [TYPE] nomeado [DESC] no banco de dados.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Falha de upload da imagem na web.
 	</notification>
 	<notification name="InvalidWearable">
 		O item que você está tentando usar tem um recurso que seu Visualizador não consegue ler.  Atualize o [APP_NAME] para poder vestir esse item.

@@ -3,7 +3,7 @@
 <panel label="Persone" name="people_panel">
 	<string name="no_recent_people" value="Nessuna persona recente. Stai cercando persone da frequentare? Prova la [secondlife:///app/search/people Ricerca] o la [secondlife:///app/worldmap Mappa del mondo]."/>
 	<string name="no_filtered_recent_people" value="Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/people/[SEARCH_TERM] Cerca]."/>
-	<string name="no_one_near" value="Nessuno vicino. Stai cercando persone da frequentare? Prova a vedere la [secondlife:///app/search/people Ricerca] o la [secondlife:///app/worldmap Mappa del mondo]."/>
+	<string name="no_one_near" value="Nessuno vicino. Stai cercando persone da frequentare? Try la [secondlife:///app/search/people Ricerca] o la [secondlife:///app/worldmap Mappa del mondo]."/>
 	<string name="no_one_filtered_near" value="Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/people/[SEARCH_TERM] Cerca]."/>
 	<string name="no_friends_online" value="Nessun amico online"/>
 	<string name="no_friends" value="Nessun amico"/>

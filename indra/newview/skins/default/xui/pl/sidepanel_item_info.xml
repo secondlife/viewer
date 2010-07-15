@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Profil obiektu">
+<panel name="item properties" title="Profil Obiektu">
 	<panel.string name="unknown">
 		(nieznany)
 	</panel.string>
@@ -15,13 +15,7 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<panel.string name="origin_inventory">
-		(Szafa)
-	</panel.string>
-	<panel.string name="origin_inworld">
-		(W Świecie)
-	</panel.string>
-	<text name="title" value="Profil obiektu"/>
+	<text name="title" value="Profil Obiektu"/>
 	<text name="origin" value="(Szafa)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
@@ -41,7 +35,9 @@
 		<text name="LabelAcquiredTitle">
 			Nabyte:
 		</text>
-		<text name="LabelAcquiredDate"/>
+		<text name="LabelAcquiredDate">
+			Wed May 24 12:50:46 2006
+		</text>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Ty możesz:

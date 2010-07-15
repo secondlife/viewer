@@ -380,10 +380,6 @@ L$ が不足しているのでこのグループに参加することができ�
 		&lt;nolink&gt;[PICK]&lt;/nolink&gt; を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="DeleteOutfits">
-		選択したアウトフィットを削除しますか？
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
 	<notification name="PromptGoToEventsPage">
 		[SECOND_LIFE] イベント Web ページに移動しますか？
 		<url name="url">
@@ -2090,6 +2086,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		インワールドと Web サイトのスナップショットをアップロード中です...
 （所要時間：約 5 分）
 	</notification>
+	<notification name="UploadConfirmation">
+		アップロード料金は L$[AMOUNT] です。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="アップロード"/>
+	</notification>
 	<notification name="UploadPayment">
 		アップロードに L$ [AMOUNT] 支払いました。
 	</notification>
@@ -2516,6 +2517,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="FailedToFindWearable">
 		データベースに [DESC] という名前の [TYPE] が見つかりませんでした。
+	</notification>
+	<notification name="ShareToWebFailed">
+		Web サイトへの画像のアップロードに失敗しました。
 	</notification>
 	<notification name="InvalidWearable">
 		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME] のバージョンをアップグレードしてからこのアイテムを着用してください。

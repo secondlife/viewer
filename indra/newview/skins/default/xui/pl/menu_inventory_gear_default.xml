@@ -6,10 +6,9 @@
 	<menu_item_call label="Pokaż filtry" name="show_filters"/>
 	<menu_item_call label="Zresetuj filtry" name="reset_filters"/>
 	<menu_item_call label="Zamknij wszystkie foldery" name="close_folders"/>
+	<menu_item_call label="Opróżnij Kosz" name="empty_trash"/>
 	<menu_item_call label="Opróżnij Zagubione i Odnalezione" name="empty_lostnfound"/>
 	<menu_item_call label="Zapisz teksturę jako" name="Save Texture As"/>
-	<menu_item_call label="Udostępnij" name="Share"/>
 	<menu_item_call label="Znajdź oryginał" name="Find Original"/>
 	<menu_item_call label="Znajdź wszystkie linki" name="Find All Links"/>
-	<menu_item_call label="Opróżnij Kosz" name="empty_trash"/>
 </menu>

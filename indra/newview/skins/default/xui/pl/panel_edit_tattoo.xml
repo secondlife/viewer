@@ -4,6 +4,5 @@
 		<texture_picker label="Tatuaż głowy" name="Head Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
 		<texture_picker label="Tatuaż górnej części ciała" name="Upper Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
 		<texture_picker label="Tatuaż dolnej części ciała" name="Lower Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
-		<color_swatch label="Color/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 	</panel>
 </panel>

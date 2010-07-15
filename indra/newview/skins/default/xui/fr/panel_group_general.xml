@@ -48,7 +48,7 @@ Faites glisser le pointeur de la souris sur les options pour en savoir plus.
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Les nouveaux membres doivent payer ces frais pour rejoindre le groupe quand l&apos;option Frais d&apos;inscription est cochée."/>
 		<combo_box name="group_mature_check" tool_tip="Définit si votre groupe contient des informations de type Modéré" width="195">
 			<combo_item name="select_mature">
-				- Catégorie de contenu -
+				- Sélectionner une catégorie de contenu -
 			</combo_item>
 			<combo_box.item label="Contenu Modéré" name="mature"/>
 			<combo_box.item label="Contenu Général" name="pg"/>

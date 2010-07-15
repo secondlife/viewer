@@ -71,8 +71,7 @@
             image_name="Cam_Preset_Front_Off" />
           <panel_camera_item.selected_picture
             image_name="Cam_Preset_Front_On" />
-          <panel_camera_item.text
-            name="front_view_text">
+          <panel_camera_item.text>
             Front View
           </panel_camera_item.text>
         </panel_camera_item>
@@ -86,8 +85,7 @@
             image_name="Cam_Preset_Side_Off" />
           <panel_camera_item.selected_picture
             image_name="Cam_Preset_Side_On" />
-          <panel_camera_item.text
-            name="side_view_text">
+          <panel_camera_item.text>
             Side View
           </panel_camera_item.text>
         </panel_camera_item>
@@ -102,8 +100,7 @@
             image_name="Cam_Preset_Back_Off" />
           <panel_camera_item.selected_picture
             image_name="Cam_Preset_Back_On" />
-          <panel_camera_item.text
-            name="rear_view_text">
+          <panel_camera_item.text>
             Rear View
           </panel_camera_item.text>
         </panel_camera_item>
@@ -125,8 +122,7 @@
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
             parameter="object_view" />
-          <panel_camera_item.text
-            name="object_view_text">
+          <panel_camera_item.text>
             Object View
           </panel_camera_item.text>
           <panel_camera_item.picture
@@ -140,8 +136,7 @@
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
             parameter="mouselook_view" />
-          <panel_camera_item.text
-            name="mouselook_view_text">
+          <panel_camera_item.text>
             Mouselook View
           </panel_camera_item.text>
           <panel_camera_item.picture

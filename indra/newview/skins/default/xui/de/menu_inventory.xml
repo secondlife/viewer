@@ -76,10 +76,11 @@
 	<menu_item_call label="Deaktivieren" name="Deactivate"/>
 	<menu_item_call label="Speichern unter" name="Save As"/>
 	<menu_item_call label="Von Körper abnehmen" name="Detach From Yourself"/>
-	<menu_item_call label="Anziehen" name="Wearable And Object Wear"/>
+	<menu_item_call label="Anziehen" name="Object Wear"/>
 	<menu label="Anhängen an" name="Attach To"/>
 	<menu label="An HUD hängen" name="Attach To HUD"/>
 	<menu_item_call label="Bearbeiten" name="Wearable Edit"/>
+	<menu_item_call label="Anziehen" name="Wearable Wear"/>
 	<menu_item_call label="Hinzufügen" name="Wearable Add"/>
 	<menu_item_call label="Ausziehen" name="Take Off"/>
 	<menu_item_call label="--keine Optionen--" name="--no options--"/>

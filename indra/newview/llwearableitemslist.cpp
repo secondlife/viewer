@@ -85,8 +85,8 @@ void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	reshapeWidgets();
 }
 
-LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item, const LLPanelWearableListItem::Params& params)
-: LLPanelInventoryListItemBase(item, params)
+LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
+: LLPanelInventoryListItemBase(item)
 {
 }
 
@@ -101,19 +101,15 @@ LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryIt
 	LLPanelWearableOutfitItem* list_item = NULL;
 	if (item)
 	{
-		const LLPanelInventoryListItemBase::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelInventoryListItemBase>();
-
-		list_item = new LLPanelWearableOutfitItem(item, worn_indication_enabled, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelWearableOutfitItem(item, worn_indication_enabled);
+		list_item->init();
 	}
 	return list_item;
 }
 
 LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
-													 bool worn_indication_enabled,
-													 const LLPanelWearableOutfitItem::Params& params)
-: LLPanelInventoryListItemBase(item, params)
+													 bool worn_indication_enabled)
+: LLPanelInventoryListItemBase(item)
 , mWornIndicationEnabled(worn_indication_enabled)
 {
 }
@@ -136,17 +132,6 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelClothingListItem(&typeid(LLPanelClothingListItem::Params), "clothing_list_item");
-
-
-LLPanelClothingListItem::Params::Params()
-:	up_btn("up_btn"),
-	down_btn("down_btn"),
-	edit_btn("edit_btn"),
-	lock_panel("lock_panel"),
-	edit_panel("edit_panel"),
-	lock_icon("lock_icon")
-{}
 
 // static
 LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* item)
@@ -154,54 +139,24 @@ LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* 
 	LLPanelClothingListItem* list_item = NULL;
 	if(item)
 	{
-		const LLPanelClothingListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelClothingListItem>();
-		list_item = new LLPanelClothingListItem(item, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelClothingListItem(item);
+		list_item->init();
 	}
 	return list_item;
 }
 
-LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item, const LLPanelClothingListItem::Params& params)
- : LLPanelDeletableWearableListItem(item, params)
+LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item)
+ : LLPanelDeletableWearableListItem(item)
 {
-	LLButton::Params button_params = params.up_btn;
-	applyXUILayout(button_params, this);
-	addChild(LLUICtrlFactory::create<LLButton>(button_params));
-
-	button_params = params.down_btn;
-	applyXUILayout(button_params, this);
-	addChild(LLUICtrlFactory::create<LLButton>(button_params));
-
-	LLPanel::Params panel_params = params.lock_panel;
-	applyXUILayout(panel_params, this);
-	LLPanel* lock_panelp = LLUICtrlFactory::create<LLPanel>(panel_params);
-	addChild(lock_panelp);
-
-	panel_params = params.edit_panel;
-	applyXUILayout(panel_params, this);
-	LLPanel* edit_panelp = LLUICtrlFactory::create<LLPanel>(panel_params);
-	addChild(edit_panelp);
-
-	if (lock_panelp)
-{
-		LLIconCtrl::Params icon_params = params.lock_icon;
-		applyXUILayout(icon_params, this);
-		lock_panelp->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_params));
-}
-
-	if (edit_panelp)
-{
-		button_params = params.edit_btn;
-		applyXUILayout(button_params, this);
-		edit_panelp->addChild(LLUICtrlFactory::create<LLButton>(button_params));
-	}
-
-	setSeparatorVisible(false);
 }
 
 LLPanelClothingListItem::~LLPanelClothingListItem()
 {
+}
+
+void LLPanelClothingListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_clothing_list_item.xml");
 }
 
 BOOL LLPanelClothingListItem::postBuild()
@@ -223,62 +178,30 @@ BOOL LLPanelClothingListItem::postBuild()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelBodyPartsListItem(&typeid(LLPanelBodyPartsListItem::Params), "bodyparts_list_item");
-
-
-LLPanelBodyPartsListItem::Params::Params()
-:	edit_btn("edit_btn"),
-	edit_panel("edit_panel"),
-	lock_panel("lock_panel"),
-	lock_icon("lock_icon")
-{}
-
 // static
 LLPanelBodyPartsListItem* LLPanelBodyPartsListItem::create(LLViewerInventoryItem* item)
 {
 	LLPanelBodyPartsListItem* list_item = NULL;
 	if(item)
 	{
-		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelBodyPartsListItem>();
-		list_item = new LLPanelBodyPartsListItem(item, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelBodyPartsListItem(item);
+		list_item->init();
 	}
 	return list_item;
 }
 
-LLPanelBodyPartsListItem::LLPanelBodyPartsListItem(LLViewerInventoryItem* item, const LLPanelBodyPartsListItem::Params& params)
-: LLPanelWearableListItem(item, params)
+LLPanelBodyPartsListItem::LLPanelBodyPartsListItem(LLViewerInventoryItem* item)
+: LLPanelWearableListItem(item)
 {
-	LLPanel::Params panel_params = params.edit_panel;
-	applyXUILayout(panel_params, this);
-	LLPanel* edit_panelp = LLUICtrlFactory::create<LLPanel>(panel_params);
-	addChild(edit_panelp);
-
-	panel_params = params.lock_panel;
-	applyXUILayout(panel_params, this);
-	LLPanel* lock_panelp = LLUICtrlFactory::create<LLPanel>(panel_params);
-	addChild(lock_panelp);
-	
-	if (edit_panelp)
-	{
-		LLButton::Params btn_params = params.edit_btn;
-		applyXUILayout(btn_params, this);
-		edit_panelp->addChild(LLUICtrlFactory::create<LLButton>(btn_params));
-}
-
-	if (lock_panelp)
-{
-		LLIconCtrl::Params icon_params = params.lock_icon;
-		applyXUILayout(icon_params, this);
-		lock_panelp->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_params));
-	}
-
-	setSeparatorVisible(true);
 }
 
 LLPanelBodyPartsListItem::~LLPanelBodyPartsListItem()
 {
+}
+
+void LLPanelBodyPartsListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_body_parts_list_item.xml");
 }
 
 BOOL LLPanelBodyPartsListItem::postBuild()
@@ -291,11 +214,6 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	return TRUE;
 }
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDeletableWearableListItem(&typeid(LLPanelDeletableWearableListItem::Params), "deletable_wearable_list_item");
-
-LLPanelDeletableWearableListItem::Params::Params()
-:	delete_btn("delete_btn")
-{}
 
 // static
 LLPanelDeletableWearableListItem* LLPanelDeletableWearableListItem::create(LLViewerInventoryItem* item)
@@ -303,22 +221,20 @@ LLPanelDeletableWearableListItem* LLPanelDeletableWearableListItem::create(LLVie
 	LLPanelDeletableWearableListItem* list_item = NULL;
 	if(item)
 	{
-		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelDeletableWearableListItem>();
-		list_item = new LLPanelDeletableWearableListItem(item, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelDeletableWearableListItem(item);
+		list_item->init();
 	}
 	return list_item;
 }
 
-LLPanelDeletableWearableListItem::LLPanelDeletableWearableListItem(LLViewerInventoryItem* item, const LLPanelDeletableWearableListItem::Params& params)
-: LLPanelWearableListItem(item, params)
+LLPanelDeletableWearableListItem::LLPanelDeletableWearableListItem(LLViewerInventoryItem* item)
+: LLPanelWearableListItem(item)
 {
-	LLButton::Params button_params = params.delete_btn;
-	applyXUILayout(button_params, this);
-	addChild(LLUICtrlFactory::create<LLButton>(button_params));
+}
 
-	setSeparatorVisible(true);
+void LLPanelDeletableWearableListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_deletable_wearable_list_item.xml");
 }
 
 BOOL LLPanelDeletableWearableListItem::postBuild()
@@ -344,11 +260,8 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 	LLPanelAttachmentListItem* list_item = NULL;
 	if(item)
 	{
-		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelDeletableWearableListItem>();
-
-		list_item = new LLPanelAttachmentListItem(item, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelAttachmentListItem(item);
+		list_item->init();
 	}
 	return list_item;
 }
@@ -371,32 +284,27 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDummyClothingListItem(&typeid(LLPanelDummyClothingListItem::Params), "dummy_clothing_list_item");
-
-LLPanelDummyClothingListItem::Params::Params()
-:	add_panel("add_panel"),
-	add_btn("add_btn")
-{}
 
 LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(LLWearableType::EType w_type)
 {
-	const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelDummyClothingListItem>();
-
-	LLPanelDummyClothingListItem* list_item = new LLPanelDummyClothingListItem(w_type, params);
-	list_item->initFromParams(params);
-	list_item->postBuild();
+	LLPanelDummyClothingListItem* list_item = new LLPanelDummyClothingListItem(w_type);
+	list_item->init();
 	return list_item;
 }
 
 BOOL LLPanelDummyClothingListItem::postBuild()
 {
+	LLIconCtrl* icon = getChild<LLIconCtrl>("item_icon");
+	setIconCtrl(icon);
+	setTitleCtrl(getChild<LLTextBox>("item_name"));
+
 	addWidgetToRightSide("btn_add_panel");
 
 	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
 	updateItem(wearableTypeToString(mWearableType));
 
 	// Make it look loke clothing item - reserve space for 'delete' button
-	setLeftWidgetsWidth(getChildView("item_icon")->getRect().mLeft);
+	setLeftWidgetsWidth(icon->getRect().mLeft);
 
 	setWidgetsVisible(false);
 	reshapeWidgets();
@@ -409,23 +317,15 @@ LLWearableType::EType LLPanelDummyClothingListItem::getWearableType() const
 	return mWearableType;
 }
 
-LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType w_type, const LLPanelDummyClothingListItem::Params& params)
-:	LLPanelWearableListItem(NULL, params), 
-	mWearableType(w_type)
+LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType w_type)
+ : LLPanelWearableListItem(NULL)
+ , mWearableType(w_type)
 {
-	LLPanel::Params panel_params(params.add_panel);
-	applyXUILayout(panel_params, this);
-	LLPanel* add_panelp = LLUICtrlFactory::create<LLPanel>(panel_params);
-	addChild(add_panelp);
-
-	if (add_panelp)
-{
-		LLButton::Params button_params(params.add_btn);
-		applyXUILayout(button_params, this);
-		add_panelp->addChild(LLUICtrlFactory::create<LLButton>(button_params));
 }
 
-	setSeparatorVisible(true);
+void LLPanelDummyClothingListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_dummy_clothing_list_item.xml");
 }
 
 typedef std::map<LLWearableType::EType, std::string> clothing_to_string_map_t;

@@ -847,21 +847,6 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
 	sInstance = NULL;
 }
 
-//static 
-void LLInventoryCallbackManager::destroyClass()
-{
-	if (sInstance)
-	{
-		for (callback_map_t::iterator it = sInstance->mMap.begin(), end_it = sInstance->mMap.end(); it != end_it; ++it)
-		{
-			// drop LLPointer reference to callback
-			it->second = NULL;
-		}
-		sInstance->mMap.clear();
-	}
-}
-
-
 U32 LLInventoryCallbackManager::registerCB(LLPointer<LLInventoryCallback> cb)
 {
 	if (cb.isNull())

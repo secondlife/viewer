@@ -35,7 +35,6 @@
 
 #include "llpanelgenerictip.h"
 #include "llnotifications.h"
-#include "llviewercontrol.h" // for gSavedSettings
 
 
 LLPanelGenericTip::LLPanelGenericTip(
@@ -46,8 +45,7 @@ LLPanelGenericTip::LLPanelGenericTip(
 
 	childSetValue("message", notification->getMessage());
 
-
-	S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
-	snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
+	// set line max count to 3 in case of a very long name
+	snapToMessageHeight(getChild<LLTextBox> ("message"), 3);
 }
 

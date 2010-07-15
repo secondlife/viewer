@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Cosas" name="Outfits">
-	<panel.string name="wear_outfit_tooltip">
-		Ponerme el vestuario seleccionado
-	</panel.string>
-	<panel.string name="wear_items_tooltip">
-		Ponerme ítems seleccionados
-	</panel.string>
 	<tab_container name="appearance_tabs">
 		<panel label="MIS VESTUARIOS" name="outfitslist_tab"/>
-		<panel label="PUESTO" name="cof_tab"/>
+		<inventory_panel label="PUESTO" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Ver más opciones"/>
+		<dnd_button name="trash_btn" tool_tip="Eliminar el vestuario seleccionado"/>
 		<button label="Guardar como" name="save_btn"/>
 		<button label="Ponerme" name="wear_btn" tool_tip="Ponerme el vestuario seleccionado"/>
 	</panel>

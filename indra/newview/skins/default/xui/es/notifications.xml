@@ -355,10 +355,6 @@ No se reembolsan las cuotas pagadas.
 		¿Borrar el destacado &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="DeleteOutfits">
-		¿Eliminar el vestuario seleccionado?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
-	</notification>
 	<notification name="PromptGoToEventsPage">
 		¿Ir a la web de eventos de [SECOND_LIFE]?
 		<url name="url">
@@ -2046,6 +2042,11 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		Subiendo fotos del mundo y del sitio web...
 (tardará unos 5 minutos).
 	</notification>
+	<notification name="UploadConfirmation">
+		La subida cuesta [AMOUNT] L$.
+¿Quieres continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Subir"/>
+	</notification>
 	<notification name="UploadPayment">
 		Has pagado [AMOUNT] LS por la subida.
 	</notification>
@@ -2464,6 +2465,9 @@ Del objeto: [OBJECTNAME]; propiedad de: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Búsqueda fallida de [TYPE] de nombre [DESC] en la base de datos.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Fallo al subir la imagen a la web.
 	</notification>
 	<notification name="InvalidWearable">
 		El ítem que quieres vestirte tiene una característica que tu visor no puede leer. Por favor, actualiza tu versión de [APP_NAME] para ponerte este ítem.

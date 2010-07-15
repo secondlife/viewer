@@ -1248,12 +1248,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		return FALSE;
 	}
 
-	if(mJointMotionList->mEmoteName==mID.asString())
-	{
-		llwarns << "Malformed animation mEmoteName==mID" << llendl;
-		return FALSE;
-	}
-
 	//-------------------------------------------------------------------------
 	// get loop
 	//-------------------------------------------------------------------------

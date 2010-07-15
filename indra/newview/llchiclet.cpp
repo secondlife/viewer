@@ -1886,7 +1886,7 @@ void LLScriptChiclet::onMenuItemClicked(const LLSD& user_data)
 
 	if("end" == action)
 	{
-		LLScriptFloaterManager::instance().removeNotification(getSessionId());
+		LLScriptFloaterManager::instance().onRemoveNotification(getSessionId());
 	}
 }
 
@@ -1969,7 +1969,7 @@ void LLInvOfferChiclet::onMenuItemClicked(const LLSD& user_data)
 
 	if("end" == action)
 	{
-		LLScriptFloaterManager::instance().removeNotification(getSessionId());
+		LLScriptFloaterManager::instance().onRemoveNotification(getSessionId());
 	}
 }
 

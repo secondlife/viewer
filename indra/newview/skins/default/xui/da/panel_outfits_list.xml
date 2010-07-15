@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits">
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Vis yderligere valgmuligheder"/>
-		<button name="trash_btn" tool_tip="Slet valgte sæt"/>
-	</panel>
-</panel>

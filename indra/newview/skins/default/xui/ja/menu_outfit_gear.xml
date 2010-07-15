@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Gear Outfit">
 	<menu_item_call label="着る - 着用中のアウトフィットを入れ替える" name="wear"/>
-	<menu_item_call label="着る - 着用中のアウトフィットに追加する" name="wear_add"/>
 	<menu_item_call label="取り外す - 着用中のアウトフィットから取り除く" name="take_off"/>
 	<menu label="衣類" name="New Clothes">
 		<menu_item_call label="シャツ" name="New Shirt"/>

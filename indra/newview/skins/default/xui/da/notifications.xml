@@ -230,10 +230,6 @@ Er du sikker på at du vil fortsætte?
 	<notification name="DeleteAvatarPick">
 		Slet favorit &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 	</notification>
-	<notification name="DeleteOutfits">
-		Slet valgte sæt?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
-	</notification>
 	<notification name="CacheWillClear">
 		Cache vil blive tømt ved næste genstart af [APP_NAME].
 	</notification>
@@ -939,6 +935,11 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		Uploader billeder fra verdenen og www...
 (Tager omkring 5 minutter.)
 	</notification>
+	<notification name="UploadConfirmation">
+		Omkostninger ved at sende: L$[AMOUNT].
+Ønsker du at fortsætte?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Send"/>
+	</notification>
 	<notification name="UploadPayment">
 		Du betalte L$[AMOUNT] for at uploade.
 	</notification>
@@ -1349,6 +1350,9 @@ Fra genstand: [OBJECTNAME], ejer: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Det lykkedes ikke at finde [TYPE] med navnet [DESC] i databasen.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Fejl ved afsendelse af billede til web.
 	</notification>
 	<notification name="InvalidWearable">
 		Den genstand du prøver at tage på benytter en funktion din klient ikke kan forstå. Upgradér venligst din version af [APP_NAME] for at kunne tage denne genstand på.

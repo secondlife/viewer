@@ -265,7 +265,7 @@ public:
 
 	virtual BOOL	postBuild() { return TRUE; }
 
-	const child_tab_order_t& getCtrlOrder() const		{ return mCtrlOrder; }
+	child_tab_order_t getCtrlOrder() const		{ return mCtrlOrder; }
 	ctrl_list_t getCtrlList() const;
 	ctrl_list_t getCtrlListSorted() const;
 	
@@ -620,13 +620,12 @@ public:
 class LLCompareByTabOrder
 {
 public:
-	LLCompareByTabOrder(const LLView::child_tab_order_t& order) : mTabOrder(order) {}
+	LLCompareByTabOrder(LLView::child_tab_order_t order) : mTabOrder(order) {}
 	virtual ~LLCompareByTabOrder() {}
 	bool operator() (const LLView* const a, const LLView* const b) const;
 private:
 	virtual bool compareTabOrders(const LLView::tab_order_t & a, const LLView::tab_order_t & b) const { return a < b; }
-	// ok to store a reference, as this should only be allocated on stack during view query operations
-	const LLView::child_tab_order_t& mTabOrder;
+	LLView::child_tab_order_t mTabOrder;
 };
 
 template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) const

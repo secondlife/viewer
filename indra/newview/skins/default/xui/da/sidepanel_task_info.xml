@@ -37,7 +37,7 @@
 		Blandet salg
 	</panel.string>
 	<text name="title" value="Objekt profil"/>
-	<text name="where" value="(I Second Life)"/>
+	<text name="where" value="(verden)"/>
 	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Navn:

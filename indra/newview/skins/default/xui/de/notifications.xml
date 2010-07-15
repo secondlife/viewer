@@ -365,10 +365,6 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		Auswahl &lt;nolink&gt;[PICK]&lt;/nolink&gt; löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification name="DeleteOutfits">
-		Das/Die ausgewählte(n) Outfit(s) löschen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
-	</notification>
 	<notification name="PromptGoToEventsPage">
 		Zur [SECOND_LIFE] Events-Webseite?
 		<url name="url">
@@ -2055,6 +2051,11 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		In-Welt- und Website-Fotos werden hochgeladen...
 (Dauert ca. 5 Minuten.)
 	</notification>
+	<notification name="UploadConfirmation">
+		Kosten für Hochladen: [AMOUNT] L$.
+Möchten Sie fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Hochladen"/>
+	</notification>
 	<notification name="UploadPayment">
 		Sie haben für das Hochladen [AMOUNT] L$ bezahlt.
 	</notification>
@@ -2476,6 +2477,9 @@ Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		[TYPE] namens [DESC] nicht in Datenbank.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Bild aus Internet konnte nicht hochgeladen werden.
 	</notification>
 	<notification name="InvalidWearable">
 		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um dieses Objekt anziehen zu können.

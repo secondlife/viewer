@@ -1594,29 +1594,20 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD basso a destra
 	</string>
-	<string name="Bad attachment point">
-		Punto di collegamento non valido
-	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] trovato/i
 	</string>
-	<string name="PanelContentsTooltip">
-		Contenuto dell&apos;oggetto
-	</string>
 	<string name="PanelContentsNewScript">
 		Nuovo script
 	</string>
+	<string name="PanelContentsTooltip">
+		Contenuto dell&apos;oggetto
+	</string>
 	<string name="BusyModeResponseDefault">
 		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
-	</string>
-	<string name="NoOutfits">
-		Non hai ancora vestiario da indossare. Prova [secondlife:///app/search/all Cerca].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all/[SEARCH_TERM] Cerca].
 	</string>
 	<string name="MuteByName">
 		(In base al nome)

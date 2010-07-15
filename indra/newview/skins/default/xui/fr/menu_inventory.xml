@@ -76,10 +76,11 @@
 	<menu_item_call label="Désactiver" name="Deactivate"/>
 	<menu_item_call label="Enregistrer sous" name="Save As"/>
 	<menu_item_call label="Détacher de vous" name="Detach From Yourself"/>
-	<menu_item_call label="Porter" name="Wearable And Object Wear"/>
+	<menu_item_call label="Porter" name="Object Wear"/>
 	<menu label="Attacher à" name="Attach To"/>
 	<menu label="Attacher au HUD " name="Attach To HUD"/>
 	<menu_item_call label="Éditer" name="Wearable Edit"/>
+	<menu_item_call label="Porter" name="Wearable Wear"/>
 	<menu_item_call label="Ajouter" name="Wearable Add"/>
 	<menu_item_call label="Enlever" name="Take Off"/>
 	<menu_item_call label="--aucune option--" name="--no options--"/>

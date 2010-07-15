@@ -5,6 +5,6 @@
 	<menu_item_call label="Coller" name="paste"/>
 	<menu_item_call label="Copier l&apos;UUID" name="copy_uuid"/>
 	<menu_item_call label="Enregistrer dans la tenue actuelle" name="save_to_outfit"/>
-	<menu_item_call label="Modifier" name="edit_gesture"/>
+	<menu_item_call label="Éditer" name="edit_gesture"/>
 	<menu_item_call label="Inspecter" name="inspect"/>
 </menu>

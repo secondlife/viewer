@@ -15,12 +15,6 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<panel.string name="origin_inventory">
-		(Inventário)
-	</panel.string>
-	<panel.string name="origin_inworld">
-		(Inworld)
-	</panel.string>
 	<text name="title" value="Perfil do item"/>
 	<text name="origin" value="(Inventário)"/>
 	<panel label="">
@@ -41,7 +35,9 @@
 		<text name="LabelAcquiredTitle">
 			Adquirido:
 		</text>
-		<text name="LabelAcquiredDate"/>
+		<text name="LabelAcquiredDate">
+			Quarta 24 de Maio 12:50:46 2006
+		</text>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Você pode:
