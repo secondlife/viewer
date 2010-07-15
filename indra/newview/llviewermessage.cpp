@@ -1215,8 +1215,9 @@ bool highlight_offered_object(const LLUUID& obj_id)
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const std::string& first_name,
 								   const std::string& last_name,
-								   BOOL is_group, LLOfferInfo* offer = NULL)
+								   BOOL is_group, boost::shared_ptr<LLNotificationResponderInterface> offer_ptr)
 {
+	LLOfferInfo* offer =  dynamic_cast<LLOfferInfo*>(offer_ptr.get());
 	std::string from_name;
 	LLMute::EType type;
 	if (is_group)
@@ -1406,7 +1407,13 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * we can't build two messages at once.
 	if (2 == button) // Block
 	{
-		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
+		LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
+
+		llassert(notification_ptr != NULL);
+		if (notification_ptr != NULL)
+		{
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4, notification_ptr->getResponderPtr()));
+		}
 	}
 
 	std::string from_string; // Used in the pop-up.
@@ -1540,7 +1547,13 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
+		LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
+
+		llassert(notification_ptr != NULL);
+		if (notification_ptr != NULL)
+		{
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4, notification_ptr->getResponderPtr()));
+		}
 	}
 	
 	LLMessageSystem* msg = gMessageSystem;
