@@ -718,8 +718,8 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
 
 	if ((is_agent_place_info_visible ||
-		 mPlaceInfoType == "remote_place" ||
-		 mPlaceInfoType == "teleport_history") && mPlaceMenu != NULL)
+		 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
+		 mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE) && mPlaceMenu != NULL)
 	{
 		menu = mPlaceMenu;
 
