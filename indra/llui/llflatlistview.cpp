@@ -610,8 +610,14 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 		return;
 	}
 
-	if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection();
-	selectItemPair(item_pair, select_item);
+	//no need to do additional commit on selection reset
+	if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection(true);
+
+	//only CTRL usage allows to deselect an item, usual clicking on an item cannot deselect it
+	if (mask & MASK_CONTROL)
+		selectItemPair(item_pair, select_item);
+	else
+		selectItemPair(item_pair, true);
 }
 
 void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
@@ -776,6 +782,18 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	mIsConsecutiveSelection = false;
 
 	return true;
+}
+
+void LLFlatListView::scrollToShowFirstSelectedItem()
+{
+	if (!mSelectedItemPairs.size())	return;
+
+	LLRect selected_rc = mSelectedItemPairs.front()->first->getRect();
+
+	if (selected_rc.isValid())
+	{
+		scrollToShowRect(selected_rc);
+	}
 }
 
 LLRect LLFlatListView::getLastSelectedItemRect()

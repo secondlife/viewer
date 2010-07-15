@@ -43,8 +43,8 @@
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
-#include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
+#include "llwearableitemslist.h"
 
 class LLButton;
 class LLCOFWearables;
@@ -140,6 +140,12 @@ public:
 	void showWearablesListView();
 	void showWearablesFolderView();
 
+	/**
+	 * Method preserves selection while switching between folder/list view modes
+	*/
+	void saveListSelection();
+
+	void updateWearablesPanelVerbButtons();
 	void updateFiltersVisibility();
 
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
@@ -218,7 +224,7 @@ private:
 	LLComboBox*			mListViewFilterCmbBox;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
-	LLInventoryItemsList* 			mWearableItemsList;
+	LLWearableItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
@@ -228,6 +234,7 @@ private:
 
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
+	LLMenuGL*			mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 
