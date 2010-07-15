@@ -101,6 +101,12 @@ LLVOTree::~LLVOTree()
 	}
 }
 
+//static
+bool LLVOTree::isTreeRenderingStopped()
+{
+	return LLVOTree::sTreeFactor < LLVOTree::sLODAngles[sMAX_NUM_TREE_LOD_LEVELS - 1] ;
+}
+
 // static
 void LLVOTree::initClass()
 {
