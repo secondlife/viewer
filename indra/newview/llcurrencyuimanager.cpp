@@ -35,6 +35,8 @@
 #include "lluictrlfactory.h"
 #include "lltextbox.h"
 #include "lllineeditor.h"
+#include "llresmgr.h" // for LLLocale
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llversioninfo.h"
 
@@ -323,7 +325,12 @@ std::string LLCurrencyUIManager::Impl::getLocalEstimate() const
 	if (mUSDCurrencyEstimated)
 	{
 		// we have the old-style USD-specific value
-		return "US$ " + llformat("%#.2f", mUSDCurrencyEstimatedCost / 100.0);
+		LLStringUtil::format_map_t args;
+		{
+			LLLocale locale_override(LLStringUtil::getLocale());
+			args["[AMOUNT]"] = llformat("%#.2f", mUSDCurrencyEstimatedCost / 100.0);
+		}
+		return LLTrans::getString("LocalEstimateUSD", args);
 	}
 	return "";
 }

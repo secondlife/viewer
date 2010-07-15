@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Outfits">
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
+		<button name="trash_btn" tool_tip="Excluir o look selecionado"/>
+	</panel>
+</panel>

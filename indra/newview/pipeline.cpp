@@ -1794,7 +1794,7 @@ void LLPipeline::rebuildPriorityGroups()
 	assertInitialized();
 
 	// Iterate through all drawables on the priority build queue,
-	for (LLSpatialGroup::sg_list_t::iterator iter = mGroupQ1.begin();
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -7111,7 +7111,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
 		BOOL skip_avatar_update = FALSE;
-		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
 			skip_avatar_update = TRUE;
 		}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<dummy_clothing_list_item
+ follows="top|right|left"
+ height="23"
+ layout="topleft"
+ left="0"
+ name="dummy_clothing_item"
+ bottom="0"
+ width="380">
+  <item_icon
+    height="16"
+    color="0.75 0.75 0.75 1"
+    follows="top|left"
+    image_name="Inv_Object"
+    layout="topleft"
+    left="20"
+    name="item_icon"
+    top="2"
+    width="16" />
+  <item_name
+    follows="left|right"
+    height="16"
+    layout="topleft"
+    left="41"
+    allow_html="false"
+    use_ellipses="true"
+    name="item_name"
+    text_color="LtGray_50"
+    top="4"
+    value="..."
+    width="359" />
+  <add_panel
+    name="btn_add_panel"
+    layout="topleft"
+    follows="top|right"
+    top="0"
+    left="0"
+    height="23"
+    width="26"
+    tab_stop="false"/>
+  <add_btn
+     name="btn_add"
+     layout="topleft"
+     follows="top|right"
+     image_overlay="AddItem_Off"
+     top="0"
+     left="0"
+     height="23"
+     width="23"
+     tab_stop="false"
+     tool_tip="Add more items of this type" />
+</dummy_clothing_list_item>

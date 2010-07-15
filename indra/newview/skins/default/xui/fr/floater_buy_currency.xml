@@ -22,10 +22,10 @@ le Lindex...
 	<text name="currency_action">
 		Je veux acheter
 	</text>
-	<text name="currency_label">
+	<text name="currency_label" left="308">
 		L$
 	</text>
-	<line_editor label="L$" name="currency_amt" width="65">
+	<line_editor label="L$" name="currency_amt" width="65" left_pad="-85">
 		1234
 	</line_editor>
 	<text name="buying_label">

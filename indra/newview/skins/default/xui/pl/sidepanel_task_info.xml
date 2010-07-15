@@ -37,7 +37,7 @@
 		Sprzedaż mieszana
 	</panel.string>
 	<text name="title" value="Profil Obiektu"/>
-	<text name="where" value="(w świecie)"/>
+	<text name="where" value="(W Świecie)"/>
 	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Nazwa:

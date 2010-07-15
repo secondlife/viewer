@@ -36,7 +36,7 @@
 			<scroll_list.columns label="Nom" name="media_name"/>
 			<scroll_list.columns label="Débogage" name="media_debug"/>
 		</scroll_list>
-		<panel>
+		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Arrêter le média sélectionné"/>

@@ -67,7 +67,7 @@
 #include "llsidepanelappearance.h"
 
 ///----------------------------------------------------------------------------
-/// Helper class to store special inventory item names 
+/// Helper class to store special inventory item names and their localized values.
 ///----------------------------------------------------------------------------
 class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
 {
@@ -108,7 +108,7 @@ public:
 
 		//male
 		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male - Get lost"]			= LLTrans::getString("Male - Get lost");
+		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
 		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
 		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
 		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
@@ -121,7 +121,7 @@ public:
 
 		//female
 		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female - Get lost"]		= LLTrans::getString("Female - Get lost");
+		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
 		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
 		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
 		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
@@ -132,6 +132,27 @@ public:
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
 		
+	}
+
+	/**
+	 * Finds passed name in dictionary and replaces it with found localized value.
+	 *
+	 * @param object_name - string to be localized.
+	 * @return true if passed name was found and localized, false otherwise.
+	 */
+	bool localizeInventoryObjectName(std::string& object_name)
+	{
+		LL_DEBUGS("InventoryLocalize") << "Searching for localization: " << object_name << LL_ENDL;
+
+		std::map<std::string, std::string>::const_iterator dictionary_iter = mInventoryItemsDict.find(object_name);
+
+		bool found = dictionary_iter != mInventoryItemsDict.end();
+		if(found)
+		{
+			object_name = dictionary_iter->second;
+			LL_DEBUGS("InventoryLocalize") << "Found, new name is: " << object_name << LL_ENDL;
+		}
+		return found;
 	}
 };
 
@@ -391,16 +412,7 @@ BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* bloc
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 
-	std::string localized_str;
-
-	std::map<std::string, std::string>::const_iterator dictionary_iter;
-
-	dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.find(mName);
-
-	if(dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end())
-	{
-		mName = dictionary_iter->second;
-	}
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
 	mIsComplete = TRUE;
 	return rv;
@@ -820,6 +832,11 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
 }
 
+void LLViewerInventoryCategory::localizeName()
+{
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+}
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -846,6 +863,21 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
 	}
 	sInstance = NULL;
 }
+
+//static 
+void LLInventoryCallbackManager::destroyClass()
+{
+	if (sInstance)
+	{
+		for (callback_map_t::iterator it = sInstance->mMap.begin(), end_it = sInstance->mMap.end(); it != end_it; ++it)
+		{
+			// drop LLPointer reference to callback
+			it->second = NULL;
+		}
+		sInstance->mMap.clear();
+	}
+}
+
 
 U32 LLInventoryCallbackManager::registerCB(LLPointer<LLInventoryCallback> cb)
 {

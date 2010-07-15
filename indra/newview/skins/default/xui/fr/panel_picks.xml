@@ -7,7 +7,7 @@
 		<accordion_tab name="tab_classifieds" title="Petites annonces"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
-		<button name="new_btn" tool_tip="Créer une nouvelle préférence ou petite annonce à l&apos;emplacement actuel"/>
+		<button name="new_btn" tool_tip="Créer un nouveau favori ou une nouvelle petite annonce à l&apos;endroit actuel"/>
 	</panel>
 	<panel name="buttons_cucks">
 		<button label="Infos" name="info_btn" tool_tip="Afficher les informations du Favori"/>

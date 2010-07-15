@@ -868,7 +868,7 @@ private:
 public:
 	// Responsible for detecting the user's voice signal (and when the
 	// user speaks, it puts a voice symbol over the avatar's head) and gesticulations
-	LLVoiceVisualizer*  mVoiceVisualizer;
+	LLPointer<LLVoiceVisualizer>  mVoiceVisualizer;
 	int					mCurrentGesticulationLevel;
 
 	//--------------------------------------------------------------------
@@ -1048,5 +1048,6 @@ protected: // Shared with LLVOAvatarSelf
  *******************************************************************************/
 
 }; // LLVOAvatar
+extern const F32  SELF_ADDITIONAL_PRI;
 
 #endif // LL_VO_AVATAR_H

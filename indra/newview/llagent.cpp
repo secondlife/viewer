@@ -3234,6 +3234,9 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
 
+	// hide the search floater (EXT-8276)
+	LLFloaterReg::hideInstance("search");
+
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
@@ -3403,6 +3406,9 @@ void LLAgent::setTeleportState(ETeleportState state)
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{
+		// First two position updates after a teleport tend to be weird
+		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
 	}

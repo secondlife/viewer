@@ -248,7 +248,7 @@
 		Cliquez pour exécuter la commande secondlife:// command
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
-	<string name="TooltipPrice" value="[PRICE] L$-"/>
+	<string name="TooltipPrice" value="[AMOUNT]L$: "/>
 	<string name="SLurlLabelTeleport">
 		Me téléporter vers
 	</string>
@@ -1615,6 +1615,9 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD en bas à droite
 	</string>
+	<string name="Bad attachment point">
+		Point d&apos;attache non valide
+	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
 	</string>
@@ -1627,14 +1630,20 @@
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
-	<string name="PanelContentsNewScript">
-		Nouveau script
-	</string>
 	<string name="PanelContentsTooltip">
 		Contenu de l&apos;objet
 	</string>
+	<string name="PanelContentsNewScript">
+		Nouveau script
+	</string>
 	<string name="BusyModeResponseDefault">
 		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
+	</string>
+	<string name="NoOutfits">
+		Aucune tenue n&apos;est actuellement en votre possession. Essayez [secondlife:///app/search/all Rechercher].
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="MuteByName">
 		(par nom)
@@ -3808,4 +3817,5 @@ de l&apos;infraction signalée
 	<string name="dateTimePM">
 		PM
 	</string>
+	<string name="LocalEstimateUSD">[AMOUNT] US$</string>
 </strings>

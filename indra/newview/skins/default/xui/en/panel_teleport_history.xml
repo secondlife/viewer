@@ -5,8 +5,6 @@
      background_visible="true"
      bg_alpha_color="DkGray">     
     <accordion
-     no_matched_tabs_text.value="Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search]."
-     no_visible_tabs_text.value="Teleport history is empty. Try [secondlife:///app/search/places/ Search]."
      follows="left|top|right|bottom"
      height="373"
      layout="topleft"
@@ -16,6 +14,12 @@
      background_visible="true"
      bg_alpha_color="DkGray2"
      width="307">
+        <no_matched_tabs_text
+         name="no_matched_teleports_msg"
+         value="Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search]." />
+        <no_visible_tabs_text
+         name="no_teleports_msg"
+         value="Teleport history is empty. Try [secondlife:///app/search/places/ Search]." />
 	    <accordion_tab
          layout="topleft"
          name="today"
