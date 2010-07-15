@@ -289,6 +289,9 @@ void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
 {
 	LLTextBase::initFromParams(p);
 
+	// HACK:  text editors always need to be enabled so that we can scroll
+	LLView::setEnabled(true);
+
 	if (p.commit_on_focus_lost.isProvided())
 	{
 		mCommitOnFocusLost = p.commit_on_focus_lost;
