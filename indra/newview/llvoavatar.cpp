@@ -835,6 +835,7 @@ LLVOAvatar::~LLVOAvatar()
 	mDead = TRUE;
 	
 	mAnimationSources.clear();
+	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 
 	lldebugs << "LLVOAvatar Destructor end" << llendl;
 }
@@ -848,7 +849,7 @@ void LLVOAvatar::markDead()
 		sNumVisibleChatBubbles--;
 	}
 	mVoiceVisualizer->markDead();
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList, this) ;
+	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 	LLViewerObject::markDead();
 }
 
@@ -4255,13 +4256,13 @@ void LLVOAvatar::checkTextureLoading()
 		{
 			if(pause)//pause texture fetching.
 			{
-				tex->pauseLoadedCallbacks(this) ;
+				tex->pauseLoadedCallbacks(&mCallbackTextureList) ;
 			}
 			else//unpause
 			{
 				static const F32 START_AREA = 100.f ;
 
-				tex->unpauseLoadedCallbacks(this) ;
+				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
 			}
 		}		
@@ -6210,11 +6211,9 @@ void LLVOAvatar::updateMeshTextures()
 	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
 	LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
-	void* callback_src = NULL ;
 	BOOL paused = FALSE;
 	if(!isSelf())
 	{
-		callback_src = this ;
 		src_callback_list = &mCallbackTextureList ;
 		paused = mLoadedCallbacksPaused ;
 	}
@@ -6290,10 +6289,10 @@ void LLVOAvatar::updateMeshTextures()
 				if ( (baked_img->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{			
 					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
-						callback_src, src_callback_list, paused);	
+						src_callback_list, paused);	
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
-					callback_src, src_callback_list, paused );
+					src_callback_list, paused );
 			}
 		}
 		else if (mBakedTextureDatas[i].mTexLayerSet 
@@ -6754,11 +6753,9 @@ void LLVOAvatar::onFirstTEMessageReceived()
 		mFirstTEMessageReceived = TRUE;
 
 		LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
-		void* callback_src = NULL ;
 		BOOL paused = FALSE ;
 		if(!isSelf())
 		{
-			callback_src = this ;
 			src_callback_list = &mCallbackTextureList ;
 			paused = mLoadedCallbacksPaused ;
 		}
@@ -6777,10 +6774,10 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				if ( (image->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{
 					image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
-						callback_src, src_callback_list, paused);
+						src_callback_list, paused);
 				}
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
-					callback_src, src_callback_list, paused );
+					src_callback_list, paused );
 			}
 		}
 
