@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <simple_text_editor
-  allow_html="false" 
+  parse_urls="false" 
   mouse_opaque="true"
   font="SansSerifSmall"
   max_length="255" 
