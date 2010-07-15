@@ -45,6 +45,7 @@
 #include "llgroupmgr.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llagentlanguage.h"
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -945,6 +946,8 @@ bool LLAppViewer::init()
 		LLStringOps::sAM = LLTrans::getString("dateTimeAM");
 		LLStringOps::sPM = LLTrans::getString("dateTimePM");
 	}
+
+	LLAgentLanguage::init();
 
 	return true;
 }

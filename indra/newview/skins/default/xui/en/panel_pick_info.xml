@@ -55,6 +55,7 @@
      left="0"
      width="285">
         <texture_picker
+         fallback_image="default_land_picture.j2c"
          enabled="false"
          follows="left|top|right"
          height="197"

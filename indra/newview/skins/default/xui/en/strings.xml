@@ -3222,4 +3222,7 @@ Abuse Report</string>
   <string name="dateTimeDayFormat">[MDAY]</string>
   <string name="dateTimeAM">AM</string>
   <string name="dateTimePM">PM</string>
+
+  <!--  currency formatting -->
+  <string name="LocalEstimateUSD">US$ [AMOUNT]</string>
   </strings>

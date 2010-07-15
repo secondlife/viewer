@@ -229,6 +229,11 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
+
+private:
+	friend class LLInventoryModel;
+	void localizeName(); // intended to be called from the LLInventoryModel
+
 protected:
 	LLUUID mOwnerID;
 	S32 mVersion;
