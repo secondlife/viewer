@@ -536,10 +536,10 @@ void LLTexLayerSetBuffer::doUpload()
 				// Print out notification that we uploaded this texture.
 				if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 				{
-					std::string lod_str = highest_lod ? "HighRes" : "LowRes";
+					const std::string lod_str = highest_lod ? "HighRes" : "LowRes";
 					LLSD args;
 					args["EXISTENCE"] = llformat("%d",(U32)mTexLayerSet->getAvatar()->debugGetExistenceTimeElapsedF32());
-					args["TIME"] = llformat("%d",(U32)mNeedsUpdateTimer.getElapsedTimeF32());
+					args["TIME"] = llformat("%d",(U32)mNeedsUploadTimer.getElapsedTimeF32());
 					args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 					args["RESOLUTION"] = lod_str;
 					args["ACTION"] = "uploaded";
@@ -587,10 +587,10 @@ void LLTexLayerSetBuffer::doUpdate()
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
 		const BOOL highest_lod = mTexLayerSet->isLocalTextureDataFinal();
-		std::string lod_str = highest_lod ? "HighRes" : "LowRes";
+		const std::string lod_str = highest_lod ? "HighRes" : "LowRes";
 		LLSD args;
 		args["EXISTENCE"] = llformat("%d",(U32)mTexLayerSet->getAvatar()->debugGetExistenceTimeElapsedF32());
-		args["TIME"] = llformat("%d",(U32)mNeedsUploadTimer.getElapsedTimeF32());
+		args["TIME"] = llformat("%d",(U32)mNeedsUpdateTimer.getElapsedTimeF32());
 		args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 		args["RESOLUTION"] = lod_str;
 		args["ACTION"] = "locally updated";
