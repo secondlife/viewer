@@ -22,7 +22,7 @@
     height="16"
     layout="topleft"
     left="41"
-    allow_html="false"
+    parse_urls="false"
     use_ellipses="true"
     name="item_name"
     text_color="LtGray_50"
