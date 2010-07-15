@@ -6343,7 +6343,7 @@ Avatar '[NAME]' left as fully loaded.
    name="AvatarRezSelfBakeNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+You [ACTION] a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification
