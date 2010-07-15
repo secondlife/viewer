@@ -1913,6 +1913,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="AnimFlagStop"  value=" Stop Animation :    " />
 	<string name="AnimFlagStart" value=" Start Animation :   " />
 	<string name="Wave"          value=" Wave " />
+	<string name="GestureActionNone" value="None" />
 	<string name="HelloAvatar"   value=" Hello, avatar! " />
 	<string name="ViewAllGestures"  value="  View All &gt;&gt;" />
 	<string name="GetMoreGestures"  value="  Get More &gt;&gt;" />

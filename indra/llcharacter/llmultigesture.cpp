@@ -293,7 +293,7 @@ BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-// *TODO: Translate
+// *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepAnimation::getLabel() const 
 {
 	std::vector<std::string> strings;
@@ -367,7 +367,7 @@ BOOL LLGestureStepSound::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-// *TODO: Translate
+// *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepSound::getLabel() const
 {
 	std::vector<std::string> strings;
@@ -425,7 +425,7 @@ BOOL LLGestureStepChat::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-// *TODO: Translate
+// *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepChat::getLabel() const
 {
 	std::vector<std::string> strings;
@@ -479,7 +479,7 @@ BOOL LLGestureStepWait::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-// *TODO: Translate
+// *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepWait::getLabel() const
 {
 	std::vector<std::string> strings;
