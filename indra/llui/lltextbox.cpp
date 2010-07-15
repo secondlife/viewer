@@ -119,6 +119,17 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+void LLTextBox::setEnabled(BOOL enabled)
+{
+	// just treat enabled as read-only flag
+	bool read_only = !enabled;
+	if (read_only != mReadOnly)
+	{
+		LLTextBase::setReadOnly(read_only);
+		updateSegments();
+	}
+}
+
 void LLTextBox::setText(const LLStringExplicit& text , const LLStyle::Params& input_params )
 {
 	// does string argument insertion
