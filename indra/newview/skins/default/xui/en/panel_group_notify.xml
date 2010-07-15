@@ -50,7 +50,7 @@
          width="230" />
     </panel>
     <text_editor
-     allow_html="true"
+     parse_urls="true"
      enabled="true"
      follows="all"
      height="0"

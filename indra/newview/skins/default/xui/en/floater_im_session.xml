@@ -67,7 +67,7 @@
          height="150"
          name="chat_history"
          parse_highlights="true"
-         allow_html="true"
+         parse_urls="true"
         left="1"
          width="249">
         </chat_history>

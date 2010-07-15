@@ -251,7 +251,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
-								allow_html,
+								parse_urls,
 								parse_highlights,
 								clip_partial;
 								

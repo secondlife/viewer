@@ -167,11 +167,12 @@ LLTextBase::Params::Params()
 	font_shadow("font_shadow"),
 	wrap("wrap"),
 	use_ellipses("use_ellipses", false),
-	allow_html("allow_html", false),
+	parse_urls("parse_urls", false),
 	parse_highlights("parse_highlights", false)
 {
 	addSynonym(track_end, "track_bottom");
 	addSynonym(wrap, "word_wrap");
+	addSynonym(parse_urls, "allow_html");
 }
 
 
@@ -209,7 +210,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
-	mParseHTML(p.allow_html),
+	mParseHTML(p.parse_urls),
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
 	mScroller(NULL),
