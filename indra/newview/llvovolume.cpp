@@ -96,12 +96,7 @@ LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = 
 
 static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
-static LLFastTimer::DeclareTimer FTM_BUILD_MESH("Mesh");
-static LLFastTimer::DeclareTimer FTM_MESH_VFS("VFS");
-static LLFastTimer::DeclareTimer FTM_MESH_STREAM("Stream");
-static LLFastTimer::DeclareTimer FTM_MESH_FACES("Faces");
 static LLFastTimer::DeclareTimer FTM_VOLUME_TEXTURES("Volume Textures");
-
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject

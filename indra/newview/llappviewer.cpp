@@ -3515,8 +3515,6 @@ static LLFastTimer::DeclareTimer FTM_REGION_UPDATE("Update Region");
 static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
 static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
 static LLFastTimer::DeclareTimer FTM_AGENT_NETWORK("Agent Network");
-static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
-static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
 
 ///////////////////////////////////////////////////////

@@ -999,7 +999,7 @@ void LLSnapshotLivePreview::saveTexture()
 		void *userdata = NULL;
 		upload_new_resource(tid,	// tid
 				    LLAssetType::AT_TEXTURE,
-				    snapname,
+				    "Snapshot : " + pos_string,
 				    "Taken by " + who_took_it + " at " + pos_string,
 				    0,
 				    LLFolderType::FT_SNAPSHOT_CATEGORY,
@@ -1007,7 +1007,7 @@ void LLSnapshotLivePreview::saveTexture()
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 				    PERM_NONE, // that ignores the user's premissions preferences and continues to
 				    PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
-				    snapname,
+				    "Snapshot : " + pos_string,
 				    callback, expected_upload_cost, userdata);
 		gViewerWindow->playSnapshotAnimAndSound();
 	}

@@ -1289,6 +1289,8 @@ void LLPanelObject::sendPhysicsParam()
 	body.append(LLSelectMgr::getInstance()->getSelection()->getFirstObject()->getID());
 	
 	LLHTTPClient::post( url, body, new CostResponder(body[0].asInteger()) );
+}
+
 void LLPanelObject::sendCastShadows()
 {
 	BOOL value = mCheckCastShadows->get();
