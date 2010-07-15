@@ -69,6 +69,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llfloaterproperties.h"
+#include "llfloatertools.h"
 #include "llfollowcam.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
@@ -855,6 +856,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #endif
 				//clear cost and linkset cost
 				mCostStale = true;
+				if (isSelected())
+				{
+					gFloaterTools->dirty();
+				}
 
 				LLUUID audio_uuid;
 				LLUUID owner_id;	// only valid if audio_uuid or particle system is not null
@@ -1423,6 +1428,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #endif
 				mCostStale = true;
 
+				if (isSelected())
+				{
+					gFloaterTools->dirty();
+				}
+	
 				dp->unpackU32(crc, "CRC");
 				mTotalCRC = crc;
 				dp->unpackU8(material, "Material");
@@ -2903,12 +2913,22 @@ void LLViewerObject::setObjectCost(F32 cost)
 {
 	mObjectCost = cost;
 	mCostStale = false;
+
+	if (isSelected())
+	{
+		gFloaterTools->dirty();
+	}
 }
 
 void LLViewerObject::setLinksetCost(F32 cost)
 {
 	mLinksetCost = cost;
 	mCostStale = false;
+	
+	if (isSelected())
+	{
+		gFloaterTools->dirty();
+	}
 }
 
 
