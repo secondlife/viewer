@@ -231,7 +231,7 @@ Er du sikker på at du vil fortsætte?
 		Slet favorit &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 	</notification>
 	<notification name="DeleteOutfits">
-		Slet valgte sæt?
+		Slet det valgte sæt?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">

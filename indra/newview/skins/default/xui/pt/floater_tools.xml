@@ -342,9 +342,9 @@
 			<text name="text revolutions">
 				Revoluções
 			</text>
-			<texture_picker label="Texture de Escultura" name="sculpt texture control" tool_tip="Click to choose a picture"/>
-			<check_box label="Espelho" name="sculpt mirror control" tool_tip="Flips sculpted prim along the X axis"/>
-			<check_box label="De dentro para fora" name="sculpt invert control" tool_tip="Inverts the sculpted prims normals, making it appear inside-out"/>
+			<texture_picker label="Textura de escultura" name="sculpt texture control" tool_tip="Selecionar imagem"/>
+			<check_box label="Espelho" name="sculpt mirror control" tool_tip="Inverte o prim esculpido no eixo X"/>
+			<check_box label="De dentro para fora" name="sculpt invert control" tool_tip="Inverte o prim esculpido normals, making it appear inside-out"/>
 			<text name="label sculpt type">
 				Tipo costura
 			</text>
@@ -361,9 +361,9 @@
 				Selecione apenas um prim para editar suas características.
 			</text>
 			<text name="edit_object">
-				Editar características do Objeto:
+				Editar características do objeto:
 			</text>
-			<check_box label="Flexíbilidade" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
+			<check_box label="Flexibilidade" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
 			<spinner label="Suavidade" name="FlexNumSections"/>
 			<spinner label="Gravidade" name="FlexGravity"/>
 			<spinner label="Arrastar" name="FlexFriction"/>
@@ -438,17 +438,17 @@
 				<combo_box.item label="Weave" name="weave"/>
 			</combo_box>
 			<text name="tex scale">
-				Repeats / Face
+				Repetições/Face
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Flip" name="checkbox flip s"/>
+			<check_box label="Inverter" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
-			<check_box label="Flip" name="checkbox flip t"/>
-			<spinner label="Rotation˚" name="TexRot"/>
-			<spinner label="Repeats / Meter" name="rptctrl"/>
+			<check_box label="Inverter" name="checkbox flip t"/>
+			<spinner label="Rotação˚" name="TexRot"/>
+			<spinner label="Repetições/Metro" name="rptctrl"/>
 			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
-				Texture Offset
+				Offset de textura
 			</text>
 			<spinner label="Horizontal (U)" name="TexOffsetU"/>
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
@@ -463,13 +463,13 @@
 			</panel>
 		</panel>
 		<panel label="Conteúdo" name="Contents">
-			<button label="Novo Script" label_selected="Novo script" name="button new script"/>
+			<button label="Novo script" label_selected="Novo script" name="button new script"/>
 			<button label="Autorizações" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
-			Informações do Lote
+			Informações do lote
 		</text>
 		<text name="label_area_price">
 			Preço: L$[PRICE] por [AREA] m²
