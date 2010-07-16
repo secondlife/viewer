@@ -162,12 +162,16 @@
      top_delta="15"
      width="180">
         <scroll_list.rows
+         name="action_animation"
          value="Animation" />
         <scroll_list.rows
+         name="action_sound"
          value="Sound" />
         <scroll_list.rows
+         name="action_chat"
          value="Chat" />
         <scroll_list.rows
+         name="action_wait"
          value="Wait" />
     </scroll_list>
     <button

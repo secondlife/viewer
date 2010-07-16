@@ -3627,7 +3627,7 @@ class LLEnableEditShape : public view_listener_t
 	}
 };
 
-bool enable_sit_object()
+bool is_object_sittable()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 
@@ -5513,17 +5513,17 @@ bool enable_pay_object()
 	return false;
 }
 
-bool visible_object_stand_up()
+bool enable_object_stand_up()
 {
-	// 'Object Stand Up' menu item is visible when agent is sitting on selection
+	// 'Object Stand Up' menu item is enabled when agent is sitting on selection
 	return sitting_on_selection();
 }
 
-bool visible_object_sit()
+bool enable_object_sit()
 {
-	// 'Object Sit' menu item is visible when agent is not sitting on selection
-	bool is_sit_visible = !sitting_on_selection();
-	if (is_sit_visible)
+	// 'Object Sit' menu item is enabled when agent is not sitting on selection
+	bool sitting_on_sel = sitting_on_selection();
+	if (!sitting_on_sel)
 	{
 		LLMenuItemGL* sit_menu_item = gMenuHolder->getChild<LLMenuItemGL>("Object Sit");
 		// Init default 'Object Sit' menu item label
@@ -5541,27 +5541,8 @@ bool visible_object_sit()
 		}
 		sit_menu_item->setLabel(label);
 	}
-	return is_sit_visible;
+	return !sitting_on_sel && is_object_sittable();
 }
-
-class LLObjectEnableSitOrStand : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = false;
-		LLViewerObject* dest_object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
-		if(dest_object)
-		{
-			if(dest_object->getPCode() == LL_PCODE_VOLUME)
-			{
-				new_value = true;
-			}
-		}
-
-		return new_value;
-	}
-};
 
 void dump_select_mgr(void*)
 {
@@ -8067,7 +8048,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
 	commit.add("Object.Touch", boost::bind(&handle_object_touch));
 	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
-	enable.add("Object.EnableSit", boost::bind(&enable_sit_object));
+	enable.add("Object.EnableGearSit", boost::bind(&is_object_sittable));
 	commit.add("Object.Delete", boost::bind(&handle_object_delete));
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
@@ -8084,12 +8065,11 @@ void initialize_menus()
 	commit.add("Object.Take", boost::bind(&handle_take));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
-	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
 	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
 
-	enable.add("Object.StandUpVisible", boost::bind(&visible_object_stand_up));
-	enable.add("Object.SitVisible", boost::bind(&visible_object_sit));
+	enable.add("Object.EnableStandUp", boost::bind(&enable_object_stand_up));
+	enable.add("Object.EnableSit", boost::bind(&enable_object_sit));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");

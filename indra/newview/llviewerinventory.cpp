@@ -93,6 +93,7 @@ public:
 		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
 		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
+		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
@@ -120,13 +121,20 @@ public:
 		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
 
 		//female
+		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
+		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
+		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
 		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
 		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
 		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
 		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
 		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
 		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
 		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
+		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
+		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
 		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
 		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
