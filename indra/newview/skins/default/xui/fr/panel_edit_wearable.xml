@@ -103,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Enregistrer sous" name="save_as_button"/>
-		<button label="Annuler les modifications" name="revert_button" width="130"/>
+		<button label="Annuler" name="revert_button" width="130"/>
 	</panel>
 </panel>

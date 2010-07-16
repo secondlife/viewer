@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ubrania" name="appearance panel">
 	<string name="No Outfit" value="Bez Ubrania"/>
+	<string name="Unsaved Changes" value="Zmiany niezachowane"/>
+	<string name="Now Wearing" value="Obecnie założone..."/>
+	<string name="Changing outfits" value="Zmiana stroju"/>
 	<panel name="panel_currentlook">
-		<text name="currentlook_title">
-			(niezapisane)
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Status)
 		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Edytuj ten strój"/>
 	</panel>
 	<filter_editor label="Przeglądaj Ubrania" name="Filter"/>
 </panel>

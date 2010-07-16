@@ -7,7 +7,7 @@
 	<menu_item_call label="Prendre" name="take"/>
 	<menu_item_call label="Prendre une copie" name="take_copy"/>
 	<menu_item_call label="Ouvrir" name="open"/>
-	<menu_item_call label="Éditer" name="edit"/>
+	<menu_item_call label="Modifier" name="edit"/>
 	<menu_item_call label="Porter" name="wear"/>
 	<menu_item_call label="Signaler" name="report"/>
 	<menu_item_call label="Ignorer" name="block"/>

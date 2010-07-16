@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<pull_button name="back_btn" tool_tip="Zurück zum vorherigen Standort gehen"/>
-		<pull_button name="forward_btn" tool_tip="Um einen Standort weiter gehen"/>
+		<pull_button name="back_btn" tool_tip="Zurück zum vorherigen Standort teleportieren"/>
+		<pull_button name="forward_btn" tool_tip="Um einen Standort weiter teleportieren"/>
 		<button name="home_btn" tool_tip="Zu meinem Zuhause teleportieren"/>
 		<location_input label="Standort" name="location_combo"/>
 		<search_combo_box label="Suche" name="search_combo_box" tool_tip="Suche">

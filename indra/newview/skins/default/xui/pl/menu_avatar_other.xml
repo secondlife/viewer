@@ -10,7 +10,7 @@
 	<menu_item_call label="Raport" name="abuse"/>
 	<menu_item_call label="Unieruchom" name="Freeze..."/>
 	<menu_item_call label="Wyrzuć" name="Eject..."/>
-	<menu_item_call label="Debug" name="Debug..."/>
+	<menu_item_call label="Debugowanie tekstur" name="Debug..."/>
 	<menu_item_call label="Przybliż" name="Zoom In"/>
 	<menu_item_call label="Zapłać" name="Pay..."/>
 </context_menu>

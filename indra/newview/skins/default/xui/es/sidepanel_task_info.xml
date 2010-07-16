@@ -37,7 +37,7 @@
 		Mixed Sale
 	</panel.string>
 	<text name="title" value="Perfil del objeto"/>
-	<text name="where" value="(en el mundo)"/>
+	<text name="where" value="(En el mundo)"/>
 	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Nombre:
