@@ -505,8 +505,6 @@ void LLPanelFace::getState()
 
 		// Texture scale
 		{
-			childSetEnabled("tex scale",editable);
-			//mLabelTexScale->setEnabled( editable );
 			F32 scale_s = 1.f;
 			struct f2 : public LLSelectedTEGetFunctor<F32>
 			{
@@ -577,7 +575,6 @@ void LLPanelFace::getState()
 
 		// Texture rotation
 		{
-			childSetEnabled("tex rotate",editable);
 			F32 rotation = 0.f;
 			struct f6 : public LLSelectedTEGetFunctor<F32>
 			{
@@ -720,13 +717,8 @@ void LLPanelFace::getState()
 
 			if (selected_texgen == 1)
 			{
-				childSetText("tex scale",getString("string repeats per meter"));
 				childSetValue("TexScaleU", 2.0f * childGetValue("TexScaleU").asReal() );
 				childSetValue("TexScaleV", 2.0f * childGetValue("TexScaleV").asReal() );
-			}
-			else
-			{
-				childSetText("tex scale",getString("string repeats per face"));
 			}
 
 		}
@@ -802,9 +794,7 @@ void LLPanelFace::getState()
 		}
 		childSetEnabled("color trans",FALSE);
 		childSetEnabled("rpt",FALSE);
-		childSetEnabled("tex scale",FALSE);
 		childSetEnabled("tex offset",FALSE);
-		childSetEnabled("tex rotate",FALSE);
 		childSetEnabled("tex gen",FALSE);
 		childSetEnabled("label shininess",FALSE);
 		childSetEnabled("label bumpiness",FALSE);
