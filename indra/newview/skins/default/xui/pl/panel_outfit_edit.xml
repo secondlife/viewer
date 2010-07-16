@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel label="Edytuj strój" name="outfit_edit">
+	<string name="No Outfit" value="Brak stroju"/>
+	<string name="unsaved_changes" value="Zmiany niezachowane"/>
+	<string name="now_editing" value="Obecnie edytujesz"/>
+	<panel.string name="not_available">
+		(N\A)
+	</panel.string>
+	<panel.string name="unknown">
+		(nieznany)
+	</panel.string>
+	<string name="Filter.All" value="Wszystko"/>
+	<string name="Filter.Clothes/Body" value="Ubrania/Ciało"/>
+	<string name="Filter.Objects" value="Obiekty"/>
+	<string name="Filter.Clothing" value="Ubranie"/>
+	<string name="Filter.Bodyparts" value="Części ciała"/>
+	<string name="replace_body_part" value="Kliknij aby zastąpić Twój obecny ksztalt"/>
+	<text name="title" value="Edytuj strój"/>
+	<panel label="bottom_panel" name="header_panel">
+		<panel label="bottom_panel" name="outfit_name_and_status">
+			<text name="status" value="Trwa edycja..."/>
+			<text name="curr_outfit_name" value="[Current Outfit]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel label="Panel kontrolny IM" name="outfit_wearables_panel">
+			<layout_stack name="filter_panels">
+				<layout_panel name="add_button_and_combobox">
+					<button label="Dodaj..." name="show_add_wearables_btn" tool_tip="Otwórz/Zamknij"/>
+				</layout_panel>
+				<layout_panel name="filter_panel">
+					<filter_editor label="Filtruj częśći stroju w Szafie" name="look_item_filter"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<button label="Załóż obiekt" name="plus_btn"/>
+		</layout_panel>
+	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="Odwiedź stronę SL Marketplace. Możesz również zaznaczyć rzecz, którą masz na sobie a następnie kliknąć tutaj aby zobaczyć więcej rzeczy tego rodzaju."/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="Odwiedź stronę SL Marketplace. Możesz również zaznaczyć rzecz, którą masz na sobie a następnie kliknąć tutaj aby zobaczyć więcej rzeczy tego rodzaju."/>
+	</panel>
+	<panel name="save_revert_button_bar">
+		<button label="Zapisz" name="save_btn"/>
+		<button label="Cofnij zmiany" name="revert_btn" tool_tip="Cofnij do ostatniej zapisanej wersji"/>
+	</panel>
+</panel>
