@@ -3232,6 +3232,13 @@ Sorry, you cannot [http://wiki.secondlife.com/wiki/Setting_your_display_name cha
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ name="SetDisplayNameBlocked"
+ type="alert">
+Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="SetDisplayNameFailedLength"
    type="alertmodal">

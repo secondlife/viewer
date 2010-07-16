@@ -395,8 +395,18 @@ void LLPanelMyProfileEdit::onClickSetName()
 	llinfos << "name-change now " << LLDate::now() << " next_update "
 		<< LLDate(av_name.mNextUpdate) << llendl;
 	F64 now_secs = LLDate::now().secondsSinceEpoch();
+
 	if (now_secs < av_name.mNextUpdate)
 	{
+		// if the update time is more than a year in the future, it means updates have been blocked
+		// show a more general message
+        const int YEAR = 60*60*24*365; 
+		if (now_secs + YEAR < av_name.mNextUpdate)
+		{
+			LLNotificationsUtil::add("SetDisplayNameBlocked");
+			return;
+		}
+	
 		// ...can't update until some time in the future
 		F64 next_update_local_secs =
 			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
