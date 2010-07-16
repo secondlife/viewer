@@ -34,6 +34,7 @@
 #include "llexpandabletextbox.h"
 
 #include "llscrollcontainer.h"
+#include "lltrans.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 
@@ -117,7 +118,7 @@ LLExpandableTextBox::LLTextBoxEx::Params::Params()
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 :	LLTextEditor(p),
-	mExpanderLabel(p.label),
+	mExpanderLabel(p.label.isProvided() ? p.label : LLTrans::getString("More")),
 	mExpanderVisible(false)
 {
 	setIsChrome(TRUE);
