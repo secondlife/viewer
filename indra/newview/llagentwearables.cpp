@@ -384,7 +384,8 @@ void LLAgentWearables::sendAgentWearablesUpdate()
 	gAgent.sendReliableMessage();
 }
 
-void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update)
+void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update,
+									const std::string new_name)
 {
 	LLWearable* old_wearable = getWearable(type, index);
 	if (old_wearable && (old_wearable->isDirty() || old_wearable->isOldVersion()))
@@ -402,6 +403,14 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 		LLInventoryItem* item = gInventory.getItem(old_item_id);
 		if (item)
 		{
+			std::string item_name = item->getName();
+			bool name_changed = false;
+			if (!new_name.empty() && (new_name != item->getName()))
+			{
+				llinfos << "saveWearable changing name from "  << item->getName() << " to " << new_name << llendl;
+				item_name = new_name;
+				name_changed = true;
+			}
 			// Update existing inventory item
 			LLPointer<LLViewerInventoryItem> template_item =
 				new LLViewerInventoryItem(item->getUUID(),
@@ -410,7 +419,7 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 										  new_wearable->getAssetID(),
 										  new_wearable->getAssetType(),
 										  item->getInventoryType(),
-										  item->getName(),
+										  item_name,
 										  item->getDescription(),
 										  item->getSaleInfo(),
 										  item->getFlags(),
@@ -418,6 +427,10 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 			template_item->setTransactionID(new_wearable->getTransactionID());
 			template_item->updateServer(FALSE);
 			gInventory.updateItem(template_item);
+			if (name_changed)
+			{
+				gInventory.notifyObservers();
+			}
 		}
 		else
 		{

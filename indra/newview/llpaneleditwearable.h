@@ -63,7 +63,7 @@ public:
 	LLWearable* 		getWearable() { return mWearablePtr; }
 	void				setWearable(LLWearable *wearable);
 
-	void				saveChanges();
+	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
 
 	void				showDefaultSubpart();
