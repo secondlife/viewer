@@ -269,9 +269,6 @@ void LLTextBase::initFromParams(const LLTextBase::Params& p)
 	{
 		mReadOnly = p.read_only;
 	}
-
-	// HACK:  text editors always need to be enabled so that we can scroll
-	LLView::setEnabled(true);
 }
 
 bool LLTextBase::truncate()
