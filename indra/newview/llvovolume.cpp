@@ -3544,77 +3544,78 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				{
 					facep->mVertexBuffer = NULL;
 					facep->mLastVertexBuffer = NULL;
-					facep->setState(LLFace::RIGGED);
-					
-					//get drawpool of avatar with rigged face
-					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
-					
-					if (pool)
+				}
+				
+			facep->setState(LLFace::RIGGED);
+				
+				//get drawpool of avatar with rigged face
+				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
+				
+				if (pool)
+				{
+					const LLTextureEntry* te = facep->getTextureEntry();
+
+					//remove face from old pool if it exists
+					LLDrawPool* old_pool = facep->getPool();
+					if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
 					{
-						const LLTextureEntry* te = facep->getTextureEntry();
+						((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+					}
 
-						//remove face from old pool if it exists
-						LLDrawPool* old_pool = facep->getPool();
-						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
-						{
-							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
-						}
+					//add face to new pool
+					LLViewerTexture* tex = facep->getTexture();
+					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 
-						//add face to new pool
-						LLViewerTexture* tex = facep->getTexture();
-						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-
-						if (type == LLDrawPool::POOL_ALPHA)
+					if (type == LLDrawPool::POOL_ALPHA)
+					{
+						if (te->getFullbright())
 						{
-							if (te->getFullbright())
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
-							}
-							else
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
-							}
-						}
-						else if (te->getShiny())
-						{
-							if (te->getFullbright())
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
-							}
-							else
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
-							}
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
 						}
 						else
 						{
-							if (te->getFullbright())
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+						}
+					}
+					else if (te->getShiny())
+					{
+						if (te->getFullbright())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
+						}
+						else
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+						}
+					}
+					else
+					{
+						if (te->getFullbright())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+						}
+						else
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+						}
+					}
+
+					if (te->getGlow())
+					{
+						pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
+					}
+
+					if (LLPipeline::sRenderDeferred)
+					{
+						if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
+						{
+							if (te->getBumpmap())
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
 							}
 							else
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
-							}
-						}
-
-						if (te->getGlow())
-						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
-						}
-
-						if (LLPipeline::sRenderDeferred)
-						{
-							if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
-							{
-								if (te->getBumpmap())
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
-								}
-								else
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
-								}
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
 							}
 						}
 					}
