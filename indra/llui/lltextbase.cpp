@@ -155,6 +155,8 @@ LLTextBase::Params::Params()
 	bg_readonly_color("bg_readonly_color"),
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
+	text_selected_color("text_selected_color"),
+	bg_selected_color("bg_selected_color"),
 	allow_scroll("allow_scroll", true),
 	plain_text("plain_text",false),
 	track_end("track_end", false),
@@ -191,6 +193,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mWriteableBgColor(p.bg_writeable_color),
 	mReadOnlyBgColor(p.bg_readonly_color),
 	mFocusBgColor(p.bg_focus_color),
+	mTextSelectedColor(p.text_selected_color),
+	mSelectedBGColor(p.bg_selected_color),
 	mReflowIndex(S32_MAX),
 	mCursorPos( 0 ),
 	mScrollNeeded(FALSE),
@@ -302,11 +306,14 @@ bool LLTextBase::truncate()
 
 const LLStyle::Params& LLTextBase::getDefaultStyleParams()
 {
+	//FIXME: convert mDefaultStyle to a flyweight http://www.boost.org/doc/libs/1_40_0/libs/flyweight/doc/index.html
+	//and eliminate color member values
 	if (mStyleDirty)
 	{
 		  mDefaultStyle
-				  .color(LLUIColor(&mFgColor))
+				  .color(LLUIColor(&mFgColor))						// pass linked color instead of copy of mFGColor
 				  .readonly_color(LLUIColor(&mReadOnlyFgColor))
+				  .selected_color(LLUIColor(&mTextSelectedColor))
 				  .font(mDefaultFont)
 				  .drop_shadow(mFontShadow);
 		  mStyleDirty = false;
@@ -404,7 +411,7 @@ void LLTextBase::drawSelectionBackground()
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		const LLColor4& color = mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get();
+		const LLColor4& color = mSelectedBGColor;
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
 		LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
@@ -444,7 +451,6 @@ void LLTextBase::drawCursor()
 		}
 		else
 		{
-			//segmentp = mSegments.back();
 			return;
 		}
 
@@ -478,21 +484,8 @@ void LLTextBase::drawCursor()
 			{
 				LLColor4 text_color;
 				const LLFontGL* fontp;
-				if (segmentp)
-				{
-					text_color = segmentp->getColor();
-					fontp = segmentp->getStyle()->getFont();
-				}
-				else if (mReadOnly)
-				{
-					text_color = mReadOnlyFgColor.get();
-					fontp = mDefaultFont;
-				}
-				else
-				{
-					text_color = mFgColor.get();
-					fontp = mDefaultFont;
-				}
+				text_color = segmentp->getColor();
+				fontp = segmentp->getStyle()->getFont();
 				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
 					LLFontGL::LEFT, mVAlign,
@@ -2482,7 +2475,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 		font->render(text, start, 
 			     rect,
-			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
+			     mStyle->getSelectedColor().get(),
 			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     LLFontGL::NO_SHADOW, 
