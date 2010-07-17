@@ -47,7 +47,8 @@ public:
 		Optional<bool>					visible;
 		Optional<LLFontGL::ShadowType>	drop_shadow;
 		Optional<LLUIColor>				color,
-										readonly_color;
+										readonly_color,
+										selected_color;
 		Optional<const LLFontGL*>		font;
 		Optional<LLUIImage*>			image;
 		Optional<std::string>			link_href;
@@ -55,11 +56,14 @@ public:
 	};
 	LLStyle(const Params& p = Params());
 public:
-	const LLColor4& getColor() const { return mColor; }
-	void setColor(const LLColor4 &color) { mColor = color; }
+	const LLUIColor& getColor() const { return mColor; }
+	void setColor(const LLUIColor &color) { mColor = color; }
 
-	const LLColor4& getReadOnlyColor() const { return mReadOnlyColor; }
-	void setReadOnlyColor(const LLColor4& color) { mReadOnlyColor = color; }
+	const LLUIColor& getReadOnlyColor() const { return mReadOnlyColor; }
+	void setReadOnlyColor(const LLUIColor& color) { mReadOnlyColor = color; }
+
+	const LLUIColor& getSelectedColor() const { return mSelectedColor; }
+	void setSelectedColor(const LLUIColor& color) { mSelectedColor = color; }
 
 	BOOL isVisible() const;
 	void setVisible(BOOL is_visible);
@@ -79,41 +83,36 @@ public:
 
 	BOOL isImage() const { return mImagep.notNull(); }
 
-	// inlined here to make it easier to compare to member data below. -MG
 	bool operator==(const LLStyle &rhs) const
 	{
 		return 
 			mVisible == rhs.mVisible
 			&& mColor == rhs.mColor
 			&& mReadOnlyColor == rhs.mReadOnlyColor
+			&& mSelectedColor == rhs.mSelectedColor
 			&& mFont == rhs.mFont
 			&& mLink == rhs.mLink
 			&& mImagep == rhs.mImagep
-			&& mItalic == rhs.mItalic
-			&& mBold == rhs.mBold
-			&& mUnderline == rhs.mUnderline
 			&& mDropShadow == rhs.mDropShadow;
 	}
 
 	bool operator!=(const LLStyle& rhs) const { return !(*this == rhs); }
 
 public:	
-	BOOL        mItalic;
-	BOOL        mBold;
-	BOOL        mUnderline;
 	LLFontGL::ShadowType		mDropShadow;
 
 protected:
 	~LLStyle() { }
 
 private:
-	BOOL		mVisible;
-	LLUIColor	mColor;
-	LLUIColor   mReadOnlyColor;
-	std::string	mFontName;
-	const LLFontGL*   mFont;		// cached for performance
-	std::string	mLink;
-	LLUIImagePtr mImagep;
+	BOOL				mVisible;
+	LLUIColor			mColor;
+	LLUIColor   		mReadOnlyColor;
+	LLUIColor			mSelectedColor;
+	std::string			mFontName;
+	const LLFontGL*		mFont;
+	std::string			mLink;
+	LLUIImagePtr		mImagep;
 };
 
 typedef LLPointer<LLStyle> LLStyleSP;
