@@ -241,7 +241,9 @@ public:
 								text_readonly_color,
 								bg_readonly_color,
 								bg_writeable_color,
-								bg_focus_color;
+								bg_focus_color,
+								text_selected_color,
+								bg_selected_color;
 
 		Optional<bool>			bg_visible,
 								border_visible,
@@ -251,7 +253,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
-								allow_html,
+								parse_urls,
 								parse_highlights,
 								clip_partial;
 								
@@ -507,6 +509,8 @@ protected:
 	LLUIColor					mWriteableBgColor;
 	LLUIColor					mReadOnlyBgColor;
 	LLUIColor					mFocusBgColor;
+	LLUIColor					mTextSelectedColor;
+	LLUIColor					mSelectedBGColor;
 
 	// cursor
 	S32							mCursorPos;			// I-beam is just after the mCursorPos-th character.

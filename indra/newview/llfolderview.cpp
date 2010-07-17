@@ -250,7 +250,7 @@ LLFolderView::LLFolderView(const Params& p)
 	text_p.name(std::string(p.name));
 	text_p.font(font);
 	text_p.visible(false);
-	text_p.allow_html(true);
+	text_p.parse_urls(true);
 	text_p.wrap(true); // allow multiline text. See EXT-7564, EXT-7047
 	// set text padding the same as in People panel. EXT-7047, EXT-4837
 	text_p.h_pad(STATUS_TEXT_HPAD);
