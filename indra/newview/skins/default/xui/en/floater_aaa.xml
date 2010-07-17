@@ -21,7 +21,7 @@
   <string name="test_the_vlt">This string CHANGE2 is extracted.</string>
   <string name="testing_eli">Just a test. changes.</string>
   <chat_history
-   allow_html="true"
+   parse_urls="true"
    bg_readonly_color="ChatHistoryBgColor"
    bg_writeable_color="ChatHistoryBgColor" 
    border_visible="false"

@@ -42,6 +42,8 @@ LLStyle::Params::Params()
 :	visible("visible", true),
 	drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
 	color("color", LLColor4::black),
+	readonly_color("readonly_color", LLColor4::black),
+	selected_color("selected_color", LLColor4::black),
 	font("font", LLFontGL::getFontMonospace()),
 	image("image"),
 	link_href("href")
@@ -49,12 +51,10 @@ LLStyle::Params::Params()
 
 
 LLStyle::LLStyle(const LLStyle::Params& p)
-:	mItalic(FALSE),
-	mBold(FALSE),
-	mUnderline(FALSE),
-	mVisible(p.visible),
-	mColor(p.color()),
-	mReadOnlyColor(p.readonly_color()),
+:	mVisible(p.visible),
+	mColor(p.color),
+	mReadOnlyColor(p.readonly_color),
+	mSelectedColor(p.selected_color),
 	mFont(p.font()),
 	mLink(p.link_href),
 	mDropShadow(p.drop_shadow),
