@@ -76,6 +76,8 @@ public:
 	void				onSaveAsButtonClicked();
 	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
+	virtual void		setVisible(BOOL visible);
+
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
