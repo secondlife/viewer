@@ -190,7 +190,6 @@ set(viewer_SOURCE_FILES
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
-    llfloaterparcel.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostcard.cpp
@@ -212,7 +211,6 @@ set(viewer_SOURCE_FILES
     llfloatertopobjects.cpp
     llfloatertos.cpp
     llfloateruipreview.cpp
-    llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
     llfloatervoiceeffect.cpp
@@ -349,7 +347,6 @@ set(viewer_SOURCE_FILES
     llpanelpermissions.cpp
     llpanelpick.cpp
     llpanelpicks.cpp
-    llpanelplace.cpp
     llpanelplaceinfo.cpp
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
@@ -717,7 +714,6 @@ set(viewer_HEADER_FILES
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
-    llfloaterparcel.h
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostcard.h
@@ -739,7 +735,6 @@ set(viewer_HEADER_FILES
     llfloatertopobjects.h
     llfloatertos.h
     llfloateruipreview.h
-    llfloaterurldisplay.h
     llfloaterurlentry.h
     llfloatervoicedevicesettings.h
     llfloatervoiceeffect.h
@@ -872,7 +867,6 @@ set(viewer_HEADER_FILES
     llpanelpermissions.h
     llpanelpick.h
     llpanelpicks.h
-    llpanelplace.h
     llpanelplaceinfo.h
     llpanelplaceprofile.h
     llpanelplaces.h
