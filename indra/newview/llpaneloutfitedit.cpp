@@ -1088,7 +1088,7 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 void LLPanelOutfitEdit::onCOFChanged()
 {
 	//the panel is only updated when is visible to a user
-	if (!isInVisibleChain()) return;
+//	if (!isInVisibleChain()) return;
 
 	update();
 }

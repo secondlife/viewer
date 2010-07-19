@@ -171,11 +171,6 @@ void LLMD5::update(FILE* file){
 
 }
 
-
-
-
-
-
 // MD5 update for istreams.
 // Like update for files; see above.
 
@@ -192,9 +187,10 @@ void LLMD5::update(std::istream& stream){
 
 }
 
-
-
-
+void  LLMD5::update(const std::string& s)
+{
+	update((unsigned char *)s.c_str(),s.length());
+}
 
 // MD5 finalization. Ends an MD5 message-digest operation, writing the
 // the message digest and zeroizing the context.
@@ -277,7 +273,7 @@ LLMD5::LLMD5(const unsigned char *s)
 	finalize();
 }
 
-void LLMD5::raw_digest(unsigned char *s)
+void LLMD5::raw_digest(unsigned char *s) const
 {
 	if (!finalized)
 	{
@@ -293,7 +289,7 @@ void LLMD5::raw_digest(unsigned char *s)
 
 
 
-void LLMD5::hex_digest(char *s)
+void LLMD5::hex_digest(char *s) const
 {
 	int i;
 
@@ -319,6 +315,7 @@ void LLMD5::hex_digest(char *s)
 
 
 
+
 std::ostream& operator<<(std::ostream &stream, LLMD5 context)
 {
 	char s[33];		/* Flawfinder: ignore */
@@ -327,12 +324,24 @@ std::ostream& operator<<(std::ostream &stream, LLMD5 context)
 	return stream;
 }
 
+bool operator==(const LLMD5& a, const LLMD5& b)
+{
+	unsigned char a_guts[16];
+	unsigned char b_guts[16];
+	a.raw_digest(a_guts);
+	b.raw_digest(b_guts);
+	if (memcmp(a_guts,b_guts,16)==0)
+		return true;
+	else
+		return false;
+}
 
-
+bool operator!=(const LLMD5& a, const LLMD5& b)
+{
+	return !(a==b);
+}
 
 // PRIVATE METHODS:
-
-
 
 void LLMD5::init(){
   finalized=0;  // we just started!
@@ -531,3 +540,5 @@ void LLMD5::decode (uint4 *output, const uint1 *input, const uint4 len){
     output[i] = ((uint4)input[j]) | (((uint4)input[j+1]) << 8) |
       (((uint4)input[j+2]) << 16) | (((uint4)input[j+3]) << 24);
 }
+
+
