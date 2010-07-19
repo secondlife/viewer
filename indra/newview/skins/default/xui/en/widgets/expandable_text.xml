@@ -5,7 +5,6 @@
   parse_urls="true"
   allow_scroll="true"
   bg_visible="false"
-  label="More" 
   follows="left|top|right"
   name="text"
   read_only="true"
