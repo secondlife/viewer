@@ -59,6 +59,7 @@ public:
 	// Initialize data that's only inited once per class.
 	static void initClass();
 	static void cleanupClass();
+	static bool isTreeRenderingStopped();
 
 	/*virtual*/ U32 processUpdateMessage(LLMessageSystem *mesgsys,
 											void **user_data,

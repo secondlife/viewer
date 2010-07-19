@@ -6,7 +6,7 @@
 	<panel name="button_panel">
 		<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
 		<button label="Carte" name="map_btn" tool_tip="Afficher la zone correspondante sur la carte du monde"/>
-		<button label="Éditer" name="edit_btn" tool_tip="Modifier les informations du repère"/>
+		<button label="Modifier" name="edit_btn" tool_tip="Modifier les informations du repère"/>
 		<button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
 		<button label="Enregistrer" name="save_btn"/>
 		<button label="Annuler" name="cancel_btn"/>

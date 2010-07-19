@@ -1079,7 +1079,7 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 			mNoItemsCommentTextbox->setRect(comment_rect);
 */
 		}
-		mSelectedItemsBorder->setVisible(FALSE);
+		mSelectedItemsBorder->setVisible(!visible);
 		mNoItemsCommentTextbox->setVisible(visible);
 	}
 }

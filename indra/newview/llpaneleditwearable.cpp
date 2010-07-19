@@ -839,7 +839,7 @@ void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& r
 		if( !wearable_name.empty() )
 		{
 			mNameEditor->setText(wearable_name);
-			saveChanges();
+			saveChanges(true);
 		}
 	}
 }
@@ -971,7 +971,7 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 	}
 }
 
-void LLPanelEditWearable::saveChanges()
+void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
 	if (!mWearablePtr || !isDirty())
 	{
@@ -980,16 +980,18 @@ void LLPanelEditWearable::saveChanges()
 	}
 
 	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
-	
-	if (mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
+
+	std::string new_name = mNameEditor->getText();
+	if (force_save_as)
 	{
 		// the name of the wearable has changed, re-save wearable with new name
 		LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
-		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mNameEditor->getText(), FALSE);
+		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
+		mNameEditor->setText(mWearablePtr->getName());
 	}
 	else
 	{
-		gAgentWearables.saveWearable(mWearablePtr->getType(), index);
+		gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
 	}
 }
 

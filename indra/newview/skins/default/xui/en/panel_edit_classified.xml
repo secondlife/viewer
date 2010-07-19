@@ -78,6 +78,7 @@
          top="10"
          width="272">
       <texture_picker
+       fallback_image="default_land_picture.j2c"
        follows="left|top|right"
        height="197"
        width="272"

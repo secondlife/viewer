@@ -4134,7 +4134,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						}
 						LLSD cbparams;
 						cbparams["index"] = curiter->first;
-						cbparams["label"] = attachment->getName();
+						cbparams["label"] = p.name;
 						p.on_click.function_name = "Inventory.AttachObject";
 						p.on_click.parameter = LLSD(attachment->getName());
 						p.on_enable.function_name = "Attachment.Label";

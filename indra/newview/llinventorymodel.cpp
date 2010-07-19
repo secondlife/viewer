@@ -1254,6 +1254,9 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 	//llinfos << "LLInventoryModel::addCategory()" << llendl;
 	if(category)
 	{
+		// try to localize default names first. See EXT-8319, EXT-7051.
+		category->localizeName();
+
 		// Insert category uniquely into the map
 		mCategoryMap[category->getUUID()] = category; // LLPointer will deref and delete the old one
 		//mInventory[category->getUUID()] = category;

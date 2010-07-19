@@ -198,8 +198,10 @@ private:
 	void getCurrentItemUUID(LLUUID& selected_id);
 	void onCOFChanged();
 
+	typedef std::pair<LLWearableType::EType, size_t> selection_info_t;
+
 	LLWearableType::EType getCOFWearablesSelectionType() const;
-	LLWearableType::EType getAddMorePanelSelectionType() const;
+	selection_info_t getAddMorePanelSelectionType() const;
 	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;

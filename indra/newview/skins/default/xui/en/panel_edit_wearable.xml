@@ -242,6 +242,7 @@
          max_length="63"
          name="description"
          prevalidate_callback="ascii"
+         select_on_focus="true"
          text_color="black"
          top_pad="3"
          width="290" />
