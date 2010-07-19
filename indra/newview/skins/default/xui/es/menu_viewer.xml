@@ -94,7 +94,6 @@
 			<menu_item_call label="Configurar scripts como no ejecutándose" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opciones" name="Options">
-			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 			<menu_item_check label="Mostrar los permisos avanzados" name="DebugPermissions"/>
 			<menu_item_check label="Seleccionar sólo mis objetos" name="Select Only My Objects"/>
 			<menu_item_check label="Seleccionar sólo los objetos movibles" name="Select Only Movable Objects"/>
@@ -112,6 +111,7 @@
 			<menu_item_call label="Sonido ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
+			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 		</menu>
 	</menu>
 	<menu label="Ayuda" name="Help">

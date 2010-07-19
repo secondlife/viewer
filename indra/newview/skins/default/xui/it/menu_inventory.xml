@@ -61,7 +61,7 @@
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>
 	<menu_item_call label="Incolla come link" name="Paste As Link"/>
-	<menu_item_call label="Rimuovi link" name="Remove Link"/>
+	<menu_item_call label="Elimina" name="Remove Link"/>
 	<menu_item_call label="Cancella" name="Delete"/>
 	<menu_item_call label="Elimina la cartella di sistema" name="Delete System Folder"/>
 	<menu_item_call label="Inizia la conferenza chat" name="Conference Chat Folder"/>

@@ -22,6 +22,35 @@
 		Visualizar objeto
 	</floater.string>
 	<panel name="controls">
+		<panel name="preset_views_list">
+			<panel_camera_item name="front_view">
+				<panel_camera_item.text name="front_view_text">
+					Vista frontal
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="group_view">
+				<panel_camera_item.text name="side_view_text">
+					Vista lateral
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="rear_view">
+				<panel_camera_item.text name="rear_view_text">
+					Vista de trás
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
+		<panel name="camera_modes_list">
+			<panel_camera_item name="object_view">
+				<panel_camera_item.text name="object_view_text">
+					Vista de objetos
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="mouselook_view">
+				<panel_camera_item.text name="mouselook_view_text">
+					Vista do mouse
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
 		<panel name="zoom" tool_tip="Aproximar a Câmera in direção ao Foco">
 			<joystick_rotate name="cam_rotate_stick" tool_tip="Girar câmera ao redor do foco"/>
 			<slider_bar name="zoom_slider" tool_tip="Zoom de câmera para focalizar"/>
