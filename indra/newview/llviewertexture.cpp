@@ -1615,6 +1615,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired;
 		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
 		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
+		setAdditionalDecodePriority(1.0f) ;//boost the textures without any data so far.
 	}
 	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
