@@ -896,7 +896,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
 		{
 			// Set the new version
 			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(texture_ctrl->getImageAssetID());
-			if( image->getID().isNull() )
+			if( image->getID() == IMG_DEFAULT )
 			{
 				image = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
 			}
