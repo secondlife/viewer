@@ -537,11 +537,27 @@ LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparato
 	}
 }
 
+/*virtual*/
+bool LLWearableItemCreationDateComparator::doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const
+{
+	time_t date1 = item1->getCreationDate();
+	time_t date2 = item2->getCreationDate();
+
+	if (date1 == date2)
+	{
+		return LLWearableItemNameComparator::doCompare(item1, item2);
+	}
+
+	return date1 > date2;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 static const LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
+static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
+static const LLWearableItemCreationDateComparator WEARABLE_CREATION_DATE_COMPARATOR;
 
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
@@ -553,7 +569,7 @@ LLWearableItemsList::Params::Params()
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {
-	setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
+	setSortOrder(E_SORT_BY_TYPE, false);
 	mIsStandalone = p.standalone;
 	if (mIsStandalone)
 	{
@@ -651,6 +667,32 @@ void LLWearableItemsList::onRightClick(S32 x, S32 y)
 	}
 
 	ContextMenu::instance().show(this, selected_uuids, x, y);
+}
+
+void LLWearableItemsList::setSortOrder(ESortOrder sort_order, bool sort_now)
+{
+	switch (sort_order)
+	{
+	case E_SORT_BY_MOST_RECENT:
+		setComparator(&WEARABLE_CREATION_DATE_COMPARATOR);
+		break;
+	case E_SORT_BY_NAME:
+		setComparator(&WEARABLE_NAME_COMPARATOR);
+		break;
+	case E_SORT_BY_TYPE:
+		setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
+		break;
+
+	// No "default:" to raise compiler warning
+	// if we're not handling something
+	}
+
+	mSortOrder = sort_order;
+
+	if (sort_now)
+	{
+		sort();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

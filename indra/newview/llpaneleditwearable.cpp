@@ -806,6 +806,15 @@ void LLPanelEditWearable::draw()
 	LLPanel::draw();
 }
 
+void LLPanelEditWearable::setVisible(BOOL visible)
+{
+	if (!visible)
+	{
+		showWearable(mWearablePtr, FALSE);
+	}
+	LLPanel::setVisible(visible);
+}
+
 void LLPanelEditWearable::setWearable(LLWearable *wearable)
 {
 	showWearable(mWearablePtr, FALSE);

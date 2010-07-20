@@ -42,14 +42,12 @@
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
 												mTitle(NULL),
-												mCloseBtn(NULL),
-												mIcon(NULL)
+												mCloseBtn(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_sys_well_item.xml");
 
 	mTitle = getChild<LLTextBox>("title");
 	mCloseBtn = getChild<LLButton>("close_btn");
-	mIcon = getChild<LLIconCtrl>("icon");
 
 	mTitle->setValue(p.title);
 	mCloseBtn->setClickedCallback(boost::bind(&LLSysWellItem::onClickCloseBtn,this));

@@ -163,7 +163,7 @@ public:
 	}
 
 protected:
-	static void replaceWearable()
+	static void replaceWearable(const LLUUID& item_id)
 	{
 		// *TODO: Most probable that accessing to LLPanelOutfitEdit instance should be:
 		// LLSideTray::getInstance()->getSidepanelAppearance()->getPanelOutfitEdit()
@@ -175,7 +175,7 @@ protected:
 								"panel_outfit_edit"));
 		if (panel_outfit_edit != NULL)
 		{
-			panel_outfit_edit->showAddWearablesPanel(true);
+			panel_outfit_edit->onReplaceMenuItemClicked(item_id);
 		}
 	}
 
@@ -187,7 +187,7 @@ protected:
 		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Clothing.Replace", boost::bind(replaceWearable));
+		registrar.add("Clothing.Replace", boost::bind(replaceWearable, selected_id));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
 
@@ -244,7 +244,7 @@ protected:
 		// *HACK* need to pass pointer to LLPanelOutfitEdit instead of LLSideTray::getInstance()->getPanel().
 		// LLSideTray::getInstance()->getPanel() is rather slow variant
 		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
-		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked, panel_oe, selected_id));
+		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
 

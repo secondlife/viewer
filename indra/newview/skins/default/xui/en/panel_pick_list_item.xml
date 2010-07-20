@@ -65,7 +65,6 @@
      left="103"
      name="picture_descr"
      textbox.max_length="1024"
-     textbox.label="More"
      textbox.show_context_menu="false" 
      top_pad="0"
      width="178"

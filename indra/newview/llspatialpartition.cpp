@@ -1514,6 +1514,7 @@ void LLSpatialGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
 	{
+		LLFastTimer t(FTM_OCCLUSION_READBACK);
 		LLSpatialGroup* parent = getParent();
 		if (parent && parent->isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{	//if the parent has been marked as occluded, the child is implicitly occluded
@@ -1521,7 +1522,6 @@ void LLSpatialGroup::checkOcclusion()
 		}
 		else if (isOcclusionState(QUERY_PENDING))
 		{	//otherwise, if a query is pending, read it back
-			LLFastTimer t(FTM_OCCLUSION_READBACK);
 			GLuint res = 1;
 			if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
 			{
@@ -1925,11 +1925,8 @@ public:
 			return;
 		}
 		
-		if (mRes == 2)
-		{
-			//fully in, don't traverse further (won't effect extents
-		}
-		else if (mRes && group->isState(LLSpatialGroup::SKIP_FRUSTUM_CHECK))
+		if ((mRes && group->isState(LLSpatialGroup::SKIP_FRUSTUM_CHECK)) ||
+			mRes == 2)
 		{	//don't need to do frustum check
 			LLSpatialGroup::OctreeTraveler::traverse(n);
 		}
@@ -3424,11 +3421,23 @@ LLCullResult::LLCullResult()
 void LLCullResult::clear()
 {
 	mVisibleGroupsSize = 0;
+	mVisibleGroupsEnd = mVisibleGroups.begin();
+
 	mAlphaGroupsSize = 0;
+	mAlphaGroupsEnd = mAlphaGroups.begin();
+
 	mOcclusionGroupsSize = 0;
+	mOcclusionGroupsEnd = mOcclusionGroups.begin();
+
 	mDrawableGroupsSize = 0;
+	mDrawableGroupsEnd = mDrawableGroups.begin();
+
 	mVisibleListSize = 0;
+	mVisibleListEnd = mVisibleList.begin();
+
 	mVisibleBridgeSize = 0;
+	mVisibleBridgeEnd = mVisibleBridge.begin();
+
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
 	{
@@ -3437,6 +3446,7 @@ void LLCullResult::clear()
 			mRenderMap[i][j] = 0;
 		}
 		mRenderMapSize[i] = 0;
+		mRenderMapEnd[i] = mRenderMap[i].begin();
 	}
 }
 
@@ -3447,7 +3457,7 @@ LLCullResult::sg_list_t::iterator LLCullResult::beginVisibleGroups()
 
 LLCullResult::sg_list_t::iterator LLCullResult::endVisibleGroups()
 {
-	return mVisibleGroups.begin() + mVisibleGroupsSize;
+	return mVisibleGroupsEnd;
 }
 
 LLCullResult::sg_list_t::iterator LLCullResult::beginAlphaGroups()
@@ -3457,7 +3467,7 @@ LLCullResult::sg_list_t::iterator LLCullResult::beginAlphaGroups()
 
 LLCullResult::sg_list_t::iterator LLCullResult::endAlphaGroups()
 {
-	return mAlphaGroups.begin() + mAlphaGroupsSize;
+	return mAlphaGroupsEnd;
 }
 
 LLCullResult::sg_list_t::iterator LLCullResult::beginOcclusionGroups()
@@ -3467,7 +3477,7 @@ LLCullResult::sg_list_t::iterator LLCullResult::beginOcclusionGroups()
 
 LLCullResult::sg_list_t::iterator LLCullResult::endOcclusionGroups()
 {
-	return mOcclusionGroups.begin() + mOcclusionGroupsSize;
+	return mOcclusionGroupsEnd;
 }
 
 LLCullResult::sg_list_t::iterator LLCullResult::beginDrawableGroups()
@@ -3477,7 +3487,7 @@ LLCullResult::sg_list_t::iterator LLCullResult::beginDrawableGroups()
 
 LLCullResult::sg_list_t::iterator LLCullResult::endDrawableGroups()
 {
-	return mDrawableGroups.begin() + mDrawableGroupsSize;
+	return mDrawableGroupsEnd;
 }
 
 LLCullResult::drawable_list_t::iterator LLCullResult::beginVisibleList()
@@ -3487,7 +3497,7 @@ LLCullResult::drawable_list_t::iterator LLCullResult::beginVisibleList()
 
 LLCullResult::drawable_list_t::iterator LLCullResult::endVisibleList()
 {
-	return mVisibleList.begin() + mVisibleListSize;
+	return mVisibleListEnd;
 }
 
 LLCullResult::bridge_list_t::iterator LLCullResult::beginVisibleBridge()
@@ -3497,7 +3507,7 @@ LLCullResult::bridge_list_t::iterator LLCullResult::beginVisibleBridge()
 
 LLCullResult::bridge_list_t::iterator LLCullResult::endVisibleBridge()
 {
-	return mVisibleBridge.begin() + mVisibleBridgeSize;
+	return mVisibleBridgeEnd;
 }
 
 LLCullResult::drawinfo_list_t::iterator LLCullResult::beginRenderMap(U32 type)
@@ -3507,7 +3517,7 @@ LLCullResult::drawinfo_list_t::iterator LLCullResult::beginRenderMap(U32 type)
 
 LLCullResult::drawinfo_list_t::iterator LLCullResult::endRenderMap(U32 type)
 {
-	return mRenderMap[type].begin() + mRenderMapSize[type];
+	return mRenderMapEnd[type];
 }
 
 void LLCullResult::pushVisibleGroup(LLSpatialGroup* group)
@@ -3521,6 +3531,7 @@ void LLCullResult::pushVisibleGroup(LLSpatialGroup* group)
 		mVisibleGroups.push_back(group);
 	}
 	++mVisibleGroupsSize;
+	mVisibleGroupsEnd = mVisibleGroups.begin()+mVisibleGroupsSize;
 }
 
 void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
@@ -3534,6 +3545,7 @@ void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
 		mAlphaGroups.push_back(group);
 	}
 	++mAlphaGroupsSize;
+	mAlphaGroupsEnd = mAlphaGroups.begin()+mAlphaGroupsSize;
 }
 
 void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
@@ -3547,6 +3559,7 @@ void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
 		mOcclusionGroups.push_back(group);
 	}
 	++mOcclusionGroupsSize;
+	mOcclusionGroupsEnd = mOcclusionGroups.begin()+mOcclusionGroupsSize;
 }
 
 void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
@@ -3560,6 +3573,7 @@ void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 		mDrawableGroups.push_back(group);
 	}
 	++mDrawableGroupsSize;
+	mDrawableGroupsEnd = mDrawableGroups.begin()+mDrawableGroupsSize;
 }
 
 void LLCullResult::pushDrawable(LLDrawable* drawable)
@@ -3573,6 +3587,7 @@ void LLCullResult::pushDrawable(LLDrawable* drawable)
 		mVisibleList.push_back(drawable);
 	}
 	++mVisibleListSize;
+	mVisibleListEnd = mVisibleList.begin()+mVisibleListSize;
 }
 
 void LLCullResult::pushBridge(LLSpatialBridge* bridge)
@@ -3586,6 +3601,7 @@ void LLCullResult::pushBridge(LLSpatialBridge* bridge)
 		mVisibleBridge.push_back(bridge);
 	}
 	++mVisibleBridgeSize;
+	mVisibleBridgeEnd = mVisibleBridge.begin()+mVisibleBridgeSize;
 }
 
 void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
@@ -3599,6 +3615,7 @@ void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
 		mRenderMap[type].push_back(draw_info);
 	}
 	++mRenderMapSize[type];
+	mRenderMapEnd[type] = mRenderMap[type].begin() + mRenderMapSize[type];
 }
 
 

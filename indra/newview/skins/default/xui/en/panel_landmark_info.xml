@@ -139,7 +139,6 @@
              layout="topleft"
              left="10"
              name="description"
-             textbox.label="More"
              top_pad="10"
              value="Du waltz die spritz"
              width="280" />
@@ -236,7 +235,7 @@
                  value="Title:"
                  width="290" />
                 <text
-                 allow_html="false"
+                 parse_urls="false"
                  follows="left|top"
                  height="22"
                  layout="topleft"

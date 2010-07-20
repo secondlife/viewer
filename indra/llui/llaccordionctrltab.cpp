@@ -358,6 +358,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	,mPaddingBottom(p.padding_bottom)
 	,mCanOpenClose(true)
 	,mFitPanel(p.fit_panel)
+	,mSelectionEnabled(p.selection_enabled)
 	,mContainerPanel(NULL)
 	,mScrollbar(NULL)
 {
@@ -371,7 +372,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
 	addChild(mHeader, 1);
 
-	if (p.selection_enabled)
+	if (mSelectionEnabled)
 	{
 		LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
 	}
@@ -797,7 +798,7 @@ void LLAccordionCtrlTab::showAndFocusHeader()
 {
 	LLAccordionCtrlTabHeader* header = getChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);	
 	header->setFocus(true);
-	header->setSelected(true);
+	header->setSelected(mSelectionEnabled);
 
 	LLRect screen_rc;
 	LLRect selected_rc = header->getRect();
