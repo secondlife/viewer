@@ -89,12 +89,11 @@ bool LLOutfitObserver::checkCOF()
 		return false;
 
 	bool cof_changed = false;
-	LLMD5 itemNameHash;
-	hashItemNames(itemNameHash);
-	if (itemNameHash != mItemNameHash)
+	LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cof);
+	if (item_name_hash != mItemNameHash)
 	{
 		cof_changed = true;
-		mItemNameHash = itemNameHash;
+		mItemNameHash = item_name_hash;
 	}
 
 	S32 cof_version = getCategoryVersion(cof);
@@ -112,27 +111,6 @@ bool LLOutfitObserver::checkCOF()
 	mCOFChanged();
 
 	return true;
-}
-
-void LLOutfitObserver::hashItemNames(LLMD5& itemNameHash)
-{
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
-								  cat_array,
-								  item_array,
-								  false);
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
-	{
-		const LLViewerInventoryItem *item = (*iter);
-		if (!item)
-			continue;
-		const std::string& name = item->getName();
-		itemNameHash.update(name);
-	}
-	itemNameHash.finalize();
 }
 
 void LLOutfitObserver::checkBaseOutfit()

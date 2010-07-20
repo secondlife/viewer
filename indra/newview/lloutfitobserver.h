@@ -73,8 +73,6 @@ protected:
 
 	bool checkCOF();
 
-	void hashItemNames(LLMD5& itemNameHash);
-
 	void checkBaseOutfit();
 
 	//last version number of a COF category
