@@ -444,7 +444,6 @@ BOOL LLWearable::importFile( LLFILE* file )
 			delete mSavedTEMap[te];
 		}
 
-		image->setBoostLevel(LLViewerTexture::BOOST_AVATAR_SELF) ;
 		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL);
 
 		LLUUID textureid(text_buffer);
