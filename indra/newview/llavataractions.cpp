@@ -550,9 +550,10 @@ namespace action_give_inventory
 		}
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (NULL == active_panel)
+		if (!active_panel)
 		{
-			return;
+			active_panel = get_outfit_editor_inventory_panel();
+			if (!active_panel) return;
 		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
