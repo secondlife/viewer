@@ -58,6 +58,8 @@ public:
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 
+	/*virtual*/ void setEnabled(BOOL enabled);
+
 	/*virtual*/ void setText( const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params() );
 	
 	void			setRightAlign()							{ mHAlign = LLFontGL::RIGHT; }

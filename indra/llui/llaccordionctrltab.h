@@ -241,6 +241,8 @@ private:
 	bool mStoredOpenCloseState;
 	bool mWasStateStored;
 
+	bool mSelectionEnabled;
+
 	LLScrollbar*	mScrollbar;
 	LLView*			mContainerPanel;
 

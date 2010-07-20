@@ -128,7 +128,6 @@
 #include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
-#include "llpanelplace.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
@@ -3146,6 +3145,13 @@ bool process_login_success_response()
 		{
 			gCloudTextureID = id;
 		}
+	}
+
+	// Set the location of the snapshot sharing config endpoint
+	std::string snapshot_config_url = response["snapshot_config_url"];
+	if(!snapshot_config_url.empty())
+	{
+		gSavedSettings.setString("SnapshotConfigURL", snapshot_config_url);
 	}
 
 	// Start the process of fetching the OpenID session cookie for this user login

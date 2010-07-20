@@ -215,6 +215,7 @@ public:
 	LLColor3 getLightBaseColor() const; // not scaled by intensity
 	LLColor3 getLightColor() const; // scaled by intensity
 	LLUUID	getLightTextureID() const;
+	bool isLightSpotlight() const;
 	LLVector3 getSpotLightParams() const;
 	void	updateSpotLightPriority();
 	F32		getSpotLightPriority() const;

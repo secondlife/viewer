@@ -243,6 +243,20 @@ void LLFloaterCamera::resetCameraMode()
 	floater_camera->switchMode(CAMERA_CTRL_MODE_PAN);
 }
 
+void LLFloaterCamera::onAvatarEditingAppearance(bool editing)
+{
+	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
+	if (!floater_camera) return;
+
+	//camera presets (rear, front, etc.)
+	floater_camera->childSetEnabled("preset_views_list", !editing);
+	floater_camera->childSetEnabled("presets_btn", !editing);
+
+	//camera modes (object view, mouselook view)
+	floater_camera->childSetEnabled("camera_modes_list", !editing);
+	floater_camera->childSetEnabled("avatarview_btn", !editing);
+}
+
 void LLFloaterCamera::update()
 {
 	ECameraControlMode mode = determineMode();

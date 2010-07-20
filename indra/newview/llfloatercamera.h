@@ -68,6 +68,9 @@ public:
 	/** resets current camera mode to orbit mode */
 	static void resetCameraMode();
 
+	/** Called when Avatar is entered/exited editing appearance mode */
+	static void onAvatarEditingAppearance(bool editing);
+
 	/* determines actual mode and updates ui */
 	void update();
 

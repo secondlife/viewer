@@ -56,6 +56,7 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
+#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -1318,6 +1319,9 @@ void LLViewerMedia::setOpenIDCookie()
 		}
 		
 		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
+
+		// *HACK: Doing this here is nasty, find a better way.
+		LLWebSharing::instance().setOpenIDCookie(sOpenIDCookie);
 	}
 }
 

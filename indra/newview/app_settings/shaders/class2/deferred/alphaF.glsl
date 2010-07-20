@@ -29,8 +29,6 @@ varying vec3 vary_fragcoord;
 varying vec3 vary_position;
 varying vec3 vary_light;
 
-uniform float alpha_soften;
-
 uniform float shadow_bias;
 
 uniform mat4 inv_proj;
@@ -115,15 +113,6 @@ void main()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	if (samp_pos.z != 0.0 && gl_Color.a < 1.0)
-	{
-		float dist_factor = alpha_soften;
-		float a = gl_Color.a;
-		a *= a;
-		dist_factor *= 1.0/(1.0-a);
-		color.a *= min((pos.z-samp_pos.z)*dist_factor, 1.0);
-	}
-	
 	//gl_FragColor = gl_Color;
 	gl_FragColor = color;
 	//gl_FragColor = vec4(1,0,1,1)*shadow;
