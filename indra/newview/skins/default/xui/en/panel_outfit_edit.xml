@@ -58,6 +58,7 @@
      name="replace_body_part"
      value="Click to replace your existing shape"/>
   
+
     <button
      follows="top|left"
      height="24"
@@ -290,7 +291,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 
 
                 <layout_panel
-         background_visible="true"
+         background_visible="false"
          bg_alpha_color="DkGray2"
                  auto_resize="true"
          default_tab_group="3"
@@ -317,7 +318,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		             background_visible="false"
 		             border="false"
 		             follows="left|top|right|bottom"
-             height="449"
+             height="418"
 		             layout="topleft"
 		             left="0"
 		             mouse_opaque="false"
@@ -332,7 +333,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		             layout="topleft"
 		             follows="left|top|right|bottom"
 		             border="false"
-             height="449"
+             height="418"
 		             left="0"
 		             mouse_opaque="false"
              width="310"
@@ -346,10 +347,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		              follows="all"
 		              multi_select="true"
                  width="313"
-                 height="449"
+                 height="418"
 		              left="0"
 		              top="0"/>
 		            </panel>
+            <button
+	         follows="bottom|left"
+	         height="22"
+	         left="2"
+	         label="Wear Item"
+	         layout="topleft"
+	         name="plus_btn"
+	         top_pad="5"
+	         width="130" />
 
        </layout_panel>
     </layout_stack>
@@ -397,6 +407,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          left_pad="1"
          name="shop_btn_1"
          top="1"
+         tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"
          width="31" />
     </panel>
     
@@ -451,19 +462,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          name="list_view_btn"
          top="1"
          width="31" />
-        <button
-         follows="bottom|left"
-         height="25"
-         image_hover_unselected="Toolbar_Middle_Over"
-         image_overlay="AddItem_Off"
-         image_selected="Toolbar_Middle_Selected"
-         image_unselected="Toolbar_Middle_Off"
-         label=""
-         layout="topleft"
-         left_pad="1"
-         name="plus_btn"
-         top="1"
-         width="31" />
        <icon
         follows="bottom|left|right"
         height="25"
@@ -471,7 +469,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         layout="topleft"
         left_pad="1"
          name="dummy_right_icon"
-         width="154" >
+         width="186" >
        </icon>
         <button
          follows="bottom|right"
@@ -484,6 +482,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          left_pad="1"
          name="shop_btn_2"
          top="1"
+         tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"
          width="31" />
     </panel>
 

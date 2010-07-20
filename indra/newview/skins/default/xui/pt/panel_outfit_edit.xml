@@ -34,8 +34,16 @@
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
-		<layout_panel name="add_wearables_panel"/>
+		<layout_panel name="add_wearables_panel">
+			<button label="Vestir" name="plus_btn"/>
+		</layout_panel>
 	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="Visite o SL Marketplace. Ou selecione algum artigo do seu look e clique aqui para ver outros artigos parecidos"/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="Visite o SL Marketplace. Ou selecione algum artigo do seu look e clique aqui para ver outros artigos parecidos"/>
+	</panel>
 	<panel name="save_revert_button_bar">
 		<button label="Salvar" name="save_btn"/>
 		<button label="Desfazer mudanças" name="revert_btn" tool_tip="Voltar à versão salva anterior"/>

@@ -297,6 +297,12 @@ void LLScreenChannel::onToastDestroyed(LLToast* toast)
 	{
 		mStoredToastList.erase(it);
 	}
+
+	// if destroyed toast is hovered - reset hovered
+	if (mHoveredToast == toast)
+	{
+		mHoveredToast = NULL;
+	}
 }
 
 

@@ -233,7 +233,7 @@
 		Klik for at starte secondlife:// kommando
 	</string>
 	<string name="CurrentURL" value=" Nuværende URL: [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[PRICE]-"/>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		Teleportér til
 	</string>
@@ -1585,20 +1585,29 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD Nederst til højre
 	</string>
+	<string name="Bad attachment point">
+		Ugyldig fæste-punkt
+	</string>
 	<string name="CursorPos">
 		Linie [LINE], Kolonne [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] fundet
 	</string>
-	<string name="PanelContentsNewScript">
-		Nyt script
-	</string>
 	<string name="PanelContentsTooltip">
 		Indhold i objekt
 	</string>
+	<string name="PanelContentsNewScript">
+		Nyt script
+	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
+	</string>
+	<string name="NoOutfits">
+		Du har ikke nogen sæt endnu. Prøv [secondlife:///app/search/all/ Search]
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(Efter navn)

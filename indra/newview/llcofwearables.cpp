@@ -79,9 +79,7 @@ protected:
 		}
 
 		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
-		LLStringUtil::format_map_t args;
-		args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
-		std::string new_label = LLTrans::getString("CreateNewWearable", args);
+		std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
 		menu_item->setLabel(new_label);
 	}
 
@@ -281,7 +279,12 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachments(NULL),
 	mClothing(NULL),
 	mBodyParts(NULL),
-	mLastSelectedList(NULL)
+	mLastSelectedList(NULL),
+	mClothingTab(NULL),
+	mAttachmentsTab(NULL),
+	mBodyPartsTab(NULL),
+	mLastSelectedTab(NULL),
+	mCOFVersion(-1)
 {
 	mClothingMenu = new CofClothingContextMenu(this);
 	mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -319,6 +322,20 @@ BOOL LLCOFWearables::postBuild()
 	mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
 	mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
+
+	mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
+	mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_attachments");
+	mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mBodyPartsTab = getChild<LLAccordionCtrlTab>("tab_body_parts");
+	mBodyPartsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mTab2AssetType[mClothingTab] = LLAssetType::AT_CLOTHING;
+	mTab2AssetType[mAttachmentsTab] = LLAssetType::AT_OBJECT;
+	mTab2AssetType[mBodyPartsTab] = LLAssetType::AT_BODYPART;
+
 	return LLPanel::postBuild();
 }
 
@@ -338,8 +355,47 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 	onCommit();
 }
 
+void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
+{
+	bool had_selected_items = mClothing->numSelected() || mAttachments->numSelected() || mBodyParts->numSelected();
+	mClothing->resetSelection(true);
+	mAttachments->resetSelection(true);
+	mBodyParts->resetSelection(true);
+
+	bool tab_selection_changed = false;
+	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
+	if (tab && tab != mLastSelectedTab)
+	{
+		mLastSelectedTab = tab;
+		tab_selection_changed = true;
+	}
+
+	if (had_selected_items || tab_selection_changed)
+	{
+		//sending commit signal to indicate selection changes
+		onCommit();
+	}
+}
+
 void LLCOFWearables::refresh()
 {
+	const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
+	if (cof_id.isNull())
+	{
+		llwarns << "COF ID cannot be NULL" << llendl;
+		return;
+	}
+
+	LLViewerInventoryCategory* catp = gInventory.getCategory(cof_id);
+	if (!catp)
+	{
+		llwarns << "COF category cannot be NULL" << llendl;
+		return;
+	}
+
+	if (mCOFVersion == catp->getVersion()) return;
+	mCOFVersion = catp->getVersion();
+
 	typedef std::vector<LLSD> values_vector_t;
 	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
 
@@ -355,7 +411,7 @@ void LLCOFWearables::refresh()
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t cof_items;
 
-	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
+	gInventory.collectDescendents(cof_id, cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
 
 	populateAttachmentsAndBodypartsLists(cof_items);
 
@@ -463,7 +519,7 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
-	item_panel->childSetVisible("wearable_type_separator_icon", last);
+	item_panel->setSeparatorVisible(last);
 
 	return item_panel;
 }
@@ -596,25 +652,17 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 
 	static type_map_t type_map;
 	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
+	const LLAccordionCtrlTab* expanded_tab = accordion_ctrl->getExpandedTab();
 
-	if (type_map.empty())
-	{
-		type_map["tab_clothing"] = LLAssetType::AT_CLOTHING;
-		type_map["tab_attachments"] = LLAssetType::AT_OBJECT;
-		type_map["tab_body_parts"] = LLAssetType::AT_BODYPART;
+	return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
 	}
 
-	const LLAccordionCtrlTab* tab = accordion_ctrl->getExpandedTab();
-	LLAssetType::EType result = LLAssetType::AT_NONE;
-
-	if (tab)
+LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
 	{
-		type_map_t::iterator i = type_map.find(tab->getName());
-		llassert(i != type_map.end());
-		result = i->second;
-	}
+	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
+	const LLAccordionCtrlTab* selected_tab = accordion_ctrl->getSelectedTab();
 
-	return result;
+	return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)

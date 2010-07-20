@@ -472,7 +472,7 @@
      layout="topleft" 
      name="Paste Separator" />
     <menu_item_call
-     label="Remove Link"
+     label="Delete"
      layout="topleft"
      name="Remove Link">
         <menu_item_call.on_click

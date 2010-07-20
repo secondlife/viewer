@@ -34,8 +34,16 @@
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
-		<layout_panel name="add_wearables_panel"/>
+		<layout_panel name="add_wearables_panel">
+			<button label="アイテムを装着" name="plus_btn"/>
+		</layout_panel>
 	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="「SL マーケットプレイス」ページをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="「SL マーケットプレイス」ページをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+	</panel>
 	<panel name="save_revert_button_bar">
 		<button label="保存" name="save_btn"/>
 		<button label="変更を元に戻す" name="revert_btn" tool_tip="前回保存された状態に戻す"/>
