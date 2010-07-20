@@ -385,7 +385,7 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 	params.view = icon;
 	params.left_pad = 4;
 	params.right_pad = 4;
-	params.top_pad = 2;
+	params.top_pad = -2;
 	params.bottom_pad = 2;
 
 	base->appendWidget(params," ",false);
