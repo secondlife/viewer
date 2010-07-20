@@ -393,6 +393,7 @@ void LLCOFWearables::refresh()
 		return;
 	}
 
+	// BAP - removed check; does not detect item name changes.
 	//if (mCOFVersion == catp->getVersion()) return;
 	mCOFVersion = catp->getVersion();
 
