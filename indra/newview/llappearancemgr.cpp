@@ -2209,6 +2209,7 @@ void LLAppearanceMgr::updateIsDirty()
 			LLViewerInventoryItem *item2 = outfit_items.get(i);
 
 			if (item1->getLinkedUUID() != item2->getLinkedUUID() || 
+				item1->getName() != item2->getName() ||
 				item1->LLInventoryItem::getDescription() != item2->LLInventoryItem::getDescription())
 			{
 				mOutfitIsDirty = true;

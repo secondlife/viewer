@@ -393,7 +393,7 @@ void LLCOFWearables::refresh()
 		return;
 	}
 
-	if (mCOFVersion == catp->getVersion()) return;
+	//if (mCOFVersion == catp->getVersion()) return;
 	mCOFVersion = catp->getVersion();
 
 	typedef std::vector<LLSD> values_vector_t;

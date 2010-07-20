@@ -95,6 +95,7 @@ public:
   void  update     (const uint1 *input, const uint4 input_length);
   void  update     (std::istream& stream);
   void  update     (FILE *file);
+  void  update     (const std::string& str);
   void  finalize   ();
 
 // constructors for special circumstances.  All these constructors finalize
@@ -105,11 +106,10 @@ public:
   LLMD5              (const unsigned char *string, const unsigned int number);
   
 // methods to acquire finalized result
-  void				raw_digest(unsigned char *array);	// provide 16-byte array for binary data
-  void				hex_digest(char *string);			// provide 33-byte array for ascii-hex string
+  void				raw_digest(unsigned char *array) const;	// provide 16-byte array for binary data
+  void				hex_digest(char *string) const;			// provide 33-byte array for ascii-hex string
+
   friend std::ostream&   operator<< (std::ostream&, LLMD5 context);
-
-
 
 private:
 
@@ -130,5 +130,8 @@ private:
   static void decode    (uint4 *dest, const uint1 *src, const uint4 length);
 
 };
+
+LL_COMMON_API bool operator==(const LLMD5& a, const LLMD5& b);
+LL_COMMON_API bool operator!=(const LLMD5& a, const LLMD5& b);
 
 #endif // LL_LLMD5_H
