@@ -2598,8 +2598,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			mWearables=TRUE;
 		}
-		mMenu = menu.getHandle();
-		sSelf = getHandle();
 	}
 
 	// Preemptively disable system folder removal if more than one item selected.
@@ -2630,6 +2628,8 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		folders.push_back(category->getUUID());
 	}
 
+	mMenu = menu.getHandle();
+	sSelf = getHandle();
 	LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
 	fetch->startFetch();
 	inc_busy_count();
