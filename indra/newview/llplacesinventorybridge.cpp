@@ -115,7 +115,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
 
 		// repeat parent functionality
- 		sSelf = this; // necessary for "New Folder" functionality
+ 		sSelf = getHandle(); // necessary for "New Folder" functionality
 
 		hide_context_entries(menu, items, disabled_items);
 	}

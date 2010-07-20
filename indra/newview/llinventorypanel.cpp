@@ -790,7 +790,7 @@ void LLInventoryPanel::doToSelected(const LLSD& userdata)
 
 void LLInventoryPanel::doCreate(const LLSD& userdata)
 {
-	menu_create_inventory_item(mFolderRoot, LLFolderBridge::sSelf, userdata);
+	menu_create_inventory_item(mFolderRoot, LLFolderBridge::sSelf.get(), userdata);
 }
 
 bool LLInventoryPanel::beginIMSession()

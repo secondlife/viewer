@@ -23,6 +23,12 @@
 		<button label="詳細 &gt;&gt;" label_selected="簡易 &lt;&lt;" name="less_btn" tool_tip="アドバンスコントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			近くのメディア
+		</text>
+		<text name="show_text">
+			表示：
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="すべて" name="All"/>
 			<combo_box.item label="この区画内" name="WithinParcel"/>
@@ -36,7 +42,7 @@
 			<scroll_list.columns label="名前" name="media_name"/>
 			<scroll_list.columns label="デバッグ" name="media_debug"/>
 		</scroll_list>
-		<panel name="media_controls_panel">
+		<panel>
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="選択したメディアを停止"/>

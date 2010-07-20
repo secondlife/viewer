@@ -56,7 +56,7 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 		<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
 		<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
 		<button label="Teilen" name="share_btn" tool_tip="Inventarobjekt teilen"/>
-		<button label="Teleportieren" name="teleport_btn" tool_tip="Teleport anbieten"/>
+		<button label="Teleport" name="teleport_btn" tool_tip="Teleport anbieten"/>
 		<button label="Gruppenprofil" name="group_info_btn" tool_tip="Gruppeninformationen anzeigen"/>
 		<button label="Gruppen-Chat" name="chat_btn" tool_tip="Chat öffnen"/>
 		<button label="Gruppe anrufen" name="group_call_btn" tool_tip="Diese Gruppe anrufen"/>

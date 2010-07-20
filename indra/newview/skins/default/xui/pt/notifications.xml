@@ -356,7 +356,7 @@ Tem certeza de que quer prosseguir?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Apagar"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Excluir look(s) selecionado(s)?
+		Excluir o look selecionado?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">

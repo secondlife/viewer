@@ -22,6 +22,35 @@
 		オブジェクトを見る
 	</floater.string>
 	<panel name="controls">
+		<panel name="preset_views_list">
+			<panel_camera_item name="front_view">
+				<panel_camera_item.text name="front_view_text">
+					前方視界
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="group_view">
+				<panel_camera_item.text name="side_view_text">
+					グループ視界
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="rear_view">
+				<panel_camera_item.text name="rear_view_text">
+					後方視界
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
+		<panel name="camera_modes_list">
+			<panel_camera_item name="object_view">
+				<panel_camera_item.text name="object_view_text">
+					オブジェクト視点
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="mouselook_view">
+				<panel_camera_item.text name="mouselook_view_text">
+					一人称視点
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
 		<panel name="zoom" tool_tip="向いている方法にカメラをズーム">
 			<joystick_rotate name="cam_rotate_stick" tool_tip="自分を軸にカメラを回す"/>
 			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム"/>

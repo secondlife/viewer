@@ -611,8 +611,9 @@ public:
 	// Appearance morphing
 	//--------------------------------------------------------------------
 public:
-	BOOL			mAppearanceAnimating;
+	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
 private:
+	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
 	F32				mLastAppearanceBlendTime;
 
@@ -622,7 +623,7 @@ private:
 public:
 	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
 	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
-	static BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
+	static BOOL		teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
 
 	//--------------------------------------------------------------------
 	// Global colors

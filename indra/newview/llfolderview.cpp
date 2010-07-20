@@ -1195,7 +1195,7 @@ void LLFolderView::propertiesSelectedItems( void )
 
 void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
 {
-	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf;
+	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf.get();
 
 	if (!folder_bridge) return;
 	LLViewerInventoryCategory *cat = folder_bridge->getCategory();

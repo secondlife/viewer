@@ -1615,6 +1615,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired;
 		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
 		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
+		setAdditionalDecodePriority(1.0f) ;//boost the textures without any data so far.
 	}
 	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
@@ -3698,7 +3699,7 @@ void LLTexturePipelineTester::updateStablizingTime()
 	{
 		F32 t = mEndStablizingTime - mStartStablizingTime ;
 
-		if(t > 0.0001f && (t - mTotalStablizingTime) < 0.0001f)
+		if(t > F_ALMOST_ZERO && (t - mTotalStablizingTime) < F_ALMOST_ZERO)
 		{
 			//already stablized
 			mTotalStablizingTime = LLImageGL::sLastFrameTime - mStartStablizingTime ;
@@ -3823,7 +3824,7 @@ LLMetricPerformanceTester::LLTestSession* LLTexturePipelineTester::loadTestSessi
 		//time
 		F32 start_time = (*log)[label]["StartFetchingTime"].asReal() ;
 		F32 cur_time   = (*log)[label]["Time"].asReal() ;
-		if(start_time - start_fetching_time > 0.0001f) //fetching has paused for a while
+		if(start_time - start_fetching_time > F_ALMOST_ZERO) //fetching has paused for a while
 		{
 			sessionp->mTotalFetchingTime += total_fetching_time ;
 			sessionp->mTotalGrayTime += total_gray_time ;

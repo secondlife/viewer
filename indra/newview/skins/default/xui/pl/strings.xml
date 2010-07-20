@@ -181,6 +181,7 @@
 	<string name="TooltipMustSingleDrop">
 		Tylko pojedynczy obiekt może być tutaj przeciągnięty
 	</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipHttpUrl">
 		Kliknij by zobaczyć zawartość tej strony internetowej
 	</string>
@@ -233,7 +234,6 @@
 		Kliknij by uruchomić secondlife:// command
 	</string>
 	<string name="CurrentURL" value=" Obecny Adres: [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		Teleportuj do
 	</string>
@@ -882,11 +882,56 @@
 	<string name="invalid_not_worn">
 		nieważny
 	</string>
+	<string name="create_new_shape">
+		Nowy kształt
+	</string>
+	<string name="create_new_skin">
+		Nowa skórka
+	</string>
+	<string name="create_new_hair">
+		Nowe włosy
+	</string>
+	<string name="create_new_eyes">
+		Nowe oczy
+	</string>
+	<string name="create_new_shirt">
+		Nowa koszula
+	</string>
+	<string name="create_new_pants">
+		Nowe spodnie
+	</string>
+	<string name="create_new_shoes">
+		Nowe buty
+	</string>
+	<string name="create_new_socks">
+		Nowe skarpetki
+	</string>
+	<string name="create_new_jacket">
+		Nowa kurtka
+	</string>
+	<string name="create_new_gloves">
+		Nowe rękawiczki
+	</string>
+	<string name="create_new_undershirt">
+		Nowy podkoszulek
+	</string>
+	<string name="create_new_underpants">
+		Nowa bielizna
+	</string>
+	<string name="create_new_skirt">
+		Nowa spódnica
+	</string>
+	<string name="create_new_alpha">
+		Nowe alpha
+	</string>
+	<string name="create_new_tattoo">
+		Nowy tatuaż
+	</string>
+	<string name="create_new_invalid">
+		nieważny
+	</string>
 	<string name="NewWearable">
 		Nowa [WEARABLE_ITEM]
-	</string>
-	<string name="CreateNewWearable">
-		Stwórz [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Następne
@@ -1064,6 +1109,9 @@
 	</string>
 	<string name="InvFolder Gestures">
 		Gesturki
+	</string>
+	<string name="InvFolder favorite">
+		Ulubione
 	</string>
 	<string name="InvFolder Current Outfit">
 		Obecne Ubranie
@@ -1599,12 +1647,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przeglądnięcia poźniej.
-	</string>
-	<string name="NoOutfits">
-		Nie posiadasz żadnych strojów. Spróbuj [secondlife:///app/search/all/ Szukaj]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Szukaj].
 	</string>
 	<string name="MuteByName">
 		(Nazwa)

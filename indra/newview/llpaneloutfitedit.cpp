@@ -629,24 +629,35 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 	if (isAgentAvatarValid())
 	{
 		// try to get wearable type from 'Add More' panel first (EXT-7639)
-		LLWearableType::EType type = getAddMorePanelSelectionType();
+		selection_info_t selection_info = getAddMorePanelSelectionType();
 
-		if (type == LLWearableType::WT_NONE)
+		LLWearableType::EType type = selection_info.first;
+
+		if (selection_info.second > 1)
 		{
-			type = getCOFWearablesSelectionType();
+			// the second argument is not important in this case: generic market place will be opened
+			url = url_resolver.resolveURL(LLWearableType::WT_NONE, SEX_FEMALE);
 		}
-
-		ESex sex = gAgentAvatarp->getSex();
-
-		// WT_INVALID comes for attachments
-		if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+		else
 		{
-			url = url_resolver.resolveURL(type, sex);
-		}
+			if (type == LLWearableType::WT_NONE)
+			{
+				type = getCOFWearablesSelectionType();
+			}
 
-		if (url.empty())
-		{
-			url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
+			ESex sex = gAgentAvatarp->getSex();
+
+			// WT_INVALID comes for attachments
+			if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+			{
+				url = url_resolver.resolveURL(type, sex);
+			}
+
+			if (url.empty())
+			{
+				url = url_resolver.resolveURL(
+						mCOFWearables->getExpandedAccordionAssetType(), sex);
+			}
 		}
 	}
 	else
@@ -685,9 +696,9 @@ LLWearableType::EType LLPanelOutfitEdit::getCOFWearablesSelectionType() const
 	return type;
 }
 
-LLWearableType::EType LLPanelOutfitEdit::getAddMorePanelSelectionType() const
+LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionType() const
 {
-	LLWearableType::EType type = LLWearableType::WT_NONE;
+	selection_info_t result = std::make_pair(LLWearableType::WT_NONE, 0);
 
 	if (mAddWearablesPanel != NULL && mAddWearablesPanel->getVisible())
 	{
@@ -695,9 +706,11 @@ LLWearableType::EType LLPanelOutfitEdit::getAddMorePanelSelectionType() const
 		{
 			std::set<LLUUID> selected_uuids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
-			if (selected_uuids.size() == 1)
+			result.second = selected_uuids.size();
+
+			if (result.second == 1)
 			{
-				type = getWearableTypeByItemUUID(*(selected_uuids.begin()));
+				result.first = getWearableTypeByItemUUID(*(selected_uuids.begin()));
 			}
 		}
 		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
@@ -705,14 +718,16 @@ LLWearableType::EType LLPanelOutfitEdit::getAddMorePanelSelectionType() const
 			std::vector<LLUUID> selected_uuids;
 			mWearableItemsList->getSelectedUUIDs(selected_uuids);
 
-			if (selected_uuids.size() == 1)
+			result.second = selected_uuids.size();
+
+			if (result.second == 1)
 			{
-				type = getWearableTypeByItemUUID(selected_uuids.front());
+				result.first = getWearableTypeByItemUUID(selected_uuids.front());
 			}
 		}
 	}
 
-	return type;
+	return result;
 }
 
 LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID& item_uuid) const
