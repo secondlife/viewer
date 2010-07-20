@@ -36,7 +36,6 @@
 
 #include "message.h"
 
-#include "llpanelplace.h"
 #include "llpanel.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"

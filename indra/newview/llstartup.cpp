@@ -128,7 +128,6 @@
 #include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
-#include "llpanelplace.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
