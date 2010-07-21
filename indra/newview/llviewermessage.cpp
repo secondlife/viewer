@@ -5088,13 +5088,29 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		return;
 	}
 
-	const char* source_type = (is_source_group ? "group" : "agent");
-	std::string source_slurl =
-		LLSLURL( source_type, source_id, "inspect").getSLURLString();
-	
-	const char* dest_type = (is_dest_group ? "group" : "agent");
-	std::string dest_slurl =
-		LLSLURL( dest_type, dest_id, "completename").getSLURLString();
+	std::string source_slurl;
+	if (is_source_group)
+	{
+		source_slurl =
+			LLSLURL( "group", source_id, "inspect").getSLURLString();
+	}
+	else
+	{
+		source_slurl =
+			LLSLURL( "agent", source_id, "completename").getSLURLString();
+	}
+
+	std::string dest_slurl;
+	if (is_dest_group)
+	{
+		dest_slurl =
+			LLSLURL( "group", dest_id, "inspect").getSLURLString();
+	}
+	else
+	{
+		dest_slurl =
+			LLSLURL( "agent", dest_id, "completename").getSLURLString();
+	}
 
 	std::string reason =
 		reason_from_transaction_type(transaction_type, item_description);
