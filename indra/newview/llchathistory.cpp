@@ -111,6 +111,12 @@ public:
 		return pInstance;
 	}
 
+	~LLChatHistoryHeader()
+	{
+		// Detach the info button so that it doesn't get destroyed (EXT-8463).
+		hideInfoCtrl();
+	}
+
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		return LLPanel::handleMouseUp(x,y,mask);
@@ -382,8 +388,18 @@ protected:
 				
 		if (!sInfoCtrl)
 		{
+			// *TODO: Delete the button at exit.
 			sInfoCtrl = LLUICtrlFactory::createFromFile<LLUICtrl>("inspector_info_ctrl.xml", NULL, LLPanel::child_registry_t::instance());
-			sInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, sInfoCtrl));
+			if (sInfoCtrl)
+			{
+				sInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, sInfoCtrl));
+			}
+		}
+
+		if (!sInfoCtrl)
+		{
+			llassert(sInfoCtrl != NULL);
+			return;
 		}
 
 		LLTextBase* name = getChild<LLTextBase>("user_name");
