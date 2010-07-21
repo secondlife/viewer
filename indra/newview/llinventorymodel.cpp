@@ -294,6 +294,30 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 	items = get_ptr_in_map(mParentChildItemTree, cat_id);
 }
 
+LLMD5 LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	getDirectDescendentsOf(cat_id,cat_array,item_array);
+	LLMD5 item_name_hash;
+	if (!item_array)
+	{
+		item_name_hash.finalize();
+		return item_name_hash;
+	}
+	for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
+		 iter != item_array->end();
+		 iter++)
+	{
+		const LLViewerInventoryItem *item = (*iter);
+		if (!item)
+			continue;
+		item_name_hash.update(item->getName());
+	}
+	item_name_hash.finalize();
+	return item_name_hash;
+}
+
 // SJB: Added version to lock the arrays to catch potential logic bugs
 void LLInventoryModel::lockDirectDescendentArrays(const LLUUID& cat_id,
 												  cat_array_t*& categories,

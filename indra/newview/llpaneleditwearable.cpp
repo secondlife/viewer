@@ -786,7 +786,7 @@ BOOL LLPanelEditWearable::isDirty() const
 	if (mWearablePtr)
 	{
 		if (mWearablePtr->isDirty() ||
-			mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
+			mWearableItem->getName().compare(mNameEditor->getText()) != 0)
 		{
 			isDirty = TRUE;
 		}
@@ -896,7 +896,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
 		{
 			// Set the new version
 			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(texture_ctrl->getImageAssetID());
-			if( image->getID().isNull() )
+			if( image->getID() == IMG_DEFAULT )
 			{
 				image = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
 			}
@@ -987,7 +987,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 		// the name of the wearable has changed, re-save wearable with new name
 		LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
 		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
-		mNameEditor->setText(mWearablePtr->getName());
+		mNameEditor->setText(mWearableItem->getName());
 	}
 	else
 	{
@@ -1004,7 +1004,7 @@ void LLPanelEditWearable::revertChanges()
 	}
 
 	mWearablePtr->revertValues();
-	mNameEditor->setText(mWearablePtr->getName());
+	mNameEditor->setText(mWearableItem->getName());
 	updatePanelPickerControls(mWearablePtr->getType());
 	updateTypeSpecificControls(mWearablePtr->getType());
 	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
@@ -1050,7 +1050,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 		mDescTitle->setText(description_title);
 		
 		// set name
-		mNameEditor->setText(wearable->getName());
+		mNameEditor->setText(mWearableItem->getName());
 
 		updatePanelPickerControls(type);
 		updateTypeSpecificControls(type);

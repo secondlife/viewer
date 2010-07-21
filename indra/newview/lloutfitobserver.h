@@ -34,6 +34,7 @@
 #define LL_OUTFITOBSERVER_H
 
 #include "llsingleton.h"
+#include "llmd5.h"
 
 /**
  * Outfit observer facade that provides simple possibility to subscribe on
@@ -83,6 +84,8 @@ protected:
 	std::string mLastBaseOutfitName;
 
 	bool mLastOutfitDirtiness;
+
+	LLMD5 mItemNameHash;
 
 private:
 	signal_t mBOFReplaced;
