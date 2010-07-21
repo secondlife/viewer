@@ -45,6 +45,7 @@
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 #include "lltooltip.h"
+#include "lltrans.h"
 
 static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
@@ -301,7 +302,11 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	case INDIVIDUAL:
 		{
 			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(id, &av_name))
+			if (id.isNull())
+			{
+				fullname = LLTrans::getString("AvatarNameNobody");
+			}
+			else if (LLAvatarNameCache::get(id, &av_name))
 			{
 				if (mShortNames)
 					fullname = av_name.mDisplayName;
