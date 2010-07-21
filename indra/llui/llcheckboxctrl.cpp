@@ -191,7 +191,7 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 	static LLUICachedControl<S32> llcheckboxctrl_btn_size ("UICheckboxctrlBtnSize", 0);
 
 	const S32 FUDGE = 10;
-	S32 text_width = mFont->getWidth( mLabel->getText() ) + FUDGE;
+	S32 text_width = mLabel->getTextBoundingRect().getWidth() + FUDGE;
 	S32 text_height = llround(mFont->getLineHeight());
 	LLRect label_rect;
 	label_rect.setOriginAndSize(
