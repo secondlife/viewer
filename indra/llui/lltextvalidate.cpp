@@ -50,6 +50,7 @@ namespace LLTextValidate
 		declare("alpha_num_space", validateAlphaNumSpace);
 		declare("ascii_printable_no_pipe", validateASCIIPrintableNoPipe);
 		declare("ascii_printable_no_space", validateASCIIPrintableNoSpace);
+		declare("ascii_with_newline", validateASCIIWithNewLine);
 	}
 
 	// Limits what characters can be used to [1234567890.-] with [-] only valid in the first position.
@@ -292,6 +293,23 @@ namespace LLTextValidate
 		while(len--)
 		{
 			if (str[len] < 0x20 || str[len] > 0x7f)
+			{
+				rv = FALSE;
+				break;
+			}
+		}
+		return rv;
+	}
+
+	// Used for multiline text stored on the server.
+	// Example is landmark description in Places SP.
+	bool validateASCIIWithNewLine(const LLWString &str)
+	{
+		bool rv = TRUE;
+		S32 len = str.length();
+		while(len--)
+		{
+			if (str[len] < 0x20 && str[len] != 0xA || str[len] > 0x7f)
 			{
 				rv = FALSE;
 				break;
