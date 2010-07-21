@@ -2726,3 +2726,15 @@ BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 	return FALSE;
 	*/
 }
+
+void wear_multiple(const uuid_vec_t& ids, bool replace)
+{
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
+	
+	uuid_vec_t::const_iterator it;
+	for (it = ids.begin(); it != ids.end(); ++it)
+	{
+		LLAppearanceMgr::instance().wearItemOnAvatar(*it,false,replace,cb);
+	}
+}
+
