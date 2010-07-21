@@ -35,6 +35,7 @@
 
 #include "llpanelplaceinfo.h"
 
+class LLAccordionCtrl;
 class LLIconCtrl;
 class LLTextEditor;
 
@@ -118,6 +119,7 @@ private:
 	LLTextEditor*		mSubdivideText;
 	LLTextEditor*		mResaleText;
 	LLTextBox*			mSaleToText;
+	LLAccordionCtrl*	mAccordionCtrl;
 };
 
 #endif // LL_LLPANELPLACEPROFILE_H
