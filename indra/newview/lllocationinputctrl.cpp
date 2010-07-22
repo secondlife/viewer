@@ -1052,7 +1052,7 @@ void LLLocationInputCtrl::changeLocationPresentation()
 		//needs unescaped one
 		LLSLURL slurl;
 		LLAgentUI::buildSLURL(slurl, false);
-		mTextEntry->setText(LLURI::unescape(slurl.getSLURLString()));
+		mTextEntry->setText(slurl.getSLURLString());
 		mTextEntry->selectAll();
 
 		mMaturityButton->setVisible(FALSE);

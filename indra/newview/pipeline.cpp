@@ -7111,7 +7111,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
 		BOOL skip_avatar_update = FALSE;
-		if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
 			skip_avatar_update = TRUE;
 		}

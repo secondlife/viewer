@@ -280,8 +280,6 @@ LLViewerStats::LLViewerStats() :
 	{
 		mStats[ST_HAS_BAD_TIMER] = 1.0;
 	}	
-	
-	mAgentPositionSnaps.reset();
 }
 
 LLViewerStats::~LLViewerStats()
@@ -301,8 +299,6 @@ void LLViewerStats::resetStats()
 	LLViewerStats::getInstance()->mPacketsOutStat.reset();
 	LLViewerStats::getInstance()->mFPSStat.reset();
 	LLViewerStats::getInstance()->mTexturePacketsStat.reset();
-	
-	LLViewerStats::getInstance()->mAgentPositionSnaps.reset();
 }
 
 
@@ -397,10 +393,6 @@ void LLViewerStats::addToMessage(LLSD &body) const
 					<< llendl;
 		}
 	}
-	
-	body["AgentPositionSnaps"] = mAgentPositionSnaps.getData();
-	llinfos << "STAT: AgentPositionSnaps: Mean = " << mAgentPositionSnaps.getMean() << "; StdDev = " << mAgentPositionSnaps.getStdDev() 
-			<< "; Count = " << mAgentPositionSnaps.getCount() << llendl;
 }
 
 // static

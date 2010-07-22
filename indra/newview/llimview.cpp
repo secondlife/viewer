@@ -1022,14 +1022,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		}
 		else
 		{
-			// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
-			//		(it can be also Group chat but it is checked above)
-			// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
-			// Concrete participants will be added into this list once they sent message in chat.
-			if (IM_SESSION_INVITE == dialog) return;
-
-			// implemented adding of all participants of an outgoing to Recent People List. See EXT-5694.
 			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
 				it!=session->mInitialTargetIDs.end();++it)
 			{

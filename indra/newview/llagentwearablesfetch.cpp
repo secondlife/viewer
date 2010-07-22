@@ -48,7 +48,7 @@ public:
 
 	virtual ~LLOrderMyOutfitsOnDestroy()
 	{
-		if (!LLApp::isRunning())
+		if (LLApp::isExiting())
 		{
 			llwarns << "called during shutdown, skipping" << llendl;
 			return;

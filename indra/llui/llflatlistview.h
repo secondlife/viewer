@@ -117,9 +117,6 @@ public:
 		Params();
 	};
 	
-	// disable traversal when finding widget to hand focus off to
-	/*virtual*/ BOOL canFocusChildren() const { return FALSE; }
-
 	/**
 	 * Connects callback to signal called when Return key is pressed.
 	 */
@@ -152,19 +149,19 @@ public:
 	 * Remove specified item
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItem(LLPanel* item, bool rearrange = true);
+	virtual bool removeItem(LLPanel* item);
 
 	/** 
 	 * Remove an item specified by value
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItemByValue(const LLSD& value, bool rearrange = true);
+	virtual bool removeItemByValue(const LLSD& value);
 
 	/** 
 	 * Remove an item specified by uuid
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItemByUUID(const LLUUID& uuid, bool rearrange = true);
+	virtual bool removeItemByUUID(const LLUUID& uuid);
 
 	/** 
 	 * Get an item by value 
@@ -265,7 +262,6 @@ public:
 	void setAllowSelection(bool can_select) { mAllowSelection = can_select; }
 
 	/** Sets flag whether onCommit should be fired if selection was changed */
-	// FIXME: this should really be a separate signal, since "Commit" implies explicit user action, and selection changes can happen more indirectly.
 	void setCommitOnSelectionChange(bool b)		{ mCommitOnSelectionChange = b; }
 
 	/** Get number of selected items in the list */
@@ -353,7 +349,7 @@ protected:
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
 
-	virtual bool removeItemPair(item_pair_t* item_pair, bool rearrange);
+	virtual bool removeItemPair(item_pair_t* item_pair);
 
 	/**
 	 * Notify parent about changed size of internal controls with "size_changes" action

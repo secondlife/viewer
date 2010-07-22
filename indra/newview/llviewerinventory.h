@@ -36,7 +36,6 @@
 #include "llinventory.h"
 #include "llframetimer.h"
 #include "llwearable.h"
-#include "llui.h" //for LLDestroyClass
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
@@ -300,9 +299,8 @@ private:
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 
-class LLInventoryCallbackManager : public LLDestroyClass<LLInventoryCallbackManager>
+class LLInventoryCallbackManager
 {
-	friend class LLDestroyClass<LLInventoryCallbackManager>;
 public:
 	LLInventoryCallbackManager();
 	~LLInventoryCallbackManager();
@@ -310,12 +308,9 @@ public:
 	void fire(U32 callback_id, const LLUUID& item_id);
 	U32 registerCB(LLPointer<LLInventoryCallback> cb);
 private:
-	typedef std::map<U32, LLPointer<LLInventoryCallback> > callback_map_t;
-	callback_map_t mMap;
+	std::map<U32, LLPointer<LLInventoryCallback> > mMap;
 	U32 mLastCallback;
 	static LLInventoryCallbackManager *sInstance;
-	static void destroyClass();
-
 public:
 	static bool is_instantiated() { return sInstance != NULL; }
 };

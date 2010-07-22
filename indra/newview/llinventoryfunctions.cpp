@@ -507,19 +507,6 @@ bool LLIsNotType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	return TRUE;
 }
 
-bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-	if(mType == LLAssetType::AT_CATEGORY)
-	{
-		if(cat) return TRUE;
-	}
-	if(item)
-	{
-		if(item->getActualType() == mType) return TRUE;
-	}
-	return FALSE;
-}
-
 bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if(mType == LLAssetType::AT_CATEGORY)

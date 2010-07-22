@@ -3189,26 +3189,29 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible)
+		else if (visible && mVisibilityRank <= LLVOAvatar::sMaxVisible)
 		{ //first 25% of max visible avatars are not impostored
 			mUpdatePeriod = 1;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
-		else if (mImpostorPixelArea <= impostor_area)
+		else if (visible && mImpostorPixelArea <= impostor_area)
 		{  // stuff in between gets an update period based on pixel area
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
 		}
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible)
+		{ // force nearby impostors in ultra crowded areas
+			mUpdatePeriod = 2;
+		}
 		else
-		{
-			//nearby avatars, update the impostors more frequently.
-			mUpdatePeriod = 4;
+		{ // not impostored
+			mUpdatePeriod = 1;
 		}
 
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
@@ -4271,12 +4274,10 @@ void LLVOAvatar::checkTextureLoading()
 	return ;
 }
 
-const F32  SELF_ADDITIONAL_PRI = 0.75f ;
-const F32  ADDITIONAL_PRI = 0.5f;
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
 	//if this function is not called for the last 512 frames, the texture pipeline will stop fetching this texture.
-	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames		
+	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames	
 
 	imagep->resetTextureStats();
 	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
@@ -4286,14 +4287,9 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);	
 	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
-	
-	if(boost_level != LLViewerTexture::BOOST_AVATAR_BAKED_SELF)
+	if(boost_level == LLViewerTexture::BOOST_AVATAR_BAKED_SELF)
 	{
-		imagep->setAdditionalDecodePriority(ADDITIONAL_PRI) ;
-	}
-	else
-	{
-		imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+		imagep->setAdditionalDecodePriority(1.0f) ;
 	}
 }
 
@@ -7304,7 +7300,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	std::sort(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), CompareScreenAreaGreater());
 	
 	// Update the avatars that have changed status
-	U32 rank = 2; //1 is reserved for self. 
+	U32 rank = 0;
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -7328,7 +7324,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 
 		if (inst->isSelf())
 		{
-			inst->setVisibilityRank(1);
+			inst->setVisibilityRank(0);
 		}
 		else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
 		{

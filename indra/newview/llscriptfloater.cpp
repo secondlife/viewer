@@ -176,15 +176,7 @@ void LLScriptFloater::onClose(bool app_quitting)
 
 	if(getNotificationId().notNull())
 	{
-		// we shouldn't kill notification on exit since it may be used as persistent.
-		if (app_quitting)
-		{
-			LLScriptFloaterManager::getInstance()->onRemoveNotification(getNotificationId());
-		}
-		else
-		{
-			LLScriptFloaterManager::getInstance()->removeNotification(getNotificationId());
-		}
+		LLScriptFloaterManager::getInstance()->onRemoveNotification(getNotificationId());
 	}
 }
 
@@ -360,7 +352,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 				set_new_message |= !floater->hasFocus();
 			}
 
-			removeNotification(it->first);
+			onRemoveNotification(it->first);
 		}
 	}
 
@@ -387,17 +379,6 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	toggleScriptFloater(notification_id, set_new_message);
 }
 
-void LLScriptFloaterManager::removeNotification(const LLUUID& notification_id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(notification_id);
-	if (notification != NULL && !notification->isCancelled())
-	{
-		LLNotificationsUtil::cancel(notification);
-	}
-
-	onRemoveNotification(notification_id);
-}
-
 void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 {
 	if(notification_id.isNull())
@@ -411,8 +392,6 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 
 	LLIMWellWindow::getInstance()->removeObjectRow(notification_id);
 
-	mNotifications.erase(notification_id);
-
 	// close floater
 	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	if(floater)
@@ -421,6 +400,8 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 		floater->setNotificationId(LLUUID::null);
 		floater->closeFloater();
 	}
+
+	mNotifications.erase(notification_id);
 }
 
 void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& notification_id, bool set_new_message)

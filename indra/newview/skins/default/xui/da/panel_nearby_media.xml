@@ -23,6 +23,12 @@
 		<button label="Mere &gt;&gt;" label_selected="Mindre &lt;&lt;" name="less_btn" tool_tip="Advancerede kontroller"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			Media tæt på
+		</text>
+		<text name="show_text">
+			Vis:
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Overalt" name="All"/>
 			<combo_box.item label="På dette sted" name="WithinParcel"/>

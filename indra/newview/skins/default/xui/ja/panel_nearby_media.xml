@@ -23,6 +23,12 @@
 		<button label="詳細 &gt;&gt;" label_selected="簡易 &lt;&lt;" name="less_btn" tool_tip="アドバンスコントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			近くのメディア
+		</text>
+		<text name="show_text">
+			表示：
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="すべて" name="All"/>
 			<combo_box.item label="この区画内" name="WithinParcel"/>

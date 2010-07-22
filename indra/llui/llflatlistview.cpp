@@ -157,7 +157,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
 }
 
 
-bool LLFlatListView::removeItem(LLPanel* item, bool rearrange)
+bool LLFlatListView::removeItem(LLPanel* item)
 {
 	if (!item) return false;
 	if (item->getParent() != mItemsPanel) return false;
@@ -165,22 +165,22 @@ bool LLFlatListView::removeItem(LLPanel* item, bool rearrange)
 	item_pair_t* item_pair = getItemPair(item);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair, rearrange);
+	return removeItemPair(item_pair);
 }
 
-bool LLFlatListView::removeItemByValue(const LLSD& value, bool rearrange)
+bool LLFlatListView::removeItemByValue(const LLSD& value)
 {
 	if (value.isUndefined()) return false;
 	
 	item_pair_t* item_pair = getItemPair(value);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair, rearrange);
+	return removeItemPair(item_pair);
 }
 
-bool LLFlatListView::removeItemByUUID(const LLUUID& uuid, bool rearrange)
+bool LLFlatListView::removeItemByUUID(const LLUUID& uuid)
 {
-	return removeItemByValue(LLSD(uuid), rearrange);
+	return removeItemByValue(LLSD(uuid));
 }
 
 LLPanel* LLFlatListView::getItemByValue(const LLSD& value) const
@@ -327,9 +327,6 @@ U32 LLFlatListView::size(const bool only_visible_items) const
 
 void LLFlatListView::clear()
 {
-	// This will clear mSelectedItemPairs, calling all appropriate callbacks.
-	resetSelection();
-	
 	// do not use LLView::deleteAllChildren to avoid removing nonvisible items. drag-n-drop for ex.
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
@@ -338,6 +335,7 @@ void LLFlatListView::clear()
 		delete *it;
 	}
 	mItemPairs.clear();
+	mSelectedItemPairs.clear();
 
 	// also set items panel height to zero. Reshape it to allow reshaping of non-item children
 	LLRect rc = mItemsPanel->getRect();
@@ -972,12 +970,11 @@ bool LLFlatListView::isSelected(item_pair_t* item_pair) const
 	return std::find(mSelectedItemPairs.begin(), it_end, item_pair) != it_end;
 }
 
-bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
+bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
 {
 	llassert(item_pair);
 
 	bool deleted = false;
-	bool selection_changed = false;
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
 		item_pair_t* _item_pair = *it;
@@ -997,7 +994,6 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 		if (selected_item_pair == item_pair)
 		{
 			it = mSelectedItemPairs.erase(it);
-			selection_changed = true;
 			break;
 		}
 	}
@@ -1006,16 +1002,8 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 	item_pair->first->die();
 	delete item_pair;
 
-	if (rearrange)
-	{
 	rearrangeItems();
 	notifyParentItemsRectChanged();
-	}
-
-	if (selection_changed && mCommitOnSelectionChange)
-	{
-		onCommit();
-	}
 
 	return true;
 }
@@ -1111,7 +1099,7 @@ void LLFlatListView::onFocusReceived()
 {
 	if (size())
 	{
-	mSelectedItemsBorder->setVisible(TRUE);
+		mSelectedItemsBorder->setVisible(TRUE);
 	}
 	gEditMenuHandler = this;
 }

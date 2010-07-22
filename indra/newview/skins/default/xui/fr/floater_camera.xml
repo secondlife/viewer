@@ -22,6 +22,35 @@
 		Voir l&apos;objet
 	</floater.string>
 	<panel name="controls">
+		<panel name="preset_views_list">
+			<panel_camera_item name="front_view">
+				<panel_camera_item.text name="front_view_text">
+					Vue frontale
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="group_view">
+				<panel_camera_item.text name="side_view_text">
+					Vue latérale
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="rear_view">
+				<panel_camera_item.text name="rear_view_text">
+					Vue arrière
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
+		<panel name="camera_modes_list">
+			<panel_camera_item name="object_view">
+				<panel_camera_item.text name="object_view_text">
+					Vue de l&apos;objet
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="mouselook_view">
+				<panel_camera_item.text name="mouselook_view_text">
+					Vue subjective
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
 		<panel name="zoom" tool_tip="Zoomer en direction du point central">
 			<joystick_rotate name="cam_rotate_stick" tool_tip="Faire tourner la caméra autour du point central"/>
 			<slider_bar name="zoom_slider" tool_tip="Zoomer en direction du point central"/>
