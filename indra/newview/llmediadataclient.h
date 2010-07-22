@@ -142,7 +142,7 @@ protected:
 		const char *getTypeAsString() const;
 		
 		// Re-enqueue thyself
-		void reEnqueue() const;
+		void reEnqueue();
 		
 		F32 getRetryTimerDelay() const;
 		U32 getMaxNumRetries() const;
@@ -185,7 +185,7 @@ protected:
 		//If we get back a normal response, handle it here.	 Default just logs it.
 		virtual void result(const LLSD& content);
 
-		const request_ptr_t &getRequest() const { return mRequest; }
+		request_ptr_t &getRequest() { return mRequest; }
 
     protected:
 		virtual ~Responder();
@@ -196,7 +196,6 @@ protected:
 		{
 		public:
 			RetryTimer(F32 time, Responder *);
-			virtual ~RetryTimer();
 			virtual BOOL tick();
 		private:
 			// back-pointer
@@ -214,13 +213,14 @@ protected:
 	// Subclasses must override to return a cap name
 	virtual const char *getCapabilityName() const = 0;
 	
+	virtual bool request_needs_purge(request_ptr_t request);
 	virtual void sortQueue();
 	virtual void serviceQueue();
 	
 private:
 	typedef std::list<request_ptr_t> request_queue_t;
 		
-	void enqueue(const Request*);
+	void enqueue(Request*);
 	
 	// Return whether the given object is/was in the queue
 	static LLMediaDataClient::request_ptr_t findOrRemove(request_queue_t &queue, const LLMediaDataClientObject::ptr_t &obj, bool remove, Request::Type type);

@@ -580,25 +580,17 @@ namespace tut
 			
 			::pump_timers();
 			
-			// The first tick should remove the first one 
+			// The first tick should remove the second and fourth ones, and process the first one 
 			ensure("is not in queue 1", !mdc->isInQueue(o1));
-			ensure("is in queue 2", mdc->isInQueue(o2));
+			ensure("is not in queue 2", !mdc->isInQueue(o2));
 			ensure("is in queue 3", mdc->isInQueue(o3));
-			ensure("is in queue 4", mdc->isInQueue(o4));
+			ensure("is not in queue 4", !mdc->isInQueue(o4));
 			ensure("post records", gPostRecords->size(), 1);
 			
 			::pump_timers();
 			
-			// The second tick should skip the second and remove the third
-			ensure("is not in queue 2", !mdc->isInQueue(o2));
+			// The second tick should process the third, emptying the queue
 			ensure("is not in queue 3", !mdc->isInQueue(o3));
-			ensure("is in queue 4", mdc->isInQueue(o4));
-			ensure("post records", gPostRecords->size(), 2);
-
-			::pump_timers();
-
-			// The third tick should skip the fourth one and empty the queue.
-			ensure("is not in queue 4", !mdc->isInQueue(o4));
 			ensure("post records", gPostRecords->size(), 2);
 
 			ensure("queue empty", mdc->isEmpty());
