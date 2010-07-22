@@ -114,6 +114,8 @@ void LLImageGL::checkTexSize(bool forced) const
 		BOOL error = FALSE;
 		if (texname != mTexName)
 		{
+			llinfos << "Bound: " << texname << " Should bind: " << mTexName << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << llendl;
+
 			error = TRUE;
 			if (gDebugSession)
 			{
