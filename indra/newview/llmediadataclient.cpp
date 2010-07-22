@@ -58,6 +58,32 @@
 // - Any request that gets a 503 still goes through the retry logic
 //
 
+/***************************************************************************************************************
+	What's up with this queueing code?
+
+	First, a bit of background:
+
+	Media on a prim was added into the system in the Viewer 2.0 timeframe.  In order to avoid changing the 
+	network format of objects, an unused field in the object (the "MediaURL" string) was repurposed to 
+	indicate that the object had media data, and also hold a sequence number and the UUID of the agent 
+	who last updated the data.  The actual media data for objects is accessed via the "ObjectMedia" capability.  
+	Due to concerns about sim performance, requests to this capability are rate-limited to 5 requests every 
+	5 seconds per agent.
+
+	The initial implementation of LLMediaDataClient used a single queue to manage requests to the "ObjectMedia" cap.  
+	Requests to the cap were queued so that objects closer to the avatar were loaded in first, since they were most 
+	likely to be the ones the media performance manager would load.
+
+	This worked in some cases, but we found that it was possible for a scripted object that constantly updated its 
+	media data to starve other objects, since the same queue contained both requests to load previously unseen media 
+	data and requests to fetch media data in response to object updates.
+
+	The solution for this we came up with was to have two queues.  The sorted queue contains requests to fetch media 
+	data for objects that don't have it yet, and the round-robin queue contains requests to update media data for 
+	objects that have already completed their initial load.  When both queues are non-empty, the code ping-pongs 
+	between them so that updates can't completely block initial load-in.
+**************************************************************************************************************/
+
 //
 // Forward decls
 //
@@ -149,7 +175,7 @@ void LLMediaDataClient::request(const LLMediaDataClientObject::ptr_t &object, co
 	enqueue(new Request(getCapabilityName(), payload, object, this));
 }
 
-void LLMediaDataClient::enqueue(const Request *request)
+void LLMediaDataClient::enqueue(Request *request)
 {
 	if (request->isNew())
 	{		
@@ -161,8 +187,7 @@ void LLMediaDataClient::enqueue(const Request *request)
 		
 		LL_DEBUGS("LLMediaDataClient") << "Queuing SORTED request for " << *request << LL_ENDL;
 		
-		// Sadly, we have to const-cast because items put into the queue are not const
-		mSortedQueue.push_back(const_cast<LLMediaDataClient::Request*>(request));
+		mSortedQueue.push_back(request);
 		
 		LL_DEBUGS("LLMediaDataClientQueue") << "SORTED queue:" << mSortedQueue << LL_ENDL;
 	}
@@ -184,8 +209,7 @@ void LLMediaDataClient::enqueue(const Request *request)
 		{
 			LL_DEBUGS("LLMediaDataClient") << "Queuing RR request for " << *request << LL_ENDL;
 			// Push the request on the pending queue
-			// Sadly, we have to const-cast because items put into the queue are not const
-			mRoundRobinQueue.push_front(const_cast<LLMediaDataClient::Request*>(request));
+			mRoundRobinQueue.push_front(request);
 			
 			LL_DEBUGS("LLMediaDataClientQueue") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
 		}
@@ -240,17 +264,64 @@ bool LLMediaDataClient::processQueueTimer()
 	return isEmpty();
 }
 
+bool LLMediaDataClient::request_needs_purge(LLMediaDataClient::request_ptr_t request)
+{
+	// Check for conditions that should cause a request to get removed from the queue
+	if(request.isNull())
+	{
+		LL_WARNS("LLMediaDataClient") << "removing NULL request" << LL_ENDL;
+		return true;
+	}
+
+	// For some reason, the existing code put sent items onto the back of the round-robin queue and let them come through again
+	// before stripping them off the front.  Was there a good reason for this?
+//	if(request->isMarkedSent())
+//	{
+//		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " request is marked sent" << LL_ENDL;
+//		return true;
+//	}
+
+	const LLMediaDataClientObject *object = request->getObject();
+	
+	if(object == NULL)
+	{
+		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object is NULL" << LL_ENDL;
+		return true;
+	}
+	
+	if(object->isDead())
+	{
+		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object is dead" << LL_ENDL;
+		return true;
+	}
+	
+	if(!object->hasMedia())
+	{
+		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object has no media" << LL_ENDL;
+		return true;
+	}
+
+	return false;	
+}
+
 void LLMediaDataClient::sortQueue()
 {
 	if(!mSortedQueue.empty())
 	{
-		// Score all items first
+		// Cull dead objects and score all remaining items first
 		request_queue_t::iterator iter = mSortedQueue.begin();
 		request_queue_t::iterator end = mSortedQueue.end();
 		while (iter != end)
 		{
-			(*iter)->updateScore();
-			iter++;
+			if(request_needs_purge(*iter))
+			{
+				iter = mSortedQueue.erase(iter);
+			}
+			else
+			{
+				(*iter)->updateScore();
+				iter++;
+			}
 		}
 		
 		// Re-sort the list...
@@ -268,6 +339,19 @@ void LLMediaDataClient::sortQueue()
 			{
 				mSortedQueue.pop_back();
 			}
+		}
+	}
+	
+	// Cull dead items from the round robin queue as well.
+	for(request_queue_t::iterator iter = mRoundRobinQueue.begin(); iter != mRoundRobinQueue.end();)
+	{
+		if(request_needs_purge(*iter))
+		{
+			iter = mRoundRobinQueue.erase(iter);
+		}
+		else
+		{
+			iter++;
 		}
 	}
 }
@@ -298,26 +382,14 @@ void LLMediaDataClient::serviceQueue()
 		llassert(!request.isNull());
 		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
 		llassert(NULL != object);
-		
+
 		// Check for conditions that would make us just pop and rapidly loop through
 		// the queue.
-		if(request.isNull() ||
-		   request->isMarkedSent() ||
-		   NULL == object ||
-		   object->isDead() ||
-		   !object->hasMedia())
+		if(request->isMarkedSent())
 		{
-			if (request.isNull()) 
-			{
-				LL_WARNS("LLMediaDataClient") << "Skipping NULL request" << LL_ENDL;
-			}
-			else {
-				LL_INFOS("LLMediaDataClient") << "Skipping : " << *request << " " 
-				<< ((request->isMarkedSent()) ? " request is marked sent" :
-					((NULL == object) ? " object is NULL " :
-					 ((object->isDead()) ? "object is dead" : 
-					  ((!object->hasMedia()) ? "object has no media!" : "BADNESS!")))) << LL_ENDL;
-			}
+			// Sent items that make it back to the head of the queue need to be skipped.
+			LL_INFOS("LLMediaDataClient") << "removing : " << *request << " request is marked sent" << LL_ENDL;
+			
 			queue_p->pop_front();
 			continue;	// jump back to the start of the quick retry loop
 		}
@@ -448,24 +520,15 @@ LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
 {
 }
 
-// virtual 
-LLMediaDataClient::Responder::RetryTimer::~RetryTimer() 
+// virtual
+BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 {
-	LL_DEBUGS("LLMediaDataClient") << "~RetryTimer" << *(mResponder->getRequest()) << LL_ENDL;
-	
-	// XXX This is weird: Instead of doing the work in tick()  (which re-schedules
-	// a timer, which might be risky), do it here, in the destructor.  Yes, it is very odd.
-	// Instead of retrying, we just put the request back onto the queue
 	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << " retrying" << LL_ENDL;
 	mResponder->getRequest()->reEnqueue();
 	
 	// Release the ref to the responder.
 	mResponder = NULL;
-}
 
-// virtual
-BOOL LLMediaDataClient::Responder::RetryTimer::tick()
-{
 	// Don't fire again
 	return TRUE;
 }
@@ -552,7 +615,7 @@ const char *LLMediaDataClient::Request::getTypeAsString() const
 }
 
 
-void LLMediaDataClient::Request::reEnqueue() const
+void LLMediaDataClient::Request::reEnqueue()
 {
 	// I sure hope this doesn't deref a bad pointer:
 	mMDC->enqueue(this);

@@ -2025,12 +2025,12 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 	}
 	else
 	{
-		llwarns << "Couldn't find media entry!" << llendl;
+		LL_WARNS("MediaOnAPrim") << "Couldn't find media entry!" << LL_ENDL;
 	}
 						
 	if(block_navigation)
 	{
-		llinfos << "blocking navigate to URI " << new_location << llendl;
+		LL_INFOS("MediaOnAPrim") << "blocking navigate to URI " << new_location << LL_ENDL;
 
 		// "bounce back" to the current URL from the media entry
 		mediaNavigateBounceBack(face_index);
@@ -2038,7 +2038,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 	else if (sObjectMediaNavigateClient)
 	{
 		
-		llinfos << "broadcasting navigate with URI " << new_location << llendl;
+		LL_DEBUGS("MediaOnAPrim") << "broadcasting navigate with URI " << new_location << LL_ENDL;
 
 		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this, false), face_index, new_location);
 	}
