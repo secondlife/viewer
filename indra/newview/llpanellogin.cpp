@@ -167,7 +167,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mCallback(callback),
 	mCallbackData(cb_data),
 	mHtmlAvailable( TRUE ),
-	mLocationUpdated( FALSE ),
 	mListener(new LLPanelLoginListener(this))
 {
 	setFocusRoot(TRUE);
@@ -227,9 +226,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLSLURL slurl(gSavedSettings.getString("LoginLocation"));
 		LLStartUp::setStartSLURL(slurl);
 	}
-
-	LLComboBox* location_choice_combo = sInstance->getChild<LLComboBox>("start_location_combo");
-	location_choice_combo->setFocusLostCallback(boost::bind(onLocationComboLostFocus, _1));
+	updateLocationCombo(false);
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
@@ -678,29 +675,23 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 		return;
 	}	
 	
-	if ( ! sInstance->mLocationUpdated )
+	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
+	
+	switch(LLStartUp::getStartSLURL().getType())
 	{
-		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
-
-		// get combo box to a known state so we can test its dirty state later
-		combo->resetDirty();
-
-		switch(LLStartUp::getStartSLURL().getType())
+		case LLSLURL::LOCATION:
 		{
-			case LLSLURL::LOCATION:
-			{
-				
-				combo->setCurrentByIndex( 2 );	
-				combo->setTextEntry(LLStartUp::getStartSLURL().getLocationString());	
-				break;
-			}
-			case LLSLURL::HOME_LOCATION:
-				combo->setCurrentByIndex(1);
-				break;
-			default:
-				combo->setCurrentByIndex(0);
-				break;
+			
+			combo->setCurrentByIndex( 2 );	
+			combo->setTextEntry(LLStartUp::getStartSLURL().getLocationString());	
+			break;
 		}
+		case LLSLURL::HOME_LOCATION:
+			combo->setCurrentByIndex(1);
+			break;
+		default:
+			combo->setCurrentByIndex(0);
+			break;
 	}
 	
 	BOOL show_start = TRUE;
@@ -1149,11 +1140,14 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 		combo_val = combo->getValue();
 	}
 	
+	combo = sInstance->getChild<LLComboBox>("start_location_combo");	
+	combo->setCurrentByIndex(1);
 	LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
 	LLGridManager::getInstance()->setGridChoice(combo_val.asString());
 	// This new selection will override preset uris
 	// from the command line.
 	updateServer();
+	updateLocationCombo(false);
 	updateLoginPanelLinks();
 }
 
@@ -1168,27 +1162,6 @@ void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 	if(fe == combo)
 	{
 		onSelectServer(combo, NULL);	
-	}
-}
-
-void LLPanelLogin::onLocationComboLostFocus(LLFocusableElement* fe)
-{
-	if (!sInstance)
-	{
-		return;
-	}
-
-	LLComboBox* combo = sInstance->getChild< LLComboBox> ( "start_location_combo" );
-	if ( fe == combo )
-	{
-		if ( combo->isDirty() )
-		{
-			sInstance->mLocationUpdated = TRUE;
-		}
-		else
-		{
-			sInstance->mLocationUpdated = FALSE;
-		}
 	}
 }
 

@@ -100,7 +100,6 @@ private:
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
-	static void onLocationComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
 	static void updateStartSLURL();
 	
@@ -118,7 +117,6 @@ private:
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
 	BOOL			mHtmlAvailable;
-	BOOL			mLocationUpdated;
 };
 
 std::string load_password_from_disk(void);
