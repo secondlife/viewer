@@ -81,6 +81,7 @@ LLContextMenu* NearbyMenu::createMenu()
 		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
 		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs));
 		registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs));
+		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
 		registrar.add("Avatar.RemoveFriend",boost::bind(&LLAvatarActions::removeFriendsDialog,		mUUIDs));
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
 		// registrar.add("Avatar.Pay",		boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
@@ -168,8 +169,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	}
 	else if(item == std::string("can_offer_teleport"))
 	{
-		const LLUUID& id = mUUIDs.front();
-		return LLAvatarActions::canOfferTeleport(id);
+		return LLAvatarActions::canOfferTeleport(mUUIDs);
 	}
 	return false;
 }
@@ -191,8 +191,7 @@ void NearbyMenu::offerTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
 	// so we have to use a wrapper.
-	const LLUUID& id = mUUIDs.front();
-	LLAvatarActions::offerTeleport(id);
+	LLAvatarActions::offerTeleport(mUUIDs);
 }
 
 } // namespace LLPanelPeopleMenus
