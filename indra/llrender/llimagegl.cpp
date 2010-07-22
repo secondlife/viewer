@@ -109,11 +109,20 @@ void LLImageGL::checkTexSize(bool forced) const
 {
 	if ((forced || gDebugGL) && mTarget == GL_TEXTURE_2D)
 	{
+		{
+			//check viewport
+			GLint vp[4] ;
+			glGetIntegerv(GL_VIEWPORT, vp) ;
+			llcallstacks << "viewport: " << vp[0] << " : " << vp[1] << " : " << vp[2] << " : " << vp[3] << llcallstacksendl ;
+		}
+
 		GLint texname;
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
 		BOOL error = FALSE;
 		if (texname != mTexName)
 		{
+			llinfos << "Bound: " << texname << " Should bind: " << mTexName << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << llendl;
+
 			error = TRUE;
 			if (gDebugSession)
 			{
