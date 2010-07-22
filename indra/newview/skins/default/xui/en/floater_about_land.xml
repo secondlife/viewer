@@ -1467,7 +1467,7 @@ Only large parcels can be listed in search.
             </combo_box>
             <check_box
              height="16"
-             label="Moderate Contentxxxxxxx"
+             label="Moderate Content"
              layout="topleft"
              left="14"
              name="MatureCheck"
