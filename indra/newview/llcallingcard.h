@@ -45,7 +45,7 @@ class LLFriendObserver
 public:
 	// This enumeration is a way to refer to what changed in a more
 	// human readable format. You can mask the value provided by
-	// chaged() to see if the observer is interested in the change.
+	// changed() to see if the observer is interested in the change.
 	enum 
 	{
 		NONE = 0,
