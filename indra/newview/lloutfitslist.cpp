@@ -665,7 +665,18 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "wear")
 	{
-		return !gAgentWearables.isCOFChangeInProgress();
+		if (gAgentWearables.isCOFChangeInProgress())
+		{
+			return false;
+		}
+
+		if (hasItemSelected())
+		{
+			return canWearSelected();
+		}
+
+		// outfit selected
+		return LLAppearanceMgr::getCanAddToCOF(mSelectedOutfitUUID);
 	}
 	if (command_name == "take_off")
 	{
@@ -677,6 +688,7 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "wear_add")
 	{
+		// *TODO: do we ever get here?
 		if (gAgentWearables.isCOFChangeInProgress())
 		{
 			return false;
@@ -982,6 +994,41 @@ bool LLOutfitsList::canTakeOffSelected()
 		if (is_worn(NULL, item)) return true;
 	}
 	return false;
+}
+
+bool LLOutfitsList::canWearSelected()
+{
+	uuid_vec_t selected_items;
+	getSelectedItemsUUIDs(selected_items);
+
+	for (uuid_vec_t::const_iterator it = selected_items.begin(); it != selected_items.end(); ++it)
+	{
+		const LLUUID& id = *it;
+
+		// Find links to the current item in COF.
+		// *TODO: share this?
+		LLInventoryModel::cat_array_t cats;
+		LLInventoryModel::item_array_t items;
+		LLLinkedItemIDMatches find_links(gInventory.getLinkedItemID(id));
+		gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
+										cats,
+										items,
+										LLInventoryModel::EXCLUDE_TRASH,
+										find_links);
+		if (!items.empty())
+		{
+			return false;
+		}
+
+		// Check whether the item is worn.
+		if (!get_can_item_be_worn(id))
+		{
+			return false;
+		}
+	}
+
+	// All selected items can be worn.
+	return true;
 }
 
 void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
