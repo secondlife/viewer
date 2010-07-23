@@ -145,7 +145,7 @@ void LLCrashLoggerWindows::ProcessCaption(HWND hWnd)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetWindowText(hWnd, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText).c_str(), gProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetWindowText(hWnd, header);
 }
@@ -158,7 +158,7 @@ void LLCrashLoggerWindows::ProcessDlgItemText(HWND hWnd, int nIDDlgItem)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetDlgItemText(hWnd, nIDDlgItem, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText).c_str(), gProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetDlgItemText(hWnd, nIDDlgItem, header);
 }
@@ -201,7 +201,7 @@ bool handle_button_click(WORD button_id)
 						wbuffer, // pointer to buffer for text
 						20000 // maximum size of string
 						);
-		std::string user_text(ll_convert_wide_to_string(wbuffer));
+		std::string user_text(ll_convert_wide_to_string(wbuffer, CP_ACP));
 		// Activate and show the window.
 		ShowWindow(gHwndProgress, SW_SHOW); 
 		// Try doing this second to make the progress window go frontmost.

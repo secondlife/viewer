@@ -122,6 +122,7 @@ public:
 	S32		notifyParent(const LLSD& info);
 
 	void	reset		();
+	void	expandDefaultTab();
 
 	void	setComparator(const LLTabComparator* comp) { mTabComparator = comp; }
 	void	sort();

@@ -1172,6 +1172,14 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
+	if (NULL == src)
+	{
+		LL_WARNS("copy_inventory_from_notecard") << "Null pointer to item was passed for object_id "
+												 << object_id << " and notecard_inv_id "
+												 << notecard_inv_id << LL_ENDL;
+		return;
+	}
+
 	LLViewerRegion* viewer_region = NULL;
     LLViewerObject* vo = NULL;
 	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
@@ -1193,6 +1201,16 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
                                                  << LL_ENDL;
         return;
     }
+
+	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
+	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
+	if (url.empty())
+	{
+        LL_WARNS("copy_inventory_from_notecard") << "There is no 'CopyInventoryFromNotecard' capability"
+												 << " for region: " << viewer_region->getName()
+                                                 << LL_ENDL;
+		return;
+	}
 
     LLSD request, body;
     body["notecard-id"] = notecard_inv_id;

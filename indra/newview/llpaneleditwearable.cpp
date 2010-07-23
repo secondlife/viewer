@@ -47,6 +47,7 @@
 #include "llvoavatarself.h"
 #include "lltexteditor.h"
 #include "lltextbox.h"
+#include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
@@ -666,6 +667,35 @@ void LLPanelEditWearable::updateAvatarHeightLabel()
 	mTxtAvatarHeight->appendText(this->mReplacementMetricUrl, false, param);
 }
 
+void LLPanelEditWearable::onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl)
+{
+	if (in_visible_chain.asBoolean() && accordion_ctrl != NULL)
+	{
+		accordion_ctrl->expandDefaultTab();
+	}
+}
+
+void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel)
+{
+	if (bodypart_panel != NULL)
+	{
+		LLAccordionCtrl* accordion_ctrl = bodypart_panel->getChild<LLAccordionCtrl>("wearable_accordion");
+
+		if (accordion_ctrl != NULL)
+		{
+			bodypart_panel->setVisibleCallback(
+					boost::bind(&LLPanelEditWearable::onWearablePanelVisibilityChange, this, _2, accordion_ctrl));
+		}
+		else
+		{
+			llwarns << "accordion_ctrl is NULL" << llendl;
+		}
+	}
+	else
+	{
+		llwarns << "bodypart_panel is NULL" << llendl;
+	}
+}
 
 // virtual 
 BOOL LLPanelEditWearable::postBuild()
@@ -694,6 +724,14 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelSkin = getChild<LLPanel>("edit_skin_panel");
 	mPanelEyes = getChild<LLPanel>("edit_eyes_panel");
 	mPanelHair = getChild<LLPanel>("edit_hair_panel");
+
+	// Setting the visibility callback is applied only to the bodyparts panel
+	// because currently they are the only ones whose 'wearable_accordion' has
+	// multiple accordion tabs (see EXT-8164 for details).
+	setWearablePanelVisibilityChangeCallback(mPanelShape);
+	setWearablePanelVisibilityChangeCallback(mPanelSkin);
+	setWearablePanelVisibilityChangeCallback(mPanelEyes);
+	setWearablePanelVisibilityChangeCallback(mPanelHair);
 
 	//clothes
 	mPanelShirt = getChild<LLPanel>("edit_shirt_panel");

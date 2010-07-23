@@ -2726,3 +2726,19 @@ BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 	return FALSE;
 	*/
 }
+
+void wear_multiple(const uuid_vec_t& ids, bool replace)
+{
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
+	
+	bool first = true;
+	uuid_vec_t::const_iterator it;
+	for (it = ids.begin(); it != ids.end(); ++it)
+	{
+		// if replace is requested, the first item worn will replace the current top
+		// item, and others will be added.
+		LLAppearanceMgr::instance().wearItemOnAvatar(*it,false,first && replace,cb);
+		first = false;
+	}
+}
+

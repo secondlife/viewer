@@ -357,7 +357,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 
 bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 {
-	if(!match || !base)
+	if(!match || !base || base->getPlainText())
 		return false;
 
 	LLUUID match_id = match->getID();

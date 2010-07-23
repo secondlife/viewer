@@ -418,4 +418,6 @@ void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 	}
 }
 
+void wear_multiple(const uuid_vec_t& ids, bool replace);
+
 #endif
