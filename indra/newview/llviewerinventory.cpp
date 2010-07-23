@@ -96,6 +96,7 @@ public:
 		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
 
 		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
