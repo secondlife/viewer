@@ -93,9 +93,6 @@ public:
 					  U32 max_sorted_queue_size = MAX_SORTED_QUEUE_SIZE,
 					  U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE);
 	
-	// Make the request
-	void request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload);
-
 	F32 getRetryTimerDelay() const { return mRetryTimerDelay; }
 	
 	// Returns true iff the queue is empty
@@ -114,10 +111,17 @@ protected:
 	// Destructor
 	virtual ~LLMediaDataClient(); // use unref
     
-	// Request
+	class Responder;
+	
+	// Request (pure virtual base class for requests in the queue)
 	class Request : public LLRefCount
 	{
 	public:
+		// Subclasses must implement this to build a payload for their request type.
+		virtual LLSD getPayload() const = 0;
+		// and must create the correct type of responder.
+		virtual Responder *createResponder() = 0;
+
         enum Type {
             GET,
             UPDATE,
@@ -125,20 +129,22 @@ protected:
 			ANY
         };
         
-		Request(const char *cap_name, const LLSD& sd_payload, LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
-		const char *getCapName() const { return mCapName; }
-		const LLSD &getPayload() const { return mPayload; }
+	protected:
+		// The only way to create one of these is through a subclass.
+		Request(Type in_type, LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
+	public:
 		LLMediaDataClientObject *getObject() const { return mObject; }
 
         U32 getNum() const { return mNum; }
-
 		U32 getRetryCount() const { return mRetryCount; }
-		void incRetryCount() { mRetryCount++; }
+		void incRetryCount() { mRetryCount++; };
+        Type getType() const { return mType; };
+		bool isMarkedSent() const { return mMarkedSent; }
+		F64 getScore() const { return mScore; }
 		
 		// Note: may return empty string!
 		std::string getCapability() const;
-        
-        Type getType() const;
+		const char *getCapName() const;
 		const char *getTypeAsString() const;
 		
 		// Re-enqueue thyself
@@ -148,21 +154,16 @@ protected:
 		U32 getMaxNumRetries() const;
 		
 		bool isNew() const { return mObject.notNull() ? mObject->isNew() : false; }
+		bool isObjectValid() const { return mObject.notNull() ? (!mObject->isDead()) : false; }
 		void markSent(bool flag);
-		bool isMarkedSent() const { return mMarkedSent; }
 		void updateScore();
-		F64 getScore() const { return mScore; }
 		
-	public:
 		friend std::ostream& operator<<(std::ostream &s, const Request &q);
-		
-    protected:
-        virtual ~Request(); // use unref();
-        
-	private:
-		const char *mCapName;
-		LLSD mPayload;
+
+	protected:
 		LLMediaDataClientObject::ptr_t mObject;
+	private:
+		Type mType;
 		// Simple tracking
 		U32 mNum;
 		static U32 sNum;
@@ -187,9 +188,6 @@ protected:
 
 		request_ptr_t &getRequest() { return mRequest; }
 
-    protected:
-		virtual ~Responder();
-        
 	private:
 
 		class RetryTimer : public LLEventTimer
@@ -207,20 +205,17 @@ protected:
 	
 protected:
 
-	// Subclasses must override this factory method to return a new responder
-	virtual Responder *createResponder(const request_ptr_t &request) const = 0;
-	
 	// Subclasses must override to return a cap name
 	virtual const char *getCapabilityName() const = 0;
 	
 	virtual bool request_needs_purge(request_ptr_t request);
 	virtual void sortQueue();
 	virtual void serviceQueue();
+
+	virtual void enqueue(Request*);
 	
 private:
 	typedef std::list<request_ptr_t> request_queue_t;
-		
-	void enqueue(Request*);
 	
 	// Return whether the given object is/was in the queue
 	static LLMediaDataClient::request_ptr_t findOrRemove(request_queue_t &queue, const LLMediaDataClientObject::ptr_t &obj, bool remove, Request::Type type);
@@ -237,8 +232,6 @@ private:
 	public:
 		QueueTimer(F32 time, LLMediaDataClient *mdc);
 		virtual BOOL tick();
-    protected:
-		virtual ~QueueTimer();
 	private:
 		// back-pointer
 		LLPointer<LLMediaDataClient> mMDC;
@@ -280,11 +273,24 @@ public:
     
 	void fetchMedia(LLMediaDataClientObject *object); 
     void updateMedia(LLMediaDataClientObject *object);
-    
+
+	class RequestGet: public Request
+	{
+	public:
+		RequestGet(LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
+		/*virtual*/ LLSD getPayload() const;
+		/*virtual*/ Responder *createResponder();
+	};
+
+	class RequestUpdate: public Request
+	{
+	public:
+		RequestUpdate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
+		/*virtual*/ LLSD getPayload() const;
+		/*virtual*/ Responder *createResponder();
+	};
+	    
 protected:
-	// Subclasses must override this factory method to return a new responder
-	virtual Responder *createResponder(const request_ptr_t &request) const;
-	
 	// Subclasses must override to return a cap name
 	virtual const char *getCapabilityName() const;
     
@@ -315,11 +321,19 @@ public:
     virtual ~LLObjectMediaNavigateClient() {}
     
     void navigate(LLMediaDataClientObject *object, U8 texture_index, const std::string &url);
+
+	class RequestNavigate: public Request
+	{
+	public:
+		RequestNavigate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc, U8 texture_index, const std::string &url);
+		/*virtual*/ LLSD getPayload() const;
+		/*virtual*/ Responder *createResponder();
+	private:
+		U8 mTextureIndex;
+		std::string mURL;
+	};
     
 protected:
-	// Subclasses must override this factory method to return a new responder
-	virtual Responder *createResponder(const request_ptr_t &request) const;
-	
 	// Subclasses must override to return a cap name
 	virtual const char *getCapabilityName() const;
 
