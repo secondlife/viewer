@@ -2103,6 +2103,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
+	<string name="GroupColumn"          value="                      Group" />
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
