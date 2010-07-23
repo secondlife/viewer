@@ -689,7 +689,7 @@ wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page
 std::string ll_convert_string_to_utf8_string(const std::string& in)
 {
 	wchar_t* w_mesg = ll_convert_string_to_wide(in, CP_ACP);
-	std::string out_utf8 = ll_convert_wide_to_string(w_mesg, CP_UTF8);
+	std::string out_utf8(ll_convert_wide_to_string(w_mesg, CP_UTF8));
 	delete[] w_mesg;
 
 	return out_utf8;
