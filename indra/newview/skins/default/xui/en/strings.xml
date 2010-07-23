@@ -3143,6 +3143,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>
+  <string name="group_member_status_online">Online</string>
 
   <string name="uploading_abuse_report">Uploading...
   
