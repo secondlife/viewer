@@ -167,14 +167,6 @@ LLMediaDataClient::request_ptr_t LLMediaDataClient::findOrRemove(request_queue_t
 	return result;
 }
 
-void LLMediaDataClient::request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload)
-{
-	if (object.isNull() || ! object->hasMedia()) return; 
-	
-	// Push the object on the queue
-	enqueue(new Request(getCapabilityName(), payload, object, this));
-}
-
 void LLMediaDataClient::enqueue(Request *request)
 {
 	if (request->isNew())
@@ -412,7 +404,7 @@ void LLMediaDataClient::serviceQueue()
 			LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
 			
 			// Call the subclass for creating the responder
-			LLHTTPClient::post(url, sd_payload, createResponder(request));
+			LLHTTPClient::post(url, sd_payload, request->createResponder());
 		}
 		else {
 			LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
@@ -494,18 +486,24 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 	mMDC->setIsRunning(true);
 }
 
-LLMediaDataClient::QueueTimer::~QueueTimer()
-{
-	LL_DEBUGS("LLMediaDataClient") << "~QueueTimer" << LL_ENDL;
-	mMDC->setIsRunning(false);
-	mMDC = NULL;
-}
-
 // virtual
 BOOL LLMediaDataClient::QueueTimer::tick()
 {
-	if (mMDC.isNull()) return TRUE;
-	return mMDC->processQueueTimer();
+	BOOL result = TRUE;
+	
+	if (!mMDC.isNull())
+	{
+		result = mMDC->processQueueTimer();
+	
+		if(result)
+		{
+			// This timer won't fire again.  
+			mMDC->setIsRunning(false);
+			mMDC = NULL;
+		}
+	}
+
+	return result;
 }
 
 
@@ -541,12 +539,10 @@ BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 //////////////////////////////////////////////////////////////////////////////////////
 /*static*/U32 LLMediaDataClient::Request::sNum = 0;
 
-LLMediaDataClient::Request::Request(const char *cap_name, 
-									const LLSD& sd_payload,
+LLMediaDataClient::Request::Request(Type in_type,
 									LLMediaDataClientObject *obj, 
 									LLMediaDataClient *mdc)
-: mCapName(cap_name), 
-  mPayload(sd_payload), 
+: mType(in_type),
   mObject(obj),
   mNum(++sNum), 
   mRetryCount(0),
@@ -556,41 +552,14 @@ LLMediaDataClient::Request::Request(const char *cap_name,
 {
 }
 
-LLMediaDataClient::Request::~Request()
+const char *LLMediaDataClient::Request::getCapName() const
 {
-	LL_DEBUGS("LLMediaDataClient") << "~Request" << (*this) << LL_ENDL;
-	mMDC = NULL;
-	mObject = NULL;
+	return mMDC->getCapabilityName();
 }
-
 
 std::string LLMediaDataClient::Request::getCapability() const
 {
 	return getObject()->getCapabilityUrl(getCapName());
-}
-
-// Helper function to get the "type" of request, which just pokes around to
-// discover it.
-LLMediaDataClient::Request::Type LLMediaDataClient::Request::getType() const
-{
-	if (0 == strcmp(mCapName, "ObjectMediaNavigate"))
-	{
-		return NAVIGATE;
-	}
-	else if (0 == strcmp(mCapName, "ObjectMedia"))
-	{
-		const std::string &verb = mPayload["verb"];
-		if (verb == "GET")
-		{
-			return GET;
-		}
-		else if (verb == "UPDATE")
-		{
-			return UPDATE;
-		}
-	}
-	llassert(false);
-	return GET;
 }
 
 const char *LLMediaDataClient::Request::getTypeAsString() const
@@ -617,19 +586,17 @@ const char *LLMediaDataClient::Request::getTypeAsString() const
 
 void LLMediaDataClient::Request::reEnqueue()
 {
-	// I sure hope this doesn't deref a bad pointer:
 	mMDC->enqueue(this);
 }
 
 F32 LLMediaDataClient::Request::getRetryTimerDelay() const
 {
-	return (mMDC == NULL) ? LLMediaDataClient::UNAVAILABLE_RETRY_TIMER_DELAY :
-	mMDC->mRetryTimerDelay; 
+	return mMDC->mRetryTimerDelay; 
 }
 
 U32 LLMediaDataClient::Request::getMaxNumRetries() const
 {
-	return (mMDC == NULL) ? LLMediaDataClient::MAX_RETRIES : mMDC->mMaxNumRetries;
+	return mMDC->mMaxNumRetries;
 }
 
 void LLMediaDataClient::Request::markSent(bool flag)
@@ -675,12 +642,6 @@ LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
 {
 }
 
-LLMediaDataClient::Responder::~Responder()
-{
-	LL_DEBUGS("LLMediaDataClient") << "~Responder" << *(getRequest()) << LL_ENDL;
-	mRequest = NULL;
-}
-
 /*virtual*/
 void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 {
@@ -722,11 +683,6 @@ void LLMediaDataClient::Responder::result(const LLSD& content)
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-LLMediaDataClient::Responder *LLObjectMediaDataClient::createResponder(const request_ptr_t &request) const
-{
-	return new LLObjectMediaDataClient::Responder(request);
-}
-
 const char *LLObjectMediaDataClient::getCapabilityName() const 
 {
 	return "ObjectMedia";
@@ -734,68 +690,97 @@ const char *LLObjectMediaDataClient::getCapabilityName() const
 
 void LLObjectMediaDataClient::fetchMedia(LLMediaDataClientObject *object)
 {
-	LLSD sd_payload;
-	sd_payload["verb"] = "GET";
-	sd_payload[LLTextureEntry::OBJECT_ID_KEY] = object->getID();
-	request(object, sd_payload);
+	// Create a get request and put it in the queue.
+	enqueue(new RequestGet(object, this));
 }
+
+LLObjectMediaDataClient::RequestGet::RequestGet(LLMediaDataClientObject *obj, LLMediaDataClient *mdc):
+	LLMediaDataClient::Request(LLMediaDataClient::Request::GET, obj, mdc)
+{
+}
+
+LLSD LLObjectMediaDataClient::RequestGet::getPayload() const
+{
+	LLSD result;
+	result["verb"] = "GET";
+	result[LLTextureEntry::OBJECT_ID_KEY] = mObject->getID();
+	
+	return result;
+}
+
+LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestGet::createResponder()
+{
+	return new LLObjectMediaDataClient::Responder(this);
+}
+
 
 void LLObjectMediaDataClient::updateMedia(LLMediaDataClientObject *object)
 {
-	LLSD sd_payload;
-	sd_payload["verb"] = "UPDATE";
-	sd_payload[LLTextureEntry::OBJECT_ID_KEY] = object->getID();
+	// Create an update request and put it in the queue.
+	enqueue(new RequestUpdate(object, this));
+}
+
+LLObjectMediaDataClient::RequestUpdate::RequestUpdate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc):
+	LLMediaDataClient::Request(LLMediaDataClient::Request::UPDATE, obj, mdc)
+{
+}
+
+LLSD LLObjectMediaDataClient::RequestUpdate::getPayload() const
+{
+	LLSD result;
+	result["verb"] = "UPDATE";
+	result[LLTextureEntry::OBJECT_ID_KEY] = mObject->getID();
+
 	LLSD object_media_data;
 	int i = 0;
-	int end = object->getMediaDataCount();
+	int end = mObject->getMediaDataCount();
 	for ( ; i < end ; ++i) 
 	{
-		object_media_data.append(object->getMediaDataLLSD(i));
+		object_media_data.append(mObject->getMediaDataLLSD(i));
 	}
-	sd_payload[LLTextureEntry::OBJECT_MEDIA_DATA_KEY] = object_media_data;
-		
-	LL_DEBUGS("LLMediaDataClient") << "update media data: " << object->getID() << " " << ll_print_sd(sd_payload) << LL_ENDL;
 	
-	request(object, sd_payload);
+	result[LLTextureEntry::OBJECT_MEDIA_DATA_KEY] = object_media_data;
+	
+	return result;
 }
+
+LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestUpdate::createResponder()
+{
+	// This just uses the base class's responder.
+	return new LLMediaDataClient::Responder(this);
+}
+
 
 /*virtual*/
 void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 {
-	const LLMediaDataClient::Request::Type type = getRequest()->getType();
-	llassert(type == LLMediaDataClient::Request::GET || type == LLMediaDataClient::Request::UPDATE)
-	if (type == LLMediaDataClient::Request::GET)
+	// This responder is only used for GET requests, not UPDATE.
+
+	LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
+	
+	// Look for an error
+	if (content.has("error"))
 	{
-		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
+		const LLSD &error = content["error"];
+		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error getting media data for object: code=" << 
+			error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
 		
-		// Look for an error
-		if (content.has("error"))
-		{
-			const LLSD &error = content["error"];
-			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error getting media data for object: code=" << 
-				error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
-			
-			// XXX Warn user?
-		}
-		else {
-			// Check the data
-			const LLUUID &object_id = content[LLTextureEntry::OBJECT_ID_KEY];
-			if (object_id != getRequest()->getObject()->getID()) 
-			{
-				// NOT good, wrong object id!!
-				LL_WARNS("LLMediaDataClient") << *(getRequest()) << " DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
-				return;
-			}
-			
-			// Otherwise, update with object media data
-			getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
-															 content[LLTextureEntry::MEDIA_VERSION_KEY]);
-		}
+		// XXX Warn user?
 	}
-	else if (type == LLMediaDataClient::Request::UPDATE)
+	else 
 	{
-		// just do what our superclass does
-		LLMediaDataClient::Responder::result(content);
+		// Check the data
+		const LLUUID &object_id = content[LLTextureEntry::OBJECT_ID_KEY];
+		if (object_id != getRequest()->getObject()->getID()) 
+		{
+			// NOT good, wrong object id!!
+			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
+			return;
+		}
+		
+		// Otherwise, update with object media data
+		getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
+														 content[LLTextureEntry::MEDIA_VERSION_KEY]);
 	}
 }
 
@@ -805,10 +790,6 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 // Subclass of LLMediaDataClient for the ObjectMediaNavigate cap
 //
 //////////////////////////////////////////////////////////////////////////////////////
-LLMediaDataClient::Responder *LLObjectMediaNavigateClient::createResponder(const request_ptr_t &request) const
-{
-	return new LLObjectMediaNavigateClient::Responder(request);
-}
 
 const char *LLObjectMediaNavigateClient::getCapabilityName() const 
 {
@@ -817,14 +798,33 @@ const char *LLObjectMediaNavigateClient::getCapabilityName() const
 
 void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 texture_index, const std::string &url)
 {
-	LLSD sd_payload;
-	sd_payload[LLTextureEntry::OBJECT_ID_KEY] = object->getID();
-	sd_payload[LLMediaEntry::CURRENT_URL_KEY] = url;
-	sd_payload[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)texture_index;
+
+//	LL_INFOS("LLMediaDataClient") << "navigate() initiated: " << ll_print_sd(sd_payload) << LL_ENDL;
 	
-	LL_INFOS("LLMediaDataClient") << "navigate() initiated: " << ll_print_sd(sd_payload) << LL_ENDL;
+	// Create a get request and put it in the queue.
+	enqueue(new RequestNavigate(object, this, texture_index, url));
+}
+
+LLObjectMediaNavigateClient::RequestNavigate::RequestNavigate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc, U8 texture_index, const std::string &url):
+	LLMediaDataClient::Request(LLMediaDataClient::Request::NAVIGATE, obj, mdc),
+	mTextureIndex(texture_index),
+	mURL(url)
+{
+}
+
+LLSD LLObjectMediaNavigateClient::RequestNavigate::getPayload() const
+{
+	LLSD result;
+	result[LLTextureEntry::OBJECT_ID_KEY] = mObject->getID();
+	result[LLMediaEntry::CURRENT_URL_KEY] = mURL;
+	result[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)mTextureIndex;
 	
-	request(object, sd_payload);
+	return result;
+}
+
+LLMediaDataClient::Responder *LLObjectMediaNavigateClient::RequestNavigate::createResponder()
+{
+	return new LLObjectMediaNavigateClient::Responder(this);
 }
 
 /*virtual*/
