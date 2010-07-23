@@ -1801,9 +1801,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-														   &LLAppearanceMgr::instance(),
-														   category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+															&LLAppearanceMgr::instance(),
+															category->getUUID(), copy, append));
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
@@ -2725,6 +2725,179 @@ BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 
 	return FALSE;
 	*/
+}
+
+// Shim class to allow arbitrary boost::bind
+// expressions to be run as one-time idle callbacks.
+//
+// TODO: rework idle function spec to take a boost::function in the first place.
+class OnIdleCallbackOneTime
+{
+public:
+	OnIdleCallbackOneTime(nullary_func_t callable):
+		mCallable(callable)
+	{
+	}
+	static void onIdle(void *data)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, data);
+		OnIdleCallbackOneTime* self = reinterpret_cast<OnIdleCallbackOneTime*>(data);
+		self->call();
+		delete self;
+	}
+	void call()
+	{
+		mCallable();
+	}
+private:
+	nullary_func_t mCallable;
+};
+
+void doOnIdleOneTime(nullary_func_t callable)
+{
+	OnIdleCallbackOneTime* cb_functor = new OnIdleCallbackOneTime(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackOneTime::onIdle,cb_functor);
+}
+
+// Shim class to allow generic boost functions to be run as
+// recurring idle callbacks.  Callable should return true when done,
+// false to continue getting called.
+//
+// TODO: rework idle function spec to take a boost::function in the first place.
+class OnIdleCallbackRepeating
+{
+public:
+	OnIdleCallbackRepeating(bool_func_t callable):
+		mCallable(callable)
+	{
+	}
+	// Will keep getting called until the callable returns true.
+	static void onIdle(void *data)
+	{
+		OnIdleCallbackRepeating* self = reinterpret_cast<OnIdleCallbackRepeating*>(data);
+		bool done = self->call();
+		if (done)
+		{
+			gIdleCallbacks.deleteFunction(onIdle, data);
+			delete self;
+		}
+	}
+	bool call()
+	{
+		return mCallable();
+	}
+private:
+	bool_func_t mCallable;
+};
+
+void doOnIdleRepeating(bool_func_t callable)
+{
+	OnIdleCallbackRepeating* cb_functor = new OnIdleCallbackRepeating(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating::onIdle,cb_functor);
+}
+
+class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver
+{
+public:
+	CallAfterCategoryFetchStage2(const uuid_vec_t& ids,
+								 nullary_func_t callable) :
+		LLInventoryFetchItemsObserver(ids),
+		mCallable(callable)
+	{
+	}
+	~CallAfterCategoryFetchStage2()
+	{
+	}
+	virtual void done()
+	{
+		llinfos << this << " done with incomplete " << mIncomplete.size()
+				<< " complete " << mComplete.size() <<  " calling callable" << llendl;
+
+		gInventory.removeObserver(this);
+		doOnIdleOneTime(mCallable);
+		delete this;
+	}
+protected:
+	nullary_func_t mCallable;
+};
+
+class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
+{
+public:
+	CallAfterCategoryFetchStage1(const LLUUID& cat_id, nullary_func_t callable) :
+		LLInventoryFetchDescendentsObserver(cat_id),
+		mCallable(callable)
+	{
+	}
+	~CallAfterCategoryFetchStage1()
+	{
+	}
+	virtual void done()
+	{
+		// What we do here is get the complete information on the items in
+		// the library, and set up an observer that will wait for that to
+		// happen.
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectDescendents(mComplete.front(),
+									  cat_array,
+									  item_array,
+									  LLInventoryModel::EXCLUDE_TRASH);
+		S32 count = item_array.count();
+		if(!count)
+		{
+			llwarns << "Nothing fetched in category " << mComplete.front()
+					<< llendl;
+			//dec_busy_count();
+			gInventory.removeObserver(this);
+
+			// lets notify observers that loading is finished.
+			gAgentWearables.notifyLoadingFinished();
+			delete this;
+			return;
+		}
+
+		llinfos << "stage1 got " << item_array.count() << " items, passing to stage2 " << llendl;
+		uuid_vec_t ids;
+		for(S32 i = 0; i < count; ++i)
+		{
+			ids.push_back(item_array.get(i)->getUUID());
+		}
+		
+		gInventory.removeObserver(this);
+		
+		// do the fetch
+		CallAfterCategoryFetchStage2 *stage2 = new CallAfterCategoryFetchStage2(ids, mCallable);
+		stage2->startFetch();
+		if(stage2->isFinished())
+		{
+			// everything is already here - call done.
+			stage2->done();
+		}
+		else
+		{
+			// it's all on it's way - add an observer, and the inventory
+			// will call done for us when everything is here.
+			gInventory.addObserver(stage2);
+		}
+		delete this;
+	}
+protected:
+	nullary_func_t mCallable;
+};
+
+void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
+{
+	CallAfterCategoryFetchStage1 *stage1 = new CallAfterCategoryFetchStage1(cat_id, cb);
+	stage1->startFetch();
+	if (stage1->isFinished())
+	{
+		stage1->done();
+	}
+	else
+	{
+		gInventory.addObserver(stage1);
+	}
 }
 
 void wear_multiple(const uuid_vec_t& ids, bool replace)

@@ -242,182 +242,19 @@ private:
 
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
-// Shim class and template function to allow arbitrary boost::bind
-// expressions to be run as one-time idle callbacks.
-template <typename T>
-class OnIdleCallbackOneTime
-{
-public:
-	OnIdleCallbackOneTime(T callable):
-		mCallable(callable)
-	{
-	}
-	static void onIdle(void *data)
-	{
-		gIdleCallbacks.deleteFunction(onIdle, data);
-		OnIdleCallbackOneTime<T>* self = reinterpret_cast<OnIdleCallbackOneTime<T>*>(data);
-		self->call();
-		delete self;
-	}
-	void call()
-	{
-		mCallable();
-	}
-private:
-	T mCallable;
-};
+typedef boost::function<void ()> nullary_func_t;
+typedef boost::function<bool ()> bool_func_t;
 
-template <typename T>
-void doOnIdleOneTime(T callable)
-{
-	OnIdleCallbackOneTime<T>* cb_functor = new OnIdleCallbackOneTime<T>(callable);
-	gIdleCallbacks.addFunction(&OnIdleCallbackOneTime<T>::onIdle,cb_functor);
-}
+// Call a given callable once in idle loop.
+void doOnIdleOneTime(nullary_func_t callable);
 
-// Shim class and template function to allow arbitrary boost::bind
-// expressions to be run as recurring idle callbacks.
-// Callable should return true when done, false to continue getting called.
-template <typename T>
-class OnIdleCallbackRepeating
-{
-public:
-	OnIdleCallbackRepeating(T callable):
-		mCallable(callable)
-	{
-	}
-	// Will keep getting called until the callable returns true.
-	static void onIdle(void *data)
-	{
-		OnIdleCallbackRepeating<T>* self = reinterpret_cast<OnIdleCallbackRepeating<T>*>(data);
-		bool done = self->call();
-		if (done)
-		{
-			gIdleCallbacks.deleteFunction(onIdle, data);
-			delete self;
-		}
-	}
-	bool call()
-	{
-		return mCallable();
-	}
-private:
-	T mCallable;
-};
+// Repeatedly call a callable in idle loop until it returns true.
+void doOnIdleRepeating(bool_func_t callable);
 
-template <typename T>
-void doOnIdleRepeating(T callable)
-{
-	OnIdleCallbackRepeating<T>* cb_functor = new OnIdleCallbackRepeating<T>(callable);
-	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating<T>::onIdle,cb_functor);
-}
+// Invoke a given callable after category contents are fully fetched.
+void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb);
 
-template <class T>
-class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver
-{
-public:
-	CallAfterCategoryFetchStage2(const uuid_vec_t& ids,
-								 T callable) :
-		LLInventoryFetchItemsObserver(ids),
-		mCallable(callable)
-	{
-	}
-	~CallAfterCategoryFetchStage2()
-	{
-	}
-	virtual void done()
-	{
-		llinfos << this << " done with incomplete " << mIncomplete.size()
-				<< " complete " << mComplete.size() <<  " calling callable" << llendl;
-
-		gInventory.removeObserver(this);
-		doOnIdleOneTime(mCallable);
-		delete this;
-	}
-protected:
-	T mCallable;
-};
-
-template <class T>
-class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
-{
-public:
-	CallAfterCategoryFetchStage1(const LLUUID& cat_id, T callable) :
-		LLInventoryFetchDescendentsObserver(cat_id),
-		mCallable(callable)
-	{
-	}
-	~CallAfterCategoryFetchStage1()
-	{
-	}
-	virtual void done()
-	{
-		// What we do here is get the complete information on the items in
-		// the library, and set up an observer that will wait for that to
-		// happen.
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectDescendents(mComplete.front(),
-									  cat_array,
-									  item_array,
-									  LLInventoryModel::EXCLUDE_TRASH);
-		S32 count = item_array.count();
-		if(!count)
-		{
-			llwarns << "Nothing fetched in category " << mComplete.front()
-					<< llendl;
-			//dec_busy_count();
-			gInventory.removeObserver(this);
-
-			// lets notify observers that loading is finished.
-			gAgentWearables.notifyLoadingFinished();
-			delete this;
-			return;
-		}
-
-		llinfos << "stage1 got " << item_array.count() << " items, passing to stage2 " << llendl;
-		uuid_vec_t ids;
-		for(S32 i = 0; i < count; ++i)
-		{
-			ids.push_back(item_array.get(i)->getUUID());
-		}
-		
-		gInventory.removeObserver(this);
-		
-		// do the fetch
-		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(ids, mCallable);
-		stage2->startFetch();
-		if(stage2->isFinished())
-		{
-			// everything is already here - call done.
-			stage2->done();
-		}
-		else
-		{
-			// it's all on it's way - add an observer, and the inventory
-			// will call done for us when everything is here.
-			gInventory.addObserver(stage2);
-		}
-		delete this;
-	}
-protected:
-	T mCallable;
-};
-
-template <class T> 
-void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
-{
-	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(cat_id, callable);
-	stage1->startFetch();
-	if (stage1->isFinished())
-	{
-		stage1->done();
-	}
-	else
-	{
-		gInventory.addObserver(stage1);
-	}
-}
-
+// Wear all items in a uuid vector.
 void wear_multiple(const uuid_vec_t& ids, bool replace);
 
 #endif
