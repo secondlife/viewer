@@ -6220,7 +6220,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	}
 
-	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
+	const BOOL self_customizing = isSelf() && !gAgentAvatarp->isUsingBakedTextures(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
 	LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
 	BOOL paused = FALSE;

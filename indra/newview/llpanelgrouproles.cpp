@@ -1593,6 +1593,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 
 	LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
+	LLUIString donated = getString("donation_area");
 
 	S32 i = 0;
 	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
@@ -1614,9 +1615,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 		if (add_member)
 		{
-			// Build the donated tier string.
-			std::ostringstream donated;
-			donated << mMemberProgress->second->getContribution() << " sq. m.";
+			donated.setArg("[AREA]", llformat("%d", mMemberProgress->second->getContribution()));
 
 			LLSD row;
 			row["id"] = (*mMemberProgress).first;
@@ -1625,7 +1624,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 			// value is filled in by name list control
 
 			row["columns"][1]["column"] = "donated";
-			row["columns"][1]["value"] = donated.str();
+			row["columns"][1]["value"] = donated.getString();
 
 			row["columns"][2]["column"] = "online";
 			row["columns"][2]["value"] = mMemberProgress->second->getOnlineStatus();
