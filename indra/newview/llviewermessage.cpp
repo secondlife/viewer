@@ -1138,10 +1138,26 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						}
 						else if(from_name.empty())
 						{
+							std::string folder_name;
+							if (parent_folder)
+							{
+								// Localize folder name.
+								// *TODO: share this code?
+								folder_name = parent_folder->getName();
+								if (LLFolderType::lookupIsProtectedType(parent_folder->getPreferredType()))
+								{
+									LLTrans::findString(folder_name, "InvFolder " + folder_name);
+								}
+							}
+							else
+							{
+								 folder_name = LLTrans::getString("Unknown");
+							}
+
 							// we receive a message from LLOpenTaskOffer, it mean that new landmark has been added.
 							LLSD args;
 							args["LANDMARK_NAME"] = item->getName();
-							args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
+							args["FOLDER_NAME"] = folder_name;
 							LLNotificationsUtil::add("LandmarkCreated", args);
 						}
 					}
