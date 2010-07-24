@@ -1012,22 +1012,25 @@ void LLTextBase::draw()
 	if (mBGVisible)
 	{
 		// clip background rect against extents, if we support scrolling
-		LLLocalClipRect clip(doc_rect, mScroller != NULL);
-
+		LLRect bg_rect = mVisibleTextRect;
+		if (mScroller)
+		{
+			bg_rect.intersectWith(doc_rect);
+		}
 		LLColor4 bg_color = mReadOnly 
 							? mReadOnlyBgColor.get()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(mVisibleTextRect, bg_color, TRUE);
+		gl_rect_2d(doc_rect, bg_color, TRUE);
 	}
 
 	// draw document view
 	LLUICtrl::draw();
 
 	{
-		// only clip if we support scrolling (mScroller != NULL)
-		LLLocalClipRect clip(doc_rect, mScroller != NULL);
+		// only clip if we support scrolling or have word wrap turned off
+		LLLocalClipRect clip(doc_rect, !getWordWrap() || mScroller != NULL);
 		drawSelectionBackground();
 		drawText();
 		drawCursor();
@@ -1495,6 +1498,7 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
+	//FIXME: avoid operator new somehow (without running into refcount problems)
 	segment_set_t::iterator it = mSegments.upper_bound(new LLIndexSegment(index));
 	return it;
 }
@@ -2269,6 +2273,7 @@ void LLTextBase::updateRects()
 	// allow horizontal scrolling?
 	// if so, use entire width of text contents
 	// otherwise, stop at width of mVisibleTextRect
+	//FIXME: consider use of getWordWrap() instead
 	doc_rect.mRight = mScroller 
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
