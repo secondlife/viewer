@@ -104,13 +104,16 @@ private:
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);
 
 	BOOL			openEmbeddedItemAtPos( S32 pos );
-	BOOL			openEmbeddedItem(LLInventoryItem* item, llwchar wc);
+	BOOL			openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc);
 
 	S32				insertEmbeddedItem(S32 pos, LLInventoryItem* item);
 
+	// *NOTE: most of openEmbeddedXXX methods except openEmbeddedLandmark take pointer to LLInventoryItem.
+	// Be sure they don't bind it to callback function to avoid situation when it gets invalid when
+	// callback is trigged after text editor is closed. See EXT-8459.
 	void			openEmbeddedTexture( LLInventoryItem* item, llwchar wc );
 	void			openEmbeddedSound( LLInventoryItem* item, llwchar wc );
-	void			openEmbeddedLandmark( LLInventoryItem* item, llwchar wc );
+	void			openEmbeddedLandmark( LLPointer<LLInventoryItem> item_ptr, llwchar wc );
 	void			openEmbeddedNotecard( LLInventoryItem* item, llwchar wc);
 	void			openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc);
 	void			showCopyToInvDialog( LLInventoryItem* item, llwchar wc );

@@ -175,6 +175,8 @@ protected:
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
+
+	BOOL				mSelectedItemPinned;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
@@ -197,7 +199,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
-	mContextConeOpacity(0.f)
+	mContextConeOpacity(0.f),
+	mSelectedItemPinned( FALSE )
 {
 	mCanApplyImmediately = can_apply_immediately;
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
@@ -596,6 +599,31 @@ void LLFloaterTexturePicker::draw()
 		{
 			mTentativeLabel->setVisible( TRUE );
 			drawChild(mTentativeLabel);
+		}
+
+		if (mSelectedItemPinned) return;
+
+		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
+		if (!folder_view) return;
+
+		LLInventoryFilter* filter = folder_view->getFilter();
+		if (!filter) return;
+
+		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
+				filter->isNotDefault();
+
+		// After inventory panel filter is applied we have to update
+		// constraint rect for the selected item because of folder view
+		// AutoSelectOverride set to TRUE. We force PinningSelectedItem
+		// flag to FALSE state and setting filter "dirty" to update
+		// scroll container to show selected item (see LLFolderView::doIdle()).
+		if (!is_filter_active && !mSelectedItemPinned)
+		{
+			folder_view->setPinningSelectedItem(mSelectedItemPinned);
+			folder_view->dirtyFilter();
+			folder_view->arrangeFromRoot();
+
+			mSelectedItemPinned = TRUE;
 		}
 	}
 }

@@ -167,6 +167,10 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 			{
 				generateGLTexture() ;
 			}
+			if(!mGLTexturep->getHasGLTexture())
+			{
+				generateGLTexture() ;
+			}
 			llcallstacks << "class type: " << (S32)getType() << llcallstacksendl ;
 
 			success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);

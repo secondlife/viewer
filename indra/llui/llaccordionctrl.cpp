@@ -811,6 +811,31 @@ void	LLAccordionCtrl::reset		()
 		mScrollbar->setDocPos(0);
 }
 
+void LLAccordionCtrl::expandDefaultTab()
+{
+	if (mAccordionTabs.size() > 0)
+	{
+		LLAccordionCtrlTab* tab = mAccordionTabs.front();
+
+		if (!tab->getDisplayChildren())
+		{
+			tab->setDisplayChildren(true);
+		}
+
+		for (size_t i = 1; i < mAccordionTabs.size(); ++i)
+		{
+			tab = mAccordionTabs[i];
+
+			if (tab->getDisplayChildren())
+			{
+				tab->setDisplayChildren(false);
+			}
+		}
+
+		arrange();
+	}
+}
+
 void LLAccordionCtrl::sort()
 {
 	if (!mTabComparator)

@@ -79,7 +79,8 @@ LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
 	mForSalePanel(NULL),
 	mYouAreHerePanel(NULL),
-	mSelectedParcelID(-1)
+	mSelectedParcelID(-1),
+	mAccordionCtrl(NULL)
 {}
 
 // virtual
@@ -139,6 +140,7 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mSubdivideText = getChild<LLTextEditor>("subdivide");
 	mResaleText = getChild<LLTextEditor>("resale");
 	mSaleToText = getChild<LLTextBox>("sale_to");
+	mAccordionCtrl = getChild<LLAccordionCtrl>("advanced_info_accordion");
 
 	icon_pg = getString("icon_PG");
 	icon_m = getString("icon_M");
@@ -277,6 +279,11 @@ void LLPanelPlaceProfile::handleVisibilityChange(BOOL new_visibility)
 		{
 			parcel_mgr->deselectUnused();
 		}
+	}
+
+	if (mAccordionCtrl != NULL)
+	{
+		mAccordionCtrl->expandDefaultTab();
 	}
 }
 

@@ -2088,7 +2088,8 @@ void LLPanelLandOptions::refresh()
 			LLStyle::Params style;
 			style.image(LLUI::getUIImage(gFloaterView->getParentFloater(this)->getString("maturity_icon_moderate")));
 			LLCheckBoxWithTBAcess* fullaccess_mature_ctrl = (LLCheckBoxWithTBAcess*)mMatureCtrl;
-			fullaccess_mature_ctrl->getTextBox()->setText(std::string("icon"),style);
+			fullaccess_mature_ctrl->getTextBox()->setText(LLStringExplicit(""));
+			fullaccess_mature_ctrl->getTextBox()->appendImageSegment(style);
 			fullaccess_mature_ctrl->getTextBox()->appendText(getString("mature_check_mature"), false);
 			fullaccess_mature_ctrl->setToolTip(getString("mature_check_mature_tooltip"));
 			fullaccess_mature_ctrl->reshape(fullaccess_mature_ctrl->getRect().getWidth(), fullaccess_mature_ctrl->getRect().getHeight(), FALSE);

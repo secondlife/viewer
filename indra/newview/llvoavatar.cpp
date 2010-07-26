@@ -4095,9 +4095,13 @@ void LLVOAvatar::updateTextures()
 	}
 	else
 	{
-		render_avatar = isVisible() && !mCulled;
+		if(!isVisible())
+		{
+			return ;//do not update for invisible avatar.
+		}
+
+		render_avatar = !mCulled; //visible and not culled.
 	}
-	checkTextureLoading() ;
 
 	std::vector<BOOL> layer_baked;
 	// GL NOT ACTIVE HERE - *TODO
@@ -4138,7 +4142,7 @@ void LLVOAvatar::updateTextures()
 				}
 			}
 		}
-		if (isIndexBakedTexture((ETextureIndex) texture_index) && render_avatar)
+		if (isIndexBakedTexture((ETextureIndex) texture_index))
 		{
 			const S32 boost_level = getAvatarBakedBoostLevel();
 			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
@@ -4172,10 +4176,11 @@ void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture
 	return;
 }
 
-			    
+const S32 MAX_TEXTURE_UPDATE_INTERVAL = 64 ; //need to call updateTextures() at least every 32 frames.	
+const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = S32_MAX ; //frames
 void LLVOAvatar::checkTextureLoading()
 {
-	static const F32 MAX_INVISIBLE_WAITING_TIME = 30.f ; //seconds
+	static const F32 MAX_INVISIBLE_WAITING_TIME = 15.f ; //seconds
 
 	BOOL pause = !isVisible() ;
 	if(!pause)
@@ -4195,9 +4200,9 @@ void LLVOAvatar::checkTextureLoading()
 	
 	if(pause && mInvisibleTimer.getElapsedTimeF32() < MAX_INVISIBLE_WAITING_TIME)
 	{
-		return ;
+		return ; //have not been invisible for enough time.
 	}
-	
+
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
 	{
@@ -4207,17 +4212,22 @@ void LLVOAvatar::checkTextureLoading()
 			if(pause)//pause texture fetching.
 			{
 				tex->pauseLoadedCallbacks(&mCallbackTextureList) ;
+
+				//set to terminate texture fetching after MAX_TEXTURE_UPDATE_INTERVAL frames.
+				tex->setMaxVirtualSizeResetInterval(MAX_TEXTURE_UPDATE_INTERVAL);
+				tex->resetMaxVirtualSizeResetCounter() ;
 			}
 			else//unpause
 			{
-				static const F32 START_AREA = 100.f ;
-
-				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
-				tex->addTextureStats(START_AREA); //jump start the fetching again
+				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;				
 			}
 		}		
 	}			
 	
+	if(!pause)
+	{
+		updateTextures() ; //refresh texture stats.
+	}
 	mLoadedCallbacksPaused = pause ;
 	return ;
 }
@@ -4226,12 +4236,14 @@ const F32  SELF_ADDITIONAL_PRI = 0.75f ;
 const F32  ADDITIONAL_PRI = 0.5f;
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
-	//if this function is not called for the last 512 frames, the texture pipeline will stop fetching this texture.
-	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames		
-
+	//Note:
+	//if this function is not called for the last MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL frames, 
+	//the texture pipeline will stop fetching this texture.
+	
 	imagep->resetTextureStats();
 	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
 	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+	imagep->resetMaxVirtualSizeResetCounter() ;
 
 	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);	
@@ -6051,7 +6063,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	}
 
-	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
+	const BOOL self_customizing = isSelf() && !gAgentAvatarp->isUsingBakedTextures(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
 	LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
 	BOOL paused = FALSE;

@@ -83,6 +83,16 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 {
 }
 
+LLFloaterMove::~LLFloaterMove()
+{
+	// Ensure LLPanelStandStopFlying panel is not among floater's children. See EXT-8458.
+	setVisible(FALSE);
+
+	// Otherwise it can be destroyed and static pointer in LLPanelStandStopFlying::getInstance() will become invalid.
+	// Such situation was possible when LLFloaterReg returns "dead" instance of floater.
+	// Should not happen after LLFloater::destroy was modified to remove "dead" instances from LLFloaterReg.
+}
+
 // virtual
 BOOL LLFloaterMove::postBuild()
 {
