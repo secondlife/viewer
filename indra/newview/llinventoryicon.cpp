@@ -117,6 +117,7 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 	if (item_is_multi)
 	{
 		idx = ICONNAME_OBJECT_MULTI;
+		return getIconName(idx);
 	}
 	
 	switch(asset_type)
