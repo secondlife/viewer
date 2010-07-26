@@ -223,6 +223,11 @@ public:
 	BOOL getIsInCOF(const LLUUID& obj_id) const;
 	// Is this in the COF and can the user delete it from the COF?
 	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
+
+	/**
+	 * Checks if COF contains link to specified object.
+	 */
+	static bool isLinkInCOF(const LLUUID& obj_id);
 };
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback

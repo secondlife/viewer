@@ -183,6 +183,11 @@ private:
 	 */
 	bool canTakeOffSelected();
 
+	/**
+	 * Returns true if all selected items can be worn.
+	 */
+	bool canWearSelected();
+
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
 	void onCOFChanged();

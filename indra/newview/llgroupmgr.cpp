@@ -903,7 +903,15 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 
 			if (member_id.notNull())
 			{
-				formatDateString(online_status); // reformat for sorting, e.g. 12/25/2008 -> 2008/12/25
+				if (online_status == "Online")
+				{
+					static std::string localized_online(LLTrans::getString("group_member_status_online"));
+					online_status = localized_online;
+				}
+				else
+				{
+					formatDateString(online_status); // reformat for sorting, e.g. 12/25/2008 -> 2008/12/25
+				}
 				
 				//llinfos << "Member " << member_id << " has powers " << std::hex << agent_powers << std::dec << llendl;
 				LLGroupMemberData* newdata = new LLGroupMemberData(member_id, 
