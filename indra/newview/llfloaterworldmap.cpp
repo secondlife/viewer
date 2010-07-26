@@ -206,6 +206,7 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, NULL);
 	
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_world_map.xml", FALSE);
+	mCommitCallbackRegistrar.add("WMap.Coordinates",	boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Location",		boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
 	mCommitCallbackRegistrar.add("WMap.AvatarCombo",	boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Landmark",		boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
@@ -335,8 +336,6 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 		centerOnTarget(FALSE);
 	}
 }
-
-
 
 // static
 void LLFloaterWorldMap::reloadIcons(void*)
@@ -582,6 +581,10 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		S32 world_y = S32(pos_global.mdV[1] / 256);
 		LLWorldMapMessage::getInstance()->sendMapBlockRequest(world_x, world_y, world_x, world_y, true);
 		setDefaultBtn("");
+
+		// clicked on a non-region - turn off coord display
+		enableTeleportCoordsDisplay( false );
+
 		return;
 	}
 	if (sim_info->isDown())
@@ -592,6 +595,10 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		LLWorldMap::getInstance()->setTrackingInvalid();
 		LLTracker::stopTracking(NULL);
 		setDefaultBtn("");
+
+		// clicked on a down region - turn off coord display
+		enableTeleportCoordsDisplay( false );
+
 		return;
 	}
 
@@ -609,7 +616,38 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 	LLTracker::trackLocation(pos_global, full_name, tooltip);
 	LLWorldMap::getInstance()->cancelTracking();		// The floater is taking over the tracking
 
+	LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
+	updateTeleportCoordsDisplay( coord_pos );
+
+	// we have a valid region - turn on coord display
+	enableTeleportCoordsDisplay( true );
+
 	setDefaultBtn("Teleport");
+}
+
+// enable/disable teleport destination coordinates 
+void LLFloaterWorldMap::enableTeleportCoordsDisplay( bool enabled )
+{
+	childSetEnabled("teleport_coordinate_x", enabled );
+	childSetEnabled("teleport_coordinate_y", enabled );
+	childSetEnabled("teleport_coordinate_z", enabled );
+}
+
+// update display of teleport destination coordinates - pos is in global coordinates
+void LLFloaterWorldMap::updateTeleportCoordsDisplay( const LLVector3d& pos )
+{
+	// if we're going to update their value, we should also enable them
+	enableTeleportCoordsDisplay( true );
+
+	// convert global specified position to a local one
+	F32 region_local_x = (F32)fmod( pos.mdV[VX], (F64)REGION_WIDTH_METERS );
+	F32 region_local_y = (F32)fmod( pos.mdV[VY], (F64)REGION_WIDTH_METERS );
+	F32 region_local_z = (F32)fmod( pos.mdV[VZ], (F64)REGION_WIDTH_METERS );
+
+	// write in the values
+	childSetValue("teleport_coordinate_x", region_local_x );
+	childSetValue("teleport_coordinate_y", region_local_y );
+	childSetValue("teleport_coordinate_z", region_local_z );
 }
 
 void LLFloaterWorldMap::updateLocation()
@@ -637,6 +675,9 @@ void LLFloaterWorldMap::updateLocation()
 
 				// Fill out the location field
 				childSetValue("location", agent_sim_name);
+
+				// update the coordinate display with location of avatar in region
+				updateTeleportCoordsDisplay( agentPos );
 
 				// Figure out where user is
 				// Set the current SLURL
@@ -667,6 +708,10 @@ void LLFloaterWorldMap::updateLocation()
 		}
 
 		childSetValue("location", sim_name);
+
+		// refresh coordinate display to reflect where user clicked.
+		LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
+		updateTeleportCoordsDisplay( coord_pos );
 
 		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
 		if ( gotSimName )
@@ -1139,6 +1184,22 @@ void LLFloaterWorldMap::onLocationCommit()
 	}
 }
 
+void LLFloaterWorldMap::onCoordinatesCommit()
+{
+	if( mIsClosing )
+	{
+		return;
+	}
+
+	F32 x_coord = (F32)childGetValue("teleport_coordinate_x").asReal();
+	F32 y_coord = (F32)childGetValue("teleport_coordinate_y").asReal();
+	F32 z_coord = (F32)childGetValue("teleport_coordinate_z").asReal();
+
+	const std::string region_name = childGetValue("location").asString();
+
+	trackURL( region_name, x_coord, y_coord, z_coord );
+}
+
 void LLFloaterWorldMap::onClearBtn()
 {
 	mTrackedStatus = LLTracker::TRACKING_NOTHING;
@@ -1199,6 +1260,9 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 	else if(LLWorldMap::getInstance()->isTracking())
 	{
 		pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal() - gAgentCamera.getCameraPositionGlobal();;
+
+
+
 	}
 	else
 	{

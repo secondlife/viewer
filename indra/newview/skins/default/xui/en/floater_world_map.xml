@@ -395,7 +395,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="310"
+	 height="330"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -534,7 +534,66 @@
 		<scroll_list.commit_callback
 		function="WMap.SearchResult" />
     </scroll_list>
-    <button
+      <text
+      type="string"
+      length="1"
+      follows="right|bottom"
+      halign="right"
+      height="16"
+      layout="topleft"
+      left="25"
+      name="events_label"
+      top_pad="16"
+      width="70">
+      Location:
+      </text>
+      <spinner
+        control_name="Teleport_Coordinate_X"
+        decimal_digits="0"
+        follows="right|bottom"
+        height="23"
+        increment="1"
+        initial_value="128"
+        layout="topleft"
+        left_delta="74"
+        max_val="255"
+        min_val="0"
+        name="teleport_coordinate_x"
+        width="44" >
+        <spinner.commit_callback 
+          function="WMap.Coordinates" />
+      </spinner>
+      <spinner
+        control_name="Teleport_Coordinate_Y"
+        decimal_digits="0"
+        follows="right|bottom"
+        height="23"
+        increment="1"
+        initial_value="128"
+        layout="topleft"
+        left_delta="47"
+        max_val="255"
+        min_val="0"
+        name="teleport_coordinate_y" >
+        <spinner.commit_callback
+          function="WMap.Coordinates" />
+      </spinner>
+      <spinner
+        control_name="Teleport_Coordinate_Z"
+        decimal_digits="0"
+        follows="right|bottom"
+        height="23"
+        increment="1"
+        initial_value="128"
+        layout="topleft"
+        left_delta="47"
+        max_val="255"
+        min_val="0"
+        name="teleport_coordinate_z">
+        <spinner.commit_callback
+          function="WMap.Coordinates" />
+      </spinner>
+      <button
      follows="right|bottom"
      height="23"
      image_unselected="PushButton_On"
@@ -574,66 +633,6 @@
 		<button.commit_callback
 		function="WMap.ShowTarget" />
     </button>
-
-<!-- <text
-     type="string"
-     length="1"
-     follows="bottom|right"
-     halign="left"
-     height="16"
-     top_pad="4"
-     left="25"
-     layout="topleft"
-     name="land_sale_label"
-     width="250">
-        Location:
-    </text>
-      <spinner
-     decimal_digits="0"
-     follows="bottom|right"
-     increment="1"
-     initial_value="128"
-     layout="topleft"
-     top_pad="0"
-     left="25"
-     max_val="255"
-     name="spin x"
-     tool_tip="X coordinate of location to show on map"
-     width="48">
-		<spinner.commit_callback
-		function="WMap.CommitLocation" />
-    </spinner>
-    <spinner
-     decimal_digits="0"
-     follows="bottom|right"
-     height="16"
-     increment="1"
-     initial_value="128"
-     layout="topleft"
-     left_pad="2"
-     max_val="255"
-     name="spin y"
-     tool_tip="Y coordinate of location to show on map"
-     top_delta="0"
-     width="48" >
-		<spinner.commit_callback
-		function="WMap.CommitLocation" />
-    </spinner>
-    <spinner
-     decimal_digits="0"
-     follows="bottom|right"
-     increment="1"
-     initial_value="0"
-     layout="topleft"
-     left_pad="2"
-     max_val="4096"
-     name="spin z"
-     tool_tip="Z coordinate of location to show on map"
-     top_delta="0"
-     width="48">
-		<spinner.commit_callback
-		function="WMap.CommitLocation" />
-    </spinner>-->
     </panel>
       <panel
     follows="right|bottom"
