@@ -94,6 +94,9 @@ public:
 	/// is this a match for a URL that should not be hyperlinked?
 	bool isLinkDisabled() const { return mDisabledLink; }
 
+	/// Should this link text be underlined only when mouse is hovered over it?
+	virtual bool underlineOnHoverOnly(const std::string &string) const { return false; }
+
 	virtual LLUUID	getID(const std::string &string) const { return LLUUID::null; }
 
 protected:
@@ -173,6 +176,7 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
 	/*virtual*/ LLUUID	getID(const std::string &string) const;
+	/*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
 private:
 	void onAgentNameReceived(const LLUUID& id, const std::string& first,
 							 const std::string& last, BOOL is_group);
@@ -275,6 +279,7 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
+	/*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
 };
 
 ///
