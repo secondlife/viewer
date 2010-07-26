@@ -672,16 +672,23 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 
 wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
 {
-	int output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(), NULL, 0);
+	// From review:
+	// We can preallocate a wide char buffer that is the same length (in wchar_t elements) as the utf8 input,
+	// plus one for a null terminator, and be guaranteed to not overflow.
+
+	//	Normally, I'd call that sort of thing premature optimization,
+	// but we *are* seeing string operations taking a bunch of time, especially when constructing widgets.
+//	int output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(), NULL, 0);
 
 	// reserve place to NULL terminator
+	int output_str_len = in.length();
 	wchar_t* w_out = new wchar_t[output_str_len + 1];
 
 	memset(w_out, 0, output_str_len + 1);
-	MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
+	int real_output_str_len = MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
 
 	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
-	w_out[output_str_len] = 0;
+	w_out[real_output_str_len] = 0;
 
 	return w_out;
 }
