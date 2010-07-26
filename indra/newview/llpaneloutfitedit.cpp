@@ -42,8 +42,8 @@
 #include "lloutfitobserver.h"
 #include "llcofwearables.h"
 #include "llfilteredwearablelist.h"
-#include "llfolderviewitem.h"
 #include "llinventory.h"
+#include "llinventoryitemslist.h"
 #include "llviewercontrol.h"
 #include "llui.h"
 #include "llfloater.h"
@@ -84,11 +84,6 @@ const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LL
 const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 
 static const std::string REVERT_BTN("revert_btn");
-
-
-///////////////////////////////////////////////////////////////////////////////
-// LLShopURLDispatcher
-///////////////////////////////////////////////////////////////////////////////
 
 class LLShopURLDispatcher
 {
@@ -149,10 +144,6 @@ std::string LLShopURLDispatcher::resolveURL(LLAssetType::EType asset_type, ESex 
 	return gSavedSettings.getString(setting_name);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// LLPanelOutfitEditGearMenu
-///////////////////////////////////////////////////////////////////////////////
-
 class LLPanelOutfitEditGearMenu
 {
 public:
@@ -168,6 +159,7 @@ public:
 		if (menu)
 		{
 			populateCreateWearableSubmenus(menu);
+			menu->buildDrawLabels();
 		}
 
 		return menu;
@@ -216,131 +208,6 @@ private:
 	}
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// LLAddWearablesGearMenu
-///////////////////////////////////////////////////////////////////////////////
-
-class LLAddWearablesGearMenu : public LLInitClass<LLAddWearablesGearMenu>
-{
-public:
-	static LLMenuGL* create(LLWearableItemsList* flat_list, LLInventoryPanel* inventory_panel)
-	{
-		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-
-		llassert(flat_list);
-		llassert(inventory_panel);
-
-		registrar.add("AddWearable.Gear.Sort", boost::bind(onSort, flat_list, inventory_panel, _2));
-		enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list, inventory_panel, _2));
-		enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel, _2));
-
-		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
-			"menu_add_wearable_gear.xml",
-			LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
-
-		return menu;
-	}
-
-private:
-	static void onSort(LLWearableItemsList* flat_list,
-					   LLInventoryPanel* inventory_panel,
-					   LLSD::String sort_order_str)
-	{
-		if (!flat_list || !inventory_panel) return;
-
-		LLWearableItemsList::ESortOrder	sort_order;
-
-		if ("by_most_recent" == sort_order_str)
-		{
-			sort_order = LLWearableItemsList::E_SORT_BY_MOST_RECENT;
-		}
-		else if ("by_name" == sort_order_str)
-		{
-			sort_order = LLWearableItemsList::E_SORT_BY_NAME;
-		}
-		else if ("by_type" == sort_order_str)
-		{
-			sort_order = LLWearableItemsList::E_SORT_BY_TYPE;
-		}
-		else
-		{
-			llwarns << "Unrecognized sort order action" << llendl;
-			return;
-		}
-
-		if (inventory_panel->getVisible())
-		{
-			inventory_panel->setSortOrder(sort_order);
-		}
-		else
-		{
-			flat_list->setSortOrder(sort_order);
-			gSavedSettings.setU32("AddWearableSortOrder", sort_order);
-		}
-	}
-
-	static bool onCheck(LLWearableItemsList* flat_list,
-						LLInventoryPanel* inventory_panel,
-						LLSD::String sort_order_str)
-	{
-		if (!inventory_panel || !flat_list) return false;
-
-		// Inventory panel uses its own sort order independent from
-		// flat list view so this flag is used to distinguish between
-		// currently visible "tree" or "flat" representation of inventory.
-		bool inventory_tree_visible = inventory_panel->getVisible();
-
-		if (inventory_tree_visible)
-		{
-			U32 sort_order = inventory_panel->getSortOrder();
-
-			if ("by_most_recent" == sort_order_str)
-			{
-				return LLWearableItemsList::E_SORT_BY_MOST_RECENT & sort_order;
-			}
-			else if ("by_name" == sort_order_str)
-			{
-				// If inventory panel is not sorted by date then it is sorted by name.
-				return LLWearableItemsList::E_SORT_BY_MOST_RECENT & ~sort_order;
-			}
-			llwarns << "Unrecognized inventory panel sort order" << llendl;
-		}
-		else
-		{
-			LLWearableItemsList::ESortOrder	sort_order = flat_list->getSortOrder();
-
-			if ("by_most_recent" == sort_order_str)
-			{
-				return LLWearableItemsList::E_SORT_BY_MOST_RECENT == sort_order;
-			}
-			else if ("by_name" == sort_order_str)
-			{
-				return LLWearableItemsList::E_SORT_BY_NAME == sort_order;
-			}
-			else if ("by_type" == sort_order_str)
-			{
-				return LLWearableItemsList::E_SORT_BY_TYPE == sort_order;
-			}
-			llwarns << "Unrecognized wearable list sort order" << llendl;
-		}
-		return false;
-	}
-
-	static bool onVisible(LLInventoryPanel* inventory_panel,
-						  LLSD::String sort_order_str)
-	{
-		// Enable sorting by type only for the flat list of items
-		// because inventory panel doesn't support this kind of sorting.
-		return ( "by_type" == sort_order_str )
-				&&	( !inventory_panel || !inventory_panel->getVisible() );
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// LLCOFDragAndDropObserver
-///////////////////////////////////////////////////////////////////////////////
-
 class LLCOFDragAndDropObserver : public LLInventoryAddItemByAssetObserver
 {
 public:
@@ -376,17 +243,12 @@ void LLCOFDragAndDropObserver::done()
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// LLPanelOutfitEdit
-///////////////////////////////////////////////////////////////////////////////
-
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), 
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
 	mGearMenu(NULL),
-	mAddWearablesGearMenu(NULL),
 	mCOFDragAndDropObserver(NULL),
 	mInitialized(false),
 	mAddWearablesPanel(NULL),
@@ -441,7 +303,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.All"), new LLFindNonLinksByMask(ALL_ITEMS_MASK)));
 	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Clothing"), new LLIsTypeActual(LLAssetType::AT_CLOTHING)));
 	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Bodyparts"), new LLIsTypeActual(LLAssetType::AT_BODYPART)));
-	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Objects"), new LLFindNonLinksByMask(ATTACHMENT_MASK)));;
+	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Objects"), new LLFindByMask(ATTACHMENT_MASK)));;
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("shape"), new LLFindActualWearablesOfType(LLWearableType::WT_SHAPE)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("skin"), new LLFindActualWearablesOfType(LLWearableType::WT_SKIN)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("hair"), new LLFindActualWearablesOfType(LLWearableType::WT_HAIR)));
@@ -466,9 +328,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
-	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
-	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
@@ -541,12 +401,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableListViewItemsComparator->setOrder(LLAssetType::AT_CLOTHING, LLWearableItemTypeNameComparator::ORDER_RANK_1, false, true);
 
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
-	mWearableItemsList = getChild<LLWearableItemsList>("list_view");
+	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
 	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 	mWearableItemsList->setComparator(mWearableListViewItemsComparator);
-        mWearableItemsList->setSortOrder((LLWearableItemsList::ESortOrder)gSavedSettings.getU32("AddWearableSortOrder"));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -630,7 +489,9 @@ void LLPanelOutfitEdit::showWearablesListView()
 {
 	if(switchPanels(mInventoryItemsPanel, mWearablesListViewPanel))
 	{
-		updateWearablesPanelVerbButtons();
+		mFolderViewBtn->setToggleState(FALSE);
+		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
+		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
 		updateFiltersVisibility();
 	}
 	mListViewBtn->setToggleState(TRUE);
@@ -640,7 +501,9 @@ void LLPanelOutfitEdit::showWearablesFolderView()
 {
 	if(switchPanels(mWearablesListViewPanel, mInventoryItemsPanel))
 	{
-		updateWearablesPanelVerbButtons();
+		mListViewBtn->setToggleState(FALSE);
+		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
+		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
 		updateFiltersVisibility();
 	}
 	mFolderViewBtn->setToggleState(TRUE);
@@ -761,11 +624,11 @@ void LLPanelOutfitEdit::onAddWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onReplaceMenuItemClicked(LLUUID selected_item_id)
+void LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id)
 {
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 
-	if (item)
+	if (item && item->getType() == LLAssetType::AT_BODYPART)
 	{
 		showFilteredWearablesListView(item->getWearableType());
 	}
@@ -1169,8 +1032,6 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 void LLPanelOutfitEdit::resetAccordionState()
 {
 	if (mCOFWearables != NULL)
-
-	if (mAddWearablesPanel->getVisible())
 	{
 		mCOFWearables->expandDefaultAccordionTab();
 	}
@@ -1178,25 +1039,17 @@ void LLPanelOutfitEdit::resetAccordionState()
 	{
 		llwarns << "mCOFWearables is NULL" << llendl;
 	}
+}
 
-		menu = mAddWearablesGearMenu;
-	}
-	else
+void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
+{
+	if(!mGearMenu)
 	{
-		if (!mGearMenu)
-		{
-			mGearMenu = LLPanelOutfitEditGearMenu::create();
-		}
-
-		menu = mGearMenu;
+		mGearMenu = LLPanelOutfitEditGearMenu::create();
 	}
 
-	if (!menu) return;
-
-	menu->arrangeAndClear(); // update menu height
-	S32 menu_y = menu->getRect().getHeight() + clicked_button->getRect().getHeight();
-	menu->buildDrawLabels();
-	LLMenuGL::showPopup(clicked_button, menu, 0, menu_y);
+	S32 menu_y = mGearMenu->getRect().getHeight() + clicked_button->getRect().getHeight();
+	LLMenuGL::showPopup(clicked_button, mGearMenu, 0, menu_y);
 }
 
 void LLPanelOutfitEdit::onAddMoreButtonClicked()
@@ -1276,70 +1129,10 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 //	return selected_id;
 }
 
-void LLPanelOutfitEdit::updateWearablesPanelVerbButtons()
-{
-	if(mWearablesListViewPanel->getVisible())
-	{
-		mFolderViewBtn->setToggleState(FALSE);
-		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
-		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
-	}
-	else if(mInventoryItemsPanel->getVisible())
-	{
-		mListViewBtn->setToggleState(FALSE);
-		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
-		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
-	}
-}
-
-void LLPanelOutfitEdit::saveListSelection()
-{
-	if(mWearablesListViewPanel->getVisible())
-	{
-		std::set<LLUUID> selected_ids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
-
-		if(!selected_ids.size()) return;
-
-		mWearableItemsList->resetSelection();
-
-		for (std::set<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
-		{
-			mWearableItemsList->selectItemByUUID(*item_id, true);
-		}
-		mWearableItemsList->scrollToShowFirstSelectedItem();
-	}
-	else if(mInventoryItemsPanel->getVisible())
-	{
-		std::vector<LLUUID> selected_ids;
-		mWearableItemsList->getSelectedUUIDs(selected_ids);
-
-		if(!selected_ids.size()) return;
-
-		mInventoryItemsPanel->clearSelection();
-		LLFolderView* root = mInventoryItemsPanel->getRootFolder();
-
-		if(!root) return;
-
-		for(std::vector<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
-		{
-			LLFolderViewItem* item = root->getItemByID(*item_id);
-			if (!item) continue;
-
-			LLFolderViewFolder* parent = item->getParentFolder();
-			if(parent)
-			{
-				parent->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
-			}
-			mInventoryItemsPanel->getRootFolder()->changeSelection(item, TRUE);
-		}
-		mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
-	}
-
-}
-
 void LLPanelOutfitEdit::onCOFChanged()
 {
 	update();
 }
+
 
 // EOF
