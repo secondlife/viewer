@@ -725,8 +725,8 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 	// Register handlers common for all wearable types.
-	registrar.add("Wearable.Wear", boost::bind(wear_multiple, ids, false));
-	registrar.add("Wearable.Add", boost::bind(wear_multiple, ids, true));
+	registrar.add("Wearable.Wear", boost::bind(wear_multiple, ids, true));
+	registrar.add("Wearable.Add", boost::bind(wear_multiple, ids, false));
 	registrar.add("Wearable.Edit", boost::bind(handleMultiple, LLAgentWearables::editWearable, ids));
 	registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
 	registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));

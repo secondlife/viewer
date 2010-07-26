@@ -169,8 +169,10 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	char hashed_unique_id_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 	LLMD5 hashed_unique_id;
 	unsigned char unique_id[MAC_ADDRESS_BYTES];
-	if(LLMachineID::getUniqueID(unique_id, sizeof(unique_id)) == 0) {
-		llerrs << "Failed to get an id; cannot uniquely identify this machine." << llendl;
+	if(LLUUID::getNodeID(unique_id) == 0) {
+		if(LLMachineID::getUniqueID(unique_id, sizeof(unique_id)) == 0) {
+			llerrs << "Failed to get an id; cannot uniquely identify this machine." << llendl;
+		}
 	}
 	hashed_unique_id.update(unique_id, MAC_ADDRESS_BYTES);
 	hashed_unique_id.finalize();

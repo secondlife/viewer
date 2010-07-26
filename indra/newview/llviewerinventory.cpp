@@ -936,7 +936,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	gAgentWearables.editWearableIfRequested(inv_item);
 
 	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
+	if(gAgentCamera.cameraCustomizeAvatar())
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
