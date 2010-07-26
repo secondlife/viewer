@@ -451,6 +451,14 @@ void LLFloater::enableResizeCtrls(bool enable)
 	}
 }
 
+void LLFloater::destroy()
+{
+	// LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
+	// it was deleted via LLMortician::updateClass(). See EXT-8458.
+	LLFloaterReg::removeInstance(mInstanceName, mKey);
+	die();
+}
+
 // virtual
 LLFloater::~LLFloater()
 {

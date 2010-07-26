@@ -278,6 +278,7 @@
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
+	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE]</string>
 	<string name="worldmap_results_none_found">None found.</string>
 
 	<!-- animations uploading status codes -->
@@ -2102,6 +2103,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
+	<string name="GroupColumn"          value="                      Group" />
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
@@ -3141,6 +3143,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>
+  <string name="group_member_status_online">Online</string>
 
   <string name="uploading_abuse_report">Uploading...
   
@@ -3165,6 +3168,7 @@ Abuse Report</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
   <string name="New Script">New Script</string>
+  <string name="New Note">New Note</string>
   <string name="New Folder">New Folder</string>
   <string name="Contents">Contents</string>
   <string name="Gesture">Gesture</string>

@@ -1432,10 +1432,10 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 // 	text.append(llformat( "%-24s %6d      %6d \n", LLTrans::getString("GroupMoneyDebits").c_str(), total_debits, (S32)floor((F32)total_debits/(F32)non_exempt_members)));
 // 	text.append(llformat( "%-24s %6d      %6d \n", LLTrans::getString("GroupMoneyTotal").c_str(), total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members)));
 
-	text.append( "                      Group\n");
-	text.append(llformat( "%-24s %6d\n", "Credits", total_credits));
-	text.append(llformat( "%-24s %6d\n", "Debits", total_debits));
-	text.append(llformat( "%-24s %6d\n", "Total", total_credits + total_debits));
+	text.append(llformat( "%s\n", LLTrans::getString("GroupColumn").c_str()));
+	text.append(llformat( "%-24s %6d\n", LLTrans::getString("GroupMoneyCredits").c_str(), total_credits));
+	text.append(llformat( "%-24s %6d\n", LLTrans::getString("GroupMoneyDebits").c_str(), total_debits));
+	text.append(llformat( "%-24s %6d\n", LLTrans::getString("GroupMoneyTotal").c_str(), total_credits + total_debits));
 	
 	if ( mImplementationp->mTextEditorp )
 	{

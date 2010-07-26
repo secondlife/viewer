@@ -42,6 +42,7 @@ class LLOfferInfo;
 const S32 UPDATE_MEMBERS_PER_FRAME = 500;
 
 // Forward declares
+class LLAccordionCtrl;
 class LLPanelGroupTab;
 class LLTabContainer;
 class LLAgent;
@@ -102,6 +103,7 @@ protected:
 	void onBackBtnClick();
 	void onBtnJoin();
 	void onBtnCancel();
+	void onVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
 
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);
@@ -126,7 +128,6 @@ protected:
 
 	LLButton*		mButtonJoin;
 	LLUICtrl*		mJoinText;
-
 };
 
 class LLPanelGroupTab : public LLPanel

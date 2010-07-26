@@ -298,11 +298,11 @@ void LLResMgr::getIntegerString( std::string& output, S32 input ) const
 		{
 			if (fraction == remaining_count)
 			{
-				fraction_string = llformat("%d%c", fraction, getThousandsSeparator());
+				fraction_string = llformat_to_utf8("%d%c", fraction, getThousandsSeparator());
 			}
 			else
 			{
-				fraction_string = llformat("%3.3d%c", fraction, getThousandsSeparator());
+				fraction_string = llformat_to_utf8("%3.3d%c", fraction, getThousandsSeparator());
 			}
 			output = fraction_string + output;
 		}

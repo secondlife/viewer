@@ -60,7 +60,8 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mScrollingPanelWidth(0),
 	mInfoType(UNKNOWN),
 	mScrollingPanel(NULL),
-	mScrollContainer(NULL)
+	mScrollContainer(NULL),
+	mDescEditor(NULL)
 {}
 
 //virtual
@@ -248,6 +249,16 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 // virtual
 void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+
+	// This if was added to force collapsing description textbox on Windows at the beginning of reshape
+	// (the only case when reshape is skipped here is when it's caused by this textbox, so called_from_parent is FALSE)
+	// This way it is consistent with Linux where topLost collapses textbox at the beginning of reshape.
+	// On windows it collapsed only after reshape which caused EXT-8342.
+	if(called_from_parent)
+	{
+		if(mDescEditor) mDescEditor->onTopLost();
+	}
+
 	LLPanel::reshape(width, height, called_from_parent);
 
 	if (!mScrollContainer || !mScrollingPanel)

@@ -564,7 +564,20 @@ using snprintf_hack::snprintf;
  *
  * This replaces the unsafe W2A macro from ATL.
  */
-LL_COMMON_API std::string ll_convert_wide_to_string(const wchar_t* in);
+LL_COMMON_API std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page);
+
+/**
+ * Converts a string to wide string.
+ *
+ * It will allocate memory for result string with "new []". Don't forget to release it with "delete []".
+ */
+LL_COMMON_API wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page);
+
+/**
+ * Converts incoming string into urf8 string
+ *
+ */
+LL_COMMON_API std::string ll_convert_string_to_utf8_string(const std::string& in);
 
 //@}
 #endif // LL_WINDOWS

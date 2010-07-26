@@ -51,7 +51,7 @@ class LLFloaterMove
 
 private:
 	LLFloaterMove(const LLSD& key);
-	~LLFloaterMove() {}
+	~LLFloaterMove();
 public:
 
 	/*virtual*/	BOOL	postBuild();

@@ -96,6 +96,7 @@ public:
 		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
 
 		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
@@ -935,7 +936,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	gAgentWearables.editWearableIfRequested(inv_item);
 
 	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
+	if(gAgentCamera.cameraCustomizeAvatar())
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
@@ -1172,6 +1173,14 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
+	if (NULL == src)
+	{
+		LL_WARNS("copy_inventory_from_notecard") << "Null pointer to item was passed for object_id "
+												 << object_id << " and notecard_inv_id "
+												 << notecard_inv_id << LL_ENDL;
+		return;
+	}
+
 	LLViewerRegion* viewer_region = NULL;
     LLViewerObject* vo = NULL;
 	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
@@ -1193,6 +1202,16 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
                                                  << LL_ENDL;
         return;
     }
+
+	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
+	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
+	if (url.empty())
+	{
+        LL_WARNS("copy_inventory_from_notecard") << "There is no 'CopyInventoryFromNotecard' capability"
+												 << " for region: " << viewer_region->getName()
+                                                 << LL_ENDL;
+		return;
+	}
 
     LLSD request, body;
     body["notecard-id"] = notecard_inv_id;

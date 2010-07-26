@@ -698,7 +698,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 		}
 	}
 
-	if( gAgentCamera.cameraCustomizeAvatar() )
+	if(gAgentCamera.cameraCustomizeAvatar())
 	{
 		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}

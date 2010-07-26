@@ -95,6 +95,7 @@ public:
 
 	// LLUICtrl overrides
 	/*virtual*/ void setValue(const LLSD& value);
+	/*virtual*/ LLSD getValue() const;
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
