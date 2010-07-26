@@ -779,7 +779,9 @@ void LLPanelOutfitEdit::updatePlusButton()
 	}
 
 	// If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
-	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(& get_can_item_be_worn, _1));
+	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(& get_can_item_be_worn, _1)
+		// since item can be not worn but in wearing process at that time - we need to check is link to item presents in COF
+		|| boost::bind(&LLAppearanceMgr::isLinkInCOF, _1));
 	bool can_add = ( unwearable_item == selected_items.end() );
 
 	mPlusBtn->setEnabled(can_add);

@@ -2699,6 +2699,21 @@ BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 	return gInventory.isObjectDescendentOf(obj_id, getCOF());
 }
 
+// static
+bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
+{
+	 LLInventoryModel::cat_array_t cats;
+	 LLInventoryModel::item_array_t items;
+	 LLLinkedItemIDMatches find_links(gInventory.getLinkedItemID(obj_id));
+	 gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
+	 cats,
+	 items,
+	 LLInventoryModel::EXCLUDE_TRASH,
+	 find_links);
+
+	 return !items.empty();
+}
+
 BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
 	if (!getIsInCOF(obj_id)) return FALSE;

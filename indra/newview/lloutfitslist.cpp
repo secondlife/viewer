@@ -1005,17 +1005,7 @@ bool LLOutfitsList::canWearSelected()
 	{
 		const LLUUID& id = *it;
 
-		// Find links to the current item in COF.
-		// *TODO: share this?
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
-		LLLinkedItemIDMatches find_links(gInventory.getLinkedItemID(id));
-		gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
-										cats,
-										items,
-										LLInventoryModel::EXCLUDE_TRASH,
-										find_links);
-		if (!items.empty())
+		if (LLAppearanceMgr::isLinkInCOF(id))
 		{
 			return false;
 		}
