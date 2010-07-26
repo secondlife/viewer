@@ -952,6 +952,8 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 
 BOOL LLInvFVBridge::canShare() const
 {
+	if (!isAgentInventory()) return FALSE;
+
 	const LLInventoryModel* model = getInventoryModel();
 	if (!model) return FALSE;
 
@@ -963,9 +965,10 @@ BOOL LLInvFVBridge::canShare() const
 		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
-	// All categories can be given.
-	const LLViewerInventoryCategory* cat = model->getCategory(mUUID);
-	return (cat != NULL);
+	// Categories can be given.
+	if (model->getCategory(mUUID)) return TRUE;
+
+	return FALSE;
 }
 
 // +=================================================+
