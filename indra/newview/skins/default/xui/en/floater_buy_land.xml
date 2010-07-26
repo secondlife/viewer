@@ -529,13 +529,14 @@ sold with objects
      length="1"
      follows="top|left"
      font="SansSerifBig"
-     height="16"
+     height="32"
      layout="topleft"
      left="72"
      name="account_action"
      right="438"
      top="200"
-     width="218">
+     width="218"
+     wrap="true">
         Upgrade you to premium membership.
     </text>
     <text
@@ -577,19 +578,21 @@ sold with objects
      layout="topleft"
      left="0"
      name="step_2"
+     top_pad="-10"
      width="64" />
     <text
      type="string"
      length="1"
      follows="top|left"
      font="SansSerifBig"
-     height="16"
+     height="32"
      layout="topleft"
      left="72"
      name="land_use_action"
      right="438"
      top="284"
-     width="218">
+     width="218"
+     wrap="true">
         Increase your monthly land use fees to US$ 40/month.
     </text>
     <text
@@ -620,14 +623,15 @@ This parcel is 512 m² of land.
     <text
      type="string"
      length="1"
-     bottom_delta="-38"
+     bottom_delta="-22"
      follows="top|left"
      font="SansSerifBig"
-     height="16"
+     height="32"
      layout="topleft"
      left="72"
      name="purchase_action"
-     right="438">
+     right="438"
+     wrap="true">
         Pay Joe Resident L$ 4000 for the land
     </text>
     <text
@@ -665,7 +669,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="170"
      name="currency_amt"
-     top="408"
+     top="424"
      width="80">
         1000
     </line_editor>
@@ -681,7 +685,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="260"
      name="currency_est"
-     top="409"
+     top="425"
      width="178">
         for approx. [LOCAL_AMOUNT]
     </text>
@@ -713,7 +717,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="70"
      name="buy_btn"
-     top="448"
+     top="460"
      width="100" />
     <button
      follows="bottom|right"
