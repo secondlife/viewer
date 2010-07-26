@@ -2612,12 +2612,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mDisabledItems.push_back(std::string("Share"));
 	}
 
-	if (mItems.empty())
-	{
-		mItems.push_back(std::string("--no options--"));
-		mDisabledItems.push_back(std::string("--no options--"));
-	}
-
 	hide_context_entries(menu, mItems, mDisabledItems);
 
 	// Add menu items that are dependent on the contents of the folder.

@@ -291,6 +291,8 @@ protected:
 	bool selectFirstItem();
 	bool selectLastItem();
 	
+	BOOL addNoOptions(LLMenuGL* menu) const;
+
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
