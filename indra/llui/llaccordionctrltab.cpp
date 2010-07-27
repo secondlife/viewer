@@ -372,9 +372,11 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
 	addChild(mHeader, 1);
 
-	if (mSelectionEnabled)
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+
+	if (!p.selection_enabled)
 	{
-		LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+		LLFocusableElement::setFocusLostCallback(boost::bind(&LLAccordionCtrlTab::deselectOnFocusLost, this));
 	}
 
 	reshape(100, 200,FALSE);
@@ -597,6 +599,15 @@ void LLAccordionCtrlTab::selectOnFocusReceived()
 {
 	if (getParent()) // A parent may not be set if tabs are added dynamically.
 		getParent()->notifyParent(LLSD().with("action", "select_current"));
+}
+
+void LLAccordionCtrlTab::deselectOnFocusLost()
+{
+	if(getParent()) // A parent may not be set if tabs are added dynamically.
+	{
+		getParent()->notifyParent(LLSD().with("action", "deselect_current"));
+	}
+
 }
 
 S32 LLAccordionCtrlTab::getHeaderHeight()
