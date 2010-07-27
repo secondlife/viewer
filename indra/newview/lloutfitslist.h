@@ -105,11 +105,6 @@ public:
 
 	void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
-	/**
-	 * Returns true in case any of selected item is in trash.
-	 */
-	bool isSelectedInTrash();
-
 	boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
 	// Collects selected items from all selected lists and wears them(if possible- adds, else replaces)

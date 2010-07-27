@@ -723,29 +723,6 @@ void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
 	}
 }
 
-bool LLOutfitsList::isSelectedInTrash()
-{
-	bool res = false;
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(
-			LLFolderType::FT_TRASH);
-
-	uuid_vec_t selected_uuids;
-	getSelectedItemsUUIDs(selected_uuids);
-
-	for (uuid_vec_t::const_iterator it = selected_uuids.begin(); it != selected_uuids.end(); it++)
-	{
-		const LLInventoryItem* item = gInventory.getItem(*it);
-		if (item != NULL && gInventory.isObjectDescendentOf(
-				item->getLinkedUUID(), trash_id))
-		{
-			res = true;
-			break;
-		}
-	}
-
-	return res;
-}
-
 boost::signals2::connection LLOutfitsList::setSelectionChangeCallback(selection_change_callback_t cb)
 {
 	return mSelectionChangeSignal.connect(cb);
