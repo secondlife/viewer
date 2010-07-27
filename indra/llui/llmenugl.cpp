@@ -218,6 +218,12 @@ void LLMenuItemGL::setValue(const LLSD& value)
 }
 
 //virtual
+LLSD LLMenuItemGL::getValue() const
+{
+	return getLabel();
+}
+
+//virtual
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )

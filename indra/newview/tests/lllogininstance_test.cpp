@@ -226,6 +226,16 @@ S32 LLNotification::getSelectedOption(const LLSD& notification, const LLSD& resp
 	return response.asInteger();
 }
 
+//-----------------------------------------------------------------------------
+#include "../llmachineid.h"
+unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {77,21,46,31,89,2};
+
+S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
+{
+	memcpy(unique_id, gMACAddress, len);
+	return 1;
+}
+//-----------------------------------------------------------------------------
 // misc
 std::string xml_escape_string(const std::string& in)
 {

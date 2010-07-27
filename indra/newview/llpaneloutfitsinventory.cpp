@@ -337,7 +337,7 @@ bool LLPanelOutfitsInventory::isCOFPanelActive() const
 
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {
-	mListCommands->childSetEnabled("wear_btn", !val);
+	updateVerbs();
 }
 
 void LLPanelOutfitsInventory::onWearablesLoaded()
