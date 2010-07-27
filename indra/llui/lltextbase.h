@@ -145,6 +145,21 @@ protected:
 	boost::signals2::connection mImageLoadedConnection;
 };
 
+// Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)
+class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
+{
+public:
+	LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor );
+	/*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+protected:
+	// Style used for text when mouse pointer is over segment
+	LLStyleConstSP		mHoveredStyle;
+	// Style used for text when mouse pointer is outside segment
+	LLStyleConstSP		mNormalStyle;
+
+};
+
 class LLIndexSegment : public LLTextSegment
 {
 public:
@@ -443,7 +458,7 @@ protected:
 	S32								insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
 	S32 							removeStringNoUndo(S32 pos, S32 length);
 	S32								overwriteCharNoUndo(S32 pos, llwchar wc);
-	void							appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep);
+	void							appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
 
 
 	// manage segments 
@@ -486,7 +501,7 @@ protected:
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
-	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params);
+	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
 	
 
 protected:

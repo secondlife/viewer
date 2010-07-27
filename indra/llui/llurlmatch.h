@@ -86,12 +86,15 @@ public:
 	/// is this a match for a URL that should not be hyperlinked?
 	bool isLinkDisabled() const { return mDisabledLink; }
 
+	/// Should this link text be underlined only when mouse is hovered over it?
+	bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
+
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
 				   const LLUIColor& color, const std::string &menu, 
 				   const std::string &location, bool disabled_link
-				   , const LLUUID& id );
+				   , const LLUUID& id, bool underline_on_hover_only  = false );
 
 	const LLUUID& getID() const { return mID;}
 
@@ -108,6 +111,7 @@ private:
 	LLUUID		mID;
 	LLUIColor	mColor;
 	bool        mDisabledLink;
+	bool		mUnderlineOnHoverOnly;
 };
 
 #endif
