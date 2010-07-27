@@ -1496,6 +1496,7 @@ void LLPostponedNotification::lookupName(LLPostponedNotification* thiz,
 		gCacheName->getGroup(id,
 			boost::bind(&LLPostponedNotification::onGroupNameCache,
 				thiz, _1, _2, _3));
+	}
 	else
 	{
 		LLAvatarNameCache::get(id,
