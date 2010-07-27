@@ -366,7 +366,7 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Das/Die ausgewählte(n) Outfit(s) löschen?
+		Das ausgewählte Outfit löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">

@@ -23,6 +23,12 @@
 		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="less_btn" tool_tip="Options avancées"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			Médias proches
+		</text>
+		<text name="show_text">
+			Afficher :
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tout" name="All"/>
 			<combo_box.item label="Sur cette parcelle" name="WithinParcel"/>

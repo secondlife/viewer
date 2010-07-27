@@ -7,7 +7,7 @@
 	<string name="allocated" value="alocados"/>
 	<string name="title_place" value="Perfil da região"/>
 	<string name="title_teleport_history" value="Teletransportes"/>
-	<string name="not_available" value="(N\A)"/>
+	<string name="not_available" value="(N/A)"/>
 	<string name="unknown" value="(Desconhecido)"/>
 	<string name="public" value="(público)"/>
 	<string name="none_text" value="(nenhum)"/>
@@ -56,7 +56,7 @@
 						<text name="voice_value" value="Ligado"/>
 						<text name="fly_label" value="Voar:"/>
 						<text name="fly_value" value="Ligado"/>
-						<text name="push_label" value="Empurrar:"/>
+						<text name="push_label" value="Empurrões:"/>
 						<text name="push_value" value="Desligado"/>
 						<text name="build_label" value="Construir:"/>
 						<text name="build_value" value="Ligado"/>

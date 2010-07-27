@@ -54,13 +54,13 @@ public:
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		// initial state
-		Optional<bool>				collapsed;
-		Optional<LLUIImage*>		tab_btn_image_normal,
-									tab_btn_image_selected;
+		Optional<bool>		collapsed;
+		Optional<std::string>		tab_btn_image_normal;
+		Optional<std::string>		tab_btn_image_selected;
 		
-		Optional<S32>				default_button_width,
-									default_button_height,
-									default_button_margin;
+		Optional<S32>				default_button_width;
+		Optional<S32>				default_button_height;
+		Optional<S32>				default_button_margin;
 		
 		Params();
 	};
@@ -68,7 +68,7 @@ public:
 	static LLSideTray*	getInstance		();
 	static bool			instanceCreated	();
 protected:
-	LLSideTray(const Params& params);
+	LLSideTray(Params& params);
 	typedef std::vector<LLSideTrayTab*> child_vector_t;
 	typedef child_vector_t::iterator					child_vector_iter_t;
 	typedef child_vector_t::const_iterator  			child_vector_const_iter_t;

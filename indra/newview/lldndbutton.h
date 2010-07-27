@@ -54,7 +54,7 @@ public:
 		Params();
 	};
 
-	LLDragAndDropButton(const Params& params);
+	LLDragAndDropButton(Params& params);
 
 	typedef boost::function<bool (
 		S32 /*x*/, S32 /*y*/, MASK /*mask*/, BOOL /*drop*/,

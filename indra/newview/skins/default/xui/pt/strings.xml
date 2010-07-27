@@ -184,6 +184,7 @@
 	<string name="TooltipMustSingleDrop">
 		Apenas um item único pode ser arrastado para este local
 	</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]"/>
 	<string name="TooltipHttpUrl">
 		Clique para ver a página web
 	</string>
@@ -236,7 +237,6 @@
 		Clique para ativar no secondlife:// comando
 	</string>
 	<string name="CurrentURL" value="URL atual: [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		Teletransportar para
 	</string>
@@ -885,11 +885,56 @@
 	<string name="invalid_not_worn">
 		inválido
 	</string>
+	<string name="create_new_shape">
+		Criar novo físico
+	</string>
+	<string name="create_new_skin">
+		Criar pele nova
+	</string>
+	<string name="create_new_hair">
+		Criar cabelo novo
+	</string>
+	<string name="create_new_eyes">
+		Criar olhos novos
+	</string>
+	<string name="create_new_shirt">
+		Criar camisa nova
+	</string>
+	<string name="create_new_pants">
+		Criar calças novas
+	</string>
+	<string name="create_new_shoes">
+		Criar sapatos novos
+	</string>
+	<string name="create_new_socks">
+		Criar meias novas
+	</string>
+	<string name="create_new_jacket">
+		Criar jaqueta nova
+	</string>
+	<string name="create_new_gloves">
+		Criar luvas novas
+	</string>
+	<string name="create_new_undershirt">
+		Criar camiseta nova
+	</string>
+	<string name="create_new_underpants">
+		Criar roupa de baixo nova
+	</string>
+	<string name="create_new_skirt">
+		Criar saia nova
+	</string>
+	<string name="create_new_alpha">
+		Criar Alpha novo
+	</string>
+	<string name="create_new_tattoo">
+		Criar nova tatuagem
+	</string>
+	<string name="create_new_invalid">
+		inválido
+	</string>
 	<string name="NewWearable">
 		Novo [WEARABLE_ITEM]
-	</string>
-	<string name="CreateNewWearable">
-		Criar [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Próximo
@@ -1069,6 +1114,9 @@
 		Gestos
 	</string>
 	<string name="InvFolder Favorite">
+		Favoritos
+	</string>
+	<string name="InvFolder favorite">
 		Favoritos
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -1605,12 +1653,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
-	</string>
-	<string name="NoOutfits">
-		Você ainda não tem nenhum look. Tente fazer uma [secondlife:///app/search/groups Busca].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Não encontrou o que procura? Tente buscar no [secondlife:///app/search/people/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(por nome)

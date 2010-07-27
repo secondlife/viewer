@@ -35,7 +35,6 @@
 #include "llnotifications.h"
 
 #include "llavatarnamecache.h"
-#include "llinstantmessage.h"
 #include "llcachename.h"
 #include "llxmlnode.h"
 #include "lluictrl.h"
@@ -44,7 +43,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 #include "llnotificationslistener.h"
-#include "llstring.h"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -1498,7 +1496,6 @@ void LLPostponedNotification::lookupName(LLPostponedNotification* thiz,
 		gCacheName->getGroup(id,
 			boost::bind(&LLPostponedNotification::onGroupNameCache,
 				thiz, _1, _2, _3));
-	}
 	else
 	{
 		LLAvatarNameCache::get(id,
@@ -1518,13 +1515,6 @@ void LLPostponedNotification::onAvatarNameCache(const LLUUID& agent_id,
 												const LLAvatarName& av_name)
 {
 	std::string name = av_name.getCompleteName();
-
-	// from PE merge - we should figure out if this is the right thing to do
-	if (name.empty())
-	{
-		llwarns << "Empty name received for Id: " << agent_id << llendl;
-		name = SYSTEM_FROM;
-	}
 
 	finalizeName(name);
 }

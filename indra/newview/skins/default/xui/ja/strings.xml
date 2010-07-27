@@ -196,6 +196,7 @@
 	<string name="TooltipMustSingleDrop">
 		アイテムは 1 つだけここにドラッグできます
 	</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]："/>
 	<string name="TooltipHttpUrl">
 		クリックしてこの Web ページを見ます
 	</string>
@@ -248,7 +249,6 @@
 		クリックして secondlife:// コマンドを出します
 	</string>
 	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>
@@ -906,11 +906,56 @@
 	<string name="invalid_not_worn">
 		無効
 	</string>
+	<string name="create_new_shape">
+		新しいシェイプを作成
+	</string>
+	<string name="create_new_skin">
+		新しいスキンを作成
+	</string>
+	<string name="create_new_hair">
+		新しい髪を作成
+	</string>
+	<string name="create_new_eyes">
+		新しい目を作成
+	</string>
+	<string name="create_new_shirt">
+		新しいシャツを作成
+	</string>
+	<string name="create_new_pants">
+		新しいパンツを作成
+	</string>
+	<string name="create_new_shoes">
+		新しい靴を作成
+	</string>
+	<string name="create_new_socks">
+		新しい靴下を作成
+	</string>
+	<string name="create_new_jacket">
+		新しい上着を作成
+	</string>
+	<string name="create_new_gloves">
+		新しい手袋を作成
+	</string>
+	<string name="create_new_undershirt">
+		新しい下着シャツを作成
+	</string>
+	<string name="create_new_underpants">
+		新しい下着パンツを作成
+	</string>
+	<string name="create_new_skirt">
+		新しいスカートを作成
+	</string>
+	<string name="create_new_alpha">
+		新しいアルファを作成
+	</string>
+	<string name="create_new_tattoo">
+		新しいタトゥを作成
+	</string>
+	<string name="create_new_invalid">
+		無効
+	</string>
 	<string name="NewWearable">
 		新しい [WEARABLE_ITEM]
-	</string>
-	<string name="CreateNewWearable">
-		[WEARABLE_TYPE]を作成
 	</string>
 	<string name="next">
 		次へ
@@ -1096,6 +1141,9 @@
 		ジェスチャー
 	</string>
 	<string name="InvFolder Favorite">
+		お気に入り
+	</string>
+	<string name="InvFolder favorite">
 		お気に入り
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -1638,12 +1686,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
-	</string>
-	<string name="NoOutfits">
-		アウトフィットがまだありません。[secondlife:///app/search/all/ 検索]をお試しください。
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。
 	</string>
 	<string name="MuteByName">
 		（名称別）

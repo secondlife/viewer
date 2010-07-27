@@ -3,5 +3,5 @@
 	<menu_item_call label="Enregistrer comme repère" name="landmark"/>
 	<menu_item_call label="Créer un favori" name="pick"/>
 	<menu_item_call label="Acheter un pass" name="pass"/>
-	<menu_item_call label="Éditer" name="edit"/>
+	<menu_item_call label="Modifier" name="edit"/>
 </toggleable_menu>

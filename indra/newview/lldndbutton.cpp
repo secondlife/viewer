@@ -42,7 +42,7 @@ LLDragAndDropButton::Params::Params()
 
 }
 
-LLDragAndDropButton::LLDragAndDropButton(const Params& params)
+LLDragAndDropButton::LLDragAndDropButton(Params& params)
 : LLButton(params)
 {
 

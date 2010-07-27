@@ -44,7 +44,7 @@
 	<text name="OwnerLabel">
 		Vous :
 	</text>
-	<check_box label="Éditer" name="CheckOwnerModify"/>
+	<check_box label="Modifier" name="CheckOwnerModify"/>
 	<check_box label="Copier" name="CheckOwnerCopy"/>
 	<check_box label="Revendre" name="CheckOwnerTransfer"/>
 	<text name="AnyoneLabel" width="80">
@@ -58,7 +58,7 @@
 	<text name="NextOwnerLabel" width="192">
 		Le prochain propriétaire :
 	</text>
-	<check_box label="Éditer" name="CheckNextOwnerModify"/>
+	<check_box label="Modifier" name="CheckNextOwnerModify"/>
 	<check_box label="Copier" name="CheckNextOwnerCopy"/>
 	<check_box label="Revendre" name="CheckNextOwnerTransfer"/>
 	<check_box label="À vendre" name="CheckPurchase"/>
