@@ -220,6 +220,7 @@ protected:
 	LLView* findContainerView	();
 
 	void selectOnFocusReceived();
+	void deselectOnFocusLost();
 
 private:
 
