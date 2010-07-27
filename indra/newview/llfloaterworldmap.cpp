@@ -1191,9 +1191,9 @@ void LLFloaterWorldMap::onCoordinatesCommit()
 		return;
 	}
 
-	F32 x_coord = (F32)childGetValue("teleport_coordinate_x").asReal();
-	F32 y_coord = (F32)childGetValue("teleport_coordinate_y").asReal();
-	F32 z_coord = (F32)childGetValue("teleport_coordinate_z").asReal();
+	S32 x_coord = (S32)childGetValue("teleport_coordinate_x").asReal();
+	S32 y_coord = (S32)childGetValue("teleport_coordinate_y").asReal();
+	S32 z_coord = (S32)childGetValue("teleport_coordinate_z").asReal();
 
 	const std::string region_name = childGetValue("location").asString();
 
