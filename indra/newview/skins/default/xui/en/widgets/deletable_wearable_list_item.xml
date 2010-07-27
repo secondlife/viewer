@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<deletable_wearable_list_item
+  follows="top|right|left"
+  height="23"
+  layout="topleft"
+  left="0"
+  name="deletable_wearable_item"
+  bottom="0"
+  width="380">
+  <delete_btn
+  name="btn_delete"
+  layout="topleft"
+  follows="top|left"
+  image_unselected="Toast_CloseBtn"
+  image_selected="Toast_CloseBtn"
+  top="3"
+  left="0"
+  height="18"
+  width="18"
+  tab_stop="false"
+  tool_tip="Remove from outfit"/>
+  <item_icon
+   height="16"
+   follows="top|left"
+   image_name="Inv_Object"
+   layout="topleft"
+   left="24"
+   name="item_icon"
+   top="2"
+   width="16" />
+  <item_name
+   follows="left|right"
+   height="16"
+   layout="topleft"
+   left="45"
+   allow_html="false"
+   use_ellipses="true"
+   name="item_name"
+   text_color="white"
+   top="5"
+   value="..."
+   width="359" />
+</deletable_wearable_list_item>
