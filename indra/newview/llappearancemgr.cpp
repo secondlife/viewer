@@ -983,6 +983,10 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		LLNotificationsUtil::add("CannotWearTrash");
 		return false;
 	}
+	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), LLAppearanceMgr::instance().getCOF())) // EXT-84911
+	{
+		return false;
+	}
 
 	switch (item_to_wear->getType())
 	{
