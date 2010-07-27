@@ -767,6 +767,9 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
 
+	bool item_in_trash = false;
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		LLUUID id = *it;
@@ -802,16 +805,22 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		{
 			++n_already_worn;
 		}
+
+		// if any in trash
+		if (!item_in_trash)
+		{
+			item_in_trash = gInventory.isObjectDescendentOf(item->getLinkedUUID(), trash_id);
+		}
 	} // for
 
 	bool standalone = mParent ? mParent->isStandalone() : false;
 
 	// *TODO: eliminate multiple traversals over the menu items
-	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
+	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && !item_in_trash);
 	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
-	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0);
+	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0 && !item_in_trash);
 	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()) && n_already_worn != 0);
-	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0);
+	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && !item_in_trash);
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
