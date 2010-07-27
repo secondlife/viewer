@@ -7339,7 +7339,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
   <key>RenderDeferredGI</key>
   <map>
     <key>Comment</key>
@@ -8032,7 +8032,7 @@
       <integer>2</integer>
     </map>
 
-  <key>RenderReflectionRes</key>
+    <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
       <string>Reflection map resolution.</string>

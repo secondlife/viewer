@@ -655,21 +655,21 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 		}
 		else
 		{
-			if (type == LLWearableType::WT_NONE)
-			{
-				type = getCOFWearablesSelectionType();
-			}
+		if (type == LLWearableType::WT_NONE)
+		{
+			type = getCOFWearablesSelectionType();
+		}
 
-			ESex sex = gAgentAvatarp->getSex();
+		ESex sex = gAgentAvatarp->getSex();
 
-			// WT_INVALID comes for attachments
-			if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
-			{
-				url = url_resolver.resolveURL(type, sex);
-			}
+		// WT_INVALID comes for attachments
+		if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+		{
+			url = url_resolver.resolveURL(type, sex);
+		}
 
-			if (url.empty())
-			{
+		if (url.empty())
+		{
 				url = url_resolver.resolveURL(
 						mCOFWearables->getExpandedAccordionAssetType(), sex);
 			}
@@ -866,7 +866,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			LLUUID selected_item_id = mWearableItemsList->getSelectedUUID();
 			LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 			if(item)
-			{
+		{
 				showFilteredWearablesListView(item->getWearableType());
 				return;
 			}

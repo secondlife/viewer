@@ -615,7 +615,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 
 	//only CTRL usage allows to deselect an item, usual clicking on an item cannot deselect it
 	if (mask & MASK_CONTROL)
-		selectItemPair(item_pair, select_item);
+	selectItemPair(item_pair, select_item);
 	else
 		selectItemPair(item_pair, true);
 }

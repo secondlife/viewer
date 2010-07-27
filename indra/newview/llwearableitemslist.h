@@ -339,8 +339,8 @@ protected:
 	 *     For example by spec in MY OUTFITS the order within each items type(LLAssetType) is:
 	 *     1. AT_OBJECTS (abc order)
 	 *     2. AT_CLOTHINGS
-	 *       - by type (types order determined in LLWearableType::EType)
-	 *       - outer layer on top
+	 *         - by type (types order determined in LLWearableType::EType)
+	 *         - outer layer on top
 	 *     3. AT_BODYPARTS  (abc order)
 	 *---------------------------------------------------------------------------------------------
 	 *

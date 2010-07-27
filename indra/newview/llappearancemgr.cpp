@@ -1801,9 +1801,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-															&LLAppearanceMgr::instance(),
-															category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+														   &LLAppearanceMgr::instance(),
+														   category->getUUID(), copy, append));
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)

@@ -660,20 +660,20 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 	{
 		const LLAccordionCtrlTab* expanded_tab = mAccordionCtrl->getExpandedTab();
 
-		return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
+	return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
 	}
 
 	return LLAssetType::AT_NONE;
 }
 
 LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
-{
+	{
 	if (mAccordionCtrl != NULL)
 	{
 		const LLAccordionCtrlTab* selected_tab = mAccordionCtrl->getSelectedTab();
 
-		return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
-	}
+	return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
+}
 
 	return LLAssetType::AT_NONE;
 }

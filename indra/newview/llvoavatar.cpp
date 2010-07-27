@@ -2005,8 +2005,8 @@ void LLVOAvatar::updateMeshData()
 				}
 				else
 				{
-					facep->mVertexBuffer->resizeBuffer(num_vertices, num_indices) ;
-				}
+				facep->mVertexBuffer->resizeBuffer(num_vertices, num_indices) ;
+			}
 			}
 		
 			facep->setGeomIndex(0);
@@ -3789,11 +3789,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
 		{
-			updateMeshData();
+		updateMeshData();
 			mDirtyMesh = 0;
-			mNeedsSkin = TRUE;
-			mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-		}
+		mNeedsSkin = TRUE;
+		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+	}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -4202,7 +4202,7 @@ void LLVOAvatar::checkTextureLoading()
 	{
 		return ; //have not been invisible for enough time.
 	}
-
+	
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
 	{
@@ -4239,7 +4239,7 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	//Note:
 	//if this function is not called for the last MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL frames, 
 	//the texture pipeline will stop fetching this texture.
-	
+
 	imagep->resetTextureStats();
 	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
 	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
