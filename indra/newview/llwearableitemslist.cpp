@@ -569,7 +569,7 @@ bool LLWearableItemTypeNameComparator::sortAssetTypeByName(LLAssetType::EType it
 	}
 
 	return const_it->second.mSortAssetTypeByName;
-}
+	}
 
 bool LLWearableItemTypeNameComparator::sortWearableTypeByName(LLAssetType::EType item_type) const
 {
@@ -579,7 +579,7 @@ bool LLWearableItemTypeNameComparator::sortWearableTypeByName(LLAssetType::EType
 	{
 		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
 		return true;
-	}
+}
 
 	return const_it->second.mSortWearableTypeByName;
 }

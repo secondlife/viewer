@@ -623,7 +623,7 @@ private:
 public:
 	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
 	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
-	static BOOL		teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
+	static BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
 
 	//--------------------------------------------------------------------
 	// Global colors
@@ -1049,7 +1049,7 @@ protected: // Shared with LLVOAvatarSelf
  *******************************************************************************/
 
 }; // LLVOAvatar
-extern const F32 SELF_ADDITIONAL_PRI;
+extern const F32  SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL;
 
 #endif // LL_VO_AVATAR_H
