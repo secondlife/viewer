@@ -1615,6 +1615,9 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD unten rechts
 	</string>
+	<string name="Bad attachment point">
+		Ungültige Stelle für Anhang
+	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -1627,14 +1630,20 @@
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
-	<string name="PanelContentsNewScript">
-		Neues Skript
-	</string>
 	<string name="PanelContentsTooltip">
 		Objektinhalt
 	</string>
+	<string name="PanelContentsNewScript">
+		Neues Skript
+	</string>
 	<string name="BusyModeResponseDefault">
 		Der Einwohner/Die Einwohnerin ist „beschäftigt”, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
+	</string>
+	<string name="NoOutfits">
+		Sie haben noch Outfits. Versuchen Sie es mit der [secondlife:///app/search/all Suche].
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
 	</string>
 	<string name="MuteByName">
 		(Nach Namen)

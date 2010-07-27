@@ -21,6 +21,6 @@
 		Localização dos logs:
 	</text>
 	<line_editor left="278" name="log_path_string" right="-20"/>
-	<button label="Navegar" label_selected="Navegar" name="log_path_button" width="120"/>
-	<button label="Lista dos bloqueados" name="block_list"/>
+	<button label="Procurar" label_selected="Procurar" name="log_path_button" width="120"/>
+	<button label="Lista de bloqueados" name="block_list"/>
 </panel>

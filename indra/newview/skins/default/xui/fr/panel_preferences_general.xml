@@ -59,7 +59,7 @@
 		<combo_box.item label="5 minutes" name="item1"/>
 		<combo_box.item label="10 minutes" name="item2"/>
 		<combo_box.item label="30 minutes" name="item3"/>
-		<combo_box.item label="jamais" name="item4"/>
+		<combo_box.item label="Jamais" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
 		Réponse si occupé(e) :

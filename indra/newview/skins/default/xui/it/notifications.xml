@@ -358,6 +358,10 @@ Vuoi continuare?
 		Elimina preferito &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
+	<notification name="DeleteOutfits">
+		Elimina il vestiario selezionato?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
+	</notification>
 	<notification name="PromptGoToEventsPage">
 		Vai alla pagina degli eventi di [SECOND_LIFE]?
 		<url name="url">
@@ -2039,11 +2043,6 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 		Sto importando le fotografie per l&apos;uso inworld e per il web...
 (Durata circa 5 minuti.)
 	</notification>
-	<notification name="UploadConfirmation">
-		Il costo per il caricamento è di L$ [AMOUNT].
-Continuare?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Carica nel server"/>
-	</notification>
 	<notification name="UploadPayment">
 		Hai pagato [AMOUNT]L$ per il caricamento.
 	</notification>
@@ -2462,9 +2461,6 @@ Dall&apos;oggetto: [OBJECTNAME], di: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Impossibile trovare [TYPE] chiamato [DESC] nel database.
-	</notification>
-	<notification name="ShareToWebFailed">
-		Caricamento dell&apos;immagine su Web non riuscita.
 	</notification>
 	<notification name="InvalidWearable">
 		L&apos;elemento che stai tentando di indossare usa delle caratteristiche che il tuo viewer non può leggere. Aggiorna la versione di [APP_NAME] per poterlo indossare.

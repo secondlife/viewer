@@ -13,6 +13,7 @@
 	</text>
 	<check_box label="Buduj/Edytuj" name="edit_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery aktywując i deaktywując tryb edycji"/>
 	<check_box label="Wygląd" name="appearance_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas trybu edycji"/>
+	<check_box initial_value="prawda" label="Schowek" name="appearance_sidebar_positioning" tool_tip="Użyj automatycznego pozycjonowania kamery dla schowka"/>
 	<check_box label="Pokaż w trybie widoku panoramicznego" name="first_person_avatar_visible"/>
 	<check_box label="Aktywacja klawiszy strzałek do poruszania awatarem" name="arrow_keys_move_avatar_check"/>
 	<check_box label="kliknij-kliknij-przytrzymaj, aby uruchomić" name="tap_tap_hold_to_run"/>
@@ -20,6 +21,9 @@
 	<check_box label="Czat Chmurkowy" name="bubble_text_chat"/>
 	<slider label="Intensywność" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="Wybierz kolor czatu w chmurce"/>
+	<text name="UI Size:">
+		Rozmiar UI
+	</text>
 	<check_box label="Pokaż błędy skryptu w:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Czat Lokalny" name="0"/>
@@ -29,4 +33,5 @@
 	<line_editor label="Naciśnij Mów by rozpocząć komunikację głosową" name="modifier_combo"/>
 	<button label="wybierz Klawisz" name="set_voice_hotkey_button"/>
 	<button label="Środkowy Przycisk Myszki" name="set_voice_middlemouse_button" tool_tip="Zresetuj do środkowego przycisku myszy"/>
+	<button label="Inne urządzenia" name="joystick_setup_button"/>
 </panel>

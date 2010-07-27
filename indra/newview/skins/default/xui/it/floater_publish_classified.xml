@@ -5,7 +5,7 @@
         
 Ricordiamo che i costi per gli annunci non possono essere rimborsati
 	</text>
-	<spinner label="Prezzo per inserzione:" name="price_for_listing" tool_tip="Prezzo per inserzione:" value="50"/>
+	<spinner label="Prezzo: L$" name="price_for_listing" tool_tip="Prezzo per inserzione:" value="50"/>
 	<text name="l$_text" value="L$"/>
 	<text name="more_info_text">
 		Maggiori informazioni (link alla guida sugli annunci)
