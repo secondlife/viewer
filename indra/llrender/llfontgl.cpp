@@ -1167,7 +1167,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector3* vertex_out, LLVector2* uv_
 	else if (shadow == DROP_SHADOW_SOFT)
 	{
 		LLColor4U shadow_color = LLFontGL::sShadowColor;
-		shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH;
+		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH);
 		for (S32 pass = 0; pass < 5; pass++)
 		{
 			LLRectf screen_rect_offset = screen_rect;
