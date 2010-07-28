@@ -769,7 +769,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
 
-	bool can_be_worn = false;
+	bool can_be_worn = true;
 
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -807,8 +807,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 			++n_already_worn;
 		}
 
-		// if any in trash
-		if (!can_be_worn)
+		if (can_be_worn)
 		{
 			can_be_worn = get_can_item_be_worn(item->getLinkedUUID());
 		}
