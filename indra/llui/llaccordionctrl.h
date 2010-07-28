@@ -141,6 +141,8 @@ public:
 
 	const LLAccordionCtrlTab* getSelectedTab() const { return mSelectedTab; }
 
+	bool getFitParent() const {return mFitParent;}
+
 private:
 	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
 	void	updateNoTabsHelpTextVisibility();
