@@ -251,6 +251,16 @@ BOOL get_can_item_be_worn(const LLUUID& id)
 	if (!item)
 		return FALSE;
 	
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(
+			LLFolderType::FT_TRASH);
+
+	// item can't be worn if base obj in trash, see EXT-7015
+	if (gInventory.isObjectDescendentOf(item->getLinkedUUID(),
+			trash_id))
+	{
+		return false;
+	}
+
 	switch(item->getType())
 	{
 		case LLAssetType::AT_OBJECT:

@@ -184,8 +184,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
 	if (mComboActiveTitle)
 	{
-		mComboActiveTitle->setCommitCallback(onCommitTitle, this);
-		mComboActiveTitle->resetDirty();
+		mComboActiveTitle->setCommitCallback(onCommitAny, this);
 	}
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
@@ -278,16 +277,6 @@ void LLPanelGroupGeneral::onCommitEnrollment(LLUICtrl* ctrl, void* data)
 }
 
 // static
-void LLPanelGroupGeneral::onCommitTitle(LLUICtrl* ctrl, void* data)
-{
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	if (self->mGroupID.isNull() || !self->mAllowEdit) return;
-	LLGroupMgr::getInstance()->sendGroupTitleUpdate(self->mGroupID,self->mComboActiveTitle->getCurrentID());
-	self->update(GC_TITLES);
-	self->mComboActiveTitle->resetDirty();
-}
-
-// static
 void LLPanelGroupGeneral::onClickInfo(void *userdata)
 {
 	LLPanelGroupGeneral *self = (LLPanelGroupGeneral *)userdata;
@@ -356,6 +345,13 @@ void LLPanelGroupGeneral::draw()
 
 bool LLPanelGroupGeneral::apply(std::string& mesg)
 {
+	if (!mGroupID.isNull() && mAllowEdit && mComboActiveTitle && mComboActiveTitle->isDirty())
+	{
+		LLGroupMgr::getInstance()->sendGroupTitleUpdate(mGroupID,mComboActiveTitle->getCurrentID());
+		update(GC_TITLES);
+		mComboActiveTitle->resetDirty();
+	}
+
 	BOOL has_power_in_group = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
 
 	if (has_power_in_group || mGroupID.isNull())
