@@ -1005,11 +1005,6 @@ bool LLOutfitsList::canWearSelected()
 	{
 		const LLUUID& id = *it;
 
-		if (LLAppearanceMgr::isLinkInCOF(id))
-		{
-			return false;
-		}
-
 		// Check whether the item is worn.
 		if (!get_can_item_be_worn(id))
 		{

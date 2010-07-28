@@ -952,6 +952,8 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 
 BOOL LLInvFVBridge::canShare() const
 {
+	if (!isAgentInventory()) return FALSE;
+
 	const LLInventoryModel* model = getInventoryModel();
 	if (!model) return FALSE;
 
@@ -963,9 +965,10 @@ BOOL LLInvFVBridge::canShare() const
 		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
-	// All categories can be given.
-	const LLViewerInventoryCategory* cat = model->getCategory(mUUID);
-	return (cat != NULL);
+	// Categories can be given.
+	if (model->getCategory(mUUID)) return TRUE;
+
+	return FALSE;
 }
 
 // +=================================================+
@@ -2610,12 +2613,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if (!canShare())
 	{
 		mDisabledItems.push_back(std::string("Share"));
-	}
-
-	if (mItems.empty())
-	{
-		mItems.push_back(std::string("--no options--"));
-		mDisabledItems.push_back(std::string("--no options--"));
 	}
 
 	hide_context_entries(menu, mItems, mDisabledItems);
