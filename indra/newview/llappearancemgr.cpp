@@ -983,6 +983,10 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		LLNotificationsUtil::add("CannotWearTrash");
 		return false;
 	}
+	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), LLAppearanceMgr::instance().getCOF())) // EXT-84911
+	{
+		return false;
+	}
 
 	switch (item_to_wear->getType())
 	{
@@ -1801,9 +1805,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-															&LLAppearanceMgr::instance(),
-															category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+														   &LLAppearanceMgr::instance(),
+														   category->getUUID(), copy, append));
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)

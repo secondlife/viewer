@@ -181,12 +181,17 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	gGL.loadUIIdentity();
 	
-	gGL.translateUI(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
+	//gGL.translateUI(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
 
 	// this code snaps the text origin to a pixel grid to start with
-	F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
-	F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
-	gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
+	//F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
+	//F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
+	//gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
+
+	LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
+	// snap the text origin to a pixel grid to start with
+	origin.mV[VX] -= llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
+	origin.mV[VY] -= llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 
 	LLFastTimer t(FTM_RENDER_FONTS);
 
@@ -210,8 +215,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
  	// Not guaranteed to be set correctly
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
-	cur_x = ((F32)x * sScaleX);
-	cur_y = ((F32)y * sScaleY);
+	cur_x = ((F32)x * sScaleX) + origin.mV[VX];
+	cur_y = ((F32)y * sScaleY) + origin.mV[VY];
 
 	// Offset y by vertical alignment.
 	switch (valign)
@@ -276,6 +281,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	const LLFontGlyphInfo* next_glyph = NULL;
 
+	const S32 GLYPH_BATCH_SIZE = 30;
+	LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
+	LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
+	LLColor4U colors[GLYPH_BATCH_SIZE * 4];
+
+	S32 glyph_count = 0;
 	for (i = begin_offset; i < begin_offset + length; i++)
 	{
 		llwchar wch = wstr[i];
@@ -313,7 +324,18 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
 				    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 		
-		drawGlyph(screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
+		if (glyph_count >= GLYPH_BATCH_SIZE)
+		{
+			gGL.begin(LLRender::QUADS);
+			{
+				gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+			}
+			gGL.end();
+
+			glyph_count = 0;
+		}
+
+		drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
 
 		chars_drawn++;
 		cur_x += fgi->mXAdvance;
@@ -338,11 +360,19 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		cur_render_y = cur_y;
 	}
 
+	gGL.begin(LLRender::QUADS);
+	{
+		gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+	}
+	gGL.end();
+
+
 	if (right_x)
 	{
 		*right_x = cur_x / sScaleX;
 	}
 
+	//FIXME: add underline as glyph?
 	if (style_to_add & UNDERLINE)
 	{
 		F32 descender = mFontFreetype->getDescenderHeight();
@@ -1091,95 +1121,96 @@ LLFontGL &LLFontGL::operator=(const LLFontGL &source)
 	return *this;
 }
 
-void LLFontGL::renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const
+void LLFontGL::renderQuad(LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* colors_out, const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4U& color, F32 slant_amt) const
 {
-	gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
-	gGL.vertex2f(llfont_round_x(screen_rect.mRight), 
-				llfont_round_y(screen_rect.mTop));
+	S32 index = 0;
 
-	gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
-	gGL.vertex2f(llfont_round_x(screen_rect.mLeft), 
-				llfont_round_y(screen_rect.mTop));
+	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mTop), 0.f);
+	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
+	colors_out[index] = color;
+	index++;
 
-	gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
-	gGL.vertex2f(llfont_round_x(screen_rect.mLeft + slant_amt), 
-				llfont_round_y(screen_rect.mBottom));
+	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mTop), 0.f);
+	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
+	colors_out[index] = color;
+	index++;
 
-	gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
-	gGL.vertex2f(llfont_round_x(screen_rect.mRight + slant_amt), 
-				llfont_round_y(screen_rect.mBottom));
+	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mBottom), 0.f);
+	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
+	colors_out[index] = color;
+	index++;
+
+	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mBottom), 0.f);
+	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mBottom);
+	colors_out[index] = color;
 }
 
-void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
+//FIXME: do colors out as well
+void LLFontGL::drawGlyph(S32& glyph_count, LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* colors_out, const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4U& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
 {
 	F32 slant_offset;
 	slant_offset = ((style & ITALIC) ? ( -mFontFreetype->getAscenderHeight() * 0.2f) : 0.f);
 
-	gGL.begin(LLRender::QUADS);
+	//FIXME: bold and drop shadow are mutually exclusive only for convenience
+	//Allow both when we need them.
+	if (style & BOLD)
 	{
-		//FIXME: bold and drop shadow are mutually exclusive only for convenience
-		//Allow both when we need them.
-		if (style & BOLD)
+		for (S32 pass = 0; pass < 2; pass++)
 		{
-			gGL.color4fv(color.mV);
-			for (S32 pass = 0; pass < 2; pass++)
-			{
-				LLRectf screen_rect_offset = screen_rect;
+			LLRectf screen_rect_offset = screen_rect;
 
-				screen_rect_offset.translate((F32)(pass * BOLD_OFFSET), 0.f);
-				renderQuad(screen_rect_offset, uv_rect, slant_offset);
-			}
+			screen_rect_offset.translate((F32)(pass * BOLD_OFFSET), 0.f);
+			renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_offset, uv_rect, color, slant_offset);
+			glyph_count++;
 		}
-		else if (shadow == DROP_SHADOW_SOFT)
-		{
-			LLColor4 shadow_color = LLFontGL::sShadowColor;
-			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH;
-			gGL.color4fv(shadow_color.mV);
-			for (S32 pass = 0; pass < 5; pass++)
-			{
-				LLRectf screen_rect_offset = screen_rect;
-
-				switch(pass)
-				{
-				case 0:
-					screen_rect_offset.translate(-1.f, -1.f);
-					break;
-				case 1:
-					screen_rect_offset.translate(1.f, -1.f);
-					break;
-				case 2:
-					screen_rect_offset.translate(1.f, 1.f);
-					break;
-				case 3:
-					screen_rect_offset.translate(-1.f, 1.f);
-					break;
-				case 4:
-					screen_rect_offset.translate(0, -2.f);
-					break;
-				}
-			
-				renderQuad(screen_rect_offset, uv_rect, slant_offset);
-			}
-			gGL.color4fv(color.mV);
-			renderQuad(screen_rect, uv_rect, slant_offset);
-		}
-		else if (shadow == DROP_SHADOW)
-		{
-			LLColor4 shadow_color = LLFontGL::sShadowColor;
-			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
-			gGL.color4fv(shadow_color.mV);
-			LLRectf screen_rect_shadow = screen_rect;
-			screen_rect_shadow.translate(1.f, -1.f);
-			renderQuad(screen_rect_shadow, uv_rect, slant_offset);
-			gGL.color4fv(color.mV);
-			renderQuad(screen_rect, uv_rect, slant_offset);
-		}
-		else // normal rendering
-		{
-			gGL.color4fv(color.mV);
-			renderQuad(screen_rect, uv_rect, slant_offset);
-		}
-
 	}
-	gGL.end();
+	else if (shadow == DROP_SHADOW_SOFT)
+	{
+		LLColor4U shadow_color = LLFontGL::sShadowColor;
+		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH);
+		for (S32 pass = 0; pass < 5; pass++)
+		{
+			LLRectf screen_rect_offset = screen_rect;
+
+			switch(pass)
+			{
+			case 0:
+				screen_rect_offset.translate(-1.f, -1.f);
+				break;
+			case 1:
+				screen_rect_offset.translate(1.f, -1.f);
+				break;
+			case 2:
+				screen_rect_offset.translate(1.f, 1.f);
+				break;
+			case 3:
+				screen_rect_offset.translate(-1.f, 1.f);
+				break;
+			case 4:
+				screen_rect_offset.translate(0, -2.f);
+				break;
+			}
+		
+			renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_offset, uv_rect, shadow_color, slant_offset);
+			glyph_count++;
+		}
+		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		glyph_count++;
+	}
+	else if (shadow == DROP_SHADOW)
+	{
+		LLColor4 shadow_color = LLFontGL::sShadowColor;
+		shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
+		LLRectf screen_rect_shadow = screen_rect;
+		screen_rect_shadow.translate(1.f, -1.f);
+		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_shadow, uv_rect, shadow_color, slant_offset);
+		glyph_count++;
+		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		glyph_count++;
+	}
+	else // normal rendering
+	{
+		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		glyph_count++;
+	}
 }

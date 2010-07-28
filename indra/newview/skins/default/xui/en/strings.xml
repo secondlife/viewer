@@ -3239,4 +3239,20 @@ Abuse Report</string>
 
   <!--  currency formatting -->
   <string name="LocalEstimateUSD">US$ [AMOUNT]</string>
+
+  <!-- Group Profile roles and powers -->
+  <string name="Membership">Membership</string>
+  <string name="Roles">Roles</string>
+  <string name="Group Identity">Group Identity</string>
+  <string name="Parcel Management">Parcel Management</string>
+  <string name="Parcel Identity">Parcel Identity</string>
+  <string name="Parcel Settings">Parcel Settings</string>
+  <string name="Parcel Powers">Parcel Powers</string>
+  <string name="Parcel Access">Parcel Access</string>
+  <string name="Parcel Content">Parcel Content</string>
+  <string name="Object Management">Object Management</string>
+  <string name="Accounting">Accounting</string>
+  <string name="Notices">Notices</string>
+  <string name="Chat">Chat</string>
+
   </strings>

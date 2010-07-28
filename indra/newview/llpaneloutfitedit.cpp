@@ -655,21 +655,21 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 		}
 		else
 		{
-			if (type == LLWearableType::WT_NONE)
-			{
-				type = getCOFWearablesSelectionType();
-			}
+		if (type == LLWearableType::WT_NONE)
+		{
+			type = getCOFWearablesSelectionType();
+		}
 
-			ESex sex = gAgentAvatarp->getSex();
+		ESex sex = gAgentAvatarp->getSex();
 
-			// WT_INVALID comes for attachments
-			if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
-			{
-				url = url_resolver.resolveURL(type, sex);
-			}
+		// WT_INVALID comes for attachments
+		if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+		{
+			url = url_resolver.resolveURL(type, sex);
+		}
 
-			if (url.empty())
-			{
+		if (url.empty())
+		{
 				url = url_resolver.resolveURL(
 						mCOFWearables->getExpandedAccordionAssetType(), sex);
 			}
@@ -779,9 +779,7 @@ void LLPanelOutfitEdit::updatePlusButton()
 	}
 
 	// If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
-	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(& get_can_item_be_worn, _1)
-		// since item can be not worn but in wearing process at that time - we need to check is link to item presents in COF
-		|| boost::bind(&LLAppearanceMgr::isLinkInCOF, _1));
+	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(&get_can_item_be_worn, _1));
 	bool can_add = ( unwearable_item == selected_items.end() );
 
 	mPlusBtn->setEnabled(can_add);
@@ -866,7 +864,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			LLUUID selected_item_id = mWearableItemsList->getSelectedUUID();
 			LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 			if(item)
-			{
+		{
 				showFilteredWearablesListView(item->getWearableType());
 				return;
 			}
