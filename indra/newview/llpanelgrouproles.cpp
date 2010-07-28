@@ -51,6 +51,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
+#include "lltrans.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
@@ -587,7 +588,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 
 		row["columns"][1]["column"] = "action";
 		row["columns"][1]["type"] = "text";
-		row["columns"][1]["value"] = action_set->mActionSetData->mName;
+		row["columns"][1]["value"] = LLTrans::getString(action_set->mActionSetData->mName);
 		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 		
 

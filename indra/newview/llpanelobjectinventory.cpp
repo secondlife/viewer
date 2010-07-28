@@ -750,8 +750,6 @@ void LLTaskCategoryBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	items.push_back(std::string("--no options--"));
-	disabled_items.push_back(std::string("--no options--"));
 	hide_context_entries(menu, items, disabled_items);
 }
 
