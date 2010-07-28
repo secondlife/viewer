@@ -44,6 +44,7 @@
 // newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llinventorydefines.h"
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(&typeid(LLPanelInventoryListItemBase::Params), "inventory_list_item");
 
@@ -166,7 +167,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item)
 	{
-		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), FALSE);
+		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & inv_item->getFlags());
 		updateItem(inv_item->getName());
 	}
 
