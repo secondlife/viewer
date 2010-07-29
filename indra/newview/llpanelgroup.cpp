@@ -545,6 +545,7 @@ void LLPanelGroup::draw()
 	{
 		mRefreshTimer.stop();
 		childEnable("btn_refresh");
+		childEnable("groups_accordion");
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
@@ -573,6 +574,8 @@ void LLPanelGroup::refreshData()
 	
 	// 5 second timeout
 	childDisable("btn_refresh");
+	childDisable("groups_accordion");
+
 	mRefreshTimer.start();
 	mRefreshTimer.setTimerExpirySec(5);
 }
