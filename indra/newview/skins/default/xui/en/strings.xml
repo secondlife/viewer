@@ -3024,6 +3024,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="conference-title">
     Ad-hoc Conference
   </string>
+  <string name="conference-title-incoming">
+    [AGENT_NAME] Conference
+  </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
