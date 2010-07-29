@@ -27,6 +27,7 @@
      left="10"
      name="payee_name"
      top="25" 
+     use_ellipses="true"
      width="230">
         Test Name That Is Extremely Long To Check Clipping
     </text>
