@@ -2411,6 +2411,8 @@ static void init_default_item_label(const std::string& item_name)
 	boost::unordered_map<std::string, LLStringExplicit>::iterator it = sDefaultItemLabels.find(item_name);
 	if (it == sDefaultItemLabels.end())
 	{
+		// *NOTE: This will not work for items of type LLMenuItemCheckGL because they return boolean value
+		//       (doesn't seem to matter much ATM).
 		LLStringExplicit default_label = gMenuHolder->childGetValue(item_name).asString();
 		if (!default_label.empty())
 		{

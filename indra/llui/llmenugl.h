@@ -322,6 +322,7 @@ public:
 	virtual void onCommit( void );
 	
 	virtual void setValue(const LLSD& value);
+	virtual LLSD getValue() const;
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
