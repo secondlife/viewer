@@ -339,6 +339,7 @@ void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 	// floater title
 	std::string ui_title = av_name.getCompleteName();
 	updateSessionName(ui_title, av_name.mDisplayName);
+	mTypingStart.setArg("[NAME]", ui_title);
 }
 
 // virtual
@@ -1101,13 +1102,9 @@ void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 	{
 		mOtherTyping = true;
 
-		// Create typing is started title string
-		LLUIString typing_start(mTypingStart);
-		typing_start.setArg("[NAME]", im_info->mName);
-
 		// Save and set new title
 		mSavedTitle = getTitle();
-		setTitle (typing_start);
+		setTitle (mTypingStart);
 
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
