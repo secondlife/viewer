@@ -97,6 +97,54 @@ const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 10000;
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q);
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &q);
 
+template <typename T>
+static typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+{
+	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
+	{
+		if(request->isMatch(*iter, match_type))
+		{
+			return iter;
+		}
+	}
+	
+	return c.end();
+}
+
+template <typename T>
+static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+{
+	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
+	{
+		if(((*iter)->getID() == id) && ((match_type == LLMediaDataClient::Request::ANY) || (match_type == (*iter)->getType())))
+		{
+			return iter;
+		}
+	}
+	
+	return c.end();
+}
+
+// NOTE: remove_matching_requests will not work correctly for containers where deleting an element may invalidate iterators
+// to other elements in the container (such as std::vector).
+// If the implementation is changed to use a container with this property, this will need to be revisited.
+template <typename T>
+static void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+{
+	for(typename T::iterator iter = c.begin(); iter != c.end();)
+	{
+		typename T::value_type i = *iter;
+		typename T::iterator next = iter;
+		next++;
+		if((i->getID() == id) && ((match_type == LLMediaDataClient::Request::ANY) || (match_type == i->getType())))
+		{
+			i->markDead();
+			c.erase(iter);
+		}
+		iter = next;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLMediaDataClient
@@ -113,107 +161,36 @@ LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay,
 	  mMaxNumRetries(max_retries),
 	  mMaxSortedQueueSize(max_sorted_queue_size),
 	  mMaxRoundRobinQueueSize(max_round_robin_queue_size),
-	  mQueueTimerIsRunning(false),
-	  mCurrentQueueIsTheSortedQueue(true)
+	  mQueueTimerIsRunning(false)
 {
 }
 
 LLMediaDataClient::~LLMediaDataClient()
 {
 	stopQueueTimer();
-
-	// This should clear the queue, and hopefully call all the destructors.
-	LL_DEBUGS("LLMediaDataClient") << "~LLMediaDataClient destructor: queue: " << 
-		(isEmpty() ? "<empty> " : "<not empty> ") << LL_ENDL;
-	
-	mSortedQueue.clear();
-	mRoundRobinQueue.clear();
 }
 
 bool LLMediaDataClient::isEmpty() const
 {
-	return mSortedQueue.empty() && mRoundRobinQueue.empty();
+	return mQueue.empty();
 }
 
 bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
 {
-	return (LLMediaDataClient::findOrRemove(mSortedQueue, object, false/*remove*/, LLMediaDataClient::Request::ANY).notNull()
-		|| (LLMediaDataClient::findOrRemove(mRoundRobinQueue, object, false/*remove*/, LLMediaDataClient::Request::ANY).notNull()));
+	if(find_matching_request(mQueue, object->getID()) != mQueue.end())
+		return true;
+	
+	if(find_matching_request(mUnQueuedRequests, object->getID()) != mUnQueuedRequests.end())
+		return true;
+	
+	return false;
 }
 
-bool LLMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr_t &object)
+void LLMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr_t &object)
 {
-	bool removedFromSortedQueue = LLMediaDataClient::findOrRemove(mSortedQueue, object, true/*remove*/, LLMediaDataClient::Request::ANY).notNull();
-	bool removedFromRoundRobinQueue = LLMediaDataClient::findOrRemove(mRoundRobinQueue, object, true/*remove*/, LLMediaDataClient::Request::ANY).notNull();
-	return removedFromSortedQueue || removedFromRoundRobinQueue;
-}
-
-//static
-LLMediaDataClient::request_ptr_t LLMediaDataClient::findOrRemove(request_queue_t &queue, const LLMediaDataClientObject::ptr_t &obj, bool remove, LLMediaDataClient::Request::Type type)
-{
-	request_ptr_t result;
-	request_queue_t::iterator iter = queue.begin();
-	request_queue_t::iterator end = queue.end();
-	while (iter != end)
-	{
-		if (obj->getID() == (*iter)->getObject()->getID() && (type == LLMediaDataClient::Request::ANY || type == (*iter)->getType()))
-		{
-			result = *iter;
-			if (remove) queue.erase(iter);
-			break;
-		}
-		iter++;
-	}
-	return result;
-}
-
-void LLMediaDataClient::enqueue(Request *request)
-{
-	if (request->isNew())
-	{		
-		// Add to sorted queue
-		if (LLMediaDataClient::findOrRemove(mSortedQueue, request->getObject(), true/*remove*/, request->getType()).notNull())
-		{
-			LL_DEBUGS("LLMediaDataClient") << "REMOVING OLD request for " << *request << " ALREADY THERE!" << LL_ENDL;
-		}
-		
-		LL_DEBUGS("LLMediaDataClient") << "Queuing SORTED request for " << *request << LL_ENDL;
-		
-		mSortedQueue.push_back(request);
-		
-		LL_DEBUGS("LLMediaDataClientQueue") << "SORTED queue:" << mSortedQueue << LL_ENDL;
-	}
-	else {
-		if (mRoundRobinQueue.size() > mMaxRoundRobinQueueSize) 
-		{
-			LL_INFOS_ONCE("LLMediaDataClient") << "RR QUEUE MAXED OUT!!!" << LL_ENDL;
-			LL_DEBUGS("LLMediaDataClient") << "Not queuing " << *request << LL_ENDL;
-			return;
-		}
-				
-		// ROUND ROBIN: if it is there, and it is a GET request, leave it.  If not, put at front!		
-		request_ptr_t existing_request;
-		if (request->getType() == Request::GET)
-		{
-			existing_request = LLMediaDataClient::findOrRemove(mRoundRobinQueue, request->getObject(), false/*remove*/, request->getType());
-		}
-		if (existing_request.isNull())
-		{
-			LL_DEBUGS("LLMediaDataClient") << "Queuing RR request for " << *request << LL_ENDL;
-			// Push the request on the pending queue
-			mRoundRobinQueue.push_front(request);
-			
-			LL_DEBUGS("LLMediaDataClientQueue") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
-		}
-		else
-		{
-			LL_DEBUGS("LLMediaDataClient") << "ALREADY THERE: NOT Queuing request for " << *request << LL_ENDL;
-						
-			existing_request->markSent(false);
-		}
-	}	
-	// Start the timer if not already running
-	startQueueTimer();
+	LL_DEBUGS("LLMediaDataClient") << "removing requests matching ID " << object->getID() << LL_ENDL;
+	remove_matching_requests(mQueue, object->getID());
+	remove_matching_requests(mUnQueuedRequests, object->getID());
 }
 
 void LLMediaDataClient::startQueueTimer() 
@@ -225,7 +202,7 @@ void LLMediaDataClient::startQueueTimer()
 		new QueueTimer(mQueueTimerDelay, this);
 	}
 	else { 
-		LL_DEBUGS("LLMediaDataClient") << "not starting queue timer (it's already running, right???)" << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << "queue timer is already running" << LL_ENDL;
 	}
 }
 
@@ -236,227 +213,138 @@ void LLMediaDataClient::stopQueueTimer()
 
 bool LLMediaDataClient::processQueueTimer()
 {
-	sortQueue();
-	
-	if(!isEmpty())
-	{
-		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue size is:	  " << mSortedQueue.size() 
-			<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
-		LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
-		LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
-	}
-	
+	if(isEmpty())
+		return true;
+
+	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, queue size is:	  " << mQueue.size() << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, SORTED queue is:	  " << mQueue << LL_ENDL;
+			
 	serviceQueue();
 	
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, SORTED queue size is:	  " << mSortedQueue.size() 
-		<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
-	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
-	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, queue size is:	  " << mQueue.size() << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, SORTED queue is:	  " << mQueue << LL_ENDL;
 	
 	return isEmpty();
 }
 
-bool LLMediaDataClient::request_needs_purge(LLMediaDataClient::request_ptr_t request)
+LLMediaDataClient::request_ptr_t LLMediaDataClient::dequeue()
 {
-	// Check for conditions that should cause a request to get removed from the queue
-	if(request.isNull())
-	{
-		LL_WARNS("LLMediaDataClient") << "removing NULL request" << LL_ENDL;
-		return true;
-	}
-
-	// For some reason, the existing code put sent items onto the back of the round-robin queue and let them come through again
-	// before stripping them off the front.  Was there a good reason for this?
-//	if(request->isMarkedSent())
-//	{
-//		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " request is marked sent" << LL_ENDL;
-//		return true;
-//	}
-
-	const LLMediaDataClientObject *object = request->getObject();
+	request_ptr_t request;
+	request_queue_t *queue_p = getQueue();
 	
-	if(object == NULL)
+	if (queue_p->empty())
 	{
-		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object is NULL" << LL_ENDL;
-		return true;
+		LL_DEBUGS("LLMediaDataClient") << "queue empty: " << (*queue_p) << LL_ENDL;
 	}
-	
-	if(object->isDead())
+	else
 	{
-		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object is dead" << LL_ENDL;
-		return true;
-	}
-	
-	if(!object->hasMedia())
-	{
-		LL_INFOS("LLMediaDataClient") << "removing : " << *request << " object has no media" << LL_ENDL;
-		return true;
-	}
-
-	return false;	
-}
-
-void LLMediaDataClient::sortQueue()
-{
-	if(!mSortedQueue.empty())
-	{
-		// Cull dead objects and score all remaining items first
-		request_queue_t::iterator iter = mSortedQueue.begin();
-		request_queue_t::iterator end = mSortedQueue.end();
-		while (iter != end)
-		{
-			if(request_needs_purge(*iter))
-			{
-				iter = mSortedQueue.erase(iter);
-			}
-			else
-			{
-				(*iter)->updateScore();
-				iter++;
-			}
-		}
+		request = queue_p->front();
 		
-		// Re-sort the list...
-		// NOTE: should this be a stable_sort?  If so we need to change to using a vector.
-		mSortedQueue.sort(LLMediaDataClient::compareRequests);
-		
-		// ...then cull items over the max
-		U32 size = mSortedQueue.size();
-		if (size > mMaxSortedQueueSize) 
+		if(canServiceRequest(request))
 		{
-			U32 num_to_cull = (size - mMaxSortedQueueSize);
-			LL_INFOS_ONCE("LLMediaDataClient") << "sorted queue MAXED OUT!  Culling " 
-				<< num_to_cull << " items" << LL_ENDL;
-			while (num_to_cull-- > 0)
-			{
-				mSortedQueue.pop_back();
-			}
-		}
-	}
-	
-	// Cull dead items from the round robin queue as well.
-	for(request_queue_t::iterator iter = mRoundRobinQueue.begin(); iter != mRoundRobinQueue.end();)
-	{
-		if(request_needs_purge(*iter))
-		{
-			iter = mRoundRobinQueue.erase(iter);
+			// We will be returning this request, so remove it from the queue.
+			queue_p->pop_front();
 		}
 		else
 		{
-			iter++;
+			// Don't return this request -- it's not ready to be serviced.
+			request = NULL;
 		}
+	}
+
+	return request;
+}
+
+void LLMediaDataClient::pushBack(request_ptr_t request)
+{
+	request_queue_t *queue_p = getQueue();
+	queue_p->push_front(request);
+}
+
+void LLMediaDataClient::trackRequest(request_ptr_t request)
+{
+	request_set_t::iterator iter = mUnQueuedRequests.lower_bound(request);
+	
+	if(*iter == request)
+	{
+		LL_WARNS("LLMediaDataClient") << "Tracking already tracked request: " << *request << LL_ENDL;
+	}
+	else
+	{
+		mUnQueuedRequests.insert(iter, request);
 	}
 }
 
-// static
-bool LLMediaDataClient::compareRequests(const request_ptr_t &o1, const request_ptr_t &o2)
+void LLMediaDataClient::stopTrackingRequest(request_ptr_t request)
 {
-	if (o2.isNull()) return true;
-	if (o1.isNull()) return false;
-	return ( o1->getScore() > o2->getScore() );
+	request_set_t::iterator iter = mUnQueuedRequests.find(request);
+	
+	if(*iter == request)
+	{
+		mUnQueuedRequests.erase(iter);
+	}
+	else
+	{
+		LL_WARNS("LLMediaDataClient") << "Removing an untracked request: " << *request << LL_ENDL;
+	}
 }
 
 void LLMediaDataClient::serviceQueue()
 {	
-	request_queue_t *queue_p = getCurrentQueue();
+	// Peel one off of the items from the queue and execute it
+	request_ptr_t request;
 	
-	// quick retry loop for cases where we shouldn't wait for the next timer tick
-	while(true)
+	do
 	{
-		if (queue_p->empty())
-		{
-			LL_DEBUGS("LLMediaDataClient") << "queue empty: " << (*queue_p) << LL_ENDL;
-			break;
-		}
-		
-		// Peel one off of the items from the queue, and execute request
-		request_ptr_t request = queue_p->front();
-		llassert(!request.isNull());
-		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
-		llassert(NULL != object);
+		request = dequeue();
 
-		// Check for conditions that would make us just pop and rapidly loop through
-		// the queue.
-		if(request->isMarkedSent())
+		if(request.isNull())
 		{
-			// Sent items that make it back to the head of the queue need to be skipped.
-			LL_INFOS("LLMediaDataClient") << "removing : " << *request << " request is marked sent" << LL_ENDL;
-			
-			queue_p->pop_front();
-			continue;	// jump back to the start of the quick retry loop
-		}
-		
-		// Next, ask if this is "interesting enough" to fetch.  If not, just stop
-		// and wait for the next timer go-round.  Only do this for the sorted 
-		// queue.
-		if (mCurrentQueueIsTheSortedQueue && !object->isInterestingEnough())
-		{
-			LL_DEBUGS("LLMediaDataClient") << "Not fetching " << *request << ": not interesting enough" << LL_ENDL;
-			break;
-		}
-		
-		// Finally, try to send the HTTP message to the cap url
-		std::string url = request->getCapability();
-		bool maybe_retry = false;
-		if (!url.empty())
-		{
-			const LLSD &sd_payload = request->getPayload();
-			LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
-			
-			// Call the subclass for creating the responder
-			LLHTTPClient::post(url, sd_payload, request->createResponder());
-		}
-		else {
-			LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
-			maybe_retry = true;
+			// Queue is empty.
+			return;
 		}
 
-		bool exceeded_retries = request->getRetryCount() > mMaxNumRetries;
-		if (maybe_retry && ! exceeded_retries) // Try N times before giving up 
+		if(request->isDead())
 		{
-			// We got an empty cap, but in that case we will retry again next
-			// timer fire.
+			LL_INFOS("LLMediaDataClient") << "Skipping dead request " << *request << LL_ENDL;
+			continue;
+		}
+
+	} while(false);
+		
+	// try to send the HTTP message to the cap url
+	std::string url = request->getCapability();
+	if (!url.empty())
+	{
+		const LLSD &sd_payload = request->getPayload();
+		LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
+		
+		// Add this request to the non-queued tracking list
+		trackRequest(request);
+		
+		// and make the post
+		LLHTTPClient::post(url, sd_payload, request->createResponder());
+	}
+	else 
+	{
+		// Cap url doesn't exist.
+		
+		if(request->getRetryCount() < mMaxNumRetries)
+		{
+			LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " (empty cap url), will retry." << LL_ENDL; 
+			// Put this request back at the head of its queue, and retry next time the queue timer fires.
 			request->incRetryCount();
+			pushBack(request);
 		}
-		else {
-			if (exceeded_retries)
-			{
-				LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
-					<< mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
-				// XXX Should we bring up a warning dialog??
-			}
-			
-			queue_p->pop_front();
-			
-			if (! mCurrentQueueIsTheSortedQueue) {
-				// Round robin
-				request->markSent(true);
-				mRoundRobinQueue.push_back(request);				
-			}
+		else
+		{
+			// This request has exceeded its maxumim retry count.  It will be dropped.
+			LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " << mMaxNumRetries << " tries, dropping request." << LL_ENDL; 
 		}
-		
- 		// end of quick loop -- any cases where we want to loop will use 'continue' to jump back to the start.
- 		break;
-	}
-	
-	swapCurrentQueue();
-}
 
-void LLMediaDataClient::swapCurrentQueue()
-{
-	// Swap
-	mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
-	// If its empty, swap back
-	if (getCurrentQueue()->empty()) 
-	{
-		mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
 	}
 }
 
-LLMediaDataClient::request_queue_t *LLMediaDataClient::getCurrentQueue()
-{
-	return (mCurrentQueueIsTheSortedQueue) ? &mSortedQueue : &mRoundRobinQueue;
-}
 
 // dump the queue
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q)
@@ -466,7 +354,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
 	while (iter != end)
 	{
-		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString() << "(" << (*iter)->getObject()->getMediaInterest() << ")";
+		s << "\t" << i << "]: " << (*iter)->getID().asString() << "(" << (*iter)->getObject()->getMediaInterest() << ")";
 		iter++;
 		i++;
 	}
@@ -513,19 +401,29 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
-: LLEventTimer(time), mResponder(mdr)
+LLMediaDataClient::RetryTimer::RetryTimer(F32 time, request_ptr_t request)
+: LLEventTimer(time), mRequest(request)
 {
+	mRequest->startTracking();
 }
 
 // virtual
-BOOL LLMediaDataClient::Responder::RetryTimer::tick()
+BOOL LLMediaDataClient::RetryTimer::tick()
 {
-	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << " retrying" << LL_ENDL;
-	mResponder->getRequest()->reEnqueue();
+	mRequest->stopTracking();
+
+	if(mRequest->isDead())
+	{
+		LL_INFOS("LLMediaDataClient") << "RetryTimer fired for dead request: " << *mRequest << ", aborting." << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *mRequest << ", retrying." << LL_ENDL;
+		mRequest->reEnqueue();
+	}
 	
-	// Release the ref to the responder.
-	mResponder = NULL;
+	// Release the ref to the request.
+	mRequest = NULL;
 
 	// Don't fire again
 	return TRUE;
@@ -541,25 +439,35 @@ BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 
 LLMediaDataClient::Request::Request(Type in_type,
 									LLMediaDataClientObject *obj, 
-									LLMediaDataClient *mdc)
+									LLMediaDataClient *mdc,
+									S32 face)
 : mType(in_type),
   mObject(obj),
   mNum(++sNum), 
   mRetryCount(0),
   mMDC(mdc),
-  mMarkedSent(false),
-  mScore((F64)0.0)
+  mScore((F64)0.0),
+  mFace(face)
 {
+	mObjectID = mObject->getID();
 }
 
 const char *LLMediaDataClient::Request::getCapName() const
 {
-	return mMDC->getCapabilityName();
+	if(mMDC)
+		return mMDC->getCapabilityName();
+	
+	return "";
 }
 
 std::string LLMediaDataClient::Request::getCapability() const
 {
-	return getObject()->getCapabilityUrl(getCapName());
+	if(mMDC)
+	{
+		return getObject()->getCapabilityUrl(getCapName());
+	}
+	
+	return "";
 }
 
 const char *LLMediaDataClient::Request::getTypeAsString() const
@@ -586,31 +494,28 @@ const char *LLMediaDataClient::Request::getTypeAsString() const
 
 void LLMediaDataClient::Request::reEnqueue()
 {
-	mMDC->enqueue(this);
+	if(mMDC)
+	{
+		mMDC->enqueue(this);
+	}
 }
 
 F32 LLMediaDataClient::Request::getRetryTimerDelay() const
 {
-	return mMDC->mRetryTimerDelay; 
+	if(mMDC)
+		return mMDC->mRetryTimerDelay; 
+		
+	return 0.0f;
 }
 
 U32 LLMediaDataClient::Request::getMaxNumRetries() const
 {
-	return mMDC->mMaxNumRetries;
+	if(mMDC)
+		return mMDC->mMaxNumRetries;
+	
+	return 0;
 }
 
-void LLMediaDataClient::Request::markSent(bool flag)
-{
-	 if (mMarkedSent != flag)
-	 {
-		 mMarkedSent = flag;
-		 if (!mMarkedSent)
-		 {
-			 mNum = ++sNum;
-		 }
-	 }
-}
-		   
 void LLMediaDataClient::Request::updateScore()
 {				
 	F64 tmp = mObject->getMediaInterest();
@@ -621,15 +526,37 @@ void LLMediaDataClient::Request::updateScore()
 	}
 }
 		   
+void LLMediaDataClient::Request::markDead() 
+{ 
+	mMDC = NULL;
+}
+
+bool LLMediaDataClient::Request::isDead() 
+{ 
+	return ((mMDC == NULL) || mObject->isDead()); 
+}
+
+void LLMediaDataClient::Request::startTracking() 
+{ 
+	if(mMDC) 
+		mMDC->trackRequest(this); 
+}
+
+void LLMediaDataClient::Request::stopTracking() 
+{ 
+	if(mMDC) 
+		mMDC->stopTrackingRequest(this); 
+}
+
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &r)
 {
 	s << "request: num=" << r.getNum() 
 	<< " type=" << r.getTypeAsString() 
-	<< " ID=" << r.getObject()->getID() 
+	<< " ID=" << r.getID() 
+	<< " face=" << r.getFace() 
 	<< " #retries=" << r.getRetryCount();
 	return s;
 }
-
 			
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -645,6 +572,14 @@ LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
 /*virtual*/
 void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 {
+	mRequest->stopTracking();
+
+	if(mRequest->isDead())
+	{
+		LL_WARNS("LLMediaDataClient") << "dead request " << *mRequest << LL_ENDL;
+		return;
+	}
+	
 	if (status == HTTP_SERVICE_UNAVAILABLE)
 	{
 		F32 retry_timeout = mRequest->getRetryTimerDelay();
@@ -657,14 +592,16 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 			
 			// Start timer (instances are automagically tracked by
 			// InstanceTracker<> and LLEventTimer)
-			new RetryTimer(F32(retry_timeout/*secs*/), this);
+			new RetryTimer(F32(retry_timeout/*secs*/), mRequest);
 		}
-		else {
+		else 
+		{
 			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " 
 				<< mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
 		}
 	}
-	else {
+	else 
+	{
 		std::string msg = boost::lexical_cast<std::string>(status) + ": " + reason;
 		LL_WARNS("LLMediaDataClient") << *mRequest << " http error(" << msg << ")" << LL_ENDL;
 	}
@@ -673,6 +610,14 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 /*virtual*/
 void LLMediaDataClient::Responder::result(const LLSD& content)
 {
+	mRequest->stopTracking();
+
+	if(mRequest->isDead())
+	{
+		LL_WARNS("LLMediaDataClient") << "dead request " << *mRequest << LL_ENDL;
+		return;
+	}
+
 	LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << " result : " << ll_print_sd(content) << LL_ENDL;
 }
 
@@ -683,15 +628,200 @@ void LLMediaDataClient::Responder::result(const LLSD& content)
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+void LLObjectMediaDataClient::fetchMedia(LLMediaDataClientObject *object)
+{
+	// Create a get request and put it in the queue.
+	enqueue(new RequestGet(object, this));
+}
+
 const char *LLObjectMediaDataClient::getCapabilityName() const 
 {
 	return "ObjectMedia";
 }
 
-void LLObjectMediaDataClient::fetchMedia(LLMediaDataClientObject *object)
+LLObjectMediaDataClient::request_queue_t *LLObjectMediaDataClient::getQueue()
 {
-	// Create a get request and put it in the queue.
-	enqueue(new RequestGet(object, this));
+	return (mCurrentQueueIsTheSortedQueue) ? &mQueue : &mRoundRobinQueue;
+}
+
+void LLObjectMediaDataClient::sortQueue()
+{
+	if(!mQueue.empty())
+	{
+		// score all elements in the sorted queue.
+		for(request_queue_t::iterator iter = mQueue.begin(); iter != mQueue.end(); iter++)
+		{
+			(*iter)->updateScore();
+		}
+		
+		// Re-sort the list...
+		mQueue.sort(compareRequestScores);
+		
+		// ...then cull items over the max
+		U32 size = mQueue.size();
+		if (size > mMaxSortedQueueSize) 
+		{
+			U32 num_to_cull = (size - mMaxSortedQueueSize);
+			LL_INFOS_ONCE("LLMediaDataClient") << "sorted queue MAXED OUT!  Culling " 
+				<< num_to_cull << " items" << LL_ENDL;
+			while (num_to_cull-- > 0)
+			{
+				mQueue.back()->markDead();
+				mQueue.pop_back();
+			}
+		}
+	}
+	
+}
+
+// static
+bool LLObjectMediaDataClient::compareRequestScores(const request_ptr_t &o1, const request_ptr_t &o2)
+{
+	if (o2.isNull()) return true;
+	if (o1.isNull()) return false;
+	return ( o1->getScore() > o2->getScore() );
+}
+
+void LLObjectMediaDataClient::enqueue(Request *request)
+{
+	if(request->isDead())
+	{
+		LL_DEBUGS("LLMediaDataClient") << "not queueing dead request " << *request << LL_ENDL;
+		return;
+	}
+
+	// Invariants:
+	// new requests always go into the sorted queue.
+	//  
+	
+	bool is_new = request->isNew();
+	
+	if(!is_new && (request->getType() == Request::GET))
+	{
+		// For GET requests that are not new, if a matching request is already in the round robin queue, 
+		// in flight, or being retried, leave it at its current position.
+		request_queue_t::iterator iter = find_matching_request(mRoundRobinQueue, request->getID(), Request::GET);
+		request_set_t::iterator iter2 = find_matching_request(mUnQueuedRequests, request->getID(), Request::GET);
+		
+		if( (iter != mRoundRobinQueue.end()) || (iter2 != mUnQueuedRequests.end()) )
+		{
+			LL_DEBUGS("LLMediaDataClient") << "ALREADY THERE: NOT Queuing request for " << *request << LL_ENDL;
+
+			return;
+		}
+	}
+	
+	// TODO: should an UPDATE cause pending GET requests for the same object to be removed from the queue?
+	// IF the update will cause an object update message to be sent out at some point in the future, it probably should.
+	
+	// Remove any existing requests of this type for this object
+	remove_matching_requests(mQueue, request->getID(), request->getType());
+	remove_matching_requests(mRoundRobinQueue, request->getID(), request->getType());
+	remove_matching_requests(mUnQueuedRequests, request->getID(), request->getType());
+
+	if (is_new)
+	{
+		LL_DEBUGS("LLMediaDataClient") << "Queuing SORTED request for " << *request << LL_ENDL;
+		
+		mQueue.push_back(request);
+		
+		LL_DEBUGS("LLMediaDataClientQueue") << "SORTED queue:" << mQueue << LL_ENDL;
+	}
+	else
+	{
+		if (mRoundRobinQueue.size() > mMaxRoundRobinQueueSize) 
+		{
+			LL_INFOS_ONCE("LLMediaDataClient") << "RR QUEUE MAXED OUT!!!" << LL_ENDL;
+			LL_DEBUGS("LLMediaDataClient") << "Not queuing " << *request << LL_ENDL;
+			return;
+		}
+				
+		LL_DEBUGS("LLMediaDataClient") << "Queuing RR request for " << *request << LL_ENDL;
+		// Push the request on the pending queue
+		mRoundRobinQueue.push_back(request);
+		
+		LL_DEBUGS("LLMediaDataClientQueue") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
+	}	
+	// Start the timer if not already running
+	startQueueTimer();
+}
+
+bool LLObjectMediaDataClient::canServiceRequest(request_ptr_t request) 
+{
+	if(mCurrentQueueIsTheSortedQueue)
+	{
+		if(!request->getObject()->isInterestingEnough())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "Not fetching " << *request << ": not interesting enough" << LL_ENDL;
+			return false;
+		}
+	}
+	
+	return true; 
+};
+
+void LLObjectMediaDataClient::swapCurrentQueue()
+{
+	// Swap
+	mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	// If its empty, swap back
+	if (getQueue()->empty()) 
+	{
+		mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	}
+}
+
+bool LLObjectMediaDataClient::isEmpty() const
+{
+	return mQueue.empty() && mRoundRobinQueue.empty();
+}
+
+bool LLObjectMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
+{
+	// First, call parent impl.
+	if(LLMediaDataClient::isInQueue(object))
+		return true;
+
+	if(find_matching_request(mRoundRobinQueue, object->getID()) != mRoundRobinQueue.end())
+		return true;
+	
+	return false;
+}
+
+void LLObjectMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr_t &object)
+{
+	// First, call parent impl.
+	LLMediaDataClient::removeFromQueue(object);
+	
+	remove_matching_requests(mRoundRobinQueue, object->getID());
+}
+
+bool LLObjectMediaDataClient::processQueueTimer()
+{
+	if(isEmpty())
+		return true;
+		
+	LL_DEBUGS("LLMediaDataClient") << "started, SORTED queue size is:	  " << mQueue.size() 
+		<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "    SORTED queue is:	  " << mQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "    RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+
+//	purgeDeadRequests();
+
+	sortQueue();
+
+	LL_DEBUGS("LLMediaDataClientQueue") << "after sort, SORTED queue is:	  " << mQueue << LL_ENDL;
+	
+	serviceQueue();
+
+	swapCurrentQueue();
+	
+	LL_DEBUGS("LLMediaDataClient") << "finished, SORTED queue size is:	  " << mQueue.size() 
+		<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "    SORTED queue is:	  " << mQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "    RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+	
+	return isEmpty();
 }
 
 LLObjectMediaDataClient::RequestGet::RequestGet(LLMediaDataClientObject *obj, LLMediaDataClient *mdc):
@@ -754,6 +884,14 @@ LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestUpdate::createResp
 /*virtual*/
 void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 {
+	getRequest()->stopTracking();
+
+	if(getRequest()->isDead())
+	{
+		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
+		return;
+	}
+
 	// This responder is only used for GET requests, not UPDATE.
 
 	LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
@@ -796,6 +934,50 @@ const char *LLObjectMediaNavigateClient::getCapabilityName() const
 	return "ObjectMediaNavigate";
 }
 
+void LLObjectMediaNavigateClient::enqueue(Request *request)
+{
+	if(request->isDead())
+	{
+		LL_DEBUGS("LLMediaDataClient") << "not queueing dead request " << *request << LL_ENDL;
+		return;
+	}
+	
+	// If there's already a matching request in the queue, remove it.
+	request_queue_t::iterator iter = find_matching_request(mQueue, request);
+	if(iter != mQueue.end())
+	{
+		LL_DEBUGS("LLMediaDataClient") << "removing matching queued request " << (**iter) << LL_ENDL;
+		mQueue.erase(iter);
+	}
+	else
+	{
+		request_set_t::iterator set_iter = find_matching_request(mUnQueuedRequests, request);
+		if(set_iter != mUnQueuedRequests.end())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "removing matching unqueued request " << (**set_iter) << LL_ENDL;
+			mUnQueuedRequests.erase(set_iter);
+		}
+	}
+
+#if 0
+	// Sadly, this doesn't work.  It ends up creating a race condition when the user navigates and then hits the "back" button
+	// where the navigate-back appears to be spurious and doesn't get broadcast.	
+	if(request->getObject()->isCurrentMediaUrl(request->getFace(), request->getURL()))
+	{
+		// This navigate request is trying to send the face to the current URL.  Drop it.
+		LL_DEBUGS("LLMediaDataClient") << "dropping spurious request " << (*request) << LL_ENDL;
+	}
+	else
+#endif
+	{
+		LL_DEBUGS("LLMediaDataClient") << "queueing new request " << (*request) << LL_ENDL;
+		mQueue.push_back(request);
+		
+		// Start the timer if not already running
+		startQueueTimer();
+	}
+}
+
 void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 texture_index, const std::string &url)
 {
 
@@ -806,8 +988,7 @@ void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 t
 }
 
 LLObjectMediaNavigateClient::RequestNavigate::RequestNavigate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc, U8 texture_index, const std::string &url):
-	LLMediaDataClient::Request(LLMediaDataClient::Request::NAVIGATE, obj, mdc),
-	mTextureIndex(texture_index),
+	LLMediaDataClient::Request(LLMediaDataClient::Request::NAVIGATE, obj, mdc, (S32)texture_index),
 	mURL(url)
 {
 }
@@ -815,9 +996,9 @@ LLObjectMediaNavigateClient::RequestNavigate::RequestNavigate(LLMediaDataClientO
 LLSD LLObjectMediaNavigateClient::RequestNavigate::getPayload() const
 {
 	LLSD result;
-	result[LLTextureEntry::OBJECT_ID_KEY] = mObject->getID();
+	result[LLTextureEntry::OBJECT_ID_KEY] = getID();
 	result[LLMediaEntry::CURRENT_URL_KEY] = mURL;
-	result[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)mTextureIndex;
+	result[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)getFace();
 	
 	return result;
 }
@@ -830,13 +1011,22 @@ LLMediaDataClient::Responder *LLObjectMediaNavigateClient::RequestNavigate::crea
 /*virtual*/
 void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string& reason)
 {
+	getRequest()->stopTracking();
+
+	if(getRequest()->isDead())
+	{
+		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
+		return;
+	}
+
 	// Bounce back (unless HTTP_SERVICE_UNAVAILABLE, in which case call base
 	// class
 	if (status == HTTP_SERVICE_UNAVAILABLE)
 	{
 		LLMediaDataClient::Responder::error(status, reason);
 	}
-	else {
+	else
+	{
 		// bounce the face back
 		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: http code=" << status << LL_ENDL;
 		const LLSD &payload = getRequest()->getPayload();
@@ -848,6 +1038,14 @@ void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string
 /*virtual*/
 void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 {
+	getRequest()->stopTracking();
+
+	if(getRequest()->isDead())
+	{
+		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
+		return;
+	}
+
 	LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << ll_print_sd(content) << LL_ENDL;
 	
 	if (content.has("error"))
@@ -862,14 +1060,17 @@ void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 			// bounce the face back
 			getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
 		}
-		else {
+		else
+		{
 			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: code=" << 
 				error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
 		}			 
+
 		// XXX Warn user?
 	}
-	else {
-		// just do what our superclass does
-		LLMediaDataClient::Responder::result(content);
+	else 
+	{
+		// No action required.
+		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " result : " << ll_print_sd(content) << LL_ENDL;
 	}
 }
