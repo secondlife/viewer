@@ -369,7 +369,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	if (right_x)
 	{
-		*right_x = cur_x / sScaleX;
+		*right_x = (cur_x - origin.mV[VX]) / sScaleX;
 	}
 
 	//FIXME: add underline as glyph?
