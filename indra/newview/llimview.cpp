@@ -237,6 +237,25 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
 	}
 
+	// *WORKAROUND: for server hard-coded string in indra\newsim\llsimchatterbox.cpp
+	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
+	{
+		// For an ad-hoc incoming chat name is received from the server and is in a form of "<Avatar's name> Conference"
+		// Lets update it to localize the "Conference" word. See EXT-8429.
+		S32 separator_index = mName.rfind(" ");
+		std::string name = mName.substr(0, separator_index);
+		++separator_index;
+		std::string conference_word = mName.substr(separator_index, mName.length());
+
+		// additional check that session name is what we expected
+		if ("Conference" == conference_word)
+		{
+			LLStringUtil::format_map_t args;
+			args["[AGENT_NAME]"] = name;
+			LLTrans::findString(mName, "conference-title-incoming", args);
+		}
+	}
+
 	if (IM_NOTHING_SPECIAL == type)
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
