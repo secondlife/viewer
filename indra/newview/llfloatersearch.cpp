@@ -115,6 +115,10 @@ void LLFloaterSearch::onOpen(const LLSD& key)
 {
 	if ( (key.has("category")) || ((mBrowser) && (mBrowser->getCurrentNavUrl().empty())) )
 	{
+		// new search triggered - blank the page while loading, instead of
+		//  temporarily showing stale results
+		mBrowser->navigateTo("about:blank");
+
 		search(key);
 	}
 }
