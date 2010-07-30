@@ -1625,7 +1625,17 @@ std::string LLPreviewGesture::getLabel(std::vector<std::string> labels)
 		result=LLTrans::getString("AnimFlagStart");
 	}
 
-	result.append(v_labels[1]);
+	// lets localize action value
+	std::string action = v_labels[1];
+	if ("None" == action)
+	{
+		action = LLTrans::getString("GestureActionNone");
+	}
+	else if ("until animations are done" == action)
+	{
+		action = LLFloaterReg::getInstance("preview_gesture")->getChild<LLCheckBoxCtrl>("wait_anim_check")->getLabel();
+	}
+	result.append(action);
 	return result;
 	
 }

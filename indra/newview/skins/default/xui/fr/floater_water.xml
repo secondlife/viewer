@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="ÉDITEUR D&apos;EAU AVANCÉ">
 	<floater.string name="WLDefaultWaterNames">
-		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
+		Valeur par défaut:Transparente:Bassin:Trouble:Première plaie:SERPENT !!!:Valdez
 	</floater.string>
 	<text name="KeyFramePresetsText" width="120">
 		Préréglages :

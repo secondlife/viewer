@@ -47,6 +47,7 @@
 #include "llbutton.h"
 #include "llgroupactions.h"
 #include "llscrolllistctrl.h"
+#include "llselectmgr.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
@@ -89,6 +90,7 @@ BOOL LLFloaterGroupPicker::postBuild()
 		list_ctrl->setContextMenu(LLScrollListCtrl::MENU_GROUP);
 	}
 	
+	LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterGroupPicker::onBtnCancel, this));
 
 	childSetAction("OK", onBtnOK, this);
 

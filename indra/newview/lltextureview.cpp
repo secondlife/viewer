@@ -450,14 +450,14 @@ void LLAvatarTexBar::draw()
 												 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 		line_num++;
 	}
-	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureTimeout");
+	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureUploadTimeout");
 	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
 	
 	LLColor4 header_color(1.f, 1.f, 1.f, 0.9f);
 
 	const std::string texture_timeout_str = texture_timeout ? llformat("%d",texture_timeout) : "Disabled";
 	const std::string override_tex_discard_level_str = override_tex_discard_level ? llformat("%d",override_tex_discard_level) : "Disabled";
-	std::string header_text = llformat("[ Timeout('AvatarBakedTextureTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
+	std::string header_text = llformat("[ Timeout('AvatarBakedTextureUploadTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
 	LLFontGL::getFontMonospace()->renderUTF8(header_text, 0, l_offset, v_offset + line_height*line_num,
 											 header_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 	line_num++;

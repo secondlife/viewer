@@ -2261,6 +2261,12 @@ void LLTextBase::updateRects()
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
 
+	if (!mScroller)
+	{
+		// push doc rect to top of text widget
+		doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
+	}
+
 	mDocumentView->setShape(doc_rect);
 
 	//update mVisibleTextRect *after* mDocumentView has been resized
@@ -2756,9 +2762,9 @@ F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 se
 }
 
 LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor)
-	:LLTextSegment(pos,pos+1)
-	,mStyle( style )
-	,mEditor(editor)
+:	LLTextSegment(pos,pos+1),
+	mStyle( style ),
+	mEditor(editor)
 {
 }
 

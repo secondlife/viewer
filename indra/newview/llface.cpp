@@ -1364,7 +1364,7 @@ F32 LLFace::getTextureVirtualSize()
 	F32 cos_angle_to_view_dir;	
 	BOOL in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
 
-	if (mPixelArea < 0.0001f || !in_frustum)
+	if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
 	{
 		setVirtualSize(0.f) ;
 		return 0.f;

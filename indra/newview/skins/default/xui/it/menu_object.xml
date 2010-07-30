@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
-	<menu_item_call label="Tocca" name="Object Touch"/>
+	<menu_item_call label="Tocca" name="Object Touch">
+		<on_enable parameter="Tocca" name="EnableTouch"/>
+	</menu_item_call>
 	<menu_item_call label="Modifica" name="Edit..."/>
 	<menu_item_call label="Costruisci" name="Build"/>
 	<menu_item_call label="Apri" name="Open"/>

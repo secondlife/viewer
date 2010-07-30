@@ -52,7 +52,7 @@ public:
 	LLItemInfo(F32 global_x, F32 global_y, const std::string& name, LLUUID id);
 
 	// Setters
-	void setTooltip(std::string& tooltip) { mToolTip = tooltip; }
+	void setTooltip(const std::string& tooltip) { mToolTip = tooltip; }
 	void setElevation(F64 z) { mPosGlobal.mdV[VZ] = z; }
 	void setCount(S32 count) { mCount = count; }
 //	void setSelected(bool selected) { mSelected = selected; }

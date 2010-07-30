@@ -75,7 +75,6 @@ public:
 						  BOOL need_imageraw, // Needs image raw for the callback
 						  void* userdata,
 						  source_callback_list_t* src_callback_list,
-						  void* source,
 						  LLViewerFetchedTexture* target,
 						  BOOL pause);
 	~LLLoadedCallbackEntry();
@@ -88,10 +87,9 @@ public:
 	BOOL                    mPaused;
 	void*					mUserData;
 	source_callback_list_t* mSourceCallbackList;
-	void*                   mSource;
 	
 public:
-	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list, void* src) ;
+	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list) ;
 };
 
 class LLTextureBar;
@@ -264,7 +262,7 @@ public:
 
 	/*virtual*/ void updateBindStatsForTester() ;
 protected:
-	virtual void cleanup() ;
+	void cleanup() ;
 	void init(bool firstinit) ;	
 	void reorganizeFaceList() ;
 	void reorganizeVolumeList() ;
@@ -384,13 +382,13 @@ public:
 	// Set callbacks to get called when the image gets updated with higher 
 	// resolution versions.
 	void setLoadedCallback(loaded_callback_func cb,
-						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux, void* src,
+						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux,
 						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause = FALSE);
 	bool hasCallbacks() { return mLoadedCallbackList.empty() ? false : true; }	
-	void pauseLoadedCallbacks(void* src);
-	void unpauseLoadedCallbacks(void* src);
+	void pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
+	void unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
 	bool doLoadedCallbacks();
-	void deleteCallbackEntry(void* src);
+	void deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
 
 	void addToCreateTexture();
 
@@ -485,7 +483,7 @@ protected:
 
 private:
 	void init(bool firstinit) ;
-	/*virtual*/ void cleanup() ;
+	void cleanup() ;
 
 	void saveRawImage() ;
 	void setCachedRawImage() ;

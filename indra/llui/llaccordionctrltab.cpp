@@ -33,6 +33,7 @@
 #include "linden_common.h"
 
 #include "llaccordionctrltab.h"
+#include "llaccordionctrl.h"
 
 #include "lllocalcliprect.h"
 #include "llscrollbar.h"
@@ -371,9 +372,11 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
 	addChild(mHeader, 1);
 
-	if (p.selection_enabled)
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+
+	if (!p.selection_enabled)
 	{
-		LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+		LLFocusableElement::setFocusLostCallback(boost::bind(&LLAccordionCtrlTab::deselectOnFocusLost, this));
 	}
 
 	reshape(100, 200,FALSE);
@@ -598,6 +601,15 @@ void LLAccordionCtrlTab::selectOnFocusReceived()
 		getParent()->notifyParent(LLSD().with("action", "select_current"));
 }
 
+void LLAccordionCtrlTab::deselectOnFocusLost()
+{
+	if(getParent()) // A parent may not be set if tabs are added dynamically.
+	{
+		getParent()->notifyParent(LLSD().with("action", "deselect_current"));
+	}
+
+}
+
 S32 LLAccordionCtrlTab::getHeaderHeight()
 {
 	return mHeaderVisible?HEADER_HEIGHT:0; 
@@ -698,7 +710,7 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 				setRect(panel_rect);
 			}
 			
-			//LLAccordionCtrl should rearrange accodion tab if one of accordion change its size
+			//LLAccordionCtrl should rearrange accordion tab if one of accordion change its size
 			if (getParent()) // A parent may not be set if tabs are added dynamically.
 				getParent()->notifyParent(info);
 			return 1;
@@ -709,6 +721,27 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 			return 1;
 		}
 	}
+	else if (info.has("scrollToShowRect"))
+	{
+		LLAccordionCtrl* parent = dynamic_cast<LLAccordionCtrl*>(getParent());
+		if (parent && parent->getFitParent())
+		{
+			//	EXT-8285 ('No attachments worn' text appears at the bottom of blank 'Attachments' accordion)
+			//	The problem was in passing message "scrollToShowRect" IN LLAccordionCtrlTab::notifyParent
+			//	FROM child LLScrollContainer TO parent LLAccordionCtrl with "it_parent" set to true.
+
+			//	It is wrong notification for parent accordion which leads to recursive call of adjustContainerPanel
+			//	As the result of recursive call of adjustContainerPanel we got LLAccordionCtrlTab
+			//	that reshaped and re-sized with different rectangles.
+
+			//	LLAccordionCtrl has own scrollContainer and LLAccordionCtrlTab has own scrollContainer
+			//	both should handle own scroll container's event.
+			//	So, if parent accordion "fit_parent" accordion tab should handle its scroll container events itself.
+
+			return 1;
+		}
+	}
+
 	return LLUICtrl::notifyParent(info);
 }
 

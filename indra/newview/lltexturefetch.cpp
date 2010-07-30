@@ -290,8 +290,8 @@ class HTTPGetResponder : public LLCurl::Responder
 {
 	LOG_CLASS(HTTPGetResponder);
 public:
-	HTTPGetResponder(LLTextureFetch* fetcher, const LLUUID& id, U64 startTime, S32 requestedSize, U32 offset)
-		: mFetcher(fetcher), mID(id), mStartTime(startTime), mRequestedSize(requestedSize), mOffset(offset)
+	HTTPGetResponder(LLTextureFetch* fetcher, const LLUUID& id, U64 startTime, S32 requestedSize, U32 offset, bool redir)
+		: mFetcher(fetcher), mID(id), mStartTime(startTime), mRequestedSize(requestedSize), mOffset(offset), mFollowRedir(redir)
 	{
 	}
 	~HTTPGetResponder()
@@ -344,6 +344,11 @@ public:
  			llwarns << "Worker not found: " << mID << llendl;
 		}
 	}
+
+	virtual bool followRedir()
+	{
+		return mFollowRedir;
+	}
 	
 private:
 	LLTextureFetch* mFetcher;
@@ -351,6 +356,7 @@ private:
 	U64 mStartTime;
 	S32 mRequestedSize;
 	U32 mOffset;
+	bool mFollowRedir;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -897,7 +903,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
 				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
-															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset));
+															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
 			}
 			if (!res)
 			{
@@ -944,17 +950,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					++mHTTPFailCount;
 					max_attempts = mHTTPFailCount+1; // Keep retrying
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
-				}
-				else if(mGetStatus >= HTTP_MULTIPLE_CHOICES && mGetStatus < HTTP_BAD_REQUEST) //http re-direct
-				{
-					++mHTTPFailCount;
-					max_attempts = 5 ; //try at most 5 times to avoid infinite redirection loop.
-
-					llwarns << "HTTP GET failed because of redirection: "  << mUrl
-							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << llendl ;
-
-					//assign to the new url
-					mUrl = mGetReason ;
 				}
 				else
 				{

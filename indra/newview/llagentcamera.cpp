@@ -941,7 +941,7 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 		*/
 	}
 
-	if( cameraCustomizeAvatar() )
+	if(cameraCustomizeAvatar())
 	{
 		new_distance = llclamp( new_distance, APPEARANCE_MIN_ZOOM, APPEARANCE_MAX_ZOOM );
 	}

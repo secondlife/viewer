@@ -76,19 +76,22 @@ Maximum 200 per group daily
        follows="top|left"
        height="23"
        image_overlay="AddItem_Off"
+       image_overlay_alignment="left"
+       imgoverlay_label_space="-10"
+       label="New Notice"
        layout="topleft"
        left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"
-       top_delta="-3"
-       width="23" />
+       top_delta="0"
+       width="93" />
      <button
      follows="top|left"
      height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
      name="refresh_notices"
-     left_pad="230"
+     left="260"
      tool_tip="Refresh list of notices"
      top_delta="0"
      width="23" />
@@ -113,7 +116,7 @@ Maximum 200 per group daily
          mouse_opaque="false"
          name="lbl"
          text_color="EmphasisColor"
-         top="0"
+         top="5"
          width="200">
             Create a Notice
         </text>
@@ -270,7 +273,7 @@ Maximum 200 per group daily
          mouse_opaque="false"
          name="lbl"
          text_color="EmphasisColor"
-         top_pad="0"
+         top_pad="5"
          width="265">
             Archived Notice
         </text>

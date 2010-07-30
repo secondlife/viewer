@@ -1195,7 +1195,7 @@ void LLFolderView::propertiesSelectedItems( void )
 
 void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
 {
-	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf;
+	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf.get();
 
 	if (!folder_bridge) return;
 	LLViewerInventoryCategory *cat = folder_bridge->getCategory();
@@ -1874,13 +1874,18 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		}
 		
 		// Successively filter out invalid options
-		selected_items_t::iterator item_itor;
+
 		U32 flags = FIRST_SELECTED_ITEM;
-		for (item_itor = mSelectedItems.begin(); item_itor != mSelectedItems.end(); ++item_itor)
+		for (selected_items_t::iterator item_itor = mSelectedItems.begin(); 
+			 item_itor != mSelectedItems.end(); 
+			 ++item_itor)
 		{
-			(*item_itor)->buildContextMenu(*menu, flags);
+			LLFolderViewItem* selected_item = (*item_itor);
+			selected_item->buildContextMenu(*menu, flags);
 			flags = 0x0;
 		}
+	   
+		addNoOptions(menu);
 
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, menu, x, y);
@@ -1889,13 +1894,44 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	}
 	else
 	{
-		if(menu && menu->getVisible())
+		if (menu && menu->getVisible())
 		{
 			menu->setVisible(FALSE);
 		}
 		setSelection(NULL, FALSE, TRUE);
 	}
 	return handled;
+}
+
+// Add "--no options--" if the menu is completely blank.
+BOOL LLFolderView::addNoOptions(LLMenuGL* menu) const
+{
+	const std::string nooptions_str = "--no options--";
+	LLView *nooptions_item = NULL;
+	
+	const LLView::child_list_t *list = menu->getChildList();
+	for (LLView::child_list_t::const_iterator itor = list->begin(); 
+		 itor != list->end(); 
+		 ++itor)
+	{
+		LLView *menu_item = (*itor);
+		if (menu_item->getVisible())
+		{
+			return FALSE;
+		}
+		std::string name = menu_item->getName();
+		if (menu_item->getName() == nooptions_str)
+		{
+			nooptions_item = menu_item;
+		}
+	}
+	if (nooptions_item)
+	{
+		nooptions_item->setVisible(TRUE);
+		nooptions_item->setEnabled(FALSE);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 BOOL LLFolderView::handleHover( S32 x, S32 y, MASK mask )

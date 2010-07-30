@@ -768,6 +768,17 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 			}
 			return 0;
 		}
+		else if(str_action == "deselect_current")
+		{
+			// Reset selection to the currently selected tab.
+			if (mSelectedTab)
+			{
+				mSelectedTab->setSelected(false);
+				mSelectedTab = NULL;
+				return 1;
+			}
+			return 0;
+		}
 	}
 	else if (info.has("scrollToShowRect"))
 	{
@@ -812,6 +823,31 @@ void	LLAccordionCtrl::reset		()
 {
 	if(mScrollbar)
 		mScrollbar->setDocPos(0);
+}
+
+void LLAccordionCtrl::expandDefaultTab()
+{
+	if (mAccordionTabs.size() > 0)
+	{
+		LLAccordionCtrlTab* tab = mAccordionTabs.front();
+
+		if (!tab->getDisplayChildren())
+		{
+			tab->setDisplayChildren(true);
+		}
+
+		for (size_t i = 1; i < mAccordionTabs.size(); ++i)
+		{
+			tab = mAccordionTabs[i];
+
+			if (tab->getDisplayChildren())
+			{
+				tab->setDisplayChildren(false);
+			}
+		}
+
+		arrange();
+	}
 }
 
 void LLAccordionCtrl::sort()

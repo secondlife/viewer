@@ -923,6 +923,18 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 	return false;
 }
 
+void LLPanelOutfitEdit::resetAccordionState()
+{
+	if (mCOFWearables != NULL)
+	{
+		mCOFWearables->expandDefaultAccordionTab();
+	}
+	else
+	{
+		llwarns << "mCOFWearables is NULL" << llendl;
+	}
+}
+
 void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
 {
 	if(!mGearMenu)

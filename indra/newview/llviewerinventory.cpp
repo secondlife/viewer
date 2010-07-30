@@ -67,7 +67,7 @@
 #include "llsidepanelappearance.h"
 
 ///----------------------------------------------------------------------------
-/// Helper class to store special inventory item names 
+/// Helper class to store special inventory item names and their localized values.
 ///----------------------------------------------------------------------------
 class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
 {
@@ -93,8 +93,10 @@ public:
 		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
 		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
+		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
 
 		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
@@ -108,7 +110,7 @@ public:
 
 		//male
 		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male - Get lost"]			= LLTrans::getString("Male - Get lost");
+		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
 		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
 		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
 		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
@@ -120,18 +122,46 @@ public:
 		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
 
 		//female
+		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
+		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
+		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
 		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female - Get lost"]		= LLTrans::getString("Female - Get lost");
+		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
 		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
 		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
 		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
 		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
 		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
+		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
+		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
 		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
 		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
 		
+	}
+
+	/**
+	 * Finds passed name in dictionary and replaces it with found localized value.
+	 *
+	 * @param object_name - string to be localized.
+	 * @return true if passed name was found and localized, false otherwise.
+	 */
+	bool localizeInventoryObjectName(std::string& object_name)
+	{
+		LL_DEBUGS("InventoryLocalize") << "Searching for localization: " << object_name << LL_ENDL;
+
+		std::map<std::string, std::string>::const_iterator dictionary_iter = mInventoryItemsDict.find(object_name);
+
+		bool found = dictionary_iter != mInventoryItemsDict.end();
+		if(found)
+		{
+			object_name = dictionary_iter->second;
+			LL_DEBUGS("InventoryLocalize") << "Found, new name is: " << object_name << LL_ENDL;
+		}
+		return found;
 	}
 };
 
@@ -391,16 +421,7 @@ BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* bloc
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 
-	std::string localized_str;
-
-	std::map<std::string, std::string>::const_iterator dictionary_iter;
-
-	dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.find(mName);
-
-	if(dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end())
-	{
-		mName = dictionary_iter->second;
-	}
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
 	mIsComplete = TRUE;
 	return rv;
@@ -820,6 +841,11 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
 }
 
+void LLViewerInventoryCategory::localizeName()
+{
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+}
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -895,7 +921,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	gAgentWearables.editWearableIfRequested(inv_item);
 
 	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
+	if(gAgentCamera.cameraCustomizeAvatar())
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
@@ -1132,6 +1158,14 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
+	if (NULL == src)
+	{
+		LL_WARNS("copy_inventory_from_notecard") << "Null pointer to item was passed for object_id "
+												 << object_id << " and notecard_inv_id "
+												 << notecard_inv_id << LL_ENDL;
+		return;
+	}
+
 	LLViewerRegion* viewer_region = NULL;
     LLViewerObject* vo = NULL;
 	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
@@ -1153,6 +1187,16 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
                                                  << LL_ENDL;
         return;
     }
+
+	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
+	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
+	if (url.empty())
+	{
+        LL_WARNS("copy_inventory_from_notecard") << "There is no 'CopyInventoryFromNotecard' capability"
+												 << " for region: " << viewer_region->getName()
+                                                 << LL_ENDL;
+		return;
+	}
 
     LLSD request, body;
     body["notecard-id"] = notecard_inv_id;
