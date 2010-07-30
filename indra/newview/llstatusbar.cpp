@@ -195,9 +195,6 @@ BOOL LLStatusBar::postBuild()
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
-	childSetAction("scriptout", onClickScriptDebug, this);
-	childSetAction("health", onClickHealth, this);
-
 	// Adding Net Stat Graph
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
@@ -247,14 +244,17 @@ BOOL LLStatusBar::postBuild()
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelNearByMedia->setVisible(FALSE);
 
+	mScriptOut = getChildView("scriptout");
+
 	return TRUE;
 }
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
-	bool net_stats_visible = gSavedSettings.getBOOL("ShowNetStats");
-	
+	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
+	bool net_stats_visible = show_net_stats;
+
 	if (net_stats_visible)
 	{
 		// Adding Net Stat Meter back in
@@ -266,72 +266,35 @@ void LLStatusBar::refresh()
 		mSGBandwidth->setThreshold(2, bwtotal);
 	}
 	
-	// Get current UTC time, adjusted for the user's clock
-	// being off.
-	time_t utc_time;
-	utc_time = time_corrected();
+	// update clock every 10 seconds
+	if(mClockUpdateTimer.getElapsedTimeF32() > 10.f)
+	{
+		mClockUpdateTimer.reset();
 
-	std::string timeStr = getString("time");
-	LLSD substitution;
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-	mTextTime->setText(timeStr);
+		// Get current UTC time, adjusted for the user's clock
+		// being off.
+		time_t utc_time;
+		utc_time = time_corrected();
 
-	// set the tooltip to have the date
-	std::string dtStr = getString("timeTooltip");
-	LLStringUtil::format (dtStr, substitution);
-	mTextTime->setToolTip (dtStr);
+		std::string timeStr = getString("time");
+		LLSD substitution;
+		substitution["datetime"] = (S32) utc_time;
+		LLStringUtil::format (timeStr, substitution);
+		mTextTime->setText(timeStr);
+
+		// set the tooltip to have the date
+		std::string dtStr = getString("timeTooltip");
+		LLStringUtil::format (dtStr, substitution);
+		mTextTime->setToolTip (dtStr);
+	}
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
-	S32 x = MENU_RIGHT + MENU_PARCEL_SPACING;
-	S32 y = 0;
 
 	// reshape menu bar to its content's width
 	if (MENU_RIGHT != gMenuBarView->getRect().getWidth())
 	{
 		gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
-	}
-
-	LLViewerRegion *region = gAgent.getRegion();
-	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-
-	LLRect buttonRect;
-
-	if (LLHUDIcon::iconsNearby())
-	{
-		LLView* script_out = getChildView("scriptout");
-		buttonRect = script_out->getRect();
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		script_out->setShape(r);
-		script_out->setVisible( true);
-		x += buttonRect.getWidth();
-	}
-	else
-	{
-		getChildView("scriptout")->setVisible( false);
-	}
-
-	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
-		((region && region->getAllowDamage()) || (parcel && parcel->getAllowDamage())))
-	{
-		// set visibility based on flashing
-		if( mHealthTimer->hasExpired() )
-		{
-			getChildView("health")->setVisible( true);
-		}
-		else
-		{
-			BOOL flash = S32(mHealthTimer->getElapsedSeconds() * ICON_FLASH_FREQUENCY) & 1;
-			getChildView("health")->setVisible( flash);
-		}
-
-		// Health
-		LLView* healthp = getChildView("health");
-		buttonRect = healthp->getRect();
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		healthp->setShape(r);
-		x += buttonRect.getWidth();
 	}
 
 	mSGBandwidth->setVisible(net_stats_visible);

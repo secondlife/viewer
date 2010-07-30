@@ -74,7 +74,10 @@ LLSpeaker::LLSpeaker(const LLUUID& id, const std::string& name, const ESpeakerTy
 
 void LLSpeaker::lookupName()
 {
-	gCacheName->get(mID, FALSE, boost::bind(&LLSpeaker::onAvatarNameLookup, this, _1, _2, _3, _4));
+	if (mDisplayName.empty())
+	{
+		gCacheName->get(mID, FALSE, boost::bind(&LLSpeaker::onAvatarNameLookup, this, _1, _2, _3, _4));
+	}
 }
 
 void LLSpeaker::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
