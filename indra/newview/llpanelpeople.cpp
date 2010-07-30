@@ -515,8 +515,6 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
 
 BOOL LLPanelPeople::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
-	
 	mFilterEditor = getChild<LLFilterEditor>("filter_input");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
@@ -533,7 +531,9 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList->setNoItemsCommentText(getString("no_friends"));
 	mAllFriendList->setShowIcons("FriendsListShowIcons");
 
-	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+	LLPanel* nearby_tab = getChild<LLPanel>(NEARBY_TAB_NAME);
+	nearby_tab->setVisibleCallback(boost::bind(&Updater::setActive, mNearbyListUpdater, _2));
+	mNearbyList = nearby_tab->getChild<LLAvatarList>("avatar_list");
 	mNearbyList->setNoItemsCommentText(getString("no_one_near"));
 	mNearbyList->setNoItemsMsg(getString("no_one_near"));
 	mNearbyList->setNoFilteredItemsMsg(getString("no_one_filtered_near"));
@@ -977,28 +977,6 @@ void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save
 	}
 }
 
-void LLPanelPeople::onVisibilityChange(const LLSD& new_visibility)
-{
-	if (new_visibility.asBoolean() == FALSE)
-	{
-		// Don't update anything while we're invisible.
-		mNearbyListUpdater->setActive(FALSE);
-	}
-	else
-	{
-		reSelectedCurrentTab();
-	}
-}
-
-// Make the tab-container re-select current tab
-// for onTabSelected() callback to get called.
-// (currently this is needed to reactivate nearby list updates
-// when we get visible)
-void LLPanelPeople::reSelectedCurrentTab()
-{
-	mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
-}
-
 bool LLPanelPeople::isRealGroup()
 {
 	return getCurrentItemID() != LLUUID::null;
@@ -1046,7 +1024,6 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 void LLPanelPeople::onTabSelected(const LLSD& param)
 {
 	std::string tab_name = getChild<LLPanel>(param.asString())->getName();
-	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
 
 	showFriendsAccordionsIfNeeded();
@@ -1410,8 +1387,6 @@ void	LLPanelPeople::onOpen(const LLSD& key)
 	
 	if (!tab_name.empty())
 		mTabContainer->selectTabByName(tab_name);
-	else
-		reSelectedCurrentTab();
 }
 
 bool LLPanelPeople::notifyChildren(const LLSD& info)
