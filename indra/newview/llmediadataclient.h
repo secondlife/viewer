@@ -75,6 +75,7 @@ public:
 	typedef LLPointer<LLMediaDataClientObject> ptr_t;
 };
 
+
 // This object creates a priority queue for requests.
 // Abstracts the Cap URL, the request, and the responder
 class LLMediaDataClient : public LLRefCount
@@ -282,9 +283,12 @@ private:
 	void setIsRunning(bool val) { mQueueTimerIsRunning = val; }
 		
 	bool mQueueTimerIsRunning;
-		
-};
 
+	template <typename T> friend typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type);
+	template <typename T> friend typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type);
+	template <typename T> friend void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type);
+
+};
 
 // MediaDataClient specific for the ObjectMedia cap
 class LLObjectMediaDataClient : public LLMediaDataClient
