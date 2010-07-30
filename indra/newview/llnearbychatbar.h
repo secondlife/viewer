@@ -68,7 +68,7 @@ public:
 
 	~LLGestureComboList();
 
-	LLCtrlListInterface* getListInterface()		{ return (LLCtrlListInterface*)mList; };
+	LLCtrlListInterface* getListInterface();
 	virtual void	showList();
 	virtual void	hideList();
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
