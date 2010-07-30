@@ -1495,24 +1495,32 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
+	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
+
 	if (index > getLength()) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
 	//FIXME: avoid operator new somehow (without running into refcount problems)
-	segment_set_t::iterator it = mSegments.upper_bound(new LLIndexSegment(index));
+	index_segment->setStart(index);
+	index_segment->setEnd(index);
+	segment_set_t::iterator it = mSegments.upper_bound(index_segment);
 	return it;
 }
 
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
+	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
+
 	if (index > getLength()) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
-	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(new LLIndexSegment(index));
+	index_segment->setStart(index);
+	index_segment->setEnd(index);
+	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(index_segment);
 	return it;
 }
 
