@@ -1029,8 +1029,10 @@ void LLTextBase::draw()
 	LLUICtrl::draw();
 
 	{
-		// only clip if we support scrolling or have word wrap turned off
-		LLLocalClipRect clip(doc_rect, !getWordWrap() || mScroller != NULL);
+		// only clip if we support scrolling...
+		// since convention is that text boxes never vertically truncate their contents
+		// regardless of rect bounds
+		LLLocalClipRect clip(doc_rect, mScroller != NULL);
 		drawSelectionBackground();
 		drawText();
 		drawCursor();
