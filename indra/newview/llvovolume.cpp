@@ -2082,14 +2082,19 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 				}
 				break;
 				
+				case LLViewerMediaImpl::MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS:
+					// This navigate didn't change the current URL.  
+					LL_DEBUGS("MediaOnAPrim") << "	NOT broadcasting navigate (spurious)" << LL_ENDL;
+				break;
+				
 				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED:
 					// This is the first location changed event after the start of a server-directed nav.  Don't broadcast it.
-					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (server-directed)" << LL_ENDL;
 				break;
 				
 				default:
 					// This is a subsequent location-changed due to a redirect.	 Don't broadcast.
-					llinfos << "	NOT broadcasting navigate (redirect)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (redirect)" << LL_ENDL;
 				break;
 			}
 		}
@@ -2106,9 +2111,14 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 				}
 				break;
 				
+				case LLViewerMediaImpl::MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS:
+					// This navigate didn't change the current URL.  
+					LL_DEBUGS("MediaOnAPrim") << "	NOT broadcasting navigate (spurious)" << LL_ENDL;
+				break;
+
 				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED:
 					// This is the the navigate complete event from a server-directed nav.  Don't broadcast it.
-					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (server-directed)" << LL_ENDL;
 				break;
 				
 				default:
