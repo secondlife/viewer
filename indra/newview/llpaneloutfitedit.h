@@ -201,6 +201,13 @@ private:
 	void getCurrentItemUUID(LLUUID& selected_id);
 	void onCOFChanged();
 
+	/**
+	 * Method preserves selection while switching between folder/list view modes
+	*/
+	void saveListSelection();
+
+	void updateWearablesPanelVerbButtons();
+
 	typedef std::pair<LLWearableType::EType, size_t> selection_info_t;
 
 	LLWearableType::EType getCOFWearablesSelectionType() const;
