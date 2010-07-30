@@ -99,7 +99,7 @@ void LLPanelMediaSettingsPermissions::draw()
 	// housekeeping
 	LLPanel::draw();
 
-	childSetText("perms_group_name",LLStringUtil::null);
+	getChild<LLUICtrl>("perms_group_name")->setValue(LLStringUtil::null);
 	LLUUID group_id;
 	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)

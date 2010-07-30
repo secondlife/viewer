@@ -570,15 +570,15 @@ void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 {
 	mAddWearablesPanel->setVisible(show_add_wearables);
 	
-	childSetValue("show_add_wearables_btn", show_add_wearables);
+	getChild<LLUICtrl>("show_add_wearables_btn")->setValue(show_add_wearables);
 
 	updateFiltersVisibility();
-	childSetVisible("filter_button", show_add_wearables);
+	getChildView("filter_button")->setVisible( show_add_wearables);
 
 	//search filter should be disabled
 	if (!show_add_wearables)
 	{
-		childSetValue("filter_button", false);
+		getChild<LLUICtrl>("filter_button")->setValue(false);
 
 		mFolderViewFilterCmbBox->setVisible(false);
 		mListViewFilterCmbBox->setVisible(false);
@@ -590,15 +590,15 @@ void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 	}
 
 	//switching button bars
-	childSetVisible("no_add_wearables_button_bar", !show_add_wearables);
-	childSetVisible("add_wearables_button_bar", show_add_wearables);
+	getChildView("no_add_wearables_button_bar")->setVisible( !show_add_wearables);
+	getChildView("add_wearables_button_bar")->setVisible( show_add_wearables);
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()
 {
-	bool filter_visible = childGetValue("filter_button");
+	bool filter_visible = getChild<LLUICtrl>("filter_button")->getValue();
 
-	childSetVisible("filter_panel", filter_visible);
+	getChildView("filter_panel")->setVisible( filter_visible);
 
 	if(!filter_visible)
 	{
@@ -1126,7 +1126,7 @@ void LLPanelOutfitEdit::updateVerbs()
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
 	mSaveComboBtn->setSaveBtnEnabled(!outfit_locked && outfit_is_dirty);
-	childSetEnabled(REVERT_BTN, outfit_is_dirty && has_baseoutfit);
+	getChildView(REVERT_BTN)->setEnabled(outfit_is_dirty && has_baseoutfit);
 
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", !outfit_locked && outfit_is_dirty);
 

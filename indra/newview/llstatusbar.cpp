@@ -235,7 +235,7 @@ BOOL LLStatusBar::postBuild()
 	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
 
-	childSetActionTextbox("stat_btn", onClickStatGraph);
+	getChild<LLTextBox>("stat_btn")->setClickedCallback(onClickStatGraph);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
@@ -300,15 +300,16 @@ void LLStatusBar::refresh()
 
 	if (LLHUDIcon::iconsNearby())
 	{
-		childGetRect( "scriptout", buttonRect );
+		LLView* script_out = getChildView("scriptout");
+		buttonRect = script_out->getRect();
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect("scriptout",r);
-		childSetVisible("scriptout", true);
+		script_out->setShape(r);
+		script_out->setVisible( true);
 		x += buttonRect.getWidth();
 	}
 	else
 	{
-		childSetVisible("scriptout", false);
+		getChildView("scriptout")->setVisible( false);
 	}
 
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
@@ -317,24 +318,25 @@ void LLStatusBar::refresh()
 		// set visibility based on flashing
 		if( mHealthTimer->hasExpired() )
 		{
-			childSetVisible("health", true);
+			getChildView("health")->setVisible( true);
 		}
 		else
 		{
 			BOOL flash = S32(mHealthTimer->getElapsedSeconds() * ICON_FLASH_FREQUENCY) & 1;
-			childSetVisible("health", flash);
+			getChildView("health")->setVisible( flash);
 		}
 
 		// Health
-		childGetRect( "health", buttonRect );
+		LLView* healthp = getChildView("health");
+		buttonRect = healthp->getRect();
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect("health", r);
+		healthp->setShape(r);
 		x += buttonRect.getWidth();
 	}
 
 	mSGBandwidth->setVisible(net_stats_visible);
 	mSGPacketLoss->setVisible(net_stats_visible);
-	childSetEnabled("stat_btn", net_stats_visible);
+	getChildView("stat_btn")->setEnabled(net_stats_visible);
 
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
