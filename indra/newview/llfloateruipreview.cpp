@@ -475,7 +475,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	// Set up overlap panel
 	mOverlapPanel = getChild<LLOverlapPanel>("overlap_panel");
 
-	childSetVisible("overlap_scroll", mHighlightingOverlaps);
+	getChildView("overlap_scroll")->setVisible( mHighlightingOverlaps);
 	
 	mDelim = gDirUtilp->getDirDelimiter();	// initialize delimiter to dir sep slash
 
@@ -1699,7 +1699,7 @@ void LLFloaterUIPreview::onClickToggleOverlapping()
 		setRect(LLRect(getRect().mLeft,getRect().mTop,getRect().mRight + mOverlapPanel->getRect().getWidth(),getRect().mBottom));
 		setResizeLimits(width + mOverlapPanel->getRect().getWidth(), height);
 	}
-	childSetVisible("overlap_scroll", mHighlightingOverlaps);
+	getChildView("overlap_scroll")->setVisible( mHighlightingOverlaps);
 }
 
 void LLFloaterUIPreview::findOverlapsInChildren(LLView* parent)

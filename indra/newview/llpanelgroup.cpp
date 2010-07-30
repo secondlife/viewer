@@ -321,7 +321,7 @@ void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, b
 		return;
 	}
 
-	childSetEnabled("btn_call", LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+	getChildView("btn_call")->setEnabled(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
 }
 
 void LLPanelGroup::notifyObservers()
@@ -335,8 +335,8 @@ void LLPanelGroup::update(LLGroupChange gc)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		getChild<LLUICtrl>("group_name")->setValue(group_name);
+		getChildView("group_name")->setToolTip(group_name);
 		
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlike();
@@ -382,8 +382,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		getChild<LLUICtrl>("group_name")->setValue(group_name);
+		getChildView("group_name")->setToolTip(group_name);
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
@@ -535,7 +535,7 @@ void LLPanelGroup::draw()
 	if (mRefreshTimer.hasExpired())
 	{
 		mRefreshTimer.stop();
-		childEnable("btn_refresh");
+		getChildView("btn_refresh")->setEnabled(TRUE);
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
@@ -547,7 +547,7 @@ void LLPanelGroup::draw()
 		for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
 			enable = enable || (*it)->needsApply(mesg);
 
-		childSetEnabled("btn_apply", enable);
+		getChildView("btn_apply")->setEnabled(enable);
 	}
 }
 
@@ -563,7 +563,7 @@ void LLPanelGroup::refreshData()
 	setGroupID(getID());
 	
 	// 5 second timeout
-	childDisable("btn_refresh");
+	getChildView("btn_refresh")->setEnabled(FALSE);
 	mRefreshTimer.start();
 	mRefreshTimer.setTimerExpirySec(5);
 }

@@ -113,7 +113,7 @@ void LLFloaterEnvSettings::syncMenu()
 
 	// sync cloud coverage
 	bool err;
-	childSetValue("EnvCloudSlider", LLWLParamManager::instance()->mCurParams.getFloat("cloud_shadow", err));
+	getChild<LLUICtrl>("EnvCloudSlider")->setValue(LLWLParamManager::instance()->mCurParams.getFloat("cloud_shadow", err));
 
 	LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
 	// sync water params
@@ -122,43 +122,43 @@ void LLFloaterEnvSettings::syncMenu()
 	col.mV[3] = 1.0f;
 	colCtrl->set(col);
 
-	childSetValue("EnvWaterFogSlider", param_mgr->mFogDensity.mExp);
+	getChild<LLUICtrl>("EnvWaterFogSlider")->setValue(param_mgr->mFogDensity.mExp);
 	param_mgr->setDensitySliderValue(param_mgr->mFogDensity.mExp);
 
 	// turn off Use Estate Time button if it's already being used
 	if(LLWLParamManager::instance()->mAnimator.mUseLindenTime)
 	{
-		childDisable("EnvUseEstateTimeButton");
+		getChildView("EnvUseEstateTimeButton")->setEnabled(FALSE);
 	} else {
-		childEnable("EnvUseEstateTimeButton");
+		getChildView("EnvUseEstateTimeButton")->setEnabled(TRUE);
 	}
 
 	if(!gPipeline.canUseVertexShaders())
 	{
-		childDisable("EnvWaterColor");
-		childDisable("EnvWaterColorText");
-		//childDisable("EnvAdvancedWaterButton");		
+		getChildView("EnvWaterColor")->setEnabled(FALSE);
+		getChildView("EnvWaterColorText")->setEnabled(FALSE);
+		//getChildView("EnvAdvancedWaterButton")->setEnabled(FALSE);		
 	}
 	else
 	{
-		childEnable("EnvWaterColor");
-		childEnable("EnvWaterColorText");
-		//childEnable("EnvAdvancedWaterButton");		
+		getChildView("EnvWaterColor")->setEnabled(TRUE);
+		getChildView("EnvWaterColorText")->setEnabled(TRUE);
+		//getChildView("EnvAdvancedWaterButton")->setEnabled(TRUE);		
 	}
 
 	// only allow access to these if they are using windlight
 	if(!gPipeline.canUseWindLightShaders())
 	{
 
-		childDisable("EnvCloudSlider");
-		childDisable("EnvCloudText");
-		//childDisable("EnvAdvancedSkyButton");
+		getChildView("EnvCloudSlider")->setEnabled(FALSE);
+		getChildView("EnvCloudText")->setEnabled(FALSE);
+		//getChildView("EnvAdvancedSkyButton")->setEnabled(FALSE);
 	}
 	else
 	{
-		childEnable("EnvCloudSlider");
-		childEnable("EnvCloudText");
-		//childEnable("EnvAdvancedSkyButton");
+		getChildView("EnvCloudSlider")->setEnabled(TRUE);
+		getChildView("EnvCloudText")->setEnabled(TRUE);
+		//getChildView("EnvAdvancedSkyButton")->setEnabled(TRUE);
 	}
 }
 

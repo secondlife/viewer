@@ -371,7 +371,7 @@ void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 
 void LLPanelGroupLandMoney::impl::setYourMaxContributionTextBox(int max)
 {
-	mPanel.childSetTextArg("your_contribution_max_value", "[AMOUNT]", llformat("%d", max));
+	mPanel.getChild<LLUICtrl>("your_contribution_max_value")->setTextArg("[AMOUNT]", llformat("%d", max));
 }
 
 //static
@@ -433,14 +433,14 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			
 			S32 total_contribution;
 			msg->getS32("QueryData", "ActualArea", total_contribution, 0);
-			mPanel.childSetTextArg("total_contributed_land_value", "[AREA]", llformat("%d", total_contribution));
+			mPanel.getChild<LLUICtrl>("total_contributed_land_value")->setTextArg("[AREA]", llformat("%d", total_contribution));
 
 			S32 committed;
 			msg->getS32("QueryData", "BillableArea", committed, 0);
-			mPanel.childSetTextArg("total_land_in_use_value", "[AREA]", llformat("%d", committed));
+			mPanel.getChild<LLUICtrl>("total_land_in_use_value")->setTextArg("[AREA]", llformat("%d", committed));
 			
 			S32 available = total_contribution - committed;
-			mPanel.childSetTextArg("land_available_value", "[AREA]", llformat("%d", available));
+			mPanel.getChild<LLUICtrl>("land_available_value")->setTextArg("[AREA]", llformat("%d", available));
 
 			if ( mGroupOverLimitTextp && mGroupOverLimitIconp )
 			{

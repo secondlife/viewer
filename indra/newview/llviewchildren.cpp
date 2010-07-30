@@ -55,12 +55,12 @@ LLViewChildren::LLViewChildren(LLPanel& parent)
 
 void LLViewChildren::show(const std::string& id, bool visible)
 {
-	mParent.childSetVisible(id, visible);
+	mParent.getChildView(id)->setVisible(visible);
 }
 
 void LLViewChildren::enable(const std::string& id, bool enabled)
 {
-	mParent.childSetEnabled(id, enabled);
+	mParent.getChildView(id)->setEnabled(enabled);
 }
 
 void LLViewChildren::setText(

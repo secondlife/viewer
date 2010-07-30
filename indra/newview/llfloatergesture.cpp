@@ -194,8 +194,8 @@ BOOL LLFloaterGesture::postBuild()
 	getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickNew, this));
 	getChild<LLButton>("del_btn")->setClickedCallback(boost::bind(&LLFloaterGesture::onDeleteSelected, this));
 
-	childSetVisible("play_btn", true);
-	childSetVisible("stop_btn", false);
+	getChildView("play_btn")->setVisible( true);
+	getChildView("stop_btn")->setVisible( false);
 	setDefaultBtn("play_btn");
 	mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE, false);
 
@@ -563,13 +563,13 @@ void LLFloaterGesture::onCommitList()
 	mSelectedID = item_id;
 	if (LLGestureMgr::instance().isGesturePlaying(item_id))
 	{
-		childSetVisible("play_btn", false);
-		childSetVisible("stop_btn", true);
+		getChildView("play_btn")->setVisible( false);
+		getChildView("stop_btn")->setVisible( true);
 	}
 	else
 	{
-		childSetVisible("play_btn", true);
-		childSetVisible("stop_btn", false);
+		getChildView("play_btn")->setVisible( true);
+		getChildView("stop_btn")->setVisible( false);
 	}
 }
 

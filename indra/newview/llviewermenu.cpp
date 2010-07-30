@@ -327,11 +327,11 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 
 void LLMenuParcelObserver::changed()
 {
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
+	gMenuHolder->getChildView("Land Buy Pass")->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL));
 	
 	BOOL buyable = enable_buy_land(NULL);
-	gMenuHolder->childSetEnabled("Land Buy", buyable);
-	gMenuHolder->childSetEnabled("Buy Land...", buyable);
+	gMenuHolder->getChildView("Land Buy")->setEnabled(buyable);
+	gMenuHolder->getChildView("Buy Land...")->setEnabled(buyable);
 }
 
 
@@ -451,10 +451,10 @@ void init_menus()
 	// Assume L$10 for now, the server will tell us the real cost at login
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
 	const std::string upload_cost("10");
-	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
+	gMenuHolder->getChild<LLUICtrl>("Upload Image")->setLabelArg("[COST]", upload_cost);
+	gMenuHolder->getChild<LLUICtrl>("Upload Sound")->setLabelArg("[COST]", upload_cost);
+	gMenuHolder->getChild<LLUICtrl>("Upload Animation")->setLabelArg("[COST]", upload_cost);
+	gMenuHolder->getChild<LLUICtrl>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
 
 	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
@@ -2423,8 +2423,8 @@ class LLObjectEnableTouch : public view_listener_t
 		{
 			touch_text = userdata.asString();
 		}
-		gMenuHolder->childSetText("Object Touch", touch_text);
-		gMenuHolder->childSetText("Attachment Object Touch", touch_text);
+		gMenuHolder->getChild<LLUICtrl>("Object Touch")->setValue(touch_text);
+		gMenuHolder->getChild<LLUICtrl>("Attachment Object Touch")->setValue(touch_text);
 
 		return new_value;
 	}
@@ -7668,7 +7668,7 @@ class LLUploadCostCalculator : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string menu_name = userdata.asString();
-		gMenuHolder->childSetLabelArg(menu_name, "[COST]", mCostStr);
+		gMenuHolder->getChildView(menu_name)->setLabelArg("[COST]", mCostStr);
 
 		return true;
 	}
