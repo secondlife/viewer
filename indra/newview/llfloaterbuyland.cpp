@@ -732,7 +732,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 		return;
 	}
 	
-	BOOL remove_contribution = childGetValue("remove_contribution").asBoolean();
+	BOOL remove_contribution = getChild<LLUICtrl>("remove_contribution")->getValue().asBoolean();
 	mParcelBuyInfo = LLViewerParcelMgr::getInstance()->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
 						gAgent.getGroupID(), mIsForGroup, mIsClaim, remove_contribution);
 
@@ -1026,13 +1026,13 @@ void LLFloaterBuyLandUI::refreshUI()
 		
 		if (mParcelValid)
 		{
-			childSetText("info_parcel", mParcelLocation);
+			getChild<LLUICtrl>("info_parcel")->setValue(mParcelLocation);
 
 			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
 			string_args["[AMOUNT2]"] = llformat("%d", mParcelSupportedObjects);
 		
-			childSetText("info_size", getString("meters_supports_object", string_args));
+			getChild<LLUICtrl>("info_size")->setValue(getString("meters_supports_object", string_args));
 
 			F32 cost_per_sqm = 0.0f;
 			if (mParcelActualArea > 0)
@@ -1051,17 +1051,17 @@ void LLFloaterBuyLandUI::refreshUI()
 			{
 				info_price_args["[SOLD_WITH_OBJECTS]"] = getString("sold_without_objects");
 			}
-			childSetText("info_price", getString("info_price_string", info_price_args));
-			childSetVisible("info_price", mParcelIsForSale);
+			getChild<LLUICtrl>("info_price")->setValue(getString("info_price_string", info_price_args));
+			getChildView("info_price")->setVisible( mParcelIsForSale);
 		}
 		else
 		{
-			childSetText("info_parcel", getString("no_parcel_selected"));
-			childSetText("info_size", LLStringUtil::null);
-			childSetText("info_price", LLStringUtil::null);
+			getChild<LLUICtrl>("info_parcel")->setValue(getString("no_parcel_selected"));
+			getChild<LLUICtrl>("info_size")->setValue(LLStringUtil::null);
+			getChild<LLUICtrl>("info_price")->setValue(LLStringUtil::null);
 		}
 		
-		childSetText("info_action",
+		getChild<LLUICtrl>("info_action")->setValue(
 			mCanBuy
 				?
 					mIsForGroup
@@ -1092,14 +1092,13 @@ void LLFloaterBuyLandUI::refreshUI()
 			message->setValue(LLSD(!mCanBuy ? mCannotBuyReason : "(waiting for data)"));
 		}
 
-		childSetVisible("error_web", 
-				mCannotBuyIsError && !mCannotBuyURI.empty());
+		getChildView("error_web")->setVisible(mCannotBuyIsError && !mCannotBuyURI.empty());
 	}
 	else
 	{
-		childHide("step_error");
-		childHide("error_message");
-		childHide("error_web");
+		getChildView("step_error")->setVisible(FALSE);
+		getChildView("error_message")->setVisible(FALSE);
+		getChildView("error_web")->setVisible(FALSE);
 	}
 	
 	
@@ -1110,8 +1109,8 @@ void LLFloaterBuyLandUI::refreshUI()
 			mSiteMembershipUpgrade
 				? LLViewChildren::BADGE_NOTE
 				: LLViewChildren::BADGE_OK);
-		childSetText("account_action", mSiteMembershipAction);
-		childSetText("account_reason", 
+		getChild<LLUICtrl>("account_action")->setValue(mSiteMembershipAction);
+		getChild<LLUICtrl>("account_reason")->setValue( 
 			mSiteMembershipUpgrade
 				?	getString("must_upgrade")
 				:	getString("cant_own_land")
@@ -1134,16 +1133,16 @@ void LLFloaterBuyLandUI::refreshUI()
 			levels->setCurrentByIndex(mUserPlanChoice);
 		}
 
-		childShow("step_1");
-		childShow("account_action");
-		childShow("account_reason");
+		getChildView("step_1")->setVisible(TRUE);
+		getChildView("account_action")->setVisible(TRUE);
+		getChildView("account_reason")->setVisible(TRUE);
 	}
 	else
 	{
-		childHide("step_1");
-		childHide("account_action");
-		childHide("account_reason");
-		childHide("account_level");
+		getChildView("step_1")->setVisible(FALSE);
+		getChildView("account_action")->setVisible(FALSE);
+		getChildView("account_reason")->setVisible(FALSE);
+		getChildView("account_level")->setVisible(FALSE);
 	}
 	
 	// section two: land use fees
@@ -1153,7 +1152,7 @@ void LLFloaterBuyLandUI::refreshUI()
 			mSiteLandUseUpgrade
 				? LLViewChildren::BADGE_NOTE
 				: LLViewChildren::BADGE_OK);
-		childSetText("land_use_action", mSiteLandUseAction);
+		getChild<LLUICtrl>("land_use_action")->setValue(mSiteLandUseAction);
 		
 		std::string message;
 		
@@ -1199,17 +1198,17 @@ void LLFloaterBuyLandUI::refreshUI()
 			}
 		}
 
-		childSetValue("land_use_reason", message);
+		getChild<LLUICtrl>("land_use_reason")->setValue(message);
 
-		childShow("step_2");
-		childShow("land_use_action");
-		childShow("land_use_reason");
+		getChildView("step_2")->setVisible(TRUE);
+		getChildView("land_use_action")->setVisible(TRUE);
+		getChildView("land_use_reason")->setVisible(TRUE);
 	}
 	else
 	{
-		childHide("step_2");
-		childHide("land_use_action");
-		childHide("land_use_reason");
+		getChildView("step_2")->setVisible(FALSE);
+		getChildView("land_use_action")->setVisible(FALSE);
+		getChildView("land_use_reason")->setVisible(FALSE);
 	}
 	
 	// section three: purchase & currency
@@ -1233,8 +1232,8 @@ void LLFloaterBuyLandUI::refreshUI()
 		LLStringUtil::format_map_t string_args;
 		string_args["[AMOUNT]"] = llformat("%d", mParcelPrice);
 		string_args["[SELLER]"] = mParcelSellerName;
-		childSetText("purchase_action", getString("pay_to_for_land", string_args));
-		childSetVisible("purchase_action", mParcelValid);
+		getChild<LLUICtrl>("purchase_action")->setValue(getString("pay_to_for_land", string_args));
+		getChildView("purchase_action")->setVisible( mParcelValid);
 		
 		std::string reasonString;
 
@@ -1243,7 +1242,7 @@ void LLFloaterBuyLandUI::refreshUI()
 			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
 
-			childSetText("currency_reason", getString("have_enough_lindens", string_args));
+			getChild<LLUICtrl>("currency_reason")->setValue(getString("have_enough_lindens", string_args));
 		}
 		else
 		{
@@ -1251,9 +1250,9 @@ void LLFloaterBuyLandUI::refreshUI()
 			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
 			string_args["[AMOUNT2]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 			
-			childSetText("currency_reason", getString("not_enough_lindens", string_args));
+			getChild<LLUICtrl>("currency_reason")->setValue(getString("not_enough_lindens", string_args));
 
-			childSetTextArg("currency_est", "[LOCAL_AMOUNT]", mCurrency.getLocalEstimate());
+			getChild<LLUICtrl>("currency_est")->setTextArg("[LOCAL_AMOUNT]", mCurrency.getLocalEstimate());
 		}
 		
 		if (willHaveEnough)
@@ -1261,7 +1260,7 @@ void LLFloaterBuyLandUI::refreshUI()
 			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", finalBalance);
 
-			childSetText("currency_balance", getString("balance_left", string_args));
+			getChild<LLUICtrl>("currency_balance")->setValue(getString("balance_left", string_args));
 
 		}
 		else
@@ -1269,30 +1268,30 @@ void LLFloaterBuyLandUI::refreshUI()
 			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 	
-			childSetText("currency_balance", getString("balance_needed", string_args));
+			getChild<LLUICtrl>("currency_balance")->setValue(getString("balance_needed", string_args));
 			
 		}
 
-		childSetValue("remove_contribution", LLSD(groupContributionEnough));
-		childSetEnabled("remove_contribution", groupContributionEnough);
+		getChild<LLUICtrl>("remove_contribution")->setValue(LLSD(groupContributionEnough));
+		getChildView("remove_contribution")->setEnabled(groupContributionEnough);
 		bool showRemoveContribution = mParcelIsGroupLand
 							&& (mParcelGroupContribution > 0);
-		childSetLabelArg("remove_contribution", "[AMOUNT]",
+		getChildView("remove_contribution")->setLabelArg("[AMOUNT]",
 							llformat("%d", minContribution));
-		childSetVisible("remove_contribution", showRemoveContribution);
+		getChildView("remove_contribution")->setVisible( showRemoveContribution);
 
-		childShow("step_3");
-		childShow("purchase_action");
-		childShow("currency_reason");
-		childShow("currency_balance");
+		getChildView("step_3")->setVisible(TRUE);
+		getChildView("purchase_action")->setVisible(TRUE);
+		getChildView("currency_reason")->setVisible(TRUE);
+		getChildView("currency_balance")->setVisible(TRUE);
 	}
 	else
 	{
-		childHide("step_3");
-		childHide("purchase_action");
-		childHide("currency_reason");
-		childHide("currency_balance");
-		childHide("remove_group_donation");
+		getChildView("step_3")->setVisible(FALSE);
+		getChildView("purchase_action")->setVisible(FALSE);
+		getChildView("currency_reason")->setVisible(FALSE);
+		getChildView("currency_balance")->setVisible(FALSE);
+		getChildView("remove_group_donation")->setVisible(FALSE);
 	}
 
 
@@ -1303,8 +1302,7 @@ void LLFloaterBuyLandUI::refreshUI()
 	    agrees_to_covenant = check->get();
 	}
 
-	childSetEnabled("buy_btn",
-		mCanBuy  &&  mSiteValid  &&  willHaveEnough  &&  !mTransaction && agrees_to_covenant);
+	getChildView("buy_btn")->setEnabled(mCanBuy  &&  mSiteValid  &&  willHaveEnough  &&  !mTransaction && agrees_to_covenant);
 }
 
 void LLFloaterBuyLandUI::startBuyPreConfirm()

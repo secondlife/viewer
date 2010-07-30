@@ -434,17 +434,6 @@ BOOL LLView::canFocusChildren() const
 }
 
 //virtual
-void LLView::setTentative(BOOL b)
-{
-}
-
-//virtual
-BOOL LLView::getTentative() const
-{
-	return FALSE;
-}
-
-//virtual
 void LLView::setEnabled(BOOL enabled)
 {
 	mEnabled = enabled;
@@ -2782,6 +2771,19 @@ LLView::tree_post_iterator_t LLView::endTreeDFSPost()
 { 
 	// an empty iterator is an "end" iterator
 	return tree_post_iterator_t();
+}
+
+LLView::bfs_tree_iterator_t LLView::beginTreeBFS() 
+{ 
+	return bfs_tree_iterator_t(this, 
+							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
+							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+}
+
+LLView::bfs_tree_iterator_t LLView::endTreeBFS() 
+{ 
+	// an empty iterator is an "end" iterator
+	return bfs_tree_iterator_t();
 }
 
 

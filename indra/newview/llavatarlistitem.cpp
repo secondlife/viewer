@@ -127,7 +127,7 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", true);
+	getChildView("hovered_icon")->setVisible( true);
 	mInfoBtn->setVisible(mShowInfoBtn);
 	mProfileBtn->setVisible(mShowProfileBtn);
 
@@ -138,7 +138,7 @@ void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 
 void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", false);
+	getChildView("hovered_icon")->setVisible( false);
 	mInfoBtn->setVisible(false);
 	mProfileBtn->setVisible(false);
 
@@ -315,7 +315,7 @@ void LLAvatarListItem::setValue( const LLSD& value )
 {
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
-	childSetVisible("selected_icon", value["selected"]);
+	getChildView("selected_icon")->setVisible( value["selected"]);
 }
 
 const LLUUID& LLAvatarListItem::getAvatarId() const
