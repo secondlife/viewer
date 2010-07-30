@@ -717,7 +717,7 @@ You can not wear that item because it has not yet loaded. Please try again in a 
    name="MustHaveAccountToLogIn"
    type="alertmodal">
 Oops! Something was left blank.
-You need to enter both the First and Last name of your avatar.
+You need to enter the Username name of your avatar.
 
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <url
@@ -737,7 +737,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="InvalidCredentialFormat"
    type="alertmodal">
-You need to enter both the First and Last name of your avatar into the Username field, then login again.
+You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
 
