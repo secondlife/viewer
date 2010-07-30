@@ -113,10 +113,14 @@ BOOL LLFloaterSearch::postBuild()
 
 void LLFloaterSearch::onOpen(const LLSD& key)
 {
-	if ( (key.has("category")) || ((mBrowser) && (mBrowser->getCurrentNavUrl().empty())) )
-	{
-		search(key);
-	}
+	search(key);
+}
+
+void LLFloaterSearch::onClose(bool app_quitting)
+{
+	// tear down the web view so we don't show the previous search
+	// result when the floater is opened next time
+	destroy();
 }
 
 void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
