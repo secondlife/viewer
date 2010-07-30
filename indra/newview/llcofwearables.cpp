@@ -514,10 +514,10 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 
 	//setting callbacks
 	//*TODO move that item panel's inner structure disclosing stuff into the panels
-	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
-	item_panel->childSetAction("btn_move_up", mCOFCallbacks.mMoveWearableFurther);
-	item_panel->childSetAction("btn_move_down", mCOFCallbacks.mMoveWearableCloser);
-	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
+	item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
+	item_panel->childSetAction("btn_move_up", boost::bind(mCOFCallbacks.mMoveWearableFurther));
+	item_panel->childSetAction("btn_move_down", boost::bind(mCOFCallbacks.mMoveWearableCloser));
+	item_panel->childSetAction("btn_edit", boost::bind(mCOFCallbacks.mEditWearable));
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
 	item_panel->setSeparatorVisible(last);
@@ -543,8 +543,8 @@ LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventor
 
 	//setting callbacks
 	//*TODO move that item panel's inner structure disclosing stuff into the panels
-	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
-	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
+	item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
+	item_panel->childSetAction("btn_edit", boost::bind(mCOFCallbacks.mEditWearable));
 
 	return item_panel;
 }
@@ -559,7 +559,7 @@ LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLView
 
 	//setting callbacks
 	//*TODO move that item panel's inner structure disclosing stuff into the panels
-	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
+	item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
 
 	return item_panel;
 }
@@ -605,7 +605,7 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 		LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
 		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
 		if(!item_panel) continue;
-		item_panel->childSetAction("btn_add", mCOFCallbacks.mAddWearable);
+		item_panel->childSetAction("btn_add", boost::bind(mCOFCallbacks.mAddWearable));
 		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
 	}
 }
