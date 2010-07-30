@@ -124,9 +124,12 @@ private:
 	// fills flatlist with items from given panel
 	void fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel);
 
+	void handleAvatarEditingAppearance(bool editing);
+
 	// set to true when free camera mode is selected in modes list
 	// remains true until preset camera mode is chosen, or pan button is clicked, or escape pressed
 	static bool sFreeCamera;
+	static bool sAppearanceEditing;
 	BOOL mClosed;
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
