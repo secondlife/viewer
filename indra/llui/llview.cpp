@@ -403,28 +403,40 @@ bool LLCompareByTabOrder::operator() (const LLView* const a, const LLView* const
 	return (a_score == b_score) ? a < b : a_score < b_score;
 }
 
-bool LLView::trueToRoot(const boost::function<bool (const LLView*)>& predicate) const
-{
-	const LLView* cur_view = this;
-	while(cur_view)
-	{
-		if(!predicate(cur_view))
-		{
-			return false;
-		}
-		cur_view = cur_view->getParent();
-	}
-	return true;
-}
-
 BOOL LLView::isInVisibleChain() const
 {
-	return trueToRoot(&LLView::getVisible);
+	BOOL visible = TRUE;
+
+	const LLView* viewp = this;
+	while(viewp)
+	{
+		if (!viewp->getVisible())
+		{
+			visible = FALSE;
+			break;
+		}
+		viewp = viewp->getParent();
+	}
+	
+	return visible;
 }
 
 BOOL LLView::isInEnabledChain() const
 {
-	return trueToRoot(&LLView::getEnabled);
+	BOOL enabled = TRUE;
+
+	const LLView* viewp = this;
+	while(viewp)
+	{
+		if (!viewp->getEnabled())
+		{
+			enabled = FALSE;
+			break;
+		}
+		viewp = viewp->getParent();
+	}
+	
+	return enabled;
 }
 
 // virtual

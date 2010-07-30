@@ -147,6 +147,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
 {
+	LLFastTimer _(FTM_RENDER_FONTS);
+
 	if(!sDisplayFont) //do not display texts
 	{
 		return wstr.length() ;
@@ -193,9 +195,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	origin.mV[VX] -= llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
 	origin.mV[VY] -= llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 
-	LLFastTimer t(FTM_RENDER_FONTS);
-
-	gGL.color4fv( color.mV );
 
 	S32 chars_drawn = 0;
 	S32 i;
@@ -286,6 +285,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
 	LLColor4U colors[GLYPH_BATCH_SIZE * 4];
 
+	LLColor4U text_color(color);
+
+	S32 bitmap_num = -1;
 	S32 glyph_count = 0;
 	for (i = begin_offset; i < begin_offset + length; i++)
 	{
@@ -303,8 +305,13 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			break;
 		}
 		// Per-glyph bitmap texture.
-		LLImageGL *image_gl = mFontFreetype->getFontBitmapCache()->getImageGL(fgi->mBitmapNum);
-		gGL.getTexUnit(0)->bind(image_gl);
+		S32 next_bitmap_num = fgi->mBitmapNum;
+		if (next_bitmap_num != bitmap_num)
+		{
+			bitmap_num = next_bitmap_num;
+			LLImageGL *font_image = font_bitmap_cache->getImageGL(bitmap_num);
+			gGL.getTexUnit(0)->bind(font_image);
+		}
 	
 		if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
 		{
@@ -335,7 +342,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			glyph_count = 0;
 		}
 
-		drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
+		drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect, text_color, style_to_add, shadow, drop_shadow_strength);
 
 		chars_drawn++;
 		cur_x += fgi->mXAdvance;
@@ -1145,7 +1152,6 @@ void LLFontGL::renderQuad(LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* c
 	colors_out[index] = color;
 }
 
-//FIXME: do colors out as well
 void LLFontGL::drawGlyph(S32& glyph_count, LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* colors_out, const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4U& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
 {
 	F32 slant_offset;
@@ -1199,8 +1205,8 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector3* vertex_out, LLVector2* uv_
 	}
 	else if (shadow == DROP_SHADOW)
 	{
-		LLColor4 shadow_color = LLFontGL::sShadowColor;
-		shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
+		LLColor4U shadow_color = LLFontGL::sShadowColor;
+		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength);
 		LLRectf screen_rect_shadow = screen_rect;
 		screen_rect_shadow.translate(1.f, -1.f);
 		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_shadow, uv_rect, shadow_color, slant_offset);
