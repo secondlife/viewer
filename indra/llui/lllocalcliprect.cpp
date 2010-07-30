@@ -45,9 +45,9 @@ LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
 	if (mEnabled)
 	{
 		pushClipRect(rect);
+		mScissorState.setEnabled(!sClipRectStack.empty());
+		updateScissorRegion();
 	}
-	mScissorState.setEnabled(!sClipRectStack.empty());
-	updateScissorRegion();
 }
 
 LLScreenClipRect::~LLScreenClipRect()
@@ -55,8 +55,8 @@ LLScreenClipRect::~LLScreenClipRect()
 	if (mEnabled)
 	{
 		popClipRect();
+		updateScissorRegion();
 	}
-	updateScissorRegion();
 }
 
 //static 
