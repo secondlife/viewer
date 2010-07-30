@@ -199,8 +199,8 @@ void LLFloaterTOS::draw()
 void LLFloaterTOS::updateAgree(LLUICtrl*, void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	bool agree = self->childGetValue("agree_chk").asBoolean(); 
-	self->childSetEnabled("Continue", agree);
+	bool agree = self->getChild<LLUICtrl>("agree_chk")->getValue().asBoolean(); 
+	self->getChildView("Continue")->setEnabled(agree);
 }
 
 // static

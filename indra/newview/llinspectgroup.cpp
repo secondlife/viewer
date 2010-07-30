@@ -239,7 +239,7 @@ void LLInspectGroup::nameUpdatedCallback(
 	if (id == mGroupID)
 	{
 		// group names are returned as a first name
-		childSetValue("group_name", LLSD(first) );
+		getChild<LLUICtrl>("group_name")->setValue(LLSD(first) );
 	}
 	
 	// Otherwise possibly a request for an older inspector, ignore it

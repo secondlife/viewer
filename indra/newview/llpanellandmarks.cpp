@@ -718,8 +718,8 @@ void LLLandmarksPanel::updateListCommands()
 	bool trash_enabled = isActionEnabled("delete");
 
 	// keep Options & Add Landmark buttons always enabled
-	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
-	mListCommands->childSetEnabled(TRASH_BUTTON_NAME, trash_enabled);
+	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);
+	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
 }
 
 void LLLandmarksPanel::onActionsButtonClick()
