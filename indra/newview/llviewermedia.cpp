@@ -2308,6 +2308,8 @@ void LLViewerMediaImpl::navigateInternal()
 			// which is really not what we want.
 			LLSD headers = LLSD::emptyMap();
 			headers["Accept"] = "*/*";
+			// Allow cookies in the response, to prevent a redirect loop when accessing join.secondlife.com
+			headers["Cookie"] = "";
 			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
