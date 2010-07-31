@@ -120,6 +120,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mFlashing( FALSE ),
 	mCurGlowStrength(0.f),
 	mNeedsHighlight(FALSE),
+	mMouseOver(false),
 	mUnselectedLabel(p.label()),
 	mSelectedLabel(p.label_selected()),
 	mGLFont(p.font),
@@ -504,7 +505,11 @@ void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
 	LLUICtrl::onMouseEnter(x, y, mask);
 
 	if (isInEnabledChain())
+	{
 		mNeedsHighlight = TRUE;
+	}
+
+	mMouseOver = true;
 }
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -512,6 +517,7 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLUICtrl::onMouseLeave(x, y, mask);
 
 	mNeedsHighlight = FALSE;
+	mMouseOver = true;
 }
 
 void LLButton::setHighlight(bool b)
@@ -565,14 +571,10 @@ void LLButton::draw()
 	}
 
 	// Unselected image assignments
-	S32 local_mouse_x;
-	S32 local_mouse_y;
-	LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
-
 	bool enabled = isInEnabledChain();
 
 	bool pressed = pressed_by_keyboard 
-					|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y))
+					|| (hasMouseCapture() && mMouseOver)
 					|| mForcePressedState;
 	bool selected = getToggleState();
 	
