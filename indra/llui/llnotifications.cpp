@@ -375,6 +375,7 @@ LLNotification::LLNotification(const LLSD& sd) :
 LLSD LLNotification::asLLSD()
 {
 	LLSD output;
+	output["id"] = mId;
 	output["name"] = mTemplatep->mName;
 	output["form"] = getForm()->asLLSD();
 	output["substitutions"] = mSubstitutions;

@@ -283,7 +283,8 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mClothingTab(NULL),
 	mAttachmentsTab(NULL),
 	mBodyPartsTab(NULL),
-	mLastSelectedTab(NULL)
+	mLastSelectedTab(NULL),
+	mAccordionCtrl(NULL)
 {
 	mClothingMenu = new CofClothingContextMenu(this);
 	mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -334,6 +335,8 @@ BOOL LLCOFWearables::postBuild()
 	mTab2AssetType[mClothingTab] = LLAssetType::AT_CLOTHING;
 	mTab2AssetType[mAttachmentsTab] = LLAssetType::AT_OBJECT;
 	mTab2AssetType[mBodyPartsTab] = LLAssetType::AT_BODYPART;
+
+	mAccordionCtrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
 
 	return LLPanel::postBuild();
 }
@@ -633,18 +636,35 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 	typedef std::map<std::string, LLAssetType::EType> type_map_t;
 
 	static type_map_t type_map;
-	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
-	const LLAccordionCtrlTab* expanded_tab = accordion_ctrl->getExpandedTab();
 
-	return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
+	if (mAccordionCtrl != NULL)
+	{
+		const LLAccordionCtrlTab* expanded_tab = mAccordionCtrl->getExpandedTab();
+
+		return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
+	}
+
+	return LLAssetType::AT_NONE;
 }
 
 LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
 {
-	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
-	const LLAccordionCtrlTab* selected_tab = accordion_ctrl->getSelectedTab();
+	if (mAccordionCtrl != NULL)
+	{
+		const LLAccordionCtrlTab* selected_tab = mAccordionCtrl->getSelectedTab();
 
-	return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
+		return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
+	}
+
+	return LLAssetType::AT_NONE;
+}
+
+void LLCOFWearables::expandDefaultAccordionTab()
+{
+	if (mAccordionCtrl != NULL)
+	{
+		mAccordionCtrl->expandDefaultTab();
+	}
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)

@@ -353,6 +353,8 @@ public:
 		}
 	};
 
+	LLNotificationResponderPtr getResponderPtr() { return mResponder; }
+
 private:
 	
 	LLUUID mId;

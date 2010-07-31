@@ -270,47 +270,69 @@ class LLTexLayerSetBuffer : public LLViewerDynamicTexture
 public:
 	LLTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
 	virtual ~LLTexLayerSetBuffer();
+
+public:
 	/*virtual*/ S8          getType() const;
-	virtual void			preRender(BOOL clear_depth);
-	virtual void			postRender(BOOL success);
-	virtual BOOL			render();
-	BOOL					updateImmediate();
-
 	BOOL					isInitialized(void) const;
-	BOOL					uploadPending() const; // We are expecting a new texture to be uploaded at some point
-	BOOL					uploadNeeded() const; // We need to upload a new texture
-	BOOL					uploadInProgress() const; // We have started uploading a new texture and are awaiting the result
-
-	/*virtual*/ BOOL		needsRender();
-	void					requestUpdate();
-	void					requestUpload();
-	void					cancelUpload();
-	BOOL					render(S32 x, S32 y, S32 width, S32 height);
-	void					readBackAndUpload();
-	static void				onTextureUploadComplete(const LLUUID& uuid,
-													void* userdata,
-													S32 result, LLExtStat ext_status);
 	static void				dumpTotalByteCount();
 	const std::string		dumpTextureInfo() const;
 	virtual void 			restoreGLTexture();
 	virtual void 			destroyGLTexture();
-
-
 protected:
 	void					pushProjection() const;
 	void					popProjection() const;
-	BOOL					isReadyToUpload() const;
-	void					conditionalRestartUploadTimer();
-	
 private:
 	LLTexLayerSet* const    mTexLayerSet;
-	BOOL					mNeedsUpdate; // whether we need to update our baked textures
-	BOOL					mNeedsUpload; // whether we need to send our baked textures to the server
-	U32						mNumLowresUploads; // number of times we've sent a lowres version of our baked textures to the server
-	BOOL					mUploadPending; // whether we have received back the new baked textures
-	LLUUID					mUploadID; // the current upload process (null if none).  Used to avoid overlaps, e.g. when the user rapidly makes two changes outside of Face Edit.
 	static S32				sGLByteCount;
-	LLFrameTimer    		mNeedsUploadTimer; // Tracks time since upload was requested
+
+	//--------------------------------------------------------------------
+	// Render
+	//--------------------------------------------------------------------
+public:
+	/*virtual*/ BOOL		needsRender();
+protected:
+	BOOL					render(S32 x, S32 y, S32 width, S32 height);
+	virtual void			preRender(BOOL clear_depth);
+	virtual void			postRender(BOOL success);
+	virtual BOOL			render();	
+	
+	//--------------------------------------------------------------------
+	// Uploads
+	//--------------------------------------------------------------------
+public:
+	void					requestUpload();
+	void					cancelUpload();
+	BOOL					uploadNeeded() const; 			// We need to upload a new texture
+	BOOL					uploadInProgress() const; 		// We have started uploading a new texture and are awaiting the result
+	BOOL					uploadPending() const; 			// We are expecting a new texture to be uploaded at some point
+	static void				onTextureUploadComplete(const LLUUID& uuid,
+													void* userdata,
+													S32 result, LLExtStat ext_status);
+protected:
+	BOOL					isReadyToUpload() const;
+	void					doUpload(); 					// Does a read back and upload.
+	void					conditionalRestartUploadTimer();
+private:
+	BOOL					mNeedsUpload; 					// Whether we need to send our baked textures to the server
+	U32						mNumLowresUploads; 				// Number of times we've sent a lowres version of our baked textures to the server
+	BOOL					mUploadPending; 				// Whether we have received back the new baked textures
+	LLUUID					mUploadID; 						// The current upload process (null if none).
+	LLFrameTimer    		mNeedsUploadTimer; 				// Tracks time since upload was requested and performed.
+
+	//--------------------------------------------------------------------
+	// Updates
+	//--------------------------------------------------------------------
+public:
+	void					requestUpdate();
+	BOOL					requestUpdateImmediate();
+protected:
+	BOOL					isReadyToUpdate() const;
+	void					doUpdate();
+	void					restartUpdateTimer();
+private:
+	BOOL					mNeedsUpdate; 					// Whether we need to locally update our baked textures
+	U32						mNumLowresUpdates; 				// Number of times we've locally updated with lowres version of our baked textures
+	LLFrameTimer    		mNeedsUpdateTimer; 				// Tracks time since update was requested and performed.
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -391,6 +391,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 		else
 		{
+			//llinfos << "texture " << mID.asString() << " found in local_assets" << llendl;
 			mImageSize = local_size;
 			mImageLocal = TRUE;
 		}

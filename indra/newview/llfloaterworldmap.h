@@ -149,6 +149,7 @@ protected:
 	void			updateSearchEnabled();
 	void			onLocationFocusChanged( LLFocusableElement* ctrl );
 	void		    onLocationCommit();
+	void			onCoordinatesCommit();
 	void		    onCommitSearchResult();
 
 	void			cacheLandmarkPosition();
@@ -159,6 +160,12 @@ private:
 	// Ties to LLWorldMapView::sMapScale, in pixels per region
 	F32						mCurZoomVal;
 	LLFrameTimer			mZoomTimer;
+
+	// update display of teleport destination coordinates - pos is in global coordinates
+	void updateTeleportCoordsDisplay( const LLVector3d& pos );
+
+	// enable/disable teleport destination coordinates 
+	void enableTeleportCoordsDisplay( bool enabled );
 
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
 	LLDynamicArray<LLUUID>	mLandmarkItemIDList;

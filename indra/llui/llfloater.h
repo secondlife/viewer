@@ -308,7 +308,7 @@ protected:
 	BOOL			getAutoFocus() const { return mAutoFocus; }
 	LLDragHandle*	getDragHandle() const { return mDragHandle; }
 
-	void			destroy() { die(); } // Don't call this directly.  You probably want to call closeFloater()
+	void			destroy(); // Don't call this directly.  You probably want to call closeFloater()
 
 	virtual	void	onClickCloseBtn();
 

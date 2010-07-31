@@ -73,7 +73,7 @@ S32 LLVOTree::sLODVertexCount[sMAX_NUM_TREE_LOD_LEVELS];
 S32 LLVOTree::sLODIndexOffset[sMAX_NUM_TREE_LOD_LEVELS];
 S32 LLVOTree::sLODIndexCount[sMAX_NUM_TREE_LOD_LEVELS];
 S32 LLVOTree::sLODSlices[sMAX_NUM_TREE_LOD_LEVELS] = {10, 5, 4, 3};
-F32 LLVOTree::sLODAngles[sMAX_NUM_TREE_LOD_LEVELS] = {30.f, 20.f, 15.f, 0.00001f};
+F32 LLVOTree::sLODAngles[sMAX_NUM_TREE_LOD_LEVELS] = {30.f, 20.f, 15.f, F_ALMOST_ZERO};
 
 F32 LLVOTree::sTreeFactor = 1.f;
 
@@ -99,6 +99,12 @@ LLVOTree::~LLVOTree()
 		delete[] mData;
 		mData = NULL;
 	}
+}
+
+//static
+bool LLVOTree::isTreeRenderingStopped()
+{
+	return LLVOTree::sTreeFactor < LLVOTree::sLODAngles[sMAX_NUM_TREE_LOD_LEVELS - 1] ;
 }
 
 // static

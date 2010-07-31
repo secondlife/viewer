@@ -185,6 +185,7 @@
 		bevel_style="in"
 		background_visible="false" 
 		follows="left|right|bottom"
+		name="media_controls_panel"
 		top_pad="5"
 		height="30"
 		left="10"

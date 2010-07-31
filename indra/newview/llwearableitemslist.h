@@ -281,33 +281,76 @@ class LLWearableItemTypeNameComparator : public LLWearableItemNameComparator
 	LOG_CLASS(LLWearableItemTypeNameComparator);
 
 public:
-	LLWearableItemTypeNameComparator() {};
+
+	LLWearableItemTypeNameComparator();
 	virtual ~LLWearableItemTypeNameComparator() {};
+
+	enum ETypeListOrder
+	{
+		ORDER_RANK_1 = 1,
+		ORDER_RANK_2,
+		ORDER_RANK_3,
+		ORDER_RANK_UNKNOWN
+	};
+
+	void setOrder(LLAssetType::EType items_of_type, ETypeListOrder order_priority, bool sort_items_by_name, bool sort_wearable_items_by_name);
 
 protected:
 	/**
-	 * Returns "true" if wearable_item1 is placed before wearable_item2 sorted by the following:
-	 *   - Attachments (abc order)
-	 *   - Clothing
-	 *         - by type (types order determined in LLWearableType::EType)
-	 *         - outer layer on top
-	 *   - Body Parts (abc order),
-	 * "false" otherwise.
+	 * All information about sort order is stored in mWearableOrder map
+	 *
+	 * mWearableOrder :      KYES              VALUES
+	 *                  [LLAssetType] [struct LLWearableTypeOrder]
+	 *
+	 *---------------------------------------------------------------------------------------------
+	 * I. Determines order (ORDER_RANK) in which items of LLAssetType should be displayed in list.
+	 *     For example by spec in MY OUTFITS the order is:
+	 *     1. AT_CLOTHING (ORDER_RANK_1)
+	 *     2. AT_OBJECT   (ORDER_RANK_2)
+	 *     3. AT_BODYPART (ORDER_RANK_3)
+	 *
+	 * II.Items of each type(LLAssetType) are sorted by name or type(LLWearableType)
+	 *     For example by spec in MY OUTFITS the order within each items type(LLAssetType) is:
+	 *     1. AT_OBJECTS (abc order)
+	 *     2. AT_CLOTHINGS
+	 *       - by type (types order determined in LLWearableType::EType)
+	 *       - outer layer on top
+	 *     3. AT_BODYPARTS  (abc order)
+	 *---------------------------------------------------------------------------------------------
+	 *
+	 * For each LLAssetType (KEYS in mWearableOrder) the information about:
+	 *
+	 *                                             I.  ORDER_RANK (the flag is LLWearableTypeOrder::mOrderPriority)
+	 *
+	 *                                             II. whether items of this LLAssetType type should be ordered
+	 *                                                 by name or by LLWearableType::EType (the flag is LLWearableTypeOrder::mSortAssetTypeByName)
+	 *
+	 *                                             III.whether items of LLWearableType type within this LLAssetType
+	 *                                                 should be ordered by name (the flag is LLWearableTypeOrder::mSortWearableTypeByName)
+	 *
+	 *  holds in mWearableOrder map as VALUES (struct LLWearableTypeOrder).
 	 */
 	/*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* wearable_item1, const LLPanelInventoryListItemBase* wearable_item2) const;
 
 private:
-	enum ETypeListOrder
-	{
-		TLO_CLOTHING	= 0x01,
-		TLO_ATTACHMENT	= 0x02,
-		TLO_BODYPART	= 0x04,
-		TLO_UNKNOWN		= 0x08,
 
-		TLO_SORTABLE_BY_NAME = TLO_ATTACHMENT | TLO_UNKNOWN
+	struct LLWearableTypeOrder
+	{
+		ETypeListOrder mOrderPriority;
+		bool mSortAssetTypeByName;
+		bool mSortWearableTypeByName;
+
+		LLWearableTypeOrder(ETypeListOrder order_priority, bool sort_asset_by_name, bool sort_wearable_by_name);
+		LLWearableTypeOrder(){};
 	};
 
-	static LLWearableItemTypeNameComparator::ETypeListOrder getTypeListOrder(LLAssetType::EType item_type);
+	ETypeListOrder getTypeListOrder(LLAssetType::EType item_type) const;
+
+	bool sortAssetTypeByName(LLAssetType::EType item_type) const;
+	bool sortWearableTypeByName(LLAssetType::EType item_type) const;
+
+	typedef std::map<LLAssetType::EType,LLWearableTypeOrder> wearable_type_order_map_t;
+	wearable_type_order_map_t mWearableOrder;
 };
 
 /**

@@ -47,6 +47,7 @@
 #include "llvoavatarself.h"
 #include "lltexteditor.h"
 #include "lltextbox.h"
+#include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
@@ -666,6 +667,35 @@ void LLPanelEditWearable::updateAvatarHeightLabel()
 	mTxtAvatarHeight->appendText(this->mReplacementMetricUrl, false, param);
 }
 
+void LLPanelEditWearable::onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl)
+{
+	if (in_visible_chain.asBoolean() && accordion_ctrl != NULL)
+	{
+		accordion_ctrl->expandDefaultTab();
+	}
+}
+
+void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel)
+{
+	if (bodypart_panel != NULL)
+	{
+		LLAccordionCtrl* accordion_ctrl = bodypart_panel->getChild<LLAccordionCtrl>("wearable_accordion");
+
+		if (accordion_ctrl != NULL)
+		{
+			bodypart_panel->setVisibleCallback(
+					boost::bind(&LLPanelEditWearable::onWearablePanelVisibilityChange, this, _2, accordion_ctrl));
+		}
+		else
+		{
+			llwarns << "accordion_ctrl is NULL" << llendl;
+		}
+	}
+	else
+	{
+		llwarns << "bodypart_panel is NULL" << llendl;
+	}
+}
 
 // virtual 
 BOOL LLPanelEditWearable::postBuild()
@@ -694,6 +724,14 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelSkin = getChild<LLPanel>("edit_skin_panel");
 	mPanelEyes = getChild<LLPanel>("edit_eyes_panel");
 	mPanelHair = getChild<LLPanel>("edit_hair_panel");
+
+	// Setting the visibility callback is applied only to the bodyparts panel
+	// because currently they are the only ones whose 'wearable_accordion' has
+	// multiple accordion tabs (see EXT-8164 for details).
+	setWearablePanelVisibilityChangeCallback(mPanelShape);
+	setWearablePanelVisibilityChangeCallback(mPanelSkin);
+	setWearablePanelVisibilityChangeCallback(mPanelEyes);
+	setWearablePanelVisibilityChangeCallback(mPanelHair);
 
 	//clothes
 	mPanelShirt = getChild<LLPanel>("edit_shirt_panel");
@@ -786,7 +824,7 @@ BOOL LLPanelEditWearable::isDirty() const
 	if (mWearablePtr)
 	{
 		if (mWearablePtr->isDirty() ||
-			mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
+			mWearableItem->getName().compare(mNameEditor->getText()) != 0)
 		{
 			isDirty = TRUE;
 		}
@@ -839,7 +877,7 @@ void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& r
 		if( !wearable_name.empty() )
 		{
 			mNameEditor->setText(wearable_name);
-			saveChanges();
+			saveChanges(true);
 		}
 	}
 }
@@ -896,7 +934,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
 		{
 			// Set the new version
 			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(texture_ctrl->getImageAssetID());
-			if( image->getID().isNull() )
+			if( image->getID() == IMG_DEFAULT )
 			{
 				image = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
 			}
@@ -971,7 +1009,7 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 	}
 }
 
-void LLPanelEditWearable::saveChanges()
+void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
 	if (!mWearablePtr || !isDirty())
 	{
@@ -980,16 +1018,18 @@ void LLPanelEditWearable::saveChanges()
 	}
 
 	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
-	
-	if (mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
+
+	std::string new_name = mNameEditor->getText();
+	if (force_save_as)
 	{
 		// the name of the wearable has changed, re-save wearable with new name
 		LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
-		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mNameEditor->getText(), FALSE);
+		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
+		mNameEditor->setText(mWearableItem->getName());
 	}
 	else
 	{
-		gAgentWearables.saveWearable(mWearablePtr->getType(), index);
+		gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
 	}
 }
 
@@ -1002,7 +1042,7 @@ void LLPanelEditWearable::revertChanges()
 	}
 
 	mWearablePtr->revertValues();
-	mNameEditor->setText(mWearablePtr->getName());
+	mNameEditor->setText(mWearableItem->getName());
 	updatePanelPickerControls(mWearablePtr->getType());
 	updateTypeSpecificControls(mWearablePtr->getType());
 	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
@@ -1048,7 +1088,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 		mDescTitle->setText(description_title);
 		
 		// set name
-		mNameEditor->setText(wearable->getName());
+		mNameEditor->setText(mWearableItem->getName());
 
 		updatePanelPickerControls(type);
 		updateTypeSpecificControls(type);

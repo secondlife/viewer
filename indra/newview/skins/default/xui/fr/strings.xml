@@ -1472,7 +1472,7 @@
 		Solde
 	</string>
 	<string name="Credits">
-		Remerciements
+		Crédits
 	</string>
 	<string name="Debits">
 		Débits
@@ -1787,7 +1787,7 @@
 		Solde
 	</string>
 	<string name="GroupMoneyCredits">
-		Remerciements
+		Crédits
 	</string>
 	<string name="GroupMoneyDebits">
 		Débits
@@ -3859,4 +3859,5 @@ de l&apos;infraction signalée
 	<string name="dateTimePM">
 		PM
 	</string>
+	<string name="LocalEstimateUSD">[AMOUNT] US$</string> 
 </strings>

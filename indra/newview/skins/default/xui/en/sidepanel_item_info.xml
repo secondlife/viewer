@@ -80,10 +80,11 @@
 	<panel
          follows="all"
          height="493"
+         help_topic=""
          label=""
          layout="topleft"
          left="9"
-         help_topic=""
+         name="item_profile"
          top="45"
          width="313"
    background_visible="true"

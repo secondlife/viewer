@@ -184,6 +184,6 @@
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">
-		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
+		A-Minuit:A-Midi:A-3h:A-15h:A-16h30:A-6h:A-18h:A-9h:A-21h:Barcelone:Blizzard:Bleu mi-journée:Après-midi sur la côte:Coucher de soleil (côte):Valeur par défaut:Coucher de soleil (désert):Belle journée:Gros nuages floconneux:Brumeux:Funky Funky:Funky Funky Funky:Gelatto:Fantôme:Vérités incohérentes:Mi-journée 1:Mi-journée 2:Mi-journée 3:Mi-journée 4:Nuit:Pirate:Mauve:Rêve de navigateur:Sensualité pure
 	</string>
 </floater>

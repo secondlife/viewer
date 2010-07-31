@@ -1402,12 +1402,17 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	mUIImages.insert(std::make_pair(name, new_imagep));
 	mUITextureList.push_back(imagep);
 
-	LLUIImageLoadData* datap = new LLUIImageLoadData;
-	datap->mImageName = name;
-	datap->mImageScaleRegion = scale_rect;
+	//Note:
+	//Some other textures such as ICON also through this flow to be fetched.
+	//But only UI textures need to set this callback.
+	if(imagep->getBoostLevel() == LLViewerTexture::BOOST_UI)
+	{
+		LLUIImageLoadData* datap = new LLUIImageLoadData;
+		datap->mImageName = name;
+		datap->mImageScaleRegion = scale_rect;
 
-	imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap, NULL, NULL);
-
+		imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap, NULL);
+	}
 	return new_imagep;
 }
 

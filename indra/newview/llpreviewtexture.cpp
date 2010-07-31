@@ -87,7 +87,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 
 LLPreviewTexture::~LLPreviewTexture()
 {
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList, this) ;
+	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 
 	if( mLoadingFullImage )
 	{
@@ -280,7 +280,7 @@ void LLPreviewTexture::saveAs()
 	mLoadingFullImage = TRUE;
 	getWindow()->incBusyCount();
 	mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
-								0, TRUE, FALSE, new LLUUID( mItemUUID ), this, &mCallbackTextureList );
+								0, TRUE, FALSE, new LLUUID( mItemUUID ), &mCallbackTextureList );
 }
 
 // virtual

@@ -218,6 +218,12 @@ void LLMenuItemGL::setValue(const LLSD& value)
 }
 
 //virtual
+LLSD LLMenuItemGL::getValue() const
+{
+	return getLabel();
+}
+
+//virtual
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
@@ -920,6 +926,15 @@ void LLMenuItemCheckGL::setValue(const LLSD& value)
 	{
 		mDrawBoolLabel.clear();
 	}
+}
+
+//virtual
+LLSD LLMenuItemCheckGL::getValue() const
+{
+	// Get our boolean value from the view model.
+	// If we don't override this method then the implementation from
+	// LLMenuItemGL will return a string. (EXT-8501)
+	return LLUICtrl::getValue();
 }
 
 // called to rebuild the draw label

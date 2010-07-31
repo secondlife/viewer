@@ -50,6 +50,10 @@ Select multiple Members by holding the Ctrl key and
 clicking on their names.
             </panel.string>
             <panel.string
+             name="donation_area">
+                [AREA] m²
+            </panel.string>
+            <panel.string
              name="power_folder_icon" translate="false">
                 Inv_FolderClosed
             </panel.string>

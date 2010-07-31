@@ -84,7 +84,7 @@ void LLViewerAttachMenu::populateMenus(const std::string& attach_to_menu_name, c
 
 		LLSD cbparams;
 		cbparams["index"] = curiter->first;
-		cbparams["label"] = attachment->getName();
+		cbparams["label"] = p.name;
 		p.on_click.function_name = "Object.Attach";
 		p.on_click.parameter = LLSD(attachment->getName());
 		p.on_enable.function_name = "Attachment.Label";
