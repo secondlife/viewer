@@ -464,16 +464,6 @@ void LLStatusBar::onClickBuyCurrency()
 	LLBuyCurrencyHTML::openCurrencyFloater();
 }
 
-static void onClickHealth(void* )
-{
-	LLNotificationsUtil::add("NotSafe");
-}
-
-static void onClickScriptDebug(void*)
-{
-	LLFloaterScriptDebug::show(LLUUID::null);
-}
-
 void LLStatusBar::onMouseEnterVolume()
 {
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
