@@ -111,8 +111,6 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 const F32 ICON_FLASH_FREQUENCY	= 2.f;
 const S32 TEXT_HEIGHT = 18;
 
-static void onClickHealth(void*);
-static void onClickScriptDebug(void*);
 static void onClickVolume(void*);
 
 std::vector<std::string> LLStatusBar::sDays;
