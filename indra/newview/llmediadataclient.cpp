@@ -98,7 +98,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &q);
 
 template <typename T>
-static typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+static typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
 	{
@@ -112,7 +112,7 @@ static typename T::iterator find_matching_request(T &c, const LLMediaDataClient:
 }
 
 template <typename T>
-static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
 	{
@@ -129,7 +129,7 @@ static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMedi
 // to other elements in the container (such as std::vector).
 // If the implementation is changed to use a container with this property, this will need to be revisited.
 template <typename T>
-static void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type = LLMediaDataClient::Request::ANY)
+static void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end();)
 	{
