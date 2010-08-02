@@ -126,10 +126,15 @@ LLPanelCameraItem::LLPanelCameraItem(const LLPanelCameraItem::Params& p)
 	}
 }
 
+void set_view_visible(LLView* parent, const std::string& name, bool visible)
+{
+	parent->getChildView(name)->setVisible(visible);
+}
+
 BOOL LLPanelCameraItem::postBuild()
 {
-	setMouseEnterCallback(boost::bind(&LLPanelCameraItem::childSetVisible, this, "hovered_icon", true));
-	setMouseLeaveCallback(boost::bind(&LLPanelCameraItem::childSetVisible, this, "hovered_icon", false));
+	setMouseEnterCallback(boost::bind(set_view_visible, this, "hovered_icon", true));
+	setMouseLeaveCallback(boost::bind(set_view_visible, this, "hovered_icon", false));
 	setMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
 	setRightMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
 	return TRUE;
@@ -144,9 +149,9 @@ void LLPanelCameraItem::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
-	childSetVisible("selected_icon", value["selected"]);
-	childSetVisible("picture", !value["selected"]);
-	childSetVisible("selected_picture", value["selected"]);
+	getChildView("selected_icon")->setVisible( value["selected"]);
+	getChildView("picture")->setVisible( !value["selected"]);
+	getChildView("selected_picture")->setVisible( value["selected"]);
 }
 
 static LLRegisterPanelClassWrapper<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel");
@@ -255,12 +260,12 @@ void LLFloaterCamera::onAvatarEditingAppearance(bool editing)
 void LLFloaterCamera::handleAvatarEditingAppearance(bool editing)
 {
 	//camera presets (rear, front, etc.)
-	childSetEnabled("preset_views_list", !editing);
-	childSetEnabled("presets_btn", !editing);
+	getChildView("preset_views_list")->setEnabled(!editing);
+	getChildView("presets_btn")->setEnabled(!editing);
 
 	//camera modes (object view, mouselook view)
-	childSetEnabled("camera_modes_list", !editing);
-	childSetEnabled("avatarview_btn", !editing);
+	getChildView("camera_modes_list")->setEnabled(!editing);
+	getChildView("avatarview_btn")->setEnabled(!editing);
 }
 
 void LLFloaterCamera::update()
@@ -499,15 +504,15 @@ void LLFloaterCamera::assignButton2Mode(ECameraControlMode mode, const std::stri
 
 void LLFloaterCamera::updateState()
 {
-	childSetVisible(ZOOM, CAMERA_CTRL_MODE_PAN == mCurrMode);
+	getChildView(ZOOM)->setVisible(CAMERA_CTRL_MODE_PAN == mCurrMode);
 	
 	bool show_presets = (CAMERA_CTRL_MODE_PRESETS == mCurrMode) || (CAMERA_CTRL_MODE_FREE_CAMERA == mCurrMode
 																	&& CAMERA_CTRL_MODE_PRESETS == mPrevMode);
-	childSetVisible(PRESETS, show_presets);
+	getChildView(PRESETS)->setVisible(show_presets);
 	
 	bool show_camera_modes = CAMERA_CTRL_MODE_MODES == mCurrMode || (CAMERA_CTRL_MODE_FREE_CAMERA == mCurrMode
 																	&& CAMERA_CTRL_MODE_MODES == mPrevMode);
-	childSetVisible("camera_modes_list", show_camera_modes);
+	getChildView("camera_modes_list")->setVisible( show_camera_modes);
 
 	updateItemsSelection();
 

@@ -263,7 +263,7 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			setSimName(c_info->sim_name);
 
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
-			childSetValue("category", LLClassifiedInfo::sCategories[c_info->category]);
+			getChild<LLUICtrl>("category")->setValue(LLClassifiedInfo::sCategories[c_info->category]);
 
 			static std::string mature_str = getString("type_mature");
 			static std::string pg_str = getString("type_pg");
@@ -271,20 +271,20 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			static std::string date_fmt = getString("date_fmt");
 
 			bool mature = is_cf_mature(c_info->flags);
-			childSetValue("content_type", mature ? mature_str : pg_str);
+			getChild<LLUICtrl>("content_type")->setValue(mature ? mature_str : pg_str);
 			getChild<LLIconCtrl>("content_type_moderate")->setVisible(mature);
 			getChild<LLIconCtrl>("content_type_general")->setVisible(!mature);
 
 			std::string auto_renew_str = is_cf_auto_renew(c_info->flags) ? 
 				getString("auto_renew_on") : getString("auto_renew_off");
-			childSetValue("auto_renew", auto_renew_str);
+			getChild<LLUICtrl>("auto_renew")->setValue(auto_renew_str);
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
-			childSetValue("price_for_listing", LLSD(price_str));
+			getChild<LLUICtrl>("price_for_listing")->setValue(LLSD(price_str));
 
 			std::string date_str = date_fmt;
 			LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->creation_date));
-			childSetText("creation_date", date_str);
+			getChild<LLUICtrl>("creation_date")->setValue(date_str);
 
 			setInfoLoaded(true);
 		}
@@ -311,13 +311,13 @@ void LLPanelClassifiedInfo::resetData()
 	mMapClicksNew		= 0;
 	mProfileClicksNew	= 0;
 
-	childSetText("category", LLStringUtil::null);
-	childSetText("content_type", LLStringUtil::null);
-	childSetText("click_through_text", LLStringUtil::null);
-	childSetText("price_for_listing", LLStringUtil::null);
-	childSetText("auto_renew", LLStringUtil::null);
-	childSetText("creation_date", LLStringUtil::null);
-	childSetText("click_through_text", LLStringUtil::null);
+	getChild<LLUICtrl>("category")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("content_type")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("click_through_text")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("price_for_listing")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("auto_renew")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("creation_date")->setValue(LLStringUtil::null);
+	getChild<LLUICtrl>("click_through_text")->setValue(LLStringUtil::null);
 	getChild<LLIconCtrl>("content_type_moderate")->setVisible(FALSE);
 	getChild<LLIconCtrl>("content_type_general")->setVisible(FALSE);
 }
@@ -326,40 +326,40 @@ void LLPanelClassifiedInfo::resetControls()
 {
 	bool is_self = getAvatarId() == gAgent.getID();
 
-	childSetEnabled("edit_btn", is_self);
-	childSetVisible("edit_btn", is_self);
-	childSetVisible("price_layout_panel", is_self);
-	childSetVisible("clickthrough_layout_panel", is_self);
+	getChildView("edit_btn")->setEnabled(is_self);
+	getChildView("edit_btn")->setVisible( is_self);
+	getChildView("price_layout_panel")->setVisible( is_self);
+	getChildView("clickthrough_layout_panel")->setVisible( is_self);
 }
 
 void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)
 {
-	childSetValue("classified_name", name);
+	getChild<LLUICtrl>("classified_name")->setValue(name);
 }
 
 std::string LLPanelClassifiedInfo::getClassifiedName()
 {
-	return childGetValue("classified_name").asString();
+	return getChild<LLUICtrl>("classified_name")->getValue().asString();
 }
 
 void LLPanelClassifiedInfo::setDescription(const std::string& desc)
 {
-	childSetValue("classified_desc", desc);
+	getChild<LLUICtrl>("classified_desc")->setValue(desc);
 }
 
 std::string LLPanelClassifiedInfo::getDescription()
 {
-	return childGetValue("classified_desc").asString();
+	return getChild<LLUICtrl>("classified_desc")->getValue().asString();
 }
 
 void LLPanelClassifiedInfo::setClassifiedLocation(const std::string& location)
 {
-	childSetValue("classified_location", location);
+	getChild<LLUICtrl>("classified_location")->setValue(location);
 }
 
 std::string LLPanelClassifiedInfo::getClassifiedLocation()
 {
-	return childGetValue("classified_location").asString();
+	return getChild<LLUICtrl>("classified_location")->getValue().asString();
 }
 
 void LLPanelClassifiedInfo::setSnapshotId(const LLUUID& id)
@@ -382,7 +382,7 @@ void LLPanelClassifiedInfo::draw()
 
 LLUUID LLPanelClassifiedInfo::getSnapshotId()
 {
-	return childGetValue("classified_snapshot").asUUID();
+	return getChild<LLUICtrl>("classified_snapshot")->getValue().asUUID();
 }
 
 // static
@@ -437,9 +437,9 @@ void LLPanelClassifiedInfo::setClickThrough(
 		ct_str.setArg("[MAP]",		llformat("%d", self->mMapClicksNew + self->mMapClicksOld));
 		ct_str.setArg("[PROFILE]",	llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld));
 
-		self->childSetText("click_through_text", ct_str.getString());
+		self->getChild<LLUICtrl>("click_through_text")->setValue(ct_str.getString());
 		// *HACK: remove this when there is enough room for click stats in the info panel
-		self->childSetToolTip("click_through_text", ct_str.getString());  
+		self->getChildView("click_through_text")->setToolTip(ct_str.getString());  
 
 		llinfos << "teleport: " << llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld)
 				<< ", map: "    << llformat("%d", self->mMapClicksNew + self->mMapClicksOld)
@@ -687,8 +687,8 @@ void LLPanelClassifiedEdit::fillIn(const LLSD& key)
 			region_name = region->getName();
 		}
 
-		childSetValue("classified_name", makeClassifiedName());
-		childSetValue("classified_desc", desc);
+		getChild<LLUICtrl>("classified_name")->setValue(makeClassifiedName());
+		getChild<LLUICtrl>("classified_desc")->setValue(desc);
 		setSnapshotId(snapshot_id);
 		setClassifiedLocation(createLocationText(getLocationNotice(), region_name, getPosGlobal()));
 		// server will set valid parcel id
@@ -703,8 +703,8 @@ void LLPanelClassifiedEdit::fillIn(const LLSD& key)
 		setCategory((U32)key["category"].asInteger());
 		setContentType((U32)key["content_type"].asInteger());
 		setClassifiedLocation(key["location_text"]);
-		childSetValue("auto_renew", key["auto_renew"]);
-		childSetValue("price_for_listing", key["price_for_listing"].asInteger());
+		getChild<LLUICtrl>("auto_renew")->setValue(key["auto_renew"]);
+		getChild<LLUICtrl>("price_for_listing")->setValue(key["price_for_listing"].asInteger());
 	}
 }
 
@@ -735,7 +735,7 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 	}
 
 	std::string save_btn_label = is_new ? getString("publish_label") : getString("save_label");
-	childSetLabelArg("save_changes_btn", "[LABEL]", save_btn_label);
+	getChild<LLUICtrl>("save_changes_btn")->setLabelArg("[LABEL]", save_btn_label);
 
 	enableVerbs(is_new);
 	enableEditing(is_new);
@@ -774,16 +774,16 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			bool auto_renew = is_cf_auto_renew(c_info->flags);
 
 			setContentType(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
-			childSetValue("auto_renew", auto_renew);
-			childSetValue("price_for_listing", c_info->price_for_listing);
-			childSetEnabled("price_for_listing", isNew());
+			getChild<LLUICtrl>("auto_renew")->setValue(auto_renew);
+			getChild<LLUICtrl>("price_for_listing")->setValue(c_info->price_for_listing);
+			getChildView("price_for_listing")->setEnabled(isNew());
 
 			resetDirty();
 			setInfoLoaded(true);
 			enableVerbs(false);
 
 			// for just created classified - in case user opened edit panel before processProperties() callback 
-			childSetLabelArg("save_changes_btn", "[LABEL]", getString("save_label"));
+			getChild<LLUICtrl>("save_changes_btn")->setLabelArg("[LABEL]", getString("save_label"));
 		}
 	}
 }
@@ -842,9 +842,9 @@ void LLPanelClassifiedEdit::resetControls()
 
 	getChild<LLComboBox>("category")->setCurrentByIndex(0);
 	getChild<LLComboBox>("content_type")->setCurrentByIndex(0);
-	childSetValue("auto_renew", false);
-	childSetValue("price_for_listing", MINIMUM_PRICE_FOR_LISTING);
-	childSetEnabled("price_for_listing", TRUE);
+	getChild<LLUICtrl>("auto_renew")->setValue(false);
+	getChild<LLUICtrl>("price_for_listing")->setValue(MINIMUM_PRICE_FOR_LISTING);
+	getChildView("price_for_listing")->setEnabled(TRUE);
 }
 
 bool LLPanelClassifiedEdit::canClose()
@@ -883,7 +883,7 @@ void LLPanelClassifiedEdit::setContentType(U32 content_type)
 
 bool LLPanelClassifiedEdit::getAutoRenew()
 {
-	return childGetValue("auto_renew").asBoolean();
+	return getChild<LLUICtrl>("auto_renew")->getValue().asBoolean();
 }
 
 void LLPanelClassifiedEdit::sendUpdate()
@@ -934,7 +934,7 @@ void LLPanelClassifiedEdit::setCategory(U32 category)
 
 U8 LLPanelClassifiedEdit::getFlags()
 {
-	bool auto_renew = childGetValue("auto_renew").asBoolean();
+	bool auto_renew = getChild<LLUICtrl>("auto_renew")->getValue().asBoolean();
 
 	LLComboBox* content_cb = getChild<LLComboBox>("content_type");
 	bool mature = content_cb->getCurrentIndex() == CB_ITEM_MATURE;
@@ -944,25 +944,25 @@ U8 LLPanelClassifiedEdit::getFlags()
 
 void LLPanelClassifiedEdit::enableVerbs(bool enable)
 {
-	childSetEnabled("save_changes_btn", enable);
+	getChildView("save_changes_btn")->setEnabled(enable);
 }
 
 void LLPanelClassifiedEdit::enableEditing(bool enable)
 {
-	childSetEnabled("classified_snapshot", enable);
-	childSetEnabled("classified_name", enable);
-	childSetEnabled("classified_desc", enable);
-	childSetEnabled("set_to_curr_location_btn", enable);
-	childSetEnabled("category", enable);
-	childSetEnabled("content_type", enable);
-	childSetEnabled("price_for_listing", enable);
-	childSetEnabled("auto_renew", enable);
+	getChildView("classified_snapshot")->setEnabled(enable);
+	getChildView("classified_name")->setEnabled(enable);
+	getChildView("classified_desc")->setEnabled(enable);
+	getChildView("set_to_curr_location_btn")->setEnabled(enable);
+	getChildView("category")->setEnabled(enable);
+	getChildView("content_type")->setEnabled(enable);
+	getChildView("price_for_listing")->setEnabled(enable);
+	getChildView("auto_renew")->setEnabled(enable);
 }
 
 void LLPanelClassifiedEdit::showEditing(bool show)
 {
-	childSetVisible("price_for_listing_label", show);
-	childSetVisible("price_for_listing", show);
+	getChildView("price_for_listing_label")->setVisible( show);
+	getChildView("price_for_listing")->setVisible( show);
 }
 
 std::string LLPanelClassifiedEdit::makeClassifiedName()
@@ -991,12 +991,12 @@ std::string LLPanelClassifiedEdit::makeClassifiedName()
 
 S32 LLPanelClassifiedEdit::getPriceForListing()
 {
-	return childGetValue("price_for_listing").asInteger();
+	return getChild<LLUICtrl>("price_for_listing")->getValue().asInteger();
 }
 
 void LLPanelClassifiedEdit::setPriceForListing(S32 price)
 {
-	childSetValue("price_for_listing", price);
+	getChild<LLUICtrl>("price_for_listing")->setValue(price);
 }
 
 void LLPanelClassifiedEdit::onSetLocationClick()
@@ -1154,12 +1154,12 @@ BOOL LLPublishClassifiedFloater::postBuild()
 
 void LLPublishClassifiedFloater::setPrice(S32 price)
 {
-	childSetValue("price_for_listing", price);
+	getChild<LLUICtrl>("price_for_listing")->setValue(price);
 }
 
 S32 LLPublishClassifiedFloater::getPrice()
 {
-	return childGetValue("price_for_listing").asInteger();
+	return getChild<LLUICtrl>("price_for_listing")->getValue().asInteger();
 }
 
 void LLPublishClassifiedFloater::setPublishClickedCallback(const commit_signal_t::slot_type& cb)

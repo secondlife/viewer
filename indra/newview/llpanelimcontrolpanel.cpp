@@ -89,7 +89,7 @@ void LLPanelChatControlPanel::updateCallButton()
 	
 	if (!session) 
 	{
-		childSetEnabled("call_btn", false);
+		getChildView("call_btn")->setEnabled(false);
 		return;
 	}
 
@@ -99,14 +99,14 @@ void LLPanelChatControlPanel::updateCallButton()
 	BOOL enable_connect = session_initialized
 		&& voice_enabled
 		&& callback_enabled;
-	childSetEnabled("call_btn", enable_connect);
+	getChildView("call_btn")->setEnabled(enable_connect);
 }
 
 void LLPanelChatControlPanel::updateButtons(bool is_call_started)
 {
-	childSetVisible("end_call_btn_panel", is_call_started);
-	childSetVisible("voice_ctrls_btn_panel", is_call_started);
-	childSetVisible("call_btn_panel", ! is_call_started);
+	getChildView("end_call_btn_panel")->setVisible( is_call_started);
+	getChildView("voice_ctrls_btn_panel")->setVisible( is_call_started);
+	getChildView("call_btn_panel")->setVisible( ! is_call_started);
 	updateCallButton();
 	
 }
@@ -162,7 +162,7 @@ BOOL LLPanelIMControlPanel::postBuild()
 	childSetAction("share_btn", boost::bind(&LLPanelIMControlPanel::onShareButtonClicked, this));
 	childSetAction("teleport_btn", boost::bind(&LLPanelIMControlPanel::onTeleportButtonClicked, this));
 	childSetAction("pay_btn", boost::bind(&LLPanelIMControlPanel::onPayButtonClicked, this));
-	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
+	getChildView("add_friend_btn")->setEnabled(!LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 
 	setFocusReceivedCallback(boost::bind(&LLPanelIMControlPanel::onFocusReceived, this));
 	
@@ -215,12 +215,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 	LLAvatarTracker::instance().addParticularFriendObserver(mAvatarID, this);
 
 	// Disable "Add friend" button for friends.
-	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	getChildView("add_friend_btn")->setEnabled(!LLAvatarActions::isFriend(mAvatarID));
 	
 	// Disable "Teleport" button if friend is offline
 	if(LLAvatarActions::isFriend(mAvatarID))
 	{
-		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+		getChildView("teleport_btn")->setEnabled(LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
 	}
 
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(mAvatarID);
@@ -231,24 +231,24 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 		im_model.findIMSession(session_id);
 	if( im_session && !im_session->mOtherParticipantIsAvatar )
 	{
-		childSetEnabled("view_profile_btn", FALSE);
-		childSetEnabled("add_friend_btn", FALSE);
+		getChildView("view_profile_btn")->setEnabled(FALSE);
+		getChildView("add_friend_btn")->setEnabled(FALSE);
 
-		childSetEnabled("share_btn", FALSE);
-		childSetEnabled("teleport_btn", FALSE);
-		childSetEnabled("pay_btn", FALSE);
+		getChildView("share_btn")->setEnabled(FALSE);
+		getChildView("teleport_btn")->setEnabled(FALSE);
+		getChildView("pay_btn")->setEnabled(FALSE);
 	}
 }
 
 //virtual
 void LLPanelIMControlPanel::changed(U32 mask)
 {
-	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	getChildView("add_friend_btn")->setEnabled(!LLAvatarActions::isFriend(mAvatarID));
 	
 	// Disable "Teleport" button if friend is offline
 	if(LLAvatarActions::isFriend(mAvatarID))
 	{
-		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+		getChildView("teleport_btn")->setEnabled(LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
 	}
 }
 

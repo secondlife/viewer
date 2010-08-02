@@ -298,7 +298,7 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
 			if(panel_memory)
 			{
-				panel_memory->childSetValue("loading_text", LLSD(std::string("")));
+				panel_memory->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 
 				LLButton* btn = panel_memory->getChild<LLButton>("refresh_list_btn");
 				if(btn)
@@ -495,7 +495,7 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 			LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
 			if(panel)
 			{
-				panel->childSetValue("loading_text", LLSD(std::string("")));
+				panel->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 
 				LLButton* btn = panel->getChild<LLButton>("refresh_list_btn");
 				if(btn)
@@ -560,12 +560,12 @@ void LLPanelScriptLimitsRegionMemory::processParcelInfo(const LLParcelData& parc
 	if(!getLandScriptResources())
 	{
 		std::string msg_error = LLTrans::getString("ScriptLimitsRequestError");
-		childSetValue("loading_text", LLSD(msg_error));
+		getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_error));
 	}
 	else
 	{
 		std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
-		childSetValue("loading_text", LLSD(msg_waiting));
+		getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 	}
 }
 
@@ -585,7 +585,7 @@ void LLPanelScriptLimitsRegionMemory::setParcelID(const LLUUID& parcel_id)
 	else
 	{
 		std::string msg_error = LLTrans::getString("ScriptLimitsRequestError");
-		childSetValue("loading_text", LLSD(msg_error));
+		getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_error));
 	}
 }
 
@@ -641,7 +641,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	LLStringUtil::format_map_t args_parcels;
 	args_parcels["[PARCELS]"] = llformat ("%d", number_parcels);
 	std::string msg_parcels = LLTrans::getString("ScriptLimitsParcelsOwned", args_parcels);
-	childSetValue("parcels_listed", LLSD(msg_parcels));
+	getChild<LLUICtrl>("parcels_listed")->setValue(LLSD(msg_parcels));
 
 	uuid_vec_t names_requested;
 
@@ -818,7 +818,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 		args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
 		args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
 		std::string msg_parcel_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_parcel_memory);
-		childSetValue("memory_used", LLSD(msg_parcel_memory));
+		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_parcel_memory));
 	}
 
 	if((mParcelURLsUsed >= 0) && (mParcelURLsMax >= 0))
@@ -830,7 +830,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 		args_parcel_urls["[MAX]"] = llformat ("%d", mParcelURLsMax);
 		args_parcel_urls["[AVAILABLE]"] = llformat ("%d", parcel_urls_available);
 		std::string msg_parcel_urls = LLTrans::getString("ScriptLimitsURLsUsed", args_parcel_urls);
-		childSetValue("urls_used", LLSD(msg_parcel_urls));
+		getChild<LLUICtrl>("urls_used")->setValue(LLSD(msg_parcel_urls));
 	}
 }
 
@@ -841,7 +841,7 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 	childSetAction("return_btn", onClickReturn, this);
 		
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
-	childSetValue("loading_text", LLSD(msg_waiting));
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
 	if(!list)
@@ -866,7 +866,7 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 	LLFloaterLand* instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
 	if(!instance)
 	{
-		childSetValue("loading_text", LLSD(std::string("")));
+		getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 		//might have to do parent post build here
 		//if not logic below could use early outs
 		return FALSE;
@@ -885,7 +885,7 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 		if(region_id != current_region_id)
 		{
 			std::string msg_wrong_region = LLTrans::getString("ScriptLimitsRequestWrongRegion");
-			childSetValue("loading_text", LLSD(msg_wrong_region));
+			getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_wrong_region));
 			return FALSE;
 		}
 		
@@ -914,13 +914,13 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 					<< " does not support RemoteParcelRequest" << llendl;
 					
 			std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestError");
-			childSetValue("loading_text", LLSD(msg_waiting));
+			getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 		}
 	}
 	else
 	{
 		std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestNoParcelSelected");
-		childSetValue("loading_text", LLSD(msg_waiting));
+		getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 	}
 
 	return LLPanelScriptLimitsInfo::postBuild();
@@ -942,9 +942,9 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 	
 	LLStringUtil::format_map_t args_parcel_memory;
 	std::string msg_empty_string("");
-	childSetValue("memory_used", LLSD(msg_empty_string));
-	childSetValue("urls_used", LLSD(msg_empty_string));
-	childSetValue("parcels_listed", LLSD(msg_empty_string));
+	getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_empty_string));
+	getChild<LLUICtrl>("urls_used")->setValue(LLSD(msg_empty_string));
+	getChild<LLUICtrl>("parcels_listed")->setValue(LLSD(msg_empty_string));
 
 	mObjectListItems.clear();
 }
@@ -1213,7 +1213,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	setAttachmentSummary(content);
 
-	childSetValue("loading_text", LLSD(std::string("")));
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 
 	LLButton* btn = getChild<LLButton>("refresh_list_btn");
 	if(btn)
@@ -1227,7 +1227,7 @@ BOOL LLPanelScriptLimitsAttachment::postBuild()
 	childSetAction("refresh_list_btn", onClickRefresh, this);
 		
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
-	childSetValue("loading_text", LLSD(msg_waiting));
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 	return requestAttachmentDetails();
 }
 
@@ -1241,7 +1241,7 @@ void LLPanelScriptLimitsAttachment::clearList()
 	}
 
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
-	childSetValue("loading_text", LLSD(msg_waiting));
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 }
 
 void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
@@ -1291,7 +1291,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 		args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
 		args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
 		std::string msg_attachment_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_attachment_memory);
-		childSetValue("memory_used", LLSD(msg_attachment_memory));
+		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_attachment_memory));
 	}
 
 	if((mAttachmentURLsUsed >= 0) && (mAttachmentURLsMax >= 0))
@@ -1303,7 +1303,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 		args_attachment_urls["[MAX]"] = llformat ("%d", mAttachmentURLsMax);
 		args_attachment_urls["[AVAILABLE]"] = llformat ("%d", attachment_urls_available);
 		std::string msg_attachment_urls = LLTrans::getString("ScriptLimitsURLsUsed", args_attachment_urls);
-		childSetValue("urls_used", LLSD(msg_attachment_urls));
+		getChild<LLUICtrl>("urls_used")->setValue(LLSD(msg_attachment_urls));
 	}
 }
 

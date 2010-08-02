@@ -105,7 +105,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );    
 
 	getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterNameDesc::doCommit, this));
-	childSetValue("name_form", LLSD(asset_name));
+	getChild<LLUICtrl>("name_form")->setValue(LLSD(asset_name));
 
 	LLLineEditor *NameEditor = getChild<LLLineEditor>("name_form");
 	if (NameEditor)
@@ -131,7 +131,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	// Cancel button
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnCancel, this));
 
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
+	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
 	
 	setDefaultBtn("ok_btn");
 	
@@ -167,15 +167,15 @@ void LLFloaterNameDesc::doCommit()
 //-----------------------------------------------------------------------------
 void LLFloaterNameDesc::onBtnOK( )
 {
-	childDisable("ok_btn"); // don't allow inadvertent extra uploads
+	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
 	LLAssetStorage::LLStoreAssetCallback callback = NULL;
 	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
 	void *nruserdata = NULL;
 	std::string display_name = LLStringUtil::null;
 	upload_new_resource(mFilenameAndPath, // file
-			    childGetValue("name_form").asString(), 
-			    childGetValue("description_form").asString(), 
+			    getChild<LLUICtrl>("name_form")->getValue().asString(), 
+			    getChild<LLUICtrl>("description_form")->getValue().asString(), 
 			    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
 			    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 			    display_name, callback, expected_upload_cost, nruserdata);

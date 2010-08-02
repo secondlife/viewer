@@ -111,7 +111,7 @@ BOOL LLFloaterURLEntry::postBuild()
 	// clear media list button
 	LLSD parcel_history = LLURLHistory::getURLHistory("parcel");
 	bool enable_clear_button = parcel_history.size() > 0 ? true : false;
-	childSetEnabled( "clear_btn", enable_clear_button );
+	getChildView("clear_btn")->setEnabled(enable_clear_button );
 
 	// OK button
 	childSetAction("ok_btn", onBtnOK, this);
@@ -163,7 +163,7 @@ void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_
 	}
 	// Decrement the cursor
 	getWindow()->decBusyCount();
-	childSetVisible("loading_label", false);
+	getChildView("loading_label")->setVisible( false);
 	closeFloater();
 }
 
@@ -236,13 +236,13 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	}
 
 	// Grey the buttons until we get the header response
-	self->childSetEnabled("ok_btn", false);
-	self->childSetEnabled("cancel_btn", false);
-	self->childSetEnabled("media_entry", false);
+	self->getChildView("ok_btn")->setEnabled(false);
+	self->getChildView("cancel_btn")->setEnabled(false);
+	self->getChildView("media_entry")->setEnabled(false);
 
 	// show progress bar here?
 	getWindow()->incBusyCount();
-	self->childSetVisible("loading_label", true);
+	self->getChildView("loading_label")->setVisible( true);
 }
 
 // static
@@ -284,7 +284,7 @@ bool LLFloaterURLEntry::callback_clear_url_list(const LLSD& notification, const 
 		LLURLHistory::clear("parcel");
 
 		// cleared the list so disable Clear button
-		childSetEnabled( "clear_btn", false );
+		getChildView("clear_btn")->setEnabled(false );
 	}
 	return false;
 }

@@ -212,8 +212,8 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 	item->setName(name, mNameFilter);
 	item->setGroupIconID(icon_id);
 
-	item->childSetVisible("info_btn", false);
-	item->childSetVisible("profile_btn", false);
+	item->getChildView("info_btn")->setVisible( false);
+	item->getChildView("profile_btn")->setVisible( false);
 	item->setGroupIconVisible(mShowIcons);
 
 	addItem(item, id, pos);
@@ -323,16 +323,16 @@ void LLGroupListItem::setValue( const LLSD& value )
 {
 	if (!value.isMap()) return;
 	if (!value.has("selected")) return;
-	childSetVisible("selected_icon", value["selected"]);
+	getChildView("selected_icon")->setVisible( value["selected"]);
 }
 
 void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", true);
+	getChildView("hovered_icon")->setVisible( true);
 	if (mGroupID.notNull()) // don't show the info button for the "none" group
 	{
 		mInfoBtn->setVisible(true);
-		childSetVisible("profile_btn", true);
+		getChildView("profile_btn")->setVisible( true);
 	}
 
 	LLPanel::onMouseEnter(x, y, mask);
@@ -340,9 +340,9 @@ void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 
 void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", false);
+	getChildView("hovered_icon")->setVisible( false);
 	mInfoBtn->setVisible(false);
-	childSetVisible("profile_btn", false);
+	getChildView("profile_btn")->setVisible( false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }

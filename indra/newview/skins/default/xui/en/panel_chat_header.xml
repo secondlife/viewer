@@ -38,16 +38,17 @@
       use_ellipses="true"
       valign="bottom" 
       value="Ericag Vader" />
-    <text
-            font="SansSerifSmall"
-         follows="right"
-         halign="right"
-         height="13"
-         layout="topleft"
-         left_pad="5"
-     name="time_box"
-     right="-5"
-     top="8"
-         value="23:30"
-         width="110" />
+  <text
+    allow_scroll="false"
+    font="SansSerifSmall"
+    follows="right"
+    halign="right"
+    height="13"
+    layout="topleft"
+    left_pad="5"
+    name="time_box"
+    right="-5"
+    top="8"
+    value="23:30"
+    width="110" />
 </panel>
