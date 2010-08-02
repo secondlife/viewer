@@ -822,8 +822,8 @@ void LLPanelPeople::updateButtons()
 		}
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
-		groups_panel->childSetEnabled("activate_btn",	item_selected && !cur_group_active); // "none" or a non-active group selected
-		groups_panel->childSetEnabled("minus_btn",		item_selected && selected_id.notNull());
+		groups_panel->getChildView("activate_btn")->setEnabled(item_selected && !cur_group_active); // "none" or a non-active group selected
+		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull());
 	}
 	else
 	{
@@ -839,10 +839,10 @@ void LLPanelPeople::updateButtons()
 		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
 		if (cur_panel)
 		{
-			cur_panel->childSetEnabled("add_friend_btn", !is_friend);
+			cur_panel->getChildView("add_friend_btn")->setEnabled(!is_friend);
 			if (friends_tab_active)
 			{
-				cur_panel->childSetEnabled("del_btn", multiple_selected);
+				cur_panel->getChildView("del_btn")->setEnabled(multiple_selected);
 			}
 		}
 	}

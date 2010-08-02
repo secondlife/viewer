@@ -60,7 +60,7 @@ BOOL	LLPreviewSound::postBuild()
 	const LLInventoryItem* item = getItem();
 	if (item)
 	{
-		childSetText("desc", item->getDescription());
+		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 		if (gAudiop)
 			gAudiop->preloadSound(item->getAssetUUID()); // preload the sound
 	}
@@ -75,7 +75,7 @@ BOOL	LLPreviewSound::postBuild()
 	button->setSoundFlags(LLView::SILENT);
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);	
+	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);	
 
 	return LLPreview::postBuild();
 }

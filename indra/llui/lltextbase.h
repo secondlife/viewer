@@ -163,7 +163,7 @@ protected:
 class LLIndexSegment : public LLTextSegment
 {
 public:
-	LLIndexSegment(S32 pos) : LLTextSegment(pos, pos) {}
+	LLIndexSegment() : LLTextSegment(0, 0) {}
 };
 
 class LLInlineViewSegment : public LLTextSegment

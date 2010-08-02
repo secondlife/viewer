@@ -273,7 +273,6 @@ public:
 	S32 getDefaultTabGroup() const				{ return mDefaultTabGroup; }
 	S32 getLastTabGroup()						{ return mLastTabGroup; }
 
-	bool        trueToRoot(const boost::function<bool (const LLView*)>& predicate) const;
 	BOOL		isInVisibleChain() const;
 	BOOL		isInEnabledChain() const;
 
@@ -289,8 +288,6 @@ public:
 	// children, etc.
 	virtual void deleteAllChildren();
 
-	virtual void	setTentative(BOOL b);
-	virtual BOOL	getTentative() const;
 	void 	setAllChildrenEnabled(BOOL b);
 
 	virtual void	setVisible(BOOL visible);
@@ -356,6 +353,10 @@ public:
 	typedef LLTreeDFSPostIter<LLView, child_list_const_iter_t> tree_post_iterator_t;
 	tree_post_iterator_t beginTreeDFSPost();
 	tree_post_iterator_t endTreeDFSPost();
+
+	typedef LLTreeBFSIter<LLView, child_list_const_iter_t> bfs_tree_iterator_t;
+	bfs_tree_iterator_t beginTreeBFS();
+	bfs_tree_iterator_t endTreeBFS();
 
 
 	typedef LLTreeDownIter<LLView> root_to_view_iterator_t;

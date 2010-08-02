@@ -49,6 +49,7 @@ const char* DEFAULT_SLURL_BASE = "https://%s/region/";
 const char* DEFAULT_APP_SLURL_BASE = "x-grid-location-info://%s/app";
 
 LLGridManager::LLGridManager()
+:	mIsInProductionGrid(false)
 {
 	// by default, we use the 'grids.xml' file in the user settings directory
 	// this file is an LLSD file containing multiple grid definitions.
@@ -308,6 +309,10 @@ void LLGridManager::initialize(const std::string& grid_file)
 		addGrid(grid);		
 	}
 
+	gSavedSettings.getControl("CurrentGrid")->getSignal()->connect(boost::bind(&LLGridManager::updateIsInProductionGrid, this));
+	// since above only triggers on changes, trigger the callback manually to initialize state
+	updateIsInProductionGrid();
+
 	LL_DEBUGS("GridManager") << "Selected grid is " << mGrid << LL_ENDL;		
 	setGridChoice(mGrid);
 	if(mGridList[mGrid][GRID_LOGIN_URI_VALUE].isArray())
@@ -559,23 +564,30 @@ std::string LLGridManager::getLoginPage()
 	return mGridList[mGrid][GRID_LOGIN_PAGE_VALUE];
 }
 
-bool LLGridManager::isInProductionGrid()
+void LLGridManager::updateIsInProductionGrid()
 {
+	mIsInProductionGrid = false;
+
 	// *NOTE:Mani This used to compare GRID_INFO_AGNI to gGridChoice,
 	// but it seems that loginURI trumps that.
 	std::vector<std::string> uris;
 	getLoginURIs(uris);
-	if (uris.size() < 1)
+	if (uris.empty())
 	{
-		return 1;
+		mIsInProductionGrid = true;
+		return;
 	}
 	LLStringUtil::toLower(uris[0]);
 	if((uris[0].find("agni") != std::string::npos))
 	{
-		return true;
+		mIsInProductionGrid = true;
+		return;
 	}
+}
 
-	return false;
+bool LLGridManager::isInProductionGrid()
+{
+	return mIsInProductionGrid;
 }
 
 void LLGridManager::saveFavorites()

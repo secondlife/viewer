@@ -93,8 +93,14 @@ static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
 public:
-	LLMediaDataClientObjectImpl(LLVOVolume *obj, bool isNew) : mObject(obj), mNew(isNew) {}
-	LLMediaDataClientObjectImpl() { mObject = NULL; }
+	LLMediaDataClientObjectImpl(LLVOVolume *obj, bool isNew) : mObject(obj), mNew(isNew) 
+	{
+		mObject->addMDCImpl();
+	}
+	~LLMediaDataClientObjectImpl()
+	{
+		mObject->removeMDCImpl();
+	}
 	
 	virtual U8 getMediaDataCount() const 
 		{ return mObject->getNumTEs(); }
@@ -118,6 +124,18 @@ public:
 				}
 			}
 			return result;
+		}
+	virtual bool isCurrentMediaUrl(U8 index, const std::string &url) const
+		{
+			LLTextureEntry *te = mObject->getTE(index); 
+			if (te)
+			{
+				if (te->getMediaData())
+				{
+					return (te->getMediaData()->getCurrentURL() == url);
+				}
+			}
+			return url.empty();
 		}
 
 	virtual LLUUID getID() const
@@ -193,6 +211,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
 	mIndexInTex = 0;
+	mMDCImplCount = 0;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -218,9 +237,12 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
-		LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
-		if (sObjectMediaClient) sObjectMediaClient->removeFromQueue(obj);
-		if (sObjectMediaNavigateClient) sObjectMediaNavigateClient->removeFromQueue(obj);
+		if(getMDCImplCount() > 0)
+		{
+			LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
+			if (sObjectMediaClient) sObjectMediaClient->removeFromQueue(obj);
+			if (sObjectMediaNavigateClient) sObjectMediaNavigateClient->removeFromQueue(obj);
+		}
 		
 		// Detach all media impls from this object
 		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
@@ -2025,12 +2047,12 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 	}
 	else
 	{
-		llwarns << "Couldn't find media entry!" << llendl;
+		LL_WARNS("MediaOnAPrim") << "Couldn't find media entry!" << LL_ENDL;
 	}
 						
 	if(block_navigation)
 	{
-		llinfos << "blocking navigate to URI " << new_location << llendl;
+		LL_INFOS("MediaOnAPrim") << "blocking navigate to URI " << new_location << LL_ENDL;
 
 		// "bounce back" to the current URL from the media entry
 		mediaNavigateBounceBack(face_index);
@@ -2038,7 +2060,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 	else if (sObjectMediaNavigateClient)
 	{
 		
-		llinfos << "broadcasting navigate with URI " << new_location << llendl;
+		LL_DEBUGS("MediaOnAPrim") << "broadcasting navigate with URI " << new_location << LL_ENDL;
 
 		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this, false), face_index, new_location);
 	}
@@ -2060,14 +2082,19 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 				}
 				break;
 				
+				case LLViewerMediaImpl::MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS:
+					// This navigate didn't change the current URL.  
+					LL_DEBUGS("MediaOnAPrim") << "	NOT broadcasting navigate (spurious)" << LL_ENDL;
+				break;
+				
 				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED:
 					// This is the first location changed event after the start of a server-directed nav.  Don't broadcast it.
-					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (server-directed)" << LL_ENDL;
 				break;
 				
 				default:
 					// This is a subsequent location-changed due to a redirect.	 Don't broadcast.
-					llinfos << "	NOT broadcasting navigate (redirect)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (redirect)" << LL_ENDL;
 				break;
 			}
 		}
@@ -2084,9 +2111,14 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 				}
 				break;
 				
+				case LLViewerMediaImpl::MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS:
+					// This navigate didn't change the current URL.  
+					LL_DEBUGS("MediaOnAPrim") << "	NOT broadcasting navigate (spurious)" << LL_ENDL;
+				break;
+
 				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED:
 					// This is the the navigate complete event from a server-directed nav.  Don't broadcast it.
-					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+					LL_INFOS("MediaOnAPrim") << "	NOT broadcasting navigate (server-directed)" << LL_ENDL;
 				break;
 				
 				default:

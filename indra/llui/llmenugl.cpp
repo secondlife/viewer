@@ -928,6 +928,15 @@ void LLMenuItemCheckGL::setValue(const LLSD& value)
 	}
 }
 
+//virtual
+LLSD LLMenuItemCheckGL::getValue() const
+{
+	// Get our boolean value from the view model.
+	// If we don't override this method then the implementation from
+	// LLMenuItemGL will return a string. (EXT-8501)
+	return LLUICtrl::getValue();
+}
+
 // called to rebuild the draw label
 void LLMenuItemCheckGL::buildDrawLabel( void )
 {
