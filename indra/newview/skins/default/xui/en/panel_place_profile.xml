@@ -316,7 +316,8 @@
              name="owner_value"
              top_delta="0"
              value="Alex Superduperlongenamenton"
-             width="205" />
+             use_ellipses="true" 
+             width="200" />
             <icon
              follows="top|left"
              height="16"
