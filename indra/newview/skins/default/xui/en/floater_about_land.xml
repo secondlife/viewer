@@ -220,7 +220,8 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
-             width="240">
+             use_ellipses="true" 
+             width="360">
                 Leyla Linden
             </text>
              <button
