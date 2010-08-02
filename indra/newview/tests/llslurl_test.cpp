@@ -79,6 +79,11 @@ LLSD LLControlGroup::getLLSD(const std::string& name)
 	return LLSD();
 }
 
+LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
+{
+	ctrl_name_table_t::iterator iter = mNameTable.find(name);
+	return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
+}
 
 LLControlGroup gSavedSettings("test");
 
