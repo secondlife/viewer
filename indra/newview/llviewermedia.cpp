@@ -2196,7 +2196,8 @@ void LLViewerMediaImpl::navigateReload()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateHome()
 {
-	navigateTo(mHomeURL, "", true, false);
+	bool rediscover_mimetype = mHomeMimeType.empty();
+	navigateTo(mHomeURL, mHomeMimeType, rediscover_mimetype, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
