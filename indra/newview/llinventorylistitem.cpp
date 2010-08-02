@@ -51,7 +51,12 @@ static const S32 WIDGET_SPACING = 3;
 
 LLPanelInventoryListItemBase::Params::Params()
 :	default_style("default_style"),
-	worn_style("worn_style")
+	worn_style("worn_style"),
+	hover_image("hover_image"),
+	selected_image("selected_image"),
+	separator_image("separator_image"),
+	item_icon("item_icon"),
+	item_name("item_name")
 {};
 
 LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInventoryItem* item)
@@ -59,8 +64,10 @@ LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInven
 	LLPanelInventoryListItemBase* list_item = NULL;
 	if (item)
 	{
-		list_item = new LLPanelInventoryListItemBase(item);
-		list_item->init();
+		const LLPanelInventoryListItemBase::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelInventoryListItemBase>();
+		list_item = new LLPanelInventoryListItemBase(item, params);
+		list_item->initFromParams(params);
+		list_item->postBuild();
 	}
 	return list_item;
 }
@@ -76,6 +83,25 @@ void LLPanelInventoryListItemBase::draw()
 		}
 		setNeedsRefresh(false);
 	}
+
+	if (mHovered && mHoverImage)
+	{
+		mHoverImage->draw(getLocalRect());
+	}
+
+	if (mSelected && mSelectedImage)
+	{
+		mSelectedImage->draw(getLocalRect());
+	}
+
+	if (mSeparatorVisible && mSeparatorImage)
+	{
+		// stretch along bottom of listitem, using image height
+		LLRect separator_rect = getLocalRect();
+		separator_rect.mTop = mSeparatorImage->getHeight();
+		mSeparatorImage->draw(separator_rect);
+	}
+	
 	LLPanel::draw();
 }
 
@@ -134,9 +160,6 @@ void LLPanelInventoryListItemBase::setShowWidget(LLUICtrl* ctrl, bool show)
 
 BOOL LLPanelInventoryListItemBase::postBuild()
 {
-	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
-	setTitleCtrl(getChild<LLTextBox>("item_name"));
-
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item)
 	{
@@ -156,18 +179,18 @@ void LLPanelInventoryListItemBase::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;
 	if (!value.has("selected")) return;
-	childSetVisible("selected_icon", value["selected"]);
+	mSelected = value["selected"];
 }
 
 void LLPanelInventoryListItemBase::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", true);
+	mHovered = true;
 	LLPanel::onMouseEnter(x, y, mask);
 }
 
 void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	childSetVisible("hovered_icon", false);
+	mHovered = false;
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
@@ -244,21 +267,47 @@ S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 	return rv;
 }
 
-LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item)
-: LLPanel()
-, mInventoryItemUUID(item ? item->getUUID() : LLUUID::null)
-, mIconCtrl(NULL)
-, mTitleCtrl(NULL)
-, mWidgetSpacing(WIDGET_SPACING)
-, mLeftWidgetsWidth(0)
-, mRightWidgetsWidth(0)
-, mNeedsRefresh(false)
+LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item, const LLPanelInventoryListItemBase::Params& params)
+:	LLPanel(params),
+	mInventoryItemUUID(item ? item->getUUID() : LLUUID::null),
+	mIconCtrl(NULL),
+	mTitleCtrl(NULL),
+	mWidgetSpacing(WIDGET_SPACING),
+	mLeftWidgetsWidth(0),
+	mRightWidgetsWidth(0),
+	mNeedsRefresh(false),
+	mHovered(false),
+	mSelected(false),
+	mSeparatorVisible(false),
+	mHoverImage(params.hover_image),
+	mSelectedImage(params.selected_image),
+	mSeparatorImage(params.separator_image)
 {
-}
+	LLIconCtrl::Params icon_params(params.item_icon);
+	applyXUILayout(icon_params, this);
 
-void LLPanelInventoryListItemBase::init()
-{
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory_item.xml");
+	mIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	if (mIconCtrl)
+	{
+		addChild(mIconCtrl);
+	}
+	else
+	{
+		mIconCtrl = dynamic_cast<LLIconCtrl*>(LLUICtrlFactory::createDefaultWidget<LLIconCtrl>("item_icon"));
+	}
+
+	LLTextBox::Params text_params(params.item_name);
+	applyXUILayout(text_params, this);
+
+	mTitleCtrl = LLUICtrlFactory::create<LLTextBox>(text_params);
+	if (mTitleCtrl)
+	{
+		addChild(mTitleCtrl);
+	}
+	else
+	{
+		mTitleCtrl = dynamic_cast<LLTextBox*>(LLUICtrlFactory::createDefaultWidget<LLTextBox>("item_title"));
+	}
 }
 
 class WidgetVisibilityChanger

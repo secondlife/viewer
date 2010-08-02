@@ -124,15 +124,16 @@ public:
 		BOOST_HIGH 			= 10,
 		BOOST_BUMP          ,
 		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
-		BOOST_SELECTED		,
-		BOOST_HUD			,
+		BOOST_SELECTED		,		
 		BOOST_AVATAR_BAKED_SELF	,
+		BOOST_AVATAR_SELF	, // needed for baking avatar
+		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
+		BOOST_HUD			,
 		BOOST_ICON			,
 		BOOST_UI			,
 		BOOST_PREVIEW		,
 		BOOST_MAP			,
-		BOOST_MAP_VISIBLE	,
-		BOOST_AVATAR_SELF	, // needed for baking avatar
+		BOOST_MAP_VISIBLE	,		
 		BOOST_MAX_LEVEL,
 
 		//other texture Categories
@@ -266,6 +267,7 @@ protected:
 	void init(bool firstinit) ;	
 	void reorganizeFaceList() ;
 	void reorganizeVolumeList() ;
+	void setTexelsPerImage();
 private:
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
@@ -278,6 +280,7 @@ protected:
 	S32 mFullHeight;
 	BOOL  mUseMipMaps ;
 	S8  mComponents;
+	F32 mTexelsPerImage;			// Texels per image.
 	mutable S8  mNeedsGLTexture;
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter ;
@@ -596,8 +599,6 @@ private:
 	void scaleDown() ;		
 
 private:
-	
-	F32 mTexelsPerImage;			// Texels per image.
 	F32 mDiscardVirtualSize;		// Virtual size used to calculate desired discard	
 	F32 mCalculatedDiscardLevel;    // Last calculated discard level
 };
