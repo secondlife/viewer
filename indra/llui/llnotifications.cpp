@@ -34,7 +34,6 @@
 
 #include "llnotifications.h"
 
-#include "llinstantmessage.h"
 #include "llxmlnode.h"
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
@@ -42,7 +41,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 #include "llnotificationslistener.h"
-#include "llstring.h"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -1490,14 +1488,7 @@ std::ostream& operator<<(std::ostream& s, const LLNotification& notification)
 void LLPostponedNotification::onCachedNameReceived(const LLUUID& id, const std::string& first,
 		const std::string& last, bool is_group)
 {
-	mName = first + " " + last;
-
-	LLStringUtil::trim(mName);
-	if (mName.empty())
-	{
-		llwarns << "Empty name received for Id: " << id << llendl;
-		mName = SYSTEM_FROM;
-	}
+	gCacheName->getFullName(id, mName);
 	modifyNotificationParams();
 	LLNotifications::instance().add(mParams);
 	cleanup();

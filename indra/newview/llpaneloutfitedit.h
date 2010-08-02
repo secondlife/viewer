@@ -64,7 +64,6 @@ class LLMenuGL;
 class LLFindNonLinksByMask;
 class LLFindWearablesOfType;
 class LLSaveOutfitComboBtn;
-class LLWearableItemTypeNameComparator;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -146,10 +145,10 @@ public:
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
 	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void updatePlusButton();
+	void onInventorySelectionChange();
 	void onPlusBtnClicked(void);
 
-	void onVisibilityChange(const LLSD &in_visible_chain);
+	void onVisibilityChange();
 
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);
@@ -199,13 +198,6 @@ private:
 	void onOutfitChanging(bool started);
 	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
 	void getCurrentItemUUID(LLUUID& selected_id);
-	void onCOFChanged();
-
-	typedef std::pair<LLWearableType::EType, size_t> selection_info_t;
-
-	LLWearableType::EType getCOFWearablesSelectionType() const;
-	selection_info_t getAddMorePanelSelectionType() const;
-	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;
@@ -225,7 +217,6 @@ private:
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
-	LLWearableItemTypeNameComparator* mWearableListViewItemsComparator;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 

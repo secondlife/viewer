@@ -4678,7 +4678,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://marketplace.secondlife.com/</string>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
     </map>
     <key>MarketplaceURL_objectFemale</key>
     <map>
@@ -4733,7 +4733,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://marketplace.secondlife.com</string>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
     </map>
     <key>MarketplaceURL_bodypartMale</key>
     <map>
@@ -4744,7 +4744,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://marketplace.secondlife.com/</string>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
     </map>
     <key>MarketplaceURL_glovesMale</key>
     <map>
@@ -11868,17 +11868,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>TipToastMessageLineCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Max line count of text message on tip toast.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>10</integer>
     </map>
 </map>
 </llsd>

@@ -82,10 +82,9 @@ private:
 	void				updateDimensions();
 	LLUUID				mImageID;
 	LLPointer<LLViewerFetchedTexture>		mImage;
-	S32                 mImageOldBoostLevel;
+	BOOL				mLoadingFullImage;
 	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;
-	BOOL				mLoadingFullImage;
 	BOOL                mShowKeepDiscard;
 	BOOL                mCopyToInv;
 
@@ -95,10 +94,11 @@ private:
 	// This is stored off in a member variable, because the save-as
 	// button and drag and drop functionality need to know.
 	BOOL mIsCopyable;
-	BOOL mUpdateDimensions;
+
 	S32 mLastHeight;
 	S32 mLastWidth;
-	F32 mAspectRatio;	
+	F32 mAspectRatio;
+	BOOL mUpdateDimensions;
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 };

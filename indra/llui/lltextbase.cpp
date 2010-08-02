@@ -66,10 +66,7 @@ bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, cons
 	{
 		return a->getStart() < b->getStart();
 	}
-	else
-	{
-		return a->getEnd() < b->getEnd();
-	}
+	return a->getEnd() < b->getEnd();
 }
 
 
@@ -177,7 +174,7 @@ LLTextBase::Params::Params()
 
 LLTextBase::LLTextBase(const LLTextBase::Params &p) 
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
-	mURLClickSignal(NULL),
+	mURLClickSignal(),
 	mMaxTextByteLength( p.max_text_length ),
 	mDefaultFont(p.font),
 	mFontShadow(p.font_shadow),
@@ -212,8 +209,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mParseHTML(p.allow_html),
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
-	mScroller(NULL),
-	mStyleDirty(true)
+	mScroller(NULL)
 {
 	if(p.allow_scroll)
 	{
@@ -252,8 +248,9 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 
 LLTextBase::~LLTextBase()
 {
+	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
+
 	mSegments.clear();
-	delete mURLClickSignal;
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
@@ -299,18 +296,13 @@ bool LLTextBase::truncate()
 	return did_truncate;
 }
 
-const LLStyle::Params& LLTextBase::getDefaultStyleParams()
+LLStyle::Params LLTextBase::getDefaultStyleParams()
 {
-	if (mStyleDirty)
-	{
-		  mDefaultStyle
-				  .color(LLUIColor(&mFgColor))
-				  .readonly_color(LLUIColor(&mReadOnlyFgColor))
-				  .font(mDefaultFont)
-				  .drop_shadow(mFontShadow);
-		  mStyleDirty = false;
-	}
-	return mDefaultStyle;
+	return LLStyle::Params()
+		.color(LLUIColor(&mFgColor))
+		.readonly_color(LLUIColor(&mReadOnlyFgColor))
+		.font(mDefaultFont)
+		.drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -869,12 +861,11 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 	if (cur_segment && cur_segment->handleMouseUp(x, y, mask))
 	{
 		// Did we just click on a link?
-		if (mURLClickSignal
-			&& cur_segment->getStyle()
+		if (cur_segment->getStyle()
 		    && cur_segment->getStyle()->isLink())
 		{
 			// *TODO: send URL here?
-			(*mURLClickSignal)(this, LLSD() );
+			mURLClickSignal(this, LLSD() );
 		}
 		return TRUE;
 	}
@@ -1048,14 +1039,12 @@ void LLTextBase::draw()
 void LLTextBase::setColor( const LLColor4& c )
 {
 	mFgColor = c;
-	mStyleDirty = true;
 }
 
 //virtual 
 void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 {
 	mReadOnlyFgColor = c;
-	mStyleDirty = true;
 }
 
 //virtual
@@ -1499,22 +1488,12 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
-	if (index > getLength()) { return mSegments.end(); }
-
-	// when there are no segments, we return the end iterator, which must be checked by caller
-	if (mSegments.size() <= 1) { return mSegments.begin(); }
-
 	segment_set_t::iterator it = mSegments.upper_bound(new LLIndexSegment(index));
 	return it;
 }
 
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
-	if (index > getLength()) { return mSegments.end(); }
-
-	// when there are no segments, we return the end iterator, which must be checked by caller
-	if (mSegments.size() <= 1) { return mSegments.begin(); }
-
 	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(new LLIndexSegment(index));
 	return it;
 }
@@ -2349,15 +2328,6 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 		doc_rect.mBottom = doc_rect.getHeight() - mVisibleTextRect.getHeight();
 		return doc_rect;
 	}
-}
-
-boost::signals2::connection LLTextBase::setURLClickedCallback(const commit_signal_t::slot_type& cb)
-{
-	if (!mURLClickSignal)
-	{
-		mURLClickSignal = new commit_signal_t();
-	}
-	return mURLClickSignal->connect(cb);
 }
 
 //

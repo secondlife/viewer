@@ -104,7 +104,6 @@
 		follows="top|left"
 		font="SansSerif"
 		left="10"
-		name="nearby_media_title"
 		width="100">
 	  Nearby Media
 	</text>
@@ -115,7 +114,6 @@
 		font="SansSerif"
 		top_pad="15"
 		left="10"
-		name="show_text"
 		width="40">
 	  Show:
 	</text>

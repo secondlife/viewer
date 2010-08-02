@@ -122,7 +122,7 @@ public:
 	viewList_t operator () (LLView * view) const { return run(view); }
 
 	// override this method to provide iteration over other types of children
-	virtual void filterChildren(LLView * view, viewList_t& filtered_children) const;
+	virtual void filterChildren(LLView * view, viewList_t & filtered_children) const;
 
 private:
 

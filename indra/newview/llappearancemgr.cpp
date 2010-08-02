@@ -999,7 +999,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			{
 				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
 			}
-			addCOFItemLink(item_to_wear, do_update, cb);
+			addCOFItemLink(item_to_wear, do_update);
 		} 
 		break;
 	case LLAssetType::AT_BODYPART:
@@ -2183,24 +2183,32 @@ void LLAppearanceMgr::updateIsDirty()
 	}
 	else
 	{
-		LLIsOfAssetType collector = LLIsOfAssetType(LLAssetType::AT_LINK);
-
 		LLInventoryModel::cat_array_t cof_cats;
 		LLInventoryModel::item_array_t cof_items;
-		gInventory.collectDescendentsIf(cof, cof_cats, cof_items,
-									  LLInventoryModel::EXCLUDE_TRASH, collector);
+		gInventory.collectDescendents(cof, cof_cats, cof_items,
+									  LLInventoryModel::EXCLUDE_TRASH);
 
 		LLInventoryModel::cat_array_t outfit_cats;
 		LLInventoryModel::item_array_t outfit_items;
-		gInventory.collectDescendentsIf(base_outfit, outfit_cats, outfit_items,
-									  LLInventoryModel::EXCLUDE_TRASH, collector);
+		gInventory.collectDescendents(base_outfit, outfit_cats, outfit_items,
+									  LLInventoryModel::EXCLUDE_TRASH);
 
-		if(outfit_items.count() != cof_items.count())
+		if(outfit_items.count() != cof_items.count() -1)
 		{
 			// Current outfit folder should have one more item than the outfit folder.
 			// this one item is the link back to the outfit folder itself.
 			mOutfitIsDirty = true;
 			return;
+		}
+
+		//getting rid of base outfit folder link to simplify comparison
+		for (LLInventoryModel::item_array_t::iterator it = cof_items.begin(); it != cof_items.end(); ++it)
+		{
+			if (*it == base_outfit_item)
+			{
+				cof_items.erase(it);
+				break;
+			}
 		}
 
 		//"dirty" - also means a difference in linked UUIDs and/or a difference in wearables order (links' descriptions)

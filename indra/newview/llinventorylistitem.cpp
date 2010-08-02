@@ -44,7 +44,6 @@
 // newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
-#include "llinventorydefines.h"
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(&typeid(LLPanelInventoryListItemBase::Params), "inventory_list_item");
 
@@ -52,12 +51,7 @@ static const S32 WIDGET_SPACING = 3;
 
 LLPanelInventoryListItemBase::Params::Params()
 :	default_style("default_style"),
-	worn_style("worn_style"),
-	hover_image("hover_image"),
-	selected_image("selected_image"),
-	separator_image("separator_image"),
-	item_icon("item_icon"),
-	item_name("item_name")
+	worn_style("worn_style")
 {};
 
 LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInventoryItem* item)
@@ -65,10 +59,8 @@ LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInven
 	LLPanelInventoryListItemBase* list_item = NULL;
 	if (item)
 	{
-		const LLPanelInventoryListItemBase::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelInventoryListItemBase>();
-		list_item = new LLPanelInventoryListItemBase(item, params);
-		list_item->initFromParams(params);
-		list_item->postBuild();
+		list_item = new LLPanelInventoryListItemBase(item);
+		list_item->init();
 	}
 	return list_item;
 }
@@ -84,28 +76,6 @@ void LLPanelInventoryListItemBase::draw()
 		}
 		setNeedsRefresh(false);
 	}
-
-	if (mHovered && mHoverImage)
-	{
-		mHoverImage->draw(getLocalRect());
-	}
-
-	if (mSelected && mSelectedImage)
-	{
-		mSelectedImage->draw(getLocalRect());
-	}
-
-	if (mSeparatorVisible && mSeparatorImage)
-	{
-		// place under bottom of listitem, using image height
-		// item_pad in list using the item should be >= image height
-		// to avoid cropping of top of the next item.
-		LLRect separator_rect = getLocalRect();
-		separator_rect.mTop = separator_rect.mBottom;
-		separator_rect.mBottom -= mSeparatorImage->getHeight();
-		mSeparatorImage->draw(separator_rect);
-	}
-	
 	LLPanel::draw();
 }
 
@@ -164,10 +134,13 @@ void LLPanelInventoryListItemBase::setShowWidget(LLUICtrl* ctrl, bool show)
 
 BOOL LLPanelInventoryListItemBase::postBuild()
 {
+	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
+	setTitleCtrl(getChild<LLTextBox>("item_name"));
+
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item)
 	{
-		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & inv_item->getFlags());
+		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), FALSE);
 		updateItem(inv_item->getName());
 	}
 
@@ -183,18 +156,18 @@ void LLPanelInventoryListItemBase::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;
 	if (!value.has("selected")) return;
-	mSelected = value["selected"];
+	childSetVisible("selected_icon", value["selected"]);
 }
 
 void LLPanelInventoryListItemBase::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	mHovered = true;
+	childSetVisible("hovered_icon", true);
 	LLPanel::onMouseEnter(x, y, mask);
 }
 
 void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	mHovered = false;
+	childSetVisible("hovered_icon", false);
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
@@ -271,47 +244,21 @@ S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 	return rv;
 }
 
-LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item, const LLPanelInventoryListItemBase::Params& params)
-:	LLPanel(params),
-	mInventoryItemUUID(item ? item->getUUID() : LLUUID::null),
-	mIconCtrl(NULL),
-	mTitleCtrl(NULL),
-	mWidgetSpacing(WIDGET_SPACING),
-	mLeftWidgetsWidth(0),
-	mRightWidgetsWidth(0),
-	mNeedsRefresh(false),
-	mHovered(false),
-	mSelected(false),
-	mSeparatorVisible(false),
-	mHoverImage(params.hover_image),
-	mSelectedImage(params.selected_image),
-	mSeparatorImage(params.separator_image)
+LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item)
+: LLPanel()
+, mInventoryItemUUID(item ? item->getUUID() : LLUUID::null)
+, mIconCtrl(NULL)
+, mTitleCtrl(NULL)
+, mWidgetSpacing(WIDGET_SPACING)
+, mLeftWidgetsWidth(0)
+, mRightWidgetsWidth(0)
+, mNeedsRefresh(false)
 {
-	LLIconCtrl::Params icon_params(params.item_icon);
-	applyXUILayout(icon_params, this);
+}
 
-	mIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
-	if (mIconCtrl)
-	{
-		addChild(mIconCtrl);
-	}
-	else
-	{
-		mIconCtrl = dynamic_cast<LLIconCtrl*>(LLUICtrlFactory::createDefaultWidget<LLIconCtrl>("item_icon"));
-	}
-
-	LLTextBox::Params text_params(params.item_name);
-	applyXUILayout(text_params, this);
-
-	mTitleCtrl = LLUICtrlFactory::create<LLTextBox>(text_params);
-	if (mTitleCtrl)
-	{
-		addChild(mTitleCtrl);
-	}
-	else
-	{
-		mTitleCtrl = dynamic_cast<LLTextBox*>(LLUICtrlFactory::createDefaultWidget<LLTextBox>("item_title"));
-	}
+void LLPanelInventoryListItemBase::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory_item.xml");
 }
 
 class WidgetVisibilityChanger

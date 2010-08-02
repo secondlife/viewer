@@ -262,7 +262,6 @@ public:
 	BOOL needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
 	BOOL needsAutoRename() { return mNeedsAutoRename; }
 	void setNeedsAutoRename(BOOL val) { mNeedsAutoRename = val; }
-	void setAutoSelectOverride(BOOL val) { mAutoSelectOverride = val; }
 	void setPinningSelectedItem(BOOL val) { mPinningSelectedItem = val; }
 
 	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }

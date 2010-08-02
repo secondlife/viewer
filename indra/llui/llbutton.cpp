@@ -1,4 +1,3 @@
-
 /** 
  * @file llbutton.cpp
  * @brief LLButton base class

@@ -79,7 +79,6 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerpartsource.h"
 #include "llviewerregion.h"
-#include "llviewerstats.h"
 #include "llviewertextureanim.h"
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatar.h"
@@ -1916,12 +1915,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			LLVOAvatar *avatar = (LLVOAvatar*)mParent;
 
 			avatar->clampAttachmentPositions();
-		}
-		
-		// If we're snapping the position by more than 0.5m, update LLViewerStats::mAgentPositionSnaps
-		if ( asAvatar() && asAvatar()->isSelf() && (mag_sqr > 0.25f) )
-		{
-			LLViewerStats::getInstance()->mAgentPositionSnaps.push( diff.length() );
 		}
 	}
 
