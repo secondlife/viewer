@@ -40,7 +40,6 @@
 LLOutfitObserver::LLOutfitObserver() :
 	mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 {
-	mItemNameHash.finalize();
 	gInventory.addObserver(this);
 }
 
@@ -88,24 +87,13 @@ bool LLOutfitObserver::checkCOF()
 	if (cof.isNull())
 		return false;
 
-	bool cof_changed = false;
-	LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cof);
-	if (item_name_hash != mItemNameHash)
-	{
-		cof_changed = true;
-		mItemNameHash = item_name_hash;
-	}
-
 	S32 cof_version = getCategoryVersion(cof);
-	if (cof_version != mCOFLastVersion)
-	{
-		cof_changed = true;
-		mCOFLastVersion = cof_version;
-	}
 
-	if (!cof_changed)
+	if (cof_version == mCOFLastVersion)
 		return false;
-	
+
+	mCOFLastVersion = cof_version;
+
 	// dirtiness state should be updated before sending signal
 	LLAppearanceMgr::getInstance()->updateIsDirty();
 	mCOFChanged();

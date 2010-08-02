@@ -250,18 +250,6 @@ BOOL get_can_item_be_worn(const LLUUID& id)
 	const LLViewerInventoryItem* item = gInventory.getItem(id);
 	if (!item)
 		return FALSE;
-
-	if (LLAppearanceMgr::isLinkInCOF(item->getLinkedUUID()))
-	{
-		// an item having links in COF (i.e. a worn item)
-		return FALSE;
-	}
-
-	if (gInventory.isObjectDescendentOf(id, LLAppearanceMgr::instance().getCOF()))
-	{
-		// a non-link object in COF (should not normally happen)
-		return FALSE;
-	}
 	
 	switch(item->getType())
 	{
@@ -517,6 +505,19 @@ bool LLIsNotType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 		else return TRUE;
 	}
 	return TRUE;
+}
+
+bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if(mType == LLAssetType::AT_CATEGORY)
+	{
+		if(cat) return TRUE;
+	}
+	if(item)
+	{
+		if(item->getActualType() == mType) return TRUE;
+	}
+	return FALSE;
 }
 
 bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

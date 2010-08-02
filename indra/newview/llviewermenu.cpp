@@ -108,11 +108,8 @@
 #include "llappearancemgr.h"
 #include "lltrans.h"
 #include "lleconomy.h"
-#include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;
-
-static boost::unordered_map<std::string, LLStringExplicit> sDefaultItemLabels;
 
 BOOL enable_land_build(void*);
 BOOL enable_object_build(void*);
@@ -2406,55 +2403,31 @@ void handle_object_touch()
 		msg->sendMessage(object->getRegion()->getHost());
 }
 
-static void init_default_item_label(const std::string& item_name)
+// One object must have touch sensor
+class LLObjectEnableTouch : public view_listener_t
 {
-	boost::unordered_map<std::string, LLStringExplicit>::iterator it = sDefaultItemLabels.find(item_name);
-	if (it == sDefaultItemLabels.end())
+	bool handleEvent(const LLSD& userdata)
 	{
-		// *NOTE: This will not work for items of type LLMenuItemCheckGL because they return boolean value
-		//       (doesn't seem to matter much ATM).
-		LLStringExplicit default_label = gMenuHolder->childGetValue(item_name).asString();
-		if (!default_label.empty())
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		
+		bool new_value = obj && obj->flagHandleTouch();
+
+		// Update label based on the node touch name if available.
+		std::string touch_text;
+		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+		if (node && node->mValid && !node->mTouchName.empty())
 		{
-			sDefaultItemLabels.insert(std::pair<std::string, LLStringExplicit>(item_name, default_label));
+			touch_text = node->mTouchName;
 		}
+		else
+		{
+			touch_text = userdata.asString();
+		}
+		gMenuHolder->childSetText("Object Touch", touch_text);
+		gMenuHolder->childSetText("Attachment Object Touch", touch_text);
+
+		return new_value;
 	}
-}
-
-static LLStringExplicit get_default_item_label(const std::string& item_name)
-{
-	LLStringExplicit res("");
-	boost::unordered_map<std::string, LLStringExplicit>::iterator it = sDefaultItemLabels.find(item_name);
-	if (it != sDefaultItemLabels.end())
-	{
-		res = it->second;
-	}
-
-	return res;
-}
-
-
-bool enable_object_touch(LLUICtrl* ctrl)
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
-	bool new_value = obj && obj->flagHandleTouch();
-
-	std::string item_name = ctrl->getName();
-	init_default_item_label(item_name);
-
-	// Update label based on the node touch name if available.
-	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-	if (node && node->mValid && !node->mTouchName.empty())
-	{
-		gMenuHolder->childSetText(item_name, node->mTouchName);
-	}
-	else
-	{
-		gMenuHolder->childSetText(item_name, get_default_item_label(item_name));
-	}
-
-	return new_value;
 };
 
 //void label_touch(std::string& label, void*)
@@ -3654,7 +3627,7 @@ class LLEnableEditShape : public view_listener_t
 	}
 };
 
-bool is_object_sittable()
+bool enable_sit_object()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 
@@ -5540,36 +5513,55 @@ bool enable_pay_object()
 	return false;
 }
 
-bool enable_object_stand_up()
+bool visible_object_stand_up()
 {
-	// 'Object Stand Up' menu item is enabled when agent is sitting on selection
+	// 'Object Stand Up' menu item is visible when agent is sitting on selection
 	return sitting_on_selection();
 }
 
-bool enable_object_sit(LLUICtrl* ctrl)
+bool visible_object_sit()
 {
-	// 'Object Sit' menu item is enabled when agent is not sitting on selection
-	bool sitting_on_sel = sitting_on_selection();
-	if (!sitting_on_sel)
+	// 'Object Sit' menu item is visible when agent is not sitting on selection
+	bool is_sit_visible = !sitting_on_selection();
+	if (is_sit_visible)
 	{
-		std::string item_name = ctrl->getName();
-
-		// init default labels
-		init_default_item_label(item_name);
-
+		LLMenuItemGL* sit_menu_item = gMenuHolder->getChild<LLMenuItemGL>("Object Sit");
+		// Init default 'Object Sit' menu item label
+		static const LLStringExplicit sit_text(sit_menu_item->getLabel());
 		// Update label
+		std::string label;
 		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 		if (node && node->mValid && !node->mSitName.empty())
 		{
-			gMenuHolder->childSetText(item_name, node->mSitName);
+			label.assign(node->mSitName);
 		}
 		else
 		{
-			gMenuHolder->childSetText(item_name, get_default_item_label(item_name));
+			label = sit_text;
 		}
+		sit_menu_item->setLabel(label);
 	}
-	return !sitting_on_sel && is_object_sittable();
+	return is_sit_visible;
 }
+
+class LLObjectEnableSitOrStand : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = false;
+		LLViewerObject* dest_object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+
+		if(dest_object)
+		{
+			if(dest_object->getPCode() == LL_PCODE_VOLUME)
+			{
+				new_value = true;
+			}
+		}
+
+		return new_value;
+	}
+};
 
 void dump_select_mgr(void*)
 {
@@ -8075,6 +8067,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
 	commit.add("Object.Touch", boost::bind(&handle_object_touch));
 	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
+	enable.add("Object.EnableSit", boost::bind(&enable_sit_object));
 	commit.add("Object.Delete", boost::bind(&handle_object_delete));
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
@@ -8090,12 +8083,13 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
-	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
+	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
+	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
 	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
 
-	enable.add("Object.EnableStandUp", boost::bind(&enable_object_stand_up));
-	enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
+	enable.add("Object.StandUpVisible", boost::bind(&visible_object_stand_up));
+	enable.add("Object.SitVisible", boost::bind(&visible_object_sit));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");

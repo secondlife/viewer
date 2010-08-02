@@ -197,14 +197,15 @@ BOOL LLPanelMainInventory::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterEdit, this, _2));
 	}
 
+	initListCommandsHandlers();
+
 	// *TODO:Get the cost info from the server
 	const std::string upload_cost("10");
-	childSetLabelArg("Upload Image", "[COST]", upload_cost);
-	childSetLabelArg("Upload Sound", "[COST]", upload_cost);
-	childSetLabelArg("Upload Animation", "[COST]", upload_cost);
-	childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
+	mMenuAdd->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", upload_cost);
+	mMenuAdd->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
+	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
+	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
 
-	initListCommandsHandlers();
 	return TRUE;
 }
 
@@ -566,8 +567,7 @@ void LLPanelMainInventory::draw()
 
 void LLPanelMainInventory::updateItemcountText()
 {
-	// *TODO: Calling setlocale() on each frame may be inefficient.
-	LLLocale locale(LLStringUtil::getLocale());
+	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string item_count_string;
 	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
 

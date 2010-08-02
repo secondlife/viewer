@@ -585,7 +585,7 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>AvatarBakedTextureUploadTimeout</key>
+    <key>AvatarBakedTextureTimeout</key>
     <map>
       <key>Comment</key>
       <string>Specifes the maximum time in seconds to wait before sending your baked textures for avatar appearance.  Set to 0 to disable and wait until all baked textures are at highest resolution.</string>
@@ -594,20 +594,8 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>60</integer>
+      <integer>120</integer>
     </map>
-    <key>AvatarBakedLocalTextureUpdateTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifes the maximum time in seconds to wait before updating your appearance during appearance mode.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>10</integer>
-    </map>
-
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -4678,7 +4666,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com/</string>
     </map>
     <key>MarketplaceURL_objectFemale</key>
     <map>
@@ -4733,7 +4721,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com</string>
     </map>
     <key>MarketplaceURL_bodypartMale</key>
     <map>
@@ -4744,7 +4732,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com/</string>
     </map>
     <key>MarketplaceURL_glovesMale</key>
     <map>
@@ -11868,6 +11856,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>TipToastMessageLineCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Max line count of text message on tip toast.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
     </map>
 </map>
 </llsd>

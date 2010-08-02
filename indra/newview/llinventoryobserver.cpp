@@ -676,9 +676,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		 iter != mCategoryMap.end();
 		 ++iter)
 	{
-		const LLUUID& cat_id = (*iter).first;
-
-		LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+		LLViewerInventoryCategory* category = gInventory.getCategory((*iter).first);
 		if (!category)
 			continue;
 
@@ -693,7 +691,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		// Check number of known descendents to find out whether it has changed.
 		LLInventoryModel::cat_array_t* cats;
 		LLInventoryModel::item_array_t* items;
-		gInventory.getDirectDescendentsOf(cat_id, cats, items);
+		gInventory.getDirectDescendentsOf((*iter).first, cats, items);
 		if (!cats || !items)
 		{
 			llwarns << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << llendl;
@@ -705,33 +703,20 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 
 			continue;
 		}
-		
+
 		const S32 current_num_known_descendents = cats->count() + items->count();
 
 		LLCategoryData cat_data = (*iter).second;
 
-		bool cat_changed = false;
-
 		// If category version or descendents count has changed
-		// update category data in mCategoryMap
+		// update category data in mCategoryMap and fire a callback.
 		if (version != cat_data.mVersion || current_num_known_descendents != cat_data.mDescendentsCount)
 		{
 			cat_data.mVersion = version;
 			cat_data.mDescendentsCount = current_num_known_descendents;
-			cat_changed = true;
-		}
 
-		// If any item names have changed, update the name hash 
-		LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
-		if (cat_data.mItemNameHash != item_name_hash)
-		{
-			cat_data.mItemNameHash = item_name_hash;
-			cat_changed = true;
-		}
-
-		// If anything has changed above, fire the callback.
-		if (cat_changed)
 			cat_data.mCallback();
+		}
 	}
 }
 

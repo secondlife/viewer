@@ -68,7 +68,7 @@ public:
 
 protected:
 
-	LLPanelWearableListItem(LLViewerInventoryItem* item);
+	LLPanelWearableListItem(LLViewerInventoryItem* item, const Params& params);
 };
 
 /**
@@ -93,7 +93,7 @@ public:
 
 protected:
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
-							  bool worn_indication_enabled);
+							  bool worn_indication_enabled, const Params& params);
 
 private:
 	bool	mWornIndicationEnabled;
@@ -103,6 +103,13 @@ class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
 {
 	LOG_CLASS(LLPanelDeletableWearableListItem);
 public:
+	struct Params : public LLInitParam::Block<Params, LLPanelWearableListItem::Params>
+	{
+		Optional<LLButton::Params>		delete_btn;
+
+		Params();
+	};
+
 
 	static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
 
@@ -116,9 +123,7 @@ public:
 	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
 
 protected:
-	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item);
-
-	/*virtual*/ void init();
+	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item, const Params& params);
 };
 
 /** Outfit list item for an attachment */
@@ -134,7 +139,7 @@ public:
 								EItemState item_state = IS_DEFAULT);
 
 protected:
-	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
+	LLPanelAttachmentListItem(LLViewerInventoryItem* item, const Params& params) : LLPanelDeletableWearableListItem(item, params) {};
 };
 
 /**
@@ -146,6 +151,18 @@ class LLPanelClothingListItem : public LLPanelDeletableWearableListItem
 {
 	LOG_CLASS(LLPanelClothingListItem);
 public:
+
+	struct Params : public LLInitParam::Block<Params, LLPanelDeletableWearableListItem::Params>
+	{
+		Optional<LLButton::Params>		up_btn,
+										down_btn,
+										edit_btn;
+		Optional<LLPanel::Params>		lock_panel,
+										edit_panel;
+		Optional<LLIconCtrl::Params>	lock_icon;
+
+		Params();
+	};
 
 	static LLPanelClothingListItem* create(LLViewerInventoryItem* item);
 
@@ -162,18 +179,25 @@ public:
 	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
 	inline void setShowEditButton(bool show) { setShowWidget("btn_edit_panel", show); }
 
-
 protected:
 
-	LLPanelClothingListItem(LLViewerInventoryItem* item);
-	
-	/*virtual*/ void init();
+	LLPanelClothingListItem(LLViewerInventoryItem* item, const Params& params);
+
 };
 
 class LLPanelBodyPartsListItem : public LLPanelWearableListItem
 {
 	LOG_CLASS(LLPanelBodyPartsListItem);
 public:
+	struct Params : public LLInitParam::Block<Params, LLPanelWearableListItem::Params>
+	{
+		Optional<LLButton::Params>		edit_btn;
+		Optional<LLPanel::Params>		lock_panel,
+										edit_panel;
+		Optional<LLIconCtrl::Params>	lock_icon;
+
+		Params();
+	};
 
 	static LLPanelBodyPartsListItem* create(LLViewerInventoryItem* item);
 
@@ -188,9 +212,7 @@ public:
 	inline void setShowEditButton(bool show) { setShowWidget("btn_edit_panel", show); }
 
 protected:
-	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
-
-	/*virtual*/ void init();
+	LLPanelBodyPartsListItem(LLViewerInventoryItem* item, const Params& params);
 };
 
 
@@ -202,15 +224,19 @@ protected:
 class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLPanelWearableListItem::Params>
+	{
+		Optional<LLPanel::Params> add_panel;
+		Optional<LLButton::Params> add_btn;
+		Params();
+	};
 	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
 	/*virtual*/ BOOL postBuild();
 	LLWearableType::EType getWearableType() const;
 
 protected:
-	LLPanelDummyClothingListItem(LLWearableType::EType w_type);
-
-	/*virtual*/ void init();
+	LLPanelDummyClothingListItem(LLWearableType::EType w_type, const Params& params);
 
 	static std::string wearableTypeToString(LLWearableType::EType w_type);
 
@@ -281,76 +307,33 @@ class LLWearableItemTypeNameComparator : public LLWearableItemNameComparator
 	LOG_CLASS(LLWearableItemTypeNameComparator);
 
 public:
-
-	LLWearableItemTypeNameComparator();
+	LLWearableItemTypeNameComparator() {};
 	virtual ~LLWearableItemTypeNameComparator() {};
-
-	enum ETypeListOrder
-	{
-		ORDER_RANK_1 = 1,
-		ORDER_RANK_2,
-		ORDER_RANK_3,
-		ORDER_RANK_UNKNOWN
-	};
-
-	void setOrder(LLAssetType::EType items_of_type, ETypeListOrder order_priority, bool sort_items_by_name, bool sort_wearable_items_by_name);
 
 protected:
 	/**
-	 * All information about sort order is stored in mWearableOrder map
-	 *
-	 * mWearableOrder :      KYES              VALUES
-	 *                  [LLAssetType] [struct LLWearableTypeOrder]
-	 *
-	 *---------------------------------------------------------------------------------------------
-	 * I. Determines order (ORDER_RANK) in which items of LLAssetType should be displayed in list.
-	 *     For example by spec in MY OUTFITS the order is:
-	 *     1. AT_CLOTHING (ORDER_RANK_1)
-	 *     2. AT_OBJECT   (ORDER_RANK_2)
-	 *     3. AT_BODYPART (ORDER_RANK_3)
-	 *
-	 * II.Items of each type(LLAssetType) are sorted by name or type(LLWearableType)
-	 *     For example by spec in MY OUTFITS the order within each items type(LLAssetType) is:
-	 *     1. AT_OBJECTS (abc order)
-	 *     2. AT_CLOTHINGS
-	 *       - by type (types order determined in LLWearableType::EType)
-	 *       - outer layer on top
-	 *     3. AT_BODYPARTS  (abc order)
-	 *---------------------------------------------------------------------------------------------
-	 *
-	 * For each LLAssetType (KEYS in mWearableOrder) the information about:
-	 *
-	 *                                             I.  ORDER_RANK (the flag is LLWearableTypeOrder::mOrderPriority)
-	 *
-	 *                                             II. whether items of this LLAssetType type should be ordered
-	 *                                                 by name or by LLWearableType::EType (the flag is LLWearableTypeOrder::mSortAssetTypeByName)
-	 *
-	 *                                             III.whether items of LLWearableType type within this LLAssetType
-	 *                                                 should be ordered by name (the flag is LLWearableTypeOrder::mSortWearableTypeByName)
-	 *
-	 *  holds in mWearableOrder map as VALUES (struct LLWearableTypeOrder).
+	 * Returns "true" if wearable_item1 is placed before wearable_item2 sorted by the following:
+	 *   - Attachments (abc order)
+	 *   - Clothing
+	 *         - by type (types order determined in LLWearableType::EType)
+	 *         - outer layer on top
+	 *   - Body Parts (abc order),
+	 * "false" otherwise.
 	 */
 	/*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* wearable_item1, const LLPanelInventoryListItemBase* wearable_item2) const;
 
 private:
-
-	struct LLWearableTypeOrder
+	enum ETypeListOrder
 	{
-		ETypeListOrder mOrderPriority;
-		bool mSortAssetTypeByName;
-		bool mSortWearableTypeByName;
+		TLO_CLOTHING	= 0x01,
+		TLO_ATTACHMENT	= 0x02,
+		TLO_BODYPART	= 0x04,
+		TLO_UNKNOWN		= 0x08,
 
-		LLWearableTypeOrder(ETypeListOrder order_priority, bool sort_asset_by_name, bool sort_wearable_by_name);
-		LLWearableTypeOrder(){};
+		TLO_SORTABLE_BY_NAME = TLO_ATTACHMENT | TLO_UNKNOWN
 	};
 
-	ETypeListOrder getTypeListOrder(LLAssetType::EType item_type) const;
-
-	bool sortAssetTypeByName(LLAssetType::EType item_type) const;
-	bool sortWearableTypeByName(LLAssetType::EType item_type) const;
-
-	typedef std::map<LLAssetType::EType,LLWearableTypeOrder> wearable_type_order_map_t;
-	wearable_type_order_map_t mWearableOrder;
+	static LLWearableItemTypeNameComparator::ETypeListOrder getTypeListOrder(LLAssetType::EType item_type);
 };
 
 /**

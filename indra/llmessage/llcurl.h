@@ -123,11 +123,6 @@ public:
 			// Used internally to set the url for debugging later.
 			void setURL(const std::string& url);
 
-			virtual bool followRedir() 
-			{
-				return false;
-			}
-
 	public: /* but not really -- don't touch this */
 		U32 mReferenceCount;
 
@@ -187,7 +182,6 @@ public:
 private:
 	static std::string sCAPath;
 	static std::string sCAFile;
-	static const unsigned int MAX_REDIRECTS;
 };
 
 namespace boost

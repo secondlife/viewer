@@ -33,14 +33,14 @@
 #ifndef LL_LLAGENTLANGUAGE_H
 #define LL_LLAGENTLANGUAGE_H
 
-class LLAgentLanguage
+#include "llsingleton.h"	// LLSingleton<>
+#include "llevent.h"
+
+class LLAgentLanguage: public LLSingleton<LLAgentLanguage>, public LLOldEvents::LLSimpleListener
 {
  public:
-	static void init();
+	LLAgentLanguage();
 	static bool update();
-
- private:
-	static void onChange();
 };
 
 #endif // LL_LLAGENTLANGUAGE_H

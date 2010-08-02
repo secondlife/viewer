@@ -1148,11 +1148,11 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			if (isUsingBakedTextures())
+			if (!gAgentCamera.cameraCustomizeAvatar())
 			{
 				requestLayerSetUpdate(index);
 			}
-			else
+			else if (gAgentCamera.cameraCustomizeAvatar())
 			{
 				LLVisualParamHint::requestHintUpdates();
 			}
@@ -1622,21 +1622,18 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 				if (tex_discard >= 0 && tex_discard <= desired_discard)
 				{
 					local_tex_obj->setDiscard(tex_discard);
-					if (isSelf())
+					if (isSelf() && !gAgentCamera.cameraCustomizeAvatar())
 					{
-						if (gAgentAvatarp->isUsingBakedTextures())
-						{
-							requestLayerSetUpdate(type);
-						}
-						else
-						{
-							LLVisualParamHint::requestHintUpdates();
-						}
+						requestLayerSetUpdate(type);
+					}
+					else if (isSelf() && gAgentCamera.cameraCustomizeAvatar())
+					{
+						LLVisualParamHint::requestHintUpdates();
 					}
 				}
 				else
 				{					
-					tex->setLoadedCallback(onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), type), NULL);
+					tex->setLoadedCallback(onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), type), NULL, NULL);
 				}
 			}
 			tex->setMinDiscardLevel(desired_discard);
@@ -2035,9 +2032,9 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			imagep->setBoostLevel(getAvatarBoostLevel());
 
 			imagep->resetTextureStats();
-			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+			imagep->setMaxVirtualSizeResetInterval(16);
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
-			imagep->setAdditionalDecodePriority(1.0f) ;
+			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 			imagep->forceUpdateBindStats() ;
 			if (imagep->getDiscardLevel() < 0)
 			{

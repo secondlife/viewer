@@ -317,19 +317,9 @@ void LLGestureComboList::refreshGestures()
 	
 	if (gestures)
 	{
-		S32 sel_index = gestures->getFirstSelectedIndex();
-		if (sel_index != 0)
-		{
-			S32 index = gestures->getSelectedValue().asInteger();
-			if (index<0 || index >= (S32)mGestures.size())
-			{
-				llwarns << "out of range gesture access" << llendl;
-			}
-			else
-			{
-				gesture = mGestures.at(index);
-			}
-		}
+		S32 index = gestures->getSelectedValue().asInteger();
+		if(index > 0)
+			gesture = mGestures.at(index);
 	}
 	
 	if(gesture && LLGestureMgr::instance().isGesturePlaying(gesture))
@@ -345,13 +335,13 @@ void LLGestureComboList::onCommitGesture()
 	LLCtrlListInterface* gestures = getListInterface();
 	if (gestures)
 	{
-		S32 sel_index = gestures->getFirstSelectedIndex();
-		if (sel_index == 0)
+		S32 index = gestures->getFirstSelectedIndex();
+		if (index == 0)
 		{
 			return;
 		}
 
-		S32 index = gestures->getSelectedValue().asInteger();
+		index = gestures->getSelectedValue().asInteger();
 
 		if (mViewAllItemIndex == index)
 		{
@@ -367,20 +357,13 @@ void LLGestureComboList::onCommitGesture()
 			return;
 		}
 
-		if (index<0 || index >= (S32)mGestures.size())
+		LLMultiGesture* gesture = mGestures.at(index);
+		if(gesture)
 		{
-			llwarns << "out of range gesture index" << llendl;
-		}
-		else
-		{
-			LLMultiGesture* gesture = mGestures.at(index);
-			if(gesture)
+			LLGestureMgr::instance().playGesture(gesture);
+			if(!gesture->mReplaceText.empty())
 			{
-				LLGestureMgr::instance().playGesture(gesture);
-				if(!gesture->mReplaceText.empty())
-				{
-					LLNearbyChatBar::sendChatFromViewer(gesture->mReplaceText, CHAT_TYPE_NORMAL, FALSE);
-				}
+				LLNearbyChatBar::sendChatFromViewer(gesture->mReplaceText, CHAT_TYPE_NORMAL, FALSE);
 			}
 		}
 	}
@@ -390,11 +373,6 @@ LLGestureComboList::~LLGestureComboList()
 {
 	LLGestureMgr::instance().removeObserver(this);
 }
-
-LLCtrlListInterface* LLGestureComboList::getListInterface()
-{
-	return mList;
-};
 
 LLNearbyChatBar::LLNearbyChatBar() 
 	: LLPanel()

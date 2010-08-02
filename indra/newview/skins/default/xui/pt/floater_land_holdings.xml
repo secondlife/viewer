@@ -7,28 +7,28 @@
 		<column label="Área" name="area"/>
 	</scroll_list>
 	<button label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para o centro do terreno."/>
-	<button label="Mostrar no mapa" label_selected="Mapa" name="Show on Map" tool_tip="Mostrar terreno no mápa-mundi" width="130"/>
+	<button label="Mapa" label_selected="Mapa" name="Show on Map" tool_tip="Mostrar terreno na mápa-mundi" width="130"/>
 	<text name="contrib_label">
-		Contribuições de grupos:
+		Contribuições para os seus grupos:
 	</text>
 	<scroll_list name="grant list">
 		<column label="Grupo" name="group"/>
 		<column label="Área" name="area"/>
 	</scroll_list>
 	<text name="allowed_label" width="380">
-		Metragem permitida com o plano atual:
+		Propriedades de terreno permitidas com o plano de pagamento atual:
 	</text>
 	<text left_delta="390" name="allowed_text">
 		[AREA] m²
 	</text>
 	<text name="current_label">
-		Metragem atual:
+		Propriedades de terrenos atuais:
 	</text>
 	<text left_delta="390" name="current_text">
 		[AREA] m²
 	</text>
 	<text name="available_label">
-		Metragem disponível para compra:
+		Disponível para compra de terras:
 	</text>
 	<text left_delta="390" name="available_text">
 		[AREA] m²

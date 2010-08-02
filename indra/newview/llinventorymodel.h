@@ -41,7 +41,6 @@
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
-#include "llmd5.h"
 #include <map>
 #include <set>
 #include <string>
@@ -195,9 +194,6 @@ public:
 	void getDirectDescendentsOf(const LLUUID& cat_id,
 								cat_array_t*& categories,
 								item_array_t*& items) const;
-
-	// Compute a hash of direct descendent names (for detecting child name changes)
-	LLMD5 hashDirectDescendentNames(const LLUUID& cat_id) const;
 	
 	// Starting with the object specified, add its descendents to the
 	// array provided, but do not add the inventory object specified

@@ -39,35 +39,21 @@
 // library includes
 #include "llui.h"					// getLanguage()
 
-// static
-void LLAgentLanguage::init()
+LLAgentLanguage::LLAgentLanguage()
 {
-	gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&onChange));
+	gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&update));
+	gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&update));
+	gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&update));
+	gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&update));
 }
 
-// static
-void LLAgentLanguage::onChange()
-{
-	// Clear inventory cache so that default names of inventory items
-	// appear retranslated (EXT-8308).
-	gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
-}
 
 // send language settings to the sim
 // static
 bool LLAgentLanguage::update()
 {
 	LLSD body;
-	std::string url;
-
-	if (gAgent.getRegion())
-	{
-		url = gAgent.getRegion()->getCapability("UpdateAgentLanguage");
-	}
-
+	std::string url = gAgent.getRegion()->getCapability("UpdateAgentLanguage");
 	if (!url.empty())
 	{
 		std::string language = LLUI::getLanguage();

@@ -45,7 +45,6 @@
 #include "llgroupmgr.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llagentlanguage.h"
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -357,7 +356,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 
 bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 {
-	if(!match || !base || base->getPlainText())
+	if(!match || !base)
 		return false;
 
 	LLUUID match_id = match->getID();
@@ -386,7 +385,7 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 	params.view = icon;
 	params.left_pad = 4;
 	params.right_pad = 4;
-	params.top_pad = -2;
+	params.top_pad = 2;
 	params.bottom_pad = 2;
 
 	base->appendWidget(params," ",false);
@@ -946,8 +945,6 @@ bool LLAppViewer::init()
 		LLStringOps::sAM = LLTrans::getString("dateTimeAM");
 		LLStringOps::sPM = LLTrans::getString("dateTimePM");
 	}
-
-	LLAgentLanguage::init();
 
 	return true;
 }

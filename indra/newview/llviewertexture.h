@@ -75,6 +75,7 @@ public:
 						  BOOL need_imageraw, // Needs image raw for the callback
 						  void* userdata,
 						  source_callback_list_t* src_callback_list,
+						  void* source,
 						  LLViewerFetchedTexture* target,
 						  BOOL pause);
 	~LLLoadedCallbackEntry();
@@ -87,9 +88,10 @@ public:
 	BOOL                    mPaused;
 	void*					mUserData;
 	source_callback_list_t* mSourceCallbackList;
+	void*                   mSource;
 	
 public:
-	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list) ;
+	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list, void* src) ;
 };
 
 class LLTextureBar;
@@ -124,15 +126,16 @@ public:
 		BOOST_HIGH 			= 10,
 		BOOST_BUMP          ,
 		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
-		BOOST_SELECTED		,
-		BOOST_HUD			,
+		BOOST_SELECTED		,		
 		BOOST_AVATAR_BAKED_SELF	,
+		BOOST_AVATAR_SELF	, // needed for baking avatar
+		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
+		BOOST_HUD			,
 		BOOST_ICON			,
 		BOOST_UI			,
 		BOOST_PREVIEW		,
 		BOOST_MAP			,
-		BOOST_MAP_VISIBLE	,
-		BOOST_AVATAR_SELF	, // needed for baking avatar
+		BOOST_MAP_VISIBLE	,		
 		BOOST_MAX_LEVEL,
 
 		//other texture Categories
@@ -262,10 +265,11 @@ public:
 
 	/*virtual*/ void updateBindStatsForTester() ;
 protected:
-	void cleanup() ;
+	virtual void cleanup() ;
 	void init(bool firstinit) ;	
 	void reorganizeFaceList() ;
 	void reorganizeVolumeList() ;
+	void setTexelsPerImage();
 private:
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
@@ -278,6 +282,7 @@ protected:
 	S32 mFullHeight;
 	BOOL  mUseMipMaps ;
 	S8  mComponents;
+	F32 mTexelsPerImage;			// Texels per image.
 	mutable S8  mNeedsGLTexture;
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter ;
@@ -382,13 +387,13 @@ public:
 	// Set callbacks to get called when the image gets updated with higher 
 	// resolution versions.
 	void setLoadedCallback(loaded_callback_func cb,
-						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux,
+						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux, void* src,
 						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause = FALSE);
 	bool hasCallbacks() { return mLoadedCallbackList.empty() ? false : true; }	
-	void pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
-	void unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
+	void pauseLoadedCallbacks(void* src);
+	void unpauseLoadedCallbacks(void* src);
 	bool doLoadedCallbacks();
-	void deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
+	void deleteCallbackEntry(void* src);
 
 	void addToCreateTexture();
 
@@ -483,7 +488,7 @@ protected:
 
 private:
 	void init(bool firstinit) ;
-	void cleanup() ;
+	/*virtual*/ void cleanup() ;
 
 	void saveRawImage() ;
 	void setCachedRawImage() ;
@@ -596,8 +601,6 @@ private:
 	void scaleDown() ;		
 
 private:
-	
-	F32 mTexelsPerImage;			// Texels per image.
 	F32 mDiscardVirtualSize;		// Virtual size used to calculate desired discard	
 	F32 mCalculatedDiscardLevel;    // Last calculated discard level
 };

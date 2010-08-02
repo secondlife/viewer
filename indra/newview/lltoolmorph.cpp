@@ -147,7 +147,7 @@ void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVis
 
 BOOL LLVisualParamHint::needsRender()
 {
-	return mNeedsUpdate && mDelayFrames-- <= 0 && !gAgentAvatarp->getIsAppearanceAnimating() && mAllowsUpdates;
+	return mNeedsUpdate && mDelayFrames-- <= 0 && !gAgentAvatarp->mAppearanceAnimating && mAllowsUpdates;
 }
 
 void LLVisualParamHint::preRender(BOOL clear_depth)

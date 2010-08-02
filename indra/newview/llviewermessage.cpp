@@ -1138,26 +1138,10 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						}
 						else if(from_name.empty())
 						{
-							std::string folder_name;
-							if (parent_folder)
-							{
-								// Localize folder name.
-								// *TODO: share this code?
-								folder_name = parent_folder->getName();
-								if (LLFolderType::lookupIsProtectedType(parent_folder->getPreferredType()))
-								{
-									LLTrans::findString(folder_name, "InvFolder " + folder_name);
-								}
-							}
-							else
-							{
-								 folder_name = LLTrans::getString("Unknown");
-							}
-
 							// we receive a message from LLOpenTaskOffer, it mean that new landmark has been added.
 							LLSD args;
 							args["LANDMARK_NAME"] = item->getName();
-							args["FOLDER_NAME"] = folder_name;
+							args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
 							LLNotificationsUtil::add("LandmarkCreated", args);
 						}
 					}
@@ -1231,9 +1215,8 @@ bool highlight_offered_object(const LLUUID& obj_id)
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const std::string& first_name,
 								   const std::string& last_name,
-								   BOOL is_group, boost::shared_ptr<LLNotificationResponderInterface> offer_ptr)
+								   BOOL is_group, LLOfferInfo* offer = NULL)
 {
-	LLOfferInfo* offer =  dynamic_cast<LLOfferInfo*>(offer_ptr.get());
 	std::string from_name;
 	LLMute::EType type;
 	if (is_group)
@@ -1423,13 +1406,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * we can't build two messages at once.
 	if (2 == button) // Block
 	{
-		LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
-
-		llassert(notification_ptr != NULL);
-		if (notification_ptr != NULL)
-		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4, notification_ptr->getResponderPtr()));
-		}
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
 
 	std::string from_string; // Used in the pop-up.
@@ -1563,13 +1540,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
-
-		llassert(notification_ptr != NULL);
-		if (notification_ptr != NULL)
-		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4, notification_ptr->getResponderPtr()));
-		}
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
 	
 	LLMessageSystem* msg = gMessageSystem;
@@ -2614,7 +2585,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			params.substitutions = substitutions;
 			params.payload = payload;
 
-			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, false);
+			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, from_group);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
@@ -5122,7 +5093,7 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 
 void process_alert_core(const std::string& message, BOOL modal)
 {
-	// HACK -- handle callbacks for specific alerts. It also is localized in notifications.xml
+	// HACK -- handle callbacks for specific alerts
 	if ( message == "You died and have been teleported to your home location")
 	{
 		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);

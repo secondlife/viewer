@@ -157,7 +157,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
 }
 
 
-bool LLFlatListView::removeItem(LLPanel* item)
+bool LLFlatListView::removeItem(LLPanel* item, bool rearrange)
 {
 	if (!item) return false;
 	if (item->getParent() != mItemsPanel) return false;
@@ -165,22 +165,22 @@ bool LLFlatListView::removeItem(LLPanel* item)
 	item_pair_t* item_pair = getItemPair(item);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair);
+	return removeItemPair(item_pair, rearrange);
 }
 
-bool LLFlatListView::removeItemByValue(const LLSD& value)
+bool LLFlatListView::removeItemByValue(const LLSD& value, bool rearrange)
 {
 	if (value.isUndefined()) return false;
 	
 	item_pair_t* item_pair = getItemPair(value);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair);
+	return removeItemPair(item_pair, rearrange);
 }
 
-bool LLFlatListView::removeItemByUUID(const LLUUID& uuid)
+bool LLFlatListView::removeItemByUUID(const LLUUID& uuid, bool rearrange)
 {
-	return removeItemByValue(LLSD(uuid));
+	return removeItemByValue(LLSD(uuid), rearrange);
 }
 
 LLPanel* LLFlatListView::getItemByValue(const LLSD& value) const
@@ -327,6 +327,9 @@ U32 LLFlatListView::size(const bool only_visible_items) const
 
 void LLFlatListView::clear()
 {
+	// This will clear mSelectedItemPairs, calling all appropriate callbacks.
+	resetSelection();
+	
 	// do not use LLView::deleteAllChildren to avoid removing nonvisible items. drag-n-drop for ex.
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
@@ -335,7 +338,6 @@ void LLFlatListView::clear()
 		delete *it;
 	}
 	mItemPairs.clear();
-	mSelectedItemPairs.clear();
 
 	// also set items panel height to zero. Reshape it to allow reshaping of non-item children
 	LLRect rc = mItemsPanel->getRect();
@@ -970,11 +972,12 @@ bool LLFlatListView::isSelected(item_pair_t* item_pair) const
 	return std::find(mSelectedItemPairs.begin(), it_end, item_pair) != it_end;
 }
 
-bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
+bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 {
 	llassert(item_pair);
 
 	bool deleted = false;
+	bool selection_changed = false;
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
 		item_pair_t* _item_pair = *it;
@@ -994,6 +997,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
 		if (selected_item_pair == item_pair)
 		{
 			it = mSelectedItemPairs.erase(it);
+			selection_changed = true;
 			break;
 		}
 	}
@@ -1002,8 +1006,16 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
 	item_pair->first->die();
 	delete item_pair;
 
+	if (rearrange)
+	{
 	rearrangeItems();
 	notifyParentItemsRectChanged();
+	}
+
+	if (selection_changed && mCommitOnSelectionChange)
+	{
+		onCommit();
+	}
 
 	return true;
 }
@@ -1048,7 +1060,26 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 {
 	if (mNoItemsCommentTextbox)
 	{
-		mSelectedItemsBorder->setVisible(!visible);
+		if (visible)
+		{
+/*
+// *NOTE: MA 2010-02-04
+// Deprecated after params of the comment text box were moved into widget (flat_list_view.xml)
+// can be removed later if nothing happened.
+			// We have to update child rect here because of issues with rect after reshaping while creating LLTextbox
+			// It is possible to have invalid LLRect if Flat List is in LLAccordionTab
+			LLRect comment_rect = getLocalRect();
+
+			// To see comment correctly (EXT - 3244) in mNoItemsCommentTextbox we must get border width
+			// of LLFlatListView (@see getBorderWidth()) and stretch mNoItemsCommentTextbox to this width
+			// But getBorderWidth() returns 0 if LLFlatListView not visible. So we have to get border width
+			// from 'scroll_border'
+			LLViewBorder* scroll_border = getChild<LLViewBorder>("scroll border");
+			comment_rect.stretch(-scroll_border->getBorderWidth());
+			mNoItemsCommentTextbox->setRect(comment_rect);
+*/
+		}
+		mSelectedItemsBorder->setVisible(FALSE);
 		mNoItemsCommentTextbox->setVisible(visible);
 	}
 }
@@ -1080,7 +1111,7 @@ void LLFlatListView::onFocusReceived()
 {
 	if (size())
 	{
-		mSelectedItemsBorder->setVisible(TRUE);
+	mSelectedItemsBorder->setVisible(TRUE);
 	}
 	gEditMenuHandler = this;
 }

@@ -39,7 +39,6 @@
 #include "llvoavatardefines.h"
 #include "llwearabletype.h"
 
-class LLAccordionCtrl;
 class LLCheckBoxCtrl;
 class LLWearable;
 class LLTextBox;
@@ -64,7 +63,7 @@ public:
 	LLWearable* 		getWearable() { return mWearablePtr; }
 	void				setWearable(LLWearable *wearable);
 
-	void				saveChanges(bool force_save_as = false);
+	void				saveChanges();
 	void				revertChanges();
 
 	void				showDefaultSubpart();
@@ -113,10 +112,6 @@ private:
 
 	// updates avatar height label
 	void updateAvatarHeightLabel();
-
-	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
-
-	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;

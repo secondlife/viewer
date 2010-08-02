@@ -1472,10 +1472,8 @@ Only large parcels can be listed in search.
              left="14"
              name="MatureCheck"
              top="177"
-             label_text.valign="center" 
-             label_text.v_pad="-5" 
              tool_tip=" "
-             width="200" />
+             width="107" />
             <text
              type="string"
              length="1"

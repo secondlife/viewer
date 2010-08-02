@@ -34,7 +34,6 @@
 #define LL_LLINVENTORYOBSERVERS_H
 
 #include "lluuid.h"
-#include "llmd5.h"
 #include <string>
 #include <vector>
 
@@ -299,14 +298,11 @@ protected:
 		: mCallback(cb)
 		, mVersion(version)
 		, mDescendentsCount(num_descendents)
-		{
-			mItemNameHash.finalize();
-		}
+		{}
 
 		callback_t	mCallback;
 		S32			mVersion;
 		S32			mDescendentsCount;
-		LLMD5		mItemNameHash;
 	};
 
 	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;

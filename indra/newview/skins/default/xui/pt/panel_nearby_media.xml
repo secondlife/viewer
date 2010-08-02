@@ -23,12 +23,6 @@
 		<button label="Mais &gt;&gt;" label_selected="Menos &lt;&lt;" name="less_btn" tool_tip="Controles avançados"/>
 	</panel>
 	<panel name="nearby_media_panel">
-		<text name="nearby_media_title">
-			Mídia por perto
-		</text>
-		<text name="show_text">
-			Mostrar:
-		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tudo" name="All"/>
 			<combo_box.item label="Neste lote" name="WithinParcel"/>
@@ -42,7 +36,7 @@
 			<scroll_list.columns label="Nome" name="media_name"/>
 			<scroll_list.columns label="Depurar" name="media_debug"/>
 		</scroll_list>
-		<panel name="media_controls_panel">
+		<panel>
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Parar mídia selecionada"/>

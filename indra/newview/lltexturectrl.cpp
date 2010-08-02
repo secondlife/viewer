@@ -175,8 +175,6 @@ protected:
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
-
-	BOOL				mSelectedItemPinned;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
@@ -199,8 +197,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
-	mContextConeOpacity(0.f),
-	mSelectedItemPinned( FALSE )
+	mContextConeOpacity(0.f)
 {
 	mCanApplyImmediately = can_apply_immediately;
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
@@ -426,6 +423,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
 
+		// Disable auto selecting first filtered item because it takes away
+		// selection from the item set by LLTextureCtrl owning this floater.
+		mInventoryPanel->getRootFolder()->setAutoSelectOverride(TRUE);
+
 		// Commented out to scroll to currently selected texture. See EXT-5403.
 		// // store this filter as the default one
 		// mInventoryPanel->getRootFolder()->getFilter()->markDefault();
@@ -595,31 +596,6 @@ void LLFloaterTexturePicker::draw()
 		{
 			mTentativeLabel->setVisible( TRUE );
 			drawChild(mTentativeLabel);
-		}
-
-		if (mSelectedItemPinned) return;
-
-		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
-		if (!folder_view) return;
-
-		LLInventoryFilter* filter = folder_view->getFilter();
-		if (!filter) return;
-
-		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
-				filter->isNotDefault();
-
-		// After inventory panel filter is applied we have to update
-		// constraint rect for the selected item because of folder view
-		// AutoSelectOverride set to TRUE. We force PinningSelectedItem
-		// flag to FALSE state and setting filter "dirty" to update
-		// scroll container to show selected item (see LLFolderView::doIdle()).
-		if (!is_filter_active && !mSelectedItemPinned)
-		{
-			folder_view->setPinningSelectedItem(mSelectedItemPinned);
-			folder_view->dirtyFilter();
-			folder_view->arrangeFromRoot();
-
-			mSelectedItemPinned = TRUE;
 		}
 	}
 }

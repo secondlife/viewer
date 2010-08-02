@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="Profil for genstand"/>
 	<text name="origin" value="(Beholdning)"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="">
 		<text name="LabelItemNameTitle">
 			Navn:
 		</text>

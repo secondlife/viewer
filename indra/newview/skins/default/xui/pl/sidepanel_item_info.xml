@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="Profil obiektu"/>
 	<text name="origin" value="(Szafa)"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nazwa:
 		</text>

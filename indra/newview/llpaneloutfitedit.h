@@ -145,10 +145,10 @@ public:
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
 	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void onInventorySelectionChange();
+	void updatePlusButton();
 	void onPlusBtnClicked(void);
 
-	void onVisibilityChange();
+	void onVisibilityChange(const LLSD &in_visible_chain);
 
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);
@@ -182,8 +182,6 @@ public:
 	 */
 	bool switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel);
 
-	void resetAccordionState();
-
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
@@ -198,6 +196,11 @@ private:
 	void onOutfitChanging(bool started);
 	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
 	void getCurrentItemUUID(LLUUID& selected_id);
+	void onCOFChanged();
+
+	LLWearableType::EType getCOFWearablesSelectionType() const;
+	LLWearableType::EType getAddMorePanelSelectionType() const;
+	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;

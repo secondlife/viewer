@@ -444,7 +444,8 @@ BOOL LLWearable::importFile( LLFILE* file )
 			delete mSavedTEMap[te];
 		}
 
-		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL);
+		image->setBoostLevel(LLViewerTexture::BOOST_AVATAR_SELF) ;
+		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL, NULL);
 
 		LLUUID textureid(text_buffer);
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
@@ -698,7 +699,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 		}
 	}
 
-	if(gAgentCamera.cameraCustomizeAvatar())
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}

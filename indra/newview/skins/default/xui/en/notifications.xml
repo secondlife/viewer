@@ -819,7 +819,7 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
    icon="alertmodal.tga"
    name="DeleteOutfits"
    type="alertmodal">
-    Delete the selected outfit/s?
+    Delete the selected outfit?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -5493,7 +5493,6 @@ If you stay in this region you will be logged out.
   <notification
    icon="notify.tga"
    name="LoadWebPage"
-   persist="true"
    type="notify">
 Load web page [URL]?
 
@@ -5593,7 +5592,6 @@ Grant this request?
   <notification
    icon="notify.tga"
    name="ScriptDialog"
-   persist="true"
    type="notify">
 [FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
@@ -5608,7 +5606,6 @@ Grant this request?
   <notification
    icon="notify.tga"
    name="ScriptDialogGroup"
-   persist="true"
    type="notify">
 [GROUPNAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
@@ -6346,7 +6343,7 @@ Avatar '[NAME]' left as fully loaded.
    name="AvatarRezSelfBakeNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You [ACTION] a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification
@@ -6405,14 +6402,11 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 - Your system memory does not meet the minimum requirements.
   </global>
 
-<!-- these are alert strings from server. the name needs to match entire the server string, and needs to be changed
+<!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed
 	whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
 If you own a piece of land, you can make it your home location.
 Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
-  </global>
-  <global name="You died and have been teleported to your home location">
-You died and have been teleported to your home location.
   </global>
 
 </notifications>

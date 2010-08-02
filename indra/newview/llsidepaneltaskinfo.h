@@ -121,7 +121,7 @@ private:
 protected:
 	LLViewerObject*				getObject();
 private:
-	LLPointer<LLViewerObject>	mObject;
+	LLViewerObject*				mObject;
 	LLObjectSelectionHandle		mObjectSelection;
 	static LLSidepanelTaskInfo* sActivePanel;
 };

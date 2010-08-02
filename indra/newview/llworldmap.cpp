@@ -37,7 +37,6 @@
 #include "llworldmapmessage.h"
 #include "message.h"
 #include "lltracker.h"
-#include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
 
@@ -523,12 +522,8 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
 		case MAP_ITEM_LAND_FOR_SALE:		// land for sale
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:	// adult land for sale 
 		{
-			static LLUIString tooltip_fmt = LLTrans::getString("worldmap_item_tooltip_format");
-
-			tooltip_fmt.setArg("[AREA]",  llformat("%d", extra));
-			tooltip_fmt.setArg("[PRICE]", llformat("%d", extra2));
-			new_item.setTooltip(tooltip_fmt.getString());
-
+			std::string tooltip = llformat("%d sq. m. L$%d", extra, extra2);
+			new_item.setTooltip(tooltip);
 			if (type == MAP_ITEM_LAND_FOR_SALE)
 			{
 				siminfo->insertLandForSale(new_item);

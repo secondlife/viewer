@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
 	<text name="origin" value="（持ち物）"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="">
 		<text name="LabelItemNameTitle">
 			名前：
 		</text>

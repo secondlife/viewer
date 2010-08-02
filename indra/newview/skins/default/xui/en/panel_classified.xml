@@ -25,7 +25,6 @@
         [mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
     </panel.string>
     <texture_picker
-     fallback_image="default_land_picture.j2c"
      follows="left|top"
      height="300"
      layout="topleft"

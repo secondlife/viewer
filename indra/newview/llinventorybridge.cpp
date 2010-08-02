@@ -952,8 +952,6 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 
 BOOL LLInvFVBridge::canShare() const
 {
-	if (!isAgentInventory()) return FALSE;
-
 	const LLInventoryModel* model = getInventoryModel();
 	if (!model) return FALSE;
 
@@ -965,10 +963,9 @@ BOOL LLInvFVBridge::canShare() const
 		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
-	// Categories can be given.
-	if (model->getCategory(mUUID)) return TRUE;
-
-	return FALSE;
+	// All categories can be given.
+	const LLViewerInventoryCategory* cat = model->getCategory(mUUID);
+	return (cat != NULL);
 }
 
 // +=================================================+
@@ -1447,7 +1444,7 @@ bool LLItemBridge::isRemoveAction(std::string action) const
 // |        LLFolderBridge                           |
 // +=================================================+
 
-LLHandle<LLFolderBridge> LLFolderBridge::sSelf;
+LLFolderBridge* LLFolderBridge::sSelf=NULL;
 
 // Can be moved to another folder
 BOOL LLFolderBridge::isItemMovable() const
@@ -2391,11 +2388,8 @@ void LLFolderBridge::pasteLinkFromClipboard()
 
 void LLFolderBridge::staticFolderOptionsMenu()
 {
-	LLFolderBridge* selfp = sSelf.get();
-	if (selfp)
-	{
-		selfp->folderOptionsMenu();
-	}
+	if (!sSelf) return;
+	sSelf->folderOptionsMenu();
 }
 
 void LLFolderBridge::folderOptionsMenu()
@@ -2472,15 +2466,11 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
-	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
-	if (menup)
-	{
-		hide_context_entries(*menup, mItems, disabled_items, TRUE);
+	hide_context_entries(*mMenu, mItems, disabled_items, TRUE);
 
-		// Reposition the menu, in case we're adding items to an existing menu.
-		menup->needsArrange();
-		menup->arrangeAndClear();
-	}
+	// Reposition the menu, in case we're adding items to an existing menu.
+	mMenu->needsArrange();
+	mMenu->arrangeAndClear();
 }
 
 BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
@@ -2521,10 +2511,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mDisabledItems.push_back(std::string("New Clothes"));
 		mDisabledItems.push_back(std::string("New Body Parts"));
 	}
-
-	// clear out old menu and folder pointers
-	mMenu.markDead();
-	sSelf.markDead();
 
 	if(trash_id == mUUID)
 	{
@@ -2601,6 +2587,9 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			mWearables=TRUE;
 		}
+
+		mMenu = &menu;
+		sSelf = this;
 	}
 
 	// Preemptively disable system folder removal if more than one item selected.
@@ -2615,6 +2604,12 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mDisabledItems.push_back(std::string("Share"));
 	}
 
+	if (mItems.empty())
+	{
+		mItems.push_back(std::string("--no options--"));
+		mDisabledItems.push_back(std::string("--no options--"));
+	}
+
 	hide_context_entries(menu, mItems, mDisabledItems);
 
 	// Add menu items that are dependent on the contents of the folder.
@@ -2624,9 +2619,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		folders.push_back(category->getUUID());
 	}
-
-	mMenu = menu.getHandle();
-	sSelf = getHandle();
 	LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
 	fetch->startFetch();
 	inc_busy_count();
@@ -4142,7 +4134,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						}
 						LLSD cbparams;
 						cbparams["index"] = curiter->first;
-						cbparams["label"] = p.name;
+						cbparams["label"] = attachment->getName();
 						p.on_click.function_name = "Inventory.AttachObject";
 						p.on_click.parameter = LLSD(attachment->getName());
 						p.on_enable.function_name = "Attachment.Label";

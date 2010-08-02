@@ -23,12 +23,6 @@
 		<button label="Più &gt;&gt;" label_selected="Meno &lt;&lt;" name="less_btn" tool_tip="Opzioni avanzate"/>
 	</panel>
 	<panel name="nearby_media_panel">
-		<text name="nearby_media_title">
-			Multimedia vicini
-		</text>
-		<text name="show_text">
-			Mostra:
-		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tutto" name="All"/>
 			<combo_box.item label="In questo lotto" name="WithinParcel"/>
@@ -42,7 +36,7 @@
 			<scroll_list.columns label="Nome" name="media_name"/>
 			<scroll_list.columns label="Debug" name="media_debug"/>
 		</scroll_list>
-		<panel name="media_controls_panel">
+		<panel>
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Interrompi supporto selezionato"/>

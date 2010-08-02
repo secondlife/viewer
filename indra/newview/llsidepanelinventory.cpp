@@ -33,13 +33,10 @@
 #include "llsidepanelinventory.h"
 
 #include "llagent.h"
-#include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
 #include "llinventorybridge.h"
-#include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
-#include "lloutfitobserver.h"
 #include "llpanelmaininventory.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
@@ -101,8 +98,6 @@ BOOL LLSidepanelInventory::postBuild()
 		my_inventory_panel->addHideFolderType(LLFolderType::FT_LANDMARK);
 		my_inventory_panel->addHideFolderType(LLFolderType::FT_FAVORITE);
 		*/
-
-		LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
 	}
 
 	// UI elements from item panel
@@ -288,7 +283,7 @@ void LLSidepanelInventory::updateVerbs()
 		case LLInventoryType::IT_OBJECT:
 		case LLInventoryType::IT_ATTACHMENT:
 			mWearBtn->setVisible(TRUE);
-			mWearBtn->setEnabled(get_can_item_be_worn(item->getLinkedUUID()));
+			mWearBtn->setEnabled(TRUE);
 		 	mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_SOUND:

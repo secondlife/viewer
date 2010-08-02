@@ -75,7 +75,8 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mLastWidth(0),
 	  mAspectRatio(0.f),
 	  mPreviewToSave(FALSE),
-	  mImage(NULL)
+	  mImage(NULL),
+	  mImageOldBoostLevel(LLViewerTexture::BOOST_NONE)
 {
 	updateImageID();
 	if (key.has("save_as"))
@@ -87,13 +88,13 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 
 LLPreviewTexture::~LLPreviewTexture()
 {
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
+	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList, this) ;
 
 	if( mLoadingFullImage )
 	{
 		getWindow()->decBusyCount();
 	}
-
+	mImage->setBoostLevel(mImageOldBoostLevel);
 	mImage = NULL;
 }
 
@@ -280,7 +281,7 @@ void LLPreviewTexture::saveAs()
 	mLoadingFullImage = TRUE;
 	getWindow()->incBusyCount();
 	mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
-								0, TRUE, FALSE, new LLUUID( mItemUUID ), &mCallbackTextureList );
+								0, TRUE, FALSE, new LLUUID( mItemUUID ), this, &mCallbackTextureList );
 }
 
 // virtual
@@ -543,6 +544,7 @@ void LLPreviewTexture::onAspectRatioCommit(LLUICtrl* ctrl, void* userdata)
 void LLPreviewTexture::loadAsset()
 {
 	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	mImageOldBoostLevel = mImage->getBoostLevel();
 	mImage->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;

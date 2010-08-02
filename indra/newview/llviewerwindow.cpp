@@ -4524,7 +4524,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		
 		gResizeScreenTexture = TRUE;
 
-		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+		if (gAgentCamera.cameraCustomizeAvatar())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}

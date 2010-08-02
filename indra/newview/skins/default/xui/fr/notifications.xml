@@ -358,7 +358,7 @@ Voulez-vous vraiment continuer ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Supprimer la tenue sélectionnée ?
+		Supprimer la ou les tenues sélectionnées ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">

@@ -40,8 +40,6 @@
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 
-#include "lltrans.h"
-
 #include "boost/bind.hpp"
 
 static const S32 DRAGGER_BAR_MARGIN = 4;
@@ -74,7 +72,6 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
 {
 	initNoTabsWidget(params.no_matched_tabs_text);
 
-	mNoVisibleTabsOrigString = LLTrans::getString(params.no_visible_tabs_text.initial_value().asString());
 	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
 	{
@@ -389,7 +386,7 @@ void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 {
 	LLTextBox::Params tp = tb_params;
 	tp.rect(getLocalRect());
-	mNoMatchedTabsOrigString = LLTrans::getString(tp.initial_value().asString());
+	mNoMatchedTabsOrigString = tp.initial_value().asString();
 	mNoVisibleTabsHelpText = LLUICtrlFactory::create<LLTextBox>(tp, this);
 }
 
@@ -768,17 +765,6 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 			}
 			return 0;
 		}
-		else if(str_action == "deselect_current")
-		{
-			// Reset selection to the currently selected tab.
-			if (mSelectedTab)
-			{
-				mSelectedTab->setSelected(false);
-				mSelectedTab = NULL;
-				return 1;
-			}
-			return 0;
-		}
 	}
 	else if (info.has("scrollToShowRect"))
 	{
@@ -823,31 +809,6 @@ void	LLAccordionCtrl::reset		()
 {
 	if(mScrollbar)
 		mScrollbar->setDocPos(0);
-}
-
-void LLAccordionCtrl::expandDefaultTab()
-{
-	if (mAccordionTabs.size() > 0)
-	{
-		LLAccordionCtrlTab* tab = mAccordionTabs.front();
-
-		if (!tab->getDisplayChildren())
-		{
-			tab->setDisplayChildren(true);
-		}
-
-		for (size_t i = 1; i < mAccordionTabs.size(); ++i)
-		{
-			tab = mAccordionTabs[i];
-
-			if (tab->getDisplayChildren())
-			{
-				tab->setDisplayChildren(false);
-			}
-		}
-
-		arrange();
-	}
 }
 
 void LLAccordionCtrl::sort()
