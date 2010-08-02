@@ -330,17 +330,17 @@
          left="10"
          name="partner_data_panel"
          width="200">
-            <text
-             follows="left|top|right"
-             height="30"
-             initial_value="(retrieving)"
-             layout="topleft"
-             left="0"
-             link="true"
-             name="partner_text"
-             top="0"
-             width="200"
-             word_wrap="true" />
+          <text
+           follows="left|top|right"
+           height="12"
+           initial_value="(retrieving)"
+           layout="topleft"
+           left="0"
+           link="true"
+           name="partner_text"
+           top="0"
+           use_ellipses="true"
+           width="280"/>
          </panel>
         <text
          follows="left|top"

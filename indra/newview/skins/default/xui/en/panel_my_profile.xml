@@ -295,8 +295,8 @@
                link="true"
                name="partner_text"
                top="0"
-           width="300"
-               word_wrap="true" />
+               use_ellipses="true" 
+           width="300" />
             </panel>
             <text
              follows="left|top"
