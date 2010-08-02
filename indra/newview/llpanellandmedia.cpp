@@ -145,7 +145,7 @@ void LLPanelLandMedia::refresh()
 		mMediaURLEdit->setText(parcel->getMediaURL());
 		mMediaURLEdit->setEnabled( FALSE );
 
-		getChild<LLUICtrl>("current_url")->setValue(parcel->getMediaCurrentURL());
+		childSetText("current_url", parcel->getMediaCurrentURL());
 
 		mMediaDescEdit->setText(parcel->getMediaDesc());
 		mMediaDescEdit->setEnabled( can_change_media );
@@ -157,7 +157,7 @@ void LLPanelLandMedia::refresh()
 		}
 		setMediaType(mime_type);
 		mMediaTypeCombo->setEnabled( can_change_media );
-		getChild<LLUICtrl>("mime_type")->setValue(mime_type);
+		childSetText("mime_type", mime_type);
 
 		mMediaUrlCheck->set( parcel->getObscureMedia() );
 		mMediaUrlCheck->setEnabled( can_change_media );
@@ -255,7 +255,7 @@ void LLPanelLandMedia::setMediaType(const std::string& mime_type)
 		// localizable - "none" for example (see EXT-6542)
 		mime_str = LLMIMETypes::getDefaultMimeTypeTranslation();
 	}
-	getChild<LLUICtrl>("mime_type")->setValue(mime_str);
+	childSetText("mime_type", mime_str);
 }
 
 void LLPanelLandMedia::setMediaURL(const std::string& media_url)
@@ -269,7 +269,7 @@ void LLPanelLandMedia::setMediaURL(const std::string& media_url)
 
 	mMediaURLEdit->onCommit();
 	// LLViewerParcelMedia::sendMediaNavigateMessage(media_url);
-	getChild<LLUICtrl>("current_url")->setValue(media_url);
+	childSetText("current_url", media_url);
 }
 std::string LLPanelLandMedia::getMediaURL()
 {
@@ -280,11 +280,11 @@ std::string LLPanelLandMedia::getMediaURL()
 void LLPanelLandMedia::onCommitType(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
-	std::string current_type = LLMIMETypes::widgetType(self->getChild<LLUICtrl>("mime_type")->getValue().asString());
+	std::string current_type = LLMIMETypes::widgetType(self->childGetText("mime_type"));
 	std::string new_type = self->mMediaTypeCombo->getValue();
 	if(current_type != new_type)
 	{
-		self->getChild<LLUICtrl>("mime_type")->setValue(LLMIMETypes::findDefaultMimeType(new_type));
+		self->childSetText("mime_type", LLMIMETypes::findDefaultMimeType(new_type));
 	}
 	onCommitAny(ctrl, userdata);
 
@@ -304,7 +304,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 	// Extract data from UI
 	std::string media_url	= self->mMediaURLEdit->getText();
 	std::string media_desc	= self->mMediaDescEdit->getText();
-	std::string mime_type	= self->getChild<LLUICtrl>("mime_type")->getValue().asString();
+	std::string mime_type	= self->childGetText("mime_type");
 	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
 	U8 media_loop           = self->mMediaLoopCheck->get();
 	U8 obscure_media		= self->mMediaUrlCheck->get();
@@ -313,7 +313,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();
 
 
-	self->getChild<LLUICtrl>("mime_type")->setValue(mime_type);
+	self->childSetText("mime_type", mime_type);
 
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLStringUtil::trim(media_url);
@@ -354,7 +354,7 @@ void LLPanelLandMedia::onResetBtn(void *userdata)
 	LLParcel* parcel = self->mParcel->getParcel();
 	// LLViewerMedia::navigateHome();
 	self->refresh();
-	self->getChild<LLUICtrl>("current_url")->setValue(parcel->getMediaURL());
+	self->childSetText("current_url", parcel->getMediaURL());
 	// LLViewerParcelMedia::sendMediaNavigateMessage(parcel->getMediaURL());
 
 }
