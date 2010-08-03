@@ -3,7 +3,7 @@
  background_visible="true"
  class="edit_profile_panel"
   follows="all"
- height="535"
+ height="548"
  label="Profile Edit"
  layout="topleft"
  left="0"
@@ -60,7 +60,7 @@
  <scroll_container
      color="DkGray2"
      follows="all"
-     height="494"
+     height="507"
      min_height="300"
      layout="topleft"
      left="8"
@@ -74,7 +74,7 @@
          follows="left|top|right"
          layout="topleft"
          top="0"
-     height="494"
+     height="507"
      min_height="300"
          left="0"
          width="292">
@@ -83,7 +83,7 @@
      follows="left|top|right"
          layout="topleft"
          top="0"
-     height="494"
+     height="507"
      min_height="300"
          left="0"
          width="292">
