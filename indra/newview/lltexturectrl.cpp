@@ -426,6 +426,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
 
+		// Disable auto selecting first filtered item because it takes away
+		// selection from the item set by LLTextureCtrl owning this floater.
+		mInventoryPanel->getRootFolder()->setAutoSelectOverride(TRUE);
+
 		// Commented out to scroll to currently selected texture. See EXT-5403.
 		// // store this filter as the default one
 		// mInventoryPanel->getRootFolder()->getFilter()->markDefault();

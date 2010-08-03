@@ -2614,7 +2614,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			params.substitutions = substitutions;
 			params.payload = payload;
 
-			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, false);
+			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, from_group);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:

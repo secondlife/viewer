@@ -427,7 +427,17 @@ Mídia:
 			<check_box label="Repetir mídia" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia chegar ao fim, ela recomeça."/>
 		</panel>
 		<panel label="SOM" name="land_audio_panel">
+			<text name="MusicURL:">
+				URL de música:
+			</text>
 			<check_box label="Ocultar URL" name="hide_music_url" tool_tip="Selecionar esta opção oculta o URL de música a visitantes não autorizados aos dados do terreno."/>
+			<text name="Sound:">
+				Som:
+			</text>
+			<check_box label="Limitar sons de gestos e objetos a esta parcela" name="check sound local"/>
+			<text name="Voice settings:">
+				Voz:
+			</text>
 			<check_box label="Ativar voz" name="parcel_enable_voice_channel"/>
 			<check_box label="Ativar voz (definições do terreno)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limitar bate-papo de voz a este lote" name="parcel_enable_voice_channel_local"/>
