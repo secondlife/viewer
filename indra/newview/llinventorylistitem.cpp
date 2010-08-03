@@ -44,7 +44,6 @@
 // newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
-#include "llinventorydefines.h"
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(&typeid(LLPanelInventoryListItemBase::Params), "inventory_list_item");
 
@@ -97,12 +96,9 @@ void LLPanelInventoryListItemBase::draw()
 
 	if (mSeparatorVisible && mSeparatorImage)
 	{
-		// place under bottom of listitem, using image height
-		// item_pad in list using the item should be >= image height
-		// to avoid cropping of top of the next item.
+		// stretch along bottom of listitem, using image height
 		LLRect separator_rect = getLocalRect();
-		separator_rect.mTop = separator_rect.mBottom;
-		separator_rect.mBottom -= mSeparatorImage->getHeight();
+		separator_rect.mTop = mSeparatorImage->getHeight();
 		mSeparatorImage->draw(separator_rect);
 	}
 	
@@ -167,7 +163,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item)
 	{
-		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & inv_item->getFlags());
+		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), FALSE);
 		updateItem(inv_item->getName());
 	}
 
