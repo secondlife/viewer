@@ -380,6 +380,19 @@ private:
 };
 
 /**
+ * @class LLWearableItemCreationDateComparator
+ *
+ * Comparator for sorting wearable list items by creation date (newest go first).
+ */
+class LLWearableItemCreationDateComparator : public LLWearableItemNameComparator
+{
+	LOG_CLASS(LLWearableItemCreationDateComparator);
+
+protected:
+	/*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const;
+};
+
+/**
  * @class LLWearableItemsList
  *
  * A flat list of wearable inventory items.
@@ -431,6 +444,14 @@ public:
 		Params();
 	};
 
+	typedef enum e_sort_order {
+		// Values should be compatible with InventorySortOrder setting.
+		E_SORT_BY_NAME			= 0,
+		E_SORT_BY_MOST_RECENT	= 1,
+		E_SORT_BY_TYPE_LAYER	= 2,
+		E_SORT_BY_TYPE_NAME 	= 3,
+	} ESortOrder;
+
 	virtual ~LLWearableItemsList();
 
 	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
@@ -445,6 +466,10 @@ public:
 
 	bool isStandalone() const { return mIsStandalone; }
 
+	ESortOrder getSortOrder() const { return mSortOrder; }
+
+	void setSortOrder(ESortOrder sort_order, bool sort_now = true);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);
@@ -453,6 +478,8 @@ protected:
 
 	bool mIsStandalone;
 	bool mWornIndicationEnabled;
+
+	ESortOrder		mSortOrder;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H
