@@ -145,10 +145,10 @@ public:
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
 	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void onInventorySelectionChange();
+	void updatePlusButton();
 	void onPlusBtnClicked(void);
 
-	void onVisibilityChange();
+	void onVisibilityChange(const LLSD &in_visible_chain);
 
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);
@@ -198,6 +198,11 @@ private:
 	void onOutfitChanging(bool started);
 	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
 	void getCurrentItemUUID(LLUUID& selected_id);
+	void onCOFChanged();
+
+	LLWearableType::EType getCOFWearablesSelectionType() const;
+	LLWearableType::EType getAddMorePanelSelectionType() const;
+	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;

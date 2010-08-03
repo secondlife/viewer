@@ -40,8 +40,6 @@
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 
-#include "lltrans.h"
-
 #include "boost/bind.hpp"
 
 static const S32 DRAGGER_BAR_MARGIN = 4;
@@ -74,7 +72,6 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
 {
 	initNoTabsWidget(params.no_matched_tabs_text);
 
-	mNoVisibleTabsOrigString = LLTrans::getString(params.no_visible_tabs_text.initial_value().asString());
 	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
 	{
@@ -389,7 +386,7 @@ void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 {
 	LLTextBox::Params tp = tb_params;
 	tp.rect(getLocalRect());
-	mNoMatchedTabsOrigString = LLTrans::getString(tp.initial_value().asString());
+	mNoMatchedTabsOrigString = tp.initial_value().asString();
 	mNoVisibleTabsHelpText = LLUICtrlFactory::create<LLTextBox>(tp, this);
 }
 
