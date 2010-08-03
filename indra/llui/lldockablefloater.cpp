@@ -50,6 +50,7 @@ void LLDockableFloater::init(LLDockableFloater* thiz)
 	thiz->setCanDock(true);
 	thiz->setCanMinimize(TRUE);
 	thiz->setOverlapsScreenChannel(false);
+	thiz->mForceDocking = false;
 }
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
@@ -81,6 +82,12 @@ LLDockableFloater::~LLDockableFloater()
 
 BOOL LLDockableFloater::postBuild()
 {
+	// Remember we should force docking when the floater is opened for the first time
+	if (mIsDockedStateForcedCallback != NULL && mIsDockedStateForcedCallback())
+	{
+		mForceDocking = true;
+	}
+
 	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
 	LLFloater::setDocked(true);
 	return LLView::postBuild();
@@ -134,6 +141,14 @@ void LLDockableFloater::resetInstance()
 
 void LLDockableFloater::setVisible(BOOL visible)
 {
+	// Force docking if requested
+	if (visible && mForceDocking)
+	{
+		setCanDock(true);
+		setDocked(true);
+		mForceDocking = false;
+	}
+
 	if(visible && isDocked())
 	{
 		resetInstance();

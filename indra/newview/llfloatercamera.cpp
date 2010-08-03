@@ -62,6 +62,7 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 #define CONTROLS "controls"
 
 bool LLFloaterCamera::sFreeCamera = false;
+bool LLFloaterCamera::sAppearanceEditing = false;
 
 // Zoom the camera in and out
 class LLPanelCameraZoom
@@ -250,16 +251,21 @@ void LLFloaterCamera::resetCameraMode()
 
 void LLFloaterCamera::onAvatarEditingAppearance(bool editing)
 {
+	sAppearanceEditing = editing;
 	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
 	if (!floater_camera) return;
+	floater_camera->handleAvatarEditingAppearance(editing);
+}
 
+void LLFloaterCamera::handleAvatarEditingAppearance(bool editing)
+{
 	//camera presets (rear, front, etc.)
-	floater_camera->getChildView("preset_views_list")->setEnabled(!editing);
-	floater_camera->getChildView("presets_btn")->setEnabled(!editing);
+	getChildView("preset_views_list")->setEnabled(!editing);
+	getChildView("presets_btn")->setEnabled(!editing);
 
 	//camera modes (object view, mouselook view)
-	floater_camera->getChildView("camera_modes_list")->setEnabled(!editing);
-	floater_camera->getChildView("avatarview_btn")->setEnabled(!editing);
+	getChildView("camera_modes_list")->setEnabled(!editing);
+	getChildView("avatarview_btn")->setEnabled(!editing);
 }
 
 void LLFloaterCamera::update()
@@ -354,6 +360,9 @@ BOOL LLFloaterCamera::postBuild()
 
 	update();
 
+	// ensure that appearance mode is handled while building. See EXT-7796.
+	handleAvatarEditingAppearance(sAppearanceEditing);
+
 	return LLDockableFloater::postBuild();
 }
 
@@ -376,6 +385,12 @@ void LLFloaterCamera::fillFlatlistFromPanel (LLFlatListView* list, LLPanel* pane
 
 ECameraControlMode LLFloaterCamera::determineMode()
 {
+	if (sAppearanceEditing)
+	{
+		// this is the only enabled camera mode while editing agent appearance.
+		return CAMERA_CTRL_MODE_PAN;
+	}
+
 	LLTool* curr_tool = LLToolMgr::getInstance()->getCurrentTool();
 	if (curr_tool == LLToolCamera::getInstance())
 	{
