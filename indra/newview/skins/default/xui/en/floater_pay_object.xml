@@ -7,7 +7,7 @@
  name="Give Money"
  help_topic="give_money"
  save_rect="true"
- width="225">
+ width="250">
     <string
      name="payee_group">
         Pay Group
@@ -23,7 +23,8 @@
      left="10"
      top_pad="24"
      name="payee_name"
-     width="200">
+     use_ellipses="true" 
+     width="225">
       Ericacita Moostopolison
     </text>
     <text
