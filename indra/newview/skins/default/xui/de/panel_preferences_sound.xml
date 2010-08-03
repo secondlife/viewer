@@ -11,8 +11,8 @@
 	<check_box label="Aktiviert" name="enable_media"/>
 	<slider label="Voice-Chat" name="Voice Volume"/>
 	<check_box label="Aktiviert" name="enable_voice_check"/>
-	<check_box label="Automatische Wiedergabe zulassen" name="media_auto_play_btn" tool_tip="Hier aktivieren, um Medien automatisch wiederzugeben."/>
-	<check_box label="Medien, die an andere Avatare angehängt sind, wiedergeben." name="media_show_on_others_btn" tool_tip="Diese Option deaktivieren, um Medien für andere Avataren, die sich in der Nähe befinden, auszublenden."/>
+	<check_box label="Automatische Wiedergabe zulassen" name="media_auto_play_btn" tool_tip="Hier aktivieren, um Medien automatisch wiederzugeben." value="true"/>
+	<check_box label="Medien, die an andere Avatare angehängt sind, wiedergeben." name="media_show_on_others_btn" tool_tip="Diese Option deaktivieren, um Medien für andere Avataren, die sich in der Nähe befinden, auszublenden." value="true"/>
 	<text name="voice_chat_settings">
 		Voice-Chat-Einstellungen
 	</text>
@@ -27,6 +27,12 @@
 	<panel label="Geräte-Einstellungen" name="device_settings_panel">
 		<panel.string name="default_text">
 			Standard
+		</panel.string>
+		<panel.string name="default system device">
+			Standardgerät
+		</panel.string>
+		<panel.string name="no device">
+			Kein Gerät
 		</panel.string>
 		<text name="Input">
 			Eingabe

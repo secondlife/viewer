@@ -12,6 +12,9 @@
 				Puede añadir o quitar los roles asignados a los miembros.
 Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada uno de ellos.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
 			<filter_editor label="Filtrar los miembros" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Miembro" name="name"/>
@@ -74,21 +77,15 @@ incluyendo el de Todos y el de Propietarios.
 		<text name="static">
 			Nombre del rol
 		</text>
-		<line_editor name="role_name">
-			Empleados
-		</line_editor>
+		<line_editor name="role_name"/>
 		<text name="static3">
 			Etiqueta del rol
 		</text>
-		<line_editor name="role_title">
-			(esperando)
-		</line_editor>
+		<line_editor name="role_title"/>
 		<text name="static2">
 			Descripción
 		</text>
-		<text_editor name="role_description">
-			(esperando)
-		</text_editor>
+		<text_editor name="role_description"/>
 		<text name="static4">
 			Roles asignados
 		</text>
@@ -103,9 +100,6 @@ incluyendo el de Todos y el de Propietarios.
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">
-		<text name="static">
-			Descripción de la capacidad
-		</text>
 		<text_editor name="action_description">
 			Esta capacidad es la de &apos;Expulsar miembros de este grupo&apos;. Sólo un propietario puede expulsar a otro.
 		</text_editor>

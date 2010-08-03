@@ -22,11 +22,11 @@
 		<text name="land_sale_label">
 			Land-Verkauf
 		</text>
-		<text name="by_owner_label">
-			durch Besitzer
-		</text>
 		<text name="auction_label">
 			Land-Auktion
+		</text>
+		<text name="by_owner_label">
+			durch Besitzer
 		</text>
 		<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 		<text name="Home_label">
@@ -39,7 +39,7 @@
 		<text name="pg_label">
 			Generell
 		</text>
-		<check_box label="Mature" name="events_mature_chk"/>
+		<check_box initial_value="true" label="Mature" name="events_mature_chk"/>
 		<text name="events_mature_label">
 			Moderat
 		</text>
@@ -67,6 +67,9 @@
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="sim_name"/>
 		</scroll_list>
+		<text name="events_label">
+			Standort:
+		</text>
 		<button label="Teleportieren" label_selected="Teleportieren" name="Teleport" tool_tip="Zu ausgewählter Position teleportieren"/>
 		<button font="SansSerifSmall" label="SLurl kopieren" name="copy_slurl" tool_tip="Kopiert die aktuelle Position als SLurl zur Verwendung im Web."/>
 		<button label="Auswahl anzeigen" label_selected="Ziel anzeigen" name="Show Destination" tool_tip="Karte auf ausgewählte Position zentrieren"/>
