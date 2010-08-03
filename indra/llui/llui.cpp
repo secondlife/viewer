@@ -477,8 +477,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 	}
 
 	// add in offset of current image to current ui translation
-	const LLVector3 ui_translation = gGL.getUITranslation() + LLVector3(x, y, 0.f);
 	const LLVector3 ui_scale = gGL.getUIScale();
+	const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3(x, y, 0.f)).scaledVec(ui_scale);
 
 	F32 uv_width = uv_outer_rect.getWidth();
 	F32 uv_height = uv_outer_rect.getHeight();
@@ -514,8 +514,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		F32 shrink_scale = 1.f - llmax(shrink_width_ratio, shrink_height_ratio);
 
 		draw_center_rect.mLeft = llround(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * shrink_scale * ui_scale.mV[VX]);
-		draw_center_rect.mTop = llround(ui_translation.mV[VY] + lerp((F32)height, (F32)draw_center_rect.mTop, shrink_scale * ui_scale.mV[VY]));
-		draw_center_rect.mRight = llround(ui_translation.mV[VX] + lerp((F32)width, (F32)draw_center_rect.mRight, shrink_scale * ui_scale.mV[VX]));
+		draw_center_rect.mTop = llround(ui_translation.mV[VY] + lerp((F32)height, (F32)draw_center_rect.mTop, shrink_scale) * ui_scale.mV[VY]);
+		draw_center_rect.mRight = llround(ui_translation.mV[VX] + lerp((F32)width, (F32)draw_center_rect.mRight, shrink_scale) * ui_scale.mV[VX]);
 		draw_center_rect.mBottom = llround(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * shrink_scale * ui_scale.mV[VY]);
 	}
 
@@ -735,17 +735,21 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 		gGL.begin(LLRender::QUADS);
 		{
+			LLVector3 ui_scale = gGL.getUIScale();
 			LLVector3 ui_translation = gGL.getUITranslation();
 			ui_translation.mV[VX] += x;
 			ui_translation.mV[VY] += y;
+			ui_translation.scaleVec(ui_scale);
 			S32 index = 0;
+			S32 scaled_width = llround(width * ui_scale.mV[VX]);
+			S32 scaled_height = llround(height * ui_scale.mV[VY]);
 
 			uv[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
-			pos[index] = LLVector3(ui_translation.mV[VX] + width, ui_translation.mV[VY] + height, 0.f);
+			pos[index] = LLVector3(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY] + scaled_height, 0.f);
 			index++;
 
 			uv[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
-			pos[index] = LLVector3(ui_translation.mV[VX], ui_translation.mV[VY] + height, 0.f);
+			pos[index] = LLVector3(ui_translation.mV[VX], ui_translation.mV[VY] + scaled_height, 0.f);
 			index++;
 
 			uv[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
@@ -753,7 +757,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			index++;
 
 			uv[index] = LLVector2(uv_rect.mRight, uv_rect.mBottom);
-			pos[index] = LLVector3(ui_translation.mV[VX] + width, ui_translation.mV[VY], 0.f);
+			pos[index] = LLVector3(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY], 0.f);
 			index++;
 
 			gGL.vertexBatchPreTransformed(pos, uv, NUM_VERTICES);
