@@ -27,7 +27,7 @@
 			Médias proches
 		</text>
 		<text name="show_text">
-			Voir :
+			Afficher :
 		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tout" name="All"/>
@@ -42,7 +42,7 @@
 			<scroll_list.columns label="Nom" name="media_name"/>
 			<scroll_list.columns label="Débogage" name="media_debug"/>
 		</scroll_list>
-		<panel name="media_controls_panel">
+		<panel>
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Arrêter le média sélectionné"/>
