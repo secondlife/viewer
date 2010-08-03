@@ -275,11 +275,10 @@ protected:
 		}
 		else if ("wear_replace" == param)
 		{
-			return !gAgentWearables.isCOFChangeInProgress();
+			return LLAppearanceMgr::instance().getCanReplaceCOF(outfit_cat_id);
 		}
 		else if ("wear_add" == param)
 		{
-			if (gAgentWearables.isCOFChangeInProgress()) return false;
 			return LLAppearanceMgr::getCanAddToCOF(outfit_cat_id);
 		}
 		else if ("take_off" == param)
@@ -676,7 +675,7 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 		}
 
 		// outfit selected
-		return LLAppearanceMgr::getCanAddToCOF(mSelectedOutfitUUID);
+		return LLAppearanceMgr::instance().getCanReplaceCOF(mSelectedOutfitUUID);
 	}
 	if (command_name == "take_off")
 	{
@@ -689,11 +688,6 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 	if (command_name == "wear_add")
 	{
 		// *TODO: do we ever get here?
-		if (gAgentWearables.isCOFChangeInProgress())
-		{
-			return false;
-		}
-
 		return LLAppearanceMgr::getCanAddToCOF(mSelectedOutfitUUID);
 	}
 
