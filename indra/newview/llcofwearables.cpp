@@ -284,8 +284,8 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachmentsTab(NULL),
 	mBodyPartsTab(NULL),
 	mLastSelectedTab(NULL),
-	mCOFVersion(-1),
-	mAccordionCtrl(NULL)
+	mAccordionCtrl(NULL),
+	mCOFVersion(-1)
 {
 	mClothingMenu = new CofClothingContextMenu(this);
 	mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -396,8 +396,7 @@ void LLCOFWearables::refresh()
 		return;
 	}
 
-	// BAP - removed check; does not detect item name changes.
-	//if (mCOFVersion == catp->getVersion()) return;
+	if (mCOFVersion == catp->getVersion()) return;
 	mCOFVersion = catp->getVersion();
 
 	typedef std::vector<LLSD> values_vector_t;

@@ -237,7 +237,7 @@ public:
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
 	std::string getMediaEntryURL() { return mMediaEntryURL; }
-    void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
+	void setHomeURL(const std::string& home_url, const std::string& mime_type = LLStringUtil::null) { mHomeURL = home_url; mHomeMimeType = mime_type;};
 	void clearCache();
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
@@ -401,6 +401,7 @@ private:
 	bool  mMovieImageHasMips;
 	std::string mMediaURL;			// The last media url set with NavigateTo
 	std::string mHomeURL;
+	std::string mHomeMimeType;		// forced mime type for home url
 	std::string mMimeType;
 	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
 	std::string mCurrentMimeType;	// The MIME type that caused the currently loaded plugin to be loaded.
