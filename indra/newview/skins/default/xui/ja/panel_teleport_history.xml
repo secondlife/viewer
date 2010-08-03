@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History">
 	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="お探しのものは見つかりましたか？[secondlife:///app/search/places/[SEARCH_TERM]をお試しください。"/>
+		<no_visible_tabs_text name="no_teleports_msg" value="テレポートの履歴には何も情報がありません。[secondlife:///app/search/places/ Search]をお試しください。"/>
 		<accordion_tab name="today" title="今日"/>
 		<accordion_tab name="yesterday" title="昨日"/>
 		<accordion_tab name="2_days_ago" title="2日前"/>
