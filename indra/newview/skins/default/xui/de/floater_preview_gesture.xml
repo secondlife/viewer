@@ -64,7 +64,6 @@
 	</radio_group>
 	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check"/>
 	<check_box label="Zeit in Sekunden:" name="wait_time_check"/>
-	<line_editor name="wait_time_editor"/>
 	<text name="help_label">
 		Alle Schritte werden gleichzeitig ausgeführt, wenn keine Pausen hinzugefügt wurden.
 	</text>
