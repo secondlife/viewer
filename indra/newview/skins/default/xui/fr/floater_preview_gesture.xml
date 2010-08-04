@@ -13,13 +13,13 @@
 		Attendre :
 	</floater.string>
 	<floater.string name="stop_txt">
-		Arrêter
+		Stop
 	</floater.string>
 	<floater.string name="preview_txt">
 		Prévisualiser
 	</floater.string>
 	<floater.string name="none_text">
-		- Aucun choix -
+		-- Aucune --
 	</floater.string>
 	<floater.string name="Title">
 		Geste : [NAME]
