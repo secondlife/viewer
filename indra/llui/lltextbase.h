@@ -361,10 +361,7 @@ public:
 	virtual void			appendLineBreakSegment(const LLStyle::Params& style_params);
 	virtual void			appendImageSegment(const LLStyle::Params& style_params);
 	virtual void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
-
-public:
-	// Fired when a URL link is clicked
-	commit_signal_t mURLClickSignal;
+	boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
 
 protected:
 	// helper structs
@@ -457,7 +454,7 @@ protected:
 	void							createDefaultSegment();
 	virtual void					updateSegments();
 	void							insertSegment(LLTextSegmentPtr segment_to_insert);
-	LLStyle::Params					getDefaultStyleParams();
+	const LLStyle::Params&			getDefaultStyleParams();
 
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
@@ -501,6 +498,12 @@ protected:
 	LLRect						mVisibleTextRect;			// The rect in which text is drawn.  Excludes borders.
 	LLRect						mTextBoundingRect;
 
+	// default text style
+	LLStyle::Params				mDefaultStyle;
+	bool						mStyleDirty;
+	const LLFontGL* const		mDefaultFont;		// font that is used when none specified, can only be set by constructor
+	const LLFontGL::ShadowType	mFontShadow;		// shadow style, can only be set by constructor
+
 	// colors
 	LLUIColor					mCursorColor;
 	LLUIColor					mFgColor;
@@ -527,8 +530,6 @@ protected:
 	LLFontGL::VAlign			mVAlign;
 	F32							mLineSpacingMult;	// multiple of line height used as space for a single line of text (e.g. 1.5 to get 50% padding)
 	S32							mLineSpacingPixels;	// padding between lines
-	const LLFontGL*				mDefaultFont;		// font that is used when none specified
-	LLFontGL::ShadowType		mFontShadow;
 	bool						mBorderVisible;
 	bool                		mParseHTML;			// make URLs interactive
 	bool						mParseHighlights;	// highlight user-defined keywords
@@ -550,6 +551,9 @@ protected:
 	S32							mReflowIndex;		// index at which to start reflow.  S32_MAX indicates no reflow needed.
 	bool						mScrollNeeded;		// need to change scroll region because of change to cursor position
 	S32							mScrollIndex;		// index of first character to keep visible in scroll region
+
+	// Fired when a URL link is clicked
+	commit_signal_t*			mURLClickSignal;
 
 };
 
