@@ -855,9 +855,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// but probably not for Textures.
 			// Set the throttle to the entire bandwidth, assuming UDP packets will get priority
 			// when they are needed
-			//F32 max_bandwidth = mFetcher->mMaxBandwidth;
-			if (mFetcher->isHTTPThrottled(mDesiredSize))// ||
-				//mFetcher->getTextureBandwidth() > max_bandwidth)
+			F32 max_bandwidth = mFetcher->mMaxBandwidth;
+			if (mFetcher->isHTTPThrottled(mDesiredSize) ||
+				mFetcher->getTextureBandwidth() > max_bandwidth)
 			{
 				// Make normal priority and return (i.e. wait until there is room in the queue)
 				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
@@ -872,17 +872,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				cur_size = mFormattedImage->getDataSize(); // amount of data we already have
 				if (mFormattedImage->getDiscardLevel() == 0)
 				{
-					if(cur_size > 0)
-					{
-						// We already have all the data, just decode it
-						mLoadedDiscard = mFormattedImage->getDiscardLevel();
-						mState = DECODE_IMAGE;
-						return false;
-					}
-					else
-					{
-						return true ; //abort.
-					}
+					// We already have all the data, just decode it
+					mLoadedDiscard = mFormattedImage->getDiscardLevel();
+					mState = DECODE_IMAGE;
+					return false;
 				}
 			}
 			mRequestedSize = mDesiredSize;
@@ -899,7 +892,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mGetReason.clear();
 				LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << offset
 									 << " Bytes: " << mRequestedSize
-									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
+									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << max_bandwidth
 									 << LL_ENDL;
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 				mState = WAIT_HTTP_REQ;	
@@ -989,17 +982,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 			}
 			
-			llassert_always(mBufferSize == cur_size + mRequestedSize);
-			if(!mBufferSize)//no data received.
-			{
-				delete[] mBuffer; 
-				mBuffer = NULL;
-
-				//abort.
-				mState = DONE;
-				return true;
-			}
-
 			if (mFormattedImage.isNull())
 			{
 				// For now, create formatted image based on extension
@@ -1010,7 +992,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					mFormattedImage = new LLImageJ2C; // default
 				}
 			}
-						
+			
+			llassert_always(mBufferSize == cur_size + mRequestedSize);
 			if (mHaveAllData && mRequestedDiscard == 0) //the image file is fully loaded.
 			{
 				mFileSize = mBufferSize;
@@ -1069,12 +1052,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		
 		if (mFormattedImage->getDataSize() <= 0)
 		{
-			//llerrs << "Decode entered with invalid mFormattedImage. ID = " << mID << llendl;
-			
-			//abort, don't decode
-			mState = DONE;
-			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
-			return true;
+			llerrs << "Decode entered with invalid mFormattedImage. ID = " << mID << llendl;
 		}
 		if (mLoadedDiscard < 0)
 		{
@@ -1729,7 +1707,7 @@ bool LLTextureFetch::isHTTPThrottled(S32 requested_size)
 
 	if(mHTTPTextureQueue.size() >= MAX_HTTP_QUEUE_SIZE)//if the http queue is full.
 	{
-		if(!mHTTPThrottleFlag[type + 1])
+		if(!mHTTPThrottleFlag[TOTAL_TEXTURE_TYPES - 1])
 		{
 			for(S32 i = type + 1 ; i < TOTAL_TEXTURE_TYPES; i++) //block all requests with fetching size larger than this request.		
 			{
