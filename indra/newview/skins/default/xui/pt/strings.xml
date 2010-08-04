@@ -645,6 +645,9 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		L$[PRICE] por [AREA] m²
+	</string>
 	<string name="worldmap_results_none_found">
 		Nenhum encontrado.
 	</string>
@@ -1034,6 +1037,7 @@
 	<string name="AnimFlagStop" value="Parar animação"/>
 	<string name="AnimFlagStart" value="Iniciar animação"/>
 	<string name="Wave" value="Acenar"/>
+	<string name="GestureActionNone" value="Nenhum"/>
 	<string name="HelloAvatar" value="Olá, avatar!"/>
 	<string name="ViewAllGestures" value="Ver todos&gt;&gt;"/>
 	<string name="GetMoreGestures" value="Mais &gt;&gt;"/>
@@ -1116,11 +1120,11 @@
 	<string name="InvFolder Favorite">
 		Favoritos
 	</string>
-	<string name="InvFolder favorite">
-		Favoritos
-	</string>
 	<string name="InvFolder Current Outfit">
 		Look atual
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Looks iniciais
 	</string>
 	<string name="InvFolder My Outfits">
 		Meus looks
@@ -1441,6 +1445,7 @@
 	<string name="SummaryForTheWeek" value="Resumo para esta semana, com início em"/>
 	<string name="NextStipendDay" value="Próximo dia de salário é"/>
 	<string name="GroupIndividualShare" value="Grupo       Divisão individualI"/>
+	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">
 		Balanço
 	</string>
@@ -1653,6 +1658,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
+	</string>
+	<string name="NoOutfits">
+		Você ainda não tem nenhum look. Tente encontrar um na [secondlife:///app/search/groups Busca].
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Não encontrou o que procura? Tente fazer uma [secondlife:///app/search/people/[SEARCH_TERM] Busca].
 	</string>
 	<string name="MuteByName">
 		(por nome)
@@ -3573,6 +3584,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="group_role_owners">
 		Proprietários
 	</string>
+	<string name="group_member_status_online">
+		Conectado
+	</string>
 	<string name="uploading_abuse_report">
 		Carregando...
   
@@ -3626,8 +3640,14 @@ Denunciar abuso
 	<string name="Invalid Wearable">
 		Item inválido
 	</string>
+	<string name="New Gesture">
+		Novo gesto
+	</string>
 	<string name="New Script">
 		Novo script
+	</string>
+	<string name="New Note">
+		Nova nota
 	</string>
 	<string name="New Folder">
 		Nova pasta
@@ -3686,6 +3706,15 @@ Denunciar abuso
 	<string name="Male - Wow">
 		Wow - masculino
 	</string>
+	<string name="Female - Chuckle">
+		Engraçado - Feminino
+	</string>
+	<string name="Female - Cry">
+		Chorar - Feminino
+	</string>
+	<string name="Female - Embarrassed">
+		Com vergonha - Feminino
+	</string>
 	<string name="Female - Excuse me">
 		Perdão - fem
 	</string>
@@ -3704,8 +3733,20 @@ Denunciar abuso
 	<string name="Female - Hey">
 		Ôpa - feminino
 	</string>
+	<string name="Female - Hey baby">
+		E aí, beliza? - Feminino
+	</string>
 	<string name="Female - Laugh">
 		Risada - feminina
+	</string>
+	<string name="Female - Looking good">
+		Que chique - Feminino
+	</string>
+	<string name="Female - Over here">
+		Acenar - Feminino
+	</string>
+	<string name="Female - Please">
+		Por favor - Feminino
 	</string>
 	<string name="Female - Repulsed">
 		Quero distância! - feminino
@@ -3755,5 +3796,47 @@ Denunciar abuso
 	</string>
 	<string name="dateTimePM">
 		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		US$ [AMOUNT]
+	</string>
+	<string name="Membership">
+		Plano
+	</string>
+	<string name="Roles">
+		Cargos
+	</string>
+	<string name="Group Identity">
+		Identidade do lote
+	</string>
+	<string name="Parcel Management">
+		Gestão do lote
+	</string>
+	<string name="Parcel Identity">
+		ID do lote
+	</string>
+	<string name="Parcel Settings">
+		Configurações do lote
+	</string>
+	<string name="Parcel Powers">
+		Poderes do lote
+	</string>
+	<string name="Parcel Access">
+		Acesso ao lote
+	</string>
+	<string name="Parcel Content">
+		Conteúdo do lote
+	</string>
+	<string name="Object Management">
+		Gestão de objetos
+	</string>
+	<string name="Accounting">
+		Contabilidade
+	</string>
+	<string name="Notices">
+		Avisos
+	</string>
+	<string name="Chat">
+		Bate-papo
 	</string>
 </strings>
