@@ -773,11 +773,11 @@ void LLPanelOutfitEdit::onAddWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id)
+void LLPanelOutfitEdit::onReplaceMenuItemClicked(LLUUID selected_item_id)
 {
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 
-	if (item && item->getType() == LLAssetType::AT_BODYPART)
+	if (item)
 	{
 		showFilteredWearablesListView(item->getWearableType());
 	}

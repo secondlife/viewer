@@ -21,7 +21,7 @@
 	<text name="notice_list_none_found">
 		見つかりませんでした
 	</text>
-	<button label="新しい通知を作成" label_selected="新しい通知を作成" name="create_new_notice" tool_tip="新しい通知を作成します"/>
+	<button label="新しい通知" label_selected="新しい通知を作成" name="create_new_notice" tool_tip="新しい通知を作成します"/>
 	<button label="更新" label_selected="リスト更新" name="refresh_notices" tool_tip="通知リストを更新します"/>
 	<panel label="新しい通知を作成" name="panel_create_new_notice">
 		<text name="lbl">

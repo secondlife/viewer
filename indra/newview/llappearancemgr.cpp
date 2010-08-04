@@ -1275,9 +1275,40 @@ bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
 // static
 bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
 {
+	if (gAgentWearables.isCOFChangeInProgress())
+	{
+		return false;
+	}
+
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+	return items.size() > 0;
+}
+
+bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
+{
+	// Don't allow wearing anything while we're changing appearance.
+	if (gAgentWearables.isCOFChangeInProgress())
+	{
+		return false;
+	}
+
+	// Check whether it's the base outfit.
+	if (outfit_cat_id.isNull() || outfit_cat_id == getBaseOutfitUUID())
+	{
+		return false;
+	}
+
+	// Check whether the outfit contains any non-worn wearables.
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
 	gInventory.collectDescendentsIf(outfit_cat_id,
 		cats,
 		items,
