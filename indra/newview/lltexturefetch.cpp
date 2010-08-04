@@ -844,15 +844,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		if(mCanUseHTTP)
 		{
-			const S32 HTTP_QUEUE_MAX_SIZE = 8;
 			// *TODO: Integrate this with llviewerthrottle
 			// Note: LLViewerThrottle uses dynamic throttling which makes sense for UDP,
 			// but probably not for Textures.
 			// Set the throttle to the entire bandwidth, assuming UDP packets will get priority
 			// when they are needed
 			F32 max_bandwidth = mFetcher->mMaxBandwidth;
-			if ((mFetcher->getHTTPQueueSize() >= HTTP_QUEUE_MAX_SIZE) ||
-				(mFetcher->getTextureBandwidth() > max_bandwidth))
+			if (mFetcher->isHTTPThrottled(mDesiredSize) ||
+				mFetcher->getTextureBandwidth() > max_bandwidth)
 			{
 				// Make normal priority and return (i.e. wait until there is room in the queue)
 				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
@@ -1255,7 +1254,7 @@ bool LLTextureFetchWorker::deleteOK()
 
 	if ((haveWork() &&
 		 // not ok to delete from these states
-		 ((mState >= SEND_HTTP_REQ && mState <= WAIT_HTTP_REQ) ||
+		 ((mState == WAIT_HTTP_REQ) ||
 		  (mState >= WRITE_TO_CACHE && mState <= WAIT_ON_WRITE))))
 	{
 		delete_ok = false;
@@ -1516,6 +1515,11 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
+	
+	for(S32 i = 0 ; i < TOTAL_TEXTURE_TYPES; i++)
+	{
+		mHTTPThrottleFlag[i] = FALSE ;
+	}
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -1661,6 +1665,65 @@ void LLTextureFetch::removeFromHTTPQueue(const LLUUID& id)
 {
 	LLMutexLock lock(&mNetworkQueueMutex);
 	mHTTPTextureQueue.erase(id);
+}
+
+void LLTextureFetch::clearHTTPThrottleFlag()
+{
+	static const F32 WAIT_TIME = 0.3f ; //seconds.
+	static LLFrameTimer timer ;
+
+	if(timer.getElapsedTimeF32() < WAIT_TIME) //wait for WAIT_TIME
+	{
+		return ;
+	}
+	timer.reset() ;
+
+	LLMutexLock lock(&mNetworkQueueMutex);
+	for(S32 i = 0 ; i < TOTAL_TEXTURE_TYPES; i++)//reset the http throttle flags.
+	{
+		mHTTPThrottleFlag[i] = FALSE ;
+	}
+}
+
+//check if need to throttle this fetching request.
+//rule: if a request can not be inserted into the http queue due to a full queue,
+//      block all future insertions of requests with larger fetching size requirement.
+//because:
+//      later insertions are usually at lower priorities; and
+//      small textures need chance to be fetched.
+bool LLTextureFetch::isHTTPThrottled(S32 requested_size)
+{
+	static const S32 SMALL_TEXTURE_MAX_SIZE = 64 * 64 * 4 ;
+	static const S32 MEDIUM_TEXTURE_MAX_SIZE = 256 * 256 * 4 ;
+	static const U32 MAX_HTTP_QUEUE_SIZE = 8 ;
+
+	//determine the class of the texture: SMALL, MEDIUM, or LARGE.
+	S32 type = LARGE_TEXTURE ;
+	if(requested_size <= SMALL_TEXTURE_MAX_SIZE)
+	{
+		type = SMALL_TEXTURE ;
+	}
+	else if(requested_size <= MEDIUM_TEXTURE_MAX_SIZE)
+	{
+		type = MEDIUM_TEXTURE ;
+	}
+
+	LLMutexLock lock(&mNetworkQueueMutex);
+
+	if(mHTTPTextureQueue.size() >= MAX_HTTP_QUEUE_SIZE)//if the http queue is full.
+	{
+		if(!mHTTPThrottleFlag[TOTAL_TEXTURE_TYPES - 1])
+		{
+			for(S32 i = type + 1 ; i < TOTAL_TEXTURE_TYPES; i++) //block all requests with fetching size larger than this request.		
+			{
+				mHTTPThrottleFlag[i] = TRUE ;			
+			}
+		}
+		
+		return true ;
+	}
+
+	return mHTTPThrottleFlag[type] ; //true if this request can not be inserted to the http queue.
 }
 
 void LLTextureFetch::deleteRequest(const LLUUID& id, bool cancel)
@@ -1829,7 +1892,8 @@ S32 LLTextureFetch::update(U32 max_time_ms)
 			lldebugs << "processed: " << processed << " messages." << llendl;
 		}
 	}
-	
+	clearHTTPThrottleFlag();
+
 	return res;
 }
 
