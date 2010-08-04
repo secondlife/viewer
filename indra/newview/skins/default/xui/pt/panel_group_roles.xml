@@ -11,6 +11,9 @@
 			<panel.string name="help_text">
 				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
 			<filter_editor label="Filtrar por membro" name="filter_input"/>
 			<name_list bottom_delta="-105" height="104" name="member_list">
 				<name_list.columns label="Membro" name="name"/>
@@ -63,21 +66,15 @@ Há uma grande variedade de habilidades.
 		<text name="static">
 			Nome da função
 		</text>
-		<line_editor name="role_name">
-			Empregados
-		</line_editor>
+		<line_editor name="role_name"/>
 		<text name="static3">
 			Título da função
 		</text>
-		<line_editor name="role_title">
-			(esperando)
-		</line_editor>
+		<line_editor name="role_title"/>
 		<text name="static2">
 			Descrição
 		</text>
-		<text_editor name="role_description">
-			(esperando)
-		</text_editor>
+		<text_editor name="role_description"/>
 		<text name="static4">
 			Cargos desempenhados
 		</text>
@@ -88,9 +85,6 @@ Há uma grande variedade de habilidades.
 		<scroll_list name="role_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
 	<panel name="actions_footer">
-		<text name="static">
-			Descrição da função
-		</text>
 		<text_editor name="action_description">
 			Essa habilidade permite tirar alguem do grupo. Somente o dono do grupo poderá retirar outro dono do grupo.
 		</text_editor>

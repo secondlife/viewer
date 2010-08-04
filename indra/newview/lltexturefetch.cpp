@@ -1707,7 +1707,7 @@ bool LLTextureFetch::isHTTPThrottled(S32 requested_size)
 
 	if(mHTTPTextureQueue.size() >= MAX_HTTP_QUEUE_SIZE)//if the http queue is full.
 	{
-		if(!mHTTPThrottleFlag[TOTAL_TEXTURE_TYPES - 1])
+		if(!mHTTPThrottleFlag[type + 1])
 		{
 			for(S32 i = type + 1 ; i < TOTAL_TEXTURE_TYPES; i++) //block all requests with fetching size larger than this request.		
 			{
