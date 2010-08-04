@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="Perfil del elemento"/>
 	<text name="origin" value="(Inventario)"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="" name="item_profile">
 		<text name="LabelItemNameTitle">
 			Nombre:
 		</text>
@@ -48,22 +47,22 @@
 				Tú puedes:
 			</text>
 			<check_box label="Modificar" name="CheckOwnerModify"/>
-			<check_box label="Copiarlo" name="CheckOwnerCopy"/>
-			<check_box label="Transferirlo" name="CheckOwnerTransfer"/>
+			<check_box label="Copiar" name="CheckOwnerCopy"/>
+			<check_box label="Transferir" name="CheckOwnerTransfer"/>
 			<text name="AnyoneLabel">
 				Cualquiera:
 			</text>
-			<check_box label="Copiarlo" name="CheckEveryoneCopy"/>
+			<check_box label="Copiar" name="CheckEveryoneCopy"/>
 			<text name="GroupLabel">
 				Grupo:
 			</text>
-			<check_box label="Compartir" name="CheckShareWithGroup" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<check_box label="Compartir" name="CheckShareWithGroup" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación de este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<text name="NextOwnerLabel">
 				Próximo propietario:
 			</text>
-			<check_box label="Modificarlo" name="CheckNextOwnerModify"/>
-			<check_box label="Copiarlo" name="CheckNextOwnerCopy"/>
-			<check_box label="Transferirlo" name="CheckNextOwnerTransfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
+			<check_box label="Modificar" name="CheckNextOwnerModify"/>
+			<check_box label="Copiar" name="CheckNextOwnerCopy"/>
+			<check_box label="Transferir" name="CheckNextOwnerTransfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
 		</panel>
 		<check_box label="En venta" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">

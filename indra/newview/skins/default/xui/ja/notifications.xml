@@ -2800,8 +2800,8 @@ M キーを押して変更します。
 アバター「 NAME 」が完全に読み込まれました。
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
-		（作成後[EXISTENCE]秒経過）
-&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にアップロードされました。
+		( 作成後[EXISTENCE]秒経過）
+&apos;[BODYREGION]&apos; の[RESOLUTION]のベークドテクスチャは[TIME]秒後に[ACTION]されました。
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		このコールから抜けますか？
@@ -2838,5 +2838,8 @@ M キーを押して変更します。
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		自分の土地をお持ちの場合、「ホーム」に設定できます。
 お持ちでない場合は、地図で「インフォハブ」をお探しください。
+	</global>
+	<global name="You died and have been teleported to your home location">
+		死んでしまったので、ホームにテレポートされました。
 	</global>
 </notifications>

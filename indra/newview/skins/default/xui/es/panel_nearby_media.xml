@@ -48,16 +48,16 @@
 					<button name="stop_btn" tool_tip="Parar los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Ejecutar los media"/>
+					<button name="play_btn" tool_tip="Ejecutar los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pausa los media seleccionados"/>
+					<button name="pause_btn" tool_tip="Pausar los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
 					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volumen de los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="mute">
-					<button name="mute_btn" tool_tip="Silencia los media seleccionados"/>
+					<button name="mute_btn" tool_tip="Silenciar el audio de los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="zoom">
 					<button name="zoom_btn" tool_tip="Zoom en los media seleccionados"/>
