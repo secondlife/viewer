@@ -330,7 +330,7 @@ public:
 
 private:
 	// determine the cache filename for the region from the region handle
-	const std::string LLViewerRegion::getObjectCacheFilename(U64 mHandle) const;
+	const std::string getObjectCacheFilename(U64 mHandle) const;
 
 	// The surfaces and other layers
 	LLSurface*	mLandp;
