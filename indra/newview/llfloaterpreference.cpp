@@ -826,13 +826,11 @@ void LLFloaterPreference::buildPopupLists()
 				row["columns"][1]["font"] = "SANSSERIF_SMALL";
 				row["columns"][1]["width"] = 360;
 			}
-			item = disabled_popups.addElement(row,
-											  ADD_SORTED);
+			item = disabled_popups.addElement(row);
 		}
 		else
 		{
-			item = enabled_popups.addElement(row,
-											 ADD_SORTED);
+			item = enabled_popups.addElement(row);
 		}
 		
 		if (item)

@@ -1110,9 +1110,10 @@ void LLPanelLogin::updateServerCombo()
 	{
 		if (!grid_choice->first.empty())
 		{
-			server_choice_combo->add(grid_choice->second, grid_choice->first, ADD_SORTED);
+			server_choice_combo->add(grid_choice->second, grid_choice->first);
 		}
 	}
+	server_choice_combo->sortByName();
 	
 	server_choice_combo->addSeparator(ADD_TOP);
 	

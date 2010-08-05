@@ -129,6 +129,7 @@ BOOL LLFloaterMediaBrowser::postBuild()
 
 	mAddressCombo = getChild<LLComboBox>("address");
 	mAddressCombo->setCommitCallback(onEnterAddress, this);
+	mAddressCombo->sortByName();
 
 	childSetAction("back", onClickBack, this);
 	childSetAction("forward", onClickForward, this);
@@ -209,7 +210,7 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	if (mCurrentURL != "about:blank")
 	{
 		mAddressCombo->remove(mCurrentURL);
-		mAddressCombo->add(mCurrentURL, ADD_SORTED);
+		mAddressCombo->add(mCurrentURL);
 		mAddressCombo->selectByValue(mCurrentURL);
 
 		// Serialize url history

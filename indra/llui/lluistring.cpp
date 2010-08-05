@@ -40,7 +40,7 @@ LLFastTimer::DeclareTimer FTM_UI_STRING("UI String");
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)
 :	mOrig(instring),
-	mArgs(args)
+	mArgs(new LLStringUtil::format_map_t(args))
 {
 	dirty();
 }
@@ -54,7 +54,7 @@ void LLUIString::assign(const std::string& s)
 void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 
 {
-	mArgs = args;
+	getArgs() = args;
 	dirty();
 }
 
@@ -74,7 +74,7 @@ void LLUIString::setArgs(const LLSD& sd)
 
 void LLUIString::setArg(const std::string& key, const std::string& replacement)
 {
-	mArgs[key] = replacement;
+	getArgs()[key] = replacement;
 	dirty();
 }
 
@@ -135,14 +135,14 @@ void LLUIString::updateResult() const
 	mResult = mOrig;
 	
 	// get the defailt args + local args
-	if (mArgs.empty())
+	if (!mArgs || mArgs->empty())
 	{
 		LLStringUtil::format(mResult, LLTrans::getDefaultArgs());
 	}
 	else
 	{
 		LLStringUtil::format_map_t combined_args = LLTrans::getDefaultArgs();
-		combined_args.insert(mArgs.begin(), mArgs.end());
+		combined_args.insert(mArgs->begin(), mArgs->end());
 		LLStringUtil::format(mResult, combined_args);
 	}
 }
@@ -152,4 +152,13 @@ void LLUIString::updateWResult() const
 	mNeedsWResult = false;
 
 	mWResult = utf8str_to_wstring(getUpdatedResult());
+}
+
+LLStringUtil::format_map_t& LLUIString::getArgs()
+{
+	if (!mArgs)
+	{
+		mArgs = new LLStringUtil::format_map_t;
+	}
+	return *mArgs;
 }
