@@ -130,6 +130,10 @@ protected:
 	void setDockControl(LLDockControl* dockControl);
 	const LLUIImagePtr& getDockTongue();
 
+	// Checks if docking should be forced.
+	// It may be useful e.g. if floater created in mouselook mode (see EXT-5609)
+	boost::function<BOOL ()> mIsDockedStateForcedCallback;
+
 private:
 	std::auto_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
@@ -143,6 +147,9 @@ private:
 	bool mUseTongue;
 
 	bool mOverlapsScreenChannel;
+
+	// Force docking when the floater is being shown for the first time.
+	bool mForceDocking;
 };
 
 #endif /* LL_DOCKABLEFLOATER_H */

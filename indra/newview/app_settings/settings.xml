@@ -35,17 +35,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AddWearableSortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies sort order for add wearable panel (0 = name, 1 = date, 2 = by type)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
