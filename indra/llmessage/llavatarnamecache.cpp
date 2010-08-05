@@ -86,7 +86,7 @@ namespace LLAvatarNameCache
 	LLFrameTimer sRequestTimer;
 
 	// Periodically clean out expired entries from the cache
-	LLFrameTimer sEraseExpiredTimer;
+	//LLFrameTimer sEraseExpiredTimer;
 
 	//-----------------------------------------------------------------------
 	// Internal methods
@@ -505,11 +505,16 @@ void LLAvatarNameCache::idle()
 	//}
 
 	// Must be large relative to above
-	const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
-	if (sEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
-	{
-		eraseExpired();
-	}
+
+	// No longer deleting expired entries, just re-requesting in the get
+	// this way first synchronous get call on an expired entry won't return
+	// legacy name.  LF
+
+	//const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
+	//if (sEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
+	//{
+	//	eraseExpired();
+	//}
 
 	if (sAskQueue.empty())
 	{
@@ -581,7 +586,12 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 			if (it != sCache.end())
 			{
 				*av_name = it->second;
-				return true;
+
+				// re-request name if entry is expired, otherwise return
+				if (av_name->mExpires > LLFrameTimer::getTotalSeconds())
+				{
+					return true;
+				}
 			}
 		}
 		else
@@ -624,9 +634,15 @@ void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 			std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
 			if (it != sCache.end())
 			{
-				// ...name already exists in cache, fire callback now
-				fireSignal(agent_id, slot, it->second);
-				return;
+				const LLAvatarName& av_name = it->second;
+				
+				if (av_name.mExpires > LLFrameTimer::getTotalSeconds())
+				{
+					// ...name already exists in cache, fire callback now
+					fireSignal(agent_id, slot, av_name);
+
+					return;
+				}
 			}
 		}
 		else
