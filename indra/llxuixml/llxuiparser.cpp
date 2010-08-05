@@ -1122,6 +1122,7 @@ void LLFastXUIParser::startElement(const char *name, const char **atts)
 		{
 			mNameStack.push_back(std::make_pair(child_name, newParseGeneration()));
 			num_tokens_pushed++;
+			mScope.push_back(child_name);
 		}
 		else
 		{
@@ -1154,7 +1155,7 @@ void LLFastXUIParser::startElement(const char *name, const char **atts)
 	}
 	else
 	{
-		mScope.push_back(name);
+		mScope.push_back(child_name);
 	}
 
 	mTokenSizeStack.push_back(num_tokens_pushed);
