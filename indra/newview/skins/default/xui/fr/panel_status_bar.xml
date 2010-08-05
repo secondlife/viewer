@@ -16,7 +16,7 @@
 		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
 	</panel.string>
 	<panel.string name="timeTooltip">
-		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+		[weekday, datetime, slt] [sday, datetime, slt] [month, datetime, slt] [year, datetime, slt]
 	</panel.string>
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
