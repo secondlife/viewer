@@ -141,6 +141,7 @@ private:
 		SMALL_TEXTURE = 0 , //size <= 64 * 64
 		MEDIUM_TEXTURE,     //size <= 256 * 256
 		LARGE_TEXTURE,      //size > 256 * 256
+		DUMMY,
 		TOTAL_TEXTURE_TYPES
 	};
 	BOOL mHTTPThrottleFlag[TOTAL_TEXTURE_TYPES];
