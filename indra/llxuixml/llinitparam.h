@@ -40,6 +40,7 @@ f * @file llinitparam.h
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/type_traits/is_convertible.hpp>
+#include <boost/unordered_map.hpp>
 #include "llregistry.h"
 #include "llmemory.h"
 
@@ -202,13 +203,13 @@ namespace LLInitParam
 		typedef std::pair<name_stack_t::const_iterator, name_stack_t::const_iterator>	name_stack_range_t;
 		typedef std::vector<std::string>							possible_values_t;
 
-		typedef boost::function<bool (void*)>															parser_read_func_t;
+		typedef bool (*parser_read_func_t)(Parser& parser, void* output);
 		typedef boost::function<bool (const void*, const name_stack_t&)>								parser_write_func_t;
 		typedef boost::function<void (const name_stack_t&, S32, S32, const possible_values_t*)>	parser_inspect_func_t;
 
-		typedef std::map<const std::type_info*, parser_read_func_t, CompareTypeID>		parser_read_func_map_t;
-		typedef std::map<const std::type_info*, parser_write_func_t, CompareTypeID>		parser_write_func_map_t;
-		typedef std::map<const std::type_info*, parser_inspect_func_t, CompareTypeID>	parser_inspect_func_map_t;
+		typedef boost::unordered_map<const void*, parser_read_func_t>		parser_read_func_map_t;
+		typedef boost::unordered_map<const void*, parser_write_func_t>		parser_write_func_map_t;
+		typedef boost::unordered_map<const void*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
 		Parser()
 		:	mParseSilently(false),
@@ -221,7 +222,7 @@ namespace LLInitParam
 		    parser_read_func_map_t::iterator found_it = mParserReadFuncs.find(&typeid(T));
 		    if (found_it != mParserReadFuncs.end())
 		    {
-			    return found_it->second((void*)&param);
+			    return found_it->second(*this, (void*)&param);
 		    }
 		    return false;
 	    }
@@ -386,7 +387,7 @@ namespace LLInitParam
 		void aggregateBlockData(BlockDescriptor& src_block_data);
 
 	public:
-		typedef std::map<const std::string, ParamDescriptor*> param_map_t; // references param descriptors stored in mAllParams
+		typedef boost::unordered_map<const std::string, ParamDescriptor*> param_map_t; // references param descriptors stored in mAllParams
 		typedef std::vector<ParamDescriptor*> param_list_t; 
 
 		typedef std::list<ParamDescriptor> all_params_list_t;// references param descriptors stored in mAllParams
