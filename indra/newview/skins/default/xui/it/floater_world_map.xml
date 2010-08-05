@@ -19,11 +19,11 @@
 		<text name="land_sale_label">
 			Vendita terreno
 		</text>
-		<text name="by_owner_label">
-			da parte del proprietario
-		</text>
 		<text name="auction_label">
 			asta di terreni
+		</text>
+		<text name="by_owner_label">
+			da parte del proprietario
 		</text>
 		<button name="Go Home" tool_tip="Teleport a casa"/>
 		<text name="Home_label">
@@ -35,7 +35,7 @@
 		<text name="pg_label">
 			Generale
 		</text>
-		<check_box name="events_mature_chk"/>
+		<check_box initial_value="true" name="events_mature_chk"/>
 		<text name="events_mature_label">
 			Moderato
 		</text>
@@ -58,6 +58,9 @@
 		<search_editor label="Regioni secondo il nome" name="location" tool_tip="Digita il nome di una regione"/>
 		<button label="Trova" name="DoSearch" tool_tip="Cerca la regione"/>
 		<button name="Clear" tool_tip="Elimina le linee di monitoraggio e reimposta la mappa"/>
+		<text name="events_label">
+			Luogo:
+		</text>
 		<button label="Teleport" name="Teleport" tool_tip="Teleport al luogo selezionato"/>
 		<button label="Copia SLurl" name="copy_slurl" tool_tip="Copia la posizione attuale come un SLurl da usare nel Web."/>
 		<button label="Mostra la selezione" name="Show Destination" tool_tip="Centra la mappa sul luogo selezionato"/>
