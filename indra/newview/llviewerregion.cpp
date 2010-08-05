@@ -79,6 +79,8 @@
 // format changes. JC
 const U32 INDRA_OBJECT_CACHE_VERSION = 14;
 
+// Format string used to construct filename for the object cache
+static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
 extern BOOL gNoRender;
 
@@ -323,13 +325,25 @@ LLViewerRegion::~LLViewerRegion()
 	delete mEventPoll;
 	LLHTTPSender::clearSender(mHost);
 	
-	saveCache();
+	saveObjectCache();
 
 	std::for_each(mObjectPartition.begin(), mObjectPartition.end(), DeletePointer());
 }
 
 
-void LLViewerRegion::loadCache()
+const std::string LLViewerRegion::getObjectCacheFilename(U64 mHandle) const
+{
+	std::string filename;
+	U32 region_x, region_y;
+
+	grid_from_region_handle(mHandle, &region_x, &region_y);
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,
+			   llformat(OBJECT_CACHE_FILENAME, region_x, region_y));
+
+	return filename;
+}
+
+void LLViewerRegion::loadObjectCache()
 {
 	if (mCacheLoaded)
 	{
@@ -341,9 +355,8 @@ void LLViewerRegion::loadCache()
 
 	LLVOCacheEntry *entry;
 
-	std::string filename;
-	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"") + gDirUtilp->getDirDelimiter() +
-		llformat("objects_%d_%d.slc",U32(mHandle>>32)/REGION_WIDTH_UNITS, U32(mHandle)/REGION_WIDTH_UNITS );
+	std::string filename = getObjectCacheFilename(mHandle);
+	LL_DEBUGS("ObjectCache") << filename << LL_ENDL;
 
 	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
 	if (!fp)
@@ -414,7 +427,7 @@ void LLViewerRegion::loadCache()
 }
 
 
-void LLViewerRegion::saveCache()
+void LLViewerRegion::saveObjectCache()
 {
 	if (!mCacheLoaded)
 	{
@@ -427,9 +440,8 @@ void LLViewerRegion::saveCache()
 		return;
 	}
 
-	std::string filename;
-	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"") + gDirUtilp->getDirDelimiter() +
-		llformat("objects_%d_%d.slc", U32(mHandle>>32)/REGION_WIDTH_UNITS, U32(mHandle)/REGION_WIDTH_UNITS );
+	std::string filename = getObjectCacheFilename(mHandle);
+	LL_DEBUGS("ObjectCache") << filename << LL_ENDL;
 
 	LLFILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
 	if (!fp)
@@ -1454,7 +1466,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 	// Now that we have the name, we can load the cache file
 	// off disk.
-	loadCache();
+	loadObjectCache();
 
 	// After loading cache, signal that simulator can start
 	// sending data.

@@ -99,9 +99,8 @@ public:
 	~LLViewerRegion();
 
 	// Call this after you have the region name and handle.
-	void loadCache();
-
-	void saveCache();
+	void loadObjectCache();
+	void saveObjectCache();
 
 	void sendMessage(); // Send the current message to this region's simulator
 	void sendReliableMessage(); // Send the current message to this region's simulator
@@ -330,6 +329,9 @@ public:
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 private:
+	// determine the cache filename for the region from the region handle
+	const std::string getObjectCacheFilename(U64 mHandle) const;
+
 	// The surfaces and other layers
 	LLSurface*	mLandp;
 
@@ -404,7 +406,7 @@ private:
 	// Cache ID is unique per-region, across renames, moving locations,
 	// etc.
 	LLUUID mCacheID;
-	
+
 	typedef std::map<std::string, std::string> CapabilityMap;
 	CapabilityMap mCapabilities;
 	
