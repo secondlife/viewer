@@ -435,7 +435,7 @@ void LLFloaterAvatarPicker::find()
 		{
 			url += "/";
 		}
-		url += "?names=";
+		url += "?page_size=100&names=";
 		url += LLURI::escape(text);
 		llinfos << "avatar picker " << url << llendl;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
