@@ -16,7 +16,7 @@
 		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos droits avec le propriétaire de la parcelle.
 	</string>
 	<string name="acquired_date">
-		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+		[weekday,datetime,local] [sday,datetime,local] [month,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Précédent"/>
 	<text name="title" value="Profil du lieu"/>
