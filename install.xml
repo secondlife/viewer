@@ -185,7 +185,7 @@
         <key>copyright</key>
         <string>various</string>
         <key>description</key>
-        <string>A set of portable C++ libraries which provide a wide set of functionality. Used primarily for tokenization. </string>
+        <string>A set of portable C++ libraries which provide a wide set of functionality. </string>
         <key>license</key>
         <string>boost</string>
         <key>packages</key>
