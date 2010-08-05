@@ -741,7 +741,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			}
 			element["columns"][5]["font"] = "SANSSERIF";
 
-			list->addElement(element, ADD_SORTED);
+			list->addElement(element);
 			
 			element["owner_id"] = owner_id;
 			element["local_id"] = local_id;
