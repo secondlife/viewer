@@ -1322,7 +1322,6 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 void LLPanelOutfitEdit::onCOFChanged()
 {
 	update();
-}
 
 void LLPanelOutfitEdit::updateWearablesPanelVerbButtons()
 {
@@ -1348,7 +1347,10 @@ void LLPanelOutfitEdit::saveListSelection()
 
 		if(!selected_ids.size()) return;
 
-		mWearableItemsList->resetSelection();
+	// BAP - this check has to be removed because otherwise item name
+	// changes made when the panel is not visible will not be
+	// propagated to the panel.
+	// if (!isInVisibleChain()) return;
 
 		for (std::set<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{

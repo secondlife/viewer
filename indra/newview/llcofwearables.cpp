@@ -396,7 +396,11 @@ void LLCOFWearables::refresh()
 		return;
 	}
 
-	if (mCOFVersion == catp->getVersion()) return;
+	// BAP - this check has to be removed because an item name change does not
+	// change cat version - ie, checking version is not a complete way
+	// of finding out whether anything has changed in this category.
+	//if (mCOFVersion == catp->getVersion()) return;
+
 	mCOFVersion = catp->getVersion();
 
 	typedef std::vector<LLSD> values_vector_t;
