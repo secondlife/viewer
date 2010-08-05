@@ -391,7 +391,7 @@
 control_name="UseDisplayNames"
 follows="top|left"
 height="15"
-label="Use Display Names"
+label="View Display Names"
 layout="topleft"
 left_delta="50"
 name="display_names_check"
