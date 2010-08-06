@@ -123,7 +123,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		S32 bar_idx = MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight());
 		bar_idx = llclamp(bar_idx, 0, MAX_VISIBLE_HISTORY);
-		mPrintStats = bar_idx;
+		mPrintStats = LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - bar_idx;
 	}
 	return FALSE;
 }
@@ -953,7 +953,7 @@ void LLFastTimerView::draw()
 			{
 				legend_stat += ", ";
 			}
-			first = true;
+			first = false;
 			legend_stat += idp->getName();
 
 			if (idp->getCollapsed())
@@ -980,8 +980,7 @@ void LLFastTimerView::draw()
 			U64 ticks;
 			if (mPrintStats > 0)
 			{
-				S32 hidx = (mPrintStats - 1) - mScrollIndex;
-				ticks = idp->getHistoricalCount(hidx);
+				ticks = idp->getHistoricalCount(mPrintStats);
 			}
 			else
 			{
