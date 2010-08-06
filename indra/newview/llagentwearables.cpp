@@ -388,7 +388,9 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 									const std::string new_name)
 {
 	LLWearable* old_wearable = getWearable(type, index);
-	if (old_wearable && (old_wearable->isDirty() || old_wearable->isOldVersion()))
+	if(!old_wearable) return;
+	bool name_changed = !new_name.empty() && (new_name != old_wearable->getName());
+	if (name_changed || old_wearable->isDirty() || old_wearable->isOldVersion())
 	{
 		LLUUID old_item_id = old_wearable->getItemID();
 		LLWearable* new_wearable = LLWearableList::instance().createCopy(old_wearable);
@@ -404,12 +406,10 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 		if (item)
 		{
 			std::string item_name = item->getName();
-			bool name_changed = false;
-			if (!new_name.empty() && (new_name != item->getName()))
+			if (name_changed)
 			{
 				llinfos << "saveWearable changing name from "  << item->getName() << " to " << new_name << llendl;
 				item_name = new_name;
-				name_changed = true;
 			}
 			// Update existing inventory item
 			LLPointer<LLViewerInventoryItem> template_item =
