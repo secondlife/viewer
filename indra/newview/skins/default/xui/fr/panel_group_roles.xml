@@ -12,6 +12,9 @@
 				Vous pouvez ajouter ou supprimer les rôles assignés aux membres.
 Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la touche Ctrl enfoncée.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
 			<filter_editor label="Filtrer les membres" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Membre" name="name"/>

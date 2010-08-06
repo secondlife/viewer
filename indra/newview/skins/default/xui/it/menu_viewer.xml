@@ -94,6 +94,7 @@
 			<menu_item_call label="Imposta script come non in esecuzione" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opzioni" name="Options">
+			<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 			<menu_item_check label="Mostra autorizzazioni avanzate" name="DebugPermissions"/>
 			<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
 			<menu_item_check label="Seleziona solo gli oggetti spostabili" name="Select Only Movable Objects"/>
@@ -111,7 +112,6 @@
 			<menu_item_call label="Suono ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
-			<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 		</menu>
 	</menu>
 	<menu label="Aiuto" name="Help">

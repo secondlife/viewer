@@ -19,7 +19,7 @@ Massimo 200 per gruppo al giorno
 	<text name="notice_list_none_found">
 		Nessuno trovato
 	</text>
-	<button label="Crea un nuovo avviso" label_selected="Crea una nuova notice" name="create_new_notice" tool_tip="Crea un nuovo avviso"/>
+	<button label="Nuovo avviso" label_selected="Crea una nuova notice" name="create_new_notice" tool_tip="Crea un nuovo avviso"/>
 	<button label="Aggiorna" label_selected="Aggiorna l&apos;elenco" name="refresh_notices" tool_tip="Aggiorna la lista degli avvisi"/>
 	<panel label="Crea una nuova notice" name="panel_create_new_notice">
 		<text name="lbl">
