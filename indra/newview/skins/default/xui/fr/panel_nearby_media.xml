@@ -27,7 +27,7 @@
 			Médias proches
 		</text>
 		<text name="show_text">
-			Afficher :
+			Voir :
 		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tout" name="All"/>
