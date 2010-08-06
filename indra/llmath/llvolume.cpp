@@ -2055,22 +2055,48 @@ void LLVolumeFace::VertexData::setNormal(const LLVector4a& norm)
 
 bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)const
 {
-	if (mData[POSITION].notEqual3(rhs.getPosition()))
+	const F32* lp = this->getPosition().getF32();
+	const F32* rp = rhs.getPosition().getF32();
+
+	if (lp[0] != rp[0])
 	{
-		return mData[POSITION].less3(rhs.getPosition());
+		return lp[0] < rp[0];
 	}
 
-	if (mData[NORMAL].notEqual3(rhs.getNormal()))
+	if (rp[1] != lp[1])
 	{
-		return mData[NORMAL].less3(rhs.getNormal());
+		return lp[1] < rp[1];
 	}
 
-	if (mTexCoord != rhs.mTexCoord)
+	if (rp[2] != lp[2])
 	{
-		return mTexCoord < rhs.mTexCoord;
+		return lp[2] < rp[2];
 	}
 
-	return false;
+	lp = getNormal().getF32();
+	rp = rhs.getNormal().getF32();
+
+	if (lp[0] != rp[0])
+	{
+		return lp[0] < rp[0];
+	}
+
+	if (rp[1] != lp[1])
+	{
+		return lp[1] < rp[1];
+	}
+
+	if (rp[2] != lp[2])
+	{
+		return lp[2] < rp[2];
+	}
+
+	if (mTexCoord.mV[0] != rhs.mTexCoord.mV[0])
+	{
+		return mTexCoord.mV[0] < rhs.mTexCoord.mV[0];
+	}
+
+	return mTexCoord.mV[1] < rhs.mTexCoord.mV[1];
 }
 
 bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)const
