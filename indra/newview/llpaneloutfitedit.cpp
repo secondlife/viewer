@@ -809,15 +809,38 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	bool more_than_one_selected = ids.size() > 1;
 	bool is_dummy_item = (ids.size() && dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem()));
 
-	//selected and expanded accordion tabs determine filtering when no item is selected
+	// selected, expanded accordion tabs and selection in flat list view determine filtering when no item is selected in COF
+	// selection in flat list view participates in determining filtering because of EXT-7963
+	// So the priority of criterions in is:
+	//                   1. Selected accordion tab            |  IF (any accordion selected)
+	//                                                        |     filter_type = selected_accordion_type
+	//                   2. Selected item in flat list view   |  ELSEIF (any item in flat list view selected)
+	//                                                        |     filter_type = selected_item_type
+	//                   3. Expanded accordion tab            |  ELSEIF (any accordion expanded)
+	//                                                        |      filter_type = expanded accordion_type
 	if (nothing_selected)
 	{
 		showWearablesListView();
 
-		//selected accordion tab is more priority than expanded tab when determining filtering
+		//selected accordion tab is more priority than expanded tab
+		//and selected item in flat list view of 'Add more' panel when
+		//determining filtering
 		LLAssetType::EType type = mCOFWearables->getSelectedAccordionAssetType();
 		if (type == LLAssetType::AT_NONE)
+		{ //no accordion selected
+
+			// when no accordion selected then selected item from flat list view
+			// has more priority than expanded when determining filtering
+			LLUUID selected_item_id = mWearableItemsList->getSelectedUUID();
+			LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
+			if(item)
 		{
+				showFilteredWearablesListView(item->getWearableType());
+				return;
+			}
+
+			// when no accordion selected and no selected items in flat list view
+			// determine filtering according to expanded accordion
 			type = mCOFWearables->getExpandedAccordionAssetType();
 		}
 
@@ -830,7 +853,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			applyListViewFilter(LVIT_BODYPART);
 			break;
 		case LLAssetType::AT_CLOTHING:
-		default: 
+		default:
 			applyListViewFilter(LVIT_CLOTHING);
 			break;
 		}
