@@ -1199,11 +1199,15 @@ void LLSimpleXUIParser::endElement(const char *name)
 {
 	if (!mTextContents.empty())
 	{
-		mNameStack.push_back(std::make_pair(std::string("value"), newParseGeneration()));
-		mCurAttributeValueBegin = mTextContents.c_str();
-		mBlock->submitValue(mNameStack, *this);
-		mNameStack.pop_back();
-		mTextContents.clear();
+		LLStringUtil::trim(mTextContents);
+		if (!mTextContents.empty())
+		{
+			mNameStack.push_back(std::make_pair(std::string("value"), newParseGeneration()));
+			mCurAttributeValueBegin = mTextContents.c_str();
+			mBlock->submitValue(mNameStack, *this, false);
+			mNameStack.pop_back();
+			mTextContents.clear();
+		}
 	}
 	mCurReadDepth--;
 	S32 num_tokens_to_pop = mTokenSizeStack.back();
