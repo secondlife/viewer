@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="Profilo articolo"/>
 	<text name="origin" value="(Inventario)"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="" name="item_profile">
 		<text name="LabelItemNameTitle">
 			Nome:
 		</text>

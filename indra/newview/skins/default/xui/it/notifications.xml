@@ -2749,7 +2749,7 @@ Avatar &apos;[NAME]&apos; è partito completamente caricato.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
 		( in esistenza da [EXISTENCE] secondi )
-Hai caricato una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
+Effettuata l&apos;azione: [ACTION] di una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Sei sicuro di volere uscire dalla chiamata?
@@ -2786,5 +2786,8 @@ Se continui ad avere problemi, visita la pagina [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Se sei proprietario di un appezzamento di terreno, puoi definirlo come la tua posizione iniziale.
 In alternativa, puoi guardare sulla mappa e trovare luoghi segnalati come &quot;Infohub&quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Sei deceduto e sei stato teleportato a casa tua.
 	</global>
 </notifications>
