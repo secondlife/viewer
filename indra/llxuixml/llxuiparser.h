@@ -171,14 +171,25 @@ private:
 	std::string						mCurFileName;
 };
 
-class LLFastXUIParser : public LLInitParam::Parser, public LLSingleton<LLFastXUIParser>
+// LLSimpleXUIParser is a streamlined SAX-based XUI parser that does not support localization 
+// or parsing of a tree of independent param blocks, such as child widgets.
+// Use this for reading non-localized files that only need a single param block as a result.
+//
+// NOTE: In order to support nested block parsing, we need callbacks for start element that
+// push new blocks contexts on the mScope stack.
+// NOTE: To support localization without building a DOM, we need to enforce consistent 
+// ordering of child elements from base file to localized diff file.  Then we can use a pair
+// of coroutines to perform matching of xml nodes during parsing.  Not sure if the overhead
+// of coroutines would offset the gain from SAX parsing
+
+class LLSimpleXUIParser : public LLInitParam::Parser, public LLSingleton<LLSimpleXUIParser>
 {
-LOG_CLASS(LLFastXUIParser);
+LOG_CLASS(LLSimpleXUIParser);
 
 protected:
-	LLFastXUIParser();
-	virtual ~LLFastXUIParser();
-	friend class LLSingleton<LLFastXUIParser>;
+	LLSimpleXUIParser();
+	virtual ~LLSimpleXUIParser();
+	friend class LLSingleton<LLSimpleXUIParser>;
 public:
 	typedef LLInitParam::Parser::name_stack_t name_stack_t;
 
@@ -187,6 +198,7 @@ public:
 	/*virtual*/ void parserError(const std::string& message);
 
 	bool readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent=false);
+	void setBlock(LLInitParam::BaseBlock* block);
 
 private:
 	//reader helper functions
@@ -222,6 +234,7 @@ private:
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
 	std::string						mCurFileName;
+	std::string						mTextContents;
 	const char*						mCurAttributeValueBegin;
 	std::vector<S32>				mTokenSizeStack;
 	std::vector<std::string>		mScope;
