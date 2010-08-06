@@ -175,6 +175,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
 	mFolderRoot->setSortOrder(getFilter()->getSortOrder());
+
+	// Initialize base class params.
+	LLPanel::initFromParams(params);
 }
 
 LLInventoryPanel::~LLInventoryPanel()
