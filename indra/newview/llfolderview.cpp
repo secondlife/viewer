@@ -561,7 +561,9 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
 
 void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 {
-	if (mSelectedItems.size())
+	// If items are filtered while background fetch is in progress
+	// scrollbar resets to the first filtered item. See EXT-3981.
+	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && mSelectedItems.size())
 	{
 		mSelectedItems.back()->setIsCurSelection(FALSE);
 	}
