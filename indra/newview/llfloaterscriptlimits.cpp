@@ -712,38 +712,44 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				}
 			}
 
+			LLScrollListItem::Params item_params;
+			item_params.value = task_id;
+
+			LLScrollListCell::Params cell_params;
+			cell_params.font = LLFontGL::getFontSansSerif();
+
+			cell_params.column = "size";
+			cell_params.value = size;
+			item_params.columns.add(cell_params);
+
+			cell_params.column = "urls";
+			cell_params.value = urls;
+			item_params.columns.add(cell_params);
+
+			cell_params.column = "name";
+			cell_params.value = name_buf;
+			item_params.columns.add(cell_params);
+
+			cell_params.column = "owner";
+			cell_params.value = owner_buf;
+			item_params.columns.add(cell_params);
+
+			cell_params.column = "parcel";
+			cell_params.value = parcel_name;
+			item_params.columns.add(cell_params);
+
+			cell_params.column = "location";
+			cell_params.value = has_locations
+				? llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z)
+				: "";
+			item_params.columns.add(cell_params);
+
+			list->addRow(item_params);
+			
 			LLSD element;
+			element["owner_id"] = owner_id;
 
 			element["id"] = task_id;
-			element["columns"][0]["column"] = "size";
-			element["columns"][0]["value"] = llformat("%d", size);
-			element["columns"][0]["font"] = "SANSSERIF";
-			element["columns"][1]["column"] = "urls";
-			element["columns"][1]["value"] = llformat("%d", urls);
-			element["columns"][1]["font"] = "SANSSERIF";
-			element["columns"][2]["column"] = "name";
-			element["columns"][2]["value"] = name_buf;
-			element["columns"][2]["font"] = "SANSSERIF";
-			element["columns"][3]["column"] = "owner";
-			element["columns"][3]["value"] = owner_buf;
-			element["columns"][3]["font"] = "SANSSERIF";
-			element["columns"][4]["column"] = "parcel";
-			element["columns"][4]["value"] = parcel_name;
-			element["columns"][4]["font"] = "SANSSERIF";
-			element["columns"][5]["column"] = "location";
-			if(has_locations)
-			{
-				element["columns"][5]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
-			}
-			else
-			{
-				element["columns"][5]["value"] = "";
-			}
-			element["columns"][5]["font"] = "SANSSERIF";
-
-			list->addElement(element);
-			
-			element["owner_id"] = owner_id;
 			element["local_id"] = local_id;
 			mObjectListItems.push_back(element);
 		}
