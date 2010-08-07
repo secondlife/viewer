@@ -1270,7 +1270,6 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
 	if (!parcel ||
 		objectp.isNull() ||
-		objectp->isHUDAttachment() ||
 		pick.mObjectFace < 0 || 
 		pick.mObjectFace >= objectp->getNumTEs()) 
 	{
