@@ -3053,20 +3053,25 @@ void LLViewerMediaImpl::calculateInterest()
 	
 	// Calculate distance from the avatar, for use in the proximity calculation.
 	mProximityDistance = 0.0f;
+	mProximityCamera = 0.0f;
 	if(!mObjectList.empty())
 	{
 		// Just use the first object in the list.  We could go through the list and find the closest object, but this should work well enough.
 		std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
 		LLVOVolume* objp = *iter ;
 		llassert_always(objp != NULL) ;
+		
+		// The distance calculation is invalid for HUD attachments -- leave both mProximityDistance and mProximityCamera at 0 for them.
+		if(!objp->isHUDAttachment())
+		{
+			LLVector3d obj_global = objp->getPositionGlobal() ;
+			LLVector3d agent_global = gAgent.getPositionGlobal() ;
+			LLVector3d global_delta = agent_global - obj_global ;
+			mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
 
-		LLVector3d obj_global = objp->getPositionGlobal() ;
-		LLVector3d agent_global = gAgent.getPositionGlobal() ;
-		LLVector3d global_delta = agent_global - obj_global ;
-		mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
-
-		LLVector3d camera_delta = gAgentCamera.getCameraPositionGlobal() - obj_global;
-		mProximityCamera = camera_delta.magVec();
+			LLVector3d camera_delta = gAgentCamera.getCameraPositionGlobal() - obj_global;
+			mProximityCamera = camera_delta.magVec();
+		}
 	}
 	
 	if(mNeedsMuteCheck)
