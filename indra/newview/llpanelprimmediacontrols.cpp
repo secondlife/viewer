@@ -985,6 +985,13 @@ void LLPanelPrimMediaControls::onClickZoom()
 
 void LLPanelPrimMediaControls::nextZoomLevel()
 {
+	LLViewerObject* objectp = getTargetObject();
+	if(objectp && objectp->isHUDAttachment())
+	{
+		// Never allow zooming on HUD attachments.
+		return;
+	}
+	
 	int index = 0;
 	while (index < kNumZoomLevels)
 	{

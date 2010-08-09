@@ -1032,7 +1032,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			applyListViewFilter(LVIT_BODYPART);
 			break;
 		case LLAssetType::AT_CLOTHING:
-		default: 
+		default:
 			applyListViewFilter(LVIT_CLOTHING);
 			break;
 		}
