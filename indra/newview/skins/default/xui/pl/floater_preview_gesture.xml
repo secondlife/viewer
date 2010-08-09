@@ -42,7 +42,12 @@
 	<text name="library_label">
 		Zbiór:
 	</text>
-	<scroll_list name="library_list"/>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Animacja"/>
+		<scroll_list.rows name="action_sound" value="Dźwięk"/>
+		<scroll_list.rows name="action_chat" value="Czat"/>
+		<scroll_list.rows name="action_wait" value="Wstrzymaj"/>
+	</scroll_list>
 	<button label="Dodaj &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Etapy:

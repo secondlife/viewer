@@ -642,6 +642,9 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		[AREA] m² L$[PRICE]
+	</string>
 	<string name="worldmap_results_none_found">
 		Ingen fundet.
 	</string>
@@ -1031,6 +1034,7 @@
 	<string name="AnimFlagStop" value=" Stop Animation :   "/>
 	<string name="AnimFlagStart" value=" Start Animation :   "/>
 	<string name="Wave" value=" Vink "/>
+	<string name="GestureActionNone" value="Ingen"/>
 	<string name="HelloAvatar" value=" Hej, avatar! "/>
 	<string name="ViewAllGestures" value=" Se alle &gt;&gt;"/>
 	<string name="GetMoreGestures" value="Få mere &gt;&gt;"/>
@@ -1113,11 +1117,11 @@
 	<string name="InvFolder Favorite">
 		Favoritter
 	</string>
-	<string name="InvFolder favorite">
-		Favoritter
-	</string>
 	<string name="InvFolder Current Outfit">
 		Nuværende sæt
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Start sæt
 	</string>
 	<string name="InvFolder My Outfits">
 		Mine sæt
@@ -1438,6 +1442,7 @@
 	<string name="SummaryForTheWeek" value="Opsummering for denne uge, begyndende med "/>
 	<string name="NextStipendDay" value="Næste stipendie dag er "/>
 	<string name="GroupIndividualShare" value="                      Gruppe     Individuel Delt"/>
+	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
 		Balance
 	</string>
@@ -1650,6 +1655,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
+	</string>
+	<string name="NoOutfits">
+		You don&apos;t have any outfits yet. Try [secondlife:///app/search/all/ Search]
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(Efter navn)
@@ -3571,6 +3582,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="group_role_owners">
 		Ejere
 	</string>
+	<string name="group_member_status_online">
+		Online
+	</string>
 	<string name="uploading_abuse_report">
 		Uploader...
   
@@ -3624,8 +3638,14 @@ Krænkelsesanmeldelse
 	<string name="Invalid Wearable">
 		Kan ikke tages på
 	</string>
+	<string name="New Gesture">
+		Ny bevægelse
+	</string>
 	<string name="New Script">
 		Nyt script
+	</string>
+	<string name="New Note">
+		Ny note
 	</string>
 	<string name="New Folder">
 		Ny folder
@@ -3684,6 +3704,15 @@ Krænkelsesanmeldelse
 	<string name="Male - Wow">
 		Mand - Wow
 	</string>
+	<string name="Female - Chuckle">
+		Kvinde - Kluklatter
+	</string>
+	<string name="Female - Cry">
+		Kvinde - gråd
+	</string>
+	<string name="Female - Embarrassed">
+		Kvinde - Flov
+	</string>
 	<string name="Female - Excuse me">
 		Kvinde - Undskyld mig
 	</string>
@@ -3702,8 +3731,20 @@ Krænkelsesanmeldelse
 	<string name="Female - Hey">
 		Kvinde - Hey
 	</string>
+	<string name="Female - Hey baby">
+		Kvinde - Hey baby
+	</string>
 	<string name="Female - Laugh">
 		Kvinde - Latter
+	</string>
+	<string name="Female - Looking good">
+		Kvinde - &quot;Ser godt ud&quot;
+	</string>
+	<string name="Female - Over here">
+		Kvinde - Herovre
+	</string>
+	<string name="Female - Please">
+		Kvinde - Be´ om
 	</string>
 	<string name="Female - Repulsed">
 		Kvinde - Frastødt
@@ -3753,5 +3794,47 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="dateTimePM">
 		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		US$ [AMOUNT]
+	</string>
+	<string name="Membership">
+		Medlemsskab
+	</string>
+	<string name="Roles">
+		Roller
+	</string>
+	<string name="Group Identity">
+		Gruppe identitet
+	</string>
+	<string name="Parcel Management">
+		Parcel håndtering
+	</string>
+	<string name="Parcel Identity">
+		Parcel identitet
+	</string>
+	<string name="Parcel Settings">
+		Parcel opsætning
+	</string>
+	<string name="Parcel Powers">
+		Parcel beføjelser
+	</string>
+	<string name="Parcel Access">
+		Parcel adgang
+	</string>
+	<string name="Parcel Content">
+		Parcel indhold
+	</string>
+	<string name="Object Management">
+		Objekt håndtering
+	</string>
+	<string name="Accounting">
+		Regnskab
+	</string>
+	<string name="Notices">
+		Beskeder
+	</string>
+	<string name="Chat">
+		Chat
 	</string>
 </strings>

@@ -16,7 +16,7 @@
 		Objet :
 	</text>
 	<line_editor left="143" name="subject_form" width="130" left_delta="146"/>
-	<line_editor label="Saisissez votre objet ici." name="subject_form"/>
+	<line_editor label="Saisir ici votre objet" name="subject_form"/>
 	<text name="msg_label">
 		Message :
 	</text>
@@ -24,7 +24,7 @@
 	<check_box label="Contenu adulte" name="mature_check" tool_tip="Cette carte postale est à caractère adulte."/>
 	<button label="?" name="publish_help_btn"/>
 	<text_editor name="msg_form">
-		Saisissez votre message ici.
+		Saisir ici votre message.
 	</text_editor>
 	<text name="fine_print">
 		Si le destinataire s&apos;inscrit sur [SECOND_LIFE], vous recevrez un bonus.
