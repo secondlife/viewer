@@ -9,6 +9,7 @@
  layout="topleft"
  name="Mockup Tab"
  selection_enabled="true"
+ tab_stop="false"
  title="Mockup Tab"
  translate="false"
  width="0">
