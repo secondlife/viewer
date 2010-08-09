@@ -154,6 +154,7 @@ protected:
 private:
 	void setDirNames(ELLPath location);
 	void readHeaderCache();
+	void clearCorruptedCache();
 	void purgeAllTextures(bool purge_directories);
 	void purgeTextures(bool validate);
 	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
@@ -161,12 +162,12 @@ private:
 	void readEntriesHeader();
 	void writeEntriesHeader();
 	S32 openAndReadEntry(const LLUUID& id, Entry& entry, bool create);
-	bool updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size);
+	bool updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32 new_body_size);
 	void updateEntryTimeStamp(S32 idx, Entry& entry) ;
 	U32 openAndReadEntries(std::vector<Entry>& entries);
 	void writeEntriesAndClose(const std::vector<Entry>& entries);
-	void readEntryFromHeaderImmediately(S32 idx, Entry& entry) ;
-	void writeEntryToHeaderImmediately(S32 idx, Entry& entry, bool write_header = false) ;
+	void readEntryFromHeaderImmediately(S32& idx, Entry& entry) ;
+	void writeEntryToHeaderImmediately(S32& idx, Entry& entry, bool write_header = false) ;
 	void removeEntry(S32 idx, Entry& entry, std::string& filename);
 	void removeCachedTexture(const LLUUID& id) ;
 	S32 getHeaderCacheEntry(const LLUUID& id, Entry& entry);
