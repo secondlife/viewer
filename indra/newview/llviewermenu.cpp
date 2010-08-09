@@ -5950,7 +5950,8 @@ void LLObjectAttachToAvatar::confirmReplaceAttachment(S32 option, LLViewerJointA
 			delta = delta * 0.5f;
 			walkToSpot -= delta;
 
-			CallbackData* user_data = new CallbackData(attachment_point, mReplace); // *TODO: leak if the callback isn't called?
+			// The callback will be called even if avatar fails to get close enough to the object, so we won't get a memory leak.
+			CallbackData* user_data = new CallbackData(attachment_point, mReplace);
 			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", NULL, onNearAttachObject, user_data, stop_distance);
 			gAgentCamera.clearFocusObject();
 		}

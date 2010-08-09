@@ -5642,6 +5642,15 @@ BOOL LLVOAvatar::canAttachMoreObjects() const
 }
 
 //-----------------------------------------------------------------------------
+// canAttachMoreObjects()
+// Returns true if we can attach <n> more objects.
+//-----------------------------------------------------------------------------
+BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
+{
+	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
+}
+
+//-----------------------------------------------------------------------------
 // lazyAttach()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::lazyAttach()
