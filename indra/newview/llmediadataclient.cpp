@@ -263,18 +263,15 @@ void LLMediaDataClient::pushBack(request_ptr_t request)
 
 void LLMediaDataClient::trackRequest(request_ptr_t request)
 {
-	request_set_t::iterator iter = mUnQueuedRequests.lower_bound(request);
+	request_set_t::iterator iter = mUnQueuedRequests.find(request);
 	
-	if (iter != mUnQueuedRequests.end())
+	if(iter != mUnQueuedRequests.end())
 	{
-		if(*iter == request)
-		{
-			LL_WARNS("LLMediaDataClient") << "Tracking already tracked request: " << *request << LL_ENDL;
-		}
-		else
-		{
-			mUnQueuedRequests.insert(iter, request);
-		}
+		LL_WARNS("LLMediaDataClient") << "Tracking already tracked request: " << *request << LL_ENDL;
+	}
+	else
+	{
+		mUnQueuedRequests.insert(request);
 	}
 }
 
@@ -284,14 +281,11 @@ void LLMediaDataClient::stopTrackingRequest(request_ptr_t request)
 	
 	if (iter != mUnQueuedRequests.end())
 	{
-		if(*iter == request)
-		{
-			mUnQueuedRequests.erase(iter);
-		}
-		else
-		{
-			LL_WARNS("LLMediaDataClient") << "Removing an untracked request: " << *request << LL_ENDL;
-		}
+		mUnQueuedRequests.erase(iter);
+	}
+	else
+	{
+		LL_WARNS("LLMediaDataClient") << "Removing an untracked request: " << *request << LL_ENDL;
 	}
 }
 
