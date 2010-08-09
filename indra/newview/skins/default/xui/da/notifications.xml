@@ -231,7 +231,7 @@ Er du sikker på at du vil fortsætte?
 		Slet favorit &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 	</notification>
 	<notification name="DeleteOutfits">
-		Slet det valgte sæt?
+		Slet valgte sæt?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
@@ -1635,8 +1635,8 @@ Check venligst din netværks- og firewall setup.
 Avatar &apos;[NAME]&apos; forsvandt helt &quot;uploaded&quot;.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
-		( [EXISTENCE] seconds alive )
-Du sendte en [RESOLUTION] tekstur til &apos;[BODYREGION]&apos; efter [TIME] sekunder.
+		( [EXISTENCE] sekunder i live )
+You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Er du sikker på at du vil forlade dette opkald?
@@ -1659,5 +1659,8 @@ Hvis du bliver ved med at have problemer, besøg venligst [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Hvis du selv ejer land, kan du benytte det til hjemme lokation.
 Ellers kan du se på verdenskortet og finde steder markeret med &quot;Infohub&quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Du døde og er blevet teleporteret til din hjemmelokation.
 	</global>
 </notifications>

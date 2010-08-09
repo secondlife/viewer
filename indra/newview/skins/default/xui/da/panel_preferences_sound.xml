@@ -11,8 +11,8 @@
 	<check_box label="Aktiveret" name="enable_media"/>
 	<slider label="Stemme chat" name="Voice Volume"/>
 	<check_box label="Aktiveret" name="enable_voice_check"/>
-	<check_box label="Tillad media at afspilles automatisk" name="media_auto_play_btn" tool_tip="Vælg dette for at media afspille automatisk hvis det ønsker det" />
-	<check_box label="Afspil media vedhæftet andre avatarer" name="media_show_on_others_btn" tool_tip="Deaktiver dette for at skjule vedhæftet media for avatarer i nærheden" />
+	<check_box label="Tillad media at afspilles automatisk" name="media_auto_play_btn" tool_tip="Vælg dette for at media afspille automatisk hvis det ønsker det" value="true"/>
+	<check_box label="Afspil media vedhæftet andre avatarer" name="media_show_on_others_btn" tool_tip="Deaktiver dette for at skjule vedhæftet media for avatarer i nærheden" value="true"/>
 	<text name="voice_chat_settings">
 		Stemme chat opsætning
 	</text>
@@ -27,6 +27,12 @@
 	<panel label="Enhedsopsætning" name="device_settings_panel">
 		<panel.string name="default_text">
 			Standard
+		</panel.string>
+		<panel.string name="default system device">
+			Standard systemenhed
+		</panel.string>
+		<panel.string name="no device">
+			Ingen enheder
 		</panel.string>
 		<text name="Input">
 			Input
