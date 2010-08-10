@@ -855,9 +855,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// but probably not for Textures.
 			// Set the throttle to the entire bandwidth, assuming UDP packets will get priority
 			// when they are needed
-			F32 max_bandwidth = mFetcher->mMaxBandwidth;
-			if (mFetcher->isHTTPThrottled(mDesiredSize) ||
-				mFetcher->getTextureBandwidth() > max_bandwidth)
+			//F32 max_bandwidth = mFetcher->mMaxBandwidth;
+			if (mFetcher->isHTTPThrottled(mDesiredSize))// ||
+				//mFetcher->getTextureBandwidth() > max_bandwidth)
 			{
 				// Make normal priority and return (i.e. wait until there is room in the queue)
 				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
@@ -899,7 +899,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mGetReason.clear();
 				LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << offset
 									 << " Bytes: " << mRequestedSize
-									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << max_bandwidth
+									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
 									 << LL_ENDL;
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 				mState = WAIT_HTTP_REQ;	
