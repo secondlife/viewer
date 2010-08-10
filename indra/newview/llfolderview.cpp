@@ -62,6 +62,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llfloaterproperties.h"
+#include "llnotificationsutil.h"
 
 // Linden library includes
 #include "lldbstrings.h"
@@ -1024,6 +1025,17 @@ void LLFolderView::closeRenamer( void )
 
 void LLFolderView::removeSelectedItems( void )
 {
+	if (mSelectedItems.empty()) return;
+	LLSD args;
+	args["QUESTION"] = LLTrans::getString(mSelectedItems.size() > 1 ? "DeleteItems" :  "DeleteItem");
+	LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLFolderView::onItemsRemovalConfirmation, this, _1, _2));
+}
+
+void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
 	if(getVisible() && getEnabled())
 	{
 		// just in case we're removing the renaming item.

@@ -293,6 +293,8 @@ protected:
 	
 	BOOL addNoOptions(LLMenuGL* menu) const;
 
+	void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response);
+
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
