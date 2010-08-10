@@ -30,7 +30,7 @@
 	<text name="trigger_label">
 		Parole chiave:
 	</text>
-	<text left="208" name="replace_text" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!">
+	<text name="replace_text" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!">
 		Sostituisci con:
 	</text>
 	<line_editor name="replace_editor" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!"/>
@@ -62,7 +62,7 @@
 		<radio_item label="Attiva" name="start"/>
 		<radio_item label="Ferma" name="stop"/>
 	</radio_group>
-	<check_box label="finché le animazioni sono eseguite" left="226" name="wait_anim_check"/>
+	<check_box label="finché le animazioni sono eseguite" name="wait_anim_check"/>
 	<check_box label="durata in secondi:" name="wait_time_check"/>
 	<line_editor left_delta="114" name="wait_time_editor"/>
 	<text name="help_label">
