@@ -230,19 +230,29 @@ BOOL LLVorbisDecodeState::initDecode()
 	
 	bool abort_decode = false;
 	
-	if( vi->channels < 1 || vi->channels > LLVORBIS_CLIP_MAX_CHANNELS )
+	if (vi)
+	{
+		if( vi->channels < 1 || vi->channels > LLVORBIS_CLIP_MAX_CHANNELS )
+		{
+			abort_decode = true;
+			llwarns << "Bad channel count: " << vi->channels << llendl;
+		}
+	}
+	else // !vi
 	{
 		abort_decode = true;
-		llwarns << "Bad channel count: " << vi->channels << llendl;
+		llwarns << "No default bitstream found" << llendl;	
 	}
 	
-	if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES )
+	if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES ||
+	    (size_t)sample_count <= 0)
 	{
 		abort_decode = true;
 		llwarns << "Illegal sample count: " << sample_count << llendl;
 	}
 	
-	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
+	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE ||
+	    size_guess < 0)
 	{
 		abort_decode = true;
 		llwarns << "Illegal sample size: " << size_guess << llendl;
@@ -251,7 +261,11 @@ BOOL LLVorbisDecodeState::initDecode()
 	if( abort_decode )
 	{
 		llwarns << "Canceling initDecode. Bad asset: " << mUUID << llendl;
-		llwarns << "Bad asset encoded by: " << ov_comment(&mVF,-1)->vendor << llendl;
+		vorbis_comment* comment = ov_comment(&mVF,-1);
+		if (comment && comment->vendor)
+		{
+			llwarns << "Bad asset encoded by: " << comment->vendor << llendl;
+		}
 		delete mInFilep;
 		mInFilep = NULL;
 		return FALSE;

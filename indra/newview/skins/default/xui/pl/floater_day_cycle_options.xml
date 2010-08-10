@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Day Cycle Floater" title="EDYTOR CYKLU DNIA">
 	<tab_container name="Day Cycle Tabs">
-		<panel label="Cykl Dnia" name="Day Cycle">
+		<panel label="Cykl dnia" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp"/>
 			<multi_slider label="" name="WLTimeSlider"/>
 			<multi_slider label="" name="WLDayCycleKeys"/>

@@ -92,6 +92,7 @@
 			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Valg" name="Options">
+			<menu_item_call label="Sæt standard rettigher for upload" name="perm prefs"/>
 			<menu_item_check label="Vis avancerede rettigheder" name="DebugPermissions"/>
 			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
 			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
@@ -109,7 +110,6 @@
 			<menu_item_call label="Lyd (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
-			<menu_item_call label="Sæt standardværdier for upload rettigheder" name="perm prefs"/>
 		</menu>
 	</menu>
 	<menu label="Hjælp" name="Help">

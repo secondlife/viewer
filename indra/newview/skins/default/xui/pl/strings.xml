@@ -642,6 +642,9 @@
 	<string name="worldmap_offline">
 		Mapa Świata jest Niedostępna
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		[AREA] m² L$[PRICE]
+	</string>
 	<string name="worldmap_results_none_found">
 		Miejsce Nieodnalezione.
 	</string>
@@ -1031,6 +1034,7 @@
 	<string name="AnimFlagStop" value=" Zatrzymaj Animację :"/>
 	<string name="AnimFlagStart" value=" Rozpocznij Animację :"/>
 	<string name="Wave" value=" Wave"/>
+	<string name="GestureActionNone" value="Żadne"/>
 	<string name="HelloAvatar" value=" Witaj, Awatarze!"/>
 	<string name="ViewAllGestures" value="  Zobacz Wszystkie &gt;&gt;"/>
 	<string name="GetMoreGestures" value="Więcej gesturek &gt;&gt;"/>
@@ -1110,11 +1114,11 @@
 	<string name="InvFolder Gestures">
 		Gesturki
 	</string>
-	<string name="InvFolder favorite">
-		Ulubione
-	</string>
 	<string name="InvFolder Current Outfit">
 		Obecne Ubranie
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Początkowe stroje
 	</string>
 	<string name="InvFolder My Outfits">
 		Moje Ubranie
@@ -1435,6 +1439,7 @@
 	<string name="SummaryForTheWeek" value="Podsumowanie dla tego tygodnia, począwszy od "/>
 	<string name="NextStipendDay" value="Następna wypłata będzie w "/>
 	<string name="GroupIndividualShare" value="                      Groupa       Udziały Indywidualne"/>
+	<string name="GroupColumn" value="Grupa"/>
 	<string name="Balance">
 		Stan
 	</string>
@@ -1647,6 +1652,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przeglądnięcia poźniej.
+	</string>
+	<string name="NoOutfits">
+		Nie posiadasz jeszcze żadnych strojów. Spróbuj [secondlife:///app/search/all/ Szukaj]
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Szukaj].
 	</string>
 	<string name="MuteByName">
 		(Nazwa)
@@ -3568,6 +3579,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="group_role_owners">
 		Właściciele
 	</string>
+	<string name="group_member_status_online">
+		Obecnie w SL
+	</string>
 	<string name="uploading_abuse_report">
 		Pobieranie...
   
@@ -3621,8 +3635,14 @@ Raport o Nadużyciu
 	<string name="Invalid Wearable">
 		Nieaktualne ubranie/część ciała
 	</string>
+	<string name="New Gesture">
+		Nowy gest
+	</string>
 	<string name="New Script">
 		Nowy skrypt
+	</string>
+	<string name="New Note">
+		Stwórz nowe ogłoszenie
 	</string>
 	<string name="New Folder">
 		Nowy folder
@@ -3681,6 +3701,15 @@ Raport o Nadużyciu
 	<string name="Male - Wow">
 		Mężczyzna - Wow
 	</string>
+	<string name="Female - Chuckle">
+		Kobieta - Chichot
+	</string>
+	<string name="Female - Cry">
+		Kobieta - Płacze
+	</string>
+	<string name="Female - Embarrassed">
+		Kobieta - Zakłopotana
+	</string>
 	<string name="Female - Excuse me">
 		Kobieta - Excuse me
 	</string>
@@ -3699,8 +3728,20 @@ Raport o Nadużyciu
 	<string name="Female - Hey">
 		Kobieta - Hey
 	</string>
+	<string name="Female - Hey baby">
+		Kobieta - Hey baby
+	</string>
 	<string name="Female - Laugh">
 		Kobieta - Śmiech
+	</string>
+	<string name="Female - Looking good">
+		Kobieta - Looking good
+	</string>
+	<string name="Female - Over here">
+		Kobieta - Over here
+	</string>
+	<string name="Female - Please">
+		Kobieta - Please
 	</string>
 	<string name="Female - Repulsed">
 		Kobieta - Odrzucenie
@@ -3750,5 +3791,47 @@ Raport o Nadużyciu
 	</string>
 	<string name="dateTimePM">
 		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		US$ [AMOUNT]
+	</string>
+	<string name="Membership">
+		Członkostwo
+	</string>
+	<string name="Roles">
+		Funkcje
+	</string>
+	<string name="Group Identity">
+		Status Grupy
+	</string>
+	<string name="Parcel Management">
+		Parcel Management
+	</string>
+	<string name="Parcel Identity">
+		Parcel Identity
+	</string>
+	<string name="Parcel Settings">
+		Parcel Settings
+	</string>
+	<string name="Parcel Powers">
+		Parcel Powers
+	</string>
+	<string name="Parcel Access">
+		Dostęp do posiadłości
+	</string>
+	<string name="Parcel Content">
+		Parcel Content
+	</string>
+	<string name="Object Management">
+		Object Management
+	</string>
+	<string name="Accounting">
+		Accounting
+	</string>
+	<string name="Notices">
+		Ogłoszenia
+	</string>
+	<string name="Chat">
+		Czat
 	</string>
 </strings>
