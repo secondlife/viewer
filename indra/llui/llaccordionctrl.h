@@ -139,7 +139,7 @@ public:
 	 */
 	const LLAccordionCtrlTab* getExpandedTab() const;
 
-	const LLAccordionCtrlTab* getSelectedTab() const { return mSelectedTab; }
+	LLAccordionCtrlTab* getSelectedTab() const { return mSelectedTab; }
 
 	bool getFitParent() const {return mFitParent;}
 

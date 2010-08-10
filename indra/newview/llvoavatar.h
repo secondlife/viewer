@@ -687,6 +687,7 @@ public:
 	void 				rebuildHUD();
 	void 				resetHUDAttachments();
 	BOOL				canAttachMoreObjects() const;
+	BOOL				canAttachMoreObjects(U32 n) const;
 protected:
 	U32					getNumAttachments() const; // O(N), not O(1)
 

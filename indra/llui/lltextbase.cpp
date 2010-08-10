@@ -2723,7 +2723,10 @@ LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP s
 F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
 	F32 result = LLNormalTextSegment::draw(start, end, selection_start, selection_end, draw_rect);
-	mStyle = mNormalStyle;
+	if (end == mEnd - mStart)
+	{
+		mStyle = mNormalStyle;
+	}
 	return result;
 }
 

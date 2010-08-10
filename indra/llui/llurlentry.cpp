@@ -366,7 +366,7 @@ std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
 bool LLUrlEntryAgent::underlineOnHoverOnly(const std::string &string) const
 {
 	std::string url = getUrl(string);
-	return LLStringUtil::endsWith(url, "/about");
+	return LLStringUtil::endsWith(url, "/about") || LLStringUtil::endsWith(url, "/inspect");
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
