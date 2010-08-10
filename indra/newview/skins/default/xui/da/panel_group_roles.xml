@@ -13,6 +13,9 @@
 Vælg flere medlemmer ved at holde Ctrl-tasten nede og
 klik på deres navne.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
 			<filter_editor label="Filtrér medlemmer" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Medlemsnavn" name="name"/>
@@ -76,21 +79,15 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 		<text name="static">
 			Rolle navn
 		</text>
-		<line_editor name="role_name">
-			Ansatte
-		</line_editor>
+		<line_editor name="role_name"/>
 		<text name="static3">
 			Rolle titel
 		</text>
-		<line_editor name="role_title">
-			(venter)
-		</line_editor>
+		<line_editor name="role_title"/>
 		<text name="static2">
 			Beskrivelse
 		</text>
-		<text_editor name="role_description">
-			(venter)
-		</text_editor>
+		<text_editor name="role_description"/>
 		<text name="static4">
 			Tildelte roller
 		</text>
@@ -105,9 +102,6 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">
-		<text name="static">
-			Beskrivelse
-		</text>
 		<text_editor name="action_description">
 			Denne rettigheder &apos;Udmeld medlemmer fra denne gruppe&apos;. Kun en ejer kan udmelde en anden ejer.
 		</text_editor>

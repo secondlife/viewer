@@ -12,6 +12,9 @@
 				Możesz dodawać i usuwać Funkcje przypisane do Członków.
 Możesz wybrać wielu Członków naciskając Ctrl i klikając na ich imionach.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
 			<filter_editor label="Filtruj Członków" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Członek" name="name"/>
@@ -75,21 +78,15 @@ Istnieje wiele Przywilei.
 		<text name="static">
 			Nazwa Funkcji
 		</text>
-		<line_editor name="role_name">
-			Liczba
-		</line_editor>
+		<line_editor name="role_name"/>
 		<text name="static3">
 			Nazwa Funkcji
 		</text>
-		<line_editor name="role_title">
-			(proszę czekać)
-		</line_editor>
+		<line_editor name="role_title"/>
 		<text name="static2">
 			Opis
 		</text>
-		<text_editor name="role_description">
-			(proszę czekać)
-		</text_editor>
+		<text_editor name="role_description"/>
 		<text name="static4">
 			Przypisane Funkcje
 		</text>
@@ -104,9 +101,6 @@ Istnieje wiele Przywilei.
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">
-		<text name="static">
-			Opis Przywileju
-		</text>
 		<text_editor name="action_description">
 			Przywilej &apos;Usuń Członka z Grupy&apos;. Tylko Właściciel może usunąć innego Właściciela.
 		</text_editor>

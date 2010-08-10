@@ -92,6 +92,7 @@
 			<menu_item_call label="Wstrzymaj Działanie Skryptów w Selekcji" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opcje" name="Options">
+			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
 			<menu_item_check label="Pokaż Zaawansowane Pozwolenia" name="DebugPermissions"/>
 			<menu_item_check label="Wybierz Tylko Moje Obiekty" name="Select Only My Objects"/>
 			<menu_item_check label="Wybierz Tylko Obiekty Przesuwalne" name="Select Only Movable Objects"/>
@@ -109,7 +110,6 @@
 			<menu_item_call label="dźwięk (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
-			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
 		</menu>
 	</menu>
 	<menu label="Pomoc" name="Help">

@@ -355,7 +355,7 @@ Czy na pewno chcesz kontynuować?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Czy usunąć wybrany strój?
+		Skasować wybrane stroje?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -2720,8 +2720,8 @@ Proszę sprawdź swoją sieć i ustawienia firewall.
 Awatar &apos;[NAME]&apos; pozostał w pełni załadowany.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
-		( [EXISTENCE] sekund w Second Life)
-Załadowano [RESOLUTION] teksturę dla &apos;[BODYREGION]&apos; po [TIME] sekundach.
+		( [EXISTENCE] sekund w Second Life )
+You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Czy jestes pewien/pewna, że chcesz zakończyć rozmowę?
@@ -2757,5 +2757,8 @@ Jeżeli wciąż masz problemy sprawdź: [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Jeśli jesteś właścicielem posiadłości, możesz ustawić na niej miejsce startu.
 W innym przypadku możesz poszukać na mapie miejsca oznaczone jako &quot;Infohub&quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Nastąpiła śmierć i teleportacja do Miejsca Startu.
 	</global>
 </notifications>
