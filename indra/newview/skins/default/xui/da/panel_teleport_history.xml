@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History">
 	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/places/[SEARCH_TERM] Search]."/>
+		<no_visible_tabs_text name="no_teleports_msg" value="Teleport historik er tom. Prøv [secondlife:///app/search/places/ Search]."/>
 		<accordion_tab name="today" title="I dag"/>
 		<accordion_tab name="yesterday" title="I går"/>
 		<accordion_tab name="2_days_ago" title="2 dage siden"/>
-		5
 		<accordion_tab name="3_days_ago" title="3 dage siden"/>
 		<accordion_tab name="4_days_ago" title="4 dage siden"/>
 		<accordion_tab name="5_days_ago" title="5 dage siden"/>
