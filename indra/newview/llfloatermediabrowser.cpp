@@ -95,7 +95,7 @@ void LLFloaterMediaBrowser::create(const std::string &url, const std::string& ta
 			lldebugs << "    " << (*iter)->getKey() << llendl;
 		}
 		
-		if(instances.size() >= browser_window_limit)
+		if(instances.size() >= (size_t)browser_window_limit)
 		{
 			// Destroy the least recently opened instance
 			(*instances.begin())->closeFloater();
