@@ -1087,6 +1087,8 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gUseWireframe = !(gUseWireframe);
+		LLPipeline::updateRenderDeferred();
+		gPipeline.resetVertexBuffers();
 		return true;
 	}
 };
