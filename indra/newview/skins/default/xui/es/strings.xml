@@ -645,6 +645,9 @@
 	<string name="worldmap_offline">
 		Sin conexión
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		[PRICE] L$ por [AREA] m²
+	</string>
 	<string name="worldmap_results_none_found">
 		No se ha encontrado.
 	</string>
@@ -1034,6 +1037,7 @@
 	<string name="AnimFlagStop" value="Parar la animación:"/>
 	<string name="AnimFlagStart" value="Empezar la animación:"/>
 	<string name="Wave" value="Onda"/>
+	<string name="GestureActionNone" value="Ninguno"/>
 	<string name="HelloAvatar" value="¡Hola, avatar!"/>
 	<string name="ViewAllGestures" value="Ver todos &gt;&gt;"/>
 	<string name="GetMoreGestures" value="Obtener más &gt;&gt;"/>
@@ -1116,11 +1120,11 @@
 	<string name="InvFolder Favorite">
 		Favoritos
 	</string>
-	<string name="InvFolder favorite">
-		Favoritos
-	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Vestuario inicial
 	</string>
 	<string name="InvFolder My Outfits">
 		Mis vestuarios
@@ -1441,6 +1445,7 @@
 	<string name="SummaryForTheWeek" value="Resumen de esta semana, empezando el"/>
 	<string name="NextStipendDay" value="El próximo día de pago es el"/>
 	<string name="GroupIndividualShare" value="Grupo       Aportaciones individuales"/>
+	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">
 		Saldo
 	</string>
@@ -1653,6 +1658,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
+	</string>
+	<string name="NoOutfits">
+		Todavía no tienes vestuario. Intenta con [secondlife:///app/search/all/ Buscar]
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		¿No encuentras lo que buscas? Intenta con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
 	</string>
 	<string name="MuteByName">
 		(Por el nombre)
@@ -3574,6 +3585,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="group_role_owners">
 		Propietarios
 	</string>
+	<string name="group_member_status_online">
+		Conectado/a
+	</string>
 	<string name="uploading_abuse_report">
 		Subiendo...
   
@@ -3627,8 +3641,14 @@ Denuncia de infracción
 	<string name="Invalid Wearable">
 		No se puede poner
 	</string>
+	<string name="New Gesture">
+		Gesto nuevo
+	</string>
 	<string name="New Script">
 		Script nuevo
+	</string>
+	<string name="New Note">
+		Nota nueva
 	</string>
 	<string name="New Folder">
 		Carpeta nueva
@@ -3687,6 +3707,15 @@ Denuncia de infracción
 	<string name="Male - Wow">
 		Varón - Admiración
 	</string>
+	<string name="Female - Chuckle">
+		Mujer - Risa suave
+	</string>
+	<string name="Female - Cry">
+		Mujer - Llorar
+	</string>
+	<string name="Female - Embarrassed">
+		Mujer - Ruborizada
+	</string>
 	<string name="Female - Excuse me">
 		Mujer - Disculpa
 	</string>
@@ -3705,8 +3734,20 @@ Denuncia de infracción
 	<string name="Female - Hey">
 		Mujer - ¡Eh!
 	</string>
+	<string name="Female - Hey baby">
+		Mujer - ¡Eh, encanto!
+	</string>
 	<string name="Female - Laugh">
 		Mujer - Risa
+	</string>
+	<string name="Female - Looking good">
+		Mujer - Buen aspecto
+	</string>
+	<string name="Female - Over here">
+		Mujer - Por aquí
+	</string>
+	<string name="Female - Please">
+		Mujer - Por favor
 	</string>
 	<string name="Female - Repulsed">
 		Mujer - Rechazo
@@ -3756,5 +3797,47 @@ Denuncia de infracción
 	</string>
 	<string name="dateTimePM">
 		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		[AMOUNT] dólares estadounidenses
+	</string>
+	<string name="Membership">
+		Membresía
+	</string>
+	<string name="Roles">
+		Roles
+	</string>
+	<string name="Group Identity">
+		Indentidad de grupo
+	</string>
+	<string name="Parcel Management">
+		Gestión de la parcela
+	</string>
+	<string name="Parcel Identity">
+		Identidad de la parcela
+	</string>
+	<string name="Parcel Settings">
+		Configuración de la parcela
+	</string>
+	<string name="Parcel Powers">
+		Poder de la parcela
+	</string>
+	<string name="Parcel Access">
+		Acceso a la parcela
+	</string>
+	<string name="Parcel Content">
+		Contenido de la parcela
+	</string>
+	<string name="Object Management">
+		Manejo de objetos
+	</string>
+	<string name="Accounting">
+		Contabilidad
+	</string>
+	<string name="Notices">
+		Avisos
+	</string>
+	<string name="Chat">
+		Chat
 	</string>
 </strings>

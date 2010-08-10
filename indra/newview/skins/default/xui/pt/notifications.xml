@@ -356,7 +356,7 @@ Tem certeza de que quer prosseguir?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Apagar"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Excluir o look selecionado?
+		Excluir look(s) selecionado(s)?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -2729,7 +2729,7 @@ Avatar &apos;[NAME]&apos; saiu totalmente carregado.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
 		( [EXISTENCE] segundos de vida )
-Você carregou uma textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
+[ACTION] de textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Tem certeza de que quer sair desta ligação?
@@ -2766,5 +2766,8 @@ Se você continuar a receber esta mensagem, consulte o [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Se você tem um terreno, seu terreno pode ser seu início. 
 Outra opção é procurar por lugares com a tag &apos;Infohub&apos; no mapa.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Você morreu e foi reenviado ao seu início.
 	</global>
 </notifications>

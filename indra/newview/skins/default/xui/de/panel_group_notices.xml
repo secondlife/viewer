@@ -21,7 +21,7 @@ Maximal 200 pro Gruppe täglich
 	<text name="notice_list_none_found">
 		Nicht gefunden.
 	</text>
-	<button label="Neue Mitteilung erstellen" label_selected="Neue Mitteilung" name="create_new_notice" tool_tip="Neue Mitteilung erstellen"/>
+	<button label="Neue Mitteilung" label_selected="Neue Mitteilung" name="create_new_notice" tool_tip="Neue Mitteilung erstellen"/>
 	<button label="Aktualisieren" label_selected="Liste aktualisieren" name="refresh_notices" tool_tip="Mitteilungsliste aktualisieren"/>
 	<panel label="Neue Mitteilung" name="panel_create_new_notice">
 		<text name="lbl">
