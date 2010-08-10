@@ -3258,4 +3258,8 @@ Abuse Report</string>
   <string name="Notices">Notices</string>
   <string name="Chat">Chat</string>
 
+  <!-- Question strings for delete items notifications -->
+  <string name="DeleteItems">Delete selected items?</string>
+  <string name="DeleteItem">Delete selected item?</string>
+
   </strings>
