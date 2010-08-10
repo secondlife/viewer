@@ -84,23 +84,23 @@ void LLWeb::initClass()
 
 
 // static
-void LLWeb::loadURL(const std::string& url)
+void LLWeb::loadURL(const std::string& url, const std::string& target)
 {
-	if (gSavedSettings.getBOOL("UseExternalBrowser"))
+	if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
 	{
 		loadURLExternal(url);
 	}
 	else
 	{
-		loadURLInternal(url);
+		loadURLInternal(url, target);
 	}
 }
 
 
 // static
-void LLWeb::loadURLInternal(const std::string &url)
+void LLWeb::loadURLInternal(const std::string &url, const std::string& target)
 {
-	LLFloaterReg::showInstance("media_browser", url);
+	LLFloaterMediaBrowser::create(url, target);
 }
 
 

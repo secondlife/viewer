@@ -543,23 +543,7 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 			setNeedsSort();
 			break;
 	
-		case ADD_SORTED:
-			{
-				// sort by column 0, in ascending order
-				std::vector<sort_column_t> single_sort_column;
-				single_sort_column.push_back(std::make_pair(0, TRUE));
-
-				mItemList.push_back(item);
-				std::stable_sort(
-					mItemList.begin(), 
-					mItemList.end(), 
-					SortScrollListItem(single_sort_column,mSortCallback));
-				
-				// ADD_SORTED just sorts by first column...
-				// this might not match user sort criteria, so flag list as being in unsorted state
-				setNeedsSort();
-				break;
-			}	
+		case ADD_DEFAULT:
 		case ADD_BOTTOM:
 			mItemList.push_back(item);
 			setNeedsSort();
@@ -2770,9 +2754,10 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(const std::string& name)
 	return NULL;
 }
 
-
+LLFastTimer::DeclareTimer FTM_ADD_SCROLLLIST_ELEMENT("Add Scroll List Item");
 LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	LLScrollListItem::Params item_params;
 	LLParamSDParser::instance().readSD(element, item_params);
 	item_params.userdata = userdata;
@@ -2781,12 +2766,14 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition
 
 LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	LLScrollListItem *new_item = new LLScrollListItem(item_p);
 	return addRow(new_item, item_p, pos);
 }
 
 LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	if (!item_p.validateBlock() || !new_item) return NULL;
 	new_item->setNumColumns(mColumns.size());
 

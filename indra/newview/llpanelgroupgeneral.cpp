@@ -746,7 +746,7 @@ void LLPanelGroupGeneral::updateMembers()
 		sSDTime += sd_timer.getElapsedTimeF32();
 
 		element_timer.reset();
-		LLScrollListItem* member_row = mListVisibleMembers->addElement(row);//, ADD_SORTED);
+		LLScrollListItem* member_row = mListVisibleMembers->addElement(row);
 		
 		if ( member->isOwner() )
 		{

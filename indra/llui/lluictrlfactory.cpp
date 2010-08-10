@@ -99,10 +99,11 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	std::string filename = std::string("widgets") + gDirUtilp->getDirDelimiter() + widget_tag + ".xml";
 	LLXMLNodePtr root_node;
 
-	if (LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
+	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), filename);
+	if (!full_filename.empty())
 	{
-		LLUICtrlFactory::instance().pushFileName(filename);
-		LLXUIParser::instance().readXUI(root_node, block, filename);
+		LLUICtrlFactory::instance().pushFileName(full_filename);
+		LLSimpleXUIParser::instance().readXUI(full_filename, block);
 		LLUICtrlFactory::instance().popFileName();
 	}
 }

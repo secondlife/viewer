@@ -2440,7 +2440,7 @@ void LLPanelLandAccess::refresh()
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		
@@ -2481,7 +2481,7 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		

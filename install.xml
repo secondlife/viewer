@@ -185,7 +185,7 @@
         <key>copyright</key>
         <string>various</string>
         <key>description</key>
-        <string>A set of portable C++ libraries which provide a wide set of functionality. Used primarily for tokenization. </string>
+        <string>A set of portable C++ libraries which provide a wide set of functionality. </string>
         <key>license</key>
         <string>boost</string>
         <key>packages</key>
@@ -981,9 +981,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>becffca6bd8dcb239de284ea2a8b485b</string>
+            <string>093c977ef0ef2396cc235b3620329a87</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100805.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>

@@ -1178,7 +1178,7 @@ void LLPanelPrimMediaControls::setCurrentURL()
 //	if (media_address_combo && mCurrentURL != "about:blank")
 //	{
 //		media_address_combo->remove(mCurrentURL);
-//		media_address_combo->add(mCurrentURL, ADD_SORTED);
+//		media_address_combo->add(mCurrentURL);
 //		media_address_combo->selectByValue(mCurrentURL);
 //	}
 #else   // USE_COMBO_BOX_FOR_MEDIA_URL

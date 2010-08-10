@@ -63,6 +63,30 @@ LLFloaterMediaBrowser::LLFloaterMediaBrowser(const LLSD& key)
 
 }
 
+//static 
+void LLFloaterMediaBrowser::create(const std::string &url, const std::string& target)
+{
+	std::string tag = target;
+	
+	if(target.empty() || target == "_blank")
+	{
+		// create a unique tag for this instance
+		LLUUID id;
+		id.generate();
+		tag = id.asString();
+	}
+	
+	// TODO: Figure out whether we need to close an existing instance and/or warn the user about the number of instances they have open
+	
+	LLFloaterMediaBrowser *browser = dynamic_cast<LLFloaterMediaBrowser*> (LLFloaterReg::showInstance("media_browser", tag));
+	llassert(browser);
+	if(browser)
+	{
+		// tell the browser instance to load the specified URL
+		browser->openMedia(url);
+	}
+}
+
 void LLFloaterMediaBrowser::draw()
 {
 	getChildView("go")->setEnabled(!mAddressCombo->getValue().asString().empty());
@@ -105,6 +129,7 @@ BOOL LLFloaterMediaBrowser::postBuild()
 
 	mAddressCombo = getChild<LLComboBox>("address");
 	mAddressCombo->setCommitCallback(onEnterAddress, this);
+	mAddressCombo->sortByName();
 
 	childSetAction("back", onClickBack, this);
 	childSetAction("forward", onClickForward, this);
@@ -185,7 +210,7 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	if (mCurrentURL != "about:blank")
 	{
 		mAddressCombo->remove(mCurrentURL);
-		mAddressCombo->add(mCurrentURL, ADD_SORTED);
+		mAddressCombo->add(mCurrentURL);
 		mAddressCombo->selectByValue(mCurrentURL);
 
 		// Serialize url history
@@ -195,12 +220,6 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
 	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
 	getChildView("reload")->setEnabled(TRUE);
-}
-
-void LLFloaterMediaBrowser::onOpen(const LLSD& media_url)
-{
-	LLFloater::onOpen(media_url);
-	openMedia(media_url.asString());
 }
 
 //static 
