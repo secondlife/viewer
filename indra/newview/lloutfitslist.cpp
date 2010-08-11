@@ -403,12 +403,6 @@ void LLOutfitsList::onOpen(const LLSD& /*info*/)
 
 		mIsInitialized = true;
 	}
-
-	LLAccordionCtrlTab* selected_tab = mAccordion->getSelectedTab();
-	if (!selected_tab) return;
-
-	// Pass focus to the selected outfit tab.
-	selected_tab->showAndFocusHeader();
 }
 
 void LLOutfitsList::refreshList(const LLUUID& category_id)
