@@ -45,7 +45,7 @@
 #include "llappviewer.h"
 #include "lltracker.h"
 
-/*
+
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
 
@@ -76,107 +76,7 @@ void LLFirstUse::resetFirstUse()
 		gWarningSettings.setBOOL(*iter, TRUE);
 	}
 }
-*/
-/*
 
-// Called whenever the viewer detects that your balance went up
-void LLFirstUse::useBalanceIncrease(S32 delta)
-{
-	if (gWarningSettings.getBOOL("FirstBalanceIncrease"))
-	{
-		gWarningSettings.setBOOL("FirstBalanceIncrease", FALSE);
-
-		LLSD args;
-		args["AMOUNT"] = llformat("%d",delta);
-		LLNotificationsUtil::add("FirstBalanceIncrease", args);
-	}
-}
-
-
-// Called whenever the viewer detects your balance went down
-void LLFirstUse::useBalanceDecrease(S32 delta)
-{
-	if (gWarningSettings.getBOOL("FirstBalanceDecrease"))
-	{
-		gWarningSettings.setBOOL("FirstBalanceDecrease", FALSE);
-
-		LLSD args;
-		args["AMOUNT"] = llformat("%d",-delta);
-		LLNotificationsUtil::add("FirstBalanceDecrease", args);
-	}
-}
-
-
-// static
-void LLFirstUse::useSit()
-{
-	// Our orientation island uses sitting to teach vehicle driving
-	// so just never show this message. JC
-	//if (gWarningSettings.getBOOL("FirstSit"))
-	//{
-	//	gWarningSettings.setBOOL("FirstSit", FALSE);
-        //
-	//	LLNotificationsUtil::add("FirstSit");
-	//}
-}
-
-// static
-void LLFirstUse::useMap()
-{
-	if (gWarningSettings.getBOOL("FirstMap"))
-	{
-		gWarningSettings.setBOOL("FirstMap", FALSE);
-
-		LLNotificationsUtil::add("FirstMap");
-	}
-}
-
-// static
-void LLFirstUse::useGoTo()
-{
-	// nothing for now JC
-}
-
-// static
-void LLFirstUse::useBuild()
-{
-	if (gWarningSettings.getBOOL("FirstBuild"))
-	{
-		gWarningSettings.setBOOL("FirstBuild", FALSE);
-
-		LLNotificationsUtil::add("FirstBuild");
-	}
-}
- 
- */
-/*
-// static
-void LLFirstUse::useLeftClickNoHit()
-{ 
-	if (gWarningSettings.getBOOL("FirstLeftClickNoHit"))
-	{
-		gWarningSettings.setBOOL("FirstLeftClickNoHit", FALSE);
-
-		LLNotificationsUtil::add("FirstLeftClickNoHit");
-	}
-}
-*/
-/*
-// static
-void LLFirstUse::useTeleport()
-{
-	if (gWarningSettings.getBOOL("FirstTeleport"))
-	{
-		LLVector3d teleportDestination = LLTracker::getTrackedPositionGlobal();
-		if(teleportDestination != LLVector3d::zero)
-		{
-			gWarningSettings.setBOOL("FirstTeleport", FALSE);
-
-		        LLNotificationsUtil::add("FirstTeleport");
-		}
-	}
-}
-*/
 // static
 void LLFirstUse::useOverrideKeys()
 {
@@ -192,36 +92,6 @@ void LLFirstUse::useOverrideKeys()
 		}
 	}
 }
-/*
-// static
-void LLFirstUse::useAttach()
-{
-	// nothing for now
-}
-
-// static
-void LLFirstUse::useAppearance()
-{
-	if (gWarningSettings.getBOOL("FirstAppearance"))
-	{
-		gWarningSettings.setBOOL("FirstAppearance", FALSE);
-
-		LLNotificationsUtil::add("FirstAppearance");
-	}
-}
-
-// static
-void LLFirstUse::useInventory()
-{
-	if (gWarningSettings.getBOOL("FirstInventory"))
-	{
-		gWarningSettings.setBOOL("FirstInventory", FALSE);
-
-		LLNotificationsUtil::add("FirstInventory");
-	}
-}
-
-*/
 
 // static
 void LLFirstUse::useSandbox()
@@ -236,51 +106,3 @@ void LLFirstUse::useSandbox()
 		LLNotificationsUtil::add("FirstSandbox", args);
 	}
 }
-/*
-// static
-void LLFirstUse::useFlexible()
-{
-	if (gWarningSettings.getBOOL("FirstFlexible"))
-	{
-		gWarningSettings.setBOOL("FirstFlexible", FALSE);
-
-		LLNotificationsUtil::add("FirstFlexible");
-	}
-}
-
-// static
-void LLFirstUse::useDebugMenus()
-{
-	if (gWarningSettings.getBOOL("FirstDebugMenus"))
-	{
-		gWarningSettings.setBOOL("FirstDebugMenus", FALSE);
-
-		LLNotificationsUtil::add("FirstDebugMenus");
-	}
-}
-
-// static
-void LLFirstUse::useSculptedPrim()
-{
-	if (gWarningSettings.getBOOL("FirstSculptedPrim"))
-	{
-		gWarningSettings.setBOOL("FirstSculptedPrim", FALSE);
-
-		LLNotificationsUtil::add("FirstSculptedPrim");
-		
-	}
-}
-
-// static 
-void LLFirstUse::useMedia()
-{
-	if (gWarningSettings.getBOOL("FirstMedia"))
-	{
-		gWarningSettings.setBOOL("FirstMedia", FALSE);
-
-		// Popup removed as a short-term fix for EXT-1643.
-		// Ultimately, the plan is to kill all First Use dialogs
-		//LLNotificationsUtil::add("FirstMedia");
-	}
-}
-*/

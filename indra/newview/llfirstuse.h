@@ -79,43 +79,19 @@ object or from inventory.
 class LLFirstUse
 {
 public:
-/*	
+
 	// Add a config variable to be reset on resetFirstUse()
 	static void addConfigVariable(const std::string& var);
 	
 	// Sets all controls back to show the dialogs.
 	static void disableFirstUse();
 	static void resetFirstUse();
-
-	// These methods are called each time the appropriate action is
-	// taken.  The functions themselves handle only showing the dialog
-	// the first time, or subsequent times if the user wishes.
-	static void useBalanceIncrease(S32 delta);
-	static void useBalanceDecrease(S32 delta);
-	static void useSit();
-	static void useMap();
-	static void useGoTo();
-	static void useBuild();
-//	static void useLeftClickNoHit();
-	static void useTeleport();
-*/ 
 	static void useOverrideKeys();
-/*	
-	static void useAttach();
-	static void useAppearance();
-	static void useInventory();
- */
+
 	static void useSandbox();
-	
-/*
-	static void useFlexible();
-	static void useDebugMenus();
-	static void useSculptedPrim();
-	static void useMedia();
 	
 protected:
 	static std::set<std::string> sConfigVariables;
-*/
 };
 
 #endif
