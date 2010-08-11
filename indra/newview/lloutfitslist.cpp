@@ -1044,14 +1044,7 @@ void LLOutfitsList::wearSelectedItems()
 		return;
 	}
 
-	uuid_vec_t::const_iterator it;
-	// Wear items from all selected lists(if possible- add, else replace)
-	for (it = selected_uuids.begin(); it != selected_uuids.end()-1; ++it)
-	{
-		LLAppearanceMgr::getInstance()->wearItemOnAvatar(*it, false, false);
-	}
-	// call update only when wearing last item
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(*it, true, false);
+	wear_multiple(selected_uuids, false);
 }
 
 void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
