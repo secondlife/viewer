@@ -520,10 +520,6 @@ public:
 
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.3f MB Mesh Memory Cache", LLMeshRepository::sBytesResident/(1024.f*1024.f)));
-
-			ypos += y_inc;
-
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
 				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
