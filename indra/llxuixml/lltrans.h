@@ -103,11 +103,12 @@ public:
 		return findString(result, xml_desc, empty);
 	}
 
-        static std::string getKeyboardString(const char* keystring)
-        {
-                // These map directly - no need to specialize
-                return getString( ll_safe_string(keystring) );
-        }
+	static std::string getKeyboardString(const char* keystring)
+	{
+		std::string key_str(keystring);
+		std::string trans_str;
+		return findString(trans_str, "Key_" + key_str) ? trans_str : key_str; 
+	}
 
 	// get the default args
 	static const LLStringUtil::format_map_t& getDefaultArgs()
