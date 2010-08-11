@@ -310,7 +310,7 @@
      left_delta="0"
      name="wait_time_check"
      top_delta="20"
-     width="100" />
+     width="115" />
     <line_editor
      follows="top|left"
      height="20"

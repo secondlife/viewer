@@ -37,8 +37,8 @@
 	<text name="key_label">
 		Scorciatoia da tastiera:
 	</text>
-	<combo_box label="Nessuno" left="156" name="modifier_combo" width="76"/>
-	<combo_box label="Nessuno" left_delta="80" name="key_combo" width="76"/>
+	<combo_box label="Nessuno" name="modifier_combo" />
+	<combo_box label="Nessuno" name="key_combo" />
 	<text name="library_label">
 		Libreria:
 	</text>
@@ -64,7 +64,7 @@
 	</radio_group>
 	<check_box label="finché le animazioni sono eseguite" name="wait_anim_check"/>
 	<check_box label="durata in secondi:" name="wait_time_check"/>
-	<line_editor left_delta="114" name="wait_time_editor"/>
+	<line_editor name="wait_time_editor"/>
 	<text name="help_label">
 		Tutte le fasi avvengono contemporaneamente, a meno che non aggiungi fasi di attesa.
 	</text>
