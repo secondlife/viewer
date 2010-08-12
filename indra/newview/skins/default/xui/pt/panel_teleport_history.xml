@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History">
 	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Não encontrou o que procura? Tente fazer uma [secondlife:///app/search/groups/[SEARCH_TERM] Busca]."/>
+		<no_visible_tabs_text name="no_teleports_msg" value="Histórico de teletransportes vazio. Tente fazer uma [secondlife:///app/search/groups Busca]."/>
 		<accordion_tab name="today" title="Hoje"/>
 		<accordion_tab name="yesterday" title="Ontem"/>
 		<accordion_tab name="2_days_ago" title="2 dias atrás"/>
-		5
 		<accordion_tab name="3_days_ago" title="3 dias atrás"/>
 		<accordion_tab name="4_days_ago" title="4 dias atrás"/>
 		<accordion_tab name="5_days_ago" title="5 dias atrás"/>

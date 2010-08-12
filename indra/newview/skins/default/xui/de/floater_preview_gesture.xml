@@ -42,7 +42,12 @@
 	<text name="library_label">
 		Bibliothek:
 	</text>
-	<scroll_list name="library_list" width="166"/>
+	<scroll_list name="library_list" width="166">
+		<scroll_list.rows name="action_animation" value="Animation"/>
+		<scroll_list.rows name="action_sound" value="Sound"/>
+		<scroll_list.rows name="action_chat" value="Chat"/>
+		<scroll_list.rows name="action_wait" value="Warten"/>
+	</scroll_list>
 	<button label="Hinzufügen &gt;&gt;" left_pad="6" name="add_btn" width="94"/>
 	<text name="steps_label">
 		Schritte:

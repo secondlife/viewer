@@ -708,7 +708,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		
 		const S32 current_num_known_descendents = cats->count() + items->count();
 
-		LLCategoryData cat_data = (*iter).second;
+		LLCategoryData& cat_data = (*iter).second;
 
 		bool cat_changed = false;
 
@@ -722,11 +722,17 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		}
 
 		// If any item names have changed, update the name hash 
-		LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
-		if (cat_data.mItemNameHash != item_name_hash)
+		// Only need to check if (a) name hash has not previously been
+		// computed, or (b) a name has changed.
+		if (!cat_data.mIsNameHashInitialized || (mask & LLInventoryObserver::LABEL))
 		{
-			cat_data.mItemNameHash = item_name_hash;
-			cat_changed = true;
+			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
+			if (cat_data.mItemNameHash != item_name_hash)
+			{
+				cat_data.mIsNameHashInitialized = true;
+				cat_data.mItemNameHash = item_name_hash;
+				cat_changed = true;
+			}
 		}
 
 		// If anything has changed above, fire the callback.
@@ -773,7 +779,8 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 
 	if (can_be_added)
 	{
-		mCategoryMap.insert(category_map_value_t(cat_id, LLCategoryData(cb, version, current_num_known_descendents)));
+		mCategoryMap.insert(category_map_value_t(
+								cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
 	}
 
 	return can_be_added;
@@ -782,4 +789,16 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
 {
 	mCategoryMap.erase(cat_id);
+}
+
+LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
+	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents)
+	
+	: mCatID(cat_id)
+	, mCallback(cb)
+	, mVersion(version)
+	, mDescendentsCount(num_descendents)
+	, mIsNameHashInitialized(false)
+{
+	mItemNameHash.finalize();
 }

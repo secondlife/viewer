@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
 	<text name="origin" value="（持ち物）"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="" name="item_profile">
 		<text name="LabelItemNameTitle">
 			名前：
 		</text>
@@ -59,20 +58,20 @@
 			<text name="GroupLabel">
 				グループ：
 			</text>
-			<check_box label="共有" name="CheckShareWithGroup" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
+			<check_box label="共有" name="CheckShareWithGroup" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。譲渡しない限り、役割制限を有効にはできません。"/>
 			<text name="NextOwnerLabel">
 				次の所有者：
 			</text>
 			<check_box label="修正" name="CheckNextOwnerModify"/>
 			<check_box label="コピー" name="CheckNextOwnerCopy"/>
-			<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+			<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
 		</panel>
-		<check_box label="販売する" name="CheckPurchase"/>
+		<check_box label="販売中" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
 			<combo_box.item label="コピー" name="Copy"/>
 			<combo_box.item label="オリジナル" name="Original"/>
 		</combo_box>
-		<spinner label="価格： L$" name="Edit Cost"/>
+		<spinner label="価格：L$" name="Edit Cost"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="キャンセル" name="cancel_btn"/>

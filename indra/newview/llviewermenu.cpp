@@ -5852,6 +5852,7 @@ void handle_buy_land()
 class LLObjectAttachToAvatar : public view_listener_t
 {
 public:
+	LLObjectAttachToAvatar(bool replace) : mReplace(replace) {}
 	static void setObjectSelection(LLObjectSelectionHandle selection) { sObjectSelection = selection; }
 
 private:
@@ -5865,22 +5866,38 @@ private:
 			LLViewerJointAttachment* attachment_point = NULL;
 			if (index > 0)
 				attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
-			confirm_replace_attachment(0, attachment_point);
+			confirmReplaceAttachment(0, attachment_point);
 		}
 		return true;
 	}
 
+	static void onNearAttachObject(BOOL success, void *user_data);
+	void confirmReplaceAttachment(S32 option, LLViewerJointAttachment* attachment_point);
+
+	struct CallbackData
+	{
+		CallbackData(LLViewerJointAttachment* point, bool replace) : mAttachmentPoint(point), mReplace(replace) {}
+
+		LLViewerJointAttachment*	mAttachmentPoint;
+		bool						mReplace;
+	};
+
 protected:
 	static LLObjectSelectionHandle sObjectSelection;
+	bool mReplace;
 };
 
 LLObjectSelectionHandle LLObjectAttachToAvatar::sObjectSelection;
 
-void near_attach_object(BOOL success, void *user_data)
+// static
+void LLObjectAttachToAvatar::onNearAttachObject(BOOL success, void *user_data)
 {
+	if (!user_data) return;
+	CallbackData* cb_data = static_cast<CallbackData*>(user_data);
+
 	if (success)
 	{
-		const LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
+		const LLViewerJointAttachment *attachment = cb_data->mAttachmentPoint;
 		
 		U8 attachment_id = 0;
 		if (attachment)
@@ -5900,12 +5917,15 @@ void near_attach_object(BOOL success, void *user_data)
 			// interpret 0 as "default location"
 			attachment_id = 0;
 		}
-		LLSelectMgr::getInstance()->sendAttach(attachment_id);
+		LLSelectMgr::getInstance()->sendAttach(attachment_id, cb_data->mReplace);
 	}		
 	LLObjectAttachToAvatar::setObjectSelection(NULL);
+
+	delete cb_data;
 }
 
-void confirm_replace_attachment(S32 option, void* user_data)
+// static
+void LLObjectAttachToAvatar::confirmReplaceAttachment(S32 option, LLViewerJointAttachment* attachment_point)
 {
 	if (option == 0/*YES*/)
 	{
@@ -5930,7 +5950,8 @@ void confirm_replace_attachment(S32 option, void* user_data)
 			delta = delta * 0.5f;
 			walkToSpot -= delta;
 
-			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", NULL, near_attach_object, user_data, stop_distance);
+			CallbackData* user_data = new CallbackData(attachment_point, mReplace); // *TODO: leak if the callback isn't called?
+			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", NULL, onNearAttachObject, user_data, stop_distance);
 			gAgentCamera.clearFocusObject();
 		}
 	}
@@ -8115,7 +8136,8 @@ void initialize_menus()
 	commit.add("Object.Touch", boost::bind(&handle_object_touch));
 	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
 	commit.add("Object.Delete", boost::bind(&handle_object_delete));
-	view_listener_t::addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
+	view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
+	view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
