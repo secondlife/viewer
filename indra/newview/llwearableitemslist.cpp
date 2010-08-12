@@ -478,9 +478,9 @@ LLWearableItemTypeNameComparator::LLWearableItemTypeNameComparator()
 	// 1. CLOTHING - sorted by name
 	// 2. OBJECT   - sorted by type
 	// 3. BODYPART - sorted by name
-	mWearableOrder[LLAssetType::AT_CLOTHING] = LLWearableTypeOrder(ORDER_RANG_1, false, false);
-	mWearableOrder[LLAssetType::AT_OBJECT]   = LLWearableTypeOrder(ORDER_RANG_2, true, true);
-	mWearableOrder[LLAssetType::AT_BODYPART] = LLWearableTypeOrder(ORDER_RANG_3, false, true);
+	mWearableOrder[LLAssetType::AT_CLOTHING] = LLWearableTypeOrder(ORDER_RANK_1, false, false);
+	mWearableOrder[LLAssetType::AT_OBJECT]   = LLWearableTypeOrder(ORDER_RANK_2, true, true);
+	mWearableOrder[LLAssetType::AT_BODYPART] = LLWearableTypeOrder(ORDER_RANK_3, false, true);
 }
 
 void LLWearableItemTypeNameComparator::setOrder(LLAssetType::EType items_of_type,  LLWearableItemTypeNameComparator::ETypeListOrder order_priority, bool sort_asset_items_by_name, bool sort_wearable_items_by_name)
@@ -555,7 +555,7 @@ LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparato
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about order rang of items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
-		return ORDER_RANG_UNKNOWN;
+		return ORDER_RANK_UNKNOWN;
 	}
 
 	return const_it->second.mOrderPriority;
