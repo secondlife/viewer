@@ -23,8 +23,7 @@
 	</panel.string>
 	<text name="title" value="Objektprofil"/>
 	<text name="origin" value="(Inventar)"/>
-	<panel label=""
-           name="item_profile">
+	<panel label="" name="item_profile">
 		<text name="LabelItemNameTitle">
 			Name:
 		</text>
@@ -51,7 +50,7 @@
 			</text>
 			<check_box label="Bearbeiten" name="CheckOwnerModify"/>
 			<check_box label="Kopieren" name="CheckOwnerCopy"/>
-			<check_box label="Transferieren" name="CheckOwnerTransfer"/>
+			<check_box label="Übertragen" name="CheckOwnerTransfer"/>
 			<text name="AnyoneLabel">
 				Jeder:
 			</text>
@@ -59,13 +58,13 @@
 			<text name="GroupLabel">
 				Gruppe:
 			</text>
-			<check_box label="Teilen" name="CheckShareWithGroup" tool_tip="Mit allen Mitgliedern der zugeordneten Gruppe, Ihre Berechtigungen dieses Objekt zu ändern teilen. Sie müssen Übereignen, um Rollenbeschränkungen zu aktivieren."/>
+			<check_box label="Teilen" name="CheckShareWithGroup" tool_tip="Mit allen Mitgliedern der zugeordneten Gruppe, Ihre Berechtigungen dieses Objekt zu ändern, teilen. Sie müssen Übereignen, um Rollenbeschränkungen zu aktivieren."/>
 			<text name="NextOwnerLabel">
 				Nächster Eigentümer:
 			</text>
 			<check_box label="Bearbeiten" name="CheckNextOwnerModify"/>
 			<check_box label="Kopieren" name="CheckNextOwnerCopy"/>
-			<check_box label="Transferieren" name="CheckNextOwnerTransfer" tool_tip="Nächster Eigentümer kann dieses Objekt weitergeben oder -verkaufen"/>
+			<check_box label="Übertragen" name="CheckNextOwnerTransfer" tool_tip="Nächster Eigentümer kann dieses Objekt weitergeben oder -verkaufen"/>
 		</panel>
 		<check_box label="Zum Verkauf" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">

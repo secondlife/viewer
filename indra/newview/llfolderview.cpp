@@ -184,7 +184,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mSourceID(p.task_id),
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
-	mEnableScroll( true ),
 	mUseLabelSuffix(p.use_label_suffix),
 	mPinningSelectedItem(FALSE),
 	mNeedsAutoSelect( FALSE ),
@@ -562,7 +561,9 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
 
 void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 {
-	if (mSelectedItems.size())
+	// If items are filtered while background fetch is in progress
+	// scrollbar resets to the first filtered item. See EXT-3981.
+	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && mSelectedItems.size())
 	{
 		mSelectedItems.back()->setIsCurSelection(FALSE);
 	}
@@ -1980,7 +1981,7 @@ void LLFolderView::deleteAllChildren()
 
 void LLFolderView::scrollToShowSelection()
 {
-	if (mEnableScroll && mSelectedItems.size())
+	if (mSelectedItems.size())
 	{
 		mNeedsScroll = TRUE;
 	}

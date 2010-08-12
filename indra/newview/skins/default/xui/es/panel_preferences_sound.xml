@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sonidos" name="Preference Media panel">
 	<slider label="Volumen general" name="System Volume"/>
-	<check_box label="Silenciar cuando minimice" name="mute_when_minimized"/>
+	<check_box initial_value="true" label="Silenciar cuando minimice" name="mute_when_minimized"/>
 	<slider label="Botones" name="UI Volume"/>
 	<slider label="Ambiental" name="Wind Volume"/>
 	<slider label="Efectos de sonido" name="SFX Volume"/>
@@ -11,8 +11,8 @@
 	<check_box label="Activada" name="enable_media"/>
 	<slider label="Chat de voz" name="Voice Volume"/>
 	<check_box label="Activado" name="enable_voice_check"/>
-	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marcar esto para permitir la ejecución automática de los media"/>
-	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Al desmarcar esto se esconderán los media anexados a otros avatares cercanos"/>
+	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marcar esto para permitir la ejecución automática de los media" value="true"/>
+	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Al desmarcar esto se esconderán los media anexados a otros avatares cercanos" value="true"/>
 	<text name="voice_chat_settings">
 		Configuración del chat de voz
 	</text>
@@ -27,6 +27,12 @@
 	<panel label="Configuración de dispositivos" name="device_settings_panel">
 		<panel.string name="default_text">
 			Por defecto
+		</panel.string>
+		<panel.string name="default system device">
+			Dispositivo del sistema por defecto
+		</panel.string>
+		<panel.string name="no device">
+			Ningún dispositivo
 		</panel.string>
 		<text name="Input">
 			Entrada

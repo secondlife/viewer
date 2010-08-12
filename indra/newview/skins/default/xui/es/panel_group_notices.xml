@@ -18,7 +18,7 @@ El máximo es de 200 por día y grupo.
 	<text name="notice_list_none_found">
 		No se han encontrado
 	</text>
-	<button label="Crear un aviso nuevo" label_selected="Crear un aviso nuevo" name="create_new_notice" tool_tip="Crear un aviso nuevo"/>
+	<button label="Nuevo aviso" label_selected="Crear un aviso nuevo" name="create_new_notice" tool_tip="Crear un aviso nuevo"/>
 	<button label="Actualizar" label_selected="Actualizar la lista" name="refresh_notices" tool_tip="Actualizar la lista de avisos"/>
 	<panel label="Crear un aviso nuevo" name="panel_create_new_notice">
 		<text name="lbl">

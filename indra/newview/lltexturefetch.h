@@ -95,7 +95,8 @@ protected:
 	void removeFromNetworkQueue(LLTextureFetchWorker* worker, bool cancel);
 	void addToHTTPQueue(const LLUUID& id);
 	void removeFromHTTPQueue(const LLUUID& id);
-	S32 getHTTPQueueSize() { return getNumHTTPRequests(); }
+	bool isHTTPThrottled(S32 requested_size);
+	void clearHTTPThrottleFlag();
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
 	// Called from worker thread (during doWork)
 	void processCurlRequests();	
@@ -134,6 +135,16 @@ private:
 	F32 mTextureBandwidth;
 	F32 mMaxBandwidth;
 	LLTextureInfo mTextureInfo;
+
+	enum
+	{
+		SMALL_TEXTURE = 0 , //size <= 64 * 64
+		MEDIUM_TEXTURE,     //size <= 256 * 256
+		LARGE_TEXTURE,      //size > 256 * 256
+		DUMMY,
+		TOTAL_TEXTURE_TYPES
+	};
+	BOOL mHTTPThrottleFlag[TOTAL_TEXTURE_TYPES];
 };
 
 #endif // LL_LLTEXTUREFETCH_H

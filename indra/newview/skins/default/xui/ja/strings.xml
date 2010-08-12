@@ -663,6 +663,9 @@
 	<string name="worldmap_offline">
 		オフライン
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		[AREA] 平方メートル L$[PRICE]
+	</string>
 	<string name="worldmap_results_none_found">
 		見つかりませんでした。
 	</string>
@@ -1061,6 +1064,7 @@
 	<string name="AnimFlagStop" value=" アニメーションを停止："/>
 	<string name="AnimFlagStart" value=" アニメーションを開始："/>
 	<string name="Wave" value=" 手を振る"/>
+	<string name="GestureActionNone" value="なし"/>
 	<string name="HelloAvatar" value=" やあ、アバター！"/>
 	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;"/>
 	<string name="GetMoreGestures" value="ショッピング &gt;&gt;"/>
@@ -1143,11 +1147,11 @@
 	<string name="InvFolder Favorite">
 		お気に入り
 	</string>
-	<string name="InvFolder favorite">
-		お気に入り
-	</string>
 	<string name="InvFolder Current Outfit">
 		着用中のアウトフィット
+	</string>
+	<string name="InvFolder Initial Outfits">
+		最初のアウトフィット
 	</string>
 	<string name="InvFolder My Outfits">
 		マイ アウトフィット
@@ -1468,6 +1472,7 @@
 	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
 	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
 	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
+	<string name="GroupColumn" value="グループの設定"/>
 	<string name="Balance">
 		残高
 	</string>
@@ -1686,6 +1691,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
+	</string>
+	<string name="NoOutfits">
+		アウトフィットがまだありません。[secondlife:///app/search/all/ Search]をお試しください
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM]をお試しください。
 	</string>
 	<string name="MuteByName">
 		（名称別）
@@ -3676,6 +3687,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="group_role_owners">
 		オーナー
 	</string>
+	<string name="group_member_status_online">
+		オンライン
+	</string>
 	<string name="uploading_abuse_report">
 		アップロード中...
   
@@ -3729,8 +3743,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Invalid Wearable">
 		無効な着用物
 	</string>
+	<string name="New Gesture">
+		ジェスチャー
+	</string>
 	<string name="New Script">
 		新規スクリプト
+	</string>
+	<string name="New Note">
+		ノート
 	</string>
 	<string name="New Folder">
 		新規フォルダ
@@ -3789,6 +3809,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Male - Wow">
 		男性 - Wow
 	</string>
+	<string name="Female - Chuckle">
+		女性 – クスクス
+	</string>
+	<string name="Female - Cry">
+		女性 – 泣く
+	</string>
+	<string name="Female - Embarrassed">
+		女性 – 恥ずかしい
+	</string>
 	<string name="Female - Excuse me">
 		女性 – すみません
 	</string>
@@ -3807,8 +3836,20 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Female - Hey">
 		女性 - Hey
 	</string>
+	<string name="Female - Hey baby">
+		女性 – ヘイ、ベィビー！
+	</string>
 	<string name="Female - Laugh">
 		女性 - 笑う
+	</string>
+	<string name="Female - Looking good">
+		女性 – いい感じ
+	</string>
+	<string name="Female - Over here">
+		女性 – こっちよ
+	</string>
+	<string name="Female - Please">
+		女性 – プリーズ
 	</string>
 	<string name="Female - Repulsed">
 		女性 - 拒絶
@@ -3858,5 +3899,47 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="dateTimePM">
 		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		US$ [AMOUNT]
+	</string>
+	<string name="Membership">
+		会員
+	</string>
+	<string name="Roles">
+		役割
+	</string>
+	<string name="Group Identity">
+		グループの識別情報
+	</string>
+	<string name="Parcel Management">
+		区画の管理
+	</string>
+	<string name="Parcel Identity">
+		区画の識別情報
+	</string>
+	<string name="Parcel Settings">
+		区画の設定
+	</string>
+	<string name="Parcel Powers">
+		区画の権限
+	</string>
+	<string name="Parcel Access">
+		区画へのアクセス
+	</string>
+	<string name="Parcel Content">
+		区画のコンテンツ
+	</string>
+	<string name="Object Management">
+		オブジェクトの管理
+	</string>
+	<string name="Accounting">
+		会計
+	</string>
+	<string name="Notices">
+		通知
+	</string>
+	<string name="Chat">
+		チャット
 	</string>
 </strings>
