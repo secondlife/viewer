@@ -2439,7 +2439,7 @@ even though the user gets a free copy.
              initial_value="0"
              layout="topleft"
              left_delta="0"
-             max_val="90"
+             max_val="100"
              name="ColorTrans"
              top_pad="4"
              width="80" />
