@@ -58,6 +58,11 @@ public:
 	 */
 	void handleLoginComplete();
 
+	/**
+	 * Called when the top info bar gets shown or hidden
+	 */
+	void onVisibilityChange(const LLSD& show);
+
 private:
 	class LLParcelChangeObserver;
 
