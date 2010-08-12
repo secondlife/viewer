@@ -270,6 +270,7 @@ public:
 private:
 	LLFrameTimer	mFidgetTimer;
 	LLFrameTimer	mFocusObjectFadeTimer;
+	LLFrameTimer	mMoveTimer;
 	F32				mNextFidgetTime;
 	S32				mCurrentFidget;
 

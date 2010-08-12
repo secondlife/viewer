@@ -11947,5 +11947,38 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
+    <key>NotMovingHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait for resident to move before displaying move hint.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>120.0</real>
+    </map>
+    <key>DestinationGuideHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait before telling resident about destination guide.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>600.0</real>
+    </map>
+    <key>SidePanelHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait before telling resident about side panel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>300.0</real>
+    </map>
 </map>
 </llsd>

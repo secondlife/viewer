@@ -37,6 +37,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llbottomtray.h"
+#include "llfirstuse.h"
 #include "llhints.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
@@ -470,6 +471,7 @@ void		LLSideTray::onTabButtonClick(string name)
 
 void		LLSideTray::onToggleCollapse()
 {
+	LLFirstUse::notUsingSidePanel(false);
 	if(mCollapsed)
 	{
 		expandSideBar();

@@ -29,6 +29,7 @@
           width="16" 
           height="16"
           name="close" 
+          follows="right|top" 
           image_unselected="Icon_Close_Foreground"
           image_selected="Icon_Close_Press"/>
 </panel>

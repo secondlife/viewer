@@ -72,7 +72,13 @@ public:
 		Optional<LLUIImage*>			left_arrow,
 										up_arrow,
 										right_arrow,
-										down_arrow;									
+										down_arrow;	
+		Optional<S32>					left_arrow_offset,
+										up_arrow_offset,
+										right_arrow_offset,
+										down_arrow_offset;
+		Optional<F32>					fade_in_time,
+										fade_out_time;
 
 		Params()
 		:	direction("direction", TOP),
@@ -81,7 +87,13 @@ public:
 			left_arrow("left_arrow", LLUI::getUIImage("hint_arrow_left")),
 			up_arrow("up_arrow", LLUI::getUIImage("hint_arrow_up")),
 			right_arrow("right_arrow", LLUI::getUIImage("hint_arrow_right")),
-			down_arrow("down_arrow", LLUI::getUIImage("hint_arrow_down"))
+			down_arrow("down_arrow", LLUI::getUIImage("hint_arrow_down")),
+			left_arrow_offset("left_arrow_offset", 3),
+			up_arrow_offset("up_arrow_offset", -2),
+			right_arrow_offset("right_arrow_offset", -3),
+			down_arrow_offset("down_arrow_offset", 5),
+			fade_in_time("fade_in_time", 0.2f),
+			fade_out_time("fade_out_time", 0.5f)
 		{}
 	};
 
@@ -92,7 +104,7 @@ public:
 
 	void onClickClose() { hide(); }
 	void draw();
-	void hide() { die(); }
+	void hide() { mHidden = true; mFadeTimer.reset(); }
 
 private:
 	LLNotificationPtr	mNotification;
@@ -103,6 +115,14 @@ private:
 						mArrowUp,
 						mArrowRight,
 						mArrowDown;
+	S32					mArrowLeftOffset,
+						mArrowUpOffset,
+						mArrowRightOffset,
+						mArrowDownOffset;
+	LLFrameTimer		mFadeTimer;
+	F32					mFadeInTime,
+						mFadeOutTime;
+	bool				mHidden;
 };
 
 
@@ -117,6 +137,13 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	mArrowUp(p.up_arrow),
 	mArrowRight(p.right_arrow),
 	mArrowDown(p.down_arrow),
+	mArrowLeftOffset(p.left_arrow_offset),
+	mArrowUpOffset(p.up_arrow_offset),
+	mArrowRightOffset(p.right_arrow_offset),
+	mArrowDownOffset(p.down_arrow_offset),
+	mHidden(false),
+	mFadeInTime(p.fade_in_time),
+	mFadeOutTime(p.fade_out_time),
 	LLPanel(p)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_hint.xml");
@@ -138,6 +165,17 @@ BOOL LLHintPopup::postBuild()
 
 void LLHintPopup::draw()
 {
+	F32 alpha = 1.f;
+	if (mHidden)
+	{
+		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, mFadeOutTime, 1.f, 0.f);
+	}
+	else
+	{
+		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, mFadeInTime, 0.f, 1.f);
+	}
+	LLViewDrawContext context(alpha);
+
 	LLView* targetp = mTarget.get();
 	if (!targetp || !targetp->isInVisibleChain()) 
 	{
@@ -153,8 +191,6 @@ void LLHintPopup::draw()
 		LLRect arrow_rect;
 		LLUIImagePtr arrow_imagep;
 
-		const S32 OVERLAP = 5;
-
 		switch(mDirection)
 		{
 		case LEFT:
@@ -162,7 +198,7 @@ void LLHintPopup::draw()
 										target_rect.getCenterY(), 
 										my_local_rect.getWidth(), 
 										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.mRight + mArrowRight->getWidth() / 2 - OVERLAP,
+			arrow_rect.setCenterAndSize(my_local_rect.mRight + mArrowRight->getWidth() / 2 + mArrowRightOffset,
 										my_local_rect.getCenterY(),
 										mArrowRight->getWidth(), 
 										mArrowRight->getHeight());
@@ -174,7 +210,7 @@ void LLHintPopup::draw()
 										my_local_rect.getWidth(), 
 										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
-										my_local_rect.mBottom - mArrowDown->getHeight() / 2 + OVERLAP,
+										my_local_rect.mBottom - mArrowDown->getHeight() / 2 + mArrowDownOffset,
 										mArrowDown->getWidth(), 
 										mArrowDown->getHeight());
 			arrow_imagep = mArrowDown;
@@ -184,19 +220,19 @@ void LLHintPopup::draw()
 										target_rect.mTop - (my_local_rect.getHeight() / 2 + mDistance), 
 										my_local_rect.getWidth(), 
 										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.mLeft - mArrowLeft->getWidth() / 2 + OVERLAP,
+			arrow_rect.setCenterAndSize(my_local_rect.mLeft - mArrowLeft->getWidth() / 2 + mArrowLeftOffset,
 										my_local_rect.getCenterY(),
 										mArrowLeft->getWidth(), 
 										mArrowLeft->getHeight());
 			arrow_imagep = mArrowLeft;
 			break;
 		case BOTTOM:
-			my_rect.setCenterAndSize(	target_rect.mLeft + (my_local_rect.getWidth() / 2 + mDistance), 
-										target_rect.getCenterY(), 
+			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
+										target_rect.mBottom - (my_local_rect.getHeight() / 2 + mDistance),
 										my_local_rect.getWidth(), 
 										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
-										my_local_rect.mTop + mArrowUp->getHeight() / 2 - OVERLAP,
+										my_local_rect.mTop + mArrowUp->getHeight() / 2 + mArrowUpOffset,
 										mArrowUp->getWidth(), 
 										mArrowUp->getHeight());
 			arrow_imagep = mArrowUp;
@@ -205,7 +241,7 @@ void LLHintPopup::draw()
 		setShape(my_rect);
 		LLPanel::draw();
 
-		arrow_imagep->draw(arrow_rect);
+		arrow_imagep->draw(arrow_rect, LLColor4(1.f, 1.f, 1.f, alpha));
 	}
 }
 

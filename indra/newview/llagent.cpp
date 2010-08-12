@@ -44,6 +44,7 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
+#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -306,6 +307,9 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -331,6 +335,9 @@ void LLAgent::moveAt(S32 direction, bool reset)
 //-----------------------------------------------------------------------------
 void LLAgent::moveAtNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -353,6 +360,9 @@ void LLAgent::moveAtNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeft(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -375,6 +385,9 @@ void LLAgent::moveLeft(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeftNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -397,6 +410,9 @@ void LLAgent::moveLeftNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveUp(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -1534,6 +1550,11 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
+	if (mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+	{
+		LLFirstUse::notMoving();
+	}
+
 	propagate(dt);
 
 	// static S32 cameraUpdateCount = 0;

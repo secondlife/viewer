@@ -90,7 +90,7 @@ void LLFirstUse::useOverrideKeys()
 }
 
 // static
-void LLFirstUse::otherAvatarChat(bool enable)
+void LLFirstUse::otherAvatarChatFirst(bool enable)
 {
 	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "nearby_chat_bar").with("direction", "top"));
 }
@@ -116,13 +116,15 @@ void LLFirstUse::useSandbox()
 // static
 void LLFirstUse::notUsingDestinationGuide(bool enable)
 {
-	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
+	// not doing this yet
+	//firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
 }
 
 // static
 void LLFirstUse::notUsingSidePanel(bool enable)
 {
-	firstUseNotification("FirstNotUseSidePanel", enable, "HintSidePanel", LLSD(), LLSD().with("target", "side_panel_btn").with("direction", "left"));
+	// not doing this yet
+	//firstUseNotification("FirstNotUseSidePanel", enable, "HintSidePanel", LLSD(), LLSD().with("target", "side_panel_btn").with("direction", "left"));
 }
 
 // static

@@ -6386,53 +6386,53 @@ Mute everyone?
 
   <notification
   name="HintChat"
-  label="Hint for Chatting"
+  label="Chat"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    To join the conversation, type into the chat field below.
   </notification>
 
   <notification
   name="HintSit"
-  label="Hint for Sitting"
+  label="Stand"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    To stand up and exit the sitting position, click the Stand button.
   </notification>
   
   <notification
   name="HintDestinationGuide"
-  label="Hint for Destination Guide"
+  label="Explore the World"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
   </notification>
   
   <notification
     name="HintSidePanel"
-    label="Hint for Side Panel"
+    label="Side Panel"
     type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    Get quick access to your inventory, outfits, profiles and more in the side panel.
     <!--<unique/>-->
   </notification>
 
   <notification
   name="HintMove"
-  label="Hint for Movement"
+  label="Move"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
     <!--<unique/>-->
   </notification>
 
   <notification
   name="HintInventory"
-  label="Hint for Inventory"
+  label="Inventory"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    Check your inventory to find items. Newest items can be easily found in the Recent tab.
   </notification>
 
   <notification
   name="HintLindenDollar"
-  label="Hint for L$"
+  label="You've got Linden Dollars!"
   type="hint">
-    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
   </notification>
 
   <global name="UnsupportedCPU">

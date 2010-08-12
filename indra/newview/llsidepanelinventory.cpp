@@ -129,6 +129,8 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
+	LLFirstUse::inventoryOffer(false);
+
 	if(key.size() == 0)
 		return;
 
@@ -149,8 +151,6 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
-
-	LLFirstUse::inventoryOffer(false);
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()

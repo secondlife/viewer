@@ -169,6 +169,7 @@ void LLFloaterMove::setVisible(BOOL visible)
 
 	if (visible)
 	{
+		LLFirstUse::notMoving(false);
 		// Attach the Stand/Stop Flying panel.
 		LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
 		ssf_panel->reparent(this);
@@ -571,6 +572,7 @@ void LLPanelStandStopFlying::setStandStopFlyingMode(EStandStopFlyingMode mode)
 	if (mode == SSFM_STAND)
 	{
 		LLFirstUse::sit();
+		LLFirstUse::notMoving(false);
 	}
 	panel->mStandButton->setVisible(SSFM_STAND == mode);
 	panel->mStopFlyingButton->setVisible(SSFM_STOP_FLYING == mode);

@@ -39,6 +39,7 @@
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
+#include "llfirstuse.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
@@ -341,6 +342,11 @@ void LLStatusBar::creditBalance(S32 credit)
 
 void LLStatusBar::setBalance(S32 balance)
 {
+	if (balance > getBalance() && getBalance() != 0)
+	{
+		LLFirstUse::receiveLindens();
+	}
+
 	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
 	LLTextBox* balance_box = getChild<LLTextBox>("balance");
@@ -463,6 +469,7 @@ void LLStatusBar::onClickBuyCurrency()
 	// open a currency floater - actual one open depends on 
 	// value specified in settings.xml
 	LLBuyCurrencyHTML::openCurrencyFloater();
+	LLFirstUse::receiveLindens(false);
 }
 
 void LLStatusBar::onMouseEnterVolume()
