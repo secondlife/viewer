@@ -74,7 +74,7 @@ protected:
 
 
 //============================================================================
-// base class
+// base class 
 
 class LLVertexBuffer : public LLRefCount
 {
@@ -106,11 +106,14 @@ public:
 	static void unbind(); //unbind any bound vertex buffer
 
 	//get the size of a vertex with the given typemask
-	//if offsets is not NULL, its contents will be filled
-	//with the offset of each vertex component in the buffer, 
-	// indexed by the following enum
-	static S32 calcStride(const U32& typemask, S32* offsets = NULL, S32 num_vertices = 0); 										
+	static S32 calcVertexSize(const U32& typemask);
 
+	//get the size of a buffer with the given typemask and vertex count
+	//fill offsets with the offset of each vertex component array into the buffer
+	// indexed by the following enum
+	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);		
+
+	
 	enum {
 		TYPE_VERTEX,
 		TYPE_NORMAL,
@@ -199,8 +202,7 @@ public:
 	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
 
 	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
-	S32 getStride() const					{ return mStride; }
+	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	BOOL hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()) ? TRUE : FALSE; }
 	S32 getSize() const;
@@ -210,8 +212,6 @@ public:
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
 
-	void setStride(S32 type, S32 new_stride);
-	
 	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
@@ -231,7 +231,7 @@ protected:
 
 	ptrdiff_t mAlignedOffset;
 	ptrdiff_t mAlignedIndexOffset;
-	S32		mStride;
+	S32		mSize;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
 	U32		mGLBuffer;		// GL VBO handle
@@ -270,7 +270,7 @@ public:
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
 	static BOOL sEnableVBOs;
-	static S32 sTypeOffsets[TYPE_MAX];
+	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderIndices;

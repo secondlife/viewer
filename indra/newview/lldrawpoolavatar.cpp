@@ -814,17 +814,25 @@ void LLDrawPoolAvatar::endSkinned()
 #if LL_MESH_ENABLED
 void LLDrawPoolAvatar::beginRiggedSimple()
 {
-	sVertexProgram = &gSkinnedObjectSimpleProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectSimpleWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectSimpleProgram;
+	}
+
 	sDiffuseChannel = 0;
-	gSkinnedObjectSimpleProgram.bind();
-	LLVertexBuffer::sWeight4Loc = gSkinnedObjectSimpleProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+	sVertexProgram->bind();
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
 }
 
 void LLDrawPoolAvatar::endRiggedSimple()
 {
-	sVertexProgram = NULL;
 	LLVertexBuffer::unbind();
-	gSkinnedObjectSimpleProgram.unbind();
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
 	LLVertexBuffer::sWeight4Loc = -1;
 }
 
@@ -1596,25 +1604,25 @@ void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 {
 	if (sRenderingSkinned)
 	{
-		U8* base = useVBOs() ? NULL : mMappedData;
+		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
 
-		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_VERTEX], (void*)(base + 0));
-		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX], (void*)(base + 0));
+		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 		
 		set_vertex_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT], 
-						LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_WEIGHT], (F32*)(base + mOffsets[TYPE_WEIGHT]));
+						LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_WEIGHT], (F32*)(base + mOffsets[TYPE_WEIGHT]));
 
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_BUMP)
 		{
 			set_binormals(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::BINORMAL],
-				LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_BINORMAL], (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
+				LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_BINORMAL], (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
 		}
 	
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH)
 		{
 			set_vertex_clothing_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], 
-				LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_CLOTHWEIGHT], (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+				LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_CLOTHWEIGHT], (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 	}
 	else

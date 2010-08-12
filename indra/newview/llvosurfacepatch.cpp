@@ -77,58 +77,58 @@ public:
 
 		if (data_mask & MAP_NORMAL)
 		{
-			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
 		}
 		if (data_mask & MAP_TEXCOORD3)
 		{ //substitute tex coord 0 for tex coord 3
 			glClientActiveTextureARB(GL_TEXTURE3_ARB);
-			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 		if (data_mask & MAP_TEXCOORD2)
 		{ //substitute tex coord 0 for tex coord 2
 			glClientActiveTextureARB(GL_TEXTURE2_ARB);
-			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 		if (data_mask & MAP_TEXCOORD1)
 		{
 			glClientActiveTextureARB(GL_TEXTURE1_ARB);
-			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 		if (data_mask & MAP_BINORMAL)
 		{
 			glClientActiveTextureARB(GL_TEXTURE2_ARB);
-			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 		if (data_mask & MAP_TEXCOORD0)
 		{
-			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 		}
 		if (data_mask & MAP_COLOR)
 		{
-			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeOffsets[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
 		}
 		
 		if (data_mask & MAP_WEIGHT)
 		{
-			glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+			glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
 		}
 
 		if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
 		{
-			glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+			glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
 		}
 
 		if (data_mask & MAP_CLOTHWEIGHT)
 		{
-			glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeOffsets[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+			glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 		if (data_mask & MAP_VERTEX)
 		{
-			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_VERTEX], (void*)(base + 0));
+			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
 		}
 	}
 };

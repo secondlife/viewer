@@ -68,11 +68,8 @@ S32	LLVertexBuffer::sWeight4Loc = -1;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
-#define LL_ALIGNED_VB 1
 
-#if LL_ALIGNED_VB
-
-S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
+S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 {
 	sizeof(LLVector4), // TYPE_VERTEX,
 	sizeof(LLVector4), // TYPE_NORMAL,
@@ -86,25 +83,6 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 };
-
-#else
-
-S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
-{
-	sizeof(LLVector3), // TYPE_VERTEX,
-	sizeof(LLVector3), // TYPE_NORMAL,
-	sizeof(LLVector2), // TYPE_TEXCOORD0,
-	sizeof(LLVector2), // TYPE_TEXCOORD1,
-	sizeof(LLVector2), // TYPE_TEXCOORD2,
-	sizeof(LLVector2), // TYPE_TEXCOORD3,
-	sizeof(LLColor4U), // TYPE_COLOR,
-	sizeof(LLVector3), // TYPE_BINORMAL,
-	sizeof(F32),	   // TYPE_WEIGHT,
-	sizeof(LLVector4), // TYPE_WEIGHT4,
-	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
-};
-
-#endif
 
 U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
 {
@@ -460,19 +438,22 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 		mUsage = 0;
 	}
 
-	S32 stride = calcStride(typemask, mOffsets);
+	//zero out offsets
+	for (U32 i = 0; i < TYPE_MAX; i++)
+	{
+		mOffsets[i] = 0;
+	}
 
 	mTypeMask = typemask;
-	mStride = stride;
+	mSize = 0;
 	mAlignedOffset = 0;
 	mAlignedIndexOffset = 0;
 
 	sCount++;
 }
 
-#if LL_ALIGNED_VB
 //static
-S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertices)
+S32 LLVertexBuffer::calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices)
 {
 	S32 offset = 0;
 	for (S32 i=0; i<TYPE_MAX; i++)
@@ -483,7 +464,7 @@ S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertic
 			if (offsets)
 			{
 				offsets[i] = offset;
-				offset += LLVertexBuffer::sTypeOffsets[i]*num_vertices;
+				offset += LLVertexBuffer::sTypeSize[i]*num_vertices;
 				offset = (offset + 0xF) & ~0xF;
 			}
 		}
@@ -492,38 +473,27 @@ S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertic
 	return offset+16;
 }
 
-S32 LLVertexBuffer::getSize() const
+//static 
+S32 LLVertexBuffer::calcVertexSize(const U32& typemask)
 {
-	return mStride;
-}
-
-#else
-//static
-S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertices)
-{
-	S32 stride = 0;
-	for (S32 i=0; i<TYPE_MAX; i++)
+	S32 size = 0;
+	for (S32 i = 0; i < TYPE_MAX; i++)
 	{
 		U32 mask = 1<<i;
 		if (typemask & mask)
 		{
-			if (offsets)
-			{
-				offsets[i] = stride;
-			}
-			stride += sTypeOffsets[i];
+			size += LLVertexBuffer::sTypeSize[i];
 		}
 	}
 
-	return stride;
+	return size;
 }
 
 S32 LLVertexBuffer::getSize() const
-{ 
-	return mNumVerts*mStride; 
+{
+	return mSize;
 }
 
-#endif
 // protected, use unref()
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
@@ -634,7 +604,6 @@ void LLVertexBuffer::createGLBuffer()
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
 		mMappedData = (U8*) ll_aligned_malloc_16(size);
-		memset(mMappedData, 0, size);
 	}
 }
 
@@ -756,10 +725,7 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 		}
 		mNumVerts = nverts;
 	}
-#if LL_ALIGNED_VB
-	mStride = calcStride(mTypeMask, mOffsets, mNumVerts);
-#endif
-
+	mSize = calcOffsets(mTypeMask, mOffsets, mNumVerts);
 }
 
 void LLVertexBuffer::updateNumIndices(S32 nindices)
@@ -1027,8 +993,6 @@ void LLVertexBuffer::unmapBuffer()
 
 //----------------------------------------------------------------------------
 
-#if LL_ALIGNED_VB
-
 template <class T,S32 type> struct VertexBufferStrider
 {
 	typedef LLStrider<T> strider_t;
@@ -1051,7 +1015,7 @@ template <class T,S32 type> struct VertexBufferStrider
 		}
 		else if (vbo.hasDataType(type))
 		{
-			S32 stride = LLVertexBuffer::sTypeOffsets[type];
+			S32 stride = LLVertexBuffer::sTypeSize[type];
 			strider = (T*)(vbo.getMappedData() + vbo.getOffset(type)+index*stride);
 			strider.setStride(stride);
 			return TRUE;
@@ -1063,45 +1027,6 @@ template <class T,S32 type> struct VertexBufferStrider
 		return FALSE;
 	}
 };
-
-#else
-
-template <class T,S32 type> struct VertexBufferStrider
-{
-	typedef LLStrider<T> strider_t;
-	static bool get(LLVertexBuffer& vbo, 
-					strider_t& strider, 
-					S32 index)
-	{
-		if (vbo.mapBuffer() == NULL)
-		{
-			llwarns << "mapBuffer failed!" << llendl;
-			return FALSE;
-		}
-
-		if (type == LLVertexBuffer::TYPE_INDEX)
-		{
-			S32 stride = sizeof(T);
-			strider = (T*)(vbo.getMappedIndices() + index*stride);
-			strider.setStride(0);
-			return TRUE;
-		}
-		else if (vbo.hasDataType(type))
-		{
-			S32 stride = vbo.getStride();
-			strider = (T*)(vbo.getMappedData() + vbo.getOffset(type) + index*stride);
-			strider.setStride(stride);
-			return TRUE;
-		}
-		else
-		{
-			llerrs << "VertexBufferStrider could not find valid vertex data." << llendl;
-		}
-		return FALSE;
-	}
-};
-
-#endif
 
 bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector3>& strider, S32 index)
 {
@@ -1152,25 +1077,6 @@ bool LLVertexBuffer::getWeight4Strider(LLStrider<LLVector4>& strider, S32 index)
 bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index)
 {
 	return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index);
-}
-
-void LLVertexBuffer::setStride(S32 type, S32 new_stride)
-{
-	LLMemType mt2(LLMemType::MTYPE_VERTEX_SET_STRIDE);
-	if (mNumVerts)
-	{
-		llerrs << "LLVertexBuffer::setOffset called with mNumVerts = " << mNumVerts << llendl;
-	}
-	// This code assumes that setStride() will only be called once per VBO per type.
-	S32 delta = new_stride - sTypeOffsets[type];
-	for (S32 i=type+1; i<TYPE_MAX; i++)
-	{
-		if (mTypeMask & (1<<i))
-		{
-			mOffsets[i] += delta;
-		}
-	}
-	mStride += delta;
 }
 
 //----------------------------------------------------------------------------
@@ -1364,8 +1270,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	}
 }
 
-#if LL_ALIGNED_VB
-
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 {
@@ -1380,138 +1284,62 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 	if (data_mask & MAP_NORMAL)
 	{
-		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
 	}
 	if (data_mask & MAP_TEXCOORD3)
 	{
 		glClientActiveTextureARB(GL_TEXTURE3_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 	if (data_mask & MAP_TEXCOORD2)
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 	if (data_mask & MAP_TEXCOORD1)
 	{
 		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 	if (data_mask & MAP_BINORMAL)
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+		glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 	if (data_mask & MAP_TEXCOORD0)
 	{
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 	}
 	if (data_mask & MAP_COLOR)
 	{
-		glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeOffsets[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
 	}
 	
 	if (data_mask & MAP_WEIGHT)
 	{
-		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
 	}
 
 	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
 	{
-		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
 	}
 
 	if (data_mask & MAP_CLOTHWEIGHT)
 	{
-		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeOffsets[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 	}
 	if (data_mask & MAP_VERTEX)
 	{
-		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_VERTEX], (void*)(base + 0));
+		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
 	}
 
 	llglassertok();
 }
-
-#else
-
-// virtual (default)
-void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
-{
-	LLMemType mt2(LLMemType::MTYPE_VERTEX_SETUP_VERTEX_BUFFER);
-	stop_glerror();
-	U8* base = useVBOs() ? NULL : mMappedData;
-	S32 stride = mStride;
-
-	if ((data_mask & mTypeMask) != data_mask)
-	{
-		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
-	}
-
-	if (data_mask & MAP_NORMAL)
-	{
-		glNormalPointer(GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_NORMAL]));
-	}
-	if (data_mask & MAP_TEXCOORD3)
-	{
-		glClientActiveTextureARB(GL_TEXTURE3_ARB);
-		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD3]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-	if (data_mask & MAP_TEXCOORD2)
-	{
-		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-	if (data_mask & MAP_TEXCOORD1)
-	{
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD1]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-	if (data_mask & MAP_BINORMAL)
-	{
-		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(3,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_BINORMAL]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-	if (data_mask & MAP_TEXCOORD0)
-	{
-		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD0]));
-	}
-	if (data_mask & MAP_COLOR)
-	{
-		glColorPointer(4, GL_UNSIGNED_BYTE, stride, (void*)(base + mOffsets[TYPE_COLOR]));
-	}
-	
-	if (data_mask & MAP_WEIGHT)
-	{
-		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, stride, (void*)(base + mOffsets[TYPE_WEIGHT]));
-	}
-
-	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
-	{
-		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, stride, (void*)(base+mOffsets[TYPE_WEIGHT4]));
-	}
-
-	if (data_mask & MAP_CLOTHWEIGHT)
-	{
-		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  stride, (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
-	}
-	if (data_mask & MAP_VERTEX)
-	{
-		glVertexPointer(3,GL_FLOAT, stride, (void*)(base + 0));
-	}
-
-	llglassertok();
-}
-
-#endif
 
 void LLVertexBuffer::markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count)
 {
