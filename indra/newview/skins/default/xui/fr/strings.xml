@@ -415,7 +415,7 @@
 		image targa
 	</string>
 	<string name="trash">
-		Poubelle
+		Corbeille
 	</string>
 	<string name="jpeg image">
 		image jpeg
@@ -1127,7 +1127,7 @@
 		Parties du corps
 	</string>
 	<string name="InvFolder Trash">
-		Poubelle
+		Corbeille
 	</string>
 	<string name="InvFolder Photo Album">
 		Albums photo
@@ -3780,7 +3780,7 @@ de l&apos;infraction signalée
 		Homme - Demander pardon
 	</string>
 	<string name="Male - Get lost">
-		Homme - Dire d&apos;aller au diable
+		Homme - Get lost
 	</string>
 	<string name="Male - Blow kiss">
 		Homme - Envoyer un baiser
@@ -3822,7 +3822,7 @@ de l&apos;infraction signalée
 		Femme - Demander pardon
 	</string>
 	<string name="Female - Get lost">
-		Femme - Dire d&apos;aller au diable
+		Femme - Get lost
 	</string>
 	<string name="Female - Blow kiss">
 		Femme - Envoyer un baiser
