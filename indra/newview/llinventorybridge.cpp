@@ -3985,6 +3985,11 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
+		if (!isAgentAvatarValid())
+		{
+			return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
+		}
+
 		std::string attachment_point_name = gAgentAvatarp->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
