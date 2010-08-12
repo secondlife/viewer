@@ -6340,10 +6340,18 @@ Avatar '[NAME]' left as fully loaded.
 
   <notification
    icon="notifytip.tga"
-   name="AvatarRezSelfBakeNotification"
+   name="AvatarRezSelfBakedTextureUploadNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You [ACTION] a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakedTextureUpdateNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification
@@ -6381,12 +6389,33 @@ Mute everyone?
   label="Hint for Chatting"
   type="hint">
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-    <!--<unique/>-->
   </notification>
 
   <notification
   name="HintSit"
   label="Hint for Sitting"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+  </notification>
+  
+  <notification
+  name="HintDestinationGuide"
+  label="Hint for Destination Guide"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+  </notification>
+  
+  <notification
+    name="HintSidePanel"
+    label="Hint for Side Panel"
+    type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintMove"
+  label="Hint for Movement"
   type="hint">
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
     <!--<unique/>-->
@@ -6397,7 +6426,13 @@ Mute everyone?
   label="Hint for Inventory"
   type="hint">
     Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintLindenDollar"
+  label="Hint for L$"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
   </notification>
 
   <global name="UnsupportedCPU">

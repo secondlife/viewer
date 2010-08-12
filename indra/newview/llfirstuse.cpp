@@ -36,7 +36,7 @@
 
 // library includes
 #include "indra_constants.h"
-#include "llnotificationsutil.h"
+#include "llnotifications.h"
 
 // viewer includes
 #include "llagent.h"	// for gAgent.inPrelude()
@@ -48,6 +48,7 @@
 
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
+std::map<std::string, LLNotificationPtr> LLFirstUse::sNotifications;
 
 // static
 void LLFirstUse::addConfigVariable(const std::string& var)
@@ -84,58 +85,79 @@ void LLFirstUse::useOverrideKeys()
 	// so don't show this message until you get off OI. JC
 	if (!gAgent.inPrelude())
 	{
-		if (gWarningSettings.getBOOL("FirstOverrideKeys"))
-		{
-			gWarningSettings.setBOOL("FirstOverrideKeys", FALSE);
-
-			LLNotificationsUtil::add("FirstOverrideKeys");
-		}
+		firstUseNotification("FirstOverrideKeys", true, "FirstOverrideKeys");
 	}
 }
 
 // static
-void LLFirstUse::otherAvatarChat()
+void LLFirstUse::otherAvatarChat(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstOtherChatBeforeUser"))
-	{
-		gWarningSettings.setBOOL("FirstOtherChatBeforeUser", FALSE);
-
-		LLNotificationsUtil::add("HintChat", LLSD(), LLSD().with("target", "nearby_chat_bar").with("direction", "top"));
-	}
+	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "nearby_chat_bar").with("direction", "top"));
 }
 
 // static
-void LLFirstUse::sit()
+void LLFirstUse::sit(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstSit"))
-	{
-		gWarningSettings.setBOOL("FirstSit", FALSE);
-
-		LLNotificationsUtil::add("HintSit", LLSD(), LLSD().with("target", "stand_btn").with("direction", "top"));
-	}
+	firstUseNotification("FirstSit", enable, "HintSit", LLSD(), LLSD().with("target", "stand_btn").with("direction", "top"));
 }
 
 // static
-void LLFirstUse::inventoryOffer()
+void LLFirstUse::inventoryOffer(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstInventoryOffer"))
-	{
-		gWarningSettings.setBOOL("FirstInventoryOffer", FALSE);
-
-		LLNotificationsUtil::add("HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
-	}
+	firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
 }
 
 // static
 void LLFirstUse::useSandbox()
 {
-	if (gWarningSettings.getBOOL("FirstSandbox"))
-	{
-		gWarningSettings.setBOOL("FirstSandbox", FALSE);
+	firstUseNotification("FirstSandbox", true, "FirstSandbox", LLSD().with("HOURS", SANDBOX_CLEAN_FREQ).with("TIME", SANDBOX_FIRST_CLEAN_HOUR));
+}
 
-		LLSD args;
-		args["HOURS"] = llformat("%d",SANDBOX_CLEAN_FREQ);
-		args["TIME"] = llformat("%d",SANDBOX_FIRST_CLEAN_HOUR);
-		LLNotificationsUtil::add("FirstSandbox", args);
+// static
+void LLFirstUse::notUsingDestinationGuide(bool enable)
+{
+	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
+}
+
+// static
+void LLFirstUse::notUsingSidePanel(bool enable)
+{
+	firstUseNotification("FirstNotUseSidePanel", enable, "HintSidePanel", LLSD(), LLSD().with("target", "side_panel_btn").with("direction", "left"));
+}
+
+// static
+void LLFirstUse::notMoving(bool enable)
+{
+	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
+}
+
+// static
+void LLFirstUse::receiveLindens(bool enable)
+{
+	firstUseNotification("FirstReceiveLindens", enable, "HintLindenDollar", LLSD(), LLSD().with("target", "linden_balance").with("direction", "bottom"));
+}
+
+
+//static 
+void LLFirstUse::firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args, LLSD payload)
+{
+	LLNotificationPtr notif = sNotifications[notification_name];
+
+	if (enable)
+	{
+		if (!notif && gWarningSettings.getBOOL(control_var))
+		{ // create new notification
+			sNotifications[notification_name] = LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload));
+			gWarningSettings.setBOOL(control_var, FALSE);
+		}
+	}	
+	else
+	{ // want to hide notification
+		if (notif)
+		{ // cancel existing notification
+			LLNotifications::instance().cancel(notif);
+			sNotifications.erase(notification_name);
+		}
 	}
+
 }

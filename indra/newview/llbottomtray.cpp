@@ -69,10 +69,6 @@ template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 namespace
 {
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
-	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
-	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
-	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
-	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
 
 	S32 get_panel_min_width(LLLayoutStack* stack, LLView* panel)
 	{
@@ -480,6 +476,7 @@ BOOL LLBottomTray::postBuild()
 
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mMovementButton = getChild<LLButton>("movement_btn");
+	LLHints::registerHintTarget("move_btn", mMovementButton->getHandle());
 	mCamButton = getChild<LLButton>("camera_btn");
 	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
 

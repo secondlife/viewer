@@ -49,10 +49,16 @@ LLHintHandler::~LLHintHandler()
 
 bool LLHintHandler::processNotification(const LLSD& notify)
 {
-	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
+	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
+	std::string sigtype = notify["sigtype"].asString();
+	if (sigtype == "add" || sigtype == "load")
 	{
-		LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 		LLHints::show(notification);
+	}
+	else if (sigtype == "delete")
+	{
+		LLHints::hide(notification);
 	}
 	return false;
 }

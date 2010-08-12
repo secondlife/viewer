@@ -36,6 +36,7 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
@@ -148,6 +149,8 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
+
+	LLFirstUse::inventoryOffer(false);
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()

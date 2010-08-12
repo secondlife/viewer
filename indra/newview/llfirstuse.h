@@ -76,6 +76,9 @@ object or from inventory.
 14. First time you create/edit a sculpted prim.
 */
 
+class LLNotification;
+
+
 class LLFirstUse
 {
 public:
@@ -88,14 +91,19 @@ public:
 	static void resetFirstUse();
 
 	static void useOverrideKeys();
-	static void otherAvatarChat();
-	static void sit();
-	static void inventoryOffer();
-
+	static void otherAvatarChat(bool enable = true);
+	static void sit(bool enable = true);
+	static void notUsingDestinationGuide(bool enable = true);
+	static void notUsingSidePanel(bool enable = true);
+	static void notMoving(bool enable = true);
+	static void inventoryOffer(bool enable = true);
+	static void receiveLindens(bool enable = true);
 	static void useSandbox();
 	
 protected:
+	static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
 	static std::set<std::string> sConfigVariables;
+	static std::map<std::string, boost::shared_ptr<LLNotification> > sNotifications;
 };
 
 #endif

@@ -663,6 +663,9 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
+	<string name="worldmap_item_tooltip_format">
+		[PRICE] L$ für [AREA] m²
+	</string>
 	<string name="worldmap_results_none_found">
 		Nicht gefunden.
 	</string>
@@ -1061,6 +1064,7 @@
 	<string name="AnimFlagStop" value=" Animation stoppen:"/>
 	<string name="AnimFlagStart" value=" Animation starten:"/>
 	<string name="Wave" value=" Winken"/>
+	<string name="GestureActionNone" value="Keine"/>
 	<string name="HelloAvatar" value=" Hallo Avatar!"/>
 	<string name="ViewAllGestures" value="  Alle anzeigen &gt;&gt;"/>
 	<string name="GetMoreGestures" value="Mehr &gt;&gt;"/>
@@ -1143,11 +1147,11 @@
 	<string name="InvFolder Favorite">
 		Favoriten
 	</string>
-	<string name="InvFolder favorite">
-		Favoriten
-	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Ursprüngliche Outfits
 	</string>
 	<string name="InvFolder My Outfits">
 		Meine Outfits
@@ -1468,6 +1472,7 @@
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
 	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
+	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
 		Kontostand
 	</string>
@@ -1686,6 +1691,12 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Der Einwohner/Die Einwohnerin ist „beschäftigt”, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
+	</string>
+	<string name="NoOutfits">
+		Sie haben noch keine Outfits. Versuchen Sie es mit der [secondlife:///app/search/all Suche].
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
 	</string>
 	<string name="MuteByName">
 		(Nach Namen)
@@ -3676,6 +3687,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="group_role_owners">
 		Eigentümer
 	</string>
+	<string name="group_member_status_online">
+		Online
+	</string>
 	<string name="uploading_abuse_report">
 		Bericht wird hochgeladen...
   
@@ -3729,8 +3743,14 @@ Missbrauchsbericht
 	<string name="Invalid Wearable">
 		Ungültiges Objekt
 	</string>
+	<string name="New Gesture">
+		Neue Geste
+	</string>
 	<string name="New Script">
 		Neues Skript
+	</string>
+	<string name="New Note">
+		Neue Notiz
 	</string>
 	<string name="New Folder">
 		Neuer Ordner
@@ -3789,6 +3809,15 @@ Missbrauchsbericht
 	<string name="Male - Wow">
 		Männlich - Wow
 	</string>
+	<string name="Female - Chuckle">
+		Weiblich - Kichern
+	</string>
+	<string name="Female - Cry">
+		Weiblich - Weinen
+	</string>
+	<string name="Female - Embarrassed">
+		Weiblich - Verlegen
+	</string>
 	<string name="Female - Excuse me">
 		Weiblich - Räuspern
 	</string>
@@ -3807,8 +3836,20 @@ Missbrauchsbericht
 	<string name="Female - Hey">
 		Weiblich - Hey
 	</string>
+	<string name="Female - Hey baby">
+		Weiblich - Hey Süße(r)
+	</string>
 	<string name="Female - Laugh">
 		Weiblich - Lachen
+	</string>
+	<string name="Female - Looking good">
+		Weiblich - Looking good
+	</string>
+	<string name="Female - Over here">
+		Weiblich - Over here
+	</string>
+	<string name="Female - Please">
+		Weiblich - Please
 	</string>
 	<string name="Female - Repulsed">
 		Weiblich - Angewidert
@@ -3858,5 +3899,47 @@ Missbrauchsbericht
 	</string>
 	<string name="dateTimePM">
 		Uhr
+	</string>
+	<string name="LocalEstimateUSD">
+		[AMOUNT] US$
+	</string>
+	<string name="Membership">
+		Mitgliedschaft
+	</string>
+	<string name="Roles">
+		Rollen
+	</string>
+	<string name="Group Identity">
+		Gruppenidentität
+	</string>
+	<string name="Parcel Management">
+		Parzellenverwaltung
+	</string>
+	<string name="Parcel Identity">
+		Parzellenidentität
+	</string>
+	<string name="Parcel Settings">
+		Parzelleneinstellungen
+	</string>
+	<string name="Parcel Powers">
+		Parzellenfähigkeiten
+	</string>
+	<string name="Parcel Access">
+		Parzellenzugang
+	</string>
+	<string name="Parcel Content">
+		Parzelleninhalt
+	</string>
+	<string name="Object Management">
+		Objektmanagement
+	</string>
+	<string name="Accounting">
+		Kontoführung
+	</string>
+	<string name="Notices">
+		Mitteilungen
+	</string>
+	<string name="Chat">
+		Chat
 	</string>
 </strings>

@@ -76,8 +76,32 @@ void LLFloaterMediaBrowser::create(const std::string &url, const std::string& ta
 		tag = id.asString();
 	}
 	
-	// TODO: Figure out whether we need to close an existing instance and/or warn the user about the number of instances they have open
+	S32 browser_window_limit = gSavedSettings.getS32("MediaBrowserWindowLimit");
 	
+	if(LLFloaterReg::findInstance("media_browser", tag) != NULL)
+	{
+		// There's already a media browser for this tag, so we won't be opening a new window.
+	}
+	else if(browser_window_limit != 0)
+	{
+		// showInstance will open a new window.  Figure out how many media browsers are already open, 
+		// and close the least recently opened one if this will put us over the limit.
+		
+		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList("media_browser");
+		lldebugs << "total instance count is " << instances.size() << llendl;
+		
+		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
+		{
+			lldebugs << "    " << (*iter)->getKey() << llendl;
+		}
+		
+		if(instances.size() >= (size_t)browser_window_limit)
+		{
+			// Destroy the least recently opened instance
+			(*instances.begin())->closeFloater();
+		}
+	}
+
 	LLFloaterMediaBrowser *browser = dynamic_cast<LLFloaterMediaBrowser*> (LLFloaterReg::showInstance("media_browser", tag));
 	llassert(browser);
 	if(browser)

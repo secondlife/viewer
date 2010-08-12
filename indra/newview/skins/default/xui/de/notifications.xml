@@ -366,7 +366,7 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Das ausgewählte Outfit löschen?
+		Das/Die ausgewählte(n) Outfit(s) löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -2765,7 +2765,7 @@ Avatar &apos;[NAME]&apos; hat als vollständig gerezzter Avatar die Welt verlass
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
 		(Seit [EXISTENCE] Sekunden inworld )
-Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden hochgeladen.
+Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden [ACTION].
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Möchten Sie dieses Gespräch wirklich verlassen ?
@@ -2802,5 +2802,8 @@ Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter [SUPPORT
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihr Zuhause festlegen.
 Ansonsten können Sie auf der Karte nachsehen und dort Ort suchen, die als „Infohub“ gekennzeichnet sind.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Sie sind gestorben und wurden zu Ihrem Zuhause teleportiert.
 	</global>
 </notifications>
