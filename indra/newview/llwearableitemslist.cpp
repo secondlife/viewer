@@ -478,9 +478,9 @@ LLWearableItemTypeNameComparator::LLWearableItemTypeNameComparator()
 	// 1. CLOTHING - sorted by name
 	// 2. OBJECT   - sorted by type
 	// 3. BODYPART - sorted by name
-	mWearableOrder[LLAssetType::AT_CLOTHING] = LLWearableTypeOrder(ORDER_RANK_1, false, false);
-	mWearableOrder[LLAssetType::AT_OBJECT]   = LLWearableTypeOrder(ORDER_RANK_2, true, true);
-	mWearableOrder[LLAssetType::AT_BODYPART] = LLWearableTypeOrder(ORDER_RANK_3, false, true);
+	mWearableOrder[LLAssetType::AT_CLOTHING] = LLWearableTypeOrder(ORDER_RANG_1, false, false);
+	mWearableOrder[LLAssetType::AT_OBJECT]   = LLWearableTypeOrder(ORDER_RANG_2, true, true);
+	mWearableOrder[LLAssetType::AT_BODYPART] = LLWearableTypeOrder(ORDER_RANG_3, false, true);
 }
 
 void LLWearableItemTypeNameComparator::setOrder(LLAssetType::EType items_of_type,  LLWearableItemTypeNameComparator::ETypeListOrder order_priority, bool sort_asset_items_by_name, bool sort_wearable_items_by_name)
@@ -527,6 +527,8 @@ bool LLWearableItemTypeNameComparator::doCompare(const LLPanelInventoryListItemB
 	const LLWearableType::EType item_wearable_type2 = wearable_item2->getWearableType();
 
 	if (item_wearable_type1 != item_wearable_type2)
+		// If items are of different LLWearableType::EType types they are compared
+		// by LLWearableType::EType. types order determined in LLWearableType::EType.
 	{
 		// If items are of different LLWearableType::EType types they are compared
 		// by LLWearableType::EType. types order determined in LLWearableType::EType.
@@ -549,10 +551,11 @@ LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparato
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
 
+
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about order rang of items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
-		return ORDER_RANK_UNKNOWN;
+		return ORDER_RANG_UNKNOWN;
 	}
 
 	return const_it->second.mOrderPriority;
@@ -562,49 +565,37 @@ bool LLWearableItemTypeNameComparator::sortAssetTypeByName(LLAssetType::EType it
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
 
+
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
 		return true;
 	}
 
+
 	return const_it->second.mSortAssetTypeByName;
-	}
+}
+
 
 bool LLWearableItemTypeNameComparator::sortWearableTypeByName(LLAssetType::EType item_type) const
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
 
+
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
 		return true;
-}
+	}
+
 
 	return const_it->second.mSortWearableTypeByName;
 }
-
-/*virtual*/
-bool LLWearableItemCreationDateComparator::doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const
-{
-	time_t date1 = item1->getCreationDate();
-	time_t date2 = item2->getCreationDate();
-
-	if (date1 == date2)
-	{
-		return LLWearableItemNameComparator::doCompare(item1, item2);
-	}
-
-	return date1 > date2;
-}
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-static LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
-static const LLWearableItemTypeNameComparator WEARABLE_TYPE_LAYER_COMPARATOR;
-static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
-static const LLWearableItemCreationDateComparator WEARABLE_CREATION_DATE_COMPARATOR;
+static const LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
 
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
@@ -616,7 +607,7 @@ LLWearableItemsList::Params::Params()
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {
-	setSortOrder(E_SORT_BY_TYPE_LAYER, false);
+	setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
 	mIsStandalone = p.standalone;
 	if (mIsStandalone)
 	{
@@ -716,38 +707,6 @@ void LLWearableItemsList::onRightClick(S32 x, S32 y)
 	ContextMenu::instance().show(this, selected_uuids, x, y);
 }
 
-void LLWearableItemsList::setSortOrder(ESortOrder sort_order, bool sort_now)
-{
-	switch (sort_order)
-	{
-	case E_SORT_BY_MOST_RECENT:
-		setComparator(&WEARABLE_CREATION_DATE_COMPARATOR);
-		break;
-	case E_SORT_BY_NAME:
-		setComparator(&WEARABLE_NAME_COMPARATOR);
-		break;
-	case E_SORT_BY_TYPE_LAYER:
-		setComparator(&WEARABLE_TYPE_LAYER_COMPARATOR);
-		break;
-	case E_SORT_BY_TYPE_NAME:
-	{
-		WEARABLE_TYPE_NAME_COMPARATOR.setOrder(LLAssetType::AT_CLOTHING, LLWearableItemTypeNameComparator::ORDER_RANK_1, false, true);
-		setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
-		break;
-	}
-
-	// No "default:" to raise compiler warning
-	// if we're not handling something
-	}
-
-	mSortOrder = sort_order;
-
-	if (sort_now)
-	{
-		sort();
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// ContextMenu
 //////////////////////////////////////////////////////////////////////////
@@ -818,8 +777,6 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
 
-	bool can_be_worn = true;
-
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		LLUUID id = *it;
@@ -855,22 +812,16 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		{
 			++n_already_worn;
 		}
-
-		if (can_be_worn)
-		{
-			can_be_worn = get_can_item_be_worn(item->getLinkedUUID());
-		}
 	} // for
 
 	bool standalone = mParent ? mParent->isStandalone() : false;
-	bool wear_add_visible = mask & (MASK_CLOTHING|MASK_ATTACHMENT) && n_worn == 0 && can_be_worn && (n_already_worn != 0 || mask & MASK_ATTACHMENT);
 
 	// *TODO: eliminate multiple traversals over the menu items
-	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && can_be_worn);
+	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
 	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
-	setMenuItemVisible(menu, "wear_add",			wear_add_visible);
-	setMenuItemEnabled(menu, "wear_add",			canAddWearables(ids));
-	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && can_be_worn);
+	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0);
+	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()) && n_already_worn != 0);
+	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0);
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
@@ -978,61 +929,20 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 	LLAgentWearables::createWearable(item->getWearableType(), true);
 }
 
-// Returns true if all the given objects and clothes can be added.
+// Can we wear another wearable of the given item's wearable type?
 // static
-bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_ids)
+bool LLWearableItemsList::ContextMenu::canAddWearable(const LLUUID& item_id)
 {
 	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
-	U32 n_objects = 0;
-	boost::unordered_map<LLWearableType::EType, U32> clothes_by_type;
-
-	// Count given clothes (by wearable type) and objects.
-	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (!item)
-		{
-			return false;
-		}
-
-		if (item->getType() == LLAssetType::AT_OBJECT)
-		{
-			++n_objects;
-		}
-		else if (item->getType() == LLAssetType::AT_CLOTHING)
-		{
-			++clothes_by_type[item->getWearableType()];
-		}
-		else
-		{
-			llwarns << "Unexpected wearable type" << llendl;
-			return false;
-		}
-	}
-
-	// Check whether we can add all the objects.
-	if (!isAgentAvatarValid() || !gAgentAvatarp->canAttachMoreObjects(n_objects))
+	LLViewerInventoryItem* item = gInventory.getItem(item_id);
+	if (!item || item->getType() != LLAssetType::AT_CLOTHING)
 	{
 		return false;
 	}
 
-	// Check whether we can add all the clothes.
-	boost::unordered_map<LLWearableType::EType, U32>::const_iterator m_it;
-	for (m_it = clothes_by_type.begin(); m_it != clothes_by_type.end(); ++m_it)
-	{
-		LLWearableType::EType w_type	= m_it->first;
-		U32 n_clothes					= m_it->second;
-
-		U32 wearable_count = gAgentWearables.getWearableCount(w_type);
-		if ((wearable_count + n_clothes) > LLAgentWearables::MAX_CLOTHING_PER_TYPE)
-		{
-			return false;
-		}
-
-	}
-
-	return true;
+	U32 wearable_count = gAgentWearables.getWearableCount(item->getWearableType());
+	return wearable_count < LLAgentWearables::MAX_CLOTHING_PER_TYPE;
 }
 
 // EOF
