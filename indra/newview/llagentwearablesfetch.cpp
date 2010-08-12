@@ -215,7 +215,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 				{
 					LLViewerObject* attached_object = (*attachment_iter);
 					if (!attached_object) continue;
-					const LLUUID& item_id = attached_object->getItemID();
+					const LLUUID& item_id = attached_object->getAttachmentItemID();
 					if (item_id.isNull()) continue;
 					ids.push_back(item_id);
 				}

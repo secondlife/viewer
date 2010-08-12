@@ -313,10 +313,10 @@ public:
 
 	enum ETypeListOrder
 	{
-		ORDER_RANK_1 = 1,
-		ORDER_RANK_2,
-		ORDER_RANK_3,
-		ORDER_RANK_UNKNOWN
+		ORDER_RANG_1 = 1,
+		ORDER_RANG_2,
+		ORDER_RANG_3,
+		ORDER_RANG_UNKNOWN
 	};
 
 	void setOrder(LLAssetType::EType items_of_type, ETypeListOrder order_priority, bool sort_items_by_name, bool sort_wearable_items_by_name);
@@ -325,15 +325,15 @@ protected:
 	/**
 	 * All information about sort order is stored in mWearableOrder map
 	 *
-	 * mWearableOrder :      KYES              VALUES
+	 * mWearableOrder :      KEYES              VALUES
 	 *                  [LLAssetType] [struct LLWearableTypeOrder]
 	 *
 	 *---------------------------------------------------------------------------------------------
-	 * I. Determines order (ORDER_RANK) in which items of LLAssetType should be displayed in list.
+	 * I. Determines order (ORDER_RANG) in which items of LLAssetType should be displayed in list.
 	 *     For example by spec in MY OUTFITS the order is:
-	 *     1. AT_CLOTHING (ORDER_RANK_1)
-	 *     2. AT_OBJECT   (ORDER_RANK_2)
-	 *     3. AT_BODYPART (ORDER_RANK_3)
+	 *     1. AT_CLOTHING (ORDER_RANG_1)
+	 *     2. AT_OBJECT   (ORDER_RANG_2)
+	 *     3. AT_BODYPART (ORDER_RANG_3)
 	 *
 	 * II.Items of each type(LLAssetType) are sorted by name or type(LLWearableType)
 	 *     For example by spec in MY OUTFITS the order within each items type(LLAssetType) is:
@@ -346,7 +346,7 @@ protected:
 	 *
 	 * For each LLAssetType (KEYS in mWearableOrder) the information about:
 	 *
-	 *                                             I.  ORDER_RANK (the flag is LLWearableTypeOrder::mOrderPriority)
+	 *                                             I.  ORDER_RANG (the flag is LLWearableTypeOrder::mOrderPriority)
 	 *
 	 *                                             II. whether items of this LLAssetType type should be ordered
 	 *                                                 by name or by LLWearableType::EType (the flag is LLWearableTypeOrder::mSortAssetTypeByName)
