@@ -233,8 +233,9 @@ LLAgent::LLAgent() :
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
-
 	mListener.reset(new LLAgentListener(*this));
+
+	mMoveTimer.stop();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -243,6 +244,8 @@ LLAgent::LLAgent() :
 //-----------------------------------------------------------------------------
 void LLAgent::init()
 {
+	mMoveTimer.start();
+
 	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
@@ -1550,7 +1553,7 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
-	if (mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
 	{
 		LLFirstUse::notMoving();
 	}
