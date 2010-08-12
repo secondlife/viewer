@@ -41,10 +41,13 @@ class LLHints
 {
 public:
 	static void show(LLNotificationPtr hint);
+	static void hide(LLNotificationPtr hint);
 	static void registerHintTarget(const std::string& name, LLHandle<LLView> target);
 	static LLHandle<LLView> getHintTarget(const std::string& name);
 private:
 	static LLRegistry<std::string, LLHandle<LLView> > sTargetRegistry;
+	typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
+	static hint_map_t sHints;
 };
 
 

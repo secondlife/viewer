@@ -149,7 +149,7 @@ void LLHintPopup::draw()
 		targetp->localRectToOtherView(targetp->getLocalRect(), &target_rect, getParent());
 
 		LLRect my_local_rect = getLocalRect();
-		LLRect my_rect = getRect();
+		LLRect my_rect;
 		LLRect arrow_rect;
 		LLUIImagePtr arrow_imagep;
 
@@ -158,10 +158,10 @@ void LLHintPopup::draw()
 		switch(mDirection)
 		{
 		case LEFT:
-			my_rect.setCenterAndSize(	target_rect.mLeft - (my_rect.getWidth() / 2 + mDistance), 
+			my_rect.setCenterAndSize(	target_rect.mLeft - (my_local_rect.getWidth() / 2 + mDistance), 
 										target_rect.getCenterY(), 
-										my_rect.getWidth(), 
-										my_rect.getHeight());
+										my_local_rect.getWidth(), 
+										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.mRight + mArrowRight->getWidth() / 2 - OVERLAP,
 										my_local_rect.getCenterY(),
 										mArrowRight->getWidth(), 
@@ -170,9 +170,9 @@ void LLHintPopup::draw()
 			break;
 		case TOP:
 			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
-										target_rect.mTop + (my_rect.getHeight() / 2 + mDistance), 
-										my_rect.getWidth(), 
-										my_rect.getHeight());
+										target_rect.mTop + (my_local_rect.getHeight() / 2 + mDistance), 
+										my_local_rect.getWidth(), 
+										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
 										my_local_rect.mBottom - mArrowDown->getHeight() / 2 + OVERLAP,
 										mArrowDown->getWidth(), 
@@ -181,9 +181,9 @@ void LLHintPopup::draw()
 			break;
 		case RIGHT:
 			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
-										target_rect.mTop - (my_rect.getHeight() / 2 + mDistance), 
-										my_rect.getWidth(), 
-										my_rect.getHeight());
+										target_rect.mTop - (my_local_rect.getHeight() / 2 + mDistance), 
+										my_local_rect.getWidth(), 
+										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.mLeft - mArrowLeft->getWidth() / 2 + OVERLAP,
 										my_local_rect.getCenterY(),
 										mArrowLeft->getWidth(), 
@@ -191,10 +191,10 @@ void LLHintPopup::draw()
 			arrow_imagep = mArrowLeft;
 			break;
 		case BOTTOM:
-			my_rect.setCenterAndSize(	target_rect.mLeft + (my_rect.getWidth() / 2 + mDistance), 
+			my_rect.setCenterAndSize(	target_rect.mLeft + (my_local_rect.getWidth() / 2 + mDistance), 
 										target_rect.getCenterY(), 
-										my_rect.getWidth(), 
-										my_rect.getHeight());
+										my_local_rect.getWidth(), 
+										my_local_rect.getHeight());
 			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
 										my_local_rect.mTop + mArrowUp->getHeight() / 2 - OVERLAP,
 										mArrowUp->getWidth(), 
@@ -211,6 +211,7 @@ void LLHintPopup::draw()
 
 
 LLRegistry<std::string, LLHandle<LLView> > LLHints::sTargetRegistry;
+std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
 
 //static
 void LLHints::show(LLNotificationPtr hint)
@@ -221,11 +222,24 @@ void LLHints::show(LLNotificationPtr hint)
 	p.notification = hint;
 
 	LLHintPopup* popup = new LLHintPopup(p);
+	
+	sHints[hint] = popup;
+
 	LLView* hint_holder = gViewerWindow->getHintHolder();
 	if (hint_holder)
 	{
 		hint_holder->addChild(popup);
 		popup->centerWithin(hint_holder->getLocalRect());
+	}
+}
+
+void LLHints::hide(LLNotificationPtr hint)
+{
+	hint_map_t::iterator found_it = sHints.find(hint);
+	if (found_it != sHints.end())
+	{
+		found_it->second->hide();
+		sHints.erase(found_it);
 	}
 }
 
