@@ -45,7 +45,9 @@
 #include "llvoavatarself.h" // to check gAgentAvatarp->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llfloaterreg.h"
+#include "llhints.h"
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
@@ -566,6 +568,10 @@ void LLPanelStandStopFlying::setStandStopFlyingMode(EStandStopFlyingMode mode)
 {
 	LLPanelStandStopFlying* panel = getInstance();
 
+	if (mode == SSFM_STAND)
+	{
+		LLFirstUse::sit();
+	}
 	panel->mStandButton->setVisible(SSFM_STAND == mode);
 	panel->mStopFlyingButton->setVisible(SSFM_STOP_FLYING == mode);
 
@@ -596,6 +602,7 @@ BOOL LLPanelStandStopFlying::postBuild()
 	mStandButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
 	mStandButton->setCommitCallback(boost::bind(&LLFloaterMove::enableInstance, TRUE));
 	mStandButton->setVisible(FALSE);
+	LLHints::registerHintTarget("stand_btn", mStandButton->getHandle());
 	
 	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
 	//mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));

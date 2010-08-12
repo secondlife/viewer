@@ -6376,6 +6376,30 @@ Mute everyone?
     <unique/>
   </notification>
 
+  <notification
+  name="HintChat"
+  label="Hint for Chatting"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintSit"
+  label="Hint for Sitting"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintInventory"
+  label="Hint for Inventory"
+  type="hint">
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+    <!--<unique/>-->
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

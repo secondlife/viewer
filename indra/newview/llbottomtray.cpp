@@ -47,6 +47,7 @@
 #include "llagentcamera.h"
 #include "llchiclet.h"
 #include "llfloatercamera.h"
+#include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
 #include "llspeakbutton.h"
@@ -474,8 +475,9 @@ BOOL LLBottomTray::postBuild()
 	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuHolder->addChild(mBottomTrayContextMenu);
 
-
 	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+	LLHints::registerHintTarget("nearby_chat_bar", mNearbyChatBar->LLView::getHandle());
+
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mMovementButton = getChild<LLButton>("movement_btn");
 	mCamButton = getChild<LLButton>("camera_btn");

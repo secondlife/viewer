@@ -37,6 +37,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llbottomtray.h"
+#include "llhints.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -430,6 +431,7 @@ void	LLSideTray::createButtons	()
 			mTabButtons[name] = button;
 		}
 	}
+	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()

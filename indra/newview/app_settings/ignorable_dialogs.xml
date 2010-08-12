@@ -1,6 +1,28 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
+    <key>FirstInventoryOffer</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows hint when a person or object offers you an inventory item</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstOtherChatBeforeUser</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows hint when someone else chats first</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>FirstOverrideKeys</key>
     <map>
       <key>Comment</key>
@@ -16,6 +38,18 @@
     <map>
       <key>Comment</key>
       <string>Enables FirstSandbox warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+
+    <key>FirstSit</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows hint when someone sits for the first time</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

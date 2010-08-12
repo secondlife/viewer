@@ -230,6 +230,7 @@ set(viewer_SOURCE_FILES
     llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
+    llhints.cpp
     llhomelocationresponder.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -300,6 +301,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
+    llnotificationhinthandler.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -754,6 +756,7 @@ set(viewer_HEADER_FILES
     llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
+    llhints.h
     llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h

@@ -94,6 +94,39 @@ void LLFirstUse::useOverrideKeys()
 }
 
 // static
+void LLFirstUse::otherAvatarChat()
+{
+	if (gWarningSettings.getBOOL("FirstOtherChatBeforeUser"))
+	{
+		gWarningSettings.setBOOL("FirstOtherChatBeforeUser", FALSE);
+
+		LLNotificationsUtil::add("HintChat", LLSD(), LLSD().with("target", "nearby_chat_bar").with("direction", "top"));
+	}
+}
+
+// static
+void LLFirstUse::sit()
+{
+	if (gWarningSettings.getBOOL("FirstSit"))
+	{
+		gWarningSettings.setBOOL("FirstSit", FALSE);
+
+		LLNotificationsUtil::add("HintSit", LLSD(), LLSD().with("target", "stand_btn").with("direction", "top"));
+	}
+}
+
+// static
+void LLFirstUse::inventoryOffer()
+{
+	if (gWarningSettings.getBOOL("FirstInventoryOffer"))
+	{
+		gWarningSettings.setBOOL("FirstInventoryOffer", FALSE);
+
+		LLNotificationsUtil::add("HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
+	}
+}
+
+// static
 void LLFirstUse::useSandbox()
 {
 	if (gWarningSettings.getBOOL("FirstSandbox"))

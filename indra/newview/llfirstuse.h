@@ -86,7 +86,11 @@ public:
 	// Sets all controls back to show the dialogs.
 	static void disableFirstUse();
 	static void resetFirstUse();
+
 	static void useOverrideKeys();
+	static void otherAvatarChat();
+	static void sit();
+	static void inventoryOffer();
 
 	static void useSandbox();
 	
