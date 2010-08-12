@@ -38,6 +38,7 @@
 #include "llvoavatar.h"
 #include "m3math.h"
 
+#include "llagent.h" //for gAgent.needsRenderAvatar()
 #include "lldrawable.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
@@ -1274,6 +1275,11 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLFace* face, const LLMeshSk
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
+	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
+	{
+		return;
+	}
+
 	for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 	{
 		LLFace* face = mRiggedFace[type][i];
