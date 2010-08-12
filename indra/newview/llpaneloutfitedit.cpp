@@ -553,7 +553,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	 *  - each LLWearableType::EType by name (EXT-8205)
 	*/
 	mWearableListViewItemsComparator = new LLWearableItemTypeNameComparator();
-	mWearableListViewItemsComparator->setOrder(LLAssetType::AT_CLOTHING, LLWearableItemTypeNameComparator::ORDER_RANG_1, false, true);
+	mWearableListViewItemsComparator->setOrder(LLAssetType::AT_CLOTHING, LLWearableItemTypeNameComparator::ORDER_RANK_1, false, true);
 
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLWearableItemsList>("list_view");
