@@ -3936,7 +3936,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 		item = (LLViewerInventoryItem*)gInventory.getItem(object_id);
 		if(item && gInventory.isObjectDescendentOf(object_id, gInventory.getRootFolderID()))
 		{
-			rez_attachment(item, NULL);
+			rez_attachment(item, NULL, true); // Replace if "Wear"ing.
 		}
 		else if(item && item->isFinished())
 		{
@@ -3951,6 +3951,10 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 				cb);
 		}
 		gFocusMgr.setKeyboardFocus(NULL);
+	}
+	else if ("wear_add" == action)
+	{
+		LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, false); // Don't replace if adding.
 	}
 	else if (isRemoveAction(action))
 	{
@@ -3998,7 +4002,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 	}
 }
 
-void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment)
+void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment, bool replace)
 {
 	LLSD payload;
 	payload["item_id"] = item->getLinkedUUID(); // Wear the base object in case this is a link.
@@ -4017,9 +4021,14 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		}
 	}
 
+	if (!replace)
+	{
+		attach_pt |= ATTACHMENT_ADD;
+	}
+
 	payload["attachment_point"] = attach_pt;
 
-	if (!gSavedSettings.getBOOL("MultipleAttachments") &&
+	if (replace &&
 		(attachment && attachment->getNumObjects() > 0))
 	{
 		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
@@ -4048,8 +4057,6 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 		if (itemp)
 		{
 			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-			if (gSavedSettings.getBOOL("MultipleAttachments"))
-				attachment_pt |= ATTACHMENT_ADD;
 
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
@@ -4106,6 +4113,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Wearable And Object Wear"));
+				items.push_back(std::string("Wearable Add"));
 				items.push_back(std::string("Attach To"));
 				items.push_back(std::string("Attach To HUD"));
 				// commented out for DEV-32347
@@ -4114,6 +4122,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				if (!gAgentAvatarp->canAttachMoreObjects())
 				{
 					disabled_items.push_back(std::string("Wearable And Object Wear"));
+					disabled_items.push_back(std::string("Wearable Add"));
 					disabled_items.push_back(std::string("Attach To"));
 					disabled_items.push_back(std::string("Attach To HUD"));
 				}

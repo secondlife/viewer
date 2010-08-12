@@ -13,13 +13,13 @@
 		Attendre :
 	</floater.string>
 	<floater.string name="stop_txt">
-		Stop
+		Arrêter
 	</floater.string>
 	<floater.string name="preview_txt">
 		Prévisualiser
 	</floater.string>
 	<floater.string name="none_text">
-		-- Aucune --
+		- Aucun choix -
 	</floater.string>
 	<floater.string name="Title">
 		Geste : [NAME]
@@ -42,7 +42,12 @@
 	<text name="library_label">
 		Bibliothèque :
 	</text>
-	<scroll_list name="library_list"/>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Animation"/>
+		<scroll_list.rows name="action_sound" value="Son"/>
+		<scroll_list.rows name="action_chat" value="Chat"/>
+		<scroll_list.rows name="action_wait" value="Attente"/>
+	</scroll_list>
 	<button label="Ajouter &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Étapes :

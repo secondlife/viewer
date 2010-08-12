@@ -863,12 +863,13 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	} // for
 
 	bool standalone = mParent ? mParent->isStandalone() : false;
+	bool wear_add_visible = mask & (MASK_CLOTHING|MASK_ATTACHMENT) && n_worn == 0 && can_be_worn && (n_already_worn != 0 || mask & MASK_ATTACHMENT);
 
 	// *TODO: eliminate multiple traversals over the menu items
 	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && can_be_worn);
 	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
-	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0 && can_be_worn);
-	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()) && n_already_worn != 0);
+	setMenuItemVisible(menu, "wear_add",			wear_add_visible);
+	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()));
 	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && can_be_worn);
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
@@ -984,7 +985,18 @@ bool LLWearableItemsList::ContextMenu::canAddWearable(const LLUUID& item_id)
 	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if (!item || item->getType() != LLAssetType::AT_CLOTHING)
+	if (!item)
+	{
+		return false;
+	}
+
+	if (item->getType() == LLAssetType::AT_OBJECT)
+	{
+		// *TODO: is this the right check?
+		return isAgentAvatarValid() && gAgentAvatarp->canAttachMoreObjects();
+	}
+
+	if (item->getType() != LLAssetType::AT_CLOTHING)
 	{
 		return false;
 	}

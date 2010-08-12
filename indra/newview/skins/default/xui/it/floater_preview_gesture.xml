@@ -42,7 +42,12 @@
 	<text name="library_label">
 		Libreria:
 	</text>
-	<scroll_list name="library_list"/>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Animazione"/>
+		<scroll_list.rows name="action_sound" value="Suono"/>
+		<scroll_list.rows name="action_chat" value="Chat"/>
+		<scroll_list.rows name="action_wait" value="Attendi"/>
+	</scroll_list>
 	<button label="Aggiungi &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Fasi:

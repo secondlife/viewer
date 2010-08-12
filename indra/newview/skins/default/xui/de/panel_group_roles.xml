@@ -13,6 +13,9 @@
 Drücken Sie die Strg-Taste und klicken Sie auf Namen,
 um mehrere Mitglieder auszuwählen.
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m².
+			</panel.string>
 			<filter_editor label="Mitglieder filtern" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Mitglied" name="name" relative_width="0.30"/>
