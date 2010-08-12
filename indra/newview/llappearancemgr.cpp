@@ -1012,7 +1012,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		addCOFItemLink(item_to_wear, do_update, cb);
 		break;
 	case LLAssetType::AT_OBJECT:
-		rez_attachment(item_to_wear, NULL, replace);
+		rez_attachment(item_to_wear, NULL);
 		break;
 	default: return false;;
 	}
@@ -1305,16 +1305,8 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any non-worn wearables.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		not_worn);
-	return items.size() > 0;
+	// Check whether the outfit contains the full set of body parts (shape+skin+hair+eyes).
+	return getCanMakeFolderIntoOutfit(outfit_cat_id);
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
@@ -1836,9 +1828,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-														   &LLAppearanceMgr::instance(),
-														   category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+															&LLAppearanceMgr::instance(),
+															category->getUUID(), copy, append));
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
