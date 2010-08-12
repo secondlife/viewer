@@ -64,6 +64,7 @@ class LLMenuGL;
 class LLFindNonLinksByMask;
 class LLFindWearablesOfType;
 class LLSaveOutfitComboBtn;
+class LLWearableItemTypeNameComparator;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -222,6 +223,7 @@ private:
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
+	LLWearableItemTypeNameComparator* mWearableListViewItemsComparator;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 
