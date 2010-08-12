@@ -1683,7 +1683,7 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification label="Envoyer un message à la région" name="MessageRegion">
-		Saisissez une message qui sera envoyé à tous les résidents présents dans cette région.
+		Saisissez un message qui sera envoyé à tous les résidents présents dans cette région.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
