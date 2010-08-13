@@ -1,0 +1,241 @@
+# BuildParams
+#
+# Please refer to:
+#  https://wiki.lindenlab.com/wiki/Parabuild_with_Mercurial#How_Build_Parameters_Work
+
+# Global setting for now...
+Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
+CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
+Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
+
+
+####  P r o d u c t i o n  B u i l d s  ####
+
+# ========================================
+# Viewer Hotfix Old
+# ========================================
+
+# Report changes since...
+viewer-hotfix-old.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-hotfix-old.build_viewer = true
+viewer-hotfix-old.build_server = false
+viewer-hotfix-old.build_server_tests = false
+viewer-hotfix-old.build_Linux = true
+viewer-hotfix-old.build_hg_bundle = true
+viewer-hotfix-old.build_docs = true
+#viewer-hotfix-old.build_Linux_Debug = false
+#viewer-hotfix-old.build_Linux_RelWithDebInfo = false
+#
+# Default channels etc - set build_viewer_update_version_manager to true when needed.
+viewer-hotfix-old.viewer_channel = "Second Life Release"
+viewer-hotfix-old.login_channel = "Second Life Release"
+viewer-hotfix-old.viewer_grid = agni
+viewer-hotfix-old.build_viewer_update_version_manager = false
+
+# ========================================
+# Viewer Hotfix Previous
+# ========================================
+
+# Report changes since...
+viewer-hotfix-previous.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-hotfix-previous.build_viewer = true
+viewer-hotfix-previous.build_server = false
+viewer-hotfix-previous.build_server_tests = false
+viewer-hotfix-previous.build_Linux = true
+viewer-hotfix-previous.build_hg_bundle = true
+viewer-hotfix-previous.build_docs = true
+#viewer-hotfix-previous.build_Linux_Debug = false
+#viewer-hotfix-previous.build_Linux_RelWithDebInfo = false
+#
+# Default channels etc - set build_viewer_update_version_manager to true when needed.
+viewer-hotfix-previous.viewer_channel = "Second Life Release"
+viewer-hotfix-previous.login_channel = "Second Life Release"
+viewer-hotfix-previous.viewer_grid = agni
+viewer-hotfix-previous.build_viewer_update_version_manager = false
+
+# ========================================
+# Viewer Hotfix
+# ========================================
+
+# Report changes since...
+viewer-hotfix.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-hotfix.build_viewer = true
+viewer-hotfix.build_server = false
+viewer-hotfix.build_server_tests = false
+viewer-hotfix.build_Linux = true
+viewer-hotfix.build_hg_bundle = true
+viewer-hotfix.build_docs = true
+#viewer-hotfix.build_Linux_Debug = false
+#viewer-hotfix.build_Linux_RelWithDebInfo = false
+#
+# Default channels etc - set build_viewer_update_version_manager to true when needed.
+viewer-hotfix.viewer_channel = "Second Life Release"
+viewer-hotfix.login_channel = "Second Life Release"
+viewer-hotfix.viewer_grid = agni
+viewer-hotfix.build_viewer_update_version_manager = false
+
+# ========================================
+# Viewer Release
+# ========================================
+
+# Report changes since...
+viewer-release.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-release.build_viewer = true
+viewer-release.build_server = false
+viewer-release.build_server_tests = false
+viewer-release.build_Linux = true
+viewer-release.build_hg_bundle = true
+viewer-release.build_docs = true
+#viewer-release.build_Linux_Debug = false
+#viewer-release.build_Linux_RelWithDebInfo = false
+#
+# Default channels etc - set build_viewer_update_version_manager to true when needed.
+viewer-release.viewer_channel = "Second Life Beta Viewer"
+viewer-release.login_channel = "Second Life Beta Viewer"
+viewer-release.viewer_grid = agni
+viewer-release.build_viewer_update_version_manager = false
+
+# ========================================
+# Viewer Public
+# ========================================
+
+# Report changes since...
+viewer-public.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-public.build_viewer = true
+viewer-public.build_server = false
+viewer-public.build_server_tests = false
+viewer-public.build_Linux = true
+viewer-public.build_hg_bundle = true
+viewer-public.build_docs = true
+#viewer-public.build_Linux_Debug = false
+#viewer-public.build_Linux_RelWithDebInfo = false
+#
+# Default channels etc - set build_viewer_update_version_manager to true when needed.
+viewer-public.viewer_channel = "Second Life Public Alpha"
+viewer-public.login_channel = "Second Life Public Alpha"
+viewer-public.viewer_grid = agni
+viewer-public.build_viewer_update_version_manager = false
+viewer-public_coverity.build_coverity = true
+viewer-public_coverity.coverity_product = viewer
+
+
+
+####  D e v e l o p m e n t  B u i l d s  ####
+
+
+# ========================================
+# Viewer Development
+# ========================================
+
+# Report changes since...
+viewer-development.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-development.build_viewer = true
+viewer-development.build_server = false
+viewer-development.build_server_tests = false
+viewer-development.build_Linux = true
+viewer-development.build_hg_bundle = true
+viewer-development.build_docs = true
+# viewer-development.viewer_channel = "Second Life Beta Viewer"
+# viewer-development.login_channel = "Second Life Beta Viewer"
+viewer-development.viewer_grid = agni
+viewer-development.build_viewer_update_version_manager = false
+
+# ========================================
+# Viewer Development Test
+# ========================================
+
+# Report changes since...
+viewer-development-test.show_changes_since = 2-1-release
+
+# Build Settings
+viewer-development-test.build_viewer = true
+viewer-development-test.build_server = false
+viewer-development-test.build_server_tests = false
+viewer-development-test.build_Linux = true
+viewer-development-test.build_hg_bundle = true
+viewer-development-test.build_docs = true
+# viewer-development-test.viewer_channel = "Second Life Beta Viewer"
+# viewer-development-test.login_channel = "Second Life Beta Viewer"
+viewer-development-test.viewer_grid = agni
+viewer-development-test.build_viewer_update_version_manager = false
+
+# =======================================
+# brad
+# ========================================
+
+debug-halting.email = cg@lindenlab.com
+debug-halting.build_server = false
+debug-halting.build_server_tests = false
+debug-halting.build_Darwin = false
+debug-halting.build_Linux = false
+debug-halting.build_CYGWIN_Debug = false
+debug-halting.build_CYGWIN_RelWithDebInfo = false
+
+# ========================================
+# brad
+# ========================================
+
+brad-parabuild.email = brad@lindenlab.com
+brad-parabuild.build_server = false
+brad-parabuild.build_server_tests = false
+
+# ========================================
+# moss
+# ========================================
+
+mossbuild1.email = moss@lindenlab.com
+mossbuild1.build_server = false
+mossbuild1.build_server_tests = false
+
+mossbuild2.email = moss@lindenlab.com
+mossbuild2.build_server = false
+mossbuild2.build_server_tests = false
+
+# ========================================
+# gooey
+# ========================================
+
+#gooey.email = james@lindenlab.com
+gooey.build_Debug = false
+gooey.build_RelWithDebInfo = false
+gooey.build_server = false
+gooey.build_server_tests = false
+gooey.viewer_channel = "Second Life Alpha"
+gooey.login_channel = "Second Life Alpha"
+gooey.viewer_grid = agni
+gooey.build_viewer_update_version_manager = false
+
+# ========================================
+# palange
+# ========================================
+
+palange_viewer-2-0.email = palange@lindenlab.com
+palange_viewer-2-0.build_server = false
+palange_viewer-2-0.build_server_tests = false
+palange_viewer-2-0.build_CYGWIN_Debug = false
+
+# ========================================
+# media
+# ========================================
+
+media.email = skolb@lindenlab.com
+media.build_server = false
+media.build_server_tests = false
+media.viewer_channel = "Second Life Alpha"
+media.login_channel = "Second Life Alpha"
+media.viewer_grid = agni
+media.build_viewer_update_version_manager = false
+
+# eof
