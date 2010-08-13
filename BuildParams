@@ -8,6 +8,13 @@ Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
 CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
+# Public Upload Locations overriding the default private ones
+S3PROXY_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
+S3INTERNAL_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
+S3GET_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
+S3PUT_URL = https://s3.amazonaws.com/automated-builds-secondlife-com/
+S3ACL = public-read
+
 
 ####  P r o d u c t i o n  B u i l d s  ####
 
@@ -151,6 +158,9 @@ viewer-development.build_docs = true
 # viewer-development.login_channel = "Second Life Beta Viewer"
 viewer-development.viewer_grid = agni
 viewer-development.build_viewer_update_version_manager = false
+
+# Notifications
+viewer-development.email = oz@lindenlab.com
 
 # ========================================
 # Viewer Development Test
