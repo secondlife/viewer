@@ -257,13 +257,15 @@ class WindowsManifest(ViewerManifest):
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            self.enable_crt_manifest_check()
-            
+            self.enable_no_crt_manifest_check()
+
             # Get kdu dll, continue if missing.
             try:
                 self.path('llkdu.dll', dst='llkdu.dll')
             except RuntimeError:
                 print "Skipping llkdu.dll"
+
+            self.enable_crt_manifest_check()
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
