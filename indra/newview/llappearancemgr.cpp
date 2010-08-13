@@ -1305,16 +1305,8 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any non-worn wearables.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		not_worn);
-	return items.size() > 0;
+	// Check whether the outfit contains the full set of body parts (shape+skin+hair+eyes).
+	return getCanMakeFolderIntoOutfit(outfit_cat_id);
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
@@ -2514,29 +2506,17 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 
 	switch (item_to_remove->getType())
 	{
-	case LLAssetType::AT_CLOTHING:
-		if (get_is_item_worn(id_to_remove))
-		{
-			//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
-			LLWearableBridge::removeItemFromAvatar(item_to_remove);
-		}
-		break;
-	case LLAssetType::AT_OBJECT:
-		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_to_remove->getLinkedUUID());
-		gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
-
-		{
-			// this object might have been selected, so let the selection manager know it's gone now
-			LLViewerObject *found_obj = gObjectList.findObject(item_to_remove->getLinkedUUID());
-			if (found_obj)
+		case LLAssetType::AT_CLOTHING:
+			if (get_is_item_worn(id_to_remove))
 			{
-				LLSelectMgr::getInstance()->remove(found_obj);
-			};
-		}
-	default: break;
+				//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
+				LLWearableBridge::removeItemFromAvatar(item_to_remove);
+			}
+			break;
+		case LLAssetType::AT_OBJECT:
+			LLVOAvatarSelf::detachAttachmentIntoInventory(item_to_remove->getLinkedUUID());
+		default:
+			break;
 	}
 
 	// *HACK: Force to remove garbage from COF.
@@ -2676,7 +2656,6 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	mAttachmentInvLinkEnabled = val;
 }
 
-// BAP TODO - mRegisteredAttachments is currently maintained but not used for anything.  Consider yanking.
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
        llinfos << msg << llendl;
@@ -2696,7 +2675,6 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 
 void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 {
-       mRegisteredAttachments.insert(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2714,7 +2692,6 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 {
-       mRegisteredAttachments.erase(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2725,18 +2702,6 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	   {
 		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
-}
-
-void LLAppearanceMgr::linkRegisteredAttachments()
-{
-	for (std::set<LLUUID>::iterator it = mRegisteredAttachments.begin();
-		 it != mRegisteredAttachments.end();
-		 ++it)
-	{
-		LLUUID item_id = *it;
-		addCOFItemLink(item_id, false);
-	}
-	mRegisteredAttachments.clear();
 }
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const

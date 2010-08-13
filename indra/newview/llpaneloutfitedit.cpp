@@ -386,11 +386,25 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
+	/*
+	 * By default AT_CLOTHING are sorted by (in in MY OUTFITS):
+	 *  - by type (types order determined in LLWearableType::EType)
+	 *  - each LLWearableType::EType by outer layer on top
+	 *
+	 * In Add More panel AT_CLOTHING should be sorted in a such way:
+	 *  - by type (types order determined in LLWearableType::EType)
+	 *  - each LLWearableType::EType by name (EXT-8205)
+	*/
+	mWearableListViewItemsComparator = new LLWearableItemTypeNameComparator();
+	mWearableListViewItemsComparator->setOrder(LLAssetType::AT_CLOTHING, LLWearableItemTypeNameComparator::ORDER_RANG_1, false, true);
+
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
 	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
+
+	mWearableItemsList->setComparator(mWearableListViewItemsComparator);
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
