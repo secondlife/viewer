@@ -104,7 +104,7 @@ public:
 
 	void onClickClose() { hide(); }
 	void draw();
-	void hide() { mHidden = true; mFadeTimer.reset(); }
+	void hide() { if(!mHidden) {mHidden = true; mFadeTimer.reset();} }
 
 private:
 	LLNotificationPtr	mNotification;
@@ -169,6 +169,10 @@ void LLHintPopup::draw()
 	if (mHidden)
 	{
 		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, mFadeOutTime, 1.f, 0.f);
+		if (alpha == 0.f)
+		{
+			die();
+		}
 	}
 	else
 	{
