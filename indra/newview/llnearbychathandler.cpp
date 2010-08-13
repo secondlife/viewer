@@ -37,6 +37,7 @@
 
 #include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
+#include "llfirstuse.h"
 #include "llfloaterscriptdebug.h"
 #include "llnearbychat.h"
 #include "llrecentpeople.h"
@@ -347,7 +348,13 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	if(chat_msg.mMuted == TRUE)
 		return;
 	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT && chat_msg.mFromID.notNull())
-         LLRecentPeople::instance().add(chat_msg.mFromID);
+	{
+        LLRecentPeople::instance().add(chat_msg.mFromID);
+		if (chat_msg.mFromID != gAgentID)
+		{
+	 		LLFirstUse::otherAvatarChatFirst();
+		}
+	}
 
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages

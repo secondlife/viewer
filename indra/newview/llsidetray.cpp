@@ -37,6 +37,8 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llbottomtray.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -422,6 +424,7 @@ void	LLSideTray::createButtons	()
 		{
 			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
+			LLHints::registerHintTarget("side_panel_btn", mCollapseButton->getHandle());
 		}
 		else
 		{
@@ -430,6 +433,8 @@ void	LLSideTray::createButtons	()
 			mTabButtons[name] = button;
 		}
 	}
+	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
+	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()
@@ -466,6 +471,7 @@ void		LLSideTray::onTabButtonClick(string name)
 
 void		LLSideTray::onToggleCollapse()
 {
+	LLFirstUse::notUsingSidePanel(false);
 	if(mCollapsed)
 	{
 		expandSideBar();

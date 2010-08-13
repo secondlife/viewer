@@ -294,6 +294,7 @@ public:
 	void			updateWorldViewRect(bool use_full_window=false);
 	LLView*			getNonSideTrayView() { return mNonSideTrayView.get(); }
 	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
+	LLView*			getHintHolder() { return mHintHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
@@ -453,6 +454,7 @@ protected:
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
 	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
 	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
+	LLHandle<LLView> mHintHolder;			// container for hints
 	LLPopupView*	mPopupView;			// container for transient popups
 	
 	class LLDebugText* mDebugText; // Internal class for debug text

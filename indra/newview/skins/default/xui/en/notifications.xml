@@ -6397,6 +6397,57 @@ Mute everyone?
     <unique/>
   </notification>
 
+  <notification
+  name="HintChat"
+  label="Chat"
+  type="hint">
+    To join the conversation, type into the chat field below.
+  </notification>
+
+  <notification
+  name="HintSit"
+  label="Stand"
+  type="hint">
+    To stand up and exit the sitting position, click the Stand button.
+  </notification>
+  
+  <notification
+  name="HintDestinationGuide"
+  label="Explore the World"
+  type="hint">
+    The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
+  </notification>
+  
+  <notification
+    name="HintSidePanel"
+    label="Side Panel"
+    type="hint">
+    Get quick access to your inventory, outfits, profiles and more in the side panel.
+    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintMove"
+  label="Move"
+  type="hint">
+    To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
+    <!--<unique/>-->
+  </notification>
+
+  <notification
+  name="HintInventory"
+  label="Inventory"
+  type="hint">
+    Check your inventory to find items. Newest items can be easily found in the Recent tab.
+  </notification>
+
+  <notification
+  name="HintLindenDollar"
+  label="You've got Linden Dollars!"
+  type="hint">
+    Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

@@ -123,7 +123,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		S32 bar_idx = MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight());
 		bar_idx = llclamp(bar_idx, 0, MAX_VISIBLE_HISTORY);
-		mPrintStats = bar_idx;
+		mPrintStats = LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - bar_idx;
 	}
 	return FALSE;
 }
@@ -138,6 +138,17 @@ LLFastTimer::NamedTimer* LLFastTimerView::getLegendID(S32 y)
 	}
 	
 	return NULL;
+}
+
+BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+		it != end_timer_tree();
+		++it)
+	{
+		(*it)->setCollapsed(false);
+	}
+	return TRUE;
 }
 
 BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -953,7 +964,7 @@ void LLFastTimerView::draw()
 			{
 				legend_stat += ", ";
 			}
-			first = true;
+			first = false;
 			legend_stat += idp->getName();
 
 			if (idp->getCollapsed())
@@ -980,8 +991,7 @@ void LLFastTimerView::draw()
 			U64 ticks;
 			if (mPrintStats > 0)
 			{
-				S32 hidx = (mPrintStats - 1) - mScrollIndex;
-				ticks = idp->getHistoricalCount(hidx);
+				ticks = idp->getHistoricalCount(mPrintStats);
 			}
 			else
 			{

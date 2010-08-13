@@ -528,7 +528,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			row["columns"][4]["column"] = "hidden";
 			row["columns"][4]["value"] = hidden;
 			
-			mGroupParcelsp->addElement(row, ADD_SORTED);
+			mGroupParcelsp->addElement(row);
 		}
 	}
 }

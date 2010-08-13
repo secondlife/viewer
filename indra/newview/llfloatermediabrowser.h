@@ -45,12 +45,14 @@ class LLFloaterMediaBrowser :
 	public LLViewerMediaObserver
 {
 public:
+    LOG_CLASS(LLFloaterMediaBrowser);
 	LLFloaterMediaBrowser(const LLSD& key);
 
+	static void create(const std::string &url, const std::string& target);
+	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
-	/*virtual*/ void onOpen(const LLSD& key);
 
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);

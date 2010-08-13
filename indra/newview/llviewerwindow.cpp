@@ -102,6 +102,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
+#include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
@@ -1529,6 +1530,7 @@ void LLViewerWindow::initBase()
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
+	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -2421,6 +2423,18 @@ void LLViewerWindow::updateUI()
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
+
+	if (gLoggedInTime.getStarted())
+	{
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
+		{
+			LLFirstUse::notUsingDestinationGuide();
+		}
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
+		{
+			LLFirstUse::notUsingSidePanel();
+		}
+	}
 
 	LLConsole::updateClass();
 

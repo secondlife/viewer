@@ -36,6 +36,7 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
@@ -128,6 +129,8 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
+	LLFirstUse::inventoryOffer(false);
+
 	if(key.size() == 0)
 		return;
 
