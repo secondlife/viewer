@@ -160,6 +160,7 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
 			LLNotifications::instance().cancel(notif);
 			sNotifications.erase(notification_name);
 		}
+		gWarningSettings.setBOOL(control_var, FALSE);
 	}
 
 }

@@ -1556,6 +1556,7 @@ void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32
 	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
 	{
 		LLFirstUse::notMoving();
+		mMoveTimer.stop();
 	}
 
 	propagate(dt);
