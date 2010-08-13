@@ -2496,29 +2496,17 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 
 	switch (item_to_remove->getType())
 	{
-	case LLAssetType::AT_CLOTHING:
-		if (get_is_item_worn(id_to_remove))
-		{
-			//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
-			LLWearableBridge::removeItemFromAvatar(item_to_remove);
-		}
-		break;
-	case LLAssetType::AT_OBJECT:
-		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_to_remove->getLinkedUUID());
-		gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
-
-		{
-			// this object might have been selected, so let the selection manager know it's gone now
-			LLViewerObject *found_obj = gObjectList.findObject(item_to_remove->getLinkedUUID());
-			if (found_obj)
+		case LLAssetType::AT_CLOTHING:
+			if (get_is_item_worn(id_to_remove))
 			{
-				LLSelectMgr::getInstance()->remove(found_obj);
-			};
-		}
-	default: break;
+				//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
+				LLWearableBridge::removeItemFromAvatar(item_to_remove);
+			}
+			break;
+		case LLAssetType::AT_OBJECT:
+			LLVOAvatarSelf::detachAttachmentIntoInventory(item_to_remove->getLinkedUUID());
+		default:
+			break;
 	}
 
 	// *HACK: Force to remove garbage from COF.

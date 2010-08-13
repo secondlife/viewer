@@ -3957,18 +3957,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryItem* item = gInventory.getItem(mUUID);
 		if(item)
 		{
-			gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
-			gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
-
-			// this object might have been selected, so let the selection manager know it's gone now
-			LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
-			if (found_obj)
-			{
-				LLSelectMgr::getInstance()->remove(found_obj);
-			}
+			LLVOAvatarSelf::detachAttachmentIntoInventory(item->getLinkedUUID());
 		}
 	}
 	else LLItemBridge::performAction(model, action);
@@ -4321,19 +4310,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				LLViewerInventoryItem *obj_item = obj_item_array.get(i);
 				if (get_is_item_worn(obj_item->getUUID()))
 				{
-					gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-					gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
-					gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-					gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
-					
-					gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
-					
-					// this object might have been selected, so let the selection manager know it's gone now
-					LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
-					if (found_obj)
-					{
-						LLSelectMgr::getInstance()->remove(found_obj);
-					}
+					LLVOAvatarSelf::detachAttachmentIntoInventory(obj_item->getLinkedUUID());
 				}
 			}
 		}

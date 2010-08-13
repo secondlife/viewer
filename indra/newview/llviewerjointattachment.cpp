@@ -35,12 +35,11 @@
 #include "llviewerjointattachment.h"
 
 #include "llagentconstants.h"
-
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
 #include "llrender.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvolume.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
@@ -164,6 +163,9 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 {
+	object->extractAttachmentItemID();
+
+	// Same object reattached
 	if (isObjectAttached(object))
 	{
 		llinfos << "(same object re-attached)" << llendl;
@@ -171,8 +173,19 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 		// Pass through anyway to let setupDrawable()
 		// re-connect object to the joint correctly
 	}
+	
+	// Two instances of the same inventory item attached --
+	// Request detach, and kill the object in the meantime.
+	if (getAttachedObject(object->getAttachmentItemID()))
+	{
+		llinfos << "(same object re-attached)" << llendl;
+		object->markDead();
 
-	object->extractAttachmentItemID();
+		// If this happens to be attached to self, then detach.
+		LLVOAvatarSelf::detachAttachmentIntoInventory(object->getAttachmentItemID());
+		return FALSE;
+	}
+
 	mAttachedObjects.push_back(object);
 	setupDrawable(object);
 	
@@ -195,7 +208,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 	}
 	calcLOD();
 	mUpdateXform = TRUE;
-
+	
 	return TRUE;
 }
 

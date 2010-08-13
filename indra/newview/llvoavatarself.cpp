@@ -1115,6 +1115,29 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 	return FALSE;
 }
 
+// static
+BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
+{
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if (item)
+	{
+		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);
+		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
+		
+		// this object might have been selected, so let the selection manager know it's gone now
+		LLViewerObject *found_obj = gObjectList.findObject(item_id);
+		if (found_obj)
+		{
+			LLSelectMgr::getInstance()->remove(found_obj);
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
 U32 LLVOAvatarSelf::getNumWearables(LLVOAvatarDefines::ETextureIndex i) const
 {
 	LLWearableType::EType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
