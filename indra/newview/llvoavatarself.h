@@ -298,6 +298,7 @@ public:
 	const std::string   getAttachedPointName(const LLUUID& inv_item_id) const;
 	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
 	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
+	static BOOL			detachAttachmentIntoInventory(const LLUUID& item_id);
 
 private:
 	// Track attachments that have been requested but have not arrived yet.

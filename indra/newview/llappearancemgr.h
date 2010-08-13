@@ -123,7 +123,6 @@ public:
 	void unregisterAttachment(const LLUUID& item_id);
 	void registerAttachment(const LLUUID& item_id);
 	void setAttachmentInvLinkEnable(bool val);
-	void linkRegisteredAttachments();
 
 	// utility function for bulk linking.
 	void linkAll(const LLUUID& category,
@@ -210,7 +209,6 @@ private:
 
 	void setOutfitLocked(bool locked);
 
-	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
