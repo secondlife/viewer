@@ -61,6 +61,7 @@ pre_build()
    configure \
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
+    -DINSTALL_PROPRIETARY:BOOL=ON \
     -DLOCALIZESETUP:BOOL=ON \
     -DPACKAGE:BOOL=ON
   end_section "Pre$variant"
