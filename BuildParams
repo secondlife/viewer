@@ -15,6 +15,8 @@ S3GET_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
 S3PUT_URL = https://s3.amazonaws.com/automated-builds-secondlife-com/
 S3ACL = public-read
 
+# Public Inworld Build Status indicator email
+email_status = 4fac962b-e6a9-ee06-fdd1-3818b00e8c6d@lsl.secondlife.com
 
 ####  P r o d u c t i o n  B u i l d s  ####
 
