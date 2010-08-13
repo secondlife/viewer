@@ -2753,7 +2753,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 {
 	// update chat bubble
 	//--------------------------------------------------------------------
-	// draw text label over characters head
+	// draw text label over character's head
 	//--------------------------------------------------------------------
 	if (mChatTimer.getElapsedTimeF32() > BUBBLE_CHAT_TIME)
 	{
