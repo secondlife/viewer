@@ -1067,7 +1067,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	// Should just be the last object added
 	if (attachment->isObjectAttached(viewer_object))
 	{
-		const LLUUID& attachment_id = viewer_object->getItemID();
+		const LLUUID& attachment_id = viewer_object->getAttachmentItemID();
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 	}
 
@@ -1077,7 +1077,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 //virtual
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
-	const LLUUID attachment_id = viewer_object->getItemID();
+	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
 	if (LLVOAvatar::detachObject(viewer_object))
 	{
 		// the simulator should automatically handle permission revocation
@@ -1110,6 +1110,29 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 			LLAppearanceMgr::instance().unregisterAttachment(attachment_id);
 		}
 		
+		return TRUE;
+	}
+	return FALSE;
+}
+
+// static
+BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
+{
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if (item)
+	{
+		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);
+		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
+		
+		// this object might have been selected, so let the selection manager know it's gone now
+		LLViewerObject *found_obj = gObjectList.findObject(item_id);
+		if (found_obj)
+		{
+			LLSelectMgr::getInstance()->remove(found_obj);
+		}
 		return TRUE;
 	}
 	return FALSE;
@@ -1625,14 +1648,14 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					if (isSelf())
 					{
 						if (gAgentAvatarp->isUsingBakedTextures())
-					{
-						requestLayerSetUpdate(type);
-					}
+						{
+							requestLayerSetUpdate(type);
+						}
 						else
-					{
-						LLVisualParamHint::requestHintUpdates();
+						{
+							LLVisualParamHint::requestHintUpdates();
+						}
 					}
-				}
 				}
 				else
 				{					
