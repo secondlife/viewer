@@ -277,7 +277,6 @@ public:
 													
 	void			setShowProgress(const BOOL show);
 	BOOL			getShowProgress() const;
-	void			moveProgressViewToFront();
 	void			setProgressString(const std::string& string);
 	void			setProgressPercent(const F32 percent);
 	void			setProgressMessage(const std::string& msg);
