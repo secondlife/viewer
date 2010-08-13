@@ -2646,7 +2646,6 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	mAttachmentInvLinkEnabled = val;
 }
 
-// BAP TODO - mRegisteredAttachments is currently maintained but not used for anything.  Consider yanking.
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
        llinfos << msg << llendl;
@@ -2666,7 +2665,6 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 
 void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 {
-       mRegisteredAttachments.insert(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2684,7 +2682,6 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 {
-       mRegisteredAttachments.erase(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2695,18 +2692,6 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	   {
 		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
-}
-
-void LLAppearanceMgr::linkRegisteredAttachments()
-{
-	for (std::set<LLUUID>::iterator it = mRegisteredAttachments.begin();
-		 it != mRegisteredAttachments.end();
-		 ++it)
-	{
-		LLUUID item_id = *it;
-		addCOFItemLink(item_id, false);
-	}
-	mRegisteredAttachments.clear();
 }
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
