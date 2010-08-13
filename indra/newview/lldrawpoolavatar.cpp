@@ -838,7 +838,14 @@ void LLDrawPoolAvatar::endRiggedSimple()
 
 void LLDrawPoolAvatar::beginRiggedAlpha()
 {
-	sVertexProgram = &gSkinnedObjectSimpleProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectSimpleWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectSimpleProgram;
+	}
 	sDiffuseChannel = 0;
 	sVertexProgram->bind();
 	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
@@ -855,7 +862,14 @@ void LLDrawPoolAvatar::endRiggedAlpha()
 
 void LLDrawPoolAvatar::beginRiggedFullbrightAlpha()
 {
-	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	}
 	sDiffuseChannel = 0;
 	sVertexProgram->bind();
 	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
@@ -871,7 +885,14 @@ void LLDrawPoolAvatar::endRiggedFullbrightAlpha()
 
 void LLDrawPoolAvatar::beginRiggedGlow()
 {
-	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	}
 	sDiffuseChannel = 0;
 	sVertexProgram->bind();
 	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
@@ -887,23 +908,37 @@ void LLDrawPoolAvatar::endRiggedGlow()
 
 void LLDrawPoolAvatar::beginRiggedFullbright()
 {
-	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	}
 	sDiffuseChannel = 0;
-	gSkinnedObjectFullbrightProgram.bind();
+	sVertexProgram->bind();
 	LLVertexBuffer::sWeight4Loc = gSkinnedObjectFullbrightProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
 }
 
 void LLDrawPoolAvatar::endRiggedFullbright()
 {
-	sVertexProgram = NULL;
 	LLVertexBuffer::unbind();
-	gSkinnedObjectFullbrightProgram.unbind();
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
 	LLVertexBuffer::sWeight4Loc = -1;
 }
 
 void LLDrawPoolAvatar::beginRiggedShinySimple()
 {
-	sVertexProgram = &gSkinnedObjectShinySimpleProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectShinySimpleWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectShinySimpleProgram;
+	}
 	sVertexProgram->bind();
 	LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
 	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
@@ -920,7 +955,14 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 
 void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 {
-	sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightShinyWaterProgram;
+	}
+	else
+	{
+		sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+	}
 	sVertexProgram->bind();
 	LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
 	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
@@ -1288,6 +1330,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		return;
 	}
 
+	stop_glerror();
+
 	for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 	{
 		LLFace* face = mRiggedFace[type][i];
@@ -1324,9 +1368,13 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			continue;
 		}
 
+		stop_glerror();
+
 		const LLVolumeFace& vol_face = volume->getVolumeFace(te);
 		updateRiggedFaceVertexBuffer(face, skin, volume, vol_face);
 		
+		stop_glerror();
+
 		U32 data_mask = rigged_data_mask[type];
 
 		LLVertexBuffer* buff = face->mVertexBuffer;
@@ -1345,6 +1393,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				}
 			}
 			
+			stop_glerror();
+
 			LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
 				skin->mJointNames.size(),
 				FALSE,
@@ -1353,6 +1403,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				skin->mJointNames.size(),
 				FALSE,
 				(GLfloat*) mat[0].mMatrix);
+
+			stop_glerror();
 
 			buff->setBuffer(data_mask);
 

@@ -84,9 +84,9 @@ LLGLSLShader		gSkinnedObjectFullbrightShinyProgram;
 LLGLSLShader		gSkinnedObjectShinySimpleProgram;
 
 LLGLSLShader		gSkinnedObjectSimpleWaterProgram;
-//LLGLSLShader		gSkinnedObjectFullbrightProgram;
-//LLGLSLShader		gSkinnedObjectFullbrightShinyProgram;
-//LLGLSLShader		gSkinnedObjectShinySimpleProgram;
+LLGLSLShader		gSkinnedObjectFullbrightWaterProgram;
+LLGLSLShader		gSkinnedObjectFullbrightShinyWaterProgram;
+LLGLSLShader		gSkinnedObjectShinySimpleWaterProgram;
 
 //environment shaders
 LLGLSLShader		gTerrainProgram;
@@ -164,10 +164,13 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyProgram);
 	mShaderList.push_back(&gSkinnedObjectSimpleProgram);
-	mShaderList.push_back(&gSkinnedObjectSimpleWaterProgram);
 	mShaderList.push_back(&gSkinnedObjectFullbrightProgram);
 	mShaderList.push_back(&gSkinnedObjectFullbrightShinyProgram);
 	mShaderList.push_back(&gSkinnedObjectShinySimpleProgram);
+	mShaderList.push_back(&gSkinnedObjectSimpleWaterProgram);
+	mShaderList.push_back(&gSkinnedObjectFullbrightWaterProgram);
+	mShaderList.push_back(&gSkinnedObjectFullbrightShinyWaterProgram);
+	mShaderList.push_back(&gSkinnedObjectShinySimpleWaterProgram);
 	mShaderList.push_back(&gTerrainProgram);
 	mShaderList.push_back(&gTerrainWaterProgram);
 	mShaderList.push_back(&gObjectSimpleWaterProgram);
@@ -576,10 +579,14 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectShinyWaterProgram.unload();
 
 	gSkinnedObjectSimpleProgram.unload();
-	gSkinnedObjectSimpleWaterProgram.unload();
 	gSkinnedObjectFullbrightProgram.unload();
 	gSkinnedObjectFullbrightShinyProgram.unload();
 	gSkinnedObjectShinySimpleProgram.unload();
+	
+	gSkinnedObjectSimpleWaterProgram.unload();
+	gSkinnedObjectFullbrightWaterProgram.unload();
+	gSkinnedObjectFullbrightShinyWaterProgram.unload();
+	gSkinnedObjectShinySimpleWaterProgram.unload();
 	
 
 	gWaterProgram.unload();
@@ -1306,10 +1313,13 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightProgram.unload();
 		gObjectFullbrightWaterProgram.unload();
 		gSkinnedObjectSimpleProgram.unload();
-		gSkinnedObjectSimpleWaterProgram.unload();
 		gSkinnedObjectFullbrightProgram.unload();
 		gSkinnedObjectFullbrightShinyProgram.unload();
 		gSkinnedObjectShinySimpleProgram.unload();
+		gSkinnedObjectSimpleWaterProgram.unload();
+		gSkinnedObjectFullbrightWaterProgram.unload();
+		gSkinnedObjectFullbrightShinyWaterProgram.unload();
+		gSkinnedObjectShinySimpleWaterProgram.unload();
 	
 		return FALSE;
 	}
@@ -1438,23 +1448,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 	if (success)
 	{
-		gSkinnedObjectSimpleWaterProgram.mName = "Skinned Simple Water Shader";
-		gSkinnedObjectSimpleWaterProgram.mFeatures.calculatesLighting = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.hasGamma = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.hasAtmospherics = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.hasLighting = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.hasWaterFog = true;
-		gSkinnedObjectSimpleWaterProgram.mFeatures.hasObjectSkinning = true;
-		gSkinnedObjectSimpleWaterProgram.mShaderFiles.clear();
-		gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
-		gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gSkinnedObjectSimpleWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gSkinnedObjectSimpleWaterProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
 		gSkinnedObjectFullbrightProgram.mName = "Skinned Fullbright Shader";
 		gSkinnedObjectFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gSkinnedObjectFullbrightProgram.mFeatures.hasGamma = true;
@@ -1498,6 +1491,77 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gSkinnedObjectShinySimpleProgram.mShaderFiles.push_back(make_pair("objects/shinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gSkinnedObjectShinySimpleProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gSkinnedObjectShinySimpleProgram.createShader(NULL, &mShinyUniforms);
+	}
+
+	if (success)
+	{
+		gSkinnedObjectSimpleWaterProgram.mName = "Skinned Simple Water Shader";
+		gSkinnedObjectSimpleWaterProgram.mFeatures.calculatesLighting = true;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.hasAtmospherics = true;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.hasLighting = true;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.hasWaterFog = true;
+		gSkinnedObjectSimpleWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		gSkinnedObjectSimpleWaterProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectSimpleWaterProgram.mShaderFiles.clear();
+		gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectSimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectSimpleWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectSimpleWaterProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gSkinnedObjectFullbrightWaterProgram.mName = "Skinned Fullbright Water Shader";
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.hasTransport = true;
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.isFullbright = true;
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectFullbrightWaterProgram.mFeatures.hasWaterFog = true;
+		gSkinnedObjectFullbrightWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		gSkinnedObjectFullbrightWaterProgram.mShaderFiles.clear();
+		gSkinnedObjectFullbrightWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectFullbrightWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectFullbrightWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectFullbrightWaterProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gSkinnedObjectFullbrightShinyWaterProgram.mName = "Skinned Fullbright Shiny Water Shader";
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.hasTransport = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.isShiny = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.isFullbright = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mFeatures.hasWaterFog = true;
+		gSkinnedObjectFullbrightShinyWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		gSkinnedObjectFullbrightShinyWaterProgram.mShaderFiles.clear();
+		gSkinnedObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectFullbrightShinyWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectFullbrightShinyWaterProgram.createShader(NULL, &mShinyUniforms);
+	}
+
+	if (success)
+	{
+		gSkinnedObjectShinySimpleWaterProgram.mName = "Skinned Shiny Simple Water Shader";
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.calculatesLighting = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.hasAtmospherics = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.isShiny = true;
+		gSkinnedObjectShinySimpleWaterProgram.mFeatures.hasWaterFog = true;
+		gSkinnedObjectShinySimpleWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		gSkinnedObjectShinySimpleWaterProgram.mShaderFiles.clear();
+		gSkinnedObjectShinySimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/shinySimpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectShinySimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/shinyWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectShinySimpleWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectShinySimpleWaterProgram.createShader(NULL, &mShinyUniforms);
 	}
 
 	if( !success )
