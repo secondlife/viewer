@@ -4250,14 +4250,6 @@ BOOL LLViewerWindow::getShowProgress() const
 	return (mProgressView && mProgressView->getVisible());
 }
 
-void LLViewerWindow::moveProgressViewToFront()
-{
-	if( mProgressView && mRootView )
-	{
-		mRootView->sendChildToFront(mProgressView);
-	}
-}
-
 void LLViewerWindow::setProgressString(const std::string& string)
 {
 	if (mProgressView)
