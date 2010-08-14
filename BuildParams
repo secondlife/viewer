@@ -156,32 +156,13 @@ viewer-development.build_server_tests = false
 viewer-development.build_Linux = true
 viewer-development.build_hg_bundle = true
 viewer-development.build_docs = true
-# viewer-development.viewer_channel = "Second Life Beta Viewer"
-# viewer-development.login_channel = "Second Life Beta Viewer"
+viewer-development.viewer_channel = "Second Life Development"
+viewer-development.login_channel = "Second Life Beta Development"
 viewer-development.viewer_grid = agni
 viewer-development.build_viewer_update_version_manager = false
 
 # Notifications
 viewer-development.email = oz@lindenlab.com
-
-# ========================================
-# Viewer Development Test
-# ========================================
-
-# Report changes since...
-viewer-development-test.show_changes_since = 2-1-release
-
-# Build Settings
-viewer-development-test.build_viewer = true
-viewer-development-test.build_server = false
-viewer-development-test.build_server_tests = false
-viewer-development-test.build_Linux = true
-viewer-development-test.build_hg_bundle = true
-viewer-development-test.build_docs = true
-# viewer-development-test.viewer_channel = "Second Life Beta Viewer"
-# viewer-development-test.login_channel = "Second Life Beta Viewer"
-viewer-development-test.viewer_grid = agni
-viewer-development-test.build_viewer_update_version_manager = false
 
 # =======================================
 # brad

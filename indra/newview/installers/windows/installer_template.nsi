@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; secondlife setup.nsi
-;; Copyright 2004-2008, Linden Research, Inc.
+;; Copyright 2004-2010, Linden Research, Inc.
 ;;
 ;; NSIS Unicode 2.38.1 or higher required
 ;; http://www.scratchpaper.com/
