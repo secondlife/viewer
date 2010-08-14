@@ -28,17 +28,30 @@
      tab_stop="false"
      top="2"
      width="30" />
-    <text_editor
+     <text
     	h_pad="0"
     	v_pad="0"
-      allow_scroll="false"
-      bg_visible="false"
-      read_only = "true"
       follows="top|left|right"
-      font="SansSerifHugeBold"
-      height="26"
+      font="SansSerifBigBold"
+      height="29"
       layout="topleft"
       left_pad="5"
+      name="user_name_small"
+      text_color="LtGray"
+      top="0"
+      value="(Loading...)"
+      use_ellipses="true"
+      word_wrap="true" 
+      visible="false" 
+      width="275" />
+     <text
+      h_pad="0"
+      v_pad="0"
+      follows="top|left|right"
+      font="SansSerifHugeBold"
+      height="27"
+      layout="topleft"
+      left_delta="0"
       name="user_name"
       text_color="LtGray"
       top="2"
@@ -52,7 +65,6 @@
      left="45"
      name="user_slid"
      text_color="LtGray"
-     value=""
      width="150" />
     <text
      follows="top|left"
@@ -67,7 +79,7 @@
      width="150" />
     <tab_container
      follows="all"
-     height="538"
+     height="537"
      halign="center"
      layout="topleft"
      left="5"
@@ -77,7 +89,7 @@
      tab_height="30"
      tab_position="top"
      top_pad="5"
-     width="317">
+     width="317"> 
         <panel
          class="panel_profile"
          filename="panel_profile.xml"

@@ -207,7 +207,22 @@ void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
 										   const LLAvatarName& av_name)
 {
 	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_name_small")->setValue( av_name.mDisplayName );
 	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
+
+	// show smaller display name if too long to display in regular size
+	if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
+	{
+		getChild<LLUICtrl>("user_name_small")->setVisible( true );
+		getChild<LLUICtrl>("user_name")->setVisible( false );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_name_small")->setVisible( false );
+		getChild<LLUICtrl>("user_name")->setVisible( true );
+
+	}
+
 }
 
 // EOF

@@ -58,6 +58,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
+#include "lltextbox.h"
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 #include "lluictrl.h"
@@ -333,6 +334,7 @@ void LLInspectAvatar::requestUpdate()
 
 	// Clear out old data so it doesn't flash between old and new
 	getChild<LLUICtrl>("user_name")->setValue("");
+	getChild<LLUICtrl>("user_name_small")->setValue("");
 	getChild<LLUICtrl>("user_slid")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
@@ -617,8 +619,23 @@ void LLInspectAvatar::onAvatarNameCache(
 	if (agent_id == mAvatarID)
 	{
 		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
+		getChild<LLUICtrl>("user_name_small")->setValue(av_name.mDisplayName);
 		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
 		mAvatarName = av_name;
+		
+		// show smaller display name if too long to display in regular size
+		if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( true );
+			getChild<LLUICtrl>("user_name")->setVisible( false );
+		}
+		else
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( false );
+			getChild<LLUICtrl>("user_name")->setVisible( true );
+
+		}
+
 	}
 }
 
