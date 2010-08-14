@@ -311,6 +311,7 @@ extern LLGLSLShader			gObjectSimpleLODProgram;
 extern LLGLSLShader			gObjectFullbrightLODProgram;
 
 extern LLGLSLShader			gObjectFullbrightShinyProgram;
+extern LLGLSLShader			gObjectFullbrightShinyWaterProgram;
 extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
 

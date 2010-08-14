@@ -501,7 +501,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
-		shader = &gObjectShinyWaterProgram;
+		shader = &gObjectFullbrightShinyWaterProgram;
 	}
 	else
 	{
