@@ -3546,7 +3546,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->mLastVertexBuffer = NULL;
 				}
 				
-			facep->setState(LLFace::RIGGED);
+				facep->setState(LLFace::RIGGED);
 				
 				//get drawpool of avatar with rigged face
 				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
@@ -3585,7 +3585,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else
 						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+							if (LLPipeline::sRenderDeferred)
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+							}
 						}
 					}
 					else
