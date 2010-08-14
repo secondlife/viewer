@@ -660,17 +660,86 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 class LLObjectCostResponder : public LLCurl::Responder
 {
 public:
-	void result(const LLSD& content)
+	LLObjectCostResponder(const LLSD& object_ids)
+		: mObjectIDs(object_ids)
 	{
-		for (LLSD::map_const_iterator iter = content.beginMap(); iter != content.endMap(); ++iter)
-		{
-			LLUUID object_id = LLUUID(iter->first);
-			F32 link_cost = iter->second["LinksetResourceCost"].asReal();
-			F32 prim_cost = iter->second["PrimResourceCost"].asReal();
+	}
 
-			gObjectList.updateObjectCost(object_id, prim_cost, link_cost);
+	// Clear's the global object list's pending
+	// request list for all objects requested
+	void clear_object_list_pending_requests()
+	{
+		// TODO*: No more hard coding
+		for (
+			LLSD::array_iterator iter = mObjectIDs.beginArray();
+			iter != mObjectIDs.endArray();
+			++iter)
+		{
+			gObjectList.onObjectCostFetchFailure(iter->asUUID());
 		}
 	}
+
+	void error(U32 statusNum, const std::string& reason)
+	{
+		lldebugs
+			<< "Transport error requesting object cost "
+			<< "HTTP status: " << statusNum << ", reason: "
+			<< reason << "." << llendl;
+
+		// TODO*: Error message to user
+		// For now just clear the request from the pending list
+		clear_object_list_pending_requests();
+	}
+
+	void result(const LLSD& content)
+	{
+		if ( !content.isMap() || content.has("error") )
+		{
+			// Improper response or the request had an error,
+			// show an error to the user?
+			lldebugs
+				<< "Application level error when fetching object "
+				<< "cost.  Message: " << content["error"]["message"].asString()
+				<< ", identifier: " << content["error"]["identifier"].asString()
+				<< llendl;
+
+			// TODO*: Adaptively adjust request size if the
+			// service says we've requested too many and retry
+
+			// TODO*: Error message if not retrying
+			clear_object_list_pending_requests();
+			return;
+		}
+
+		// Success, grab the resource cost and linked set costs
+		// for an object if one was returned
+		for (
+			LLSD::array_iterator iter = mObjectIDs.beginArray();
+			iter != mObjectIDs.endArray();
+			++iter)
+		{
+			LLUUID object_id = iter->asUUID();
+
+			// Check to see if the request contains data for the object
+			if ( content.has(iter->asString()) )
+			{
+				F32 link_cost =
+					content[iter->asString()]["linked_set_resource_cost"].asReal();
+				F32 object_cost =
+					content[iter->asString()]["resource_cost"].asReal();
+
+				gObjectList.updateObjectCost(object_id, object_cost, link_cost);
+			}
+			else
+			{
+				// TODO*: Give user feedback about the missing data?
+				gObjectList.onObjectCostFetchFailure(object_id);
+			}
+		}
+	}
+
+private:
+	LLSD mObjectIDs;
 };
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
@@ -769,7 +838,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		}
 	}
 
-	//issue http request for stale object physics costs
+	// issue http request for stale object physics costs
 	if (!mStaleObjectCost.empty())
 	{
 		LLViewerRegion* regionp = gAgent.getRegion();
@@ -781,21 +850,40 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			if (!url.empty())
 			{
 				LLSD id_list;
-				U32 idx = 0;
-				for (std::set<LLUUID>::iterator iter = mStaleObjectCost.begin(); iter != mStaleObjectCost.end(); ++iter)
+				U32 object_index = 0;
+
+				for (
+					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
+					iter != mStaleObjectCost.end();
+					++iter)
 				{
-					if (mPendingObjectCost.find(*iter) == mPendingObjectCost.end())
+					// Check to see if a request for this object
+					// has already been made.
+					if ( mPendingObjectCost.find(*iter) ==
+						 mPendingObjectCost.end() )
 					{
+						// Why is this line here if
+						// we set mPendingObjectCost to be
+						// mStaleObjectCost below?
 						mPendingObjectCost.insert(*iter);
-						id_list[idx++] = *iter;
+						id_list[object_index++] = *iter;
 					}
 				}
-				mPendingObjectCost = mStaleObjectCost;
+
+				// id_list should now contain all
+				// requests in mStaleObjectCost before, so clear
+				// it now
 				mStaleObjectCost.clear();
 
-				if (id_list.size() > 0)
+				if ( id_list.size() > 0 )
 				{
-					LLHTTPClient::post(url, id_list, new LLObjectCostResponder());
+					LLSD post_data = LLSD::emptyMap();
+
+					post_data["object_ids"] = id_list;
+					LLHTTPClient::post(
+						url,
+						post_data,
+						new LLObjectCostResponder(id_list));
 				}
 			}
 			else
@@ -1099,16 +1187,21 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 	mStaleObjectCost.insert(object->getID());
 }
 
-void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 prim_cost, F32 link_cost)
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 object_cost, F32 link_cost)
 {
 	mPendingObjectCost.erase(object_id);
 
 	LLViewerObject* object = findObject(object_id);
 	if (object)
 	{
-		object->setObjectCost(prim_cost);
+		object->setObjectCost(object_cost);
 		object->setLinksetCost(link_cost);
 	}
+}
+
+void LLViewerObjectList::onObjectCostFetchFailure(LLUUID object_id)
+{
+	mPendingObjectCost.erase(object_id);
 }
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)

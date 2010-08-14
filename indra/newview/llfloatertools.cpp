@@ -419,14 +419,38 @@ void LLFloaterTools::refresh()
 
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
-	
-	F32 obj_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
-	F32 link_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
 
-	childSetTextArg("obj_count",  "[COUNT]", llformat("%.1f", obj_cost));	
-	childSetTextArg("prim_count", "[COUNT]", llformat("%.1f", link_cost));
+	// Get the number of objects selected
+	std::string root_object_count_string;
+	std::string object_count_string;
 
-	// calculate selection rendering cost
+	LLResMgr::getInstance()->getIntegerString(
+		root_object_count_string,
+		LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
+	LLResMgr::getInstance()->getIntegerString(
+		object_count_string,
+		LLSelectMgr::getInstance()->getSelection()->getObjectCount());
+
+	F32 obj_cost =
+		LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
+	F32 link_cost =
+		LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
+
+	// Update the text for the counts
+	childSetTextArg(
+		"linked_set_count",
+		"[COUNT]",
+		root_object_count_string);
+	childSetTextArg("object_count", "[COUNT]", object_count_string);
+
+	// Update the text for the resource costs
+	childSetTextArg(
+		"linked_set_cost",
+		"[COST]",
+		llformat("%.1f", link_cost));
+	childSetTextArg("object_cost", "[COST]", llformat("%.1f", obj_cost));
+
+	// Display rendering cost if needed
 	if (sShowObjectCost)
 	{
 		std::string prim_cost_string;
@@ -437,8 +461,10 @@ void LLFloaterTools::refresh()
 
 	// disable the object and prim counts if nothing selected
 	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
-	childSetEnabled("obj_count", have_selection);
-	childSetEnabled("prim_count", have_selection);
+	childSetEnabled("linked_set_count", have_selection);
+	childSetEnabled("object_count", have_selection);
+	childSetEnabled("linked_set_cost", have_selection);
+	childSetEnabled("object_cost", have_selection);
 	childSetEnabled("RenderingCost", have_selection && sShowObjectCost);
 
 	// Refresh child tabs

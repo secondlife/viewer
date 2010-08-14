@@ -6182,29 +6182,6 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 	cleanupNodes();
 	S32 count = mList.size();
 
-#if LL_MESH_ENABLED
-	if (mesh_adjust)
-	{
-		for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
-		{
-			LLSelectNode* node = *iter;
-			LLViewerObject* object = node->getObject();
-			
-			if (object && object->getVolume())
-			{
-				LLVOVolume* vobj = (LLVOVolume*) object;
-				if (vobj->isMesh())
-				{
-					LLUUID mesh_id = vobj->getVolume()->getParams().getSculptID();
-					U32 cost = gMeshRepo.getResourceCost(mesh_id);
-					count += cost-1;
-				}
-			}
-
-		}
-	}
-#endif
-
 	return count;
 }
 

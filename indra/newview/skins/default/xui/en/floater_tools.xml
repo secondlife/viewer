@@ -730,11 +730,25 @@
      follows="left|top"
      halign="right"
      layout="topleft"
-     right="-10"
-     name="obj_count"
+     right="-100"
+     name="linked_set_count"
      top_pad="5"
-     width="143">
-        Objects: [COUNT]
+     width="80">
+        Linked Sets: [COUNT]
+    </text>
+    <text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+     height="10"
+     follows="left"
+     halign="right"
+     layout="topleft"
+	 top_delta="0"
+     right="-10"
+     name="linked_set_cost"
+     width="80">
+        Cost: [COST]
     </text>
     <text
     text_color="LtGray_50"
@@ -743,11 +757,51 @@
      follows="left|top"
      halign="right"
      layout="topleft"
-     right="-10"
-     name="prim_count"
-     width="143">
-        Prims: [COUNT]
+	 top_pad="5"
+     right="-100"
+     name="object_count"
+     width="80">
+        Objects: [COUNT]
     </text>
+    <text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+     follows="left"
+     halign="right"
+     layout="topleft"
+	 top_delta="0"
+     right="-10"
+     name="object_cost"
+     width="80">
+        Cost: [COST]
+    </text>
+    <!-- <text -->
+    <!-- text_color="LtGray_50" -->
+    <!--  type="string" -->
+    <!--  length="1" -->
+    <!--  height="10" -->
+    <!--  follows="left|top" -->
+    <!--  halign="right" -->
+    <!--  layout="topleft" -->
+    <!--  right="-10" -->
+    <!--  name="obj_count" -->
+    <!--  top_pad="5" -->
+    <!--  width="143"> -->
+    <!--     Objects: [COUNT] -->
+    <!-- </text> -->
+    <!-- <text -->
+    <!-- text_color="LtGray_50" -->
+    <!--  type="string" -->
+    <!--  length="1" -->
+    <!--  follows="left|top" -->
+    <!--  halign="right" -->
+    <!--  layout="topleft" -->
+    <!--  right="-10" -->
+    <!--  name="prim_count" -->
+    <!--  width="143"> -->
+    <!--     Prims: [COUNT] -->
+    <!-- </text> -->
     <tab_container
      follows="left|top"
      height="610"
