@@ -151,18 +151,14 @@ viewer-development.show_changes_since = 2-1-release
 
 # Build Settings
 viewer-development.build_viewer = true
-viewer-development.build_server = false
-viewer-development.build_server_tests = false
 viewer-development.build_Linux = true
-viewer-development.build_hg_bundle = true
-viewer-development.build_docs = true
 viewer-development.viewer_channel = "Second Life Development"
 viewer-development.login_channel = "Second Life Beta Development"
 viewer-development.viewer_grid = agni
 viewer-development.build_viewer_update_version_manager = false
 
 # Notifications
-viewer-development.email = oz@lindenlab.com
+viewer-development.email = "oz@lindenlab.com cg@lindenlab.com"
 
 # =======================================
 # brad
