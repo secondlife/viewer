@@ -325,7 +325,7 @@ protected:
 	/**
 	 * All information about sort order is stored in mWearableOrder map
 	 *
-	 * mWearableOrder :      KYES              VALUES
+	 * mWearableOrder :      KEYS              VALUES
 	 *                  [LLAssetType] [struct LLWearableTypeOrder]
 	 *
 	 *---------------------------------------------------------------------------------------------

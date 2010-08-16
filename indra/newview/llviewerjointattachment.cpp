@@ -172,19 +172,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 		// re-connect object to the joint correctly
 	}
 
-	// Find the inventory item ID of the attached object
-	LLNameValue* item_id_nv = object->getNVPair("AttachItemID");
-	if( item_id_nv )
-	{
-		const char* s = item_id_nv->getString();
-		if( s )
-		{
-			LLUUID item_id;
-			item_id.set(s);
-			object->setItemID(item_id);
-			lldebugs << "getNVPair( AttachItemID ) = " << item_id << llendl;
-		}
-	}
+	object->extractAttachmentItemID();
 	mAttachedObjects.push_back(object);
 	setupDrawable(object);
 	
@@ -303,7 +291,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 	{
 		mUpdateXform = FALSE;
 	}
-	object->setItemID(LLUUID::null);
+	object->setAttachmentItemID(LLUUID::null);
 }
 
 //-----------------------------------------------------------------------------
@@ -429,7 +417,7 @@ const LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &o
 		 ++iter)
 	{
 		const LLViewerObject* attached_object = (*iter);
-		if (attached_object->getItemID() == object_id)
+		if (attached_object->getAttachmentItemID() == object_id)
 		{
 			return attached_object;
 		}
@@ -444,7 +432,7 @@ LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &object_
 		 ++iter)
 	{
 		LLViewerObject* attached_object = (*iter);
-		if (attached_object->getItemID() == object_id)
+		if (attached_object->getAttachmentItemID() == object_id)
 		{
 			return attached_object;
 		}
