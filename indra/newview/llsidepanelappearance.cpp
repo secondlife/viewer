@@ -473,7 +473,7 @@ void LLSidepanelAppearance::fetchInventory()
 			{
 				LLViewerObject* attached_object = (*attachment_iter);
 				if (!attached_object) continue;
-				const LLUUID& item_id = attached_object->getItemID();
+				const LLUUID& item_id = attached_object->getAttachmentItemID();
 				if (item_id.isNull()) continue;
 				ids.push_back(item_id);
 			}
@@ -501,8 +501,8 @@ void LLSidepanelAppearance::inventoryFetched()
 
 void LLSidepanelAppearance::setWearablesLoading(bool val)
 {
-	getChildView("wearables_loading_indicator")->setVisible( val);
-	getChildView("edit_outfit_btn")->setVisible( !val);
+	childSetVisible("wearables_loading_indicator", val);
+	childSetVisible("edit_outfit_btn", !val);
 
 	if (!val)
 	{
