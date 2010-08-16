@@ -1423,6 +1423,21 @@ void LLNotifications::cancel(LLNotificationPtr pNotif)
 	updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
 }
 
+void LLNotifications::cancelByName(const std::string& name)
+{
+	for (LLNotificationSet::iterator it=mItems.begin(), end_it = mItems.end(), next_it = it;
+		it != end_it;
+		it = next_it, ++next_it)
+	{
+		LLNotificationPtr pNotif = *it;
+		if (pNotif->getName() == name)
+		{
+			pNotif->cancel();
+			updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
+		}
+	}
+}
+
 void LLNotifications::update(const LLNotificationPtr pNotif)
 {
 	LLNotificationSet::iterator it=mItems.find(pNotif);

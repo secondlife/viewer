@@ -900,6 +900,7 @@ public:
 
 	void add(const LLNotificationPtr pNotif);
 	void cancel(LLNotificationPtr pNotif);
+	void cancelByName(const std::string& name);
 	void update(const LLNotificationPtr pNotif);
 
 	LLNotificationPtr find(LLUUID uuid);
