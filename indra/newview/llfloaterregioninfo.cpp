@@ -180,32 +180,32 @@ BOOL LLFloaterRegionInfo::postBuild()
 	mInfoPanels.push_back(panel);
 	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
 	
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_general.xml");
+	buildPanel(panel, "panel_region_general.xml");
 	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
 	panel = new LLPanelRegionDebugInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
+	buildPanel(panel, "panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTextureInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_texture.xml");
+	buildPanel(panel, "panel_region_texture.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_terrain.xml");
+	buildPanel(panel, "panel_region_terrain.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_estate.xml");
+	buildPanel(panel, "panel_region_estate.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateCovenant;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_covenant.xml");
+	buildPanel(panel, "panel_region_covenant.xml");
 	mTab->addTabPanel(panel);
 
 	gMessageSystem->setHandlerFunc(

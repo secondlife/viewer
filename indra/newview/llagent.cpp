@@ -200,8 +200,6 @@ LLAgent::LLAgent() :
 	mbFlagsDirty(FALSE),
 	mbFlagsNeedReset(FALSE),
 
-	mbJump(FALSE),
-
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
 	mAutoPilotTargetGlobal(),
@@ -560,6 +558,9 @@ void LLAgent::setFlying(BOOL fly)
 void LLAgent::toggleFlying()
 {
 	BOOL fly = !gAgent.getFlying();
+
+	gAgent.mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
 
 	gAgent.setFlying( fly );
 	gAgentCamera.resetView();
@@ -2987,12 +2988,6 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 					total_count++;
 				}
 			}
-		
-			// Any control taken?  If so, might be first time.
-			//if (total_count > 0)
-			//{
-				//LLFirstUse::useOverrideKeys();
-			//}
 		}
 		else
 		{

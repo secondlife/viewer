@@ -131,7 +131,7 @@ LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistor
 	mRegionName(region_name),
 	mHighlight(hl)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history_item.xml");
+	buildPanel(this, "panel_teleport_history_item.xml");
 }
 
 LLTeleportHistoryFlatItem::~LLTeleportHistoryFlatItem()
@@ -382,7 +382,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mLastSelectedFlatlList(NULL),
 		mLastSelectedItemIndex(-1)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history.xml");
+	buildPanel(this, "panel_teleport_history.xml");
 }
 
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()

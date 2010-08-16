@@ -252,7 +252,7 @@ LLPanelPlaces::LLPanelPlaces()
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::updateVerbs, this));
 
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLPanelPlaces::~LLPanelPlaces()
@@ -327,8 +327,8 @@ BOOL LLPanelPlaces::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
 	}
 
-	mPlaceProfile = getChild<LLPanelPlaceProfile>("panel_place_profile");
-	mLandmarkInfo = getChild<LLPanelLandmarkInfo>("panel_landmark_info");
+	mPlaceProfile = findChild<LLPanelPlaceProfile>("panel_place_profile");
+	mLandmarkInfo = findChild<LLPanelLandmarkInfo>("panel_landmark_info");
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return FALSE;
 

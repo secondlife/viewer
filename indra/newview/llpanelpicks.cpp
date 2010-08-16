@@ -1045,7 +1045,7 @@ LLPickItem::LLPickItem()
 , mSnapshotID(LLUUID::null)
 , mNeedData(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_pick_list_item.xml");
+	buildPanel(this,"panel_pick_list_item.xml");
 }
 
 LLPickItem::~LLPickItem()
@@ -1175,7 +1175,7 @@ LLClassifiedItem::LLClassifiedItem(const LLUUID& avatar_id, const LLUUID& classi
  , mAvatarId(avatar_id)
  , mClassifiedId(classified_id)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_classifieds_list_item.xml");
+	buildPanel(this,"panel_classifieds_list_item.xml");
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());

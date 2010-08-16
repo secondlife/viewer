@@ -367,19 +367,19 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	if(gAgent.isInGroup(match_id, TRUE))
 	{
-		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
 	}
 	else
 	{
-		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
 	}
 
 	LLInlineViewSegment::Params params;

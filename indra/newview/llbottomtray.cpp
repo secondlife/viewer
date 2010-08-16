@@ -112,14 +112,14 @@ public:
 		  mGesturePanel(NULL)
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_bottomtray_lite.xml");
+		buildPanel(this, "panel_bottomtray_lite.xml");
 		// Necessary for focus movement among child controls
 		setFocusRoot(TRUE);
 	}
 
 	BOOL postBuild()
 	{
-		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+		mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
 
 		// Hide "show_nearby_chat" button 
@@ -163,7 +163,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
+	buildPanel(this,"panel_bottomtray.xml");
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 
@@ -471,8 +471,7 @@ BOOL LLBottomTray::postBuild()
 	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuHolder->addChild(mBottomTrayContextMenu);
 
-	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
-	LLHints::registerHintTarget("nearby_chat_bar", mNearbyChatBar->LLView::getHandle());
+	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
 
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mMovementButton = getChild<LLButton>("movement_btn");

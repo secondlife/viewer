@@ -1698,7 +1698,9 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 		child = getDefaultWidget<LLView>(name);
 		if (!child)
 		{
-			 child = LLUICtrlFactory::createDefaultWidget<LLView>(name);
+			LLView::Params view_params;
+			view_params.name = name;
+			child = LLUICtrlFactory::create<LLView>(view_params);
 		}
 	}
 	return child;

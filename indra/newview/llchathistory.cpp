@@ -107,7 +107,7 @@ public:
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
 	{
 		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
-		LLUICtrlFactory::getInstance()->buildPanel(pInstance, file_name);	
+		buildPanel(pInstance, file_name);	
 		return pInstance;
 	}
 
@@ -402,7 +402,7 @@ protected:
 			return;
 		}
 
-		LLTextBase* name = getChild<LLTextBase>("user_name");
+		LLTextBox* name = getChild<LLTextBox>("user_name");
 		LLRect sticky_rect = name->getRect();
 		S32 icon_x = llmin(sticky_rect.mLeft + name->getTextBoundingRect().getWidth() + 7, sticky_rect.mRight - 3);
 		sInfoCtrl->setOrigin(icon_x, sticky_rect.getCenterY() - sInfoCtrl->getRect().getHeight() / 2 ) ;

@@ -110,7 +110,10 @@ protected:
 	LLPanel(const LLPanel::Params& params = getDefaultParams());
 	
 public:
-// 	LLPanel(const std::string& name, const LLRect& rect = LLRect(), BOOL bordered = TRUE);
+	static 	BOOL buildPanel(LLPanel* panelp, const std::string &filename, LLXMLNodePtr output_node = NULL, const LLPanel::Params&default_params = getDefaultParams());
+
+	static LLPanel* createFactoryPanel(const std::string& name);
+
 	/*virtual*/ ~LLPanel();
 
 	// LLView interface
@@ -163,7 +166,7 @@ public:
 	EnableCallbackRegistry::ScopedRegistrar& getEnableCallbackRegistrar() { return mEnableCallbackRegistrar; }
 	
 	void initFromParams(const Params& p);
-	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+	BOOL initPanelXML(	LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params);
 	
 	bool hasString(const std::string& name);
 	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
@@ -283,6 +286,8 @@ private:
 	// for setting the xml filename when building panel in context dependent cases
 	std::string		mXMLFilename;
 
+	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
+	static factory_stack_t	sFactoryStack;
 }; // end class LLPanel
 
 // Build time optimization, generate once in .cpp file
@@ -290,5 +295,58 @@ private:
 extern template class LLPanel* LLView::getChild<class LLPanel>(
 	const std::string& name, BOOL recurse) const;
 #endif
+
+typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
+
+// local static instance for registering a particular panel class
+
+class LLRegisterPanelClass
+:	public LLSingleton< LLRegisterPanelClass >
+{
+public:
+	// reigister with either the provided builder, or the generic templated builder
+	void addPanelClass(const std::string& tag,LLPanelClassCreatorFunc func)
+	{
+		mPanelClassesNames[tag] = func;
+	}
+
+	LLPanel* createPanelClass(const std::string& tag)
+	{
+		param_name_map_t::iterator iT =  mPanelClassesNames.find(tag);
+		if(iT == mPanelClassesNames.end())
+			return 0;
+		return iT->second();
+	}
+	template<typename T>
+	static T* defaultPanelClassBuilder()
+	{
+		T* pT = new T();
+		return pT;
+	}
+
+private:
+	typedef std::map< std::string, LLPanelClassCreatorFunc> param_name_map_t;
+	
+	param_name_map_t mPanelClassesNames;
+};
+
+
+// local static instance for registering a particular panel class
+template<typename T>
+class LLRegisterPanelClassWrapper
+:	public LLRegisterPanelClass
+{
+public:
+	// reigister with either the provided builder, or the generic templated builder
+	LLRegisterPanelClassWrapper(const std::string& tag);
+};
+
+
+template<typename T>
+LLRegisterPanelClassWrapper<T>::LLRegisterPanelClassWrapper(const std::string& tag) 
+{
+	LLRegisterPanelClass::instance().addPanelClass(tag,&LLRegisterPanelClass::defaultPanelClassBuilder<T>);
+}
+
 
 #endif

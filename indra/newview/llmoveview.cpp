@@ -703,7 +703,7 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 {
 	LLPanelStandStopFlying* panel = new LLPanelStandStopFlying();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_stand_stop_flying.xml");
+	buildPanel(panel, "panel_stand_stop_flying.xml");
 
 	panel->setVisible(FALSE);
 	//LLUI::getRootView()->addChild(panel);
@@ -716,6 +716,8 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 
 void LLPanelStandStopFlying::onStandButtonClick()
 {
+	LLFirstUse::sit(false);
+
 	LLSelectMgr::getInstance()->deselectAllForStandingUp();
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 

@@ -51,7 +51,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 								mAvatarIcon(NULL), mAvatarName(NULL),
 								mTime(NULL), mMessage(NULL), mGroupIcon(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
+	buildPanel(this, "panel_instant_message.xml");
 
 	mGroupIcon = getChild<LLGroupIconCtrl>("group_icon");
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");

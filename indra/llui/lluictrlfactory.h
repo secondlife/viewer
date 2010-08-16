@@ -33,23 +33,13 @@
 #ifndef LLUICTRLFACTORY_H
 #define LLUICTRLFACTORY_H
 
-#include "llcallbackmap.h"
+#include "llfasttimer.h"
 #include "llinitparam.h"
 #include "llregistry.h"
-#include "v4color.h"
-#include "llfasttimer.h"
-
 #include "llxuiparser.h"
 
-#include <boost/function.hpp>
-#include <iosfwd>
-#include <stack>
-#include <set>
-
-class LLPanel;
 class LLFloater;
 class LLView;
-
 
 // sort functor for typeid maps
 struct LLCompareTypeID
@@ -89,12 +79,6 @@ protected:
 // lookup widget name by type
 class LLWidgetNameRegistry 
 :	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
-{};
-
-// lookup factory functions for default widget instances by widget type
-typedef LLView* (*dummy_widget_creator_func_t)(const std::string&);
-class LLDefaultWidgetRegistry
-:	public LLRegistrySingleton<const std::type_info*, dummy_widget_creator_func_t, LLDefaultWidgetRegistry, LLCompareTypeID>
 {};
 
 // lookup function for generating empty param block by widget type
@@ -164,22 +148,15 @@ public:
 	}
 
 	bool buildFloater(LLFloater* floaterp, const std::string &filename, LLXMLNodePtr output_node);
-	BOOL buildPanel(LLPanel* panelp, const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	// Does what you want for LLFloaters and LLPanels
 	// Returns 0 on success
 	S32 saveToXML(LLView* viewp, const std::string& filename);
 
+	// filename tracking for debugging info
 	std::string getCurFileName();
 	void pushFileName(const std::string& name);
 	void popFileName();
-
-	static BOOL getAttributeColor(LLXMLNodePtr node, const std::string& name, LLColor4& color);
-
-	LLPanel* createFactoryPanel(const std::string& name);
-
-	void pushFactoryFunctions(const LLCallbackMap::map_t* map);
-	void popFactoryFunctions();
 
 	template<typename T>
 	static T* createWidget(const typename T::Params& params, LLView* parent = NULL)
@@ -192,12 +169,10 @@ public:
 			//return NULL;
 		}
 
-		{
-			LLFastTimer timer(FTM_WIDGET_CONSTRUCTION);
+		{ LLFastTimer _(FTM_WIDGET_CONSTRUCTION);
 			widget = new T(params);	
 		}
-		{
-			LLFastTimer timer(FTM_INIT_FROM_PARAMS);
+		{ LLFastTimer _(FTM_INIT_FROM_PARAMS);
 			widget->initFromParams(params);
 		}
 
@@ -272,17 +247,9 @@ fail:
 	template<class T>
 	static T* getDefaultWidget(const std::string& name)
 	{
-		dummy_widget_creator_func_t* dummy_func = getDefaultWidgetFunc(&typeid(T));
-		return dummy_func ? dynamic_cast<T*>((*dummy_func)(name)) : NULL;
-	}
-
-	template <class T> 
-	static LLView* createDefaultWidget(const std::string& name) 
-	{
-		typename T::Params params;
-		params.name(name);
-		
-		return create<T>(params);
+		T::Params widget_params;
+		widget_params.name = name;
+		return create<T>(widget_params);
 	}
 
 	static void copyName(LLXMLNodePtr src, LLXMLNodePtr dest);
@@ -335,12 +302,9 @@ fail:
 	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
 
 	// helper function for adding widget type info to various registries
-	static void registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, dummy_widget_creator_func_t creator_func, const std::string& tag);
+	static void registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag);
 
 private:
-	// return default widget instance factory func for a given type
-	static dummy_widget_creator_func_t* getDefaultWidgetFunc(const std::type_info* widget_type);
-
 	static const std::string* getWidgetTag(const std::type_info* widget_type);
 
 	// this exists to get around dependency on llview
@@ -349,19 +313,9 @@ private:
 	// Avoid directly using LLUI and LLDir in the template code
 	static std::string findSkinnedFilename(const std::string& filename);
 
-	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
-	factory_stack_t					mFactoryStack;
-
-	LLPanel*		mDummyPanel;
+	class LLPanel*		mDummyPanel;
 	std::vector<std::string>	mFileNames;
 };
-
-template<typename T>
-const LLInitParam::BaseBlock& getEmptyParamBlock()
-{
-	static typename T::Params params;
-	return params;
-}
 
 // this is here to make gcc happy with reference to LLUICtrlFactory
 template<typename DERIVED>
@@ -370,66 +324,12 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
 :	LLChildRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
 {
 	// add this widget to various registries
-	LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), &LLUICtrlFactory::createDefaultWidget<T>, tag);
+	LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), tag);
 	
 	// since registry_t depends on T, do this in line here
 	// TODO: uncomment this for schema generation
 	//typedef typename T::child_registry_t registry_t;
 	//LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
 }
-
-
-typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
-
-// local static instance for registering a particular panel class
-
-class LLRegisterPanelClass
-:	public LLSingleton< LLRegisterPanelClass >
-{
-public:
-	// reigister with either the provided builder, or the generic templated builder
-	void addPanelClass(const std::string& tag,LLPanelClassCreatorFunc func)
-	{
-		mPanelClassesNames[tag] = func;
-	}
-
-	LLPanel* createPanelClass(const std::string& tag)
-	{
-		param_name_map_t::iterator iT =  mPanelClassesNames.find(tag);
-		if(iT == mPanelClassesNames.end())
-			return 0;
-		return iT->second();
-	}
-	template<typename T>
-	static T* defaultPanelClassBuilder()
-	{
-		T* pT = new T();
-		return pT;
-	}
-
-private:
-	typedef std::map< std::string, LLPanelClassCreatorFunc> param_name_map_t;
-	
-	param_name_map_t mPanelClassesNames;
-};
-
-
-// local static instance for registering a particular panel class
-template<typename T>
-class LLRegisterPanelClassWrapper
-:	public LLRegisterPanelClass
-{
-public:
-	// reigister with either the provided builder, or the generic templated builder
-	LLRegisterPanelClassWrapper(const std::string& tag);
-};
-
-
-template<typename T>
-LLRegisterPanelClassWrapper<T>::LLRegisterPanelClassWrapper(const std::string& tag) 
-{
-	LLRegisterPanelClass::instance().addPanelClass(tag,&LLRegisterPanelClass::defaultPanelClassBuilder<T>);
-}
-
 
 #endif //LLUICTRLFACTORY_H

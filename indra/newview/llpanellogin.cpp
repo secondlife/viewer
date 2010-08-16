@@ -193,7 +193,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_login.xml");
+	buildPanel(this, "panel_login.xml");
 	
 #if USE_VIEWER_AUTH
 	//leave room for the login menu bar

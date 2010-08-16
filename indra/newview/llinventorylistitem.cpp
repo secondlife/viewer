@@ -307,7 +307,9 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 	}
 	else
 	{
-		mIconCtrl = dynamic_cast<LLIconCtrl*>(LLUICtrlFactory::createDefaultWidget<LLIconCtrl>("item_icon"));
+		LLIconCtrl::Params icon_params;
+		icon_params.name = "item_icon";
+		mIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
 	}
 
 	LLTextBox::Params text_params(params.item_name);
@@ -320,7 +322,9 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 	}
 	else
 	{
-		mTitleCtrl = dynamic_cast<LLTextBox*>(LLUICtrlFactory::createDefaultWidget<LLTextBox>("item_title"));
+		LLTextBox::Params text_aprams;
+		text_params.name = "item_title";
+		mTitleCtrl = LLUICtrlFactory::create<LLTextBox>(text_params);
 	}
 }
 

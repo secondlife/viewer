@@ -218,7 +218,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 	{
 		if (!floaterp->getFactoryMap().empty())
 		{
-			mFactoryStack.push_front(&floaterp->getFactoryMap());
+			LLPanel::sFactoryStack.push_front(&floaterp->getFactoryMap());
 		}
 
 		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
@@ -234,7 +234,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		
 		if (!floaterp->getFactoryMap().empty())
 		{
-			mFactoryStack.pop_front();
+			LLPanel::sFactoryStack.pop_front();
 		}
 	}
 	popFileName();
@@ -248,69 +248,6 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 {
 	return 0;
-}
-
-static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
-
-//-----------------------------------------------------------------------------
-// buildPanel()
-//-----------------------------------------------------------------------------
-BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNodePtr output_node)
-{
-	LLFastTimer timer(FTM_BUILD_PANELS);
-	BOOL didPost = FALSE;
-	LLXMLNodePtr root;
-
-	//if exporting, only load the language being exported, 
-	//instead of layering localized version on top of english
-	if (output_node)
-	{	
-		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
-		{
-			llwarns << "Couldn't parse panel from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename  << llendl;
-			return didPost;
-		}
-	}
-	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
-	{
-		llwarns << "Couldn't parse panel from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-		return didPost;
-	}
-
-	// root must be called panel
-	if( !root->hasName("panel" ) )
-	{
-		llwarns << "Root node should be named panel in : " << filename << llendl;
-		return didPost;
-	}
-
-	lldebugs << "Building panel " << filename << llendl;
-
-	pushFileName(filename);
-	{
-		if (!panelp->getFactoryMap().empty())
-		{
-			mFactoryStack.push_front(&panelp->getFactoryMap());
-		}
-		
-		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
-		panelp->getCommitCallbackRegistrar().pushScope();
-		panelp->getEnableCallbackRegistrar().pushScope();
-		
-		didPost = panelp->initPanelXML(root, NULL, output_node);
-
-		panelp->getCommitCallbackRegistrar().popScope();
-		panelp->getEnableCallbackRegistrar().popScope();
-		
-		panelp->setXMLFilename(filename);
-
-		if (!panelp->getFactoryMap().empty())
-		{
-			mFactoryStack.pop_front();
-		}
-	}
-	popFileName();
-	return didPost;
 }
 
 //-----------------------------------------------------------------------------
@@ -344,29 +281,6 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
 	return view;
 }
 
-//-----------------------------------------------------------------------------
-// createFactoryPanel()
-//-----------------------------------------------------------------------------
-LLPanel* LLUICtrlFactory::createFactoryPanel(const std::string& name)
-{
-	std::deque<const LLCallbackMap::map_t*>::iterator itor;
-	for (itor = mFactoryStack.begin(); itor != mFactoryStack.end(); ++itor)
-	{
-		const LLCallbackMap::map_t* factory_map = *itor;
-
-		// Look up this panel's name in the map.
-		LLCallbackMap::map_const_iter_t iter = factory_map->find( name );
-		if (iter != factory_map->end())
-		{
-			// Use the factory to create the panel, instead of using a default LLPanel.
-			LLPanel *ret = (LLPanel*) iter->second.mCallback( iter->second.mData );
-			return ret;
-		}
-	}
-	LLPanel::Params panel_p;
-	return create<LLPanel>(panel_p);
-}
-
 std::string LLUICtrlFactory::getCurFileName() 
 { 
 	return mFileNames.empty() ? "" : gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + mFileNames.back(); 
@@ -381,36 +295,6 @@ void LLUICtrlFactory::pushFileName(const std::string& name)
 void LLUICtrlFactory::popFileName() 
 { 
 	mFileNames.pop_back(); 
-}
-
-
-//-----------------------------------------------------------------------------
-
-//static
-BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& name, LLColor4& color)
-{
-	std::string colorstring;
-	BOOL res = node->getAttributeString(name.c_str(), colorstring);
-	if (res)
-	{
-		if (LLUIColorTable::instance().colorExists(colorstring))
-		{
-			color.setVec(LLUIColorTable::instance().getColor(colorstring));
-		}
-		else
-		{
-			res = FALSE;
-		}
-	}
-	if (!res)
-	{
-		res = LLColor4::parseColor(colorstring, &color);
-	}	
-	if (!res)
-	{
-		res = node->getAttributeColor(name.c_str(), color);
-	}
-	return res;
 }
 
 //static
@@ -428,28 +312,22 @@ std::string LLUICtrlFactory::findSkinnedFilename(const std::string& filename)
 	return gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename);
 }
 
-void LLUICtrlFactory::pushFactoryFunctions(const LLCallbackMap::map_t* map)
-{
-	mFactoryStack.push_back(map);
-}
-
-void LLUICtrlFactory::popFactoryFunctions()
-{
-	if (!mFactoryStack.empty())
-	{
-		mFactoryStack.pop_back();
-	}
-}
-
 //static 
 void LLUICtrlFactory::copyName(LLXMLNodePtr src, LLXMLNodePtr dest)
 {
 	dest->setName(src->getName()->mString);
 }
 
+template<typename T>
+const LLInitParam::BaseBlock& get_empty_param_block()
+{
+	static typename T::Params params;
+	return params;
+}
+
 // adds a widget and its param block to various registries
 //static 
-void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, dummy_widget_creator_func_t creator_func, const std::string& tag)
+void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag)
 {
 	// associate parameter block type with template .xml file
 	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
@@ -469,17 +347,9 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 		}
 	}
 	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
-	// associate widget type with factory function
-	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type, creator_func);
 	//FIXME: comment this in when working on schema generation
 	//LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
-	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &getEmptyParamBlock<T>);
-}
-
-//static
-dummy_widget_creator_func_t* LLUICtrlFactory::getDefaultWidgetFunc(const std::type_info* widget_type)
-{
-	return LLDefaultWidgetRegistry::instance().getValue(widget_type);
+	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &get_empty_param_block<T>);
 }
 
 //static 

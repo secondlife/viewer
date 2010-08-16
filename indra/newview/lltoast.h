@@ -194,6 +194,8 @@ public:
 
 	virtual S32	notifyParent(const LLSD& info);
 
+	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
+
 private:
 
 	void onToastMouseEnter();
@@ -206,6 +208,8 @@ private:
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
+	LLRootHandle<LLToast>	mHandle;
+		
 	LLPanel* mWrapperPanel;
 
 	// timer counts a lifetime of a toast

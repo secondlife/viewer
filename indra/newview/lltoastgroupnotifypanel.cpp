@@ -60,7 +60,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 :	LLToastPanel(notification),
 	mInventoryOffer(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_notify.xml");
+	buildPanel(this, "panel_group_notify.xml");
 	const LLSD& payload = notification->getPayload();
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))

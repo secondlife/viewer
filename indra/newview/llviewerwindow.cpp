@@ -1521,7 +1521,7 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	LLUICtrlFactory::instance().buildPanel(main_view, "main_view.xml");
+	LLPanel::buildPanel(main_view, "main_view.xml");
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
@@ -1529,7 +1529,7 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
-	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
+	mPopupView = main_view->findChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
@@ -1568,7 +1568,7 @@ void LLViewerWindow::initBase()
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLFloaterPreference::initBusyResponse));
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
+	mProgressView = getRootView()->findChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 

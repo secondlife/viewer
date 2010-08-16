@@ -43,7 +43,7 @@ LLPanelAvatarTag::LLPanelAvatarTag(const LLUUID& key, const std::string im_time)
 	, mAvatarId(LLUUID::null)
 //	, mFadeTimer()
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_tag.xml");
+	buildPanel(this, "panel_avatar_tag.xml");
 	setLeftButtonClickCallback(boost::bind(&LLPanelAvatarTag::onClick, this));
 	setAvatarId(key);
 	setTime(im_time);

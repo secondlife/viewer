@@ -498,7 +498,7 @@ LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarList
 , mIsHideNumber(hide_number)
 {
 	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	buildPanel(this, "panel_avatar_list_item.xml");
 }
 
 BOOL LLAvalineListItem::postBuild()

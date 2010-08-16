@@ -121,7 +121,7 @@ BOOL LLFloaterScriptLimits::postBuild()
 		LLPanelScriptLimitsRegionMemory* panel_memory;
 		panel_memory = new LLPanelScriptLimitsRegionMemory;
 		mInfoPanels.push_back(panel_memory);
-		LLUICtrlFactory::getInstance()->buildPanel(panel_memory, "panel_script_limits_region_memory.xml");
+		buildPanel(panel_memory, "panel_script_limits_region_memory.xml");
 		mTab->addTabPanel(panel_memory);
 	}
 	
@@ -130,7 +130,7 @@ BOOL LLFloaterScriptLimits::postBuild()
 	{
 		LLPanelScriptLimitsAttachment* panel_attachments = new LLPanelScriptLimitsAttachment;
 		mInfoPanels.push_back(panel_attachments);
-		LLUICtrlFactory::getInstance()->buildPanel(panel_attachments, "panel_script_limits_my_avatar.xml");
+		buildPanel(panel_attachments, "panel_script_limits_my_avatar.xml");
 		mTab->addTabPanel(panel_attachments);
 	}
 	

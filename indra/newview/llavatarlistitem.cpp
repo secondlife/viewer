@@ -75,7 +75,7 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 {
 	if (not_from_ui_factory)
 	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+		buildPanel(this, "panel_avatar_list_item.xml");
 	}
 	// *NOTE: mantipov: do not use any member here. They can be uninitialized here in case instance
 	// is created from the UICtrlFactory

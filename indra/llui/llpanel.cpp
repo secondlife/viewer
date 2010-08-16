@@ -41,6 +41,7 @@
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
+#include "lldir.h"
 #include "lltimer.h"
 
 #include "llaccordionctrltab.h"
@@ -58,6 +59,8 @@
 #include "lltabcontainer.h"
 
 static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
+LLPanel::factory_stack_t	LLPanel::sFactoryStack;
+
 
 // Compiler optimization, generate extern template
 template class LLPanel* LLView::getChild<class LLPanel>(
@@ -400,7 +403,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
 		if (!panelp)
 		{
-			panelp = LLUICtrlFactory::getInstance()->createFactoryPanel(name);
+			panelp = createFactoryPanel(name);
 			llassert(panelp);
 			
 			if (!panelp)
@@ -413,20 +416,20 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 	// factory panels may have registered their own factory maps
 	if (!panelp->getFactoryMap().empty())
 	{
-		LLUICtrlFactory::instance().pushFactoryFunctions(&panelp->getFactoryMap());
+		sFactoryStack.push_back(&panelp->getFactoryMap());
 	}
 	// for local registry callbacks; define in constructor, referenced in XUI or postBuild
 	panelp->mCommitCallbackRegistrar.pushScope(); 
 	panelp->mEnableCallbackRegistrar.pushScope();
 
-	panelp->initPanelXML(node, parent, output_node);
+	panelp->initPanelXML(node, parent, output_node, LLUICtrlFactory::getDefaultParams<LLPanel>());
 	
 	panelp->mCommitCallbackRegistrar.popScope();
 	panelp->mEnableCallbackRegistrar.popScope();
 
 	if (!panelp->getFactoryMap().empty())
 	{
-		LLUICtrlFactory::instance().popFactoryFunctions();
+		sFactoryStack.pop_back();
 	}
 
 	return panelp;
@@ -493,11 +496,9 @@ static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
 static LLFastTimer::DeclareTimer FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
 static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
 
-BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
+BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
 {
-	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel>());
 	Params params(default_params);
-
 	{
 		LLFastTimer timer(FTM_PANEL_SETUP);
 
@@ -964,4 +965,90 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 	}
 
 	return mVisibleSignal->connect(cb);
+}
+
+static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
+
+//-----------------------------------------------------------------------------
+// buildPanel()
+//-----------------------------------------------------------------------------
+BOOL LLPanel::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
+{
+	LLFastTimer timer(FTM_BUILD_PANELS);
+	BOOL didPost = FALSE;
+	LLXMLNodePtr root;
+
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{	
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse panel from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename  << llendl;
+			return didPost;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	{
+		llwarns << "Couldn't parse panel from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		return didPost;
+	}
+
+	// root must be called panel
+	if( !root->hasName("panel" ) )
+	{
+		llwarns << "Root node should be named panel in : " << filename << llendl;
+		return didPost;
+	}
+
+	lldebugs << "Building panel " << filename << llendl;
+
+	LLUICtrlFactory::instance().pushFileName(filename);
+	{
+		if (!panelp->getFactoryMap().empty())
+		{
+			sFactoryStack.push_back(&panelp->getFactoryMap());
+		}
+		
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		panelp->getCommitCallbackRegistrar().pushScope();
+		panelp->getEnableCallbackRegistrar().pushScope();
+		
+		didPost = panelp->initPanelXML(root, NULL, output_node, default_params);
+
+		panelp->getCommitCallbackRegistrar().popScope();
+		panelp->getEnableCallbackRegistrar().popScope();
+		
+		panelp->setXMLFilename(filename);
+
+		if (!panelp->getFactoryMap().empty())
+		{
+			sFactoryStack.pop_back();
+		}
+	}
+	LLUICtrlFactory::instance().popFileName();
+	return didPost;
+}
+
+//-----------------------------------------------------------------------------
+// createFactoryPanel()
+//-----------------------------------------------------------------------------
+LLPanel* LLPanel::createFactoryPanel(const std::string& name)
+{
+	std::deque<const LLCallbackMap::map_t*>::iterator itor;
+	for (itor = sFactoryStack.begin(); itor != sFactoryStack.end(); ++itor)
+	{
+		const LLCallbackMap::map_t* factory_map = *itor;
+
+		// Look up this panel's name in the map.
+		LLCallbackMap::map_const_iter_t iter = factory_map->find( name );
+		if (iter != factory_map->end())
+		{
+			// Use the factory to create the panel, instead of using a default LLPanel.
+			LLPanel *ret = (LLPanel*) iter->second.mCallback( iter->second.mData );
+			return ret;
+		}
+	}
+	LLPanel::Params panel_p;
+	return LLUICtrlFactory::create<LLPanel>(panel_p);
 }
