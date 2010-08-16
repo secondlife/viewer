@@ -1756,7 +1756,7 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 			LLViewerObject *objectp = (*attachment_iter);
 			if (objectp)
 			{
-				LLUUID object_item_id = objectp->getItemID();
+				LLUUID object_item_id = objectp->getAttachmentItemID();
 				if (requested_item_ids.find(object_item_id) != requested_item_ids.end())
 				{
 					// Object currently worn, was requested.
