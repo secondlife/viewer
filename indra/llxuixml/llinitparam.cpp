@@ -84,8 +84,7 @@ namespace LLInitParam
 	// BaseBlock
 	//
 	BaseBlock::BaseBlock()
-	:	mChangeVersion(0),
-		mBlockDescriptor(NULL)
+	:	mChangeVersion(0)
 	{}
 
 	BaseBlock::~BaseBlock()
@@ -94,8 +93,6 @@ namespace LLInitParam
 	// called by each derived class in least to most derived order
 	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
 	{
-		mBlockDescriptor = &descriptor;
-
 		descriptor.mCurrentBlockPtr = this;
 		descriptor.mMaxParamOffset = block_size;
 

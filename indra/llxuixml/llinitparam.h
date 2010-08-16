@@ -480,8 +480,8 @@ namespace LLInitParam
 		bool serializeBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t()) const;
 
-		const BlockDescriptor& mostDerivedBlockDescriptor() const { return *mBlockDescriptor; }
-		BlockDescriptor& mostDerivedBlockDescriptor() { return *mBlockDescriptor; }
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
 
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const BaseBlock& other)
@@ -505,8 +505,6 @@ namespace LLInitParam
 
 		// can be updated in getters
 		mutable S32				mChangeVersion;
-
-		BlockDescriptor*		mBlockDescriptor;	// most derived block descriptor
 
 		static BlockDescriptor& selfBlockDescriptor()
 		{
@@ -1313,6 +1311,9 @@ namespace LLInitParam
 			BaseBlock::setLastChangedParam(last_param, user_provided);
 		}
 
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
+
 	protected:
 		Choice()
 		:	mCurChoice(0)
@@ -1422,6 +1423,10 @@ namespace LLInitParam
 		{
 			return BaseBlock::merge(selfBlockDescriptor(), other, false);
 		}
+
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
+
 	protected:
 		Block()
 		{
