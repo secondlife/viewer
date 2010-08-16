@@ -90,7 +90,6 @@ public:
 	static void disableFirstUse();
 	static void resetFirstUse();
 
-	static void useOverrideKeys();
 	static void otherAvatarChatFirst(bool enable = true);
 	static void sit(bool enable = true);
 	static void notUsingDestinationGuide(bool enable = true);
@@ -103,7 +102,9 @@ public:
 protected:
 	static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
 	static std::set<std::string> sConfigVariables;
-	static std::map<std::string, boost::shared_ptr<LLNotification> > sNotifications;
+
+	static void init();
+	static bool processNotification(const LLSD& notify);
 };
 
 #endif

@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- name="hint"
  width="205"
- height="100"
- background_opaque="true"
- background_visible="true"
- layout="topleft" 
- bg_opaque_image="hint_background">
+ height="100">
   <text name="hint_title"
         font="SansSerifMedium" 
         left="8"
@@ -20,7 +15,7 @@
         left="8"
         right="197"
         top="26"
-        bottom="90"
+        bottom="92"
         follows="all" 
         text_color="White"
         wrap="true"/>

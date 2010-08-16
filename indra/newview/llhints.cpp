@@ -63,11 +63,21 @@ public:
 		}
 	};
 
+	struct TargetParams : public LLInitParam::Block<TargetParams>
+	{
+		Mandatory<std::string>	target;
+		Mandatory<EPopupDirection, PopupDirections> direction;
+
+		TargetParams()
+		:	target("target"),
+			direction("direction")
+		{}
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Mandatory<LLNotificationPtr>	notification;
-		Optional<std::string>			target;
-		Optional<EPopupDirection, PopupDirections>	direction;
+		Optional<TargetParams>			target_params;
 		Optional<S32>					distance;
 		Optional<LLUIImage*>			left_arrow,
 										up_arrow,
@@ -81,34 +91,31 @@ public:
 										fade_out_time;
 
 		Params()
-		:	direction("direction", TOP),
-			distance("distance", 24),
-			target("target"),
-			left_arrow("left_arrow", LLUI::getUIImage("hint_arrow_left")),
-			up_arrow("up_arrow", LLUI::getUIImage("hint_arrow_up")),
-			right_arrow("right_arrow", LLUI::getUIImage("hint_arrow_right")),
-			down_arrow("down_arrow", LLUI::getUIImage("hint_arrow_down")),
-			left_arrow_offset("left_arrow_offset", 3),
-			up_arrow_offset("up_arrow_offset", -2),
-			right_arrow_offset("right_arrow_offset", -3),
-			down_arrow_offset("down_arrow_offset", 5),
-			fade_in_time("fade_in_time", 0.2f),
-			fade_out_time("fade_out_time", 0.5f)
+		:	distance("distance"),
+			left_arrow("left_arrow"),
+			up_arrow("up_arrow"),
+			right_arrow("right_arrow"),
+			down_arrow("down_arrow"),
+			left_arrow_offset("left_arrow_offset"),
+			up_arrow_offset("up_arrow_offset"),
+			right_arrow_offset("right_arrow_offset"),
+			down_arrow_offset("down_arrow_offset"),
+			fade_in_time("fade_in_time"),
+			fade_out_time("fade_out_time")
 		{}
 	};
 
 	LLHintPopup(const Params&);
 
-	void setHintTarget(LLHandle<LLView> target) { mTarget = target; }
 	/*virtual*/ BOOL postBuild();
 
-	void onClickClose() { hide(); }
+	void onClickClose() { hide(); LLNotifications::instance().cancel(mNotification); }
 	void draw();
 	void hide() { if(!mHidden) {mHidden = true; mFadeTimer.reset();} }
 
 private:
 	LLNotificationPtr	mNotification;
-	LLHandle<LLView>	mTarget;
+	std::string			mTarget;
 	EPopupDirection		mDirection;
 	S32					mDistance;
 	LLUIImagePtr		mArrowLeft,
@@ -125,14 +132,14 @@ private:
 	bool				mHidden;
 };
 
-
+static LLDefaultChildRegistry::Register<LLHintPopup> r("hint_popup");
 
 
 LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 :	mNotification(p.notification),
-	mDirection(p.direction),
+	mDirection(p.target_params.direction),
 	mDistance(p.distance),
-	mTarget(LLHints::getHintTarget(p.target)),
+	mTarget(p.target_params.target),
 	mArrowLeft(p.left_arrow),
 	mArrowUp(p.up_arrow),
 	mArrowRight(p.right_arrow),
@@ -146,7 +153,7 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	mFadeOutTime(p.fade_out_time),
 	LLPanel(p)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_hint.xml");
+	buildPanel(this, "panel_hint.xml", NULL, p);
 }
 
 BOOL LLHintPopup::postBuild()
@@ -172,80 +179,108 @@ void LLHintPopup::draw()
 		if (alpha == 0.f)
 		{
 			die();
+			return;
 		}
 	}
 	else
 	{
 		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, mFadeInTime, 0.f, 1.f);
 	}
-	LLViewDrawContext context(alpha);
+	
+	{	LLViewDrawContext context(alpha); 
 
-	LLView* targetp = mTarget.get();
-	if (!targetp || !targetp->isInVisibleChain()) 
-	{
-		hide();
-	}
-	else
-	{
-		LLRect target_rect;
-		targetp->localRectToOtherView(targetp->getLocalRect(), &target_rect, getParent());
-
-		LLRect my_local_rect = getLocalRect();
-		LLRect my_rect;
-		LLRect arrow_rect;
-		LLUIImagePtr arrow_imagep;
-
-		switch(mDirection)
+		if (mTarget.empty())
 		{
-		case LEFT:
-			my_rect.setCenterAndSize(	target_rect.mLeft - (my_local_rect.getWidth() / 2 + mDistance), 
-										target_rect.getCenterY(), 
-										my_local_rect.getWidth(), 
-										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.mRight + mArrowRight->getWidth() / 2 + mArrowRightOffset,
-										my_local_rect.getCenterY(),
-										mArrowRight->getWidth(), 
-										mArrowRight->getHeight());
-			arrow_imagep = mArrowRight;
-			break;
-		case TOP:
-			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
-										target_rect.mTop + (my_local_rect.getHeight() / 2 + mDistance), 
-										my_local_rect.getWidth(), 
-										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
-										my_local_rect.mBottom - mArrowDown->getHeight() / 2 + mArrowDownOffset,
-										mArrowDown->getWidth(), 
-										mArrowDown->getHeight());
-			arrow_imagep = mArrowDown;
-			break;
-		case RIGHT:
-			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
-										target_rect.mTop - (my_local_rect.getHeight() / 2 + mDistance), 
-										my_local_rect.getWidth(), 
-										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.mLeft - mArrowLeft->getWidth() / 2 + mArrowLeftOffset,
-										my_local_rect.getCenterY(),
-										mArrowLeft->getWidth(), 
-										mArrowLeft->getHeight());
-			arrow_imagep = mArrowLeft;
-			break;
-		case BOTTOM:
-			my_rect.setCenterAndSize(	target_rect.getCenterX(), 
-										target_rect.mBottom - (my_local_rect.getHeight() / 2 + mDistance),
-										my_local_rect.getWidth(), 
-										my_local_rect.getHeight());
-			arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
-										my_local_rect.mTop + mArrowUp->getHeight() / 2 + mArrowUpOffset,
-										mArrowUp->getWidth(), 
-										mArrowUp->getHeight());
-			arrow_imagep = mArrowUp;
-			break;
+			// just draw contents, no arrow, in default position
+			LLPanel::draw();
 		}
-		setShape(my_rect);
-		LLPanel::draw();
+		else 
+		{
+			LLView* targetp = LLHints::getHintTarget(mTarget).get();
+			if (!targetp)
+			{
+				// target widget is no longer valid, go away
+				die();
+			}
+			else if (!targetp->isInVisibleChain()) 
+			{
+				// if target is invisible, don't draw, but keep alive in case widget comes back
+			}
+			else
+			{
+				LLRect target_rect;
+				targetp->localRectToOtherView(targetp->getLocalRect(), &target_rect, getParent());
 
-		arrow_imagep->draw(arrow_rect, LLColor4(1.f, 1.f, 1.f, alpha));
+				LLRect my_local_rect = getLocalRect();
+				LLRect my_rect;
+				LLRect arrow_rect;
+				LLUIImagePtr arrow_imagep;
+
+				switch(mDirection)
+				{
+				case LEFT:
+					my_rect.setCenterAndSize(	target_rect.mLeft - (my_local_rect.getWidth() / 2 + mDistance), 
+												target_rect.getCenterY(), 
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowRight)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.mRight + mArrowRight->getWidth() / 2 + mArrowRightOffset,
+													my_local_rect.getCenterY(),
+													mArrowRight->getWidth(), 
+													mArrowRight->getHeight());
+						arrow_imagep = mArrowRight;
+					}
+					break;
+				case TOP:
+					my_rect.setCenterAndSize(	target_rect.getCenterX(), 
+												target_rect.mTop + (my_local_rect.getHeight() / 2 + mDistance), 
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowDown)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
+													my_local_rect.mBottom - mArrowDown->getHeight() / 2 + mArrowDownOffset,
+													mArrowDown->getWidth(), 
+													mArrowDown->getHeight());
+						arrow_imagep = mArrowDown;
+					}
+					break;
+				case RIGHT:
+					my_rect.setCenterAndSize(	target_rect.mRight + (my_local_rect.getWidth() / 2 + mDistance), 
+												target_rect.getCenterY(),
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowLeft)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.mLeft - mArrowLeft->getWidth() / 2 + mArrowLeftOffset,
+													my_local_rect.getCenterY(),
+													mArrowLeft->getWidth(), 
+													mArrowLeft->getHeight());
+						arrow_imagep = mArrowLeft;
+					}
+					break;
+				case BOTTOM:
+					my_rect.setCenterAndSize(	target_rect.getCenterX(), 
+												target_rect.mBottom - (my_local_rect.getHeight() / 2 + mDistance),
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowUp)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.getCenterX(),
+													my_local_rect.mTop + mArrowUp->getHeight() / 2 + mArrowUpOffset,
+													mArrowUp->getWidth(), 
+													mArrowUp->getHeight());
+						arrow_imagep = mArrowUp;
+					}
+					break;
+				}
+				setShape(my_rect);
+				LLPanel::draw();
+
+				if (arrow_imagep) arrow_imagep->draw(arrow_rect, LLColor4(1.f, 1.f, 1.f, alpha));
+			}
+		}
 	}
 }
 
@@ -256,20 +291,23 @@ std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
 //static
 void LLHints::show(LLNotificationPtr hint)
 {
-	LLHintPopup::Params p;
-	LLParamSDParser::instance().readSD(hint->getPayload(), p);
+	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
 
+	LLParamSDParser::instance().readSD(hint->getPayload(), p);
 	p.notification = hint;
 
-	LLHintPopup* popup = new LLHintPopup(p);
-	
-	sHints[hint] = popup;
-
-	LLView* hint_holder = gViewerWindow->getHintHolder();
-	if (hint_holder)
+	if (p.validateBlock())
 	{
-		hint_holder->addChild(popup);
-		popup->centerWithin(hint_holder->getLocalRect());
+		LLHintPopup* popup = new LLHintPopup(p);
+
+		sHints[hint] = popup;
+
+		LLView* hint_holder = gViewerWindow->getHintHolder();
+		if (hint_holder)
+		{
+			hint_holder->addChild(popup);
+			popup->centerWithin(hint_holder->getLocalRect());
+		}
 	}
 }
 
@@ -286,7 +324,7 @@ void LLHints::hide(LLNotificationPtr hint)
 //static
 void LLHints::registerHintTarget(const std::string& name, LLHandle<LLView> target)
 {
-	sTargetRegistry.defaultRegistrar().add(name, target);
+	sTargetRegistry.defaultRegistrar().replace(name, target);
 }
 
 //static 

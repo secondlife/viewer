@@ -48,7 +48,6 @@
 
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
-std::map<std::string, LLNotificationPtr> LLFirstUse::sNotifications;
 
 // static
 void LLFirstUse::addConfigVariable(const std::string& var)
@@ -79,20 +78,9 @@ void LLFirstUse::resetFirstUse()
 }
 
 // static
-void LLFirstUse::useOverrideKeys()
-{
-	// Our orientation island uses key overrides to teach vehicle driving
-	// so don't show this message until you get off OI. JC
-	if (!gAgent.inPrelude())
-	{
-		firstUseNotification("FirstOverrideKeys", true, "FirstOverrideKeys");
-	}
-}
-
-// static
 void LLFirstUse::otherAvatarChatFirst(bool enable)
 {
-	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "nearby_chat_bar").with("direction", "top"));
+	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "incoming_chat").with("direction", "right"));
 }
 
 // static
@@ -143,24 +131,48 @@ void LLFirstUse::receiveLindens(bool enable)
 //static 
 void LLFirstUse::firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args, LLSD payload)
 {
-	LLNotificationPtr notif = sNotifications[notification_name];
+	init();
 
 	if (enable)
 	{
-		if (!notif && gWarningSettings.getBOOL(control_var))
+		LL_DEBUGS("LLFirstUse") << "Trigger first use notification " << notification_name << LL_ENDL;
+
+		// if notification doesn't already exist and this notification hasn't been disabled...
+		if (gWarningSettings.getBOOL(control_var))
 		{ // create new notification
-			sNotifications[notification_name] = LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload));
-			gWarningSettings.setBOOL(control_var, FALSE);
+			LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload.with("control_var", control_var)));
 		}
 	}	
 	else
-	{ // want to hide notification
-		if (notif)
-		{ // cancel existing notification
-			LLNotifications::instance().cancel(notif);
-			sNotifications.erase(notification_name);
-		}
-		gWarningSettings.setBOOL(control_var, FALSE);
+	{
+		LL_DEBUGS("LLFirstUse") << "Disabling first use notification " << notification_name << LL_ENDL;
+		LLNotifications::instance().cancelByName(notification_name);
 	}
 
+}
+
+// static
+void LLFirstUse::init()
+{
+	static bool initialized = false;
+	if (!initialized)
+	{
+		LLNotifications::instance().getChannel("Hints")->connectChanged(processNotification);
+	}
+	initialized = true;
+}
+
+//static 
+bool LLFirstUse::processNotification(const LLSD& notify)
+{
+	if (notify["sigtype"].asString() == "delete")
+	{
+		LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+		if (notification)
+		{
+			// disable any future notifications
+			gWarningSettings.setBOOL(notification->getPayload()["control_var"], FALSE);
+		}
+	}
+	return false;
 }
