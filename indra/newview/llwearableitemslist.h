@@ -39,7 +39,6 @@
 // newview
 #include "llinventoryitemslist.h"
 #include "llinventorylistitem.h"
-#include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llwearabletype.h"
 
@@ -441,7 +440,7 @@ public:
 	 * Update items that match UUIDs from changed_items_uuids
 	 * or links that point at such items.
 	 */
-	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
+	void updateChangedItems(const uuid_vec_t& changed_items_uuids);
 
 	bool isStandalone() const { return mIsStandalone; }
 
