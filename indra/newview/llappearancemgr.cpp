@@ -1305,16 +1305,8 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any non-worn wearables.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		not_worn);
-	return items.size() > 0;
+	// Check whether the outfit contains the full set of body parts (shape+skin+hair+eyes).
+	return getCanMakeFolderIntoOutfit(outfit_cat_id);
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)

@@ -232,6 +232,7 @@ private:
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLWearableItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
+	LLWearableItemTypeNameComparator* mWearableListViewItemsComparator;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 

@@ -6074,7 +6074,7 @@ static bool onEnableAttachmentLabel(LLUICtrl* ctrl, const LLSD& data)
 				const LLViewerObject* attached_object = (*attachment_iter);
 				if (attached_object)
 				{
-					LLViewerInventoryItem* itemp = gInventory.getItem(attached_object->getItemID());
+					LLViewerInventoryItem* itemp = gInventory.getItem(attached_object->getAttachmentItemID());
 					if (itemp)
 					{
 						label += std::string(" (") + itemp->getName() + std::string(")");
@@ -6193,14 +6193,14 @@ class LLAttachmentEnableDrop : public view_listener_t
 				{
 					// make sure item is in your inventory (it could be a delayed attach message being sent from the sim)
 					// so check to see if the item is in the inventory already
-					item = gInventory.getItem((*attachment_iter)->getItemID());
+					item = gInventory.getItem((*attachment_iter)->getAttachmentItemID());
 					if (!item)
 					{
 						// Item does not exist, make an observer to enable the pie menu 
 						// when the item finishes fetching worst case scenario 
 						// if a fetch is already out there (being sent from a slow sim)
 						// we refetch and there are 2 fetches
-						LLWornItemFetchedObserver* worn_item_fetched = new LLWornItemFetchedObserver((*attachment_iter)->getItemID());		
+						LLWornItemFetchedObserver* worn_item_fetched = new LLWornItemFetchedObserver((*attachment_iter)->getAttachmentItemID());		
 						worn_item_fetched->startFetch();
 						gInventory.addObserver(worn_item_fetched);
 					}
@@ -6547,7 +6547,7 @@ void handle_dump_attachments(void*)
 							!attached_object->mDrawable->isRenderType(0));
 			LLVector3 pos;
 			if (visible) pos = attached_object->mDrawable->getPosition();
-			llinfos << "ATTACHMENT " << key << ": item_id=" << attached_object->getItemID()
+			llinfos << "ATTACHMENT " << key << ": item_id=" << attached_object->getAttachmentItemID()
 					<< (attached_object ? " present " : " absent ")
 					<< (visible ? "visible " : "invisible ")
 					<<  " at " << pos

@@ -527,6 +527,8 @@ bool LLWearableItemTypeNameComparator::doCompare(const LLPanelInventoryListItemB
 	const LLWearableType::EType item_wearable_type2 = wearable_item2->getWearableType();
 
 	if (item_wearable_type1 != item_wearable_type2)
+		// If items are of different LLWearableType::EType types they are compared
+		// by LLWearableType::EType. types order determined in LLWearableType::EType.
 	{
 		// If items are of different LLWearableType::EType types they are compared
 		// by LLWearableType::EType. types order determined in LLWearableType::EType.
@@ -549,6 +551,7 @@ LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparato
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
 
+
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about order rang of items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
@@ -562,24 +565,29 @@ bool LLWearableItemTypeNameComparator::sortAssetTypeByName(LLAssetType::EType it
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
 
+
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
 		return true;
 	}
 
+
 	return const_it->second.mSortAssetTypeByName;
 	}
+
 
 bool LLWearableItemTypeNameComparator::sortWearableTypeByName(LLAssetType::EType item_type) const
 {
 	wearable_type_order_map_t::const_iterator const_it = mWearableOrder.find(item_type);
+
 
 	if(const_it == mWearableOrder.end())
 	{
 		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
 		return true;
 }
+
 
 	return const_it->second.mSortWearableTypeByName;
 }

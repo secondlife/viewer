@@ -814,7 +814,7 @@ void LLViewerTexture::generateGLTexture()
 LLImageGL* LLViewerTexture::getGLTexture() const
 {
 	llassert(mGLTexturep.notNull()) ;
-	
+
 	return mGLTexturep ;
 }
 
@@ -1489,8 +1489,13 @@ void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 //virtual
 void LLViewerFetchedTexture::processTextureStats()
 {
-	if(mFullyLoaded)
+	if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0) //force to refetch the texture.
 	{
+		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel) ;
+	}
+
+	if(mFullyLoaded)
+	{		
 		if(mDesiredDiscardLevel <= mMinDesiredDiscardLevel)//already loaded
 		{
 			return ;
