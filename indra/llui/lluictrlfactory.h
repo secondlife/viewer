@@ -247,7 +247,7 @@ fail:
 	template<class T>
 	static T* getDefaultWidget(const std::string& name)
 	{
-		T::Params widget_params;
+		typename T::Params widget_params;
 		widget_params.name = name;
 		return create<T>(widget_params);
 	}
