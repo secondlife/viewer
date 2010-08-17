@@ -669,6 +669,14 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			}
 			break;
 		}
+		case KEY_ESCAPE:
+		{
+			if (mask == MASK_NONE)
+			{
+				setFocus(FALSE); // pass focus to the game area (EXT-8357)
+			}
+			break;
+		}
 		default:
 			break;
 	}
