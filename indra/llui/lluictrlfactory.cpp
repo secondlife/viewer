@@ -48,7 +48,7 @@
 #include "llquaternion.h"
 
 // this library includes
-#include "llfloater.h"
+#include "llpanel.h"
 
 LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
 LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
@@ -176,70 +176,6 @@ bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXML
 	{
 		return true;
 	}
-}
-
-static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
-
-//-----------------------------------------------------------------------------
-// buildFloater()
-//-----------------------------------------------------------------------------
-bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
-{
-	LLFastTimer timer(FTM_BUILD_FLOATERS);
-	LLXMLNodePtr root;
-
-	//if exporting, only load the language being exported, 
-	//instead of layering localized version on top of english
-	if (output_node)
-	{
-		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
-		{
-			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-			return false;
-		}
-	}
-	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
-	{
-		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-		return false;
-	}
-	
-	// root must be called floater
-	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
-	{
-		llwarns << "Root node should be named floater in: " << filename << llendl;
-		return false;
-	}
-	
-	bool res = true;
-	
-	lldebugs << "Building floater " << filename << llendl;
-	pushFileName(filename);
-	{
-		if (!floaterp->getFactoryMap().empty())
-		{
-			LLPanel::sFactoryStack.push_front(&floaterp->getFactoryMap());
-		}
-
-		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
-		floaterp->getCommitCallbackRegistrar().pushScope();
-		floaterp->getEnableCallbackRegistrar().pushScope();
-		
-		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
-
-		floaterp->setXMLFilename(filename);
-		
-		floaterp->getCommitCallbackRegistrar().popScope();
-		floaterp->getEnableCallbackRegistrar().popScope();
-		
-		if (!floaterp->getFactoryMap().empty())
-		{
-			LLPanel::sFactoryStack.pop_front();
-		}
-	}
-	popFileName();
-	
-	return res;
 }
 
 //-----------------------------------------------------------------------------

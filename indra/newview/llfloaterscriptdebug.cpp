@@ -58,8 +58,6 @@
 LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
   : LLMultiFloater(key)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug.xml");
-	
 	// avoid resizing of the window to match 
 	// the initial size of the tabbed-childs, whenever a tab is opened or closed
 	mAutoResize = FALSE;
@@ -147,8 +145,6 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
   : LLFloater(LLSD(object_id)),
 	mObjectID(object_id.asUUID())
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug_panel.xml");
-	
 	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
 	setAutoFocus(FALSE);
 }

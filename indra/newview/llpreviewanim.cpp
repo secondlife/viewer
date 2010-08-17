@@ -49,7 +49,6 @@ extern LLAgent gAgent;
 LLPreviewAnim::LLPreviewAnim(const LLSD& key)
 	: LLPreview( key )
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_animation.xml", FALSE);
 }
 
 // static

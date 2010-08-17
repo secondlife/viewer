@@ -83,7 +83,7 @@ LLToast::LLToast(const LLToast::Params& p)
 {
 	mTimer.reset(new LLToastLifeTimer(this, p.lifetime_secs));
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
+	buildFloater(this, "panel_toast.xml", NULL);
 
 	setCanDrag(FALSE);
 

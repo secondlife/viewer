@@ -66,7 +66,6 @@ LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
 	mSortColumn(""),
 	mSortAscending(TRUE)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_land_holdings.xml");
 }
 
 BOOL LLFloaterLandHoldings::postBuild()

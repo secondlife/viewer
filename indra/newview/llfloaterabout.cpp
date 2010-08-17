@@ -100,7 +100,6 @@ public:
 LLFloaterAbout::LLFloaterAbout(const LLSD& key) 
 :	LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
 	
 }
 

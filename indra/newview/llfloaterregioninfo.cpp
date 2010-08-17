@@ -167,7 +167,6 @@ LLUUID LLFloaterRegionInfo::sRequestInvoice;
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 	: LLFloater(seed)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", FALSE);
 }
 
 BOOL LLFloaterRegionInfo::postBuild()

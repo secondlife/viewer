@@ -265,6 +265,8 @@ protected:
 	commit_signal_t* mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
+	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
+	static factory_stack_t	sFactoryStack;
 	
 private:
 	BOOL			mBgVisible;				// any background at all?
@@ -286,8 +288,6 @@ private:
 	// for setting the xml filename when building panel in context dependent cases
 	std::string		mXMLFilename;
 
-	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
-	static factory_stack_t	sFactoryStack;
 }; // end class LLPanel
 
 // Build time optimization, generate once in .cpp file

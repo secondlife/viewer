@@ -137,7 +137,6 @@ LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
   : LLModalDialog(key),
 	mParent(NULL)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
 }
 
 //virtual

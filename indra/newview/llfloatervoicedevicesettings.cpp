@@ -338,7 +338,6 @@ LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
 	// do not automatically open singleton floaters (as result of getInstance())
 //	BOOL no_open = FALSE;
-//	Called from floater reg:  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);	
 }
 BOOL LLFloaterVoiceDeviceSettings::postBuild()
 {

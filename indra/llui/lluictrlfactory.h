@@ -38,7 +38,6 @@
 #include "llregistry.h"
 #include "llxuiparser.h"
 
-class LLFloater;
 class LLView;
 
 // sort functor for typeid maps
@@ -146,8 +145,6 @@ public:
 		//#pragma message("Generating ParamDefaults")
 		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
-
-	bool buildFloater(LLFloater* floaterp, const std::string &filename, LLXMLNodePtr output_node);
 
 	// Does what you want for LLFloaters and LLPanels
 	// Returns 0 on success
