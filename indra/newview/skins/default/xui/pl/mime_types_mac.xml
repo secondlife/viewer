@@ -19,7 +19,7 @@
 			To miejsce posiada zawartość filmową
 		</tooltip>
 		<playtip name="movie_playtip">
-			Oglądaj Film
+			Oglądaj film
 		</playtip>
 	</widgetset>
 	<widgetset name="image">
@@ -46,7 +46,7 @@
 	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
-			Synchroniczne Strumienie Medialne
+			Synchroniczne strumienie mediów
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -111,7 +111,7 @@
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			Strona Internetowa (XHTML)
+			Strona internetowa (XHTML)
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -171,7 +171,7 @@
 	</mimetype>
 	<mimetype name="text/html">
 		<label name="text/html_label">
-			Strona Internetowa
+			Strona internetowa
 		</label>
 	</mimetype>
 	<mimetype name="text/plain">
