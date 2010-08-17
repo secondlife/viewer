@@ -317,9 +317,6 @@ LLPreviewGesture::LLPreviewGesture(const LLSD& key)
 	NONE_LABEL =  LLTrans::getString("---");
 	SHIFT_LABEL = LLTrans::getString("KBShift");
 	CTRL_LABEL = LLTrans::getString("KBCtrl");
-	
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_gesture.xml", FALSE);
-
 }
 
 

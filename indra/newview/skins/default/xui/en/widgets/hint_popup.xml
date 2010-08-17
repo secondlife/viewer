@@ -3,6 +3,7 @@
  name="hint"
  background_opaque="true"
  background_visible="true"
+ chrome="true" 
  layout="topleft"
  bg_opaque_image="hint_background"
  distance="24"

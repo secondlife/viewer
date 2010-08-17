@@ -70,7 +70,6 @@ void LLFloaterTopObjects::show()
 	}
 
 	sInstance = new LLFloaterTopObjects();
-//	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_top_objects.xml");
 	sInstance->center();
 }
 */

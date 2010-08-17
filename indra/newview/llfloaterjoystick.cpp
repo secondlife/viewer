@@ -50,8 +50,6 @@
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater(data)
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_joystick.xml");
-
 	initFromSettings();
 }
 

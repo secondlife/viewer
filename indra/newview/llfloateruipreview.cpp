@@ -400,7 +400,6 @@ LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
 	mLastDisplayedX(0),
 	mLastDisplayedY(0)
 {
-	// called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
 }
 
 // Destructor
@@ -838,7 +837,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{
 			LLXMLNodePtr floater_write = new LLXMLNode();			
-			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, floater_write);	// just build it
+			buildFloater(*floaterp, path, floater_write);	// just build it
 
 			if (!floater_write->isNull())
 			{
@@ -852,7 +851,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		}
 		else
 		{
-			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, NULL);	// just build it
+			buildFloater(*floaterp, path, NULL);	// just build it
 			(*floaterp)->openFloater((*floaterp)->getKey());
 			(*floaterp)->setCanResize((*floaterp)->isResizable());
 		}

@@ -299,8 +299,7 @@ LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
 	mParcelBuyInfo(0)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
-	
-// 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
+
 }
 
 LLFloaterBuyLandUI::~LLFloaterBuyLandUI()

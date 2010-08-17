@@ -88,7 +88,7 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 	: LLFloater(LLSD()),
 	  mPanelLandMediaHandle(parent)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_url_entry.xml", NULL);
+	buildFloater(this, "floater_url_entry.xml", NULL);
 }
 
 //-----------------------------------------------------------------------------

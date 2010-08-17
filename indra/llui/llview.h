@@ -134,26 +134,26 @@ public:
 
 		Optional<std::string>		layout;
 		Optional<LLRect>			rect;
+
 		// Historical bottom-left layout used bottom_delta and left_delta
 		// for relative positioning.  New layout "topleft" prefers specifying
 		// based on top edge.
-		Optional<S32>				bottom_delta,	// deprecated
-									top_pad,	// from last bottom to my top
-									top_delta,	// from last top to my top
-									left_pad,	// from last right to my left
-									left_delta;	// from last left to my left
-								
-		// these are nested attributes for LLLayoutPanel
+		Optional<S32>				bottom_delta,	// from last bottom to my bottom
+									top_pad,		// from last bottom to my top
+									top_delta,		// from last top to my top
+									left_pad,		// from last right to my left
+									left_delta;		// from last left to my left
+
 		//FIXME: get parent context involved in parsing traversal
-		Ignored						user_resize,
-									auto_resize,
-									needs_translate,
-									min_width,
-									max_width,
-									xmlns,
-									xmlns_xsi,
-									xsi_schemaLocation,
-									xsi_type;
+		Ignored						user_resize,		// nested attribute for LLLayoutPanel
+									auto_resize,		// nested attribute for LLLayoutPanel
+									needs_translate,	// cue for translation tools
+									min_width,			// nested attribute for LLLayoutPanel
+									max_width,			// nested attribute for LLLayoutPanel
+									xmlns,				// xml namespace
+									xmlns_xsi,			// xml namespace
+									xsi_schemaLocation,	// xml schema
+									xsi_type;			// xml schema type
 
 		Params();
 	};

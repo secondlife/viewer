@@ -113,9 +113,6 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mCanApplyImmediately	( show_apply_immediate ),
 	  mContextConeOpacity	( 0.f )
 {
-	// build the majority of the gui using the factory builder
-	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml", NULL );
-	
 	// create user interface for this picker
 	createUI ();
 

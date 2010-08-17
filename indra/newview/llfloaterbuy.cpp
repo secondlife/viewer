@@ -57,7 +57,6 @@
 LLFloaterBuy::LLFloaterBuy(const LLSD& key)
 :	LLFloater(key)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_object.xml");
 }
 
 BOOL LLFloaterBuy::postBuild()

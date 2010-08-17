@@ -53,7 +53,6 @@ LLFloaterInspect::LLFloaterInspect(const LLSD& key)
   : LLFloater(key),
 	mDirty(FALSE)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inspect.xml");
 	mCommitCallbackRegistrar.add("Inspect.OwnerProfile",	boost::bind(&LLFloaterInspect::onClickOwnerProfile, this));
 	mCommitCallbackRegistrar.add("Inspect.CreatorProfile",	boost::bind(&LLFloaterInspect::onClickCreatorProfile, this));
 	mCommitCallbackRegistrar.add("Inspect.SelectObject",	boost::bind(&LLFloaterInspect::onSelectObject, this));

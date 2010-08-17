@@ -173,8 +173,6 @@ LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
 : LLFloater(key)
 {
 	mCommitCallbackRegistrar.add("ClickAdd",     boost::bind(&LLFloaterNotificationConsole::onClickAdd, this));	
-
-	//LLUICtrlFactory::instance().buildFloater(this, "floater_notifications_console.xml");
 }
 
 BOOL LLFloaterNotificationConsole::postBuild()
@@ -254,7 +252,6 @@ LLFloaterNotification::LLFloaterNotification(LLNotification* note)
 :	LLFloater(LLSD()),
 	mNote(note)
 {
-	LLUICtrlFactory::instance().buildFloater(this, "floater_notification.xml", NULL);
 }
 
 BOOL LLFloaterNotification::postBuild()

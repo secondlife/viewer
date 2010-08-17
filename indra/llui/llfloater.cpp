@@ -42,6 +42,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -2882,4 +2883,66 @@ bool LLFloater::isMinimized(const LLFloater* floater)
 bool LLFloater::isVisible(const LLFloater* floater)
 {
     return floater && floater->getVisible();
+}
+
+static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+
+/* static */
+bool LLFloater::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
+{
+	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LLXMLNodePtr root;
+
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+			return false;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	{
+		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		return false;
+	}
+	
+	// root must be called floater
+	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
+	{
+		llwarns << "Root node should be named floater in: " << filename << llendl;
+		return false;
+	}
+	
+	bool res = true;
+	
+	lldebugs << "Building floater " << filename << llendl;
+	LLUICtrlFactory::instance().pushFileName(filename);
+	{
+		if (!floaterp->getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.push_front(&floaterp->getFactoryMap());
+		}
+
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		floaterp->getCommitCallbackRegistrar().pushScope();
+		floaterp->getEnableCallbackRegistrar().pushScope();
+		
+		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
+
+		floaterp->setXMLFilename(filename);
+		
+		floaterp->getCommitCallbackRegistrar().popScope();
+		floaterp->getEnableCallbackRegistrar().popScope();
+		
+		if (!floaterp->getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.pop_front();
+		}
+	}
+	LLUICtrlFactory::instance().popFileName();
+	
+	return res;
 }
