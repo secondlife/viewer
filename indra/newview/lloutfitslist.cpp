@@ -1061,24 +1061,36 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 
 void LLOutfitsList::onCOFChanged()
 {
-	LLInventoryModel::changed_items_t changed_linked_items;
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
 
-	const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
-	for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items.begin();
-		 iter != changed_items.end();
-		 ++iter)
+	// Collect current COF items
+	gInventory.collectDescendents(
+		LLAppearanceMgr::instance().getCOF(),
+		cat_array,
+		item_array,
+		LLInventoryModel::EXCLUDE_TRASH);
+
+	uuid_vec_t vnew;
+	uuid_vec_t vadded;
+	uuid_vec_t vremoved;
+
+	// From gInventory we get the UUIDs of links that are currently in COF.
+	// These links UUIDs are not the same UUIDs that we have in each wearable items list.
+	// So we collect base items' UUIDs to find them or links that point to them in wearable
+	// items lists and update their worn state there.
+	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
+		iter != item_array.end();
+		++iter)
 	{
-		LLViewerInventoryItem* item = gInventory.getItem(*iter);
-		if (item)
-		{
-			// From gInventory we get the UUIDs of new links added to COF
-			// or removed from COF. These links UUIDs are not the same UUIDs
-			// that we have in each wearable items list. So we collect base items
-			// UUIDs to find all items or links that point to same base items in wearable
-			// items lists and update their worn state there.
-			changed_linked_items.insert(item->getLinkedUUID());
-		}
+		vnew.push_back((*iter)->getLinkedUUID());
 	}
+
+	// We need to update only items that were added or removed from COF.
+	LLCommonUtils::computeDifference(vnew, mCOFLinkedItems, vadded, vremoved);
+
+	// Store the ids of items currently linked from COF.
+	mCOFLinkedItems = vnew;
 
 	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
 			iter != mOutfitsMap.end();
@@ -1090,9 +1102,13 @@ void LLOutfitsList::onCOFChanged()
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (!list) continue;
 
+		// Append removed ids to added ids because we should update all of them.
+		vadded.reserve(vadded.size() + vremoved.size());
+		vadded.insert(vadded.end(), vremoved.begin(), vremoved.end());
+
 		// Every list updates the labels of changed items  or
 		// the links that point to these items.
-		list->updateChangedItems(changed_linked_items);
+		list->updateChangedItems(vadded);
 	}
 }
 
