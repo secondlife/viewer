@@ -27,7 +27,7 @@
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="Wybór obiektu - wybierz obiekt, którego dotyczy raport"/>
 	<text name="object_name_label">
-		Nazwa Obiektu:
+		Nazwa obiektu:
 	</text>
 	<text name="object_name">
 		Consetetur Sadipscing
@@ -67,8 +67,8 @@
 		<combo_box.item label="Prześladowanie &gt; Znieważanie Słowne" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Nieprzyzwoitość &gt; Obraźliwa treść lub postępowanie" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Nieprzyzwoitość &gt; Niestosowne imię awatara" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w Regionie &apos;PG&apos;" name="Indecency__Mature_content_in_PG_region"/>
-		<combo_box.item label="Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w Regionie &apos;Mature&apos;" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w Regionie &apos;General&apos;" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w Regionie &apos;Moderate&apos;" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Naruszenie własności intelektualnej &gt; usunięcie treści" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Naruszenie własności intelektualnej &gt; CopyBot albo nadużycie przywilejów" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Nietolerancja" name="Intolerance"/>
