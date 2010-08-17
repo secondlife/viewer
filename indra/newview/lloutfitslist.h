@@ -214,6 +214,10 @@ private:
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
 
+	// IDs of original items which are worn and linked in COF.
+	// Used to monitor COF changes for updating items worn state. See EXT-8636.
+	uuid_vec_t						mCOFLinkedItems;
+
 	LLOutfitListGearMenu*			mGearMenu;
 	LLListContextMenu*				mOutfitMenu;
 
