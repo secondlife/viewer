@@ -7,7 +7,7 @@
 		brak danych
 	</text>
 	<text name="detail_texture_text">
-		Tekstury Terenu (24-bitowe 512x512 pliki .tga wymagane)
+		Tekstury terenu (24-bitowe 512x512 pliki .tga wymagane)
 	</text>
 	<text name="height_text_lbl">
 		1 (Dół)
@@ -22,7 +22,7 @@
 		4 (Góra)
 	</text>
 	<text name="height_text_lbl5">
-		Zakres Poziomów dla Tekstury
+		Zakres poziomów dla tekstury
 	</text>
 	<text name="height_text_lbl6">
 		Północny-Zachód

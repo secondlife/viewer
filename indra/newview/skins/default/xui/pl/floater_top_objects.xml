@@ -10,7 +10,7 @@
 		Czas
 	</floater.string>
 	<floater.string name="scripts_mono_time_label">
-		Mono Time
+		Czas Mono
 	</floater.string>
 	<floater.string name="top_colliders_title">
 		Główne kolizje
@@ -33,7 +33,7 @@
 		<scroll_list.columns label="Właściciel" name="owner"/>
 		<scroll_list.columns label="Miejsce" name="location"/>
 		<scroll_list.columns label="Czas" name="time"/>
-		<scroll_list.columns label="Mono Time" name="mono_time"/>
+		<scroll_list.columns label="Czas Mono" name="mono_time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
@@ -51,6 +51,6 @@
 	<button label="Odśwież" name="refresh_btn"/>
 	<button label="Zwróć wybrane" name="return_selected_btn"/>
 	<button label="Zwróć wszystko" name="return_all_btn"/>
-	<button label="Deaktywuj wybrane" name="disable_selected_btn"/>
-	<button label="Deaktywuj wszystko" name="disable_all_btn"/>
+	<button label="Dezaktywuj wybrane" name="disable_selected_btn"/>
+	<button label="Dezaktywuj wszystko" name="disable_all_btn"/>
 </floater>
