@@ -316,8 +316,11 @@ class WindowsManifest(ViewerManifest):
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
 
-        # For using FMOD for sound... DJS
-        self.path("fmod.dll")
+        try:
+            # FMOD for sound
+            self.path("fmod.dll")
+        except:
+            print "Skipping FMOD - not found"
 
         self.enable_no_crt_manifest_check()
         
@@ -643,8 +646,11 @@ class DarwinManifest(ViewerManifest):
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
-                #libfmodwrapper.dylib
-                self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
+                try:
+                    # FMOD for sound
+                    self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
+                except:
+                    print "Skipping FMOD - not found"
                 
                 # our apps
                 self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
@@ -933,7 +939,7 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libfmod-3.75.so")
                     pass
             except:
-                    print "Skipping libkdu_v42R.so - not found"
+                    print "Skipping libfmod-3.75.so - not found"
                     pass
             self.end_prefix("lib")
 
