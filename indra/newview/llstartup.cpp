@@ -118,6 +118,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llfriendcard.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "lllogininstance.h" // Host the login module.
@@ -127,6 +128,7 @@
 #include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
+#include "llpanelplace.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
@@ -1644,6 +1646,12 @@ bool idle_startup()
 		//all categories loaded. lets create "My Favorites" category
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
+		// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
+		// fetches their contents if needed and synchronizes it with buddies list.
+		// If the folders are not found they are created.
+		LLFriendCardsManager::instance().syncFriendCardsFolders();
+
+
 		// set up callbacks
 		llinfos << "Registering Callbacks" << llendl;
 		LLMessageSystem* msg = gMessageSystem;
@@ -2925,9 +2933,8 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		U32 preferredMaturity =
-			llmin((U32)LLAgent::convertTextToMaturity(text[0]),
-			      gSavedSettings.getU32("PreferredMaturity"));
+		U32 preferredMaturity = (U32)LLAgent::convertTextToMaturity(text[0]);
+
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
 	// During the AO transition, this flag will be true. Then the flag will
@@ -3138,13 +3145,6 @@ bool process_login_success_response()
 		{
 			gCloudTextureID = id;
 		}
-	}
-
-	// Set the location of the snapshot sharing config endpoint
-	std::string snapshot_config_url = response["snapshot_config_url"];
-	if(!snapshot_config_url.empty())
-	{
-		gSavedSettings.setString("SnapshotConfigURL", snapshot_config_url);
 	}
 
 	// Start the process of fetching the OpenID session cookie for this user login
