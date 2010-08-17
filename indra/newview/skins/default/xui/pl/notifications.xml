@@ -67,8 +67,8 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
-	<notification name="BadInstallation">
-		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com download the latest version] by ściągnąć najnowszą wersje klienta.
+	<notification name="BadInstallation">		
+		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com pobierz najnowsza wersję] aby ściągnąć ostatnią wersję klienta.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
