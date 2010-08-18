@@ -1425,16 +1425,25 @@ void LLNotifications::cancel(LLNotificationPtr pNotif)
 
 void LLNotifications::cancelByName(const std::string& name)
 {
-	for (LLNotificationSet::iterator it=mItems.begin(), end_it = mItems.end(), next_it = it;
+	std::vector<LLNotificationPtr> notifs_to_cancel;
+	for (LLNotificationSet::iterator it=mItems.begin(), end_it = mItems.end();
 		it != end_it;
-		it = next_it, ++next_it)
+		++it)
 	{
 		LLNotificationPtr pNotif = *it;
 		if (pNotif->getName() == name)
 		{
-			pNotif->cancel();
-			updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
+			notifs_to_cancel.push_back(pNotif);
 		}
+	}
+
+	for (std::vector<LLNotificationPtr>::iterator it = notifs_to_cancel.begin(), end_it = notifs_to_cancel.end();
+		it != end_it;
+		++it)
+	{
+		LLNotificationPtr pNotif = *it;
+		pNotif->cancel();
+		updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
 	}
 }
 

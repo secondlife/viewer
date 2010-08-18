@@ -1080,6 +1080,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
  
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
 {
+	LLFirstUse::inventoryOffer();
 	for (uuid_vec_t::const_iterator obj_iter = objects.begin();
 		 obj_iter != objects.end();
 		 ++obj_iter)
