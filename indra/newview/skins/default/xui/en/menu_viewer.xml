@@ -1393,17 +1393,7 @@
                  function="Advanced.ToggleFeature"
                  parameter="flexible" />
             </menu_item_check>
-        </menu>
-        <menu_item_check
-         label="Run Multiple Threads"
-         name="Run Multiple Threads">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RunMultipleThreads" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RunMultipleThreads" />
-        </menu_item_check>
+        </menu>        
         <menu_item_check
          label="Use Plugin Read Thread"
          name="Use Plugin Read Thread">
