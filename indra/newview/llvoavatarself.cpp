@@ -1067,7 +1067,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	// Should just be the last object added
 	if (attachment->isObjectAttached(viewer_object))
 	{
-		const LLUUID& attachment_id = viewer_object->getItemID();
+		const LLUUID& attachment_id = viewer_object->getAttachmentItemID();
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 	}
 
@@ -1077,7 +1077,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 //virtual
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
-	const LLUUID attachment_id = viewer_object->getItemID();
+	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
 	if (LLVOAvatar::detachObject(viewer_object))
 	{
 		// the simulator should automatically handle permission revocation
@@ -1625,14 +1625,14 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					if (isSelf())
 					{
 						if (gAgentAvatarp->isUsingBakedTextures())
-					{
-						requestLayerSetUpdate(type);
-					}
+						{
+							requestLayerSetUpdate(type);
+						}
 						else
-					{
-						LLVisualParamHint::requestHintUpdates();
+						{
+							LLVisualParamHint::requestHintUpdates();
+						}
 					}
-				}
 				}
 				else
 				{					
@@ -2145,6 +2145,11 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
+	if(!gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
+	{
+		return ;
+	}
+
 	const F32 final_time = mDebugSelfLoadTimer.getElapsedTimeF32();
 	llinfos << "REZTIME: Myself rez stats:" << llendl;
 	llinfos << "\t Time from avatar creation to load wearables: " << (S32)mDebugTimeWearablesLoaded << llendl;
