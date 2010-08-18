@@ -518,6 +518,9 @@ Robin Cornelius
 	SNOW-108
 	SNOW-204
 	SNOW-484
+	SNOW-506
+	SNOW-514
+	SNOW-585
 	VWR-2488
 	VWR-9557
 	VWR-11128
@@ -616,6 +619,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-743
 	VWR-7109
 	VWR-9287
 	VWR-13483

@@ -33,7 +33,7 @@
 
 
 class LLNameListCtrl
-:	public LLScrollListCtrl, protected LLInstanceTracker<LLNameListCtrl>
+:	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
 	typedef enum e_name_type
