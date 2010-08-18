@@ -2145,6 +2145,11 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
+	if(!gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
+	{
+		return ;
+	}
+
 	const F32 final_time = mDebugSelfLoadTimer.getElapsedTimeF32();
 	llinfos << "REZTIME: Myself rez stats:" << llendl;
 	llinfos << "\t Time from avatar creation to load wearables: " << (S32)mDebugTimeWearablesLoaded << llendl;

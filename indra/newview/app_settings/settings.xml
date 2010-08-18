@@ -1741,6 +1741,17 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+  <key>DebugAvatarLocalTexLoadedTime</key>
+  <map>
+    <key>Comment</key>
+    <string>Display time for loading avatar local textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>DebugBeaconLineWidth</key>
     <map>
       <key>Comment</key>
