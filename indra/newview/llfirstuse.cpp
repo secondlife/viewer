@@ -157,7 +157,7 @@ void LLFirstUse::init()
 	static bool initialized = false;
 	if (!initialized)
 	{
-		LLNotifications::instance().getChannel("Hints")->connectChanged(processNotification);
+		LLNotifications::instance().getChannel("Hints")->connectChanged(&processNotification);
 	}
 	initialized = true;
 }
