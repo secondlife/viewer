@@ -597,7 +597,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			return true; // abort
 		}
 	}
-	if(mImagePriority < 1.0f)
+	if(mImagePriority < F_ALMOST_ZERO)
 	{
 		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
 		{
