@@ -539,6 +539,15 @@ private:
 //		message.setValueBoolean("dead", (event.getIntValue() != 0))
 		sendMessage(message);
 	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onWindowCloseRequested(const EventType& event)
+	{
+		llwarns << "onWindowCloseRequested " << llendl;
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "close_request");
+		sendMessage(message);
+	}
 	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{

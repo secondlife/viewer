@@ -956,6 +956,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAME_CHANGED" << LL_ENDL;
 		};
 		break;
+		
+		case MEDIA_EVENT_CLOSE_REQUEST:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLOSE_REQUEST" << LL_ENDL;
+		}
+		break;
 	};
 
 	// chain all events to any potential observers of this object.

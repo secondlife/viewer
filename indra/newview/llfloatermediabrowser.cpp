@@ -223,6 +223,11 @@ void LLFloaterMediaBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEve
 		getChildView("back")->setEnabled(self->getHistoryBackAvailable());
 		getChildView("forward")->setEnabled(self->getHistoryForwardAvailable());
 	}
+	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
+	{
+		// The browser instance wants its window closed.
+		closeFloater();
+	}
 }
 void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 {

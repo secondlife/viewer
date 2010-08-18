@@ -2213,6 +2213,10 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << std::endl;
 		break;
+
+		case MEDIA_EVENT_CLOSE_REQUEST:
+			std::cerr <<  "Media event:  MEDIA_EVENT_CLOSE_REQUEST" << std::endl;
+		break;
 	}
 }
 
