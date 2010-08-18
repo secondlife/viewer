@@ -2,8 +2,8 @@
 <menu name="Gear Menu">
 	<menu_item_call label="Wstań" name="stand_up"/>
 	<menu_item_call label="Zmień strój" name="change_outfit"/>
-	<menu_item_call label="Mój Profil" name="my_profile"/>
-	<menu_item_call label="Moi Znajomi" name="my_friends"/>
-	<menu_item_call label="Moje Grupy" name="my_groups"/>
+	<menu_item_call label="Mój profil" name="my_profile"/>
+	<menu_item_call label="Moi znajomi" name="my_friends"/>
+	<menu_item_call label="Moje grupy" name="my_groups"/>
 	<menu_item_call label="Debugowanie tekstur" name="Debug..."/>
 </menu>

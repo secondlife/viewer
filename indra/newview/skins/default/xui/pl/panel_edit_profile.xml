@@ -33,8 +33,8 @@
 					WWW:
 				</text>
 				<check_box label="Pokaż w wyszukiwarce" name="show_in_search_checkbox"/>
-				<text name="title_acc_status_text" value="Moje Konto:"/>
-				<text name="my_account_link" value="[[URL] idź do Dashboard]"/>
+				<text name="title_acc_status_text" value="Moje konto:"/>
+				<text name="my_account_link" value="[[URL] idź do dashboard]"/>
 				<text name="acc_status_text" value="Rezydent. Brak danych konta."/>
 				<text name="title_partner_text" value="Partner:"/>
 				<text name="partner_edit_link" value="[[URL] Edytuj]"/>

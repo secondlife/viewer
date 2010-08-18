@@ -8,7 +8,7 @@
 		<menu_item_call label="[SECOND_LIFE]: Pomoc" name="Second Life Help"/>
 		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
 	</menu>
-	<menu_item_check label="Pokaż Ustawienia Debugowania" name="Show Debug Menu"/>
+	<menu_item_check label="Pokaż ustawienia debugowania" name="Show Debug Menu"/>
 	<menu label="Debug" name="Debug">
 		<menu_item_call label="Ustawienia debugowania" name="Debug Settings"/>
 		<menu_item_call label="Ustawienia UI/kolor" name="UI/Color Settings"/>
@@ -17,7 +17,7 @@
 		<menu_item_call label="Wyświetl TOS" name="TOS"/>
 		<menu_item_call label="Wyświetl wiadomość krytyczną" name="Critical"/>
 		<menu_item_call label="Test przeglądarki internetowej" name="Web Browser Test"/>
-		<menu_item_check label="Pokaż Siatkę" name="Show Grid Picker"/>
+		<menu_item_check label="Pokaż siatkę" name="Show Grid Picker"/>
 		<menu_item_call label="Pokaż konsolę Zawiadomień" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

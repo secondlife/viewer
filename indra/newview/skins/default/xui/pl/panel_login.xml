@@ -15,7 +15,7 @@
 			<text name="password_text">
 				Hasło:
 			</text>
-			<check_box label="Zapamiętaj Hasło" name="remember_check"/>
+			<check_box label="Zapamiętaj hasło" name="remember_check"/>
 			<button label="Połącz" name="connect_btn"/>
 			<text name="start_location_text">
 				Rozpocznij w:
