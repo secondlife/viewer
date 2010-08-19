@@ -150,6 +150,8 @@ blino Nakamura
 	VWR-17
 Boroondas Gupte
 	SNOW-278
+	SNOW-527
+	SNOW-624
 	VWR-233
 	WEB-262
 Bulli Schumann
@@ -518,6 +520,11 @@ Robin Cornelius
 	SNOW-108
 	SNOW-204
 	SNOW-484
+	SNOW-506
+	SNOW-514
+	SNOW-520
+	SNOW-507
+	SNOW-585
 	VWR-2488
 	VWR-9557
 	VWR-11128
@@ -609,6 +616,7 @@ Teardrops Fall
 	VWR-5366
 Techwolf Lupindo
 	SNOW-92
+	SNOW-649
 	VWR-12385
 tenebrous pau
 	VWR-247
@@ -616,6 +624,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-743
 	VWR-7109
 	VWR-9287
 	VWR-13483

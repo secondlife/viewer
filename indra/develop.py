@@ -76,6 +76,7 @@ class PlatformSetup(object):
     distcc = True
     cmake_opts = []
     word_size = 32
+    using_express = False
 
     def __init__(self):
         self.script_dir = os.path.realpath(
@@ -497,9 +498,17 @@ class WindowsSetup(PlatformSetup):
                     self._generator = version
                     print 'Building with ', self.gens[version]['gen']
                     break
-            else:
-                print >> sys.stderr, 'Cannot find a Visual Studio installation!'
-                sys.exit(1)
+                else:
+                    print >> sys.stderr, 'Cannot find a Visual Studio installation, testing for express editions'
+                    for version in 'vc80 vc90 vc71'.split():
+                        if self.find_visual_studio_express(version):
+                            self._generator = version
+                            self.using_express = True
+                            print 'Building with ', self.gens[version]['gen'] , "Express edition"
+                            break
+                        else:
+                            print >> sys.stderr, 'Cannot find any Visual Studio installation'
+                            sys.exit(1)
         return self._generator
 
     def _set_generator(self, gen):
@@ -562,6 +571,28 @@ class WindowsSetup(PlatformSetup):
             
         return ''
 
+    def find_visual_studio_express(self, gen=None):
+        if gen is None:
+            gen = self._generator
+        gen = gen.lower()
+        try:
+            import _winreg
+            key_str = (r'SOFTWARE\Microsoft\VCEXpress\%s\Setup\VC' %
+                       self.gens[gen]['ver'])
+            value_str = (r'ProductDir')
+            print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
+                   (key_str, value_str))
+            print key_str
+
+            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+            key = _winreg.OpenKey(reg, key_str)
+            value = _winreg.QueryValueEx(key, value_str)[0]+"IDE"
+            print 'Found: %s' % value
+            return value
+        except WindowsError, err:
+            print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
+            return ''
+
     def get_build_cmd(self):
         if self.incredibuild:
             config = self.build_type
@@ -571,6 +602,17 @@ class WindowsSetup(PlatformSetup):
             executable = 'buildconsole'
             cmd = "%(bin)s %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config, 'bin': executable}
             return (executable, cmd)
+
+        environment = self.find_visual_studio()
+        if environment == '':
+            environment = self.find_visual_studio_express()
+            if environment == '':
+                print >> sys.stderr, "Something went very wrong during build stage, could not find a Visual Studio installation."
+            else:
+                build_dirs=self.build_dirs();
+                print >> sys.stderr, "\nSolution generation complete, it can can now be found in:", build_dirs[0]
+                print >> sys.stderr, "\nPlease see https://wiki.secondlife.com/wiki/Microsoft_Visual_Studio#Extra_steps_for_Visual_Studio_Express_editions for express specific information"
+                exit(0)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
         executable = '%sdevenv.com' % (self.find_visual_studio(),)
@@ -603,7 +645,8 @@ class WindowsSetup(PlatformSetup):
         '''Override to add the vstool.exe call after running cmake.'''
         PlatformSetup.run_cmake(self, args)
         if self.unattended == 'OFF':
-            self.run_vstool()
+            if self.using_express == False:
+                self.run_vstool()
 
     def run_vstool(self):
         for build_dir in self.build_dirs():
