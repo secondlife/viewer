@@ -393,7 +393,9 @@ public:
 		//LLSDSerialize::toPrettyXML(content, ss);
 		//llinfos << ss.str() << llendl;
 
-		if (isGoodStatus(status))
+		// in case of invalid characters, the avatar picker returns a 400
+		// just set it to process so it displays 'not found'
+		if (isGoodStatus(status) || status == 400)
 		{
 			LLFloaterAvatarPicker* floater =
 				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
@@ -405,7 +407,8 @@ public:
 		else
 		{
 			llinfos << "avatar picker failed " << status
-				<< " reason " << reason << llendl;
+					<< " reason " << reason << llendl;
+			
 		}
 	}
 };
