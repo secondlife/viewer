@@ -95,7 +95,7 @@ public:
 	static void notUsingDestinationGuide(bool enable = true);
 	static void notUsingSidePanel(bool enable = true);
 	static void notMoving(bool enable = true);
-	static void inventoryOffer(bool enable = true);
+	static void newInventory(bool enable = true);
 	static void receiveLindens(bool enable = true);
 	static void useSandbox();
 	

@@ -129,7 +129,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
-	LLFirstUse::inventoryOffer(false);
+	LLFirstUse::newInventory(false);
 
 	if(key.size() == 0)
 		return;

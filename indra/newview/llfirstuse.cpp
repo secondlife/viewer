@@ -90,7 +90,7 @@ void LLFirstUse::sit(bool enable)
 }
 
 // static
-void LLFirstUse::inventoryOffer(bool enable)
+void LLFirstUse::newInventory(bool enable)
 {
 	firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
 }
@@ -147,6 +147,8 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
 	{
 		LL_DEBUGS("LLFirstUse") << "Disabling first use notification " << notification_name << LL_ENDL;
 		LLNotifications::instance().cancelByName(notification_name);
+		// redundantly clear settings var here, in case there are no notifications to cancel
+		gWarningSettings.setBOOL(control_var, FALSE);
 	}
 
 }

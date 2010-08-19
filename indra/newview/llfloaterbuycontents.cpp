@@ -47,6 +47,7 @@
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"	// for gInventory
+#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterinventory.h"	// for LLInventoryIcon::getIcon
 #include "llnotificationsutil.h"
@@ -289,6 +290,10 @@ void LLFloaterBuyContents::onClickBuy()
 	// it doesn't match region info then sale is canceled.
 	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, mSaleInfo);
 
+	// NOTE: do this here instead of on receipt of object, since contents are transfered
+	// via a generic BulkUpdateInventory message with no way of distinguishing it from
+	// other inventory operations
+	LLFirstUse::newInventory();
 	closeFloater();
 }
 
