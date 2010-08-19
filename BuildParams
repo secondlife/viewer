@@ -157,12 +157,7 @@ viewer-development_debug.build_Linux = false
 viewer-development_coverity.build_Linux = false
 
 viewer-development.build_Darwin = true
-viewer-development.build_Darwin_Debug = false
-viewer-development.build_Darwin_RelWithDebInfo = false
-viewer-development.build_Darwin_Release = true
-viewer-development_debug.build_Darwin_Debug = true
-viewer-development_debug.build_Darwin_RelWithDebInfo = true
-viewer-development_debug.build_Darwin_Release = false
+viewer-development_debug.build_Darwin = false
 viewer-development_coverity.build_Darwin = false
 
 viewer-development.build_CYGWIN = true
