@@ -879,18 +879,15 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					full_name = LLTrans::getString("TooltipPerson");
 				}
 			}
-			if (LLAvatarNameCache::useDisplayNames())
+
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
-				LLAvatarName av_name;
-				LLAvatarNameCache::get(hover_object->getID(), &av_name);
-				if (!av_name.mDisplayName.empty())
-				{
-					final_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
-				}
-				else
-				{
-					final_name = full_name;
-				}
+				final_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
+			}
+			else
+			{
+				final_name = full_name;
 			}
 
 			// *HACK: We may select this object, so pretend it was clicked

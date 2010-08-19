@@ -574,6 +574,8 @@ void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
 	av_name->mExpires = F64_MAX;
 }
 
+// fills in av_name if it has it in the cache, even if expired (can check expiry time)
+// returns bool specifying  if av_name was filled, false otherwise
 bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 {
 	if (sRunning)
@@ -587,11 +589,16 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 			{
 				*av_name = it->second;
 
-				// re-request name if entry is expired, otherwise return
-				if (av_name->mExpires > LLFrameTimer::getTotalSeconds())
+				// re-request name if entry is expired
+				if (av_name->mExpires < LLFrameTimer::getTotalSeconds())
 				{
-					return true;
+					if (!isRequestPending(agent_id))
+					{
+						sAskQueue.insert(agent_id);
+					}
 				}
+				
+				return true;
 			}
 		}
 		else
@@ -725,8 +732,8 @@ F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
 	}
 	else
 	{
-		// With no expiration info, default to a day
-		const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
+		// With no expiration info, default to an hour
+		const F64 DEFAULT_EXPIRES = 60.0 * 60.0;
 		F64 now = LLFrameTimer::getTotalSeconds();
 		return now + DEFAULT_EXPIRES;
 	}
