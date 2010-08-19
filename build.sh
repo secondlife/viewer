@@ -32,19 +32,19 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin Release)/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin ${last_built_arch:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux Release)/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux ${last_built_arch:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN Release)
-  p=$(sed 's:.*=::' "$d/newview/Release/touched.bat")
-  echo "$d/newview/Release/$p"
+  d=$(build_dir_CYGWIN ${last_built_arch:-Release})
+  p=$(sed 's:.*=::' "$d/newview/${last_built_arch:-Release}/touched.bat")
+  echo "$d/newview/${last_built_arch:-Release}/$p"
 }
 
 pre_build()
@@ -147,10 +147,14 @@ build_viewer_update_version_manager_version=`scripts/get_version.py --viewer-ver
 cd indra
 succeeded=true
 build_processes=
+last_built_variant=
 for variant in $variants
 do
   eval '$build_'"$variant" || continue
   eval '$build_'"$arch"_"$variant" || continue
+
+  # Only the last built arch is available for upload
+  last_built_variant="$variant"
 
   begin_section "Do$variant"
   build_dir=`build_dir_$arch $variant`
@@ -276,10 +280,14 @@ then
       upload_item installer "$package" binary/octet-stream
 
       # Upload crash reporter files.
-      for symbolfile in $symbolfiles
-      do
-        upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
-      done
+      case "$last_built_arch" in
+      Release)
+        for symbolfile in $symbolfiles
+        do
+          upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
+        done
+        ;;
+      esac
 
       # Upload stub installers
       upload_stub_installers "$build_dir_stubs"
