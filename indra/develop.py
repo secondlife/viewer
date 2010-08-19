@@ -4,31 +4,25 @@
 # @authors Bryan O'Sullivan, Mark Palange, Aaron Brashears
 # @brief Fire and forget script to appropriately configure cmake for SL.
 #
-# $LicenseInfo:firstyear=2007&license=viewergpl$
-# 
-# Copyright (c) 2007-2009, Linden Research, Inc.
-# 
+# $LicenseInfo:firstyear=2007&license=viewerlgpl$
 # Second Life Viewer Source Code
-# The source code in this file ("Source Code") is provided by Linden Lab
-# to you under the terms of the GNU General Public License, version 2.0
-# ("GPL"), unless you have obtained a separate licensing agreement
-# ("Other License"), formally executed by you and Linden Lab.  Terms of
-# the GPL can be found in doc/GPL-license.txt in this distribution, or
-# online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+# Copyright (C) 2010, Linden Research, Inc.
 # 
-# There are special exceptions to the terms and conditions of the GPL as
-# it is applied to this Source Code. View the full text of the exception
-# in the file doc/FLOSS-exception.txt in this software distribution, or
-# online at
-# http://secondlifegrid.net/programs/open_source/licensing/flossexception
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License only.
 # 
-# By copying, modifying or distributing this software, you acknowledge
-# that you have read and understood your obligations described above,
-# and agree to abide by those obligations.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 # 
-# ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-# WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-# COMPLETENESS OR PERFORMANCE.
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# 
+# Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 # $/LicenseInfo$
 
 
@@ -82,6 +76,7 @@ class PlatformSetup(object):
     distcc = True
     cmake_opts = []
     word_size = 32
+    using_express = False
 
     def __init__(self):
         self.script_dir = os.path.realpath(
@@ -503,9 +498,17 @@ class WindowsSetup(PlatformSetup):
                     self._generator = version
                     print 'Building with ', self.gens[version]['gen']
                     break
-            else:
-                print >> sys.stderr, 'Cannot find a Visual Studio installation!'
-                sys.exit(1)
+                else:
+                    print >> sys.stderr, 'Cannot find a Visual Studio installation, testing for express editions'
+                    for version in 'vc80 vc90 vc71'.split():
+                        if self.find_visual_studio_express(version):
+                            self._generator = version
+                            self.using_express = True
+                            print 'Building with ', self.gens[version]['gen'] , "Express edition"
+                            break
+                        else:
+                            print >> sys.stderr, 'Cannot find any Visual Studio installation'
+                            sys.exit(1)
         return self._generator
 
     def _set_generator(self, gen):
@@ -568,6 +571,28 @@ class WindowsSetup(PlatformSetup):
             
         return ''
 
+    def find_visual_studio_express(self, gen=None):
+        if gen is None:
+            gen = self._generator
+        gen = gen.lower()
+        try:
+            import _winreg
+            key_str = (r'SOFTWARE\Microsoft\VCEXpress\%s\Setup\VC' %
+                       self.gens[gen]['ver'])
+            value_str = (r'ProductDir')
+            print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
+                   (key_str, value_str))
+            print key_str
+
+            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+            key = _winreg.OpenKey(reg, key_str)
+            value = _winreg.QueryValueEx(key, value_str)[0]+"IDE"
+            print 'Found: %s' % value
+            return value
+        except WindowsError, err:
+            print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
+            return ''
+
     def get_build_cmd(self):
         if self.incredibuild:
             config = self.build_type
@@ -577,6 +602,17 @@ class WindowsSetup(PlatformSetup):
             executable = 'buildconsole'
             cmd = "%(bin)s %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config, 'bin': executable}
             return (executable, cmd)
+
+        environment = self.find_visual_studio()
+        if environment == '':
+            environment = self.find_visual_studio_express()
+            if environment == '':
+                print >> sys.stderr, "Something went very wrong during build stage, could not find a Visual Studio installation."
+            else:
+                build_dirs=self.build_dirs();
+                print >> sys.stderr, "\nSolution generation complete, it can can now be found in:", build_dirs[0]
+                print >> sys.stderr, "\nPlease see https://wiki.secondlife.com/wiki/Microsoft_Visual_Studio#Extra_steps_for_Visual_Studio_Express_editions for express specific information"
+                exit(0)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
         executable = '%sdevenv.com' % (self.find_visual_studio(),)
@@ -609,7 +645,8 @@ class WindowsSetup(PlatformSetup):
         '''Override to add the vstool.exe call after running cmake.'''
         PlatformSetup.run_cmake(self, args)
         if self.unattended == 'OFF':
-            self.run_vstool()
+            if self.using_express == False:
+                self.run_vstool()
 
     def run_vstool(self):
         for build_dir in self.build_dirs():
