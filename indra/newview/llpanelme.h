@@ -99,12 +99,15 @@ private:
 	void onClickSetName();
 	void onDialogSetName(const LLSD& notification, const LLSD& response);
 	void onCacheSetName(bool success, const std::string& reason, const LLSD& content);
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
 	/**
 	 * Enabled/disables controls to prevent overwriting edited data upon receiving
 	 * current data from server.
 	 */
 	void enableEditing(bool enable);
+
+
 
 private:
 	// map TexturePicker name => Edit Icon pointer should be visible while hovering Texture Picker

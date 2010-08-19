@@ -194,6 +194,8 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	LLUICtrl* set_name = getChild<LLUICtrl>("set_name");
 	set_name->setVisible(use_display_names);
 	set_name->setEnabled(use_display_names);
+	// force new avatar name fetch so we have latest update time
+	LLAvatarNameCache::fetch(gAgent.getID()); 
 
 	LLPanelMyProfile::onOpen(getAvatarId());
 }
@@ -373,19 +375,15 @@ void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD&
 }
 
 void LLPanelMyProfileEdit::onClickSetName()
+{	
+	LLAvatarNameCache::get(getAvatarId(), 
+			boost::bind(&LLPanelMyProfileEdit::onAvatarNameCache,
+				this, _1, _2));
+}
+
+void LLPanelMyProfileEdit::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	LLUUID agent_id = getAvatarId();
-	std::string display_name;
-	LLAvatarName av_name;
-	if (!LLAvatarNameCache::get(agent_id, &av_name))
-	{
-		// something is wrong, tell user to try again later
-		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
-		return;
-	}
-		
-	display_name = av_name.mDisplayName;
-	if (display_name.empty())
+	if (av_name.mDisplayName.empty())
 	{
 		// something is wrong, tell user to try again later
 		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
@@ -421,7 +419,7 @@ void LLPanelMyProfileEdit::onClickSetName()
 	}
 	
 	LLSD args;
-	args["DISPLAY_NAME"] = display_name;
+	args["DISPLAY_NAME"] = av_name.mDisplayName;
 	LLSD payload;
 	payload["agent_id"] = agent_id;
 	LLNotificationsUtil::add("SetDisplayName", args, payload, 
