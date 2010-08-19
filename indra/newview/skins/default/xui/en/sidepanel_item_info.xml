@@ -164,8 +164,9 @@
      layout="topleft"
      left_pad="5"
 		     name="LabelCreatorName"
-		     top_delta="6"
-		     width="180">
+       top_delta="6"
+       use_ellipses="true"
+       width="180">
       </text>
       <button
       follows="top|right"
@@ -207,6 +208,7 @@
         left_pad="5"
       name="LabelOwnerName"
       top_delta="6"
+       use_ellipses="true"
 			 width="180">
       </text>
 	     <button
