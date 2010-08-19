@@ -107,7 +107,16 @@ public:
 	{
 		std::string key_str(keystring);
 		std::string trans_str;
-		return findString(trans_str, "Key_" + key_str) ? trans_str : key_str; 
+		if (findString(trans_str, "Key_" + key_str))
+		{
+			return trans_str;
+		}
+		else if (findString(trans_str, key_str))
+		{
+			return trans_str;
+		}
+		llwarns << "Failed to find keyboard string " << keystring << llendl;
+		return key_str;
 	}
 
 	// get the default args
