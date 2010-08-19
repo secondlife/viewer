@@ -240,6 +240,7 @@ public:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLVertexBuffer> mLastVertexBuffer;
 	F32			mLastUpdateTime;
+	F32			mLastSkinTime;
 	F32			mLastMoveTime;
 	LLMatrix4*	mTextureMatrix;
 	LLDrawInfo* mDrawInfo;
@@ -274,7 +275,7 @@ private:
 
 	S32			mReferenceIndex;
 	std::vector<S32> mRiggedIndex;
-	 
+	
 	F32			mVSize;
 	F32			mPixelArea;
 

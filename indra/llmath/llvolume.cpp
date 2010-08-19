@@ -45,7 +45,7 @@
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
-#include "llmatrix4a.h"
+#include "llmatrix3a.h"
 #include "lloctree.h"
 #include "lldarray.h"
 #include "llvolume.h"
@@ -53,6 +53,7 @@
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
+#include "llmatrix4a.h"
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -161,7 +162,7 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 	LLVector4a det;
 	det.setAllDot3(edge1, pvec);
 	
-	if (det.greaterEqual4(LLVector4a::getApproximatelyZero()).getComparisonMask() & 0x7)
+	if (det.greaterEqual(LLVector4a::getEpsilon()).getGatheredBits() & 0x7)
 	{
 		/* calculate distance from vert0 to ray origin */
 		LLVector4a tvec;
@@ -171,8 +172,8 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 		LLVector4a u;
 		u.setAllDot3(tvec,pvec);
 
-		if ((u.greaterEqual4(LLVector4a::getZero()).getComparisonMask() & 0x7) &&
-			(u.lessEqual4(det).getComparisonMask() & 0x7))
+		if ((u.greaterEqual(LLVector4a::getZero()).getGatheredBits() & 0x7) &&
+			(u.lessEqual(det).getGatheredBits() & 0x7))
 		{
 			/* prepare to test V parameter */
 			LLVector4a qvec;
@@ -188,8 +189,8 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 			LLVector4a sum_uv;
 			sum_uv.setAdd(u, v);
 
-			S32 v_gequal = v.greaterEqual4(LLVector4a::getZero()).getComparisonMask() & 0x7;
-			S32 sum_lequal = sum_uv.lessEqual4(det).getComparisonMask() & 0x7;
+			S32 v_gequal = v.greaterEqual(LLVector4a::getZero()).getGatheredBits() & 0x7;
+			S32 sum_lequal = sum_uv.lessEqual(det).getGatheredBits() & 0x7;
 
 			if (v_gequal  && sum_lequal)
 			{
@@ -230,7 +231,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	pvec.setCross3(dir, edge2);
 
 	/* if determinant is near zero, ray lies in plane of triangle */
-	F32 det = edge1.dot3(pvec);
+	F32 det = edge1.dot3(pvec).getF32();
 
 	
 	if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
@@ -245,7 +246,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	tvec.setSub(orig, vert0);
 	
 	/* calculate U parameter and test bounds */
-	u = (tvec.dot3(pvec)) * inv_det;
+	u = (tvec.dot3(pvec).getF32()) * inv_det;
 	if (u < 0.f || u > 1.f)
 	{
 		return FALSE;
@@ -255,7 +256,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	tvec.sub(edge1);
 		
 	/* calculate V parameter and test bounds */
-	v = (dir.dot3(tvec)) * inv_det;
+	v = (dir.dot3(tvec).getF32()) * inv_det;
 	
 	if (v < 0.f || u + v > 1.f)
 	{
@@ -263,7 +264,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	}
 
 	/* calculate t, ray intersects triangle */
-	t = (edge2.dot3(tvec)) * inv_det;
+	t = (edge2.dot3(tvec).getF32()) * inv_det;
 	
 	intersection_a = u;
 	intersection_b = v;
@@ -326,20 +327,20 @@ public:
 				//stretch by triangles in node
 				tri = *iter;
 				
-				min.setMin(*tri->mV[0]);
-				min.setMin(*tri->mV[1]);
-				min.setMin(*tri->mV[2]);
+				min.setMin(min, *tri->mV[0]);
+				min.setMin(min, *tri->mV[1]);
+				min.setMin(min, *tri->mV[2]);
 
-				max.setMax(*tri->mV[0]);
-				max.setMax(*tri->mV[1]);
-				max.setMax(*tri->mV[2]);
+				max.setMax(max, *tri->mV[0]);
+				max.setMax(max, *tri->mV[1]);
+				max.setMax(max, *tri->mV[2]);
 			}
 
 			for (S32 i = 0; i < branch->getChildCount(); ++i)
 			{  //stretch by child extents
 				LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-				min.setMin(child->mExtents[0]);
-				max.setMax(child->mExtents[1]);
+				min.setMin(min, child->mExtents[0]);
+				max.setMax(min, child->mExtents[1]);
 			}
 		}
 		else if (branch->getChildCount() != 0)
@@ -352,8 +353,8 @@ public:
 			for (S32 i = 1; i < branch->getChildCount(); ++i)
 			{  //stretch by child extents
 				child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-				min.setMin(child->mExtents[0]);
-				max.setMax(child->mExtents[1]);
+				min.setMin(min, child->mExtents[0]);
+				max.setMax(max, child->mExtents[1]);
 			}
 		}
 		else
@@ -2011,7 +2012,7 @@ const LLVolumeFace::VertexData& LLVolumeFace::VertexData::operator=(const LLVolu
 	if (this != &rhs)
 	{
 		init();
-		LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8);
+		LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8*sizeof(F32));
 		mTexCoord = rhs.mTexCoord;
 	}
 	return *this;
@@ -2055,8 +2056,8 @@ void LLVolumeFace::VertexData::setNormal(const LLVector4a& norm)
 
 bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)const
 {
-	const F32* lp = this->getPosition().getF32();
-	const F32* rp = rhs.getPosition().getF32();
+	const F32* lp = this->getPosition().getF32ptr();
+	const F32* rp = rhs.getPosition().getF32ptr();
 
 	if (lp[0] != rp[0])
 	{
@@ -2073,8 +2074,8 @@ bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)con
 		return lp[2] < rp[2];
 	}
 
-	lp = getNormal().getF32();
-	rp = rhs.getNormal().getF32();
+	lp = getNormal().getF32ptr();
+	rp = rhs.getNormal().getF32ptr();
 
 	if (lp[0] != rp[0])
 	{
@@ -2101,23 +2102,23 @@ bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)con
 
 bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)const
 {
-	return mData[POSITION].equal3(rhs.getPosition()) &&
-			mData[NORMAL].equal3(rhs.getNormal()) &&
+	return mData[POSITION].equals3(rhs.getPosition()) &&
+			mData[NORMAL].equals3(rhs.getNormal()) &&
 			mTexCoord == rhs.mTexCoord;
 }
 
 bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs, F32 angle_cutoff) const
 {
 	bool retval = false;
-	if (rhs.mData[POSITION].equal3(mData[POSITION]) && rhs.mTexCoord == mTexCoord)
+	if (rhs.mData[POSITION].equals3(mData[POSITION]) && rhs.mTexCoord == mTexCoord)
 	{
 		if (angle_cutoff > 1.f)
 		{
-			retval = (mData[NORMAL].equal3(rhs.mData[NORMAL]));
+			retval = (mData[NORMAL].equals3(rhs.mData[NORMAL]));
 		}
 		else
 		{
-			F32 cur_angle = rhs.mData[NORMAL].dot3(mData[NORMAL]);
+			F32 cur_angle = rhs.mData[NORMAL].dot3(mData[NORMAL]).getF32();
 			retval = cur_angle > angle_cutoff;
 		}
 	}
@@ -2331,8 +2332,8 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 				else
 				{
-					min.setMin(*pos_out);
-					max.setMax(*pos_out);
+					min.setMin(min, *pos_out);
+					max.setMax(max, *pos_out);
 				}
 
 				pos_out++;
@@ -2944,7 +2945,7 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
 		ratio = (F32) width / (F32) height;
 
 	
-	s = (S32)fsqrtf(((F32)vertices / ratio));
+	s = (S32)(F32) sqrt(((F32)vertices / ratio));
 
 	s = llmax(s, 4);              // no degenerate sizes, please
 	t = vertices / s;
@@ -5280,16 +5281,15 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 	freeData();
 	
-	LLVector4a::memcpyNonAliased16((F32*) mExtents, (F32*) src.mExtents, 12);
+	LLVector4a::memcpyNonAliased16((F32*) mExtents, (F32*) src.mExtents, 12*sizeof(F32));
 
 	resizeVertices(src.mNumVertices);
 	resizeIndices(src.mNumIndices);
 
 	if (mNumVertices)
 	{
-		S32 vert_size = mNumVertices*4;
+		S32 vert_size = mNumVertices*4*sizeof(F32);
 		S32 tc_size = (mNumVertices*8+0xF) & ~0xF;
-		tc_size /= 4;
 			
 		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
 		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
@@ -5322,8 +5322,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 	if (mNumIndices)
 	{
 		S32 idx_size = (mNumIndices*2+0xF) & ~0xF;
-		idx_size /= 4;
-
+		
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
 	
@@ -5388,9 +5387,9 @@ void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
 
 bool LLVolumeFace::VertexMapData::operator==(const LLVolumeFace::VertexData& rhs) const
 {
-	return getPosition().equal3(rhs.getPosition()) &&
+	return getPosition().equals3(rhs.getPosition()) &&
 		mTexCoord == rhs.mTexCoord &&
-		getNormal().equal3(rhs.getNormal());
+		getNormal().equals3(rhs.getNormal());
 }
 
 bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a, const LLVector3& b) const
@@ -5423,7 +5422,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		getVertexData(index, cv);
 		
 		BOOL found = FALSE;
-		VertexMapData::PointMap::iterator point_iter = point_map.find(LLVector3(cv.getPosition().getF32()));
+		VertexMapData::PointMap::iterator point_iter = point_map.find(LLVector3(cv.getPosition().getF32ptr()));
 		if (point_iter != point_map.end())
 		{ //duplicate point might exist
 			for (U32 j = 0; j < point_iter->second.size(); ++j)
@@ -5455,7 +5454,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 			}
 			else
 			{
-				point_map[LLVector3(d.getPosition().getF32())].push_back(d);
+				point_map[LLVector3(d.getPosition().getF32ptr())].push_back(d);
 			}
 		}
 	}
@@ -5491,12 +5490,12 @@ void LLVolumeFace::createOctree()
 		tri->mIndex[2] = mIndices[i+2];
 
 		LLVector4a min = v0;
-		min.setMin(v1);
-		min.setMin(v2);
+		min.setMin(min, v1);
+		min.setMin(min, v2);
 
 		LLVector4a max = v0;
-		max.setMax(v1);
-		max.setMax(v2);
+		max.setMax(max, v1);
+		max.setMax(max, v2);
 
 		LLVector4a center;
 		center.setAdd(min, max);
@@ -5507,7 +5506,7 @@ void LLVolumeFace::createOctree()
 		LLVector4a size;
 		size.setSub(max,min);
 		
-		tri->mRadius = size.length3() * 0.5f;
+		tri->mRadius = size.getLength3().getF32() * 0.5f;
 		
 		mOctree->insert(tri);
 	}
@@ -5655,12 +5654,13 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 				if (gx == 0 && gy == 0)
 				{
-					min = max = newVert.getPosition();
+					min = newVert.getPosition();
+					max = min;
 				}
 				else
 				{
-					min.setMin(newVert.getPosition());
-					max.setMax(newVert.getPosition());
+					min.setMin(min, newVert.getPosition());
+					max.setMax(max, newVert.getPosition());
 				}
 			}
 		}
@@ -5795,7 +5795,8 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		
 		if (i == 0)
 		{
-			min = max = pos[i];
+			max = pos[i];
+			min = max;
 			min_uv = max_uv = tc[i];
 		}
 		else
@@ -5848,8 +5849,8 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		
 	for (S32 i = 0; i < num_vertices; i++)
 	{
-		binorm[i].load4a((F32*) &binormal.mQ);
-		norm[i].load4a((F32*) &normal.mQ);
+		binorm[i].load4a(binormal.getF32ptr());
+		norm[i].load4a(normal.getF32ptr());
 	}
 
 	if (partial_build)
@@ -6186,7 +6187,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	LLVector4a* dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mPositions)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, old_size/4);
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, old_size);
 		ll_aligned_free_16(mPositions);
 	}
 	mPositions = dst;
@@ -6195,7 +6196,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mNormals)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, old_size/4);
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, old_size);
 		ll_aligned_free_16(mNormals);
 	}
 	mNormals = dst;
@@ -6209,7 +6210,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 		LLVector2* dst = (LLVector2*) ll_aligned_malloc_16(new_size);
 		if (mTexCoords)
 		{
-			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, old_size/4);
+			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, old_size);
 			ll_aligned_free_16(mTexCoords);
 		}
 	}
@@ -6268,7 +6269,7 @@ void LLVolumeFace::pushIndex(const U16& idx)
 		U16* dst = (U16*) ll_aligned_malloc_16(new_size);
 		if (mIndices)
 		{
-			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, old_size/4);
+			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, old_size);
 			ll_aligned_free_16(mIndices);
 		}
 		mIndices = dst;
@@ -6319,9 +6320,9 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 	if (mNumVertices > 0)
 	{ //copy old buffers
-		LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, mNumVertices*4);
-		LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, mNumVertices*4);
-		LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, mNumVertices*2);
+		LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, mNumVertices*4*sizeof(F32));
+		LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, mNumVertices*4*sizeof(F32));
+		LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, mNumVertices*2*sizeof(F32));
 	}
 
 	//free old buffer space
@@ -6382,7 +6383,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	if (mNumIndices > 0)
 	{ //copy old index buffer
 		S32 old_size = (mNumIndices*2+0xF) & ~0xF;
-		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, old_size/4);
+		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, old_size);
 	}
 
 	//free old index buffer

@@ -1124,13 +1124,13 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			size.setSub(max_extents, min_extents);
 			size.mul(0.5f);
 
-			mGridOrigin.set(center.getF32());
+			mGridOrigin.set(center.getF32ptr());
 			LLDrawable* drawable = first_grid_object->mDrawable;
 			if (drawable && drawable->isActive())
 			{
 				mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
 			}
-			mGridScale.set(size.getF32());
+			mGridScale.set(size.getF32ptr());
 		}
 	}
 	else // GRID_MODE_WORLD or just plain default
@@ -3543,7 +3543,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 		{
 			if (mDebugSelectMgr)
 			{
-				llinfos << "Selection manager: auto-deselecting, select_dist = " << fsqrtf(select_dist_sq) << llendl;
+				llinfos << "Selection manager: auto-deselecting, select_dist = " << (F32) sqrt(select_dist_sq) << llendl;
 				llinfos << "agent pos global = " << gAgent.getPositionGlobal() << llendl;
 				llinfos << "selection pos global = " << selectionCenter << llendl;
 			}

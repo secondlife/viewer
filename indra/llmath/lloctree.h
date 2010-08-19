@@ -142,7 +142,7 @@ public:
 	
 	S32 getOctant(const LLVector4a& pos) const			//get the octant pos is in
 	{
-		return pos.greaterThan4(mD[CENTER]).getComparisonMask() & 0x7;
+		return pos.greaterThan(mD[CENTER]).getGatheredBits() & 0x7;
 	}
 	
 	inline bool isInside(const LLVector4a& pos, const F32& rad) const
@@ -157,13 +157,13 @@ public:
 
 	bool isInside(const LLVector4a& pos) const
 	{
-		S32 gt = pos.greaterThan4(mD[MAX]).getComparisonMask() & 0x7;
+		S32 gt = pos.greaterThan(mD[MAX]).getGatheredBits() & 0x7;
 		if (gt)
 		{
 			return false;
 		}
 
-		S32 lt = pos.lessEqual4(mD[MIN]).getComparisonMask() & 0x7;
+		S32 lt = pos.lessEqual(mD[MIN]).getGatheredBits() & 0x7;
 		if (lt)
 		{
 			return false;
@@ -206,13 +206,13 @@ public:
 	{
 		const LLVector4a& pos = data->getPositionGroup();
 
-		LLVector4a gt = pos.greaterThan4(center);
+		LLVector4a gt = pos.greaterThan(center);
 
 		LLVector4a up;
-		up.mQ = _mm_and_ps(size.mQ, gt.mQ);
+		up = _mm_and_ps(size, gt);
 
 		LLVector4a down;
-		down.mQ = _mm_andnot_ps(gt.mQ, size.mQ);
+		down = _mm_andnot_ps(gt, size);
 
 		center.add(up);
 		center.sub(down);
@@ -326,9 +326,8 @@ public:
 				LLVector4a val;
 				val.setSub(center, getCenter());
 				val.setAbs(val);
-				LLVector4a app_zero;
-				app_zero.mQ = F_APPROXIMATELY_ZERO_4A;
-				S32 lt = val.lessThan4(app_zero).getComparisonMask() & 0x7;
+								
+				S32 lt = val.lessThan(LLVector4a::getEpsilon()).getGatheredBits() & 0x7;
 
 				if( lt == 0x7 )
 				{
@@ -642,7 +641,7 @@ public:
 		LLVector4a val;
 		val.setSub(v, BaseType::mD[BaseType::CENTER]);
 		val.setAbs(val);
-		S32 lt = val.lessThan4(MAX_MAG).getComparisonMask() & 0x7;
+		S32 lt = val.lessThan(MAX_MAG).getGatheredBits() & 0x7;
 
 		if (lt != 0x7)
 		{

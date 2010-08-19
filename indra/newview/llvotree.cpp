@@ -472,7 +472,7 @@ void LLVOTree::updateTextures()
 	{
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 		{
-			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
+			setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
 		}
 		mTreeImagep->addTextureStats(mPixelArea);
 	}
@@ -1278,8 +1278,8 @@ BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end
 
 	//VECTORIZE THIS
 	LLVector3 ext[2];
-	ext[0].set(exta[0].getF32());
-	ext[1].set(exta[1].getF32());
+	ext[0].set(exta[0].getF32ptr());
+	ext[1].set(exta[1].getF32ptr());
 	
 	LLVector3 center = (ext[1]+ext[0])*0.5f;
 	LLVector3 size = (ext[1]-ext[0]);

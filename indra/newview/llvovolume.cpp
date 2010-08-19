@@ -696,7 +696,7 @@ void LLVOVolume::updateTextureVirtualSize()
 		const LLTextureEntry *te = face->getTextureEntry();
 		LLViewerTexture *imagep = face->getTexture();
 		if (!imagep || !te ||			
-			face->mExtents[0].equal3(face->mExtents[1]))
+			face->mExtents[0].equals3(face->mExtents[1]))
 		{
 			continue;
 		}
@@ -820,15 +820,15 @@ void LLVOVolume::updateTextureVirtualSize()
 	
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 	{
-		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
+		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
 	}
  	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
  	{
- 		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
+ 		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
  	}
 	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
 	{
-		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
+		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
 	}
 
 	if (mPixelArea == 0)
@@ -1355,8 +1355,8 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			}
 			else
 			{
-				min.setMin(face->mExtents[0]);
-				max.setMax(face->mExtents[1]);
+				min.setMin(min, face->mExtents[0]);
+				max.setMax(max, face->mExtents[1]);
 			}
 		}
 	}
@@ -1864,7 +1864,7 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 			result.add(face.mNormals[i]);
 		}
 
-		LLVector3 ret((F32*) &result.mQ);
+		LLVector3 ret(result.getF32ptr());
 		ret = volumeDirectionToAgent(ret);
 		ret.normVec();
 	}
@@ -3075,7 +3075,7 @@ F32 LLVOVolume::getBinRadius()
 		LLVector4a rad;
 		rad.setSub(ext[1], ext[0]);
 		
-		radius = rad.length3()*0.5f;
+		radius = rad.getLength3().getF32()*0.5f;
 	}
 	else if (mDrawable->isStatic())
 	{

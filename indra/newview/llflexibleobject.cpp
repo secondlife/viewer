@@ -100,7 +100,7 @@ void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *dat
 void LLVolumeImplFlexible::onShift(const LLVector4a &shift_vector)
 {	
 	//VECTORIZE THIS
-	LLVector3 shift(shift_vector.getF32());
+	LLVector3 shift(shift_vector.getF32ptr());
 	for (int section = 0; section < (1<<FLEXIBLE_OBJECT_MAX_SECTIONS)+1; ++section)
 	{
 		mSection[section].mPosition += shift;	

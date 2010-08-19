@@ -743,7 +743,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		}
 		else
 		{
-			pos = LLVector3(getPositionGroup().getF32());
+			pos = LLVector3(getPositionGroup().getF32ptr());
 		}
 
 		pos -= camera.getOrigin();	
@@ -824,7 +824,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
 			LLFace *facep = getFace(i);
-			facep->mCenterAgent += LLVector3(shift_vector.getF32());
+			facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
 			facep->mExtents[0].add(shift_vector);
 			facep->mExtents[1].add(shift_vector);
 			
@@ -1153,13 +1153,13 @@ void LLSpatialBridge::updateSpatialExtents()
 		LLVector4a max;
 		max.setAdd(center, delta);
 
-		newMin.setMin(min);
-		newMax.setMax(max);
+		newMin.setMin(newMin, min);
+		newMax.setMax(newMax, max);
 	}
 	
 	LLVector4a diagonal;
 	diagonal.setSub(newMax, newMin);
-	mRadius = diagonal.length3() * 0.5f;
+	mRadius = diagonal.getLength3().getF32() * 0.5f;
 	
 	mPositionGroup->setAdd(newMin,newMax);
 	mPositionGroup->mul(0.5f);

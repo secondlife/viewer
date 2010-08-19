@@ -68,6 +68,7 @@ if (WINDOWS)
    
     add_definitions(
       /Zc:wchar_t-
+      /arch:SSE2
       )
   endif (MSVC80 OR MSVC90)
   

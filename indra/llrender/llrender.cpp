@@ -924,7 +924,7 @@ LLVector3 LLRender::getUITranslation()
 	{
 		llerrs << "UI offset stack empty." << llendl;
 	}
-	return LLVector3(mUIOffset[mUIStackDepth-1].getF32());
+	return LLVector3(mUIOffset[mUIStackDepth-1].getF32ptr());
 }
 
 LLVector3 LLRender::getUIScale()
@@ -933,7 +933,7 @@ LLVector3 LLRender::getUIScale()
 	{
 		llerrs << "UI scale stack empty." << llendl;
 	}
-	return LLVector3(mUIScale[mUIStackDepth-1].getF32());
+	return LLVector3(mUIScale[mUIStackDepth-1].getF32ptr());
 }
 
 

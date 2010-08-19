@@ -2973,7 +2973,7 @@ F32 LLViewerObject::getBinRadius()
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a diff;
 		diff.setSub(ext[1], ext[0]);
-		return diff.length3();
+		return diff.getLength3().getF32();
 	}
 	
 	return getScale().magVec();

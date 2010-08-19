@@ -675,6 +675,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
 	mNeedsSkin(FALSE),
+	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
@@ -1356,7 +1357,7 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 	if (isImpostor() && !needsImpostorUpdate())
 	{
 		LLVector3 delta = getRenderPosition() -
-			((LLVector3(mDrawable->getPositionGroup().getF32())-mImpostorOffset));
+			((LLVector3(mDrawable->getPositionGroup().getF32ptr())-mImpostorOffset));
 		
 		newMin.load3( (mLastAnimExtents[0] + delta).mV);
 		newMax.load3( (mLastAnimExtents[1] + delta).mV);
@@ -1364,12 +1365,12 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 	else
 	{
 		getSpatialExtents(newMin,newMax);
-		mLastAnimExtents[0].set(newMin.getF32());
-		mLastAnimExtents[1].set(newMax.getF32());
+		mLastAnimExtents[0].set(newMin.getF32ptr());
+		mLastAnimExtents[1].set(newMax.getF32ptr());
 		LLVector4a pos_group;
 		pos_group.setAdd(newMin,newMax);
 		pos_group.mul(0.5f);
-		mImpostorOffset = LLVector3(pos_group.getF32())-getRenderPosition();
+		mImpostorOffset = LLVector3(pos_group.getF32ptr())-getRenderPosition();
 		mDrawable->setPositionGroup(pos_group);
 	}
 }
@@ -1435,7 +1436,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 						distance.setSub(ext[1], ext[0]);
 						LLVector4a max_span(max_attachment_span);
 
-						S32 lt = distance.lessThan4(max_span).getComparisonMask() & 0x7;
+						S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
 						
 						// Only add the prim to spatial extents calculations if it isn't a megaprim.
 						// max_attachment_span calculated at the start of the function 
@@ -2533,14 +2534,14 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				getSpatialExtents(ext[0], ext[1]);
 				LLVector4a diff;
 				diff.setSub(ext[1], mImpostorExtents[1]);
-				if (diff.length3() > 0.05f)
+				if (diff.getLength3().getF32() > 0.05f)
 				{
 					mNeedsImpostorUpdate = TRUE;
 				}
 				else
 				{
 					diff.setSub(ext[0], mImpostorExtents[0]);
-					if (diff.length3() > 0.05f)
+					if (diff.getLength3().getF32() > 0.05f)
 					{
 						mNeedsImpostorUpdate = TRUE;
 					}
@@ -3887,7 +3888,8 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 				mMeshLOD[MESH_ID_HAIR]->updateJointGeometry();
 			}
 			mNeedsSkin = FALSE;
-			
+			mLastSkinTime = gFrameTimeSeconds;
+
 			LLVertexBuffer* vb = mDrawable->getFace(0)->mVertexBuffer;
 			if (vb)
 			{
@@ -4231,7 +4233,7 @@ void LLVOAvatar::updateTextures()
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 	{
-		setDebugText(llformat("%4.0f:%4.0f", fsqrtf(mMinPixelArea),fsqrtf(mMaxPixelArea)));
+		setDebugText(llformat("%4.0f:%4.0f", (F32) sqrt(mMinPixelArea),(F32) sqrt(mMaxPixelArea)));
 	}	
 }
 
@@ -5443,7 +5445,7 @@ void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 	}
 	else
 	{
-		F32 radius = size.length3();
+		F32 radius = size.getLength3().getF32();
 		mAppAngle = (F32) atan2( radius, range) * RAD_TO_DEG;
 	}
 

@@ -254,8 +254,8 @@ void LLVOTextBubble::getGeometry(S32 idx,
 	LLVector2* dst_tc = (LLVector2*) texcoordsp.get();
 	LLVector2* src_tc = (LLVector2*) face.mTexCoords;
 
-	LLVector4a::memcpyNonAliased16((F32*) dst_norm, (F32*) src_norm, face.mNumVertices*4);
-	LLVector4a::memcpyNonAliased16((F32*) dst_tc, (F32*) src_tc, face.mNumVertices*2);
+	LLVector4a::memcpyNonAliased16((F32*) dst_norm, (F32*) src_norm, face.mNumVertices*4*sizeof(F32));
+	LLVector4a::memcpyNonAliased16((F32*) dst_tc, (F32*) src_tc, face.mNumVertices*2*sizeof(F32));
 	
 	
 	for (U32 i = 0; i < face.mNumVertices; i++)

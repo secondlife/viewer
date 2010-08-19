@@ -77,7 +77,7 @@ const LLCamera& LLCamera::operator=(const LLCamera& rhs)
 {
 	memcpy(this, &rhs, sizeof(LLCamera));
 	alignPlanes();
-	LLVector4a::memcpyNonAliased16((F32*) mAgentPlanes, (F32*) rhs.mAgentPlanes, 4*7);
+	LLVector4a::memcpyNonAliased16((F32*) mAgentPlanes, (F32*) rhs.mAgentPlanes, 4*7*sizeof(F32));
 	return *this;
 }
 

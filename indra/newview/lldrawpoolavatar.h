@@ -138,7 +138,8 @@ public:
 	void endDeferredRiggedSimple();
 	void endDeferredRiggedBump();
 		
-	void updateRiggedFaceVertexBuffer(LLFace* facep, 
+	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
+									  LLFace* facep, 
 									  const LLMeshSkinInfo* skin, 
 									  LLVolume* volume,
 									  const LLVolumeFace& vol_face);

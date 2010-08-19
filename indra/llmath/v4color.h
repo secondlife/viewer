@@ -392,7 +392,7 @@ inline const LLColor4&	LLColor4::setAlpha(F32 a)
 
 inline F32		LLColor4::length(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32		LLColor4::lengthSquared(void) const
@@ -402,7 +402,7 @@ inline F32		LLColor4::lengthSquared(void) const
 
 inline F32		LLColor4::normalize(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag)
@@ -418,7 +418,7 @@ inline F32		LLColor4::normalize(void)
 // deprecated
 inline F32		LLColor4::magVec(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 // deprecated
@@ -430,7 +430,7 @@ inline F32		LLColor4::magVecSquared(void) const
 // deprecated
 inline F32		LLColor4::normVec(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag)

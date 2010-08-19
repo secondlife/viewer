@@ -92,7 +92,7 @@ F32	dist_vec(const LLVector2 &a, const LLVector2 &b)
 {
 	F32 x = a.mV[0] - b.mV[0];
 	F32 y = a.mV[1] - b.mV[1];
-	return fsqrtf( x*x + y*y );
+	return (F32) sqrt( x*x + y*y );
 }
 
 F32	dist_vec_squared(const LLVector2 &a, const LLVector2 &b)

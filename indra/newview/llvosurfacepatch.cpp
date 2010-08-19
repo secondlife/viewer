@@ -999,8 +999,8 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 	const LLVector4a* exta = mDrawable->getSpatialExtents();
 
 	LLVector3 ext[2];
-	ext[0].set(exta[0].getF32());
-	ext[1].set(exta[1].getF32());
+	ext[0].set(exta[0].getF32ptr());
+	ext[1].set(exta[1].getF32ptr());
 
 	F32 rad = (delta*tdelta).magVecSquared();
 

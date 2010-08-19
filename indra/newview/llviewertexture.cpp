@@ -1580,7 +1580,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 
 	S32 cur_discard = getCurrentDiscardLevelForFetching();
 	bool have_all_data = (cur_discard >= 0 && (cur_discard <= mDesiredDiscardLevel));
-	F32 pixel_priority = fsqrtf(mMaxVirtualSize);
+	F32 pixel_priority = (F32) sqrt(mMaxVirtualSize);
 
 	F32 priority = 0.f;
 

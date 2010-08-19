@@ -1522,7 +1522,7 @@ F32 LLPipeline::calcPixelArea(const LLVector4a& center, const LLVector4a& size, 
 
 	LLVector4a lookAt;
 	lookAt.setSub(center, origin);
-	F32 dist = lookAt.length3();
+	F32 dist = lookAt.getLength3().getF32();
 
 	//ramp down distance for nearby objects
 	//shrink dist by dist/16.
@@ -1534,7 +1534,7 @@ F32 LLPipeline::calcPixelArea(const LLVector4a& center, const LLVector4a& size, 
 	}
 
 	//get area of circle around node
-	F32 app_angle = atanf(size.length3()/dist);
+	F32 app_angle = atanf(size.getLength3().getF32()/dist);
 	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
 	return radius*radius * F_PI;
 }
@@ -4671,7 +4671,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 	{
 		return max_dist;
 	}
-	F32 dist = fsqrtf(dist2);
+	F32 dist = (F32) sqrt(dist2);
 	dist *= 1.f / inten;
 	dist -= radius;
 	if (selected)
@@ -6980,7 +6980,7 @@ void LLPipeline::renderDeferredLighting()
 
 					LLVector4a center;
 					center.load3(drawablep->getPositionAgent().mV);
-					const F32* c = center.getF32();
+					const F32* c = center.getF32ptr();
 					F32 s = volume->getLightRadius()*1.5f;
 
 					LLColor3 col = volume->getLightColor();
@@ -7078,7 +7078,7 @@ void LLPipeline::renderDeferredLighting()
 
 					LLVector4a center;
 					center.load3(drawablep->getPositionAgent().mV);
-					const F32* c = center.getF32();
+					const F32* c = center.getF32ptr();
 					F32 s = volume->getLightRadius()*1.5f;
 
 					sVisibleLightCount++;
@@ -9184,8 +9184,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	up.mul(up);
 	up.normalize3fast();
 
-	tdim.mV[0] = fabsf(half_height.dot3(left));
-	tdim.mV[1] = fabsf(half_height.dot3(up));
+	tdim.mV[0] = fabsf(half_height.dot3(left).getF32());
+	tdim.mV[1] = fabsf(half_height.dot3(up).getF32());
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();

@@ -106,8 +106,8 @@ void planarProjection(LLVector2 &tc, const LLVector4a& normal,
 	LLVector4a tangent;
 	tangent.setCross3(binormal,normal);
 
-	tc.mV[1] = -((tangent.dot3(vec))*2 - 0.5f);
-	tc.mV[0] = 1.0f+((binormal.dot3(vec))*2 - 0.5f);
+	tc.mV[1] = -((tangent.dot3(vec).getF32())*2 - 0.5f);
+	tc.mV[0] = 1.0f+((binormal.dot3(vec).getF32())*2 - 0.5f);
 }
 
 void sphericalProjection(LLVector2 &tc, const LLVector4a& normal,
@@ -156,6 +156,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 	mLastUpdateTime = gFrameTimeSeconds;
 	mLastMoveTime = 0.f;
+	mLastSkinTime = gFrameTimeSeconds;
 	mVSize = 0.f;
 	mPixelArea = 16.f;
 	mState      = GLOBAL;
@@ -828,8 +829,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			LLVector4a max;
 			max.setAdd(center, delta);
 
-			newMin.setMin(min);
-			newMax.setMax(max);
+			newMin.setMin(newMin,min);
+			newMax.setMax(newMax,max);
 		}
 
 		if (!mDrawablep->isActive())
@@ -844,11 +845,11 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		t.mul(0.5f);
 
 		//VECTORIZE THIS
-		mCenterLocal.set(t.getF32());
+		mCenterLocal.set(t.getF32ptr());
 		
 		t.setSub(newMax,newMin);
 		t.mul(0.5f);
-		mBoundingSphereRadius = t.length3();
+		mBoundingSphereRadius = t.getLength3().getF32();
 
 		updateCenterAgent();
 	}
@@ -1313,7 +1314,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				{
 					if (!do_xform)
 					{
-						LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2);
+						LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
 					}
 					else
 					{
@@ -1529,13 +1530,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					if (mDrawablep->isActive())
 					{
 						LLVector3 t;
-						t.set(binormal.getF32());
+						t.set(binormal.getF32ptr());
 						t *= bump_quat;
 						binormal.load3(t.mV);
 					}
 
 					binormal.normalize3fast();
-					tc += LLVector2( bump_s_primary_light_ray.dot3(tangent), bump_t_primary_light_ray.dot3(binormal) );
+					tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
 					
 					*tex_coords2++ = tc;
 				}	
@@ -1583,7 +1584,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	if (rebuild_weights && vf.mWeights)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4);
+		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
 	}
 
 	if (rebuild_color)
@@ -1705,21 +1706,21 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 
-	F32 size_squared = size.dot3(size);
+	F32 size_squared = size.dot3(size).getF32();
 	LLVector4a lookAt;
 	LLVector4a t;
 	t.load3(camera->getOrigin().mV);
 	lookAt.setSub(center, t);
-	F32 dist = lookAt.length3();
+	F32 dist = lookAt.getLength3().getF32();
 	lookAt.normalize3fast() ;	
 
 	//get area of circle around node
-	F32 app_angle = atanf(fsqrtf(size_squared) / dist);
+	F32 app_angle = atanf((F32) sqrt(size_squared) / dist);
 	radius = app_angle*LLDrawable::sCurPixelAngle;
 	mPixelArea = radius*radius * 3.14159f;
 	LLVector4a x_axis;
 	x_axis.load3(camera->getXAxis().mV);
-	cos_angle_to_view_dir = lookAt.dot3(x_axis);
+	cos_angle_to_view_dir = lookAt.dot3(x_axis).getF32();
 
 	//if has media, check if the face is out of the view frustum.	
 	if(hasMedia())

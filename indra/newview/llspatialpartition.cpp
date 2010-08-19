@@ -231,7 +231,7 @@ U8* get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
 	LLVector4a origin;
 	origin.load3(camera->getOrigin().mV);
 
-	S32 cypher = center.greaterThan4(origin).getComparisonMask() & 0x7;
+	S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
 	
 	return sOcclusionIndices+cypher*8;
 }
@@ -253,7 +253,7 @@ void LLSpatialGroup::buildOcclusion()
 	r2.splat(0.25f);
 	r2.add(mBounds[1]);
 
-	r.setMin(r2);
+	r.setMin(r, r2);
 
 	LLVector4a* v = mOcclusionVerts;
 	const LLVector4a& c = mBounds[0];
@@ -775,8 +775,8 @@ BOOL LLSpatialGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& ma
 	}
 	else
 	{
-		minOut.setMin(newMin);
-		maxOut.setMax(newMax);
+		minOut.setMin(minOut, newMin);
+		maxOut.setMax(maxOut, newMax);
 	}
 		
 	return TRUE;
@@ -1220,8 +1220,8 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 #endif
 	if (!getData().empty())
 	{
-		mRadius = mSpatialPartition->mRenderByGroup ? mObjectBounds[1].length3() :
-						(F32) mOctreeNode->getSize().length3();
+		mRadius = mSpatialPartition->mRenderByGroup ? mObjectBounds[1].getLength3().getF32() :
+						(F32) mOctreeNode->getSize().getLength3().getF32();
 		mDistance = mSpatialPartition->calcDistance(this, camera);
 		mPixelArea = mSpatialPartition->calcPixelArea(this, camera);
 	}
@@ -1241,7 +1241,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 	{
 		LLVector4a v = eye;
 
-		dist = eye.length3();
+		dist = eye.getLength3().getF32();
 		eye.normalize3fast();
 
 		if (!group->isState(LLSpatialGroup::ALPHA_DIRTY))
@@ -1253,7 +1253,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 				LLVector4a diff;
 				diff.setSub(view_angle, *group->mLastUpdateViewAngle);
 
-				if (diff.length3() > 0.64f)
+				if (diff.getLength3().getF32() > 0.64f)
 				{
 					*group->mViewAngle = view_angle;
 					*group->mLastUpdateViewAngle = view_angle;
@@ -1279,11 +1279,11 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 		t.mul(group->mObjectBounds[1]);
 		v.sub(t);
 		
-		group->mDepth = v.dot3(ata);
+		group->mDepth = v.dot3(ata).getF32();
 	}
 	else
 	{
-		dist = eye.length3();
+		dist = eye.getLength3().getF32();
 	}
 
 	if (dist < 16.f)
@@ -1497,8 +1497,8 @@ BOOL LLSpatialGroup::rebound()
 			const LLVector4a& max = group->mExtents[1];
 			const LLVector4a& min = group->mExtents[0];
 
-			newMax.setMax(max);
-			newMin.setMin(min);
+			newMax.setMax(newMax, max);
+			newMin.setMin(newMin, min);
 		}
 
 		boundObjects(FALSE, newMin, newMax);
@@ -2196,8 +2196,8 @@ BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, 
 	LLOctreeCullVisExtents vis(&camera, visMina, visMaxa);
 	vis.traverse(mOctree);
 
-	visMin.set(visMina.getF32());
-	visMax.set(visMaxa.getF32());
+	visMin.set(visMina.getF32ptr());
+	visMax.set(visMaxa.getF32ptr());
 	return vis.mEmpty;
 }
 
@@ -2280,13 +2280,13 @@ BOOL earlyFail(LLCamera* camera, LLSpatialGroup* group)
 	LLVector4a max;
 	max.setAdd(c,r);
 	
-	S32 lt = e.lessThan4(min).getComparisonMask() & 0x7;
+	S32 lt = e.lessThan(min).getGatheredBits() & 0x7;
 	if (lt)
 	{
 		return FALSE;
 	}
 
-	S32 gt = e.greaterThan4(max).getComparisonMask() & 0x7;
+	S32 gt = e.greaterThan(max).getGatheredBits() & 0x7;
 	if (gt)
 	{
 		return FALSE;
@@ -2745,8 +2745,8 @@ void renderNormals(LLDrawable* drawablep)
 				p.setAdd(face.mPositions[j], n);
 				
 				gGL.color4f(1,1,1,1);
-				gGL.vertex3fv(face.mPositions[j].getF32());
-				gGL.vertex3fv(p.getF32());
+				gGL.vertex3fv(face.mPositions[j].getF32ptr());
+				gGL.vertex3fv(p.getF32ptr());
 				
 				if (face.mBinormals)
 				{
@@ -2754,8 +2754,8 @@ void renderNormals(LLDrawable* drawablep)
 					p.setAdd(face.mPositions[j], n);
 				
 					gGL.color4f(0,1,1,1);
-					gGL.vertex3fv(face.mPositions[j].getF32());
-					gGL.vertex3fv(p.getF32());
+					gGL.vertex3fv(face.mPositions[j].getF32ptr());
+					gGL.vertex3fv(p.getF32ptr());
 				}	
 			}
 
@@ -3024,8 +3024,8 @@ public:
 		LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) branch->getListener(0);
 
 		LLVector3 center, size;
-		center.set(vl->mBounds[0].getF32());
-		size.set(vl->mBounds[1].getF32());
+		center.set(vl->mBounds[0].getF32ptr());
+		size.set(vl->mBounds[1].getF32ptr());
 
 		drawBoxOutline(center, size);
 	}

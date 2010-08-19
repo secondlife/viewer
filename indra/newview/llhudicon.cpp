@@ -302,7 +302,7 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		{
 			dir.mul(t);
 			starta.add(dir);
-			*intersection = LLVector3((F32*) &starta.mQ);
+			*intersection = LLVector3(starta.getF32ptr());
 		}
 		return TRUE;
 	}
