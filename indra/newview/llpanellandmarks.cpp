@@ -1120,7 +1120,8 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 
 		if ("cut" == command_name)
 		{
-			can_be_modified = root_folder->canCut();
+			// "Cut" disabled for folders. See EXT-8697.
+			can_be_modified = root_folder->canCut() && listenerp->getInventoryType() != LLInventoryType::IT_CATEGORY;
 		}
 		else if ("rename" == command_name)
 		{
