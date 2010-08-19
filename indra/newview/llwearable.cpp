@@ -52,6 +52,7 @@
 #include "llvoavatarself.h"
 #include "llvoavatardefines.h"
 #include "llwearable.h"
+#include "llviewercontrol.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -444,8 +445,10 @@ BOOL LLWearable::importFile( LLFILE* file )
 			delete mSavedTEMap[te];
 		}
 
-		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL);
-
+		if(gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
+		{
+			image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL);
+		}
 		LLUUID textureid(text_buffer);
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
 		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
