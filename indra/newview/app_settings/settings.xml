@@ -1741,6 +1741,17 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+  <key>DebugAvatarLocalTexLoadedTime</key>
+  <map>
+    <key>Comment</key>
+    <string>Display time for loading avatar local textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>DebugBeaconLineWidth</key>
     <map>
       <key>Comment</key>
@@ -8283,17 +8294,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
-    </map>
-    <key>RunMultipleThreads</key>
-    <map>
-      <key>Comment</key>
-      <string>If TRUE keep background threads active during render</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>SafeMode</key>
     <map>

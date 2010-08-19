@@ -214,6 +214,7 @@ private:
 	BOOL        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
 public:
 	static F32  calcImportanceToCamera(F32 to_view_dir, F32 dist);
+	static F32  adjustPixelArea(F32 importance, F32 pixel_area) ;
 
 public:
 	
