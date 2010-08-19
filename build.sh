@@ -32,19 +32,19 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin ${last_built_arch:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux ${last_built_arch:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN ${last_built_arch:-Release})
-  p=$(sed 's:.*=::' "$d/newview/${last_built_arch:-Release}/touched.bat")
-  echo "$d/newview/${last_built_arch:-Release}/$p"
+  d=$(build_dir_CYGWIN ${last_built_variant:-Release})
+  p=$(sed 's:.*=::' "$d/newview/${last_built_variant:-Release}/touched.bat")
+  echo "$d/newview/${last_built_variant:-Release}/$p"
 }
 
 pre_build()
@@ -280,7 +280,7 @@ then
       upload_item installer "$package" binary/octet-stream
 
       # Upload crash reporter files.
-      case "$last_built_arch" in
+      case "$last_built_variant" in
       Release)
         for symbolfile in $symbolfiles
         do
