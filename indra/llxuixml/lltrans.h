@@ -115,7 +115,6 @@ public:
 		{
 			return trans_str;
 		}
-		llwarns << "Failed to find keyboard string " << keystring << llendl;
 		return key_str;
 	}
 
