@@ -90,7 +90,7 @@ void LLFirstUse::sit(bool enable)
 }
 
 // static
-void LLFirstUse::inventoryOffer(bool enable)
+void LLFirstUse::newInventory(bool enable)
 {
 	firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
 }
