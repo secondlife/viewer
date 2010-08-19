@@ -636,6 +636,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
 	}
 	mWornIndicationEnabled = p.worn_indication_enabled;
+	setNoItemsCommentText(LLTrans::getString("LoadingData"));
 }
 
 // virtual
@@ -676,6 +677,11 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 		item_array,
 		LLInventoryModel::EXCLUDE_TRASH,
 		collector);
+
+	if(item_array.empty() && gInventory.isCategoryComplete(category_id))
+	{
+		setNoItemsCommentText(LLTrans::getString("EmptyOutfitText"));
+	}
 
 	refreshList(item_array);
 }
