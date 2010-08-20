@@ -1889,6 +1889,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
+
+	LLFirstUse::newInventory();
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
