@@ -167,22 +167,13 @@ public:
 		
 		if (!region_name.empty())
 		{
-			LLToolTip::Params params;
 			std::string extra_message = llformat("%s (%d, %d, %d)", region_name.c_str(), 
 				mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY(), mLandmarkInfoGetter.getPosZ());
 
+			LLToolTip::Params params;
 			params.message = llformat("%s\n%s", getLabelSelected().c_str(), extra_message.c_str());
-			
-			LLRect rect = calcScreenRect();
-			LLFontGL* standart_font = LLFontGL::getFontSansSerif();
-			if(standart_font)
-			{
-				S32 w = llmax((S32)(standart_font->getWidthF32(getLabelSelected())+0.5),(S32)(standart_font->getWidthF32(extra_message)+0.5));
-				rect.mRight = rect.mLeft + w;
-				params.max_width = w;
-			}
-			
-			params.sticky_rect = rect; 
+			params.max_width = 1000;			
+			params.sticky_rect = calcScreenRect(); 
 
 			LLToolTipMgr::instance().show(params);
 		}
