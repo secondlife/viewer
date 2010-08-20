@@ -36,7 +36,7 @@
     enabled="true"
     follows="right|top"
     height="18"
-    image_name="Parcel_VoiceNo_Light"
+    image_name="Parcel_VoiceNo_Dark"
     name="voice_icon"
     top="1"
     visible="false"
@@ -45,7 +45,7 @@
   <icon
     follows="right|top"
     height="18"
-    image_name="Parcel_FlyNo_Light"
+    image_name="Parcel_FlyNo_Dark"
     name="fly_icon"
     top="1"
     visible="false"
@@ -54,7 +54,7 @@
   <icon
     follows="right|top"
     height="18"
-    image_name="Parcel_PushNo_Light"
+    image_name="Parcel_PushNo_Dark"
     name="push_icon"
     top="1"
     visible="false"
@@ -63,7 +63,7 @@
   <icon
     follows="right|top"
     height="18"
-    image_name="Parcel_BuildNo_Light"
+    image_name="Parcel_BuildNo_Dark"
     name="build_icon"
     top="1"
     visible="false"
@@ -72,7 +72,7 @@
   <icon
     follows="right|top"
     height="18"
-    image_name="Parcel_ScriptsNo_Light"
+    image_name="Parcel_ScriptsNo_Dark"
     name="scripts_icon"
     top="1"
     visible="false"
