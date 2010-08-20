@@ -40,7 +40,7 @@
 		Edycja bielizny
 	</string>
 	<string name="edit_alpha_title">
-		Edycja maski Alpha
+		Edycja maski alpha
 	</string>
 	<string name="edit_tattoo_title">
 		Edycja tatuażu
@@ -73,7 +73,7 @@
 		Kurtka:
 	</string>
 	<string name="skirt_desc_text">
-		spódnica:
+		Spódnica:
 	</string>
 	<string name="gloves_desc_text">
 		Rękawiczki:
@@ -85,13 +85,13 @@
 		Bielizna:
 	</string>
 	<string name="alpha_desc_text">
-		Maska Alpha:
+		Maska alpha:
 	</string>
 	<string name="tattoo_desc_text">
 		Tatuaż:
 	</string>
 	<labeled_back_button label="Zapisz" name="back_btn" tool_tip="Powrót do edycji stroju"/>
-	<text name="edit_wearable_title" value="Edycja Kształtu"/>
+	<text name="edit_wearable_title" value="Edycja kształtu"/>
 	<panel label="Koszula" name="wearable_type_panel">
 		<text name="description_text" value="Kształt:"/>
 		<radio_group name="sex_radio">

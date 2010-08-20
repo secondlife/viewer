@@ -19,12 +19,12 @@
 	<slider label="Pora doby" name="sun_hour_slider" />
 	<button label="Zastosuj" name="apply_btn" />
 	<button label="Zapisz surowy teren..." name="download_raw_btn"
-	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
+	     tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
 	<button label="?" name="download_raw_help" />
 	<button label="Załaduj surowy teren..." name="upload_raw_btn"
-	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
+	     tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
 	<button label="?" name="upload_raw_help" />
-	<button label="Ustal Teren" name="bake_terrain_btn"
+	<button label="Ustal teren" name="bake_terrain_btn"
 	     tool_tip="Zapamiętaj obecny teren jako punkt odniesienia dla limitów podnoszenia i opuszczania" />
 	<button label="?" name="bake_terrain_help" />
 </panel>
