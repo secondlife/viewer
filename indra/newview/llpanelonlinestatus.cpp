@@ -41,7 +41,7 @@ LLPanelOnlineStatus::LLPanelOnlineStatus(
 	LLPanelTipToast(notification)
 {
 
-	buildPanel(this,
+	buildFromFile(
 			"panel_online_status_toast.xml");
 
 

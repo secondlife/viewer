@@ -202,7 +202,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
 
-	buildPanel(this, "panel_landmarks.xml");
+	buildFromFile( "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()

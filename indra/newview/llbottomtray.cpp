@@ -112,7 +112,7 @@ public:
 		  mGesturePanel(NULL)
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
-		buildPanel(this, "panel_bottomtray_lite.xml");
+		buildFromFile("panel_bottomtray_lite.xml");
 		// Necessary for focus movement among child controls
 		setFocusRoot(TRUE);
 	}
@@ -163,7 +163,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
-	buildPanel(this,"panel_bottomtray.xml");
+	buildFromFile("panel_bottomtray.xml");
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 

@@ -127,7 +127,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 
 				res = build_func(key);
 				
-				bool success = LLFloater::buildFloater(res, xui_file, NULL);
+				bool success = res->buildFromFile(xui_file, NULL);
 				if (!success)
 				{
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;

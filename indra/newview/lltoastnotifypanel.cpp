@@ -67,7 +67,7 @@ mNumButtons(0),
 mAddedDefaultBtn(false),
 mCloseNotificationOnDestroy(true)
 {
-	buildPanel(this, "panel_notification.xml");
+	buildFromFile( "panel_notification.xml");
 	if(rect != LLRect::null)
 	{
 		this->setShape(rect);

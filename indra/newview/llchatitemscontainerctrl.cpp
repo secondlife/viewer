@@ -57,7 +57,7 @@ static const S32 msg_height_pad = 5;
 LLNearbyChatToastPanel* LLNearbyChatToastPanel::createInstance()
 {
 	LLNearbyChatToastPanel* item = new LLNearbyChatToastPanel();
-	buildPanel(item, "panel_chat_item.xml");
+	item->buildFromFile("panel_chat_item.xml");
 	item->setFollows(FOLLOWS_NONE);
 	return item;
 }

@@ -168,7 +168,7 @@ void LLPanelMe::onCancelClicked()
 LLPanelMyProfileEdit::LLPanelMyProfileEdit() 
  : LLPanelMyProfile()
 {
-	buildPanel(this, "panel_edit_profile.xml");
+	buildFromFile( "panel_edit_profile.xml");
 
 	setAvatarId(gAgent.getID());
 }

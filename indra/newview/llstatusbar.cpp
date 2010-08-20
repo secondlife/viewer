@@ -142,7 +142,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
 
-	buildPanel(this,"panel_status_bar.xml");
+	buildFromFile("panel_status_bar.xml");
 }
 
 LLStatusBar::~LLStatusBar()

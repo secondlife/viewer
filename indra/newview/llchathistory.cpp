@@ -107,7 +107,7 @@ public:
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
 	{
 		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
-		buildPanel(pInstance, file_name);	
+		pInstance->buildFromFile(file_name);	
 		return pInstance;
 	}
 

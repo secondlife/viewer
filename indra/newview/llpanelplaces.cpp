@@ -252,7 +252,7 @@ LLPanelPlaces::LLPanelPlaces()
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::updateVerbs, this));
 
-	//buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildFromFile( "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLPanelPlaces::~LLPanelPlaces()

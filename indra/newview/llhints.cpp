@@ -137,9 +137,8 @@ static LLDefaultChildRegistry::Register<LLHintPopup> r("hint_popup");
 
 LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 :	mNotification(p.notification),
-	mDirection(p.target_params.direction),
+	mDirection(TOP),
 	mDistance(p.distance),
-	mTarget(p.target_params.target),
 	mArrowLeft(p.left_arrow),
 	mArrowUp(p.up_arrow),
 	mArrowRight(p.right_arrow),
@@ -153,7 +152,12 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	mFadeOutTime(p.fade_out_time),
 	LLPanel(p)
 {
-	buildPanel(this, "panel_hint.xml", NULL, p);
+	if (p.target_params.isProvided())
+	{
+		mDirection = p.target_params.direction;
+		mTarget = p.target_params.target;
+	}
+	buildFromFile( "panel_hint.xml", NULL, p);
 }
 
 BOOL LLHintPopup::postBuild()

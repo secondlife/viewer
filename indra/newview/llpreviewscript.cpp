@@ -157,7 +157,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 :	LLFloater(LLSD()),
 	mEditorCore(editor_core)
 {
-	buildFloater(this,"floater_script_search.xml", NULL);
+	buildFromFile("floater_script_search.xml");
 
 	sInstance = this;
 	
@@ -660,7 +660,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 	if (!live_help_floater)
 	{
 		live_help_floater = new LLFloater(LLSD());
-		LLFloater::buildFloater(live_help_floater, "floater_lsl_guide.xml", NULL);
+		live_help_floater->buildFromFile("floater_lsl_guide.xml", NULL);
 		LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
 		llassert(parent);
 		if (parent)

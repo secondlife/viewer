@@ -62,7 +62,7 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	  mAllowModify(allow_modify),
 	  mWearable(wearable)
 {
-	buildPanel(this, "panel_scrolling_param.xml");
+	buildFromFile( "panel_scrolling_param.xml");
 
 	// *HACK To avoid hard coding texture position, lets use border's position for texture. 
 	LLViewBorder* left_border = getChild<LLViewBorder>("left_border");

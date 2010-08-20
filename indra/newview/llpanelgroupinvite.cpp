@@ -375,7 +375,7 @@ LLPanelGroupInvite::LLPanelGroupInvite(const LLUUID& group_id)
 	  mPendingUpdate(FALSE)
 {
 	// Pass on construction of this panel to the control factory.
-	buildPanel(this, "panel_group_invite.xml");
+	buildFromFile( "panel_group_invite.xml");
 }
 
 LLPanelGroupInvite::~LLPanelGroupInvite()

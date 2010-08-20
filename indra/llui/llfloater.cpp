@@ -2887,8 +2887,7 @@ bool LLFloater::isVisible(const LLFloater* floater)
 
 static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
 
-/* static */
-bool LLFloater::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
+bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_node)
 {
 	LLFastTimer timer(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
@@ -2921,23 +2920,23 @@ bool LLFloater::buildFloater(LLFloater* floaterp, const std::string& filename, L
 	lldebugs << "Building floater " << filename << llendl;
 	LLUICtrlFactory::instance().pushFileName(filename);
 	{
-		if (!floaterp->getFactoryMap().empty())
+		if (!getFactoryMap().empty())
 		{
-			LLPanel::sFactoryStack.push_front(&floaterp->getFactoryMap());
+			LLPanel::sFactoryStack.push_front(&getFactoryMap());
 		}
 
 		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
-		floaterp->getCommitCallbackRegistrar().pushScope();
-		floaterp->getEnableCallbackRegistrar().pushScope();
+		getCommitCallbackRegistrar().pushScope();
+		getEnableCallbackRegistrar().pushScope();
 		
-		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
+		res = initFloaterXML(root, getParent(), filename, output_node);
 
-		floaterp->setXMLFilename(filename);
+		setXMLFilename(filename);
 		
-		floaterp->getCommitCallbackRegistrar().popScope();
-		floaterp->getEnableCallbackRegistrar().popScope();
+		getCommitCallbackRegistrar().popScope();
+		getEnableCallbackRegistrar().popScope();
 		
-		if (!floaterp->getFactoryMap().empty())
+		if (!getFactoryMap().empty())
 		{
 			LLPanel::sFactoryStack.pop_front();
 		}

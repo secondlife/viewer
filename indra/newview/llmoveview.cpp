@@ -703,7 +703,7 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 {
 	LLPanelStandStopFlying* panel = new LLPanelStandStopFlying();
-	buildPanel(panel, "panel_stand_stop_flying.xml");
+	panel->buildFromFile("panel_stand_stop_flying.xml");
 
 	panel->setVisible(FALSE);
 	//LLUI::getRootView()->addChild(panel);

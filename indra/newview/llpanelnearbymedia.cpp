@@ -102,7 +102,7 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Zoom",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaZoom, this));
 	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Unzoom",	boost::bind(&LLPanelNearByMedia::onClickSelectedMediaUnzoom, this));
 	
-	buildPanel(this, "panel_nearby_media.xml");
+	buildFromFile( "panel_nearby_media.xml");
 }
 
 LLPanelNearByMedia::~LLPanelNearByMedia()
