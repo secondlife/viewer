@@ -1704,12 +1704,12 @@ if (LINUX)
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_gstreamer010 media_plugin_webkit)
 
-  if (NOT INSTALL)
+  if (PACKAGE)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
     add_dependencies(package linux-crash-logger-target)
     add_dependencies(package linux-updater-target)
     check_message_template(package)
-  endif (NOT INSTALL)
+  endif (PACKAGE)
 
   add_custom_command(
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
