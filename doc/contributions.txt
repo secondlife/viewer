@@ -151,6 +151,7 @@ blino Nakamura
 Boroondas Gupte
 	SNOW-278
 	SNOW-503
+	SNOW-510
 	SNOW-527
 	SNOW-624
 	VWR-233
@@ -533,6 +534,7 @@ Robin Cornelius
 	VWR-11128
 	VWR-12533
 	VWR-12587
+	VWR-12758
 	VWR-12763
 	VWR-12995
 Ryozu Kojima
