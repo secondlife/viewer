@@ -57,15 +57,6 @@ private:
 	void readSDValues(const LLSD& sd, LLInitParam::BaseBlock& block);
 
 	template<typename T>
-	bool readTypedValue(void* val_ptr, boost::function<T(const LLSD&)> parser_func)
-    {
-	    if (!mCurReadSD) return false;
-
-	    *((T*)val_ptr) = parser_func(*mCurReadSD);
-	    return true;
-    }
-
-	template<typename T>
 	bool writeTypedValue(const void* val_ptr, const parser_t::name_stack_t& name_stack)
 	{
 		if (!mWriteSD) return false;
