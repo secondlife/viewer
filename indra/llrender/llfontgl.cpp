@@ -399,7 +399,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		gGL.pushUIMatrix();
 		renderUTF8(std::string("..."), 
 				0,
-				cur_x / sScaleX, (F32)y,
+				(cur_x - origin.mV[VX]) / sScaleX, (F32)y,
 				color,
 				LEFT, valign,
 				style_to_add,
