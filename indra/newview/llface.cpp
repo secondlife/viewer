@@ -827,6 +827,73 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 	return tc;
 }
 
+// Returns scale compared to default texgen, and face orientation as calculated
+// by planarProjection(). This is needed to match planar texgen parameters.
+void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const
+{
+	const LLMatrix4& vol_mat = getWorldMatrix();
+	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
+	LLVector3 normal = vf.mVertices[0].mNormal;
+	LLVector3 binormal = vf.mVertices[0].mBinormal;
+	LLVector2 projected_binormal;
+	planarProjection(projected_binormal, normal, vf.mCenter, binormal);
+	projected_binormal -= LLVector2(0.5f, 0.5f); // this normally happens in xform()
+	*scale = projected_binormal.length();
+	// rotate binormal to match what planarProjection() thinks it is,
+	// then find rotation from that:
+	projected_binormal.normalize();
+	F32 ang = acos(projected_binormal.mV[VY]);
+	ang = (projected_binormal.mV[VX] < 0.f) ? -ang : ang;
+	binormal.rotVec(ang, normal);
+	LLQuaternion local_rot( binormal % normal, binormal, normal );
+	*face_rot = local_rot * vol_mat.quaternion();
+	*face_pos = vol_mat.getTranslation();
+}
+
+// Returns the necessary texture transform to align this face's TE to align_to's TE
+bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offset, 
+								 LLVector2* res_st_scale, F32* res_st_rot) const
+{
+	if (!align_to)
+	{
+		return false;
+	}
+	const LLTextureEntry *orig_tep = align_to->getTextureEntry();
+	if ((orig_tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR) ||
+		(getTextureEntry()->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR))
+	{
+		return false;
+	}
+
+	LLVector3 orig_pos, this_pos;
+	LLQuaternion orig_face_rot, this_face_rot;
+	F32 orig_proj_scale, this_proj_scale;
+	align_to->getPlanarProjectedParams(&orig_face_rot, &orig_pos, &orig_proj_scale);
+	getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
+
+	// The rotation of "this face's" texture:
+	LLQuaternion orig_st_rot = LLQuaternion(orig_tep->getRotation(), LLVector3::z_axis) * orig_face_rot;
+	LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
+	F32 x_ang, y_ang, z_ang;
+	this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
+	*res_st_rot = z_ang;
+
+	// Offset and scale of "this face's" texture:
+	LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
+	LLVector3 st_scale(orig_tep->mScaleS, orig_tep->mScaleT, 1.f);
+	st_scale *= orig_proj_scale;
+	centers_dist.scaleVec(st_scale);
+	LLVector2 orig_st_offset(orig_tep->mOffsetS, orig_tep->mOffsetT);
+
+	*res_st_offset = orig_st_offset + (LLVector2)centers_dist;
+	res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
+	res_st_offset->mV[VY] -= (S32)res_st_offset->mV[VY];
+
+	st_scale /= this_proj_scale;
+	*res_st_scale = (LLVector2)st_scale;
+	return true;
+}
+
 void LLFace::updateRebuildFlags()
 {
 	if (!mDrawablep->isState(LLDrawable::REBUILD_VOLUME))

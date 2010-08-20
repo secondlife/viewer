@@ -2404,7 +2404,7 @@ even though the user gets a free copy.
              layout="topleft"
              name="label shininess"
              left_pad="4"
-             top_pad="-36"
+             top_pad="-37"
              width="90">
                 Shininess
             </text>
@@ -2440,7 +2440,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="4"
              name="label bumpiness"
-             top_pad="-36"
+             top_pad="-37"
              width="90">
                 Bumpiness
             </text>
@@ -2558,6 +2558,17 @@ even though the user gets a free copy.
              top_delta="-4"
              width="120" />
 -->
+            <check_box
+             follows="top|left"
+             height="16"
+             initial_value="false"
+             label="Align planar faces"
+             layout="topleft"
+             left="17"
+             name="checkbox planar align"
+             tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
+             top_delta="26"
+             width="140" />
             <text
              type="string"
              length="1"
@@ -2566,8 +2577,8 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="tex scale"
-             top_pad="4"
-             width="200">
+             top_pad="2"
+             width="140">
                 Repeats / Face
             </text>
             <spinner
@@ -2580,7 +2591,7 @@ even though the user gets a free copy.
              left="20"
              max_val="100"
              name="TexScaleU"
-             top_pad="6"
+             top_pad="5"
              width="185" />
             <check_box
              height="19"
@@ -2689,7 +2700,7 @@ even though the user gets a free copy.
          bg_alpha_color="DkGray"
          name="Add_Media"
          left="0"
-         height="63"
+         height="47"
          width="290">
             <text
              type="string"
@@ -2775,8 +2786,9 @@ even though the user gets a free copy.
 			 label="Align"
 			 label_selected="Align Media"
 			 layout="topleft"
-			 right="-10"
+			 right="-16"
 			 name="button align"
+			 top_delta="-4"
 			 tool_tip="Align media texture (must load first)"
 			 width="80" />
 		</panel>
