@@ -3265,4 +3265,6 @@ Abuse Report</string>
   <string name="DeleteItems">Delete selected items?</string>
   <string name="DeleteItem">Delete selected item?</string>
 
+  <string name="EmptyOutfitText">There are no items in this outfit</string>
+
   </strings>

@@ -1021,19 +1021,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 	if (is_not_group_id)
 	{
-			
-#if 0
-		//use this code to add only online members	
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
-		LLSpeakerMgr::speaker_list_t speaker_list;
-		speaker_mgr->getSpeakerList(&speaker_list, true);
-		for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
-		{
-			const LLPointer<LLSpeaker>& speakerp = *it;
-
-			LLRecentPeople::instance().add(speakerp->mID);
-		}
-#else
 		LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
 		if( session == 0)//??? shouldn't really happen
 		{
@@ -1048,16 +1035,20 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 			// Concrete participants will be added into this list once they sent message in chat.
 			if (IM_SESSION_INVITE == dialog) return;
 
-			// implemented adding of all participants of an outgoing to Recent People List. See EXT-5694.
-			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
-				it!=session->mInitialTargetIDs.end();++it)
+			// Add only online members to recent (EXT-8658)
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+			LLSpeakerMgr::speaker_list_t speaker_list;
+			if(speaker_mgr != NULL)
 			{
-				const LLUUID id = *it;
+				speaker_mgr->getSpeakerList(&speaker_list, true);
+			}
+			for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+			{
+				const LLPointer<LLSpeaker>& speakerp = *it;
 
-				LLRecentPeople::instance().add(id);
+				LLRecentPeople::instance().add(speakerp->mID);
 			}
 		}
-#endif
 	}
 
 	
