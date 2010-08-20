@@ -606,6 +606,8 @@ Strife Onizuka
 	VWR-2265
 	VWR-4111
 Tayra Dagostino
+	SNOW-517
+	SNOW-543
 	VWR-13947
 TBBle Kurosawa
 	VWR-938
@@ -613,6 +615,7 @@ TBBle Kurosawa
 	VWR-942
 	VWR-944
 	VWR-945
+	SNOW-543
 	VWR-1891
 	VWR-1892
 Teardrops Fall
