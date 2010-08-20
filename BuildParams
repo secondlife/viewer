@@ -48,17 +48,30 @@ viewer-development_coverity.build_CYGWIN_Debug = false
 viewer-development_coverity.build_CYGWIN_RelWithDebInfo = false
 viewer-development_coverity.build_CYGWIN_Release = true
 
-# Channels etc....
-viewer-development.viewer_channel = "Second Life Development"
-viewer-development.login_channel = "Second Life Beta Development"
-viewer-development.viewer_grid = agni
-viewer-development.build_viewer_update_version_manager = false
-
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>
 
-# Snowstorm canonical build (oz)
+# =================================================================
+# Viewer Development (snowstorm canonical build owned by Oz Linden)
+# =================================================================
+snowstorm_viewer-development.viewer_channel = "Second Life Development"
+snowstorm_viewer-development.login_channel = "Second Life Development"
+snowstorm_viewer-development.build_viewer_update_version_manager = false
 snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
+
+# ========================================
+# Viewer Beta
+# ========================================
+viewer-beta.viewer_channel = "Second Life Beta"
+viewer-beta.login_channel = "Second Life Beta"
+viewer-beta.build_viewer_update_version_manager = true
+
+# ========================================
+# Viewer Release
+# ========================================
+viewer-release.viewer_channel = "Second Life Release"
+viewer-release.login_channel = "Second Life Release"
+viewer-release.build_viewer_update_version_manager = true
 
 # ========================================
 # aimee
@@ -144,5 +157,31 @@ media.viewer_channel = "Second Life Alpha"
 media.login_channel = "Second Life Alpha"
 media.viewer_grid = agni
 media.build_viewer_update_version_manager = false
+
+# ================
+# oz
+# ================
+
+oz_viewer-review1_coverity.coverity_product = viewer
+
+oz_viewer-review1.build_Linux = true
+oz_viewer-review1_debug.build_Linux = false
+oz_viewer-review1_coverity.build_Linux = false
+
+oz_viewer-review1.build_Darwin = true
+oz_viewer-review1_debug.build_Darwin = false
+oz_viewer-review1_coverity.build_Darwin = false
+
+oz_viewer-review1.build_CYGWIN = true
+oz_viewer-review1.build_CYGWIN_Debug = false
+oz_viewer-review1.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review1.build_CYGWIN_Release = true
+oz_viewer-review1_debug.build_CYGWIN_Debug = true
+oz_viewer-review1_debug.build_CYGWIN_RelWithDebInfo = true
+oz_viewer-review1_debug.build_CYGWIN_Release = false
+oz_viewer-review1_coverity.build_coverity = true
+oz_viewer-review1_coverity.build_CYGWIN_Debug = false
+oz_viewer-review1_coverity.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review1_coverity.build_CYGWIN_Release = false
 
 # eof
