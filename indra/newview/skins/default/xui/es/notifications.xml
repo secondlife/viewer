@@ -2750,8 +2750,8 @@ Comprueba la configuración de la red y del servidor de seguridad.
 El avatar &apos;[NAME]&apos; ya estaba totalmente cargado al salir.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
-		( [EXISTENCE] segundos vivo)
-Has cargado una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
+		( [EXISTENCE] segundos con vida )
+Has [ACTION] una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		¿Estás seguro de que deseas salir de esta multiconferencia?
@@ -2787,5 +2787,8 @@ Si los problemas persisten, por favor, acude a [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Si posees un terreno, puedes hacerlo tu Base.
 También puedes buscar en el Mapa lugares marcados como &quot;Puntos de Información&quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Has muerto y te has teleportado a tu Base.
 	</global>
 </notifications>

@@ -6424,10 +6424,18 @@ Avatar '[NAME]' left as fully loaded.
 
   <notification
    icon="notifytip.tga"
-   name="AvatarRezSelfBakeNotification"
+   name="AvatarRezSelfBakedTextureUploadNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You [ACTION] a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakedTextureUpdateNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification

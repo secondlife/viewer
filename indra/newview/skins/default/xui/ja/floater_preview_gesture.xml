@@ -42,7 +42,12 @@
 	<text name="library_label">
 		ライブラリ：
 	</text>
-	<scroll_list name="library_list"/>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="アニメーション"/>
+		<scroll_list.rows name="action_sound" value="サウンド"/>
+		<scroll_list.rows name="action_chat" value="チャット"/>
+		<scroll_list.rows name="action_wait" value="待機"/>
+	</scroll_list>
 	<button label="追加＞＞" name="add_btn"/>
 	<text name="steps_label">
 		手順：

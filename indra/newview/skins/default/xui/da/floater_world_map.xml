@@ -19,11 +19,11 @@
 		<text name="land_sale_label">
 			Land til salg
 		</text>
-		<text name="by_owner_label">
-			efter ejer
-		</text>
 		<text name="auction_label">
 			land auktion
+		</text>
+		<text name="by_owner_label">
+			efter ejer
 		</text>
 		<button name="Go Home" tool_tip="Teleportér til min hjemmelokation"/>
 		<text name="Home_label">
@@ -35,7 +35,7 @@
 		<text name="pg_label">
 			Generelt
 		</text>
-		<check_box name="events_mature_chk"/>
+		<check_box initial_value="true" name="events_mature_chk"/>
 		<text name="events_mature_label">
 			Moderat
 		</text>
@@ -58,6 +58,9 @@
 		<search_editor label="Regioner efter navn" name="location" tool_tip="Indtast navn på en region"/>
 		<button label="Find" name="DoSearch" tool_tip="Led efter region"/>
 		<button name="Clear" tool_tip="Fjern søgelinier og nulstil kort"/>
+		<text name="events_label">
+			Lokation:
+		</text>
 		<button label="Teleport" name="Teleport" tool_tip="Teleportér til valgte sted"/>
 		<button label="Kopiér SLurl" name="copy_slurl" tool_tip="Kopierer nuværende lokation som SLurl der kan sendes på web."/>
 		<button label="Vis valgte" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>

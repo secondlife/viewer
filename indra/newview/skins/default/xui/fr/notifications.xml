@@ -358,7 +358,7 @@ Voulez-vous vraiment continuer ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Supprimer la tenue sélectionnée ?
+		Supprimer la ou les tenues sélectionnées ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -1683,7 +1683,7 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification label="Envoyer un message à la région" name="MessageRegion">
-		Saisissez une message qui sera envoyé à tous les résidents présents dans cette région.
+		Saisissez un message qui sera envoyé à tous les résidents présents dans cette région.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
@@ -2746,7 +2746,7 @@ Départ de l&apos;avatar [NAME] entièrement chargé.
 	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
 		([EXISTENCE] secondes d&apos;existence)
-Texture figée de [RESOLUTION] chargée pour [BODYREGION] au bout de [TIME] secondes.
+Vous avez [ACTION] une texture figée de [RESOLUTION] pour [BODYREGION] au bout de [TIME] secondes.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Voulez-vous vraiment quitter cet appel ?
@@ -2783,5 +2783,8 @@ Si vous avez toujours des problèmes, veuillez consulter la page [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Si vous possédez un terrain, vous pouvez le définir comme domicile.
 Sinon, consultez la carte et trouvez les &quot; infohubs &quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		Vous êtes mort et avez été téléporté à votre domicile.
 	</global>
 </notifications>

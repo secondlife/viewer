@@ -761,6 +761,7 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	datetimeToCodes["month"]	= "%B";		// August
 	datetimeToCodes["mthnum"]	= "%m";		// 08
 	datetimeToCodes["day"]		= "%d";		// 31
+	datetimeToCodes["sday"]		= "%-d";	// 9
 	datetimeToCodes["hour24"]	= "%H";		// 14
 	datetimeToCodes["hour"]		= "%H";		// 14
 	datetimeToCodes["hour12"]	= "%I";		// 02
@@ -1129,6 +1130,11 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		args["[MDAY]"] = llformat ("%d", gmt->tm_mday);
 		replacement = LLStringOps::sDayFormat;
 		LLStringUtil::format(replacement, args);
+	}
+	else if (code == "%-d")
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		replacement = llformat ("%d", gmt->tm_mday); // day of the month without leading zero
 	}
 	else if( !LLStringOps::sAM.empty() && !LLStringOps::sPM.empty() && code == "%p" )
 	{

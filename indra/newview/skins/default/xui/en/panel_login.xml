@@ -157,6 +157,7 @@ width="135"
   visible="false" />
 </layout_panel>
 <layout_panel
+tab_stop="false"
 follows="right|bottom"
 name="links"
 width="205"

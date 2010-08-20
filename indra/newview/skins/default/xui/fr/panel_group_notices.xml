@@ -21,7 +21,7 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 	<text name="notice_list_none_found">
 		Aucun résultat
 	</text>
-	<button label="Créer une notice" label_selected="Créer une notice" name="create_new_notice" tool_tip="Créer une notice"/>
+	<button label="Nouv. notice" label_selected="Créer une notice" name="create_new_notice" tool_tip="Créer une notice"/>
 	<button label="Rafraîchir" label_selected="Rafraîchir la liste" name="refresh_notices" tool_tip="Actualiser la liste des notices"/>
 	<panel label="Créer une notice" name="panel_create_new_notice">
 		<text name="lbl">

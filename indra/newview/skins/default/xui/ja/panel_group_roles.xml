@@ -13,6 +13,9 @@
 Ctrl キーを押しながらメンバー名をクリックすると
 複数の人を選択できます。
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] 平方メートル
+			</panel.string>
 			<filter_editor label="メンバーを選別" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="メンバー" name="name"/>

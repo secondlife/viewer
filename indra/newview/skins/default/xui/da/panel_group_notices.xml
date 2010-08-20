@@ -24,7 +24,7 @@ Maksimum er 200 pr. gruppe pr. dag
 	<text name="notice_list_none_found">
 		Ingen fundet
 	</text>
-	<button label="Lav en ny besked" label_selected="Lav ny besked" name="create_new_notice" tool_tip="Lav en ny besked"/>
+	<button label="Ny besked" label_selected="Lav ny besked" name="create_new_notice" tool_tip="Lav en ny besked"/>
 	<button label="Genopfrisk" label_selected="Genopfrisk liste" name="refresh_notices" tool_tip="Genopfrisk beskedliste"/>
 	<panel label="Lav ny besked" name="panel_create_new_notice">
 		<text name="lbl">

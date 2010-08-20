@@ -3278,14 +3278,16 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 				if (motionp->getName().empty())
 				{
 					output = llformat("%s - %d",
-									  motionp->getID().asString().c_str(),
-									  (U32)motionp->getPriority());
+							  gAgent.isGodlikeWithoutAdminMenuFakery() ?
+							  motionp->getID().asString().c_str() :
+							  LLUUID::null.asString().c_str(),
+							  (U32)motionp->getPriority());
 				}
 				else
 				{
 					output = llformat("%s - %d",
-									  motionp->getName().c_str(),
-									  (U32)motionp->getPriority());
+							  motionp->getName().c_str(),
+							  (U32)motionp->getPriority());
 				}
 				addDebugText(output);
 			}

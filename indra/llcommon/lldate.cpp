@@ -121,7 +121,12 @@ std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 	// use strftime() as it appears to be faster than std::time_put
 	char buffer[128];
 	strftime(buffer, 128, fmt.c_str(), gmt);
-	return std::string(buffer);
+	std::string res(buffer);
+#if LL_WINDOWS
+	// Convert from locale-dependant charset to UTF-8 (EXT-8524).
+	res = ll_convert_string_to_utf8_string(res);
+#endif
+	return res;
 }
 
 void LLDate::toStream(std::ostream& s) const

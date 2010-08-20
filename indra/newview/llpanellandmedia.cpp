@@ -151,7 +151,7 @@ void LLPanelLandMedia::refresh()
 		mMediaDescEdit->setEnabled( can_change_media );
 
 		std::string mime_type = parcel->getMediaType();
-		if (mime_type.empty())
+		if (mime_type.empty() || mime_type == LLMIMETypes::getDefaultMimeType())
 		{
 			mime_type = LLMIMETypes::getDefaultMimeTypeTranslation();
 		}
