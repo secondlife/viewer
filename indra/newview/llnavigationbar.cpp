@@ -278,7 +278,7 @@ LLNavigationBar::LLNavigationBar()
 	mPurgeTPHistoryItems(false),
 	mSaveToLocationHistory(false)
 {
-	buildPanel(this, "panel_navigation_bar.xml");
+	buildFromFile( "panel_navigation_bar.xml");
 
 	// set a listener function for LoginComplete event
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));

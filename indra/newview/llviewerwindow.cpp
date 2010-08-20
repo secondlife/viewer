@@ -1521,7 +1521,7 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	LLPanel::buildPanel(main_view, "main_view.xml");
+	main_view->buildFromFile("main_view.xml");
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 

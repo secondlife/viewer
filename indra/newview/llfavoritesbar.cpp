@@ -667,16 +667,22 @@ void LLFavoritesBarCtrl::draw()
 	}
 }
 
-LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
+const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
 {
-	LLXMLNodePtr buttonXMLNode = NULL;
-	bool success = LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", buttonXMLNode);
-	if (!success)
+	static LLButton::Params button_params;
+	static bool params_initialized = false;
+
+	if (!params_initialized)
 	{
-		llwarns << "Failed to create Favorites Bar button from favorites_bar_button.xml" << llendl;
-		buttonXMLNode = NULL;
+		LLXMLNodePtr button_xml_node;
+		if(LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", button_xml_node))
+		{
+			LLXUIParser::instance().readXUI(button_xml_node, button_params, "favorites_bar_button.xml");
+		}
+		params_initialized = true;
 	}
-	return buttonXMLNode;
+
+	return button_params;
 }
 
 void LLFavoritesBarCtrl::updateButtons()
@@ -688,11 +694,8 @@ void LLFavoritesBarCtrl::updateButtons()
 		return;
 	}
 
-	static LLXMLNodePtr buttonXMLNode = getButtonXMLNode();
-	if (buttonXMLNode.isNull())
-	{
-		return;
-	}
+	const LLButton::Params& button_params = getButtonParams();
+
 	if(mItems.empty())
 	{
 		mBarLabel->setVisible(TRUE);
@@ -768,7 +771,7 @@ void LLFavoritesBarCtrl::updateButtons()
 		int j = first_changed_item_index;
 		for (; j < mItems.count(); j++)
 		{
-			last_new_button = createButton(mItems[j], buttonXMLNode, last_right_edge);
+			last_new_button = createButton(mItems[j], button_params, last_right_edge);
 			if (!last_new_button)
 			{
 				break;
@@ -786,8 +789,7 @@ void LLFavoritesBarCtrl::updateButtons()
 			//or there are some new favorites, or width had been changed
 			// so if we need to display chevron button,  we must update dropdown items too. 
 			mUpdateDropDownItems = true;
-			S32 buttonHGap = 2; // default value
-			buttonXMLNode->getAttributeS32("left", buttonHGap);
+			S32 buttonHGap = button_params.rect.left; // default value
 			LLRect rect;
 			// Chevron button should stay right aligned
 			rect.setOriginAndSize(getRect().mRight - mChevronButton->getRect().getWidth() - buttonHGap, 0,
@@ -814,12 +816,10 @@ void LLFavoritesBarCtrl::updateButtons()
 	}
 }
 
-LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem> item, LLXMLNodePtr &buttonXMLNode, S32 x_offset)
+LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem> item, const LLButton::Params& button_params, S32 x_offset)
 {
-	S32 def_button_width = 120;
-	buttonXMLNode->getAttributeS32("width", def_button_width);
-	S32 button_x_delta = 2; // default value
-	buttonXMLNode->getAttributeS32("left", button_x_delta);
+	S32 def_button_width = button_params.rect.width;
+	S32 button_x_delta = button_params.rect.left; // default value
 	S32 curr_x = x_offset;
 
 	/**
@@ -837,13 +837,16 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	{
 		return NULL;
 	}
-	fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
+	LLButton::Params fav_btn_params(button_params);
+	fav_btn = LLUICtrlFactory::create<LLFavoriteLandmarkButton>(fav_btn_params);
 	if (NULL == fav_btn)
 	{
 		llwarns << "Unable to create LLFavoriteLandmarkButton widget: " << item->getName() << llendl;
 		return NULL;
 	}
 	
+	addChild(fav_btn);
+
 	LLRect butt_rect (fav_btn->getRect());
 	fav_btn->setLandmarkID(item->getUUID());
 	butt_rect.setOriginAndSize(curr_x + button_x_delta, fav_btn->getRect().mBottom, width, fav_btn->getRect().getHeight());

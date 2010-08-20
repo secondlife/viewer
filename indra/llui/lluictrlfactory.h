@@ -156,37 +156,11 @@ public:
 	void popFileName();
 
 	template<typename T>
-	static T* createWidget(const typename T::Params& params, LLView* parent = NULL)
-	{
-		T* widget = NULL;
-
-		if (!params.validateBlock())
-		{
-			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
-			//return NULL;
-		}
-
-		{ LLFastTimer _(FTM_WIDGET_CONSTRUCTION);
-			widget = new T(params);	
-		}
-		{ LLFastTimer _(FTM_INIT_FROM_PARAMS);
-			widget->initFromParams(params);
-		}
-
-		if (parent)
-		{
-			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : S32_MAX;
-			setCtrlParent(widget, parent, tab_group);
-		}
-		return widget;
-	}
-
-	template<typename T>
 	static T* create(typename T::Params& params, LLView* parent = NULL)
 	{
 		params.fillFrom(ParamDefaults<typename T::Params, 0>::instance().get());
 
-		T* widget = createWidget<T>(params, parent);
+		T* widget = createWidgetImpl<T>(params, parent);
 		if (widget)
 		{
 			widget->postBuild();
@@ -249,7 +223,46 @@ fail:
 		return create<T>(widget_params);
 	}
 
+	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
+
+	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
+	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
+
+private:
+	template <typename T> friend class LLChildRegistry;
+
 	static void copyName(LLXMLNodePtr src, LLXMLNodePtr dest);
+
+	// helper function for adding widget type info to various registries
+	static void registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag);
+
+	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
+
+	template<typename T>
+	static T* createWidgetImpl(const typename T::Params& params, LLView* parent = NULL)
+	{
+		T* widget = NULL;
+
+		if (!params.validateBlock())
+		{
+			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
+			//return NULL;
+		}
+
+		{ LLFastTimer _(FTM_WIDGET_CONSTRUCTION);
+			widget = new T(params);	
+		}
+		{ LLFastTimer _(FTM_INIT_FROM_PARAMS);
+			widget->initFromParams(params);
+		}
+
+		if (parent)
+		{
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : S32_MAX;
+			setCtrlParent(widget, parent, tab_group);
+		}
+		return widget;
+	}
 
 	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
@@ -275,7 +288,7 @@ fail:
 		// Apply layout transformations, usually munging rect
 		params.from_xui = true;
 		T::applyXUILayout(params, parent);
-		T* widget = createWidget<T>(params, parent);
+		T* widget = createWidgetImpl<T>(params, parent);
 
 		typedef typename T::child_registry_t registry_t;
 
@@ -290,18 +303,7 @@ fail:
 		return widget;
 	}
 
-	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
-	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
-	
-	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
-
-	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
-
-	// helper function for adding widget type info to various registries
-	static void registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag);
-
-private:
 	static const std::string* getWidgetTag(const std::type_info* widget_type);
 
 	// this exists to get around dependency on llview

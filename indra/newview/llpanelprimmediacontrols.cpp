@@ -119,7 +119,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
-	buildPanel(this, "panel_prim_media_controls.xml");
+	buildFromFile( "panel_prim_media_controls.xml");
 	mInactivityTimer.reset();
 	mFadeTimer.stop();
 	mCurrentZoom = ZOOM_NONE;

@@ -110,7 +110,7 @@ protected:
 	LLPanel(const LLPanel::Params& params = getDefaultParams());
 	
 public:
-	static 	BOOL buildPanel(LLPanel* panelp, const std::string &filename, LLXMLNodePtr output_node = NULL, const LLPanel::Params&default_params = getDefaultParams());
+	BOOL buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL, const LLPanel::Params&default_params = getDefaultParams());
 
 	static LLPanel* createFactoryPanel(const std::string& name);
 

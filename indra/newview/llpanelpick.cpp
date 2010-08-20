@@ -80,7 +80,7 @@
 LLPanelPickInfo* LLPanelPickInfo::create()
 {
 	LLPanelPickInfo* panel = new LLPanelPickInfo();
-	buildPanel(panel, XML_PANEL_PICK_INFO);
+	panel->buildFromFile(XML_PANEL_PICK_INFO);
 	return panel;
 }
 
@@ -350,7 +350,7 @@ void LLPanelPickInfo::onClickBack()
 LLPanelPickEdit* LLPanelPickEdit::create()
 {
 	LLPanelPickEdit* panel = new LLPanelPickEdit();
-	buildPanel(panel, XML_PANEL_EDIT_PICK);
+	panel->buildFromFile(XML_PANEL_EDIT_PICK);
 	return panel;
 }
 

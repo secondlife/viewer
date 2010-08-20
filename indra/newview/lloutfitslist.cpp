@@ -68,6 +68,29 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	return name1 < name2;
 }
 
+const LLAccordionCtrlTab::Params& get_accordion_tab_params()
+{
+	static LLAccordionCtrlTab::Params tab_params;
+	static bool initialized = false;
+	if (!initialized)
+	{
+		initialized = true;
+
+		LLXMLNodePtr xmlNode;
+		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
+		{
+			LLXUIParser::instance().readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
+		}
+		else
+		{
+			llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
+		}
+	}
+
+	return tab_params;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 class LLOutfitListGearMenu
@@ -442,8 +465,8 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		std::string name = cat->getName();
 
-		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
-		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		LLAccordionCtrlTab::Params tab_params(get_accordion_tab_params());
+		LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -736,19 +759,6 @@ bool LLOutfitsList::hasItemSelected()
 //////////////////////////////////////////////////////////////////////////
 // Private methods
 //////////////////////////////////////////////////////////////////////////
-LLXMLNodePtr LLOutfitsList::getAccordionTabXMLNode()
-{
-	LLXMLNodePtr xmlNode = NULL;
-	bool success = LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode);
-	if (!success)
-	{
-		llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
-		return NULL;
-	}
-
-	return xmlNode;
-}
-
 void LLOutfitsList::computeDifference(
 	const LLInventoryModel::cat_array_t& vcats, 
 	uuid_vec_t& vadded, 

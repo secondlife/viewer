@@ -56,7 +56,7 @@ LLSidepanelInventory::LLSidepanelInventory()
 		mPanelMainInventory(NULL)
 {
 
-	//buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()

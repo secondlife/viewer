@@ -191,8 +191,7 @@ void export_test_floaters()
 		// Build a floater and output new attributes
 		LLXMLNodePtr output_node = new LLXMLNode();
 		LLFloater* floater = new LLFloater(LLSD());
-		LLFloater::buildFloater(floater,
-								filename,
+		floater->buildFromFile(	filename,
 								//	 FALSE,	// don't open floater
 								output_node);
 		std::string out_filename = xui_dir + filename;

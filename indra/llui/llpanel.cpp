@@ -972,7 +972,7 @@ static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
-BOOL LLPanel::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
+BOOL LLPanel::buildFromFile(const std::string& filename, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
 {
 	LLFastTimer timer(FTM_BUILD_PANELS);
 	BOOL didPost = FALSE;
@@ -1005,23 +1005,23 @@ BOOL LLPanel::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNode
 
 	LLUICtrlFactory::instance().pushFileName(filename);
 	{
-		if (!panelp->getFactoryMap().empty())
+		if (!getFactoryMap().empty())
 		{
-			sFactoryStack.push_back(&panelp->getFactoryMap());
+			sFactoryStack.push_back(&getFactoryMap());
 		}
 		
 		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
-		panelp->getCommitCallbackRegistrar().pushScope();
-		panelp->getEnableCallbackRegistrar().pushScope();
+		getCommitCallbackRegistrar().pushScope();
+		getEnableCallbackRegistrar().pushScope();
 		
-		didPost = panelp->initPanelXML(root, NULL, output_node, default_params);
+		didPost = initPanelXML(root, NULL, output_node, default_params);
 
-		panelp->getCommitCallbackRegistrar().popScope();
-		panelp->getEnableCallbackRegistrar().popScope();
+		getCommitCallbackRegistrar().popScope();
+		getEnableCallbackRegistrar().popScope();
 		
-		panelp->setXMLFilename(filename);
+		setXMLFilename(filename);
 
-		if (!panelp->getFactoryMap().empty())
+		if (!getFactoryMap().empty())
 		{
 			sFactoryStack.pop_back();
 		}
