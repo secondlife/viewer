@@ -837,7 +837,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{
 			LLXMLNodePtr floater_write = new LLXMLNode();			
-			*floaterp->buildFromFile(path, floater_write);	// just build it
+			(*floaterp)->buildFromFile(path, floater_write);	// just build it
 
 			if (!floater_write->isNull())
 			{
