@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
 	<string halign="left" name="payee_group" width="100">
-		Zapłać Grupie
+		Zapłać grupie
 	</string>
 	<string halign="left" name="payee_resident" width="120">
 		Zapłać Rezydentowi
@@ -11,7 +11,7 @@
 		[FIRST] [LAST]
 	</text>
 	<text halign="left" left="5" name="object_name_label" width="95">
-		Poprzez Obiekt:
+		Poprzez obiekt:
 	</text>
 	<icon name="icon_object" tool_tip="Obiekt"/>
 	<text left="105" name="object_name_text">

@@ -10,7 +10,7 @@
 	<check_box label="Mój status online jest dostępny tylko dla znajomych i grup do których należę" name="online_visibility"/>
 	<check_box label="Możliwość wysyłania wiadomości prywatnej (IM) oraz rozmowy głosowej tylko dla znajomych i grup do których należę" name="voice_call_friends_only_check"/>
 	<check_box label="Wyłącz mikrofon po zakończeniu rozmowy głosowej" name="auto_disengage_mic_check"/>
-	<check_box label="Akceptuj Ciasteczka" name="cookies_enabled"/>
+	<check_box label="Akceptuj ciasteczka" name="cookies_enabled"/>
 	<text name="Logs:">
 		Logi:
 	</text>
@@ -21,5 +21,5 @@
 		Lokalizacja zapisu:
 	</text>
 	<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button"/>
-	<button label="Lista Zablokowanych" name="block_list"/>
+	<button label="Lista zablokowanych" name="block_list"/>
 </panel>
