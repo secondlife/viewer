@@ -60,6 +60,24 @@ viewer-development.build_viewer_update_version_manager = false
 # Snowstorm canonical build (oz)
 snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
 
+# ========================================
+# aimee
+# ========================================
+
+viewer-development-import.build_Linux = true
+viewer-development-import_debug.build_Linux = false
+
+viewer-development-import.build_Darwin = true
+viewer-development-import_debug.build_Darwin = false
+
+viewer-development-import.build_CYGWIN = true
+viewer-development-import.build_CYGWIN_Debug = false
+viewer-development-import.build_CYGWIN_RelWithDebInfo = false
+viewer-development-import.build_CYGWIN_Release = true
+viewer-development-import_debug.build_CYGWIN_Debug = true
+viewer-development-import_debug.build_CYGWIN_RelWithDebInfo = true
+viewer-development-import_debug.build_CYGWIN_Release = false
+
 # =======================================
 # brad
 # ========================================
