@@ -296,7 +296,7 @@
     <key>multiple</key>		  
     <map>
       <key>desc</key>
-      <string>Allow multple viewers.</string>
+      <string>Allow multiple viewers.</string>
       <key>map-to</key>
       <string>AllowMultipleViewers</string>
     </map>
