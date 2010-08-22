@@ -517,6 +517,8 @@ Ringo Tuxing
 Robin Cornelius
 	SNOW-108
 	SNOW-204
+	SNOW-599
+	SNOW-747
 	VWR-2488
 	VWR-9557
 	VWR-11128

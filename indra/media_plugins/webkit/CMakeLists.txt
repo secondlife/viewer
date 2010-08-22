@@ -53,6 +53,8 @@ set(media_plugin_webkit_LINK_LIBRARIES
 if (LINUX)
   if (PULSEAUDIO)
     list(APPEND media_plugin_webkit_SOURCE_FILES linux_volume_catcher.cpp)
+  else (PULSEAUDIO)
+    list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
   endif (PULSEAUDIO)
   list(APPEND media_plugin_webkit_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
@@ -67,9 +69,6 @@ elseif (DARWIN)
        )
 elseif (WINDOWS)
   list(APPEND media_plugin_webkit_SOURCE_FILES windows_volume_catcher.cpp)
-else (LINUX)
-  # All other platforms use the dummy volume catcher for now.
-  list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
 endif (LINUX)
 
 set_source_files_properties(${media_plugin_webkit_HEADER_FILES}
