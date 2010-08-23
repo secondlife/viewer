@@ -167,10 +167,14 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 			{
 				generateGLTexture() ;
 			}
-			if(!mGLTexturep->getHasGLTexture())
+			else if(!mGLTexturep->getHasGLTexture())
 			{
 				generateGLTexture() ;
 			}			
+			else if(mGLTexturep->getDiscardLevel() != 0)//do not know how it happens, but regenerate one if it does.
+			{
+				generateGLTexture() ;
+			}
 
 			if(gGLManager.mDebugGPU)
 			{
