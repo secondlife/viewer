@@ -185,9 +185,6 @@ PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT =
 // GL_EXT_framebuffer_blit
 PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT = NULL;
 
-// GL_EXT_blend_func_separate
-PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT = NULL;
-
 // GL_ARB_draw_buffers
 PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB = NULL;
 
@@ -327,7 +324,6 @@ LLGLManager::LLGLManager() :
 	mHasCompressedTextures(FALSE),
 	mHasFramebufferObject(FALSE),
 	mHasFramebufferMultisample(FALSE),
-	mHasBlendFuncSeparate(FALSE),
 
 	mHasVertexBufferObject(FALSE),
 	mHasPBuffer(FALSE),
@@ -355,6 +351,8 @@ LLGLManager::LLGLManager() :
 	mHasRequirements(TRUE),
 
 	mHasSeparateSpecularColor(FALSE),
+
+	mDebugGPU(FALSE),
 
 	mDriverVersionMajor(1),
 	mDriverVersionMinor(0),
@@ -523,9 +521,21 @@ bool LLGLManager::initGL()
 		return false;
 	}
 	
+	setToDebugGPU();
 
 	initGLStates();
 	return true;
+}
+
+void LLGLManager::setToDebugGPU()
+{
+	//"MOBILE INTEL(R) 965 EXPRESS CHIP", 
+	if (mGLRenderer.find("INTEL") != std::string::npos && mGLRenderer.find("965") != std::string::npos)
+	{
+		mDebugGPU = TRUE ;
+	}
+
+	return ;
 }
 
 void LLGLManager::getGLInfo(LLSD& info)
@@ -637,11 +647,6 @@ void LLGLManager::initExtensions()
 #else
 	mHasDrawBuffers = FALSE;
 # endif
-# if GL_EXT_blend_func_separate
-	mHasBlendFuncSeparate = TRUE;
-#else
-	mHasBlendFuncSeparate = FALSE;
-# endif
 	mHasMipMapGeneration = FALSE;
 	mHasSeparateSpecularColor = FALSE;
 	mHasAnisotropic = FALSE;
@@ -668,7 +673,6 @@ void LLGLManager::initExtensions()
 		&& ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 	mHasFramebufferMultisample = mHasFramebufferObject && ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts);
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
-	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
@@ -692,7 +696,6 @@ void LLGLManager::initExtensions()
 		mHasFramebufferObject = FALSE;
 		mHasFramebufferMultisample = FALSE;
 		mHasDrawBuffers = FALSE;
-		mHasBlendFuncSeparate = FALSE;
 		mHasMipMapGeneration = FALSE;
 		mHasSeparateSpecularColor = FALSE;
 		mHasAnisotropic = FALSE;
@@ -717,7 +720,6 @@ void LLGLManager::initExtensions()
 		mHasShaderObjects = FALSE;
 		mHasVertexShader = FALSE;
 		mHasFragmentShader = FALSE;
-		mHasBlendFuncSeparate = FALSE;
 		LL_WARNS("RenderInit") << "GL extension support forced to SIMPLE level via LL_GL_BASICEXT" << LL_ENDL;
 	}
 	if (getenv("LL_GL_BLACKLIST"))	/* Flawfinder: ignore */
@@ -746,8 +748,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'r')) mHasDrawBuffers = FALSE;//S
 		if (strchr(blacklist,'s')) mHasFramebufferMultisample = FALSE;
 		if (strchr(blacklist,'t')) mHasTextureRectangle = FALSE;
-		if (strchr(blacklist,'u')) mHasBlendFuncSeparate = FALSE;//S
-		
+
 	}
 #endif // LL_LINUX || LL_SOLARIS
 	
@@ -794,14 +795,6 @@ void LLGLManager::initExtensions()
 	if (!mHasFragmentShader)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_fragment_shader" << LL_ENDL;
-	}
-	if (!mHasBlendFuncSeparate)
-	{
-		LL_INFOS("RenderInit") << "Couldn't initialize GL_EXT_blend_func_separate" << LL_ENDL;
-	}
-	if (!mHasDrawBuffers)
-	{
-		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_draw_buffers" << LL_ENDL;
 	}
 
 	// Disable certain things due to known bugs
@@ -872,10 +865,6 @@ void LLGLManager::initExtensions()
 	if (mHasDrawBuffers)
 	{
 		glDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDrawBuffersARB");
-	}
-	if (mHasBlendFuncSeparate)
-	{
-		glBlendFuncSeparateEXT = (PFNGLBLENDFUNCSEPARATEEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glBlendFuncSeparateEXT");
 	}
 #if (!LL_LINUX && !LL_SOLARIS) || LL_LINUX_NV_GL_HEADERS
 	// This is expected to be a static symbol on Linux GL implementations, except if we use the nvidia headers - bah
@@ -1039,9 +1028,24 @@ void flush_glerror()
 	glGetError();
 }
 
-void do_assert_glerror()
+void assert_glerror()
 {
-	if (LL_UNLIKELY(!gGLManager.mInited))
+	if (!gGLActive)
+	{
+		//llwarns << "GL used while not active!" << llendl;
+
+		if (gDebugSession)
+		{
+			//ll_fail("GL used while not active");
+		}
+	}
+
+	if (gNoRender || !gDebugGL) 
+	{
+		return;
+	}
+	
+	if (!gGLManager.mInited)
 	{
 		LL_ERRS("RenderInit") << "GL not initialized" << LL_ENDL;
 	}
@@ -1049,9 +1053,10 @@ void do_assert_glerror()
 	GLenum error;
 	error = glGetError();
 	BOOL quit = FALSE;
-	while (LL_UNLIKELY(error))
+	while (error)
 	{
 		quit = TRUE;
+#ifndef LL_LINUX // *FIX: !  This should be an error for linux as well.
 		GLubyte const * gl_error_msg = gluErrorString(error);
 		if (NULL != gl_error_msg)
 		{
@@ -1075,6 +1080,7 @@ void do_assert_glerror()
 			}
 		}
 		error = glGetError();
+#endif
 	}
 
 	if (quit)
@@ -1090,25 +1096,6 @@ void do_assert_glerror()
 	}
 }
 
-void assert_glerror()
-{
-	if (!gGLActive)
-	{
-		//llwarns << "GL used while not active!" << llendl;
-
-		if (gDebugSession)
-		{
-			//ll_fail("GL used while not active");
-		}
-	}
-
-	if (!gNoRender && gDebugGL) 
-	{
-		do_assert_glerror();
-	}
-}
-	
-
 void clear_glerror()
 {
 	//  Create or update texture to be used with this data 
@@ -1122,7 +1109,7 @@ void clear_glerror()
 //
 
 // Static members
-boost::unordered_map<LLGLenum, LLGLboolean> LLGLState::sStateMap;
+std::map<LLGLenum, LLGLboolean> LLGLState::sStateMap;
 
 GLboolean LLGLDepthTest::sDepthEnabled = GL_FALSE; // OpenGL default
 GLenum LLGLDepthTest::sDepthFunc = GL_LESS; // OpenGL default
@@ -1170,7 +1157,7 @@ void LLGLState::resetTextureStates()
 void LLGLState::dumpStates() 
 {
 	LL_INFOS("RenderState") << "GL States:" << LL_ENDL;
-	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
+	for (std::map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
 		 iter != sStateMap.end(); ++iter)
 	{
 		LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter->first,iter->second?"TRUE":"FALSE") << LL_ENDL;
@@ -1206,7 +1193,7 @@ void LLGLState::checkStates(const std::string& msg)
 		}
 	}
 	
-	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
+	for (std::map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
 		 iter != sStateMap.end(); ++iter)
 	{
 		LLGLenum state = iter->first;
