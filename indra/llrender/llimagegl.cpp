@@ -150,12 +150,12 @@ void LLImageGL::checkTexSize(bool forced) const
 			if (gDebugSession)
 			{
 				gFailLog << "wrong texture size and discard level!" << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << std::endl;
+					mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << std::endl;
 			}
 			else
 			{
 				llerrs << "wrong texture size and discard level: width: " << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << llendl ;
+					mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << llendl ;
 			}
 		}
 
@@ -1057,8 +1057,12 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 {
 	if (gGL.getTexUnit(0)->bind(this, false, true))
 	{
-		checkTexSize(true) ;
-		llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height << llcallstacksendl ;
+		if(gGLManager.mDebugGPU)
+		{
+			llinfos << "Calling glCopyTexSubImage2D(...)" << llendl ;
+			checkTexSize(true) ;
+			llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height << llcallstacksendl ;
+		}
 
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
 		mGLTextureCreated = true;
