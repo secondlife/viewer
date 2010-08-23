@@ -975,7 +975,10 @@ void LLVOSky::calcAtmospherics(void)
 		}
 
 		temp2.mV[1] = llmax(0.f, lighty);
-		temp2.mV[1] = 1.f / temp2.mV[1];
+		if(temp2.mV[1] > 0.f)
+		{
+			temp2.mV[1] = 1.f / temp2.mV[1];
+		}
 		componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
 
 		// Distance
