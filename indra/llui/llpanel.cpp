@@ -389,8 +389,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
 	LLPanel* panelp = NULL;
 	
-	{
-		LLFastTimer timer(FTM_PANEL_CONSTRUCTION);
+	{	LLFastTimer _(FTM_PANEL_CONSTRUCTION);
 		
 		if(!class_attr.empty())
 		{
@@ -512,6 +511,8 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			setXMLFilename(xml_filename);
 		}
 
+		LLXUIParser parser;
+
 		if (!xml_filename.empty())
 		{
 			LLUICtrlFactory::instance().pushFileName(xml_filename);
@@ -521,12 +522,11 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			{
 				//if we are exporting, we want to export the current xml
 				//not the referenced xml
-				LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
+				parser.readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 				Params output_params(params);
 				setupParamsForExport(output_params, parent);
 				output_node->setName(node->getName()->mString);
-				LLXUIParser::instance().writeXUI(
-					output_node, output_params, &default_params);
+				parser.writeXUI(output_node, output_params, &default_params);
 				return TRUE;
 			}
 		
@@ -537,7 +537,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				return FALSE;
 			}
 
-			LLXUIParser::instance().readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
+			parser.readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
@@ -547,15 +547,14 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 
 		// ask LLUICtrlFactory for filename, since xml_filename might be empty
-		LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
+		parser.readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 		if (output_node)
 		{
 			Params output_params(params);
 			setupParamsForExport(output_params, parent);
 			output_node->setName(node->getName()->mString);
-			LLXUIParser::instance().writeXUI(
-				output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, &default_params);
 		}
 		
 		params.from_xui = true;

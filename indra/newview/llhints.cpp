@@ -297,7 +297,8 @@ void LLHints::show(LLNotificationPtr hint)
 {
 	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
 
-	LLParamSDParser::instance().readSD(hint->getPayload(), p);
+	LLParamSDParser parser;
+	parser.readSD(hint->getPayload(), p);
 	p.notification = hint;
 
 	if (p.validateBlock())

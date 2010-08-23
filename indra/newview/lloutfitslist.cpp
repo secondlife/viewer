@@ -79,7 +79,8 @@ const LLAccordionCtrlTab::Params& get_accordion_tab_params()
 		LLXMLNodePtr xmlNode;
 		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
 		{
-			LLXUIParser::instance().readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
+			LLXUIParser parser;
+			parser.readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
 		}
 		else
 		{

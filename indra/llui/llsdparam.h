@@ -37,17 +37,14 @@
 #include "llinitparam.h"
 
 class LLParamSDParser 
-:	public LLInitParam::Parser, 
-	public LLSingleton<LLParamSDParser>
+:	public LLInitParam::Parser
 {
 LOG_CLASS(LLParamSDParser);
 
 typedef LLInitParam::Parser parser_t;
 
-protected:
-	LLParamSDParser();
-	friend class LLSingleton<LLParamSDParser>;
 public:
+	LLParamSDParser();
 	void readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent = false);
 	void writeSD(LLSD& sd, const LLInitParam::BaseBlock& block);
 

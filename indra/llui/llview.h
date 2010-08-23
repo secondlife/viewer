@@ -145,15 +145,17 @@ public:
 									left_delta;		// from last left to my left
 
 		//FIXME: get parent context involved in parsing traversal
-		Ignored						user_resize,		// nested attribute for LLLayoutPanel
-									auto_resize,		// nested attribute for LLLayoutPanel
-									needs_translate,	// cue for translation tools
-									min_width,			// nested attribute for LLLayoutPanel
-									max_width,			// nested attribute for LLLayoutPanel
+		Ignored						needs_translate;	// cue for translation tools
 									xmlns,				// xml namespace
 									xmlns_xsi,			// xml namespace
 									xsi_schemaLocation,	// xml schema
 									xsi_type;			// xml schema type
+
+		// nested attributes for LLLayoutPanel
+		Optional<S32>				min_dim,
+									max_dim;
+		Optional<bool>				user_resize,		
+									auto_resize;
 
 		Params();
 	};
