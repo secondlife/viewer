@@ -229,7 +229,9 @@ fail:
 	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
 
 private:
+	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy
 	template <typename T> friend class LLChildRegistry;
+	template <typename T> template <typename U> friend class LLChildRegistry<T>::Register;
 
 	static void copyName(LLXMLNodePtr src, LLXMLNodePtr dest);
 
