@@ -2473,15 +2473,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 <string name="Breast Physics Mass">Breast Mass</string>
 <string name="Breast Physics Smoothing">Breast Smoothing</string>
+<string name="Breast Physics Gravity">Breast Gravity</string>
 
 <string name="Breast Physics Side Spring">Breast Side Spring</string>
-<string name="Breast Physics Side Bounce">Breast Side Bounce</string>
+<string name="Breast Physics Side Gain">Breast Side Gain</string>
 <string name="Breast Physics Side Damping">Breast Side Damping</string>
 <string name="Breast Physics Side Drag">Breast Side Drag</string>
 <string name="Breast Physics Side Range">Breast Side Max</string>
 
 <string name="Breast Physics UpDown Spring">Breast UpDown Spring</string>
-<string name="Breast Physics UpDown Bounce">Breast UpDown Bounce</string>
+<string name="Breast Physics UpDown Gain">Breast UpDown Gain</string>
 <string name="Breast Physics UpDown Damping">Breast UpDown Damping</string>
 <string name="Breast Physics UpDown Drag">Breast UpDown Drag</string>
 <string name="Breast Physics UpDown Range">Breast UpDown Range</string>

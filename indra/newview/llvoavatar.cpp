@@ -598,7 +598,7 @@ public:
 		mBreastGravityParam = (F32)0.0;
 
 		mBreastSpringParam = LLVector3((F32)3.0, (F32)0.0, (F32)3.0);
-		mBreastAccelerationParam = LLVector3((F32)50.0, (F32)0.0, (F32)50.0);
+		mBreastGainParam = LLVector3((F32)50.0, (F32)0.0, (F32)50.0);
 		mBreastDampingParam = LLVector3((F32)0.3, (F32)0.0, (F32)0.3);
 		mBreastMaxVelocityParam = LLVector3((F32)10.0, (F32)0.0, (F32)10.0);
 
@@ -669,17 +669,17 @@ public:
 		// User-set params
 		static const std::string breast_param_names_user[3] =
 			{
-				"Breast_Female_Cleavage",
+				"Breast_Female_Cleavage_Driver",
 				"",
-				"Breast_Gravity"
+				"Breast_Gravity_Driver"
 			};
 
 		// Params driven by this algorithm
 		static const std::string breast_param_names_driven[3] =
 			{
-				"Breast_Female_Cleavage_Driven",
+				"Breast_Female_Cleavage",
 				"",
-				"Breast_Gravity_Driven"
+				"Breast_Gravity"
 			};
 		
 		for (U32 i=0; i < 3; i++)
@@ -779,7 +779,6 @@ public:
 
 		mCharLastAcceleration_local_vec = char_acceleration_local_vec;
 
-		char_acceleration_local_vec *= mBreastAccelerationParam;
 		return char_acceleration_local_vec;
 	}
 
@@ -795,7 +794,7 @@ public:
 			char dummy_str[255];
 			fscanf(fread,"%s %f\n",dummy_str, &mBreastMassParam);
 			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastSpringParam[0],&mBreastSpringParam[1],&mBreastSpringParam[2]);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastAccelerationParam[0],&mBreastAccelerationParam[1],&mBreastAccelerationParam[2]);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastGainParam[0],&mBreastGainParam[1],&mBreastGainParam[2]);
 			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDampingParam[0],&mBreastDampingParam[1],&mBreastDampingParam[2]);
 			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastMaxVelocityParam[0],&mBreastMaxVelocityParam[1],&mBreastMaxVelocityParam[2]);
 			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDragParam[0], &mBreastDragParam[1], &mBreastDragParam[2]);
@@ -818,13 +817,13 @@ public:
 		mBreastGravityParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Gravity"))->getWeight();
 
 		mBreastSpringParam[0] =       ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Spring"))->getWeight();
-		mBreastAccelerationParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Bounce"))->getWeight();
+		mBreastGainParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Gain"))->getWeight();
 		mBreastDampingParam[0] =      ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Damping"))->getWeight();
 		mBreastMaxVelocityParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Range"))->getWeight();
 		mBreastDragParam[0] =        ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Drag"))->getWeight();
 
 		mBreastSpringParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Spring"))->getWeight();
-		mBreastAccelerationParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Bounce"))->getWeight();
+		mBreastGainParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Gain"))->getWeight();
 		mBreastDampingParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Damping"))->getWeight();
 		mBreastMaxVelocityParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Range"))->getWeight();
 		mBreastDragParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Drag"))->getWeight();
@@ -856,9 +855,13 @@ public:
 
 		const LLVector3 spring_length_local = breast_current_local_pt-breast_user_local_pt;
 		LLVector3 force_spring_local_vec = -spring_length_local; force_spring_local_vec *= mBreastSpringParam;
-		const LLVector3 force_accel_local_vec = char_acceleration_local_vec * mBreastMassParam;
-		
+
+		LLVector3 force_accel_local_vec = char_acceleration_local_vec * mBreastMassParam;
 		const LLVector3 force_gravity_local_vec = toLocal(LLVector3(0,0,1))* mBreastGravityParam * mBreastMassParam;
+		force_accel_local_vec += force_gravity_local_vec;
+		force_accel_local_vec[0] *= mBreastGainParam[0];
+		force_accel_local_vec[1] *= mBreastGainParam[1];
+		force_accel_local_vec[2] *= mBreastGainParam[2];
 
 		LLVector3 force_damping_local_vec = -mBreastDampingParam; force_damping_local_vec *= mBreastVelocity_local_vec;
 
@@ -867,12 +870,13 @@ public:
 		force_drag_local_vec[1] *= mBreastDragParam[1];
 		force_drag_local_vec[2] *= mBreastDragParam[2];
 
-		const LLVector3 force_net_local_vec = 
+		LLVector3 force_net_local_vec = 
 			force_accel_local_vec + 
 			force_gravity_local_vec +
 			force_spring_local_vec + 
 			force_damping_local_vec + 
 			force_drag_local_vec;
+
 
 		LLVector3 acceleration_local_vec = force_net_local_vec / mBreastMassParam;
 		mBreastVelocity_local_vec += acceleration_local_vec;
@@ -946,7 +950,7 @@ private:
 
 	LLVector3 mBreastSpringParam;
 	LLVector3 mBreastDampingParam;
-	LLVector3 mBreastAccelerationParam;
+	LLVector3 mBreastGainParam;
 	LLVector3 mBreastMaxVelocityParam;
 	LLVector3 mBreastDragParam;
 
