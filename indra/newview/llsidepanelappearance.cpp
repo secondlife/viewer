@@ -176,6 +176,11 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 		{
 			showWearableEditPanel();
 		}
+		else if (type == "edit_physics")
+		{
+			showPhysicsEditPanel();
+		}
+
 	}
 
 	mOpened = true;
@@ -281,7 +286,7 @@ void LLSidepanelAppearance::showOutfitsInventoryPanel()
 {
 	toggleWearableEditPanel(FALSE);
 	toggleOutfitEditPanel(FALSE);
-	togglMyOutfitsPanel(TRUE);
+	toggleMyOutfitsPanel(TRUE);
 }
 
 void LLSidepanelAppearance::showOutfitEditPanel()
@@ -295,19 +300,24 @@ void LLSidepanelAppearance::showOutfitEditPanel()
 		mOutfitEdit->resetAccordionState();
 	}
 
-	togglMyOutfitsPanel(FALSE);
+	toggleMyOutfitsPanel(FALSE);
 	toggleWearableEditPanel(FALSE, NULL, TRUE); // don't switch out of edit appearance mode
 	toggleOutfitEditPanel(TRUE);
 }
 
-void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/)
+void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/, BOOL disable_camera_switch)
 {
-	togglMyOutfitsPanel(FALSE);
+	toggleMyOutfitsPanel(FALSE);
 	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
-	toggleWearableEditPanel(TRUE, wearable);
+	toggleWearableEditPanel(TRUE, wearable, disable_camera_switch);
 }
 
-void LLSidepanelAppearance::togglMyOutfitsPanel(BOOL visible)
+void LLSidepanelAppearance::showPhysicsEditPanel(LLWearable *wearable /* = NULL*/)
+{
+	showWearableEditPanel(wearable, TRUE);
+}
+
+void LLSidepanelAppearance::toggleMyOutfitsPanel(BOOL visible)
 {
 	if (!mPanelOutfitsInventory || mPanelOutfitsInventory->getVisible() == visible)
 	{

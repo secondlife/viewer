@@ -175,6 +175,20 @@
 				top="0"
 				width="303" />
 		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_physics_tab"
+            fit_panel="false"
+			title="Physics">
+           <scrolling_panel_list
+                layout="topleft"
+				follows="all"
+				left="0"
+				name="shape_physics_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
 	</accordion>
     </panel>
 </panel>

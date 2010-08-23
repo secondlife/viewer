@@ -59,7 +59,8 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
-	void showWearableEditPanel(LLWearable *wearable = NULL);
+	void showWearableEditPanel(LLWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void showPhysicsEditPanel(LLWearable *wearable = NULL);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
@@ -71,7 +72,7 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 
-	void togglMyOutfitsPanel(BOOL visible);
+	void toggleMyOutfitsPanel(BOOL visible);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
 	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 

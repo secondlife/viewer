@@ -72,6 +72,7 @@ enum ESubpart {
 	SUBPART_SHAPE_MOUTH,
 	SUBPART_SHAPE_CHIN,
 	SUBPART_SHAPE_TORSO,
+	SUBPART_SHAPE_PHYSICS,
 	SUBPART_SHAPE_LEGS,
 	SUBPART_SHAPE_WHOLE,
 	SUBPART_SHAPE_DETAIL,
@@ -218,7 +219,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	// note the subpart that is listed first is treated as "default", regardless of what order is in enum.
 	// Please match the order presented in XUI. -Nyx
 	// this will affect what camera angle is shown when first editing a wearable
-	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS ));
+	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,10,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS, SUBPART_SHAPE_PHYSICS));
 	addEntry(LLWearableType::WT_SKIN, 		new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
 	addEntry(LLWearableType::WT_HAIR, 		new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
 	addEntry(LLWearableType::WT_EYES, 		new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
@@ -278,6 +279,7 @@ LLEditWearableDictionary::Subparts::Subparts()
 	addEntry(SUBPART_SHAPE_MOUTH, new SubpartEntry(SUBPART_SHAPE_MOUTH, "mHead", "shape_mouth", "shape_mouth_param_list", "shape_mouth_tab", LLVector3d(0.f, 0.f, 0.05f), LLVector3d(-0.5f, 0.05f, 0.07f),SEX_BOTH));
 	addEntry(SUBPART_SHAPE_CHIN, new SubpartEntry(SUBPART_SHAPE_CHIN, "mHead", "shape_chin", "shape_chin_param_list", "shape_chin_tab", LLVector3d(0.f, 0.f, 0.05f), LLVector3d(-0.5f, 0.05f, 0.07f),SEX_BOTH));
 	addEntry(SUBPART_SHAPE_TORSO, new SubpartEntry(SUBPART_SHAPE_TORSO, "mTorso", "shape_torso", "shape_torso_param_list", "shape_torso_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(-1.f, 0.15f, 0.3f),SEX_BOTH));
+	addEntry(SUBPART_SHAPE_PHYSICS, new SubpartEntry(SUBPART_SHAPE_PHYSICS, "mTorso", "shape_physics", "shape_physics_param_list", "shape_physics_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(-1.f, 0.15f, 0.3f),SEX_FEMALE));
 	addEntry(SUBPART_SHAPE_LEGS, new SubpartEntry(SUBPART_SHAPE_LEGS, "mPelvis", "shape_legs", "shape_legs_param_list", "shape_legs_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
 
 	addEntry(SUBPART_SKIN_COLOR, new SubpartEntry(SUBPART_SKIN_COLOR, "mHead", "skin_color", "skin_color_param_list", "skin_color_tab", LLVector3d(0.f, 0.f, 0.05f), LLVector3d(-0.5f, 0.05f, 0.07f),SEX_BOTH));
@@ -847,11 +849,11 @@ void LLPanelEditWearable::setVisible(BOOL visible)
 	LLPanel::setVisible(visible);
 }
 
-void LLPanelEditWearable::setWearable(LLWearable *wearable)
+void LLPanelEditWearable::setWearable(LLWearable *wearable, BOOL disable_camera_switch)
 {
-	showWearable(mWearablePtr, FALSE);
+	showWearable(mWearablePtr, FALSE, disable_camera_switch);
 	mWearablePtr = wearable;
-	showWearable(mWearablePtr, TRUE);
+	showWearable(mWearablePtr, TRUE, disable_camera_switch);
 }
 
 
@@ -1051,7 +1053,7 @@ void LLPanelEditWearable::revertChanges()
 	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 
-void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
+void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch)
 {
 	if (!wearable)
 	{
@@ -1146,7 +1148,10 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	
 			updateScrollingPanelUI();
 		}
-		showDefaultSubpart();
+		if (!disable_camera_switch)
+		{
+			showDefaultSubpart();
+		}
 
 		updateVerbs();
 	}
@@ -1154,7 +1159,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 
 void LLPanelEditWearable::showDefaultSubpart()
 {
-	changeCamera(0);
+	changeCamera(3);
 }
 
 void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)

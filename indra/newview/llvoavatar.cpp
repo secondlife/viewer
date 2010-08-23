@@ -103,6 +103,8 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
+#define OUTPUT_BREAST_DATA
+
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -118,6 +120,7 @@ const LLUUID ANIM_AGENT_HEAD_ROT = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d"
 const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
 const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
 const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
+const LLUUID ANIM_AGENT_BREAST_MOTION = LLUUID("ce52c2b2-b62a-1e90-6152-7cd1efe2fd60");  //"breast_motion"
 
 
 //-----------------------------------------------------------------------------
@@ -571,6 +574,387 @@ private:
 	//-------------------------------------------------------------------------
 	LLPointer<LLJointState> mPelvisState;
 	LLCharacter*		mCharacter;
+};
+
+//-----------------------------------------------------------------------------
+// class LLBreatheMotionRot
+//-----------------------------------------------------------------------------
+class LLBreastMotion :
+	public LLMotion
+{
+public:
+	// Constructor
+	LLBreastMotion(const LLUUID &id) :
+		LLMotion(id),
+		mCharacter(NULL),
+		mFileWrite(NULL)
+	{
+		mName = "breast_motion";
+		mChestState = new LLJointState;
+
+		mBreastMassParam = (F32)1.0;
+		mBreastDragParam = LLVector3((F32)0.1, (F32)0.1, (F32)0.1);
+		mBreastSmoothingParam = (U32)2;
+		mBreastGravityParam = (F32)0.0;
+
+		mBreastSpringParam = LLVector3((F32)3.0, (F32)0.0, (F32)3.0);
+		mBreastAccelerationParam = LLVector3((F32)50.0, (F32)0.0, (F32)50.0);
+		mBreastDampingParam = LLVector3((F32)0.3, (F32)0.0, (F32)0.3);
+		mBreastMaxVelocityParam = LLVector3((F32)10.0, (F32)0.0, (F32)10.0);
+
+		mBreastParamsUser[0] = mBreastParamsUser[1] = mBreastParamsUser[2] = NULL;
+		mBreastParamsDriven[0] = mBreastParamsDriven[1] = mBreastParamsDriven[2] = NULL;
+
+		mCharLastPosition_world_pt = LLVector3(0,0,0);
+		mCharLastVelocity_local_vec = LLVector3(0,0,0);
+		mCharLastAcceleration_local_vec = LLVector3(0,0,0);
+		mBreastLastPosition_local_pt = LLVector3(0,0,0);
+		mBreastVelocity_local_vec = LLVector3(0,0,0);
+	}
+
+	// Destructor
+	virtual ~LLBreastMotion() {}
+
+public:
+	//-------------------------------------------------------------------------
+	// functions to support MotionController and MotionRegistry
+	//-------------------------------------------------------------------------
+	// static constructor
+	// all subclasses must implement such a function and register it
+	static LLMotion *create(const LLUUID &id) { return new LLBreastMotion(id); }
+
+public:
+	//-------------------------------------------------------------------------
+	// animation callbacks to be implemented by subclasses
+	//-------------------------------------------------------------------------
+
+	// motions must specify whether or not they loop
+	virtual BOOL getLoop() { return TRUE; }
+
+	// motions must report their total duration
+	virtual F32 getDuration() { return 0.0; }
+
+	// motions must report their "ease in" duration
+	virtual F32 getEaseInDuration() { return 0.0; }
+
+	// motions must report their "ease out" duration.
+	virtual F32 getEaseOutDuration() { return 0.0; }
+
+	// motions must report their priority
+	virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
+
+	virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+
+	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
+	virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_BREATHE; }
+
+	// run-time (post constructor) initialization,
+	// called after parameters have been set
+	// must return true to indicate success and be available for activation
+	virtual LLMotionInitStatus onInitialize(LLCharacter *character)
+	{		
+		mCharacter = character;
+		BOOL success = true;
+
+		if ( !mChestState->setJoint( character->getJoint( "mChest" ) ) ) { success = false; }
+
+		if (!success)
+		{
+			return STATUS_FAILURE;
+		}
+		
+		mChestState->setUsage(LLJointState::ROT);
+		addJointState( mChestState );
+
+		// User-set params
+		static const std::string breast_param_names_user[3] =
+			{
+				"Breast_Female_Cleavage",
+				"",
+				"Breast_Gravity"
+			};
+
+		// Params driven by this algorithm
+		static const std::string breast_param_names_driven[3] =
+			{
+				"Breast_Female_Cleavage_Driven",
+				"",
+				"Breast_Gravity_Driven"
+			};
+		
+		for (U32 i=0; i < 3; i++)
+		{
+			mBreastParamsUser[i] = NULL;
+			mBreastParamsDriven[i] = NULL;
+			mBreastParamsMin[i] = 0;
+			mBreastParamsMax[i] = 0;
+			if (breast_param_names_user[i] != "" && breast_param_names_driven[i] != "")
+			{
+				mBreastParamsUser[i] = (LLViewerVisualParam*)mCharacter->getVisualParam(breast_param_names_user[i].c_str());
+				mBreastParamsDriven[i] = (LLViewerVisualParam*)mCharacter->getVisualParam(breast_param_names_driven[i].c_str());
+				if (mBreastParamsDriven[i])
+				{
+					mBreastParamsMin[i] = mBreastParamsDriven[i]->getMinWeight();
+					mBreastParamsMax[i] = mBreastParamsDriven[i]->getMaxWeight();
+				}
+			}
+		}
+
+#ifdef OUTPUT_BREAST_DATA
+		//if (mCharacter->getSex() == SEX_FEMALE)
+		if (dynamic_cast<LLVOAvatarSelf *>(mCharacter))
+		{
+			mFileWrite = fopen("c:\\temp\\data.txt","w");
+			if (mFileWrite != NULL)
+			{
+				fprintf(mFileWrite,"Pos\tParam\tNet\tVel\t\tAccel\tSpring\tDamp\n");
+			}
+		}
+#endif
+
+		mTimer.reset();
+		return STATUS_SUCCESS;
+	}
+
+	// called when a motion is activated
+	// must return TRUE to indicate success, or else
+	// it will be deactivated
+	virtual BOOL onActivate() { return TRUE; }
+
+	F32 calculateTimeDelta()
+	{
+		const F32 time = mTimer.getElapsedTimeF32();
+		const F32 time_delta = time - mLastTime;
+
+		mLastTime = time;
+
+		return time_delta;
+	}
+
+	LLVector3 toLocal(const LLVector3 &world_vector)
+	{
+		LLVector3 local_vec(0,0,0);
+
+		LLJoint *chest_joint = mChestState->getJoint();
+		const LLQuaternion world_rot = chest_joint->getWorldRotation();
+		
+		// -1 because cleavage param changes opposite to direction.
+		LLVector3 breast_dir_world_vec = LLVector3(-1,0,0) * world_rot;
+		breast_dir_world_vec.normalize();
+		local_vec[0] = world_vector * breast_dir_world_vec;
+
+		LLVector3 breast_up_dir_world_vec = LLVector3(0,0,1) * world_rot;
+		breast_up_dir_world_vec.normalize();
+		local_vec[2] = world_vector * breast_up_dir_world_vec;
+
+		/*
+		{
+			llinfos << "Dir: " << breast_dir_world_vec << "V: " << world_vector << "DP: " << local_vec[0] << " time: " << llendl;
+		}
+		*/
+
+		return local_vec;
+	}
+
+	LLVector3 calculateVelocity_local(const F32 time_delta)
+	{
+		LLJoint *chest_joint = mChestState->getJoint();
+		const LLVector3 world_pos_pt = chest_joint->getWorldPosition();
+		const LLQuaternion world_rot = chest_joint->getWorldRotation();
+		const LLVector3 last_world_pos_pt = mCharLastPosition_world_pt;
+		const LLVector3 char_velocity_world_vec = (world_pos_pt-last_world_pos_pt) / time_delta;
+		const LLVector3 char_velocity_local_vec = toLocal(char_velocity_world_vec);
+
+		return char_velocity_local_vec;
+	}
+
+	LLVector3 calculateAcceleration_local(const LLVector3 &new_char_velocity_local_vec,
+										  const F32 time_delta)
+	{
+		LLVector3 char_acceleration_local_vec = new_char_velocity_local_vec - mCharLastVelocity_local_vec;
+		
+		char_acceleration_local_vec = 
+			char_acceleration_local_vec * 1.0/mBreastSmoothingParam + 
+			mCharLastAcceleration_local_vec * (mBreastSmoothingParam-1.0)/mBreastSmoothingParam;
+
+		mCharLastAcceleration_local_vec = char_acceleration_local_vec;
+
+		char_acceleration_local_vec *= mBreastAccelerationParam;
+		return char_acceleration_local_vec;
+	}
+
+	// called per time step
+	// must return TRUE while it is active, and
+	// must return FALSE when the motion is completed.
+	virtual BOOL onUpdate(F32 time, U8* joint_mask)
+	{
+		/*
+		FILE *fread = fopen("c:\\temp\\breast_data.txt","r");
+		if (fread)
+		{
+			char dummy_str[255];
+			fscanf(fread,"%s %f\n",dummy_str, &mBreastMassParam);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastSpringParam[0],&mBreastSpringParam[1],&mBreastSpringParam[2]);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastAccelerationParam[0],&mBreastAccelerationParam[1],&mBreastAccelerationParam[2]);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDampingParam[0],&mBreastDampingParam[1],&mBreastDampingParam[2]);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastMaxVelocityParam[0],&mBreastMaxVelocityParam[1],&mBreastMaxVelocityParam[2]);
+			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDragParam[0], &mBreastDragParam[1], &mBreastDragParam[2]);
+			fscanf(fread,"%s %d\n",dummy_str, &mBreastSmoothingParam);
+		}
+		fclose(fread);
+		*/
+		
+		/* TEST:
+		   1. Change outfits
+		   2. FPS effect
+		   3. Add disable
+		   4. Disappearing chests
+		   5. Overwrites breast params
+		   6. Threshold for not setting param
+		*/
+
+		mBreastMassParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Mass"))->getWeight();
+		mBreastSmoothingParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Smoothing"))->getWeight();
+		mBreastGravityParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Gravity"))->getWeight();
+
+		mBreastSpringParam[0] =       ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Spring"))->getWeight();
+		mBreastAccelerationParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Bounce"))->getWeight();
+		mBreastDampingParam[0] =      ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Damping"))->getWeight();
+		mBreastMaxVelocityParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Range"))->getWeight();
+		mBreastDragParam[0] =        ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Drag"))->getWeight();
+
+		mBreastSpringParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Spring"))->getWeight();
+		mBreastAccelerationParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Bounce"))->getWeight();
+		mBreastDampingParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Damping"))->getWeight();
+		mBreastMaxVelocityParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Range"))->getWeight();
+		mBreastDragParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Drag"))->getWeight();
+
+		if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
+		const F32 time_delta = calculateTimeDelta();
+		if (time_delta < .01 || time_delta > 10.0) return TRUE;
+
+		
+		LLVector3 breast_user_local_pt(0,0,0);
+		
+		for (U32 i=0; i < 3; i++)
+		{
+			if (mBreastParamsUser[i] != NULL)
+			{
+				breast_user_local_pt[i] = mBreastParamsUser[i]->getWeight();
+			}
+		}
+		
+		LLVector3 breast_current_local_pt = mBreastLastPosition_local_pt;
+		
+		const LLVector3 char_velocity_local_vec = calculateVelocity_local(time_delta);
+		const LLVector3 char_acceleration_local_vec = calculateAcceleration_local(char_velocity_local_vec, time_delta);
+		mCharLastVelocity_local_vec = char_velocity_local_vec;
+
+		LLJoint *chest_joint = mChestState->getJoint();
+		mCharLastPosition_world_pt = chest_joint->getWorldPosition();
+		
+
+		const LLVector3 spring_length_local = breast_current_local_pt-breast_user_local_pt;
+		LLVector3 force_spring_local_vec = -spring_length_local; force_spring_local_vec *= mBreastSpringParam;
+		const LLVector3 force_accel_local_vec = char_acceleration_local_vec * mBreastMassParam;
+		
+		const LLVector3 force_gravity_local_vec = toLocal(LLVector3(0,0,1))* mBreastGravityParam * mBreastMassParam;
+
+		LLVector3 force_damping_local_vec = -mBreastDampingParam; force_damping_local_vec *= mBreastVelocity_local_vec;
+
+		LLVector3 force_drag_local_vec = .5*char_velocity_local_vec; // should square char_velocity_vec
+		force_drag_local_vec[0] *= mBreastDragParam[0];
+		force_drag_local_vec[1] *= mBreastDragParam[1];
+		force_drag_local_vec[2] *= mBreastDragParam[2];
+
+		const LLVector3 force_net_local_vec = 
+			force_accel_local_vec + 
+			force_gravity_local_vec +
+			force_spring_local_vec + 
+			force_damping_local_vec + 
+			force_drag_local_vec;
+
+		LLVector3 acceleration_local_vec = force_net_local_vec / mBreastMassParam;
+		mBreastVelocity_local_vec += acceleration_local_vec;
+		mBreastVelocity_local_vec.clamp(-mBreastMaxVelocityParam, mBreastMaxVelocityParam);
+
+		LLVector3 new_local_pt = breast_current_local_pt + mBreastVelocity_local_vec*time_delta;
+		new_local_pt.clamp(mBreastParamsMin,mBreastParamsMax);
+		
+		for (U32 i=0; i < 3; i++)
+		{
+			if (mBreastParamsDriven[i])
+			{
+				mCharacter->setVisualParamWeight(mBreastParamsDriven[i],
+												 new_local_pt[i],
+												 FALSE);
+			}
+		}
+
+		if (mFileWrite != NULL)
+		{
+			fprintf(mFileWrite,"%f\t%f\t%f\t%f\t\t%f\t%f\t%f\t \t%f\t%f\t%f\t%f\t%f\t%f\n",
+					mCharLastPosition_world_pt[2],
+					breast_current_local_pt[2],
+					acceleration_local_vec[2],
+					mBreastVelocity_local_vec[2],
+					
+					force_accel_local_vec[2],
+					force_spring_local_vec[2],
+					force_damping_local_vec[2],
+					
+					force_accel_local_vec[2],
+					force_damping_local_vec[2],
+					force_drag_local_vec[2],
+					force_net_local_vec[2],
+					time_delta,
+					mBreastMassParam
+					);
+		}
+		
+		mBreastLastPosition_local_pt = new_local_pt;
+		mCharacter->updateVisualParams();
+		return TRUE;
+	}
+	
+	// called when a motion is deactivated
+	virtual void onDeactivate() {}
+
+private:
+	//-------------------------------------------------------------------------
+	// joint states to be animated
+	//-------------------------------------------------------------------------
+	LLPointer<LLJointState> mChestState;
+	LLCharacter*		mCharacter;
+
+	LLViewerVisualParam *mBreastParamsUser[3];
+	LLViewerVisualParam *mBreastParamsDriven[3];
+	LLVector3           mBreastParamsMin;
+	LLVector3           mBreastParamsMax;
+
+	LLVector3           mCharLastPosition_world_pt; // Last position of the avatar
+	LLVector3			mCharLastVelocity_local_vec; // How fast the character is moving
+	LLVector3           mCharLastAcceleration_local_vec; // Change in character velocity
+
+	LLVector3           mBreastLastPosition_local_pt; // Last parameters for breast
+	LLVector3           mBreastVelocity_local_vec; // How fast the breast params are moving
+
+
+	F32 mBreastMassParam;
+	F32 mBreastGravityParam;
+	U32 mBreastSmoothingParam;
+
+	LLVector3 mBreastSpringParam;
+	LLVector3 mBreastDampingParam;
+	LLVector3 mBreastAccelerationParam;
+	LLVector3 mBreastMaxVelocityParam;
+	LLVector3 mBreastDragParam;
+
+	LLFrameTimer	mTimer;
+	F32             mLastTime;
+	
+	FILE           *mFileWrite;
+	U32            mFileTicks;
 };
 
 /**
@@ -1137,6 +1521,7 @@ void LLVOAvatar::initClass()
 
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_BREAST_MOTION,"breast_motion");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EDITING,"editing");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EYE,"eye");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_FLY_ADJUST,"fly_adjust");
@@ -1275,6 +1660,7 @@ void LLVOAvatar::initInstance(void)
 		// motions without a start/stop bit
 		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
 		registerMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
+		registerMotion( ANIM_AGENT_BREAST_MOTION,			LLBreastMotion::create );
 		registerMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
 		registerMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
 		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
@@ -1688,6 +2074,7 @@ void LLVOAvatar::startDefaultMotions()
 	startMotion( ANIM_AGENT_EYE );
 	startMotion( ANIM_AGENT_BODY_NOISE );
 	startMotion( ANIM_AGENT_BREATHE_ROT );
+	startMotion( ANIM_AGENT_BREAST_MOTION );
 	startMotion( ANIM_AGENT_HAND_MOTION );
 	startMotion( ANIM_AGENT_PELVIS_FIX );
 
@@ -6097,14 +6484,10 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-
-			const BOOL layerset_invalid = !mBakedTextureDatas[i].mTexLayerSet 
-										  || !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
-										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable();
-
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
-									  && layerset_invalid);
+									  && mBakedTextureDatas[i].mTexLayerSet 
+									  && !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized());
 			if (use_lkg_baked_layer[i])
 			{
 				mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled(TRUE);
