@@ -789,7 +789,7 @@ public:
 	{
 		if (!gSavedSettings.getBOOL("AvatarPhysics"))
 		{
-			return FALSE;
+			return TRUE;
 		}
 
 		/*
@@ -817,21 +817,21 @@ public:
 		   6. Threshold for not setting param
 		*/
 
-		mBreastMassParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Mass"))->getWeight();
-		mBreastSmoothingParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Smoothing"))->getWeight();
-		mBreastGravityParam = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Gravity"))->getWeight();
+		mBreastMassParam = mCharacter->getVisualParamWeight("Breast_Physics_Mass");
+		mBreastSmoothingParam = mCharacter->getVisualParamWeight("Breast_Physics_Smoothing");
+		mBreastGravityParam = mCharacter->getVisualParamWeight("Breast_Physics_Gravity");
 
-		mBreastSpringParam[0] =       ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Spring"))->getWeight();
-		mBreastGainParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Gain"))->getWeight();
-		mBreastDampingParam[0] =      ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Damping"))->getWeight();
-		mBreastMaxVelocityParam[0] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Range"))->getWeight();
-		mBreastDragParam[0] =        ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_Side_Drag"))->getWeight();
+		mBreastSpringParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Spring");
+		mBreastGainParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Gain");
+		mBreastDampingParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Damping");
+		mBreastMaxVelocityParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Range");
+		mBreastDragParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Drag");
 
-		mBreastSpringParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Spring"))->getWeight();
-		mBreastGainParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Gain"))->getWeight();
-		mBreastDampingParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Damping"))->getWeight();
-		mBreastMaxVelocityParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Range"))->getWeight();
-		mBreastDragParam[2] = ((LLViewerVisualParam*)mCharacter->getVisualParam("Breast_Physics_UpDown_Drag"))->getWeight();
+		mBreastSpringParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Spring");
+		mBreastGainParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Gain");
+		mBreastDampingParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Damping");
+		mBreastMaxVelocityParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Range");
+		mBreastDragParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Drag");
 
 		if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
 		const F32 time_delta = calculateTimeDelta();
