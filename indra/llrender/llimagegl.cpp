@@ -150,12 +150,12 @@ void LLImageGL::checkTexSize(bool forced) const
 			if (gDebugSession)
 			{
 				gFailLog << "wrong texture size and discard level!" << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << std::endl;
+					mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << std::endl;
 			}
 			else
 			{
 				llerrs << "wrong texture size and discard level: width: " << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << llendl ;
+					mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << llendl ;
 			}
 		}
 
@@ -1057,8 +1057,12 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 {
 	if (gGL.getTexUnit(0)->bind(this, false, true))
 	{
-		checkTexSize(true) ;
-		llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height << llcallstacksendl ;
+		if(gGLManager.mDebugGPU)
+		{
+			llinfos << "Calling glCopyTexSubImage2D(...)" << llendl ;
+			checkTexSize(true) ;
+			llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height << llcallstacksendl ;
+		}
 
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
 		mGLTextureCreated = true;
@@ -1654,7 +1658,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 	}
 }
 
-void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
+void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 {
 	if(!mNeedsAlphaAndPickMask)
 	{
@@ -1662,91 +1666,26 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	}
 
 	U32 length = w * h;
-	U32 alphatotal = 0;
+	const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset ;
 	
-	U32 sample[16];
-	memset(sample, 0, sizeof(U32)*16);
+	S32 sample[16];
+	memset(sample, 0, sizeof(S32)*16);
 
-	// generate histogram of quantized alpha.
-	// also add-in the histogram of a 2x2 box-sampled version.  The idea is
-	// this will mid-skew the data (and thus increase the chances of not
-	// being used as a mask) from high-frequency alpha maps which
-	// suffer the worst from aliasing when used as alpha masks.
-	if (w >= 2 && h >= 2)
+	for (U32 i = 0; i < length; i++)
 	{
-		llassert(w%2 == 0);
-		llassert(h%2 == 0);
-		const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
-		for (U32 y = 0; y < h; y+=2)
-		{
-			const GLubyte* current = rowstart;
-			for (U32 x = 0; x < w; x+=2)
-			{
-				const U32 s1 = current[0];
-				alphatotal += s1;
-				const U32 s2 = current[w * mAlphaStride];
-				alphatotal += s2;
-				current += mAlphaStride;
-				const U32 s3 = current[0];
-				alphatotal += s3;
-				const U32 s4 = current[w * mAlphaStride];
-				alphatotal += s4;
-				current += mAlphaStride;
-
-				++sample[s1/16];
-				++sample[s2/16];
-				++sample[s3/16];
-				++sample[s4/16];
-
-				const U32 asum = (s1+s2+s3+s4);
-				alphatotal += asum;
-				sample[asum/(16*4)] += 4;
-			}
-			
-			rowstart += 2 * w * mAlphaStride;
-		}
-		length *= 2; // we sampled everything twice, essentially
+		++sample[*current/16];
+		current += mAlphaStride ;
 	}
-	else
-	{
-		const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
-		for (U32 i = 0; i < length; i++)
-		{
-			const U32 s1 = *current;
-			alphatotal += s1;
-			++sample[s1/16];
-			current += mAlphaStride;
-		}
-	}
-	
-	// if more than 1/16th of alpha samples are mid-range, this
-	// shouldn't be treated as a 1-bit mask
 
-	// also, if all of the alpha samples are clumped on one half
-	// of the range (but not at an absolute extreme), then consider
-	// this to be an intentional effect and don't treat as a mask.
-
-	U32 midrangetotal = 0;
+	U32 total = 0;
 	for (U32 i = 4; i < 11; i++)
 	{
-		midrangetotal += sample[i];
-	}
-	U32 lowerhalftotal = 0;
-	for (U32 i = 0; i < 8; i++)
-	{
-		lowerhalftotal += sample[i];
-	}
-	U32 upperhalftotal = 0;
-	for (U32 i = 8; i < 16; i++)
-	{
-		upperhalftotal += sample[i];
+		total += sample[i];
 	}
 
-	if (midrangetotal > length/16 || // lots of midrange, or
-	    (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
-	    (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
+	if (total > length/16)
 	{
-		mIsMask = FALSE; // not suitable for masking
+		mIsMask = FALSE;
 	}
 	else
 	{
