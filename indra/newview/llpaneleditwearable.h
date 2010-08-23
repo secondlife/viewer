@@ -163,6 +163,7 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
+	LLPanel *mPanelPhysics;
 
 	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
 	string_texture_index_map_t mAlphaCheckbox2Index;

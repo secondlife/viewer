@@ -103,7 +103,7 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
-#define OUTPUT_BREAST_DATA
+// #define OUTPUT_BREAST_DATA
 
 using namespace LLVOAvatarDefines;
 
@@ -787,6 +787,11 @@ public:
 	// must return FALSE when the motion is completed.
 	virtual BOOL onUpdate(F32 time, U8* joint_mask)
 	{
+		if (!gSavedSettings.getBOOL("AvatarPhysics"))
+		{
+			return FALSE;
+		}
+
 		/*
 		FILE *fread = fopen("c:\\temp\\breast_data.txt","r");
 		if (fread)

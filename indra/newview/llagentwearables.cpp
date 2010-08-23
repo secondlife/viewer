@@ -1717,6 +1717,7 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 		gAgentWearables.removeWearable(LLWearableType::WT_SKIRT,true,0);
 		gAgentWearables.removeWearable(LLWearableType::WT_ALPHA,true,0);
 		gAgentWearables.removeWearable(LLWearableType::WT_TATTOO,true,0);
+		gAgentWearables.removeWearable(LLWearableType::WT_PHYSICS,true,0);
 	}
 }
 
@@ -2042,8 +2043,9 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 		return;
 	}
 
+	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
 	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
-	LLSidepanelAppearance::editWearable(wearable, panel);
+	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 
 // Request editing the item after it gets worn.

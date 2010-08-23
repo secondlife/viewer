@@ -142,6 +142,18 @@
                 </menu_item_call>
                <menu_item_call
                  enabled="false"
+                 label="Physics"
+                 layout="topleft"
+                 name="Self Physics">
+                    <menu_item_call.on_click
+                     function="Edit.TakeOff"
+                     parameter="physics" />
+                    <menu_item_call.on_enable
+                     function="Edit.EnableTakeOff"
+                     parameter="physics" />
+                </menu_item_call>
+               <menu_item_call
+                 enabled="false"
                  label="Alpha"
                  layout="topleft"
                  name="Self Alpha">
@@ -206,14 +218,6 @@
         function="EditShape" />
        <menu_item_call.on_enable
         function="Edit.EnableEditShape" />
-   </menu_item_call>
-    <menu_item_call label="Edit My Physics" 
-    layout="topleft"
-    name="Edit My Physics">
-       <menu_item_call.on_click
-        function="EditPhysics" />
-       <menu_item_call.on_enable
-        function="Edit.EnableEditPhysics" />
    </menu_item_call>
    <menu_item_call
      label="My Friends"

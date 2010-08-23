@@ -4496,6 +4496,11 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						disabled_items.push_back(std::string("Take Off"));
 						disabled_items.push_back(std::string("Wearable Edit"));
 					}
+					if (gAgentWearables.isWearingWearableType(mWearableType) &&
+						!LLWearableType::getAllowMultiwear(mWearableType))
+					{
+						disabled_items.push_back(std::string("Wearable Add"));
+					}
 					break;
 				default:
 					break;

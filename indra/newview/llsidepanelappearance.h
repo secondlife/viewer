@@ -51,7 +51,7 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLWearable *wearable, LLView *data);
+	static void editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
 
 	void fetchInventory();
 	void inventoryFetched();
