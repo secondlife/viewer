@@ -792,22 +792,6 @@ public:
 			return TRUE;
 		}
 
-		/*
-		FILE *fread = fopen("c:\\temp\\breast_data.txt","r");
-		if (fread)
-		{
-			char dummy_str[255];
-			fscanf(fread,"%s %f\n",dummy_str, &mBreastMassParam);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastSpringParam[0],&mBreastSpringParam[1],&mBreastSpringParam[2]);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastGainParam[0],&mBreastGainParam[1],&mBreastGainParam[2]);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDampingParam[0],&mBreastDampingParam[1],&mBreastDampingParam[2]);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastMaxVelocityParam[0],&mBreastMaxVelocityParam[1],&mBreastMaxVelocityParam[2]);
-			fscanf(fread,"%s %f %f %f\n",dummy_str, &mBreastDragParam[0], &mBreastDragParam[1], &mBreastDragParam[2]);
-			fscanf(fread,"%s %d\n",dummy_str, &mBreastSmoothingParam);
-		}
-		fclose(fread);
-		*/
-		
 		/* TEST:
 		   1. Change outfits
 		   2. FPS effect
@@ -824,13 +808,13 @@ public:
 		mBreastSpringParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Spring");
 		mBreastGainParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Gain");
 		mBreastDampingParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Damping");
-		mBreastMaxVelocityParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Range");
+		mBreastMaxVelocityParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Max_Velocity");
 		mBreastDragParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Drag");
 
 		mBreastSpringParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Spring");
 		mBreastGainParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Gain");
 		mBreastDampingParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Damping");
-		mBreastMaxVelocityParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Range");
+		mBreastMaxVelocityParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Max_Velocity");
 		mBreastDragParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Drag");
 
 		if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
@@ -890,8 +874,13 @@ public:
 		LLVector3 new_local_pt = breast_current_local_pt + mBreastVelocity_local_vec*time_delta;
 		new_local_pt.clamp(mBreastParamsMin,mBreastParamsMax);
 		
+		
 		for (U32 i=0; i < 3; i++)
 		{
+			if (mBreastMaxVelocityParam[0] == 0)
+			{
+				new_local_pt[i] = breast_user_local_pt[i];
+			}
 			if (mBreastParamsDriven[i])
 			{
 				mCharacter->setVisualParamWeight(mBreastParamsDriven[i],

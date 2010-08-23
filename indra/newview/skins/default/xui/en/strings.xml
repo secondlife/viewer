@@ -2482,13 +2482,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Breast Physics Side Gain">Breast Side Gain</string>
 <string name="Breast Physics Side Damping">Breast Side Damping</string>
 <string name="Breast Physics Side Drag">Breast Side Drag</string>
-<string name="Breast Physics Side Range">Breast Side Max</string>
+<string name="Breast Physics Side Max Velocity">Breast Side Max</string>
 
 <string name="Breast Physics UpDown Spring">Breast UpDown Spring</string>
 <string name="Breast Physics UpDown Gain">Breast UpDown Gain</string>
 <string name="Breast Physics UpDown Damping">Breast UpDown Damping</string>
 <string name="Breast Physics UpDown Drag">Breast UpDown Drag</string>
-<string name="Breast Physics UpDown Range">Breast UpDown Range</string>
+<string name="Breast Physics UpDown Max Velocity">Breast UpDown Range</string>
 
 <string name="Bushy Eyebrows">Bushy Eyebrows</string>
 <string name="Bushy Hair">Bushy Hair</string>

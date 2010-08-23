@@ -60,7 +60,6 @@ public:
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
 	void showWearableEditPanel(LLWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
-	void showPhysicsEditPanel(LLWearable *wearable = NULL);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();

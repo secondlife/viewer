@@ -176,11 +176,6 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 		{
 			showWearableEditPanel();
 		}
-		else if (type == "edit_physics")
-		{
-			showPhysicsEditPanel();
-		}
-
 	}
 
 	mOpened = true;
@@ -310,11 +305,6 @@ void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL
 	toggleMyOutfitsPanel(FALSE);
 	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
 	toggleWearableEditPanel(TRUE, wearable, disable_camera_switch);
-}
-
-void LLSidepanelAppearance::showPhysicsEditPanel(LLWearable *wearable /* = NULL*/)
-{
-	showWearableEditPanel(wearable, TRUE);
 }
 
 void LLSidepanelAppearance::toggleMyOutfitsPanel(BOOL visible)
