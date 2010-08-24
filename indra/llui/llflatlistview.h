@@ -54,6 +54,7 @@
  */
 class LLFlatListView : public LLScrollContainer, public LLEditMenuHandler
 {
+	LOG_CLASS(LLFlatListView);
 public:
 
 	/**
@@ -448,6 +449,7 @@ private:
  */
 class LLFlatListViewEx : public LLFlatListView
 {
+	LOG_CLASS(LLFlatListViewEx);
 public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
 	{

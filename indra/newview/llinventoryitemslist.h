@@ -38,6 +38,7 @@ class LLViewerInventoryItem;
 
 class LLInventoryItemsList : public LLFlatListViewEx
 {
+	LOG_CLASS(LLInventoryItemsList);
 public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
 	{
