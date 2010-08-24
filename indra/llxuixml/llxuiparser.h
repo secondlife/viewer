@@ -118,7 +118,7 @@ public:
 	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
 
 private:
-	bool readXUIImpl(LLXMLNodePtr node, const std::string& scope, LLInitParam::BaseBlock& block);
+	bool readXUIImpl(LLXMLNodePtr node, LLInitParam::BaseBlock& block);
 	bool readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block);
 
 	//reader helper functions
@@ -167,6 +167,7 @@ private:
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
 	std::string						mCurFileName;
+	std::string						mRootNodeName;
 };
 
 // LLSimpleXUIParser is a streamlined SAX-based XUI parser that does not support localization 

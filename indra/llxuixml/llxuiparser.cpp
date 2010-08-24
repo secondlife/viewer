@@ -411,6 +411,7 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, cons
 {
 	LLFastTimer timer(FTM_PARSE_XUI);
 	mNameStack.clear();
+	mRootNodeName = node->getName()->mString;
 	mCurFileName = filename;
 	mCurReadDepth = 0;
 	setParseSilently(silent);
@@ -421,11 +422,11 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, cons
 	}
 	else
 	{
-		readXUIImpl(node, std::string(node->getName()->mString), block);
+		readXUIImpl(node, block);
 	}
 }
 
-bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLInitParam::BaseBlock& block)
+bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(".");
@@ -492,7 +493,15 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 			}
 
 			// check for proper nesting
-			if(!scope.empty() && *name_token_it != scope)
+			if (mNameStack.empty())
+			{
+				if (*name_token_it != mRootNodeName)
+				{
+					childp = childp->getNextSibling();
+					continue;
+				}
+			}
+			else if(mNameStack.back().first != *name_token_it)
 			{
 				childp = childp->getNextSibling();
 				continue;
@@ -510,7 +519,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 		}
 
 		// recurse and visit children XML nodes
-		if(readXUIImpl(childp, mNameStack.empty() ? scope : mNameStack.back().first, block))
+		if(readXUIImpl(childp, block))
 		{
 			// child node successfully parsed, remove from DOM
 

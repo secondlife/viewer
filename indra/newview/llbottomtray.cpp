@@ -76,7 +76,7 @@ namespace
 		llassert(stack);
 		if ( stack && panel && panel->getVisible() )
 		{
-			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
+			stack->getPanelMinSize(panel->getName(), &minimal_width);
 		}
 		return minimal_width;
 	}
@@ -87,7 +87,7 @@ namespace
 		llassert(stack);
 		if ( stack && panel && panel->getVisible() )
 		{
-			stack->getPanelMaxSize(panel->getName(), &max_width, NULL);
+			stack->getPanelMaxSize(panel->getName(), &max_width);
 		}
 		return max_width;
 	}
@@ -975,7 +975,7 @@ void LLBottomTray::processShrinkButtons(S32& required_width, S32& buttons_freed_
 
 		S32 panel_min_width = 0;
 		std::string panel_name = mSpeakPanel->getName();
-		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
+		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width);
 		if (!success)
 		{
 			lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
@@ -1021,7 +1021,7 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32& 
 		S32 panel_width = panel->getRect().getWidth();
 		S32 panel_min_width = 0;
 		std::string panel_name = panel->getName();
-		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
+		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width);
 		S32 possible_shrink_width = panel_width - panel_min_width;
 
 		if (!success)
@@ -1330,7 +1330,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 
 			// Minimal width of current panel
 			S32 minimal_width = 0;
-			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width, NULL);
+			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width);
 
 			if ( (available_width + possible_shrunk_width) >= minimal_width)
 			{

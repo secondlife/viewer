@@ -291,7 +291,7 @@
       control_name="RenderReflectionDetail"
       height="23"
       layout="topleft"
-      left_="10"
+      left_delta="10"
       top_pad ="0"
       name="Reflections"
       width="150">

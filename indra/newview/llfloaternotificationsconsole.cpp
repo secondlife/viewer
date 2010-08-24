@@ -43,10 +43,10 @@
 const S32 NOTIFICATION_PANEL_HEADER_HEIGHT = 20;
 const S32 HEADER_PADDING = 38;
 
-class LLNotificationChannelPanel : public LLPanel
+class LLNotificationChannelPanel : public LLLayoutPanel
 {
 public:
-	LLNotificationChannelPanel(const std::string& channel_name);
+	LLNotificationChannelPanel(const Params& p);
 	BOOL postBuild();
 
 private:
@@ -58,12 +58,12 @@ private:
 	LLNotificationChannelPtr mChannelRejectsPtr;
 };
 
-LLNotificationChannelPanel::LLNotificationChannelPanel(const std::string& channel_name) 
-	: LLPanel()
+LLNotificationChannelPanel::LLNotificationChannelPanel(const LLNotificationChannelPanel::Params& p) 
+:	LLLayoutPanel(p)
 {
-	mChannelPtr = LLNotifications::instance().getChannel(channel_name);
+	mChannelPtr = LLNotifications::instance().getChannel(p.name);
 	mChannelRejectsPtr = LLNotificationChannelPtr(
-		LLNotificationChannel::buildChannel(channel_name + "rejects", mChannelPtr->getParentChannelName(),
+		LLNotificationChannel::buildChannel(p.name() + "rejects", mChannelPtr->getParentChannelName(),
 											!boost::bind(mChannelPtr->getFilter(), _1)));
 	buildFromFile( "panel_notifications_channel.xml");
 }
@@ -207,8 +207,13 @@ BOOL LLFloaterNotificationConsole::postBuild()
 void LLFloaterNotificationConsole::addChannel(const std::string& name, bool open)
 {
 	LLLayoutStack& stack = getChildRef<LLLayoutStack>("notification_channels");
-	LLNotificationChannelPanel* panelp = new LLNotificationChannelPanel(name);
-	stack.addPanel(panelp, 0, NOTIFICATION_PANEL_HEADER_HEIGHT, S32_MAX, S32_MAX, TRUE, TRUE, LLLayoutStack::ANIMATE);
+	LLNotificationChannelPanel::Params p;
+	p.min_dim = NOTIFICATION_PANEL_HEADER_HEIGHT;
+	p.auto_resize = true;
+	p.user_resize = true;
+	p.name = name;
+	LLNotificationChannelPanel* panelp = new LLNotificationChannelPanel(p);
+	stack.addPanel(panelp, LLLayoutStack::ANIMATE);
 
 	LLButton& header_button = panelp->getChildRef<LLButton>("header");
 	header_button.setToggleState(!open);

@@ -108,11 +108,7 @@ LLView::Params::Params()
 	left_pad("left_pad"),
 	left_delta("left_delta", S32_MAX),
 	from_xui("from_xui", false),
-	user_resize("user_resize"),
-	auto_resize("auto_resize"),
 	needs_translate("translate"),
-	min_dim("min_width"),
-	max_dim("max_width"),
 	xmlns("xmlns"),
 	xmlns_xsi("xmlns:xsi"),
 	xsi_schemaLocation("xsi:schemaLocation"),
@@ -120,8 +116,6 @@ LLView::Params::Params()
 
 {
 	addSynonym(rect, "");
-	addSynonym(min_dim, "min_height");
-	addSynonym(max_dim, "max_height");
 }
 
 LLView::LLView(const LLView::Params& p)

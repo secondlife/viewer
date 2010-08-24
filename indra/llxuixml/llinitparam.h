@@ -213,7 +213,10 @@ namespace LLInitParam
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
-			mParseGeneration(0)
+			mParseGeneration(0),
+			mParserReadFuncs(&read_map),
+			mParserWriteFuncs(&write_map),
+			mParserInspectFuncs(&inspect_map)
 		{}
 		virtual ~Parser();
 
@@ -393,7 +396,6 @@ namespace LLInitParam
 		typedef std::vector<std::pair<param_handle_t, ParamDescriptor::validation_func_t> > param_validation_list_t;
 
 		param_map_t						mNamedParams;			// parameters with associated names
-		param_map_t						mSynonyms;				// parameters with alternate names
 		param_list_t					mUnnamedParams;			// parameters with_out_ associated names
 		param_validation_list_t			mValidationList;		// parameters that must be validated
 		all_params_list_t				mAllParams;				// all parameters, owns descriptors
