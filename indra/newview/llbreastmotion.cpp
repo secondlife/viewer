@@ -321,7 +321,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 		
 	for (U32 i=0; i < 3; i++)
 	{
-		if (mBreastMaxVelocityParam[0] == 0)
+		if (mBreastMaxVelocityParam[i] == 0)
 		{
 			new_local_pt[i] = breast_user_local_pt[i];
 		}
