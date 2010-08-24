@@ -29,13 +29,12 @@
 
 #include <map>
 #include <string>
-#include <boost/function.hpp>
 
 class LLCallbackMap
 {
 public:
 	// callback definition.
-	typedef boost::function<void* (void* data)> callback_t;
+	typedef void* (*callback_t)(void* data);
 	
 	typedef std::map<std::string, LLCallbackMap> map_t;
 	typedef map_t::iterator map_iter_t;

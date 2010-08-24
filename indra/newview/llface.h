@@ -132,10 +132,10 @@ public:
 	void			unsetFaceColor(); // switch back to material color
 	const LLColor4&	getFaceColor() const { return mFaceColor; } 
 	const LLColor4& getRenderColor() const;
+	
 
 	//for volumes
 	void updateRebuildFlags();
-	bool canRenderAsMask(); // logic helper
 	BOOL getGeometryVolume(const LLVolume& volume,
 						const S32 &f,
 						const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
@@ -207,8 +207,7 @@ private:
 	F32         adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius );
 	BOOL        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
 public:
-	static F32 calcImportanceToCamera(F32 to_view_dir, F32 dist);
-	static F32 adjustPixelArea(F32 importance, F32 pixel_area) ;
+	static F32  calcImportanceToCamera(F32 to_view_dir, F32 dist);
 
 public:
 	

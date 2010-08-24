@@ -101,7 +101,7 @@
          follows="all"
          height="100"
          width="280"
-         parse_urls="true"	
+         allow_html="true"	
          hide_scrollbar="false"
          layout="topleft"
          left="10"

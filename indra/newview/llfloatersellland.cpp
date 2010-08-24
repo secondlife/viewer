@@ -157,7 +157,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 {
 	childSetCommitCallback("sell_to", onChangeValue, this);
 	childSetCommitCallback("price", onChangeValue, this);
-	getChild<LLLineEditor>("price")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	childSetPrevalidate("price", LLTextValidate::validateNonNegativeS32);
 	childSetCommitCallback("sell_objects", onChangeValue, this);
 	childSetAction("sell_to_select_agent", boost::bind( &LLFloaterSellLandUI::doSelectAgent, this));
 	childSetAction("cancel_btn", doCancel, this);
@@ -201,20 +201,20 @@ void LLFloaterSellLandUI::updateParcelInfo()
 	mParcelSoldWithObjects = parcelp->getSellWithObjects();
 	if (mParcelIsForSale)
 	{
-		getChild<LLUICtrl>("price")->setValue(mParcelPrice);
+		childSetValue("price", mParcelPrice);
 		if (mParcelSoldWithObjects)
 		{
-			getChild<LLUICtrl>("sell_objects")->setValue("yes");
+			childSetValue("sell_objects", "yes");
 		}
 		else
 		{
-			getChild<LLUICtrl>("sell_objects")->setValue("no");
+			childSetValue("sell_objects", "no");
 		}
 	}
 	else
 	{
-		getChild<LLUICtrl>("price")->setValue("");
-		getChild<LLUICtrl>("sell_objects")->setValue("none");
+		childSetValue("price", "");
+		childSetValue("sell_objects", "none");
 	}
 
 	mParcelSnapshot = parcelp->getSnapshotID();
@@ -226,7 +226,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 	{
 		std::string name;
 		gCacheName->getFullName(mAuthorizedBuyer, name);
-		getChild<LLUICtrl>("sell_to_agent")->setValue(name);
+		childSetText("sell_to_agent", name);
 	}
 }
 
@@ -247,7 +247,7 @@ void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
 		case BADGE_ERROR:	badgeName = badgeError;	break;
 	}
 	
-	getChild<LLUICtrl>(id)->setValue(badgeName);
+	childSetValue(id, badgeName);
 }
 
 void LLFloaterSellLandUI::refreshUI()
@@ -258,10 +258,10 @@ void LLFloaterSellLandUI::refreshUI()
 	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("info_image");
 	snapshot->setImageAssetID(mParcelSnapshot);
 
-	getChild<LLUICtrl>("info_parcel")->setValue(parcelp->getName());
-	getChild<LLUICtrl>("info_size")->setTextArg("[AREA]", llformat("%d", mParcelActualArea));
+	childSetText("info_parcel", parcelp->getName());
+	childSetTextArg("info_size", "[AREA]", llformat("%d", mParcelActualArea));
 
-	std::string price_str = getChild<LLUICtrl>("price")->getValue().asString();
+	std::string price_str = childGetValue("price").asString();
 	bool valid_price = false;
 	valid_price = (price_str != "") && LLTextValidate::validateNonNegativeS32(utf8str_to_wstring(price_str));
 
@@ -269,14 +269,14 @@ void LLFloaterSellLandUI::refreshUI()
 	{
 		F32 per_meter_price = 0;
 		per_meter_price = F32(mParcelPrice) / F32(mParcelActualArea);
-		getChild<LLUICtrl>("price_per_m")->setTextArg("[PER_METER]", llformat("%0.2f", per_meter_price));
-		getChildView("price_per_m")->setVisible(TRUE);
+		childSetTextArg("price_per_m", "[PER_METER]", llformat("%0.2f", per_meter_price));
+		childShow("price_per_m");
 
 		setBadge("step_price", BADGE_OK);
 	}
 	else
 	{
-		getChildView("price_per_m")->setVisible(FALSE);
+		childHide("price_per_m");
 
 		if ("" == price_str)
 		{
@@ -290,26 +290,26 @@ void LLFloaterSellLandUI::refreshUI()
 
 	if (mSellToBuyer)
 	{
-		getChild<LLUICtrl>("sell_to")->setValue("user");
-		getChildView("sell_to_agent")->setVisible(TRUE);
-		getChildView("sell_to_select_agent")->setVisible(TRUE);
+		childSetValue("sell_to", "user");
+		childShow("sell_to_agent");
+		childShow("sell_to_select_agent");
 	}
 	else
 	{
 		if (mChoseSellTo)
 		{
-			getChild<LLUICtrl>("sell_to")->setValue("anyone");
+			childSetValue("sell_to", "anyone");
 		}
 		else
 		{
-			getChild<LLUICtrl>("sell_to")->setValue("select");
+			childSetValue("sell_to", "select");
 		}
-		getChildView("sell_to_agent")->setVisible(FALSE);
-		getChildView("sell_to_select_agent")->setVisible(FALSE);
+		childHide("sell_to_agent");
+		childHide("sell_to_select_agent");
 	}
 
 	// Must select Sell To: Anybody, or User (with a specified username)
-	std::string sell_to = getChild<LLUICtrl>("sell_to")->getValue().asString();
+	std::string sell_to = childGetValue("sell_to").asString();
 	bool valid_sell_to = "select" != sell_to &&
 		("user" != sell_to || mAuthorizedBuyer.notNull());
 
@@ -322,7 +322,7 @@ void LLFloaterSellLandUI::refreshUI()
 		setBadge("step_sell_to", BADGE_OK);
 	}
 
-	bool valid_sell_objects = ("none" != getChild<LLUICtrl>("sell_objects")->getValue().asString());
+	bool valid_sell_objects = ("none" != childGetValue("sell_objects").asString());
 
 	if (!valid_sell_objects)
 	{
@@ -335,11 +335,11 @@ void LLFloaterSellLandUI::refreshUI()
 
 	if (valid_sell_to && valid_price && valid_sell_objects)
 	{
-		getChildView("sell_btn")->setEnabled(TRUE);
+		childEnable("sell_btn");
 	}
 	else
 	{
-		getChildView("sell_btn")->setEnabled(FALSE);
+		childDisable("sell_btn");
 	}
 }
 
@@ -348,7 +348,7 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 {
 	LLFloaterSellLandUI *self = (LLFloaterSellLandUI *)userdata;
 
-	std::string sell_to = self->getChild<LLUICtrl>("sell_to")->getValue().asString();
+	std::string sell_to = self->childGetValue("sell_to").asString();
 
 	if (sell_to == "user")
 	{
@@ -365,9 +365,9 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 		self->mSellToBuyer = false;
 	}
 
-	self->mParcelPrice = self->getChild<LLUICtrl>("price")->getValue();
+	self->mParcelPrice = self->childGetValue("price");
 
-	if ("yes" == self->getChild<LLUICtrl>("sell_objects")->getValue().asString())
+	if ("yes" == self->childGetValue("sell_objects").asString())
 	{
 		self->mParcelSoldWithObjects = true;
 	}
@@ -396,7 +396,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& nam
 
 	mAuthorizedBuyer = ids[0];
 
-	getChild<LLUICtrl>("sell_to_agent")->setValue(names[0]);
+	childSetText("sell_to_agent", names[0]);
 
 	refreshUI();
 }
@@ -439,13 +439,13 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 	LLParcel* parcel = self->mParcelSelection->getParcel();
 
 	// Do a confirmation
-	S32 sale_price = self->getChild<LLUICtrl>("price")->getValue();
+	S32 sale_price = self->childGetValue("price");
 	S32 area = parcel->getArea();
 	std::string authorizedBuyerName = "Anyone";
 	bool sell_to_anyone = true;
-	if ("user" == self->getChild<LLUICtrl>("sell_to")->getValue().asString())
+	if ("user" == self->childGetValue("sell_to").asString())
 	{
-		authorizedBuyerName = self->getChild<LLUICtrl>("sell_to_agent")->getValue().asString();
+		authorizedBuyerName = self->childGetText("sell_to_agent");
 		sell_to_anyone = false;
 	}
 
@@ -492,7 +492,7 @@ bool LLFloaterSellLandUI::onConfirmSale(const LLSD& notification, const LLSD& re
 	{
 		return false;
 	}
-	S32  sale_price	= getChild<LLUICtrl>("price")->getValue();
+	S32  sale_price	= childGetValue("price");
 
 	// Valid extracted data
 	if (sale_price < 0)
@@ -514,12 +514,12 @@ bool LLFloaterSellLandUI::onConfirmSale(const LLSD& notification, const LLSD& re
 	parcel->setParcelFlag(PF_FOR_SALE, TRUE);
 	parcel->setSalePrice(sale_price);
 	bool sell_with_objects = false;
-	if ("yes" == getChild<LLUICtrl>("sell_objects")->getValue().asString())
+	if ("yes" == childGetValue("sell_objects").asString())
 	{
 		sell_with_objects = true;
 	}
 	parcel->setSellWithObjects(sell_with_objects);
-	if ("user" == getChild<LLUICtrl>("sell_to")->getValue().asString())
+	if ("user" == childGetValue("sell_to").asString())
 	{
 		parcel->setAuthorizedBuyerID(mAuthorizedBuyer);
 	}

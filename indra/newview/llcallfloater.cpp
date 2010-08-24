@@ -290,7 +290,7 @@ void LLCallFloater::updateSession()
 
 	// Hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	getChildView("leave_call_btn_panel")->setVisible( !is_local_chat);
+	childSetVisible("leave_call_btn_panel", !is_local_chat);
 
 	refreshParticipantList();
 	updateAgentModeratorState();
@@ -413,11 +413,11 @@ void LLCallFloater::initAgentData()
 
 	if ( mAgentPanel )
 	{
-		mAgentPanel->getChild<LLUICtrl>("user_icon")->setValue(gAgentID);
+		mAgentPanel->childSetValue("user_icon", gAgentID);
 
 		std::string name;
 		gCacheName->getFullName(gAgentID, name);
-		mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+		mAgentPanel->childSetValue("user_text", name);
 
 		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
@@ -455,7 +455,7 @@ void LLCallFloater::updateAgentModeratorState()
 			}
 		}
 	}
-	mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+	mAgentPanel->childSetValue("user_text", name);
 }
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
@@ -760,7 +760,7 @@ void LLCallFloater::reset(const LLVoiceChannel::EState& new_state)
 	{
 		// hides "Leave Call" when call is ended in parcel with disabled voice- hiding usually happens in
 		// updateSession() which won't be called here because connect to nearby voice never happens 
-		getChildView("leave_call_btn_panel")->setVisible( false);
+		childSetVisible("leave_call_btn_panel", false);
 		// setting title to nearby chat an "no one near..." text- because in region with disabled
 		// voice we won't have chance to really connect to nearby, so VCP is changed here manually
 		setTitle(getString("title_nearby"));

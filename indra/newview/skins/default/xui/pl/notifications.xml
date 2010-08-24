@@ -67,8 +67,8 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
-	<notification name="BadInstallation">		
-		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com pobierz najnowsza wersję] aby ściągnąć ostatnią wersję klienta.
+	<notification name="BadInstallation">
+		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com download the latest version] by ściągnąć najnowszą wersje klienta.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -78,7 +78,7 @@ Sprawdź stan swojego połączenia sieciowego.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
-		Wzór komunikatu dla [PATH] nie został odnaleziony.
+		Wzór komunikatu dla [PATH] nie odnaleziony.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="WearableSave">
@@ -103,7 +103,7 @@ Wybierz pojedynczy obiekt i spróbuj jeszcze raz.
 	</notification>
 	<notification name="SaveClothingBodyChanges">
 		Zapisać wszystkie zmiany dotyczące ubrania/cześci ciała?
-		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie zapisuj" yestext="Zapisz"/>
+		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Osoby spoza listy znajomych, których rozmowy głosowe i IM są ignorowane, nie wiedzą o tym.
@@ -128,14 +128,14 @@ Czy chcesz dać prawa modyfikacji wybranym osobom?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="UnableToCreateGroup">
-		Założenie grupy nie jest możliwe.
+		Założenie grupy niemożliwe.
 [MESSAGE]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PanelGroupApply">
 		[NEEDS_APPLY_MESSAGE]
 [WANT_APPLY_MESSAGE]
-		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Ignoruj zmiany" yestext="Zastosuj zmiany"/>
+		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Ignoruj Zmiany" yestext="Zastosuj Zmiany"/>
 	</notification>
 	<notification name="MustSpecifyGroupNoticeSubject">
 		Aby wysłać ogłoszenie do grupy musisz nadać mu tytuł.
@@ -181,7 +181,7 @@ Chcesz kontynuować?
 	<notification name="JoinGroupNoCost">
 		Dołączasz do grupy [NAME].
 Czy chcesz kontynuować?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Akceptuj"/>
+		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Zaakceptuj"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Członkostwo w tej grupie kosztuje [COST]L$
@@ -272,7 +272,7 @@ Skrypty muszą pozostać aktywne dla prawidłowego działania broni.
 	<notification name="MultipleFacesSelected">
 		Obecnie zaznaczono wiele powierzchni.
 Jeśli działanie będzie kontynuowane, oddzielne media będą ustawione na wielu powierzchniach obiektu. 
-W celu umieszczenia mediów tylko na jednej powierzchni skorzystaj z Wybierz powierzchnię i kliknij na wybranej powierzchni obiektu oraz kliknij Dodaj.
+W celu umieszczenia mediów tylko na jednej powierzchni skorzystaj z Wybierz Powierzchnię i kliknij na wybranej powierzchni obiektu oraz kliknij Dodaj.
 		<usetemplate ignoretext="Media zostaną ustawione na wielu zaznaczonych powierzchniach" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="MustBeInParcel">
@@ -343,11 +343,11 @@ Czy na pewno chcesz kontynuować?
 		<usetemplate ignoretext="Potwierdź przed usunięciem mediów z obiektu" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="ClassifiedSave">
-		Zapisać zmiany w reklamie [NAME]?
+		Zapisać zmiany w Reklamie [NAME]?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
 	<notification name="ClassifiedInsufficientFunds">
-		Nie posiadasz wystarczających środków aby dodać reklamę.
+		Nie posiadasz wystarczających środków aby dodać Reklamę.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
@@ -386,27 +386,27 @@ Pamiętaj: Opcja ta wyczyszcza bufor danych.
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="SaveChanges">
-		Zapisać zmiany?
-		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie zapisuj" yestext="Zapisz"/>
+		Zapisać Zmiany?
+		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
-		Nie można zapisać gesturki.
-Ta gesturka ma zbyt wiele etapów.
+		Nie można zapisać gestu.
+Ten gest ma zbyt wiele etapów.
 Usuń kilka etapów i zapisz jeszcze raz.
 	</notification>
 	<notification name="GestureSaveFailedTryAgain">
-		Zapis gesturki nie powiódł się. Spróbuj jeszcze raz za kilka minut.
+		Zapis gestu nie powiódł się. Spróbuj jeszcze raz za kilka minut.
 	</notification>
 	<notification name="GestureSaveFailedObjectNotFound">
-		Nie można zapisać gesturki ponieważ obiekt lub szafa powiązanego obiektu nie został znaleziony.
+		Nie można zapisać gestu ponieważ obiekt lub szafa powiązanego obiektu nie został znaleziony.
 Obiekt może znajdować się zbyt daleko albo został usunięty.
 	</notification>
 	<notification name="GestureSaveFailedReason">
-		Nie można zapisać gesturki z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
+		Nie można zapisać gestu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
 	</notification>
 	<notification name="SaveNotecardFailObjectNotFound">
 		Nie można zapisać notki ponieważ obiekt lub szafa powiązanego obiektu nie został znaleziony.
-Obiekt może znajdować się zbyt daleko albo został usunięty.
+Obiekt może znajdować się zbyt daleko albo został usuniety.
 	</notification>
 	<notification name="SaveNotecardFailReason">
 		Nie można zapisać notki z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
@@ -422,19 +422,19 @@ Czy chcesz załadować ostatnią wersję zapisaną na serwerze?
 	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Nie można zapisać skryptu ponieważ obiekt w którym się zawiera nie został znaleziony.
-Obiekt może znajdować się zbyt daleko albo został usunięty.
+Obiekt może znajdować się zbyt daleko albo został usuniety.
 	</notification>
 	<notification name="SaveBytecodeFailReason">
 		Nie można zapisać skompilowanego skryptu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz póżniej.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Oops, Twoje miejsce startu nie zostało określone.
-Wpisz proszę nazwę regionu w lokalizację startu w polu Lokalizacja Startu lub wybierz Moja ostatnia lokalizacja albo Miejsce Startu.
+Wpisz proszę nazwę regionu w lokalizację startu w polu Lokalizacja Startu lub wybierz Moja Ostatnia Lokalizacja albo Miejsce Startu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
 		Nie można uruchomić lub zatrzymać skryptu ponieważ obiekt w którym się zawiera nie został znaleziony.
-Obiekt może znajdować się zbyt daleko albo został usunięty.
+Obiekt może znajdować się zbyt daleko albo został usuniety.
 	</notification>
 	<notification name="CannotDownloadFile">
 		Nie można załadować pliku
@@ -453,7 +453,7 @@ Po więcej info, odwiedź stronę [_URL] .
 	</notification>
 	<notification name="UnknownGPU">
 		Twój system jest wyposażony w kartę graficzną, która nie jest rozpoznana przez [APP_NAME].
-Zdarza się to często w przypadku nowego sprzętu, który nie był testowany z [APP_NAME].  Prawdopodobnie wystarczy dostosowanie ustawień grafiki aby działanie było poprawne.
+Zdarza się to częstow w przypadku nowego sprzętu, który nie był testowany z [APP_NAME].  Prawdopodobnie wystarczy dostosowanie ustawień grafiki aby działanie było poprawne.
 (Ja &gt; Właściwości &gt; Grafika).
 		<form name="form">
 			<ignore name="ignore" text="Karta graficzna nie została zidentyfikowana."/>
@@ -461,7 +461,7 @@ Zdarza się to często w przypadku nowego sprzętu, który nie był testowany z 
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
 		[APP_NAME] zawiesił się podczas inicjalizacji sterowników graficznych.
-Jakość grafiki została zmniejszona - może to pomóc.
+Jakość grafiki została zmniejszona - może pomoże.
 Pewne funkcje graficzne zostały wyłączone. Zalecamy aktualizcje sterowników graficznych.
 Możesz podnieść jakość grafiki pod Ustawienia &gt; Grafika.
 	</notification>
@@ -972,7 +972,7 @@ ze wszystkich posiadłości w tym symulatorze?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BlankClassifiedName">
-		Musisz nadać tytuł Twojej reklamie.
+		Musisz nadać tytuł Twojej Reklamie.
 	</notification>
 	<notification name="MinClassifiedPrice">
 		Minimalna cena za publikację wynosi [MIN_PRICE]L$.
@@ -1106,7 +1106,7 @@ Możesz normalnie używać [SECOND_LIFE], inni użytkownicy będą Cię widzieli
 
 Jeżeli używasz [SECOND_LIFE] po raz pierwszy to musisz stworzyć konto żeby móc się zalogować.
 Czy chcesz przejść na stronę [http://join.secondlife.com secondlife.com] żeby stworzyć nowe konto?
-		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Nowe konto..."/>
+		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Nowe Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Problemy z połączeniem. Problem może być spowodowany Twoim połączeniem z Internetem albo może istnieć po stronie [SECOND_LIFE_GRID].
@@ -1223,14 +1223,14 @@ Zamień teksturę [TEXTURE_NUM] na 24-o bitową teksturę o wymiarze 512x512 lub
 [MAX_AGENTS] [LIST_TYPE] limit przekroczony o [NUM_EXCESS].
 	</notification>
 	<notification name="MaxAllowedGroupsOnRegion">
-		Możesz mieć maksymalnie [MAX_GROUPS] dozwolonych grup.
+		Możesz mieć maksymalnie [MAX_GROUPS] Dozwolonych Grup.
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Ustal"/>
 	</notification>
 	<notification name="MaxManagersOnRegion">
-		Możesz mieć maksymalnie [MAX_MANAGER] zarządców Majątku.
+		Możesz mieć maksymalnie [MAX_MANAGER] Zarządców Majątku.
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
-		Nie możesz dodać właściciela majątku do listy &apos;Niepożądanych Rezydentów (banów)&apos; majątku.
+		Nie możesz dodać właściciela majątku do listy &apos;Nieporządanych Rezydentów (banów)&apos; majątku.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Nie możesz zmienić wyglądu podczas ładowania ubrań i kształtów.
@@ -1239,7 +1239,7 @@ Zamień teksturę [TEXTURE_NUM] na 24-o bitową teksturę o wymiarze 512x512 lub
 		Tytuł Twojej reklamy musi zaczynać się od litery (A-Z) albo cyfry. Znaki przestankowe są niedozwolone.
 	</notification>
 	<notification name="CantSetBuyObject">
-		Nie możesz wybrać Kup obiekt ponieważ obiekt nie jest na sprzedaż.
+		Nie możesz wybrać Kup Obiekt ponieważ obiekt nie jest na sprzedaż.
 Wybierz obiekt na sprzedaż i spróbuj jeszcze raz.
 	</notification>
 	<notification name="FinishedRawDownload">
@@ -1307,7 +1307,7 @@ Pobrać i zapisać w folderze Aplikacji?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
-		Przekazanie tego obiektu spowoduje, że grupa:
+		Przekazanie tego obiektu spowoduje, że Grupa:
 * Otrzyma L$ zapłacone temu obiektowi
 		<usetemplate ignoretext="Proszę potwierdzić decyzję przed przepisaniem obiektu do grupy" name="okcancelignore" notext="Anuluj" yestext="Przekaż"/>
 	</notification>
@@ -1329,15 +1329,15 @@ Pobrać i zapisać w folderze Aplikacji?
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Odwiedź [SECOND_LIFE] katalog publicznych problemów, gdzie możesz zgłaszać błędy i inne problemy.
-		<usetemplate ignoretext="Uruchom przeglądarkę internetową by wysłać Błędy klienta" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+		<usetemplate ignoretext="Uruchom przeglądarkę internetową by wysłać Błędy Klienta" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSupportWiki">
 		Otwórz oficjalny blog Lindenów żeby zobaczyć nowe wiadomości i informacje.
 		<usetemplate ignoretext="Uruchom przeglądarkę internetową by zobaczyć blog" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchLSLGuide">
-		Czy chcesz otworzyć samouczek Języka skryptowania?
-		<usetemplate ignoretext="Uruchom przeglądarkę internetową by samouczek Języka skryptowania" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+		Czy chcesz otworzyć samouczek Języka Skryptowania?
+		<usetemplate ignoretext="Uruchom przeglądarkę internetową by samouczek Języka Skryptowania" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchLSLWiki">
 		Czy napewno chcesz odwiedzić portal LSL Portal?
@@ -1385,7 +1385,7 @@ Chcesz opuścić grupę?
 		Tryb Pracy jest włączony.
 Czat i IM będą ukryte. Wysłane IM będą otrzymywały Twoją odpowiedź Trybu Pracy. Propozycje teleportacji będą odrzucone.
 Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywane w folderze &quot;Kosz&quot; w Twojej szafie.
-		<usetemplate ignoretext="Status zmieniony na Tryb pracy" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Status zmieniony na Tryb Pracy" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Należysz już do maksymalnej ilości grup. Opuść proszę przynajmniej jedną grupę żeby przyjąć członkostwo w tej grupie, albo odmów.
@@ -1466,7 +1466,7 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 	</notification>
 	<notification name="TeleportToClassified">
 		Teleportuj do [CLASSIFIED]?
-		<usetemplate ignoretext="Potwierdź, że chcesz teleportować się do lokalizacji z reklamy" name="okcancelignore" notext="Anuluj" yestext="Teleportuj"/>
+		<usetemplate ignoretext="Potwierdź, że chcesz teleportować się do lokalizacji z Reklamy" name="okcancelignore" notext="Anuluj" yestext="Teleportuj"/>
 	</notification>
 	<notification name="TeleportToHistoryEntry">
 		Teleportuj do [HISTORY_ENTRY]?
@@ -1489,7 +1489,7 @@ Kontynuować?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification label="Zmiana Dostępu do Majątku Lindenów" name="ChangeLindenAccess">
-		Dokonujesz zmiany w liście dostępu Regionu głównego należącego do Lindenów (Regiony Główne, Teen Grid, Orientacja).
+		Dokonujesz zmiany w liście dostępu Regionu Głównego należącego do Lindenów (Regiony Główne, Teen Grid, Orientacja).
 
 Żądana operacja jest wyjątkowo niebezpieczna dla wszystkich Rezydentów przebywających w regionie i powinna być używana wyłącznie w celu zablokowania opcji pozwalającej na przeniesienie obiektów/L$ do/z sieci.
 Dodatkowo, zmiany dokonane w Regionie Głównym mogą spowodować problemy przestrzeni serwerowej innych regionów.
@@ -1560,7 +1560,7 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 
 W celu uzyskania dostępu do tego regiony zmień proszę swój status ustawień wieku. Będziesz mógł/mogła szukać i mieć dostęp do treści [REGIONMATURITY]. W celu cofnięcia zmian wybierz z menu Ja &gt; Ustawienia &gt; Ogólne.
 		<form name="form">
-			<button name="OK" text="Zmień ustawienia"/>
+			<button name="OK" text="Zmień Ustawienia"/>
 			<button default="true" name="Cancel" text="Zamknij"/>
 			<ignore name="ignore" text="Moje ustawienia wieku nie dopuszczają do regionu"/>
 		</form>
@@ -1693,7 +1693,7 @@ Wybierz pojedynczy obiekt i spróbuj jeszcze raz.
 Zostaniesz właścicielem tego obiektu z następującymi prawami:
  Modyfikacje: [MODIFYPERM]
  Kopiowanie: [COPYPERM]
- Odsprzedawanie i oddawanie: [RESELLPERM]
+ Odsprzedawanie i Oddawanie: [RESELLPERM]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BuyOriginalNoOwner">
@@ -1701,7 +1701,7 @@ Zostaniesz właścicielem tego obiektu z następującymi prawami:
 Zostaniesz właścicielem tego obiektu z następującymi prawami:
  Modyfikacje: [MODIFYPERM]
  Kopiowanie: [COPYPERM]
- Odsprzedawanie i oddawanie: [RESELLPERM]
+ Odsprzedawanie i Oddawanie: [RESELLPERM]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BuyCopy">
@@ -1709,7 +1709,7 @@ Zostaniesz właścicielem tego obiektu z następującymi prawami:
 Obiekt zostanie skopiowany do Twojej szafy z następującymi prawami:
  Modyfikacje: [MODIFYPERM]
  Kopiowanie: [COPYPERM]
- Odsprzedawanie i oddawanie: [RESELLPERM]
+ Odsprzedawanie i Oddawanie: [RESELLPERM]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BuyCopyNoOwner">
@@ -1717,7 +1717,7 @@ Obiekt zostanie skopiowany do Twojej szafy z następującymi prawami:
 Obiekt zostanie skopiowany do Twojej szafy z następującymi prawami:
  Modyfikacje: [MODIFYPERM]
  Kopiowanie: [COPYPERM]
- Odsprzedawanie i oddawanie: [RESELLPERM]
+ Odsprzedawanie i Oddawanie: [RESELLPERM]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BuyContents">
@@ -1770,7 +1770,7 @@ Przenieść obiekty szafy?
 		<usetemplate ignoretext="Uprzedź przed przeniesieniem zawartości niekopiowalnej z obiektu, która może uszkodzić skrypty obiektu" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Uwaga: Opcja Zapłać obiektowi została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
+		Uwaga: Opcja Zapłać Obiektowi została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
 		<form name="form">
 			<ignore name="ignore" text="Opcja Zapłać Obiektowi została aktywowana podczas budowania obiektów bez skryptu z funkcją money()."/>
 		</form>
@@ -1836,18 +1836,18 @@ Linden Lab
 Chcesz go zamienić na wybrany obiekt?
 		<form name="form">
 			<ignore name="ignore" save_option="true" text="Obecnie masz już dołączony obiekt do tej części Twojego ciała.Chcesz go zamienić na wybrany obiekt?"/>
-			<button ignore="Zamień automatycznie" name="Yes" text="OK"/>
-			<button ignore="Nie zamieniaj" name="No" text="Anuluj"/>
+			<button ignore="Zamień Automatycznie" name="Yes" text="OK"/>
+			<button ignore="Nie Zamieniaj" name="No" text="Anuluj"/>
 		</form>
 	</notification>
 	<notification label="Ostrzeżenie Trybu Pracy" name="BusyModePay">
-		Jesteś w Trybie pracy co oznacza, że nie dostaniesz żadnych obiektów w zamian za tą opłatę.
+		Jesteś w Trybie Pracy co oznacza, że nie dostaniesz żadnych obiektów w zamian za tą opłatę.
 
-Chcesz wyłączyć Tryb pracy przed zakończeniem tej tranzakcji?
+Chcesz wyłączyć Tryb Pracy przed zakończeniem tej tranzakcji?
 		<form name="form">
 			<ignore name="ignore" save_option="true" text="Jesteś w Trybie Pracy co oznacza, że nie dostaniesz żadnych obiektów w zamian za tą opłatę. Chcesz wyłączyć Tryb Pracy przed zakończeniem tej transakcji?"/>
-			<button ignore="Zawsz wyłączaj tryb pracy" name="Yes" text="OK"/>
-			<button ignore="Nie wyłączaj trybu pracy" name="No" text="Anuluj"/>
+			<button ignore="Zawsz wyłączaj Tryb Pracy" name="Yes" text="OK"/>
+			<button ignore="Nie wyłączaj Trybu Pracy" name="No" text="Anuluj"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -1871,8 +1871,8 @@ Chcesz wyłączyć Tryb pracy przed zakończeniem tej tranzakcji?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
 	<notification name="ConfirmEmptyLostAndFound">
-		Na pewno chcesz permanentnie usunąć zawartość Twojego foldera Zgubione i odnalezione?
-		<usetemplate ignoretext="Potwierdź przed usunięciem zawartości foldera Zagubione i odnalezione" name="okcancelignore" notext="Nie" yestext="Tak"/>
+		Na pewno chcesz permanentnie usunąć zawartość Twojego foldera Zgubione i Odnalezione?
+		<usetemplate ignoretext="Potwierdź przed usunięciem zawartości foldera Zagubione i Odnalezione" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="CopySLURL">
 		Następujący link SLURL został skopiowany do schowka:
@@ -1898,14 +1898,14 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Ten plik cyklu dziennego używa brakującego pliku nieba: [SKY].
 	</notification>
 	<notification name="PPSaveEffectAlert">
-		Efekt post-procesu już istnieje. Chcesz zapisać nowy na jego miejsce?
+		Efekt Post-Procesu już istnieje. Chcesz zapisać nowy na jego miejsce?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="NewSkyPreset">
 		Nazwij nowe niebo.
 		<form name="form">
 			<input name="message">
-				Nowe ustawienie
+				Nowe Ustawienie
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
@@ -1918,7 +1918,7 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Nazwij nowe ustawienie wody.
 		<form name="form">
 			<input name="message">
-				Nowe ustawienie
+				Nowe Ustawienie
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
@@ -1987,10 +1987,10 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Anulowane
 	</notification>
 	<notification name="CancelledSit">
-		Siadanie anulowane
+		Siadanie Anulowane
 	</notification>
 	<notification name="CancelledAttach">
-		Dołączenie anulowane
+		Dołączenie Anulowane
 	</notification>
 	<notification name="ReplacedMissingWearable">
 		Barkujące ubranie/części ciała zastąpiono domyślnymi obiektami.
@@ -2027,7 +2027,7 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Gesturka [NAME] nie znaleziony w bazie danych.
 	</notification>
 	<notification name="UnableToLoadGesture">
-		Ładowanie gesturki [NAME] nie powiodło się.
+		Ładowanie gestu [NAME] nie powiodło się.
 	</notification>
 	<notification name="LandmarkMissing">
 		Miejsce (LM) nie znalezione w bazie danych.
@@ -2041,7 +2041,7 @@ Spróbuj jeszcze raz.
 Ponieważ to ma wpływ na wpisywane hasło, możesz chcieć go wyłączyć.
 	</notification>
 	<notification name="NotecardMissing">
-		Notka nie została znaleziona w bazie danych.
+		Notka nie znaleziona w bazie danych.
 	</notification>
 	<notification name="NotecardNoPermissions">
 		Nie masz pozwolenia na zobaczenie notki.
@@ -2131,7 +2131,7 @@ Spróbuj wybrać mniejszy obszar.
 		Pewne frazy podczas wyszukiwania zostały usunięte w związku z restrykcjami zawartymi w Standardach Społecznościowych (Community Standards).
 	</notification>
 	<notification name="NoContentToSearch">
-		Proszę wybrać przynajmiej jeden z podanych rodzajów treści jaką zawiera region podczas wyszukiwania (&apos;General&apos;, &apos;Moderate&apos;, lub &apos;Adult&apos;).
+		Proszę wybrać przynajmiej jeden z podanych rodzajów treści jaką zawiera region podczas wyszukiwania (&apos;PG&apos;, &apos;Mature&apos;, lub &apos;Adult&apos;).
 	</notification>
 	<notification name="GroupVote">
 		[NAME] zaprasza do głosowania nad propozycją:
@@ -2148,7 +2148,7 @@ Spróbuj wybrać mniejszy obszar.
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
-		Zawiadomienie o imprezie:
+		Zawiadomienie o Imprezie:
 
 [NAME]
 [DATE]
@@ -2167,12 +2167,12 @@ Spróbuj wybrać mniejszy obszar.
 		</form>
 	</notification>
 	<notification name="DeactivatedGesturesTrigger">
-		Zablokowane gesturki z jednakowym aktywowaniem:
+		Zablokowane gesty z jednakowym aktywowaniem:
 [NAMES]
 	</notification>
 	<notification name="NoQuickTime">
 		Wygląda na to, że QuickTime z Apple nie jest zainstalowany na Twoim komputerze.
-Jeżeli chcesz odtwarzać media na tej posiadłości które używają QuickTime idź do [http://www.apple.com/quicktime strona QuickTime] i zainstaluj odtwarzacz.
+Jeżeli chcesz odtwarzać media na tej posiadłości które używają QuickTime idź do [http://www.apple.com/quicktime QuickTime site] i zainstaluj odtwarzacz.
 	</notification>
 	<notification name="NoPlugin">
 		Nie znaleziono wtyczki mediów dla &quot;[MIME_TYPE]&quot; typu mime.  Media tego typu będą niedostępne.
@@ -2584,7 +2584,7 @@ Wybierz Zaakceptuj żeby zacząć czat albo Odmów żeby nie przyjąć zaproszen
 		Nie masz dostępu do posiadłości, nie należysz do właściwej grupy.
 	</notification>
 	<notification name="Cannot enter parcel: banned">
-		Masz wzbroniony wstęp na tą posiadłości (ban).
+		Masz wzbroniny dostęp to tej posiadłości (ban).
 	</notification>
 	<notification name="Cannot enter parcel: not on access list">
 		Nie masz dostępu do posiadłości, nie jesteś na liście dostępu.

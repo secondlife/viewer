@@ -419,14 +419,19 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 	getChild<LLUICtrl>("prepend_founded_by")->setVisible(!is_null_group_id);
 
-	LLAccordionCtrl* tab_ctrl = getChild<LLAccordionCtrl>("groups_accordion");
-	tab_ctrl->reset();
+	LLAccordionCtrl* tab_ctrl = findChild<LLAccordionCtrl>("group_accordion");
+	if(tab_ctrl)
+		tab_ctrl->reset();
 
-	LLAccordionCtrlTab* tab_general = getChild<LLAccordionCtrlTab>("group_general_tab");
-	LLAccordionCtrlTab* tab_roles = getChild<LLAccordionCtrlTab>("group_roles_tab");
-	LLAccordionCtrlTab* tab_notices = getChild<LLAccordionCtrlTab>("group_notices_tab");
-	LLAccordionCtrlTab* tab_land = getChild<LLAccordionCtrlTab>("group_land_tab");
+	LLAccordionCtrlTab* tab_general = findChild<LLAccordionCtrlTab>("group_general_tab");
+	LLAccordionCtrlTab* tab_roles = findChild<LLAccordionCtrlTab>("group_roles_tab");
+	LLAccordionCtrlTab* tab_notices = findChild<LLAccordionCtrlTab>("group_notices_tab");
+	LLAccordionCtrlTab* tab_land = findChild<LLAccordionCtrlTab>("group_land_tab");
 
+
+	if(!tab_general || !tab_roles || !tab_notices || !tab_land)
+		return;
+	
 	if(mButtonJoin)
 		mButtonJoin->setVisible(false);
 
@@ -487,8 +492,6 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 			button_chat->setVisible(is_member);
 	}
 
-	tab_ctrl->arrange();
-
 	reposButtons();
 	update(GC_ALL);//show/hide "join" button if data is already ready
 }
@@ -539,7 +542,6 @@ void LLPanelGroup::draw()
 	{
 		mRefreshTimer.stop();
 		childEnable("btn_refresh");
-		childEnable("groups_accordion");
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
@@ -568,8 +570,6 @@ void LLPanelGroup::refreshData()
 	
 	// 5 second timeout
 	childDisable("btn_refresh");
-	childDisable("groups_accordion");
-
 	mRefreshTimer.start();
 	mRefreshTimer.setTimerExpirySec(5);
 }

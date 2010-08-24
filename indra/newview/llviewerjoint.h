@@ -120,7 +120,7 @@ public:
 	PickName getPickName() { return mPickName; }
 
 	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
-	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
+	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE);
 	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
 	virtual void updateJointGeometry();
 	virtual void dump();

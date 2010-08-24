@@ -69,7 +69,7 @@ LLFloaterOpenObject::~LLFloaterOpenObject()
 // virtual
 BOOL LLFloaterOpenObject::postBuild()
 {
-	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
+	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
 	
 	refresh();
@@ -113,9 +113,9 @@ void LLFloaterOpenObject::refresh()
 		enabled = FALSE;
 	}
 	
-	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", name);
-	getChildView("copy_to_inventory_button")->setEnabled(enabled);
-	getChildView("copy_and_wear_button")->setEnabled(enabled);
+	childSetTextArg("object_name", "[DESC]", name);
+	childSetEnabled("copy_to_inventory_button", enabled);
+	childSetEnabled("copy_and_wear_button", enabled);
 
 }
 

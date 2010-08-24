@@ -434,13 +434,13 @@ void LLViewerJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pix
 	}
 }
 
-void LLViewerJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
+void LLViewerJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
 {
 	for (child_list_t::iterator iter = mChildren.begin();
 		 iter != mChildren.end(); ++iter)
 	{
 		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		joint->updateFaceData(face, pixel_area, damp_wind, terse_update);
+		joint->updateFaceData(face, pixel_area, damp_wind);
 	}
 }
 

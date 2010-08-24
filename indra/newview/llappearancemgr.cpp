@@ -1006,7 +1006,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		addCOFItemLink(item_to_wear, do_update, cb);
 		break;
 	case LLAssetType::AT_OBJECT:
-		rez_attachment(item_to_wear, NULL, replace);
+		rez_attachment(item_to_wear, NULL);
 		break;
 	default: return false;;
 	}
@@ -1299,8 +1299,16 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains the full set of body parts (shape+skin+hair+eyes).
-	return getCanMakeFolderIntoOutfit(outfit_cat_id);
+	// Check whether the outfit contains any non-worn wearables.
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+	return items.size() > 0;
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
@@ -1594,56 +1602,46 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
 	}
 }
 
-S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
-												 LLAssetType::EType type,
-												 S32 max_items,
-												 LLInventoryModel::item_array_t& items_to_kill)
-{
-	S32 to_kill_count = 0;
-
-	LLInventoryModel::item_array_t items;
-	getDescendentsOfAssetType(cat_id, items, type, false);
-	LLInventoryModel::item_array_t curr_items = items;
-	removeDuplicateItems(items);
-	if (max_items > 0)
-	{
-		filterWearableItems(items, max_items);
-	}
-	LLInventoryModel::item_array_t kill_items;
-	item_array_diff(curr_items,items,kill_items);
-	for (LLInventoryModel::item_array_t::iterator it = kill_items.begin();
-		 it != kill_items.end();
-		 ++it)
-	{
-		items_to_kill.push_back(*it);
-		to_kill_count++;
-	}
-	return to_kill_count;
-}
-	
-												 
-void LLAppearanceMgr::enforceItemRestrictions()
+void LLAppearanceMgr::enforceItemCountLimits()
 {
 	S32 purge_count = 0;
-	LLInventoryModel::item_array_t items_to_kill;
-
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_BODYPART,
-											  1, items_to_kill);
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_CLOTHING,
-											  LLAgentWearables::MAX_CLOTHING_PER_TYPE, items_to_kill);
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_OBJECT,
-											  -1, items_to_kill);
-
-	if (items_to_kill.size()>0)
+	
+	LLInventoryModel::item_array_t body_items;
+	getDescendentsOfAssetType(getCOF(), body_items, LLAssetType::AT_BODYPART, false);
+	LLInventoryModel::item_array_t curr_body_items = body_items;
+	removeDuplicateItems(body_items);
+	filterWearableItems(body_items, 1);
+	LLInventoryModel::item_array_t kill_body_items;
+	item_array_diff(curr_body_items,body_items,kill_body_items);
+	for (LLInventoryModel::item_array_t::iterator it = kill_body_items.begin();
+		 it != kill_body_items.end();
+		 ++it)
 	{
-		for (LLInventoryModel::item_array_t::iterator it = items_to_kill.begin();
-			 it != items_to_kill.end();
-			 ++it)
-		{
-			LLViewerInventoryItem *item = *it;
-			llinfos << "purging duplicate or excess item " << item->getName() << llendl;
-			gInventory.purgeObject(item->getUUID());
-		}
+		LLViewerInventoryItem *item = *it;
+		llinfos << "purging dup body part " << item->getName() << llendl;
+		gInventory.purgeObject(item->getUUID());
+		purge_count++;
+	}
+	
+	LLInventoryModel::item_array_t wear_items;
+	getDescendentsOfAssetType(getCOF(), wear_items, LLAssetType::AT_CLOTHING, false);
+	LLInventoryModel::item_array_t curr_wear_items = wear_items;
+	removeDuplicateItems(wear_items);
+	filterWearableItems(wear_items, LLAgentWearables::MAX_CLOTHING_PER_TYPE);
+	LLInventoryModel::item_array_t kill_wear_items;
+	item_array_diff(curr_wear_items,wear_items,kill_wear_items);
+	for (LLInventoryModel::item_array_t::iterator it = kill_wear_items.begin();
+		 it != kill_wear_items.end();
+		 ++it)
+	{
+		LLViewerInventoryItem *item = *it;
+		llinfos << "purging excess clothing item " << item->getName() << llendl;
+		gInventory.purgeObject(item->getUUID());
+		purge_count++;
+	}
+
+	if (purge_count>0)
+	{
 		gInventory.notifyObservers();
 	}
 }
@@ -1666,7 +1664,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 
 	// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
 	// this should catch anything that gets through.
-	enforceItemRestrictions();
+	enforceItemCountLimits();
 	
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
@@ -1832,9 +1830,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-														   &LLAppearanceMgr::instance(),
-														   category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+															&LLAppearanceMgr::instance(),
+															category->getUUID(), copy, append));
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
@@ -2500,17 +2498,29 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 
 	switch (item_to_remove->getType())
 	{
-		case LLAssetType::AT_CLOTHING:
-			if (get_is_item_worn(id_to_remove))
+	case LLAssetType::AT_CLOTHING:
+		if (get_is_item_worn(id_to_remove))
+		{
+			//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
+			LLWearableBridge::removeItemFromAvatar(item_to_remove);
+		}
+		break;
+	case LLAssetType::AT_OBJECT:
+		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_to_remove->getLinkedUUID());
+		gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
+
+		{
+			// this object might have been selected, so let the selection manager know it's gone now
+			LLViewerObject *found_obj = gObjectList.findObject(item_to_remove->getLinkedUUID());
+			if (found_obj)
 			{
-				//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
-				LLWearableBridge::removeItemFromAvatar(item_to_remove);
-			}
-			break;
-		case LLAssetType::AT_OBJECT:
-			LLVOAvatarSelf::detachAttachmentIntoInventory(item_to_remove->getLinkedUUID());
-		default:
-			break;
+				LLSelectMgr::getInstance()->remove(found_obj);
+			};
+		}
+	default: break;
 	}
 
 	// *HACK: Force to remove garbage from COF.
@@ -2650,6 +2660,7 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	mAttachmentInvLinkEnabled = val;
 }
 
+// BAP TODO - mRegisteredAttachments is currently maintained but not used for anything.  Consider yanking.
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
        llinfos << msg << llendl;
@@ -2669,6 +2680,7 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 
 void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 {
+       mRegisteredAttachments.insert(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2686,6 +2698,7 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 {
+       mRegisteredAttachments.erase(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	   if (mAttachmentInvLinkEnabled)
@@ -2696,6 +2709,18 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	   {
 		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
+}
+
+void LLAppearanceMgr::linkRegisteredAttachments()
+{
+	for (std::set<LLUUID>::iterator it = mRegisteredAttachments.begin();
+		 it != mRegisteredAttachments.end();
+		 ++it)
+	{
+		LLUUID item_id = *it;
+		addCOFItemLink(item_id, false);
+	}
+	mRegisteredAttachments.clear();
 }
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
@@ -2710,8 +2735,8 @@ bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
 	 LLInventoryModel::item_array_t items;
 	 LLLinkedItemIDMatches find_links(gInventory.getLinkedItemID(obj_id));
 	 gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
-									 cats,
-									 items,
+	 cats,
+	 items,
 	 LLInventoryModel::EXCLUDE_TRASH,
 	 find_links);
 

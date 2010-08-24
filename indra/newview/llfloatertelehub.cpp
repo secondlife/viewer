@@ -106,19 +106,19 @@ void LLFloaterTelehub::refresh()
 	
 	BOOL have_selection = (object != NULL);
 	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
-	getChildView("connect_btn")->setEnabled(have_selection && all_volume);
+	childSetEnabled("connect_btn", have_selection && all_volume);
 
 	BOOL have_telehub = mTelehubObjectID.notNull();
-	getChildView("disconnect_btn")->setEnabled(have_telehub);
+	childSetEnabled("disconnect_btn", have_telehub);
 
 	BOOL space_avail = (mNumSpawn < MAX_SPAWNPOINTS_PER_TELEHUB);
-	getChildView("add_spawn_point_btn")->setEnabled(have_selection && all_volume && space_avail);
+	childSetEnabled("add_spawn_point_btn", have_selection && all_volume && space_avail);
 
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		BOOL enable_remove = (list->getFirstSelected() != NULL);
-		getChildView("remove_spawn_point_btn")->setEnabled(enable_remove);
+		childSetEnabled("remove_spawn_point_btn", enable_remove);
 	}
 }
 
@@ -249,18 +249,18 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 
 	if (mTelehubObjectID.isNull())
 	{
-		getChildView("status_text_connected")->setVisible( false);
-		getChildView("status_text_not_connected")->setVisible( true);
-		getChildView("help_text_connected")->setVisible( false);
-		getChildView("help_text_not_connected")->setVisible( true);
+		childSetVisible("status_text_connected", false);
+		childSetVisible("status_text_not_connected", true);
+		childSetVisible("help_text_connected", false);
+		childSetVisible("help_text_not_connected", true);
 	}
 	else
 	{
-		getChild<LLUICtrl>("status_text_connected")->setTextArg("[OBJECT]", mTelehubObjectName);
-		getChildView("status_text_connected")->setVisible( true);
-		getChildView("status_text_not_connected")->setVisible( false);
-		getChildView("help_text_connected")->setVisible( true);
-		getChildView("help_text_not_connected")->setVisible( false);
+		childSetTextArg("status_text_connected", "[OBJECT]", mTelehubObjectName);
+		childSetVisible("status_text_connected", true);
+		childSetVisible("status_text_not_connected", false);
+		childSetVisible("help_text_connected", true);
+		childSetVisible("help_text_not_connected", false);
 	}
 
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");

@@ -1779,8 +1779,6 @@ void LLAgent::endAnimationUpdateUI()
 			
 		}
 		gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
-
-		LLFloaterCamera::onAvatarEditingAppearance(false);
 	}
 
 	//---------------------------------------------------------------------
@@ -1887,8 +1885,6 @@ void LLAgent::endAnimationUpdateUI()
 		{
 			mPauseRequest = gAgentAvatarp->requestPause();
 		}
-
-		LLFloaterCamera::onAvatarEditingAppearance(true);
 	}
 
 	if (isAgentAvatarValid())

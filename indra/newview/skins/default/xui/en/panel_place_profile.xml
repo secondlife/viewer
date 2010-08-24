@@ -264,7 +264,7 @@
                 </layout_panel>
             </layout_stack>
             <text
-             parse_urls="false"
+             allow_html="false"
              follows="left|top|right"
              font="SansSerifLarge"
              height="14"
@@ -277,7 +277,7 @@
              value="SampleRegion"
              width="290" />
             <text
-             parse_urls="false"
+             allow_html="false"
              follows="left|top|right"
              height="14"
              layout="topleft"
@@ -293,6 +293,7 @@
              layout="topleft"
              left="5"
              name="description"
+             textbox.label="More"
              top_pad="10"
              value="Du waltz die spritz"
              width="300" />

@@ -48,8 +48,8 @@
 		Glissez pour déplacer, Maj-glissez pour copier.
 	</text>
 	<radio_group name="focus_radio_group">
-		<radio_item label="Zoomer" name="radio zoom"/>
-		<radio_item label="Faire tourner la caméra (Ctrl)" name="radio orbit"/>
+		<radio_item label="Zoom" name="radio zoom"/>
+		<radio_item label="Orbite (Ctrl)" name="radio orbit"/>
 		<radio_item label="Faire un panoramique (Ctrl+Maj)" name="radio pan"/>
 	</radio_group>
 	<radio_group name="move_radio_group">

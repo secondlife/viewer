@@ -146,9 +146,6 @@ public:
 	/** Get the description of a corresponding inventory item */
 	const std::string& getDescription() const;
 
-	/** Get the creation date of a corresponding inventory item */
-	time_t getCreationDate() const;
-
 	/** Get the associated inventory item */
 	LLViewerInventoryItem* getItem() const;
 

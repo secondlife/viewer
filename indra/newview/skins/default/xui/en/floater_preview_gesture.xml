@@ -96,19 +96,19 @@
      name="replace_text"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
      top_pad="10"
-     width="210">
+     width="200">
         Replace with:
     </text>
     <line_editor
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="99"
+     left_delta="89"
      max_length="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
      top_delta="-4"
-     width="165" />
+     width="175" />
     <text
      type="string"
      length="1"
@@ -120,25 +120,25 @@
      font.style="BOLD"
      name="key_label"
      top_pad="10"
-     width="150">
+     width="100">
         Shortcut Key:
     </text>
     <combo_box
      height="20"
      label="None"
      layout="topleft"
-     left_delta="154"
+     left_delta="89"
      name="modifier_combo"
      top_delta="-4"
-     width="55" />
+     width="75" />
     <combo_box
      height="20"
      label="None"
      layout="topleft"
-     left_pad="4"
+     left_pad="10"
      name="key_combo"
      top_delta="0"
-     width="50" />
+     width="75" />
     <text
      type="string"
      length="1"

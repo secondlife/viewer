@@ -955,11 +955,6 @@ static LLFastTimer::DeclareTimer FTM_LFS("LFS Thread");
 static LLFastTimer::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
 static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
 static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
-static LLFastTimer::DeclareTimer FTM_PUMP_ARES("Ares");
-static LLFastTimer::DeclareTimer FTM_PUMP_SERVICE("Service");
-static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
-static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
-static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 
 bool LLAppViewer::mainLoop()
 {
@@ -1069,20 +1064,10 @@ bool LLAppViewer::mainLoop()
 						LLMemType mt_ip(LLMemType::MTYPE_IDLE_PUMP);
 						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(FTM_PUMP);
-						{
-							LLFastTimer t(FTM_PUMP_ARES);
-							gAres->process();
-						}
-						{
-							LLFastTimer t(FTM_PUMP_SERVICE);
-							// this pump is necessary to make the login screen show up
-							gServicePump->pump();
-
-							{
-								LLFastTimer t(FTM_SERVICE_CALLBACK);
-								gServicePump->callback();
-							}
-						}
+						gAres->process();
+						// this pump is necessary to make the login screen show up
+						gServicePump->pump();
+						gServicePump->callback();
 					}
 					
 					resumeMainloopTimeout();
@@ -1117,7 +1102,8 @@ bool LLAppViewer::mainLoop()
 			{
 				LLMemType mt_sleep(LLMemType::MTYPE_SLEEP);
 				LLFastTimer t2(FTM_SLEEP);
-				
+				bool run_multiple_threads = gSavedSettings.getBOOL("RunMultipleThreads");
+
 				// yield some time to the os based on command line option
 				if(mYieldTime >= 0)
 				{
@@ -1155,7 +1141,9 @@ bool LLAppViewer::mainLoop()
 				}
 
 				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
-				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
+				const F64 min_frame_time = 0.0; //(.0333 - .0010); // max video frame rate = 30 fps
+				const F64 min_idle_time = 0.0; //(.0010); // min idle time = 1 ms
+				const F64 max_idle_time = run_multiple_threads ? min_idle_time : llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
 				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
 				S32 total_work_pending = 0;
@@ -1193,24 +1181,34 @@ bool LLAppViewer::mainLoop()
 
 					total_work_pending += work_pending ;
 					total_io_pending += io_pending ;
-					
-					if (!work_pending || idleTimer.getElapsedTimeF64() >= max_idle_time)
+					F64 frame_time = frameTimer.getElapsedTimeF64();
+					F64 idle_time = idleTimer.getElapsedTimeF64();
+					if (frame_time >= min_frame_time &&
+						idle_time >= min_idle_time &&
+						(!work_pending || idle_time >= max_idle_time))
 					{
 						break;
 					}
 				}
 
-				if(!total_work_pending) //pause texture fetching threads if nothing to process.
+				 // Prevent the worker threads from running while rendering.
+				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
+				if (run_multiple_threads == FALSE)
 				{
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
-					LLAppViewer::getTextureFetch()->pause(); 
-				}
-				if(!total_io_pending) //pause file threads if nothing to process.
-				{
-					LLVFSThread::sLocal->pause(); 
-					LLLFSThread::sLocal->pause(); 
-				}									
+					//LLFastTimer ftm(FTM_PAUSE_THREADS); //not necessary.
+	 				
+					if(!total_work_pending) //pause texture fetching threads if nothing to process.
+					{
+						LLAppViewer::getTextureCache()->pause();
+						LLAppViewer::getImageDecodeThread()->pause();
+						LLAppViewer::getTextureFetch()->pause(); 
+					}
+					if(!total_io_pending) //pause file threads if nothing to process.
+					{
+						LLVFSThread::sLocal->pause(); 
+						LLLFSThread::sLocal->pause(); 
+					}
+				}					
 
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
@@ -3562,12 +3560,9 @@ void LLAppViewer::idle()
 			gAgent.moveYaw(-1.f);
 		}
 
-		{
-			LLFastTimer t(FTM_AGENT_AUTOPILOT);
-			// Handle automatic walking towards points
-			gAgentPilot.updateTarget();
-			gAgent.autoPilot(&yaw);
-		}
+	    // Handle automatic walking towards points
+	    gAgentPilot.updateTarget();
+	    gAgent.autoPilot(&yaw);
     
 	    static LLFrameTimer agent_update_timer;
 	    static U32 				last_control_flags;
@@ -3578,7 +3573,6 @@ void LLAppViewer::idle()
 		    
 	    if (flags_changed || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
 	    {
-		    LLFastTimer t(FTM_AGENT_UPDATE);
 		    // Send avatar and camera info
 		    last_control_flags = gAgent.getControlFlags();
 		    send_agent_update(TRUE);

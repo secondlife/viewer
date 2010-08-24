@@ -34,8 +34,8 @@
 			<button label="▼" name="overflow_btn" tool_tip="Zapłać lub udostępnij obiekty Rezydentowi"/>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
-			<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
-			<button label="Edytuj wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubranie..."/>
+			<button label="Edytuj Profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
+			<button label="Edytuj Wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubranie..."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

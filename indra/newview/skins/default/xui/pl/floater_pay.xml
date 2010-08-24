@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
 	<string name="payee_group">
-		Zapłać grupie
+		Zapłać Grupie
 	</string>
 	<string name="payee_resident">
 		Zapłać Rezydentowi

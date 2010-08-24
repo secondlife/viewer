@@ -3,7 +3,7 @@
 	<check_box label="CapsLoock nieaktywny" name="case_text"/>
 	<button label="Szukaj" label_selected="Szukaj" name="search_btn"/>
 	<button label="Zamień" label_selected="Zamień" name="replace_btn"/>
-	<button label="Zamień wszystko" label_selected="Zamień wszystko" name="replace_all_btn"/>
+	<button label="Zamień Wszystko" label_selected="Zamień wszystko" name="replace_all_btn"/>
 	<text name="txt">
 		Szukaj
 	</text>

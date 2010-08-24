@@ -85,6 +85,10 @@ private:
 	void					showGroupMenu(LLMenuGL* menu);
 	void					setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
 
+	void					onVisibilityChange( const LLSD& new_visibility);
+
+	void					reSelectedCurrentTab();
+
 	// UI callbacks
 	void					onFilterEdit(const std::string& search_string);
 	void					onTabSelected(const LLSD& param);

@@ -29,11 +29,12 @@
 #include "llviewerjointattachment.h"
 
 #include "llagentconstants.h"
+
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
 #include "llrender.h"
-#include "llvoavatarself.h"
+#include "llvoavatar.h"
 #include "llvolume.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
@@ -157,9 +158,6 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 {
-	object->extractAttachmentItemID();
-
-	// Same object reattached
 	if (isObjectAttached(object))
 	{
 		llinfos << "(same object re-attached)" << llendl;
@@ -167,19 +165,20 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 		// Pass through anyway to let setupDrawable()
 		// re-connect object to the joint correctly
 	}
-	
-	// Two instances of the same inventory item attached --
-	// Request detach, and kill the object in the meantime.
-	if (getAttachedObject(object->getAttachmentItemID()))
+
+	// Find the inventory item ID of the attached object
+	LLNameValue* item_id_nv = object->getNVPair("AttachItemID");
+	if( item_id_nv )
 	{
-		llinfos << "(same object re-attached)" << llendl;
-		object->markDead();
-
-		// If this happens to be attached to self, then detach.
-		LLVOAvatarSelf::detachAttachmentIntoInventory(object->getAttachmentItemID());
-		return FALSE;
+		const char* s = item_id_nv->getString();
+		if( s )
+		{
+			LLUUID item_id;
+			item_id.set(s);
+			object->setItemID(item_id);
+			lldebugs << "getNVPair( AttachItemID ) = " << item_id << llendl;
+		}
 	}
-
 	mAttachedObjects.push_back(object);
 	setupDrawable(object);
 	
@@ -202,7 +201,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 	}
 	calcLOD();
 	mUpdateXform = TRUE;
-	
+
 	return TRUE;
 }
 
@@ -298,7 +297,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 	{
 		mUpdateXform = FALSE;
 	}
-	object->setAttachmentItemID(LLUUID::null);
+	object->setItemID(LLUUID::null);
 }
 
 //-----------------------------------------------------------------------------
@@ -424,7 +423,7 @@ const LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &o
 		 ++iter)
 	{
 		const LLViewerObject* attached_object = (*iter);
-		if (attached_object->getAttachmentItemID() == object_id)
+		if (attached_object->getItemID() == object_id)
 		{
 			return attached_object;
 		}
@@ -439,7 +438,7 @@ LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &object_
 		 ++iter)
 	{
 		LLViewerObject* attached_object = (*iter);
-		if (attached_object->getAttachmentItemID() == object_id)
+		if (attached_object->getItemID() == object_id)
 		{
 			return attached_object;
 		}

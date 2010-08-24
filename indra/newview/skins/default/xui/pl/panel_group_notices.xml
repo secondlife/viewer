@@ -19,11 +19,11 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 	<text name="notice_list_none_found">
 		Nie znaleziono
 	</text>
-	<button label="Stwórz Ogłoszenie" label_selected="Stwórz nowe ogłoszenie" name="create_new_notice" tool_tip="Stwórz ogłoszenie"/>
+	<button label="Stwórz Ogłoszenie" label_selected="Stwórz Nowe Ogłoszenie" name="create_new_notice" tool_tip="Stwórz Ogłoszenie"/>
 	<button label="Odśwież" label_selected="Odśwież Listę" name="refresh_notices" tool_tip="Użyj Odśwież by zobaczyć czy nowe ogłoszenia zostały wysłane."/>
-	<panel label="Stwórz nowe ogłoszenie" name="panel_create_new_notice">
+	<panel label="Stwórz Nowe Ogłoszenie" name="panel_create_new_notice">
 		<text name="lbl">
-			Stwórz ogłoszenie
+			Stwórz Ogłoszenie
 		</text>
 		<text name="lbl3">
 			Temat:
@@ -55,6 +55,6 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 		<text name="lbl4">
 			Treść:
 		</text>
-		<button label="Otwórz załącznik" label_selected="Otwórz załącznik" name="open_attachment"/>
+		<button label="Otwórz Załącznik" label_selected="Otwórz Załącznik" name="open_attachment"/>
 	</panel>
 </panel>

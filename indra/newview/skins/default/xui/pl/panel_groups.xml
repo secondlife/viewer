@@ -10,7 +10,7 @@
 		Należysz do [COUNT] grup (maksimum to [MAX]).
 	</text>
 	<button label="Czat/IM" name="IM" tool_tip="Rozpocznij sesję czatu (IM)" />
-	<button label="O grupie" name="Info" />
+	<button label="O Grupie" name="Info" />
 	<button label="Wybierz" name="Activate" />
 	<button label="Opuść" name="Leave" />
 	<button label="Stwórz..." name="Create" />

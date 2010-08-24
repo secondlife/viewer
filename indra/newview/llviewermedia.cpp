@@ -50,7 +50,6 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
-#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -1313,9 +1312,6 @@ void LLViewerMedia::setOpenIDCookie()
 		}
 		
 		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
-
-		// *HACK: Doing this here is nasty, find a better way.
-		LLWebSharing::instance().setOpenIDCookie(sOpenIDCookie);
 	}
 }
 
@@ -2190,8 +2186,7 @@ void LLViewerMediaImpl::navigateReload()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateHome()
 {
-	bool rediscover_mimetype = mHomeMimeType.empty();
-	navigateTo(mHomeURL, mHomeMimeType, rediscover_mimetype, false);
+	navigateTo(mHomeURL, "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2303,8 +2298,6 @@ void LLViewerMediaImpl::navigateInternal()
 			// which is really not what we want.
 			LLSD headers = LLSD::emptyMap();
 			headers["Accept"] = "*/*";
-			// Allow cookies in the response, to prevent a redirect loop when accessing join.secondlife.com
-			headers["Cookie"] = "";
 			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
@@ -2913,23 +2906,14 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_COMPLETE, uri is: " << plugin->getNavigateURI() << LL_ENDL;
 
-			std::string url = plugin->getNavigateURI();
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
-				if(mCurrentMediaURL == url)
-				{
-					// This is a navigate that takes us to the same url as the previous navigate.
-					setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS);
-				}
-				else
-				{
-					mCurrentMediaURL = url;
-					setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
-				}
+				mCurrentMediaURL = plugin->getNavigateURI();
+				setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
-				mCurrentMediaURL = url;
+				mCurrentMediaURL = plugin->getNavigateURI();
 				setNavState(MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else
@@ -2943,24 +2927,14 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_LOCATION_CHANGED, uri is: " << plugin->getLocation() << LL_ENDL;
 
-			std::string url = plugin->getLocation();
-
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
-				if(mCurrentMediaURL == url)
-				{
-					// This is a navigate that takes us to the same url as the previous navigate.
-					setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS);
-				}
-				else
-				{
-					mCurrentMediaURL = url;
-					setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
-				}
+				mCurrentMediaURL = plugin->getLocation();
+				setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
-				mCurrentMediaURL = url;
+				mCurrentMediaURL = plugin->getLocation();
 				setNavState(MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED);
 			}
 			else
@@ -3244,9 +3218,7 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_NONE: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_NONE" << llendl; break;
 		case MEDIANAVSTATE_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_FIRST_LOCATION_CHANGED" << llendl; break;
-		case MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS" << llendl; break;
 		case MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
-		case MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS" << llendl; break;
 		case MEDIANAVSTATE_SERVER_SENT: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_SENT" << llendl; break;
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;

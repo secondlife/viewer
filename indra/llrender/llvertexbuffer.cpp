@@ -376,11 +376,6 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	{
 		mUsage = 0 ; 
 	}
-
-	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
-	{
-		mUsage = 0;
-	}
 	
 	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
 	{

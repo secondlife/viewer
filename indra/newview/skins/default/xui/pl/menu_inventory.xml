@@ -8,13 +8,13 @@
 	<menu_item_call label="Zmień nazwę" name="Task Rename"/>
 	<menu_item_call label="Usuń" name="Task Remove"/>
 	<menu_item_call label="Opróżnij Kosz" name="Empty Trash"/>
-	<menu_item_call label="Opróżnij Folder Zgubione i odnalezione" name="Empty Lost And Found"/>
+	<menu_item_call label="Opróżnij Folder Zgubione i Odnalezione" name="Empty Lost And Found"/>
 	<menu_item_call label="Nowy folder" name="New Folder"/>
 	<menu_item_call label="Nowy skrypt" name="New Script"/>
 	<menu_item_call label="Nowa nota" name="New Note"/>
-	<menu_item_call label="Nowa gesturka" name="New Gesture"/>
+	<menu_item_call label="Nowy gest" name="New Gesture"/>
 	<menu label="Nowe Ubranie" name="New Clothes">
-		<menu_item_call label="Nowa koszula" name="New Shirt"/>
+		<menu_item_call label="Nowa koszulka" name="New Shirt"/>
 		<menu_item_call label="Nowe spodnie" name="New Pants"/>
 		<menu_item_call label="Nowe buty" name="New Shoes"/>
 		<menu_item_call label="Nowe skarpety" name="New Socks"/>
@@ -23,7 +23,7 @@
 		<menu_item_call label="Nowe rękawiczki" name="New Gloves"/>
 		<menu_item_call label="Nowy podkoszulek" name="New Undershirt"/>
 		<menu_item_call label="Nowa bielizna" name="New Underpants"/>
-		<menu_item_call label="Nowa maska alpha" name="New Alpha Mask"/>
+		<menu_item_call label="Nowa maska Alpha" name="New Alpha Mask"/>
 		<menu_item_call label="Nowy tatuaż" name="New Tattoo"/>
 	</menu>
 	<menu label="Nowa Część Ciała" name="New Body Parts">
@@ -39,7 +39,7 @@
 		<menu_item_call label="Spodnie" name="Pants"/>
 		<menu_item_call label="Kształt" name="Shape"/>
 		<menu_item_call label="Buty" name="Shoes"/>
-		<menu_item_call label="Koszula" name="Shirt"/>
+		<menu_item_call label="Koszulka" name="Shirt"/>
 		<menu_item_call label="Spódnica" name="Skirt"/>
 		<menu_item_call label="Bielizna" name="Underpants"/>
 		<menu_item_call label="Podkoszulek" name="Undershirt"/>
@@ -61,7 +61,7 @@
 	<menu_item_call label="Wklej jako link" name="Paste As Link"/>
 	<menu_item_call label="Usuń" name="Remove Link"/>
 	<menu_item_call label="Usuń" name="Delete"/>
-	<menu_item_call label="Skasuj folder systemu" name="Delete System Folder"/>
+	<menu_item_call label="Skasuj Folder Systemu" name="Delete System Folder"/>
 	<menu_item_call label="Rozpocznij konferencję czatową" name="Conference Chat Folder"/>
 	<menu_item_call label="Odtwarzaj" name="Sound Play"/>
 	<menu_item_call label="O Miejscu" name="About Landmark"/>
@@ -76,7 +76,7 @@
 	<menu_item_call label="Odłącz od siebie" name="Detach From Yourself"/>
 	<menu_item_call label="Załóż" name="Wearable And Object Wear"/>
 	<menu label="Dołącz do" name="Attach To"/>
-	<menu label="Dołącz do załączników HUD" name="Attach To HUD"/>
+	<menu label="Dołącz do Załączników HUD" name="Attach To HUD"/>
 	<menu_item_call label="Edytuj" name="Wearable Edit"/>
 	<menu_item_call label="Dodaj" name="Wearable Add"/>
 	<menu_item_call label="Zdejmij" name="Take Off"/>

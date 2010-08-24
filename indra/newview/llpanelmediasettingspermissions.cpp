@@ -93,7 +93,7 @@ void LLPanelMediaSettingsPermissions::draw()
 	// housekeeping
 	LLPanel::draw();
 
-	getChild<LLUICtrl>("perms_group_name")->setValue(LLStringUtil::null);
+	childSetText("perms_group_name",LLStringUtil::null);
 	LLUUID group_id;
 	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)
@@ -101,6 +101,7 @@ void LLPanelMediaSettingsPermissions::draw()
 		if(mPermsGroupName)
 		{
 			mPermsGroupName->setNameID(group_id, true);
+			mPermsGroupName->setEnabled(true);
 		};
 	}
 	else
@@ -109,6 +110,7 @@ void LLPanelMediaSettingsPermissions::draw()
 		{
 			mPermsGroupName->setNameID(LLUUID::null, TRUE);
 			mPermsGroupName->refresh(LLUUID::null, LLStringUtil::null, LLStringUtil::null, true);
+			mPermsGroupName->setEnabled(false);
 		};
 	};
 }
@@ -134,12 +136,6 @@ void LLPanelMediaSettingsPermissions::clearValues( void* userdata, bool editable
 	self->mPermsGroupControl->setEnabled(editable);
 	self->mPermsWorldInteract->setEnabled(editable);
 	self->mPermsWorldControl->setEnabled(editable);
-
-	self->getChild< LLTextBox >("controls_label")->setEnabled(editable);
-	self->getChild< LLTextBox >("owner_label")->setEnabled(editable);
-	self->getChild< LLTextBox >("group_label")->setEnabled(editable);
-	self->getChild< LLNameBox >("perms_group_name")->setEnabled(editable);
-	self->getChild< LLTextBox >("anyone_label")->setEnabled(editable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,11 +210,13 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
 		self->mPermsWorldControl->setEnabled(false);
 	}
 	
-	self->getChild< LLTextBox >("controls_label")->setEnabled(editable);
-	self->getChild< LLTextBox >("owner_label")->setEnabled(editable);
-	self->getChild< LLTextBox >("group_label")->setEnabled(editable);
-	self->getChild< LLNameBox >("perms_group_name")->setEnabled(editable);
-	self->getChild< LLTextBox >("anyone_label")->setEnabled(editable);
+	
+	self->childSetEnabled("media_perms_label_owner", editable );
+	self->childSetText("media_perms_label_owner",  LLTrans::getString("Media Perms Owner") );
+	self->childSetEnabled("media_perms_label_group", editable );
+	self->childSetText("media_perms_label_group",  LLTrans::getString("Media Perms Group") );
+	self->childSetEnabled("media_perms_label_anyone", editable );
+	self->childSetText("media_perms_label_anyone", LLTrans::getString("Media Perms Anyone") );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

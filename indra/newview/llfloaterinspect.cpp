@@ -148,8 +148,8 @@ void LLFloaterInspect::onSelectObject()
 {
 	if(LLFloaterInspect::getSelectedUUID() != LLUUID::null)
 	{
-		getChildView("button owner")->setEnabled(true);
-		getChildView("button creator")->setEnabled(true);
+		childSetEnabled("button owner", true);
+		childSetEnabled("button creator", true);
 	}
 }
 
@@ -172,8 +172,8 @@ void LLFloaterInspect::refresh()
 	LLUUID creator_id;
 	std::string creator_name;
 	S32 pos = mObjectList->getScrollPos();
-	getChildView("button owner")->setEnabled(false);
-	getChildView("button creator")->setEnabled(false);
+	childSetEnabled("button owner", false);
+	childSetEnabled("button creator", false);
 	LLUUID selected_uuid;
 	S32 selected_index = mObjectList->getFirstSelectedIndex();
 	if(selected_index > -1)

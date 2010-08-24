@@ -25,9 +25,7 @@
 #ifndef LLLOCALCLIPRECT_H
 #define LLLOCALCLIPRECT_H
 
-#include "llgl.h"
 #include "llrect.h"		// can't forward declare, it's templated
-#include <stack>
 
 // Clip rendering to a specific rectangle using GL scissor
 // Just create one of these on the stack:
@@ -35,29 +33,15 @@
 //     LLLocalClipRect(rect);
 //     draw();
 // }
-class LLScreenClipRect
-{
-public:
-	LLScreenClipRect(const LLRect& rect, BOOL enabled = TRUE);
-	virtual ~LLScreenClipRect();
-
-private:
-	static void pushClipRect(const LLRect& rect);
-	static void popClipRect();
-	static void updateScissorRegion();
-
-private:
-	LLGLState		mScissorState;
-	BOOL			mEnabled;
-
-	static std::stack<LLRect> sClipRectStack;
-};
-
-class LLLocalClipRect : public LLScreenClipRect
+class LLLocalClipRect
 {
 public:
 	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
 	~LLLocalClipRect();
+
+private:
+	// implementation class
+	class LLScreenClipRect* mScreenClipRect;
 };
 
 #endif

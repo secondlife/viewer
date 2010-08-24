@@ -138,8 +138,9 @@ public:
 	virtual void draw();
 
 	void setGroup(const LLUUID& group_id);
-	void onClickProfile();
-	void onClickSetGroup();
+	static void onClickProfile(void*);
+		   void onClickSetGroup();
+	static BOOL enableDeedToGroup(void*);
 	static void onClickDeed(void*);
 	static void onClickBuyLand(void* data);
 	static void onClickScriptLimits(void* data);

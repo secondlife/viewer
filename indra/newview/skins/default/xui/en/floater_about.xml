@@ -73,7 +73,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
       help_topic="about_support_tab"
       name="support_panel">
       <text_editor
-        parse_urls="true" 
+        allow_html="true" 
        follows="top|left"
        font="SansSerif"
        height="343"

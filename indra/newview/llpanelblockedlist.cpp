@@ -126,7 +126,7 @@ void LLPanelBlockedList::refreshBlockedList()
 void LLPanelBlockedList::updateButtons()
 {
 	bool hasSelected = NULL != mBlockedList->getFirstSelected();
-	getChildView("Unblock")->setEnabled(hasSelected);
+	childSetEnabled("Unblock", hasSelected);
 }
 
 
@@ -263,7 +263,7 @@ void LLFloaterGetBlockedObjectName::applyBlocking()
 {
 	if (mGetObjectNameCallback)
 	{
-		const std::string& text = getChild<LLUICtrl>("object_name")->getValue().asString();
+		const std::string& text = childGetValue("object_name").asString();
 		mGetObjectNameCallback(text);
 	}
 	closeFloater();

@@ -121,49 +121,49 @@ void LLFloaterSettingsDebug::onCommitSettings()
 	switch(controlp->type())
 	{		
 	  case TYPE_U32:
-		controlp->set(getChild<LLUICtrl>("val_spinner_1")->getValue());
+		controlp->set(childGetValue("val_spinner_1"));
 		break;
 	  case TYPE_S32:
-		controlp->set(getChild<LLUICtrl>("val_spinner_1")->getValue());
+		controlp->set(childGetValue("val_spinner_1"));
 		break;
 	  case TYPE_F32:
-		controlp->set(LLSD(getChild<LLUICtrl>("val_spinner_1")->getValue().asReal()));
+		controlp->set(LLSD(childGetValue("val_spinner_1").asReal()));
 		break;
 	  case TYPE_BOOLEAN:
-		controlp->set(getChild<LLUICtrl>("boolean_combo")->getValue());
+		controlp->set(childGetValue("boolean_combo"));
 		break;
 	  case TYPE_STRING:
-		controlp->set(LLSD(getChild<LLUICtrl>("val_text")->getValue().asString()));
+		controlp->set(LLSD(childGetValue("val_text").asString()));
 		break;
 	  case TYPE_VEC3:
-		vector.mV[VX] = (F32)getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
-		vector.mV[VY] = (F32)getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-		vector.mV[VZ] = (F32)getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
+		vector.mV[VX] = (F32)childGetValue("val_spinner_1").asReal();
+		vector.mV[VY] = (F32)childGetValue("val_spinner_2").asReal();
+		vector.mV[VZ] = (F32)childGetValue("val_spinner_3").asReal();
 		controlp->set(vector.getValue());
 		break;
 	  case TYPE_VEC3D:
-		vectord.mdV[VX] = getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
-		vectord.mdV[VY] = getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-		vectord.mdV[VZ] = getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
+		vectord.mdV[VX] = childGetValue("val_spinner_1").asReal();
+		vectord.mdV[VY] = childGetValue("val_spinner_2").asReal();
+		vectord.mdV[VZ] = childGetValue("val_spinner_3").asReal();
 		controlp->set(vectord.getValue());
 		break;
 	  case TYPE_RECT:
-		rect.mLeft = getChild<LLUICtrl>("val_spinner_1")->getValue().asInteger();
-		rect.mRight = getChild<LLUICtrl>("val_spinner_2")->getValue().asInteger();
-		rect.mBottom = getChild<LLUICtrl>("val_spinner_3")->getValue().asInteger();
-		rect.mTop = getChild<LLUICtrl>("val_spinner_4")->getValue().asInteger();
+		rect.mLeft = childGetValue("val_spinner_1").asInteger();
+		rect.mRight = childGetValue("val_spinner_2").asInteger();
+		rect.mBottom = childGetValue("val_spinner_3").asInteger();
+		rect.mTop = childGetValue("val_spinner_4").asInteger();
 		controlp->set(rect.getValue());
 		break;
 	  case TYPE_COL4:
-		col3.setValue(getChild<LLUICtrl>("val_color_swatch")->getValue());
-		col4 = LLColor4(col3, (F32)getChild<LLUICtrl>("val_spinner_4")->getValue().asReal());
+		col3.setValue(childGetValue("val_color_swatch"));
+		col4 = LLColor4(col3, (F32)childGetValue("val_spinner_4").asReal());
 		controlp->set(col4.getValue());
 		break;
 	  case TYPE_COL3:
-		controlp->set(getChild<LLUICtrl>("val_color_swatch")->getValue());
-		//col3.mV[VRED] = (F32)floaterp->getChild<LLUICtrl>("val_spinner_1")->getValue().asC();
-		//col3.mV[VGREEN] = (F32)floaterp->getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-		//col3.mV[VBLUE] = (F32)floaterp->getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
+		controlp->set(childGetValue("val_color_swatch"));
+		//col3.mV[VRED] = (F32)floaterp->childGetValue("val_spinner_1").asC();
+		//col3.mV[VGREEN] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
+		//col3.mV[VBLUE] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
 		//controlp->set(col3.getValue());
 		break;
 	  default:
@@ -205,7 +205,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 	spinner3->setVisible(FALSE);
 	spinner4->setVisible(FALSE);
 	color_swatch->setVisible(FALSE);
-	getChildView("val_text")->setVisible( FALSE);
+	childSetVisible("val_text", FALSE);
 	mComment->setText(LLStringUtil::null);
 
 	if (controlp)
@@ -213,7 +213,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 		eControlType type = controlp->type();
 
 		//hide combo box only for non booleans, otherwise this will result in the combo box closing every frame
-		getChildView("boolean_combo")->setVisible( type == TYPE_BOOLEAN);
+		childSetVisible("boolean_combo", type == TYPE_BOOLEAN);
 		
 
 		mComment->setText(controlp->getComment());
@@ -279,23 +279,23 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			}
 			break;
 		  case TYPE_BOOLEAN:
-			if (!getChild<LLUICtrl>("boolean_combo")->hasFocus())
+			if (!childHasFocus("boolean_combo"))
 			{
 				if (sd.asBoolean())
 				{
-					getChild<LLUICtrl>("boolean_combo")->setValue(LLSD("true"));
+					childSetValue("boolean_combo", LLSD("true"));
 				}
 				else
 				{
-					getChild<LLUICtrl>("boolean_combo")->setValue(LLSD(""));
+					childSetValue("boolean_combo", LLSD(""));
 				}
 			}
 			break;
 		  case TYPE_STRING:
-			getChildView("val_text")->setVisible( TRUE);
-			if (!getChild<LLUICtrl>("val_text")->hasFocus())
+			childSetVisible("val_text", TRUE);
+			if (!childHasFocus("val_text"))
 			{
-				getChild<LLUICtrl>("val_text")->setValue(sd);
+				childSetValue("val_text", sd);
 			}
 			break;
 		  case TYPE_VEC3:

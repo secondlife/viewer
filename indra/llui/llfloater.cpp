@@ -2279,7 +2279,6 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 	S32 floater_header_size = default_params.header_height;
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
 	LLRect snap_rect_local = getLocalSnapRect();
-	snap_rect_local.mTop += mMinimizePositionVOffset;
 	for(S32 col = snap_rect_local.mLeft;
 		col < snap_rect_local.getWidth() - minimized_width;
 		col += minimized_width)
@@ -2375,19 +2374,6 @@ BOOL LLFloaterView::allChildrenClosed()
 		}
 	}
 	return true;
-}
-
-void LLFloaterView::shiftFloaters(S32 x_offset, S32 y_offset)
-{
-	for (child_list_const_iter_t it = getChildList()->begin(); it != getChildList()->end(); ++it)
-	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
-
-		if (floaterp && floaterp->isMinimized())
-		{
-			floaterp->translate(x_offset, y_offset);
-		}
-	}
 }
 
 void LLFloaterView::refresh()

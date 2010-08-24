@@ -125,13 +125,13 @@ void LLPanelMediaSettingsGeneral::draw()
 	// enable/disable pixel values image entry based on auto scale checkbox 
 	if ( mAutoScale->getValue().asBoolean() == false )
 	{
-		getChildView( LLMediaEntry::WIDTH_PIXELS_KEY )->setEnabled( true );
-		getChildView( LLMediaEntry::HEIGHT_PIXELS_KEY )->setEnabled( true );
+		childSetEnabled( LLMediaEntry::WIDTH_PIXELS_KEY, true );
+		childSetEnabled( LLMediaEntry::HEIGHT_PIXELS_KEY, true );
 	}
 	else
 	{
-		getChildView( LLMediaEntry::WIDTH_PIXELS_KEY )->setEnabled( false );
-		getChildView( LLMediaEntry::HEIGHT_PIXELS_KEY )->setEnabled( false );
+		childSetEnabled( LLMediaEntry::WIDTH_PIXELS_KEY, false );
+		childSetEnabled( LLMediaEntry::HEIGHT_PIXELS_KEY, false );
 	};
 
 	// enable/disable UI based on type of media
@@ -152,17 +152,17 @@ void LLPanelMediaSettingsGeneral::draw()
 			bool show_time_controls = media_plugin->pluginSupportsMediaTime();
 			if ( show_time_controls )
 			{
-				getChildView( LLMediaEntry::CURRENT_URL_KEY )->setEnabled( false );
+				childSetEnabled( LLMediaEntry::CURRENT_URL_KEY, false );
 				reset_button_is_active = false;
-				getChildView("current_url_label")->setEnabled(false );
-				getChildView( LLMediaEntry::AUTO_LOOP_KEY )->setEnabled( true );
+				childSetEnabled( "current_url_label", false );
+				childSetEnabled( LLMediaEntry::AUTO_LOOP_KEY, true );
 			}
 			else
 			{
-				getChildView( LLMediaEntry::CURRENT_URL_KEY )->setEnabled( true );
+				childSetEnabled( LLMediaEntry::CURRENT_URL_KEY, true );
 				reset_button_is_active = true;
-				getChildView("current_url_label")->setEnabled(true );
-				getChildView( LLMediaEntry::AUTO_LOOP_KEY )->setEnabled( false );
+				childSetEnabled( "current_url_label", true );
+				childSetEnabled( LLMediaEntry::AUTO_LOOP_KEY, false );
 			};
 		};
 	};
@@ -179,18 +179,18 @@ void LLPanelMediaSettingsGeneral::draw()
 		// user has perms to press reset button and it is active
 		if ( user_can_press_reset )
 		{
-			getChildView("current_url_reset_btn")->setEnabled(true );
+			childSetEnabled( "current_url_reset_btn", true );
 		}
 		// user does not has perms to press reset button and it is active
 		else
 		{
-			getChildView("current_url_reset_btn")->setEnabled(false );
+			childSetEnabled( "current_url_reset_btn", false );
 		};
 	}
 	else
 	// reset button is inactive so we just slam it to off - other states don't matter
 	{
-		getChildView("current_url_reset_btn")->setEnabled(false );
+		childSetEnabled( "current_url_reset_btn", false );
 	};
 }
 

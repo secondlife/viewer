@@ -12,7 +12,6 @@
              draw_stripes="true"
              scroll_bar_bg_visible="false"
              scroll_bar_bg_color="black"
-             mouse_wheel_opaque="false"
              background_visible="true"
              heading_height="23"
              draw_border="false"

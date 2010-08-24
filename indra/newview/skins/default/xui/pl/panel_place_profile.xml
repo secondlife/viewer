@@ -11,8 +11,8 @@
 	<string name="unknown" value="(nieznany)"/>
 	<string name="public" value="(publiczny)"/>
 	<string name="none_text" value="(żaden)"/>
-	<string name="sale_pending_text" value="(Sprzedaż w toku realizacji)"/>
-	<string name="group_owned_text" value="(Własność grupy)"/>
+	<string name="sale_pending_text" value="(Sprzedaż w Toku Realizacji)"/>
+	<string name="group_owned_text" value="(Własność Grupy)"/>
 	<string name="price_text" value="L$"/>
 	<string name="area_text" value="m²"/>
 	<string name="all_residents_text" value="Każdemu"/>
@@ -52,7 +52,7 @@
 					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Rodzaj:"/>
 						<text name="rating_value" value="nieznane"/>
-						<text name="voice_label" value="Komunikacja głosowa:"/>
+						<text name="voice_label" value="Komunikacja Głosowa:"/>
 						<text name="voice_value" value="Włączone"/>
 						<text name="fly_label" value="Lataj:"/>
 						<text name="fly_value" value="Włączone"/>
@@ -92,7 +92,7 @@
 						<text name="covenant_label" value="Umowa:"/>
 					</panel>
 				</accordion_tab>
-				<accordion_tab name="sales_tab" title="Na sprzedaż">
+				<accordion_tab name="sales_tab" title="Na Sprzedaż">
 					<panel name="sales_panel">
 						<text name="sales_price_label" value="Cena:"/>
 						<text name="area_label" value="Powierzchnia:"/>

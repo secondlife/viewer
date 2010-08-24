@@ -196,7 +196,7 @@ public:
 		{
 			U32 n = mVector.size();
 			mIndexMap[k] = n;
-			mVector.push_back(Type());
+			mVector.resize(n+1);
 			llassert(mVector.size() == mIndexMap.size());
 			return mVector[n];
 		}

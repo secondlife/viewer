@@ -129,7 +129,6 @@ LLScrollListCtrl::Params::Params()
 	search_column("search_column", 0),
 	sort_column("sort_column", -1),
 	sort_ascending("sort_ascending", true),
-	mouse_wheel_opaque("mouse_wheel_opaque", false),
 	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
 	heading_height("heading_height"),
 	page_lines("page_lines", 0),
@@ -158,7 +157,6 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 :	LLUICtrl(p),
 	mLineHeight(0),
 	mScrollLines(0),
-	mMouseWheelOpaque(p.mouse_wheel_opaque),
 	mPageLines(p.page_lines),
 	mMaxSelectable(0),
 	mAllowKeyboardMovement(TRUE),
@@ -1532,12 +1530,6 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	BOOL handled = FALSE;
 	// Pretend the mouse is over the scrollbar
 	handled = mScrollbar->handleScrollWheel( 0, 0, clicks );
-
-	if (mMouseWheelOpaque)
-	{
-		return TRUE;
-	}
-
 	return handled;
 }
 

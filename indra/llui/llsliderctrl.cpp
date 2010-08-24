@@ -229,10 +229,6 @@ void LLSliderCtrl::updateText()
 		std::string text = llformat(format.c_str(), displayed_value);
 		if( mEditor )
 		{
-			// Setting editor text here to "" before using actual text is here because if text which
-			// is set is the same as the one which is actually typed into lineeditor, LLLineEditor::setText()
-			// will exit at it's beginning, so text for revert on escape won't be saved. (EXT-8536)
-			mEditor->setText( LLStringUtil::null );
 			mEditor->setText( text );
 		}
 		else

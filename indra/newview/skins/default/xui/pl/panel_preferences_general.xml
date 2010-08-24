@@ -24,16 +24,16 @@
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="&apos;General&apos;, &apos;Mature&apos; oraz &apos;Adult&apos;" name="Desired_Adult"/>
-		<combo_box.item label="&apos;General&apos; i &apos;Mature&apos;" name="Desired_Mature"/>
-		<combo_box.item label="&apos;General&apos;" name="Desired_PG"/>
+		<combo_box.item label="&apos;PG&apos;, &apos;Mature&apos; oraz &apos;Adult&apos;" name="Desired_Adult"/>
+		<combo_box.item label="&apos;PG&apos; i &apos;Mature&apos;" name="Desired_Mature"/>
+		<combo_box.item label="&apos;PG&apos;" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		Miejsce Startu:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_box.item label="Ostatnie Miejsce" name="MyLastLocation" tool_tip="Domyślnie loguj mnie w ostatnio odwiedzonym miejscu."/>
-		<combo_box.item label="Mój Start" name="MyHome" tool_tip="Domyślnie loguj mnie w moim Miejscu Startu."/>
+		<combo_box.item label="Ostatnie Miejsce" name="MyLastLocation" tool_tip="Domyślnie loguj mnie do ostatnio odwiedzonego miejsca."/>
+		<combo_box.item label="Mój Start" name="MyHome" tool_tip="Domyślnie loguj mnie do mojego miejsca startu."/>
 	</combo_box>
 	<check_box initial_value="true" label="Pokaż przy zalogowaniu" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
@@ -45,8 +45,8 @@
 		<radio_item label="Pokaż w skrócie" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="Wyświetl moje imię:" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Używaj małych imion awatarów" name="small_avatar_names_checkbox"/>
-	<check_box label="Wyświetl tytuł grupowy" name="show_all_title_checkbox1"/>
+	<check_box initial_value="true" label="Używaj Małych Imion Awatarów" name="small_avatar_names_checkbox"/>
+	<check_box label="Wyświetl Tytuł Grupowy" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
 		Kolor moich efektów:
 	</text>

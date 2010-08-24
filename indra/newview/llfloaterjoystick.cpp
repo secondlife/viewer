@@ -52,11 +52,11 @@ LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 void LLFloaterJoystick::draw()
 {
 	bool joystick_inited = LLViewerJoystick::getInstance()->isJoystickInitialized();
-	getChildView("enable_joystick")->setEnabled(joystick_inited);
-	getChildView("joystick_type")->setEnabled(joystick_inited);
+	childSetEnabled("enable_joystick", joystick_inited);
+	childSetEnabled("joystick_type", joystick_inited);
 	std::string desc = LLViewerJoystick::getInstance()->getDescription();
 	if (desc.empty()) desc = getString("NoDevice");
-	getChild<LLUICtrl>("joystick_type")->setValue(desc);
+	childSetText("joystick_type", desc);
 
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	for (U32 i = 0; i < 6; i++)

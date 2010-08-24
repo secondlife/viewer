@@ -105,6 +105,8 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 const F32 ICON_FLASH_FREQUENCY	= 2.f;
 const S32 TEXT_HEIGHT = 18;
 
+static void onClickHealth(void*);
+static void onClickScriptDebug(void*);
 static void onClickVolume(void*);
 
 std::vector<std::string> LLStatusBar::sDays;
@@ -187,6 +189,9 @@ BOOL LLStatusBar::postBuild()
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
+	childSetAction("scriptout", onClickScriptDebug, this);
+	childSetAction("health", onClickHealth, this);
+
 	// Adding Net Stat Graph
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
@@ -224,7 +229,7 @@ BOOL LLStatusBar::postBuild()
 	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
 
-	getChild<LLTextBox>("stat_btn")->setClickedCallback(onClickStatGraph);
+	childSetActionTextbox("stat_btn", onClickStatGraph);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
@@ -236,17 +241,14 @@ BOOL LLStatusBar::postBuild()
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelNearByMedia->setVisible(FALSE);
 
-	mScriptOut = getChildView("scriptout");
-
 	return TRUE;
 }
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
-	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
-	bool net_stats_visible = show_net_stats;
-
+	bool net_stats_visible = gSavedSettings.getBOOL("ShowNetStats");
+	
 	if (net_stats_visible)
 	{
 		// Adding Net Stat Meter back in
@@ -258,30 +260,26 @@ void LLStatusBar::refresh()
 		mSGBandwidth->setThreshold(2, bwtotal);
 	}
 	
-	// update clock every 10 seconds
-	if(mClockUpdateTimer.getElapsedTimeF32() > 10.f)
-	{
-		mClockUpdateTimer.reset();
+	// Get current UTC time, adjusted for the user's clock
+	// being off.
+	time_t utc_time;
+	utc_time = time_corrected();
 
-		// Get current UTC time, adjusted for the user's clock
-		// being off.
-		time_t utc_time;
-		utc_time = time_corrected();
+	std::string timeStr = getString("time");
+	LLSD substitution;
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+	mTextTime->setText(timeStr);
 
-		std::string timeStr = getString("time");
-		LLSD substitution;
-		substitution["datetime"] = (S32) utc_time;
-		LLStringUtil::format (timeStr, substitution);
-		mTextTime->setText(timeStr);
-
-		// set the tooltip to have the date
-		std::string dtStr = getString("timeTooltip");
-		LLStringUtil::format (dtStr, substitution);
-		mTextTime->setToolTip (dtStr);
-	}
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format (dtStr, substitution);
+	mTextTime->setToolTip (dtStr);
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
+	S32 x = MENU_RIGHT + MENU_PARCEL_SPACING;
+	S32 y = 0;
 
 	// reshape menu bar to its content's width
 	if (MENU_RIGHT != gMenuBarView->getRect().getWidth())
@@ -289,9 +287,48 @@ void LLStatusBar::refresh()
 		gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
 	}
 
+	LLViewerRegion *region = gAgent.getRegion();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
+	LLRect buttonRect;
+
+	if (LLHUDIcon::iconsNearby())
+	{
+		childGetRect( "scriptout", buttonRect );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect("scriptout",r);
+		childSetVisible("scriptout", true);
+		x += buttonRect.getWidth();
+	}
+	else
+	{
+		childSetVisible("scriptout", false);
+	}
+
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
+		((region && region->getAllowDamage()) || (parcel && parcel->getAllowDamage())))
+	{
+		// set visibility based on flashing
+		if( mHealthTimer->hasExpired() )
+		{
+			childSetVisible("health", true);
+		}
+		else
+		{
+			BOOL flash = S32(mHealthTimer->getElapsedSeconds() * ICON_FLASH_FREQUENCY) & 1;
+			childSetVisible("health", flash);
+		}
+
+		// Health
+		childGetRect( "health", buttonRect );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect("health", r);
+		x += buttonRect.getWidth();
+	}
+
 	mSGBandwidth->setVisible(net_stats_visible);
 	mSGPacketLoss->setVisible(net_stats_visible);
-	getChildView("stat_btn")->setEnabled(net_stats_visible);
+	childSetEnabled("stat_btn", net_stats_visible);
 
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
@@ -454,6 +491,16 @@ void LLStatusBar::onClickBuyCurrency()
 	// open a currency floater - actual one open depends on 
 	// value specified in settings.xml
 	LLBuyCurrencyHTML::openCurrencyFloater();
+}
+
+static void onClickHealth(void* )
+{
+	LLNotificationsUtil::add("NotSafe");
+}
+
+static void onClickScriptDebug(void*)
+{
+	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
 void LLStatusBar::onMouseEnterVolume()

@@ -69,16 +69,16 @@ public:
 	void renderFullbrightShiny();
 	void endFullbrightShiny();
 
-	void beginBump(U32 pass = LLRenderPass::PASS_BUMP);
-	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
-	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
+	void beginBump();
+	void renderBump();
+	void endBump();
 
-	virtual S32 getNumDeferredPasses();
+	virtual S32 getNumDeferredPasses() { return 1; }
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
-	virtual S32 getNumPostDeferredPasses() { return 2; }
+	virtual S32 getNumPostDeferredPasses() { return 1; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
@@ -109,12 +109,9 @@ public:
 
 	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
 
-	static void clear();
-	static void addstandard();
-
 	static void init();
 	static void shutdown();
-	static void restoreGL();
+	static void	restoreGL();
 	static void destroyGL();
 };
 
@@ -133,7 +130,6 @@ public:
 
 	void		init();
 	void		shutdown();
-	void            clear();
 	void		destroyGL();
 	void		restoreGL();
 	void		updateImages();

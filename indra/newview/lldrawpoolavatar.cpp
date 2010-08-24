@@ -117,7 +117,7 @@ void LLDrawPoolAvatar::prerender()
 	
 	if (sShaderLevel > 0)
 	{
-		sBufferUsage = GL_DYNAMIC_DRAW_ARB;
+		sBufferUsage = GL_STATIC_DRAW_ARB;
 	}
 	else
 	{
@@ -151,8 +151,6 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	
-	sSkipTransparent = TRUE;
-
 	if (LLPipeline::sImpostorRender)
 	{
 		beginDeferredSkinned();
@@ -176,8 +174,6 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
-
-	sSkipTransparent = FALSE;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -248,6 +244,7 @@ S32 LLDrawPoolAvatar::getNumShadowPasses()
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
+	
 	sVertexProgram = &gDeferredAvatarShadowProgram;
 	if (sShaderLevel > 0)
 	{
@@ -269,6 +266,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
+
 	if (sShaderLevel > 0)
 	{
 		sRenderingSkinned = FALSE;
@@ -306,11 +304,6 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 	
-	if (sShaderLevel > 0)
-	{
-		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
-	}
-
 	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 }
@@ -347,7 +340,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	switch (pass)
 	{
 	case 0:
-		beginImpostor();
+		beginFootShadow();
 		break;
 	case 1:
 		beginRigid();
@@ -371,7 +364,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 	switch (pass)
 	{
 	case 0:
-		endImpostor();
+		endFootShadow();
 		break;
 	case 1:
 		endRigid();
@@ -381,7 +374,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 	}
 }
 
-void LLDrawPoolAvatar::beginImpostor()
+void LLDrawPoolAvatar::beginFootShadow()
 {
 	if (!LLPipeline::sReflectionRender)
 	{
@@ -393,7 +386,7 @@ void LLDrawPoolAvatar::beginImpostor()
 	diffuse_channel = 0;
 }
 
-void LLDrawPoolAvatar::endImpostor()
+void LLDrawPoolAvatar::endFootShadow()
 {
 	gPipeline.enableLightsDynamic();
 }
@@ -565,6 +558,7 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
+	sSkipTransparent = TRUE;
 	sShaderLevel = mVertexShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 
@@ -579,6 +573,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
+	sSkipTransparent = FALSE;
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
@@ -691,6 +686,10 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 				}
 			}
 			avatarp->renderImpostor(LLColor4U(255,255,255,255), diffuse_channel);
+		}
+		else if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS) && !LLPipeline::sRenderDeferred)
+		{
+			avatarp->renderFootShadows();	
 		}
 		return;
 	}
@@ -845,7 +844,9 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 LLVertexBufferAvatar::LLVertexBufferAvatar()
 : LLVertexBuffer(sDataMask, 
-	GL_STREAM_DRAW_ARB) //avatars are always stream draw due to morph targets
+	LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 ?	
+	GL_DYNAMIC_DRAW_ARB : 
+	GL_STREAM_DRAW_ARB)
 {
 
 }

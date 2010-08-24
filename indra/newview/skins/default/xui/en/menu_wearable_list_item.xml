@@ -13,7 +13,7 @@
      layout="topleft"
      name="wear_wear">
         <on_click
-         function="Wearable.Wear" />
+         function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
      label="Add"

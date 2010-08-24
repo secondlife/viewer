@@ -73,17 +73,17 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	
 	mHintMin->setAllowsUpdates( FALSE );
 	mHintMax->setAllowsUpdates( FALSE );
-	getChild<LLUICtrl>("param slider")->setValue(weightToPercent(param->getWeight()));
+	childSetValue("param slider", weightToPercent(param->getWeight()));
 
 	std::string display_name = LLTrans::getString(param->getDisplayName());
-	getChild<LLUICtrl>("param slider")->setLabelArg("[DESC]", display_name);
-	getChildView("param slider")->setEnabled(mAllowModify);
+	childSetLabelArg("param slider", "[DESC]", display_name);
+	childSetEnabled("param slider", mAllowModify);
 	childSetCommitCallback("param slider", LLScrollingPanelParam::onSliderMoved, this);
 
 	std::string min_name = LLTrans::getString(param->getMinDisplayName());
 	std::string max_name = LLTrans::getString(param->getMaxDisplayName());
-	getChild<LLUICtrl>("min param text")->setValue(min_name);
-	getChild<LLUICtrl>("max param text")->setValue(max_name);
+	childSetValue("min param text", min_name);
+	childSetValue("max param text", max_name);
 
 	LLButton* less = getChild<LLButton>("less");
 	if (less)
@@ -120,14 +120,14 @@ void LLScrollingPanelParam::updatePanel(BOOL allow_modify)
 		return;
 	}
 	F32 current_weight = mWearable->getVisualParamWeight( param->getID() );
-	getChild<LLUICtrl>("param slider")->setValue(weightToPercent( current_weight ) );
+	childSetValue("param slider", weightToPercent( current_weight ) );
 	mHintMin->requestUpdate( sUpdateDelayFrames++ );
 	mHintMax->requestUpdate( sUpdateDelayFrames++ );
 
 	mAllowModify = allow_modify;
-	getChildView("param slider")->setEnabled(mAllowModify);
-	getChildView("less")->setEnabled(mAllowModify);
-	getChildView("more")->setEnabled(mAllowModify);
+	childSetEnabled("param slider", mAllowModify);
+	childSetEnabled("less", mAllowModify);
+	childSetEnabled("more", mAllowModify);
 }
 
 void LLScrollingPanelParam::setVisible( BOOL visible )
@@ -153,16 +153,16 @@ void LLScrollingPanelParam::draw()
 		return;
 	}
 	
-	getChildView("less")->setVisible( mHintMin->getVisible());
-	getChildView("more")->setVisible( mHintMax->getVisible());
+	childSetVisible("less", mHintMin->getVisible());
+	childSetVisible("more", mHintMax->getVisible());
 
 	// hide borders if texture has been loaded
-	getChildView("left_border")->setVisible( !mHintMin->getVisible());
-	getChildView("right_border")->setVisible( !mHintMax->getVisible());
+	childSetVisible("left_border", !mHintMin->getVisible());
+	childSetVisible("right_border", !mHintMax->getVisible());
 
 	// Draw all the children except for the labels
-	getChildView("min param text")->setVisible( FALSE );
-	getChildView("max param text")->setVisible( FALSE );
+	childSetVisible( "min param text", FALSE );
+	childSetVisible( "max param text", FALSE );
 	LLPanel::draw();
 
 	// Draw the hints over the "less" and "more" buttons.
@@ -184,10 +184,10 @@ void LLScrollingPanelParam::draw()
 
 
 	// Draw labels on top of the buttons
-	getChildView("min param text")->setVisible( TRUE );
+	childSetVisible( "min param text", TRUE );
 	drawChild(getChild<LLView>("min param text"));
 
-	getChildView("max param text")->setVisible( TRUE );
+	childSetVisible( "max param text", TRUE );
 	drawChild(getChild<LLView>("max param text"));
 }
 

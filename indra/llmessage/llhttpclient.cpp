@@ -234,14 +234,9 @@ static void request(
 	lldebugs << LLURLRequest::actionAsVerb(method) << " " << url << " "
 		<< headers << llendl;
 
-	// Insert custom headers if the caller sent any
-	if (headers.isMap())
-	{
-		if (headers.has("Cookie"))
-		{
-			req->allowCookies();
-		}
-
+    // Insert custom headers is the caller sent any
+    if (headers.isMap())
+    {
         LLSD::map_const_iterator iter = headers.beginMap();
         LLSD::map_const_iterator end  = headers.endMap();
 

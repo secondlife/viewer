@@ -589,8 +589,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLPipeline::sUseOcclusion = 3;
 		}
 
-		LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
-		LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
+		LLPipeline::sFastAlpha = gSavedSettings.getBOOL("RenderFastAlpha");
 		LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
 		LLVOAvatar::sMaxVisible = (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
 		LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
@@ -862,6 +861,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
+		/// We copy the frame buffer straight into a texture here,
+		/// and then display it again with compositor effects.
+		/// Using render to texture would be faster/better, but I don't have a 
+		/// grasp of their full display stack just yet.
+		// gPostProcess->apply(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
+		
 		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 		{
 			gPipeline.renderDeferredLighting();
@@ -923,10 +928,9 @@ void render_hud_attachments()
 		bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && gSavedSettings.getBOOL("RenderHUDParticles");
 		
 		//only render hud objects
-		gPipeline.pushRenderTypeMask();
-		
+		U32 mask = gPipeline.getRenderTypeMask();
 		// turn off everything
-		gPipeline.andRenderTypeMask(LLPipeline::END_RENDER_TYPES);
+		gPipeline.setRenderTypeMask(0);
 		// turn on HUD
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		// turn on HUD particles
@@ -980,8 +984,7 @@ void render_hud_attachments()
 		render_hud_elements();
 
 		//restore type mask
-		gPipeline.popRenderTypeMask();
-
+		gPipeline.setRenderTypeMask(mask);
 		if (has_ui)
 		{
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);
@@ -1106,7 +1109,7 @@ void render_ui(F32 zoom_factor, int subfield)
 		{
 			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
 		}
-		
+
 		render_hud_elements();
 		render_hud_attachments();
 	}

@@ -365,7 +365,7 @@ BOOL LLPanelLandGeneral::postBuild()
 {
 	mEditName = getChild<LLLineEditor>("Name");
 	mEditName->setCommitCallback(onCommitAny, this);	
-	getChild<LLLineEditor>("Name")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
+	childSetPrevalidate("Name", LLTextValidate::validateASCIIPrintableNoPipe);
 
 	mEditDesc = getChild<LLTextEditor>("Description");
 	mEditDesc->setCommitOnFocusLost(TRUE);
@@ -382,7 +382,7 @@ BOOL LLPanelLandGeneral::postBuild()
 	mLandType = getChild<LLTextBox>("LandTypeText");
 	
 	mBtnProfile = getChild<LLButton>("Profile...");
-	mBtnProfile->setClickedCallback(boost::bind(&LLPanelLandGeneral::onClickProfile, this));
+	mBtnProfile->setClickedCallback(onClickProfile, this);
 
 	
 	mTextGroupLabel = getChild<LLTextBox>("Group:");
@@ -859,9 +859,11 @@ void LLPanelLandGeneral::onClickSetGroup()
 	}
 }
 
-void LLPanelLandGeneral::onClickProfile()
+// static
+void LLPanelLandGeneral::onClickProfile(void* data)
 {
-	LLParcel* parcel = mParcel->getParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
 
 	if (parcel->getIsGroupOwned())
@@ -910,6 +912,13 @@ void LLPanelLandGeneral::onClickScriptLimits(void* data)
 	{
 		LLFloaterReg::showInstance("script_limits");
 	}
+}
+
+BOOL LLPanelLandGeneral::enableDeedToGroup(void* data)
+{
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp->mParcel->getParcel();
+	return (parcel != NULL) && (parcel->getParcelFlag(PF_ALLOW_DEED_TO_GROUP));
 }
 
 // static
@@ -1125,7 +1134,7 @@ BOOL LLPanelLandObjects::postBuild()
 
 	mCleanOtherObjectsTime->setFocusLostCallback(boost::bind(onLostFocus, _1, this));
 	mCleanOtherObjectsTime->setCommitCallback(onCommitClean, this);
-	getChild<LLLineEditor>("clean other time")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	childSetPrevalidate("clean other time", LLTextValidate::validateNonNegativeS32);
 	
 	mBtnRefresh = getChild<LLButton>("Refresh List");
 	mBtnRefresh->setClickedCallback(onClickRefresh, this);
@@ -2390,18 +2399,18 @@ void LLPanelLandAccess::refresh()
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
 		BOOL public_access = !use_access_list && !use_group;
 		
-		getChild<LLUICtrl>("public_access")->setValue(public_access );
-		getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
+		childSetValue("public_access", public_access );
+		childSetValue("GroupCheck", use_group );
 
 		std::string group_name;
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
-		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
+		childSetLabelArg("GroupCheck", "[GROUP]", group_name );
 		
 		// Allow list
 		{
 			S32 count = parcel->mAccessList.size();
-			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
-			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
+			childSetToolTipArg("AccessList", "[LISTED]", llformat("%d",count));
+			childSetToolTipArg("AccessList", "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			for (access_map_const_iterator cit = parcel->mAccessList.begin();
 				 cit != parcel->mAccessList.end(); ++cit)
@@ -2442,8 +2451,8 @@ void LLPanelLandAccess::refresh()
 		{
 			S32 count = parcel->mBanList.size();
 
-			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
-			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
+			childSetToolTipArg("BannedList", "[LISTED]", llformat("%d",count));
+			childSetToolTipArg("BannedList", "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			for (access_map_const_iterator cit = parcel->mBanList.begin();
 				 cit != parcel->mBanList.end(); ++cit)
@@ -2502,27 +2511,27 @@ void LLPanelLandAccess::refresh()
 
 		if(parcel->getRegionDenyAnonymousOverride())
 		{
-			getChild<LLUICtrl>("limit_payment")->setValue(TRUE);
-			getChild<LLUICtrl>("limit_payment")->setLabelArg("[ESTATE_PAYMENT_LIMIT]", getString("access_estate_defined") );
+			childSetValue("limit_payment", TRUE);
+			childSetLabelArg( "limit_payment", "[ESTATE_PAYMENT_LIMIT]", getString("access_estate_defined") );
 		}
 		else
 		{
-			getChild<LLUICtrl>("limit_payment")->setValue((parcel->getParcelFlag(PF_DENY_ANONYMOUS)));
-			getChild<LLUICtrl>("limit_payment")->setLabelArg("[ESTATE_PAYMENT_LIMIT]", std::string() );
+			childSetValue("limit_payment", (parcel->getParcelFlag(PF_DENY_ANONYMOUS)));
+			childSetLabelArg( "limit_payment", "[ESTATE_PAYMENT_LIMIT]", std::string() );
 		}
 		if(parcel->getRegionDenyAgeUnverifiedOverride())
 		{
-			getChild<LLUICtrl>("limit_age_verified")->setValue(TRUE);
-			getChild<LLUICtrl>("limit_age_verified")->setLabelArg("[ESTATE_AGE_LIMIT]", getString("access_estate_defined") );
+			childSetValue("limit_age_verified", TRUE);
+			childSetLabelArg( "limit_age_verified", "[ESTATE_AGE_LIMIT]", getString("access_estate_defined") );
 		}
 		else
 		{
-			getChild<LLUICtrl>("limit_age_verified")->setValue((parcel->getParcelFlag(PF_DENY_AGEUNVERIFIED)));
-			getChild<LLUICtrl>("limit_age_verified")->setLabelArg("[ESTATE_AGE_LIMIT]", std::string() );
+			childSetValue("limit_age_verified", (parcel->getParcelFlag(PF_DENY_AGEUNVERIFIED)));
+			childSetLabelArg( "limit_age_verified", "[ESTATE_AGE_LIMIT]", std::string() );
 		}
 		
 		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST);
-		getChild<LLUICtrl>("PassCheck")->setValue(use_pass );
+		childSetValue("PassCheck",  use_pass );
 		LLCtrlSelectionInterface* passcombo = childGetSelectionInterface("pass_combo");
 		if (passcombo)
 		{
@@ -2533,40 +2542,40 @@ void LLPanelLandAccess::refresh()
 		}
 		
 		S32 pass_price = parcel->getPassPrice();
-		getChild<LLUICtrl>("PriceSpin")->setValue((F32)pass_price );
+		childSetValue( "PriceSpin", (F32)pass_price );
 
 		F32 pass_hours = parcel->getPassHours();
-		getChild<LLUICtrl>("HoursSpin")->setValue(pass_hours );
+		childSetValue( "HoursSpin", pass_hours );
 	}
 	else
 	{
-		getChild<LLUICtrl>("public_access")->setValue(FALSE);
-		getChild<LLUICtrl>("limit_payment")->setValue(FALSE);
-		getChild<LLUICtrl>("limit_age_verified")->setValue(FALSE);
-		getChild<LLUICtrl>("GroupCheck")->setValue(FALSE);
-		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", LLStringUtil::null );
-		getChild<LLUICtrl>("PassCheck")->setValue(FALSE);
-		getChild<LLUICtrl>("PriceSpin")->setValue((F32)PARCEL_PASS_PRICE_DEFAULT);
-		getChild<LLUICtrl>("HoursSpin")->setValue(PARCEL_PASS_HOURS_DEFAULT );
-		getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
-		getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
-		getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
-		getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
+		childSetValue("public_access", FALSE);
+		childSetValue("limit_payment", FALSE);
+		childSetValue("limit_age_verified", FALSE);
+		childSetValue("GroupCheck", FALSE);
+		childSetLabelArg("GroupCheck", "[GROUP]", LLStringUtil::null );
+		childSetValue("PassCheck", FALSE);
+		childSetValue("PriceSpin", (F32)PARCEL_PASS_PRICE_DEFAULT);
+		childSetValue( "HoursSpin", PARCEL_PASS_HOURS_DEFAULT );
+		childSetToolTipArg("AccessList", "[LISTED]", llformat("%d",0));
+		childSetToolTipArg("AccessList", "[MAX]", llformat("%d",0));
+		childSetToolTipArg("BannedList", "[LISTED]", llformat("%d",0));
+		childSetToolTipArg("BannedList", "[MAX]", llformat("%d",0));
 	}	
 }
 
 void LLPanelLandAccess::refresh_ui()
 {
-	getChildView("public_access")->setEnabled(FALSE);
-	getChildView("limit_payment")->setEnabled(FALSE);
-	getChildView("limit_age_verified")->setEnabled(FALSE);
-	getChildView("GroupCheck")->setEnabled(FALSE);
-	getChildView("PassCheck")->setEnabled(FALSE);
-	getChildView("pass_combo")->setEnabled(FALSE);
-	getChildView("PriceSpin")->setEnabled(FALSE);
-	getChildView("HoursSpin")->setEnabled(FALSE);
-	getChildView("AccessList")->setEnabled(FALSE);
-	getChildView("BannedList")->setEnabled(FALSE);
+	childSetEnabled("public_access", FALSE);
+	childSetEnabled("limit_payment", FALSE);
+	childSetEnabled("limit_age_verified", FALSE);
+	childSetEnabled("GroupCheck", FALSE);
+	childSetEnabled("PassCheck", FALSE);
+	childSetEnabled("pass_combo", FALSE);
+	childSetEnabled("PriceSpin", FALSE);
+	childSetEnabled("HoursSpin", FALSE);
+	childSetEnabled("AccessList", FALSE);
+	childSetEnabled("BannedList", FALSE);
 	
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel)
@@ -2574,73 +2583,73 @@ void LLPanelLandAccess::refresh_ui()
 		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
 		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
 	
-		getChildView("public_access")->setEnabled(can_manage_allowed);
-		BOOL public_access = getChild<LLUICtrl>("public_access")->getValue().asBoolean();
+		childSetEnabled("public_access", can_manage_allowed);
+		BOOL public_access = childGetValue("public_access").asBoolean();
 		if (public_access)
 		{
 			bool override = false;
 			if(parcel->getRegionDenyAnonymousOverride())
 			{
 				override = true;
-				getChildView("limit_payment")->setEnabled(FALSE);
+				childSetEnabled("limit_payment", FALSE);
 			}
 			else
 			{
-				getChildView("limit_payment")->setEnabled(can_manage_allowed);
+				childSetEnabled("limit_payment", can_manage_allowed);
 			}
 			if(parcel->getRegionDenyAgeUnverifiedOverride())
 			{
 				override = true;
-				getChildView("limit_age_verified")->setEnabled(FALSE);
+				childSetEnabled("limit_age_verified", FALSE);
 			}
 			else
 			{
-				getChildView("limit_age_verified")->setEnabled(can_manage_allowed);
+				childSetEnabled("limit_age_verified", can_manage_allowed);
 			}
 			if (override)
 			{
-				getChildView("Only Allow")->setToolTip(getString("estate_override"));
+				childSetToolTip("Only Allow", getString("estate_override"));
 			}
 			else
 			{
-				getChildView("Only Allow")->setToolTip(std::string());
+				childSetToolTip("Only Allow", std::string());
 			}
-			getChildView("GroupCheck")->setEnabled(FALSE);
-			getChildView("PassCheck")->setEnabled(FALSE);
-			getChildView("pass_combo")->setEnabled(FALSE);
-			getChildView("AccessList")->setEnabled(FALSE);
+			childSetEnabled("GroupCheck", FALSE);
+			childSetEnabled("PassCheck", FALSE);
+			childSetEnabled("pass_combo", FALSE);
+			childSetEnabled("AccessList", FALSE);
 		}
 		else
 		{
-			getChildView("limit_payment")->setEnabled(FALSE);
-			getChildView("limit_age_verified")->setEnabled(FALSE);
+			childSetEnabled("limit_payment", FALSE);
+			childSetEnabled("limit_age_verified", FALSE);
 
 			std::string group_name;
 			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
 			{			
-				getChildView("GroupCheck")->setEnabled(can_manage_allowed);
+				childSetEnabled("GroupCheck", can_manage_allowed);
 			}
-			BOOL group_access = getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
-			BOOL sell_passes = getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
-			getChildView("PassCheck")->setEnabled(can_manage_allowed);
+			BOOL group_access = childGetValue("GroupCheck").asBoolean();
+			BOOL sell_passes = childGetValue("PassCheck").asBoolean();
+			childSetEnabled("PassCheck", can_manage_allowed);
 			if (sell_passes)
 			{
-				getChildView("pass_combo")->setEnabled(group_access && can_manage_allowed);
-				getChildView("PriceSpin")->setEnabled(can_manage_allowed);
-				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
+				childSetEnabled("pass_combo", group_access && can_manage_allowed);
+				childSetEnabled("PriceSpin", can_manage_allowed);
+				childSetEnabled("HoursSpin", can_manage_allowed);
 			}
 		}
-		getChildView("AccessList")->setEnabled(can_manage_allowed);
+		childSetEnabled("AccessList", can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
-		getChildView("add_allowed")->setEnabled(can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
+		childSetEnabled("add_allowed", can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
 		BOOL has_selected = mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0;
-		getChildView("remove_allowed")->setEnabled(can_manage_allowed && has_selected);
+		childSetEnabled("remove_allowed", can_manage_allowed && has_selected);
 		
-		getChildView("BannedList")->setEnabled(can_manage_banned);
+		childSetEnabled("BannedList", can_manage_banned);
 		S32 banned_list_count = parcel->mBanList.size();
-		getChildView("add_banned")->setEnabled(can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
+		childSetEnabled("add_banned", can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
 		has_selected = mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0;
-		getChildView("remove_banned")->setEnabled(can_manage_banned && has_selected);
+		childSetEnabled("remove_banned", can_manage_banned && has_selected);
 	}
 }
 		
@@ -2654,7 +2663,7 @@ void LLPanelLandAccess::refreshNames()
 	{
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 	}
-	getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name);
+	childSetLabelArg("GroupCheck", "[GROUP]", group_name);
 }
 
 
@@ -2677,13 +2686,13 @@ void LLPanelLandAccess::onCommitPublicAccess(LLUICtrl *ctrl, void *userdata)
 	}
 
 	// If we disabled public access, enable group access by default (if applicable)
-	BOOL public_access = self->getChild<LLUICtrl>("public_access")->getValue().asBoolean();
+	BOOL public_access = self->childGetValue("public_access").asBoolean();
 	if (public_access == FALSE)
 	{
 		std::string group_name;
 		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
 		{
-			self->getChild<LLUICtrl>("GroupCheck")->setValue(public_access ? FALSE : TRUE);
+			self->childSetValue("GroupCheck", public_access ? FALSE : TRUE);
 		}
 	}
 	
@@ -2702,8 +2711,8 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	}
 
 	// Extract data from UI
-	BOOL public_access = self->getChild<LLUICtrl>("public_access")->getValue().asBoolean();
-	BOOL use_access_group = self->getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
+	BOOL public_access = self->childGetValue("public_access").asBoolean();
+	BOOL use_access_group = self->childGetValue("GroupCheck").asBoolean();
 	if (use_access_group)
 	{
 		std::string group_name;
@@ -2721,13 +2730,13 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	{
 		use_access_list = FALSE;
 		use_access_group = FALSE;
-		limit_payment = self->getChild<LLUICtrl>("limit_payment")->getValue().asBoolean();
-		limit_age_verified = self->getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean();
+		limit_payment = self->childGetValue("limit_payment").asBoolean();
+		limit_age_verified = self->childGetValue("limit_age_verified").asBoolean();
 	}
 	else
 	{
 		use_access_list = TRUE;
-		use_pass_list = self->getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
+		use_pass_list = self->childGetValue("PassCheck").asBoolean();
 		if (use_access_group && use_pass_list)
 		{
 			LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
@@ -2741,8 +2750,8 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 		}
 	}
 
-	S32 pass_price = llfloor((F32)self->getChild<LLUICtrl>("PriceSpin")->getValue().asReal());
-	F32 pass_hours = (F32)self->getChild<LLUICtrl>("HoursSpin")->getValue().asReal();
+	S32 pass_price = llfloor((F32)self->childGetValue("PriceSpin").asReal());
+	F32 pass_hours = (F32)self->childGetValue("HoursSpin").asReal();
 
 	// Push data into current parcel
 	parcel->setParcelFlag(PF_USE_ACCESS_GROUP,	use_access_group);

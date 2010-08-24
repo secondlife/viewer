@@ -40,7 +40,6 @@
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "lleconomy.h"
-#include "lllandmarkactions.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llviewercontrol.h"
@@ -54,7 +53,6 @@
 #include "llradiogroup.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
-#include "llwebsharing.h"
 #include "llworld.h"
 #include "llagentui.h"
 
@@ -82,8 +80,8 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-S32 LLFloaterSnapshot::sUIWinHeightLong = 530 ;
-S32 LLFloaterSnapshot::sUIWinHeightShort = LLFloaterSnapshot::sUIWinHeightLong - 240 ;
+S32 LLFloaterSnapshot::sUIWinHeightLong = 526 ;
+S32 LLFloaterSnapshot::sUIWinHeightShort = LLFloaterSnapshot::sUIWinHeightLong - 230 ;
 S32 LLFloaterSnapshot::sUIWinWidth = 215 ;
 
 LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
@@ -111,8 +109,7 @@ public:
 	{
 		SNAPSHOT_POSTCARD,
 		SNAPSHOT_TEXTURE,
-		SNAPSHOT_LOCAL,
-		SNAPSHOT_WEB
+		SNAPSHOT_LOCAL
 	};
 
 
@@ -158,7 +155,6 @@ public:
 	void setSnapshotQuality(S32 quality);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
-	void saveWeb();
 	LLFloaterPostcard* savePostcard();
 	void saveTexture();
 	BOOL saveLocal();
@@ -170,9 +166,6 @@ public:
 
 	// Returns TRUE when snapshot generated, FALSE otherwise.
 	static BOOL onIdle( void* snapshot_preview );
-
-	// callback for region name resolve
-	void regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z);
 
 private:
 	LLColor4					mColor;
@@ -827,19 +820,9 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			// delete any existing image
 			previewp->mFormattedImage = NULL;
 			// now create the new one of the appropriate format.
-			// note: postcards and web hardcoded to use jpeg always.
-			LLFloaterSnapshot::ESnapshotFormat format;
-
-			if (previewp->getSnapshotType() == SNAPSHOT_POSTCARD ||
-				previewp->getSnapshotType() == SNAPSHOT_WEB)
-			{
-				format = LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
-			}
-			else
-			{
-				format = previewp->getSnapshotFormat();
-			}
-
+			// note: postcards hardcoded to use jpeg always.
+			LLFloaterSnapshot::ESnapshotFormat format = previewp->getSnapshotType() == SNAPSHOT_POSTCARD
+				? LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG : previewp->getSnapshotFormat();
 			switch(format)
 			{
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
@@ -1032,33 +1015,6 @@ BOOL LLSnapshotLivePreview::saveLocal()
 	return success;
 }
 
-void LLSnapshotLivePreview::saveWeb()
-{
-	// *FIX: Will break if the window closes because of CloseSnapshotOnKeep!
-	// Needs to pass on ownership of the image.
-	LLImageJPEG* jpg = dynamic_cast<LLImageJPEG*>(mFormattedImage.get());
-	if(!jpg)
-	{
-		llwarns << "Formatted image not a JPEG" << llendl;
-		return;
-	}
-
-	LLSD metadata;
-	metadata["description"] = getChild<LLLineEditor>("description")->getText();
-
-	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
-		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, jpg, metadata, _1, _2, _3, _4));
-
-	gViewerWindow->playSnapshotAnimAndSound();
-}
-
-void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z)
-{
-	metadata["slurl"] = LLSLURL(name, LLVector3d(x, y, z)).getSLURLString();
-
-	LLWebSharing::instance().shareSnapshot(snapshot, metadata);
-}
-
 ///----------------------------------------------------------------------------
 /// Class LLFloaterSnapshot::Impl
 ///----------------------------------------------------------------------------
@@ -1109,7 +1065,6 @@ public:
 
 private:
 	static LLSnapshotLivePreview::ESnapshotType getTypeIndex(LLFloaterSnapshot* floater);
-	static LLSD getTypeName(LLSnapshotLivePreview::ESnapshotType index);
 	static ESnapshotFormat getFormatIndex(LLFloaterSnapshot* floater);
 	static LLViewerWindow::ESnapshotType getLayerType(LLFloaterSnapshot* floater);
 	static void comboSetCustom(LLFloaterSnapshot *floater, const std::string& comboname);
@@ -1135,51 +1090,17 @@ LLSnapshotLivePreview* LLFloaterSnapshot::Impl::getPreviewView(LLFloaterSnapshot
 LLSnapshotLivePreview::ESnapshotType LLFloaterSnapshot::Impl::getTypeIndex(LLFloaterSnapshot* floater)
 {
 	LLSnapshotLivePreview::ESnapshotType index = LLSnapshotLivePreview::SNAPSHOT_POSTCARD;
-	LLSD value = floater->getChild<LLUICtrl>("snapshot_type_radio")->getValue();
-
+	LLSD value = floater->childGetValue("snapshot_type_radio");
 	const std::string id = value.asString();
 	if (id == "postcard")
-	{
 		index = LLSnapshotLivePreview::SNAPSHOT_POSTCARD;
-	}
 	else if (id == "texture")
-	{
 		index = LLSnapshotLivePreview::SNAPSHOT_TEXTURE;
-	}
 	else if (id == "local")
-	{
 		index = LLSnapshotLivePreview::SNAPSHOT_LOCAL;
-	}
-	else if (id == "share_to_web")
-	{
-		index = LLSnapshotLivePreview::SNAPSHOT_WEB;
-	}
-
 	return index;
 }
 
-// static
-LLSD LLFloaterSnapshot::Impl::getTypeName(LLSnapshotLivePreview::ESnapshotType index)
-{
-	std::string id;
-	switch (index)
-	{
-		case LLSnapshotLivePreview::SNAPSHOT_WEB:
-			id = "share_to_web";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_POSTCARD:
-			id = "postcard";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:
-			id = "texture";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_LOCAL:
-		default:
-			id = "local";
-			break;
-	}
-	return LLSD(id);
-}
 
 // static
 LLFloaterSnapshot::ESnapshotFormat LLFloaterSnapshot::Impl::getFormatIndex(LLFloaterSnapshot* floater)
@@ -1205,7 +1126,7 @@ LLFloaterSnapshot::ESnapshotFormat LLFloaterSnapshot::Impl::getFormatIndex(LLFlo
 LLViewerWindow::ESnapshotType LLFloaterSnapshot::Impl::getLayerType(LLFloaterSnapshot* floater)
 {
 	LLViewerWindow::ESnapshotType type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
-	LLSD value = floater->getChild<LLUICtrl>("layer_types")->getValue();
+	LLSD value = floater->childGetValue("layer_types");
 	const std::string id = value.asString();
 	if (id == "colors")
 		type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
@@ -1248,7 +1169,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 		previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 	}
 
-	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
+	bool use_freeze_frame = floaterp->childGetValue("freeze_frame_check").asBoolean();
 
 	if (use_freeze_frame)
 	{
@@ -1316,64 +1237,56 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 {
 	LLRadioGroup* snapshot_type_radio = floater->getChild<LLRadioGroup>("snapshot_type_radio");
-	LLSnapshotLivePreview::ESnapshotType shot_type = (LLSnapshotLivePreview::ESnapshotType)gSavedSettings.getS32("LastSnapshotType");
-	snapshot_type_radio->setSelectedByValue(getTypeName(shot_type), true);
-
-	ESnapshotFormat shot_format = (ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
+	snapshot_type_radio->setSelectedIndex(gSavedSettings.getS32("LastSnapshotType"));
+	LLSnapshotLivePreview::ESnapshotType shot_type = getTypeIndex(floater);
+	ESnapshotFormat shot_format = (ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat"); //getFormatIndex(floater);	LLViewerWindow::ESnapshotType layer_type = getLayerType(floater);
 	LLViewerWindow::ESnapshotType layer_type = getLayerType(floater);
 
-	floater->getChildView("share_to_web")->setVisible( gSavedSettings.getBOOL("SnapshotSharingEnabled"));
-
-	floater->getChildView("postcard_size_combo")->setVisible( FALSE);
-	floater->getChildView("texture_size_combo")->setVisible( FALSE);
-	floater->getChildView("local_size_combo")->setVisible( FALSE);
+	floater->childSetVisible("postcard_size_combo", FALSE);
+	floater->childSetVisible("texture_size_combo", FALSE);
+	floater->childSetVisible("local_size_combo", FALSE);
 
 	floater->getChild<LLComboBox>("postcard_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotPostcardLastResolution"));
 	floater->getChild<LLComboBox>("texture_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotTextureLastResolution"));
 	floater->getChild<LLComboBox>("local_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotLocalLastResolution"));
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));
 
-	// *TODO: Separate settings for Web images from postcards
-	floater->getChildView("send_btn")->setVisible(	shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD ||
-													shot_type == LLSnapshotLivePreview::SNAPSHOT_WEB);
-	floater->getChildView("upload_btn")->setVisible(shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE);
-	floater->getChildView("save_btn")->setVisible(	shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
-	floater->getChildView("keep_aspect_check")->setEnabled(shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
-	floater->getChildView("layer_types")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
+	floater->childSetVisible("upload_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE);
+	floater->childSetVisible("send_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
+	floater->childSetVisible("save_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
+	floater->childSetEnabled("keep_aspect_check",	shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
+	floater->childSetEnabled("layer_types",			shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
 
 	BOOL is_advance = gSavedSettings.getBOOL("AdvanceSnapshot");
 	BOOL is_local = shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL;
-	BOOL show_slider = (shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD ||
-						shot_type == LLSnapshotLivePreview::SNAPSHOT_WEB ||
-					   (is_local && shot_format == LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG));
+	BOOL show_slider = 
+		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD
+		|| (is_local && shot_format == LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
 
-	floater->getChildView("more_btn")->setVisible( !is_advance); // the only item hidden in advanced mode
-	floater->getChildView("less_btn")->setVisible(				is_advance);
-	floater->getChildView("type_label2")->setVisible(				is_advance);
-	floater->getChildView("format_label")->setVisible(			is_advance && is_local);
-	floater->getChildView("local_format_combo")->setVisible(		is_advance && is_local);
-	floater->getChildView("layer_types")->setVisible(				is_advance);
-	floater->getChildView("layer_type_label")->setVisible(		is_advance);
-	floater->getChildView("snapshot_width")->setVisible(			is_advance);
-	floater->getChildView("snapshot_height")->setVisible(			is_advance);
-	floater->getChildView("keep_aspect_check")->setVisible(		is_advance);
-	floater->getChildView("ui_check")->setVisible(				is_advance);
-	floater->getChildView("hud_check")->setVisible(				is_advance);
-	floater->getChildView("keep_open_check")->setVisible(			is_advance);
-	floater->getChildView("freeze_frame_check")->setVisible(		is_advance);
-	floater->getChildView("auto_snapshot_check")->setVisible(		is_advance);
-	floater->getChildView("image_quality_slider")->setVisible(	is_advance && show_slider);
+	floater->childSetVisible("more_btn", !is_advance); // the only item hidden in advanced mode
+	floater->childSetVisible("less_btn",				is_advance);
+	floater->childSetVisible("type_label2",				is_advance);
+	floater->childSetVisible("format_label",			is_advance && is_local);
+	floater->childSetVisible("local_format_combo",		is_advance && is_local);
+	floater->childSetVisible("layer_types",				is_advance);
+	floater->childSetVisible("layer_type_label",		is_advance);
+	floater->childSetVisible("snapshot_width",			is_advance);
+	floater->childSetVisible("snapshot_height",			is_advance);
+	floater->childSetVisible("keep_aspect_check",		is_advance);
+	floater->childSetVisible("ui_check",				is_advance);
+	floater->childSetVisible("hud_check",				is_advance);
+	floater->childSetVisible("keep_open_check",			is_advance);
+	floater->childSetVisible("freeze_frame_check",		is_advance);
+	floater->childSetVisible("auto_snapshot_check",		is_advance);
+	floater->childSetVisible("image_quality_slider",	is_advance && show_slider);
 
 	LLSnapshotLivePreview* previewp = getPreviewView(floater);
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
 
-	// *TODO: Separate maximum size for Web images from postcards
-	floater->getChildView("send_btn")->setEnabled((shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD ||
-											shot_type == LLSnapshotLivePreview::SNAPSHOT_WEB) &&
-											got_snap && previewp->getDataSize() <= MAX_POSTCARD_DATASIZE);
-	floater->getChildView("upload_btn")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE  && got_snap);
-	floater->getChildView("save_btn")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL    && got_snap);
+	floater->childSetEnabled("send_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD && got_snap && previewp->getDataSize() <= MAX_POSTCARD_DATASIZE);
+	floater->childSetEnabled("upload_btn", shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE  && got_snap);
+	floater->childSetEnabled("save_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL    && got_snap);
 
 	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string bytes_string;
@@ -1382,21 +1295,19 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
 	}
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-	floater->getChild<LLUICtrl>("texture")->setLabelArg("[AMOUNT]", llformat("%d",upload_cost));
-	floater->getChild<LLUICtrl>("upload_btn")->setLabelArg("[AMOUNT]", llformat("%d",upload_cost));
-	floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
-	floater->getChild<LLUICtrl>("file_size_label")->setColor(
+	floater->childSetLabelArg("texture", "[AMOUNT]", llformat("%d",upload_cost));
+	floater->childSetLabelArg("upload_btn", "[AMOUNT]", llformat("%d",upload_cost));
+	floater->childSetTextArg("file_size_label", "[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
+	floater->childSetColor("file_size_label", 
 		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
 		&& got_bytes
 		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
 	switch(shot_type)
 	{
-	  // *TODO: Separate settings for Web images from postcards
-	  case LLSnapshotLivePreview::SNAPSHOT_WEB:
 	  case LLSnapshotLivePreview::SNAPSHOT_POSTCARD:
 		layer_type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
-		floater->getChild<LLUICtrl>("layer_types")->setValue("colors");
+		floater->childSetValue("layer_types", "colors");
 		if(is_advance)
 		{			
 			setResolution(floater, "postcard_size_combo");
@@ -1404,7 +1315,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		break;
 	  case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:
 		layer_type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
-		floater->getChild<LLUICtrl>("layer_types")->setValue("colors");
+		floater->childSetValue("layer_types", "colors");
 		if(is_advance)
 		{
 			setResolution(floater, "texture_size_combo");			
@@ -1485,39 +1396,28 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 {
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	LLSnapshotLivePreview* previewp = getPreviewView(view);
-
+	
 	if (previewp)
 	{
-		switch (previewp->getSnapshotType())
+		if (previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_POSTCARD)
 		{
-		  case LLSnapshotLivePreview::SNAPSHOT_WEB:
-			previewp->saveWeb();
-			break;
-
-		  case LLSnapshotLivePreview::SNAPSHOT_POSTCARD:
+			LLFloaterPostcard* floater = previewp->savePostcard();
+			// if still in snapshot mode, put postcard floater in snapshot floaterview
+			// and link it to snapshot floater
+			if (floater && !gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
 			{
-				LLFloaterPostcard* floater = previewp->savePostcard();
-				// if still in snapshot mode, put postcard floater in snapshot floaterview
-				// and link it to snapshot floater
-				if (floater && !gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
-				{
-					gFloaterView->removeChild(floater);
-					gSnapshotFloaterView->addChild(floater);
-					view->addDependentFloater(floater, FALSE);
-				}
+				gFloaterView->removeChild(floater);
+				gSnapshotFloaterView->addChild(floater);
+				view->addDependentFloater(floater, FALSE);
 			}
-			break;
-
-		  case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:
+		}
+		else if (previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+		{
 			previewp->saveTexture();
-			break;
-
-		  case LLSnapshotLivePreview::SNAPSHOT_LOCAL:
+		}
+		else
+		{
 			previewp->saveLocal();
-			break;
-
-		  default:
-			break;
 		}
 
 		if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
@@ -1704,7 +1604,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	if(0 == index) //current window size
 	{
 		view->impl.mAspectRatioCheckOff = true ;
-		view->getChildView("keep_aspect_check")->setEnabled(FALSE) ;
+		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
 		{
@@ -1716,7 +1616,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 		view->impl.mAspectRatioCheckOff = false ;
 		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
 		{
-			view->getChildView("keep_aspect_check")->setEnabled(TRUE) ;
+			view->childSetEnabled("keep_aspect_check", TRUE) ;
 
 			if(previewp)
 			{
@@ -1727,7 +1627,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	else
 	{
 		view->impl.mAspectRatioCheckOff = true ;
-		view->getChildView("keep_aspect_check")->setEnabled(FALSE) ;
+		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
 		{
@@ -1742,22 +1642,18 @@ static std::string lastSnapshotWidthName()
 {
 	switch(gSavedSettings.getS32("LastSnapshotType"))
 	{
-	  // *TODO: Separate settings for Web snapshots and postcards
-	  case LLSnapshotLivePreview::SNAPSHOT_WEB:		 return "LastSnapshotToEmailWidth";
-	  case LLSnapshotLivePreview::SNAPSHOT_POSTCARD: return "LastSnapshotToEmailWidth";
-	  case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:  return "LastSnapshotToInventoryWidth";
-	  default:                                       return "LastSnapshotToDiskWidth";
+	case LLSnapshotLivePreview::SNAPSHOT_POSTCARD: return "LastSnapshotToEmailWidth";
+	case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:  return "LastSnapshotToInventoryWidth";
+	default:                                       return "LastSnapshotToDiskWidth";
 	}
 }
 static std::string lastSnapshotHeightName()
 {
 	switch(gSavedSettings.getS32("LastSnapshotType"))
 	{
-	  // *TODO: Separate settings for Web snapshots and postcards
-	  case LLSnapshotLivePreview::SNAPSHOT_WEB:	     return "LastSnapshotToEmailHeight";
-	  case LLSnapshotLivePreview::SNAPSHOT_POSTCARD: return "LastSnapshotToEmailHeight";
-	  case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:  return "LastSnapshotToInventoryHeight";
-	  default:                                       return "LastSnapshotToDiskHeight";
+	case LLSnapshotLivePreview::SNAPSHOT_POSTCARD: return "LastSnapshotToEmailHeight";
+	case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:  return "LastSnapshotToInventoryHeight";
+	default:                                       return "LastSnapshotToDiskHeight";
 	}
 }
 
@@ -1816,10 +1712,10 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			resetSnapshotSizeOnUI(view, width, height) ;
 		}
 		
-		if(view->getChild<LLUICtrl>("snapshot_width")->getValue().asInteger() != width || view->getChild<LLUICtrl>("snapshot_height")->getValue().asInteger() != height)
+		if(view->childGetValue("snapshot_width").asInteger() != width || view->childGetValue("snapshot_height").asInteger() != height)
 		{
-			view->getChild<LLUICtrl>("snapshot_width")->setValue(width);
-			view->getChild<LLUICtrl>("snapshot_height")->setValue(height);
+			view->childSetValue("snapshot_width", width);
+			view->childSetValue("snapshot_height", height);
 		}
 
 		if(original_width != width || original_height != height)
@@ -1871,7 +1767,7 @@ void LLFloaterSnapshot::Impl::onCommitSnapshotType(LLUICtrl* ctrl, void* data)
 //static 
 void LLFloaterSnapshot::Impl::onCommitSnapshotFormat(LLUICtrl* ctrl, void* data)
 {
-	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
 	if (view)
 	{
 		gSavedSettings.setS32("SnapshotFormat", getFormatIndex(view));
@@ -2002,8 +1898,8 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
 	if (view)
 	{
-		S32 w = llfloor((F32)view->getChild<LLUICtrl>("snapshot_width")->getValue().asReal());
-		S32 h = llfloor((F32)view->getChild<LLUICtrl>("snapshot_height")->getValue().asReal());
+		S32 w = llfloor((F32)view->childGetValue("snapshot_width").asReal());
+		S32 h = llfloor((F32)view->childGetValue("snapshot_height").asReal());
 
 		LLSnapshotLivePreview* previewp = getPreviewView(view);
 		if (previewp)
@@ -2092,12 +1988,6 @@ LLFloaterSnapshot::~LLFloaterSnapshot()
 
 BOOL LLFloaterSnapshot::postBuild()
 {
-	// Kick start Web Sharing, to fetch its config data if it needs to.
-	if (gSavedSettings.getBOOL("SnapshotSharingEnabled"))
-	{
-		LLWebSharing::instance().init();
-	}
-
 	childSetCommitCallback("snapshot_type_radio", Impl::onCommitSnapshotType, this);
 	childSetCommitCallback("local_format_combo", Impl::onCommitSnapshotFormat, this);
 	
@@ -2112,34 +2002,34 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetAction("discard_btn", Impl::onClickDiscard, this);
 
 	childSetCommitCallback("image_quality_slider", Impl::onCommitQuality, this);
-	getChild<LLUICtrl>("image_quality_slider")->setValue(gSavedSettings.getS32("SnapshotQuality"));
+	childSetValue("image_quality_slider", gSavedSettings.getS32("SnapshotQuality"));
 
 	childSetCommitCallback("snapshot_width", Impl::onCommitCustomResolution, this);
 	childSetCommitCallback("snapshot_height", Impl::onCommitCustomResolution, this);
 
 	childSetCommitCallback("ui_check", Impl::onClickUICheck, this);
-	getChild<LLUICtrl>("ui_check")->setValue(gSavedSettings.getBOOL("RenderUIInSnapshot"));
+	childSetValue("ui_check", gSavedSettings.getBOOL("RenderUIInSnapshot"));
 
 	childSetCommitCallback("hud_check", Impl::onClickHUDCheck, this);
-	getChild<LLUICtrl>("hud_check")->setValue(gSavedSettings.getBOOL("RenderHUDInSnapshot"));
+	childSetValue("hud_check", gSavedSettings.getBOOL("RenderHUDInSnapshot"));
 
 	childSetCommitCallback("keep_open_check", Impl::onClickKeepOpenCheck, this);
-	getChild<LLUICtrl>("keep_open_check")->setValue(!gSavedSettings.getBOOL("CloseSnapshotOnKeep"));
+	childSetValue("keep_open_check", !gSavedSettings.getBOOL("CloseSnapshotOnKeep"));
 
 	childSetCommitCallback("keep_aspect_check", Impl::onClickKeepAspectCheck, this);
-	getChild<LLUICtrl>("keep_aspect_check")->setValue(gSavedSettings.getBOOL("KeepAspectForSnapshot"));
+	childSetValue("keep_aspect_check", gSavedSettings.getBOOL("KeepAspectForSnapshot"));
 
 	childSetCommitCallback("layer_types", Impl::onCommitLayerTypes, this);
-	getChild<LLUICtrl>("layer_types")->setValue("colors");
-	getChildView("layer_types")->setEnabled(FALSE);
+	childSetValue("layer_types", "colors");
+	childSetEnabled("layer_types", FALSE);
 
-	getChild<LLUICtrl>("snapshot_width")->setValue(gSavedSettings.getS32(lastSnapshotWidthName()));
-	getChild<LLUICtrl>("snapshot_height")->setValue(gSavedSettings.getS32(lastSnapshotHeightName()));
+	childSetValue("snapshot_width", gSavedSettings.getS32(lastSnapshotWidthName()));
+	childSetValue("snapshot_height", gSavedSettings.getS32(lastSnapshotHeightName()));
 
-	getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
+	childSetValue("freeze_frame_check", gSavedSettings.getBOOL("UseFreezeFrame"));
 	childSetCommitCallback("freeze_frame_check", Impl::onCommitFreezeFrame, this);
 
-	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
+	childSetValue("auto_snapshot_check", gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
 
 	childSetCommitCallback("postcard_size_combo", Impl::onCommitResolution, this);

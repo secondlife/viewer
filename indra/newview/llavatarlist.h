@@ -104,7 +104,7 @@ protected:
 		uuid_vec_t& vadded,
 		uuid_vec_t& vremoved);
 	void updateLastInteractionTimes();
-	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
+	void onItemDoucleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
 
 private:
 

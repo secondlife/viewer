@@ -365,7 +365,7 @@ void LLInspectAvatar::requestUpdate()
 	//remove avatar id from cache to get fresh info
 	LLAvatarIconIDCache::getInstance()->remove(mAvatarID);
 
-	getChild<LLUICtrl>("avatar_icon")->setValue(LLSD(mAvatarID) );
+	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
 	gCacheName->get(mAvatarID, FALSE,
 		boost::bind(&LLInspectAvatar::nameUpdatedCallback,
@@ -615,7 +615,7 @@ void LLInspectAvatar::nameUpdatedCallback(
 	if (id == mAvatarID)
 	{
 		mAvatarName = first + " " + last;
-		getChild<LLUICtrl>("user_name")->setValue(LLSD(mAvatarName) );
+		childSetValue("user_name", LLSD(mAvatarName) );
 	}
 }
 

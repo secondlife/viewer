@@ -25,7 +25,7 @@
  single_instance="true"
  width="320">
   <chat_history
-    parse_urls="true"
+    allow_html="true"
     bg_readonly_color="ChatHistoryBgColor"
     bg_writeable_color="ChatHistoryBgColor"
     follows="all"

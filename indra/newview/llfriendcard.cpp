@@ -293,17 +293,6 @@ void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBud
 {
 	folderBuddiesMap.clear();
 
-	static bool syncronize_friends_folders = true;
-	if (syncronize_friends_folders)
-	{
-		// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
-		// fetches their contents if needed and synchronizes it with buddies list.
-		// If the folders are not found they are created.
-		LLFriendCardsManager::instance().syncFriendCardsFolders();
-		syncronize_friends_folders = false;
-	}
-
-
 	LLInventoryModel::cat_array_t* listFolders;
 	LLInventoryModel::item_array_t* items;
 

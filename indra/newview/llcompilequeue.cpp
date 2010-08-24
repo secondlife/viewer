@@ -100,7 +100,7 @@ LLFloaterScriptQueue::~LLFloaterScriptQueue()
 BOOL LLFloaterScriptQueue::postBuild()
 {
 	childSetAction("close",onCloseBtn,this);
-	getChildView("close")->setEnabled(FALSE);
+	childSetEnabled("close",FALSE);
 	return TRUE;
 }
 
@@ -213,7 +213,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 	{
 		mDone = true;
 		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("Done"));
-		getChildView("close")->setEnabled(TRUE);
+		childSetEnabled("close",TRUE);
 	}
 	return successful_start;
 }

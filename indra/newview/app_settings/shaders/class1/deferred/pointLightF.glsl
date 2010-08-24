@@ -55,8 +55,7 @@ void main()
 		discard;
 	}
 	
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	vec3 norm = texture2DRect(normalMap, frag.xy).xyz*2.0-1.0;
 	float da = dot(norm, lv);
 	if (da < 0.0)
 	{

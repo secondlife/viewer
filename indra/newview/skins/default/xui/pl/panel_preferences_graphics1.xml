@@ -26,23 +26,23 @@
 		<text name="ShadersText">
 			Cieniowanie pixeli (shadery):
 		</text>
-		<check_box initial_value="true" label="Mapowanie wypukłości i połysk" name="BumpShiny"/>
-		<check_box initial_value="true" label="Podstawowe shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych."/>
-		<check_box initial_value="true" label="Shadery atmosfery" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Mapowanie Wypukłości i Połysk" name="BumpShiny"/>
+		<check_box initial_value="true" label="Podstawowe Shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych."/>
+		<check_box initial_value="true" label="Shadery Atmosfery" name="WindLightUseAtmosShaders"/>
 		<check_box initial_value="true" label="Refleksy w wodzie" name="Reflections"/>
 		<text name="ReflectionDetailText">
 			Ustawienia refleksów:
 		</text>
 		<radio_group name="ReflectionDetailRadio">
 			<radio_item label="Teren i drzewa" name="0"/>
-			<radio_item label="Obiekty statyczne" name="1"/>
-			<radio_item label="Awatary i obiekty" name="2"/>
+			<radio_item label="Obiekty Statyczne" name="1"/>
+			<radio_item label="Awatary i Obiekty" name="2"/>
 			<radio_item label="Wszystko" name="3"/>
 		</radio_group>
 		<text name="AvatarRenderingText">
 			Rendering awatarów
 		</text>
-		<check_box initial_value="true" label="Impostoryzacja awatarowa" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Impostoryzacja Awatarowa" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Rendering awatara przez GPU" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Oddzielne warstwy ubrań" name="AvatarCloth"/>
 		<slider label="Pole widzenia:" name="DrawDistance"/>
@@ -51,7 +51,7 @@
 		</text>
 		<slider label="Liczba cząsteczek:" name="MaxParticleCount"/>
 		<slider label="Max. # awatarów bez impostoryzacji:" name="MaxNumberAvatarDrawn"/>
-		<slider label="Jakość post-procesu:" name="RenderPostProcess"/>
+		<slider label="Jakość Post-Procesu:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Szczególy obiektów:
 		</text>
@@ -87,7 +87,7 @@
 		</text>
 		<radio_group name="LightingDetailRadio">
 			<radio_item label="Tylko Słońce i Księżyc" name="SunMoon" value="0"/>
-			<radio_item label="Tylko bliskie światła" name="LocalLights" value="1"/>
+			<radio_item label="Tylko Bliskie Światła" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Szczegóły terenu:

@@ -53,7 +53,7 @@ static void update_build_button_enable_state()
 {
 	bool can_edit = LLToolMgr::getInstance()->canEdit();
 
-	LLBottomTray::getInstance()->getChildView("build_btn")->setEnabled(can_edit);
+	LLBottomTray::getInstance()->childSetEnabled("build_btn", can_edit);
 }
 
 // Build time optimization, generate extern template once in .cpp file

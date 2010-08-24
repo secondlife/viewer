@@ -223,7 +223,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 			if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
 			{
 				// no copy texture
-				getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
+				childSetValue("apply_immediate_check", FALSE);
 				mNoCopyTextureSelected = TRUE;
 			}
 			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
@@ -233,7 +233,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 
 void LLFloaterTexturePicker::setActive( BOOL active )					
 {
-	if (!active && getChild<LLUICtrl>("Pipette")->getValue().asBoolean())
+	if (!active && childGetValue("Pipette").asBoolean())
 	{
 		stopUsingPipette();
 	}
@@ -245,7 +245,7 @@ void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 	mCanApplyImmediately = b;
 	if (!mCanApplyImmediately)
 	{
-		getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
+		childSetValue("apply_immediate_check", FALSE);
 	}
 	updateFilterPermMask();
 }
@@ -400,7 +400,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
-	getChildView("show_folders_check")->setVisible( FALSE);
+	childSetVisible("show_folders_check", FALSE);
 
 	mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
 	mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
@@ -439,12 +439,12 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mNoCopyTextureSelected = FALSE;
 
-	getChild<LLUICtrl>("apply_immediate_check")->setValue(gSavedSettings.getBOOL("ApplyTextureImmediately"));
+	childSetValue("apply_immediate_check", gSavedSettings.getBOOL("ApplyTextureImmediately"));
 	childSetCommitCallback("apply_immediate_check", onApplyImmediateCheck, this);
 
 	if (!mCanApplyImmediately)
 	{
-		getChildView("show_folders_check")->setEnabled(FALSE);
+		childSetEnabled("show_folders_check", FALSE);
 	}
 
 	getChild<LLUICtrl>("Pipette")->setCommitCallback( boost::bind(&LLFloaterTexturePicker::onBtnPipette, this));
@@ -521,10 +521,10 @@ void LLFloaterTexturePicker::draw()
 	updateImageStats();
 
 	// if we're inactive, gray out "apply immediate" checkbox
-	getChildView("show_folders_check")->setEnabled(mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
-	getChildView("Select")->setEnabled(mActive);
-	getChildView("Pipette")->setEnabled(mActive);
-	getChild<LLUICtrl>("Pipette")->setValue(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
+	childSetEnabled("show_folders_check", mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
+	childSetEnabled("Select", mActive);
+	childSetEnabled("Pipette", mActive);
+	childSetValue("Pipette", LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 
 	//BOOL allow_copy = FALSE;
 	if( mOwner ) 
@@ -541,9 +541,9 @@ void LLFloaterTexturePicker::draw()
 			mTentativeLabel->setVisible( FALSE  );
 		}
 
-		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID());
-		getChildView("Blank")->setEnabled(mImageAssetID != mWhiteImageAssetID );
-		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && !mImageAssetID.isNull() );
+		childSetEnabled("Default",  mImageAssetID != mOwner->getDefaultImageAssetID());
+		childSetEnabled("Blank",   mImageAssetID != mWhiteImageAssetID );
+		childSetEnabled("None", mOwner->getAllowNoTexture() && !mImageAssetID.isNull() );
 
 		LLFloater::draw();
 
@@ -673,13 +673,13 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL co
 
 PermissionMask LLFloaterTexturePicker::getFilterPermMask()
 {
-	bool apply_immediate = getChild<LLUICtrl>("apply_immediate_check")->getValue().asBoolean();
+	bool apply_immediate = childGetValue("apply_immediate_check").asBoolean();
 	return apply_immediate ? mImmediateFilterPermMask : mNonImmediateFilterPermMask;
 }
 
 void LLFloaterTexturePicker::commitIfImmediateSet()
 {
-	bool apply_immediate = getChild<LLUICtrl>("apply_immediate_check")->getValue().asBoolean();
+	bool apply_immediate = childGetValue("apply_immediate_check").asBoolean();
 	if (!mNoCopyTextureSelected && apply_immediate && mOwner)
 	{
 		mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_CHANGE);
@@ -752,7 +752,7 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 
 void LLFloaterTexturePicker::onBtnPipette()
 {
-	BOOL pipette_active = getChild<LLUICtrl>("Pipette")->getValue().asBoolean();
+	BOOL pipette_active = childGetValue("Pipette").asBoolean();
 	pipette_active = !pipette_active;
 	if (pipette_active)
 	{

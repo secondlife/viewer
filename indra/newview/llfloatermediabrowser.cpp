@@ -59,12 +59,12 @@ LLFloaterMediaBrowser::LLFloaterMediaBrowser(const LLSD& key)
 
 void LLFloaterMediaBrowser::draw()
 {
-	getChildView("go")->setEnabled(!mAddressCombo->getValue().asString().empty());
+	childSetEnabled("go", !mAddressCombo->getValue().asString().empty());
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if(parcel)
 	{
-		getChildView("parcel_owner_controls")->setVisible( LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_MEDIA));
-		getChildView("assign")->setEnabled(!mAddressCombo->getValue().asString().empty());
+		childSetVisible("parcel_owner_controls", LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_MEDIA));
+		childSetEnabled("assign", !mAddressCombo->getValue().asString().empty());
 	}
 	bool show_time_controls = false;
 	bool media_playing = false;
@@ -77,17 +77,17 @@ void LLFloaterMediaBrowser::draw()
 			media_playing = media_plugin->getStatus() == LLPluginClassMediaOwner::MEDIA_PLAYING;
 		}
 	}
-	getChildView("rewind")->setVisible( show_time_controls);
-	getChildView("play")->setVisible( show_time_controls && ! media_playing);
-	getChildView("pause")->setVisible( show_time_controls && media_playing);
-	getChildView("stop")->setVisible( show_time_controls);
-	getChildView("seek")->setVisible( show_time_controls);
+	childSetVisible("rewind", show_time_controls);
+	childSetVisible("play", show_time_controls && ! media_playing);
+	childSetVisible("pause", show_time_controls && media_playing);
+	childSetVisible("stop", show_time_controls);
+	childSetVisible("seek", show_time_controls);
 
-	getChildView("play")->setEnabled(! media_playing);
-	getChildView("stop")->setEnabled(media_playing);
+	childSetEnabled("play", ! media_playing);
+	childSetEnabled("stop", media_playing);
 
-	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
-	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
+	childSetEnabled("back", mBrowser->canNavigateBack());
+	childSetEnabled("forward", mBrowser->canNavigateForward());
 
 	LLFloater::draw();
 }
@@ -167,8 +167,8 @@ void LLFloaterMediaBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEve
 	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
 		// This is the event these flags are sent with.
-		getChildView("back")->setEnabled(self->getHistoryBackAvailable());
-		getChildView("forward")->setEnabled(self->getHistoryForwardAvailable());
+		childSetEnabled("back", self->getHistoryBackAvailable());
+		childSetEnabled("forward", self->getHistoryForwardAvailable());
 	}
 }
 void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
@@ -186,9 +186,9 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 		LLURLHistory::removeURL("browser", mCurrentURL);
 		LLURLHistory::addURL("browser", mCurrentURL);
 	}
-	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
-	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
-	getChildView("reload")->setEnabled(TRUE);
+	childSetEnabled("back", mBrowser->canNavigateBack());
+	childSetEnabled("forward", mBrowser->canNavigateForward());
+	childSetEnabled("reload", TRUE);
 }
 
 void LLFloaterMediaBrowser::onOpen(const LLSD& media_url)

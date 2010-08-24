@@ -139,8 +139,8 @@ void LLFloaterLandHoldings::refresh()
 		enable_btns = TRUE;
 	}
 
-	getChildView("Teleport")->setEnabled(enable_btns);
-	getChildView("Show on Map")->setEnabled(enable_btns);
+	childSetEnabled("Teleport", enable_btns);
+	childSetEnabled("Show on Map", enable_btns);
 
 	refreshAggregates();
 }
@@ -328,7 +328,7 @@ void LLFloaterLandHoldings::refreshAggregates()
 	S32 current_area = gStatusBar->getSquareMetersCommitted();
 	S32 available_area = gStatusBar->getSquareMetersLeft();
 
-	getChild<LLUICtrl>("allowed_text")->setTextArg("[AREA]", llformat("%d",allowed_area));
-	getChild<LLUICtrl>("current_text")->setTextArg("[AREA]", llformat("%d",current_area));
-	getChild<LLUICtrl>("available_text")->setTextArg("[AREA]", llformat("%d",available_area));
+	childSetTextArg("allowed_text", "[AREA]", llformat("%d",allowed_area));
+	childSetTextArg("current_text", "[AREA]", llformat("%d",current_area));
+	childSetTextArg("available_text", "[AREA]", llformat("%d",available_area));
 }

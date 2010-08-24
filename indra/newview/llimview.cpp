@@ -231,25 +231,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
 	}
 
-	// *WORKAROUND: for server hard-coded string in indra\newsim\llsimchatterbox.cpp
-	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
-	{
-		// For an ad-hoc incoming chat name is received from the server and is in a form of "<Avatar's name> Conference"
-		// Lets update it to localize the "Conference" word. See EXT-8429.
-		S32 separator_index = mName.rfind(" ");
-		std::string name = mName.substr(0, separator_index);
-		++separator_index;
-		std::string conference_word = mName.substr(separator_index, mName.length());
-
-		// additional check that session name is what we expected
-		if ("Conference" == conference_word)
-		{
-			LLStringUtil::format_map_t args;
-			args["[AGENT_NAME]"] = name;
-			LLTrans::findString(mName, "conference-title-incoming", args);
-		}
-	}
-
 	if (IM_NOTHING_SPECIAL == type)
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
@@ -1015,6 +996,19 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 	if (is_not_group_id)
 	{
+			
+#if 0
+		//use this code to add only online members	
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		speaker_mgr->getSpeakerList(&speaker_list, true);
+		for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+		{
+			const LLPointer<LLSpeaker>& speakerp = *it;
+
+			LLRecentPeople::instance().add(speakerp->mID);
+		}
+#else
 		LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
 		if( session == 0)//??? shouldn't really happen
 		{
@@ -1029,20 +1023,16 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 			// Concrete participants will be added into this list once they sent message in chat.
 			if (IM_SESSION_INVITE == dialog) return;
 
-			// Add only online members to recent (EXT-8658)
-			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
-			LLSpeakerMgr::speaker_list_t speaker_list;
-			if(speaker_mgr != NULL)
+			// implemented adding of all participants of an outgoing to Recent People List. See EXT-5694.
+			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
+				it!=session->mInitialTargetIDs.end();++it)
 			{
-				speaker_mgr->getSpeakerList(&speaker_list, true);
-			}
-			for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
-			{
-				const LLPointer<LLSpeaker>& speakerp = *it;
+				const LLUUID id = *it;
 
-				LLRecentPeople::instance().add(speakerp->mID);
+				LLRecentPeople::instance().add(id);
 			}
 		}
+#endif
 	}
 
 	
@@ -1713,12 +1703,12 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			old_caller_name = LLTextUtil::formatPhoneNumber(old_caller_name);
 		}
 
-		getChild<LLUICtrl>("leaving")->setTextArg("[CURRENT_CHAT]", old_caller_name);
+		childSetTextArg("leaving", "[CURRENT_CHAT]", old_caller_name);
 		show_oldchannel = true;
 	}
 	else
 	{
-		getChild<LLUICtrl>("leaving")->setTextArg("[CURRENT_CHAT]", getString("localchat"));		
+		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));		
 	}
 
 	if (!mPayload["disconnected_channel_name"].asString().empty())
@@ -1728,16 +1718,16 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		{
 			channel_name = LLTextUtil::formatPhoneNumber(channel_name);
 		}
-		getChild<LLUICtrl>("nearby")->setTextArg("[VOICE_CHANNEL_NAME]", channel_name);
+		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", channel_name);
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
 		// so no reconnection to nearby chat happens (EXT-4397)
 		bool voice_works = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		std::string reconnect_nearby = voice_works ? LLTrans::getString("reconnect_nearby") : std::string();
-		getChild<LLUICtrl>("nearby")->setTextArg("[RECONNECT_NEARBY]", reconnect_nearby);
+		childSetTextArg("nearby", "[RECONNECT_NEARBY]", reconnect_nearby);
 
 		const std::string& nearby_str = mPayload["ended_by_agent"] ? NEARBY_P2P_BY_AGENT : NEARBY_P2P_BY_OTHER;
-		getChild<LLUICtrl>(nearby_str)->setTextArg("[RECONNECT_NEARBY]", reconnect_nearby);
+		childSetTextArg(nearby_str, "[RECONNECT_NEARBY]", reconnect_nearby);
 	}
 
 	std::string callee_name = mPayload["session_name"].asString();
@@ -1757,8 +1747,8 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	setTitle(callee_name);
 
 	LLSD callee_id = mPayload["other_user_id"];
-	getChild<LLUICtrl>("calling")->setTextArg("[CALLEE_NAME]", callee_name);
-	getChild<LLUICtrl>("connecting")->setTextArg("[CALLEE_NAME]", callee_name);
+	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
 
 	// for outgoing group calls callee_id == group id == session id
 	setIcon(callee_id, callee_id);
@@ -1943,7 +1933,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 	//it's not possible to connect to existing Ad-Hoc/Group chat through incoming ad-hoc call
 	//and no IM for avaline
-	getChildView("Start IM")->setVisible( is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
+	childSetVisible("Start IM", is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);
 
@@ -1967,12 +1957,12 @@ void LLIncomingCallDialog::onOpen(const LLSD& key)
 	if (voice && !voice->getSessionName().empty())
 	{
 		args["[CURRENT_CHAT]"] = voice->getSessionName();
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 	else
 	{
 		args["[CURRENT_CHAT]"] = getString("localchat");
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 }
 

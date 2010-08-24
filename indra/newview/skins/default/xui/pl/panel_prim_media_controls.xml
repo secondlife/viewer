@@ -25,7 +25,7 @@
 			<button name="fwd_btn" tool_tip="Przejdź do następnego"/>
 		</layout_panel>
 		<layout_panel name="home">
-			<button name="home_btn" tool_tip="Strona domowa"/>
+			<button name="home_btn" tool_tip="Strona Domowa"/>
 		</layout_panel>
 		<layout_panel name="media_stop">
 			<button name="media_stop_btn" tool_tip="Zatrzymaj media"/>
@@ -37,13 +37,13 @@
 			<button name="stop_btn" tool_tip="Zatrzymaj wczytywanie"/>
 		</layout_panel>
 		<layout_panel name="play">
-			<button name="play_btn" tool_tip="Odtwarzaj media"/>
+			<button name="play_btn" tool_tip="Odtwarzaj Media"/>
 		</layout_panel>
 		<layout_panel name="pause">
 			<button name="pause_btn" tool_tip="Wstrzymaj media"/>
 		</layout_panel>
 		<layout_panel name="media_address">
-			<line_editor name="media_address_url" tool_tip="URL mediów"/>
+			<line_editor name="media_address_url" tool_tip="URL Mediów"/>
 			<layout_stack name="media_address_url_icons">
 				<layout_panel>
 					<icon name="media_whitelist_flag" tool_tip="Biała Lista aktywna"/>
@@ -63,14 +63,14 @@
 			<button name="skip_forward_btn" tool_tip="Przewiń do przodu"/>
 		</layout_panel>
 		<layout_panel name="media_volume">
-			<button name="media_mute_button" tool_tip="Wycisz media"/>
-			<slider name="volume_slider" tool_tip="Głośność mediów"/>
+			<button name="media_mute_button" tool_tip="Wycisz Media"/>
+			<slider name="volume_slider" tool_tip="Głośność Mediów"/>
 		</layout_panel>
 		<layout_panel name="zoom_frame">
 			<button name="zoom_frame_btn" tool_tip="Przybliż do mediów"/>
 		</layout_panel>
 		<layout_panel name="close">
-			<button name="close_btn" tool_tip="Oddal od mediów"/>
+			<button name="close_btn" tool_tip="Oddal"/>
 		</layout_panel>
 		<layout_panel name="new_window">
 			<button name="new_window_btn" tool_tip="Otwórz URL w przeglądarce"/>

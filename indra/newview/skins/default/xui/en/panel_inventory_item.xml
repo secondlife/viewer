@@ -41,7 +41,7 @@
      height="20"
      layout="topleft"
      left_pad="5"
-     parse_urls="false"
+     allow_html="false"
      use_ellipses="true"
      name="item_name"
      text_color="white"

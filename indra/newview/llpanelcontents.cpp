@@ -107,7 +107,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 {
 	if( !objectp )
 	{
-		getChildView("button new script")->setEnabled(FALSE);
+		childSetEnabled("button new script",FALSE);
 		return;
 	}
 
@@ -121,7 +121,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
 	// Edit script button - ok if object is editable and there's an unambiguous destination for the object.
-	getChildView("button new script")->setEnabled(
+	childSetEnabled("button new script",
 		editable &&
 		all_volume &&
 		((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)

@@ -30,7 +30,7 @@
 // This file contains various stuff for handling gl extensions and other gl related stuff.
 
 #include <string>
-#include <boost/unordered_map.hpp>
+#include <map>
 #include <list>
 
 #include "llerror.h"
@@ -81,7 +81,6 @@ public:
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
 	BOOL mHasFramebufferMultisample;
-	BOOL mHasBlendFuncSeparate;
 	
 	// ARB Extensions
 	BOOL mHasVertexBufferObject;
@@ -114,9 +113,6 @@ public:
 
 	// Misc extensions
 	BOOL mHasSeparateSpecularColor;
-
-	//whether this GPU is in the debug list.
-	BOOL mDebugGPU;
 	
 	S32 mDriverVersionMajor;
 	S32 mDriverVersionMinor;
@@ -145,7 +141,6 @@ private:
 	void initExtensions();
 	void initGLStates();
 	void initGLImages();
-	void setToDebugGPU();
 };
 
 extern LLGLManager gGLManager;
@@ -239,7 +234,7 @@ public:
 	static void checkClientArrays(const std::string& msg = "", U32 data_mask = 0x0001);
 	
 protected:
-	static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
+	static std::map<LLGLenum, LLGLboolean> sStateMap;
 	
 public:
 	enum { CURRENT_STATE = -2 };

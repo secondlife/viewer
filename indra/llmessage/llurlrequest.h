@@ -183,11 +183,6 @@ public:
      */
 	void useProxy(const std::string& proxy);
 
-	/**
-	 * @brief Turn on cookie handling for this request with CURLOPT_COOKIEFILE.
-	 */
-	void allowCookies();
-
 public:
 	/** 
 	 * @brief Give this pipe a chance to handle a generated error

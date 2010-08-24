@@ -575,10 +575,6 @@ void LLTexLayerSetBuffer::doUpdate()
 	}
 
 	restartUpdateTimer();
-
-	// need to swtich to using this layerset if this is the first update
-	// after getting the lowest LOD
-	mTexLayerSet->getAvatar()->updateMeshTextures();
 	
 	// Print out notification that we uploaded this texture.
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))

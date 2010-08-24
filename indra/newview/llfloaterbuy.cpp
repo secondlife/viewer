@@ -56,8 +56,8 @@ LLFloaterBuy::LLFloaterBuy(const LLSD& key)
 
 BOOL LLFloaterBuy::postBuild()
 {
-	getChildView("object_list")->setEnabled(FALSE);
-	getChildView("item_list")->setEnabled(FALSE);
+	childDisable("object_list");
+	childDisable("item_list");
 
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickCancel, this));
 	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickBuy, this));
@@ -177,8 +177,8 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// Add after columns added so appropriate heights are correct.
 	object_list->addElement(row);
 
-	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
-	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[NAME]", owner_name);
+	floater->childSetTextArg("buy_text", "[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
+	floater->childSetTextArg("buy_text", "[NAME]", owner_name);
 
 	// Must do this after the floater is created, because
 	// sometimes the inventory is already there and 

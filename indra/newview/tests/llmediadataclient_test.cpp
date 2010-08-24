@@ -64,8 +64,8 @@
 
 #define MEDIA_DATA "\
 <array>														\
-<string>http://foo.example.com</string>										\
-<string>http://bar.example.com</string>										\
+<string>foo</string>										\
+<string>bar</string>										\
 <string>baz</string>										\
 </array>"
 
@@ -161,8 +161,6 @@ public:
 		{ return mRep["media_data"].size(); }
 	virtual LLSD getMediaDataLLSD(U8 index) const
 		{ return mRep["media_data"][(LLSD::Integer)index]; }
-	virtual bool isCurrentMediaUrl(U8 index, const std::string &url) const
-		{ return (mRep["media_data"][(LLSD::Integer)index].asString() == url); }
 	virtual LLUUID getID() const 
 		{ return mRep["uuid"]; }
 	virtual void mediaNavigateBounceBack(U8 index)
@@ -563,6 +561,10 @@ namespace tut
 			mdc->fetchMedia(o2);
 			mdc->fetchMedia(o3);
 			mdc->fetchMedia(o4);
+			
+			// and mark the second and fourth ones dead.
+			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o2))->markDead();
+			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o4))->markDead();
 
 			ensure("is in queue 1", mdc->isInQueue(o1));
 			ensure("is in queue 2", mdc->isInQueue(o2));
@@ -570,32 +572,27 @@ namespace tut
 			ensure("is in queue 4", mdc->isInQueue(o4));
 			ensure("post records", gPostRecords->size(), 0);
 			
-			// and mark the second and fourth ones dead.  Call removeFromQueue when marking dead, since this is what LLVOVolume will do.
-			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o2))->markDead();
-			mdc->removeFromQueue(o2);
-			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o4))->markDead();
-			mdc->removeFromQueue(o4);
-
-			// The removeFromQueue calls should remove the second and fourth ones
-			ensure("is in queue 1", mdc->isInQueue(o1));
-			ensure("is not in queue 2", !mdc->isInQueue(o2));
-			ensure("is in queue 3", mdc->isInQueue(o3));
-			ensure("is not in queue 4", !mdc->isInQueue(o4));
-			ensure("post records", gPostRecords->size(), 0);
-			
 			::pump_timers();
 			
-			// The first tick should process the first item
+			// The first tick should remove the first one 
 			ensure("is not in queue 1", !mdc->isInQueue(o1));
-			ensure("is not in queue 2", !mdc->isInQueue(o2));
+			ensure("is in queue 2", mdc->isInQueue(o2));
 			ensure("is in queue 3", mdc->isInQueue(o3));
-			ensure("is not in queue 4", !mdc->isInQueue(o4));
+			ensure("is in queue 4", mdc->isInQueue(o4));
 			ensure("post records", gPostRecords->size(), 1);
 			
 			::pump_timers();
 			
-			// The second tick should process the third, emptying the queue
+			// The second tick should skip the second and remove the third
+			ensure("is not in queue 2", !mdc->isInQueue(o2));
 			ensure("is not in queue 3", !mdc->isInQueue(o3));
+			ensure("is in queue 4", mdc->isInQueue(o4));
+			ensure("post records", gPostRecords->size(), 2);
+
+			::pump_timers();
+
+			// The third tick should skip the fourth one and empty the queue.
+			ensure("is not in queue 4", !mdc->isInQueue(o4));
 			ensure("post records", gPostRecords->size(), 2);
 
 			ensure("queue empty", mdc->isEmpty());
@@ -706,7 +703,7 @@ namespace tut
 			// queue up all 4 objects.  The first two should be in the sorted
 			// queue [2 1], the second in the round-robin queue.  The queues
 			// are serviced interleaved, so we should expect:
-			// 2, 3, 1, 4
+			// 2, 4, 1, 3
 			mdc->fetchMedia(o1);
 			mdc->fetchMedia(o2);
 			mdc->fetchMedia(o3);
@@ -725,8 +722,8 @@ namespace tut
 			++tick_num;
 			
 			// 1 The first tick should remove object 2
-			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
 			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
 			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
 			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
 			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
@@ -735,21 +732,22 @@ namespace tut
 			::pump_timers();
 			++tick_num;
 			
-			// 2 The second tick should send object 3
-			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			// 2 The second tick should send object 4, but it will still be
+			// "in the queue"
 			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
 			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
 			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
-			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
 			
 			::pump_timers();
 			++tick_num;
 			
 			// 3 The third tick should remove object 1
-			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
 			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
 			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
 			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
 			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
@@ -757,20 +755,22 @@ namespace tut
 			::pump_timers();
 			++tick_num;
 			
-			// 4 The fourth tick should send object 4
-			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			// 4 The fourth tick should send object 3, but it will still be
+			// "in the queue"
 			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
-			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
 			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
-			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[3]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[3]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
 			
 			::pump_timers();
 			++tick_num;
 						
-			// 5 The fifth tick should not change the state of anything.
-			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			// 5 The fifth tick should now identify objects 3 and 4 as no longer
+			// needing "updating", and remove them from the queue
 			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
 			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
 			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
 			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
@@ -920,7 +920,7 @@ namespace tut
 			
 			// But, we need to clear the queue, or else we won't destroy MDC...
 			// this is a strange interplay between the queue timer and the MDC
-			mdc->removeFromQueue(o2);
+			ensure("o2 couldn't be removed from queue", mdc->removeFromQueue(o2));
 			// tick
 			::pump_timers();
 		}
@@ -929,41 +929,4 @@ namespace tut
 		ensure("refcount of o3", o3->getNumRefs(), 1);
 		ensure("refcount of o4", o4->getNumRefs(), 1);		
 	}
-
-	template<> template<>
-	void mediadataclient_object_t::test<13>()
-	{
-		//
-		// Test supression of redundant navigates.
-		//
-		LOG_TEST(13);
-		
-		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","true"));
-		{
-			LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(NO_PERIOD,NO_PERIOD);
-			const char *TEST_URL = "http://foo.example.com";
-			const char *TEST_URL_2 = "http://example.com";
-			mdc->navigate(o1, 0, TEST_URL);
-			mdc->navigate(o1, 1, TEST_URL);
-			mdc->navigate(o1, 0, TEST_URL_2);
-			mdc->navigate(o1, 1, TEST_URL_2);
-			
-			// This should add two requests to the queue, one for face 0 of the object and one for face 1.
-			
-			ensure("before pump: 1 is in queue", mdc->isInQueue(o1));
-
-			::pump_timers();
-
-			ensure("after first pump: 1 is in queue", mdc->isInQueue(o1));
-
-			::pump_timers();
-
-			ensure("after second pump: 1 is not in queue", !mdc->isInQueue(o1));
-
-			ensure("first post has correct url", (*gPostRecords)[0]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
-			ensure("second post has correct url", (*gPostRecords)[1]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
-
-		}		
-	}
-	
 }

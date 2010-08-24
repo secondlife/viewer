@@ -139,25 +139,10 @@ protected:
 	boost::signals2::connection mImageLoadedConnection;
 };
 
-// Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)
-class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
-{
-public:
-	LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor );
-	/*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-protected:
-	// Style used for text when mouse pointer is over segment
-	LLStyleConstSP		mHoveredStyle;
-	// Style used for text when mouse pointer is outside segment
-	LLStyleConstSP		mNormalStyle;
-
-};
-
 class LLIndexSegment : public LLTextSegment
 {
 public:
-	LLIndexSegment() : LLTextSegment(0, 0) {}
+	LLIndexSegment(S32 pos) : LLTextSegment(pos, pos) {}
 };
 
 class LLInlineViewSegment : public LLTextSegment
@@ -250,9 +235,7 @@ public:
 								text_readonly_color,
 								bg_readonly_color,
 								bg_writeable_color,
-								bg_focus_color,
-								text_selected_color,
-								bg_selected_color;
+								bg_focus_color;
 
 		Optional<bool>			bg_visible,
 								border_visible,
@@ -262,7 +245,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
-								parse_urls,
+								allow_html,
 								parse_highlights,
 								clip_partial;
 								
@@ -452,7 +435,7 @@ protected:
 	S32								insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
 	S32 							removeStringNoUndo(S32 pos, S32 length);
 	S32								overwriteCharNoUndo(S32 pos, llwchar wc);
-	void							appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
+	void							appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep);
 
 
 	// manage segments 
@@ -495,7 +478,7 @@ protected:
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
-	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
+	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params);
 	
 
 protected:
@@ -518,8 +501,6 @@ protected:
 	LLUIColor					mWriteableBgColor;
 	LLUIColor					mReadOnlyBgColor;
 	LLUIColor					mFocusBgColor;
-	LLUIColor					mTextSelectedColor;
-	LLUIColor					mSelectedBGColor;
 
 	// cursor
 	S32							mCursorPos;			// I-beam is just after the mCursorPos-th character.

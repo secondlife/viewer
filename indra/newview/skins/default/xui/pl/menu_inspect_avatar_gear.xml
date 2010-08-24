@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu name="Gear Menu">
-	<menu_item_call label="Zobacz profil" name="view_profile"/>
-	<menu_item_call label="Dodaj znajomość" name="add_friend"/>
+	<menu_item_call label="Zobacz Profil" name="view_profile"/>
+	<menu_item_call label="Dodaj Znajomość" name="add_friend"/>
 	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="Zadzwoń" name="call"/>
 	<menu_item_call label="Teleportuj" name="teleport"/>
-	<menu_item_call label="Zaproś do grupy" name="invite_to_group"/>
+	<menu_item_call label="Zaproś do Grupy" name="invite_to_group"/>
 	<menu_item_call label="Zablokuj" name="block"/>
 	<menu_item_call label="Odblokuj" name="unblock"/>
 	<menu_item_call label="Raport" name="report"/>

@@ -60,7 +60,7 @@ BOOL LLFloaterVoiceEffect::postBuild()
 {
 	setDefaultBtn("record_btn");
 	getChild<LLButton>("record_btn")->setFocus(true);
-	getChild<LLUICtrl>("voice_morphing_link")->setTextArg("[URL]", LLTrans::getString("voice_morphing_url"));
+	childSetTextArg("voice_morphing_link", "[URL]", LLTrans::getString("voice_morphing_url"));
 
 	mVoiceEffectList = getChild<LLScrollListCtrl>("voice_effect_list");
 	if (mVoiceEffectList)

@@ -18,5 +18,5 @@
 	</string>
 	<button label="Dołącz" name="join_btn"/>
 	<button label="Opuść" name="leave_btn"/>
-	<button label="Zobacz profil" name="view_profile_btn"/>
+	<button label="Zobacz Profil" name="view_profile_btn"/>
 </floater>

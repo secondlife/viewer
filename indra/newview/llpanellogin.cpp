@@ -205,7 +205,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	getChild<LLLineEditor>("username_edit")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
+	childSetPrevalidate("username_edit", LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
@@ -435,8 +435,8 @@ void LLPanelLogin::giveFocus()
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
-		std::string pass = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
+		std::string username = sInstance->childGetText("username_edit");
+		std::string pass = sInstance->childGetText("password_edit");
 
 		BOOL have_username = !username.empty();
 		BOOL have_pass = !pass.empty();
@@ -466,7 +466,7 @@ void LLPanelLogin::giveFocus()
 // static
 void LLPanelLogin::showLoginWidgets()
 {
-	sInstance->getChildView("login_widgets")->setVisible( true);
+	sInstance->childSetVisible("login_widgets", true);
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	sInstance->reshapeBrowser();
 	// *TODO: Append all the usual login parameters, like first_login=Y etc.
@@ -508,16 +508,16 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	LLSD identifier = credential->getIdentifier();
 	if((std::string)identifier["type"] == "agent") 
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["first_name"] + " " + 
+		sInstance->childSetText("username_edit", (std::string)identifier["first_name"] + " " + 
 								(std::string)identifier["last_name"]);	
 	}
 	else if((std::string)identifier["type"] == "account")
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["account_name"]);		
+		sInstance->childSetText("username_edit", (std::string)identifier["account_name"]);		
 	}
 	else
 	{
-	  sInstance->getChild<LLUICtrl>("username_edit")->setValue(std::string());	
+	  sInstance->childSetText("username_edit", std::string());	
 	}
 	// if the password exists in the credential, set the password field with
 	// a filler to get some stars
@@ -533,13 +533,13 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 		// fill it with MAX_PASSWORD characters so we get a 
 		// nice row of asterixes.
 		const std::string filler("123456789!123456");
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string("123456789!123456"));
+		sInstance->childSetText("password_edit", std::string("123456789!123456"));
 	}
 	else
 	{
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string());		
+		sInstance->childSetText("password_edit", std::string());		
 	}
-	sInstance->getChild<LLUICtrl>("remember_check")->setValue(remember);
+	sInstance->childSetValue("remember_check", remember);
 }
 
 
@@ -566,9 +566,9 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		authenticator = credential->getAuthenticator();
 	}
 
-	std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+	std::string username = sInstance->childGetText("username_edit");
 	LLStringUtil::trim(username);
-	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
+	std::string password = sInstance->childGetText("password_edit");
 
 	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
@@ -615,7 +615,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		}
 	}
 	credential = gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), identifier, authenticator);
-	remember = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
+	remember = sInstance->childGetValue("remember_check");
 }
 
 // static
@@ -643,9 +643,9 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 	}
 	else
 	{
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->childGetText("username_edit");
 		LLStringUtil::trim(username);
-		std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
+		std::string password = sInstance->childGetText("password_edit");
 		LLLineEditor* ctrl = sInstance->getChild<LLLineEditor>("username_edit");
 		if(ctrl && ctrl->isDirty())
 		{
@@ -693,12 +693,12 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 	if ( ! force_visible )
 		show_start = gSavedSettings.getBOOL("ShowStartLocation");
 	
-	sInstance->getChildView("start_location_combo")->setVisible( show_start);
-	sInstance->getChildView("start_location_text")->setVisible( show_start);
+	sInstance->childSetVisible("start_location_combo", show_start);
+	sInstance->childSetVisible("start_location_text", show_start);
 	
 	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-	sInstance->getChildView("server_combo_text")->setVisible( show_server);	
-	sInstance->getChildView("server_combo")->setVisible( show_server);
+	sInstance->childSetVisible("server_combo_text", show_server);	
+	sInstance->childSetVisible("server_combo", show_server);
 }
 
 // static
@@ -958,7 +958,7 @@ void LLPanelLogin::onClickConnect(void *)
 			return;
 		}
 		updateStartSLURL();
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->childGetText("username_edit");
 
 		
 		if(username.empty())
@@ -1073,7 +1073,7 @@ void LLPanelLogin::updateServer()
 		if(sInstance && !sInstance->areCredentialFieldsDirty())
 		{
 			LLPointer<LLCredential> credential = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());	
-			bool remember = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
+			bool remember = sInstance->childGetValue("remember_check");
 			sInstance->setFields(credential, remember);
 		}
 		// grid changed so show new splash screen (possibly)
@@ -1167,6 +1167,6 @@ void LLPanelLogin::updateLoginPanelLinks()
 	
 	// need to call through sInstance, as it's called from onSelectServer, which
 	// is static.
-	sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
-	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+	sInstance->childSetVisible("create_new_account_text", system_grid);
+	sInstance->childSetVisible("forgot_password_text", system_grid);
 }

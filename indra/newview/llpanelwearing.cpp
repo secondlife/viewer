@@ -82,58 +82,9 @@ protected:
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
-
 		registrar.add("Wearing.Edit", boost::bind(&edit_outfit));
-		registrar.add("Wearing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Wearing.Detach", boost::bind(handleMultiple, take_off, mUUIDs));
 
-		LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
-
-		updateMenuItemsVisibility(menu);
-
-		return menu;
-	}
-
-	void updateMenuItemsVisibility(LLContextMenu* menu)
-	{
-		bool bp_selected			= false;	// true if body parts selected
-		bool clothes_selected		= false;
-		bool attachments_selected	= false;
-
-		// See what types of wearables are selected.
-		for (uuid_vec_t::const_iterator it = mUUIDs.begin(); it != mUUIDs.end(); ++it)
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-
-			if (!item)
-			{
-				llwarns << "Invalid item" << llendl;
-				continue;
-			}
-
-			LLAssetType::EType type = item->getType();
-			if (type == LLAssetType::AT_CLOTHING)
-			{
-				clothes_selected = true;
-			}
-			else if (type == LLAssetType::AT_BODYPART)
-			{
-				bp_selected = true;
-			}
-			else if (type == LLAssetType::AT_OBJECT)
-			{
-				attachments_selected = true;
-			}
-		}
-
-		// Enable/disable some menu items depending on the selection.
-		bool allow_detach = !bp_selected && !clothes_selected && attachments_selected;
-		bool allow_take_off = !bp_selected && clothes_selected && !attachments_selected;
-
-		menu->setItemVisible("take_off",	allow_take_off);
-		menu->setItemVisible("detach",		allow_detach);
-		menu->setItemVisible("edit_outfit_separator", allow_take_off || allow_detach);
+		return createFromFile("menu_wearing_tab.xml");
 	}
 };
 

@@ -588,8 +588,7 @@ public:
 };
 
 void rez_attachment(LLViewerInventoryItem* item, 
-					LLViewerJointAttachment* attachment,
-					bool replace = false);
+					LLViewerJointAttachment* attachment);
 
 // Move items from an in-world object's "Contents" folder to a specified
 // folder in agent inventory.

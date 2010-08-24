@@ -26,7 +26,7 @@ Owner [OWNER]
   <string name="Touch">Touch</string>
   <string name="Sit">Sit</string>
   <text
-     parse_urls="false"
+     allow_html="false"
      follows="all"
      font="SansSerifLarge"
      height="30"

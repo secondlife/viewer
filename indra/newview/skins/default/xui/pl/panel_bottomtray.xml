@@ -9,22 +9,22 @@
 			</talk_button>
 		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gesturki" name="Gesture" tool_tip="Pokazuje/Ukrywa gesturki"/>
+			<gesture_combo_list label="Gestury" name="Gesture" tool_tip="Pokazuje/Ukrywa gestury"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
-			<button label="Ruch" name="movement_btn" tool_tip="Pokaż/Ukryj ustawienia ruchu"/>
+			<button label="Ruch" name="movement_btn" tool_tip="Pokaż/Ukryj Ustawienia Ruchu"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<button label="Widok" name="camera_btn" tool_tip="Pokaż/Ukryj ustawienia kamery"/>
+			<button label="Widok" name="camera_btn" tool_tip="Pokaż/Ukryj Ustawienia Kamery"/>
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
-			<button label="" name="snapshots" tool_tip="Zrób zdjęcie"/>
+			<button label="" name="snapshots" tool_tip="Zrób Zdjęcie"/>
 		</layout_panel>
 		<layout_panel name="sidebar_btn_panel">
-			<button label="Schowek" name="sidebar_btn" tool_tip="Pokazuje/ukrywa schowek"/>
+			<button label="Schowek" name="sidebar_btn" tool_tip="Pokazuje/ukrywa Schowek"/>
 		</layout_panel>
 		<layout_panel name="build_btn_panel">
-			<button label="Buduj" name="build_btn" tool_tip="Pokazuje/ukrywa narzędzia budowania"/>
+			<button label="Buduj" name="build_btn" tool_tip="Pokazuje/ukrywa Narzędzia Budowania"/>
 		</layout_panel>
 		<layout_panel name="search_btn_panel">
 			<button label="Szukaj" name="search_btn" tool_tip="Pokazuje/ukrywa Szukaj"/>

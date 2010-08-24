@@ -606,7 +606,7 @@ public:
 	// verification only, if it doesn't match region info then sale is
 	// canceled
 	void sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info);
-	void sendAttach(U8 attachment_point, bool replace);
+	void sendAttach(U8 attachment_point);
 	void sendDetach();
 	void sendDropAttachment();
 	void sendLink();

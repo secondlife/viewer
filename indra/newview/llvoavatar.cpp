@@ -696,8 +696,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 		mBakedTextureDatas[i].mTextureIndex = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)i);
 	}
 
-	mDirtyMesh = 2;	// Dirty geometry, need to regenerate.
+	mDirtyMesh = TRUE;	// Dirty geometry, need to regenerate.
 	mMeshTexturesDirty = FALSE;
+	mShadow0Facep = NULL;
+	mShadow1Facep = NULL;
 	mHeadp = NULL;
 
 	mIsBuilt = FALSE;
@@ -733,6 +735,12 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mRippleTimeLast = 0.f;
 
+	mShadowImagep = LLViewerTextureManager::getFetchedTextureFromFile("foot_shadow.j2c");
+	
+	// GL NOT ACTIVE HERE
+	//gGL.getTexUnit(0)->bind(mShadowImagep.get());
+	//mShadowImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+	
 	mInAir = FALSE;
 
 	mStepOnLand = TRUE;
@@ -1961,7 +1969,7 @@ void LLVOAvatar::updateMeshData()
 			}
 			if(num_vertices < 1)//skip empty meshes
 			{
-				continue ;
+				break ;
 			}
 			if(last_v_num > 0)//put the last inserted part into next vertex buffer.
 			{
@@ -1983,8 +1991,6 @@ void LLVOAvatar::updateMeshData()
 			// resize immediately
 			facep->setSize(num_vertices, num_indices);
 
-			bool terse_update = false;
-
 			if(facep->mVertexBuffer.isNull())
 			{
 				facep->mVertexBuffer = new LLVertexBufferAvatar();
@@ -1992,15 +1998,7 @@ void LLVOAvatar::updateMeshData()
 			}
 			else
 			{
-				if (facep->mVertexBuffer->getRequestedIndices() == num_indices &&
-					facep->mVertexBuffer->getRequestedVerts() == num_vertices)
-				{
-					terse_update = true;
-				}
-				else
-				{
 				facep->mVertexBuffer->resizeBuffer(num_vertices, num_indices) ;
-			}
 			}
 		
 			facep->setGeomIndex(0);
@@ -2015,7 +2013,7 @@ void LLVOAvatar::updateMeshData()
 
 			for(S32 k = j ; k < part_index ; k++)
 			{
-				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update);
+				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR);
 			}
 
 			stop_glerror();
@@ -2425,6 +2423,12 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	LLJoint::sNumUpdates = 0;
 	LLJoint::sNumTouches = 0;
 
+	// *NOTE: this is necessary for the floating name text above your head.
+	if (mDrawable.notNull())
+	{
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_SHADOW, TRUE);
+	}
+
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
@@ -2747,7 +2751,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 {
 	// update chat bubble
 	//--------------------------------------------------------------------
-	// draw text label over character's head
+	// draw text label over characters head
 	//--------------------------------------------------------------------
 	if (mChatTimer.getElapsedTimeF32() > BUBBLE_CHAT_TIME)
 	{
@@ -3777,19 +3781,12 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		return num_indices;
 	}
 
-	LLFace* face = mDrawable->getFace(0);
-
-	bool needs_rebuild = !face || face->mVertexBuffer.isNull() || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY);
-
-	if (needs_rebuild || mDirtyMesh)
+	if (mDirtyMesh || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
-		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
-		{
 		updateMeshData();
-			mDirtyMesh = 0;
+		mDirtyMesh = FALSE;
 		mNeedsSkin = TRUE;
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-	}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -4037,6 +4034,54 @@ U32 LLVOAvatar::renderRigid()
 	return num_indices;
 }
 
+U32 LLVOAvatar::renderFootShadows()
+{
+	U32 num_indices = 0;
+
+	if (!mIsBuilt)
+	{
+		return 0;
+	}
+
+	if (isSelf() && (!gAgent.needsRenderAvatar() || !gAgent.needsRenderHead()))
+	{
+		return 0;
+	}
+	
+	if (!mIsBuilt)
+	{
+		return 0;
+	}
+	
+	// Don't render foot shadows if your lower body is completely invisible.
+	// (non-humanoid avatars rule!)
+	if (!isTextureVisible(TEX_LOWER_BAKED))
+	{
+		return 0;
+	}
+
+	// Update the shadow, tractor, and text label geometry.
+	if (mDrawable->isState(LLDrawable::REBUILD_SHADOW) && !isImpostor())
+	{
+		updateShadowFaces();
+		mDrawable->clearState(LLDrawable::REBUILD_SHADOW);
+	}
+
+	U32 foot_mask = LLVertexBuffer::MAP_VERTEX |
+					LLVertexBuffer::MAP_TEXCOORD0;
+
+	LLGLDepthTest test(GL_TRUE, GL_FALSE);
+	//render foot shadows
+	LLGLEnable blend(GL_BLEND);
+	gGL.getTexUnit(0)->bind(mShadowImagep, TRUE);
+	glColor4fv(mShadow0Facep->getRenderColor().mV);
+	mShadow0Facep->renderIndexed(foot_mask);
+	glColor4fv(mShadow1Facep->getRenderColor().mV);
+	mShadow1Facep->renderIndexed(foot_mask);
+	
+	return num_indices;
+}
+
 U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 {
 	if (!mImpostor.isComplete())
@@ -4162,6 +4207,11 @@ void LLVOAvatar::updateTextures()
 	{
 		setDebugText(llformat("%4.0f:%4.0f", fsqrtf(mMinPixelArea),fsqrtf(mMaxPixelArea)));
 	}	
+	
+	if( render_avatar )
+	{
+		mShadowImagep->addTextureStats(mPixelArea);
+	}
 }
 
 
@@ -5428,7 +5478,7 @@ BOOL LLVOAvatar::updateJointLODs()
  		if (res)
 		{
 			sNumLODChangesThisFrame++;
-			dirtyMesh(2);
+			dirtyMesh();
 			return TRUE;
 		}
 	}
@@ -5452,9 +5502,18 @@ LLDrawable *LLVOAvatar::createDrawable(LLPipeline *pipeline)
 	mDrawable->addFace(poolp, NULL);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_AVATAR);
 	
+	LLFace *facep;
+
+	// Add faces for the foot shadows
+	facep = mDrawable->addFace((LLFacePool*) NULL, mShadowImagep);
+	mShadow0Facep = facep;
+
+	facep = mDrawable->addFace((LLFacePool*) NULL, mShadowImagep);
+	mShadow1Facep = facep;
+
 	mNumInitFaces = mDrawable->getNumFaces() ;
 
-	dirtyMesh(2);
+	dirtyMesh();
 	return mDrawable;
 }
 
@@ -5494,6 +5553,107 @@ BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 }
 
 //-----------------------------------------------------------------------------
+// updateShadowFaces()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::updateShadowFaces()
+{
+	LLFace *face0p = mShadow0Facep;
+	LLFace *face1p = mShadow1Facep;
+
+	//
+	// render avatar shadows
+	//
+	if (mInAir || mUpdatePeriod >= IMPOSTOR_PERIOD)
+	{
+		face0p->setSize(0, 0);
+		face1p->setSize(0, 0);
+		return;
+	}
+
+	LLSprite sprite(mShadowImagep.notNull() ? mShadowImagep->getID() : LLUUID::null);
+	sprite.setFollow(FALSE);
+	const F32 cos_angle = gSky.getSunDirection().mV[2];
+	F32 cos_elev = sqrt(1 - cos_angle * cos_angle);
+	if (cos_angle < 0) cos_elev = -cos_elev;
+	sprite.setSize(0.4f + cos_elev * 0.8f, 0.3f);
+	LLVector3 sun_vec = gSky.mVOSkyp ? gSky.mVOSkyp->getToSun() : LLVector3(0.f, 0.f, 0.f);
+
+	if (mShadowImagep->hasGLTexture())
+	{
+		LLVector3 normal;
+		LLVector3d shadow_pos;
+		LLVector3 shadow_pos_agent;
+		F32 foot_height;
+
+		if (mFootLeftp)
+		{
+			LLVector3 joint_world_pos = mFootLeftp->getWorldPosition();
+			// this only does a ray straight down from the foot, as our client-side ray-tracing is very limited now
+			// but we make an explicit ray trace call in expectation of future improvements
+			resolveRayCollisionAgent(gAgent.getPosGlobalFromAgent(joint_world_pos), 
+									 gAgent.getPosGlobalFromAgent(gSky.getSunDirection() + joint_world_pos), shadow_pos, normal);
+			shadow_pos_agent = gAgent.getPosAgentFromGlobal(shadow_pos);
+			foot_height = joint_world_pos.mV[VZ] - shadow_pos_agent.mV[VZ];
+
+			// Pull sprite in direction of surface normal
+			shadow_pos_agent += normal * SHADOW_OFFSET_AMT;
+
+			// Render sprite
+			sprite.setNormal(normal);
+			if (isSelf() && gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+			{
+				sprite.setColor(0.f, 0.f, 0.f, 0.f);
+			}
+			else
+			{
+				sprite.setColor(0.f, 0.f, 0.f, clamp_rescale(foot_height, MIN_SHADOW_HEIGHT, MAX_SHADOW_HEIGHT, 0.5f, 0.f));
+			}
+			sprite.setPosition(shadow_pos_agent);
+
+			LLVector3 foot_to_knee = mKneeLeftp->getWorldPosition() - joint_world_pos;
+			//foot_to_knee.normalize();
+			foot_to_knee -= projected_vec(foot_to_knee, sun_vec);
+			sprite.setYaw(azimuth(sun_vec - foot_to_knee));
+		
+			sprite.updateFace(*face0p);
+		}
+
+		if (mFootRightp)
+		{
+			LLVector3 joint_world_pos = mFootRightp->getWorldPosition();
+			// this only does a ray straight down from the foot, as our client-side ray-tracing is very limited now
+			// but we make an explicit ray trace call in expectation of future improvements
+			resolveRayCollisionAgent(gAgent.getPosGlobalFromAgent(joint_world_pos), 
+									 gAgent.getPosGlobalFromAgent(gSky.getSunDirection() + joint_world_pos), shadow_pos, normal);
+			shadow_pos_agent = gAgent.getPosAgentFromGlobal(shadow_pos);
+			foot_height = joint_world_pos.mV[VZ] - shadow_pos_agent.mV[VZ];
+
+			// Pull sprite in direction of surface normal
+			shadow_pos_agent += normal * SHADOW_OFFSET_AMT;
+
+			// Render sprite
+			sprite.setNormal(normal);
+			if (isSelf() && gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+			{
+				sprite.setColor(0.f, 0.f, 0.f, 0.f);
+			}
+			else
+			{
+				sprite.setColor(0.f, 0.f, 0.f, clamp_rescale(foot_height, MIN_SHADOW_HEIGHT, MAX_SHADOW_HEIGHT, 0.5f, 0.f));
+			}
+			sprite.setPosition(shadow_pos_agent);
+
+			LLVector3 foot_to_knee = mKneeRightp->getWorldPosition() - joint_world_pos;
+			//foot_to_knee.normalize();
+			foot_to_knee -= projected_vec(foot_to_knee, sun_vec);
+			sprite.setYaw(azimuth(sun_vec - foot_to_knee));
+	
+			sprite.updateFace(*face1p);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // updateSexDependentLayerSets()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::updateSexDependentLayerSets( BOOL upload_bake )
@@ -5508,12 +5668,9 @@ void LLVOAvatar::updateSexDependentLayerSets( BOOL upload_bake )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::dirtyMesh()
 {
-	dirtyMesh(1);
+	mDirtyMesh = TRUE;
 }
-void LLVOAvatar::dirtyMesh(S32 priority)
-{
-	mDirtyMesh = llmax(mDirtyMesh, priority);
-}
+
 //-----------------------------------------------------------------------------
 // hideSkirt()
 //-----------------------------------------------------------------------------
@@ -5547,7 +5704,6 @@ BOOL LLVOAvatar::setParent(LLViewerObject* parent)
 
 void LLVOAvatar::addChild(LLViewerObject *childp)
 {
-	childp->extractAttachmentItemID(); // find the inventory item this object is associated with.
 	LLViewerObject::addChild(childp);
 	if (childp->mDrawable)
 	{
@@ -5634,15 +5790,6 @@ U32 LLVOAvatar::getNumAttachments() const
 BOOL LLVOAvatar::canAttachMoreObjects() const
 {
 	return (getNumAttachments() < MAX_AGENT_ATTACHMENTS);
-}
-
-//-----------------------------------------------------------------------------
-// canAttachMoreObjects()
-// Returns true if we can attach <n> more objects.
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
-{
-	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
 }
 
 //-----------------------------------------------------------------------------
@@ -6097,14 +6244,10 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-
-			const BOOL layerset_invalid = !mBakedTextureDatas[i].mTexLayerSet 
-										  || !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
-										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable();
-
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
-									  && layerset_invalid);
+									  && mBakedTextureDatas[i].mTexLayerSet 
+									  && !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized());
 			if (use_lkg_baked_layer[i])
 			{
 				mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled(TRUE);
@@ -7792,15 +7935,18 @@ BOOL LLVOAvatar::updateLOD()
 	BOOL res = updateJointLODs();
 
 	LLFace* facep = mDrawable->getFace(0);
-	if (facep->mVertexBuffer.isNull())
+	if (facep->mVertexBuffer.isNull() ||
+		(LLVertexBuffer::sEnableVBOs &&
+		((facep->mVertexBuffer->getUsage() == GL_STATIC_DRAW ? TRUE : FALSE) !=
+		 (facep->getPool()->getVertexShaderLevel() > 0 ? TRUE : FALSE))))
 	{
-		dirtyMesh(2);
+		mDirtyMesh = TRUE;
 	}
 
-	if (mDirtyMesh >= 2 || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
+	if (mDirtyMesh || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		updateMeshData();
-		mDirtyMesh = 0;
+		mDirtyMesh = FALSE;
 		mNeedsSkin = TRUE;
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
 	}

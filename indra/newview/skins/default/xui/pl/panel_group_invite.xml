@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Zaproszenie do Grupy" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
-		Jesteś pewny/a, że chcesz wybrać nowych właścieli grupy? Ta decyzja jest ostateczna!
+		Jesteś pewny, że chcesz wybrać nowych właścieli grupy? Ta decyzja jest ostateczna!
 	</panel.string>
 	<panel.string name="loading">
 		(ładowanie...)
@@ -18,10 +18,10 @@
 	<text name="role_text">
 		Wybierz rolę dla nowego członka:
 	</text>
-	<combo_box name="role_name" tool_tip="Wybierz z listy Role, które możesz przypisać członkom"/>
+	<combo_box name="role_name" tool_tip="Wybierz z listy Role, które możesz przypisać Członkom"/>
 	<button label="Wyślij Zaproszenia" name="ok_button"/>
 	<button label="Anuluj" name="cancel_button"/>
 	<string name="GroupInvitation">
-		Zaproszenie do grupy
+		Zaproszenie do Grupy
 	</string>
 </panel>

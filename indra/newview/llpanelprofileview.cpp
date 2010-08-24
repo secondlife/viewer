@@ -117,8 +117,8 @@ BOOL LLPanelProfileView::postBuild()
 	getTabContainer()[PANEL_NOTES] = getChild<LLPanelAvatarNotes>(PANEL_NOTES);
 	
 	//*TODO remove this, according to style guide we don't use status combobox
-	getTabContainer()[PANEL_PROFILE]->getChildView("online_me_status_text")->setVisible( FALSE);
-	getTabContainer()[PANEL_PROFILE]->getChildView("status_combo")->setVisible( FALSE);
+	getTabContainer()[PANEL_PROFILE]->childSetVisible("online_me_status_text", FALSE);
+	getTabContainer()[PANEL_PROFILE]->childSetVisible("status_combo", FALSE);
 
 	mStatusText = getChild<LLTextBox>("status");
 	mStatusText->setVisible(false);

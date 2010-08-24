@@ -103,7 +103,7 @@ clicking on their names.
              height="23"
              follows="top|left"
              label="Invite"
-             left="5"
+             left="0"
              name="member_invite"
              width="100" />
             <button

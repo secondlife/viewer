@@ -30,18 +30,18 @@
 					<stat_bar label="Tesktura" name="texturekbitstat"/>
 					<stat_bar label="Asset" name="assetkbitstat"/>
 					<stat_bar label="Podkład" name="layerskbitstat"/>
-					<stat_bar label="Aktualna ilość wewnętrzna" name="actualinkbitstat"/>
-					<stat_bar label="Aktualna ilość zewnętrzna" name="actualoutkbitstat"/>
+					<stat_bar label="Aktualna Ilość Wewnętrzna" name="actualinkbitstat"/>
+					<stat_bar label="Aktualna Ilość Zewnętrzna" name="actualoutkbitstat"/>
 					<stat_bar label="VFS Pending Ops" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Symulator" name="sim">
-				<stat_bar label="Czas rozszerzenia" name="simtimedilation"/>
-				<stat_bar label="Ilość obrazów/Sec na symulatorze (Sim FPS)" name="simfps"/>
-				<stat_bar label="Fizyka obrazów/Sec" name="simphysicsfps"/>
-				<stat_view label="Szczegóły fizyki" name="physicsdetail">
+				<stat_bar label="Czas Rozszerzenia" name="simtimedilation"/>
+				<stat_bar label="Ilość Obrazów/Sec na Symulatorze (Sim FPS)" name="simfps"/>
+				<stat_bar label="Fizyka Obrazów/Sec" name="simphysicsfps"/>
+				<stat_view label="Szczegóły Fizyki" name="physicsdetail">
 					<stat_bar label="Pinned objects" name="physicspinnedtasks"/>
-					<stat_bar label="Niskie LOD obiektów" name="physicslodtasks"/>
+					<stat_bar label="Niskie LOD Obiektów" name="physicslodtasks"/>
 					<stat_bar label="Alokacja pamięci" name="physicsmemoryallocated"/>
 					<stat_bar label="Aktualizacja agentów/Sek" name="simagentups"/>
 					<stat_bar label="Główni agenci" name="simmainagents"/>

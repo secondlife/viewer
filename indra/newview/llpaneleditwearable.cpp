@@ -838,15 +838,6 @@ void LLPanelEditWearable::draw()
 	LLPanel::draw();
 }
 
-void LLPanelEditWearable::setVisible(BOOL visible)
-{
-	if (!visible)
-	{
-		showWearable(mWearablePtr, FALSE);
-	}
-	LLPanel::setVisible(visible);
-}
-
 void LLPanelEditWearable::setWearable(LLWearable *wearable)
 {
 	showWearable(mWearablePtr, FALSE);
@@ -1218,9 +1209,9 @@ void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
 	// Toggle controls specific to shape editing panel.
 	{
 		bool is_shape = (type == LLWearableType::WT_SHAPE);
-		getChildView("sex_radio")->setVisible( is_shape);
-		getChildView("female_icon")->setVisible( is_shape);
-		getChildView("male_icon")->setVisible( is_shape);
+		childSetVisible("sex_radio", is_shape);
+		childSetVisible("female_icon", is_shape);
+		childSetVisible("male_icon", is_shape);
 	}
 }
 
@@ -1420,7 +1411,7 @@ void LLPanelEditWearable::updateVerbs()
 	BOOL is_dirty = isDirty();
 
 	mBtnRevert->setEnabled(is_dirty);
-	getChildView("save_as_button")->setEnabled(is_dirty && can_copy);
+	childSetEnabled("save_as_button", is_dirty && can_copy);
 
 	if(isAgentAvatarValid())
 	{

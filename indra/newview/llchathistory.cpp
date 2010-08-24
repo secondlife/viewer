@@ -693,9 +693,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
-				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(link_params.link_href, false, style_params);
-				mEditor->appendText(delimiter, false, style_params);
+				// Convert the name to a hotlink and add to message.
+				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
 			}
 			else
 			{

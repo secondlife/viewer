@@ -357,12 +357,6 @@ std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
 	return LLTrans::getString("TooltipAgentUrl");
 }
 
-bool LLUrlEntryAgent::underlineOnHoverOnly(const std::string &string) const
-{
-	std::string url = getUrl(string);
-	return LLStringUtil::endsWith(url, "/about") || LLStringUtil::endsWith(url, "/inspect");
-}
-
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	if (!gCacheName)
@@ -728,19 +722,6 @@ std::string LLUrlEntrySLLabel::getTooltip(const std::string &string) const
 
 	// unrecognized URL? should not happen
 	return LLUrlEntryBase::getTooltip(string);
-}
-
-bool LLUrlEntrySLLabel::underlineOnHoverOnly(const std::string &string) const
-{
-	std::string url = getUrl(string);
-	LLUrlMatch match;
-	if (LLUrlRegistry::instance().findUrl(url, match))
-	{
-		return match.underlineOnHoverOnly();
-	}
-
-	// unrecognized URL? should not happen
-	return LLUrlEntryBase::underlineOnHoverOnly(string);
 }
 
 //

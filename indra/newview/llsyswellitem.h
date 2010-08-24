@@ -73,6 +73,7 @@ private:
 
 	LLTextBox*	mTitle;
 	LLButton*	mCloseBtn;
+	LLIconCtrl*	mIcon;
 	LLUUID		mID;
 };
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="Ludzie" name="people_panel">
-	<string name="no_recent_people" value="Brak ostatnich rozmówców. Chcesz spotkać ludzi? Spróbuj [secondlife:///app/search/people Szukaj] or the [secondlife:///app/worldmap Mapa Świata]."/>
+	<string name="no_recent_people" value="Brak ostatnich rozmówców. Chcesz spotkać ludzi? Spróbuj [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap Mapa Świata]."/>
 	<string name="no_filtered_recent_people" value="Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/groups/[SEARCH_TERM] Szukaj]."/>
-	<string name="no_one_near" value="Nie ma nikogo w pobliżu. Chcesz spotkać ludzi? Spróbuj [secondlife:///app/search/people Szukaj] lub [secondlife:///app/worldmap Mapa Świata]."/>
+	<string name="no_one_near" value="Nie ma nikogo w pobliżu. Chcesz spotkać ludzi? Spróbuj[secondlife:///app/search/people Search] lub [secondlife:///app/worldmap Mapa Świata]."/>
 	<string name="no_one_filtered_near" value="Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/groups/[SEARCH_TERM] Szukaj]."/>
-	<string name="no_friends_online" value="Brak dostępnych znajomych"/>
-	<string name="no_friends" value="Brak znajomych"/>
+	<string name="no_friends_online" value="Brak dostępnych Znajomych"/>
+	<string name="no_friends" value="Brak Znajomych"/>
 	<string name="no_friends_msg">
 		Wyszukaj znajomych [secondlife:///app/search/people Szukaj] lub kliknij prawym przyciskiem na Rezydenta aby zaproponować mu znajomość.
 Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
@@ -14,8 +14,8 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 	<string name="no_filtered_friends_msg">
 		Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/groups/[SEARCH_TERM] Szukaj].
 	</string>
-	<string name="people_filter_label" value="Filtruj ludzi"/>
-	<string name="groups_filter_label" value="Filtruj grupy"/>
+	<string name="people_filter_label" value="Filtruj Ludzi"/>
+	<string name="groups_filter_label" value="Filtruj Grupy"/>
 	<string name="no_filtered_groups_msg" value="Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/groups/[SEARCH_TERM] Szukaj]."/>
 	<string name="no_groups_msg" value="Chcesz dołączyć do grup? Spróbuj [secondlife:///app/search/groups Szukaj]."/>
 	<filter_editor label="Filtr" name="filter_input"/>
@@ -23,7 +23,7 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 		<panel label="W POBLIŻU" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="nearby_view_sort_btn" tool_tip="Opcje"/>
-				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do znajomych"/>
+				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do Znajomych"/>
 			</panel>
 		</panel>
 		<panel label="ZNAJOMI" name="friends_panel">
@@ -47,7 +47,7 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 		<panel label="OSTATNIE" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="recent_viewsort_btn" tool_tip="Opcje"/>
-				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do znajomych"/>
+				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do Znajomych"/>
 			</panel>
 		</panel>
 	</tab_container>
@@ -59,6 +59,6 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 		<button label="Teleportuj" name="teleport_btn" tool_tip="Zaproponuj teleportację" width="70"/>
 		<button label="Profil grupy" name="group_info_btn" tool_tip="Pokaż informacje o grupie" width="69"/>
 		<button label="Konferencja Grupowa" name="chat_btn" tool_tip="Rozpocznij konferencę" width="124"/>
-		<button label="Rozmowa Głosowa" name="group_call_btn" tool_tip="Rozmowa głosowa w tej grupie" width="108"/>
+		<button label="Rozmowa Głosowa" name="group_call_btn" tool_tip="Rozmowa Głosowa w tej Grupie" width="108"/>
 	</panel>
 </panel>

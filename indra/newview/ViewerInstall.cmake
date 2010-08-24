@@ -7,8 +7,8 @@ install(DIRECTORY skins app_settings linux_tools
         PATTERN ".svn" EXCLUDE
         )
 
-find_file(IS_ARTWORK_PRESENT NAMES have_artwork_bundle.marker
-          PATHS ${VIEWER_DIR}/newview/res)
+find_file(IS_ARTWORK_PRESENT NAMES avatar_lad.xml
+          PATHS ${VIEWER_DIR}/newview/character)
 
 if (IS_ARTWORK_PRESENT)
   install(DIRECTORY res res-sdl character

@@ -213,7 +213,7 @@ void LLFloaterScriptSearch::onBtnSearch(void *userdata)
 void LLFloaterScriptSearch::handleBtnSearch()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->selectNext(getChild<LLUICtrl>("search_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->selectNext(childGetText("search_text"), caseChk->get());
 }
 
 // static 
@@ -226,7 +226,7 @@ void LLFloaterScriptSearch::onBtnReplace(void *userdata)
 void LLFloaterScriptSearch::handleBtnReplace()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->replaceText(getChild<LLUICtrl>("search_text")->getValue().asString(), getChild<LLUICtrl>("replace_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->replaceText(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
 // static 
@@ -239,7 +239,7 @@ void LLFloaterScriptSearch::onBtnReplaceAll(void *userdata)
 void LLFloaterScriptSearch::handleBtnReplaceAll()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->replaceTextAll(getChild<LLUICtrl>("search_text")->getValue().asString(), getChild<LLUICtrl>("replace_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->replaceTextAll(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
 
@@ -451,7 +451,7 @@ bool LLScriptEdCore::hasChanged()
 void LLScriptEdCore::draw()
 {
 	BOOL script_changed	= hasChanged();
-	getChildView("Save_btn")->setEnabled(script_changed);
+	childSetEnabled("Save_btn",	script_changed);
 
 	if( mEditor->hasFocus() )
 	{
@@ -463,11 +463,11 @@ void LLScriptEdCore::draw()
 		args["[LINE]"] = llformat ("%d", line);
 		args["[COLUMN]"] = llformat ("%d", column);
 		cursor_pos = LLTrans::getString("CursorPos", args);
-		getChild<LLUICtrl>("line_col")->setValue(cursor_pos);
+		childSetText("line_col", cursor_pos);
 	}
 	else
 	{
-		getChild<LLUICtrl>("line_col")->setValue(LLStringUtil::null);
+		childSetText("line_col", LLStringUtil::null);
 	}
 
 	updateDynamicHelp();
@@ -660,7 +660,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 		if (parent)
 			parent->addDependentFloater(live_help_floater, TRUE);
 		live_help_floater->childSetCommitCallback("lock_check", onCheckLock, this);
-		live_help_floater->getChild<LLUICtrl>("lock_check")->setValue(gSavedSettings.getBOOL("ScriptHelpFollowsCursor"));
+		live_help_floater->childSetValue("lock_check", gSavedSettings.getBOOL("ScriptHelpFollowsCursor"));
 		live_help_floater->childSetCommitCallback("history_combo", onHelpComboCommit, this);
 		live_help_floater->childSetAction("back_btn", onClickBack, this);
 		live_help_floater->childSetAction("fwd_btn", onClickForward, this);
@@ -953,10 +953,10 @@ BOOL LLPreviewLSL::postBuild()
 	llassert(item);
 	if (item)
 	{
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+		childSetText("desc", item->getDescription());
 	}
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 
 	return LLPreview::postBuild();
 }
@@ -1034,8 +1034,8 @@ void LLPreviewLSL::loadAsset()
 			mScriptEd->mFunctions->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
-		getChildView("lock")->setVisible( !is_modifiable);
-		mScriptEd->getChildView("Insert...")->setEnabled(is_modifiable);
+		childSetVisible("lock", !is_modifiable);
+		mScriptEd->childSetEnabled("Insert...", is_modifiable);
 	}
 	else
 	{
@@ -1423,14 +1423,14 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 BOOL LLLiveLSLEditor::postBuild()
 {
 	childSetCommitCallback("running", LLLiveLSLEditor::onRunningCheckboxClicked, this);
-	getChildView("running")->setEnabled(FALSE);
+	childSetEnabled("running", FALSE);
 
 	childSetAction("Reset",&LLLiveLSLEditor::onReset,this);
-	getChildView("Reset")->setEnabled(TRUE);
+	childSetEnabled("Reset", TRUE);
 
 	mMonoCheckbox =	getChild<LLCheckBoxCtrl>("mono");
 	childSetCommitCallback("mono", &LLLiveLSLEditor::onMonoCheckboxClicked, this);
-	getChildView("mono")->setEnabled(FALSE);
+	childSetEnabled("mono", FALSE);
 
 	mScriptEd->mEditor->makePristine();
 	mScriptEd->mEditor->setFocus(TRUE);

@@ -131,8 +131,6 @@ public:
 
 protected:
 
-	void updateIsInProductionGrid();
-
 	// helper function for adding the predefined grids
 	void addSystemGrid(const std::string& label, 
 					   const std::string& name, 
@@ -145,7 +143,6 @@ protected:
 	std::string mGrid;
 	std::string mGridFile;
 	LLSD mGridList;
-	bool mIsInProductionGrid;
 };
 
 const S32 MAC_ADDRESS_BYTES = 6;

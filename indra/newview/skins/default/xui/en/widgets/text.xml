@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<text parse_urls="true"
+<text allow_html="true"
       mouse_opaque="false" 
       name="text_box" 
       font="SansSerifSmall"
@@ -8,7 +8,7 @@
       halign="left" 
       h_pad="0" 
       allow_scroll="false"
-      text_readonly_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
       bg_writeable_color="FloaterDefaultBackgroundColor" 
       use_ellipses="false"
       bg_visible="false" 

@@ -406,8 +406,8 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 		//cannot just simply refresh the whole UI, as the edit field will
 		// get reset and the cursor will change...
 		
-		mPanel.getChildView("currency_est")->setVisible(FALSE);
-		mPanel.getChildView("getting_data")->setVisible(TRUE);
+		mPanel.childHide("currency_est");
+		mPanel.childSetVisible("getting_data",TRUE);
 	}
 	
 	mCurrencyChanged = true;
@@ -436,13 +436,13 @@ void LLCurrencyUIManager::Impl::updateUI()
 {
 	if (mHidden)
 	{
-		mPanel.getChildView("currency_action")->setVisible(FALSE);
-		mPanel.getChildView("currency_amt")->setVisible(FALSE);
-		mPanel.getChildView("currency_est")->setVisible(FALSE);
+		mPanel.childHide("currency_action");
+		mPanel.childHide("currency_amt");
+		mPanel.childHide("currency_est");
 		return;
 	}
 
-	mPanel.getChildView("currency_action")->setVisible(TRUE);
+	mPanel.childShow("currency_action");
 
 	LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
 	if (lindenAmount) 
@@ -465,17 +465,17 @@ void LLCurrencyUIManager::Impl::updateUI()
 		}
 	}
 
-	mPanel.getChild<LLUICtrl>("currency_est")->setTextArg("[LOCALAMOUNT]", getLocalEstimate());
-	mPanel.getChildView("currency_est")->setVisible( hasEstimate() && mUserCurrencyBuy > 0);
+	mPanel.childSetTextArg("currency_est", "[LOCALAMOUNT]", getLocalEstimate());
+	mPanel.childSetVisible("currency_est", hasEstimate() && mUserCurrencyBuy > 0);
 
-	mPanel.getChildView("currency_links")->setVisible( mSupportsInternationalBilling);
-	mPanel.getChildView("exchange_rate_note")->setVisible( mSupportsInternationalBilling);
+	mPanel.childSetVisible("currency_links", mSupportsInternationalBilling);
+	mPanel.childSetVisible("exchange_rate_note", mSupportsInternationalBilling);
 
-	if (mPanel.getChildView("buy_btn")->getEnabled()
-		||mPanel.getChildView("currency_est")->getVisible()
-		|| mPanel.getChildView("error_web")->getVisible())
+	if (mPanel.childIsEnabled("buy_btn")
+		||mPanel.childIsVisible("currency_est")
+		|| mPanel.childIsVisible("error_web"))
 	{
-		mPanel.getChildView("getting_data")->setVisible(FALSE);
+		mPanel.childSetVisible("getting_data",FALSE);
 	}
 }
 

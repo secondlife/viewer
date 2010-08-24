@@ -51,7 +51,6 @@ namespace LLTextValidate
 	bool	validateASCIIPrintableNoPipe(const LLWString &str); 
 	bool	validateASCIIPrintableNoSpace(const LLWString &str);
 	bool	validateASCII(const LLWString &str);
-	bool	validateASCIIWithNewLine(const LLWString &str);
 }
 
 

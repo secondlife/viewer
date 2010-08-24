@@ -212,7 +212,7 @@ void LLPanelPicks::updateData()
 		mNoPicks = false;
 		mNoClassifieds = false;
 
-		getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+		childSetValue("picks_panel_text", LLTrans::getString("PicksClassifiedsLoadingText"));
 
 		mPicksList->clear();
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
@@ -231,7 +231,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		{
 			std::string name, second_name;
 			gCacheName->getName(getAvatarId(),name,second_name);
-			getChild<LLUICtrl>("pick_title")->setTextArg("[NAME]", name);
+			childSetTextArg("pick_title", "[NAME]",name);
 			
 			// Save selection, to be able to edit same item after saving changes. See EXT-3023.
 			LLUUID selected_id = mPicksList->getSelectedValue()[PICK_ID];
@@ -318,11 +318,11 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 	{
 		if(getAvatarId() == gAgentID)
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoPicksClassifiedsText"));
+			childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
 		}
 		else
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
+			childSetValue("picks_panel_text", LLTrans::getString("NoAvatarPicksClassifiedsText"));
 		}
 	}
 }
@@ -454,22 +454,22 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	BOOL self = (gAgent.getID() == id);
 
 	// only agent can edit her picks 
-	getChildView("edit_panel")->setEnabled(self);
-	getChildView("edit_panel")->setVisible( self);
+	childSetEnabled("edit_panel", self);
+	childSetVisible("edit_panel", self);
 
 	// Disable buttons when viewing profile for first time
 	if(getAvatarId() != id)
 	{
-		getChildView(XML_BTN_INFO)->setEnabled(FALSE);
-		getChildView(XML_BTN_TELEPORT)->setEnabled(FALSE);
-		getChildView(XML_BTN_SHOW_ON_MAP)->setEnabled(FALSE);
+		childSetEnabled(XML_BTN_INFO,FALSE);
+		childSetEnabled(XML_BTN_TELEPORT,FALSE);
+		childSetEnabled(XML_BTN_SHOW_ON_MAP,FALSE);
 	}
 
 	// and see a special title - set as invisible by default in xml file
 	if (self)
 	{
-		getChildView("pick_title")->setVisible( !self);
-		getChildView("pick_title_agent")->setVisible( self);
+		childSetVisible("pick_title", !self);
+		childSetVisible("pick_title_agent", self);
 
 		mPopupMenu->setItemVisible("pick_delete", TRUE);
 		mPopupMenu->setItemVisible("pick_edit", TRUE);
@@ -664,17 +664,17 @@ void LLPanelPicks::updateButtons()
 
 	if (getAvatarId() == gAgentID)
 	{
-		getChildView(XML_BTN_DELETE)->setEnabled(has_selected);
+		childSetEnabled(XML_BTN_DELETE, has_selected);
 	}
 
-	getChildView(XML_BTN_INFO)->setEnabled(has_selected);
-	getChildView(XML_BTN_TELEPORT)->setEnabled(has_selected);
-	getChildView(XML_BTN_SHOW_ON_MAP)->setEnabled(has_selected);
+	childSetEnabled(XML_BTN_INFO, has_selected);
+	childSetEnabled(XML_BTN_TELEPORT, has_selected);
+	childSetEnabled(XML_BTN_SHOW_ON_MAP, has_selected);
 
 	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
 	if(c_item)
 	{
-		getChildView(XML_BTN_INFO)->setEnabled(isClassifiedPublished(c_item));
+		childSetEnabled(XML_BTN_INFO, isClassifiedPublished(c_item));
 	}
 }
 
@@ -695,7 +695,8 @@ void LLPanelPicks::buildPickPanel()
 
 void LLPanelPicks::onClickPlusBtn()
 {
-	LLRect rect(getChildView(XML_BTN_NEW)->getRect());
+	LLRect rect;
+	childGetRect(XML_BTN_NEW, rect);
 
 	mPlusMenu->updateParent(LLMenuGL::sMenuContainer);
 	mPlusMenu->setButtonRect(rect, this);
@@ -1073,7 +1074,7 @@ void LLPickItem::init(LLPickData* pick_data)
 void LLPickItem::setPickName(const std::string& name)
 {
 	mPickName = name;
-	getChild<LLUICtrl>("picture_name")->setValue(name);
+	childSetValue("picture_name",name);
 
 }
 
@@ -1094,7 +1095,7 @@ const LLUUID& LLPickItem::getSnapshotId()
 
 void LLPickItem::setPickDesc(const std::string& descr)
 {
-	getChild<LLUICtrl>("picture_descr")->setValue(descr);
+	childSetValue("picture_descr",descr);
 }
 
 void LLPickItem::setPickId(const LLUUID& id)
@@ -1114,7 +1115,7 @@ const LLVector3d& LLPickItem::getPosGlobal()
 
 const std::string LLPickItem::getDescription()
 {
-	return getChild<LLUICtrl>("picture_descr")->getValue().asString();
+	return childGetValue("picture_descr").asString();
 }
 
 void LLPickItem::update()
@@ -1141,15 +1142,10 @@ void LLPickItem::processProperties(void *data, EAvatarProcessorType type)
 	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorID, this);
 }
 
-void set_child_visible(LLView* parent, const std::string& child_name, bool visible)
-{
-	parent->getChildView(child_name)->setVisible(visible);
-}
-
 BOOL LLPickItem::postBuild()
 {
-	setMouseEnterCallback(boost::bind(&set_child_visible, this, "hovered_icon", true));
-	setMouseLeaveCallback(boost::bind(&set_child_visible, this, "hovered_icon", false));
+	setMouseEnterCallback(boost::bind(&LLPanelPickInfo::childSetVisible, this, "hovered_icon", true));
+	setMouseLeaveCallback(boost::bind(&LLPanelPickInfo::childSetVisible, this, "hovered_icon", false));
 	return TRUE;
 }
 
@@ -1157,7 +1153,7 @@ void LLPickItem::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
-	getChildView("selected_icon")->setVisible( value["selected"]);
+	childSetVisible("selected_icon", value["selected"]);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1203,8 +1199,8 @@ void LLClassifiedItem::processProperties(void* data, EAvatarProcessorType type)
 
 BOOL LLClassifiedItem::postBuild()
 {
-	setMouseEnterCallback(boost::bind(&set_child_visible, this, "hovered_icon", true));
-	setMouseLeaveCallback(boost::bind(&set_child_visible, this, "hovered_icon", false));
+	setMouseEnterCallback(boost::bind(&LLPanelPickInfo::childSetVisible, this, "hovered_icon", true));
+	setMouseLeaveCallback(boost::bind(&LLPanelPickInfo::childSetVisible, this, "hovered_icon", false));
 	return TRUE;
 }
 
@@ -1212,7 +1208,7 @@ void LLClassifiedItem::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
-	getChildView("selected_icon")->setVisible( value["selected"]);
+	childSetVisible("selected_icon", value["selected"]);
 }
 
 void LLClassifiedItem::fillIn(LLPanelClassifiedEdit* panel)
@@ -1235,22 +1231,22 @@ void LLClassifiedItem::fillIn(LLPanelClassifiedEdit* panel)
 
 void LLClassifiedItem::setClassifiedName(const std::string& name)
 {
-	getChild<LLUICtrl>("name")->setValue(name);
+	childSetValue("name", name);
 }
 
 void LLClassifiedItem::setDescription(const std::string& desc)
 {
-	getChild<LLUICtrl>("description")->setValue(desc);
+	childSetValue("description", desc);
 }
 
 void LLClassifiedItem::setSnapshotId(const LLUUID& snapshot_id)
 {
-	getChild<LLUICtrl>("picture")->setValue(snapshot_id);
+	childSetValue("picture", snapshot_id);
 }
 
 LLUUID LLClassifiedItem::getSnapshotId()
 {
-	return getChild<LLUICtrl>("picture")->getValue();
+	return childGetValue("picture");
 }
 
 //EOF

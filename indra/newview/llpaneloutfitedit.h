@@ -37,8 +37,8 @@
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
-#include "llwearableitemslist.h"
 
 class LLButton;
 class LLCOFWearables;
@@ -58,7 +58,6 @@ class LLMenuGL;
 class LLFindNonLinksByMask;
 class LLFindWearablesOfType;
 class LLSaveOutfitComboBtn;
-class LLWearableItemTypeNameComparator;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -195,17 +194,8 @@ private:
 	void getCurrentItemUUID(LLUUID& selected_id);
 	void onCOFChanged();
 
-	/**
-	 * Method preserves selection while switching between folder/list view modes
-	*/
-	void saveListSelection();
-
-	void updateWearablesPanelVerbButtons();
-
-	typedef std::pair<LLWearableType::EType, size_t> selection_info_t;
-
 	LLWearableType::EType getCOFWearablesSelectionType() const;
-	selection_info_t getAddMorePanelSelectionType() const;
+	LLWearableType::EType getAddMorePanelSelectionType() const;
 	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;
@@ -224,9 +214,8 @@ private:
 	LLComboBox*			mListViewFilterCmbBox;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
-	LLWearableItemsList* 			mWearableItemsList;
+	LLInventoryItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
-	LLWearableItemTypeNameComparator* mWearableListViewItemsComparator;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 
@@ -235,7 +224,6 @@ private:
 
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
-	LLMenuGL*			mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 

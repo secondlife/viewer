@@ -139,6 +139,7 @@
              layout="topleft"
              left="10"
              name="description"
+             textbox.label="More"
              top_pad="10"
              value="Du waltz die spritz"
              width="280" />
@@ -235,7 +236,7 @@
                  value="Title:"
                  width="290" />
                 <text
-                 parse_urls="false"
+                 allow_html="false"
                  follows="left|top"
                  height="22"
                  layout="topleft"
@@ -275,7 +276,7 @@
                  name="notes_editor"
                  read_only="true"
                  text_readonly_color="white"
-                 text_type="ascii_with_newline"
+                 text_type="ascii"
                  top_pad="5"
                  width="290"
                  wrap="true" />

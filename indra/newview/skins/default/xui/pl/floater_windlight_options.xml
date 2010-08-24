@@ -77,7 +77,7 @@
 		</panel>
 		<panel label="ŚWIATŁO" name="Lighting">
 			<text name="SLCText">
-				Kolor Słońca/Księżyca
+				Kolor słońca/księżyca
 			</text>
 			<button label="?" name="WLSunlightColorHelp"/>
 			<text name="BHText">
@@ -97,7 +97,7 @@
 			<slider label="" name="WLSunlightB"/>
 			<slider label="" name="WLSunlightI"/>
 			<text name="TODText">
-				Pozycja Słońca/Księżyca
+				Pozycja słońca/księżyca
 			</text>
 			<button label="?" name="WLTimeOfDayHelp"/>
 			<slider label="" name="WLSunAngle"/>
@@ -127,7 +127,7 @@
 			<button label="?" name="WLEastAngleHelp"/>
 			<slider label="" name="WLEastAngle"/>
 			<text name="SunGlowText">
-				Blask Słońca
+				Blask słońca
 			</text>
 			<button label="?" name="WLSunGlowHelp"/>
 			<slider label="Ostrość" name="WLGlowB"/>

@@ -476,11 +476,11 @@ BOOL LLPreviewGesture::postBuild()
 
 	if (item) 
 	{
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-		getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+		childSetText("desc", item->getDescription());
+		childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 		
-		getChild<LLUICtrl>("name")->setValue(item->getName());
-		getChild<LLLineEditor>("name")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+		childSetText("name", item->getName());
+		childSetPrevalidate("name", &LLTextValidate::validateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();
@@ -622,7 +622,7 @@ void LLPreviewGesture::refresh()
 	if (mPreviewGesture || !is_complete)
 	{
 		
-		getChildView("desc")->setEnabled(FALSE);
+		childSetEnabled("desc", FALSE);
 		//mDescEditor->setEnabled(FALSE);
 		mTriggerEditor->setEnabled(FALSE);
 		mReplaceText->setEnabled(FALSE);
@@ -653,7 +653,7 @@ void LLPreviewGesture::refresh()
 
 	BOOL modifiable = item->getPermissions().allowModifyBy(gAgent.getID());
 
-	getChildView("desc")->setEnabled(modifiable);
+	childSetEnabled("desc", modifiable);
 	mTriggerEditor->setEnabled(TRUE);
 	mLibraryList->setEnabled(modifiable);
 	mStepList->setEnabled(modifiable);

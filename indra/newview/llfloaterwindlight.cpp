@@ -272,31 +272,31 @@ void LLFloaterWindLight::syncMenu()
 
 	// blue horizon
 	param_mgr->mBlueHorizon = currentParams.getVector(param_mgr->mBlueHorizon.mName, err);
-	getChild<LLUICtrl>("WLBlueHorizonR")->setValue(param_mgr->mBlueHorizon.r / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonG")->setValue(param_mgr->mBlueHorizon.g / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonB")->setValue(param_mgr->mBlueHorizon.b / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonI")->setValue(
+	childSetValue("WLBlueHorizonR", param_mgr->mBlueHorizon.r / 2.0);
+	childSetValue("WLBlueHorizonG", param_mgr->mBlueHorizon.g / 2.0);
+	childSetValue("WLBlueHorizonB", param_mgr->mBlueHorizon.b / 2.0);
+	childSetValue("WLBlueHorizonI", 
 		std::max(param_mgr->mBlueHorizon.r / 2.0, 
 			std::max(param_mgr->mBlueHorizon.g / 2.0, 
 				param_mgr->mBlueHorizon.b / 2.0)));
 
 	// haze density, horizon, mult, and altitude
 	param_mgr->mHazeDensity = currentParams.getVector(param_mgr->mHazeDensity.mName, err);
-	getChild<LLUICtrl>("WLHazeDensity")->setValue(param_mgr->mHazeDensity.r);
+	childSetValue("WLHazeDensity", param_mgr->mHazeDensity.r);
 	param_mgr->mHazeHorizon = currentParams.getVector(param_mgr->mHazeHorizon.mName, err);
-	getChild<LLUICtrl>("WLHazeHorizon")->setValue(param_mgr->mHazeHorizon.r);
+	childSetValue("WLHazeHorizon", param_mgr->mHazeHorizon.r);
 	param_mgr->mDensityMult = currentParams.getVector(param_mgr->mDensityMult.mName, err);
-	getChild<LLUICtrl>("WLDensityMult")->setValue(param_mgr->mDensityMult.x * 
+	childSetValue("WLDensityMult", param_mgr->mDensityMult.x * 
 		param_mgr->mDensityMult.mult);
 	param_mgr->mMaxAlt = currentParams.getVector(param_mgr->mMaxAlt.mName, err);
-	getChild<LLUICtrl>("WLMaxAltitude")->setValue(param_mgr->mMaxAlt.x);
+	childSetValue("WLMaxAltitude", param_mgr->mMaxAlt.x);
 
 	// blue density
 	param_mgr->mBlueDensity = currentParams.getVector(param_mgr->mBlueDensity.mName, err);
-	getChild<LLUICtrl>("WLBlueDensityR")->setValue(param_mgr->mBlueDensity.r / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityG")->setValue(param_mgr->mBlueDensity.g / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityB")->setValue(param_mgr->mBlueDensity.b / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityI")->setValue(
+	childSetValue("WLBlueDensityR", param_mgr->mBlueDensity.r / 2.0);
+	childSetValue("WLBlueDensityG", param_mgr->mBlueDensity.g / 2.0);
+	childSetValue("WLBlueDensityB", param_mgr->mBlueDensity.b / 2.0);
+	childSetValue("WLBlueDensityI", 
 		std::max(param_mgr->mBlueDensity.r / 2.0, 
 		std::max(param_mgr->mBlueDensity.g / 2.0, param_mgr->mBlueDensity.b / 2.0)));
 
@@ -304,93 +304,93 @@ void LLFloaterWindLight::syncMenu()
 	
 	// sunlight
 	param_mgr->mSunlight = currentParams.getVector(param_mgr->mSunlight.mName, err);
-	getChild<LLUICtrl>("WLSunlightR")->setValue(param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightG")->setValue(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightB")->setValue(param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightI")->setValue(
+	childSetValue("WLSunlightR", param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightG", param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightB", param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightI", 
 		std::max(param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE, 
 		std::max(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE)));
 
 	// glow
 	param_mgr->mGlow = currentParams.getVector(param_mgr->mGlow.mName, err);
-	getChild<LLUICtrl>("WLGlowR")->setValue(2 - param_mgr->mGlow.r / 20.0f);
-	getChild<LLUICtrl>("WLGlowB")->setValue(-param_mgr->mGlow.b / 5.0f);
+	childSetValue("WLGlowR", 2 - param_mgr->mGlow.r / 20.0f);
+	childSetValue("WLGlowB", -param_mgr->mGlow.b / 5.0f);
 		
 	// ambient
 	param_mgr->mAmbient = currentParams.getVector(param_mgr->mAmbient.mName, err);
-	getChild<LLUICtrl>("WLAmbientR")->setValue(param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientG")->setValue(param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientB")->setValue(param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientI")->setValue(
+	childSetValue("WLAmbientR", param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientG", param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientB", param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientI", 
 		std::max(param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE, 
 		std::max(param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE)));		
 
-	getChild<LLUICtrl>("WLSunAngle")->setValue(param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
-	getChild<LLUICtrl>("WLEastAngle")->setValue(param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
+	childSetValue("WLSunAngle", param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
+	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
 
 	// Clouds
 
 	// Cloud Color
 	param_mgr->mCloudColor = currentParams.getVector(param_mgr->mCloudColor.mName, err);
-	getChild<LLUICtrl>("WLCloudColorR")->setValue(param_mgr->mCloudColor.r);
-	getChild<LLUICtrl>("WLCloudColorG")->setValue(param_mgr->mCloudColor.g);
-	getChild<LLUICtrl>("WLCloudColorB")->setValue(param_mgr->mCloudColor.b);
-	getChild<LLUICtrl>("WLCloudColorI")->setValue(
+	childSetValue("WLCloudColorR", param_mgr->mCloudColor.r);
+	childSetValue("WLCloudColorG", param_mgr->mCloudColor.g);
+	childSetValue("WLCloudColorB", param_mgr->mCloudColor.b);
+	childSetValue("WLCloudColorI", 
 		std::max(param_mgr->mCloudColor.r, 
 		std::max(param_mgr->mCloudColor.g, param_mgr->mCloudColor.b)));
 
 	// Cloud
 	param_mgr->mCloudMain = currentParams.getVector(param_mgr->mCloudMain.mName, err);
-	getChild<LLUICtrl>("WLCloudX")->setValue(param_mgr->mCloudMain.r);
-	getChild<LLUICtrl>("WLCloudY")->setValue(param_mgr->mCloudMain.g);
-	getChild<LLUICtrl>("WLCloudDensity")->setValue(param_mgr->mCloudMain.b);
+	childSetValue("WLCloudX", param_mgr->mCloudMain.r);
+	childSetValue("WLCloudY", param_mgr->mCloudMain.g);
+	childSetValue("WLCloudDensity", param_mgr->mCloudMain.b);
 
 	// Cloud Detail
 	param_mgr->mCloudDetail = currentParams.getVector(param_mgr->mCloudDetail.mName, err);
-	getChild<LLUICtrl>("WLCloudDetailX")->setValue(param_mgr->mCloudDetail.r);
-	getChild<LLUICtrl>("WLCloudDetailY")->setValue(param_mgr->mCloudDetail.g);
-	getChild<LLUICtrl>("WLCloudDetailDensity")->setValue(param_mgr->mCloudDetail.b);
+	childSetValue("WLCloudDetailX", param_mgr->mCloudDetail.r);
+	childSetValue("WLCloudDetailY", param_mgr->mCloudDetail.g);
+	childSetValue("WLCloudDetailDensity", param_mgr->mCloudDetail.b);
 
 	// Cloud extras
 	param_mgr->mCloudCoverage = currentParams.getVector(param_mgr->mCloudCoverage.mName, err);
 	param_mgr->mCloudScale = currentParams.getVector(param_mgr->mCloudScale.mName, err);
-	getChild<LLUICtrl>("WLCloudCoverage")->setValue(param_mgr->mCloudCoverage.x);
-	getChild<LLUICtrl>("WLCloudScale")->setValue(param_mgr->mCloudScale.x);
+	childSetValue("WLCloudCoverage", param_mgr->mCloudCoverage.x);
+	childSetValue("WLCloudScale", param_mgr->mCloudScale.x);
 
 	// cloud scrolling
 	bool lockX = !param_mgr->mCurParams.getEnableCloudScrollX();
 	bool lockY = !param_mgr->mCurParams.getEnableCloudScrollY();
-	getChild<LLUICtrl>("WLCloudLockX")->setValue(lockX);
-	getChild<LLUICtrl>("WLCloudLockY")->setValue(lockY);
-	getChild<LLUICtrl>("DrawClassicClouds")->setValue(gSavedSettings.getBOOL("SkyUseClassicClouds"));
+	childSetValue("WLCloudLockX", lockX);
+	childSetValue("WLCloudLockY", lockY);
+	childSetValue("DrawClassicClouds", gSavedSettings.getBOOL("SkyUseClassicClouds"));
 	
 	// disable if locked, enable if not
 	if(lockX) 
 	{
-		getChildView("WLCloudScrollX")->setEnabled(FALSE);
+		childDisable("WLCloudScrollX");
 	} else {
-		getChildView("WLCloudScrollX")->setEnabled(TRUE);
+		childEnable("WLCloudScrollX");
 	}
 	if(lockY)
 	{
-		getChildView("WLCloudScrollY")->setEnabled(FALSE);
+		childDisable("WLCloudScrollY");
 	} else {
-		getChildView("WLCloudScrollY")->setEnabled(TRUE);
+		childEnable("WLCloudScrollY");
 	}
 
 	// *HACK cloud scrolling is off my an additive of 10
-	getChild<LLUICtrl>("WLCloudScrollX")->setValue(param_mgr->mCurParams.getCloudScrollX() - 10.0f);
-	getChild<LLUICtrl>("WLCloudScrollY")->setValue(param_mgr->mCurParams.getCloudScrollY() - 10.0f);
+	childSetValue("WLCloudScrollX", param_mgr->mCurParams.getCloudScrollX() - 10.0f);
+	childSetValue("WLCloudScrollY", param_mgr->mCurParams.getCloudScrollY() - 10.0f);
 
 	param_mgr->mDistanceMult = currentParams.getVector(param_mgr->mDistanceMult.mName, err);
-	getChild<LLUICtrl>("WLDistanceMult")->setValue(param_mgr->mDistanceMult.x);
+	childSetValue("WLDistanceMult", param_mgr->mDistanceMult.x);
 
 	// Tweak extras
 
 	param_mgr->mWLGamma = currentParams.getVector(param_mgr->mWLGamma.mName, err);
-	getChild<LLUICtrl>("WLGamma")->setValue(param_mgr->mWLGamma.x);
+	childSetValue("WLGamma", param_mgr->mWLGamma.x);
 
-	getChild<LLUICtrl>("WLStarAlpha")->setValue(param_mgr->mCurParams.getStarBrightness());
+	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
 
 	LLTabContainer* tab = getChild<LLTabContainer>("WindLight Tabs");
 	LLPanel* panel = getChild<LLPanel>("Scattering");
@@ -422,11 +422,11 @@ void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 		
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r / 3);
+			childSetValue(name, colorControl->r / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r / 2);
+			childSetValue(name, colorControl->r / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r);
+			childSetValue(name, colorControl->r);
 		}
 	}
 
@@ -457,11 +457,11 @@ void LLFloaterWindLight::onColorControlGMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g / 3);
+			childSetValue(name, colorControl->g / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g / 2);
+			childSetValue(name, colorControl->g / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g);
+			childSetValue(name, colorControl->g);
 		}
 	}
 
@@ -492,11 +492,11 @@ void LLFloaterWindLight::onColorControlBMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b / 3);
+			childSetValue(name, colorControl->b / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b / 2);
+			childSetValue(name, colorControl->b / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b);
+			childSetValue(name, colorControl->b);
 		}
 	}
 
@@ -566,24 +566,24 @@ void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, WLColorControl* co
 		// divide sun color vals by three
 		if(colorControl->isSunOrAmbientColor) 
 		{
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r/3);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g/3);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b/3);	
+			childSetValue(rName, colorControl->r/3);
+			childSetValue(gName, colorControl->g/3);
+			childSetValue(bName, colorControl->b/3);	
 		
 		} 
 		else if(colorControl->isBlueHorizonOrDensity) 
 		{
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r/2);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g/2);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b/2);	
+			childSetValue(rName, colorControl->r/2);
+			childSetValue(gName, colorControl->g/2);
+			childSetValue(bName, colorControl->b/2);	
 		
 		} 
 		else 
 		{
 			// set the sliders to the new vals
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b);
+			childSetValue(rName, colorControl->r);
+			childSetValue(gName, colorControl->g);
+			childSetValue(bName, colorControl->b);
 		}
 	}
 

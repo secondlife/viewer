@@ -337,13 +337,6 @@ std::string LLKeyboard::stringFromKey(KEY key)
 		buffer[1] = '\0';
 		res = std::string(buffer);
 	}
-
-	LLKeyStringTranslatorFunc *trans = gKeyboard->mStringTranslator;
-	if (trans != NULL)
-	{
-		res = trans(res.c_str());
-	}
-
 	return res;
 }
 

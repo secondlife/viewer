@@ -164,7 +164,7 @@ void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
-	getChildView("selected_icon")->setVisible( value["selected"]);
+	childSetVisible("selected_icon", value["selected"]);
 }
 
 void LLTeleportHistoryFlatItem::setHighlightedText(const std::string& text)
@@ -188,7 +188,7 @@ void LLTeleportHistoryFlatItem::updateTitle()
 
 void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible( true);
+	childSetVisible("hovered_icon", true);
 	mProfileBtn->setVisible(true);
 
 	LLPanel::onMouseEnter(x, y, mask);
@@ -196,7 +196,7 @@ void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 
 void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible( false);
+	childSetVisible("hovered_icon", false);
 	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);

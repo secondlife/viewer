@@ -40,12 +40,20 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 	if (mMap.find(source) == mMap.end())
 	{
 		LLStyle::Params style_params;
-		if (source != LLUUID::null)
+		if (source != LLUUID::null && source != gAgent.getID() )
 		{
 			style_params.color.control = "HTMLLinkColor";
 			style_params.readonly_color.control = "HTMLLinkColor";
-			style_params.link_href = LLSLURL("agent", source, "inspect").getSLURLString();
+			style_params.link_href = 
+					LLSLURL("agent", source, "inspect").getSLURLString();
 		}
+		else
+		{
+			// Make the resident's own name white and don't make the name clickable.
+			style_params.color = LLColor4::white;
+			style_params.readonly_color = LLColor4::white;
+		}
+
 		mMap[source] = style_params;
 	}
 	return mMap[source];

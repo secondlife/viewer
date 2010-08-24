@@ -95,7 +95,6 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 :	LLView(p),
 	mTentative(FALSE),
 	mIsChrome(FALSE),
-	mTabStop(FALSE),
     mViewModel(viewmodel),
 	mControlVariable(NULL),
 	mEnabledControlVariable(NULL),
