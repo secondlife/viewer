@@ -231,7 +231,7 @@ public:
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
 	std::string getMediaEntryURL() { return mMediaEntryURL; }
-    void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
+	void setHomeURL(const std::string& home_url, const std::string& mime_type = LLStringUtil::null) { mHomeURL = home_url; mHomeMimeType = mime_type;};
 	void clearCache();
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
@@ -356,7 +356,9 @@ public:
 		MEDIANAVSTATE_NONE,										// State is outside what we need to track for navigation.
 		MEDIANAVSTATE_BEGUN,									// a MEDIA_EVENT_NAVIGATE_BEGIN has been received which was not server-directed
 		MEDIANAVSTATE_FIRST_LOCATION_CHANGED,					// first LOCATION_CHANGED event after a non-server-directed BEGIN
+		MEDIANAVSTATE_FIRST_LOCATION_CHANGED_SPURIOUS,			// Same as above, but the new URL is identical to the previously navigated URL.
 		MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED,			// we received a NAVIGATE_COMPLETE event before the first LOCATION_CHANGED
+		MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED_SPURIOUS,// Same as above, but the new URL is identical to the previously navigated URL.
 		MEDIANAVSTATE_SERVER_SENT,								// server-directed nav has been requested, but MEDIA_EVENT_NAVIGATE_BEGIN hasn't been received yet
 		MEDIANAVSTATE_SERVER_BEGUN,								// MEDIA_EVENT_NAVIGATE_BEGIN has been received which was server-directed
 		MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED,			// first LOCATION_CHANGED event after a server-directed BEGIN
@@ -393,6 +395,7 @@ private:
 	bool  mMovieImageHasMips;
 	std::string mMediaURL;			// The last media url set with NavigateTo
 	std::string mHomeURL;
+	std::string mHomeMimeType;		// forced mime type for home url
 	std::string mMimeType;
 	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
 	std::string mCurrentMimeType;	// The MIME type that caused the currently loaded plugin to be loaded.

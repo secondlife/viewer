@@ -204,7 +204,7 @@ void LLFloaterWater::syncMenu()
 	param_mgr->mFogColor = current_params.getVector4(param_mgr->mFogColor.mName, err);
 
 	LLColor4 col = param_mgr->getFogColor();
-	childSetValue("WaterGlow", col.mV[3]);
+	getChild<LLUICtrl>("WaterGlow")->setValue(col.mV[3]);
 	col.mV[3] = 1.0f;
 	LLColorSwatchCtrl* colCtrl = getChild<LLColorSwatchCtrl>("WaterFogColor");
 
@@ -215,41 +215,41 @@ void LLFloaterWater::syncMenu()
 		log(current_params.getFloat(param_mgr->mFogDensity.mName, err)) / 
 		log(param_mgr->mFogDensity.mBase);
 	param_mgr->setDensitySliderValue(param_mgr->mFogDensity.mExp);
-	childSetValue("WaterFogDensity", param_mgr->mFogDensity.mExp);
+	getChild<LLUICtrl>("WaterFogDensity")->setValue(param_mgr->mFogDensity.mExp);
 	
 	param_mgr->mUnderWaterFogMod.mX = 
 		current_params.getFloat(param_mgr->mUnderWaterFogMod.mName, err);
-	childSetValue("WaterUnderWaterFogMod", param_mgr->mUnderWaterFogMod.mX);
+	getChild<LLUICtrl>("WaterUnderWaterFogMod")->setValue(param_mgr->mUnderWaterFogMod.mX);
 
 	param_mgr->mNormalScale = current_params.getVector3(param_mgr->mNormalScale.mName, err);
-	childSetValue("WaterNormalScaleX", param_mgr->mNormalScale.mX);
-	childSetValue("WaterNormalScaleY", param_mgr->mNormalScale.mY);
-	childSetValue("WaterNormalScaleZ", param_mgr->mNormalScale.mZ);
+	getChild<LLUICtrl>("WaterNormalScaleX")->setValue(param_mgr->mNormalScale.mX);
+	getChild<LLUICtrl>("WaterNormalScaleY")->setValue(param_mgr->mNormalScale.mY);
+	getChild<LLUICtrl>("WaterNormalScaleZ")->setValue(param_mgr->mNormalScale.mZ);
 
 	// Fresnel
 	param_mgr->mFresnelScale.mX = current_params.getFloat(param_mgr->mFresnelScale.mName, err);
-	childSetValue("WaterFresnelScale", param_mgr->mFresnelScale.mX);
+	getChild<LLUICtrl>("WaterFresnelScale")->setValue(param_mgr->mFresnelScale.mX);
 	param_mgr->mFresnelOffset.mX = current_params.getFloat(param_mgr->mFresnelOffset.mName, err);
-	childSetValue("WaterFresnelOffset", param_mgr->mFresnelOffset.mX);
+	getChild<LLUICtrl>("WaterFresnelOffset")->setValue(param_mgr->mFresnelOffset.mX);
 
 	// Scale Above/Below
 	param_mgr->mScaleAbove.mX = current_params.getFloat(param_mgr->mScaleAbove.mName, err);
-	childSetValue("WaterScaleAbove", param_mgr->mScaleAbove.mX);
+	getChild<LLUICtrl>("WaterScaleAbove")->setValue(param_mgr->mScaleAbove.mX);
 	param_mgr->mScaleBelow.mX = current_params.getFloat(param_mgr->mScaleBelow.mName, err);
-	childSetValue("WaterScaleBelow", param_mgr->mScaleBelow.mX);
+	getChild<LLUICtrl>("WaterScaleBelow")->setValue(param_mgr->mScaleBelow.mX);
 
 	// blur mult
 	param_mgr->mBlurMultiplier.mX = current_params.getFloat(param_mgr->mBlurMultiplier.mName, err);
-	childSetValue("WaterBlurMult", param_mgr->mBlurMultiplier.mX);
+	getChild<LLUICtrl>("WaterBlurMult")->setValue(param_mgr->mBlurMultiplier.mX);
 
 	// wave directions
 	param_mgr->mWave1Dir = current_params.getVector2(param_mgr->mWave1Dir.mName, err);
-	childSetValue("WaterWave1DirX", param_mgr->mWave1Dir.mX);
-	childSetValue("WaterWave1DirY", param_mgr->mWave1Dir.mY);
+	getChild<LLUICtrl>("WaterWave1DirX")->setValue(param_mgr->mWave1Dir.mX);
+	getChild<LLUICtrl>("WaterWave1DirY")->setValue(param_mgr->mWave1Dir.mY);
 
 	param_mgr->mWave2Dir = current_params.getVector2(param_mgr->mWave2Dir.mName, err);
-	childSetValue("WaterWave2DirX", param_mgr->mWave2Dir.mX);
-	childSetValue("WaterWave2DirY", param_mgr->mWave2Dir.mY);
+	getChild<LLUICtrl>("WaterWave2DirX")->setValue(param_mgr->mWave2Dir.mX);
+	getChild<LLUICtrl>("WaterWave2DirY")->setValue(param_mgr->mWave2Dir.mY);
 
 	LLTextureCtrl* textCtrl = getChild<LLTextureCtrl>("WaterNormalMap");
 	textCtrl->setImageAssetID(param_mgr->getNormalMapID());
@@ -333,7 +333,7 @@ void LLFloaterWater::onColorControlRMoved(LLUICtrl* ctrl, WaterColorControl* col
 		std::string name = colorControl->mSliderName;
 		name.append("I");
 		
-		childSetValue(name, colorControl->mR);
+		getChild<LLUICtrl>(name)->setValue(colorControl->mR);
 	}
 
 	colorControl->update(LLWaterParamManager::instance()->mCurParams);
@@ -356,7 +356,7 @@ void LLFloaterWater::onColorControlGMoved(LLUICtrl* ctrl, WaterColorControl* col
 		std::string name = colorControl->mSliderName;
 		name.append("I");
 
-		childSetValue(name, colorControl->mG);
+		getChild<LLUICtrl>(name)->setValue(colorControl->mG);
 
 	}
 
@@ -380,7 +380,7 @@ void LLFloaterWater::onColorControlBMoved(LLUICtrl* ctrl, WaterColorControl* col
 		std::string name = colorControl->mSliderName;
 		name.append("I");
 
-		childSetValue(name, colorControl->mB);
+		getChild<LLUICtrl>(name)->setValue(colorControl->mB);
 	}
 
 	colorControl->update(LLWaterParamManager::instance()->mCurParams);
@@ -449,9 +449,9 @@ void LLFloaterWater::onColorControlIMoved(LLUICtrl* ctrl, WaterColorControl* col
 		}
 
 		// set the sliders to the new vals
-		childSetValue(rName, colorControl->mR);
-		childSetValue(gName, colorControl->mG);
-		childSetValue(bName, colorControl->mB);
+		getChild<LLUICtrl>(rName)->setValue(colorControl->mR);
+		getChild<LLUICtrl>(gName)->setValue(colorControl->mG);
+		getChild<LLUICtrl>(bName)->setValue(colorControl->mB);
 	}
 
 	// now update the current parameters and send them to shaders

@@ -149,6 +149,8 @@ LLTextBase::Params::Params()
 	bg_readonly_color("bg_readonly_color"),
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
+	text_selected_color("text_selected_color"),
+	bg_selected_color("bg_selected_color"),
 	allow_scroll("allow_scroll", true),
 	plain_text("plain_text",false),
 	track_end("track_end", false),
@@ -161,11 +163,12 @@ LLTextBase::Params::Params()
 	font_shadow("font_shadow"),
 	wrap("wrap"),
 	use_ellipses("use_ellipses", false),
-	allow_html("allow_html", false),
+	parse_urls("parse_urls", false),
 	parse_highlights("parse_highlights", false)
 {
 	addSynonym(track_end, "track_bottom");
 	addSynonym(wrap, "word_wrap");
+	addSynonym(parse_urls, "allow_html");
 }
 
 
@@ -184,6 +187,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mWriteableBgColor(p.bg_writeable_color),
 	mReadOnlyBgColor(p.bg_readonly_color),
 	mFocusBgColor(p.bg_focus_color),
+	mTextSelectedColor(p.text_selected_color),
+	mSelectedBGColor(p.bg_selected_color),
 	mReflowIndex(S32_MAX),
 	mCursorPos( 0 ),
 	mScrollNeeded(FALSE),
@@ -203,7 +208,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
-	mParseHTML(p.allow_html),
+	mParseHTML(p.parse_urls),
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
 	mScroller(NULL),
@@ -263,9 +268,6 @@ void LLTextBase::initFromParams(const LLTextBase::Params& p)
 	{
 		mReadOnly = p.read_only;
 	}
-
-	// HACK:  text editors always need to be enabled so that we can scroll
-	LLView::setEnabled(true);
 }
 
 bool LLTextBase::truncate()
@@ -295,11 +297,14 @@ bool LLTextBase::truncate()
 
 const LLStyle::Params& LLTextBase::getDefaultStyleParams()
 {
+	//FIXME: convert mDefaultStyle to a flyweight http://www.boost.org/doc/libs/1_40_0/libs/flyweight/doc/index.html
+	//and eliminate color member values
 	if (mStyleDirty)
 	{
 		  mDefaultStyle
-				  .color(LLUIColor(&mFgColor))
+				  .color(LLUIColor(&mFgColor))						// pass linked color instead of copy of mFGColor
 				  .readonly_color(LLUIColor(&mReadOnlyFgColor))
+				  .selected_color(LLUIColor(&mTextSelectedColor))
 				  .font(mDefaultFont)
 				  .drop_shadow(mFontShadow);
 		  mStyleDirty = false;
@@ -397,7 +402,7 @@ void LLTextBase::drawSelectionBackground()
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		const LLColor4& color = mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get();
+		const LLColor4& color = mSelectedBGColor;
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
 		LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
@@ -437,7 +442,6 @@ void LLTextBase::drawCursor()
 		}
 		else
 		{
-			//segmentp = mSegments.back();
 			return;
 		}
 
@@ -471,21 +475,8 @@ void LLTextBase::drawCursor()
 			{
 				LLColor4 text_color;
 				const LLFontGL* fontp;
-				if (segmentp)
-				{
 					text_color = segmentp->getColor();
 					fontp = segmentp->getStyle()->getFont();
-				}
-				else if (mReadOnly)
-				{
-					text_color = mReadOnlyFgColor.get();
-					fontp = mDefaultFont;
-				}
-				else
-				{
-					text_color = mFgColor.get();
-					fontp = mDefaultFont;
-				}
 				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
 					LLFontGL::LEFT, mVAlign,
@@ -1015,21 +1006,26 @@ void LLTextBase::draw()
 	if (mBGVisible)
 	{
 		// clip background rect against extents, if we support scrolling
-		LLLocalClipRect clip(doc_rect, mScroller != NULL);
-
+		LLRect bg_rect = mVisibleTextRect;
+		if (mScroller)
+		{
+			bg_rect.intersectWith(doc_rect);
+		}
 		LLColor4 bg_color = mReadOnly 
 							? mReadOnlyBgColor.get()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(mVisibleTextRect, bg_color, TRUE);
+		gl_rect_2d(doc_rect, bg_color, TRUE);
 	}
 
 	// draw document view
 	LLUICtrl::draw();
 
 	{
-		// only clip if we support scrolling (mScroller != NULL)
+		// only clip if we support scrolling...
+		// since convention is that text boxes never vertically truncate their contents
+		// regardless of rect bounds
 		LLLocalClipRect clip(doc_rect, mScroller != NULL);
 		drawSelectionBackground();
 		drawText();
@@ -1493,23 +1489,32 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
+	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
+
 	if (index > getLength()) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
-	segment_set_t::iterator it = mSegments.upper_bound(new LLIndexSegment(index));
+	//FIXME: avoid operator new somehow (without running into refcount problems)
+	index_segment->setStart(index);
+	index_segment->setEnd(index);
+	segment_set_t::iterator it = mSegments.upper_bound(index_segment);
 	return it;
 }
 
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
+	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
+
 	if (index > getLength()) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
-	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(new LLIndexSegment(index));
+	index_segment->setStart(index);
+	index_segment->setEnd(index);
+	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(index_segment);
 	return it;
 }
 
@@ -1645,7 +1650,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 			else
 			{
-				appendAndHighlightText(match.getLabel(), part, link_params);
+				appendAndHighlightText(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
 
 				// set the tooltip for the Url label
 				if (! match.getTooltip().empty())
@@ -1728,7 +1733,7 @@ void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const s
 	insertStringNoUndo(getLength(), widget_wide_text, &segments);
 }
 
-void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
 	// Save old state
 	S32 selection_start = mSelectionStart;
@@ -1759,7 +1764,17 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
-			LLTextSegmentPtr segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
+			LLTextSegmentPtr segmentp;
+			if(underline_on_hover_only)
+			{
+				highlight_params.font.style("NORMAL");
+				LLStyleConstSP normal_sp(new LLStyle(highlight_params));
+				segmentp = new LLOnHoverChangeableTextSegment(sp, normal_sp, cur_length, cur_length + wide_text.size(), *this);
+			}
+			else
+			{
+				segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
+			}
 			segment_vec_t segments;
 			segments.push_back(segmentp);
 			insertStringNoUndo(cur_length, wide_text, &segments);
@@ -1774,7 +1789,17 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 		S32 segment_start = old_length;
 		S32 segment_end = old_length + wide_text.size();
 		LLStyleConstSP sp(new LLStyle(style_params));
+		if (underline_on_hover_only)
+		{
+			LLStyle::Params normal_style_params(style_params);
+			normal_style_params.font.style("NORMAL");
+			LLStyleConstSP normal_sp(new LLStyle(normal_style_params));
+			segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this ));
+		}
+		else
+		{
 		segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this ));
+		}
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
@@ -1798,7 +1823,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	}
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
 	if (new_text.empty()) return; 
 
@@ -1810,7 +1835,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlig
 		if(pos!=start)
 		{
 			std::string str = std::string(new_text,start,pos-start);
-			appendAndHighlightTextImpl(str,highlight_part, style_params);
+			appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
 		}
 		appendLineBreakSegment(style_params);
 		start = pos+1;
@@ -1818,7 +1843,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlig
 	}
 
 	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendAndHighlightTextImpl(str,highlight_part, style_params);
+	appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
 }
 
 
@@ -2272,6 +2297,7 @@ void LLTextBase::updateRects()
 	// allow horizontal scrolling?
 	// if so, use entire width of text contents
 	// otherwise, stop at width of mVisibleTextRect
+	//FIXME: consider use of getWordWrap() instead
 	doc_rect.mRight = mScroller 
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
@@ -2481,7 +2507,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 		font->render(text, start, 
 			     rect,
-			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
+			     mStyle->getSelectedColor().get(),
 			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     LLFontGL::NO_SHADOW, 
@@ -2676,6 +2702,33 @@ void LLNormalTextSegment::dump() const
 		mStart << ", " <<
 		getEnd() << "]" <<
 		llendl;
+}
+
+//
+// LLOnHoverChangeableTextSegment
+//
+
+LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor ):
+	  LLNormalTextSegment(normal_style, start, end, editor),
+	  mHoveredStyle(style),
+	  mNormalStyle(normal_style){}
+
+/*virtual*/ 
+F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+{
+	F32 result = LLNormalTextSegment::draw(start, end, selection_start, selection_end, draw_rect);
+	if (end == mEnd - mStart)
+	{
+		mStyle = mNormalStyle;
+	}
+	return result;
+}
+
+/*virtual*/
+BOOL LLOnHoverChangeableTextSegment::handleHover(S32 x, S32 y, MASK mask)
+{
+	mStyle = mHoveredStyle;
+	return LLNormalTextSegment::handleHover(x, y, mask);
 }
 
 

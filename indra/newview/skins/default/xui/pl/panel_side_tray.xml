@@ -2,7 +2,7 @@
 <!-- Side tray cannot show background because it is always
 	partially on screen to hold tab buttons. -->
 <side_tray name="sidebar">
-	<sidetray_tab description="Przełącz Panel Boczny" name="sidebar_openclose" tab_title="Przełącz Panel Boczny"/>
+	<sidetray_tab description="Przełącz schowek" name="sidebar_openclose" tab_title="Przełącz schowek"/>
 	<sidetray_tab description="Miejsce Startu." name="sidebar_home" tab_title="Home">
 		<panel label="miejsce startu" name="panel_home"/>
 	</sidetray_tab>
@@ -24,6 +24,6 @@
 		<panel label="Edytuj Szafę" name="sidepanel_inventory"/>
 	</sidetray_tab>
 	<sidetray_tab description="Zmień swój obecny wygląd i ubranie." name="sidebar_appearance" tab_title="My Appearance">
-		<panel label="Edytuj Wygląd" name="sidepanel_appearance"/>
+		<panel label="Edytuj wygląd" name="sidepanel_appearance"/>
 	</sidetray_tab>
 </side_tray>

@@ -49,22 +49,13 @@ public:
 	LLCheckBoxCtrl	*mCheckShowOwners;
 
 protected:
-	static void onClickClaim(void*);
-	static void onClickRelease(void*);
-	static void onClickDivide(void*);
-	static void onClickJoin(void*);
-	static void onClickAbout(void*);
+	static void onClickClaim();
+	static void onClickRelease();
+	static void onClickDivide();
+	static void onClickJoin();
+	static void onClickAbout();
 
 protected:
-	//LLTextBox*		mTextPriceLabel;
-	//LLTextBox*		mTextPrice;
-
-	//LLButton*		mBtnClaimLand;
-	//LLButton*		mBtnReleaseLand;
-	//LLButton*		mBtnDivideLand;
-	//LLButton*		mBtnJoinLand;
-	//LLButton*		mBtnAbout;
-	
 	virtual BOOL	postBuild();
 
 	static LLPanelLandSelectObserver* sObserver;

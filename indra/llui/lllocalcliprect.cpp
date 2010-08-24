@@ -27,32 +27,7 @@
 #include "lllocalcliprect.h"
 
 #include "llfontgl.h"
-#include "llgl.h"
 #include "llui.h"
-
-#include <stack>
-
-//---------------------------------------------------------------------------
-// LLScreenClipRect
-// implementation class in screen space
-//---------------------------------------------------------------------------
-class LLScreenClipRect
-{
-public:
-	LLScreenClipRect(const LLRect& rect, BOOL enabled = TRUE);
-	virtual ~LLScreenClipRect();
-
-private:
-	static void pushClipRect(const LLRect& rect);
-	static void popClipRect();
-	static void updateScissorRegion();
-
-private:
-	LLGLState		mScissorState;
-	BOOL			mEnabled;
-
-	static std::stack<LLRect> sClipRectStack;
-};
 
 /*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
@@ -64,9 +39,9 @@ LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
 	if (mEnabled)
 	{
 		pushClipRect(rect);
+		mScissorState.setEnabled(!sClipRectStack.empty());
+		updateScissorRegion();
 	}
-	mScissorState.setEnabled(!sClipRectStack.empty());
-	updateScissorRegion();
 }
 
 LLScreenClipRect::~LLScreenClipRect()
@@ -74,8 +49,8 @@ LLScreenClipRect::~LLScreenClipRect()
 	if (mEnabled)
 	{
 		popClipRect();
+		updateScissorRegion();
 	}
-	updateScissorRegion();
 }
 
 //static 
@@ -125,16 +100,11 @@ void LLScreenClipRect::updateScissorRegion()
 // LLLocalClipRect
 //---------------------------------------------------------------------------
 LLLocalClipRect::LLLocalClipRect(const LLRect& rect, BOOL enabled /* = TRUE */)
-{
-	LLRect screen(rect.mLeft + LLFontGL::sCurOrigin.mX, 
-		rect.mTop + LLFontGL::sCurOrigin.mY, 
-		rect.mRight + LLFontGL::sCurOrigin.mX, 
-		rect.mBottom + LLFontGL::sCurOrigin.mY);
-	mScreenClipRect = new LLScreenClipRect(screen, enabled);
-}
+:	LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
+					rect.mTop + LLFontGL::sCurOrigin.mY, 
+					rect.mRight + LLFontGL::sCurOrigin.mX, 
+					rect.mBottom + LLFontGL::sCurOrigin.mY), enabled)
+{}
 
 LLLocalClipRect::~LLLocalClipRect()
-{
-	delete mScreenClipRect;
-	mScreenClipRect = NULL;
-}
+{}

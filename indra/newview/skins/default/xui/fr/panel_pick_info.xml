@@ -11,6 +11,6 @@
 	<panel name="buttons">
 		<button label="Téléporter" name="teleport_btn"/>
 		<button label="Carte" name="show_on_map_btn"/>
-		<button label="Éditer" name="edit_btn"/>
+		<button label="Modifier" name="edit_btn"/>
 	</panel>
 </panel>

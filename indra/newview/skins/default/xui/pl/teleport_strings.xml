@@ -2,12 +2,12 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Przepraszamy, ale pojawił się błąd podczas Twojej próby teleportacji. By ponowić teleportację, wyloguj się i zaloguj ponownie.
-Jeżeli nadal otrzymujesz komunikat błędu teleportacji, sprawdź [SUPPORT_SITE].
+			Przepraszamy, ale pojawił się błąd podczas Twojej próby teleportacji. Aby ponowić teleportację, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat o błędzie teleportacji, sprawdź [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			Przepraszamy, ale pojawił się błąd podczas próby zmiany regionu. By ponowić próbę przejścia na drugi region, wyloguj się i zaloguj ponownie.
-Jeżeli nadal otrzymujesz komunikat błędu podczas przejścia na drugi region, sprawdź [SUPPORT_SITE].
+			Przepraszamy, ale pojawił się błąd podczas próby zmiany regionu. Aby ponowić próbę przejścia na drugi region, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat o błędzie podczas przejścia na drugi region, sprawdź [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.
@@ -26,7 +26,7 @@ Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
 			Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
 		</message>
 		<message name="too_many_uploads_tport">
-			Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóznia.
+			Obecnie ten region ma problemy z ładowaniem obiektów, w związku z czym teleportacja bardzo sie opóźnia.
 Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego miejsca.
 		</message>
 		<message name="expired_tport">
@@ -36,7 +36,7 @@ Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego 
 			Przepraszamy, ale nie udało się przeprowadzić zmiany regionu wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="no_host">
-			Nie możemy znaleść miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
+			Nie możemy znaleźć miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
 Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="no_inventory_host">
@@ -57,7 +57,7 @@ Spróbuj jeszcze raz za kilka minut.
 			Wysyłanie do miejsca startu.
 		</message>
 		<message name="sending_landmark">
-			Lokalizowanie zapamiętanego miejsca (LM).
+			Lokalizowanie landmarka(LM).
 		</message>
 		<message name="completing">
 			Finalizowanie teleportacji.

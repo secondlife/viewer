@@ -283,6 +283,9 @@ void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
 {
 	LLTextBase::initFromParams(p);
 
+	// HACK:  text editors always need to be enabled so that we can scroll
+	LLView::setEnabled(true);
+
 	if (p.commit_on_focus_lost.isProvided())
 	{
 		mCommitOnFocusLost = p.commit_on_focus_lost;
@@ -452,8 +455,13 @@ S32 LLTextEditor::nextWordPos(S32 cursorPos) const
 
 const LLTextSegmentPtr	LLTextEditor::getPreviousSegment() const
 {
+	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment;
+
+	index_segment->setStart(mCursorPos);
+	index_segment->setEnd(mCursorPos);
+
 	// find segment index at character to left of cursor (or rightmost edge of selection)
-	segment_set_t::const_iterator it = mSegments.lower_bound(new LLIndexSegment(mCursorPos));
+	segment_set_t::const_iterator it = mSegments.lower_bound(index_segment);
 
 	if (it != mSegments.end())
 	{

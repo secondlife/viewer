@@ -256,19 +256,19 @@ public:
 	void onChangeFixedSun();
 	void onChangeUseGlobalTime();
 	
-	static void onClickEditSky(void* userdata);
-	static void onClickEditSkyHelp(void* userdata);	
-	static void onClickEditDayCycle(void* userdata);
-	static void onClickEditDayCycleHelp(void* userdata);	
+	void onClickEditSky();
+	void onClickEditSkyHelp();	
+	void onClickEditDayCycle();
+	void onClickEditDayCycleHelp();
 
-	static void onClickAddAllowedAgent(void* user_data);
-	static void onClickRemoveAllowedAgent(void* user_data);
-		   void onClickAddAllowedGroup();
-	static void onClickRemoveAllowedGroup(void* user_data);
-	static void onClickAddBannedAgent(void* user_data);
-	static void onClickRemoveBannedAgent(void* user_data);
-	static void onClickAddEstateManager(void* user_data);
-	static void onClickRemoveEstateManager(void* user_data);
+	void onClickAddAllowedAgent();
+	void onClickRemoveAllowedAgent();
+	void onClickAddAllowedGroup();
+	void onClickRemoveAllowedGroup();
+	void onClickAddBannedAgent();
+	void onClickRemoveBannedAgent();
+	void onClickAddEstateManager();
+	void onClickRemoveEstateManager();
 	void onClickKickUser();
 
 	// Group picker callback is different, can't use core methods below

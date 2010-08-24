@@ -141,8 +141,6 @@ public:
 	// LLView interface
 	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	/*virtual*/ BOOL	isCtrl() const;
-	/*virtual*/ void	setTentative(BOOL b);
-	/*virtual*/ BOOL	getTentative() const;
 	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	canFocusChildren() const;
@@ -174,6 +172,8 @@ public:
 	void setMakeVisibleControlVariable(LLControlVariable* control);
 	void setMakeInvisibleControlVariable(LLControlVariable* control);
 
+	virtual void	setTentative(BOOL b);
+	virtual BOOL	getTentative() const;
 	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
     /// When two widgets are displaying the same data (e.g. during a skin

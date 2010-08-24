@@ -232,6 +232,17 @@ const std::string& LLPanelInventoryListItemBase::getDescription() const
 	return inv_item->getDescription();
 }
 
+time_t LLPanelInventoryListItemBase::getCreationDate() const
+{
+	LLViewerInventoryItem* inv_item = getItem();
+	if (NULL == inv_item)
+	{
+		return 0;
+	}
+
+	return inv_item->getCreationDate();
+}
+
 LLViewerInventoryItem* LLPanelInventoryListItemBase::getItem() const
 {
 	return gInventory.getItem(mInventoryItemUUID);

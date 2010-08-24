@@ -458,17 +458,17 @@ void LLPanelObject::getState( )
 	BOOL editable = root_objectp->permModify();
 
 	// Select Single Message
-	childSetVisible("select_single", FALSE);
-	childSetVisible("edit_object", FALSE);
+	getChildView("select_single")->setVisible( FALSE);
+	getChildView("edit_object")->setVisible( FALSE);
 	if (!editable || single_volume || selected_count <= 1)
 	{
-		childSetVisible("edit_object", TRUE);
-		childSetEnabled("edit_object", TRUE);
+		getChildView("edit_object")->setVisible( TRUE);
+		getChildView("edit_object")->setEnabled(TRUE);
 	}
 	else
 	{
-		childSetVisible("select_single", TRUE);
-		childSetEnabled("select_single", TRUE);
+		getChildView("select_single")->setVisible( TRUE);
+		getChildView("select_single")->setEnabled(TRUE);
 	}
 	// Lock checkbox - only modifiable if you own the object.
 	BOOL self_owned = (gAgent.getID() == owner_id);
@@ -987,19 +987,19 @@ void LLPanelObject::getState( )
 	mLabelSkew		->setEnabled( enabled );
 	mSpinSkew		->setEnabled( enabled );
 
-	childSetVisible("scale_hole", FALSE);
-	childSetVisible("scale_taper", FALSE);
+	getChildView("scale_hole")->setVisible( FALSE);
+	getChildView("scale_taper")->setVisible( FALSE);
 	if (top_size_x_visible || top_size_y_visible)
 	{
 		if (size_is_hole)
 		{
-			childSetVisible("scale_hole", TRUE);
-			childSetEnabled("scale_hole", enabled);
+			getChildView("scale_hole")->setVisible( TRUE);
+			getChildView("scale_hole")->setEnabled(enabled);
 		}
 		else
 		{
-			childSetVisible("scale_taper", TRUE);
-			childSetEnabled("scale_taper", enabled);
+			getChildView("scale_taper")->setVisible( TRUE);
+			getChildView("scale_taper")->setEnabled(enabled);
 		}
 	}
 	
@@ -1010,27 +1010,27 @@ void LLPanelObject::getState( )
 	mSpinShearX		->setEnabled( enabled );
 	mSpinShearY		->setEnabled( enabled );
 
-	childSetVisible("advanced_cut", FALSE);
-	childSetVisible("advanced_dimple", FALSE);
-	childSetVisible("advanced_slice", FALSE);
+	getChildView("advanced_cut")->setVisible( FALSE);
+	getChildView("advanced_dimple")->setVisible( FALSE);
+	getChildView("advanced_slice")->setVisible( FALSE);
 
 	if (advanced_cut_visible)
 	{
 		if (advanced_is_dimple)
 		{
-			childSetVisible("advanced_dimple", TRUE);
-			childSetEnabled("advanced_dimple", enabled);
+			getChildView("advanced_dimple")->setVisible( TRUE);
+			getChildView("advanced_dimple")->setEnabled(enabled);
 		}
 
 		else if (advanced_is_slice)
 		{
-			childSetVisible("advanced_slice", TRUE);
-			childSetEnabled("advanced_slice", enabled);
+			getChildView("advanced_slice")->setVisible( TRUE);
+			getChildView("advanced_slice")->setEnabled(enabled);
 		}
 		else
 		{
-			childSetVisible("advanced_cut", TRUE);
-			childSetEnabled("advanced_cut", enabled);
+			getChildView("advanced_cut")->setVisible( TRUE);
+			getChildView("advanced_cut")->setEnabled(enabled);
 		}
 	}
 	
@@ -1913,15 +1913,15 @@ void LLPanelObject::clearCtrls()
 	mLabelRadiusOffset->setEnabled( FALSE );
 	mLabelRevolutions->setEnabled( FALSE );
 
-	childSetVisible("select_single", FALSE);
-	childSetVisible("edit_object", TRUE);	
-	childSetEnabled("edit_object", FALSE);
+	getChildView("select_single")->setVisible( FALSE);
+	getChildView("edit_object")->setVisible( TRUE);	
+	getChildView("edit_object")->setEnabled(FALSE);
 	
-	childSetEnabled("scale_hole", FALSE);
-	childSetEnabled("scale_taper", FALSE);
-	childSetEnabled("advanced_cut", FALSE);
-	childSetEnabled("advanced_dimple", FALSE);
-	childSetVisible("advanced_slice", FALSE);
+	getChildView("scale_hole")->setEnabled(FALSE);
+	getChildView("scale_taper")->setEnabled(FALSE);
+	getChildView("advanced_cut")->setEnabled(FALSE);
+	getChildView("advanced_dimple")->setEnabled(FALSE);
+	getChildView("advanced_slice")->setVisible( FALSE);
 }
 
 //

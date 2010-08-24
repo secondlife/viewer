@@ -202,7 +202,7 @@
          value="Category:"
          width="140" />
         <text_editor
-         allow_html="true"
+         parse_urls="true"
          allow_scroll="false"
          bg_visible="false"
          follows="left|top|right"
@@ -371,7 +371,7 @@
          value="Description:"
          width="250" />
         <text_editor
-         allow_html="true"
+         parse_urls="true"
          allow_scroll="true"
          bg_visible="false"
          follows="all"

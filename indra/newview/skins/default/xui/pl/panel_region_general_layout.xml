@@ -25,15 +25,15 @@
 	<check_box label="Odsprzedaż dozwolona" name="allow_land_resell_check"/>
 	<check_box label="Łączenie/Dzielenie dozwolone" name="allow_parcel_changes_check"/>
 	<check_box label="Zablokuj wyszukiwanie" name="block_parcel_search_check" tool_tip="Pozwól na wyświetlanie nazwy Regionu i Posiadłości w wynikach wyszukiwania"/>
-	<spinner label="Limit Gości" name="agent_limit_spin"/>
+	<spinner label="Limit gości" name="agent_limit_spin"/>
 	<spinner label="Ekstra obiekty" name="object_bonus_spin"/>
 	<text label="Restrykcje wieku" name="access_text">
 		Rodzaj:
 	</text>
 	<combo_box label="Moderuj" name="access_combo">
 		<combo_box.item label="Adult" name="Adult"/>
-		<combo_box.item label="Moderuj" name="Mature"/>
-		<combo_box.item label="Ogólne" name="PG"/>
+		<combo_box.item label="Moderate" name="Mature"/>
+		<combo_box.item label="General" name="PG"/>
 	</combo_box>
 	<button label="Zastosuj" name="apply_btn"/>
 	<button label="Teleportuj do Miejsca Startu jednego Rezydenta..." name="kick_btn"/>

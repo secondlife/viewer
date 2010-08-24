@@ -96,7 +96,8 @@ public:
 	{
 		// behavioral flags
 		Optional<bool>	multi_select,
-						commit_on_keyboard_movement;
+						commit_on_keyboard_movement,
+						mouse_wheel_opaque;
 
 		// display flags
 		Optional<bool>	has_border,
@@ -443,6 +444,7 @@ private:
 	BOOL			mCommitOnSelectionChange;
 	BOOL			mSelectionChanged;
 	BOOL			mNeedsScroll;
+	BOOL			mMouseWheelOpaque;
 	BOOL			mCanSelect;
 	const BOOL		mDisplayColumnHeaders;
 	BOOL			mColumnsDirty;

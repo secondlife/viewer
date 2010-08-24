@@ -38,7 +38,7 @@ LLPanelGenericTip::LLPanelGenericTip(
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_generic_tip.xml");
 
-	childSetValue("message", notification->getMessage());
+	getChild<LLUICtrl>("message")->setValue(notification->getMessage());
 
 
 	S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
