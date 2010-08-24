@@ -37,7 +37,8 @@ LLUrlMatch::LLUrlMatch() :
 	mIcon(""),
 	mMenuName(""),
 	mLocation(""),
-	mDisabledLink(false)
+	mDisabledLink(false),
+	mUnderlineOnHoverOnly(false)
 {
 }
 
@@ -45,7 +46,7 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 						   const std::string &label, const std::string &tooltip,
 						   const std::string &icon, const LLUIColor& color,
 						   const std::string &menu, const std::string &location,
-						   bool disabled_link, const LLUUID& id)
+						   bool disabled_link, const LLUUID& id, bool underline_on_hover_only)
 {
 	mStart = start;
 	mEnd = end;
@@ -58,4 +59,5 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 	mLocation = location;
 	mDisabledLink = disabled_link;
 	mID = id;
+	mUnderlineOnHoverOnly = underline_on_hover_only;
 }

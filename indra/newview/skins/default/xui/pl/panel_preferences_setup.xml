@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ustawienia" name="Input panel">
-	<button label="Ustawienia Joysticka" name="joystick_setup_button"/>
+	<button label="Ustawienia joysticka" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Widok panoramiczny:
 	</text>
 	<text name=" Mouse Sensitivity">
-		Czułość Myszki
+		Czułość myszki
 	</text>
 	<slider name="mouse_sensitivity"/>
 	<check_box label="Zmień klawisze myszki" name="invert_mouse"/>
@@ -41,9 +41,9 @@
 	<check_box label="Zezwalaj na wtyczki" name="browser_plugins_enabled"/>
 	<check_box label="Akceptuj ciasteczka z Internetu" name="cookies_enabled"/>
 	<check_box label="Zezwalaj na Javascript" name="browser_javascript_enabled"/>
-	<check_box label="Używaj Serwera Proxy" name="web_proxy_enabled"/>
+	<check_box label="Używaj serwera proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
-		Lokalizacja Proxy:
+		Lokalizacja proxy:
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
 	<spinner label="Numer portu:" name="web_proxy_port"/>

@@ -78,7 +78,7 @@
       width="285"
       wrap="true"
       parse_highlights="true"
-      allow_html="true"/>
+      parse_urls="true"/>
   </panel>
   <panel
     background_visible="false"

@@ -10,13 +10,11 @@
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
-uniform sampler2DRect giLightMap;
 
 uniform float dist_factor;
 uniform float blur_size;
 uniform vec2 delta;
-uniform vec3 kern[32];
-uniform int kern_length;
+uniform vec3 kern[4];
 uniform float kern_scale;
 
 varying vec2 vary_fragcoord;
@@ -39,7 +37,8 @@ vec4 getPosition(vec2 pos_screen)
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	vec3 pos = getPosition(vary_fragcoord.xy).xyz;
 	vec4 ccol = texture2DRect(lightMap, vary_fragcoord.xy).rgba;
 	
@@ -50,9 +49,20 @@ void main()
 	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
 	
-	for (int i = 1; i < kern_length; i++)
+	for (int i = 1; i < 4; i++)
 	{
 		vec2 tc = vary_fragcoord.xy + kern[i].z*dlt;
+	        vec3 samppos = getPosition(tc).xyz; 
+		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
+		if (d*d <= 0.003)
+		{
+			col += texture2DRect(lightMap, tc)*kern[i].xyxx;
+			defined_weight += kern[i].xy;
+		}
+	}
+	for (int i = 1; i < 4; i++)
+	{
+		vec2 tc = vary_fragcoord.xy - kern[i].z*dlt;
 	        vec3 samppos = getPosition(tc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= 0.003)
@@ -67,6 +77,5 @@ void main()
 	col /= defined_weight.xyxx;
 	
 	gl_FragColor = col;
-	
-	//gl_FragColor = ccol;
 }
+

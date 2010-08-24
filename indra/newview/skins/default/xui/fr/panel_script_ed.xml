@@ -25,7 +25,7 @@
 			<menu_item_call label="Enregistrer" name="Save"/>
 			<menu_item_call label="Annuler tous les changements" name="Revert All Changes"/>
 		</menu>
-		<menu label="Éditer" name="Edit">
+		<menu label="Modifier" name="Edit">
 			<menu_item_call label="Annuler" name="Undo"/>
 			<menu_item_call label="Refaire" name="Redo"/>
 			<menu_item_call label="Couper" name="Cut"/>

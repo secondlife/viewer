@@ -808,7 +808,7 @@ void LLViewerTexture::generateGLTexture()
 LLImageGL* LLViewerTexture::getGLTexture() const
 {
 	llassert(mGLTexturep.notNull()) ;
-	
+
 	return mGLTexturep ;
 }
 
@@ -1484,53 +1484,62 @@ void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 void LLViewerFetchedTexture::processTextureStats()
 {
 	if(mFullyLoaded)
-	{
-		if(mDesiredDiscardLevel <= mMinDesiredDiscardLevel)//already loaded
+	{		
+		if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
 		{
-			return ;
+			mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
+			mFullyLoaded = FALSE ;
 		}
-		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
-		mFullyLoaded = FALSE ;
-		return ;
-	}
-
-	updateVirtualSize() ;
-	
-	static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes");
-	
-	if (textures_fullres)
-	{
-		mDesiredDiscardLevel = 0;
-	}
-	else if(!mFullWidth || !mFullHeight)
-	{
-		mDesiredDiscardLevel = 	getMaxDiscardLevel() ;
 	}
 	else
-	{	
-		if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
-		{
-			if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			{
-				mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-			}
-			else
-			{
-				mDesiredDiscardLevel = 0;
-			}
-		}
-		else if(mKnownDrawSizeChanged)//known draw size is set
-		{			
-			mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
-					                             log((F32)mFullHeight / mKnownDrawHeight) / log_2) ;
-			mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel()) ;
-			mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
-		}
-		mKnownDrawSizeChanged = FALSE ;
+	{
+		updateVirtualSize() ;
 		
-		if(getDiscardLevel() >= 0 && (getDiscardLevel() <= mDesiredDiscardLevel))
+		static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes");
+		
+		if (textures_fullres)
 		{
-			mFullyLoaded = TRUE ;
+			mDesiredDiscardLevel = 0;
+		}
+		else if(!mFullWidth || !mFullHeight)
+		{
+			mDesiredDiscardLevel = 	getMaxDiscardLevel() ;
+		}
+		else
+		{	
+			if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
+			{
+				if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+				{
+					mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+				}
+				else
+				{
+					mDesiredDiscardLevel = 0;
+				}
+			}
+			else if(mKnownDrawSizeChanged)//known draw size is set
+			{			
+				mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
+													 log((F32)mFullHeight / mKnownDrawHeight) / log_2) ;
+				mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel()) ;
+				mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
+			}
+			mKnownDrawSizeChanged = FALSE ;
+		
+			if(getDiscardLevel() >= 0 && (getDiscardLevel() <= mDesiredDiscardLevel))
+			{
+				mFullyLoaded = TRUE ;
+			}
+		}
+	}
+
+	if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0) //force to refetch the texture.
+	{
+		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel) ;
+		if(getDiscardLevel() < 0 || getDiscardLevel() > mDesiredDiscardLevel)
+		{
+			mFullyLoaded = FALSE ;
 		}
 	}
 }
@@ -1713,6 +1722,11 @@ void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 	llassert(!mInImageList); 
     
 	mDecodePriority = priority;
+
+	if(mDecodePriority < F_ALMOST_ZERO)
+	{
+		mStopFetchingTimer.reset() ;
+	}
 }
 
 void LLViewerFetchedTexture::setAdditionalDecodePriority(F32 priority)
@@ -1904,7 +1918,12 @@ bool LLViewerFetchedTexture::updateFetch()
 // 				llinfos << "Calling updateRequestPriority() with decode_priority = 0.0f" << llendl;
 // 				calcDecodePriority();
 // 			}
-			LLAppViewer::getTextureFetch()->updateRequestPriority(mID, decode_priority);
+			static const F32 MAX_HOLD_TIME = 5.0f ; //seconds to wait before canceling fecthing if decode_priority is 0.f.
+			if(decode_priority > 0.0f || mStopFetchingTimer.getElapsedTimeF32() > MAX_HOLD_TIME)
+			{
+				mStopFetchingTimer.reset() ;
+				LLAppViewer::getTextureFetch()->updateRequestPriority(mID, decode_priority);
+			}
 		}
 	}
 
@@ -2064,6 +2083,36 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 	}
 }
 
+void LLViewerFetchedTexture::clearCallbackEntryList()
+{
+	if(mLoadedCallbackList.empty())
+	{
+		return ;
+	}
+
+	for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
+			iter != mLoadedCallbackList.end(); )
+	{
+		LLLoadedCallbackEntry *entryp = *iter;
+			
+		// We never finished loading the image.  Indicate failure.
+		// Note: this allows mLoadedCallbackUserData to be cleaned up.
+		entryp->mCallback(FALSE, this, NULL, NULL, 0, TRUE, entryp->mUserData);
+		iter = mLoadedCallbackList.erase(iter) ;
+		delete entryp;
+	}
+	gTextureList.mCallbackList.erase(this);
+		
+	mMinDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
+	mLoadedCallbackDesiredDiscardLevel = S8_MAX ;
+	if(mForceToSaveRawImage)
+	{
+		destroySavedRawImage() ;
+	}
+
+	return ;
+}
+
 void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
 	if(mLoadedCallbackList.empty() || !callback_list)
@@ -2071,7 +2120,7 @@ void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::so
 		return ;
 	}
 
-	S32 desired_discard = INVALID_DISCARD_LEVEL ;
+	S32 desired_discard = S8_MAX ;
 	S32 desired_raw_discard = INVALID_DISCARD_LEVEL ;
 	for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
 			iter != mLoadedCallbackList.end(); )
@@ -2125,7 +2174,7 @@ void LLViewerFetchedTexture::deleteCallbackEntry(const LLLoadedCallbackEntry::so
 void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
 	if(!callback_list)
-	{
+{
 		mPauseLoadedCallBacks = FALSE ;
 		return ;
 	}
@@ -2154,7 +2203,7 @@ void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry:
 void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list)
 {
 	if(!callback_list)
-	{
+{
 		return ;
 	}
 
@@ -2641,6 +2690,12 @@ void LLViewerFetchedTexture::forceToSaveRawImage(S32 desired_discard, bool from_
 }
 void LLViewerFetchedTexture::destroySavedRawImage()
 {
+	clearCallbackEntryList() ;
+	//if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0 && mDesiredSavedRawDiscardLevel < getDiscardLevel())
+	//{
+	//	return ; //can not destroy the saved raw image before it is fully fetched, otherwise causing callbacks hanging there.
+	//}
+
 	mSavedRawImage = NULL ;
 	mForceToSaveRawImage  = FALSE ;
 	mSavedRawDiscardLevel = -1 ;
@@ -2891,7 +2946,7 @@ BOOL LLViewerLODTexture::isUpdateFrozen()
 void LLViewerLODTexture::processTextureStats()
 {
 	updateVirtualSize() ;
-
+	
 	static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes");
 	
 	if (textures_fullres)

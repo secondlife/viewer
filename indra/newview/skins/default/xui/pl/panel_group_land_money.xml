@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Posiadłości i L$" name="land_money_tab">
 	<panel.string name="help_text">
-		Ostrzeżenie pojawia się kiedy Łączna Powierzchnia Posiadłości jest mniejsza lub = Kontrybucjom
+		Ostrzeżenie pojawia się kiedy łączna powierzchnia posiadłości jest mniejsza lub = Kontrybucjom
 	</panel.string>
 	<panel.string name="cant_view_group_land_text">
-		Nie masz pozwolenia na oglądanie Posiadłości Grupy.
+		Nie masz pozwolenia na oglądanie posiadłości grupy.
 	</panel.string>
 	<panel.string name="epmty_view_group_land_text">
 		Brak wstępu
 	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
-		Nie masz dostępu do konta, finansów Grupy.
+		Nie masz dostępu do konta, finansów grupy.
 	</panel.string>
 	<panel.string name="loading_txt">
 		Ładowanie...
@@ -33,19 +33,19 @@
 		</text>
 		<button label="Mapa" label_selected="Mapa" name="map_button"/>
 		<text name="total_land_in_use_label">
-			Używane Posiadłości:
+			Używane posiadłości:
 		</text>
 		<text name="total_land_in_use_value">
 			[AREA] m²
 		</text>
 		<text name="land_available_label">
-			Dostępne Posiadłości:
+			Dostępne posiadłości:
 		</text>
 		<text name="land_available_value">
 			[AREA] m²
 		</text>
 		<text name="your_contribution_label">
-			Twoje Kontrybucje:
+			Twoje kontrybucje:
 		</text>
 		<text name="your_contribution_units">
 			m²
@@ -54,10 +54,10 @@
 			([AMOUNT] max)
 		</text>
 		<text name="group_over_limit_text">
-			Należy zwięszyć kredyt na używanie Posiadłości.
+			Należy zwięszyć kredyt na używanie posiadłości.
 		</text>
 		<text name="group_money_heading">
-			L$ Grupy
+			L$ grupy
 		</text>
 	</panel>
 	<tab_container name="group_money_tab_container">

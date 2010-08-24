@@ -4,48 +4,52 @@
  can_minimize="false"
  can_close="true"
  follows="left|top"
- height="516"
+ height="520"
  layout="topleft"
  name="Snapshot"
  help_topic="snapshot"
  save_rect="true"
  save_visibility="true"
  title="SNAPSHOT PREVIEW"
- width="215">   
-    <floater.string
-     name="share_to_web_url" translate="false">
-http://pdp36.lindenlab.com:12777/
-    </floater.string>
+ width="215">
     <floater.string
      name="unknown">
         unknown
     </floater.string>
     <radio_group
-     height="58"
+     height="70"
      label="Snapshot type"
      layout="topleft"
      left="10"
      name="snapshot_type_radio"
-     top="25"
+     top="20"
      width="205">
+<!--
         <radio_item
-         bottom="19"
+         height="16"
+         label="Share to Web"
+         layout="topleft"
+         name="share_to_web"
+         top_pad="0" />
+-->
+         <radio_item
          height="16"
          label="Email"
          layout="topleft"
-         name="postcard" />
+         name="postcard"
+         top_pad="2" />
         <radio_item
-         bottom="38"
          height="16"
          label="My inventory (L$[AMOUNT])"
          layout="topleft"
-         name="texture" />
+         name="texture"
+         top_pad="2" />
         <radio_item
-         bottom="57"
          height="16"
          label="Save to my computer"
          layout="topleft"
-         name="local" />
+         name="local"
+         top_pad="2" />
     </radio_group>
   <ui_ctrl 
     height="90"
@@ -67,7 +71,7 @@ http://pdp36.lindenlab.com:12777/
      left_delta="0"
      halign="right"
      name="file_size_label"
-     top_pad="10"
+     top_pad="8"
      width="195">
         [SIZE] KB
     </text>

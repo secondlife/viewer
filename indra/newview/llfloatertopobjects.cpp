@@ -92,7 +92,7 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 BOOL LLFloaterTopObjects::postBuild()
 {
 	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
-	childSetFocus("objects_list");
+	getChild<LLUICtrl>("objects_list")->setFocus(TRUE);
 	objects_list->setDoubleClickCallback(onDoubleClickObjectsList, this);
 	objects_list->setCommitOnSelectionChange(TRUE);
 
@@ -247,7 +247,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLUIString format = getString("top_scripts_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		format.setArg("[TIME]", llformat("%0.1f", mtotalScore));
-		childSetValue("title_text", LLSD(format));
+		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
 	}
 	else
 	{
@@ -256,7 +256,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		list->setColumnLabel("mono_time", "");
 		LLUIString format = getString("top_colliders_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
-		childSetValue("title_text", LLSD(format));
+		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
 	}
 }
 
@@ -276,13 +276,13 @@ void LLFloaterTopObjects::updateSelectionInfo()
 
 	std::string object_id_string = object_id.asString();
 
-	childSetValue("id_editor", LLSD(object_id_string));
+	getChild<LLUICtrl>("id_editor")->setValue(LLSD(object_id_string));
 	LLScrollListItem* sli = list->getFirstSelected();
 	llassert(sli);
 	if (sli)
 	{
-		childSetValue("object_name_editor", sli->getColumn(1)->getValue().asString());
-		childSetValue("owner_name_editor", sli->getColumn(2)->getValue().asString());
+		getChild<LLUICtrl>("object_name_editor")->setValue(sli->getColumn(1)->getValue().asString());
+		getChild<LLUICtrl>("owner_name_editor")->setValue(sli->getColumn(2)->getValue().asString());
 	}
 }
 
@@ -306,7 +306,7 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region) return;
 
-	LLCtrlListInterface *list = childGetListInterface("objects_list");
+	LLCtrlListInterface *list = getChild<LLUICtrl>("objects_list")->getListInterface();
 	if (!list || list->getItemCount() == 0) return;
 
 	uuid_vec_t::iterator id_itor;
@@ -451,14 +451,14 @@ void LLFloaterTopObjects::onRefresh()
 void LLFloaterTopObjects::onGetByObjectName()
 {
 	mFlags  = STAT_FILTER_BY_OBJECT;
-	mFilter = childGetText("object_name_editor");
+	mFilter = getChild<LLUICtrl>("object_name_editor")->getValue().asString();
 	onRefresh();
 }
 
 void LLFloaterTopObjects::onGetByOwnerName()
 {
 	mFlags  = STAT_FILTER_BY_OWNER;
-	mFilter = childGetText("owner_name_editor");
+	mFilter = getChild<LLUICtrl>("owner_name_editor")->getValue().asString();
 	onRefresh();
 }
 

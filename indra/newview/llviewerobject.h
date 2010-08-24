@@ -672,11 +672,15 @@ protected:
 private:	
 	static S32 sNumObjects;
 
+	//--------------------------------------------------------------------
+	// For objects that are attachments
+	//--------------------------------------------------------------------
 public:
-	const LLUUID &getItemID() const { return mAttachmentItemID; }
-	void setItemID(const LLUUID &id) { mAttachmentItemID = id; }
+	const LLUUID &getAttachmentItemID() const;
+	void setAttachmentItemID(const LLUUID &id);
+	const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
 private:
-	LLUUID mAttachmentItemID; // ItemID when item is in user inventory.
+	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
 };
 
 ///////////////////

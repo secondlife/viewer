@@ -2282,6 +2282,9 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-alt">Alt+</string>
 	<string name="accel-win-shift">Shift+</string>
 
+	<string name="Esc">Esc</string>
+	<string name="Home">Home</string>
+
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>
 	<string name="Receiving">Receiving</string>
@@ -3024,6 +3027,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="conference-title">
     Ad-hoc Conference
   </string>
+  <string name="conference-title-incoming">
+    [AGENT_NAME] Conference
+  </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
@@ -3254,5 +3260,11 @@ Abuse Report</string>
   <string name="Accounting">Accounting</string>
   <string name="Notices">Notices</string>
   <string name="Chat">Chat</string>
+
+  <!-- Question strings for delete items notifications -->
+  <string name="DeleteItems">Delete selected items?</string>
+  <string name="DeleteItem">Delete selected item?</string>
+
+  <string name="EmptyOutfitText">There are no items in this outfit</string>
 
   </strings>

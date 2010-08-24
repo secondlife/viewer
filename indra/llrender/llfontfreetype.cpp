@@ -253,10 +253,10 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
 	}
 	else
 	{
-		gi = get_if_there(mCharGlyphInfoMap, (llwchar)0, (LLFontGlyphInfo*)NULL);
-		if (gi)
+		char_glyph_info_map_t::iterator found_it = mCharGlyphInfoMap.find((llwchar)0);
+		if (found_it != mCharGlyphInfoMap.end())
 		{
-			return gi->mXAdvance;
+			return found_it->second->mXAdvance;
 		}
 	}
 
