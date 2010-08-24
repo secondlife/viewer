@@ -55,11 +55,9 @@ public:
     /*virtual*/
     void result(const LLSD& content)
     {
-        std::string text = mOutput->getText();
+        std::string text = content.asString();
         text += '\n';
-        text += content.asString();
-        text += '\n';
-        mOutput->setText(text);
+        mOutput->appendText(text, true);
     };
 
     LLTextEditor * mOutput;
@@ -80,14 +78,13 @@ BOOL LLFloaterRegionDebugConsole::postBuild()
 void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
 {
 	LLLineEditor * input = static_cast<LLLineEditor*>(ctrl);
-	std::string text = mOutput->getText();
-    text += "\n\POST: ";
+	std::string text = "\\POST: ";
 	text += input->getText();
-	mOutput->setText(text);
+	mOutput->appendText(text, true);
 
     std::string url = gAgent.getRegion()->getCapability("SimConsole");
     LLHTTPClient::post(url, LLSD(input->getText()), new ::Responder(mOutput));
 
-	input->setText(std::string(""));
+	input->clear();
 }
 

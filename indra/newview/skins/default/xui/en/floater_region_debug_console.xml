@@ -9,6 +9,7 @@
   width="600">
   <text_editor
   left="10"
+  read_only="true" 
    type="string"
    length="1"
    follows="left|top|right|bottom"
@@ -18,6 +19,7 @@
    ignore_tab="false"
    layout="topleft"
    max_length="65536"
+    track_end="true" 
    name="region_debug_console_output"
    show_line_numbers="false" 
    word_wrap="true">
