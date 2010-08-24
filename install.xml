@@ -790,23 +790,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>3b40e7170dea82c1443e8d90cd44a13d</string>
+            <string>ae18dd120807a46ac961b881a631ad94</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-darwin-20080926.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-darwin-20100820.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a6d2f0995c25d7f53bd12b8ec0d6b462</string>
+            <string>b379063f5f03374f85620e87ce48e497</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-linux-20080930.tar.bz2</uri>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>md5sum</key>
-            <string>f4e2e2b3440594527729a8c85119e508</string>
-            <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux64-20080926.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-linux-20100820.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -814,39 +807,6 @@
             <string>0e2fe621ce99085eba00d86d9a3bc130</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-windows-20100820.tar.bz2</uri>
-          </map>
-        </map>
-      </map>
-      <key>kdu-binaries</key>
-      <map>
-        <key>copyright</key>
-        <string>see kdu</string>
-        <key>description</key>
-        <string>see kdu</string>
-        <key>license</key>
-        <string>kdu</string>
-        <key>packages</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>md5sum</key>
-            <string>480fbeeb47c9b9c4a2f947e310c9821c</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-darwin-20080617.tar.bz2</uri>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>ca87644e377a6cf16db4ba6dbd2f8689</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-linux-20080617.tar.bz2</uri>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>c4cf53deda9148549e6534a98b56e866</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-4.2-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
