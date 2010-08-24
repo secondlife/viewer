@@ -52,6 +52,11 @@ public:
 	 */
 	void handleLoginComplete();
 
+	/**
+	 * Called when show/hide panel top info bar.
+	 */
+	void onShow(const LLSD& show);
+
 private:
 	class LLParcelChangeObserver;
 
