@@ -811,9 +811,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>1b9f61140f8b599cdae5e00d21dbb177</string>
+            <string>0e2fe621ce99085eba00d86d9a3bc130</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-windows-20080926.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-windows-20100820.tar.bz2</uri>
           </map>
         </map>
       </map>
