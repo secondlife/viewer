@@ -151,6 +151,7 @@ blino Nakamura
 Boroondas Gupte
 	SNOW-278
 	SNOW-503
+	SNOW-510
 	SNOW-527
 	SNOW-624
 	VWR-233
@@ -524,6 +525,7 @@ Robin Cornelius
 	SNOW-504
 	SNOW-506
 	SNOW-507
+	SNOW-511
 	SNOW-514
 	SNOW-520
 	SNOW-585
@@ -532,6 +534,7 @@ Robin Cornelius
 	VWR-11128
 	VWR-12533
 	VWR-12587
+	VWR-12758
 	VWR-12763
 	VWR-12995
 Ryozu Kojima
@@ -605,6 +608,8 @@ Strife Onizuka
 	VWR-2265
 	VWR-4111
 Tayra Dagostino
+	SNOW-517
+	SNOW-543
 	VWR-13947
 TBBle Kurosawa
 	VWR-938
@@ -612,6 +617,7 @@ TBBle Kurosawa
 	VWR-942
 	VWR-944
 	VWR-945
+	SNOW-543
 	VWR-1891
 	VWR-1892
 Teardrops Fall

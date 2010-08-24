@@ -833,6 +833,28 @@ class LinuxManifest(ViewerManifest):
         # Create an appropriate gridargs.dat for this package, denoting required grid.
         self.put_in_file(self.flags_list(), 'etc/gridargs.dat')
 
+        self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
+        self.path("../linux_crash_logger/linux-crash-logger","bin/linux-crash-logger.bin")
+        self.path("../linux_updater/linux-updater", "bin/linux-updater.bin")
+        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
+
+        if self.prefix("res-sdl"):
+            self.path("*")
+            # recurse
+            self.end_prefix("res-sdl")
+
+        # plugins
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+            self.end_prefix("bin/llplugin")
+
+        try:
+            self.path("../llcommon/libllcommon.so", "lib/libllcommon.so")
+        except:
+            print "Skipping llcommon.so (assuming llcommon was linked statically)"
+
+        self.path("featuretable_linux.txt")
 
     def package_finish(self):
         if 'installer_name' in self.args:
@@ -846,6 +868,10 @@ class LinuxManifest(ViewerManifest):
                     installer_name += '_' + self.args['grid'].upper()
             else:
                 installer_name += '_' + self.channel_oneword().upper()
+
+        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
         # Fix access permissions
         self.run_command("""
@@ -883,36 +909,12 @@ class Linux_i686Manifest(LinuxManifest):
 
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
-        for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
-            libfile = "lib%s.so" % lib
-            try:
-                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
-                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
-                      dst=os.path.join(destdir, libfile))
-                # keep this one to preserve syntax, open source mangling removes previous lines
-                pass
-            except RuntimeError:
-                print "Skipping %s - not found" % libfile
-                pass
-
-        self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
-
-        self.path("../linux_crash_logger/linux-crash-logger","bin/linux-crash-logger.bin")
-        self.path("../linux_updater/linux-updater", "bin/linux-updater.bin")
-        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
-        if self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
-            self.end_prefix("res-sdl")
-
-        # plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
-            self.end_prefix("bin/llplugin")
-
-        self.path("featuretable_linux.txt")
-        #self.path("secondlife-i686.supp")
+        try:
+            self.path(self.find_existing_file('../llkdu/libllkdu.so',
+                '../../libraries/i686-linux/lib_release_client/libllkdu.so'),
+                  dst='bin/libllkdu.so')
+        except:
+            print "Skipping libllkdu.so - not found"
 
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
             self.path("libapr-1.so.0")
@@ -954,10 +956,6 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
-
-        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
 ################################################################
 
