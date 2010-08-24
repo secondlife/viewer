@@ -63,34 +63,33 @@ namespace tut
 class LLTestCallback : public tut::callback
 {
 public:
-	LLTestCallback(bool verbose_mode, std::ostream *stream, std::string suitename) :
+	LLTestCallback(bool verbose_mode, std::ostream *stream) :
 	mVerboseMode(verbose_mode),
 	mTotalTests(0),
 	mPassedTests(0),
 	mFailedTests(0),
 	mSkippedTests(0),
-	mStream(stream),
-	suite_name(suitename)
+	mStream(stream)
 	{
 	}
-	
-	LLTestCallback()
+
+	~LLTestCallback()
 	{
 	}	
-	
+
 	virtual void run_started()
 	{
 		//std::cout << "run_started" << std::endl;
 	}
-	
+
 	virtual void group_started(const std::string& name) {
 		std::cout << "group_started name=" << name << std::endl;
 	}
-	
+
 	virtual void group_completed(const std::string& name) {
 		std::cout << "group_completed name=" << name << std::endl;
 	}
-	
+
 	virtual void test_completed(const tut::test_result& tr)
 	{
 		++mTotalTests;
@@ -140,7 +139,7 @@ public:
 			std::cout << out.str() << std::endl;
 		}
 	}
-	
+
 	virtual void run_completed()
 	{
 		if (mStream)
@@ -149,10 +148,9 @@ public:
 		}
 		run_completed_(std::cout);
 	}
-	
+
 	virtual int getFailedTests() const { return mFailedTests; }
-	
-	//private:
+
 	virtual void run_completed_(std::ostream &stream)
 	{
 		stream << "\tTotal Tests:\t" << mTotalTests << std::endl;
@@ -162,13 +160,13 @@ public:
 			stream << "\tYAY!! \\o/";
 		}
 		stream << std::endl;
-		
+
 		if (mSkippedTests > 0)
 		{
 			stream << "\tSkipped known failures:\t" << mSkippedTests
 			<< std::endl;
 		}
-		
+
 		if(mFailedTests > 0)
 		{
 			stream << "*********************************" << std::endl;
@@ -177,9 +175,8 @@ public:
 			stream << "*********************************" << std::endl;
 		}
 	}
-	
+
 protected:
-	std::string suite_name;
 	bool mVerboseMode;
 	int mTotalTests;
 	int mPassedTests;
@@ -188,258 +185,74 @@ protected:
 	std::ostream *mStream;
 };
 
-// copy of LLTestCallback which should become a subclass (commented out below). Delete this LLTCTestCallback one fixed. 
-
 // TeamCity specific class which emits service messages
 // http://confluence.jetbrains.net/display/TCD3/Build+Script+Interaction+with+TeamCity;#BuildScriptInteractionwithTeamCity-testReporting
 
-class LLTCTestCallback : public tut::callback
+class LLTCTestCallback : public LLTestCallback
 {
 public:
-	LLTCTestCallback(bool verbose_mode, std::ostream *stream, std::string suitename) :
-	mVerboseMode(verbose_mode),
-	mTotalTests(0),
-	mPassedTests(0),
-	mFailedTests(0),
-	mSkippedTests(0),
-	mStream(stream),
-	suite_name(suitename)
+	LLTCTestCallback(bool verbose_mode, std::ostream *stream) :
+		LLTestCallback(verbose_mode, stream)
 	{
 	}
-	
-	LLTCTestCallback()
+
+	~LLTCTestCallback()
 	{
 	}	
-	
-	virtual void run_started()
-	{
-		//std::cout << "unit test run_started" << std::flush;
-	}
-	
+
 	virtual void group_started(const std::string& name) {
-		std::cout << "group_started name=" << name << std::endl;
+		LLTestCallback::group_started(name);
 		std::cout << "##teamcity[testSuiteStarted name='" << name << "']\n"  << std::flush;
 	}
-	
+
 	virtual void group_completed(const std::string& name) {
-		std::cout << "group_completed name=" << name << std::endl;
+		LLTestCallback::group_completed(name);
 		std::cout << "##teamcity[testSuiteFinished name='" << name << "']\n"  << std::flush;
 	}
-	
+
 	virtual void test_completed(const tut::test_result& tr)
 	{
-		++mTotalTests;
-		std::ostringstream out;
-		out << "[" << tr.group << ", " << tr.test << "] \n";
+		LLTestCallback::test_completed(tr);
+
 		switch(tr.result)
 		{
 			case tut::test_result::ok:
-				++mPassedTests;
-				out << "ok";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::fail:
-				++mFailedTests;
-				out << "fail";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::ex:
-				++mFailedTests;
-				out << "exception";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::warn:
-				++mFailedTests;
-				out << "test destructor throw";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::term:
-				++mFailedTests;
-				out << "abnormal termination";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::skip:
-				++mSkippedTests;			
-				out << "skipped known failure";
 				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testIgnored name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			default:
-				++mFailedTests;
-				out << "unknown";
+				break;
 		}
-		if(mVerboseMode || (tr.result != tut::test_result::ok))
-		{
-			if(!tr.message.empty())
-			{
-				out << ": '" << tr.message << "'";
-			}
-			if (mStream)
-			{
-				*mStream << out.str() << std::endl;
-			}
-			
-			std::cout << out.str() << std::endl;
-		}
+
 	}
-	
-	virtual void run_completed()
-	{
-		if (mStream)
-		{
-			run_completed_(*mStream);
-		}
-		run_completed_(std::cout);
-	}
-	
-	virtual int getFailedTests() const { return mFailedTests; }
-	
-	//private:
-	virtual void run_completed_(std::ostream &stream)
-	{
-		stream << "\tTotal Tests:\t" << mTotalTests << std::endl;
-		stream << "\tPassed Tests:\t" << mPassedTests;
-		if (mPassedTests == mTotalTests)
-		{
-			stream << "\tYAY!! \\o/";
-		}
-		stream << std::endl;
-		
-		if (mSkippedTests > 0)
-		{
-			stream << "\tSkipped known failures:\t" << mSkippedTests
-			<< std::endl;
-		}
-		
-		if(mFailedTests > 0)
-		{
-			stream << "*********************************" << std::endl;
-			stream << "Failed Tests:\t" << mFailedTests << std::endl;
-			stream << "Please report or fix the problem." << std::endl;
-			stream << "*********************************" << std::endl;
-		}
-	}
-	
-protected:
-	std::string suite_name;
-	bool mVerboseMode;
-	int mTotalTests;
-	int mPassedTests;
-	int mFailedTests;
-	int mSkippedTests;
-	std::ostream *mStream;
+
 };
 
-
-/*
- // commented out subclass which should be fixed to eliminate the duplicated LLTestCallback and LLTCTestCallaback classes
- // when this is fixed, the duplicated code in the if(getenv("TEAMCITY_PROJECT_NAME") statements below
- // 
- // currectly producing errors like thr following:
- //		{path}viewer-tut-teamcity2/indra/build-darwin-i386/sharedlibs/RelWithDebInfo/RelWithDebInfo/PROJECT_llmessage_TEST_llmime 
- //				--touch={path}viewer-tut-teamcity2/indra/build-darwin-i386/llmessage/PROJECT_llmessage_TEST_llmime_ok.txt 
- //				--{path}viewer-tut-teamcity2/indra/llmessage
- // 
- //		run_started
- //		group_started name=mime_index
- //		##teamcity[testSuiteStarted name='mime_index']
- //		Segmentation fault
- 
- 
- // TeamCity specific class which emits service messages
- // http://confluence.jetbrains.net/display/TCD3/Build+Script+Interaction+with+TeamCity;#BuildScriptInteractionwithTeamCity-testReporting
- 
- class LLTCTestCallback : public LLTestCallback
- {
- public:
- LLTCTestCallback(bool verbose_mode, std::ostream *stream, std::string suitename) :
- mVerboseMode(verbose_mode),
- mTotalTests(0),
- mPassedTests(0),
- mFailedTests(0),
- mSkippedTests(0),
- mStream(stream),
- suite_name(suitename)
- {
- }
- 
- LLTCTestCallback()
- {
- }	
- 
- virtual void group_started(const std::string& name) {
- LLTestCallback::group_started(name);
- std::cout << "##teamcity[testSuiteStarted name='" << name << "']\n"  << std::flush;
- }
- 
- virtual void group_completed(const std::string& name) {
- LLTestCallback::group_completed(name);
- std::cout << "##teamcity[testSuiteFinished name='" << name << "']\n"  << std::flush;
- }
- 
- virtual void test_completed(const tut::test_result& tr)
- {
- LLTestCallback::test_completed(tr);
- 
- switch(tr.result)
- {
- case tut::test_result::ok:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- case tut::test_result::fail:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- case tut::test_result::ex:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- case tut::test_result::warn:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- case tut::test_result::term:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- case tut::test_result::skip:
- std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testIgnored name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
- break;
- default:
- break;
- }
- 
- }
- 
- protected:
- std::string suite_name;
- bool mVerboseMode;
- int mTotalTests;
- int mPassedTests;
- int mFailedTests;
- int mSkippedTests;
- std::ostream *mStream;
- };
- 
- }
- */
 
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 {
@@ -460,9 +273,9 @@ void stream_usage(std::ostream& s, const char* app)
 {
 	s << "Usage: " << app << " [OPTIONS]" << std::endl
 	<< std::endl;
-	
+
 	s << "This application runs the unit tests." << std::endl << std::endl;
-	
+
 	s << "Options: " << std::endl;
 	const apr_getopt_option_t* option = &TEST_CL_OPTIONS[0];
 	while(option->name)
@@ -473,7 +286,7 @@ void stream_usage(std::ostream& s, const char* app)
 		s << "\t" << option->description << std::endl << std::endl;
 		++option;
 	}
-	
+
 	s << "Examples:" << std::endl;
 	s << "  " << app << " --verbose" << std::endl;
 	s << "\tRun all the tests and report all results." << std::endl;
@@ -512,11 +325,11 @@ int main(int argc, char **argv)
 	LLError::setDefaultLevel(LLError::LEVEL_ERROR);
 	//< *TODO: should come from error config file. Note that we
 	// have a command line option that sets this to debug.
-	
+
 #ifdef CTYPE_WORKAROUND
 	ctype_workaround();
 #endif
-	
+
 	apr_initialize();
 	apr_pool_t* pool = NULL;
 	if(APR_SUCCESS != apr_pool_create(&pool, NULL))
@@ -530,20 +343,20 @@ int main(int argc, char **argv)
 		std::cerr << "Unable to  pool" << std::endl;
 		return 1;
 	}
-	
+
 	// values used for controlling application
 	bool verbose_mode = false;
 	bool wait_at_exit = false;
 	std::string test_group;
 	std::string suite_name;
-	
+
 	// values use for options parsing
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
 	std::ofstream *output = NULL;
 	const char *touch = NULL;
-	
+
 	while(true)
 	{
 		apr_err = apr_getopt_long(os, TEST_CL_OPTIONS, &opt_id, &opt_arg);
@@ -599,152 +412,56 @@ int main(int argc, char **argv)
 				break;
 		}
 	}
-	
-	/*
-	 // commented out test tunner logic which should be fixed when eliminate the duplicated LLTestCallback and LLTCTestCallaback classes
-	 // become proper class:subclass
-	 // if the Segmentation fault issue is resolved, all code in the block comments can be uncommented, and all code below can be removed.
-	 
-	 LLTestCallback* mycallback;
-	 if (getenv("TEAMCITY_PROJECT_NAME"))
-	 {
-	 mycallback = new LLTCTestCallback(verbose_mode, output, suite_name);
-	 
-	 }
-	 else
-	 {
-	 mycallback = new LLTestCallback(verbose_mode, output, suite_name);
-	 }
-	 
-	 tut::runner.get().set_callback(mycallback);
-	 
-	 if(test_group.empty())
-	 {
-	 tut::runner.get().run_tests();
-	 }
-	 else
-	 {
-	 tut::runner.get().run_tests(test_group);
-	 }
-	 
-	 bool success = (mycallback->getFailedTests() == 0);
-	 
-	 if (wait_at_exit)
-	 {
-	 std::cerr << "Press return to exit..." << std::endl;
-	 std::cin.get();
-	 }
-	 
-	 if (output)
-	 {
-	 output->close();
-	 delete output;
-	 }
-	 
-	 if (touch && success)
-	 {
-	 std::ofstream s;
-	 s.open(touch);
-	 s << "ok" << std::endl;
-	 s.close();
-	 }
-	 
-	 apr_terminate();
-	 
-	 int retval = (success ? 0 : 1);
-	 return retval;
-	 */
-	
+
 	// run the tests
-	
+
+	LLTestCallback* mycallback;
 	if (getenv("TEAMCITY_PROJECT_NAME"))
 	{
-		LLTCTestCallback* mycallback;
-		mycallback = new LLTCTestCallback(verbose_mode, output, suite_name);
-		
-		tut::runner.get().set_callback(mycallback);
-		
-		if(test_group.empty())
-		{
-			tut::runner.get().run_tests();
-		}
-		else
-		{
-			tut::runner.get().run_tests(test_group);
-		}
-		
-		bool success = (mycallback->getFailedTests() == 0);
-		
-		if (wait_at_exit)
-		{
-			std::cerr << "Press return to exit..." << std::endl;
-			std::cin.get();
-		}
-		
-		if (output)
-		{
-			output->close();
-			delete output;
-		}
-		
-		if (touch && success)
-		{
-			std::ofstream s;
-			s.open(touch);
-			s << "ok" << std::endl;
-			s.close();
-		}
-		
-		apr_terminate();
-		
-		int retval = (success ? 0 : 1);
-		return retval;
-		
-		
+		mycallback = new LLTCTestCallback(verbose_mode, output);		
 	}
-	// NOT if (getenv("TEAMCITY_PROJECT_NAME"))
 	else
 	{
-		LLTestCallback* mycallback;
-		mycallback = new LLTestCallback(verbose_mode, output, suite_name);
-		
-		tut::runner.get().set_callback(mycallback);
-		
-		if(test_group.empty())
-		{
-			tut::runner.get().run_tests();
-		}
-		else
-		{
-			tut::runner.get().run_tests(test_group);
-		}
-		
-		bool success = (mycallback->getFailedTests() == 0);
-		
-		if (wait_at_exit)
-		{
-			std::cerr << "Press return to exit..." << std::endl;
-			std::cin.get();
-		}
-		
-		if (output)
-		{
-			output->close();
-			delete output;
-		}
-		
-		if (touch && success)
-		{
-			std::ofstream s;
-			s.open(touch);
-			s << "ok" << std::endl;
-			s.close();
-		}
-		
-		apr_terminate();
-		
-		int retval = (success ? 0 : 1);
-		return retval;
-		
+		mycallback = new LLTCTestCallback(verbose_mode, output);
 	}
+
+	tut::runner.get().set_callback(mycallback);
+
+	if(test_group.empty())
+	{
+		tut::runner.get().run_tests();
+	}
+	else
+	{
+		tut::runner.get().run_tests(test_group);
+	}
+
+	bool success = (mycallback->getFailedTests() == 0);
+
+	if (wait_at_exit)
+	{
+		std::cerr << "Press return to exit..." << std::endl;
+		std::cin.get();
+	}
+
+	if (output)
+	{
+		output->close();
+		delete output;
+	}
+
+	if (touch && success)
+	{
+		std::ofstream s;
+		s.open(touch);
+		s << "ok" << std::endl;
+		s.close();
+	}
+
+	apr_terminate();
+
+	int retval = (success ? 0 : 1);
+	return retval;
+
+	delete mycallback;
 }
