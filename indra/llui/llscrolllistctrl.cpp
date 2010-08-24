@@ -2568,7 +2568,8 @@ BOOL	LLScrollListCtrl::canDeselect() const
 void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 {
 	LLScrollListColumn::Params p;
-	LLParamSDParser::instance().readSD(column, p);
+	LLParamSDParser parser;
+	parser.readSD(column, p);
 	addColumn(p, pos);
 }
 
@@ -2759,7 +2760,8 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition
 {
 	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	LLScrollListItem::Params item_params;
-	LLParamSDParser::instance().readSD(element, item_params);
+	LLParamSDParser parser;
+	parser.readSD(element, item_params);
 	item_params.userdata = userdata;
 	return addRow(item_params, pos);
 }

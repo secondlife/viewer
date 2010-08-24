@@ -102,14 +102,12 @@ public:
 
 
 
-class LLXUIParser : public LLInitParam::Parser, public LLSingleton<LLXUIParser>
+class LLXUIParser : public LLInitParam::Parser
 {
 LOG_CLASS(LLXUIParser);
 
-protected:
-	LLXUIParser();
-	friend class LLSingleton<LLXUIParser>;
 public:
+	LLXUIParser();
 	typedef LLInitParam::Parser::name_stack_t name_stack_t;
 
 	/*virtual*/ std::string getCurrentElementName();
@@ -140,20 +138,20 @@ private:
 	static bool readSDValue(Parser& parser, void* val_ptr);
 
 	//writer helper functions
-	bool writeBoolValue(const void* val_ptr, const name_stack_t&);
-	bool writeStringValue(const void* val_ptr, const name_stack_t&);
-	bool writeU8Value(const void* val_ptr, const name_stack_t&);
-	bool writeS8Value(const void* val_ptr, const name_stack_t&);
-	bool writeU16Value(const void* val_ptr, const name_stack_t&);
-	bool writeS16Value(const void* val_ptr, const name_stack_t&);
-	bool writeU32Value(const void* val_ptr, const name_stack_t&);
-	bool writeS32Value(const void* val_ptr, const name_stack_t&);
-	bool writeF32Value(const void* val_ptr, const name_stack_t&);
-	bool writeF64Value(const void* val_ptr, const name_stack_t&);
-	bool writeColor4Value(const void* val_ptr, const name_stack_t&);
-	bool writeUIColorValue(const void* val_ptr, const name_stack_t&);
-	bool writeUUIDValue(const void* val_ptr, const name_stack_t&);
-	bool writeSDValue(const void* val_ptr, const name_stack_t&);
+	static bool writeBoolValue(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeStringValue(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeU8Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeS8Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeU16Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeS16Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeU32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeS32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeF32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeF64Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeColor4Value(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeUIColorValue(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeUUIDValue(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeSDValue(Parser& parser, const void* val_ptr, const name_stack_t&);
 
 	LLXMLNodePtr getNode(const name_stack_t& stack);
 
@@ -182,23 +180,22 @@ private:
 // of coroutines to perform matching of xml nodes during parsing.  Not sure if the overhead
 // of coroutines would offset the gain from SAX parsing
 
-class LLSimpleXUIParser : public LLInitParam::Parser, public LLSingleton<LLSimpleXUIParser>
+class LLSimpleXUIParser : public LLInitParam::Parser
 {
 LOG_CLASS(LLSimpleXUIParser);
-
-protected:
-	LLSimpleXUIParser();
-	virtual ~LLSimpleXUIParser();
-	friend class LLSingleton<LLSimpleXUIParser>;
 public:
 	typedef LLInitParam::Parser::name_stack_t name_stack_t;
+	typedef LLInitParam::BaseBlock* (*element_start_callback_t)(LLSimpleXUIParser&, const char* block_name);
+
+	LLSimpleXUIParser(element_start_callback_t element_cb = NULL);
+	virtual ~LLSimpleXUIParser();
 
 	/*virtual*/ std::string getCurrentElementName();
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 
 	bool readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent=false);
-	void setBlock(LLInitParam::BaseBlock* block);
+
 
 private:
 	//reader helper functions
@@ -227,7 +224,6 @@ private:
 	void characterData(const char *s, int len);
 	bool readAttributes(const char **atts);
 
-	LLInitParam::BaseBlock*			mBlock;
 	Parser::name_stack_t			mNameStack;
 	struct XML_ParserStruct*		mParser;
 	S32								mLastWriteGeneration;
@@ -238,6 +234,9 @@ private:
 	const char*						mCurAttributeValueBegin;
 	std::vector<S32>				mTokenSizeStack;
 	std::vector<std::string>		mScope;
+	element_start_callback_t		mElementCB;
+
+	std::vector<std::pair<LLInitParam::BaseBlock*, S32> > mOutputStack;
 };
 
 

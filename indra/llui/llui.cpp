@@ -1802,7 +1802,8 @@ void LLUI::setupPaths()
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
 	Paths paths;
-	LLXUIParser::instance().readXUI(root, paths, filename);
+	LLXUIParser parser;
+	parser.readXUI(root, paths, filename);
 
 	sXUIPaths.clear();
 	

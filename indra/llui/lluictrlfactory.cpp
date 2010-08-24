@@ -103,7 +103,8 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	if (!full_filename.empty())
 	{
 		LLUICtrlFactory::instance().pushFileName(full_filename);
-		LLSimpleXUIParser::instance().readXUI(full_filename, block);
+		LLSimpleXUIParser parser;
+		parser.readXUI(full_filename, block);
 		LLUICtrlFactory::instance().popFileName();
 	}
 }

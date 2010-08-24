@@ -238,7 +238,8 @@ static void get_attribute_bool_and_write(LLXMLNodePtr node,
 LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	LLLayoutStack::Params p(LLUICtrlFactory::getDefaultParams<LLLayoutStack>());
-	LLXUIParser::instance().readXUI(node, p, LLUICtrlFactory::getInstance()->getCurFileName());
+	LLXUIParser parser;
+	parser.readXUI(node, p, LLUICtrlFactory::getInstance()->getCurFileName());
 
 	// Export must happen before setupParams() mungles rectangles and before
 	// this item gets added to parent (otherwise screws up last_child_rect
@@ -249,8 +250,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		setupParamsForExport(output_params, parent);
 		LLLayoutStack::Params default_params(LLUICtrlFactory::getDefaultParams<LLLayoutStack>());
 		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, &default_params);
 	}
 
 	p.from_xui = true;

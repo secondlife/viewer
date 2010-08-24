@@ -273,7 +273,8 @@ private:
 
 		typename T::Params params(getDefaultParams<T>());
 
-		LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
+		LLXUIParser parser;
+		parser.readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 		if (output_node)
 		{
@@ -283,8 +284,7 @@ private:
 			// Export only the differences between this any default params
 			typename T::Params default_params(getDefaultParams<T>());
 			copyName(node, output_node);
-			LLXUIParser::instance().writeXUI(
-				output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, &default_params);
 		}
 
 		// Apply layout transformations, usually munging rect
