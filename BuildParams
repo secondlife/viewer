@@ -77,33 +77,8 @@ viewer-release.build_viewer_update_version_manager = true
 # aimee
 # ========================================
 
-viewer-development-import.build_Linux = true
-viewer-development-import_debug.build_Linux = false
-
-viewer-development-import.build_Darwin = true
-viewer-development-import_debug.build_Darwin = false
-
-viewer-development-import.build_CYGWIN = true
-viewer-development-import.build_CYGWIN_Debug = false
-viewer-development-import.build_CYGWIN_RelWithDebInfo = false
-viewer-development-import.build_CYGWIN_Release = true
-viewer-development-import_debug.build_CYGWIN_Debug = true
-viewer-development-import_debug.build_CYGWIN_RelWithDebInfo = true
-viewer-development-import_debug.build_CYGWIN_Release = false
-
-viewer-development-fixes.build_Linux = true
-viewer-development-fixes_debug.build_Linux = false
-
-viewer-development-fixes.build_Darwin = true
-viewer-development-fixes_debug.build_Darwin = false
-
-viewer-development-fixes.build_CYGWIN = true
-viewer-development-fixes.build_CYGWIN_Debug = false
-viewer-development-fixes.build_CYGWIN_RelWithDebInfo = false
-viewer-development-fixes.build_CYGWIN_Release = true
-viewer-development-fixes_debug.build_CYGWIN_Debug = true
-viewer-development-fixes_debug.build_CYGWIN_RelWithDebInfo = true
-viewer-development-fixes_debug.build_CYGWIN_Release = false
+viewer-development-import.build_debug_release_separately = true
+viewer-development-fixes.build_debug_release_separately = true
 
 # =======================================
 # brad
