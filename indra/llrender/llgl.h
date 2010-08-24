@@ -120,6 +120,9 @@ public:
 
 	// Misc extensions
 	BOOL mHasSeparateSpecularColor;
+
+	//whether this GPU is in the debug list.
+	BOOL mDebugGPU;
 	
 	S32 mDriverVersionMajor;
 	S32 mDriverVersionMinor;
@@ -148,6 +151,7 @@ private:
 	void initExtensions();
 	void initGLStates();
 	void initGLImages();
+	void setToDebugGPU();
 };
 
 extern LLGLManager gGLManager;
