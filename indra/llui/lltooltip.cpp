@@ -84,9 +84,9 @@ BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
 
 	LLToolTipMgr& tooltip_mgr = LLToolTipMgr::instance();
 
-	if (x != last_x && y != last_y)
+	if (x != last_x && y != last_y && !tooltip_mgr.getMouseNearRect().pointInRect(x, y))
 	{
-		// allow new tooltips because mouse moved
+		// allow new tooltips because mouse moved outside of mouse near rect
 		tooltip_mgr.unblockToolTips();
 	}
 
@@ -586,6 +586,7 @@ void LLToolTipMgr::updateToolTipVisibility()
 		if (mToolTip->getVisibleTime() > tooltip_timeout)
 		{
 			hideToolTips();
+			unblockToolTips();
 		}
 	}
 }
