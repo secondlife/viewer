@@ -689,6 +689,7 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 		LLMuteList::getInstance()->add(mute);
 	}
 }
+
 // static
 bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
 {
@@ -702,6 +703,21 @@ bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
 	}
 
 	return true;
+}
+
+// static
+bool LLAvatarActions::canOfferTeleport(const uuid_vec_t& ids)
+{
+	bool result = true;
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		if(!canOfferTeleport(*it))
+		{
+			result = false;
+			break;
+		}
+	}
+	return result;
 }
 
 void LLAvatarActions::inviteToGroup(const LLUUID& id)

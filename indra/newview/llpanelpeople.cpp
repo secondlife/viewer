@@ -502,8 +502,10 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_all");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
 	mOnlineFriendList->setShowIcons("FriendsListShowIcons");
+	mOnlineFriendList->showPermissions("FriendsListShowPermissions");
 	mAllFriendList->setNoItemsCommentText(getString("no_friends"));
 	mAllFriendList->setShowIcons("FriendsListShowIcons");
+	mAllFriendList->showPermissions("FriendsListShowPermissions");
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mNearbyList->setNoItemsCommentText(getString("no_one_near"));
@@ -754,12 +756,6 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 	button->setClickedCallback(cb);
 }
 
-bool LLPanelPeople::isFriendOnline(const LLUUID& id)
-{
-	uuid_vec_t ids = mOnlineFriendList->getIDs();
-	return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
 void LLPanelPeople::updateButtons()
 {
 	std::string cur_tab		= getActiveTabName();
@@ -821,11 +817,11 @@ void LLPanelPeople::updateButtons()
 
 	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
 
-	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
-	buttonSetEnabled("view_profile_btn",	item_selected);
-	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			multiple_selected && enable_calls);
-	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
+	buttonSetEnabled("view_profile_btn",item_selected);
+	buttonSetEnabled("share_btn",		item_selected);
+	buttonSetEnabled("im_btn",			multiple_selected); // allow starting the friends conference for multiple selection
+	buttonSetEnabled("call_btn",		multiple_selected && enable_calls);
+	buttonSetEnabled("teleport_btn",	multiple_selected && LLAvatarActions::canOfferTeleport(selected_uuids));
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
@@ -1212,6 +1208,14 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 		mAllFriendList->toggleIcons();
 		mOnlineFriendList->toggleIcons();
 	}
+	else if (chosen_item == "view_permissions")
+	{
+		bool show_permissions = !gSavedSettings.getBOOL("FriendsListShowPermissions");
+		gSavedSettings.setBOOL("FriendsListShowPermissions", show_permissions);
+
+		mAllFriendList->showPermissions(show_permissions);
+		mOnlineFriendList->showPermissions(show_permissions);
+	}
 }
 
 void LLPanelPeople::onGroupsViewSortMenuItemClicked(const LLSD& userdata)
@@ -1329,7 +1333,9 @@ void LLPanelPeople::onGroupCallButtonClicked()
 
 void LLPanelPeople::onTeleportButtonClicked()
 {
-	LLAvatarActions::offerTeleport(getCurrentItemID());
+	uuid_vec_t selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+	LLAvatarActions::offerTeleport(selected_uuids);
 }
 
 void LLPanelPeople::onShareButtonClicked()
