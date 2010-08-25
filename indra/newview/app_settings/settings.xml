@@ -3782,7 +3782,7 @@
       <key>Comment</key>
       <string>URL for the web page to display in the Home side panel</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
