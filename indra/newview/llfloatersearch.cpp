@@ -122,11 +122,11 @@ void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent eve
 	switch (event) 
 	{
 	case MEDIA_EVENT_NAVIGATE_BEGIN:
-		childSetText("status_text", getString("loading_text"));
+		getChild<LLUICtrl>("status_text")->setValue(getString("loading_text"));
 		break;
 		
 	case MEDIA_EVENT_NAVIGATE_COMPLETE:
-		childSetText("status_text", getString("done_text"));
+		getChild<LLUICtrl>("status_text")->setValue(getString("done_text"));
 		break;
 
 	default:
@@ -140,7 +140,7 @@ void LLFloaterSearch::godLevelChanged(U8 godlevel)
 	// changes god level, then give them a warning (we don't refresh
 	// the search as this might undo any page navigation or
 	// AJAX-driven changes since the last search).
-	childSetVisible("refresh_search", (godlevel != mSearchGodLevel));
+	getChildView("refresh_search")->setVisible( (godlevel != mSearchGodLevel));
 }
 
 void LLFloaterSearch::search(const LLSD &key)
@@ -151,7 +151,7 @@ void LLFloaterSearch::search(const LLSD &key)
 	}
 
 	// reset the god level warning as we're sending the latest state
-	childHide("refresh_search");
+	getChildView("refresh_search")->setVisible(FALSE);
 	mSearchGodLevel = gAgent.getGodLevel();
 
 	// work out the subdir to use based on the requested category

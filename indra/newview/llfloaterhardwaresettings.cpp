@@ -81,7 +81,7 @@ void LLFloaterHardwareSettings::refresh()
 	mFogRatio = gSavedSettings.getF32("RenderFogRatio");
 	mProbeHardwareOnStartup = gSavedSettings.getBOOL("ProbeHardwareOnStartup");
 
-	childSetValue("fsaa", (LLSD::Integer) mFSAASamples);
+	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer) mFSAASamples);
 	refreshEnabledState();
 }
 
@@ -95,13 +95,13 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
 	{
-		childSetEnabled("vbo", FALSE);
+		getChildView("vbo")->setEnabled(FALSE);
 	}
 
 	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
-	childSetEnabled("gamma", !gPipeline.canUseWindLightShaders());
-	childSetEnabled("(brightness, lower is brighter)", !gPipeline.canUseWindLightShaders());
-	childSetEnabled("fog", !gPipeline.canUseWindLightShaders());
+	getChildView("gamma")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 
 }
 
@@ -124,9 +124,9 @@ void LLFloaterHardwareSettings::apply()
 {
 	// Anisotropic rendering
 	BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
-	LLImageGL::sGlobalUseAnisotropic = childGetValue("ani");
+	LLImageGL::sGlobalUseAnisotropic = getChild<LLUICtrl>("ani")->getValue();
 
-	U32 fsaa = (U32) childGetValue("fsaa").asInteger();
+	U32 fsaa = (U32) getChild<LLUICtrl>("fsaa")->getValue().asInteger();
 	U32 old_fsaa = gSavedSettings.getU32("RenderFSAASamples");
 
 	BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);

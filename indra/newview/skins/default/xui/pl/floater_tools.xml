@@ -22,7 +22,7 @@
 		Kliknij in-world by zacząć budować
 	</floater.string>
 	<floater.string name="status_selectland">
-		Edytowanie Terenu:
+		Edytowanie terenu:
 	</floater.string>
 	<floater.string name="grid_screen_text">
 		Widok
@@ -71,7 +71,7 @@
 	<text label="Rozciągnij 2 strony" name="checkbox uniform label">
 		Rozciągnij 2 strony
 	</text>
-	<check_box initial_value="true" label="Rozciągnij Teksturę" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="Rozciągnij teksturę" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Użyj siatki" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Wybierz rodzaj linijki siatki dla pozycjonowania obiektu">
 		<combo_box.item label="Świat" name="World"/>
@@ -218,11 +218,11 @@
 				<check_box label="Przesuń" name="checkbox allow everyone move"/>
 				<check_box label="Kopiuj" name="checkbox allow everyone copy"/>
 				<text name="Next owner can:">
-					Następny Właściciel:
+					Następny właściciel:
 				</text>
 				<check_box label="Zmienia" name="checkbox next owner can modify"/>
 				<check_box label="Kopiuje" name="checkbox next owner can copy"/>
-				<check_box label="Oddaje/Sprzedaje" name="checkbox next owner can transfer" tool_tip="Następny Właściciel może oddawać lub sprzedawać ten obiekt"/>
+				<check_box label="Oddaje/Sprzedaje" name="checkbox next owner can transfer" tool_tip="Następny właściciel może oddawać lub sprzedawać ten obiekt"/>
 				<text name="B:">
 					B:
 				</text>
@@ -299,7 +299,7 @@
 			<spinner name="Scale 1"/>
 			<spinner name="Skew"/>
 			<text name="Hollow Shape">
-				Kształt Wydrążenia
+				Kształt wydrążenia
 			</text>
 			<combo_box name="hole">
 				<combo_box.item label="Domyślny" name="Default"/>
@@ -399,7 +399,7 @@
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij aby wybrać kolor"/>
 			<text left="170" name="color trans" width="99">
-				Przezroczystość%
+				Przezroczystość %
 			</text>
 			<spinner left="170" name="ColorTrans"/>
 			<text left="170" name="glow label">
@@ -431,9 +431,9 @@
 				<combo_box.item label="Najjaśniejsza" name="Brightness"/>
 				<combo_box.item label="Najciemniejsza" name="Darkness"/>
 				<combo_box.item label="Drewniano-ziarnista" name="woodgrain"/>
-				<combo_box.item label="Kory Drzewa" name="bark"/>
+				<combo_box.item label="Kory drzewa" name="bark"/>
 				<combo_box.item label="Cegieł" name="bricks"/>
-				<combo_box.item label="Planszy Szachowej" name="checker"/>
+				<combo_box.item label="Planszy szachowej" name="checker"/>
 				<combo_box.item label="Betonu" name="concrete"/>
 				<combo_box.item label="Płytki/Kafelki" name="crustytile"/>
 				<combo_box.item label="Kamienia" name="cutstone"/>
@@ -441,7 +441,7 @@
 				<combo_box.item label="Żwiru" name="gravel"/>
 				<combo_box.item label="Skamieliny" name="petridish"/>
 				<combo_box.item label="Brzegu" name="siding"/>
-				<combo_box.item label="Płytki Kamiennej" name="stonetile"/>
+				<combo_box.item label="Płytki kamiennej" name="stonetile"/>
 				<combo_box.item label="Stucco" name="stucco"/>
 				<combo_box.item label="Suction" name="suction"/>
 				<combo_box.item label="Fali" name="weave"/>
@@ -478,7 +478,7 @@
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
-			Informacje o Posiadłości
+			Informacje o posiadłości
 		</text>
 		<text name="label_area_price">
 			Cena: L$[PRICE] za [AREA] m²
@@ -487,16 +487,16 @@
 			Obszar: [AREA] m²
 		</text>
 		<button label="O Posiadłości" label_selected="O Posiadłości" name="button about land"/>
-		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj Posiadłości zgodnie z przynależnością do Właściciela:   Zielony = Twoja Posiadłość  Morski = Posiadłość Twojej Grupy  Czerwony = Posiadłości innych  Żółty = Na sprzedaż  Fioletowy = Na aukcję  Szary = Publiczna"/>
+		<check_box label="Pokaż właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela:   Zielony = Twoja posiadłość  Morski = posiadłość Twojej grupy  Czerwony = posiadłości innych  Żółty = Na sprzedaż  Fioletowy = Na aukcję  Szary = Publiczna"/>
 		<text name="label_parcel_modify">
-			Modyfikuj Posiadłość
+			Modyfikuj posiadłość
 		</text>
 		<button label="Podziel" label_selected="Podziel" name="button subdivide land"/>
 		<button label="Złącz" label_selected="Złącz" name="button join land"/>
 		<text name="label_parcel_trans">
-			Transakcje na Posiadłości
+			Transakcje na posiadłości
 		</text>
-		<button label="Kup Posiadłość" label_selected="Kup Posiadłość" name="button buy land"/>
-		<button label="Porzuć Posiadłość" label_selected="Porzuć Posiadłość" name="button abandon land"/>
+		<button label="Kup posiadłość" label_selected="Kup posiadłość" name="button buy land"/>
+		<button label="Porzuć posiadłość" label_selected="Porzuć posiadłość" name="button abandon land"/>
 	</panel>
 </floater>

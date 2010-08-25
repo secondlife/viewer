@@ -93,16 +93,16 @@ BOOL LLFloaterPostcard::postBuild()
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("send_btn", onClickSend, this);
 
-	childDisable("from_form");
+	getChildView("from_form")->setEnabled(FALSE);
 
 	std::string name_string;
 	LLAgentUI::buildFullname(name_string);
-	childSetValue("name_form", LLSD(name_string));
+	getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
 
 	// For the first time a user focusess to .the msg box, all text will be selected.
 	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(onMsgFormFocusRecieved, _1, this));
 	
-	childSetFocus("to_form", TRUE);
+	getChild<LLUICtrl>("to_form")->setFocus(TRUE);
 
     return TRUE;
 }
@@ -209,8 +209,8 @@ void LLFloaterPostcard::onClickSend(void* data)
 	{
 		LLFloaterPostcard *self = (LLFloaterPostcard *)data;
 
-		std::string from(self->childGetValue("from_form").asString());
-		std::string to(self->childGetValue("to_form").asString());
+		std::string from(self->getChild<LLUICtrl>("from_form")->getValue().asString());
+		std::string to(self->getChild<LLUICtrl>("to_form")->getValue().asString());
 		
 		boost::regex emailFormat("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(,[ \t]*[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*");
 		
@@ -226,7 +226,7 @@ void LLFloaterPostcard::onClickSend(void* data)
 			return;
 		}
 
-		std::string subject(self->childGetValue("subject_form").asString());
+		std::string subject(self->getChild<LLUICtrl>("subject_form")->getValue().asString());
 		if(subject.empty() || !self->mHasFirstMsgFocus)
 		{
 			LLNotificationsUtil::add("PromptMissingSubjMsg", LLSD(), LLSD(), boost::bind(&LLFloaterPostcard::missingSubjMsgAlertCallback, self, _1, _2));
@@ -269,11 +269,11 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 		msg->addUUID("SessionID", gAgent.getSessionID());
 		msg->addUUID("AssetID", self->mAssetID);
 		msg->addVector3d("PosGlobal", self->mPosTakenGlobal);
-		msg->addString("To", self->childGetValue("to_form").asString());
-		msg->addString("From", self->childGetValue("from_form").asString());
-		msg->addString("Name", self->childGetValue("name_form").asString());
-		msg->addString("Subject", self->childGetValue("subject_form").asString());
-		msg->addString("Msg", self->childGetValue("msg_form").asString());
+		msg->addString("To", self->getChild<LLUICtrl>("to_form")->getValue().asString());
+		msg->addString("From", self->getChild<LLUICtrl>("from_form")->getValue().asString());
+		msg->addString("Name", self->getChild<LLUICtrl>("name_form")->getValue().asString());
+		msg->addString("Subject", self->getChild<LLUICtrl>("subject_form")->getValue().asString());
+		msg->addString("Msg", self->getChild<LLUICtrl>("msg_form")->getValue().asString());
 		msg->addBOOL("AllowPublish", FALSE);
 		msg->addBOOL("MaturePublish", FALSE);
 		gAgent.sendReliableMessage();
@@ -290,11 +290,11 @@ void LLFloaterPostcard::updateUserInfo(const std::string& email)
 		 iter != inst_list.end(); ++iter)
 	{
 		LLFloater* instance = *iter;
-		const std::string& text = instance->childGetValue("from_form").asString();
+		const std::string& text = instance->getChild<LLUICtrl>("from_form")->getValue().asString();
 		if (text.empty())
 		{
 			// there's no text in this field yet, pre-populate
-			instance->childSetValue("from_form", LLSD(email));
+			instance->getChild<LLUICtrl>("from_form")->setValue(LLSD(email));
 		}
 	}
 }
@@ -319,17 +319,17 @@ bool LLFloaterPostcard::missingSubjMsgAlertCallback(const LLSD& notification, co
 	if(0 == option)
 	{
 		// User clicked OK
-		if((childGetValue("subject_form").asString()).empty())
+		if((getChild<LLUICtrl>("subject_form")->getValue().asString()).empty())
 		{
 			// Stuff the subject back into the form.
-			childSetValue("subject_form", getString("default_subject"));
+			getChild<LLUICtrl>("subject_form")->setValue(getString("default_subject"));
 		}
 
 		if(!mHasFirstMsgFocus)
 		{
 			// The user never switched focus to the messagee window. 
 			// Using the default string.
-			childSetValue("msg_form", getString("default_message"));
+			getChild<LLUICtrl>("msg_form")->setValue(getString("default_message"));
 		}
 
 		sendPostcard();
@@ -351,11 +351,11 @@ void LLFloaterPostcard::sendPostcard()
 		LLSD body = LLSD::emptyMap();
 		// the capability already encodes: agent ID, region ID
 		body["pos-global"] = mPosTakenGlobal.getValue();
-		body["to"] = childGetValue("to_form").asString();
-		body["from"] = childGetValue("from_form").asString();
-		body["name"] = childGetValue("name_form").asString();
-		body["subject"] = childGetValue("subject_form").asString();
-		body["msg"] = childGetValue("msg_form").asString();
+		body["to"] = getChild<LLUICtrl>("to_form")->getValue().asString();
+		body["from"] = getChild<LLUICtrl>("from_form")->getValue().asString();
+		body["name"] = getChild<LLUICtrl>("name_form")->getValue().asString();
+		body["subject"] = getChild<LLUICtrl>("subject_form")->getValue().asString();
+		body["msg"] = getChild<LLUICtrl>("msg_form")->getValue().asString();
 		LLHTTPClient::post(url, body, new LLSendPostcardResponder(body, mAssetID, LLAssetType::AT_IMAGE_JPEG));
 	} 
 	else

@@ -280,6 +280,7 @@ public:
 
 	void setLightTexture(const LLUUID& id) { mLightTexture = id; }
 	LLUUID getLightTexture() const         { return mLightTexture; }
+	bool isLightSpotlight() const         { return mLightTexture.notNull(); }
 	void setParams(const LLVector3& params) { mParams = params; }
 	LLVector3 getParams() const			   { return mParams; }
 	

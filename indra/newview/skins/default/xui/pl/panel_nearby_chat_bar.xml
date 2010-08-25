@@ -7,5 +7,5 @@
 		320
 	</string>
 	<line_editor label="Kliknij tutaj aby rozmawiać." name="chat_box" tool_tip="Naciśnij Enter aby mówić, Ctrl + Enter aby krzyknąć"/>
-	<button name="show_nearby_chat" tool_tip="Pokazuje/ukrywa pobliski Czat"/>
+	<button name="show_nearby_chat" tool_tip="Pokazuje/ukrywa pobliski czat"/>
 </panel>

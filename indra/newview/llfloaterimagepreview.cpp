@@ -103,7 +103,7 @@ BOOL LLFloaterImagePreview::postBuild()
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
-	childHide("bad_image_text");
+	getChildView("bad_image_text")->setVisible(FALSE);
 
 	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
@@ -114,19 +114,19 @@ BOOL LLFloaterImagePreview::postBuild()
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 
 		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
-			childEnable("lossless_check");
+			getChildView("lossless_check")->setEnabled(TRUE);
 	}
 	else
 	{
 		mAvatarPreview = NULL;
 		mSculptedPreview = NULL;
-		childShow("bad_image_text");
-		childDisable("clothing_type_combo");
-		childDisable("ok_btn");
+		getChildView("bad_image_text")->setVisible(TRUE);
+		getChildView("clothing_type_combo")->setEnabled(FALSE);
+		getChildView("ok_btn")->setEnabled(FALSE);
 
 		if(!mImageLoadError.empty())
 		{
-			childSetValue("bad_image_text",mImageLoadError.c_str());
+			getChild<LLUICtrl>("bad_image_text")->setValue(mImageLoadError.c_str());
 		}
 	}
 	

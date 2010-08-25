@@ -30,7 +30,7 @@
 					<button label="Dodaj..." name="show_add_wearables_btn" tool_tip="Otwórz/Zamknij"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
-					<filter_editor label="Filtruj częśći stroju w Szafie" name="look_item_filter"/>
+					<filter_editor label="Filtruj części stroju w Szafie" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

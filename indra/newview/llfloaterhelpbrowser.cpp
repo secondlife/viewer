@@ -86,11 +86,11 @@ void LLFloaterHelpBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEven
 		break;
 
 	case MEDIA_EVENT_NAVIGATE_BEGIN:
-		childSetText("status_text", getString("loading_text"));
+		getChild<LLUICtrl>("status_text")->setValue(getString("loading_text"));
 		break;
 		
 	case MEDIA_EVENT_NAVIGATE_COMPLETE:
-		childSetText("status_text", getString("done_text"));
+		getChild<LLUICtrl>("status_text")->setValue(getString("done_text"));
 		break;
 
 	default:

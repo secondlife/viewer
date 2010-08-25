@@ -67,7 +67,7 @@
 	<text name="help_label">
 		Wszystkie etapy nastąpią razem, chyba, że dodasz pauzy.
 	</text>
-	<check_box label="Aktywny" name="active_check" tool_tip="Aktywne gesty można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać."/>
+	<check_box label="Aktywna" name="active_check" tool_tip="Aktywne gesturki można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać."/>
 	<button label="Pokaż" name="preview_btn"/>
 	<button label="Zapisz" name="save_btn"/>
 </floater>

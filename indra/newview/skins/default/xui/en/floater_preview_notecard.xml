@@ -71,7 +71,7 @@
      left="4"
      max_length="65536"
      name="Notecard Editor"
-     allow_html="false" 
+     parse_urls="false" 
      tab_group="1"
      top="46"
      width="392"

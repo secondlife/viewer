@@ -98,11 +98,11 @@ void LLPanelPlaceInfo::resetLocation()
 	mPosRegion.clearVec();
 
 	std::string loading = LLTrans::getString("LoadingData");
-	mMaturityRatingIcon->setValue(loading);
 	mMaturityRatingText->setValue(loading);
 	mRegionName->setText(loading);
 	mParcelName->setText(loading);
 	mDescEditor->setText(loading);
+	mMaturityRatingIcon->setValue(LLUUID::null);
 
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 }
@@ -184,7 +184,21 @@ void LLPanelPlaceInfo::setErrorStatus(U32 status, const std::string& reason)
 	{
 		error_text = getString("server_forbidden_text");
 	}
+	else
+	{
+		error_text = getString("server_error_text");
+	}
+
 	mDescEditor->setText(error_text);
+
+	std::string not_available = getString("not_available");
+	mMaturityRatingText->setValue(not_available);
+	mRegionName->setText(not_available);
+	mParcelName->setText(not_available);
+	mMaturityRatingIcon->setValue(LLUUID::null);
+
+	// Enable "Back" button that was disabled when parcel request was sent.
+	getChild<LLButton>("back_btn")->setEnabled(TRUE);
 }
 
 // virtual

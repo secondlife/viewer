@@ -18,8 +18,8 @@
 	<icon name="icon_bodypart" tool_tip="Części Ciała"/>
 	<check_box label="Ubranie" name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="Ubranie"/>
-	<check_box label="Gestury" name="check_gesture"/>
-	<icon name="icon_gesture" tool_tip="Gestury"/>
+	<check_box label="Gesturki" name="check_gesture"/>
+	<icon name="icon_gesture" tool_tip="Gesturki"/>
 	<check_box label="Noty" name="check_notecard"/>
 	<icon name="icon_notecard" tool_tip="Noty"/>
 	<check_box label="Obiekty" name="check_object"/>
