@@ -202,12 +202,12 @@ public:
 
 	virtual void group_started(const std::string& name) {
 		LLTestCallback::group_started(name);
-		std::cout << "##teamcity[testSuiteStarted name='" << name << "']\n"  << std::flush;
+		std::cout << "\n##teamcity[testSuiteStarted name='" << name << "']\n"  << std::flush;
 	}
 
 	virtual void group_completed(const std::string& name) {
 		LLTestCallback::group_completed(name);
-		std::cout << "##teamcity[testSuiteFinished name='" << name << "']\n"  << std::flush;
+		std::cout << "\n##teamcity[testSuiteFinished name='" << name << "']\n"  << std::flush;
 	}
 
 	virtual void test_completed(const tut::test_result& tr)
@@ -217,31 +217,31 @@ public:
 		switch(tr.result)
 		{
 			case tut::test_result::ok:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::fail:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::ex:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::warn:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::term:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
 			case tut::test_result::skip:
-				std::cout << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
+				std::cout << "\n##teamcity[testStarted name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testIgnored name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				std::cout << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']\n" << std::flush;
 				break;
