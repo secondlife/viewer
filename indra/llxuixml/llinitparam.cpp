@@ -74,7 +74,6 @@ namespace LLInitParam
 	void BlockDescriptor::aggregateBlockData(BlockDescriptor& src_block_data) 
 	{
 		mNamedParams.insert(src_block_data.mNamedParams.begin(), src_block_data.mNamedParams.end());
-		mSynonyms.insert(src_block_data.mSynonyms.begin(), src_block_data.mSynonyms.end());
 		std::copy(src_block_data.mUnnamedParams.begin(), src_block_data.mUnnamedParams.end(), std::back_inserter(mUnnamedParams));
 		std::copy(src_block_data.mValidationList.begin(), src_block_data.mValidationList.end(), std::back_inserter(mValidationList));
 		std::copy(src_block_data.mAllParams.begin(), src_block_data.mAllParams.end(), std::back_inserter(mAllParams));
@@ -277,22 +276,6 @@ namespace LLInitParam
 			}
 		}
 
-		for(BlockDescriptor::param_map_t::const_iterator it = block_data.mSynonyms.begin();
-			it != block_data.mSynonyms.end();
-			++it)
-		{
-			param_handle_t param_handle = it->second->mParamHandle;
-			const Param* param = getParamFromHandle(param_handle);
-			ParamDescriptor::inspect_func_t inspect_func = it->second->mInspectFunc;
-			if (inspect_func)
-			{
-				// use existing serial number for param
-				name_stack.push_back(std::make_pair(it->first, it->second->mGeneration));
-				inspect_func(*param, parser, name_stack, it->second->mMinCount, it->second->mMaxCount);
-				name_stack.pop_back();
-			}
-		}
-
 		return true;
 	}
 
@@ -314,22 +297,9 @@ namespace LLInitParam
 				// find pointer to member parameter from offset table
 				paramp = getParamFromHandle(found_it->second->mParamHandle);
 				deserialize_func = found_it->second->mDeserializeFunc;
-			}
-			else
-			{
-				BlockDescriptor::param_map_t::iterator found_it = block_data.mSynonyms.find(top_name);
-				if (found_it != block_data.mSynonyms.end())
-				{
-					// find pointer to member parameter from offset table
-					paramp = getParamFromHandle(found_it->second->mParamHandle);
-					deserialize_func = found_it->second->mDeserializeFunc;
-				}
-			}
 					
-			Parser::name_stack_range_t new_name_stack(name_stack.first, name_stack.second);
-			++new_name_stack.first;
-			if (deserialize_func)
-			{
+				Parser::name_stack_range_t new_name_stack(name_stack.first, name_stack.second);
+				++new_name_stack.first;
 				return deserialize_func(*paramp, p, new_name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second);
 			}
 		}
@@ -404,7 +374,7 @@ namespace LLInitParam
 				}
 				else
 				{
-					block_data.mSynonyms[synonym] = param_descriptor;
+					block_data.mNamedParams[synonym] = param_descriptor;
 				}
 			}
 		}
@@ -422,14 +392,6 @@ namespace LLInitParam
 	{
 		param_handle_t handle = getHandleFromParam(paramp);
 		for (BlockDescriptor::param_map_t::const_iterator it = block_data.mNamedParams.begin(); it != block_data.mNamedParams.end(); ++it)
-		{
-			if (it->second->mParamHandle == handle)
-			{
-				return it->first;
-			}
-		}
-
-		for (BlockDescriptor::param_map_t::const_iterator it = block_data.mSynonyms.begin(); it != block_data.mSynonyms.end(); ++it)
 		{
 			if (it->second->mParamHandle == handle)
 			{

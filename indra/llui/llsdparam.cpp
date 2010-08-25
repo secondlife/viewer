@@ -36,31 +36,40 @@
 // Project includes
 #include "llsdparam.h"
 
+static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sInspectFuncs;
+
 //
 // LLParamSDParser
 //
 LLParamSDParser::LLParamSDParser()
+: Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
 {
 	using boost::bind;
 
-	registerParserFuncs<S32>(readS32, bind(&LLParamSDParser::writeTypedValue<S32>, this, _1, _2));
-	registerParserFuncs<U32>(readU32, bind(&LLParamSDParser::writeU32Param, this, _1, _2));
-	registerParserFuncs<F32>(readF32, bind(&LLParamSDParser::writeTypedValue<F32>, this, _1, _2));
-	registerParserFuncs<F64>(readF64, bind(&LLParamSDParser::writeTypedValue<F64>, this, _1, _2));
-	registerParserFuncs<bool>(readBool, bind(&LLParamSDParser::writeTypedValue<F32>, this, _1, _2));
-	registerParserFuncs<std::string>(readString, bind(&LLParamSDParser::writeTypedValue<std::string>, this, _1, _2));
-	registerParserFuncs<LLUUID>(readUUID, bind(&LLParamSDParser::writeTypedValue<LLUUID>, this, _1, _2));
-	registerParserFuncs<LLDate>(readDate, bind(&LLParamSDParser::writeTypedValue<LLDate>, this, _1, _2));
-	registerParserFuncs<LLURI>(readURI, bind(&LLParamSDParser::writeTypedValue<LLURI>, this, _1, _2));
-	registerParserFuncs<LLSD>(readSD, bind(&LLParamSDParser::writeTypedValue<LLSD>, this, _1, _2));
+	if (sReadFuncs.empty())
+	{
+		registerParserFuncs<S32>(readS32, &LLParamSDParser::writeTypedValue<S32>);
+		registerParserFuncs<U32>(readU32, &LLParamSDParser::writeU32Param);
+		registerParserFuncs<F32>(readF32, &LLParamSDParser::writeTypedValue<F32>);
+		registerParserFuncs<F64>(readF64, &LLParamSDParser::writeTypedValue<F64>);
+		registerParserFuncs<bool>(readBool, &LLParamSDParser::writeTypedValue<F32>);
+		registerParserFuncs<std::string>(readString, &LLParamSDParser::writeTypedValue<std::string>);
+		registerParserFuncs<LLUUID>(readUUID, &LLParamSDParser::writeTypedValue<LLUUID>);
+		registerParserFuncs<LLDate>(readDate, &LLParamSDParser::writeTypedValue<LLDate>);
+		registerParserFuncs<LLURI>(readURI, &LLParamSDParser::writeTypedValue<LLURI>);
+		registerParserFuncs<LLSD>(readSD, &LLParamSDParser::writeTypedValue<LLSD>);
+	}
 }
 
 // special case handling of U32 due to ambiguous LLSD::assign overload
-bool LLParamSDParser::writeU32Param(const void* val_ptr, const parser_t::name_stack_t& name_stack)
+bool LLParamSDParser::writeU32Param(LLParamSDParser::parser_t& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
 {
-	if (!mWriteSD) return false;
+	LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
+	if (!sdparser.mWriteSD) return false;
 	
-	LLSD* sd_to_write = getSDWriteNode(name_stack);
+	LLSD* sd_to_write = sdparser.getSDWriteNode(name_stack);
 	if (!sd_to_write) return false;
 
 	sd_to_write->assign((S32)*((const U32*)val_ptr));

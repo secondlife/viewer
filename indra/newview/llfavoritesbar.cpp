@@ -667,9 +667,10 @@ const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
 	{
 		LLXMLNodePtr button_xml_node;
 		if(LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", button_xml_node))
-	{
-			LLXUIParser::instance().readXUI(button_xml_node, button_params, "favorites_bar_button.xml");
-	}
+		{
+			LLXUIParser parser;
+			parser.readXUI(button_xml_node, button_params, "favorites_bar_button.xml");
+		}
 		params_initialized = true;
 	}
 

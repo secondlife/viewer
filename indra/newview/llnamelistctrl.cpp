@@ -259,7 +259,8 @@ void LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition po
 LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
 {
 	LLNameListCtrl::NameItem item_params;
-	LLParamSDParser::instance().readSD(element, item_params);
+	LLParamSDParser parser;
+	parser.readSD(element, item_params);
 	item_params.userdata = userdata;
 	return addNameItemRow(item_params, pos);
 }

@@ -2780,7 +2780,8 @@ LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
+	LLXUIParser parser;
+	parser.readXUI(node, params, filename); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2788,8 +2789,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		setupParamsForExport(output_params, parent);
         Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, &default_params);
 	}
 
 	// Default floater position to top-left corner of screen

@@ -502,12 +502,17 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	
 	const S32 NEW_TEXT_NOTICE_HEIGHT = 20;
 	
-	LLPanel::Params panel_p;
+	LLLayoutPanel::Params panel_p;
 	panel_p.name = "spacer";
 	panel_p.background_visible = false;
 	panel_p.has_border = false;
 	panel_p.mouse_opaque = false;
-	stackp->addPanel(LLUICtrlFactory::create<LLPanel>(panel_p), 0, 30, S32_MAX, S32_MAX, true, false, LLLayoutStack::ANIMATE);
+	panel_p.min_dim = 30;
+	panel_p.max_dim = S32_MAX;
+	panel_p.auto_resize = true;
+	panel_p.user_resize = false;
+
+	stackp->addPanel(LLUICtrlFactory::create<LLLayoutPanel>(panel_p), LLLayoutStack::ANIMATE);
 
 	panel_p.name = "new_text_notice_holder";
 	LLRect new_text_notice_rect = getLocalRect();
@@ -516,7 +521,10 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	panel_p.background_opaque = true;
 	panel_p.background_visible = true;
 	panel_p.visible = false;
-	mMoreChatPanel = LLUICtrlFactory::create<LLPanel>(panel_p);
+	panel_p.min_dim = 0;
+	panel_p.auto_resize = false;
+	panel_p.user_resize = false;
+	mMoreChatPanel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
 	
 	LLTextBox::Params text_p(p.more_chat_text);
 	text_p.rect = mMoreChatPanel->getLocalRect();
@@ -525,7 +533,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	mMoreChatText = LLUICtrlFactory::create<LLTextBox>(text_p, mMoreChatPanel);
 	mMoreChatText->setClickedCallback(boost::bind(&LLChatHistory::onClickMoreText, this));
 
-	stackp->addPanel(mMoreChatPanel, 0, 0, S32_MAX, S32_MAX, false, false, LLLayoutStack::ANIMATE);
+	stackp->addPanel(mMoreChatPanel, LLLayoutStack::ANIMATE);
 }
 
 

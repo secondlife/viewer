@@ -398,8 +398,7 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 
-	: LLPanel()
-	, mChatBox(NULL)
+:	mChatBox(NULL)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }

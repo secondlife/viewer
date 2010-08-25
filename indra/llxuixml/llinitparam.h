@@ -204,23 +204,26 @@ namespace LLInitParam
 		typedef std::vector<std::string>							possible_values_t;
 
 		typedef bool (*parser_read_func_t)(Parser& parser, void* output);
-		typedef boost::function<bool (const void*, const name_stack_t&)>								parser_write_func_t;
+		typedef bool (*parser_write_func_t)(Parser& parser, const void*, const name_stack_t&);
 		typedef boost::function<void (const name_stack_t&, S32, S32, const possible_values_t*)>	parser_inspect_func_t;
 
 		typedef std::map<const std::type_info*, parser_read_func_t, CompareTypeID>		parser_read_func_map_t;
 		typedef std::map<const std::type_info*, parser_write_func_t, CompareTypeID>		parser_write_func_map_t;
 		typedef std::map<const std::type_info*, parser_inspect_func_t, CompareTypeID>	parser_inspect_func_map_t;
 
-		Parser()
+		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
-			mParseGeneration(0)
+			mParseGeneration(0),
+			mParserReadFuncs(&read_map),
+			mParserWriteFuncs(&write_map),
+			mParserInspectFuncs(&inspect_map)
 		{}
 		virtual ~Parser();
 
 		template <typename T> bool readValue(T& param)
 	    {
-		    parser_read_func_map_t::iterator found_it = mParserReadFuncs.find(&typeid(T));
-		    if (found_it != mParserReadFuncs.end())
+		    parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+		    if (found_it != mParserReadFuncs->end())
 		    {
 			    return found_it->second(*this, (void*)&param);
 		    }
@@ -229,10 +232,10 @@ namespace LLInitParam
 
 		template <typename T> bool writeValue(const T& param, const name_stack_t& name_stack)
 		{
-		    parser_write_func_map_t::iterator found_it = mParserWriteFuncs.find(&typeid(T));
-		    if (found_it != mParserWriteFuncs.end())
+		    parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
+		    if (found_it != mParserWriteFuncs->end())
 		    {
-			    return found_it->second((const void*)&param, name_stack);
+			    return found_it->second(*this, (const void*)&param, name_stack);
 		    }
 		    return false;
 		}
@@ -240,8 +243,8 @@ namespace LLInitParam
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
 		template <typename T> bool inspectValue(const name_stack_t& name_stack, S32 min_count, S32 max_count, const possible_values_t* possible_values)
 		{
-		    parser_inspect_func_map_t::iterator found_it = mParserInspectFuncs.find(&typeid(T));
-		    if (found_it != mParserInspectFuncs.end())
+		    parser_inspect_func_map_t::iterator found_it = mParserInspectFuncs->find(&typeid(T));
+		    if (found_it != mParserInspectFuncs->end())
 		    {
 			    found_it->second(name_stack, min_count, max_count, possible_values);
 				return true;
@@ -253,7 +256,6 @@ namespace LLInitParam
 		virtual void parserWarning(const std::string& message);
 		virtual void parserError(const std::string& message);
 		void setParseSilently(bool silent) { mParseSilently = silent; }
-		bool getParseSilently() { return mParseSilently; }
 
 		S32 getParseGeneration() { return mParseGeneration; }
 		S32 newParseGeneration() { return ++mParseGeneration; }
@@ -261,24 +263,24 @@ namespace LLInitParam
 
 	protected:
 		template <typename T>
-		void registerParserFuncs(parser_read_func_t read_func, parser_write_func_t write_func)
+		void registerParserFuncs(parser_read_func_t read_func, parser_write_func_t write_func = NULL)
 		{
-			mParserReadFuncs.insert(std::make_pair(&typeid(T), read_func));
-			mParserWriteFuncs.insert(std::make_pair(&typeid(T), write_func));
+			mParserReadFuncs->insert(std::make_pair(&typeid(T), read_func));
+			mParserWriteFuncs->insert(std::make_pair(&typeid(T), write_func));
 		}
 
 		template <typename T>
 		void registerInspectFunc(parser_inspect_func_t inspect_func)
 		{
-			mParserInspectFuncs.insert(std::make_pair(&typeid(T), inspect_func));
+			mParserInspectFuncs->insert(std::make_pair(&typeid(T), inspect_func));
 		}
 
 		bool				mParseSilently;
 
 	private:
-		parser_read_func_map_t		mParserReadFuncs;
-		parser_write_func_map_t		mParserWriteFuncs;
-		parser_inspect_func_map_t	mParserInspectFuncs;
+		parser_read_func_map_t*		mParserReadFuncs;
+		parser_write_func_map_t*	mParserWriteFuncs;
+		parser_inspect_func_map_t*	mParserInspectFuncs;
 		S32	mParseGeneration;
 	};
 
@@ -394,7 +396,6 @@ namespace LLInitParam
 		typedef std::vector<std::pair<param_handle_t, ParamDescriptor::validation_func_t> > param_validation_list_t;
 
 		param_map_t						mNamedParams;			// parameters with associated names
-		param_map_t						mSynonyms;				// parameters with alternate names
 		param_list_t					mUnnamedParams;			// parameters with_out_ associated names
 		param_validation_list_t			mValidationList;		// parameters that must be validated
 		all_params_list_t				mAllParams;				// all parameters, owns descriptors
@@ -581,7 +582,7 @@ namespace LLInitParam
 			// no further names in stack, attempt to parse value now
 			if (name_stack.first == name_stack.second)
 			{
-				if (parser.readValue<T>(typed_param.mData.mValue))
+				if (parser.readValue(typed_param.mData.mValue))
 				{
 					typed_param.mData.clearKey();
 					typed_param.setProvided(true);
@@ -594,7 +595,7 @@ namespace LLInitParam
 				{
 					// try to parse a known named value
 					std::string name;
-					if (parser.readValue<std::string>(name))
+					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
 						if (NAME_VALUE_LOOKUP::get(name, typed_param.mData.mValue))
@@ -629,7 +630,7 @@ namespace LLInitParam
 			{
 				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->mData.getKey(), key))
 				{
-					if (!parser.writeValue<std::string>(key, name_stack))
+					if (!parser.writeValue(key, name_stack))
 					{
 						return;
 					}
@@ -637,7 +638,7 @@ namespace LLInitParam
 			}
 			// then try to serialize value directly
 			else if (!diff_param || !ParamCompare<T>::equals(typed_param.get(), static_cast<const self_t*>(diff_param)->get()))					{
-				if (!parser.writeValue<T>(typed_param.mData.mValue, name_stack)) 
+				if (!parser.writeValue(typed_param.mData.mValue, name_stack)) 
 				{
 					return;
 				}
@@ -750,7 +751,7 @@ namespace LLInitParam
 			{
 				// try to parse a known named value
 				std::string name;
-				if (parser.readValue<std::string>(name))
+				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
 					if (NAME_VALUE_LOOKUP::get(name, typed_param))
@@ -777,7 +778,7 @@ namespace LLInitParam
 			std::string key = typed_param.mData.getKey();
 			if (!key.empty() && typed_param.mData.mKeyVersion == typed_param.getLastChangeVersion())
 			{
-				if (!parser.writeValue<std::string>(key, name_stack))
+				if (!parser.writeValue(key, name_stack))
 				{
 					return;
 				}
@@ -924,7 +925,7 @@ namespace LLInitParam
 			if (name_stack.first == name_stack.second)
 			{
 				// attempt to read value directly
-				if (parser.readValue<value_t>(value))
+				if (parser.readValue(value))
 				{
 					typed_param.mValues.push_back(value);
 					// save an empty name/value key as a placeholder
@@ -939,7 +940,7 @@ namespace LLInitParam
 				{
 					// try to parse a known named value
 					std::string name;
-					if (parser.readValue<std::string>(name))
+					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
 						if (NAME_VALUE_LOOKUP::get(name, typed_param.mValues))
@@ -973,13 +974,13 @@ namespace LLInitParam
 
 				if(!key.empty())
 				{
-					if(!parser.writeValue<std::string>(key, name_stack))
+					if(!parser.writeValue(key, name_stack))
 					{
 						return;
 					}
 				}
 				// not parse via name values, write out value directly
-				else if (!parser.writeValue<VALUE_TYPE>(*it, name_stack))
+				else if (!parser.writeValue(*it, name_stack))
 				{
 					return;
 				}
@@ -1126,7 +1127,7 @@ namespace LLInitParam
 			{
 				// try to parse a known named value
 				std::string name;
-				if (parser.readValue<std::string>(name))
+				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
 					if (NAME_VALUE_LOOKUP::get(name, value))
@@ -1159,7 +1160,7 @@ namespace LLInitParam
 				std::string key = key_it->getKey();
 				if (!key.empty() && key_it->mKeyVersion == it->getLastChangeVersion())
 				{
-					if(!parser.writeValue<std::string>(key, name_stack))
+					if(!parser.writeValue(key, name_stack))
 					{
 						return;
 					}
@@ -1624,7 +1625,7 @@ namespace LLInitParam
 			// type to apply parse direct value T
 			if (name_stack.first == name_stack.second)
 			{
-				if(parser.readValue<T>(typed_param.mData.mValue))
+				if(parser.readValue(typed_param.mData.mValue))
 				{
 					typed_param.enclosingBlock().setLastChangedParam(param, true);
 					typed_param.setProvided(true);
@@ -1639,7 +1640,7 @@ namespace LLInitParam
 				{
 					// try to parse a known named value
 					std::string name;
-					if (parser.readValue<std::string>(name))
+					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
 						if (TypeValues<T>::get(name, typed_param.mData.mValue))
@@ -1681,7 +1682,7 @@ namespace LLInitParam
 			{
 				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->mData.getKey(), key))
 				{
-					if (!parser.writeValue<std::string>(key, name_stack))
+					if (!parser.writeValue(key, name_stack))
 					{
 						return;
 					}
@@ -1691,7 +1692,7 @@ namespace LLInitParam
 			else if (!diff_param || !ParamCompare<T>::equals(typed_param.get(), (static_cast<const self_t*>(diff_param))->get()))	
             {
 				
-				if (parser.writeValue<T>(typed_param.mData.mValue, name_stack)) 
+				if (parser.writeValue(typed_param.mData.mValue, name_stack)) 
 				{
 					return;
 				}

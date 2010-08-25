@@ -68,9 +68,18 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	return name1 < name2;
 }
 
-const LLAccordionCtrlTab::Params& get_accordion_tab_params()
+struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
 {
-	static LLAccordionCtrlTab::Params tab_params;
+	Mandatory<LLWearableItemsList::Params> wearable_list;
+
+	outfit_accordion_tab_params()
+	:	wearable_list("wearable_items_list")
+	{}
+};
+
+const outfit_accordion_tab_params& get_accordion_tab_params()
+{
+	static outfit_accordion_tab_params tab_params;
 	static bool initialized = false;
 	if (!initialized)
 	{
@@ -79,7 +88,8 @@ const LLAccordionCtrlTab::Params& get_accordion_tab_params()
 		LLXMLNodePtr xmlNode;
 		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
 		{
-			LLXUIParser::instance().readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
+			LLXUIParser parser;
+			parser.readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
 		}
 		else
 		{
@@ -465,8 +475,11 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		std::string name = cat->getName();
 
-		LLAccordionCtrlTab::Params tab_params(get_accordion_tab_params());
+		outfit_accordion_tab_params tab_params(get_accordion_tab_params());
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
+		LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
+		wearable_list->setShape(tab->getLocalRect());
+		tab->addChild(wearable_list);
 
 		tab->setName(name);
 		tab->setTitle(name);
