@@ -2,7 +2,7 @@
 @file __init__.py
 @brief Initialization file for the indra module.
 
-$LicenseInfo:firstyear=2006&license=internal$
+$LicenseInfo:firstyear=2006&license=viewergpl$
 
 Copyright (c) 2006-2009, Linden Research, Inc.
 
