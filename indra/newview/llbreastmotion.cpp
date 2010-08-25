@@ -42,7 +42,8 @@
 #include "llbreastmotion.h"
 #include "llcharacter.h"
 #include "llviewercontrol.h"
-#include "llviewervisualparam.H"
+#include "llviewervisualparam.h"
+#include "llvoavatarself.h"
 
 // #define OUTPUT_BREAST_DATA
 

@@ -821,7 +821,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	}
 }
 
-U32	LLAgentWearables::getWearableIndex(LLWearable *wearable)
+U32	LLAgentWearables::getWearableIndex(const LLWearable *wearable) const
 {
 	if (wearable == NULL)
 	{
