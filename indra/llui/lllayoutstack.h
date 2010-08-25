@@ -166,6 +166,8 @@ public:
 	};
 
 	~LLLayoutPanel();
+
+	void initFromParams(const Params& p);
 protected:
 	LLLayoutPanel(const Params& p)	;
 

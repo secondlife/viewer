@@ -38,8 +38,8 @@
          auto_resize="false"
          layout="topleft"
          max_width="320"
-         min_height="23"
          min_width="214"
+         height="28" 
          mouse_opaque="false"
 		 name="chat_bar_layout_panel"
          user_resize="true"
@@ -50,7 +50,7 @@
             left="0"
             height="28"
             width="308"
-            top="4"
+            top="0"
             mouse_opaque="false"
             follows="left|right"
           />

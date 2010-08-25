@@ -38,7 +38,6 @@
          auto_resize="true"
          height="28"
          layout="topleft"
-         min_height="23"
          width="310"
          min_width="188"
          user_resize="false">

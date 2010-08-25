@@ -103,8 +103,8 @@
                      width="500"/>
             </layout_panel>
             <layout_panel auto_resize="false"
-                   follows="all"
                    min_height="33"
+                   height="33" 
                    mouse_opaque="false"
                    name="bottom_tray_container"
                    visible="false"/>
@@ -112,7 +112,7 @@
         </layout_panel>
         <!-- side tray -->
         <layout_panel auto_resize="false"
-                      follows="all"
+                      follows="top|bottom"
                       height="500"
                       min_width="333"
                       mouse_opaque="false"

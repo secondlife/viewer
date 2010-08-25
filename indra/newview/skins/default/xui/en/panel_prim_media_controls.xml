@@ -36,7 +36,6 @@
 	<layout_panel
 		name="media_progress_indicator"
 		mouse_opaque="false"
-		follows="left|right|top"
 		height="8"
 		layout="topleft"
 		left="0"

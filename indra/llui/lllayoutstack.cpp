@@ -65,6 +65,13 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
 	}
 }
 
+void LLLayoutPanel::initFromParams(const Params& p)
+{
+	LLPanel::initFromParams(p);
+	setFollowsNone();
+}
+
+
 LLLayoutPanel::~LLLayoutPanel()
 {
 	// probably not necessary, but...
@@ -663,7 +670,7 @@ void LLLayoutStack::createResizeBars()
 
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
-			resize_params.resizing_view(this);
+			resize_params.resizing_view(lp);
 			resize_params.min_size(lp->mMinDim);
 			resize_params.side(side);
 			resize_params.snapping_enabled(false);
