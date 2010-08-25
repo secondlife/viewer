@@ -1,8 +1,8 @@
 /** 
  * @file lightFuncSpecularV.glsl
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 float calcDirectionalLight(vec3 n, vec3 l)

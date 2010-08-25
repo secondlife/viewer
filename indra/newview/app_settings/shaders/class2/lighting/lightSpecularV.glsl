@@ -1,8 +1,8 @@
 /** 
  * @file lightSpecularV.glsl
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 // All lights, no specular highlights
