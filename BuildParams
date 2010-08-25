@@ -28,25 +28,7 @@ viewer-development.show_changes_since = 2-1-release
 # Build Settings
 viewer-development_coverity.coverity_product = viewer
 
-viewer-development.build_Linux = true
-viewer-development_debug.build_Linux = false
-viewer-development_coverity.build_Linux = false
-
-viewer-development.build_Darwin = true
-viewer-development_debug.build_Darwin = false
-viewer-development_coverity.build_Darwin = false
-
-viewer-development.build_CYGWIN = true
-viewer-development.build_CYGWIN_Debug = false
-viewer-development.build_CYGWIN_RelWithDebInfo = false
-viewer-development.build_CYGWIN_Release = true
-viewer-development_debug.build_CYGWIN_Debug = true
-viewer-development_debug.build_CYGWIN_RelWithDebInfo = true
-viewer-development_debug.build_CYGWIN_Release = false
-viewer-development_coverity.build_coverity = true
-viewer-development_coverity.build_CYGWIN_Debug = false
-viewer-development_coverity.build_CYGWIN_RelWithDebInfo = false
-viewer-development_coverity.build_CYGWIN_Release = true
+viewer-development.build_debug_release_separately = true
 
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>
