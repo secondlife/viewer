@@ -345,6 +345,8 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void			standUp();
+	/// @brief ground-sit at agent's current position
+	void			sitDown();
 
 	//--------------------------------------------------------------------
 	// Busy
