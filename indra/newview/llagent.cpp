@@ -1210,7 +1210,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	else
 	{
 		// Guess at a reasonable stop distance.
-		mAutoPilotStopDistance = fsqrtf( distance );
+		mAutoPilotStopDistance = (F32) sqrt( distance );
 		if (mAutoPilotStopDistance < 0.5f) 
 		{
 			mAutoPilotStopDistance = 0.5f;

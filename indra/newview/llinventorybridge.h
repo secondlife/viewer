@@ -40,12 +40,14 @@
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
 #include "llwearable.h"
+#include "llvolume.h"  //for LL_MESH_ENABLED
 
 class LLInventoryPanel;
 class LLInventoryModel;
 class LLMenuGL;
 class LLCallingCardObserver;
 class LLViewerJointAttachment;
+
 
 typedef std::vector<std::string> menuentry_vec_t;
 
@@ -527,6 +529,27 @@ protected:
 	static std::string sPrefix;
 };
 
+
+#if LL_MESH_ENABLED
+class LLMeshBridge : public LLItemBridge
+{
+	friend class LLInvFVBridge;
+public:
+	virtual LLUIImagePtr getIcon() const;
+	virtual void openItem();
+	virtual void previewItem();
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+protected:
+	LLMeshBridge(LLInventoryPanel* inventory, 
+		     LLFolderView* root,
+		     const LLUUID& uuid) :
+                       LLItemBridge(inventory, root, uuid) {}
+};
+#endif
+
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridgeAction
 //
@@ -557,13 +580,23 @@ protected:
 	LLInventoryModel* mModel;
 };
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Recent Inventory Panel related classes
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLMeshBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLMeshBridgeAction(){}
+protected:
+	LLMeshBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
 
 // Overridden version of the Inventory-Folder-View-Bridge for Folders
 class LLRecentItemsFolderBridge : public LLFolderBridge
 {
+	friend class LLInvFVBridgeAction;
 public:
 	// Creates context menu for Folders related to Recent Inventory Panel.
 	// Uses base logic and than removes from visible items "New..." menu items.

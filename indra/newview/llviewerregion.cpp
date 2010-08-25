@@ -176,7 +176,7 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-		
+
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -1509,12 +1509,16 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("FetchLib");
 	capabilityNames.append("FetchLibDescendents");
 	capabilityNames.append("GetTexture");
+	capabilityNames.append("GetMesh");
+	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
+	capabilityNames.append("NewFileAgentInventoryVariablePrice");
+	capabilityNames.append("ObjectAdd");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelMediaURLFilterList");
 	capabilityNames.append("ParcelNavigateMedia");
@@ -1529,6 +1533,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("SendUserReport");
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("ServerReleaseNotes");
+	capabilityNames.append("SimulatorFeatures");
 	capabilityNames.append("StartGroupProposal");
 	capabilityNames.append("TextureStats");
 	capabilityNames.append("UntrustedSimulatorMessage");
@@ -1541,6 +1546,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UpdateNotecardTaskInventory");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
+	capabilityNames.append("UploadObjectAsset");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
 	capabilityNames.append("WebFetchInventoryDescendents");
@@ -1587,6 +1593,7 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 	{
 		return "";
 	}
+
 	return iter->second;
 }
 

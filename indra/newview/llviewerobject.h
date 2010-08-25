@@ -181,6 +181,7 @@ public:
 	void			setOnActiveList(BOOL on_active)		{ mOnActiveList = on_active; }
 
 	virtual BOOL	isAttachment() const { return FALSE; }
+	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
@@ -229,6 +230,7 @@ public:
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
+	virtual BOOL isMesh() const						{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
@@ -332,6 +334,12 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
+	void setObjectCost(F32 cost);
+	F32 getObjectCost();
+	void setLinksetCost(F32 cost);
+	F32 getLinksetCost();
+	
+
 	void sendShapeUpdate();
 
 	U8 getState()							{ return mState; }
@@ -371,7 +379,7 @@ public:
 
 	void markForUpdate(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
-	virtual	void updateSpatialExtents(LLVector3& min, LLVector3& max);
+	virtual	void updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual F32 getBinRadius();
 	
 	LLBBox				getBoundingBoxAgent() const;
@@ -384,7 +392,7 @@ public:
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);
 
 	// Called when the drawable shifts
-	virtual void onShift(const LLVector3 &shift_vector)	{ }
+	virtual void onShift(const LLVector4a &shift_vector)	{ }
 		
 	//////////////////////////////////////
 	//
@@ -459,6 +467,12 @@ public:
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
+	inline U8       getPhysicsShapeType() const     { return mPhysicsShapeType; }
+	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
+	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
+	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
+	inline F32      getPhysicsRestitution() const   { return mPhysicsRestitution; }
+	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
 
@@ -474,6 +488,11 @@ public:
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
+	void setPhysicsShapeType(U8 type);
+	void setPhysicsGravity(F32 gravity);
+	void setPhysicsFriction(F32 friction);
+	void setPhysicsDensity(F32 density);
+	void setPhysicsRestitution(F32 restitution);
 	
 	virtual void dump() const;
 	static U32		getNumZombieObjects()			{ return sNumZombieObjects; }
@@ -552,6 +571,14 @@ public:
 
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
+
+	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
+	U8              mPhysicsShapeType;
+	F32             mPhysicsGravity;
+	F32             mPhysicsFriction;
+	F32             mPhysicsDensity;
+	F32             mPhysicsRestitution;
+	
 
 	// Pipeline classes
 	LLPointer<LLDrawable> mDrawable;
@@ -660,6 +687,9 @@ protected:
 	U8				mState;	// legacy
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
+	F32 mObjectCost; //resource cost of this object or -1 if unknown
+	F32 mLinksetCost;
+	bool mCostStale;
 
 	static			U32			sNumZombieObjects;			// Objects which are dead, but not deleted
 

@@ -321,7 +321,7 @@ inline void	LLVector4::setVec(const F32 *vec)
 
 inline F32		LLVector4::length(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32		LLVector4::lengthSquared(void) const
@@ -331,7 +331,7 @@ inline F32		LLVector4::lengthSquared(void) const
 
 inline F32		LLVector4::magVec(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32		LLVector4::magVecSquared(void) const
@@ -463,7 +463,7 @@ inline LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u)
 
 inline F32		LLVector4::normalize(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -486,7 +486,7 @@ inline F32		LLVector4::normalize(void)
 // deprecated
 inline F32		LLVector4::normVec(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)

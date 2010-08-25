@@ -82,6 +82,7 @@ public:
 		MATERIAL_COLOR = 0,
 		SPECULAR_COLOR,
 		BINORMAL,
+		OBJECT_WEIGHT,
 		END_RESERVED_ATTRIBS
 	} eGLSLReservedAttribs;
 	
@@ -310,8 +311,19 @@ extern LLGLSLShader			gObjectSimpleLODProgram;
 extern LLGLSLShader			gObjectFullbrightLODProgram;
 
 extern LLGLSLShader			gObjectFullbrightShinyProgram;
+extern LLGLSLShader			gObjectFullbrightShinyWaterProgram;
 extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
+
+extern LLGLSLShader			gSkinnedObjectSimpleProgram;
+extern LLGLSLShader			gSkinnedObjectFullbrightProgram;
+extern LLGLSLShader			gSkinnedObjectFullbrightShinyProgram;
+extern LLGLSLShader			gSkinnedObjectShinySimpleProgram;
+
+extern LLGLSLShader			gSkinnedObjectSimpleWaterProgram;
+extern LLGLSLShader			gSkinnedObjectFullbrightWaterProgram;
+extern LLGLSLShader			gSkinnedObjectFullbrightShinyWaterProgram;
+extern LLGLSLShader			gSkinnedObjectShinySimpleWaterProgram;
 
 //environment shaders
 extern LLGLSLShader			gTerrainProgram;
@@ -343,6 +355,9 @@ extern LLGLSLShader			gDeferredImpostorProgram;
 extern LLGLSLShader			gDeferredEdgeProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
+extern LLGLSLShader			gDeferredSkinnedDiffuseProgram;
+extern LLGLSLShader			gDeferredSkinnedBumpProgram;
+extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
@@ -360,6 +375,7 @@ extern LLGLSLShader			gDeferredShadowProgram;
 extern LLGLSLShader			gDeferredPostGIProgram;
 extern LLGLSLShader			gDeferredPostProgram;
 extern LLGLSLShader			gDeferredAvatarShadowProgram;
+extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;

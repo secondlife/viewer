@@ -859,3 +859,4 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
 }
+

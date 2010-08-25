@@ -491,7 +491,7 @@ void LLVOTree::updateTextures()
 	{
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 		{
-			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
+			setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
 		}
 		mTreeImagep->addTextureStats(mPixelArea);
 	}
@@ -1266,7 +1266,7 @@ void LLVOTree::updateRadius()
 	mDrawable->setRadius(32.0f);
 }
 
-void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
+void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
 	F32 radius = getScale().length()*0.05f;
 	LLVector3 center = getRenderPosition();
@@ -1276,9 +1276,11 @@ void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 
 	center += LLVector3(0, 0, size.mV[2]) * getRotation();
 	
-	newMin.set(center-size);
-	newMax.set(center+size);
-	mDrawable->setPositionGroup(center);
+	newMin.load3((center-size).mV);
+	newMax.load3((center+size).mV);
+	LLVector4a pos;
+	pos.load3(center.mV);
+	mDrawable->setPositionGroup(pos);
 }
 
 BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
@@ -1291,8 +1293,13 @@ BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end
 		return FALSE;
 	}
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	const LLVector4a* exta = mDrawable->getSpatialExtents();
 
+	//VECTORIZE THIS
+	LLVector3 ext[2];
+	ext[0].set(exta[0].getF32ptr());
+	ext[1].set(exta[1].getF32ptr());
+	
 	LLVector3 center = (ext[1]+ext[0])*0.5f;
 	LLVector3 size = (ext[1]-ext[0]);
 

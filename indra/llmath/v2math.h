@@ -66,6 +66,9 @@ class LLVector2
 		void	set(const LLVector2 &vec);	// Sets LLVector2 to vec
 		void	set(const F32 *vec);			// Sets LLVector2 to vec
 
+		LLSD	getValue() const;
+		void	setValue(LLSD& sd);
+
 		void	setVec(F32 x, F32 y);	        // deprecated
 		void	setVec(const LLVector2 &vec);	// deprecated
 		void	setVec(const F32 *vec);			// deprecated
@@ -222,7 +225,7 @@ inline void	LLVector2::setVec(const F32 *vec)
 
 inline F32 LLVector2::length(void) const
 {
-	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+	return (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1]);
 }
 
 inline F32 LLVector2::lengthSquared(void) const
@@ -232,7 +235,7 @@ inline F32 LLVector2::lengthSquared(void) const
 
 inline F32		LLVector2::normalize(void)
 {
-	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+	F32 mag = (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -259,7 +262,7 @@ inline bool LLVector2::isFinite() const
 // deprecated
 inline F32		LLVector2::magVec(void) const
 {
-	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+	return (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1]);
 }
 
 // deprecated
@@ -271,7 +274,7 @@ inline F32		LLVector2::magVecSquared(void) const
 // deprecated
 inline F32		LLVector2::normVec(void)
 {
-	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+	F32 mag = (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
