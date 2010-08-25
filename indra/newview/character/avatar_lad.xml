@@ -9211,7 +9211,7 @@ render_pass="bump">
      label_max="More"
      value_default="5"
      value_min="0"
-     value_max="10"
+     value_max="1000"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -9302,7 +9302,7 @@ render_pass="bump">
      label_max="More"
      value_default="5"
      value_min="0"
-     value_max="10"
+     value_max="1000"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
