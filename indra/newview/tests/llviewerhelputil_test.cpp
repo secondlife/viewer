@@ -109,7 +109,7 @@ namespace tut
     
 	typedef test_group<viewerhelputil> viewerhelputil_t;
 	typedef viewerhelputil_t::object viewerhelputil_object_t;
-	tut::viewerhelputil_t tut_viewerhelputil("viewerhelputil");
+	tut::viewerhelputil_t tut_viewerhelputil("LLViewerHelpUtil");
 
 	template<> template<>
 	void viewerhelputil_object_t::test<1>()

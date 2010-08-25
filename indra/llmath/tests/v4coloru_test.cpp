@@ -42,7 +42,7 @@ namespace tut
 	};
 	typedef test_group<v4coloru_data> v4coloru_test;
 	typedef v4coloru_test::object v4coloru_object;
-	tut::v4coloru_test v4coloru_testcase("v4coloru");
+	tut::v4coloru_test v4coloru_testcase("v4coloru_h");
 
 	template<> template<>
 	void v4coloru_object::test<1>()

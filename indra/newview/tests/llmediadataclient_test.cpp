@@ -234,7 +234,7 @@ namespace tut
     
 	typedef test_group<mediadataclient> mediadataclient_t;
 	typedef mediadataclient_t::object mediadataclient_object_t;
-	tut::mediadataclient_t tut_mediadataclient("mediadataclient");
+	tut::mediadataclient_t tut_mediadataclient("LLMediaDataClient");
     
     void ensure(const std::string &msg, int value, int expected)
     {

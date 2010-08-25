@@ -89,7 +89,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<worldmipmap_test> worldmipmap_t;
 	typedef worldmipmap_t::object worldmipmap_object_t;
-	tut::worldmipmap_t tut_worldmipmap("worldmipmap");
+	tut::worldmipmap_t tut_worldmipmap("LLWorldMipmap");
 
 	// ---------------------------------------------------------------------------------------
 	// Test functions

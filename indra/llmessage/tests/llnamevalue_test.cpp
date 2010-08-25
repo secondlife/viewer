@@ -49,7 +49,7 @@ namespace tut
  	};
 	typedef test_group<namevalue_test> namevalue_t;
 	typedef namevalue_t::object namevalue_object_t;
-	tut::namevalue_t tut_namevalue("namevalue_test");
+	tut::namevalue_t tut_namevalue("LLNameValue");
 
 	
 	template<> template<>

@@ -38,7 +38,7 @@ namespace tut
 	};
 	typedef test_group<llxfer_data> llxfer_test;
 	typedef llxfer_test::object llxfer_object;
-	tut::llxfer_test llxfer("llxfer");
+	tut::llxfer_test llxfer("LLXferFile");
 
 	template<> template<>
 	void llxfer_object::test<1>()

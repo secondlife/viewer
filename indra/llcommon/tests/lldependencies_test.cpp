@@ -145,7 +145,7 @@ namespace tut
     };
     typedef test_group<deps_data> deps_group;
     typedef deps_group::object deps_object;
-    tut::deps_group depsgr("lldependencies");
+    tut::deps_group depsgr("LLDependencies");
 
     template<> template<>
     void deps_object::test<1>()

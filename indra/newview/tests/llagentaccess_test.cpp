@@ -74,7 +74,7 @@ namespace tut
     
 	typedef test_group<agentaccess> agentaccess_t;
 	typedef agentaccess_t::object agentaccess_object_t;
-	tut::agentaccess_t tut_agentaccess("agentaccess");
+	tut::agentaccess_t tut_agentaccess("LLAgentAccess");
 
 	template<> template<>
 	void agentaccess_object_t::test<1>()

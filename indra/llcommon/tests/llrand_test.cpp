@@ -39,7 +39,7 @@ namespace tut
 
 	typedef test_group<random> random_t;
 	typedef random_t::object random_object_t;
-	tut::random_t tut_random("random");
+	tut::random_t tut_random("LLSeedRand");
 
 	template<> template<>
 	void random_object_t::test<1>()
