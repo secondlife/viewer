@@ -463,5 +463,5 @@ int main(int argc, char **argv)
 	int retval = (success ? 0 : 1);
 	return retval;
 
-	delete mycallback;
+	//delete mycallback;
 }
