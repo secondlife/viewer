@@ -321,8 +321,6 @@ private:
 	LLQuad mQ;
 };
 
-template <> LL_FORCE_INLINE LLSimdScalar LLVector4a::getScalarAt<0>() const;
-
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)
 {
 	min.setMin(min, p);
