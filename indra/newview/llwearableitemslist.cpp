@@ -124,7 +124,11 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 {
 	std::string search_label = name;
 
-	if (mWornIndicationEnabled && get_is_item_worn(mInventoryItemUUID))
+	// Updating item's worn status depending on whether it is linked in COF or not.
+	// We don't use get_is_item_worn() here because this update is triggered by
+	// an inventory observer upon link in COF beind added or removed so actual
+	// worn status of a linked item may still remain unchanged.
+	if (mWornIndicationEnabled && LLAppearanceMgr::instance().isLinkInCOF(mInventoryItemUUID))
 	{
 		search_label += LLTrans::getString("worn");
 		item_state = IS_WORN;
@@ -632,6 +636,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
 	}
 	mWornIndicationEnabled = p.worn_indication_enabled;
+	setNoItemsCommentText(LLTrans::getString("LoadingData"));
 }
 
 // virtual
@@ -673,10 +678,15 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 		LLInventoryModel::EXCLUDE_TRASH,
 		collector);
 
+	if(item_array.empty() && gInventory.isCategoryComplete(category_id))
+	{
+		setNoItemsCommentText(LLTrans::getString("EmptyOutfitText"));
+	}
+
 	refreshList(item_array);
 }
 
-void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids)
+void LLWearableItemsList::updateChangedItems(const uuid_vec_t& changed_items_uuids)
 {
 	// nothing to update
 	if (changed_items_uuids.empty()) return;
@@ -698,7 +708,7 @@ void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_ite
 
 		LLUUID linked_uuid = inv_item->getLinkedUUID();
 
-		for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items_uuids.begin();
+		for (uuid_vec_t::const_iterator iter = changed_items_uuids.begin();
 				iter != changed_items_uuids.end();
 				++iter)
 		{

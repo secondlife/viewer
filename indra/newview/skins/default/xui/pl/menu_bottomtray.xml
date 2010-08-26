@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="hide_camera_move_controls_menu">
-	<menu_item_check label="Przycisk Gestur" name="ShowGestureButton"/>
-	<menu_item_check label="Przycisk Ruchu" name="ShowMoveButton"/>
-	<menu_item_check label="Przycisk Widoku" name="ShowCameraButton"/>
-	<menu_item_check label="Przycisk Zdjęć" name="ShowSnapshotButton"/>
+	<menu_item_check label="Przycisk gesturki" name="ShowGestureButton"/>
+	<menu_item_check label="Przycisk ruchu" name="ShowMoveButton"/>
+	<menu_item_check label="Przycisk widoku" name="ShowCameraButton"/>
+	<menu_item_check label="Przycisk zdjęć" name="ShowSnapshotButton"/>
 	<menu_item_check label="Schowek" name="ShowSidebarButton"/>
 	<menu_item_check label="Buduj" name="ShowBuildButton"/>
 	<menu_item_check label="Szukaj" name="ShowSearchButton"/>

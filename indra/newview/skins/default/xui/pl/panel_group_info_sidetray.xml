@@ -27,9 +27,9 @@
 		</layout_panel>
 		<layout_panel name="button_row">
 			<button label="Czat" name="btn_chat"/>
-			<button label="Konferencja Głosowa" name="btn_call" tool_tip="Konferencja Głosowa"/>
+			<button label="Konferencja głosowa" name="btn_call" tool_tip="Konferencja głosowa"/>
 			<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
-			<button label="Stwórz nową Grupę" name="btn_create" tool_tip="Stwórz nową Grupę"/>
+			<button label="Stwórz nową grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

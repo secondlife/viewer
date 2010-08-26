@@ -83,7 +83,7 @@
 			<check_box label="Kopiuj" name="checkbox allow everyone copy"/>
 			<check_box label="Przesuń" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
-				Groupie:
+				Grupie:
 			</text>
 			<check_box label="Udostępnij" name="checkbox share with group" tool_tip="Udostępnij prawa do modyfikacji tego obiektu wszystkim członkom, którzy posiadają przywilej modyfikacji obiektów grupy. By ograniczyć, przypisz obiekt do grupy."/>
 			<text name="NextOwnerLabel">
