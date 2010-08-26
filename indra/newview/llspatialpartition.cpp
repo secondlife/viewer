@@ -2766,78 +2766,101 @@ void renderNormals(LLDrawable* drawablep)
 	}
 }
 
-void renderPhysicsShape(LLDrawable* drawable)
+void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
-	LLVOVolume* volume = drawable->getVOVolume();
-	if (volume)
+	F32 threshold = gSavedSettings.getF32("ObjectCostHighThreshold");
+	F32 cost = volume->getObjectCost();
+
+	LLColor4 low = gSavedSettings.getColor4("ObjectCostLowColor");
+	LLColor4 mid = gSavedSettings.getColor4("ObjectCostMidColor");
+	LLColor4 high = gSavedSettings.getColor4("ObjectCostHighColor");
+
+	F32 normalizedCost = 1.f - exp( -(cost / threshold) );
+
+	LLColor4 color;
+	if ( normalizedCost <= 0.5f )
 	{
-		F32 threshold = gSavedSettings.getF32("ObjectCostHighThreshold");
-		F32 cost = volume->getObjectCost();
+		color = lerp( low, mid, 2.f * normalizedCost );
+	}
+	else
+	{
+		color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
+	}
 
-		LLColor4 low = gSavedSettings.getColor4("ObjectCostLowColor");
-		LLColor4 mid = gSavedSettings.getColor4("ObjectCostMidColor");
-		LLColor4 high = gSavedSettings.getColor4("ObjectCostHighColor");
-
-		F32 normalizedCost = 1.f - exp( -(cost / threshold) );
-
-		LLColor4 color;
-		if ( normalizedCost <= 0.5f )
-		{
-			color = lerp( low, mid, 2.f * normalizedCost );
-		}
-		else
-		{
-			color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
-		}
-
-		U32 data_mask = LLVertexBuffer::MAP_VERTEX;
+	U32 data_mask = LLVertexBuffer::MAP_VERTEX;
 
 #if LL_MESH_ENABLED
-		if (volume->isMesh())
-		{			
-			LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
-			const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
-			if (decomp)
+	if (volume->isMesh())
+	{			
+		LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
+		const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+		if (decomp)
+		{
+			gGL.pushMatrix();
+			glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+			
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+			for (U32 i = 0; i < decomp->mHull.size(); ++i)
+			{		
+				LLVertexBuffer* buff = decomp->mMesh[i];
+
+				buff->setBuffer(data_mask);
+
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glColor3fv(color.mV);
+				buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+				{
+					LLGLEnable blend(GL_BLEND);
+					gGL.setSceneBlendType(LLRender::BT_ALPHA);
+					LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+					glColor4fv(color.mV);
+					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+				}
+			}
+
+			gGL.popMatrix();
+
+			return;
+		}
+	}
+#endif //LL_MESH_ENABLED
+	
+	//push faces
+	glColor3fv(color.mV);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	pushVerts(drawable, data_mask);
+	glColor4fv(color.mV);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	pushVerts(drawable, data_mask);
+}
+
+void renderPhysicsShapes(LLSpatialGroup* group)
+{
+	LLGLEnable blend(GL_BLEND);
+	LLGLDepthTest test(GL_TRUE, GL_FALSE);
+
+	for (LLSpatialGroup::OctreeNode::const_element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	{
+		LLDrawable* drawable = *i;
+		LLVOVolume* volume = drawable->getVOVolume();
+		if (volume && !volume->isAttachment() && volume->getPhysicsShapeType() != LLViewerObject::PHYSICS_SHAPE_NONE )
+		{
+			if (!group->mSpatialPartition->isBridge())
 			{
 				gGL.pushMatrix();
-				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
-				
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-				for (U32 i = 0; i < decomp->mHull.size(); ++i)
-				{		
-					LLVertexBuffer* buff = decomp->mMesh[i];
-
-					buff->setBuffer(data_mask);
-
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glColor3fv(color.mV);
-					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-					{
-						LLGLEnable blend(GL_BLEND);
-						gGL.setSceneBlendType(LLRender::BT_ALPHA);
-						LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-						glColor4fv(color.mV);
-						buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-					}
-				}
-
+				LLVector3 trans = drawable->getRegion()->getOriginAgent();
+				glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+				renderPhysicsShape(drawable, volume);
 				gGL.popMatrix();
-
-				return;
+			}
+			else
+			{
+				renderPhysicsShape(drawable, volume);
 			}
 		}
-#endif //LL_MESH_ENABLED
-		
-		//push faces
-		glColor3fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		pushVerts(drawable, data_mask);
-		glColor4fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		pushVerts(drawable, data_mask);
 	}
 }
 
@@ -3163,6 +3186,14 @@ public:
 				stop_glerror();
 			}
 
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+			{
+				group->rebuildGeom();
+				group->rebuildMesh();
+
+				renderPhysicsShapes(group);
+			}
+
 			//render visibility wireframe
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 			{
@@ -3221,11 +3252,6 @@ public:
 				renderNormals(drawable);
 			}
 			
-			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
-			{
-				renderPhysicsShape(drawable);
-			}
-
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
 			{
 				if (drawable->isState(LLDrawable::IN_REBUILD_Q2))

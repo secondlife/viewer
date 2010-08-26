@@ -554,6 +554,13 @@ public:
 		LL_VO_HUD_PART_GROUP =		LL_PCODE_APP | 0xc0,
 	} EVOType;
 
+	typedef enum e_physics_shape_types
+	{
+		PHYSICS_SHAPE_PRIM = 0,
+		PHYSICS_SHAPE_NONE,
+		PHYSICS_SHAPE_CONVEX_HULL,
+	} EPhysicsShapeType;
+
 	LLUUID			mID;
 
 	// unique within region, not unique across regions
