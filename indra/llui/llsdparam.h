@@ -93,7 +93,8 @@ class LLSDParamAdapter : public T
 		LLSDParamAdapter() {}
 		LLSDParamAdapter(const LLSD& sd)
 		{
-			LLParamSDParser::instance().readSD(sd, *this);
+			LLParamSDParser parser;
+			parser.readSD(sd, *this);
 		}
 		
 		LLSDParamAdapter(const T& val)
