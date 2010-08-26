@@ -1703,7 +1703,7 @@ LLImportMaterial LLModelLoader::profileToMaterial(domProfile_COMMON* material)
 									std::string filename = cdom::uriToNativePath(init->getValue().str());
 																					
 									mat.mDiffuseMap = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + filename, TRUE, LLViewerTexture::BOOST_PREVIEW);
-									mat.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, this->mPreview, NULL, NULL);
+									mat.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, this->mPreview, NULL, FALSE);
 
 									mat.mDiffuseMap->forceToSaveRawImage();
 									mat.mDiffuseMapFilename = filename;
