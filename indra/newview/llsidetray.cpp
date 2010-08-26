@@ -31,6 +31,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llbottomtray.h"
+#include "llfloaterreg.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -125,7 +126,9 @@ public:
 	const std::string& getTabTitle() const { return mTabTitle;}
 	
 	void			onOpen		(const LLSD& key);
-	
+
+	void			toggleTabDocked();
+
 	LLPanel *getPanel();
 private:
 	std::string mTabTitle;
@@ -171,6 +174,8 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
+	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
+
 	return true;
 }
 
@@ -201,6 +206,48 @@ void	LLSideTrayTab::onOpen		(const LLSD& key)
 	LLPanel *panel = getPanel();
 	if(panel)
 		panel->onOpen(key);
+}
+
+void LLSideTrayTab::toggleTabDocked()
+{
+	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	if (!floater_tab) return;
+
+	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+
+	LLSideTray* side_tray = LLSideTray::getInstance();
+
+	if (LLFloater::isShown(floater_tab))
+	{
+		// Remove the tab from Side Tray's tabs list.
+		// We have to do it despite removing the tab from Side Tray's child view tree
+		// by addChild(). Otherwise the tab could be accessed by the pointer in LLSideTray::mTabs.
+		side_tray->removeTab(this);
+
+		floater_tab->addChild(this);
+		floater_tab->setTitle(mTabTitle);
+
+		LLRect rect = side_tray->getLocalRect();
+		floater_tab->reshape(rect.getWidth(), rect.getHeight());
+
+		rect.mTop -= floater_tab->getHeaderHeight();
+		setRect(rect);
+		reshape(rect.getWidth(), rect.getHeight());
+
+		// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
+		setFollowsAll();
+
+		side_tray->collapseSideBar();
+	}
+	else
+	{
+		side_tray->addChild(this, 0);
+
+		setRect(side_tray->getLocalRect());
+		reshape(getRect().getWidth(), getRect().getHeight());
+
+		side_tray->expandSideBar();
+	}
 }
 
 LLPanel*	LLSideTrayTab::getPanel()
@@ -400,6 +447,19 @@ bool LLSideTray::addChild(LLView* view, S32 tab_group)
 	return LLUICtrl::addChild(view, tab_group);
 }
 
+void LLSideTray::removeTab(LLView* child)
+{
+	for (child_vector_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	{
+		if (*child_it == child)
+		{
+			mTabs.erase(child_it);
+			break;
+		}
+	}
+
+	mActiveTab = getTab("sidebar_openclose");
+}
 
 void	LLSideTray::createButtons	()
 {

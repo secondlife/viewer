@@ -144,6 +144,7 @@ public:
 	void		onToggleCollapse();
 
 	bool		addChild		(LLView* view, S32 tab_group);
+	void		removeTab		(LLView* view);
 
 	BOOL		handleMouseDown	(S32 x, S32 y, MASK mask);
 	
