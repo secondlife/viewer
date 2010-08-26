@@ -145,6 +145,7 @@ namespace tut
 		ensure_equals(" slurl, region + coords", slurl.getSLURLString(), 
 					  "http://maps.secondlife.com/secondlife/my%20region/1/2/3");	
 		
+		LLGridManager::getInstance()->setGridChoice("my.grid.com");		
 		slurl = LLSLURL("https://my.grid.com/region/my%20region/1/2/3");
 		ensure_equals("grid slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("grid slurl, region + coords", slurl.getSLURLString(), 
@@ -201,6 +202,7 @@ namespace tut
 		ensure_equals("region" , "myregion", slurl.getRegion());
 		ensure_equals("grid4", "util.aditi.lindenlab.com", slurl.getGrid());		
 		
+		LLGridManager::getInstance()->setGridChoice("my.grid.com");
 		slurl = LLSLURL("https://my.grid.com/app/foo/bar?12345");
 		ensure_equals("app", slurl.getType(), LLSLURL::APP);		
 		ensure_equals("appcmd", slurl.getAppCmd(), "foo");
@@ -241,6 +243,7 @@ namespace tut
 	template<> template<>
 	void slurlTestObject::test<3>()
 	{
+		LLGridManager::getInstance()->setGridChoice("my.grid.com");		
 		LLSLURL slurl = LLSLURL("https://my.grid.com/region/my%20region/1/2/3");
 		ensure_equals("login string", slurl.getLoginString(), "uri:my region&amp;1&amp;2&amp;3");
 		ensure_equals("location string", slurl.getLocationString(), "my region/1/2/3");
