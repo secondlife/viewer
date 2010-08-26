@@ -5164,6 +5164,17 @@
     <key>Value</key>
     <real>3.0</real>
   </map>
+  <key>MediaEnablePopups</key>
+  <map>
+    <key>Comment</key>
+    <string>If true, enable targeted links and javascript in media to open new media browser windows.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaOnAPrimUI</key>
   <map>
     <key>Comment</key>

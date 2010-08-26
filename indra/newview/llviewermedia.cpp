@@ -2835,8 +2835,11 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 				// ignore this click and let media plugin handle it
 				break;
 			default:
-				// loadURL now handles distinguishing between _blank, _external, and other named targets.
-				LLWeb::loadURL(url, target);
+				if(gSavedSettings.getBOOL("MediaEnablePopups"))
+				{
+					// loadURL now handles distinguishing between _blank, _external, and other named targets.
+					LLWeb::loadURL(url, target);
+				}
 				break;
 			}
 		};
