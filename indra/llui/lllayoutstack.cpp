@@ -100,7 +100,7 @@ F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientati
 //
 
 LLLayoutStack::Params::Params()
-:	orientation("orientation", std::string("vertical")),
+:	orientation("orientation"),
 	animate("animate", true),
 	clip("clip", true),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))

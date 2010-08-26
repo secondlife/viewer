@@ -183,6 +183,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              follows="all"
              height="185"
              width="313"
+             orientation="vertical" 
              layout="topleft"
              name="filter_panels"
              top="0"
