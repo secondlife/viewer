@@ -634,6 +634,7 @@ BOOL LLVOAvatarSelf::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		return TRUE;
 	}
 	LLVOAvatar::idleUpdate(agent, world, time);
+	idleUpdateTractorBeam();
 	return TRUE;
 }
 

@@ -2318,7 +2318,6 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	
 	idleUpdateNameTag( root_pos_last );
 	idleUpdateRenderCost();
-	idleUpdateTractorBeam();
 
 	return TRUE;
 }
@@ -3077,14 +3076,6 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mNameText = NULL;
 		sNumVisibleChatBubbles--;
 	}
-}
-
-//--------------------------------------------------------------------
-// draw tractor beam when editing objects
-//--------------------------------------------------------------------
-// virtual
-void LLVOAvatar::idleUpdateTractorBeam()
-{
 }
 
 void LLVOAvatar::idleUpdateBelowWater()

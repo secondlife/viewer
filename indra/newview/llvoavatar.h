@@ -208,7 +208,6 @@ public:
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void 			idleUpdateRenderCost();
-	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
 
 	//--------------------------------------------------------------------
