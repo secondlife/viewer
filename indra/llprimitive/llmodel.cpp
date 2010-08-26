@@ -662,12 +662,18 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 		}
 	}
 
+	if (cur_idx != vert_idx.size())
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
 	//build vertex array from map
-	verts.resize(vert_idx.size());
+	std::vector<LLVolumeFace::VertexData> new_verts;
+	new_verts.resize(vert_idx.size());
 
 	for (std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.begin(); iter != vert_idx.end(); ++iter)
 	{
-		verts[iter->second] = iter->first;
+		new_verts[iter->second] = iter->first;
 		update_min_max(face.mExtents[0], face.mExtents[1], iter->first.getPosition());
 	}
 
@@ -679,8 +685,14 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 		indices[i] = vert_idx[verts[i]];
 	}
 
+	// DEBUG just build an expanded triangle list
+	/*for (U32 i = 0; i < verts.size(); ++i)
+	{
+		indices.push_back((U16) i);
+		update_min_max(face.mExtents[0], face.mExtents[1], verts[i].getPosition());
+	}*/
 
-    if (!verts.empty())
+    if (!new_verts.empty())
 	{
 		std::string material;
 
@@ -691,7 +703,7 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 
 		materials.push_back(material);
 		face_list.push_back(face);
-		face_list.rbegin()->fillFromLegacyData(verts, indices);
+		face_list.rbegin()->fillFromLegacyData(new_verts, indices);
 	}
 }
 
