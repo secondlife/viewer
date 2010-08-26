@@ -153,7 +153,6 @@ public:
 
 	// Prefer this method for read-only access to a single element. Prefer the templated version if the elem is known at compile time.
 	template <int N> LL_FORCE_INLINE LLSimdScalar getScalarAt() const;
-	template <> LL_FORCE_INLINE LLSimdScalar getScalarAt<0>() const;
 
 	// Set to an x, y, z and optional w provided
 	inline void set(F32 x, F32 y, F32 z, F32 w = 0.f);
@@ -321,6 +320,8 @@ public:
 private:
 	LLQuad mQ;
 };
+
+template <> LL_FORCE_INLINE LLSimdScalar LLVector4a::getScalarAt<0>() const;
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)
 {

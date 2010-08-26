@@ -36,9 +36,9 @@
 #include "../test/lltut.h"
 #include "llsd.h"
 
-#include "../llquaternion.h"
 #include "../m4math.h"
 #include "../v4math.h"
+#include "../llquaternion.h"
 
 namespace tut
 {
