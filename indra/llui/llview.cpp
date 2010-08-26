@@ -397,45 +397,46 @@ bool LLCompareByTabOrder::operator() (const LLView* const a, const LLView* const
 	return (a_score == b_score) ? a < b : a_score < b_score;
 }
 
-bool LLView::trueToRoot(const boost::function<bool (const LLView*)>& predicate) const
-{
-	const LLView* cur_view = this;
-	while(cur_view)
-	{
-		if(!predicate(cur_view))
-		{
-			return false;
-		}
-		cur_view = cur_view->getParent();
-	}
-	return true;
-}
-
 BOOL LLView::isInVisibleChain() const
 {
-	return trueToRoot(&LLView::getVisible);
+	BOOL visible = TRUE;
+
+	const LLView* viewp = this;
+	while(viewp)
+	{
+		if (!viewp->getVisible())
+		{
+			visible = FALSE;
+			break;
+		}
+		viewp = viewp->getParent();
+	}
+	
+	return visible;
 }
 
 BOOL LLView::isInEnabledChain() const
 {
-	return trueToRoot(&LLView::getEnabled);
+	BOOL enabled = TRUE;
+
+	const LLView* viewp = this;
+	while(viewp)
+	{
+		if (!viewp->getEnabled())
+		{
+			enabled = FALSE;
+			break;
+		}
+		viewp = viewp->getParent();
+	}
+	
+	return enabled;
 }
 
 // virtual
 BOOL LLView::canFocusChildren() const
 {
 	return TRUE;
-}
-
-//virtual
-void LLView::setTentative(BOOL b)
-{
-}
-
-//virtual
-BOOL LLView::getTentative() const
-{
-	return FALSE;
 }
 
 //virtual
@@ -2776,6 +2777,19 @@ LLView::tree_post_iterator_t LLView::endTreeDFSPost()
 { 
 	// an empty iterator is an "end" iterator
 	return tree_post_iterator_t();
+}
+
+LLView::bfs_tree_iterator_t LLView::beginTreeBFS() 
+{ 
+	return bfs_tree_iterator_t(this, 
+							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
+							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+}
+
+LLView::bfs_tree_iterator_t LLView::endTreeBFS() 
+{ 
+	// an empty iterator is an "end" iterator
+	return bfs_tree_iterator_t();
 }
 
 

@@ -449,7 +449,7 @@ public:
 	// Given a child of gFloaterView, make sure this view can fit entirely onscreen.
 	void			adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside);
 
-	void			setMinimizePositionVerticalOffset(S32 offset) { mVMinimizePositionOffset = offset; }
+	void			setMinimizePositionVerticalOffset(S32 offset) { mMinimizePositionVOffset = offset; }
 	void			getMinimizePosition( S32 *left, S32 *bottom);
 	void			restoreAll();		// un-minimize all floaters
 	typedef std::set<LLView*> skip_list_t;
@@ -486,7 +486,7 @@ private:
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;
-	S32				mVMinimizePositionOffset;
+	S32				mMinimizePositionVOffset;
 };
 
 //

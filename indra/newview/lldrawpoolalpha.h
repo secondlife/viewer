@@ -28,6 +28,7 @@
 #define LL_LLDRAWPOOLALPHA_H
 
 #include "lldrawpool.h"
+#include "llrender.h"
 #include "llframetimer.h"
 
 class LLFace;
@@ -77,6 +78,12 @@ private:
 	LLGLSLShader* target_shader;
 	LLGLSLShader* simple_shader;
 	LLGLSLShader* fullbright_shader;	
+
+	// our 'normal' alpha blend function for this pass
+	LLRender::eBlendFactor mColorSFactor;
+	LLRender::eBlendFactor mColorDFactor;	
+	LLRender::eBlendFactor mAlphaSFactor;
+	LLRender::eBlendFactor mAlphaDFactor;
 };
 
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha

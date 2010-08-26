@@ -155,7 +155,7 @@ BOOL LLPanelTopInfoBar::postBuild()
 	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelTopInfoBar::onAgentParcelChange, this));
 
-	setVisibleCallback(boost::bind(&LLPanelTopInfoBar::onShow, this, _2));
+	setVisibleCallback(boost::bind(&LLPanelTopInfoBar::onVisibilityChange, this, _2));
 
 	return TRUE;
 }
@@ -170,9 +170,9 @@ void LLPanelTopInfoBar::onNavBarShowParcelPropertiesCtrlChanged()
 	setParcelInfoText(new_text);
 }
 
-// when panel is shown, all minimized floaters should be shifted to prevent overlapping of
+// when panel is shown, all minimized floaters should be shifted downwards to prevent overlapping of
 // PanelTopInfoBar. See EXT-7951.
-void LLPanelTopInfoBar::onShow(const LLSD& show)
+void LLPanelTopInfoBar::onVisibilityChange(const LLSD& show)
 {
 	// this height is used as a vertical offset for ALREADY MINIMIZED floaters
 	// when PanelTopInfoBar visibility changes

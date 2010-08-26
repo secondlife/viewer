@@ -1,0 +1,1 @@
+If this file exists then you have the artwork bundle installed, which is packaged separately from the Viewer source in the open-source tree.  This marker is for the benefit of the build system so it can warn you properly if it's not there. :)

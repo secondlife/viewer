@@ -2279,7 +2279,7 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 	S32 floater_header_size = default_params.header_height;
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
 	LLRect snap_rect_local = getLocalSnapRect();
-	snap_rect_local.mTop += mVMinimizePositionOffset;
+	snap_rect_local.mTop += mMinimizePositionVOffset;
 	for(S32 col = snap_rect_local.mLeft;
 		col < snap_rect_local.getWidth() - minimized_width;
 		col += minimized_width)

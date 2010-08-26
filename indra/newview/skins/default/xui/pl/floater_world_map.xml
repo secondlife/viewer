@@ -17,13 +17,13 @@
 			Infohub
 		</text>
 		<text name="land_sale_label">
-			Sprzedaż Posiadłości
+			Sprzedaż posiadłości
 		</text>
 		<text name="auction_label">
-			aukcja Posiadłości
+			Aukcja posiadłości
 		</text>
 		<text name="by_owner_label">
-			przez Właściciela
+			przez właściciela
 		</text>
 		<button name="Go Home" tool_tip="Teleportuj do mojego Miejsca Startowego"/>
 		<text name="Home_label">
@@ -33,11 +33,11 @@
 			Wydarzenia:
 		</text>
 		<text name="pg_label">
-			Ogólne
+			General
 		</text>
 		<check_box initial_value="true" name="events_mature_chk"/>
 		<text name="events_mature_label">
-			Moderuj
+			Moderate
 		</text>
 		<text name="events_adult_label">
 			Adult
@@ -49,13 +49,13 @@
 		</text>
 	</panel>
 	<panel name="layout_panel_4">
-		<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Pokaż znajomych na mapie">
-			<combo_box.item label="Moi Dostępni Znajomi" name="item1"/>
+		<combo_box label="Dostępni znajomi" name="friend combo" tool_tip="Pokaż znajomych na mapie">
+			<combo_box.item label="Moi dostępni znajomi" name="item1"/>
 		</combo_box>
-		<combo_box label="Zapisane Miejsca" name="landmark combo" tool_tip="Pokaż zapisane miejsce na mapie">
-			<combo_box.item label="Zapisane Miejsca" name="item1"/>
+		<combo_box label="Zapisane miejsca" name="landmark combo" tool_tip="Pokaż zapisane miejsce na mapie">
+			<combo_box.item label="Zapisane miejsca" name="item1"/>
 		</combo_box>
-		<search_editor label="Regiony Według Nazwy" name="location" tool_tip="Wpisz nazwę regionu"/>
+		<search_editor label="Regiony według nazwy" name="location" tool_tip="Wpisz nazwę regionu"/>
 		<button label="Znajdź" name="DoSearch" tool_tip="Szukaj regionu"/>
 		<button name="Clear" tool_tip="Wyczyść zapamiętane linie oraz zresetuj mapę"/>
 		<text name="events_label">

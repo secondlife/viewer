@@ -30,7 +30,9 @@
             <menu_item_call.on_click
              function="BuyCurrency" />
         </menu_item_call>
+
         <menu_item_separator/>
+
         <menu_item_call
          label="My Profile"
          name="Profile">
@@ -126,7 +128,9 @@
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
         </menu_item_call>
+
         <menu_item_separator/>
+
         <menu_item_call
          label="Exit [APP_NAME]"
          name="Quit"
@@ -156,7 +160,9 @@
              function="SideTray.PanelPeopleTab"
              parameter="groups_panel" />
         </menu_item_call>
+
         <menu_item_separator/>
+
         <!--menu_item_call
          label="Chat"
          name="Chat">
@@ -255,7 +261,9 @@
              parameter="region_info" />
         </menu_item_call>
         </menu>
+
         <menu_item_separator/>
+
         <menu_item_call
              label="Buy This Land"
              name="Buy Land">
@@ -352,7 +360,9 @@
                control="NavBarShowParcelProperties" />
           </menu_item_check>
         </menu>
+
         <menu_item_separator/>
+
 	    <menu_item_call
 	     label="Teleport Home"
 	     name="Teleport Home"
@@ -391,7 +401,9 @@
              parameter="ShowNavbarFavoritesPanel" />
         </menu_item_check>
         <menu_item_separator/>-->
+
         <menu_item_separator/>
+
     <menu
          create_jump_keys="true"
          label="Sun"
@@ -434,7 +446,9 @@
                  function="World.EnvSettings"
                  parameter="default" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Environment Editor"
              name="Environment Editor">
@@ -583,6 +597,7 @@
             </menu_item_call>
         </menu>
         <menu_item_separator/>
+
         <menu_item_call
            label="Focus on Selection"
            name="Focus on Selection"
@@ -603,7 +618,9 @@
           <menu_item_call.on_enable
              function="Tools.SomethingSelectedNoHUD" />
         </menu_item_call>
+
         <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Object"
@@ -705,7 +722,9 @@
                function="EditableSelected" />
           </menu_item_call>
         </menu>
+
         <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Options"
@@ -721,7 +740,9 @@
 				 function="ToggleControl"
 				 parameter="DebugPermissions" />
 			</menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_check
                  label="Select Only My Objects"
                  name="Select Only My Objects">
@@ -748,7 +769,9 @@
                     <menu_item_check.on_click
                      function="Tools.SelectBySurrounding" />
             </menu_item_check>
+
           <menu_item_separator/>
+
                 <menu_item_check
                  label="Show Hidden Selection"
                  name="Show Hidden Selection">
@@ -774,7 +797,9 @@
                      function="ToggleControl"
                      parameter="ShowSelectionBeam" />
                 </menu_item_check>
+
         <menu_item_separator/>
+
                 <menu_item_check
                  label="Snap to Grid"
                  name="Snap to Grid"
@@ -899,7 +924,9 @@
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>-->
+
         <menu_item_separator/>
+
         <menu_item_call
              label="Report Abuse"
              name="Report Abuse">
@@ -913,7 +940,9 @@
                  function="ShowHelp"
                  parameter="report_bug" />
             </menu_item_call>
+
         <menu_item_separator/>
+
         <menu_item_call
          label="About [APP_NAME]"
          name="About Second Life">
@@ -928,17 +957,6 @@
      name="Advanced"
      tear_off="true"
      visible="false">
-        <menu_item_check
-         label="Show Advanced Menu"
-         name="Show Advanced Menu"
-         shortcut="control|alt|shift|D">
-          <on_check
-           function="CheckControl"
-           parameter="UseDebugMenus" />
-          <on_click
-           function="ToggleControl"
-           parameter="UseDebugMenus" />
-        </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
          name="Stop Animating My Avatar">
@@ -965,7 +983,9 @@
            function="Floater.Show"
            parameter="window_size" />
         </menu_item_call>
+
         <menu_item_separator/>
+
         <menu_item_check
          label="Limit Select Distance"
          name="Limit Select Distance">
@@ -986,7 +1006,9 @@
              function="ToggleControl"
              parameter="DisableCameraConstraints" />
         </menu_item_check>
+
         <menu_item_separator/>
+
         <menu_item_check
          label="High-res Snapshot"
          name="HighResSnapshot">
@@ -1017,7 +1039,9 @@
              function="ToggleControl"
              parameter="CompressSnapshotsToDisk" />
         </menu_item_check>
+
         <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Performance Tools"
@@ -1130,7 +1154,9 @@
                 <menu_item_check.on_click
                  function="View.ShowHoverTips" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_check
              label="Show Land Tooltips"
              name="Land Tips">
@@ -1399,17 +1425,7 @@
                  function="Advanced.ToggleFeature"
                  parameter="flexible" />
             </menu_item_check>
-        </menu>
-        <menu_item_check
-         label="Run Multiple Threads"
-         name="Run Multiple Threads">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RunMultipleThreads" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RunMultipleThreads" />
-        </menu_item_check>
+        </menu>        
         <menu_item_check
          label="Use Plugin Read Thread"
          name="Use Plugin Read Thread">
@@ -1437,7 +1453,9 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
+
         <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Shortcuts"
@@ -1482,19 +1500,9 @@
                 <menu_item_call.on_click
                  function="View.DefaultUISize" />
             </menu_item_call>
-            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
-            <menu_item_check
-               label="Show Advanced Menu - legacy shortcut"
-               name="Show Advanced Menu - legacy shortcut"
-               shortcut="control|alt|D">
-              <on_check
-		 function="CheckControl"
-		 parameter="UseDebugMenus" />
-              <on_click
-		 function="ToggleControl"
-		 parameter="UseDebugMenus" />
-            </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_check
              label="Always Run"
              name="Always Run"
@@ -1515,7 +1523,9 @@
                 <menu_item_check.on_enable
                  function="Agent.enableFlying" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Close Window"
              name="Close Window"
@@ -1534,7 +1544,9 @@
                 <menu_item_call.on_enable
                  function="File.EnableCloseAllWindows" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Snapshot to Disk"
              name="Snapshot to Disk"
@@ -1543,7 +1555,9 @@
                 <menu_item_call.on_click
                  function="File.TakeSnapshotToDisk" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Mouselook"
              name="Mouselook"
@@ -1580,7 +1594,9 @@
                 <menu_item_call.on_enable
                  function="View.EnableLastChatter" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu
              create_jump_keys="true"
              label="Select Build Tool"
@@ -1627,7 +1643,9 @@
                      parameter="land" />
                 </menu_item_call>
             </menu>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Zoom In"
              name="Zoom In"
@@ -1649,8 +1667,27 @@
                 <menu_item_call.on_click
                  function="View.ZoomOut" />
             </menu_item_call>
-        </menu>
+            <menu_item_separator
+             visible="false"/>
+            <!-- Made invisible to avoid a dissonance: menu item toggle menu where it is located. EXT-8069.
+              Can't be removed to keep sortcut workable.
+            -->
+            <menu_item_check
+             label="Show Advanced Menu"
+             name="Show Advanced Menu"
+             shortcut="control|alt|D"
+             visible="false">
+                <on_check
+                 function="CheckControl"
+                 parameter="UseDebugMenus" />
+                <on_click
+                 function="ToggleControl"
+                 parameter="UseDebugMenus" />
+        </menu_item_check>
+        </menu> <!--Shortcuts-->
+
         <menu_item_separator/>
+
         <menu_item_call
          label="Show Debug Settings"
          name="Debug Settings">
@@ -1669,6 +1706,7 @@
              function="ToggleControl"
              parameter="QAMode" />
         </menu_item_check>
+    
     </menu>
     <menu
      create_jump_keys="true"
@@ -1759,7 +1797,9 @@
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Region Info to Debug Console"
              name="Region Info to Debug Console">
@@ -1781,7 +1821,9 @@
                  function="Advanced.DumpInfoToConsole"
                  parameter="capabilities" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu_item_check
              label="Camera"
              name="Camera">
@@ -1869,7 +1911,9 @@
                  function="ToggleControl"
                  parameter="DebugShowColor" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_check
              label="Show Updates to Objects"
              name="Show Updates"
@@ -1881,7 +1925,9 @@
                  function="Advanced.ToggleShowObjectUpdates" />
             </menu_item_check>
         </menu>
+
         <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Force an Error"
@@ -2175,9 +2221,12 @@
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderFBO" />
            </menu_item_check>
+
+          <menu_item_separator />
+
           <menu_item_check
-                       label="Deferred Rendering"
-                       name="Deferred Rendering">
+                       label="Lighting and Shadows"
+                       name="Lighting and Shadows">
             <menu_item_check.on_check
              function="CheckControl"
              parameter="RenderDeferred" />
@@ -2188,7 +2237,31 @@
                  function="Advanced.EnableRenderDeferred" />
           </menu_item_check>
           <menu_item_check
-                   label="Global Illumination"
+                       label="   Shadows from Sun/Moon/Projectors"
+                       name="Shadows from Sun/Moon/Projectors">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderShadowOption"
+             parameter="RenderShadowDetail" />
+            <menu_item_check.on_click
+             function="Advanced.ClickRenderShadowOption"
+             parameter="RenderShadowDetail" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferredOptions" />
+          </menu_item_check>
+          <menu_item_check
+                   label="   SSAO and Shadow Smoothing"
+                   name="SSAO and Shadow Smoothing">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDeferredSSAO" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDeferredSSAO" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferredOptions" />
+          </menu_item_check>
+          <menu_item_check
+                   label="   Global Illumination (experimental)"
                    name="Global Illumination">
             <menu_item_check.on_check
              function="CheckControl"
@@ -2197,9 +2270,11 @@
              function="ToggleControl"
              parameter="RenderDeferredGI" />
             <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferredGI" />
+                 function="Advanced.EnableRenderDeferredOptions" />
           </menu_item_check>
+
           <menu_item_separator />
+
           <menu_item_check
              label="Debug GL"
              name="Debug GL">
@@ -2221,14 +2296,24 @@
                  parameter="RenderDebugPipeline" />
             </menu_item_check>
             <menu_item_check
-             label="Fast Alpha"
-             name="Fast Alpha">
+             label="Automatic Alpha Masks (deferred)"
+             name="Automatic Alpha Masks (deferred)">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
+            </menu_item_check>
+            <menu_item_check
+             label="Automatic Alpha Masks (non-deferred)"
+             name="Automatic Alpha Masks (non-deferred)">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
             </menu_item_check>
             <menu_item_check
              label="Animation Textures"
@@ -2271,7 +2356,7 @@
                parameter="AuditTexture" />
             </menu_item_check>
             <menu_item_check
-             label="Texture Atlas"
+             label="Texture Atlas (experimental)"
              name="Texture Atlas">
               <menu_item_check.on_check
                function="CheckControl"
@@ -2327,7 +2412,9 @@
                  function="ToggleControl"
                  parameter="AgentPause" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Enable Message Log"
              name="Enable Message Log">
@@ -2340,7 +2427,9 @@
                 <menu_item_call.on_click
                  function="Advanced.DisableMessageLog" />
             </menu_item_call>
+
             <menu_item_separator/>
+
             <menu_item_check
              label="Velocity Interpolate Objects"
              name="Velocity Interpolate Objects">
@@ -2361,7 +2450,9 @@
                  function="ToggleControl"
                  parameter="PingInterpolate" />
             </menu_item_check>
+
             <menu_item_separator/>
+
             <menu_item_call
              label="Drop a Packet"
              name="Drop a Packet"
@@ -2549,6 +2640,7 @@
             </menu_item_check>
 
             <menu_item_separator />
+
             <menu_item_check
              label="Debug SelectMgr"
              name="Debug SelectMgr">
@@ -2894,7 +2986,9 @@
                  function="Advanced.DumpAvatarLocalTextures" />
             </menu_item_call>
         </menu>
+
         <menu_item_separator/>
+
         <menu_item_check
          label="HTTP Textures"
          name="HTTP Textures">
@@ -2931,7 +3025,9 @@
              function="ToggleControl"
              parameter="ShowConsoleWindow" />
         </menu_item_check>
+
         <menu_item_separator/>
+
         <menu_item_check
          label="Show Admin Menu"
          name="View Admin Options">
@@ -3266,7 +3362,9 @@
                      name="PublicIssueTrackerHelp_url"
                      parameter="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker" />
                 </menu_item_call>
+
                 <menu_item_separator/>
+
                 <menu_item_call
                  label="Bug Reporting 101"
                  name="Bug Reporing 101">

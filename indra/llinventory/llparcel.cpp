@@ -52,7 +52,6 @@ static const std::string PARCEL_OWNERSHIP_STATUS_STRING[LLParcel::OS_COUNT+1] =
 };
 
 // NOTE: Adding parcel categories also requires updating:
-// * floater_directory.xml category combobox
 // * floater_about_land.xml category combobox
 // * Web site "create event" tools
 // DO NOT DELETE ITEMS FROM THIS LIST WITHOUT DEEPLY UNDERSTANDING WHAT YOU'RE DOING.

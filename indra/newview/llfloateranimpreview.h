@@ -83,22 +83,22 @@ public:
 
 	void refresh();
 
-	static void	onBtnPlay(void*);
-	static void	onBtnPause(void*);	
-	static void	onBtnStop(void*);
-	static void onSliderMove(LLUICtrl*, void*);
-	static void onCommitBaseAnim(LLUICtrl*, void*);
-	static void onCommitLoop(LLUICtrl*, void*);
-	static void onCommitLoopIn(LLUICtrl*, void*);
-	static void onCommitLoopOut(LLUICtrl*, void*);
+	void onBtnPlay();
+	void onBtnPause();	
+	void onBtnStop();
+	void onSliderMove();
+	void onCommitBaseAnim();
+	void onCommitLoop();
+	void onCommitLoopIn();
+	void onCommitLoopOut();
 	bool validateLoopIn(const LLSD& data);
 	bool validateLoopOut(const LLSD& data);
-	static void onCommitName(LLUICtrl*, void*);
-	static void onCommitHandPose(LLUICtrl*, void*);
-	static void onCommitEmote(LLUICtrl*, void*);
-	static void onCommitPriority(LLUICtrl*, void*);
-	static void onCommitEaseIn(LLUICtrl*, void*);
-	static void onCommitEaseOut(LLUICtrl*, void*);
+	void onCommitName();
+	void onCommitHandPose();
+	void onCommitEmote();
+	void onCommitPriority();
+	void onCommitEaseIn();
+	void onCommitEaseOut();
 	bool validateEaseIn(const LLSD& data);
 	bool validateEaseOut(const LLSD& data);
 	static void	onBtnOK(void*);

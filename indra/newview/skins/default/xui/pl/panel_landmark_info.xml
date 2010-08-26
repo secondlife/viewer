@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="landmark_info">
-	<string name="title_create_landmark" value="Zapamiętaj Miejsce"/>
-	<string name="title_edit_landmark" value="Edytuj Zapamiętane Miejsce"/>
-	<string name="title_landmark" value="Zapamiętane Miejsce (LM)"/>
+	<string name="title_create_landmark" value="Zapamiętaj miejsce (LM)"/>
+	<string name="title_edit_landmark" value="Edytuj landmarki"/>
+	<string name="title_landmark" value="Landmarki (LM)"/>
 	<string name="not_available" value="(N\A)"/>
 	<string name="unknown" value="(nieznane)"/>
 	<string name="public" value="(publiczne)"/>
@@ -19,7 +19,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Cofnij"/>
-	<text name="title" value="Profil Miejsca"/>
+	<text name="title" value="Profil miejsca"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="maturity_value" value="nieznany"/>

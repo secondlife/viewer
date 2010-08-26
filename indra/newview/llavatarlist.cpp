@@ -378,7 +378,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowProfileBtn(mShowProfileBtn);
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
 
-	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoucleClicked, this, _1, _2, _3, _4));
+	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
 
 	addItem(item, id, pos);
 }
@@ -441,7 +441,7 @@ void LLAvatarList::updateLastInteractionTimes()
 	}
 }
 
-void LLAvatarList::onItemDoucleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+void LLAvatarList::onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 	mItemDoubleClickSignal(ctrl, x, y, mask);
 }

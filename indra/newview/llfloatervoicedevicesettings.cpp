@@ -97,7 +97,7 @@ void LLPanelVoiceDeviceSettings::draw()
 
 	// let user know that volume indicator is not yet available
 	bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
-	childSetVisible("wait_text", !is_in_tuning_mode);
+	getChildView("wait_text")->setVisible( !is_in_tuning_mode);
 
 	LLPanel::draw();
 
