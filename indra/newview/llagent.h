@@ -339,6 +339,7 @@ public:
 private:
 	bool 			mbAlwaysRun; 			// Should the avatar run by default rather than walk?
 	bool 			mbRunning;				// Is the avatar trying to run right now?
+	bool			mbTeleportKeepsLookAt;	// Try to keep look-at after teleport is complete
 
 	//--------------------------------------------------------------------
 	// Sit and stand
@@ -504,7 +505,8 @@ public:
 		TELEPORT_REQUESTED = 2,		// Waiting for source simulator to respond
 		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
 		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
-		TELEPORT_ARRIVING = 5		// Make the user wait while content "pre-caches"
+		TELEPORT_ARRIVING = 5,		// Make the user wait while content "pre-caches"
+		TELEPORT_LOCAL = 6			// Teleporting in-sim without showing the progress screen
 	};
 
 public:
@@ -522,12 +524,15 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void 			teleportRequest(const U64& region_handle,
-									const LLVector3& pos_local);			// Go to a named location home
+									const LLVector3& pos_local,				// Go to a named location home
+									bool look_at_from_camera = false);
 	void 			teleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
 	void 			teleportHome()	{ teleportViaLandmark(LLUUID::null); }	// Go home
 	void 			teleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
 	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
+	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 	void 			teleportCancel();										// May or may not be allowed by server
+	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
 
