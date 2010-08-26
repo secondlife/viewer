@@ -607,7 +607,17 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-
+    <key>AvatarPhysics</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable avatar physics, such as breast physics.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -620,16 +630,16 @@
       <integer>0</integer>
     </map>
 
-    <key>AvatarPhysics</key>
+    <key>RenderAvatarPhysicsLODFactor</key>
     <map>
       <key>Comment</key>
-      <string>Enable avatar physics, such as breast physics.</string>
+      <string>Controls level of detail of avatar physics (such as breast physics).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>F32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>1.0</integer>
     </map>
 
     <key>BackgroundYieldTime</key>

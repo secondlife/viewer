@@ -138,6 +138,7 @@ private:
 
 	LLVector3           mBreastLastPosition_local_pt; // Last parameters for breast
 	LLVector3           mBreastVelocity_local_vec; // How fast the breast params are moving
+	LLVector3           mBreastLastUpdatePosition_local_pt; // Last parameters when visual update was sent
 
 
 	F32 mBreastMassParam;

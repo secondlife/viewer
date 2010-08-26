@@ -76,6 +76,7 @@ LLBreastMotion::LLBreastMotion(const LLUUID &id) :
 	mCharLastVelocity_local_vec = LLVector3(0,0,0);
 	mCharLastAcceleration_local_vec = LLVector3(0,0,0);
 	mBreastLastPosition_local_pt = LLVector3(0,0,0);
+	mBreastLastUpdatePosition_local_pt = LLVector3(0,0,0);
 	mBreastVelocity_local_vec = LLVector3(0,0,0);
 }
 
@@ -236,6 +237,12 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 		return TRUE;
 	}
 
+	const F32 lod_factor = LLVOAvatar::sPhysicsLODFactor;
+	if (lod_factor == 0)
+	{
+		return TRUE;
+	}
+
 	/* TEST:
 	   1. Change outfits
 	   2. FPS effect
@@ -354,8 +361,20 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 				mBreastMassParam
 			);
 	}
-		
+	
+	LLVector3 position_diff = mBreastLastUpdatePosition_local_pt-new_local_pt;
+	for (U32 i=0; i < 3; i++)
+	{
+		const F32 min_delta = (1.0-lod_factor)*(mBreastParamsMax[i]-mBreastParamsMin[i])/2.0;
+		if (llabs(position_diff[i]) > min_delta)
+		{
+			mCharacter->updateVisualParams();
+			mBreastLastUpdatePosition_local_pt = new_local_pt;
+			break;
+		}
+	}
+
 	mBreastLastPosition_local_pt = new_local_pt;
-	mCharacter->updateVisualParams();
+
 	return TRUE;
 }
