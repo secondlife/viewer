@@ -222,8 +222,13 @@ void LLSideTrayTab::toggleTabDocked()
 		// Remove the tab from Side Tray's tabs list.
 		// We have to do it despite removing the tab from Side Tray's child view tree
 		// by addChild(). Otherwise the tab could be accessed by the pointer in LLSideTray::mTabs.
-		side_tray->removeTab(this);
+		if (!side_tray->removeTab(this))
+		{
+			llwarns << "Failed to remove tab " << getName() << " from side tray" << llendl;
+			return;
+		}
 
+		setVisible(true); // *HACK: restore visibility after being hidden by LLSideTray::selectTabByName().
 		floater_tab->addChild(this);
 		floater_tab->setTitle(mTabTitle);
 
@@ -241,7 +246,11 @@ void LLSideTrayTab::toggleTabDocked()
 	}
 	else
 	{
-		side_tray->addChild(this, 0);
+		if (!side_tray->addTab(this))
+		{
+			llwarns << "Failed to add tab " << getName() << " to side tray" << llendl;
+			return;
+		}
 
 		setRect(side_tray->getLocalRect());
 		reshape(getRect().getWidth(), getRect().getHeight());
@@ -320,6 +329,13 @@ BOOL LLSideTray::postBuild()
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSideTray::handleLoginComplete, this));
 
+	// Remember original tabs order, so that we can restore it if user detaches and then re-attaches a tab.
+	for (child_vector_const_iter_t it = mTabs.begin(); it != mTabs.end(); ++it)
+	{
+		std::string tab_name = (*it)->getName();
+		mOriginalTabOrder.push_back(tab_name);
+	}
+
 	//EXT-8045
 	//connect all already created channels to reflect sidetray collapse/expand
 	std::vector<LLChannelManager::ChannelElem>& channels = LLChannelManager::getInstance()->getChannelList();
@@ -371,22 +387,33 @@ bool LLSideTray::selectTabByIndex(size_t index)
 
 bool LLSideTray::selectTabByName	(const std::string& name)
 {
-	LLSideTrayTab* side_bar = getTab(name);
+	LLSideTrayTab* new_tab = getTab(name);
 
-	if(side_bar == mActiveTab)
+	// Bail out if already selected.
+	if (new_tab == mActiveTab)
 		return false;
+
 	//deselect old tab
-	toggleTabButton(mActiveTab);
-	if(mActiveTab)
-		mActiveTab->setVisible(false);
+	if (mActiveTab)
+	{
+		toggleTabButton(mActiveTab);
+		if(mActiveTab)
+		{
+			mActiveTab->setVisible(false);
+		}
+	}
 
 	//select new tab
-	mActiveTab = side_bar;
-	toggleTabButton(mActiveTab);
-	LLSD key;//empty
-	mActiveTab->onOpen(key);
+	mActiveTab = new_tab;
 
-	mActiveTab->setVisible(true);
+	if (mActiveTab)
+	{
+		toggleTabButton(mActiveTab);
+		LLSD key;//empty
+		mActiveTab->onOpen(key);
+
+		mActiveTab->setVisible(true);
+	}
 
 	//arrange();
 	
@@ -447,18 +474,102 @@ bool LLSideTray::addChild(LLView* view, S32 tab_group)
 	return LLUICtrl::addChild(view, tab_group);
 }
 
-void LLSideTray::removeTab(LLView* child)
+bool LLSideTray::removeTab(LLSideTrayTab* tab)
 {
-	for (child_vector_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	if (!tab) return false;
+	std::string tab_name = tab->getName();
+
+	// Look up the tab in the list of known tabs.
+	child_vector_iter_t tab_it = std::find(mTabs.begin(), mTabs.end(), tab);
+	if (tab_it == mTabs.end())
 	{
-		if (*child_it == child)
-		{
-			mTabs.erase(child_it);
-			break;
-		}
+		llwarns << "Cannot find tab named " << tab_name << llendl;
+		return false;
 	}
 
-	mActiveTab = getTab("sidebar_openclose");
+	// Find the button corresponding to the tab.
+	button_map_t::iterator btn_it = mTabButtons.find(tab_name);
+	if (btn_it == mTabButtons.end())
+	{
+		llwarns << "Cannot find button for tab named " << tab_name << llendl;
+		return false;
+	}
+	LLButton* btn = btn_it->second;
+
+	// Deselect the tab.
+	if (mActiveTab == tab)
+	{
+		child_vector_iter_t next_tab_it =
+				(tab_it < (mTabs.end() - 1)) ? tab_it + 1 : mTabs.begin();
+		selectTabByName((*next_tab_it)->getName());
+	}
+
+	// Remove the tab.
+	removeChild(tab);
+	mTabs.erase(tab_it);
+
+	// Remove the button from the buttons panel so that it isn't drawn anymore.
+	mButtonsPanel->removeChild(btn);
+
+	// Re-arrange remaining tabs.
+	arrange();
+
+	return true;
+}
+
+bool LLSideTray::addTab(LLSideTrayTab* tab)
+{
+	if (tab == NULL) return false;
+
+	std::string tab_name = tab->getName();
+
+	// Make sure the tab isn't already in the list.
+	if (std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end())
+	{
+		llwarns << "Attempt to re-add existing tab " << tab_name << llendl;
+		return false;
+	}
+
+	// Look up the corresponding button.
+	button_map_t::const_iterator btn_it = mTabButtons.find(tab_name);
+	if (btn_it == mTabButtons.end())
+	{
+		llwarns << "Tab " << tab_name << " has no associated button" << llendl;
+		return false;
+	}
+	LLButton* btn = btn_it->second;
+
+	// Insert the tab at its original position.
+	LLUICtrl::addChild(tab);
+	{
+		tab_order_vector_const_iter_t new_tab_orig_pos =
+			std::find(mOriginalTabOrder.begin(), mOriginalTabOrder.end(), tab_name);
+		llassert(new_tab_orig_pos != mOriginalTabOrder.end());
+		child_vector_iter_t insert_pos = mTabs.end();
+
+		for (child_vector_iter_t tab_it = mTabs.begin(); tab_it != mTabs.end(); ++tab_it)
+		{
+			tab_order_vector_const_iter_t cur_tab_orig_pos =
+				std::find(mOriginalTabOrder.begin(), mOriginalTabOrder.end(), (*tab_it)->getName());
+			llassert(cur_tab_orig_pos != mOriginalTabOrder.end());
+
+			if (new_tab_orig_pos < cur_tab_orig_pos)
+			{
+				insert_pos = tab_it;
+				break;
+			}
+		}
+
+		mTabs.insert(insert_pos, tab);
+	}
+
+	// Add the button to the buttons panel so that it's drawn again.
+	mButtonsPanel->addChildInBack(btn);
+
+	// Arrange tabs after inserting a new one.
+	arrange();
+
+	return true;
 }
 
 void	LLSideTray::createButtons	()

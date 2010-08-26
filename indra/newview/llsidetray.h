@@ -68,6 +68,8 @@ protected:
 	typedef child_vector_t::const_iterator  			child_vector_const_iter_t;
 	typedef child_vector_t::reverse_iterator 			child_vector_reverse_iter_t;
 	typedef child_vector_t::const_reverse_iterator 		child_vector_const_reverse_iter_t;
+	typedef std::vector<std::string>					tab_order_vector_t;
+	typedef tab_order_vector_t::const_iterator			tab_order_vector_const_iter_t;
 
 public:
 
@@ -144,7 +146,8 @@ public:
 	void		onToggleCollapse();
 
 	bool		addChild		(LLView* view, S32 tab_group);
-	void		removeTab		(LLView* view);
+	bool		removeTab		(LLSideTrayTab* tab); // Used to detach tabs temporarily
+	bool		addTab			(LLSideTrayTab* tab); // Used to re-attach tabs
 
 	BOOL		handleMouseDown	(S32 x, S32 y, MASK mask);
 	
@@ -180,10 +183,15 @@ private:
 	
 private:
 
+	typedef std::pair<LLButton*, LLSideTrayTab*> detached_tab_t;
+	typedef std::map<std::string, detached_tab_t> detached_tab_map_t;
+
 	LLPanel*						mButtonsPanel;
 	typedef std::map<std::string,LLButton*> button_map_t;
 	button_map_t					mTabButtons;
 	child_vector_t					mTabs;
+	detached_tab_map_t				mDetachedTabs;
+	tab_order_vector_t				mOriginalTabOrder;
 	LLSideTrayTab*					mActiveTab;	
 	
 	commit_signal_t					mCollapseSignal;
