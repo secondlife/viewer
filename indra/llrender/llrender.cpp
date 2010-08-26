@@ -901,7 +901,7 @@ LLVector3 LLRender::getUITranslation()
 {
 	if (mUIOffset.empty())
 	{
-		llerrs << "UI offset stack empty." << llendl;
+		return LLVector3(0,0,0);
 	}
 	return mUIOffset.back();
 }
@@ -910,7 +910,7 @@ LLVector3 LLRender::getUIScale()
 {
 	if (mUIScale.empty())
 	{
-		llerrs << "UI scale stack empty." << llendl;
+		return LLVector3(1,1,1);
 	}
 	return mUIScale.back();
 }
