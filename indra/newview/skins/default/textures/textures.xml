@@ -652,4 +652,6 @@ with the same filename but different name
   <texture name="hint_arrow_up" file_name="windows/hint_arrow_up.png" preload="false"/>
   <texture name="hint_arrow_down" file_name="windows/hint_arrow_down.png" preload="false"/>
 
+  <texture name="Yellow_Gradient" file_name="windows/yellow_gradient.png"/>
+  <texture name="Popup_Caution" file_name="icons/pop_up_caution.png"/>
 </textures>

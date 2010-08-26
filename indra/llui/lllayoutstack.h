@@ -48,7 +48,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<std::string>	orientation;
+		Mandatory<std::string>	orientation;
 		Optional<S32>			border_size;
 		Optional<bool>			animate,
 								clip;
