@@ -89,6 +89,9 @@ public:
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
 	LLVector3		getPositionAgent()	const;
 	LLVector2       surfaceToTexture(LLVector2 surface_coord, LLVector3 position, LLVector3 normal);
+	void 			getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
+	bool			calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
+										LLVector2* st_scale, F32* st_rot) const;
 	
 	U32				getState()			const	{ return mState; }
 	void			setState(U32 state)			{ mState |= state; }

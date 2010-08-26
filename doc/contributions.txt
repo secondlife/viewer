@@ -212,6 +212,8 @@ Dzonatas Sol
 	VWR-1705
 	VWR-1729
 	VWR-1812
+Eddi Decosta
+	SNOW-586
 Eddy Stryker
 	VWR-15
 	VWR-23
@@ -632,6 +634,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-586
 	SNOW-743
 	VWR-7109
 	VWR-9287
