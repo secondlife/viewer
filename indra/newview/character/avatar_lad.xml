@@ -9209,9 +9209,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default="5"
+     value_default="0"
      value_min="0"
-     value_max="1000"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -9300,9 +9300,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default="5"
+     value_default="1"
      value_min="0"
-     value_max="1000"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />

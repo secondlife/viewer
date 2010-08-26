@@ -321,7 +321,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 
 	LLVector3 acceleration_local_vec = force_net_local_vec / mBreastMassParam;
 	mBreastVelocity_local_vec += acceleration_local_vec;
-	mBreastVelocity_local_vec.clamp(-mBreastMaxVelocityParam, mBreastMaxVelocityParam);
+	mBreastVelocity_local_vec.clamp(-mBreastMaxVelocityParam*100.0, mBreastMaxVelocityParam*100.0);
 
 	LLVector3 new_local_pt = breast_current_local_pt + mBreastVelocity_local_vec*time_delta;
 	new_local_pt.clamp(mBreastParamsMin,mBreastParamsMax);
