@@ -142,7 +142,7 @@ private:
 
 class LLLayoutPanel : public LLPanel
 {
-friend LLLayoutStack;
+friend class LLLayoutStack;
 friend class LLUICtrlFactory;
 public:
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
