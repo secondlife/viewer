@@ -277,7 +277,7 @@ LLAgentCamera::~LLAgentCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 {
-	if (TRUE) return; // SERAPH DON'T CHECKIN
+	if (TRUE) return; // Disabling reset for avatar physics demo-ing.
 	if (gAgent.getAutoPilot())
 	{
 		gAgent.stopAutoPilot(TRUE);

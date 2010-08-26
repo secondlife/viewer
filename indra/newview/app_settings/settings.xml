@@ -630,18 +630,6 @@
       <integer>0</integer>
     </map>
 
-    <key>RenderAvatarPhysicsLODFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls level of detail of avatar physics (such as breast physics).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <integer>1.0</integer>
-    </map>
-
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -6645,6 +6633,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>12</integer>
+    </map>
+    <key>RenderAvatarPhysicsLODFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls level of detail of avatar physics (such as breast physics).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
     </map>
     <key>RenderAvatarVP</key>
     <map>

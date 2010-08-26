@@ -5,7 +5,7 @@
 	<!--Default for now-->
 	<RenderAvatarLODFactor value="1.0"/>
   <!--Default for now-->
-  <RenderAvatarPhysicsLODFactor value=".9"/>
+  <RenderAvatarPhysicsLODFactor value="0.9"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="TRUE"/>
 	<!--Short Range-->

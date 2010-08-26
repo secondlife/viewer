@@ -254,7 +254,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 	*/
 
 	mBreastMassParam = mCharacter->getVisualParamWeight("Breast_Physics_Mass");
-	mBreastSmoothingParam = mCharacter->getVisualParamWeight("Breast_Physics_Smoothing");
+	mBreastSmoothingParam = (U32)(mCharacter->getVisualParamWeight("Breast_Physics_Smoothing"));
 	mBreastGravityParam = mCharacter->getVisualParamWeight("Breast_Physics_Gravity");
 
 	mBreastSpringParam[0] = mCharacter->getVisualParamWeight("Breast_Physics_Side_Spring");
