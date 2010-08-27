@@ -1569,7 +1569,10 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
 	// appendText modifies mCursorPos...
 	appendText(text, false, input_params);
 	// ...so move cursor to top after appending text
-	startOfDoc();
+	if (!mTrackEnd)
+	{
+		startOfDoc();
+	}
 
 	onValueChange(0, getLength());
 }
