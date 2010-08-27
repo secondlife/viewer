@@ -69,7 +69,6 @@ LLFloaterMap::LLFloaterMap(const LLSD& key)
 	  mTextBoxSouthWest(NULL),
 	  mMap(NULL)
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_map.xml", FALSE);
 }
 
 LLFloaterMap::~LLFloaterMap()

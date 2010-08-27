@@ -89,7 +89,6 @@ LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
 	mDone(false),
 	mMono(false)
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_queue.xml", FALSE);
 }
 
 // Destroys the object

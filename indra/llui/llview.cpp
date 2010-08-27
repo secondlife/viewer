@@ -102,11 +102,7 @@ LLView::Params::Params()
 	left_pad("left_pad"),
 	left_delta("left_delta", S32_MAX),
 	from_xui("from_xui", false),
-	user_resize("user_resize"),
-	auto_resize("auto_resize"),
 	needs_translate("translate"),
-	min_width("min_width"),
-	max_width("max_width"),
 	xmlns("xmlns"),
 	xmlns_xsi("xmlns:xsi"),
 	xsi_schemaLocation("xsi:schemaLocation"),
@@ -1692,7 +1688,9 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 		child = getDefaultWidget<LLView>(name);
 		if (!child)
 		{
-			 child = LLUICtrlFactory::createDefaultWidget<LLView>(name);
+			LLView::Params view_params;
+			view_params.name = name;
+			child = LLUICtrlFactory::create<LLView>(view_params);
 		}
 	}
 	return child;

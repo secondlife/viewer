@@ -111,12 +111,6 @@ public:
 	bool hasItemSelected();
 
 private:
-	/**
-	 * Reads xml with accordion tab and Flat list from xml file.
-	 *
-	 * @return LLPointer to XMLNode with accordion tab and flat list.
-	 */
-	LLXMLNodePtr getAccordionTabXMLNode();
 
 	/**
 	 * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference

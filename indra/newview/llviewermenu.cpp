@@ -7262,7 +7262,7 @@ void handle_load_from_xml(void*)
 	{
 		std::string filename = picker.getFirstFile();
 		LLFloater* floater = new LLFloater(LLSD());
-		LLUICtrlFactory::getInstance()->buildFloater(floater, filename, NULL);
+		floater->buildFromFile(filename);
 	}
 }
 

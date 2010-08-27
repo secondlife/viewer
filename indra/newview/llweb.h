@@ -43,11 +43,14 @@ public:
 	static void initClass();
 	
 	/// Load the given url in the user's preferred web browser
-	static void loadURL(const std::string& url);
+	static void loadURL(const std::string& url, const std::string& target);
+	static void loadURL(const std::string& url) { loadURL(url, LLStringUtil::null); }
 	/// Load the given url in the user's preferred web browser	
-	static void loadURL(const char* url) { loadURL( ll_safe_string(url) ); }
+	static void loadURL(const char* url, const std::string& target) { loadURL( ll_safe_string(url), target); }
+	static void loadURL(const char* url) { loadURL( ll_safe_string(url), LLStringUtil::null ); }
 	/// Load the given url in the Second Life internal web browser
-	static void loadURLInternal(const std::string &url);
+	static void loadURLInternal(const std::string &url, const std::string& target);
+	static void loadURLInternal(const std::string &url) { loadURLInternal(url, LLStringUtil::null); }
 	/// Load the given url in the operating system's web browser, async if we want to return immediately
 	/// before browser has spawned
 	static void loadURLExternal(const std::string& url);

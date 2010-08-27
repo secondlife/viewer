@@ -53,8 +53,54 @@
 LLFloaterMediaBrowser::LLFloaterMediaBrowser(const LLSD& key)
 	: LLFloater(key)
 {
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_media_browser.xml");
+}
 
+//static 
+void LLFloaterMediaBrowser::create(const std::string &url, const std::string& target)
+{
+	std::string tag = target;
+	
+	if(target.empty() || target == "_blank")
+	{
+		// create a unique tag for this instance
+		LLUUID id;
+		id.generate();
+		tag = id.asString();
+	}
+	
+	S32 browser_window_limit = gSavedSettings.getS32("MediaBrowserWindowLimit");
+	
+	if(LLFloaterReg::findInstance("media_browser", tag) != NULL)
+	{
+		// There's already a media browser for this tag, so we won't be opening a new window.
+	}
+	else if(browser_window_limit != 0)
+	{
+		// showInstance will open a new window.  Figure out how many media browsers are already open, 
+		// and close the least recently opened one if this will put us over the limit.
+		
+		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList("media_browser");
+		lldebugs << "total instance count is " << instances.size() << llendl;
+		
+		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
+		{
+			lldebugs << "    " << (*iter)->getKey() << llendl;
+		}
+		
+		if(instances.size() >= (size_t)browser_window_limit)
+		{
+			// Destroy the least recently opened instance
+			(*instances.begin())->closeFloater();
+		}
+	}
+
+	LLFloaterMediaBrowser *browser = dynamic_cast<LLFloaterMediaBrowser*> (LLFloaterReg::showInstance("media_browser", tag));
+	llassert(browser);
+	if(browser)
+	{
+		// tell the browser instance to load the specified URL
+		browser->openMedia(url);
+	}
 }
 
 void LLFloaterMediaBrowser::draw()
@@ -99,6 +145,7 @@ BOOL LLFloaterMediaBrowser::postBuild()
 
 	mAddressCombo = getChild<LLComboBox>("address");
 	mAddressCombo->setCommitCallback(onEnterAddress, this);
+	mAddressCombo->sortByName();
 
 	childSetAction("back", onClickBack, this);
 	childSetAction("forward", onClickForward, this);
@@ -170,6 +217,11 @@ void LLFloaterMediaBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEve
 		getChildView("back")->setEnabled(self->getHistoryBackAvailable());
 		getChildView("forward")->setEnabled(self->getHistoryForwardAvailable());
 	}
+	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
+	{
+		// The browser instance wants its window closed.
+		closeFloater();
+	}
 }
 void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 {
@@ -179,7 +231,7 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	if (mCurrentURL != "about:blank")
 	{
 		mAddressCombo->remove(mCurrentURL);
-		mAddressCombo->add(mCurrentURL, ADD_SORTED);
+		mAddressCombo->add(mCurrentURL);
 		mAddressCombo->selectByValue(mCurrentURL);
 
 		// Serialize url history
@@ -189,12 +241,6 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
 	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
 	getChildView("reload")->setEnabled(TRUE);
-}
-
-void LLFloaterMediaBrowser::onOpen(const LLSD& media_url)
-{
-	LLFloater::onOpen(media_url);
-	openMedia(media_url.asString());
 }
 
 //static 

@@ -32,6 +32,7 @@
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
+#include "llfirstuse.h"
 #include "llnearbychatbar.h"
 #include "llbottomtray.h"
 #include "llagent.h"
@@ -391,8 +392,7 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 
-	: LLPanel()
-	, mChatBox(NULL)
+:	mChatBox(NULL)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -484,6 +484,7 @@ BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::strin
 
 void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 {
+	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLNearbyChatBar* self = (LLNearbyChatBar *)userdata;
 

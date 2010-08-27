@@ -77,7 +77,6 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	{
 		mPreviewToSave = TRUE;
 	}
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_texture.xml", FALSE);
 }
 
 LLPreviewTexture::~LLPreviewTexture()

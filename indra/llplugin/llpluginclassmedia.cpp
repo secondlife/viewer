@@ -1005,6 +1005,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 				mOwner->handleCookieSet(this, message.getValue("cookie"));
 			}
 		}
+		else if(message_name == "close_request")
+		{
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLOSE_REQUEST);
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;

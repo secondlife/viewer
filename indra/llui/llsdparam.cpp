@@ -30,48 +30,40 @@
 // Project includes
 #include "llsdparam.h"
 
+static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sInspectFuncs;
+
 //
 // LLParamSDParser
 //
 LLParamSDParser::LLParamSDParser()
+: Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
 {
 	using boost::bind;
 
-	registerParserFuncs<S32>(bind(&LLParamSDParser::readTypedValue<S32>, this, _1, &LLSD::asInteger),
-							bind(&LLParamSDParser::writeTypedValue<S32>, this, _1, _2));
-	registerParserFuncs<U32>(bind(&LLParamSDParser::readTypedValue<U32>, this, _1, &LLSD::asInteger),
-							bind(&LLParamSDParser::writeU32Param, this, _1, _2));
-	registerParserFuncs<F32>(bind(&LLParamSDParser::readTypedValue<F32>, this, _1, &LLSD::asReal),
-							bind(&LLParamSDParser::writeTypedValue<F32>, this, _1, _2));
-	registerParserFuncs<F64>(bind(&LLParamSDParser::readTypedValue<F64>, this, _1, &LLSD::asReal),
-							bind(&LLParamSDParser::writeTypedValue<F64>, this, _1, _2));
-	registerParserFuncs<bool>(bind(&LLParamSDParser::readTypedValue<F32>, this, _1, &LLSD::asBoolean),
-							bind(&LLParamSDParser::writeTypedValue<F32>, this, _1, _2));
-	registerParserFuncs<std::string>(bind(&LLParamSDParser::readTypedValue<std::string>, this, _1, &LLSD::asString),
-							bind(&LLParamSDParser::writeTypedValue<std::string>, this, _1, _2));
-	registerParserFuncs<LLUUID>(bind(&LLParamSDParser::readTypedValue<LLUUID>, this, _1, &LLSD::asUUID),
-							bind(&LLParamSDParser::writeTypedValue<LLUUID>, this, _1, _2));
-	registerParserFuncs<LLDate>(bind(&LLParamSDParser::readTypedValue<LLDate>, this, _1, &LLSD::asDate),
-							bind(&LLParamSDParser::writeTypedValue<LLDate>, this, _1, _2));
-	registerParserFuncs<LLURI>(bind(&LLParamSDParser::readTypedValue<LLURI>, this, _1, &LLSD::asURI),
-							bind(&LLParamSDParser::writeTypedValue<LLURI>, this, _1, _2));
-	registerParserFuncs<LLSD>(bind(&LLParamSDParser::readSDParam, this, _1),
-							bind(&LLParamSDParser::writeTypedValue<LLSD>, this, _1, _2));
-}
-
-bool LLParamSDParser::readSDParam(void* value_ptr)
-{
-	if (!mCurReadSD) return false;
-	*((LLSD*)value_ptr) = *mCurReadSD;
-	return true;
+	if (sReadFuncs.empty())
+	{
+		registerParserFuncs<S32>(readS32, &LLParamSDParser::writeTypedValue<S32>);
+		registerParserFuncs<U32>(readU32, &LLParamSDParser::writeU32Param);
+		registerParserFuncs<F32>(readF32, &LLParamSDParser::writeTypedValue<F32>);
+		registerParserFuncs<F64>(readF64, &LLParamSDParser::writeTypedValue<F64>);
+		registerParserFuncs<bool>(readBool, &LLParamSDParser::writeTypedValue<F32>);
+		registerParserFuncs<std::string>(readString, &LLParamSDParser::writeTypedValue<std::string>);
+		registerParserFuncs<LLUUID>(readUUID, &LLParamSDParser::writeTypedValue<LLUUID>);
+		registerParserFuncs<LLDate>(readDate, &LLParamSDParser::writeTypedValue<LLDate>);
+		registerParserFuncs<LLURI>(readURI, &LLParamSDParser::writeTypedValue<LLURI>);
+		registerParserFuncs<LLSD>(readSD, &LLParamSDParser::writeTypedValue<LLSD>);
+	}
 }
 
 // special case handling of U32 due to ambiguous LLSD::assign overload
-bool LLParamSDParser::writeU32Param(const void* val_ptr, const parser_t::name_stack_t& name_stack)
+bool LLParamSDParser::writeU32Param(LLParamSDParser::parser_t& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
 {
-	if (!mWriteSD) return false;
+	LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
+	if (!sdparser.mWriteSD) return false;
 	
-	LLSD* sd_to_write = getSDWriteNode(name_stack);
+	LLSD* sd_to_write = sdparser.getSDWriteNode(name_stack);
 	if (!sd_to_write) return false;
 
 	sd_to_write->assign((S32)*((const U32*)val_ptr));
@@ -142,3 +134,82 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 	return mWriteSD;
 }
 
+bool LLParamSDParser::readS32(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+    *((S32*)val_ptr) = self.mCurReadSD->asInteger();
+    return true;
+}
+
+bool LLParamSDParser::readU32(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+    *((U32*)val_ptr) = self.mCurReadSD->asInteger();
+    return true;
+}
+
+bool LLParamSDParser::readF32(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+    *((F32*)val_ptr) = self.mCurReadSD->asReal();
+    return true;
+}
+
+bool LLParamSDParser::readF64(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+    *((F64*)val_ptr) = self.mCurReadSD->asReal();
+    return true;
+}
+
+bool LLParamSDParser::readBool(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+    *((bool*)val_ptr) = self.mCurReadSD->asBoolean();
+    return true;
+}
+
+bool LLParamSDParser::readString(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+	*((std::string*)val_ptr) = self.mCurReadSD->asString();
+    return true;
+}
+
+bool LLParamSDParser::readUUID(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+	*((LLUUID*)val_ptr) = self.mCurReadSD->asUUID();
+    return true;
+}
+
+bool LLParamSDParser::readDate(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+	*((LLDate*)val_ptr) = self.mCurReadSD->asDate();
+    return true;
+}
+
+bool LLParamSDParser::readURI(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+	*((LLURI*)val_ptr) = self.mCurReadSD->asURI();
+    return true;
+}
+
+bool LLParamSDParser::readSD(Parser& parser, void* val_ptr)
+{
+	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
+
+	*((LLSD*)val_ptr) = *self.mCurReadSD;
+    return true;
+}
