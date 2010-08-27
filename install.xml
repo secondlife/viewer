@@ -797,9 +797,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b379063f5f03374f85620e87ce48e497</string>
+            <string>b1f15bbabb68445e55ce23a2aeaca598</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-linux-20100820.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/indra_private-2.1.1-linux-20100826.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
