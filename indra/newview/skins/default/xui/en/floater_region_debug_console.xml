@@ -10,7 +10,6 @@
   default_tab_group="1">
   <text_editor
   left="10"
-  read_only="true" 
    type="string"
    length="1"
    follows="left|top|right|bottom"
