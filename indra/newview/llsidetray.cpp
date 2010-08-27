@@ -242,7 +242,10 @@ void LLSideTrayTab::toggleTabDocked()
 		// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
 		setFollowsAll();
 
-		side_tray->collapseSideBar();
+		if (!side_tray->getCollapsed())
+		{
+			side_tray->collapseSideBar();
+		}
 	}
 	else
 	{
@@ -255,7 +258,13 @@ void LLSideTrayTab::toggleTabDocked()
 		setRect(side_tray->getLocalRect());
 		reshape(getRect().getWidth(), getRect().getHeight());
 
-		side_tray->expandSideBar();
+		// Select the re-docked tab.
+		side_tray->selectTabByName(getName());
+
+		if (side_tray->getCollapsed())
+		{
+			side_tray->expandSideBar();
+		}
 	}
 }
 
