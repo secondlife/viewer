@@ -206,7 +206,7 @@ public:
 	{
 		const LLVector4a& pos = data->getPositionGroup();
 
-		LLVector4a gt = pos.greaterThan(center);
+		LLVector4Logical gt = pos.greaterThan(center);
 
 		LLVector4a up;
 		up = _mm_and_ps(size, gt);

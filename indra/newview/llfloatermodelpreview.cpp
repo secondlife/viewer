@@ -1703,7 +1703,7 @@ LLImportMaterial LLModelLoader::profileToMaterial(domProfile_COMMON* material)
 									std::string filename = cdom::uriToNativePath(init->getValue().str());
 																					
 									mat.mDiffuseMap = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + filename, TRUE, LLViewerTexture::BOOST_PREVIEW);
-									mat.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, this->mPreview, NULL, NULL);
+									mat.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, this->mPreview, NULL, FALSE);
 
 									mat.mDiffuseMap->forceToSaveRawImage();
 									mat.mDiffuseMapFilename = filename;
@@ -2656,8 +2656,8 @@ void LLModelPreview::updateStatusMessages()
 					const F32 ratio = 0.5f;
 					const S32 required_verts = 128;
 
-					F32 scaler = powf(0.5f, lod_high-lod);
-					S32 max_verts = verts[lod_high][i]*scaler;
+					F32 scaler = powf(ratio, lod_high-lod);
+					S32 max_verts = (S32)(verts[lod_high][i]*scaler);
 
 					if (max_verts > required_verts)
 					{ //some model in this slot might have more than 128 vertices
@@ -2691,8 +2691,8 @@ void LLModelPreview::updateStatusMessages()
 				{
 					const F32 ratio = 0.5f;
 					
-					F32 scaler = powf(0.5f, lod_high-lod);
-					S32 max_verts = verts[lod_high][i]*scaler;
+					F32 scaler = powf(ratio, lod_high-lod);
+					S32 max_verts = (S32)(verts[lod_high][i]*scaler);
 
 					if (verts[lod][i] > max_verts)
 					{
