@@ -209,6 +209,7 @@ public:
 	LLColor3 getLightBaseColor() const; // not scaled by intensity
 	LLColor3 getLightColor() const; // scaled by intensity
 	LLUUID	getLightTextureID() const;
+	bool isLightSpotlight() const;
 	LLVector3 getSpotLightParams() const;
 	void	updateSpotLightPriority();
 	F32		getSpotLightPriority() const;
@@ -267,6 +268,10 @@ public:
 	
 	// Returns the "last fetched" media version, or -1 if not fetched yet
 	S32 getLastFetchedMediaVersion() const { return mLastFetchedMediaVersion; }
+
+	void addMDCImpl() { ++mMDCImplCount; }
+	void removeMDCImpl() { --mMDCImplCount; }
+	S32 getMDCImplCount() { return mMDCImplCount; }
 	
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
@@ -300,6 +305,7 @@ private:
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
 	S32 mIndexInTex;
+	S32 mMDCImplCount;
 	// statics
 public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop 

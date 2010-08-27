@@ -3,6 +3,24 @@
  layout="topleft"
  name="Wearing">
     <menu_item_call
+     label="Take Off"
+     layout="topleft"
+     name="take_off">
+        <on_click
+         function="Wearing.TakeOff" />
+    </menu_item_call>
+    <menu_item_call
+     label="Detach"
+     layout="topleft"
+     name="detach">
+        <on_click
+         function="Wearing.Detach"
+         parameter="detach"/>
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="edit_outfit_separator" />
+    <menu_item_call
      label="Edit Outfit"
      layout="topleft"
      name="edit">

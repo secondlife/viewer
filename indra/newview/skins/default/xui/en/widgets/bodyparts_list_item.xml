@@ -21,7 +21,7 @@
    height="16"
    layout="topleft"
    left="21"
-   allow_html="false"
+   parse_urls="false"
    use_ellipses="true"
    name="item_name"
    text_color="white"

@@ -161,12 +161,19 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 			{
 				generateGLTexture() ;
 			}
-			if(!mGLTexturep->getHasGLTexture())
+			else if(!mGLTexturep->getHasGLTexture())
+			{
+				generateGLTexture() ;
+			}			
+			else if(mGLTexturep->getDiscardLevel() != 0)//do not know how it happens, but regenerate one if it does.
 			{
 				generateGLTexture() ;
 			}
-			llcallstacks << "class type: " << (S32)getType() << llcallstacksendl ;
 
+			if(gGLManager.mDebugGPU)
+			{
+				LLGLState::dumpStates() ;
+			}
 			success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
 		}
 	}
@@ -205,11 +212,16 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		{
 			LLViewerDynamicTexture *dynamicTexture = *iter;
 			if (dynamicTexture->needsRender())
-			{
+			{				
+				if(gGLManager.mDebugGPU)
+				{				
+					llinfos << "class type: " << (S32)dynamicTexture->getType() << llendl;
+					LLGLState::dumpStates() ;
+				}
+
 				glClear(GL_DEPTH_BUFFER_BIT);
 				gDepthDirty = TRUE;
-				
-				
+								
 				gGL.color4f(1,1,1,1);
 				dynamicTexture->preRender();	// Must be called outside of startRender()
 				result = FALSE;

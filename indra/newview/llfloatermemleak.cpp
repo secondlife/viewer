@@ -58,7 +58,7 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
 BOOL LLFloaterMemLeak::postBuild(void) 
 {	
 	F32 a, b ;
-	a = childGetValue("leak_speed").asReal();
+	a = getChild<LLUICtrl>("leak_speed")->getValue().asReal();
 	if(a > (F32)(0xFFFFFFFF))
 	{
 		sMemLeakingSpeed = 0xFFFFFFFF ;
@@ -67,7 +67,7 @@ BOOL LLFloaterMemLeak::postBuild(void)
 	{
 		sMemLeakingSpeed = (U32)a ;
 	}
-	b = childGetValue("max_leak").asReal();
+	b = getChild<LLUICtrl>("max_leak")->getValue().asReal();
 	if(b > (F32)0xFFF)
 	{
 		sMaxLeakedMem = 0xFFFFFFFF ;
@@ -144,7 +144,7 @@ void LLFloaterMemLeak::idle()
 void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
 	F32 tmp ;
-	tmp =childGetValue("leak_speed").asReal();
+	tmp =getChild<LLUICtrl>("leak_speed")->getValue().asReal();
 
 	if(tmp > (F32)0xFFFFFFFF)
 	{
@@ -161,7 +161,7 @@ void LLFloaterMemLeak::onChangeMaxMemLeaking()
 {
 
 	F32 tmp ;
-	tmp =childGetValue("max_leak").asReal();
+	tmp =getChild<LLUICtrl>("max_leak")->getValue().asReal();
 	if(tmp > (F32)0xFFF)
 	{
 		sMaxLeakedMem = 0xFFFFFFFF ;
@@ -200,22 +200,22 @@ void LLFloaterMemLeak::draw()
 	{
 		std::string bytes_string;
 		LLResMgr::getInstance()->getIntegerString(bytes_string, sTotalLeaked >> 10 );
-		childSetTextArg("total_leaked_label", "[SIZE]", bytes_string);
+		getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", bytes_string);
 	}
 	else
 	{
-		childSetTextArg("total_leaked_label", "[SIZE]", LLStringExplicit("0"));
+		getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", LLStringExplicit("0"));
 	}
 
 	if(sbAllocationFailed)
 	{
-		childSetTextArg("note_label_1", "[NOTE1]", LLStringExplicit("Memory leaking simulation stops. Reduce leaking speed or"));
-		childSetTextArg("note_label_2", "[NOTE2]", LLStringExplicit("increase max leaked memory, then press Start to continue."));
+		getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit("Memory leaking simulation stops. Reduce leaking speed or"));
+		getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit("increase max leaked memory, then press Start to continue."));
 	}
 	else
 	{
-		childSetTextArg("note_label_1", "[NOTE1]", LLStringExplicit(""));
-		childSetTextArg("note_label_2", "[NOTE2]", LLStringExplicit(""));
+		getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit(""));
+		getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit(""));
 	}
 
 	LLFloater::draw();

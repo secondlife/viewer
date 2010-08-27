@@ -41,7 +41,6 @@
 #include "llbutton.h"
 #include "llgroupactions.h"
 #include "llscrolllistctrl.h"
-#include "llselectmgr.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
@@ -84,15 +83,13 @@ BOOL LLFloaterGroupPicker::postBuild()
 		list_ctrl->setContextMenu(LLScrollListCtrl::MENU_GROUP);
 	}
 	
-	LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterGroupPicker::onBtnCancel, this));
-
 	childSetAction("OK", onBtnOK, this);
 
 	childSetAction("Cancel", onBtnCancel, this);
 
 	setDefaultBtn("OK");
 
-	childEnable("OK");
+	getChildView("OK")->setEnabled(TRUE);
 
 	return TRUE;
 }
@@ -173,8 +170,8 @@ void LLPanelGroups::reset()
 	{
 		group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
-	childSetTextArg("groupcount", "[COUNT]", llformat("%d",gAgent.mGroups.count()));
-	childSetTextArg("groupcount", "[MAX]", llformat("%d",MAX_AGENT_GROUPS));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.count()));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",MAX_AGENT_GROUPS));
 
 	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
 	enableButtons();
@@ -184,8 +181,8 @@ BOOL LLPanelGroups::postBuild()
 {
 	childSetCommitCallback("group list", onGroupList, this);
 
-	childSetTextArg("groupcount", "[COUNT]", llformat("%d",gAgent.mGroups.count()));
-	childSetTextArg("groupcount", "[MAX]", llformat("%d",MAX_AGENT_GROUPS));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.count()));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",MAX_AGENT_GROUPS));
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("group list");
 	if (list)
@@ -225,25 +222,25 @@ void LLPanelGroups::enableButtons()
 
 	if(group_id != gAgent.getGroupID())
 	{
-		childEnable("Activate");
+		getChildView("Activate")->setEnabled(TRUE);
 	}
 	else
 	{
-		childDisable("Activate");
+		getChildView("Activate")->setEnabled(FALSE);
 	}
 	if (group_id.notNull())
 	{
-		childEnable("Info");
-		childEnable("IM");
-		childEnable("Leave");
+		getChildView("Info")->setEnabled(TRUE);
+		getChildView("IM")->setEnabled(TRUE);
+		getChildView("Leave")->setEnabled(TRUE);
 	}
 	else
 	{
-		childDisable("Info");
-		childDisable("IM");
-		childDisable("Leave");
+		getChildView("Info")->setEnabled(FALSE);
+		getChildView("IM")->setEnabled(FALSE);
+		getChildView("Leave")->setEnabled(FALSE);
 	}
-	childSetEnabled("Create", gAgent.canJoinGroups());
+	getChildView("Create")->setEnabled(gAgent.canJoinGroups());
 }
 
 

@@ -53,7 +53,7 @@
      height="16"
      layout="topleft"
      left_pad="5"
-     allow_html="false"
+     parse_urls="false"
      use_ellipses="true"
      name="item_name"
      text_color="white"

@@ -40,6 +40,8 @@
 #include "lldrawable.h"
 #include "llrendertarget.h"
 
+#include <stack>
+
 class LLViewerTexture;
 class LLEdge;
 class LLFace;
@@ -271,12 +273,25 @@ public:
 	LLCullResult::sg_list_t::iterator beginAlphaGroups();
 	LLCullResult::sg_list_t::iterator endAlphaGroups();
 	
+
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
-	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
+
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
-	void setRenderTypeMask(const U32 mask)					{ mRenderTypeMask = mask; }
-	U32  getRenderTypeMask() const							{ return mRenderTypeMask; }
+	
+
+
+	BOOL hasRenderType(const U32 type) const;
+	BOOL hasAnyRenderType(const U32 type, ...) const;
+
+	void setRenderTypeMask(U32 type, ...);
+	void orRenderTypeMask(U32 type, ...);
+	void andRenderTypeMask(U32 type, ...);
+	void clearRenderTypeMask(U32 type, ...);
+	
+	void pushRenderTypeMask();
+	void popRenderTypeMask();
+
 	static void toggleRenderType(U32 type);
 
 	// For UI control of render features
@@ -354,6 +369,7 @@ public:
 		RENDER_TYPE_PASS_FULLBRIGHT_SHINY		= LLRenderPass::PASS_FULLBRIGHT_SHINY,
 		RENDER_TYPE_PASS_SHINY					= LLRenderPass::PASS_SHINY,
 		RENDER_TYPE_PASS_BUMP					= LLRenderPass::PASS_BUMP,
+		RENDER_TYPE_PASS_POST_BUMP				= LLRenderPass::PASS_POST_BUMP,
 		RENDER_TYPE_PASS_GLOW					= LLRenderPass::PASS_GLOW,
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
@@ -364,7 +380,9 @@ public:
 		RENDER_TYPE_VOLUME,
 		RENDER_TYPE_PARTICLES,
 		RENDER_TYPE_CLOUDS,
-		RENDER_TYPE_HUD_PARTICLES
+		RENDER_TYPE_HUD_PARTICLES,
+		NUM_RENDER_TYPES,
+		END_RENDER_TYPES = NUM_RENDER_TYPES
 	};
 
 	enum LLRenderDebugFeatureMask
@@ -438,7 +456,8 @@ public:
 	static BOOL				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
 	static BOOL				sDelayVBUpdate;
-	static BOOL				sFastAlpha;
+	static BOOL				sAutoMaskAlphaDeferred;
+	static BOOL				sAutoMaskAlphaNonDeferred;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
 	static BOOL				sUseTriStrips;
@@ -527,7 +546,9 @@ public:
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
 
 protected:
-	U32						mRenderTypeMask;
+	BOOL					mRenderTypeEnabled[NUM_RENDER_TYPES];
+	std::stack<std::string> mRenderTypeEnableStack;
+
 	U32						mRenderDebugFeatureMask;
 	U32						mRenderDebugMask;
 

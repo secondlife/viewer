@@ -209,10 +209,10 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		std::string desc = floater->mEventInfo.mSimName + llformat(" (%d, %d, %d)", region_x, region_y, region_z);
 		floater->mTBLocation->setText(desc);
 
-		floater->childSetVisible("rating_icon_m", FALSE);
-		floater->childSetVisible("rating_icon_r", FALSE);
-		floater->childSetVisible("rating_icon_pg", FALSE);
-		floater->childSetValue("rating_value", floater->getString("unknown"));
+		floater->getChildView("rating_icon_m")->setVisible( FALSE);
+		floater->getChildView("rating_icon_r")->setVisible( FALSE);
+		floater->getChildView("rating_icon_pg")->setVisible( FALSE);
+		floater->getChild<LLUICtrl>("rating_value")->setValue(floater->getString("unknown"));
 
 		//for some reason there's not adult flags for now, so see if region is adult and then
 		//set flags
@@ -253,25 +253,25 @@ void LLFloaterEvent::regionInfoCallback(U32 event_id, U64 region_handle)
 		// update the event with the maturity info
 		if (sim_info->isAdult())
 		{
-			floater->childSetVisible("rating_icon_m", FALSE);
-			floater->childSetVisible("rating_icon_r", TRUE);
-			floater->childSetVisible("rating_icon_pg", FALSE);
-			floater->childSetValue("rating_value", floater->getString("adult"));
+			floater->getChildView("rating_icon_m")->setVisible( FALSE);
+			floater->getChildView("rating_icon_r")->setVisible( TRUE);
+			floater->getChildView("rating_icon_pg")->setVisible( FALSE);
+			floater->getChild<LLUICtrl>("rating_value")->setValue(floater->getString("adult"));
 
 		}
 		else if (floater->mEventInfo.mEventFlags & EVENT_FLAG_MATURE)
 		{
-			floater->childSetVisible("rating_icon_m", TRUE);
-			floater->childSetVisible("rating_icon_r", FALSE);
-			floater->childSetVisible("rating_icon_pg", FALSE);
-			floater->childSetValue("rating_value", floater->getString("moderate"));
+			floater->getChildView("rating_icon_m")->setVisible( TRUE);
+			floater->getChildView("rating_icon_r")->setVisible( FALSE);
+			floater->getChildView("rating_icon_pg")->setVisible( FALSE);
+			floater->getChild<LLUICtrl>("rating_value")->setValue(floater->getString("moderate"));
 		}
 		else
 		{
-			floater->childSetVisible("rating_icon_m", FALSE);
-			floater->childSetVisible("rating_icon_r", FALSE);
-			floater->childSetVisible("rating_icon_pg", TRUE);
-			floater->childSetValue("rating_value", floater->getString("general"));
+			floater->getChildView("rating_icon_m")->setVisible( FALSE);
+			floater->getChildView("rating_icon_r")->setVisible( FALSE);
+			floater->getChildView("rating_icon_pg")->setVisible( TRUE);
+			floater->getChild<LLUICtrl>("rating_value")->setValue(floater->getString("general"));
 		}
 	}
 }

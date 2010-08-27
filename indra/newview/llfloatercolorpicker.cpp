@@ -686,12 +686,12 @@ void LLFloaterColorPicker::drawPalette ()
 void LLFloaterColorPicker::updateTextEntry ()
 {
 	// set values in spinners
-	childSetValue("rspin", ( getCurR () * 255.0f ) );
-	childSetValue("gspin", ( getCurG () * 255.0f ) );
-	childSetValue("bspin", ( getCurB () * 255.0f ) );
-	childSetValue("hspin", ( getCurH () * 360.0f ) );
-	childSetValue("sspin", ( getCurS () * 100.0f ) );
-	childSetValue("lspin", ( getCurL () * 100.0f ) );
+	getChild<LLUICtrl>("rspin")->setValue(( getCurR () * 255.0f ) );
+	getChild<LLUICtrl>("gspin")->setValue(( getCurG () * 255.0f ) );
+	getChild<LLUICtrl>("bspin")->setValue(( getCurB () * 255.0f ) );
+	getChild<LLUICtrl>("hspin")->setValue(( getCurH () * 360.0f ) );
+	getChild<LLUICtrl>("sspin")->setValue(( getCurS () * 100.0f ) );
+	getChild<LLUICtrl>("lspin")->setValue(( getCurL () * 100.0f ) );
 }
 
 //////////////////////////////////////////////////////////////////////////////

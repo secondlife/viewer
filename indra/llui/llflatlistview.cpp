@@ -607,8 +607,14 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 		return;
 	}
 
-	if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection();
+	//no need to do additional commit on selection reset
+	if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection(true);
+
+	//only CTRL usage allows to deselect an item, usual clicking on an item cannot deselect it
+	if (mask & MASK_CONTROL)
 	selectItemPair(item_pair, select_item);
+	else
+		selectItemPair(item_pair, true);
 }
 
 void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
@@ -657,6 +663,14 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 				// If case we are in accordion tab notify parent to go to the next accordion
 				if( notifyParent(LLSD().with("action","select_next")) > 0 ) //message was processed
 					resetSelection();
+			}
+			break;
+		}
+		case KEY_ESCAPE:
+		{
+			if (mask == MASK_NONE)
+			{
+				setFocus(FALSE); // pass focus to the game area (EXT-8357)
 			}
 			break;
 		}
@@ -773,6 +787,18 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	mIsConsecutiveSelection = false;
 
 	return true;
+}
+
+void LLFlatListView::scrollToShowFirstSelectedItem()
+{
+	if (!mSelectedItemPairs.size())	return;
+
+	LLRect selected_rc = mSelectedItemPairs.front()->first->getRect();
+
+	if (selected_rc.isValid())
+	{
+		scrollToShowRect(selected_rc);
+	}
 }
 
 LLRect LLFlatListView::getLastSelectedItemRect()

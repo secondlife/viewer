@@ -311,13 +311,21 @@ public:
 	void color3fv(const GLfloat* c);
 	void color4ubv(const GLubyte* c);
 
+	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
+	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
+	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
+
 	void setColorMask(bool writeColor, bool writeAlpha);
 	void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);
 	void setSceneBlendType(eBlendType type);
 
 	void setAlphaRejectSettings(eCompareFunc func, F32 value = 0.01f);
 
+	// applies blend func to both color and alpha
 	void blendFunc(eBlendFactor sfactor, eBlendFactor dfactor);
+	// applies separate blend functions to color and alpha
+	void blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
+		       eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor);
 
 	LLTexUnit* getTexUnit(U32 index);
 
@@ -356,13 +364,15 @@ private:
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
-	eBlendFactor mCurrBlendSFactor;
-	eBlendFactor mCurrBlendDFactor;
+	eBlendFactor mCurrBlendColorSFactor;
+	eBlendFactor mCurrBlendColorDFactor;
+	eBlendFactor mCurrBlendAlphaSFactor;
+	eBlendFactor mCurrBlendAlphaDFactor;
 
 	F32				mMaxAnisotropy;
 
-	std::list<LLVector3> mUIOffset;
-	std::list<LLVector3> mUIScale;
+	std::vector<LLVector3> mUIOffset;
+	std::vector<LLVector3> mUIScale;
 
 };
 
