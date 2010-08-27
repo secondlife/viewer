@@ -65,6 +65,7 @@ static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
 
+// static
 LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
@@ -76,6 +77,7 @@ LLSideTray* LLSideTray::getInstance()
 	return sInstance;
 }
 
+// static
 bool	LLSideTray::instanceCreated	()
 {
 	return sInstance!=0;
@@ -369,6 +371,11 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 	return getChild<LLSideTrayTab>(name,false);
 }
 
+bool LLSideTray::hasTabs()
+{
+	// The open/close tab doesn't count.
+	return mTabs.size() > 1;
+}
 
 void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 {
@@ -406,10 +413,6 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	if (mActiveTab)
 	{
 		toggleTabButton(mActiveTab);
-		if(mActiveTab)
-		{
-			mActiveTab->setVisible(false);
-		}
 	}
 
 	//select new tab
@@ -420,8 +423,6 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 		toggleTabButton(mActiveTab);
 		LLSD key;//empty
 		mActiveTab->onOpen(key);
-
-		mActiveTab->setVisible(true);
 	}
 
 	//arrange();
@@ -431,7 +432,9 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
 		LLSideTrayTab* sidebar_tab = *child_it;
-		sidebar_tab->setVisible(sidebar_tab  == mActiveTab);
+		// When the last tab gets detached, for a short moment the "Toggle Sidebar" pseudo-tab
+		// is shown. So, to avoid the flicker we make sure it never gets visible.
+		sidebar_tab->setVisible(sidebar_tab == mActiveTab && (*child_it)->getName() != "sidebar_openclose");
 	}
 	return true;
 }
@@ -716,6 +719,9 @@ void LLSideTray::arrange()
 		LLSideTrayTab* sidebar_tab = *child_it;
 		sidebar_tab->setShape(getLocalRect());
 	}
+
+	// The tab buttons should be shown only if there is at least one non-detached tab.
+	mButtonsPanel->setVisible(hasTabs());
 }
 
 void LLSideTray::collapseSideBar()

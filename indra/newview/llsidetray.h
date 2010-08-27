@@ -163,6 +163,7 @@ public:
 
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
+	bool		hasTabs			();
 
 	void		createButtons	();
 	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
