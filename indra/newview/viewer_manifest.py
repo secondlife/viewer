@@ -933,7 +933,7 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libkdu.so")
                     pass
             except:
-                    print "Skipping libkdu_v42R.so - not found"
+                    print "Skipping libkdu.so - not found"
                     pass
             try:
                     self.path("libfmod-3.75.so")
