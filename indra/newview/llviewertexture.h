@@ -386,6 +386,7 @@ public:
 	void unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
 	bool doLoadedCallbacks();
 	void deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
+	void clearCallbackEntryList() ;
 
 	void addToCreateTexture();
 
@@ -556,6 +557,7 @@ protected:
 
 	// Timers
 	LLFrameTimer mLastPacketTimer;		// Time since last packet.
+	LLFrameTimer mStopFetchingTimer;	// Time since mDecodePriority == 0.f.
 
 	BOOL  mInImageList;				// TRUE if image is in list (in which case don't reset priority!)
 	BOOL  mNeedsCreateTexture;	

@@ -406,8 +406,8 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 		//cannot just simply refresh the whole UI, as the edit field will
 		// get reset and the cursor will change...
 		
-		mPanel.childHide("currency_est");
-		mPanel.childSetVisible("getting_data",TRUE);
+		mPanel.getChildView("currency_est")->setVisible(FALSE);
+		mPanel.getChildView("getting_data")->setVisible(TRUE);
 	}
 	
 	mCurrencyChanged = true;
@@ -436,13 +436,13 @@ void LLCurrencyUIManager::Impl::updateUI()
 {
 	if (mHidden)
 	{
-		mPanel.childHide("currency_action");
-		mPanel.childHide("currency_amt");
-		mPanel.childHide("currency_est");
+		mPanel.getChildView("currency_action")->setVisible(FALSE);
+		mPanel.getChildView("currency_amt")->setVisible(FALSE);
+		mPanel.getChildView("currency_est")->setVisible(FALSE);
 		return;
 	}
 
-	mPanel.childShow("currency_action");
+	mPanel.getChildView("currency_action")->setVisible(TRUE);
 
 	LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
 	if (lindenAmount) 
@@ -465,17 +465,17 @@ void LLCurrencyUIManager::Impl::updateUI()
 		}
 	}
 
-	mPanel.childSetTextArg("currency_est", "[LOCALAMOUNT]", getLocalEstimate());
-	mPanel.childSetVisible("currency_est", hasEstimate() && mUserCurrencyBuy > 0);
+	mPanel.getChild<LLUICtrl>("currency_est")->setTextArg("[LOCALAMOUNT]", getLocalEstimate());
+	mPanel.getChildView("currency_est")->setVisible( hasEstimate() && mUserCurrencyBuy > 0);
 
-	mPanel.childSetVisible("currency_links", mSupportsInternationalBilling);
-	mPanel.childSetVisible("exchange_rate_note", mSupportsInternationalBilling);
+	mPanel.getChildView("currency_links")->setVisible( mSupportsInternationalBilling);
+	mPanel.getChildView("exchange_rate_note")->setVisible( mSupportsInternationalBilling);
 
-	if (mPanel.childIsEnabled("buy_btn")
-		||mPanel.childIsVisible("currency_est")
-		|| mPanel.childIsVisible("error_web"))
+	if (mPanel.getChildView("buy_btn")->getEnabled()
+		||mPanel.getChildView("currency_est")->getVisible()
+		|| mPanel.getChildView("error_web")->getVisible())
 	{
-		mPanel.childSetVisible("getting_data",FALSE);
+		mPanel.getChildView("getting_data")->setVisible(FALSE);
 	}
 }
 

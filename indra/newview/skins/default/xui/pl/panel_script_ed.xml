@@ -27,11 +27,11 @@
 		</menu>
 		<menu label="Edytuj" name="Edit">
 			<menu_item_call label="Cofnij" name="Undo"/>
-			<menu_item_call label="Do Przodu" name="Redo"/>
+			<menu_item_call label="Do przodu" name="Redo"/>
 			<menu_item_call label="Wytnij" name="Cut"/>
 			<menu_item_call label="Kopiuj" name="Copy"/>
 			<menu_item_call label="Wklej" name="Paste"/>
-			<menu_item_call label="Wybierz Wszystko" name="Select All"/>
+			<menu_item_call label="Wybierz wszystko" name="Select All"/>
 			<menu_item_call label="Odznacz" name="Deselect"/>
 			<menu_item_call label="Znajdź / Zamień..." name="Search / Replace..."/>
 		</menu>

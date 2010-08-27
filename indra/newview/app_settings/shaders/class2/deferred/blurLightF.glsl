@@ -37,7 +37,8 @@ vec4 getPosition(vec2 pos_screen)
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	vec3 pos = getPosition(vary_fragcoord.xy).xyz;
 	vec4 ccol = texture2DRect(lightMap, vary_fragcoord.xy).rgba;
 	

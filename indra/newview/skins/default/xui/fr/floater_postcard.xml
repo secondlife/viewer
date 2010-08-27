@@ -24,7 +24,7 @@
 	<check_box label="Contenu adulte" name="mature_check" tool_tip="Cette carte postale est à caractère adulte."/>
 	<button label="?" name="publish_help_btn"/>
 	<text_editor name="msg_form">
-		Saisir ici votre message.
+		Saisir ici votre message
 	</text_editor>
 	<text name="fine_print">
 		Si le destinataire s&apos;inscrit sur [SECOND_LIFE], vous recevrez un bonus.

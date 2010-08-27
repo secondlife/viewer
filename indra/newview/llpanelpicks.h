@@ -269,11 +269,11 @@ public:
 
 	void setClassifiedName (const std::string& name);
 
-	std::string getClassifiedName() { return childGetValue("name").asString(); }
+	std::string getClassifiedName() { return getChild<LLUICtrl>("name")->getValue().asString(); }
 
 	void setDescription(const std::string& desc);
 
-	std::string getDescription() { return childGetValue("description").asString(); }
+	std::string getDescription() { return getChild<LLUICtrl>("description")->getValue().asString(); }
 
 	void setSnapshotId(const LLUUID& snapshot_id);
 

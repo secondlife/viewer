@@ -245,6 +245,11 @@ void LLURLRequest::useProxy(const std::string &proxy)
     mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, proxy);
 }
 
+void LLURLRequest::allowCookies()
+{
+	mDetail->mCurlRequest->setoptString(CURLOPT_COOKIEFILE, "");
+}
+
 // virtual
 LLIOPipe::EStatus LLURLRequest::handleError(
 	LLIOPipe::EStatus status,

@@ -60,7 +60,11 @@ public:
 	void renameOutfit(const LLUUID& outfit_id);
 	void takeOffOutfit(const LLUUID& cat_id);
 	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
-	void enforceItemCountLimits();
+	S32 findExcessOrDuplicateItems(const LLUUID& cat_id,
+								   LLAssetType::EType type,
+								   S32 max_items,
+								   LLInventoryModel::item_array_t& items_to_kill);
+	void enforceItemRestrictions();
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -113,7 +117,6 @@ public:
 	void unregisterAttachment(const LLUUID& item_id);
 	void registerAttachment(const LLUUID& item_id);
 	void setAttachmentInvLinkEnable(bool val);
-	void linkRegisteredAttachments();
 
 	// utility function for bulk linking.
 	void linkAll(const LLUUID& category,
@@ -200,7 +203,6 @@ private:
 
 	void setOutfitLocked(bool locked);
 
-	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.

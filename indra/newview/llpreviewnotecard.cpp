@@ -85,20 +85,20 @@ BOOL LLPreviewNotecard::postBuild()
 	ed->makePristine();
 
 	childSetAction("Save", onClickSave, this);
-	childSetVisible("lock", FALSE);	
+	getChildView("lock")->setVisible( FALSE);	
 
 	childSetAction("Delete", onClickDelete, this);
-	childSetEnabled("Delete", false);
+	getChildView("Delete")->setEnabled(false);
 
 	const LLInventoryItem* item = getItem();
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	if (item)
 	{
-		childSetText("desc", item->getDescription());
-		childSetEnabled("Delete", true);
+		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+		getChildView("Delete")->setEnabled(true);
 	}
-	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
+	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 
 	return LLPreview::postBuild();
 }
@@ -114,10 +114,10 @@ void LLPreviewNotecard::setEnabled( BOOL enabled )
 
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
-	childSetEnabled("Notecard Editor", enabled);
-	childSetVisible("lock", !enabled);
-	childSetEnabled("desc", enabled);
-	childSetEnabled("Save", enabled && editor && (!editor->isPristine()));
+	getChildView("Notecard Editor")->setEnabled(enabled);
+	getChildView("lock")->setVisible( !enabled);
+	getChildView("desc")->setEnabled(enabled);
+	getChildView("Save")->setEnabled(enabled && editor && (!editor->isPristine()));
 }
 
 
@@ -126,7 +126,7 @@ void LLPreviewNotecard::draw()
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 	BOOL changed = !editor->isPristine();
 
-	childSetEnabled("Save", changed && getEnabled());
+	getChildView("Save")->setEnabled(changed && getEnabled());
 	
 	LLPreview::draw();
 }
@@ -277,7 +277,7 @@ void LLPreviewNotecard::loadAsset()
 								GP_OBJECT_MANIPULATE))
 		{
 			editor->setEnabled(FALSE);
-			childSetVisible("lock", TRUE);
+			getChildView("lock")->setVisible( TRUE);
 		}
 	}
 	else

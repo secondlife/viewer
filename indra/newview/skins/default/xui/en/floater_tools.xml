@@ -2322,6 +2322,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="15"
              name="color trans"
+             text_readonly_color="LabelDisabledColor"
              top="6"
              width="110">
                 Transparency %
@@ -2346,6 +2347,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="0"
              name="glow label"
+             text_readonly_color="LabelDisabledColor"
              top_pad="8"
              width="80">
                 Glow
@@ -2376,6 +2378,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="tex gen"
+             text_readonly_color="LabelDisabledColor"
              top_pad="5"
              width="90">
                 Mapping
@@ -2404,6 +2407,7 @@ even though the user gets a free copy.
              layout="topleft"
              name="label shininess"
              left_pad="4"
+             text_readonly_color="LabelDisabledColor"
              top_pad="-36"
              width="90">
                 Shininess
@@ -2440,6 +2444,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="4"
              name="label bumpiness"
+             text_readonly_color="LabelDisabledColor"
              top_pad="-36"
              width="90">
                 Bumpiness
@@ -2565,7 +2570,8 @@ even though the user gets a free copy.
              height="10"
              layout="topleft"
              left="10"
-             name="tex scale"
+             name="rpt"
+             text_readonly_color="LabelDisabledColor"
              top_pad="4"
              width="200">
                 Repeats / Face
@@ -2654,6 +2660,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="tex offset"
+             text_readonly_color="LabelDisabledColor"
              width="200">
                 Texture Offset
             </text>
@@ -2737,9 +2744,9 @@ even though the user gets a free copy.
 			 follows="top|left"
 			 tool_tip="Edit this Media"
 			 height="12"
-			 image_disabled="Icon_Gear_Foreground"
-			 image_selected="Icon_Gear_Background"
-			 image_unselected="Icon_Gear_Press"
+             image_disabled="Icon_Gear_Background"
+             image_selected="Icon_Gear_Press"
+             image_unselected="Icon_Gear_Foreground"
 			 layout="topleft"
 			 left_pad="10"
 			 name="edit_media"

@@ -38,9 +38,9 @@ vec4 getPosition(vec2 pos_screen)
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	vec3 pos = getPosition(vary_fragcoord.xy).xyz;
-	
 	
 	vec3 ccol = texture2DRect(giLightMap, vary_fragcoord.xy).rgb;
 	vec2 dlt = kern_scale * delta/(1.0+norm.xy*norm.xy);
@@ -51,9 +51,10 @@ void main()
 	for (int i = 0; i < kern_length; i++)
 	{
 		vec2 tc = vary_fragcoord.xy + kern[i].y*dlt;
-	    vec3 sampNorm = texture2DRect(normalMap, tc.xy).xyz*2.0-1.0;
+		vec3 sampNorm = texture2DRect(normalMap, tc.xy).xyz;
+		sampNorm = vec3((sampNorm.xy-0.5)*2.0,sampNorm.z); // unpack norm
 	    
-	    float d = dot(norm.xyz, sampNorm);
+		float d = dot(norm.xyz, sampNorm);
 		
 		if (d > 0.8)
 		{
