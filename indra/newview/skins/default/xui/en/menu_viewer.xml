@@ -1662,8 +1662,8 @@
             </menu_item_call>
             <menu_item_separator
              visible="false"/>
-            <!-- Made invisible to avoid a dissonance: menu item toggle menu where it is located. EXT-8069.
-              Can't be removed to keep sortcut workable.
+            <!-- Made invisible to avoid a dissonance: menu item toggles the menu where it is located. EXT-8069.
+              Can't be removed, to keep shortcut workable.
             -->
             <menu_item_check
              label="Show Advanced Menu"
@@ -2630,6 +2630,17 @@
                 <menu_item_check.on_click
                  function="ToggleControl"
                  parameter="DoubleClickAutoPilot" />
+            </menu_item_check>
+            <menu_item_check
+             label="Double-ClickTeleport"
+             layout="topleft"
+             name="DoubleClickTeleport">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DoubleClickTeleport" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DoubleClickTeleport" />
             </menu_item_check>
 
             <menu_item_separator />

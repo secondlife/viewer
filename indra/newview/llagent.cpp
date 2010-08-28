@@ -167,6 +167,7 @@ LLAgent::LLAgent() :
 
 	mbAlwaysRun(false),
 	mbRunning(false),
+	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(gSavedSettings),
 	mTeleportState( TELEPORT_NONE ),
@@ -3249,7 +3250,11 @@ bool LLAgent::teleportCore(bool is_local)
 
 	// local logic
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
-	if (!is_local)
+	if (is_local)
+	{
+		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
+	}
+	else
 	{
 		gTeleportDisplay = TRUE;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
@@ -3268,13 +3273,15 @@ bool LLAgent::teleportCore(bool is_local)
 
 void LLAgent::teleportRequest(
 	const U64& region_handle,
-	const LLVector3& pos_local)
+	const LLVector3& pos_local,
+	bool look_at_from_camera)
 {
 	LLViewerRegion* regionp = getRegion();
-	if(regionp && teleportCore())
+	bool is_local = (region_handle == to_region_handle(getPositionGlobal()));
+	if(regionp && teleportCore(is_local))
 	{
-		llinfos << "TeleportRequest: '" << region_handle << "':" << pos_local
-				<< llendl;
+		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
+					 << pos_local << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("TeleportLocationRequest");
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -3284,6 +3291,10 @@ void LLAgent::teleportRequest(
 		msg->addU64("RegionHandle", region_handle);
 		msg->addVector3("Position", pos_local);
 		LLVector3 look_at(0,1,0);
+		if (look_at_from_camera)
+		{
+			look_at = LLViewerCamera::getInstance()->getAtAxis();
+		}
 		msg->addVector3("LookAt", look_at);
 		sendReliableMessage();
 	}
@@ -3395,6 +3406,16 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 	}
 }
 
+// Teleport to global position, but keep facing in the same direction 
+void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
+{
+	mbTeleportKeepsLookAt = true;
+	gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
+	U64 region_handle = to_region_handle(pos_global);
+	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
+	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+}
+
 void LLAgent::setTeleportState(ETeleportState state)
 {
 	mTeleportState = state;
@@ -3402,18 +3423,28 @@ void LLAgent::setTeleportState(ETeleportState state)
 	{
 		LLFloaterReg::hideInstance("snapshot");
 	}
-	if (mTeleportState == TELEPORT_MOVING)
-	{
-		// We're outa here. Save "back" slurl.
-		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
-	}
-	else if(mTeleportState == TELEPORT_ARRIVING)
-	{
-		// First two position updates after a teleport tend to be weird
-		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
 
-		// Let the interested parties know we've teleported.
-		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
+	switch (mTeleportState)
+	{
+		case TELEPORT_NONE:
+			mbTeleportKeepsLookAt = false;
+			break;
+
+		case TELEPORT_MOVING:
+			// We're outa here. Save "back" slurl.
+			LLAgentUI::buildSLURL(mTeleportSourceSLURL);
+			break;
+
+		case TELEPORT_ARRIVING:
+			// First two position updates after a teleport tend to be weird
+			LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+			
+			// Let the interested parties know we've teleported.
+			LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
+			break;
+
+		default:
+			break;
 	}
 }
 
