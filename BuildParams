@@ -150,4 +150,26 @@ oz_viewer-review1_coverity.build_CYGWIN_Debug = false
 oz_viewer-review1_coverity.build_CYGWIN_RelWithDebInfo = false
 oz_viewer-review1_coverity.build_CYGWIN_Release = false
 
+oz_viewer-review2_coverity.coverity_product = viewer
+
+oz_viewer-review2.build_Linux = true
+oz_viewer-review2_debug.build_Linux = false
+oz_viewer-review2_coverity.build_Linux = false
+
+oz_viewer-review2.build_Darwin = true
+oz_viewer-review2_debug.build_Darwin = false
+oz_viewer-review2_coverity.build_Darwin = false
+
+oz_viewer-review2.build_CYGWIN = true
+oz_viewer-review2.build_CYGWIN_Debug = false
+oz_viewer-review2.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review2.build_CYGWIN_Release = true
+oz_viewer-review2_debug.build_CYGWIN_Debug = true
+oz_viewer-review2_debug.build_CYGWIN_RelWithDebInfo = true
+oz_viewer-review2_debug.build_CYGWIN_Release = false
+oz_viewer-review2_coverity.build_coverity = true
+oz_viewer-review2_coverity.build_CYGWIN_Debug = false
+oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review2_coverity.build_CYGWIN_Release = false
+
 # eof
