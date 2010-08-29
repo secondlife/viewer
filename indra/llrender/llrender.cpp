@@ -895,9 +895,7 @@ LLVector3 LLRender::getUITranslation()
 {
 	if (mUIOffset.empty())
 	{
-		//llassert(!mUIOffset.empty());
-		llwarns << "UI offset stack empty." << llendl;
-		return LLVector3(0,0,0);
+		return LLVector3::zero;
 	}
 	return mUIOffset.back();
 }
@@ -906,9 +904,7 @@ LLVector3 LLRender::getUIScale()
 {
 	if (mUIScale.empty())
 	{
-		//llassert(!mUIScale.empty());
-		llwarns << "UI scale stack empty." << llendl;
-		return LLVector3(1,1,1);
+		return LLVector3(1.f, 1.f, 1.f);
 	}
 	return mUIScale.back();
 }
