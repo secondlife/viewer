@@ -120,6 +120,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ardy Lay
+	VWR-19499
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
