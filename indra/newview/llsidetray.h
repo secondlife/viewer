@@ -161,11 +161,15 @@ public:
 
 	void		handleLoginComplete();
 
-protected:
 	LLSideTrayTab* getTab		(const std::string& name);
+
+	bool 		isTabAttached	(const std::string& name);
+
+protected:
 	bool		hasTabs			();
 
 	void		createButtons	();
+
 	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
 									LLUICtrl::commit_callback_t callback);
 	void		arrange			();

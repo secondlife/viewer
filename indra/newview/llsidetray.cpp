@@ -286,6 +286,93 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+// LLSideTrayButton
+// Side Tray tab button with "tear off" handling.
+//////////////////////////////////////////////////////////////////////////////
+
+class LLSideTrayButton : public LLButton
+{
+public:
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask)
+	{
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		// No handler needed for focus lost since this class has no state that depends on it.
+		gFocusMgr.setMouseCapture(this);
+
+		localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
+
+		// Note: don't pass on to children
+		return TRUE;
+	}
+
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask)
+	{
+		// We only handle the click if the click both started and ended within us
+		if( !hasMouseCapture() ) return FALSE;
+
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		S32 delta_x = screen_x - mDragLastScreenX;
+		S32 delta_y = screen_y - mDragLastScreenY;
+
+		LLSideTray* side_tray = LLSideTray::getInstance();
+
+		// Check if the tab we are dragging is docked.
+		if (!side_tray->isTabAttached(getName())) return FALSE;
+
+		// Same value is hardcoded in LLDragHandle::handleHover().
+		const S32 undock_threshold = 12;
+
+		// Detach a tab if it has been pulled further than undock_threshold.
+		if (delta_x <= -undock_threshold ||	delta_x >= undock_threshold	||
+			delta_y <= -undock_threshold ||	delta_y >= undock_threshold)
+		{
+			LLSideTrayTab* tab = side_tray->getTab(getName());
+			if (!tab) return FALSE;
+
+			tab->toggleTabDocked();
+
+			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getTabTitle()));
+			if (!floater_tab) return FALSE;
+
+
+			LLRect original_rect = floater_tab->getRect();
+			S32 header_snap_y = floater_tab->getHeaderHeight() / 2;
+			S32 snap_x = screen_x - original_rect.mLeft - original_rect.getWidth() / 2;
+			S32 snap_y = screen_y - original_rect.mTop + header_snap_y;
+
+			// Move the floater to appear "under" the mouse pointer.
+			floater_tab->setRect(original_rect.translate(snap_x, snap_y));
+
+			// Snap the mouse pointer to the center of the floater header
+			// and call 'mouse down' event handler to begin dragging.
+			floater_tab->handleMouseDown(original_rect.getWidth() / 2,
+										 original_rect.getHeight() - header_snap_y,
+										 mask);
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+protected:
+	LLSideTrayButton(const LLButton::Params& p)
+	: LLButton(p)
+	, mDragLastScreenX(0)
+	, mDragLastScreenY(0)
+	{}
+
+	friend class LLUICtrlFactory;
+
+private:
+	S32		mDragLastScreenX;
+	S32		mDragLastScreenY;
+};
+
+//////////////////////////////////////////////////////////////////////////////
 // LLSideTray
 //////////////////////////////////////////////////////////////////////////////
 
@@ -369,6 +456,12 @@ void LLSideTray::handleLoginComplete()
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 {
 	return getChild<LLSideTrayTab>(name,false);
+}
+
+bool LLSideTray::isTabAttached(const std::string& name)
+{
+	LLSideTrayTab* tab = getTab(name);
+	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();
 }
 
 bool LLSideTray::hasTabs()
@@ -458,8 +551,18 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	bparams.image_disabled(sidetray_params.tab_btn_image_normal);
 	bparams.image_disabled_selected(sidetray_params.tab_btn_image_selected);
 
-	LLButton* button = LLUICtrlFactory::create<LLButton> (bparams);
-	button->setLabel(name);
+	LLButton* button;
+	if (name == "sidebar_openclose")
+	{
+		// "Open/Close" button shouldn't allow "tear off"
+		// hence it is created as LLButton instance.
+		button = LLUICtrlFactory::create<LLButton>(bparams);
+	}
+	else
+	{
+		button = LLUICtrlFactory::create<LLSideTrayButton>(bparams);
+	}
+
 	button->setClickedCallback(callback);
 
 	button->setToolTip(tooltip);
@@ -597,12 +700,12 @@ void	LLSideTray::createButtons	()
 		// The "OpenClose" button will open/close the whole panel
 		if (name == "sidebar_openclose")
 		{
-			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
+			mCollapseButton = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
 		}
 		else
 		{
-			LLButton* button = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
+			LLButton* button = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onTabButtonClick, this, name));
 			mTabButtons[name] = button;
 		}
