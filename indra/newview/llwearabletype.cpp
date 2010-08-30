@@ -132,5 +132,5 @@ LLInventoryIcon::EIconName LLWearableType::getIconName(LLWearableType::EType typ
 	const WearableEntry *entry = dict->lookup(type);
 	if (!entry) return getIconName(WT_INVALID);
 	return entry->mIconName;
-}
+} 
 
