@@ -501,7 +501,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 		for(S32 i = 0; i < count; ++i)
 		{
 			item = item_array->get(i);
-			if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
+			if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 			{
 				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
 				if (linked_cat && linked_cat->getPreferredType() != LLFolderType::FT_OUTFIT)

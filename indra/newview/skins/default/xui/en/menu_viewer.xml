@@ -4,6 +4,7 @@
  follows="left|top|right"
  name="Main Menu">
     <menu
+     create_jump_keys="true"
      label="Me"
      name="Me"
      tear_off="true">
@@ -94,6 +95,7 @@
              parameter="voice_effect" />
         </menu_item_check>
         <menu
+         create_jump_keys="true"
          label="My Status"
          name="Status"
          tear_off="true">
@@ -138,6 +140,7 @@
         </menu_item_call>
     </menu>
     <menu
+     create_jump_keys="true"
      label="Communicate"
      name="Communicate"
      tear_off="true">
@@ -188,6 +191,7 @@
             </menu_item_call>
     </menu>
     <menu
+     create_jump_keys="true"
      label="World"
      name="World"
      tear_off="true">
@@ -901,6 +905,7 @@
         </menu>
     </menu>
     <menu
+     create_jump_keys="true"
      label="Help"
      name="Help"
      tear_off="true">
@@ -947,6 +952,7 @@
         </menu_item_call>
     </menu>
     <menu
+     create_jump_keys="true"
      label="Advanced"
      name="Advanced"
      tear_off="true"
@@ -1451,6 +1457,7 @@
         <menu_item_separator/>
 
         <menu
+         create_jump_keys="true"
          label="Shortcuts"
          name="Shortcuts"
          tear_off="true"

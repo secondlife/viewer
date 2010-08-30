@@ -20,7 +20,7 @@
 			<text name="start_location_text">
 				Lieu de départ :
 			</text>
-			<combo_box name="start_location_combo" width="152">
+			<combo_box name="start_location_combo">
 				<combo_box.item label="Dernier emplacement" name="MyLastLocation"/>
 				<combo_box.item label="Domicile" name="MyHome"/>
 				<combo_box.item label="&lt;Saisir le nom de la région&gt;" name="Typeregionname"/>

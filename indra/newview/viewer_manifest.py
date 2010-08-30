@@ -930,10 +930,10 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             try:
-                    self.path("libkdu_v42R.so", "libkdu.so")
+                    self.path("libkdu.so")
                     pass
             except:
-                    print "Skipping libkdu_v42R.so - not found"
+                    print "Skipping libkdu.so - not found"
                     pass
             try:
                     self.path("libfmod-3.75.so")
