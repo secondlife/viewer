@@ -3609,7 +3609,7 @@ void LLSelectMgr::selectionSetObjectSaleInfo(const LLSaleInfo& sale_info)
 // Attachments
 //----------------------------------------------------------------------
 
-void LLSelectMgr::sendAttach(U8 attachment_point)
+void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 {
 	LLViewerObject* attach_object = mSelectedObjects->getFirstRootObject();
 
@@ -3623,9 +3623,12 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 	if (0 == attachment_point ||
 		get_if_there(gAgentAvatarp->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
 	{
-
-		if (gSavedSettings.getBOOL("MultipleAttachments"))
+		if (!replace || attachment_point != 0)
+		{
+			// If we know the attachment point then we got here by clicking an
+			// "Attach to..." context menu item, so we should add, not replace.
 			attachment_point |= ATTACHMENT_ADD;
+		}
 
 		sendListToRegions(
 			"ObjectAttach",

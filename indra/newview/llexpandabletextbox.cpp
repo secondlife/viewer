@@ -28,6 +28,7 @@
 #include "llexpandabletextbox.h"
 
 #include "llscrollcontainer.h"
+#include "lltrans.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 
@@ -111,7 +112,7 @@ LLExpandableTextBox::LLTextBoxEx::Params::Params()
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 :	LLTextEditor(p),
-	mExpanderLabel(p.label),
+	mExpanderLabel(p.label.isProvided() ? p.label : LLTrans::getString("More")),
 	mExpanderVisible(false)
 {
 	setIsChrome(TRUE);
@@ -134,13 +135,7 @@ void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,cons
 	// LLTextBox::setText will obliterate the expander segment, so make sure
 	// we generate it again by clearing mExpanderVisible
 	mExpanderVisible = false;
-
-	// Workaround for EXT-8259: trim text before rendering it.
-	{
-		std::string trimmed_text(text);
-		LLStringUtil::trim(trimmed_text);
-		LLTextEditor::setText(trimmed_text, input_params);
-	}
+	LLTextEditor::setText(text, input_params);
 
 	// text contents have changed, segments are cleared out
 	// so hide the expander and determine if we need it

@@ -143,12 +143,12 @@ void LLPreview::onCommit()
 		}
 		
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setDescription(childGetText("desc"));
+		new_item->setDescription(getChild<LLUICtrl>("desc")->getValue().asString());
 
-		std::string new_name = childGetText("name");
+		std::string new_name = getChild<LLUICtrl>("name")->getValue().asString();
 		if ( (new_item->getName() != new_name) && !new_name.empty())
 		{
-			new_item->rename(childGetText("name"));
+			new_item->rename(getChild<LLUICtrl>("name")->getValue().asString());
 		}
 
 		if(mObjectUUID.notNull())
@@ -180,7 +180,7 @@ void LLPreview::onCommit()
 					{
 						LLSelectMgr::getInstance()->deselectAll();
 						LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
-						LLSelectMgr::getInstance()->selectionSetObjectDescription( childGetText("desc") );
+						LLSelectMgr::getInstance()->selectionSetObjectDescription( getChild<LLUICtrl>("desc")->getValue().asString() );
 
 						LLSelectMgr::getInstance()->deselectAll();
 					}
@@ -226,10 +226,10 @@ void LLPreview::refreshFromItem()
 		LLUIString title = getString("Title", args);
 		setTitle(title.getString());
 	}
-	childSetText("desc",item->getDescription());
+	getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 
 	BOOL can_agent_manipulate = item->getPermissions().allowModifyBy(gAgent.getID());
-	childSetEnabled("desc",can_agent_manipulate);
+	getChildView("desc")->setEnabled(can_agent_manipulate);
 }
 
 // static 

@@ -115,6 +115,7 @@ void LLInitialWearablesFetch::processContents()
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	LLFindWearables is_wearable;
+	llassert_always(mComplete.size() != 0);
 	gInventory.collectDescendentsIf(mComplete.front(), cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
 
@@ -209,7 +210,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 				{
 					LLViewerObject* attached_object = (*attachment_iter);
 					if (!attached_object) continue;
-					const LLUUID& item_id = attached_object->getItemID();
+					const LLUUID& item_id = attached_object->getAttachmentItemID();
 					if (item_id.isNull()) continue;
 					ids.push_back(item_id);
 				}

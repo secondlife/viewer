@@ -54,8 +54,8 @@ void LLPreviewAnim::endAnimCallback( void *userdata )
 	delete handlep; // done with the handle
 	if (self)
 	{
-		self->childSetValue("Anim play btn", FALSE);
-		self->childSetValue("Anim audition btn", FALSE);
+		self->getChild<LLUICtrl>("Anim play btn")->setValue(FALSE);
+		self->getChild<LLUICtrl>("Anim audition btn")->setValue(FALSE);
 	}
 }
 
@@ -66,14 +66,14 @@ BOOL LLPreviewAnim::postBuild()
 	if(item)
 	{
 		gAgentAvatarp->createMotion(item->getAssetUUID()); // preload the animation
-		childSetText("desc", item->getDescription());
+		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 	}
 
 	childSetAction("Anim play btn",playAnim, this);
 	childSetAction("Anim audition btn",auditionAnim, this);
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
+	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	
 	return LLPreview::postBuild();
 }
@@ -115,7 +115,7 @@ void LLPreviewAnim::playAnim( void *userdata )
 			btn->toggleState();
 		}
 		
-		if (self->childGetValue("Anim play btn").asBoolean() ) 
+		if (self->getChild<LLUICtrl>("Anim play btn")->getValue().asBoolean() ) 
 		{
 			self->mPauseRequest = NULL;
 			gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_START);
@@ -149,7 +149,7 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 			btn->toggleState();
 		}
 		
-		if (self->childGetValue("Anim audition btn").asBoolean() ) 
+		if (self->getChild<LLUICtrl>("Anim audition btn")->getValue().asBoolean() ) 
 		{
 			self->mPauseRequest = NULL;
 			gAgentAvatarp->startMotion(item->getAssetUUID());

@@ -130,7 +130,7 @@ control_name="LoginLocation"
 max_chars="128"
 top_pad="0"
 name="start_location_combo"
-     width="135">
+     width="170">
 <combo_box.item
 label="My last location"
 name="MyLastLocation"

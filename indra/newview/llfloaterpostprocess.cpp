@@ -206,25 +206,25 @@ void LLFloaterPostProcess::syncMenu()
 	comboBox->selectByValue(gPostProcess->getSelectedEffect());
 
 	/// Sync Color Filter Menu
-	childSetValue("ColorFilterToggle", gPostProcess->tweaks.useColorFilter());
-	//childSetValue("ColorFilterGamma", gPostProcess->tweaks.gamma());
-	childSetValue("ColorFilterBrightness", gPostProcess->tweaks.brightness());
-	childSetValue("ColorFilterSaturation", gPostProcess->tweaks.saturation());
-	childSetValue("ColorFilterContrast", gPostProcess->tweaks.contrast());
-	childSetValue("ColorFilterBaseR", gPostProcess->tweaks.contrastBaseR());
-	childSetValue("ColorFilterBaseG", gPostProcess->tweaks.contrastBaseG());
-	childSetValue("ColorFilterBaseB", gPostProcess->tweaks.contrastBaseB());
-	childSetValue("ColorFilterBaseI", gPostProcess->tweaks.contrastBaseIntensity());
+	getChild<LLUICtrl>("ColorFilterToggle")->setValue(gPostProcess->tweaks.useColorFilter());
+	//getChild<LLUICtrl>("ColorFilterGamma")->setValue(gPostProcess->tweaks.gamma());
+	getChild<LLUICtrl>("ColorFilterBrightness")->setValue(gPostProcess->tweaks.brightness());
+	getChild<LLUICtrl>("ColorFilterSaturation")->setValue(gPostProcess->tweaks.saturation());
+	getChild<LLUICtrl>("ColorFilterContrast")->setValue(gPostProcess->tweaks.contrast());
+	getChild<LLUICtrl>("ColorFilterBaseR")->setValue(gPostProcess->tweaks.contrastBaseR());
+	getChild<LLUICtrl>("ColorFilterBaseG")->setValue(gPostProcess->tweaks.contrastBaseG());
+	getChild<LLUICtrl>("ColorFilterBaseB")->setValue(gPostProcess->tweaks.contrastBaseB());
+	getChild<LLUICtrl>("ColorFilterBaseI")->setValue(gPostProcess->tweaks.contrastBaseIntensity());
 	
 	/// Sync Night Vision Menu
-	childSetValue("NightVisionToggle", gPostProcess->tweaks.useNightVisionShader());
-	childSetValue("NightVisionBrightMult", gPostProcess->tweaks.brightMult());
-	childSetValue("NightVisionNoiseSize", gPostProcess->tweaks.noiseSize());
-	childSetValue("NightVisionNoiseStrength", gPostProcess->tweaks.noiseStrength());
+	getChild<LLUICtrl>("NightVisionToggle")->setValue(gPostProcess->tweaks.useNightVisionShader());
+	getChild<LLUICtrl>("NightVisionBrightMult")->setValue(gPostProcess->tweaks.brightMult());
+	getChild<LLUICtrl>("NightVisionNoiseSize")->setValue(gPostProcess->tweaks.noiseSize());
+	getChild<LLUICtrl>("NightVisionNoiseStrength")->setValue(gPostProcess->tweaks.noiseStrength());
 
 	/// Sync Bloom Menu
-	childSetValue("BloomToggle", LLSD(gPostProcess->tweaks.useBloomShader()));
-	childSetValue("BloomExtract", gPostProcess->tweaks.extractLow());
-	childSetValue("BloomSize", gPostProcess->tweaks.bloomWidth());
-	childSetValue("BloomStrength", gPostProcess->tweaks.bloomStrength());
+	getChild<LLUICtrl>("BloomToggle")->setValue(LLSD(gPostProcess->tweaks.useBloomShader()));
+	getChild<LLUICtrl>("BloomExtract")->setValue(gPostProcess->tweaks.extractLow());
+	getChild<LLUICtrl>("BloomSize")->setValue(gPostProcess->tweaks.bloomWidth());
+	getChild<LLUICtrl>("BloomStrength")->setValue(gPostProcess->tweaks.bloomStrength());
 }

@@ -295,6 +295,7 @@ public:
 
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
+		//converting an inventory type to a bitmap filter mask
 		if(item && (mFilterMask & (1LL << item->getInventoryType())) )
 		{
 			return true;

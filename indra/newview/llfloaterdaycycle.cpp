@@ -152,11 +152,11 @@ void LLFloaterDayCycle::syncMenu()
 	// turn off Use Estate Time button if it's already being used
 	if(	LLWLParamManager::instance()->mAnimator.mUseLindenTime == true)
 	{
-		childDisable("WLUseLindenTime");
+		getChildView("WLUseLindenTime")->setEnabled(FALSE);
 	} 
 	else 
 	{
-		childEnable("WLUseLindenTime");
+		getChildView("WLUseLindenTime")->setEnabled(TRUE);
 	}
 }
 

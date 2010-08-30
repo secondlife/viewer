@@ -716,8 +716,8 @@ void LLLandmarksPanel::updateListCommands()
 	bool trash_enabled = isActionEnabled("delete");
 
 	// keep Options & Add Landmark buttons always enabled
-	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
-	mListCommands->childSetEnabled(TRASH_BUTTON_NAME, trash_enabled);
+	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);
+	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
 }
 
 void LLLandmarksPanel::onActionsButtonClick()
@@ -974,7 +974,28 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		return root_folder_view && root_folder_view->getSelectedCount() == 1;
+		bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
+		if (!is_single_selection)
+		{
+			return false;
+		}
+
+		if ("show_on_map" == command_name)
+		{
+			LLFolderViewItem* cur_item = root_folder_view->getCurSelectedItem();
+			if (!cur_item) return false;
+
+			LLViewerInventoryItem* inv_item = cur_item->getInventoryItem();
+			if (!inv_item) return false;
+
+			LLUUID asset_uuid = inv_item->getAssetUUID();
+			if (asset_uuid.isNull()) return false;
+
+			// Disable "Show on Map" if landmark loading is in progress.
+			return !gLandmarkList.isAssetInLoadedCallbackMap(asset_uuid);
+		}
+
+		return true;
 	}
 	else if ("rename" == command_name)
 	{
@@ -1099,7 +1120,8 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 
 		if ("cut" == command_name)
 		{
-			can_be_modified = root_folder->canCut();
+			// "Cut" disabled for folders. See EXT-8697.
+			can_be_modified = root_folder->canCut() && listenerp->getInventoryType() != LLInventoryType::IT_CATEGORY;
 		}
 		else if ("rename" == command_name)
 		{
@@ -1188,6 +1210,7 @@ void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 	}
 
 	mShowOnMapBtn->setEnabled(TRUE);
+	mGearLandmarkMenu->setItemEnabled("show_on_map", TRUE);
 }
 
 void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,

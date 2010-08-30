@@ -689,11 +689,11 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 
 	if (is_muted)
 	{
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceMuteSelected", false);
+		LLMenuGL::sMenuContainer->getChildView("ModerateVoiceMuteSelected")->setVisible( false);
 	}
 	else
 	{
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
+		LLMenuGL::sMenuContainer->getChildView("ModerateVoiceUnMuteSelected")->setVisible( false);
 	}
 }
 

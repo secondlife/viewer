@@ -88,5 +88,5 @@ void LLSaveOutfitComboBtn::setMenuItemEnabled(const std::string& item, bool enab
 
 void LLSaveOutfitComboBtn::setSaveBtnEnabled(bool enabled)
 {
-	mParent->childSetEnabled(SAVE_BTN, enabled);
+	mParent->getChildView(SAVE_BTN)->setEnabled(enabled);
 }

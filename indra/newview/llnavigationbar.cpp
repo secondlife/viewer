@@ -810,9 +810,9 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		}
 	}
 
-	childSetVisible("bg_icon", visible && fpVisible);
-	childSetVisible("bg_icon_no_fav_bevel", visible && !fpVisible);
-	childSetVisible("bg_icon_no_nav_bevel", !visible && fpVisible);
+	getChildView("bg_icon")->setVisible( visible && fpVisible);
+	getChildView("bg_icon_no_fav_bevel")->setVisible( visible && !fpVisible);
+	getChildView("bg_icon_no_nav_bevel")->setVisible( !visible && fpVisible);
 }
 
 void LLNavigationBar::showFavoritesPanel(BOOL visible)
@@ -877,9 +877,9 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 	}
 
-	childSetVisible("bg_icon", npVisible && visible);
-	childSetVisible("bg_icon_no_fav_bevel", npVisible && !visible);
-	childSetVisible("bg_icon_no_nav_bevel", !npVisible && visible);
+	getChildView("bg_icon")->setVisible( npVisible && visible);
+	getChildView("bg_icon_no_fav_bevel")->setVisible( npVisible && !visible);
+	getChildView("bg_icon_no_nav_bevel")->setVisible( !npVisible && visible);
 
 	fb->setVisible(visible);
 }

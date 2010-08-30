@@ -2282,6 +2282,9 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-alt">Alt+</string>
 	<string name="accel-win-shift">Shift+</string>
 
+	<string name="Esc">Esc</string>
+	<string name="Home">Home</string>
+
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>
 	<string name="Receiving">Receiving</string>
@@ -3002,6 +3005,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_default_text_label">Click here to instant message.</string>
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
+	<string name="Saved_message">(Saved [LONG_TIMESTAMP])</string>
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>
@@ -3023,6 +3027,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
   <string name="conference-title">
     Ad-hoc Conference
+  </string>
+  <string name="conference-title-incoming">
+    [AGENT_NAME] Conference
   </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
@@ -3254,5 +3261,11 @@ Abuse Report</string>
   <string name="Accounting">Accounting</string>
   <string name="Notices">Notices</string>
   <string name="Chat">Chat</string>
+
+  <!-- Question strings for delete items notifications -->
+  <string name="DeleteItems">Delete selected items?</string>
+  <string name="DeleteItem">Delete selected item?</string>
+
+  <string name="EmptyOutfitText">There are no items in this outfit</string>
 
   </strings>
