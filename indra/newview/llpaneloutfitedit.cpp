@@ -1007,6 +1007,10 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	//                                                        |      filter_type = expanded accordion_type
 	if (nothing_selected)
 	{
+		if (mInventoryItemsPanel->getVisible())
+		{
+			return;
+		}
 		showWearablesListView();
 
 		//selected accordion tab is more priority than expanded tab
@@ -1021,7 +1025,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			LLUUID selected_item_id = mWearableItemsList->getSelectedUUID();
 			LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 			if(item)
-		{
+			{
 				showFilteredWearablesListView(item->getWearableType());
 				return;
 			}
@@ -1051,6 +1055,12 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	//resetting selection if more than one item is selected
 	if (more_than_one_selected)
 	{
+		if (mInventoryItemsPanel->getVisible())
+		{
+			applyFolderViewFilter(FVIT_ALL);
+			return;
+		}
+
 		showWearablesListView();
 		applyListViewFilter(LVIT_ALL);
 		return;
@@ -1060,6 +1070,12 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	//filter wearables by a type represented by a dummy item
 	if (one_selected && is_dummy_item)
 	{
+		if (mInventoryItemsPanel->getVisible())
+		{
+			applyFolderViewFilter(FVIT_WEARABLE);
+			return;
+		}
+
 		onAddWearableClicked();
 		return;
 	}
@@ -1067,6 +1083,11 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	LLViewerInventoryItem* item = gInventory.getItem(ids[0]);
 	if (!item && ids[0].notNull())
 	{
+		if (mInventoryItemsPanel->getVisible())
+		{
+			applyFolderViewFilter(FVIT_ALL);
+			return;
+		}
 		//Inventory misses an item with non-zero id
 		showWearablesListView();
 		applyListViewFilter(LVIT_ALL);
@@ -1077,12 +1098,22 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	{
 		if (item->isWearableType())
 		{
+			if (mInventoryItemsPanel->getVisible())
+			{
+				applyFolderViewFilter(FVIT_WEARABLE);
+				return;
+			}
 			//single clothing or bodypart item is selected
 			showFilteredWearablesListView(item->getWearableType());
 			return;
 		}
 		else
 		{
+			if (mInventoryItemsPanel->getVisible())
+			{
+				applyFolderViewFilter(FVIT_ATTACHMENT);
+				return;
+			}
 			//attachment is selected
 			showWearablesListView();
 			applyListViewFilter(LVIT_ATTACHMENT);
