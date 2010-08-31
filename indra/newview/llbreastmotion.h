@@ -153,7 +153,6 @@ private:
 	LLFrameTimer	mTimer;
 	F32             mLastTime;
 	
-	FILE           *mFileWrite;
 	U32            mFileTicks;
 };
 
