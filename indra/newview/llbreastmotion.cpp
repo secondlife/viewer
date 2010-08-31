@@ -45,7 +45,7 @@
 #include "llviewervisualparam.h"
 #include "llvoavatarself.h"
 
-#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 1000.f;
+#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 0.f;
 
 #define N_PARAMS 2
 
@@ -370,7 +370,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 	const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(this) != NULL);
 	if (!is_self)
 	{
-		const F32 area_for_max_settings = 200.0;
+		const F32 area_for_max_settings = 0.0;
 		const F32 area_for_min_settings = 1400.0;
 
 		const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
