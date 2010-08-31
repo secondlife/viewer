@@ -2,25 +2,31 @@
  * @file llhudicon.cpp
  * @brief LLHUDIcon class implementation
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -33,6 +39,7 @@
 
 #include "llviewerobject.h"
 #include "lldrawable.h"
+#include "llvector4a.h"
 #include "llviewercamera.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
@@ -260,21 +267,42 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 	LLVector3 x_scale = image_aspect * (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * x_pixel_vec;
 	LLVector3 y_scale = (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * y_pixel_vec;
 
-	LLVector3 lower_left = icon_position - (x_scale * 0.5f);
-	LLVector3 lower_right = icon_position + (x_scale * 0.5f);
-	LLVector3 upper_left = icon_position - (x_scale * 0.5f) + y_scale;
-	LLVector3 upper_right = icon_position + (x_scale * 0.5f) + y_scale;
+	LLVector4a x_scalea;
+	LLVector4a icon_positiona;
+	LLVector4a y_scalea;
 
-	
-	F32 t = 0.f;
-	LLVector3 dir = end-start;
+	x_scalea.load3(x_scale.mV);
+	x_scalea.mul(0.5f);
+	y_scalea.load3(y_scale.mV);
 
-	if (LLTriangleRayIntersect(upper_right, upper_left, lower_right, start, dir, NULL, NULL, &t, FALSE) ||
-		LLTriangleRayIntersect(upper_left, lower_left, lower_right, start, dir, NULL, NULL, &t, FALSE))
+	icon_positiona.load3(icon_position.mV);
+
+	LLVector4a lower_left;
+	lower_left.setSub(icon_positiona, x_scalea);
+	LLVector4a lower_right;
+	lower_right.setAdd(icon_positiona, x_scalea);
+	LLVector4a upper_left;
+	upper_left.setAdd(lower_left, y_scalea);
+	LLVector4a upper_right;
+	upper_right.setAdd(lower_right, y_scalea);
+
+	LLVector4a enda;
+	enda.load3(end.mV);
+	LLVector4a starta;
+	starta.load3(start.mV);
+	LLVector4a dir;
+	dir.setSub(enda, starta);
+
+	F32 a,b,t;
+
+	if (LLTriangleRayIntersect(upper_right, upper_left, lower_right, starta, dir, a,b,t) ||
+		LLTriangleRayIntersect(upper_left, lower_left, lower_right, starta, dir, a,b,t))
 	{
 		if (intersection)
 		{
-			*intersection = start + dir*t;
+			dir.mul(t);
+			starta.add(dir);
+			*intersection = LLVector3(starta.getF32ptr());
 		}
 		return TRUE;
 	}

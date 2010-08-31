@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="false" can_drag_on_left="false" can_minimize="false"
+     can_resize="false" height="160" min_height="160" width="300" min_width="300"
+     name="Import Collada" title="Import Scene">
+
+  <text bottom_delta="40" left="20" name="mesh count" height="15" follows="top|left">
+	Meshes: [COUNT]
+  </text>
+
+  <text bottom_delta="20" left="20" name="texture count" height="15" follows="top|left">
+	Textures: [COUNT]
+  </text>
+
+  <text bottom_delta="40" left="10" name="status" height="15" follows="top|left">
+    Status: [STATUS]
+  </text>
+
+   <button
+	  bottom_delta="40"
+      name="cancel"
+      label="Cancel"
+      enabled="true"
+      height="20"
+      layout="topleft"
+      left="125"
+      width="75" />
+
+   <button
+	  bottom_delta="0"
+      name="ok"
+      label="OK"
+      enabled="true"
+      height="20"
+      layout="topleft"
+      left="210"
+      width="75" />
+
+  <string name="status_idle">Idle</string>
+  <string name="status_uploading">Uploading [NAME]</string>
+  <string name="status_creating">Creating object [NAME]</string>
+  
+ </floater>

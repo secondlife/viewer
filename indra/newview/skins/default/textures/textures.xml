@@ -208,6 +208,7 @@ with the same filename but different name
   <texture name="Inv_LostClosed" file_name="icons/Inv_LostClosed.png" preload="false" />
   <texture name="Inv_LostOpen" file_name="icons/Inv_LostOpen.png" preload="false" />
   <texture name="Inv_Landmark" file_name="icons/Inv_Landmark.png" preload="false" />
+  <texture name="Inv_Mesh" file_name="icons/Inv_Mesh.png" preload="false" />  
   <texture name="Inv_Notecard" file_name="icons/Inv_Notecard.png" preload="false" />
   <texture name="Inv_Object" file_name="icons/Inv_Object.png" preload="false" />
   <texture name="Inv_Object_Multi" file_name="icons/Inv_Object_Multi.png" preload="false" />
@@ -607,6 +608,8 @@ with the same filename but different name
   <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
   <texture name="icon_top_pick.tga" />
 
+  <texture name="inv_folder_mesh.tga"/>
+  <texture name="inv_item_mesh.tga"/>
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />

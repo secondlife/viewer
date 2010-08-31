@@ -2,25 +2,31 @@
  * @file llvosurfacepatch.cpp
  * @brief Viewer-object derived "surface patch", which is a piece of terrain
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -54,27 +60,77 @@ public:
 		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD0 | MAP_TEXCOORD1 | MAP_COLOR, GL_DYNAMIC_DRAW_ARB)
 	{
 		//texture coordinates 2 and 3 exist, but use the same data as texture coordinate 1
-		mOffsets[TYPE_TEXCOORD3] = mOffsets[TYPE_TEXCOORD2] = mOffsets[TYPE_TEXCOORD1];
-		mTypeMask |= MAP_TEXCOORD2 | MAP_TEXCOORD3;
 	};
 
-	/*// virtual
+	// virtual
 	void setupVertexBuffer(U32 data_mask) const
-	{		
-		if (LLDrawPoolTerrain::getDetailMode() == 0 || LLPipeline::sShadowRender)
+	{	
+		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
+
+		//assume tex coords 2 and 3 are present
+		U32 type_mask = mTypeMask | MAP_TEXCOORD2 | MAP_TEXCOORD3;
+
+		if ((data_mask & type_mask) != data_mask)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 		}
-		else if (data_mask & LLVertexBuffer::MAP_TEXCOORD1)
+
+		if (data_mask & MAP_NORMAL)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
 		}
-		else
+		if (data_mask & MAP_TEXCOORD3)
+		{ //substitute tex coord 0 for tex coord 3
+			glClientActiveTextureARB(GL_TEXTURE3_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD2)
+		{ //substitute tex coord 0 for tex coord 2
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD1)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
-		llglassertok();		
-	}*/
+		if (data_mask & MAP_BINORMAL)
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD0)
+		{
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		}
+		if (data_mask & MAP_COLOR)
+		{
+			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		}
+		
+		if (data_mask & MAP_WEIGHT)
+		{
+			glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		}
+
+		if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+		{
+			glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+		}
+
+		if (data_mask & MAP_CLOTHWEIGHT)
+		{
+			glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+		}
+		if (data_mask & MAP_VERTEX)
+		{
+			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+		}
+	}
 };
 
 //============================================================================
@@ -939,7 +995,13 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 
 	//step one meter at a time until intersection point found
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	//VECTORIZE THIS
+	const LLVector4a* exta = mDrawable->getSpatialExtents();
+
+	LLVector3 ext[2];
+	ext[0].set(exta[0].getF32ptr());
+	ext[1].set(exta[1].getF32ptr());
+
 	F32 rad = (delta*tdelta).magVecSquared();
 
 	F32 t = 0.f;
@@ -1001,13 +1063,16 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 	return FALSE;
 }
 
-void LLVOSurfacePatch::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
+void LLVOSurfacePatch::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
-	newMin = posAgent-scale*0.5f; // Changing to 2.f makes the culling a -little- better, but still wrong
-	newMax = posAgent+scale*0.5f;
-	mDrawable->setPositionGroup((newMin+newMax)*0.5f);
+	newMin.load3( (posAgent-scale*0.5f).mV); // Changing to 2.f makes the culling a -little- better, but still wrong
+	newMax.load3( (posAgent+scale*0.5f).mV);
+	LLVector4a pos;
+	pos.setAdd(newMin,newMax);
+	pos.mul(0.5f);
+	mDrawable->setPositionGroup(pos);
 }
 
 U32 LLVOSurfacePatch::getPartitionType() const

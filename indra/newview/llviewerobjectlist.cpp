@@ -2,25 +2,31 @@
  * @file llviewerobjectlist.cpp
  * @brief Implementation of LLViewerObjectList class.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -54,6 +60,7 @@
 #include "llviewercamera.h"
 #include "llselectmgr.h"
 #include "llresmgr.h"
+#include "llsdutil.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
@@ -650,6 +657,90 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
+class LLObjectCostResponder : public LLCurl::Responder
+{
+public:
+	LLObjectCostResponder(const LLSD& object_ids)
+		: mObjectIDs(object_ids)
+	{
+	}
+
+	// Clear's the global object list's pending
+	// request list for all objects requested
+	void clear_object_list_pending_requests()
+	{
+		// TODO*: No more hard coding
+		for (
+			LLSD::array_iterator iter = mObjectIDs.beginArray();
+			iter != mObjectIDs.endArray();
+			++iter)
+		{
+			gObjectList.onObjectCostFetchFailure(iter->asUUID());
+		}
+	}
+
+	void error(U32 statusNum, const std::string& reason)
+	{
+		lldebugs
+			<< "Transport error requesting object cost "
+			<< "HTTP status: " << statusNum << ", reason: "
+			<< reason << "." << llendl;
+
+		// TODO*: Error message to user
+		// For now just clear the request from the pending list
+		clear_object_list_pending_requests();
+	}
+
+	void result(const LLSD& content)
+	{
+		if ( !content.isMap() || content.has("error") )
+		{
+			// Improper response or the request had an error,
+			// show an error to the user?
+			lldebugs
+				<< "Application level error when fetching object "
+				<< "cost.  Message: " << content["error"]["message"].asString()
+				<< ", identifier: " << content["error"]["identifier"].asString()
+				<< llendl;
+
+			// TODO*: Adaptively adjust request size if the
+			// service says we've requested too many and retry
+
+			// TODO*: Error message if not retrying
+			clear_object_list_pending_requests();
+			return;
+		}
+
+		// Success, grab the resource cost and linked set costs
+		// for an object if one was returned
+		for (
+			LLSD::array_iterator iter = mObjectIDs.beginArray();
+			iter != mObjectIDs.endArray();
+			++iter)
+		{
+			LLUUID object_id = iter->asUUID();
+
+			// Check to see if the request contains data for the object
+			if ( content.has(iter->asString()) )
+			{
+				F32 link_cost =
+					content[iter->asString()]["linked_set_resource_cost"].asReal();
+				F32 object_cost =
+					content[iter->asString()]["resource_cost"].asReal();
+
+				gObjectList.updateObjectCost(object_id, object_cost, link_cost);
+			}
+			else
+			{
+				// TODO*: Give user feedback about the missing data?
+				gObjectList.onObjectCostFetchFailure(object_id);
+			}
+		}
+	}
+
+private:
+	LLSD mObjectIDs;
+};
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
@@ -744,6 +835,62 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		{
 			objectp = *kill_iter;
 			killObject(objectp);
+		}
+	}
+
+	// issue http request for stale object physics costs
+	if (!mStaleObjectCost.empty())
+	{
+		LLViewerRegion* regionp = gAgent.getRegion();
+
+		if (regionp)
+		{
+			std::string url = regionp->getCapability("GetObjectCost");
+
+			if (!url.empty())
+			{
+				LLSD id_list;
+				U32 object_index = 0;
+
+				for (
+					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
+					iter != mStaleObjectCost.end();
+					++iter)
+				{
+					// Check to see if a request for this object
+					// has already been made.
+					if ( mPendingObjectCost.find(*iter) ==
+						 mPendingObjectCost.end() )
+					{
+						// Why is this line here if
+						// we set mPendingObjectCost to be
+						// mStaleObjectCost below?
+						mPendingObjectCost.insert(*iter);
+						id_list[object_index++] = *iter;
+					}
+				}
+
+				// id_list should now contain all
+				// requests in mStaleObjectCost before, so clear
+				// it now
+				mStaleObjectCost.clear();
+
+				if ( id_list.size() > 0 )
+				{
+					LLSD post_data = LLSD::emptyMap();
+
+					post_data["object_ids"] = id_list;
+					LLHTTPClient::post(
+						url,
+						post_data,
+						new LLObjectCostResponder(id_list));
+				}
+			}
+			else
+			{
+				mStaleObjectCost.clear();
+				mPendingObjectCost.clear();
+			}
 		}
 	}
 
@@ -865,8 +1012,12 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	mNumDeadObjects++;
 }
 
+static LLFastTimer::DeclareTimer FTM_REMOVE_DRAWABLE("Remove Drawable");
+
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
+	LLFastTimer t(FTM_REMOVE_DRAWABLE);
+
 	if (!drawablep)
 	{
 		return;
@@ -1031,7 +1182,27 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 	}
 }
 
+void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
+{
+	mStaleObjectCost.insert(object->getID());
+}
 
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 object_cost, F32 link_cost)
+{
+	mPendingObjectCost.erase(object_id);
+
+	LLViewerObject* object = findObject(object_id);
+	if (object)
+	{
+		object->setObjectCost(object_cost);
+		object->setLinksetCost(link_cost);
+	}
+}
+
+void LLViewerObjectList::onObjectCostFetchFailure(LLUUID object_id)
+{
+	mPendingObjectCost.erase(object_id);
+}
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {

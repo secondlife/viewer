@@ -55,10 +55,11 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 RenderShaderLightingMaxLevel	1	3
+RenderDeferred				1	1
 SkyUseClassicClouds			1	1
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
+RenderUseFBO				1	1
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 
@@ -167,9 +168,10 @@ RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
+
 
 //
 // Class Unknown Hardware (unknown)
@@ -227,6 +229,7 @@ RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
+
 //
 // "Default" setups for safe, low, medium, high
 //
@@ -244,6 +247,7 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
+
 
 //
 // CPU based feature masks

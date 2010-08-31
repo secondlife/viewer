@@ -2,25 +2,31 @@
  * @file llvotextbubble.cpp
  * @brief Viewer-object text bubble.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -39,6 +45,7 @@
 #include "llviewertexturelist.h"
 #include "llvolume.h"
 #include "pipeline.h"
+#include "llvector4a.h"
 #include "llviewerregion.h"
 
 LLVOTextBubble::LLVOTextBubble(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
@@ -211,7 +218,7 @@ void LLVOTextBubble::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
 	}
 }
 
@@ -229,19 +236,37 @@ void LLVOTextBubble::getGeometry(S32 idx,
 
 	const LLVolumeFace& face = getVolume()->getVolumeFace(idx);
 	
-	LLVector3 pos = getPositionAgent();
+	LLVector4a pos;
+	pos.load3(getPositionAgent().mV);
+
+	LLVector4a scale;
+	scale.load3(getScale().mV);
+
 	LLColor4U color = LLColor4U(getTE(idx)->getColor());
 	U32 offset = mDrawable->getFace(idx)->getGeomIndex();
 	
-	for (U32 i = 0; i < face.mVertices.size(); i++)
+	LLVector4a* dst_pos = (LLVector4a*) verticesp.get();
+	LLVector4a* src_pos = (LLVector4a*) face.mPositions;
+	
+	LLVector4a* dst_norm = (LLVector4a*) normalsp.get();
+	LLVector4a* src_norm  = (LLVector4a*) face.mNormals;
+	
+	LLVector2* dst_tc = (LLVector2*) texcoordsp.get();
+	LLVector2* src_tc = (LLVector2*) face.mTexCoords;
+
+	LLVector4a::memcpyNonAliased16((F32*) dst_norm, (F32*) src_norm, face.mNumVertices*4*sizeof(F32));
+	LLVector4a::memcpyNonAliased16((F32*) dst_tc, (F32*) src_tc, face.mNumVertices*2*sizeof(F32));
+	
+	
+	for (U32 i = 0; i < face.mNumVertices; i++)
 	{
-		*verticesp++ = face.mVertices[i].mPosition.scaledVec(getScale()) + pos;
-		*normalsp++ = face.mVertices[i].mNormal;
-		*texcoordsp++ = face.mVertices[i].mTexCoord;
+		LLVector4a t;
+		t.setMul(src_pos[i], scale);
+		dst_pos[i].setAdd(t, pos);
 		*colorsp++ = color;
 	}
 	
-	for (U32 i = 0; i < face.mIndices.size(); i++)
+	for (U32 i = 0; i < face.mNumIndices; i++)
 	{
 		*indicesp++ = face.mIndices[i] + offset;
 	}

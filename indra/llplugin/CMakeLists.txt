@@ -57,21 +57,18 @@ add_library (llplugin ${llplugin_SOURCE_FILES})
 
 add_subdirectory(slplugin)
 
-if (LL_TESTS)
-  # Add tests
-  include(LLAddBuildTest)
+# Add tests
+include(LLAddBuildTest)
+# UNIT TESTS
+SET(llplugin_TEST_SOURCE_FILES
+  llplugincookiestore.cpp
+  )
 
-  # UNIT TESTS
-  SET(llplugin_TEST_SOURCE_FILES
-      llplugincookiestore.cpp
-      )
+# llplugincookiestore has a dependency on curl, so we need to link the curl library into the test.
+set_source_files_properties(
+  llplugincookiestore.cpp
+  PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+  )
 
-  # llplugincookiestore has a dependency on curl, so we need to link the curl library into the test.
-  set_source_files_properties(
-      llplugincookiestore.cpp
-      PROPERTIES
-      LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
-      )
-
-  LL_ADD_PROJECT_UNIT_TESTS(llplugin "${llplugin_TEST_SOURCE_FILES}")
-endif (LL_TESTS)
+LL_ADD_PROJECT_UNIT_TESTS(llplugin "${llplugin_TEST_SOURCE_FILES}")

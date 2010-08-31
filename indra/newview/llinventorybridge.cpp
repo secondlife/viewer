@@ -2,25 +2,31 @@
  * @file llinventorybridge.cpp
  * @brief Implementation of the Inventory-Folder-View-Bridge classes.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ *
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -914,6 +920,16 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
+#if LL_MESH_ENABLED
+	    case LLAssetType::AT_MESH:
+			if(!(inv_type == LLInventoryType::IT_MESH))
+			{
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+			}
+			new_listener = new LLMeshBridge(inventory, root, uuid);
+			break;
+#endif
+
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << llendl;
@@ -2234,6 +2250,9 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
 	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, FALSE));
+		/*case LLAssetType::AT_MESH:
+			control = "inv_folder_mesh.tga";
+			break;*/
 }
 
 LLUIImagePtr LLFolderBridge::getOpenIcon() const
@@ -2671,6 +2690,9 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_LINK:
+#if LL_MESH_ENABLED
+		case DAD_MESH:
+#endif
 			accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
 										drop);
 			break;
@@ -3580,6 +3602,9 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 			case DAD_BODYPART:
 			case DAD_ANIMATION:
 			case DAD_GESTURE:
+#if LL_MESH_ENABLED
+			case DAD_MESH:
+#endif
 			{
 				LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 				const LLPermissions& perm = inv_item->getPermissions();
@@ -4738,6 +4763,7 @@ void LLWearableBridge::removeFromAvatar()
 	}
 }
 
+
 // +=================================================+
 // |        LLLinkItemBridge                         |
 // +=================================================+
@@ -4766,6 +4792,65 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
+
+#if LL_MESH_ENABLED
+// +=================================================+
+// |        LLMeshBridge                             |
+// +=================================================+
+
+LLUIImagePtr LLMeshBridge::getIcon() const
+{
+	return LLInventoryIcon::getIcon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
+}
+
+void LLMeshBridge::openItem()
+{
+	LLViewerInventoryItem* item = getItem();
+	
+	if (item)
+	{
+		// open mesh
+	}
+}
+
+void LLMeshBridge::previewItem()
+{
+	LLViewerInventoryItem* item = getItem();
+	if(item)
+	{
+		// preview mesh
+	}
+}
+
+
+void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	lldebugs << "LLMeshBridge::buildContextMenu()" << llendl;
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+
+	if(isItemInTrash())
+	{
+		items.push_back(std::string("Purge Item"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Purge Item"));
+		}
+
+		items.push_back(std::string("Restore Item"));
+	}
+	else
+	{
+		items.push_back(std::string("Properties"));
+
+		getClipboardEntries(true, items, disabled_items, flags);
+	}
+
+
+	hide_context_entries(menu, items, disabled_items);
+}
+
+#endif
 
 // +=================================================+
 // |        LLLinkBridge                             |
@@ -5073,6 +5158,7 @@ public:
 	{
 		wearOnAvatar();
 	}
+
 	virtual ~LLWearableBridgeAction(){}
 protected:
 	LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}

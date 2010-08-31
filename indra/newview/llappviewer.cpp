@@ -2,25 +2,31 @@
  * @file llappviewer.cpp
  * @brief The LLAppViewer class definitions
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -44,6 +50,7 @@
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llmd5.h"
+#include "llmeshrepository.h"
 #include "llpumpio.h"
 #include "llmimetypes.h"
 #include "llslurl.h"
@@ -73,6 +80,8 @@
 #include "llteleporthistory.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+#include "llvector4a.h"
+#include "llviewermenufile.h"
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
 #include "llsidetray.h"
@@ -611,6 +620,9 @@ bool LLAppViewer::init()
 	// we run the "program crashed last time" error handler below.
 	//
 	LLFastTimer::reset();
+
+	// initialize SSE options
+	LLVector4a::initClass();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
@@ -1328,6 +1340,11 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cleaning Up" << llendflush;
 
+#if LL_MESH_ENABLED
+	// shut down mesh streamer
+	gMeshRepo.shutdown();
+#endif
+
 	// Must clean up texture references before viewer window is destroyed.
 	LLHUDManager::getInstance()->updateEffects();
 	LLHUDObject::updateAll();
@@ -1602,6 +1619,8 @@ bool LLAppViewer::cleanup()
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
 
+	LLFilePickerThread::cleanupClass();
+
 	delete sTextureCache;
     sTextureCache = NULL;
 	delete sTextureFetch;
@@ -1740,6 +1759,13 @@ bool LLAppViewer::initThreads()
 		mFastTimerLogThread = new LLFastTimerLogThread();
 		mFastTimerLogThread->start();
 	}
+
+#if LL_MESH_ENABLED
+	// Mesh streaming and caching
+	gMeshRepo.init();
+#endif
+
+	LLFilePickerThread::initClass();
 
 	// *FIX: no error handling here!
 	return true;
@@ -2427,6 +2453,7 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 	
 		gPipeline.init();
+		
 		stop_glerror();
 		gViewerWindow->initGLDefaults();
 
@@ -3477,6 +3504,8 @@ static LLFastTimer::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
 static LLFastTimer::DeclareTimer FTM_REGION_UPDATE("Update Region");
 static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
 static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
+static LLFastTimer::DeclareTimer FTM_AGENT_NETWORK("Agent Network");
+static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -3497,6 +3526,8 @@ void LLAppViewer::idle()
 	LLEventTimer::updateClass();
 	LLCriticalDamp::updateInterpolants();
 	LLMortician::updateClass();
+	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
+
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
 	// Cap out-of-control frame times
@@ -3547,7 +3578,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LLFastTimer t(FTM_NETWORK);
+		LLFastTimer t(FTM_AGENT_NETWORK);
 		// Update spaceserver timeinfo
 	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U32)(dt_raw * SEC_TO_MICROSEC));
     
@@ -3744,7 +3775,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(FTM_NETWORK);
+		LLFastTimer t(FTM_VLMANAGER);
 		gVLManager.unpackData();
 	}
 	
@@ -3990,6 +4021,11 @@ static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
 static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Idle Network");
+static LLFastTimer::DeclareTimer FTM_MESSAGE_ACKS("Message Acks");
+static LLFastTimer::DeclareTimer FTM_RETRANSMIT("Retransmit");
+static LLFastTimer::DeclareTimer FTM_TIMEOUT_CHECK("Timeout Check");
+static LLFastTimer::DeclareTimer FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
+static LLFastTimer::DeclareTimer FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
 
 void LLAppViewer::idleNetwork()
 {
@@ -4040,7 +4076,10 @@ void LLAppViewer::idleNetwork()
 		}
 
 		// Handle per-frame message system processing.
-		gMessageSystem->processAcks();
+		{
+			LLFastTimer ftm(FTM_MESSAGE_ACKS);
+			gMessageSystem->processAcks();
+		}
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)
@@ -4077,24 +4116,39 @@ void LLAppViewer::idleNetwork()
 	LLViewerStats::getInstance()->mNumNewObjectsStat.addValue(gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
-	gXferManager->retransmitUnackedPackets();
-	gAssetStorage->checkForTimeouts();
-	gViewerThrottle.updateDynamicThrottle();
+	{
+		LLFastTimer ftm(FTM_RETRANSMIT);
+		gXferManager->retransmitUnackedPackets();
+	}
+
+	{
+		LLFastTimer ftm(FTM_TIMEOUT_CHECK);
+		gAssetStorage->checkForTimeouts();
+	}
+
+
+	{
+		LLFastTimer ftm(FTM_DYNAMIC_THROTTLE);
+		gViewerThrottle.updateDynamicThrottle();
+	}
 
 	// Check that the circuit between the viewer and the agent's current
 	// region is still alive
-	LLViewerRegion *agent_region = gAgent.getRegion();
-	if (agent_region && (LLStartUp::getStartupState()==STATE_STARTED))
 	{
-		LLUUID this_region_id = agent_region->getRegionID();
-		bool this_region_alive = agent_region->isAlive();
-		if ((mAgentRegionLastAlive && !this_region_alive) // newly dead
-		    && (mAgentRegionLastID == this_region_id)) // same region
+		LLFastTimer ftm(FTM_CHECK_REGION_CIRCUIT);
+		LLViewerRegion *agent_region = gAgent.getRegion();
+		if (agent_region && (LLStartUp::getStartupState()==STATE_STARTED))
 		{
-			forceDisconnect(LLTrans::getString("AgentLostConnection"));
+			LLUUID this_region_id = agent_region->getRegionID();
+			bool this_region_alive = agent_region->isAlive();
+			if ((mAgentRegionLastAlive && !this_region_alive) // newly dead
+				&& (mAgentRegionLastID == this_region_id)) // same region
+			{
+				forceDisconnect(LLTrans::getString("AgentLostConnection"));
+			}
+			mAgentRegionLastID = this_region_id;
+			mAgentRegionLastAlive = this_region_alive;
 		}
-		mAgentRegionLastID = this_region_id;
-		mAgentRegionLastAlive = this_region_alive;
 	}
 }
 

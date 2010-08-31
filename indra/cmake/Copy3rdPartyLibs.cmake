@@ -38,6 +38,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
@@ -48,6 +50,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
@@ -286,7 +290,7 @@ copy_if_different(
     ${vivox_src_dir}
     "${SHARED_LIB_STAGING_DIR_DEBUG}"
     out_targets 
-    ${vivox_files}
+   ${vivox_files}
     )
 set(third_party_targets ${third_party_targets} ${out_targets})
 
@@ -391,9 +395,7 @@ if(NOT EXISTS ${internal_llkdu_path})
 endif (NOT EXISTS ${internal_llkdu_path})
 
 
-if(NOT STANDALONE)
-  add_custom_target(
-      stage_third_party_libs ALL
-      DEPENDS ${third_party_targets}
-      )
-endif(NOT STANDALONE)
+add_custom_target(stage_third_party_libs ALL
+  DEPENDS 
+    ${third_party_targets}
+  )

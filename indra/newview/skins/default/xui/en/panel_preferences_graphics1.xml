@@ -273,7 +273,7 @@
         name="2"
         value="2"/>
       </combo_box>
--->
+
       <text
   type="string"
   length="1"
@@ -614,9 +614,9 @@
       follows="left|top"
       height="12"
       layout="topleft"
-      left_delta="-260"
+      left="200"
       name="AvatarRenderingText"
-        top_pad="18"
+      top_pad="8"
       width="128">
         Avatar rendering:
       </text>

@@ -2,25 +2,31 @@
  * @file llviewerjointmesh.cpp
  * @brief Implementation of LLViewerJointMesh class
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -55,6 +61,7 @@
 #include "v4math.h"
 #include "m3math.h"
 #include "m4math.h"
+#include "llmatrix4a.h"
 
 #if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
@@ -376,6 +383,7 @@ const S32 NUM_AXES = 3;
 // pivot parent 0-n -- child = n+1
 
 static LLMatrix4	gJointMatUnaligned[32];
+static LLMatrix4a	gJointMatAligned[32];
 static LLMatrix3	gJointRotUnaligned[32];
 static LLVector4	gJointPivot[32];
 
@@ -461,6 +469,14 @@ void LLViewerJointMesh::uploadJointMatrices()
 		glUniform4fvARB(gAvatarMatrixParam, 45, mat);
 		stop_glerror();
 	}
+	else
+	{
+		//load gJointMatUnaligned into gJointMatAligned
+		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); ++joint_num)
+		{
+			gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
+		}
+	}
 }
 
 //--------------------------------------------------------------------
@@ -510,6 +526,8 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	U32 triangle_count = 0;
 
+	S32 diffuse_channel = LLDrawPoolAvatar::sDiffuseChannel;
+
 	stop_glerror();
 	
 	//----------------------------------------------------------------
@@ -535,7 +553,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	if (mTestImageName)
 	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
+		gGL.getTexUnit(diffuse_channel)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
 
 		if (mIsTransparent)
 		{
@@ -544,24 +562,18 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		else
 		{
 			glColor4f(0.7f, 0.6f, 0.3f, 1.f);
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
 	else if( !is_dummy && mLayerSet )
 	{
 		if(	mLayerSet->hasComposite() )
 		{
-			gGL.getTexUnit(0)->bind(mLayerSet->getComposite());
+			gGL.getTexUnit(diffuse_channel)->bind(mLayerSet->getComposite());
 		}
 		else
 		{
-			// This warning will always trigger if you've hacked the avatar to show as incomplete.
-			// Ignore the warning if that's the case.
-			if (!gSavedSettings.getBOOL("RenderUnloadedAvatar"))
-			{
-				//llwarns << "Layerset without composite" << llendl;
-			}
-			gGL.getTexUnit(0)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 		}
 	}
 	else
@@ -571,25 +583,25 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		{
 			old_mode = mTexture->getAddressMode();
 		}
-		gGL.getTexUnit(0)->bind(mTexture.get());
-		gGL.getTexUnit(0)->bind(mTexture);
-		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
-		gGL.getTexUnit(0)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
 	if (gRenderForSelect)
 	{
 		if (isTransparent())
 		{
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
+			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(diffuse_channel)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
 		}
 		else
 		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 		}
 	}
 	
@@ -626,13 +638,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	
 	if (mTestImageName)
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 
 	if (mTexture.notNull() && !is_dummy)
 	{
-		gGL.getTexUnit(0)->bind(mTexture);
-		gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(old_mode);
 	}
 
 	return triangle_count;
@@ -643,6 +655,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 //-----------------------------------------------------------------------------
 void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
 {
+	//bump num_vertices to next multiple of 4
+	num_vertices = (num_vertices + 0x3) & ~0x3;
+
 	// Do a pre-alloc pass to determine sizes of data.
 	if (mMesh && mValid)
 	{
@@ -665,12 +680,24 @@ static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
 
 void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
+	//IF THIS FUNCTION BREAKS, SEE LLPOLYMESH CONSTRUCTOR AND CHECK ALIGNMENT OF INPUT ARRAYS
+
 	mFace = face;
 
 	if (mFace->mVertexBuffer.isNull())
 	{
 		return;
 	}
+
+	LLDrawPool *poolp = mFace->getPool();
+	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+
+	if (!hardware_skinning && terse_update)
+	{ //no need to do terse updates if we're doing software vertex skinning
+	 // since mMesh is being copied into mVertexBuffer every frame
+		return;
+	}
+
 
 	LLFastTimer t(FTM_AVATAR_FACE);
 
@@ -684,110 +711,58 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	// Copy data into the faces from the polymesh data.
 	if (mMesh && mValid)
 	{
-		if (mMesh->getNumVertices())
+		const U32 num_verts = mMesh->getNumVertices();
+
+		if (num_verts)
 		{
-			stop_glerror();
 			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
-			stop_glerror();
 			face->mVertexBuffer->getIndexStrider(indicesp);
-			stop_glerror();
 
 			verticesp += mMesh->mFaceVertexOffset;
-			tex_coordsp += mMesh->mFaceVertexOffset;
 			normalsp += mMesh->mFaceVertexOffset;
-			vertex_weightsp += mMesh->mFaceVertexOffset;
-			clothing_weightsp += mMesh->mFaceVertexOffset;
-
-			const U32* __restrict coords = (U32*) mMesh->getCoords();
-			const U32* __restrict tex_coords = (U32*) mMesh->getTexCoords();
-			const U32* __restrict normals = (U32*) mMesh->getNormals();
-			const U32* __restrict weights = (U32*) mMesh->getWeights();
-			const U32* __restrict cloth_weights = (U32*) mMesh->getClothingWeights();
-
-			const U32 num_verts = mMesh->getNumVertices();
-
-			U32 i = 0;
-
-			const U32 skip = verticesp.getSkip()/sizeof(U32);
-
-			U32* __restrict v = (U32*) verticesp.get();
-			U32* __restrict n = (U32*) normalsp.get();
 			
-			if (terse_update)
+			F32* v = (F32*) verticesp.get();
+			F32* n = (F32*) normalsp.get();
+			
+			U32 words = num_verts*4;
+
+			LLVector4a::memcpyNonAliased16(v, (F32*) mMesh->getCoords(), words*sizeof(F32));
+			LLVector4a::memcpyNonAliased16(n, (F32*) mMesh->getNormals(), words*sizeof(F32));
+						
+			
+			if (!terse_update)
 			{
-				for (S32 i = num_verts; i > 0; --i)
-				{
-					//morph target application only, only update positions and normals
-					v[0] = coords[0]; 
-					v[1] = coords[1]; 
-					v[2] = coords[2];		
-					coords += 3;
-					v += skip;
-				}
+				vertex_weightsp += mMesh->mFaceVertexOffset;
+				clothing_weightsp += mMesh->mFaceVertexOffset;
+				tex_coordsp += mMesh->mFaceVertexOffset;
+		
+				F32* tc = (F32*) tex_coordsp.get();
+				F32* vw = (F32*) vertex_weightsp.get();
+				F32* cw = (F32*) clothing_weightsp.get();	
 
-				for (S32 i = num_verts; i > 0; --i)
-				{
-					n[0] = normals[0]; 
-					n[1] = normals[1];
-					n[2] = normals[2];
-					normals += 3;
-					n += skip;
-				}
+				LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), num_verts*2*sizeof(F32));
+				LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), num_verts*sizeof(F32));	
+				LLVector4a::memcpyNonAliased16(cw, (F32*) mMesh->getClothingWeights(), num_verts*4*sizeof(F32));	
 			}
-			else
-				{
 
-				U32* __restrict tc = (U32*) tex_coordsp.get();
-				U32* __restrict vw = (U32*) vertex_weightsp.get();
-				U32* __restrict cw = (U32*) clothing_weightsp.get();
-				
-				do
-				{
-					v[0] = *(coords++); 
-					v[1] = *(coords++); 
-					v[2] = *(coords++);
-					v += skip;
+			const U32 idx_count = mMesh->getNumFaces()*3;
 
-					tc[0] = *(tex_coords++); 
-					tc[1] = *(tex_coords++);
-					tc += skip;
+			indicesp += mMesh->mFaceIndexOffset;
 
-					n[0] = *(normals++); 
-					n[1] = *(normals++);
-					n[2] = *(normals++);
-					n += skip;
+			U16* __restrict idx = indicesp.get();
+			S32* __restrict src_idx = (S32*) mMesh->getFaces();	
 
-					vw[0] = *(weights++);
-					vw += skip;
+			const S32 offset = (S32) mMesh->mFaceVertexOffset;
 
-					cw[0] = *(cloth_weights++);
-					cw[1] = *(cloth_weights++);
-					cw[2] = *(cloth_weights++);
-					cw[3] = *(cloth_weights++);
-					cw += skip;
-				}
-				while (++i < num_verts);
-
-				const U32 idx_count = mMesh->getNumFaces()*3;
-
-				indicesp += mMesh->mFaceIndexOffset;
-
-				U16* __restrict idx = indicesp.get();
-				S32* __restrict src_idx = (S32*) mMesh->getFaces();
-
-				i = 0;
-
-				const S32 offset = (S32) mMesh->mFaceVertexOffset;
-
-				do
-				{
-					*(idx++) = *(src_idx++)+offset;
-				}
-				while (++i < idx_count);
+			for (S32 i = 0; i < idx_count; ++i)
+			{
+				*(idx++) = *(src_idx++)+offset;
 			}
 		}
 	}
 }
+
+
 
 //-----------------------------------------------------------------------------
 // updateLOD()
@@ -806,89 +781,49 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 	LLStrider<LLVector3> o_normals;
 
 	//get vertex and normal striders
-	LLVertexBuffer *buffer = mFace->mVertexBuffer;
+	LLVertexBuffer* buffer = mFace->mVertexBuffer;
 	buffer->getVertexStrider(o_vertices,  0);
 	buffer->getNormalStrider(o_normals,   0);
 
-	F32 last_weight = F32_MAX;
-	LLMatrix4 gBlendMat;
-	LLMatrix3 gBlendRotMat;
+	F32* __restrict vert = o_vertices[0].mV;
+	F32* __restrict norm = o_normals[0].mV;
 
-	const F32* weights = mMesh->getWeights();
-	const LLVector3* coords = mMesh->getCoords();
-	const LLVector3* normals = mMesh->getNormals();
+	const F32* __restrict weights = mMesh->getWeights();
+	const LLVector4a* __restrict coords = (LLVector4a*) mMesh->getCoords();
+	const LLVector4a* __restrict normals = (LLVector4a*) mMesh->getNormals();
+
+	U32 offset = mMesh->mFaceVertexOffset*4;
+	vert += offset;
+	norm += offset;
+
 	for (U32 index = 0; index < mMesh->getNumVertices(); index++)
 	{
-		U32 bidx = index + mMesh->mFaceVertexOffset;
-		
-		// blend by first matrix
-		F32 w = weights[index]; 
-		
-		// Maybe we don't have to change gBlendMat.
-		// Profiles of a single-avatar scene on a Mac show this to be a very
-		// common case.  JC
-		if (w == last_weight)
+		// equivalent to joint = floorf(weights[index]);
+		S32 joint = _mm_cvtt_ss2si(_mm_load_ss(weights+index));
+		F32 w = weights[index] - joint;		
+
+		LLMatrix4a gBlendMat;
+
+		if (w != 0.f)
 		{
-			o_vertices[bidx] = coords[index] * gBlendMat;
-			o_normals[bidx] = normals[index] * gBlendRotMat;
-			continue;
+			// blend between matrices and apply
+			gBlendMat.setLerp(gJointMatAligned[joint+0],
+							  gJointMatAligned[joint+1], w);
+
+			LLVector4a res;
+			gBlendMat.affineTransform(coords[index], res);
+			res.store4a(vert+index*4);
+			gBlendMat.rotate(normals[index], res);
+			res.store4a(norm+index*4);
 		}
-		
-		last_weight = w;
-
-		S32 joint = llfloor(w);
-		w -= joint;
-		
-		// No lerp required in this case.
-		if (w == 1.0f)
-		{
-			gBlendMat = gJointMatUnaligned[joint+1];
-			o_vertices[bidx] = coords[index] * gBlendMat;
-			gBlendRotMat = gJointRotUnaligned[joint+1];
-			o_normals[bidx] = normals[index] * gBlendRotMat;
-			continue;
+		else
+		{  // No lerp required in this case.
+			LLVector4a res;
+			gJointMatAligned[joint].affineTransform(coords[index], res);
+			res.store4a(vert+index*4);
+			gJointMatAligned[joint].rotate(normals[index], res);
+			res.store4a(norm+index*4);
 		}
-		
-		// Try to keep all the accesses to the matrix data as close
-		// together as possible.  This function is a hot spot on the
-		// Mac. JC
-		LLMatrix4 &m0 = gJointMatUnaligned[joint+1];
-		LLMatrix4 &m1 = gJointMatUnaligned[joint+0];
-		
-		gBlendMat.mMatrix[VX][VX] = lerp(m1.mMatrix[VX][VX], m0.mMatrix[VX][VX], w);
-		gBlendMat.mMatrix[VX][VY] = lerp(m1.mMatrix[VX][VY], m0.mMatrix[VX][VY], w);
-		gBlendMat.mMatrix[VX][VZ] = lerp(m1.mMatrix[VX][VZ], m0.mMatrix[VX][VZ], w);
-
-		gBlendMat.mMatrix[VY][VX] = lerp(m1.mMatrix[VY][VX], m0.mMatrix[VY][VX], w);
-		gBlendMat.mMatrix[VY][VY] = lerp(m1.mMatrix[VY][VY], m0.mMatrix[VY][VY], w);
-		gBlendMat.mMatrix[VY][VZ] = lerp(m1.mMatrix[VY][VZ], m0.mMatrix[VY][VZ], w);
-
-		gBlendMat.mMatrix[VZ][VX] = lerp(m1.mMatrix[VZ][VX], m0.mMatrix[VZ][VX], w);
-		gBlendMat.mMatrix[VZ][VY] = lerp(m1.mMatrix[VZ][VY], m0.mMatrix[VZ][VY], w);
-		gBlendMat.mMatrix[VZ][VZ] = lerp(m1.mMatrix[VZ][VZ], m0.mMatrix[VZ][VZ], w);
-
-		gBlendMat.mMatrix[VW][VX] = lerp(m1.mMatrix[VW][VX], m0.mMatrix[VW][VX], w);
-		gBlendMat.mMatrix[VW][VY] = lerp(m1.mMatrix[VW][VY], m0.mMatrix[VW][VY], w);
-		gBlendMat.mMatrix[VW][VZ] = lerp(m1.mMatrix[VW][VZ], m0.mMatrix[VW][VZ], w);
-
-		o_vertices[bidx] = coords[index] * gBlendMat;
-		
-		LLMatrix3 &n0 = gJointRotUnaligned[joint+1];
-		LLMatrix3 &n1 = gJointRotUnaligned[joint+0];
-		
-		gBlendRotMat.mMatrix[VX][VX] = lerp(n1.mMatrix[VX][VX], n0.mMatrix[VX][VX], w);
-		gBlendRotMat.mMatrix[VX][VY] = lerp(n1.mMatrix[VX][VY], n0.mMatrix[VX][VY], w);
-		gBlendRotMat.mMatrix[VX][VZ] = lerp(n1.mMatrix[VX][VZ], n0.mMatrix[VX][VZ], w);
-
-		gBlendRotMat.mMatrix[VY][VX] = lerp(n1.mMatrix[VY][VX], n0.mMatrix[VY][VX], w);
-		gBlendRotMat.mMatrix[VY][VY] = lerp(n1.mMatrix[VY][VY], n0.mMatrix[VY][VY], w);
-		gBlendRotMat.mMatrix[VY][VZ] = lerp(n1.mMatrix[VY][VZ], n0.mMatrix[VY][VZ], w);
-
-		gBlendRotMat.mMatrix[VZ][VX] = lerp(n1.mMatrix[VZ][VX], n0.mMatrix[VZ][VX], w);
-		gBlendRotMat.mMatrix[VZ][VY] = lerp(n1.mMatrix[VZ][VY], n0.mMatrix[VZ][VY], w);
-		gBlendRotMat.mMatrix[VZ][VZ] = lerp(n1.mMatrix[VZ][VZ], n0.mMatrix[VZ][VZ], w);
-		
-		o_normals[bidx] = normals[index] * gBlendRotMat;
 	}
 
 	buffer->setBuffer(0);

@@ -2,25 +2,31 @@
  * @file llpanelobject.cpp
  * @brief Object editing (position, scale, etc.) in the tools floater
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -132,6 +138,26 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
 	
+	// PhysicsShapeType combobox
+	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
+	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsParam, this);
+
+	// PhysicsGravity
+	mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
+	childSetCommitCallback("Physics Gravity", onCommitPhysicsParam, this);
+
+	// PhysicsFriction
+	mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
+	childSetCommitCallback("Physics Friction", onCommitPhysicsParam, this);
+	
+	// PhysicsDensity
+	mSpinPhysicsDensity = getChild<LLSpinCtrl>("Physics Density");
+	childSetCommitCallback("Physics Density", onCommitPhysicsParam, this);
+
+	// PhysicsRestitution
+	mSpinPhysicsRestitution = getChild<LLSpinCtrl>("Physics Restitution");
+	childSetCommitCallback("Physics Restitution", onCommitPhysicsParam, this);
+
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
@@ -518,6 +544,21 @@ void LLPanelObject::getState( )
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+
+	mComboPhysicsShapeType->setCurrentByIndex(objectp->getPhysicsShapeType());
+	mComboPhysicsShapeType->setEnabled(editable);
+	
+	mSpinPhysicsGravity->set(objectp->getPhysicsGravity());
+	mSpinPhysicsGravity->setEnabled(editable);
+
+	mSpinPhysicsFriction->set(objectp->getPhysicsFriction());
+	mSpinPhysicsFriction->setEnabled(editable);
+	
+	mSpinPhysicsDensity->set(objectp->getPhysicsDensity());
+	mSpinPhysicsDensity->setEnabled(editable);
+	
+	mSpinPhysicsRestitution->set(objectp->getPhysicsRestitution());
+	mSpinPhysicsRestitution->setEnabled(editable);
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
@@ -1221,6 +1262,35 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
+#include "llsdutil.h"
+class CostResponder : public LLHTTPClient::Responder
+{
+public:
+	CostResponder(U32 id) { mID = id; }
+	virtual void result(const LLSD& content) { llinfos << ll_pretty_print_sd(content) << llendl; }
+
+	U32 mID;
+};
+
+void LLPanelObject::sendPhysicsParam()
+{
+	U8 type = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	F32 gravity = mSpinPhysicsGravity->get();
+	F32 friction = mSpinPhysicsFriction->get();
+	F32 density = mSpinPhysicsDensity->get();
+	F32 restitution = mSpinPhysicsRestitution->get();
+	
+	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, friction, 
+																density, restitution);
+
+	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
+	LLSD body = LLSD::emptyArray();
+	
+	body.append(LLSelectMgr::getInstance()->getSelection()->getFirstObject()->getID());
+	
+	LLHTTPClient::post( url, body, new CostResponder(body[0].asInteger()) );
+}
+
 void LLPanelObject::sendCastShadows()
 {
 	BOOL value = mCheckCastShadows->get();
@@ -1894,6 +1964,12 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	
+	mSpinPhysicsGravity->setEnabled(FALSE);
+	mSpinPhysicsFriction->setEnabled(FALSE);
+	mSpinPhysicsDensity->setEnabled(FALSE);
+	mSpinPhysicsRestitution->setEnabled(FALSE);
+							 
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
@@ -1984,6 +2060,13 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
+}
+
+// static
+void LLPanelObject::onCommitPhysicsParam(LLUICtrl* ctrl, void* userdata )
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+	self->sendPhysicsParam();
 }
 
 // static

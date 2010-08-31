@@ -2,25 +2,31 @@
  * @file llsidepanelinventory.cpp
  * @brief LLPanelObjectInventory class implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -812,6 +818,9 @@ BOOL LLTaskCategoryBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_CALLINGCARD:
+#if LL_MESH_ENABLED
+		case DAD_MESH:
+#endif
 			accept = LLToolDragAndDrop::isInventoryDropAcceptable(object, (LLViewerInventoryItem*)cargo_data);
 			if(accept && drop)
 			{
@@ -1237,6 +1246,119 @@ LLUIImagePtr LLTaskWearableBridge::getIcon() const
 	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, mFlags, FALSE );
 }
 
+#if LL_MESH_ENABLED
+///----------------------------------------------------------------------------
+/// Class LLTaskMeshBridge
+///----------------------------------------------------------------------------
+
+class LLTaskMeshBridge : public LLTaskInvFVBridge
+{
+public:
+	LLTaskMeshBridge(
+		LLPanelObjectInventory* panel,
+		const LLUUID& uuid,
+		const std::string& name);
+
+	virtual LLUIImagePtr getIcon() const;
+	virtual void openItem();
+	virtual void performAction(LLInventoryModel* model, std::string action);
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+};
+
+LLTaskMeshBridge::LLTaskMeshBridge(
+	LLPanelObjectInventory* panel,
+	const LLUUID& uuid,
+	const std::string& name) :
+	LLTaskInvFVBridge(panel, uuid, name)
+{
+}
+
+LLUIImagePtr LLTaskMeshBridge::getIcon() const
+{
+	return LLInventoryIcon::getIcon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
+}
+
+void LLTaskMeshBridge::openItem()
+{
+	// open mesh
+}
+
+
+// virtual
+void LLTaskMeshBridge::performAction(LLInventoryModel* model, std::string action)
+{
+	if (action == "mesh action")
+	{
+		LLInventoryItem* item = findItem();
+		if(item)
+		{
+			// do action
+		}
+	}
+	LLTaskInvFVBridge::performAction(model, action);
+}
+
+void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	LLInventoryItem* item = findItem();
+	if(!item) return;
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+
+	if(item->getPermissions().getOwner() != gAgent.getID()
+	   && item->getSaleInfo().isForSale())
+	{
+		items.push_back(std::string("Task Buy"));
+
+		std::string label= LLTrans::getString("Buy");
+		// Check the price of the item.
+		S32 price = getPrice();
+		if (-1 == price)
+		{
+			llwarns << "label_buy_task_bridged_item: Invalid price" << llendl;
+		}
+		else
+		{
+			std::ostringstream info;
+			info <<  LLTrans::getString("BuyforL$") << price;
+			label.assign(info.str());
+		}
+
+		const LLView::child_list_t *list = menu.getChildList();
+		LLView::child_list_t::const_iterator itor;
+		for (itor = list->begin(); itor != list->end(); ++itor)
+		{
+			std::string name = (*itor)->getName();
+			LLMenuItemCallGL* menu_itemp = dynamic_cast<LLMenuItemCallGL*>(*itor);
+			if (name == "Task Buy" && menu_itemp)
+			{
+				menu_itemp->setLabel(label);
+			}
+		}
+	}
+	else
+	{
+		items.push_back(std::string("Task Open")); 
+		if (!isItemCopyable())
+		{
+			disabled_items.push_back(std::string("Task Open"));
+		}
+	}
+	items.push_back(std::string("Task Properties"));
+	if(isItemRenameable())
+	{
+		items.push_back(std::string("Task Rename"));
+	}
+	if(isItemRemovable())
+	{
+		items.push_back(std::string("Task Remove"));
+	}
+
+
+	hide_context_entries(menu, items, disabled_items);
+}
+
+#endif
 
 ///----------------------------------------------------------------------------
 /// LLTaskInvFVBridge impl
@@ -1317,6 +1439,13 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 						 object->getUUID(),
 						 object->getName());
 		break;
+#if LL_MESH_ENABLED
+	case LLAssetType::AT_MESH:
+		new_bridge = new LLTaskMeshBridge(panel,
+										  object->getUUID(),
+										  object->getName());
+		break;
+#endif
 	default:
 		llinfos << "Unhandled inventory type (llassetstorage.h): "
 				<< (S32)type << llendl;

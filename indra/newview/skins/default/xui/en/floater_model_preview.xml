@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="true" can_drag_on_left="false" can_minimize="false"
+     can_resize="false" height="656" min_height="656" min_width="856"
+     name="Model Preview" title="Import Model" width="856">
+
+  <text bottom_delta="20" left="10" name="status" height="15" follows="top|left">
+    Status: [STATUS]
+  </text>
+
+  <string name="status_idle">Idle</string>
+  <string name="status_reading_file">Loading...</string>
+  <string name="status_generating_meshes">Generating Meshes...</string>
+  <string name="missing_lod">Cannot upload, missing required level of detail.</string>
+  <string name="bad_lod">Cannot upload, supplied levels of detail invalid.</string>"
+  <string name="too_heavy">Too many vertices.</string>
+  <string name="required">Required</string>
+  <string name="good">Good</string>
+  <string name="mesh_mismatch">Submesh count mismatch.</string>
+  <string name="model_mismatch">Model count mismatch.</string>
+  
+  <combo_box bottom_delta="20" follows="right|top" height="18" label="Preview"
+	     left="450" name="preview_lod_combo" width="120" tool_tip="LOD to view in preview render">
+    <combo_item name="preview_lowest">
+      Lowest
+    </combo_item>
+    <combo_item name="preview_low">
+      Low
+    </combo_item>
+    <combo_item name="preview_medium">
+      Medium
+    </combo_item>
+    <combo_item name="preview_high">
+      High
+    </combo_item>
+    <combo_item name="preview_high">
+      Physics
+    </combo_item>
+  </combo_box>
+ 
+  <button bottom_delta="0" left="10" width="120" name="auto fill" label="Generate LOD" tool_tip="Automatically generate levels of detail"/>
+  <button bottom_delta="0" left="140" width="120" name="smooth normals" label="Generate Normals" tool_tip="Regenerate normals based on mesh shape"/>
+  <button bottom_delta="0" left="260" width="120" name="consolidate" label="Consolidate" tool_tip="Combine similar submeshes (reduces number of submeshes)"/>
+  <button bottom_delta="30" left="260" width="120" name="scrub materials" label="Scrub Materials" tool_tip="Remove all material information (clear textures, set all colors to white)."/>
+  
+  <spinner bottom_delta="0" left="140" width="120" height="16" initial_value="75" label_width="60" name="edge threshold" decimal_digits="0" min_val="0" max_val="180" increment="5" label="Hard Angle" tool_tip="Maximum angle that will be smoothed between triangles when using Generate Normals"/>
+  <check_box bottom_delta="0" left="450" label="Show Edges" name="show edges" width="120" height="16" tool_tip="Render wireframe in preview window"/>
+  <slider bottom_delta="30" left="340" width="240" label="Explode" name="explode" height="16" initial_value="0" min_val="0" max_val="1" decimal_digits="2" increment="0.05"/>
+  <text bottom_delta="0" follows="top|left" height="15" left="10" name="high_lod_label">
+    High LOD:
+  </text>
+  <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 
+             name="high detail combo" width="100" tool_tip="Specify mesh for this level of detail">
+    <combo_item name="high choose file">
+      Choose File...
+    </combo_item>
+    <combo_item name="high triangle limit">
+      Triangle Limit
+    </combo_item>
+  </combo_box>
+  <spinner bottom_delta="-5" left="200" width="120"  name="high limit" decimal_digits="0" increment="1" min_val="0" max_val="100" tool_tip="Triangle budget for this LOD"/>
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="high info" width="300">
+    [TRIANGLES] Triangles, [VERTICES] Vertices, [SUBMESHES] Submeshes.  
+    [MESSAGE]
+  </text>
+
+  <text bottom_delta="35" follows="top|left" height="15" left="10" name="medium_lod_label">
+    Medium LOD:
+  </text>
+  <combo_box bottom_delta="0" left="97" follows="left|top" height="18"
+             name="medium detail combo" width="100" tool_tip="Specify mesh for this level of detail">
+    <combo_item name="medium choose file">
+      Choose File...
+    </combo_item>
+    <combo_item name="medium triangle limit">
+      Triangle Limit
+    </combo_item>
+  </combo_box>
+  <spinner bottom_delta="-5" left="200" width="120"  name="medium limit" decimal_digits="0" increment="1" min_val="0" max_val="100" tool_tip="Triangle budget for this LOD"/>
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="medium info" width="300">
+    [TRIANGLES] Triangles, [VERTICES] Vertices, [SUBMESHES] Submeshes.  
+    [MESSAGE]
+  </text>
+
+  <text bottom_delta="35" follows="top|left" height="15" left="10" name="low_lod_label">
+    Low LOD:
+  </text>
+  <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 
+             name="low detail combo" width="100" tool_tip="Specify mesh for this level of detail">
+    <combo_item name="low choose file">
+      Choose File...
+    </combo_item>
+    <combo_item name="low triangle limit">
+      Triangle Limit
+    </combo_item>
+  </combo_box>
+  <spinner bottom_delta="-5" left="200" width="120"  name="low limit" decimal_digits="0" increment="1" min_val="0" max_val="100" tool_tip="Triangle budget for this LOD"/>
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="low info" width="300">
+    [TRIANGLES] Triangles, [VERTICES] Vertices, [SUBMESHES] Submeshes
+    [MESSAGE]
+  </text>
+
+  <text bottom_delta="35" follows="top|left" height="15" left="10" name="lowest_lod_label">
+    Lowest LOD:
+  </text>
+  <combo_box bottom_delta="0" left="97" folimpostors="left|top" height="18" 
+             name="lowest detail combo" width="100" tool_tip="Specify mesh for this level of detail">
+    <combo_item name="lowest choose file">
+      Choose File...
+    </combo_item>
+    <combo_item name="lowest triangle limit">
+      Triangle Limit
+    </combo_item>
+  </combo_box>
+  <spinner bottom_delta="-5" left="200" width="120"  name="lowest limit" decimal_digits="0" increment="1" min_val="0" max_val="100" tool_tip="Triangle budget for this LOD"/>
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="lowest info" width="300">
+    [TRIANGLES] Triangles, [VERTICES] Vertices, [SUBMESHES] Submeshes
+    [MESSAGE]
+  </text>
+
+  <text bottom_delta="35" follows="top|left" height="15" left="10" name="physics_lod_label">
+    Physical Shape:
+  </text>
+  <combo_box bottom_delta="0" left="97" follows="left|top" height="18"
+             name="physics detail combo" width="100">
+    <combo_item name="physics choose file">
+      Choose File...
+    </combo_item>
+    <combo_item name="physics triangle limit">
+      Triangle Limit...
+    </combo_item>
+  </combo_box>
+  <spinner bottom_delta="-5" left="200" width="90"  name="physics limit" decimal_digits="0" increment="1" min_val="0" max_val="100" tool_tip="Triangle budget for this LOD"/>
+  <button bottom_delta="0" left="290" width="30" follows="left|top" height="20" label=">>" 
+          name="decompose_btn" tool_tip="Create convex decomposition."/>
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="physics info" width="300">
+    [TRIANGLES] Triangles, [HULLS] Hulls, [POINTS] Points
+  </text>
+  
+  <text bottom_delta="20" follows="top|left" height="15" name="description_label">
+	  Description:
+	  <!-- Info: [PRIM_COST] prim equivalents, [TEXTURES] textures. -->
+	</text>
+	<line_editor bottom_delta="24" follows="top|left|right" height="19" max_length="254"
+	     name="description_form" width="280" />
+	<button bottom_delta="25" follows="bottom|left" height="20" label="Upload"
+	     left="15" name="ok_btn" width="125" tool_tip="Upload to simulator"/>
+
+  <check_box bottom_delta="0" follow="bottom|left" height="20" label="Upload Textures"
+             left="160" width="125" name="upload_textures" tool_tip="Upload associated textures "/>
+  <text bottom_delta="20" left="15" follows="top|left" height="15" name="description_label" text_color="1 0.82 0.46 1">
+	  (No charge for upload during First Look)
+	</text>
+  <text bottom_delta="20" left="15" follows="top|left" height="15" name="upload_message">
+    [MESSAGE]
+  </text>
+ </floater>
