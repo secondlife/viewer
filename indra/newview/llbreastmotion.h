@@ -39,7 +39,6 @@
 #include "llmotion.h"
 #include "llframetimer.h"
 
-#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 500.f;
 #define BREAST_MOTION_FADEIN_TIME 1.0f
 #define BREAST_MOTION_FADEOUT_TIME 1.0f
 
@@ -85,7 +84,7 @@ public:
 	virtual F32 getEaseOutDuration() { return BREAST_MOTION_FADEOUT_TIME; }
 
 	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-	virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION; }
+	virtual F32 getMinPixelArea();
 
 	// motions must report their priority
 	virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }

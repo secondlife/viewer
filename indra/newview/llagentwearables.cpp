@@ -1717,7 +1717,6 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 		gAgentWearables.removeWearable(LLWearableType::WT_SKIRT,true,0);
 		gAgentWearables.removeWearable(LLWearableType::WT_ALPHA,true,0);
 		gAgentWearables.removeWearable(LLWearableType::WT_TATTOO,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_PHYSICS,true,0);
 	}
 }
 

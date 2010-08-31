@@ -45,12 +45,10 @@
 #include "llviewervisualparam.h"
 #include "llvoavatarself.h"
 
+#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 1000.f;
+
 // #define OUTPUT_BREAST_DATA
 
-//-----------------------------------------------------------------------------
-// LLBreastMotion()
-// Class Constructor
-//-----------------------------------------------------------------------------
 LLBreastMotion::LLBreastMotion(const LLUUID &id) : 
 	LLMotion(id),
 	mCharacter(NULL),
@@ -80,12 +78,6 @@ LLBreastMotion::LLBreastMotion(const LLUUID &id) :
 	mBreastVelocity_local_vec = LLVector3(0,0,0);
 }
 
-
-
-//-----------------------------------------------------------------------------
-// ~LLBreastMotion()
-// Class Destructor
-//-----------------------------------------------------------------------------
 LLBreastMotion::~LLBreastMotion()
 {
 }
@@ -164,7 +156,11 @@ LLMotion::LLMotionInitStatus LLBreastMotion::onInitialize(LLCharacter *character
 	return STATUS_SUCCESS;
 }
 
-
+F32 LLBreastMotion::getMinPixelArea() 
+{
+	return MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION;
+}
+	
 
 F32 LLBreastMotion::calculateTimeDelta()
 {
@@ -243,15 +239,17 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 		return TRUE;
 	}
 
-	/* TEST:
-	   1. Change outfits
-	   2. FPS effect
-	   3. Add disable
-	   4. Disappearing chests
-	   5. Overwrites breast params
-	   6. Threshold for not setting param
-	   7. Switch params or take off wearable makes breasts jump
-	*/
+	if (!dynamic_cast<LLVOAvatarSelf *>(mCharacter))
+	{
+		static int ticks=0;
+		ticks = (ticks + 1) % 10;
+		if (!ticks)
+			llinfos << "Pixel Area: " << mCharacter->getPixelArea() << " rt: " << fsqrtf(mCharacter->getPixelArea()) <<  llendl;
+	}
+
+	if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
+	const F32 time_delta = calculateTimeDelta();
+	if (time_delta < .01 || time_delta > 10.0) return TRUE;
 
 	mBreastMassParam = mCharacter->getVisualParamWeight("Breast_Physics_Mass");
 	mBreastSmoothingParam = (U32)(mCharacter->getVisualParamWeight("Breast_Physics_Smoothing"));
@@ -269,11 +267,9 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 	mBreastMaxVelocityParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Max_Velocity");
 	mBreastDragParam[2] = mCharacter->getVisualParamWeight("Breast_Physics_UpDown_Drag");
 
-	if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
-	const F32 time_delta = calculateTimeDelta();
-	if (time_delta < .01 || time_delta > 10.0) return TRUE;
 
-		
+	const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(this) != NULL);
+
 	LLVector3 breast_user_local_pt(0,0,0);
 		
 	for (U32 i=0; i < 3; i++)
@@ -361,7 +357,23 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 				mBreastMassParam
 			);
 	}
+
+	mBreastLastPosition_local_pt = new_local_pt;
 	
+	if (!is_self)
+	{
+		const F32 area_for_max_settings = 300.0;
+		const F32 area_for_min_settings = 1400.0;
+
+		const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
+		const F32 pixel_area = fsqrtf(mCharacter->getPixelArea());
+		if (pixel_area < area_for_this_setting)
+		{
+			return TRUE;
+		}
+	}
+
+
 	LLVector3 position_diff = mBreastLastUpdatePosition_local_pt-new_local_pt;
 	for (U32 i=0; i < 3; i++)
 	{
@@ -370,11 +382,10 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 		{
 			mCharacter->updateVisualParams();
 			mBreastLastUpdatePosition_local_pt = new_local_pt;
-			break;
+			return TRUE;
 		}
 	}
 
-	mBreastLastPosition_local_pt = new_local_pt;
 
 	return TRUE;
 }
