@@ -42,6 +42,8 @@ class LLOutfitUnLockTimer;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
+	LOG_CLASS(LLAppearanceMgr);
+
 	friend class LLSingleton<LLAppearanceMgr>;
 	friend class LLOutfitUnLockTimer;
 	

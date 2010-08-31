@@ -159,6 +159,11 @@ void LLLandmarkList::processGetAssetReply(
 
 }
 
+BOOL LLLandmarkList::isAssetInLoadedCallbackMap(const LLUUID& asset_uuid)
+{
+	return mLoadedCallbackMap.find(asset_uuid) != mLoadedCallbackMap.end();
+}
+
 BOOL LLLandmarkList::assetExists(const LLUUID& asset_uuid)
 {
 	return mList.count(asset_uuid) != 0 || mBadList.count(asset_uuid) != 0;

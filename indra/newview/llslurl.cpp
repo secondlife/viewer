@@ -44,7 +44,6 @@ const char* LLSLURL::SLURL_COM		         = "slurl.com";
 // version is required also.
 
 const char* LLSLURL::WWW_SLURL_COM				 = "www.slurl.com";
-const char* LLSLURL::SECONDLIFE_COM				 = "secondlife.com";
 const char* LLSLURL::MAPS_SECONDLIFE_COM		 = "maps.secondlife.com";
 const char* LLSLURL::SLURL_X_GRID_LOCATION_INFO_SCHEME = "x-grid-location-info";
 const char* LLSLURL::SLURL_APP_PATH              = "app";
@@ -183,15 +182,6 @@ LLSLURL::LLSLURL(const std::string& slurl)
 		   (slurl_uri.scheme() == LLSLURL::SLURL_HTTPS_SCHEME) || 
 		   (slurl_uri.scheme() == LLSLURL::SLURL_X_GRID_LOCATION_INFO_SCHEME))
 		{
-			// *HACK: ignore http://secondlife.com/ URLs so that we can use
-			// http://secondlife.com/app/ redirect URLs
-			// This is only necessary while the server returns Release Note
-			// urls using this format rather that pointing to the wiki
-			if ((slurl_uri.scheme() == LLSLURL::SLURL_HTTP_SCHEME ||
-				 slurl_uri.scheme() == LLSLURL::SLURL_HTTPS_SCHEME) &&
-				slurl_uri.hostName() == LLSLURL::SECONDLIFE_COM)
-			  return;
-
 		    // We're dealing with either a Standalone style slurl or slurl.com slurl
 		  if ((slurl_uri.hostName() == LLSLURL::SLURL_COM) ||
 		      (slurl_uri.hostName() == LLSLURL::WWW_SLURL_COM) || 
@@ -202,6 +192,17 @@ LLSLURL::LLSLURL(const std::string& slurl)
 			}
 		    else
 			{
+				// Don't try to match any old http://<host>/ URL as a SLurl.
+				// SLE SLurls will have the grid hostname in the URL, so only
+				// match http URLs if the hostname matches the grid hostname
+				// (or its a slurl.com or maps.secondlife.com URL).
+				if ((slurl_uri.scheme() == LLSLURL::SLURL_HTTP_SCHEME ||
+					 slurl_uri.scheme() == LLSLURL::SLURL_HTTPS_SCHEME) &&
+					slurl_uri.hostName() != LLGridManager::getInstance()->getGrid())
+				{
+					return;
+				}
+
 				// As it's a Standalone grid/open, we will always have a hostname, as Standalone/open  style
 				// urls are properly formed, unlike the stinky maingrid style
 				mGrid = slurl_uri.hostName();

@@ -64,6 +64,7 @@ Aleric Inglewood
 	VWR-12691
 	VWR-13996
 	VWR-14426
+	SNOW-766
 Ales Beaumont
 	VWR-9352
 Alissa Sabre
@@ -127,6 +128,8 @@ Asuka Neely
 	VWR-8179
 Balp Allen
 	VWR-4157
+Be Holder
+	SNOW-397
 Benja Kepler
 	VWR-746
 Biancaluce Robbiani
@@ -153,6 +156,7 @@ Boroondas Gupte
 	SNOW-503
 	SNOW-510
 	SNOW-527
+	SNOW-610
 	SNOW-624
 	VWR-233
 	WEB-262
@@ -212,6 +216,8 @@ Dzonatas Sol
 	VWR-1705
 	VWR-1729
 	VWR-1812
+Eddi Decosta
+	SNOW-586
 Eddy Stryker
 	VWR-15
 	VWR-23
@@ -632,6 +638,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-586
 	SNOW-743
 	VWR-7109
 	VWR-9287

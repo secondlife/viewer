@@ -64,8 +64,8 @@
        parameter="UseDebugMenus" />
     </menu_item_check>
     <menu
-      visible="false"
      create_jump_keys="true"
+     visible="false"
      label="Debug"
      name="Debug"
      tear_off="true">
@@ -102,6 +102,7 @@
       </menu_item_call>
       -->
       <menu
+       create_jump_keys="true"
        label="UI Tests"
        name="UI Tests"
        tear_off="true">

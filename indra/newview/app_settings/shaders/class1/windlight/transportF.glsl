@@ -1,8 +1,8 @@
 /** 
  * @file transportF.glsl
  *
- * Copyright (c) 2005-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 vec3 atmosTransport(vec3 light)

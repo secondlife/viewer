@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
-	<menu_item_call label="Toucher" name="Object Touch"/>
-	<menu_item_call label="Éditer" name="Edit..."/>
+	<menu_item_call label="Toucher" name="Object Touch">
+		<on_enable parameter="Toucher" name="EnableTouch"/>
+	</menu_item_call>
+	<menu_item_call label="Modifier" name="Edit..."/>
 	<menu_item_call label="Construire" name="Build"/>
 	<menu_item_call label="Ouvrir" name="Open"/>
 	<menu_item_call label="M&apos;asseoir ici" name="Object Sit"/>

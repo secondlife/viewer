@@ -1,19 +1,15 @@
 # BuildParams
 #
 # Please refer to:
-#  https://wiki.lindenlab.com/wiki/Parabuild_with_Mercurial#How_Build_Parameters_Work
+#  https://wiki.secondlife.com/wiki/Automated_Build_System
 
 # Global setting for now...
 Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
 CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
-# Public Upload Locations overriding the default private ones
-S3PROXY_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
-S3INTERNAL_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
-S3GET_URL = http://automated-builds-secondlife-com.s3.amazonaws.com/
-S3PUT_URL = https://s3.amazonaws.com/automated-builds-secondlife-com/
-S3ACL = public-read
+# Use Public Upload Locations
+public_build = true
 
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = true
@@ -23,30 +19,11 @@ email_status_this_is_os = true
 # ========================================
 
 # Report changes since...
-viewer-development.show_changes_since = 2-1-release
+viewer-development.show_changes_since = last_sprint
 
 # Build Settings
 viewer-development_coverity.coverity_product = viewer
-
-viewer-development.build_Linux = true
-viewer-development_debug.build_Linux = false
-viewer-development_coverity.build_Linux = false
-
-viewer-development.build_Darwin = true
-viewer-development_debug.build_Darwin = false
-viewer-development_coverity.build_Darwin = false
-
-viewer-development.build_CYGWIN = true
-viewer-development.build_CYGWIN_Debug = false
-viewer-development.build_CYGWIN_RelWithDebInfo = false
-viewer-development.build_CYGWIN_Release = true
-viewer-development_debug.build_CYGWIN_Debug = true
-viewer-development_debug.build_CYGWIN_RelWithDebInfo = true
-viewer-development_debug.build_CYGWIN_Release = false
-viewer-development_coverity.build_coverity = true
-viewer-development_coverity.build_CYGWIN_Debug = false
-viewer-development_coverity.build_CYGWIN_RelWithDebInfo = false
-viewer-development_coverity.build_CYGWIN_Release = true
+viewer-development.build_debug_release_separately = true
 
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>
@@ -172,5 +149,27 @@ oz_viewer-review1_coverity.build_coverity = true
 oz_viewer-review1_coverity.build_CYGWIN_Debug = false
 oz_viewer-review1_coverity.build_CYGWIN_RelWithDebInfo = false
 oz_viewer-review1_coverity.build_CYGWIN_Release = false
+
+oz_viewer-review2_coverity.coverity_product = viewer
+
+oz_viewer-review2.build_Linux = true
+oz_viewer-review2_debug.build_Linux = false
+oz_viewer-review2_coverity.build_Linux = false
+
+oz_viewer-review2.build_Darwin = true
+oz_viewer-review2_debug.build_Darwin = false
+oz_viewer-review2_coverity.build_Darwin = false
+
+oz_viewer-review2.build_CYGWIN = true
+oz_viewer-review2.build_CYGWIN_Debug = false
+oz_viewer-review2.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review2.build_CYGWIN_Release = true
+oz_viewer-review2_debug.build_CYGWIN_Debug = true
+oz_viewer-review2_debug.build_CYGWIN_RelWithDebInfo = true
+oz_viewer-review2_debug.build_CYGWIN_Release = false
+oz_viewer-review2_coverity.build_coverity = true
+oz_viewer-review2_coverity.build_CYGWIN_Debug = false
+oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
+oz_viewer-review2_coverity.build_CYGWIN_Release = false
 
 # eof

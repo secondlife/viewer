@@ -128,7 +128,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	}
 	else //should accept int numbers
 	{
-		params.prevalidate_callback(&LLTextValidate::validateNonNegativeS32);
+		params.prevalidate_callback(&LLTextValidate::validateInt);
 	}
 	
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
