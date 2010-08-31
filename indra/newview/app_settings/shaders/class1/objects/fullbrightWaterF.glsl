@@ -1,8 +1,8 @@
 /** 
  * @file fullbrightWaterF.glsl
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 void fullbright_lighting_water();
