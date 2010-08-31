@@ -65,8 +65,7 @@
     </menu_item_check>
     <menu
      create_jump_keys="true"
-      visible="false"
-     create_jump_keys="true"
+     visible="false"
      label="Debug"
      name="Debug"
      tear_off="true">
