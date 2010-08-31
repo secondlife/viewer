@@ -1,8 +1,8 @@
 /** 
  * @file atmosphericsHelpersV.glsl 
  *
- * Copyright (c) 2005-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 vec3 atmosAmbient(vec3 light)

@@ -1,8 +1,8 @@
 /**
  * @file sumLightsV.glsl
  *
- * Copyright (c) 2005-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $/LicenseInfo$
  */
 
 float calcDirectionalLight(vec3 n, vec3 l);
