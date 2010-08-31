@@ -936,10 +936,10 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 {
 	const LLMatrix4& vol_mat = getWorldMatrix();
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
-	LLVector3 normal = vf.mVertices[0].mNormal;
-	LLVector3 binormal = vf.mVertices[0].mBinormal;
+	const LLVector4a& normal4a = vf.mNormals[0];
+	const LLVector4a& binormal4a = vf.mBinormals[0];
 	LLVector2 projected_binormal;
-	planarProjection(projected_binormal, normal, vf.mCenter, binormal);
+	planarProjection(projected_binormal, normal4a, *vf.mCenter, binormal4a);
 	projected_binormal -= LLVector2(0.5f, 0.5f); // this normally happens in xform()
 	*scale = projected_binormal.length();
 	// rotate binormal to match what planarProjection() thinks it is,
@@ -947,6 +947,10 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 	projected_binormal.normalize();
 	F32 ang = acos(projected_binormal.mV[VY]);
 	ang = (projected_binormal.mV[VX] < 0.f) ? -ang : ang;
+
+	//VECTORIZE THIS
+	LLVector3 binormal(binormal4a.getF32ptr());
+	LLVector3 normal(normal4a.getF32ptr());
 	binormal.rotVec(ang, normal);
 	LLQuaternion local_rot( binormal % normal, binormal, normal );
 	*face_rot = local_rot * vol_mat.quaternion();

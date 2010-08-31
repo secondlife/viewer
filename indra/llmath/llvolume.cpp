@@ -94,8 +94,6 @@ const F32 SKEW_MAX	=  0.95f;
 const F32 SCULPT_MIN_AREA = 0.002f;
 const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
-#define GEN_TRI_STRIP 0
-
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -5689,8 +5687,6 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 					{
 						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
 					}		
-#if GEN_TRI_STRIP
-#endif
 				}
 				else
 				{
@@ -5698,13 +5694,9 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 					{
 						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
 					}
-#if GEN_TRI_STRIP
-#endif
 				}
 			}	
-#if GEN_TRI_STRIP
 		}
-#endif
 	}
 		
 	return TRUE;
@@ -6565,13 +6557,9 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 	if (!partial_build)
 	{
-#if GEN_TRI_STRIP
-#endif
 		// Now we generate the indices.
 		for (t = 0; t < (mNumT-1); t++)
 		{
-#if GEN_TRI_STRIP
-#endif
 			for (s = 0; s < (mNumS-1); s++)
 			{	
 				mIndices[cur_index++] = s   + mNumS*t;			//bottom left
@@ -6581,8 +6569,6 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				mIndices[cur_index++] = s+1 + mNumS*t;			//bottom right
 				mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
 
-#if GEN_TRI_STRIP
-#endif
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;						//bottom left/top right neighbor face 
 				if (t < mNumT-2) {												//top right/top left neighbor face 
 					mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
@@ -6623,11 +6609,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				}
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 			}
-#if GEN_TRI_STRIP
-#endif
-#if GEN_TRI_STRIP
 		}
-#endif
 	}
 
 	//generate normals 
