@@ -19,7 +19,7 @@
 		Prévisualiser
 	</floater.string>
 	<floater.string name="none_text">
-		-Aucun choix-
+		- Choisir -
 	</floater.string>
 	<floater.string name="Title">
 		Geste : [NAME]
