@@ -2884,13 +2884,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 	// per-prim costs
 	static const U32 ARC_INVISI_COST = 1;
-	static const U32 ARC_PARTICLE_COST = 16;
+	static const U32 ARC_PARTICLE_COST = 100;
 	static const U32 ARC_CUT_COST = 1;
 	static const U32 ARC_TEXTURE_COST = 5;
 
 	// per-prim multipliers
 	static const U32 ARC_HOLLOW_MULT = 2;
-	static const U32 ARC_TWIST_MULT = 2;
 	static const U32 ARC_CIRC_PROF_MULT = 2;
 	static const U32 ARC_CIRC_PATH_MULT = 2;
 	static const U32 ARC_GLOW_MULT = 2;
@@ -3110,7 +3109,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 	if (twist)
 	{
-		shame *= twist * ARC_TWIST_MULT;
+		shame *= twist;
 	}
 
 	if (circular_profile)
