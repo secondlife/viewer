@@ -56,4 +56,27 @@
 		<radio_item label="Varias ventanas" name="radio" value="0"/>
 		<radio_item label="Pestañas" name="radio2" value="1"/>
 	</radio_group>
+	<check_box label="Traducir Chat" name="translate_chat_checkbox" />
+	<text name="translate_language_text">
+		Idioma de chat:
+	</text>
+	<combo_box name="translate_language_combobox">
+		<combo_box.item name="System Default Language" label="Predeterminado del sistema" />
+		<combo_box.item name="English" label="English (InglÃ©s)" />
+		<combo_box.item name="Danish" label="Dansk (DanÃ©s)" />
+		<combo_box.item name="German" label="Deutsch (AlemÃ¡n)" />
+		<combo_box.item name="Spanish" label="EspaÃ±ol" />
+		<combo_box.item name="French" label="FranÃ§ais (FrancÃ©s)" />
+		<combo_box.item name="Italian" label="Italiano" />
+		<combo_box.item name="Hungarian" label="Magyar (HÃºngaro)" />
+		<combo_box.item name="Dutch" label="Nederlands (NeerlandÃ©s)" />
+		<combo_box.item name="Polish" label="Polski (Polaco)" />
+		<combo_box.item name="Portugese" label="PortuguÃ©s (PortuguÃ©s)" />
+		<combo_box.item name="Russian" label="Ð ÑÑÑÐºÐžÐ¹ (Ruso)" />
+		<combo_box.item name="Turkish" label="TÃŒrkÃ§e (Turco)" />
+		<combo_box.item name="Ukrainian" label="Ð£ÐºÑÐ°ÑÐœÑÑÐºÐ° (Ucraniano)" />
+		<combo_box.item name="Chinese" label="äž­æ (ç®äœ) (Chino)" />
+		<combo_box.item name="Japanese" label="æ¥æ¬èª (JaponÃ©s)" />
+		<combo_box.item name="Korean" label="íêµ­ìŽ (Coreano)" />
+	</combo_box>
 </panel>
