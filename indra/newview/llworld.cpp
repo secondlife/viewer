@@ -121,6 +121,7 @@ void LLWorld::destroyClass()
 		LLViewerRegion* region_to_delete = *region_it++;
 		removeRegion(region_to_delete->getHost());
 	}
+	LLVOCache::getInstance()->destroyClass() ;
 	LLViewerPartSim::getInstance()->destroyClass();
 }
 
@@ -256,6 +257,8 @@ void LLWorld::removeRegion(const LLHost &host)
 
 		llwarns << "Disabling region " << regionp->getName() << " that agent is in!" << llendl;
 		LLAppViewer::instance()->forceDisconnect(LLTrans::getString("YouHaveBeenDisconnected"));
+
+		regionp->saveObjectCache() ; //force to save objects here in case that the object cache is about to be destroyed.
 		return;
 	}
 
