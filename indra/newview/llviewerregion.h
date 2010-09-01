@@ -323,9 +323,6 @@ public:
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 private:
-	// determine the cache filename for the region from the region handle
-	const std::string getObjectCacheFilename(U64 mHandle) const;
-
 	// The surfaces and other layers
 	LLSurface*	mLandp;
 
@@ -387,11 +384,8 @@ private:
 	// Regions can have order 10,000 objects, so assume
 	// a structure of size 2^14 = 16,000
 	BOOL									mCacheLoaded;
-	typedef std::map<U32, LLVOCacheEntry *>	cache_map_t;
-	cache_map_t			  				 	mCacheMap;
-	LLVOCacheEntry							mCacheStart;
-	LLVOCacheEntry							mCacheEnd;
-	U32										mCacheEntriesCount;
+	BOOL                                    mCacheDirty;
+	LLVOCacheEntry::vocache_entry_map_t		mCacheMap;
 	LLDynamicArray<U32>						mCacheMissFull;
 	LLDynamicArray<U32>						mCacheMissCRC;
 	// time?
