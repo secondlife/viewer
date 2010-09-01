@@ -20,7 +20,19 @@
      value="Side Panel"
      width="255" />
      <button
-     follows="left|right|top"
+     follows="right|top"
+     height="16"
+     image_selected="Icon_Dock_Press"
+     image_unselected="Icon_Dock_Foreground"
+     image_disabled="Icon_Dock_Press"
+     layout="topleft"
+     name="dock"
+     top="10"
+     right="-28"
+     width="16"
+     tool_tip="Dock/Undock tab" />
+     <button
+     follows="right|top"
      height="16"
      image_selected="Icon_Help_Press"
      image_unselected="Icon_Help_Foreground"

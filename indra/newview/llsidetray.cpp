@@ -31,6 +31,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llbottomtray.h"
+#include "llfloaterreg.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -64,6 +65,7 @@ static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
 
+// static
 LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
@@ -75,6 +77,7 @@ LLSideTray* LLSideTray::getInstance()
 	return sInstance;
 }
 
+// static
 bool	LLSideTray::instanceCreated	()
 {
 	return sInstance!=0;
@@ -125,7 +128,9 @@ public:
 	const std::string& getTabTitle() const { return mTabTitle;}
 	
 	void			onOpen		(const LLSD& key);
-	
+
+	void			toggleTabDocked();
+
 	LLPanel *getPanel();
 private:
 	std::string mTabTitle;
@@ -171,6 +176,8 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
+	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
+
 	return true;
 }
 
@@ -203,6 +210,66 @@ void	LLSideTrayTab::onOpen		(const LLSD& key)
 		panel->onOpen(key);
 }
 
+void LLSideTrayTab::toggleTabDocked()
+{
+	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	if (!floater_tab) return;
+
+	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+
+	LLSideTray* side_tray = LLSideTray::getInstance();
+
+	if (LLFloater::isShown(floater_tab))
+	{
+		// Remove the tab from Side Tray's tabs list.
+		// We have to do it despite removing the tab from Side Tray's child view tree
+		// by addChild(). Otherwise the tab could be accessed by the pointer in LLSideTray::mTabs.
+		if (!side_tray->removeTab(this))
+		{
+			llwarns << "Failed to remove tab " << getName() << " from side tray" << llendl;
+			return;
+		}
+
+		setVisible(true); // *HACK: restore visibility after being hidden by LLSideTray::selectTabByName().
+		floater_tab->addChild(this);
+		floater_tab->setTitle(mTabTitle);
+
+		LLRect rect = side_tray->getLocalRect();
+		floater_tab->reshape(rect.getWidth(), rect.getHeight());
+
+		rect.mTop -= floater_tab->getHeaderHeight();
+		setRect(rect);
+		reshape(rect.getWidth(), rect.getHeight());
+
+		// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
+		setFollowsAll();
+
+		if (!side_tray->getCollapsed())
+		{
+			side_tray->collapseSideBar();
+		}
+	}
+	else
+	{
+		if (!side_tray->addTab(this))
+		{
+			llwarns << "Failed to add tab " << getName() << " to side tray" << llendl;
+			return;
+		}
+
+		setRect(side_tray->getLocalRect());
+		reshape(getRect().getWidth(), getRect().getHeight());
+
+		// Select the re-docked tab.
+		side_tray->selectTabByName(getName());
+
+		if (side_tray->getCollapsed())
+		{
+			side_tray->expandSideBar();
+		}
+	}
+}
+
 LLPanel*	LLSideTrayTab::getPanel()
 {
 	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
@@ -217,6 +284,93 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	LLSideTrayTab* tab = LLUICtrlFactory::create<LLSideTrayTab>(tab_params);
 	return tab;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// LLSideTrayButton
+// Side Tray tab button with "tear off" handling.
+//////////////////////////////////////////////////////////////////////////////
+
+class LLSideTrayButton : public LLButton
+{
+public:
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask)
+	{
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		// No handler needed for focus lost since this class has no state that depends on it.
+		gFocusMgr.setMouseCapture(this);
+
+		localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
+
+		// Note: don't pass on to children
+		return TRUE;
+	}
+
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask)
+	{
+		// We only handle the click if the click both started and ended within us
+		if( !hasMouseCapture() ) return FALSE;
+
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		S32 delta_x = screen_x - mDragLastScreenX;
+		S32 delta_y = screen_y - mDragLastScreenY;
+
+		LLSideTray* side_tray = LLSideTray::getInstance();
+
+		// Check if the tab we are dragging is docked.
+		if (!side_tray->isTabAttached(getName())) return FALSE;
+
+		// Same value is hardcoded in LLDragHandle::handleHover().
+		const S32 undock_threshold = 12;
+
+		// Detach a tab if it has been pulled further than undock_threshold.
+		if (delta_x <= -undock_threshold ||	delta_x >= undock_threshold	||
+			delta_y <= -undock_threshold ||	delta_y >= undock_threshold)
+		{
+			LLSideTrayTab* tab = side_tray->getTab(getName());
+			if (!tab) return FALSE;
+
+			tab->toggleTabDocked();
+
+			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getTabTitle()));
+			if (!floater_tab) return FALSE;
+
+
+			LLRect original_rect = floater_tab->getRect();
+			S32 header_snap_y = floater_tab->getHeaderHeight() / 2;
+			S32 snap_x = screen_x - original_rect.mLeft - original_rect.getWidth() / 2;
+			S32 snap_y = screen_y - original_rect.mTop + header_snap_y;
+
+			// Move the floater to appear "under" the mouse pointer.
+			floater_tab->setRect(original_rect.translate(snap_x, snap_y));
+
+			// Snap the mouse pointer to the center of the floater header
+			// and call 'mouse down' event handler to begin dragging.
+			floater_tab->handleMouseDown(original_rect.getWidth() / 2,
+										 original_rect.getHeight() - header_snap_y,
+										 mask);
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+protected:
+	LLSideTrayButton(const LLButton::Params& p)
+	: LLButton(p)
+	, mDragLastScreenX(0)
+	, mDragLastScreenY(0)
+	{}
+
+	friend class LLUICtrlFactory;
+
+private:
+	S32		mDragLastScreenX;
+	S32		mDragLastScreenY;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 // LLSideTray
@@ -273,6 +427,13 @@ BOOL LLSideTray::postBuild()
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSideTray::handleLoginComplete, this));
 
+	// Remember original tabs order, so that we can restore it if user detaches and then re-attaches a tab.
+	for (child_vector_const_iter_t it = mTabs.begin(); it != mTabs.end(); ++it)
+	{
+		std::string tab_name = (*it)->getName();
+		mOriginalTabOrder.push_back(tab_name);
+	}
+
 	//EXT-8045
 	//connect all already created channels to reflect sidetray collapse/expand
 	std::vector<LLChannelManager::ChannelElem>& channels = LLChannelManager::getInstance()->getChannelList();
@@ -297,6 +458,17 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 	return getChild<LLSideTrayTab>(name,false);
 }
 
+bool LLSideTray::isTabAttached(const std::string& name)
+{
+	LLSideTrayTab* tab = getTab(name);
+	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();
+}
+
+bool LLSideTray::hasTabs()
+{
+	// The open/close tab doesn't count.
+	return mTabs.size() > 1;
+}
 
 void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 {
@@ -324,22 +496,27 @@ bool LLSideTray::selectTabByIndex(size_t index)
 
 bool LLSideTray::selectTabByName	(const std::string& name)
 {
-	LLSideTrayTab* side_bar = getTab(name);
+	LLSideTrayTab* new_tab = getTab(name);
 
-	if(side_bar == mActiveTab)
+	// Bail out if already selected.
+	if (new_tab == mActiveTab)
 		return false;
+
 	//deselect old tab
-	toggleTabButton(mActiveTab);
-	if(mActiveTab)
-		mActiveTab->setVisible(false);
+	if (mActiveTab)
+	{
+		toggleTabButton(mActiveTab);
+	}
 
 	//select new tab
-	mActiveTab = side_bar;
-	toggleTabButton(mActiveTab);
-	LLSD key;//empty
-	mActiveTab->onOpen(key);
+	mActiveTab = new_tab;
 
-	mActiveTab->setVisible(true);
+	if (mActiveTab)
+	{
+		toggleTabButton(mActiveTab);
+		LLSD key;//empty
+		mActiveTab->onOpen(key);
+	}
 
 	//arrange();
 	
@@ -348,7 +525,9 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
 		LLSideTrayTab* sidebar_tab = *child_it;
-		sidebar_tab->setVisible(sidebar_tab  == mActiveTab);
+		// When the last tab gets detached, for a short moment the "Toggle Sidebar" pseudo-tab
+		// is shown. So, to avoid the flicker we make sure it never gets visible.
+		sidebar_tab->setVisible(sidebar_tab == mActiveTab && (*child_it)->getName() != "sidebar_openclose");
 	}
 	return true;
 }
@@ -372,8 +551,18 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	bparams.image_disabled(sidetray_params.tab_btn_image_normal);
 	bparams.image_disabled_selected(sidetray_params.tab_btn_image_selected);
 
-	LLButton* button = LLUICtrlFactory::create<LLButton> (bparams);
-	button->setLabel(name);
+	LLButton* button;
+	if (name == "sidebar_openclose")
+	{
+		// "Open/Close" button shouldn't allow "tear off"
+		// hence it is created as LLButton instance.
+		button = LLUICtrlFactory::create<LLButton>(bparams);
+	}
+	else
+	{
+		button = LLUICtrlFactory::create<LLSideTrayButton>(bparams);
+	}
+
 	button->setClickedCallback(callback);
 
 	button->setToolTip(tooltip);
@@ -400,6 +589,103 @@ bool LLSideTray::addChild(LLView* view, S32 tab_group)
 	return LLUICtrl::addChild(view, tab_group);
 }
 
+bool LLSideTray::removeTab(LLSideTrayTab* tab)
+{
+	if (!tab) return false;
+	std::string tab_name = tab->getName();
+
+	// Look up the tab in the list of known tabs.
+	child_vector_iter_t tab_it = std::find(mTabs.begin(), mTabs.end(), tab);
+	if (tab_it == mTabs.end())
+	{
+		llwarns << "Cannot find tab named " << tab_name << llendl;
+		return false;
+	}
+
+	// Find the button corresponding to the tab.
+	button_map_t::iterator btn_it = mTabButtons.find(tab_name);
+	if (btn_it == mTabButtons.end())
+	{
+		llwarns << "Cannot find button for tab named " << tab_name << llendl;
+		return false;
+	}
+	LLButton* btn = btn_it->second;
+
+	// Deselect the tab.
+	if (mActiveTab == tab)
+	{
+		child_vector_iter_t next_tab_it =
+				(tab_it < (mTabs.end() - 1)) ? tab_it + 1 : mTabs.begin();
+		selectTabByName((*next_tab_it)->getName());
+	}
+
+	// Remove the tab.
+	removeChild(tab);
+	mTabs.erase(tab_it);
+
+	// Remove the button from the buttons panel so that it isn't drawn anymore.
+	mButtonsPanel->removeChild(btn);
+
+	// Re-arrange remaining tabs.
+	arrange();
+
+	return true;
+}
+
+bool LLSideTray::addTab(LLSideTrayTab* tab)
+{
+	if (tab == NULL) return false;
+
+	std::string tab_name = tab->getName();
+
+	// Make sure the tab isn't already in the list.
+	if (std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end())
+	{
+		llwarns << "Attempt to re-add existing tab " << tab_name << llendl;
+		return false;
+	}
+
+	// Look up the corresponding button.
+	button_map_t::const_iterator btn_it = mTabButtons.find(tab_name);
+	if (btn_it == mTabButtons.end())
+	{
+		llwarns << "Tab " << tab_name << " has no associated button" << llendl;
+		return false;
+	}
+	LLButton* btn = btn_it->second;
+
+	// Insert the tab at its original position.
+	LLUICtrl::addChild(tab);
+	{
+		tab_order_vector_const_iter_t new_tab_orig_pos =
+			std::find(mOriginalTabOrder.begin(), mOriginalTabOrder.end(), tab_name);
+		llassert(new_tab_orig_pos != mOriginalTabOrder.end());
+		child_vector_iter_t insert_pos = mTabs.end();
+
+		for (child_vector_iter_t tab_it = mTabs.begin(); tab_it != mTabs.end(); ++tab_it)
+		{
+			tab_order_vector_const_iter_t cur_tab_orig_pos =
+				std::find(mOriginalTabOrder.begin(), mOriginalTabOrder.end(), (*tab_it)->getName());
+			llassert(cur_tab_orig_pos != mOriginalTabOrder.end());
+
+			if (new_tab_orig_pos < cur_tab_orig_pos)
+			{
+				insert_pos = tab_it;
+				break;
+			}
+		}
+
+		mTabs.insert(insert_pos, tab);
+	}
+
+	// Add the button to the buttons panel so that it's drawn again.
+	mButtonsPanel->addChildInBack(btn);
+
+	// Arrange tabs after inserting a new one.
+	arrange();
+
+	return true;
+}
 
 void	LLSideTray::createButtons	()
 {
@@ -414,12 +700,12 @@ void	LLSideTray::createButtons	()
 		// The "OpenClose" button will open/close the whole panel
 		if (name == "sidebar_openclose")
 		{
-			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
+			mCollapseButton = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
 		}
 		else
 		{
-			LLButton* button = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
+			LLButton* button = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onTabButtonClick, this, name));
 			mTabButtons[name] = button;
 		}
@@ -536,6 +822,9 @@ void LLSideTray::arrange()
 		LLSideTrayTab* sidebar_tab = *child_it;
 		sidebar_tab->setShape(getLocalRect());
 	}
+
+	// The tab buttons should be shown only if there is at least one non-detached tab.
+	mButtonsPanel->setVisible(hasTabs());
 }
 
 void LLSideTray::collapseSideBar()
