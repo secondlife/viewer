@@ -82,6 +82,7 @@ set(viewer_SOURCE_FILES
     llappviewerlistener.cpp
     llassetuploadqueue.cpp
     llassetuploadresponders.cpp
+    llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
@@ -604,6 +605,7 @@ set(viewer_HEADER_FILES
     llappviewerlistener.h
     llassetuploadqueue.h
     llassetuploadresponders.h
+    llattachmentsmgr.h
     llaudiosourcevo.h
     llavataractions.h
     llavatariconctrl.h

@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llattachmentsmgr.h"
 #include "llavataractions.h"
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
@@ -4062,22 +4063,34 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 
 		if (itemp)
 		{
-			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-			
+			/*
+			{
+				U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+				
+				LLMessageSystem* msg = gMessageSystem;
+				msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
+				msg->nextBlockFast(_PREHASH_AgentData);
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+				msg->nextBlockFast(_PREHASH_ObjectData);
+				msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
+				msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
+				msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
+				pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
+				msg->addStringFast(_PREHASH_Name, itemp->getName());
+				msg->addStringFast(_PREHASH_Description, itemp->getDescription());
+				msg->sendReliable(gAgent.getRegion()->getHost());
+				return false;
+			}
+			*/
 
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_ObjectData);
-			msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
-			msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-			msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
-			pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
-			msg->addStringFast(_PREHASH_Name, itemp->getName());
-			msg->addStringFast(_PREHASH_Description, itemp->getDescription());
-			msg->sendReliable(gAgent.getRegion()->getHost());
+			// Queue up attachments to be sent in next idle tick, this way the
+			// attachments are batched up all into one message versus each attachment
+			// being sent in its own separate attachments message.
+			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+			LLAttachmentsMgr::instance().addAttachment(item_id,
+													   attachment_pt,
+													   FALSE);
 		}
 	}
 	return false;
