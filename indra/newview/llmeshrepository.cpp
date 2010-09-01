@@ -2104,6 +2104,30 @@ void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3
 	thread->start();
 }
 
+S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
+{
+	if (mThread)
+	{
+		LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
+		if (iter != mThread->mMeshHeader.end())
+		{
+			LLSD& header = iter->second;
+
+			if (header.has("404"))
+			{
+				return -1;
+			}
+
+			S32 size = header[header_lod[lod]]["size"].asInteger();
+			return size;
+		}
+
+	}
+
+	return -1;
+
+}
+
 void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 {
 	//write model file to memory buffer
