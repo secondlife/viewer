@@ -1007,7 +1007,7 @@ void LLFloaterTools::onClickGridOptions()
 S32 LLFloaterTools::calcRenderCost()
 {
 	S32 cost = 0;
-	std::set<LLUUID> textures;
+	LLVOVolume::texture_cost_t textures;
 
 	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
 		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
@@ -1020,7 +1020,11 @@ S32 LLFloaterTools::calcRenderCost()
 			if (viewer_volume)
 			{
 				cost += viewer_volume->getRenderCost(textures);
-				cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
+				for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
+				{
+					// add the cost of each individual texture in the linkset
+					cost += iter->second;
+				}
 				textures.clear();
 			}
 		}

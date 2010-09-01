@@ -405,8 +405,7 @@ public:
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures);
 
-	
-
+	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];

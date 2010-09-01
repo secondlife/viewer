@@ -144,6 +144,8 @@ if (LINUX)
       -fno-strict-aliasing
       -fsigned-char
       -g
+      -msse2
+      -mfpmath=sse
       -pthread
       )
 
@@ -163,10 +165,6 @@ if (LINUX)
       link_directories(/usr/lib/mysql4/mysql)
     endif (EXISTS /usr/lib/mysql4/mysql)
 
-    add_definitions(
-        -msse2
-        -mfpmath=sse
-        )
   endif (SERVER)
 
   if (VIEWER)

@@ -36,11 +36,11 @@
 #include "llsd.h"
 #include "../test/lltut.h"
 
-#include "../llquaternion.h"
 #include "../m3math.h"
 #include "../v4math.h"
 #include "../v3dmath.h"
 #include "../v3dmath.h"
+#include "../llquaternion.h"
 
 namespace tut
 {
