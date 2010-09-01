@@ -212,10 +212,12 @@ void	LLSideTrayTab::onOpen		(const LLSD& key)
 
 void LLSideTrayTab::toggleTabDocked()
 {
-	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	std::string tab_name = getName();
+
+	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab_name));
 	if (!floater_tab) return;
 
-	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", tab_name));
 
 	LLSideTray* side_tray = LLSideTray::getInstance();
 
@@ -334,9 +336,8 @@ public:
 
 			tab->toggleTabDocked();
 
-			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getTabTitle()));
+			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getName()));
 			if (!floater_tab) return FALSE;
-
 
 			LLRect original_rect = floater_tab->getRect();
 			S32 header_snap_y = floater_tab->getHeaderHeight() / 2;
@@ -485,6 +486,54 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 	}
 }
 
+LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel_name, const LLSD& params)
+{
+	LLView* view = tab->findChildView(panel_name, true);
+	if (!view) return NULL;
+
+	std::string tab_name = tab->getName();
+
+	// Select tab and expand Side Tray only when a tab is attached.
+	if (isTabAttached(tab_name))
+	{
+		selectTabByName(tab_name);
+		if (mCollapsed)
+			expandSideBar();
+	}
+	else
+	{
+		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab_name));
+		if (!floater_tab) return NULL;
+
+		// Restore the floater if it was minimized.
+		if (floater_tab->isMinimized())
+		{
+			floater_tab->setMinimized(FALSE);
+		}
+
+		// Send the floater to the front.
+		floater_tab->setFrontmost();
+	}
+
+	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
+	if (container)
+	{
+		LLSD new_params = params;
+		new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
+		container->onOpen(new_params);
+
+		return container->getCurrentPanel();
+	}
+
+	LLPanel* panel = dynamic_cast<LLPanel*>(view);
+	if (panel)
+	{
+		panel->onOpen(params);
+	}
+
+	return panel;
+}
+
 bool LLSideTray::selectTabByIndex(size_t index)
 {
 	if(index>=mTabs.size())
@@ -623,6 +672,9 @@ bool LLSideTray::removeTab(LLSideTrayTab* tab)
 	removeChild(tab);
 	mTabs.erase(tab_it);
 
+	// Add the tab to detached tabs list.
+	mDetachedTabs.push_back(tab);
+
 	// Remove the button from the buttons panel so that it isn't drawn anymore.
 	mButtonsPanel->removeChild(btn);
 
@@ -683,6 +735,13 @@ bool LLSideTray::addTab(LLSideTrayTab* tab)
 
 	// Arrange tabs after inserting a new one.
 	arrange();
+
+	// Remove the tab from the list of detached tabs.
+	child_vector_iter_t tab_it = std::find(mDetachedTabs.begin(), mDetachedTabs.end(), tab);
+	if (tab_it != mDetachedTabs.end())
+	{
+		mDetachedTabs.erase(tab_it);
+	}
 
 	return true;
 }
@@ -919,35 +978,19 @@ void LLSideTray::reshape(S32 width, S32 height, BOOL called_from_parent)
  */
 LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
 {
-	//arrange tabs
+	// Look up the tab in the list of detached tabs.
 	child_vector_const_iter_t child_it;
+	for ( child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+	{
+		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
+		if (panel) return panel;
+	}
+
+	// Look up the tab in the list of attached tabs.
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLView* view = (*child_it)->findChildView(panel_name,true);
-		if(view)
-		{
-			selectTabByName	((*child_it)->getName());
-			if(mCollapsed)
-				expandSideBar();
-
-			LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
-			if(container)
-			{
-				LLSD new_params = params;
-				new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
-				container->onOpen(new_params);
-
-				return container->getCurrentPanel();
-			}
-
-			LLPanel* panel = dynamic_cast<LLPanel*>(view);
-			if(panel)
-			{
-				panel->onOpen(params);
-			}
-
-			return panel;
-		}
+		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
+		if (panel) return panel;
 	}
 	return NULL;
 }
