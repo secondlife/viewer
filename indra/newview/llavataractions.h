@@ -171,12 +171,18 @@ public:
 	static void csr(const LLUUID& id, std::string name);
 
 	/**
-	 * Checks whether can offer teleport to the avatar
-	 * Can't offer only for offline friends
+	 * Checks whether we can offer a teleport to the avatar, only offline friends
+	 * cannot be offered a teleport.
+	 *
+	 * @return false if avatar is a friend and not visibly online
 	 */
 	static bool canOfferTeleport(const LLUUID& id);
 
-	
+	/**
+	 * @return false if any one of the specified avatars a friend and not visibly online
+	 */
+	static bool canOfferTeleport(const uuid_vec_t& ids);
+
 private:
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
