@@ -269,7 +269,7 @@ void LLNetMap::draw()
 			new_center.mV[VX] -= mCurPan.mV[VX];
 			new_center.mV[VY] -= mCurPan.mV[VY];
 			new_center.mV[VZ] = 0.f;
-			mObjectImageCenterGlobal = viewPosToGlobal(new_center.mV[VX], new_center.mV[VY]);
+			mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
 			// Create the base texture.
 			U8 *default_texture = mObjectRawImagep->getData();
