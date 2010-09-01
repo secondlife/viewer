@@ -662,6 +662,8 @@ Tue Torok
 	CT-74
 Vadim Bigbear
 	VWR-2681
+Vector Hastings
+	VWR-8726
 Vixen Heron
 	VWR-2710
 	CT-88
