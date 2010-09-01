@@ -37,7 +37,6 @@
 class LLColor4U;
 class LLCoordGL;
 class LLImageRaw;
-class LLTextBox;
 class LLViewerTexture;
 
 class LLNetMap : public LLUICtrl
@@ -66,17 +65,17 @@ public:
 
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask);
 	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	void			setScale( F32 scale );
 	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
-	
-private:
-	void			translatePan( F32 delta_x, F32 delta_y );
-	void			setPan( F32 x, F32 y )			{ mTargetPanX = x; mTargetPanY = y; }
 
+private:
 	const LLVector3d& getObjectImageCenterGlobal()	{ return mObjectImageCenterGlobal; }
 	void 			renderPoint(const LLVector3 &pos, const LLColor4U &color, 
 								S32 diameter, S32 relative_height = 0);
@@ -91,6 +90,10 @@ private:
 	void			createObjectImage();
 
 private:
+	static bool		outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y, S32 slop);
+
+	bool			mUpdateNow;
+
 	LLUIColor		mBackgroundColor;
 
 	F32				mScale;					// Size of a region in pixels
@@ -98,11 +101,13 @@ private:
 	F32				mObjectMapTPM;			// texels per meter on map
 	F32				mObjectMapPixels;		// Width of object map in pixels
 	F32				mDotRadius;				// Size of avatar markers
-	F32				mTargetPanX;
-	F32				mTargetPanY;
-	F32				mCurPanX;
-	F32				mCurPanY;
-	BOOL			mUpdateNow;
+
+	bool			mPanning;			// map is being dragged
+	LLVector2		mTargetPan;
+	LLVector2		mCurPan;
+	LLVector2		mStartPan;		// pan offset at start of drag
+	LLCoordGL		mMouseDown;			// pointer position at start of drag
+
 	LLVector3d		mObjectImageCenterGlobal;
 	LLPointer<LLImageRaw> mObjectRawImagep;
 	LLPointer<LLViewerTexture>	mObjectImagep;
