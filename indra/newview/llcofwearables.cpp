@@ -708,4 +708,25 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 	}
 }
 
+void LLCOFWearables::selectClothing(LLWearableType::EType clothing_type)
+{
+	std::vector<LLPanel*> clothing_items;
+
+	mClothing->getItems(clothing_items);
+
+	std::vector<LLPanel*>::iterator it;
+
+	for (it = clothing_items.begin(); it != clothing_items.end(); ++it )
+	{
+		LLPanelClothingListItem* clothing_item = dynamic_cast<LLPanelClothingListItem*>(*it);
+
+		if (clothing_item && clothing_item->getWearableType() == clothing_type)
+		{ // clothing item has specified LLWearableType::EType. Select it and exit.
+
+			mClothing->selectItem(clothing_item);
+			break;
+		}
+	}
+}
+
 //EOF

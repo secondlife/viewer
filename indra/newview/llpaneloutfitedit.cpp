@@ -911,8 +911,14 @@ LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID&
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 {
 	LLUUID id_to_remove = mCOFWearables->getSelectedUUID();
-	
+	LLWearableType::EType type = getWearableTypeByItemUUID(id_to_remove);
+
 	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
+
+	if (!mCOFWearables->getSelectedItem())
+	{
+		mCOFWearables->selectClothing(type);
+	}
 }
 
 
