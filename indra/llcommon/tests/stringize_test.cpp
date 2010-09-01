@@ -80,7 +80,7 @@ namespace tut
     };
     typedef test_group<stringize_data> stringize_group;
     typedef stringize_group::object stringize_object;
-    tut::stringize_group strzgrp("stringize");
+    tut::stringize_group strzgrp("stringize_h");
 
     template<> template<>
     void stringize_object::test<1>()

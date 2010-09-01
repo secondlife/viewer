@@ -38,7 +38,7 @@ namespace tut
 
 	typedef test_group<processor> processor_t;
 	typedef processor_t::object processor_object_t;
-	tut::processor_t tut_processor("processor");
+	tut::processor_t tut_processor("LLProcessor");
 
 	template<> template<>
 	void processor_object_t::test<1>()

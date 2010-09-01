@@ -56,7 +56,7 @@
 namespace tut
 {
 	std::string sSourceDir;
-
+	
     test_runner_singleton runner;
 }
 
@@ -64,54 +64,66 @@ class LLTestCallback : public tut::callback
 {
 public:
 	LLTestCallback(bool verbose_mode, std::ostream *stream) :
-		mVerboseMode(verbose_mode),
-		mTotalTests(0),
-		mPassedTests(0),
-		mFailedTests(0),
-		mSkippedTests(0),
-		mStream(stream)
+	mVerboseMode(verbose_mode),
+	mTotalTests(0),
+	mPassedTests(0),
+	mFailedTests(0),
+	mSkippedTests(0),
+	mStream(stream)
 	{
 	}
 
-	void run_started()
+	~LLTestCallback()
+	{
+	}	
+
+	virtual void run_started()
 	{
 		//std::cout << "run_started" << std::endl;
 	}
 
-	void test_completed(const tut::test_result& tr)
+	virtual void group_started(const std::string& name) {
+		std::cout << "Unit test group_started name=" << name << std::endl;
+	}
+
+	virtual void group_completed(const std::string& name) {
+		std::cout << "Unit test group_completed name=" << name << std::endl;
+	}
+
+	virtual void test_completed(const tut::test_result& tr)
 	{
 		++mTotalTests;
 		std::ostringstream out;
 		out << "[" << tr.group << ", " << tr.test << "] ";
 		switch(tr.result)
 		{
-		case tut::test_result::ok:
-			++mPassedTests;
-			out << "ok";
-			break;
-		case tut::test_result::fail:
-			++mFailedTests;
-			out << "fail";
-			break;
-		case tut::test_result::ex:
-			++mFailedTests;
-			out << "exception";
-			break;
-		case tut::test_result::warn:
-			++mFailedTests;
-			out << "test destructor throw";
-			break;
-		case tut::test_result::term:
-			++mFailedTests;
-			out << "abnormal termination";
-			break;
-		case tut::test_result::skip:
-			++mSkippedTests;
-			out << "skipped known failure";
-			break;
-		default:
-			++mFailedTests;
-			out << "unknown";
+			case tut::test_result::ok:
+				++mPassedTests;
+				out << "ok";
+				break;
+			case tut::test_result::fail:
+				++mFailedTests;
+				out << "fail";
+				break;
+			case tut::test_result::ex:
+				++mFailedTests;
+				out << "exception";
+				break;
+			case tut::test_result::warn:
+				++mFailedTests;
+				out << "test destructor throw";
+				break;
+			case tut::test_result::term:
+				++mFailedTests;
+				out << "abnormal termination";
+				break;
+			case tut::test_result::skip:
+				++mSkippedTests;			
+				out << "skipped known failure";
+				break;
+			default:
+				++mFailedTests;
+				out << "unknown";
 		}
 		if(mVerboseMode || (tr.result != tut::test_result::ok))
 		{
@@ -128,7 +140,7 @@ public:
 		}
 	}
 
-	void run_completed()
+	virtual void run_completed()
 	{
 		if (mStream)
 		{
@@ -137,10 +149,9 @@ public:
 		run_completed_(std::cout);
 	}
 
-	int getFailedTests() const { return mFailedTests; }
-	
-private:
-	void run_completed_(std::ostream &stream)
+	virtual int getFailedTests() const { return mFailedTests; }
+
+	virtual void run_completed_(std::ostream &stream)
 	{
 		stream << "\tTotal Tests:\t" << mTotalTests << std::endl;
 		stream << "\tPassed Tests:\t" << mPassedTests;
@@ -153,7 +164,7 @@ private:
 		if (mSkippedTests > 0)
 		{
 			stream << "\tSkipped known failures:\t" << mSkippedTests
-				<< std::endl;
+			<< std::endl;
 		}
 
 		if(mFailedTests > 0)
@@ -174,6 +185,94 @@ protected:
 	std::ostream *mStream;
 };
 
+// TeamCity specific class which emits service messages
+// http://confluence.jetbrains.net/display/TCD3/Build+Script+Interaction+with+TeamCity;#BuildScriptInteractionwithTeamCity-testReporting
+
+class LLTCTestCallback : public LLTestCallback
+{
+public:
+	LLTCTestCallback(bool verbose_mode, std::ostream *stream) :
+		LLTestCallback(verbose_mode, stream),
+		mTCStream()
+	{
+	}
+
+	~LLTCTestCallback()
+	{
+	}	
+
+	virtual void group_started(const std::string& name) {
+		LLTestCallback::group_started(name);
+		mTCStream << "\n##teamcity[testSuiteStarted name='" << name << "']" << std::endl;
+	}
+
+	virtual void group_completed(const std::string& name) {
+		LLTestCallback::group_completed(name);
+		mTCStream << "##teamcity[testSuiteFinished name='" << name << "']" << std::endl;
+	}
+
+	virtual void test_completed(const tut::test_result& tr)
+	{
+		LLTestCallback::test_completed(tr);
+
+		switch(tr.result)
+		{
+			case tut::test_result::ok:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			case tut::test_result::fail:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			case tut::test_result::ex:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			case tut::test_result::warn:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			case tut::test_result::term:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFailed name='" << tr.group << "." << tr.test << "' message='" << tr.message << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			case tut::test_result::skip:
+				mTCStream << "##teamcity[testStarted name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testIgnored name='" << tr.group << "." << tr.test << "']" << std::endl;
+				mTCStream << "##teamcity[testFinished name='" << tr.group << "." << tr.test << "']" << std::endl;
+				break;
+			default:
+				break;
+		}
+
+	}
+
+	virtual void run_completed()
+	{
+		LLTestCallback::run_completed();
+
+		// dump the TC reporting results to cout
+		tc_run_completed_(std::cout);
+	}
+
+	virtual void tc_run_completed_(std::ostream &stream)
+	{
+		
+		// dump the TC reporting results to cout
+		stream << mTCStream.str() << std::endl;
+	}
+	
+protected:
+	std::ostringstream mTCStream;
+
+};
+
+
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 {
 	{"help", 'h', 0, "Print the help message."},
@@ -185,13 +284,14 @@ static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 	{"touch", 't', 1, "Touch the given file if all tests succeed"},
 	{"wait", 'w', 0, "Wait for input before exit."},
 	{"debug", 'd', 0, "Emit full debug logs."},
+	{"suitename", 'x', 1, "Run tests using this suitename"},
 	{0, 0, 0, 0}
 };
 
 void stream_usage(std::ostream& s, const char* app)
 {
 	s << "Usage: " << app << " [OPTIONS]" << std::endl
-	  << std::endl;
+	<< std::endl;
 
 	s << "This application runs the unit tests." << std::endl << std::endl;
 
@@ -201,7 +301,7 @@ void stream_usage(std::ostream& s, const char* app)
 	{
 		s << "  ";
 		s << "  -" << (char)option->optch << ", --" << option->name
-		  << std::endl;
+		<< std::endl;
 		s << "\t" << option->description << std::endl << std::endl;
 		++option;
 	}
@@ -242,9 +342,9 @@ int main(int argc, char **argv)
 	LLError::initForApplication(".");
 	LLError::setFatalFunction(wouldHaveCrashed);
 	LLError::setDefaultLevel(LLError::LEVEL_ERROR);
-		//< *TODO: should come from error config file. Note that we
-		// have a command line option that sets this to debug.
-	
+	//< *TODO: should come from error config file. Note that we
+	// have a command line option that sets this to debug.
+
 #ifdef CTYPE_WORKAROUND
 	ctype_workaround();
 #endif
@@ -267,6 +367,7 @@ int main(int argc, char **argv)
 	bool verbose_mode = false;
 	bool wait_at_exit = false;
 	std::string test_group;
+	std::string suite_name;
 
 	// values use for options parsing
 	apr_status_t apr_err;
@@ -274,7 +375,7 @@ int main(int argc, char **argv)
 	int opt_id = 0;
 	std::ofstream *output = NULL;
 	const char *touch = NULL;
-	
+
 	while(true)
 	{
 		apr_err = apr_getopt_long(os, TEST_CL_OPTIONS, &opt_id, &opt_arg);
@@ -283,55 +384,68 @@ int main(int argc, char **argv)
 		{
 			char buf[255];		/* Flawfinder: ignore */
 			std::cerr << "Error parsing options: "
-					  << apr_strerror(apr_err, buf, 255) << std::endl;
+			<< apr_strerror(apr_err, buf, 255) << std::endl;
 			return 1;
 		}
 		switch (opt_id)
 		{
-		case 'g':
-			test_group.assign(opt_arg);
-			break;
-		case 'h':
-			stream_usage(std::cout, argv[0]);
-			return 0;
-			break;
-		case 'l':
-			stream_groups(std::cout, argv[0]);
-			return 0;
-		case 'v':
-			verbose_mode = true;
-			break;
-		case 'o':
-			output = new std::ofstream;
-			output->open(opt_arg);
-			break;
-		case 's':	// --sourcedir
-			tut::sSourceDir = opt_arg;
-			// For convenience, so you can use tut::sSourceDir + "myfile"
-			tut::sSourceDir += '/';
-			break;
-		case 't':
-			touch = opt_arg;
-			break;
-		case 'w':
-			wait_at_exit = true;
-			break;
-		case 'd':
-			// *TODO: should come from error config file. We set it to
-			// ERROR by default, so this allows full debug levels.
-			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-			break;
-		default:
-			stream_usage(std::cerr, argv[0]);
-			return 1;
-			break;
+			case 'g':
+				test_group.assign(opt_arg);
+				break;
+			case 'h':
+				stream_usage(std::cout, argv[0]);
+				return 0;
+				break;
+			case 'l':
+				stream_groups(std::cout, argv[0]);
+				return 0;
+			case 'v':
+				verbose_mode = true;
+				break;
+			case 'o':
+				output = new std::ofstream;
+				output->open(opt_arg);
+				break;
+			case 's':	// --sourcedir
+				tut::sSourceDir = opt_arg;
+				// For convenience, so you can use tut::sSourceDir + "myfile"
+				tut::sSourceDir += '/';
+				break;
+			case 't':
+				touch = opt_arg;
+				break;
+			case 'w':
+				wait_at_exit = true;
+				break;
+			case 'd':
+				// *TODO: should come from error config file. We set it to
+				// ERROR by default, so this allows full debug levels.
+				LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+				break;
+			case 'x':
+				suite_name.assign(opt_arg);
+				break;
+			default:
+				stream_usage(std::cerr, argv[0]);
+				return 1;
+				break;
 		}
 	}
 
 	// run the tests
-	LLTestCallback callback(verbose_mode, output);
-	tut::runner.get().set_callback(&callback);
-	
+
+	LLTestCallback* mycallback;
+	if (getenv("TEAMCITY_PROJECT_NAME"))
+	{
+		mycallback = new LLTCTestCallback(verbose_mode, output);		
+	}
+	else
+	{
+		mycallback = new LLTestCallback(verbose_mode, output);
+	}
+
+	tut::runner.get().set_callback(mycallback);
+
 	if(test_group.empty())
 	{
 		tut::runner.get().run_tests();
@@ -341,14 +455,14 @@ int main(int argc, char **argv)
 		tut::runner.get().run_tests(test_group);
 	}
 
-	bool success = (callback.getFailedTests() == 0);
+	bool success = (mycallback->getFailedTests() == 0);
 
 	if (wait_at_exit)
 	{
 		std::cerr << "Press return to exit..." << std::endl;
 		std::cin.get();
 	}
-	
+
 	if (output)
 	{
 		output->close();
@@ -362,9 +476,11 @@ int main(int argc, char **argv)
 		s << "ok" << std::endl;
 		s.close();
 	}
-	
+
 	apr_terminate();
-	
+
 	int retval = (success ? 0 : 1);
 	return retval;
+
+	//delete mycallback;
 }

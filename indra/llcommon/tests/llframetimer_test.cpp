@@ -43,7 +43,7 @@ namespace tut
 	};
 	typedef test_group<frametimer_test> frametimer_group_t;
 	typedef frametimer_group_t::object frametimer_object_t;
-	tut::frametimer_group_t frametimer_instance("frametimer");
+	tut::frametimer_group_t frametimer_instance("LLFrameTimer");
 
 	template<> template<>
 	void frametimer_object_t::test<1>()

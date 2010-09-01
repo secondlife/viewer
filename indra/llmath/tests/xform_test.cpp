@@ -38,7 +38,7 @@ namespace tut
 	};
 	typedef test_group<xform_test> xform_test_t;
 	typedef xform_test_t::object xform_test_object_t;
-	tut::xform_test_t tut_xform_test("xform_test");
+	tut::xform_test_t tut_xform_test("LLXForm");
 
 	//test case for init(), getParent(), getRotation(), getPositionW(), getWorldRotation() fns.
 	template<> template<>

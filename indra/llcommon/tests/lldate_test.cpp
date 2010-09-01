@@ -71,7 +71,7 @@ namespace tut
 	};
 	typedef test_group<date_test> date_test_t;
 	typedef date_test_t::object date_test_object_t;
-	tut::date_test_t tut_date_test("date_test");
+	tut::date_test_t tut_date_test("LLDate");
 
 	/* format validation */
 	template<> template<>

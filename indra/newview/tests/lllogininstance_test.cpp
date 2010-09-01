@@ -314,7 +314,7 @@ namespace tut
 
     typedef test_group<lllogininstance_data> lllogininstance_group;
     typedef lllogininstance_group::object lllogininstance_object;
-    lllogininstance_group llsdmgr("lllogininstance");
+    lllogininstance_group llsdmgr("LLLoginInstance");
 
     template<> template<>
     void lllogininstance_object::test<1>()

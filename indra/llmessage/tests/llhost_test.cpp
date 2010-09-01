@@ -39,7 +39,7 @@ namespace tut
 	};
 	typedef test_group<host_data> host_test;
 	typedef host_test::object host_object;
-	tut::host_test host_testcase("llhost");
+	tut::host_test host_testcase("LLHost");
 
 
 	template<> template<>

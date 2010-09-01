@@ -39,7 +39,7 @@ namespace tut
 	};
 	typedef test_group<modularmath_data> modularmath_test;
 	typedef modularmath_test::object modularmath_object;
-	tut::modularmath_test modularmath_testcase("modularmath");
+	tut::modularmath_test modularmath_testcase("LLModularMath");
 
 	template<> template<>
 	void modularmath_object::test<1>()

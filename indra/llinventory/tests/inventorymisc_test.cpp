@@ -100,7 +100,7 @@ namespace tut
 	};
 	typedef test_group<inventory_data> inventory_test;
 	typedef inventory_test::object inventory_object;
-	tut::inventory_test inv("llinventory");
+	tut::inventory_test inv("LLInventory");
 
 //***class LLInventoryType***//
 
