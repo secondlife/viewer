@@ -19,7 +19,7 @@ email_status_this_is_os = true
 # ========================================
 
 # Report changes since...
-viewer-development.show_changes_since = 2-1-release
+viewer-development.show_changes_since = last_sprint
 
 # Build Settings
 viewer-development_coverity.coverity_product = viewer

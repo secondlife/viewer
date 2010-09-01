@@ -1062,9 +1062,9 @@
 	<string name="Sound" value=" Son :"/>
 	<string name="Wait" value=" --- Attendre :"/>
 	<string name="AnimFlagStop" value=" Arrêter l&apos;animation :"/>
-	<string name="AnimFlagStart" value=" Démarrer l&apos;animation :"/>
+	<string name="AnimFlagStart" value=" Lancer l&apos;animation :"/>
 	<string name="Wave" value=" Faire signe"/>
-	<string name="GestureActionNone" value="Aucune"/>
+	<string name="GestureActionNone" value="À choisir"/>
 	<string name="HelloAvatar" value=" Bonjour, avatar !"/>
 	<string name="ViewAllGestures" value="  Tout afficher &gt;&gt;"/>
 	<string name="GetMoreGestures" value="Plus &gt;&gt;"/>
