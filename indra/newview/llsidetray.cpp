@@ -214,10 +214,10 @@ void LLSideTrayTab::toggleTabDocked()
 {
 	std::string tab_name = getName();
 
-	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab_name));
+	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 	if (!floater_tab) return;
 
-	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", tab_name));
+	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 
 	LLSideTray* side_tray = LLSideTray::getInstance();
 
@@ -336,7 +336,7 @@ public:
 
 			tab->toggleTabDocked();
 
-			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getName()));
+			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab->getName());
 			if (!floater_tab) return FALSE;
 
 			LLRect original_rect = floater_tab->getRect();
@@ -502,7 +502,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 	}
 	else
 	{
-		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab_name));
+		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 		if (!floater_tab) return NULL;
 
 		// Restore the floater if it was minimized.

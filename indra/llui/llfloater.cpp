@@ -2664,18 +2664,26 @@ void LLFloater::setInstanceName(const std::string& name)
 	mInstanceName = name;
 	if (!mInstanceName.empty())
 	{
+		std::string ctrl_name = mInstanceName;
+
+		// Add the key to the control name if appropriate.
+		if (mKey.isString() && !mKey.asString().empty())
+		{
+			ctrl_name += "_" + mKey.asString();
+		}
+
 		// save_rect and save_visibility only apply to registered floaters
 		if (!mRectControl.empty())
 		{
-			mRectControl = LLFloaterReg::declareRectControl(mInstanceName);
+			mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
 		}
 		if (!mVisibilityControl.empty())
 		{
-			mVisibilityControl = LLFloaterReg::declareVisibilityControl(mInstanceName);
+			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
 		}
 		if(!mDocStateControl.empty())
 		{
-			mDocStateControl = LLFloaterReg::declareDockStateControl(mInstanceName);
+			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
 
 	}
