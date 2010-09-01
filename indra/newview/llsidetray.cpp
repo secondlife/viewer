@@ -250,6 +250,13 @@ void LLSideTrayTab::toggleTabDocked()
 		{
 			side_tray->collapseSideBar();
 		}
+
+		if (side_tray->getActiveTab() != this)
+		{
+			// When a tab other then current active tab is detached from Side Tray
+			// onOpen() should be called as tab visibility is changed.
+			onOpen(LLSD());
+		}
 	}
 	else
 	{
