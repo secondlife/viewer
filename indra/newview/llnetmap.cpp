@@ -361,7 +361,8 @@ void LLNetMap::draw()
 					show_as_friend ? map_avatar_friend_color : map_avatar_color, 
 					pos_map.mV[VZ], mDotRadius);
 
-				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]), LLVector2(local_mouse_x,local_mouse_y));
+				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+											  LLVector2(local_mouse_x,local_mouse_y));
 				if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
 				{
 					closest_dist = dist_to_cursor;
@@ -400,8 +401,14 @@ void LLNetMap::draw()
 					  llround(pos_map.mV[VY] - mDotRadius),
 					  dot_width,
 					  dot_width);
-		}
 
+			F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+										  LLVector2(local_mouse_x,local_mouse_y));
+			if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+			{
+				mClosestAgentToCursor = gAgent.getID();
+			}
+		}
 
 		// Draw frustum
 		F32 meters_to_pixels = mScale/ LLWorld::getInstance()->getRegionWidthInMeters();
@@ -560,20 +567,32 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		return FALSE;
 	}
-	
-	// mToolTipMsg = "[AGENT][REGION](Double-click to open Map)"
-	
+
+	std::string avatar_name;
+	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, avatar_name))
+	{
+		// only show tooltip if same inspector not already open
+		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+		if (!existing_inspector 
+			|| !existing_inspector->getVisible()
+			|| existing_inspector->getKey()["avatar_id"].asUUID() != mClosestAgentToCursor)
+		{
+			LLInspector::Params p;
+			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+			p.message(avatar_name);
+			p.image.name("Inspector_I");
+			p.click_callback(boost::bind(showAvatarInspector, mClosestAgentToCursor));
+			p.visible_time_near(6.f);
+			p.visible_time_far(3.f);
+			p.delay_time(0.35f);
+			p.wrap(false);
+
+			LLToolTipMgr::instance().show(p);
+		}
+		return TRUE;
+	}
+
 	LLStringUtil::format_map_t args;
-	std::string fullname;
-	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, fullname))
-	{
-		args["[AGENT]"] = fullname + "\n";
-	}
-	else
-	{
-		args["[AGENT]"] = "";
-	}
-	
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
 	if( region )
 	{
@@ -583,10 +602,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		args["[REGION]"] = "";
 	}
-	
+
 	std::string msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);
-	
+
 	LLRect sticky_rect;
 	// set sticky_rect
 	if (region)
@@ -606,6 +625,21 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
+// static
+void LLNetMap::showAvatarInspector(const LLUUID& avatar_id)
+{
+	LLSD params;
+	params["avatar_id"] = avatar_id;
+
+	if (LLToolTipMgr::instance().toolTipVisible())
+	{
+		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
+		params["pos"]["x"] = rect.mLeft;
+		params["pos"]["y"] = rect.mTop;
+	}
+
+	LLFloaterReg::showInstance("inspect_avatar", params);
+}
 
 void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius_meters )
 {

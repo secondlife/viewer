@@ -86,7 +86,8 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
-	
+	static void		showAvatarInspector(const LLUUID& avatar_id);
+
 	void			createObjectImage();
 
 private:
