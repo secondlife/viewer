@@ -3025,14 +3025,6 @@ void LLAppViewer::migrateCacheDirectory()
 #endif // LL_WINDOWS || LL_DARWIN
 }
 
-//static
-S32 LLAppViewer::getCacheVersion() 
-{
-	static const S32 cache_version = 7;
-
-	return cache_version ;
-}
-
 void dumpVFSCaches()
 {
 	llinfos << "======= Static VFS ========" << llendl;
@@ -3071,23 +3063,40 @@ void dumpVFSCaches()
 	SetCurrentDirectory(w_str);
 #endif
 }
+
+//static
+U32 LLAppViewer::getTextureCacheVersion() 
+{
+	//viewer texture cache version, change if the texture cache format changes.
+	const U32 TEXTURE_CACHE_VERSION = 7;
+
+	return TEXTURE_CACHE_VERSION ;
+}
+
+//static
+U32 LLAppViewer::getObjectCacheVersion() 
+{
+	// Viewer object cache version, change if object update
+	// format changes. JC
+	const U32 INDRA_OBJECT_CACHE_VERSION = 14;
+
+	return INDRA_OBJECT_CACHE_VERSION;
+}
+
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
-	BOOL disable_texture_cache = FALSE ;
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
+	LLVOCache::getInstance()->setReadOnly(read_only);
 
-	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getCacheVersion()) 
+	BOOL texture_cache_mismatch = FALSE ;
+	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion()) 
 	{
-		if(read_only) 
+		texture_cache_mismatch = TRUE ;
+		if(!read_only) 
 		{
-			disable_texture_cache = TRUE ; //if the cache version of this viewer is different from the running one, this viewer can not use the texture cache.
-		}
-		else
-		{
-			mPurgeCache = true; // Purge cache if the version number is different.
-			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getCacheVersion());
+			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
 		}
 	}
 
@@ -3138,8 +3147,10 @@ bool LLAppViewer::initCache()
 	const S64 MAX_CACHE_SIZE = 1024*MB;
 	cache_size = llmin(cache_size, MAX_CACHE_SIZE);
 	S64 texture_cache_size = ((cache_size * 8)/10);
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, disable_texture_cache);
+	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
+
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 	
@@ -3303,6 +3314,7 @@ void LLAppViewer::purgeCache()
 {
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << llendl;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
+	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
 	std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
 	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 }

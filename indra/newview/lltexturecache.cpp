@@ -927,7 +927,7 @@ void LLTextureCache::setReadOnly(BOOL read_only)
 }
 
 //called in the main thread.
-S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL disable_texture_cache)
+S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache_mismatch)
 {
 	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
 
@@ -942,19 +942,22 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL disable_textu
 		sCacheMaxTexturesSize = max_size;
 	max_size -= sCacheMaxTexturesSize;
 	
-	if(disable_texture_cache) //the texture cache is disabled
-	{
-		llinfos << "The texture cache is disabled!" << llendl ;
-		setReadOnly(TRUE) ;
-		purgeAllTextures(true); 
-
-		return max_size ;
-	}
-
 	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
 			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
 
 	setDirNames(location);
+	
+	if(texture_cache_mismatch) 
+	{
+		//if readonly, disable the texture cache,
+		//otherwise wipe out the texture cache.
+		purgeAllTextures(true); 
+
+		if(mReadOnly)
+		{
+			return max_size ;
+		}
+	}
 	
 	if (!mReadOnly)
 	{
