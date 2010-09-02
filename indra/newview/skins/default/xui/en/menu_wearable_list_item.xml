@@ -37,11 +37,11 @@
          function="Attachment.Detach" />
     </menu_item_call>
     <context_menu
-     label="Attach to  ▶"
+     label="Attach to"
      layout="topleft"
      name="wearable_attach_to" />
     <context_menu
-     label="Attach to HUD  ▶"
+     label="Attach to HUD"
      layout="topleft"
      name="wearable_attach_to_hud" />
     <menu_item_call

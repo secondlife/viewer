@@ -246,58 +246,58 @@ BOOL LLVOAvatarSelf::buildMenus()
 	gAttachBodyPartPieMenus[0] = NULL;
 
 	LLContextMenu::Params params;
-	params.label(LLTrans::getString("BodyPartsRightArm") + " >");
+	params.label(LLTrans::getString("BodyPartsRightArm"));
 	params.name(params.label);
 	params.visible(false);
 	gAttachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsHead") + " >");
+	params.label(LLTrans::getString("BodyPartsHead"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsLeftArm") + " >");
+	params.label(LLTrans::getString("BodyPartsLeftArm"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gAttachBodyPartPieMenus[4] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsLeftLeg") + " >");
+	params.label(LLTrans::getString("BodyPartsLeftLeg"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsTorso") + " >");
+	params.label(LLTrans::getString("BodyPartsTorso"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsRightLeg") + " >");
+	params.label(LLTrans::getString("BodyPartsRightLeg"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gDetachBodyPartPieMenus[0] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsRightArm") + " >");
+	params.label(LLTrans::getString("BodyPartsRightArm"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsHead") + " >");
+	params.label(LLTrans::getString("BodyPartsHead"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsLeftArm") + " >");
+	params.label(LLTrans::getString("BodyPartsLeftArm"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gDetachBodyPartPieMenus[4] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsLeftLeg") + " >");
+	params.label(LLTrans::getString("BodyPartsLeftLeg"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsTorso") + " >");
+	params.label(LLTrans::getString("BodyPartsTorso"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsRightLeg") + " >");
+	params.label(LLTrans::getString("BodyPartsRightLeg"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
