@@ -402,6 +402,14 @@ void LLPipeline::init()
 		toggleRenderType(RENDER_TYPE_GROUND);
 	}
 
+	// make sure RenderPerformanceTest persists (hackity hack hack)
+	// disables non-object rendering (UI, sky, water, etc)
+	if (gSavedSettings.getBOOL("RenderPerformanceTest"))
+	{
+		gSavedSettings.setBOOL("RenderPerformanceTest", FALSE);
+		gSavedSettings.setBOOL("RenderPerformanceTest", TRUE);
+	}
+
 	mOldRenderDebugMask = mRenderDebugMask;
 
 	mBackfaceCull = TRUE;
@@ -5357,6 +5365,18 @@ BOOL LLPipeline::toggleRenderDebugFeatureControl(void* data)
 {
 	U32 bit = (U32)(intptr_t)data;
 	return gPipeline.hasRenderDebugFeatureMask(bit);
+}
+
+void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
+{
+	if (value)
+	{
+		gPipeline.mRenderDebugFeatureMask |= bit;
+	}
+	else
+	{
+		gPipeline.mRenderDebugFeatureMask &= !bit;
+	}
 }
 
 // static

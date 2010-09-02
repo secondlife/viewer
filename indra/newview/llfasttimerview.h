@@ -50,6 +50,7 @@ private:
 	static void doAnalysisMetrics(std::string baseline, std::string target, std::string output) ;
 	static LLSD analyzeMetricPerformanceLog(std::istream& is) ;
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
+	static void exportCharts(const std::string& base, const std::string& target);
 
 public:
 
