@@ -1015,7 +1015,9 @@ void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name,
 	if(!sub_panel)
 		return;
 
-	if (sub_panel->isInVisibleChain())
+	// If a panel is visible and attached to Side Tray (has LLSideTray among its ancestors)
+	// it should be toggled off by collapsing Side Tray.
+	if (sub_panel->isInVisibleChain() && sub_panel->hasAncestor(this))
 	{
 		LLSideTray::getInstance()->collapseSideBar();
 	}
