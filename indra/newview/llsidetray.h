@@ -173,6 +173,7 @@ protected:
 	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
 									LLUICtrl::commit_callback_t callback);
 	void		arrange			();
+	void		detachTabs		();
 	void		reflectCollapseChange();
 
 	void		toggleTabButton	(LLSideTrayTab* tab);

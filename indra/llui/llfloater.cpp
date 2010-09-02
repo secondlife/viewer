@@ -519,6 +519,36 @@ void LLFloater::storeDockStateControl()
 	}
 }
 
+LLRect LLFloater::getSavedRect() const
+{
+	LLRect rect;
+
+	if (mRectControl.size() > 1)
+	{
+		rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+	}
+
+	return rect;
+}
+
+bool LLFloater::hasSavedRect() const
+{
+	return !getSavedRect().isEmpty();
+}
+
+// static
+std::string LLFloater::getControlName(const std::string& name, const LLSD& key)
+{
+	std::string ctrl_name = name;
+
+	// Add the key to the control name if appropriate.
+	if (key.isString() && !key.asString().empty())
+	{
+		ctrl_name += "_" + key.asString();
+	}
+
+	return ctrl_name;
+}
 
 void LLFloater::setVisible( BOOL visible )
 {
@@ -2664,13 +2694,7 @@ void LLFloater::setInstanceName(const std::string& name)
 	mInstanceName = name;
 	if (!mInstanceName.empty())
 	{
-		std::string ctrl_name = mInstanceName;
-
-		// Add the key to the control name if appropriate.
-		if (mKey.isString() && !mKey.asString().empty())
-		{
-			ctrl_name += "_" + mKey.asString();
-		}
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
 
 		// save_rect and save_visibility only apply to registered floaters
 		if (!mRectControl.empty())

@@ -3,5 +3,6 @@
  can_close="false"
  can_resize="true"
  save_rect="true"
+ save_visibility="true"
  >
 </floater>
