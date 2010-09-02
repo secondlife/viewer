@@ -43,7 +43,7 @@ namespace tut
 	};
 	typedef test_group<v3dmath_data> v3dmath_test;
 	typedef v3dmath_test::object v3dmath_object;
-	tut::v3dmath_test v3dmath_testcase("v3dmath");
+	tut::v3dmath_test v3dmath_testcase("v3dmath_h");
 
 	template<> template<>
 	void v3dmath_object::test<1>()

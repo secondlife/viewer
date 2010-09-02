@@ -112,7 +112,7 @@ namespace tut
 	
 	typedef test_group<LLPluginCookieStoreFixture> factory;
 	typedef factory::object object;
-	factory tf("LLPluginCookieStore test");
+	factory tf("LLPluginCookieStore");
 
 	// Tests
 	template<> template<>

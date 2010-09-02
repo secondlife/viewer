@@ -39,7 +39,7 @@ namespace tut
 	};
 	typedef test_group<v2math_data> v2math_test;
 	typedef v2math_test::object v2math_object;
-	tut::v2math_test v2math_testcase("v2math");
+	tut::v2math_test v2math_testcase("v2math_h");
 
 	template<> template<>
 	void v2math_object::test<1>()

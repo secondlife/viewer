@@ -41,7 +41,7 @@ namespace tut
 	};
 	typedef test_group<v4math_data> v4math_test;
 	typedef v4math_test::object v4math_object;
-	tut::v4math_test v4math_testcase("v4math");
+	tut::v4math_test v4math_testcase("v4math_h");
 
 	template<> template<>
 	void v4math_object::test<1>()

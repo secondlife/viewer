@@ -98,7 +98,7 @@ namespace tut
 
 namespace
 {
-	tut::factory tf("LLTemplateMessageDispatcher test");
+	tut::factory tf("LLTemplateMessageDispatcher");
 }
 
 namespace tut

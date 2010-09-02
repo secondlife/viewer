@@ -79,7 +79,7 @@ namespace tut
 
 namespace
 {
-	tut::factory tf("LLRegionPresenceVerifier test");
+	tut::factory tf("LLRegionPresenceVerifier");
 }
 
 namespace tut

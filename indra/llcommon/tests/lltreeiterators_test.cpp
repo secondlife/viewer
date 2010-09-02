@@ -56,7 +56,7 @@ namespace tut
     };
     typedef test_group<iter_data> iter_group;
     typedef iter_group::object iter_object;
-    tut::iter_group ig("lltreeiterators");
+    tut::iter_group ig("LLTreeIterators");
 } // namespace tut
 
 /*****************************************************************************

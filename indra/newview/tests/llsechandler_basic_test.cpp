@@ -311,7 +311,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<sechandler_basic_test> sechandler_basic_test_factory;
 	typedef sechandler_basic_test_factory::object sechandler_basic_test_object;
-	tut::sechandler_basic_test_factory tut_test("llsechandler_basic");
+	tut::sechandler_basic_test_factory tut_test("LLSecHandler");
 	
 	// ---------------------------------------------------------------------------------------
 	// Test functions 

@@ -222,7 +222,7 @@ do
       fi
     else
       begin_section "Build$variant"
-      build "$variant" "$build_dir" >> "$build_log" 2>&1
+      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | grep --line-buffered "^##teamcity"
       if `cat "$build_dir/build_ok"`
       then
         echo so far so good.
@@ -251,7 +251,7 @@ then
     begin_section "Build$variant"
     build_dir=`build_dir_$arch $variant`
     build_dir_stubs="$build_dir/win_setup/$variant"
-    cat "$build_dir/build.log" >> "$build_log"
+    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
     if `cat "$build_dir/build_ok"`
     then
       echo so far so good.

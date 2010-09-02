@@ -103,7 +103,7 @@ namespace tut
     
 	typedef test_group<dateutil> dateutil_t;
 	typedef dateutil_t::object dateutil_object_t;
-	tut::dateutil_t tut_dateutil("dateutil");
+	tut::dateutil_t tut_dateutil("LLDateUtil");
 
 	template<> template<>
 	void dateutil_object_t::test<1>()

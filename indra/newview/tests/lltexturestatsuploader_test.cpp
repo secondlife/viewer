@@ -90,7 +90,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<texturestatsuploader_test> texturestatsuploader_t;
 	typedef texturestatsuploader_t::object texturestatsuploader_object_t;
-	tut::texturestatsuploader_t tut_texturestatsuploader("texturestatsuploader");
+	tut::texturestatsuploader_t tut_texturestatsuploader("LLTextureStatsUploader");
 
 	
 	// ---------------------------------------------------------------------------------------

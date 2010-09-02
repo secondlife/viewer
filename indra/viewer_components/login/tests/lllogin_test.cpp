@@ -226,7 +226,7 @@ namespace tut
 
     typedef test_group<llviewerlogin_data> llviewerlogin_group;
     typedef llviewerlogin_group::object llviewerlogin_object;
-    llviewerlogin_group llviewerlogingrp("llviewerlogin");
+    llviewerlogin_group llviewerlogingrp("LLViewerLogin");
 
     template<> template<>
     void llviewerlogin_object::test<1>()

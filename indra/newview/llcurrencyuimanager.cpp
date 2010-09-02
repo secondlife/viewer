@@ -164,6 +164,7 @@ void LLCurrencyUIManager::Impl::updateCurrencyInfo()
 	keywordArgs.appendString(
 		"secureSessionId",
 		gAgent.getSecureSessionID().asString());
+	keywordArgs.appendString("language", LLUI::getLanguage());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	keywordArgs.appendString("viewerChannel", gSavedSettings.getString("VersionChannelName"));
 	keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::getMajor());
@@ -225,6 +226,7 @@ void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 	keywordArgs.appendString(
 		"secureSessionId",
 		gAgent.getSecureSessionID().asString());
+	keywordArgs.appendString("language", LLUI::getLanguage());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	if (mUSDCurrencyEstimated)
 	{

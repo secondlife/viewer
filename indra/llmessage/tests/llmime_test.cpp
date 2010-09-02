@@ -41,7 +41,7 @@ namespace tut
 	};
 	typedef test_group<mime_index> mime_index_t;
 	typedef mime_index_t::object mime_index_object_t;
-	tut::mime_index_t tut_mime_index("mime_index");
+	tut::mime_index_t tut_mime_index("LLMime");
 
 	template<> template<>
 	void mime_index_object_t::test<1>()
@@ -228,7 +228,7 @@ namespace tut
 	};
 	typedef test_group<mime_parse> mime_parse_t;
 	typedef mime_parse_t::object mime_parse_object_t;
-	tut::mime_parse_t tut_mime_parse("mime_parse");
+	tut::mime_parse_t tut_mime_parse("LLMimeParse");
 
 	template<> template<>
 	void mime_parse_object_t::test<1>()

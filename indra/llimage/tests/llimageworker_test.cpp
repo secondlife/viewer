@@ -144,11 +144,11 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<imagedecodethread_test> imagedecodethread_t;
 	typedef imagedecodethread_t::object imagedecodethread_object_t;
-	tut::imagedecodethread_t tut_imagedecodethread("imagedecodethread");
+	tut::imagedecodethread_t tut_imagedecodethread("LLImageDecodeThread");
 
 	typedef test_group<imagerequest_test> imagerequest_t;
 	typedef imagerequest_t::object imagerequest_object_t;
-	tut::imagerequest_t tut_imagerequest("imagerequest");
+	tut::imagerequest_t tut_imagerequest("LLImageRequest");
 
 	// ---------------------------------------------------------------------------------------
 	// Test functions

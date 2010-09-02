@@ -47,7 +47,10 @@
 //
 // Constants
 //
-const F32 MAP_MINOR_DIR_THRESHOLD = 0.08f;
+
+// The minor cardinal direction labels are hidden if their height is more
+// than this proportion of the map.
+const F32 MAP_MINOR_DIR_THRESHOLD = 0.07f;
 const S32 MAP_PADDING_LEFT = 0;
 const S32 MAP_PADDING_TOP = 2;
 const S32 MAP_PADDING_RIGHT = 2;
@@ -93,7 +96,7 @@ BOOL LLFloaterMap::postBuild()
 	mTextBoxNorthWest = getChild<LLTextBox> ("floater_map_northwest");
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	
+
 	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
 
@@ -255,7 +258,7 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterMap::handleZoom(const LLSD& userdata)
 {
 	std::string level = userdata.asString();
-	
+
 	F32 scale = 0.0f;
 	if (level == std::string("close"))
 		scale = LLNetMap::MAP_SCALE_MAX;

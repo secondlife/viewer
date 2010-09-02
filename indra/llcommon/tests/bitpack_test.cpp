@@ -40,7 +40,7 @@ namespace tut
 	};
 	typedef test_group<bit_pack> bit_pack_t;
 	typedef bit_pack_t::object bit_pack_object_t;
-	tut::bit_pack_t tut_bit_pack("bitpack");
+	tut::bit_pack_t tut_bit_pack("LLBitPack");
 
 	// pack -> unpack
 	template<> template<>

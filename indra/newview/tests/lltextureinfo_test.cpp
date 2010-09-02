@@ -68,7 +68,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<textureinfo_test> textureinfo_t;
 	typedef textureinfo_t::object textureinfo_object_t;
-	tut::textureinfo_t tut_textureinfo("textureinfo");
+	tut::textureinfo_t tut_textureinfo("LLTectureInfo");
 
 	
 	// ---------------------------------------------------------------------------------------

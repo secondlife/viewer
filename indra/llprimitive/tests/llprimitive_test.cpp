@@ -96,7 +96,7 @@ namespace tut
     
 	typedef test_group<llprimitive> llprimitive_t;
 	typedef llprimitive_t::object llprimitive_object_t;
-	tut::llprimitive_t tut_llprimitive("llprimitive");
+	tut::llprimitive_t tut_llprimitive("LLPrimitive");
 
 	template<> template<>
 	void llprimitive_object_t::test<1>()

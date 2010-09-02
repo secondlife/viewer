@@ -44,7 +44,7 @@ namespace tut
 	};
 	typedef test_group<partdata_test> partdata_test_t;
 	typedef partdata_test_t::object partdata_test_object_t;
-	tut::partdata_test_t tut_partdata_test("partdata_test");
+	tut::partdata_test_t tut_partdata_test("LLPartData");
 
 	template<> template<>
 	void partdata_test_object_t::test<1>()

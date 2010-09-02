@@ -172,4 +172,13 @@ oz_viewer-review2_coverity.build_CYGWIN_Debug = false
 oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
 oz_viewer-review2_coverity.build_CYGWIN_Release = false
 
+# ========================================
+# enus
+# ========================================
+
+viewer-tut-teamcity.email = enus@lindenlab.com
+viewer-tut-teamcity.build_server = false
+viewer-tut-teamcity.build_server_tests = false
+
+
 # eof
