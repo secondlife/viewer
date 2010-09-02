@@ -22,6 +22,18 @@
      <button
      follows="right|top"
      height="16"
+     image_selected="tearoffbox.tga"
+     image_unselected="tearoffbox.tga"
+     image_disabled="tearoff_pressed.tga"
+     layout="topleft"
+     name="undock"
+     top="10"
+     right="-28"
+     width="16"
+     tool_tip="Undock" />
+     <button
+     follows="right|top"
+     height="16"
      image_selected="Icon_Dock_Press"
      image_unselected="Icon_Dock_Foreground"
      image_disabled="Icon_Dock_Press"
@@ -30,7 +42,8 @@
      top="10"
      right="-28"
      width="16"
-     tool_tip="Dock/Undock tab" />
+     tool_tip="Dock"
+     visible="false" />
      <button
      follows="right|top"
      height="16"

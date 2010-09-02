@@ -176,6 +176,7 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
+	getChild<LLButton>("undock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
 	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
 
 	return true;
@@ -221,7 +222,14 @@ void LLSideTrayTab::toggleTabDocked()
 
 	LLSideTray* side_tray = LLSideTray::getInstance();
 
-	if (LLFloater::isShown(floater_tab))
+	bool is_tab_undocked = LLFloater::isShown(floater_tab);
+
+	// Hide the "Tear Off" button when a tab gets undocked
+	// and show "Dock" button instead.
+	getChild<LLButton>("undock")->setVisible(!is_tab_undocked);
+	getChild<LLButton>("dock")->setVisible(is_tab_undocked);
+
+	if (is_tab_undocked)
 	{
 		// Remove the tab from Side Tray's tabs list.
 		// We have to do it despite removing the tab from Side Tray's child view tree
