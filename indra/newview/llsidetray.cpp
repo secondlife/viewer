@@ -529,12 +529,14 @@ void LLSideTray::handleLoginComplete()
 
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 {
-	return getChild<LLSideTrayTab>(name,false);
+	return findChild<LLSideTrayTab>(name,false);
 }
 
 bool LLSideTray::isTabAttached(const std::string& name)
 {
 	LLSideTrayTab* tab = getTab(name);
+	if (!tab) return false;
+
 	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();
 }
 
@@ -619,6 +621,7 @@ bool LLSideTray::selectTabByIndex(size_t index)
 bool LLSideTray::selectTabByName	(const std::string& name)
 {
 	LLSideTrayTab* new_tab = getTab(name);
+	if (!new_tab) return false;
 
 	// Bail out if already selected.
 	if (new_tab == mActiveTab)
@@ -865,8 +868,10 @@ void		LLSideTray::processTriState ()
 
 void		LLSideTray::onTabButtonClick(string name)
 {
-	LLSideTrayTab* side_bar = getTab(name);
-	if(side_bar == mActiveTab)
+	LLSideTrayTab* tab = getTab(name);
+	if (!tab) return;
+
+	if(tab == mActiveTab)
 	{
 		processTriState ();
 		return;
@@ -1141,6 +1146,17 @@ LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse)
 
 LLPanel* LLSideTray::getPanel(const std::string& panel_name)
 {
+	// Look up the panel in the list of detached tabs.
+	for ( child_vector_const_iter_t child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+	{
+		LLPanel *panel = findChildPanel(*child_it,panel_name,true);
+		if(panel)
+		{
+			return panel;
+		}
+	}
+
+	// Look up the panel in the list of attached tabs.
 	for ( child_vector_const_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
 		LLPanel *panel = findChildPanel(*child_it,panel_name,true);
