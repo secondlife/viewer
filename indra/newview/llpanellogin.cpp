@@ -834,7 +834,7 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLoginID().c_str(), 0);
+	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLabel().c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
