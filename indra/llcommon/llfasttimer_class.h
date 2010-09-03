@@ -37,7 +37,7 @@
 
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
-#define DEBUG_FAST_TIMER_THREADS 1
+#define DEBUG_FAST_TIMER_THREADS 0
 
 class LLMutex;
 
