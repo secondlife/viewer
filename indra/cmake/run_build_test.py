@@ -22,7 +22,7 @@ python run_build_test.py -DFOO=bar myprog somearg otherarg
 sets environment variable FOO=bar, then runs:
 myprog somearg otherarg
 
-$LicenseInfo:firstyear=2009&license=internal$
+$LicenseInfo:firstyear=2009&license=viewergpl$
 Copyright (c) 2009, Linden Research, Inc.
 $/LicenseInfo$
 """
