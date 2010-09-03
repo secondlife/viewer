@@ -2,6 +2,7 @@
 <floater
  can_close="false"
  can_resize="true"
+ min_width="150"
  save_rect="true"
  save_visibility="true"
  >
