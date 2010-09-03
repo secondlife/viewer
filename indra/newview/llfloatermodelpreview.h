@@ -118,6 +118,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void setTexture(U32 name) { mTextureName = name; }
 
 	BOOL render();
+	void update();
 	void genBuffers(S32 lod);
 	void refresh();
 	void rotate(F32 yaw_radians, F32 pitch_radians);
@@ -145,6 +146,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLFloaterModelPreview* mFMP;
 
 	BOOL        mNeedsUpdate;
+	bool		mDirty;
 	U32         mTextureName;
 	F32			mCameraDistance;
 	F32			mCameraYaw;

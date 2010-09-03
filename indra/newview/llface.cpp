@@ -198,18 +198,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mHasMedia = FALSE ;
 }
 
-static LLFastTimer::DeclareTimer FTM_DESTROY_FACE("Destroy Face");
-static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE("Texture");
-static LLFastTimer::DeclareTimer FTM_DESTROY_DRAWPOOL("Drawpool");
-static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE_MATRIX("Texture Matrix");
-static LLFastTimer::DeclareTimer FTM_DESTROY_DRAW_INFO("Draw Info");
-static LLFastTimer::DeclareTimer FTM_DESTROY_ATLAS("Atlas");
-static LLFastTimer::DeclareTimer FTM_FACE_DEREF("Deref");
-
 void LLFace::destroy()
 {
-	LLFastTimer t(FTM_DESTROY_FACE);
-
 	if (gDebugGL)
 	{
 		gPipeline.checkReferences(this);
@@ -217,14 +207,11 @@ void LLFace::destroy()
 
 	if(mTexture.notNull())
 	{
-		LLFastTimer t(FTM_DESTROY_TEXTURE);
 		mTexture->removeFace(this) ;
 	}
 	
 	if (mDrawPoolp)
 	{
-		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
-
 #if LL_MESH_ENABLED
 		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
 		{
@@ -241,7 +228,6 @@ void LLFace::destroy()
 
 	if (mTextureMatrix)
 	{
-		LLFastTimer t(FTM_DESTROY_TEXTURE_MATRIX);
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
 
@@ -256,22 +242,12 @@ void LLFace::destroy()
 		}
 	}
 	
-	{
-		LLFastTimer t(FTM_DESTROY_DRAW_INFO);
-		setDrawInfo(NULL);
-	}
+	setDrawInfo(NULL);
+	removeAtlas();
+		
+	mDrawablep = NULL;
+	mVObjp = NULL;
 	
-	{
-		LLFastTimer t(FTM_DESTROY_ATLAS);
-		removeAtlas();
-	}
-	
-	{
-		LLFastTimer t(FTM_FACE_DEREF);
-		mDrawablep = NULL;
-		mVObjp = NULL;
-	}
-
 	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
 }

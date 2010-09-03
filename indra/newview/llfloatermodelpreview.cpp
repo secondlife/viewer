@@ -557,6 +557,8 @@ void LLFloaterModelPreview::draw()
 	LLFloater::draw();
 	LLRect r = getRect();
 
+	mModelPreview->update();
+	
 	if (!mLoading)
 	{
 		childSetTextArg("status", "[STATUS]", getString("status_idle"));
@@ -1813,6 +1815,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp
 	mTextureName = 0;
 	mPreviewLOD = 3;
 	mModelLoader = NULL;
+	mDirty = false;
 
 	mLODMode[0] = 0;
 
@@ -1881,7 +1884,7 @@ U32 LLModelPreview::calcResourceCost()
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
 
 	updateStatusMessages();
-
+	
 	return cost;
 }
 
@@ -2024,8 +2027,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	clearIncompatible(lod);
 
-	mResourceCost = calcResourceCost();
-
+	mDirty = true;
+	
 	mPreviewTarget = (mModelLoader->mExtents[0] + mModelLoader->mExtents[1]) * 0.5f;
 	mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
 	setPreviewTarget(mPreviewScale.magVec()*2.f);
@@ -2861,6 +2864,15 @@ void LLModelPreview::genBuffers(S32 lod)
 
 			lim->setMaxValue(tri_count);
 		}
+	}
+}
+
+void LLModelPreview::update()
+{
+	if (mDirty)
+	{
+		mDirty = false;
+		mResourceCost = calcResourceCost();
 	}
 }
 

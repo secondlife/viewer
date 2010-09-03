@@ -37,11 +37,16 @@
 
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
+#define DEBUG_FAST_TIMER_THREADS 1
 
 class LLMutex;
 
 #include <queue>
 #include "llsd.h"
+
+#if DEBUG_FAST_TIMER_THREADS
+void assert_main_thread();
+#endif
 
 class LL_COMMON_API LLFastTimer
 {
@@ -181,6 +186,9 @@ public:
 #if TIME_FAST_TIMERS
 		U64 timer_end = getCPUClockCount64();
 		sTimerCycles += timer_end - timer_start;
+#endif
+#if DEBUG_FAST_TIMER_THREADS
+		assert_main_thread();
 #endif
 	}
 
