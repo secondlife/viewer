@@ -209,6 +209,8 @@ private:
     
     void idle(); 
     void idleShutdown();
+	// update avatar SLID and display name caches
+	void idleNameCache();
     void idleNetwork();
 
     void sendLogoutRequest();

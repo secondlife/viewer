@@ -32,10 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llavatarconstants.h"
-#include "lluserrelations.h"
-
 #include "llpanelprofileview.h"
+
+#include "llavatarconstants.h"
+#include "llavatarnamecache.h"	// IDEVO
+#include "lluserrelations.h"
 
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -104,11 +105,15 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	if(id.notNull() && getAvatarId() != id)
 	{
 		setAvatarId(id);
+
+		// clear name fields, which might have old data
+		getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+		getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
 	}
 
 	// Update the avatar name.
-	gCacheName->get(getAvatarId(), FALSE,
-		boost::bind(&LLPanelProfileView::onAvatarNameCached, this, _1, _2, _3, _4));
+	LLAvatarNameCache::get(getAvatarId(),
+		boost::bind(&LLPanelProfileView::onAvatarNameCache, this, _1, _2));
 
 	updateOnlineStatus();
 
@@ -198,10 +203,26 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 	mStatusText->setValue(status);
 }
 
-void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
+void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
+										   const LLAvatarName& av_name)
 {
-	llassert(getAvatarId() == id);
-	getChild<LLUICtrl>("user_name", FALSE)->setValue(first_name + " " + last_name);
+	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_name_small")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
+
+	// show smaller display name if too long to display in regular size
+	if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
+	{
+		getChild<LLUICtrl>("user_name_small")->setVisible( true );
+		getChild<LLUICtrl>("user_name")->setVisible( false );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_name_small")->setVisible( false );
+		getChild<LLUICtrl>("user_name")->setVisible( true );
+
+	}
+
 }
 
 // EOF

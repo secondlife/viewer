@@ -82,6 +82,9 @@ public:
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
+
+	// Session name is a UI label used for feedback about which person,
+	// group, or phone number you are talking to
 	const std::string& getSessionName() const { return mSessionName; }
 
 	boost::signals2::connection setStateChangedCallback(const state_changed_signal_t::slot_type& callback)

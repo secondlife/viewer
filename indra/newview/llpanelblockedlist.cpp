@@ -35,6 +35,7 @@
 #include "llpanelblockedlist.h"
 
 // library include
+#include "llavatarname.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
@@ -186,10 +187,10 @@ void LLPanelBlockedList::onBlockByNameClick()
 	LLFloaterGetBlockedObjectName::show(&LLPanelBlockedList::callbackBlockByName);
 }
 
-void LLPanelBlockedList::callbackBlockPicked(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelBlockedList::callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (names.empty() || ids.empty()) return;
-	LLMute mute(ids[0], names[0], LLMute::AGENT);
+	LLMute mute(ids[0], names[0].getLegacyName(), LLMute::AGENT);
 	LLMuteList::getInstance()->add(mute);
 	showPanelAndSelect(mute.mID);
 }

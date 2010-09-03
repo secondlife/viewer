@@ -41,7 +41,7 @@
 #include "llvoicechannel.h"
 
 
-
+class LLAvatarName;
 class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
@@ -459,7 +459,7 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	void notifyObserverSessionRemoved(const LLUUID& session_id);
@@ -541,6 +541,13 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
+	void setCallerName(const std::string& ui_title,
+		const std::string& ui_label,
+		const std::string& call_type);
+	void onAvatarNameCache(const LLUUID& agent_id,
+		const LLAvatarName& av_name,
+		const std::string& call_type);
+
 	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };

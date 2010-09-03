@@ -81,26 +81,15 @@ void LLNameEditor::setNameID(const LLUUID& name_id, BOOL is_group)
 	setText(name);
 }
 
-void LLNameEditor::refresh(const LLUUID& id, const std::string& firstname,
-						   const std::string& lastname, BOOL is_group)
+void LLNameEditor::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	if (id == mNameID)
 	{
-		std::string name;
-		if (!is_group)
-		{
-			name = firstname + " " + lastname;
-		}
-		else
-		{
-			name = firstname;
-		}
-		setText(name);
+		setText(full_name);
 	}
 }
 
-void LLNameEditor::refreshAll(const LLUUID& id, const std::string& firstname,
-							  const std::string& lastname, BOOL is_group)
+void LLNameEditor::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	std::set<LLNameEditor*>::iterator it;
 	for (it = LLNameEditor::sInstances.begin();
@@ -108,7 +97,7 @@ void LLNameEditor::refreshAll(const LLUUID& id, const std::string& firstname,
 		 ++it)
 	{
 		LLNameEditor* box = *it;
-		box->refresh(id, firstname, lastname, is_group);
+		box->refresh(id, full_name, is_group);
 	}
 }
 

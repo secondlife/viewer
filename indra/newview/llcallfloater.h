@@ -40,6 +40,7 @@
 
 class LLAvatarList;
 class LLAvatarListItem;
+class LLAvatarName;
 class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
@@ -122,6 +123,10 @@ private:
 	 */
 	void onAvatarListRefreshed();
 
+	/**
+	 * Updates window title with an avatar name
+	 */
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 	
 	void updateTitle();
 	void initAgentData();

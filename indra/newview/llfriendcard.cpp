@@ -32,12 +32,13 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfriendcard.h"
+
+#include "llavatarnamecache.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lltrans.h"
-
-#include "llfriendcard.h"
 
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llviewerinventory.h"
@@ -547,8 +548,9 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 {
 
 	bool shouldBeAdded = true;
-	std::string name;
-	gCacheName->getFullName(avatarID, name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(avatarID, &av_name);
+	const std::string& name = av_name.mUsername;
 
 	lldebugs << "Processing buddy name: " << name 
 		<< ", id: " << avatarID

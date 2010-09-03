@@ -115,7 +115,7 @@
    layout="topleft"
    left="77"
    name="connection_port_enabled"
-   top_pad="20"
+   top_pad="15"
    width="256">
     <check_box.commit_callback
      function="Notification.Show"
@@ -147,7 +147,7 @@
    left="80"
    mouse_opaque="false"
    name="cache_size_label_l"
-   top_pad="20"
+   top_pad="10"
    width="200">
     Cache size
   </text>
@@ -375,4 +375,27 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
+  <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="10"
+       layout="topleft"
+       left="30"
+       name="Communications:"
+       top_pad="5"
+       width="300">
+    Communications:
+  </text>
+  <check_box
+control_name="UseDisplayNames"
+follows="top|left"
+height="15"
+label="View Display Names"
+layout="topleft"
+left_delta="50"
+name="display_names_check"
+width="237"
+tool_tip="Check to use display names in chat, IM, name tags, etc."
+top_pad="10"/>
 </panel>

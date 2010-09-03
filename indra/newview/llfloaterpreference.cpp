@@ -82,6 +82,7 @@
 #include "llvosky.h"
 
 // linden library includes
+#include "llavatarnamecache.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -185,6 +186,8 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
+void handleNameTagOptionChanged(const LLSD& newvalue);	
+void handleDisplayNamesOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -219,6 +222,18 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	
 	return false;
 }
+
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::invalidateNameTags();
+}
+
+void handleDisplayNamesOptionChanged(const LLSD& newvalue)
+{
+	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLVOAvatar::invalidateNameTags();
+}
+
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
@@ -313,6 +328,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
+	
+	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()

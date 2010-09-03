@@ -43,7 +43,6 @@ class LLButton;
 class LLNameListCtrl;
 class LLCheckBoxCtrl;
 class LLComboBox;
-class LLNameBox;
 class LLSpinCtrl;
 
 class LLPanelGroupGeneral : public LLPanelGroupTab
@@ -97,7 +96,7 @@ private:
 
 	// Group information (include any updates in updateChanged)
 	LLLineEditor		*mGroupNameEditor;
-	LLNameBox			*mFounderName;
+	LLTextBox			*mFounderName;
 	LLTextureCtrl		*mInsignia;
 	LLTextEditor		*mEditCharter;
 

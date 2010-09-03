@@ -7877,7 +7877,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderShowGroupTitleAll</key>
+    <key>NameTagShowGroupTitles</key>
     <map>
       <key>Comment</key>
       <string>Show group titles in name labels</string>
@@ -7886,7 +7886,40 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowDisplayNames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show display names in name labels</string>
+      <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NameTagShowFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Highlight the name tags of your friends</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowUsernames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show usernames in avatar name tags</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderInitError</key>
     <map>
@@ -10914,6 +10947,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>UseDisplayNames</key>
+  <map>
+    <key>Comment</key>
+    <string>Use new, changeable, unicode names</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>

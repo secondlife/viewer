@@ -40,6 +40,7 @@
 #include "llhost.h"
 #include "llpanel.h"
 
+class LLAvatarName;
 class LLDispatcher;
 class LLLineEditor;
 class LLMessageSystem;
@@ -168,7 +169,7 @@ public:
 protected:
 	virtual BOOL sendUpdate();
 	void onClickKick();
-	void onKickCommit(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void onKickCommit(const uuid_vec_t& ids);
 	static void onClickKickAll(void* userdata);
 	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
@@ -193,7 +194,7 @@ protected:
 	virtual BOOL sendUpdate();
 
 	void onClickChooseAvatar();
-	void callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	static void onClickReturn(void *);
 	bool callbackReturn(const LLSD& notification, const LLSD& response);
 	static void onClickTopColliders(void*);
@@ -284,7 +285,7 @@ public:
 	// Core methods for all above add/remove button clicks
 	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
 	static bool accessAddCore2(const LLSD& notification, const LLSD& response);
-	static void accessAddCore3(const std::vector<std::string>& names, const uuid_vec_t& ids, void* data);
+	static void accessAddCore3(const uuid_vec_t& ids, void* data);
 
 	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
 	static bool accessRemoveCore2(const LLSD& notification, const LLSD& response);
@@ -296,7 +297,7 @@ public:
 	// Send the actual EstateOwnerRequest "estateaccessdelta" message
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
-	void onKickUserCommit(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void onKickUserCommit(const uuid_vec_t& ids);
 	static void onClickMessageEstate(void* data);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
 	

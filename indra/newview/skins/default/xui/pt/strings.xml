@@ -1385,10 +1385,10 @@
 		Script não encontrado no servidor.
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Problema no download
+		Problema no  download
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Permissões insuficientes para fazer o download do script.
+		Permissões insuficientes para  fazer o download do script.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
 		Permissões insuficientes para
@@ -1702,7 +1702,7 @@
 		(vai atualizar depois de publicado)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Você não criou nenhum Destaque ou Anúncio. Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
+		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		O usuário não tem nenhum destaque ou anúncio
