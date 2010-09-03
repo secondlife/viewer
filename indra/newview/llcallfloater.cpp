@@ -27,13 +27,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llcallfloater.h"
+
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
-#include "llcallfloater.h"
-
 #include "llagent.h"
 #include "llagentdata.h" // for gAgentID
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -77,7 +78,8 @@ public:
 	void setName(const std::string& name)
 	{
 		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
+		LLAvatarListItem::setAvatarName(formatted_phone);
+		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 
 	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }
@@ -368,9 +370,31 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	call_floater->connectToChannel(channel);
 }
 
+void LLCallFloater::onAvatarNameCache(const LLUUID& agent_id,
+									  const LLAvatarName& av_name)
+{
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = av_name.getCompleteName();
+	std::string title = getString("title_peer_2_peer", args);
+	setTitle(title);
+}
+
 void LLCallFloater::updateTitle()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (mVoiceType == VC_PEER_TO_PEER)
+	{
+		LLUUID session_id = voice_channel->getSessionID();
+		LLIMModel::LLIMSession* im_session =
+			LLIMModel::getInstance()->findIMSession(session_id);
+		if (im_session)
+		{
+			LLAvatarNameCache::get(im_session->mOtherParticipantID,
+				boost::bind(&LLCallFloater::onAvatarNameCache,
+					this, _1, _2));
+			return;
+		}
+	}
 	std::string title;
 	switch (mVoiceType)
 	{
@@ -415,9 +439,10 @@ void LLCallFloater::initAgentData()
 	{
 		mAgentPanel->getChild<LLUICtrl>("user_icon")->setValue(gAgentID);
 
-		std::string name;
-		gCacheName->getFullName(gAgentID, name);
-		mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+		// Just use display name, because it's you
+		LLAvatarName av_name;
+		LLAvatarNameCache::get( gAgentID, &av_name );
+		mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(av_name.mDisplayName);
 
 		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
@@ -438,7 +463,10 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 void LLCallFloater::updateAgentModeratorState()
 {
 	std::string name;
-	gCacheName->getFullName(gAgentID, name);
+	// Just use display name, because it's you
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(gAgentID, &av_name);
+	name = av_name.mDisplayName;
 
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{

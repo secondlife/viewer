@@ -59,10 +59,9 @@ public:
 
 	void setNameID(const LLUUID& name_id, BOOL is_group);
 
-	void refresh(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 
-	static void refreshAll(const LLUUID& id, const std::string& firstname,
-						   const std::string& lastname, BOOL is_group);
+	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
 
 	// Take/return agent UUIDs

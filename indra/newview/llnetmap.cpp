@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2001-2010, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,7 @@
 
 // Library includes (should move below)
 #include "indra_constants.h"
+#include "llavatarnamecache.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -567,34 +568,25 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		return FALSE;
 	}
-
-	std::string avatar_name;
-	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, avatar_name))
-	{
-		// only show tooltip if same inspector not already open
-		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
-		if (!existing_inspector 
-			|| !existing_inspector->getVisible()
-			|| existing_inspector->getKey()["avatar_id"].asUUID() != mClosestAgentToCursor)
-		{
-			LLInspector::Params p;
-			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-			p.message(avatar_name);
-			p.image.name("Inspector_I");
-			p.click_callback(boost::bind(showAvatarInspector, mClosestAgentToCursor));
-			p.visible_time_near(6.f);
-			p.visible_time_far(3.f);
-			p.delay_time(0.35f);
-			p.wrap(false);
-
-			LLToolTipMgr::instance().show(p);
-		}
-		return TRUE;
-	}
-
+	
+	// mToolTipMsg = "[AGENT][REGION](Double-click to open Map)"
+	
+	bool have_agent = false;
 	LLStringUtil::format_map_t args;
+	LLAvatarName av_name;
+	if(mClosestAgentToCursor.notNull()
+	   && LLAvatarNameCache::get(mClosestAgentToCursor, &av_name))
+	{
+		args["[AGENT]"] = av_name.getCompleteName() + "\n";
+		have_agent = true;
+	}
+	else
+	{
+		args["[AGENT]"] = "";
+	}
+	
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-	if( region )
+	if( region && !have_agent)
 	{
 		args["[REGION]"] = region->getName() + "\n";
 	}
@@ -625,21 +617,6 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
-// static
-void LLNetMap::showAvatarInspector(const LLUUID& avatar_id)
-{
-	LLSD params;
-	params["avatar_id"] = avatar_id;
-
-	if (LLToolTipMgr::instance().toolTipVisible())
-	{
-		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
-		params["pos"]["x"] = rect.mLeft;
-		params["pos"]["y"] = rect.mTop;
-	}
-
-	LLFloaterReg::showInstance("inspect_avatar", params);
-}
 
 void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius_meters )
 {

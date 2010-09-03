@@ -28,7 +28,6 @@
 #define LL_LLAVATARLIST_H
 
 #include "llflatlistview.h"
-
 #include "llavatarlistitem.h"
 
 class LLTimer;

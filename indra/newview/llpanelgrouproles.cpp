@@ -1110,11 +1110,7 @@ void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, c
 		for (uuid_vec_t::const_iterator i = selected_members.begin(); i != selected_members.end(); ++i)
 		{
 			LLSD args;
-			std::string name;
-			
-			gCacheName->getFullName(*i, name);
-
-			args["AVATAR_NAME"] = name;
+			args["AVATAR_NAME"] = LLSLURL("agent", *i, "displayname").getSLURLString();
 			args["GROUP_NAME"] = group_data->mName;
 			
 			LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));

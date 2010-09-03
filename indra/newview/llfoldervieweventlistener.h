@@ -25,7 +25,7 @@
 #ifndef LLFOLDERVIEWEVENTLISTENER_H
 #define LLFOLDERVIEWEVENTLISTENER_H
 
-#include "lldarray.h"	// JAMESDEBUG convert to std::vector
+#include "lldarray.h"	// *TODO: convert to std::vector
 #include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
 #include "llinventorytype.h"
