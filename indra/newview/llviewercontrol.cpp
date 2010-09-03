@@ -160,7 +160,7 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 									  LLPipeline::RENDER_TYPE_CLOUDS,
 									  LLPipeline::RENDER_TYPE_HUD_PARTICLES,
 									  LLPipeline::END_RENDER_TYPES);
-		gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, false);
+		gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, true);
 	}
 
 	return true;
