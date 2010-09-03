@@ -132,8 +132,7 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 	bool status = !newvalue.asBoolean();
 	if (!status)
 	{
-		gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
-									  LLPipeline::RENDER_TYPE_WL_SKY,
+		gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
 									  LLPipeline::RENDER_TYPE_GROUND,
 									  LLPipeline::RENDER_TYPE_TERRAIN,
 									  LLPipeline::RENDER_TYPE_GRASS,
@@ -144,13 +143,12 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 									  LLPipeline::RENDER_TYPE_PARTICLES,
 									  LLPipeline::RENDER_TYPE_CLOUDS,
 									  LLPipeline::RENDER_TYPE_HUD_PARTICLES,
-									  LLPipeline::END_RENDER_TYPES);
+									  LLPipeline::END_RENDER_TYPES); 
 		gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, false);
 	}
 	else 
 	{
-		gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
-									  LLPipeline::RENDER_TYPE_WL_SKY,
+	gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
 									  LLPipeline::RENDER_TYPE_GROUND,
 									  LLPipeline::RENDER_TYPE_TERRAIN,
 									  LLPipeline::RENDER_TYPE_GRASS,

@@ -1126,9 +1126,6 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		base_total_time += base_data[i]["Total"]["Time"].asReal();
 	}
 
-	LLSD::Real total_time = llmax(base_total_time, cur_total_time);
-
-
 	//allocate raw scratch space
 	LLPointer<LLImageRaw> scratch = new LLImageRaw(1024, 512, 3);
 
@@ -1147,11 +1144,8 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 	{
 		std::string label = *iter;
 	
-		LLSD::Real cur_start_time = -1.0;
-		LLSD::Real cur_end_time = 0.0;
-
 		LLSD::Real max_time = 0.0;
-		LLSD::Integer max_calls = 0.0;
+		LLSD::Integer max_calls = 0;
 		LLSD::Real max_execution = 0.0;
 
 		std::vector<LLSD::Real> cur_execution;
