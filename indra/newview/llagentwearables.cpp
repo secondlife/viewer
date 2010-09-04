@@ -1619,11 +1619,14 @@ void LLAgentWearables::queryWearableCache()
 
 		gAgentQueryManager.mActiveCacheQueries[baked_index] = gAgentQueryManager.mWearablesCacheQueryID;
 	}
-
-	llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
-	gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
-	gAgentQueryManager.mNumPendingQueries++;
-	gAgentQueryManager.mWearablesCacheQueryID++;
+    //ext-8696: gAgent.getRegion() can return null if invalid, seen here on logout
+    if(gAgent.getRegion())
+    {
+        llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
+        gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
+        gAgentQueryManager.mNumPendingQueries++;
+        gAgentQueryManager.mWearablesCacheQueryID++;
+    }
 }
 
 LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex baked_index,
