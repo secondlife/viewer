@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+     follows="all"
 	 height="570"
 	 layout="topleft"
 	 name="item properties"
@@ -45,7 +46,7 @@
 	     top="8"
 	     width="18" />
     <button
-     follows="top|right"
+     follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"
@@ -69,14 +70,15 @@
      value="Item Profile"
      width="275" />
     	    <text
-     follows="top|left"
+     follows="top|left|right"
      height="13"
      layout="topleft"
      left="45"
      name="origin"
      text_color="LtGray_50"
+     use_ellipses="true"
      value="(Inventory)"
-     width="150" />
+     width="275" />
 	<panel
          follows="all"
          height="493"
@@ -234,7 +236,7 @@ top_pad="10"
 	     <text
 			 type="string"
 			 length="1"
-			 follows="left|top"
+			 follows="left|top|right"
 			 height="23"
 			 layout="topleft"
 			 left_delta="78"
@@ -244,7 +246,7 @@ top_pad="10"
       </text>
 	 <panel
          border="false"
-         follows="left|top"
+         follows="left|top|right"
          layout="topleft"
          mouse_opaque="false"
          name="perms_inv"

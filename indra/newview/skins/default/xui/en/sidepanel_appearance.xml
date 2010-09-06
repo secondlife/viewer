@@ -65,7 +65,7 @@ width="333">
       text_color="EmphasisColor"
       width="300"
       height="10"
-      follows="top|left"
+      follows="top|left|right"
       layout="topleft"
       left="35"
       top="3"
@@ -81,14 +81,14 @@ width="333">
       top="15"
       use_ellipses="true"
       width="230"
-      follows="top|left"
+      follows="top|left|right"
       word_wrap="false"
       mouse_opaque="false"
       name="currentlook_name">
       MyOutfit With a really Long Name like MOOSE
       </text>
       <button
-      follows="left|top"
+      follows="top|right"
       height="28"
       image_overlay="Edit_Wrench"
       label=""
@@ -99,7 +99,7 @@ width="333">
       top="3"
       width="28" />
       <loading_indicator
-      follows="left|top"
+      follows="top|right"
       height="24"
       layout="topleft"
       left="268"
