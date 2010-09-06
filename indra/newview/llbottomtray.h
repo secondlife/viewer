@@ -188,6 +188,11 @@ private:
 	 */
 	void updateButtonsOrdersAfterDnD();
 
+	// saves order of buttons to file on disk
+	void saveButtonsOrder();
+	// reads order of buttons from file on disk
+	void loadButtonsOrder();
+
 	/**
 	 * Updates child controls size and visibility when it is necessary to reduce total width.
 	 *

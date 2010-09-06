@@ -50,9 +50,12 @@
 #include "llviewerparcelmgr.h"
 
 #include "llviewerwindow.h"
+#include "llsdserialize.h"
 
 // Distance from mouse down on which drag'n'drop should be started.
 #define DRAG_START_DISTANCE 3
+
+static const std::string SORTING_DATA_FILE_NAME = "bottomtray_buttons_order.xml";
 
 LLDefaultChildRegistry::Register<LLBottomtrayButton> bottomtray_button("bottomtray_button");
 
@@ -549,6 +552,8 @@ BOOL LLBottomTray::postBuild()
 	showWellButton(RS_IM_WELL, !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton(RS_NOTIFICATION_WELL, !LLNotificationWellWindow::getInstance()->isWindowEmpty());
 
+	loadButtonsOrder();
+
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&update_build_button_enable_state));
 
 	return TRUE;
@@ -691,6 +696,74 @@ void LLBottomTray::updateButtonsOrdersAfterDnD()
 			++it2;
 		}
 	}
+
+	saveButtonsOrder();
+}
+
+void LLBottomTray::saveButtonsOrder()
+{
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+	if (user_dir.empty()) return;
+	
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
+	LLSD settings_llsd;
+	int i = 0;
+	const resize_state_vec_t::const_iterator it_end = mButtonsOrder.end();
+	// we use numbers as keys for map which is saved in file and contains resize states as its values
+	for (resize_state_vec_t::const_iterator it = mButtonsOrder.begin(); it != it_end; ++it, i++)
+	{
+		std::string str = llformat("%d", i);
+		settings_llsd[str] = *it;		
+	}
+	llofstream file;
+	file.open(filename);
+	LLSDSerialize::toPrettyXML(settings_llsd, file);
+}
+
+void LLBottomTray::loadButtonsOrder()
+{
+	// load per-resident sorting information
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	
+	LLSDSerialize::fromXML(settings_llsd, file);
+	
+
+	mButtonsOrder.clear();
+	mButtonsProcessOrder.clear();
+	int i = 0;
+	// getting button order from file
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		iter != settings_llsd.endMap(); ++iter, ++i)
+	{
+		std::string str = llformat("%d", i);
+		EResizeState state = (EResizeState)settings_llsd[str].asInteger();
+		mButtonsOrder.push_back(state);
+		// RS_BUTTON_SPEAK is skipped, because it shouldn't be in mButtonsProcessOrder (it does not hide or shrink).
+		if (state != RS_BUTTON_SPEAK)
+		{
+			mButtonsProcessOrder.push_back(state);
+		}		
+	}
+
+	// There are other panels in layout stack order of which is not saved. Also, panels order of which is saved,
+	// are already in layout stack but in wrong order. The most convenient way to place them is moving them 
+	// to front one by one (because in this case we don't have to pass the panel before which we want to insert our
+	// panel to movePanel()). So panels are moved in order from the end of mButtonsOrder vector(reverse iterator is used).
+	const resize_state_vec_t::const_reverse_iterator it_end = mButtonsOrder.rend();
+	// placing panels in layout stack according to button order which we loaded in previous for
+	for (resize_state_vec_t::const_reverse_iterator it = mButtonsOrder.rbegin(); it != it_end; ++it, ++i)
+	{
+		LLPanel* panel_to_move = *it == RS_BUTTON_SPEAK ? mSpeakPanel : mStateProcessedObjectMap[*it];
+		mToolbarStack->movePanel(panel_to_move, NULL, true); // prepend 		
+	}
+	// Nearbychat is not stored in order settings file, but it must be the first of the panels, so moving it
+	// manually here
+	mToolbarStack->movePanel(mNearbyChatBar, NULL, true);
 }
 
 void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)

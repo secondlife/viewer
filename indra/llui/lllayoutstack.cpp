@@ -368,10 +368,10 @@ S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
 	return cur_width;
 }
 
-void LLLayoutStack::movePanel(LLPanel* panel_to_move, LLPanel* target_panel)
+void LLLayoutStack::movePanel(LLPanel* panel_to_move, LLPanel* target_panel, bool move_to_front)
 {
 	LayoutPanel* embedded_panel_to_move = findEmbeddedPanel(panel_to_move);
-	LayoutPanel* embedded_target_panel = findEmbeddedPanel(target_panel);
+	LayoutPanel* embedded_target_panel = move_to_front ? *mPanels.begin() : findEmbeddedPanel(target_panel);
 
 	if (!embedded_panel_to_move || !embedded_target_panel || embedded_panel_to_move == embedded_target_panel)
 	{
@@ -380,7 +380,7 @@ void LLLayoutStack::movePanel(LLPanel* panel_to_move, LLPanel* target_panel)
 	}
 	e_panel_list_t::iterator it = std::find(mPanels.begin(), mPanels.end(), embedded_panel_to_move);
 	mPanels.erase(it);
-	it = std::find(mPanels.begin(), mPanels.end(), embedded_target_panel);
+	it = move_to_front ? mPanels.begin() : std::find(mPanels.begin(), mPanels.end(), embedded_target_panel);
 	mPanels.insert(it, embedded_panel_to_move);
 }
 
