@@ -72,6 +72,10 @@ public:
 	void removePanel(LLPanel* panel);
 	void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
 	S32 getNumPanels() { return mPanels.size(); }
+	/**
+	 * Moves panel_to_move before target_panel inside layout stack (both panels should already be there).
+	 */
+	void movePanel(LLPanel* panel_to_move, LLPanel* target_panel);
 
 	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
 	void setPanelUserResize(const std::string& panel_name, BOOL user_resize);

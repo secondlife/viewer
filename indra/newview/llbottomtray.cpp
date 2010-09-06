@@ -49,6 +49,45 @@
 #include "lltoolmgr.h"
 #include "llviewerparcelmgr.h"
 
+#include "llviewerwindow.h"
+
+// Distance from mouse down on which drag'n'drop should be started.
+#define DRAG_START_DISTANCE 3
+
+LLDefaultChildRegistry::Register<LLBottomtrayButton> bottomtray_button("bottomtray_button");
+
+// LLBottomtrayButton methods
+
+// virtual
+BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
+{
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass hover to bottomtray
+	LLBottomTray::getInstance()->handleHover(screenX, screenY, mask);
+	return FALSE;
+}
+//virtual
+BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass mouse up to bottomtray
+	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this,screenX, screenY, mask);
+	LLButton::handleMouseUp(x, y, mask);
+	return FALSE;
+}
+//virtual
+BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass mouse up to bottomtray
+	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this,screenX, screenY, mask);
+	LLButton::handleMouseDown(x, y, mask);
+	return FALSE;
+}
+
 static void update_build_button_enable_state()
 {
 	bool can_edit = LLToolMgr::getInstance()->canEdit();
@@ -153,6 +192,10 @@ LLBottomTray::LLBottomTray(const LLSD&)
 ,	mCamButton(NULL)
 ,	mBottomTrayLite(NULL)
 ,	mIsInLiteMode(false)
+,	mDragStarted(false)
+,	mDraggedItem(NULL)
+,	mLandingTab(NULL)
+,	mCheckForDrag(false)
 {
 	// Firstly add ourself to IMSession observers, so we catch session events
 	// before chiclets do that.
@@ -177,6 +220,8 @@ LLBottomTray::LLBottomTray(const LLSD&)
 		mBottomTrayLite->setFollowsAll();
 		mBottomTrayLite->setVisible(FALSE);
 	}
+
+	mImageDragIndication = LLUI::getUIImage(getString("DragIndicationImageName"));
 }
 
 LLBottomTray::~LLBottomTray()
@@ -507,6 +552,177 @@ BOOL LLBottomTray::postBuild()
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&update_build_button_enable_state));
 
 	return TRUE;
+}
+
+//Drag-n-drop
+
+void LLBottomTray::onDraggableButtonMouseDown(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+	if (ctrl == NULL) return;
+	LLView* parent_view = ctrl->getParent();
+	if(parent_view != NULL)
+	{
+		// we actually drag'n'drop panel (not button) in code, so have to find a parent
+		// of button which called this method on mouse down.
+		LLPanel* parent = dynamic_cast<LLPanel*>(parent_view);
+		// It may happen that we clicked not usual button, but button inside widget(speak, gesture)
+		// so we'll need to get a level higher to reach layout panel as a parent.
+		if(parent == NULL) parent = dynamic_cast<LLPanel*>(parent_view->getParent());
+		if (parent && parent->getVisible())
+		{
+			mDraggedItem = parent;
+			mCheckForDrag = true;
+			mStartX = x;
+			mStartY = y;
+		}
+	}
+}
+
+LLPanel* LLBottomTray::findChildPanelByLocalCoords(S32 x, S32 y)
+{
+	LLPanel* ctrl = 0;
+	S32 screenX, screenY;
+	const child_list_t* list = mToolbarStack->getChildList();
+
+	localPointToScreen(x, y, &screenX, &screenY);
+
+	// look for a child panel which contains the point (screenX, screenY) in it's rectangle
+	for (child_list_const_iter_t i = list->begin(); i != list->end(); ++i)
+	{
+		LLRect rect;
+		localRectToScreen((*i)->getRect(), &rect);
+
+		if (rect.pointInRect(screenX, screenY))
+		{
+			ctrl = dynamic_cast<LLPanel*>(*i);
+			break;
+		}
+	}
+
+	return ctrl;
+}
+
+BOOL LLBottomTray::handleHover(S32 x, S32 y, MASK mask)
+{
+	// if mouse down on draggable item was done, check whether we should start DnD
+	if (mCheckForDrag)
+	{
+		// Start drag'n'drop if mouse cursor was dragged away frome mouse down location enough
+		if(sqrt((float)((mStartX-x)*(mStartX-x)+(mStartY-y)*(mStartY-y))) > DRAG_START_DISTANCE)
+		{
+			mDragStarted = true;
+			mCheckForDrag = false;
+		}
+	}
+	if (mDragStarted)
+	{
+		// Check whether the cursor is over draggable area, find which panel it is and set is as
+		// landing tab for drag'n'drop
+		if(isCursorOverDraggableArea(x, y))
+		{
+			LLPanel* panel = findChildPanelByLocalCoords(x,y);
+			if (panel && panel != mDraggedItem) mLandingTab = panel;
+			gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROWDRAG);
+		}
+		else
+		{
+			gViewerWindow->getWindow()->setCursor(UI_CURSOR_NO);
+		}
+	}
+
+	return TRUE;
+}
+
+bool LLBottomTray::isCursorOverDraggableArea(S32 x, S32 y)
+{
+	bool result = getRect().pointInRect(x, y);
+	result = result && mNearbyChatBar->calcScreenRect().mRight < x;
+	result = result && mChicletPanel->calcScreenRect().mRight > x;
+	return result;
+}
+
+void LLBottomTray::updateButtonsOrdersAfterDnD()
+{
+	// *TODO: change implementation of this method to support simplify it
+	// (and according to future possible changes in the way button order is saved between sessions).
+	state_object_map_t::const_iterator it = mStateProcessedObjectMap.begin();
+	state_object_map_t::const_iterator it_end = mStateProcessedObjectMap.end();
+	// Speak button is currently the only draggable button not in mStateProcessedObjectMap,
+	// so if dragged_state is not found in that map, it should be RS_BUTTON_SPEAK. Change this code if any other
+	// exclusions from mStateProcessedObjectMap will become draggable.
+	EResizeState dragged_state = RS_BUTTON_SPEAK, landing_state;
+	bool landing_state_found = false;
+	// Find states for dragged item and landing tab
+	for (; it != it_end; ++it)
+	{
+		if (it->second == mDraggedItem)
+		{
+			dragged_state = it->first;
+		}
+		else if (it->second == mLandingTab)
+		{
+			landing_state = it->first;
+			landing_state_found = true;
+		}
+	}
+	
+	// Update order of buttons according to drag'n'drop
+	mButtonsOrder.erase(std::find(mButtonsOrder.begin(), mButtonsOrder.end(), dragged_state));
+	if (!landing_state_found && mLandingTab == getChild<LLPanel>(PANEL_CHICLET_NAME))
+	{
+		mButtonsOrder.push_back(dragged_state);
+	}
+	else
+	{
+		if (!landing_state_found) landing_state = RS_BUTTON_SPEAK;
+		mButtonsOrder.insert(std::find(mButtonsOrder.begin(), mButtonsOrder.end(), landing_state), dragged_state);
+	}
+	// Synchronize button process order with their order
+	resize_state_vec_t::const_iterator it1 = mButtonsOrder.begin();
+	const resize_state_vec_t::const_iterator it_end1 = mButtonsOrder.end();
+	resize_state_vec_t::iterator it2 = mButtonsProcessOrder.begin();
+	for (; it1 != it_end1; ++it1)
+	{
+		// Skip Speak because it is not in mButtonsProcessOrder(it's the reason why mButtonsOrder was introduced).
+		// If any other draggable items will be added to bottomtray later, they should also be skipped here.
+		if (*it1 != RS_BUTTON_SPEAK)
+		{
+			*it2 = *it1;
+			++it2;
+		}
+	}
+}
+
+void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+	//if mouse up happened over area where drop is possible, change order of buttons
+	if (mLandingTab != NULL && mDraggedItem != NULL && mDragStarted)
+	{
+		if(isCursorOverDraggableArea(x, y))
+		{
+			// change order of panels in layout stack
+			mToolbarStack->movePanel(mDraggedItem, (LLPanel*)mLandingTab);
+			// change order of buttons in order vectors
+			updateButtonsOrdersAfterDnD();
+		}
+	}
+	gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+	mDragStarted = false;
+	mDraggedItem = NULL;
+	mLandingTab = NULL;
+	mCheckForDrag = false;
+}
+
+void LLBottomTray::draw()
+{
+	LLPanel::draw();
+	if (mLandingTab)
+	{
+		static S32 w = mImageDragIndication->getWidth();
+		static S32 h = mImageDragIndication->getHeight();
+		LLRect rect = mLandingTab->calcScreenRect();
+		mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
+	}
 }
 
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
@@ -1180,6 +1396,9 @@ void LLBottomTray::initResizeStateContainers()
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MINI_MAP);
+
+	mButtonsOrder.push_back(RS_BUTTON_SPEAK);
+	mButtonsOrder.insert(mButtonsOrder.end(), mButtonsProcessOrder.begin(), mButtonsProcessOrder.end());
 
 	// init default widths
 
