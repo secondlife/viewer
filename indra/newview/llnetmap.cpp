@@ -568,47 +568,36 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		return FALSE;
 	}
-	
-	// mToolTipMsg = "[AGENT][REGION](Double-click to open Map)"
-	
-	bool have_agent = false;
-	LLStringUtil::format_map_t args;
-	LLAvatarName av_name;
-	if(mClosestAgentToCursor.notNull()
-	   && LLAvatarNameCache::get(mClosestAgentToCursor, &av_name))
-	{
-		args["[AGENT]"] = av_name.getCompleteName() + "\n";
-		have_agent = true;
-	}
-	else
-	{
-		args["[AGENT]"] = "";
-	}
-	
-	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-	if( region && !have_agent)
-	{
-		args["[REGION]"] = region->getName() + "\n";
-	}
-	else
-	{
-		args["[REGION]"] = "";
-	}
 
-	std::string msg = mToolTipMsg;
-	LLStringUtil::format(msg, args);
+	// If the cursor is near an avatar on the minimap, a mini-inspector will be
+	// shown for the avatar, instead of the normal map tooltip.
+	if (handleToolTipAgent(mClosestAgentToCursor))
+	{
+		return TRUE;
+	}
 
 	LLRect sticky_rect;
-	// set sticky_rect
-	if (region)
+	std::string region_name;
+	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
+	if(region)
 	{
+		// set sticky_rect
 		S32 SLOP = 4;
-		localPointToScreen( 
-			x - SLOP, y - SLOP, 
-			&(sticky_rect.mLeft), &(sticky_rect.mBottom) );
+		localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect.mLeft), &(sticky_rect.mBottom));
 		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
 		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
+
+		region_name = region->getName();
+		if (!region_name.empty())
+		{
+			region_name += "\n";
+		}
 	}
+
+	LLStringUtil::format_map_t args;
+	args["[REGION]"] = region_name;
+	std::string msg = mToolTipMsg;
+	LLStringUtil::format(msg, args);
 
 	LLToolTipMgr::instance().show(LLToolTip::Params()
 		.message(msg)
@@ -617,6 +606,50 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
+BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
+{
+	LLAvatarName av_name;
+	if (avatar_id.isNull() || !LLAvatarNameCache::get(avatar_id, &av_name))
+	{
+		return FALSE;
+	}
+
+	// only show tooltip if same inspector not already open
+	LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+	if (!existing_inspector
+		|| !existing_inspector->getVisible()
+		|| existing_inspector->getKey()["avatar_id"].asUUID() != avatar_id)
+	{
+		LLInspector::Params p;
+		p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+		p.message(av_name.getCompleteName());
+		p.image.name("Inspector_I");
+		p.click_callback(boost::bind(showAvatarInspector, avatar_id));
+		p.visible_time_near(6.f);
+		p.visible_time_far(3.f);
+		p.delay_time(0.35f);
+		p.wrap(false);
+
+		LLToolTipMgr::instance().show(p);
+	}
+	return TRUE;
+}
+
+// static
+void LLNetMap::showAvatarInspector(const LLUUID& avatar_id)
+{
+	LLSD params;
+	params["avatar_id"] = avatar_id;
+
+	if (LLToolTipMgr::instance().toolTipVisible())
+	{
+		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
+		params["pos"]["x"] = rect.mLeft;
+		params["pos"]["y"] = rect.mTop;
+	}
+
+	LLFloaterReg::showInstance("inspect_avatar", params);
+}
 
 void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius_meters )
 {
