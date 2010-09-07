@@ -45,7 +45,7 @@ RequestExecutionLevel admin	; on Vista we must be admin because we write to Prog
 # *TODO: Move these into the language files themselves
 LangString LanguageCode ${LANG_DANISH}   "da"
 LangString LanguageCode ${LANG_GERMAN}   "de"
-Langstring LanguageCode ${LANG_ENGLISH}  "en"
+LangString LanguageCode ${LANG_ENGLISH}  "en"
 LangString LanguageCode ${LANG_SPANISH}  "es"
 LangString LanguageCode ${LANG_FRENCH}   "fr"
 LangString LanguageCode ${LANG_JAPANESE} "ja"

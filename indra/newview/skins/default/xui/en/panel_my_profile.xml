@@ -392,7 +392,7 @@
      height="28"
      width="315">
         <button
-         follows="bottom|right"
+         follows="bottom"
          height="23"
          left="6"
 	 top="1"

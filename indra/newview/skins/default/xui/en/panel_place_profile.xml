@@ -154,7 +154,7 @@
      translate="false"
      value="Parcel_DamageNo_Dark" />
     <button
-     follows="top|right"
+     follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"
