@@ -655,7 +655,8 @@ void LLBottomTray::updateButtonsOrdersAfterDnD()
 	// Speak button is currently the only draggable button not in mStateProcessedObjectMap,
 	// so if dragged_state is not found in that map, it should be RS_BUTTON_SPEAK. Change this code if any other
 	// exclusions from mStateProcessedObjectMap will become draggable.
-	EResizeState dragged_state = RS_BUTTON_SPEAK, landing_state;
+	EResizeState dragged_state = RS_BUTTON_SPEAK;
+	EResizeState landing_state = RS_NORESIZE;
 	bool landing_state_found = false;
 	// Find states for dragged item and landing tab
 	for (; it != it_end; ++it)

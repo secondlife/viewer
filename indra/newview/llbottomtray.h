@@ -63,7 +63,7 @@ public:
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
-	LLBottomtrayButton::LLBottomtrayButton(const Params& p)
+	LLBottomtrayButton(const Params& p)
 		:	LLButton(p)
 	{
 
