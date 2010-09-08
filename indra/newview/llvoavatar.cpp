@@ -46,6 +46,7 @@
 #include "llagentwearables.h"
 #include "llanimationstates.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llbreastmotion.h"
 #include "llviewercontrol.h"
 #include "lldrawpoolavatar.h"
 #include "lldriverparam.h"
@@ -103,6 +104,8 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
+// #define OUTPUT_BREAST_DATA
+
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -118,6 +121,7 @@ const LLUUID ANIM_AGENT_HEAD_ROT = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d"
 const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
 const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
 const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
+const LLUUID ANIM_AGENT_BREAST_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df440d987");  //"breast_motion"
 
 
 //-----------------------------------------------------------------------------
@@ -615,6 +619,7 @@ BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
 BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
+F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
 BOOL LLVOAvatar::sUseImpostors = FALSE;
 BOOL LLVOAvatar::sJointDebug = FALSE;
 
@@ -1137,6 +1142,7 @@ void LLVOAvatar::initClass()
 
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_BREAST_MOTION,"breast_motion");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EDITING,"editing");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EYE,"eye");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_FLY_ADJUST,"fly_adjust");
@@ -1275,6 +1281,7 @@ void LLVOAvatar::initInstance(void)
 		// motions without a start/stop bit
 		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
 		registerMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
+		registerMotion( ANIM_AGENT_BREAST_MOTION,			LLBreastMotion::create );
 		registerMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
 		registerMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
 		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
@@ -1688,6 +1695,7 @@ void LLVOAvatar::startDefaultMotions()
 	startMotion( ANIM_AGENT_EYE );
 	startMotion( ANIM_AGENT_BODY_NOISE );
 	startMotion( ANIM_AGENT_BREATHE_ROT );
+	startMotion( ANIM_AGENT_BREAST_MOTION );
 	startMotion( ANIM_AGENT_HAND_MOTION );
 	startMotion( ANIM_AGENT_PELVIS_FIX );
 
@@ -6088,14 +6096,10 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-
-			const BOOL layerset_invalid = !mBakedTextureDatas[i].mTexLayerSet 
-										  || !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
-										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable();
-
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
-									  && layerset_invalid);
+									  && mBakedTextureDatas[i].mTexLayerSet 
+									  && !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized());
 			if (use_lkg_baked_layer[i])
 			{
 				mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled(TRUE);

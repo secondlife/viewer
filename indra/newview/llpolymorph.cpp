@@ -287,10 +287,22 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		}
 	}
 
-	mMorphData = mMesh->getMorphData(getInfo()->mMorphName);
+	std::string morph_param_name = getInfo()->mMorphName;
+	
+	mMorphData = mMesh->getMorphData(morph_param_name);
 	if (!mMorphData)
 	{
-		llwarns << "No morph target named " << getInfo()->mMorphName << " found in mesh." << llendl;
+		const std::string driven_tag = "_Driven";
+		U32 pos = morph_param_name.find(driven_tag);
+		if (pos > 0)
+		{
+			morph_param_name = morph_param_name.substr(0,pos);
+			mMorphData = mMesh->getMorphData(morph_param_name);
+		}
+	}
+	if (!mMorphData)
+	{
+		llwarns << "No morph target named " << morph_param_name << " found in mesh." << llendl;
 		return FALSE;  // Continue, ignoring this tag
 	}
 	return TRUE;

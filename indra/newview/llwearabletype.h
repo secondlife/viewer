@@ -52,7 +52,8 @@ public:
 		WT_SKIRT	  = 12,
 		WT_ALPHA	  = 13,
 		WT_TATTOO	  = 14,
-		WT_COUNT	  = 15,
+		WT_PHYSICS	  = 15,
+		WT_COUNT	  = 16,
 
 		WT_INVALID	  = 255,
 		WT_NONE		  = -1,
@@ -64,6 +65,8 @@ public:
 	static LLAssetType::EType 			getAssetType(EType type);
 	static EType 						typeNameToType(const std::string& type_name);
 	static LLInventoryIcon::EIconName 	getIconName(EType type);
+	static BOOL 						getDisableCameraSwitch(EType type);
+	static BOOL 						getAllowMultiwear(EType type);
 
 protected:
 	LLWearableType() {}

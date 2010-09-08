@@ -55,8 +55,11 @@ public:
 	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
 	/*virtual*/ void		draw();	
 
+	// changes camera angle to default for selected subpart
+	void				changeCamera(U8 subpart);
+
 	LLWearable* 		getWearable() { return mWearablePtr; }
-	void				setWearable(LLWearable *wearable);
+	void				setWearable(LLWearable *wearable, BOOL disable_camera_switch = FALSE);
 
 	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
@@ -77,7 +80,7 @@ public:
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-	void				showWearable(LLWearable* wearable, BOOL show);
+	void				showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
@@ -90,9 +93,6 @@ private:
 	void				updatePanelPickerControls(LLWearableType::EType type);
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
-
-	// changes camera angle to default for selected subpart
-	void				changeCamera(U8 subpart);
 
 	//alpha mask checkboxes
 	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
@@ -163,6 +163,7 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
+	LLPanel *mPanelPhysics;
 
 	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
 	string_texture_index_map_t mAlphaCheckbox2Index;
