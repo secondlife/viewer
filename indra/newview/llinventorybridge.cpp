@@ -35,7 +35,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
-#include "llavataractions.h"
+#include "llavataractions.h" 
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
