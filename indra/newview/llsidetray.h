@@ -68,6 +68,8 @@ protected:
 	typedef child_vector_t::const_iterator  			child_vector_const_iter_t;
 	typedef child_vector_t::reverse_iterator 			child_vector_reverse_iter_t;
 	typedef child_vector_t::const_reverse_iterator 		child_vector_const_reverse_iter_t;
+	typedef std::vector<std::string>					tab_order_vector_t;
+	typedef tab_order_vector_t::const_iterator			tab_order_vector_const_iter_t;
 
 public:
 
@@ -144,6 +146,8 @@ public:
 	void		onToggleCollapse();
 
 	bool		addChild		(LLView* view, S32 tab_group);
+	bool		removeTab		(LLSideTrayTab* tab); // Used to detach tabs temporarily
+	bool		addTab			(LLSideTrayTab* tab); // Used to re-attach tabs
 
 	BOOL		handleMouseDown	(S32 x, S32 y, MASK mask);
 	
@@ -157,16 +161,24 @@ public:
 
 	void		handleLoginComplete();
 
-protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 
+	bool 		isTabAttached	(const std::string& name);
+
+protected:
+	bool		hasTabs			();
+
 	void		createButtons	();
+
 	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
 									LLUICtrl::commit_callback_t callback);
 	void		arrange			();
+	void		detachTabs		();
 	void		reflectCollapseChange();
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
+
+	LLPanel*	openChildPanel	(LLSideTrayTab* tab, const std::string& panel_name, const LLSD& params);
 
 private:
 	// Implementation of LLDestroyClass<LLSideTray>
@@ -178,11 +190,12 @@ private:
 	}
 	
 private:
-
 	LLPanel*						mButtonsPanel;
 	typedef std::map<std::string,LLButton*> button_map_t;
 	button_map_t					mTabButtons;
 	child_vector_t					mTabs;
+	child_vector_t					mDetachedTabs;
+	tab_order_vector_t				mOriginalTabOrder;
 	LLSideTrayTab*					mActiveTab;	
 	
 	commit_signal_t					mCollapseSignal;

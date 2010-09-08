@@ -35,7 +35,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
-#include "llavataractions.h"
+#include "llavataractions.h" 
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
@@ -101,7 +101,7 @@ void dec_busy_count()
 void remove_inventory_category_from_avatar(LLInventoryCategory* category);
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
-bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response);
+bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 
 // +=================================================+
@@ -3979,22 +3979,22 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		if (!isAgentAvatarValid())
+		if (!isAgentAvatarValid()) // Error condition, can't figure out attach point
 		{
 			return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
 		}
-
 		std::string attachment_point_name = gAgentAvatarp->getAttachedPointName(mUUID);
-
+		if (attachment_point_name == LLStringUtil::null) // Error condition, invalid attach point
+		{
+			attachment_point_name = "Invalid Attachment";
+		}
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
+
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
-	else
-	{
-		return LLItemBridge::getLabelSuffix();
-	}
+	return LLItemBridge::getLabelSuffix();
 }
 
 void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment, bool replace)
@@ -4025,19 +4025,15 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		}
 	}
 
-	if (!replace)
-	{
-		attach_pt |= ATTACHMENT_ADD;
-	}
-
 	LLSD payload;
 	payload["item_id"] = item_id; // Wear the base object in case this is a link.
 	payload["attachment_point"] = attach_pt;
+	payload["is_add"] = !replace;
 
 	if (replace &&
 		(attachment && attachment->getNumObjects() > 0))
 	{
-		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
+		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_attachment_rez);
 	}
 	else
 	{
@@ -4045,7 +4041,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	}
 }
 
-bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
+bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 {
 	if (!gAgentAvatarp->canAttachMoreObjects())
 	{
@@ -4088,14 +4084,16 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 			// attachments are batched up all into one message versus each attachment
 			// being sent in its own separate attachments message.
 			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+			BOOL is_add = notification["payload"]["is_add"].asBoolean();
+
 			LLAttachmentsMgr::instance().addAttachment(item_id,
 													   attachment_pt,
-													   FALSE);
+													   is_add);
 		}
 	}
 	return false;
 }
-static LLNotificationFunctorRegistration confirm_replace_attachment_rez_reg("ReplaceAttachment", confirm_replace_attachment_rez);
+static LLNotificationFunctorRegistration confirm_replace_attachment_rez_reg("ReplaceAttachment", confirm_attachment_rez);
 
 void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {

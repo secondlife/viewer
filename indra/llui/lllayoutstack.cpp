@@ -368,6 +368,22 @@ S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
 	return cur_width;
 }
 
+void LLLayoutStack::movePanel(LLPanel* panel_to_move, LLPanel* target_panel, bool move_to_front)
+{
+	LayoutPanel* embedded_panel_to_move = findEmbeddedPanel(panel_to_move);
+	LayoutPanel* embedded_target_panel = move_to_front ? *mPanels.begin() : findEmbeddedPanel(target_panel);
+
+	if (!embedded_panel_to_move || !embedded_target_panel || embedded_panel_to_move == embedded_target_panel)
+	{
+		llwarns << "One of the panels was not found in stack or NULL was passed instead of valid panel" << llendl;
+		return;
+	}
+	e_panel_list_t::iterator it = std::find(mPanels.begin(), mPanels.end(), embedded_panel_to_move);
+	mPanels.erase(it);
+	it = move_to_front ? mPanels.begin() : std::find(mPanels.begin(), mPanels.end(), embedded_target_panel);
+	mPanels.insert(it, embedded_panel_to_move);
+}
+
 void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, S32 max_width, S32 max_height, BOOL auto_resize, BOOL user_resize, EAnimate animate, S32 index)
 {
 	// panel starts off invisible (collapsed)

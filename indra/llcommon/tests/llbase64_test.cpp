@@ -41,7 +41,7 @@ namespace tut
 	};
 	typedef test_group<base64_data> base64_test;
 	typedef base64_test::object base64_object;
-	tut::base64_test base64("base64");
+	tut::base64_test base64("LLBase64");
 
 	template<> template<>
 	void base64_object::test<1>()

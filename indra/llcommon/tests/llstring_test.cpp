@@ -38,7 +38,7 @@ namespace tut
 	};
 	typedef test_group<string_index> string_index_t;
 	typedef string_index_t::object string_index_object_t;
-	tut::string_index_t tut_string_index("string_test");
+	tut::string_index_t tut_string_index("LLString");
 
 	template<> template<>
 	void string_index_object_t::test<1>()

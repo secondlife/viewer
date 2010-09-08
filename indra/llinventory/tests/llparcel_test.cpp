@@ -40,7 +40,7 @@ namespace tut
 	};
 	typedef test_group<llinventoryparcel_data> llinventoryparcel_test;
 	typedef llinventoryparcel_test::object llinventoryparcel_object;
-	tut::llinventoryparcel_test llinventoryparcel("llinventoryparcel");
+	tut::llinventoryparcel_test llinventoryparcel("LLInventoryParcel");
 
 	template<> template<>
 	void llinventoryparcel_object::test<1>()

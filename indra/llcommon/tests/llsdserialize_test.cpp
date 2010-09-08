@@ -74,7 +74,7 @@ namespace tut
 
 	typedef test_group<sd_xml_data> sd_xml_test;
 	typedef sd_xml_test::object sd_xml_object;
-	tut::sd_xml_test sd_xml_stream("sd_xml_serialization");
+	tut::sd_xml_test sd_xml_stream("LLSDXMLFormatter");
 
 	template<> template<>
 	void sd_xml_object::test<1>()

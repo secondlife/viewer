@@ -144,15 +144,15 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<iteminfo_test> iteminfo_t;
 	typedef iteminfo_t::object iteminfo_object_t;
-	tut::iteminfo_t tut_iteminfo("iteminfo");
+	tut::iteminfo_t tut_iteminfo("LLItemInfo");
 
 	typedef test_group<siminfo_test> siminfo_t;
 	typedef siminfo_t::object siminfo_object_t;
-	tut::siminfo_t tut_siminfo("siminfo");
+	tut::siminfo_t tut_siminfo("LLSimInfo");
 
 	typedef test_group<worldmap_test> worldmap_t;
 	typedef worldmap_t::object worldmap_object_t;
-	tut::worldmap_t tut_worldmap("worldmap");
+	tut::worldmap_t tut_worldmap("LLWorldMap");
 
 	// ---------------------------------------------------------------------------------------
 	// Test functions

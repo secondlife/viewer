@@ -39,7 +39,7 @@ namespace tut
 	};
 	typedef test_group<v3color_data> v3color_test;
 	typedef v3color_test::object v3color_object;
-	tut::v3color_test v3color_testcase("v3color");
+	tut::v3color_test v3color_testcase("v3color_h");
 
 	template<> template<>
 	void v3color_object::test<1>()

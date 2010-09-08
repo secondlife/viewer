@@ -187,7 +187,7 @@
          width="150" />
         <radio_group
          control_name="AvatarSex"
-         follows="left|top|right"
+         follows="top|right"
          height="20"
          layout="topleft"
          left="210"
@@ -217,6 +217,7 @@
         </radio_group>
         <!--  graphical labels for the radio buttons above -->
         <icon
+         follows="top|right"
          height="16"
          image_name="icons/Male.png"
          layout="topleft"
@@ -226,6 +227,7 @@
          top="7"
          width="16" />
         <icon
+         follows="top|right"
          height="16"
          image_name="icons/Female.png"
          layout="topleft"
@@ -416,22 +418,55 @@
      name="button_panel"
      top_pad="6"
      width="333">
-        <button
-         follows="bottomleft"
+        <layout_stack
+         follows="bottom|left|right"
          height="23"
-         label="Save As"
          layout="topleft"
-         left="8"
-         name="save_as_button"
+         mouse_opaque="false"
+         name="button_panel_ls"
+         left="0"
+         orientation="horizontal"
          top="0"
-         width="153" />
-        <button
-         follows="bottomleft"
-         height="23"
-         label="Undo Changes"
-         layout="topleft"
-         left_pad="7"
-         name="revert_button"
-         width="152" />
+         width="333">	
+            <layout_panel
+             follows="bottom|left|right"
+             height="23"
+             layout="bottomleft"
+             left="0"			
+             mouse_opaque="false"
+             name="save_as_btn_lp"
+             user_resize="false" 
+             auto_resize="true"
+             width="154">
+                <button
+                 follows="bottom|left|right"
+                 height="23"
+                 label="Save As"
+                 layout="topleft"
+                 left="1"
+                 name="save_as_button"
+                 top="0"
+                 width="153" />
+            </layout_panel>
+            <layout_panel
+             follows="bottom|left|right"
+             height="23"
+             layout="bottomleft"
+             left_pad="3"			
+             mouse_opaque="false"
+             name="revert_btn_lp"
+             user_resize="false" 
+             auto_resize="true"
+             width="152">
+                <button
+                 follows="bottom|left|right"
+                 height="23"
+                 label="Undo Changes"
+                 layout="topleft"
+                 left_pad="7"
+                 name="revert_button"
+                 width="152" />
+            </layout_panel>
+        </layout_stack>
     </panel>
 </panel>

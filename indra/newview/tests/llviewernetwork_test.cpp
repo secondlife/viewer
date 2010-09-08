@@ -127,7 +127,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<viewerNetworkTest> viewerNetworkTestFactory;
 	typedef viewerNetworkTestFactory::object viewerNetworkTestObject;
-	tut::viewerNetworkTestFactory tut_test("llviewernetwork");
+	tut::viewerNetworkTestFactory tut_test("LLViewerNetwork");
 	
 	// ---------------------------------------------------------------------------------------
 	// Test functions 

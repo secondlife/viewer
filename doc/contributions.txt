@@ -49,6 +49,7 @@ Aimee Trescothick
 	VWR-12631
 	VWR-12696
 	VWR-12748
+	VWR-13221
 	VWR-14087
 	VWR-14267
 	VWR-14278
@@ -119,6 +120,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ardy Lay
+	VWR-19499
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -184,6 +187,7 @@ Carjay McGinnis
 Catherine Pfeffer
 	VWR-1282
 	VWR-8624
+	VWR-10854
 Celierra Darling
 	VWR-1274
 	VWR-6975
@@ -310,6 +314,7 @@ Iskar Ariantho
 	VWR-1223
 	VWR-11759
 Jacek Antonelli
+	SNOW-388
 	VWR-165
 	VWR-188
 	VWR-427
@@ -326,6 +331,8 @@ JB Kraft
 	VWR-7802
 Joghert LeSabre
 	VWR-64
+Jonathan Yap
+	VWR-17801
 Kage Pixel
 	VWR-11
 Ken March
@@ -401,6 +408,7 @@ Michelle2 Zenovka
 Mm Alder
 	VWR-197
 	VWR-3777
+	VWR-4232
 	VWR-4794
 	VWR-13578
 Mr Greggan
@@ -631,6 +639,8 @@ Teardrops Fall
 Techwolf Lupindo
 	SNOW-92
 	SNOW-649
+	SNOW-680
+	SNOW-681
 	VWR-12385
 tenebrous pau
 	VWR-247
@@ -660,6 +670,8 @@ Tue Torok
 	CT-74
 Vadim Bigbear
 	VWR-2681
+Vector Hastings
+	VWR-8726
 Vixen Heron
 	VWR-2710
 	CT-88
@@ -689,6 +701,8 @@ Whoops Babii
 	VWR-8298
 Wilton Lundquist
 	VWR-7682
+Zai Lynch
+	VWR-19505
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

@@ -87,7 +87,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<secapiTest> secapiTestFactory;
 	typedef secapiTestFactory::object secapiTestObject;
-	tut::secapiTestFactory tut_test("llsecapi");
+	tut::secapiTestFactory tut_test("LLSecAPI");
 	
 	// ---------------------------------------------------------------------------------------
 	// Test functions 

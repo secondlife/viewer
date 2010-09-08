@@ -71,10 +71,6 @@ S32 MENU_BAR_WIDTH = 0;
 /// Local function declarations, constants, enums, and typedefs
 ///============================================================================
 
-const std::string SEPARATOR_NAME("separator");
-const std::string SEPARATOR_LABEL( "-----------" );
-const std::string VERTICAL_SEPARATOR_LABEL( "|" );
-
 const S32 LABEL_BOTTOM_PAD_PIXELS = 2;
 
 const U32 LEFT_PAD_PIXELS = 3;
@@ -93,10 +89,14 @@ const U32 SEPARATOR_HEIGHT_PIXELS = 8;
 const S32 TEAROFF_SEPARATOR_HEIGHT_PIXELS = 10;
 const S32 MENU_ITEM_PADDING = 4;
 
-const std::string BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
-const std::string BRANCH_SUFFIX( "\xE2\x96\xB6" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
-const std::string ARROW_UP  ("^^^^^^^");
-const std::string ARROW_DOWN("vvvvvvv");
+const std::string SEPARATOR_NAME("separator");
+const std::string SEPARATOR_LABEL( "-----------" );
+const std::string VERTICAL_SEPARATOR_LABEL( "|" );
+
+const std::string LLMenuGL::BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
+const std::string LLMenuGL::BRANCH_SUFFIX( "\xE2\x96\xB6" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
+const std::string LLMenuGL::ARROW_UP  ("^^^^^^^");
+const std::string LLMenuGL::ARROW_DOWN("vvvvvvv");
 
 const F32 MAX_MOUSE_SLOPE_SUB_MENU = 0.9f;
 
@@ -915,7 +915,7 @@ void LLMenuItemCheckGL::setValue(const LLSD& value)
 	LLUICtrl::setValue(value);
 	if(value.asBoolean())
 	{
-		mDrawBoolLabel = BOOLEAN_TRUE_PREFIX;
+		mDrawBoolLabel = LLMenuGL::BOOLEAN_TRUE_PREFIX;
 	}
 	else
 	{
@@ -948,7 +948,7 @@ void LLMenuItemCheckGL::buildDrawLabel( void )
 	}
 	if(getValue().asBoolean())
 	{
-		mDrawBoolLabel = BOOLEAN_TRUE_PREFIX;
+		mDrawBoolLabel = LLMenuGL::BOOLEAN_TRUE_PREFIX;
 	}
 	else
 	{
@@ -1058,7 +1058,7 @@ void LLMenuItemBranchGL::buildDrawLabel( void )
 	std::string st = mDrawAccelLabel;
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
-	mDrawBranchLabel = BRANCH_SUFFIX;
+	mDrawBranchLabel = LLMenuGL::BRANCH_SUFFIX;
 }
 
 void LLMenuItemBranchGL::onCommit( void )
