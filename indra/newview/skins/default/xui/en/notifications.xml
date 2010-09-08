@@ -3214,6 +3214,7 @@ Change your display name?
        name="Cancel"
        text="Cancel"/>
     </form>
+    <unique/>
   </notification>
 
   <notification
