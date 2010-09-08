@@ -518,6 +518,11 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 	return !mOtherParticipantIsAvatar;
 }
 
+void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
+{
+	mHistoryFileName = av_name.mUsername;
+}
+
 void LLIMModel::LLIMSession::buildHistoryFileName()
 {
 	mHistoryFileName = mName;
@@ -535,6 +540,12 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		
 		//in case of incoming ad-hoc sessions
 		mHistoryFileName = mName + " " + LLLogChat::timestamp(true) + " " + mSessionID.asString().substr(0, 4);
+	}
+
+	// look up username to use as the log name
+	if (isP2P())
+	{
+		LLAvatarNameCache::get(mOtherParticipantID, boost::bind(&LLIMModel::LLIMSession::onAvatarNameCache, this, _1, _2));
 	}
 }
 
