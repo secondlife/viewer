@@ -1163,11 +1163,23 @@ BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		
-		// this object might have been selected, so let the selection manager know it's gone now
+		// This object might have been selected, so let the selection manager know it's gone now
 		LLViewerObject *found_obj = gObjectList.findObject(item_id);
 		if (found_obj)
 		{
 			LLSelectMgr::getInstance()->remove(found_obj);
+		}
+
+		// Error checking in case this object was attached to an invalid point
+		// In that case, just remove the item from COF preemptively since detach 
+		// will fail.
+		if (isAgentAvatarValid())
+		{
+			const LLViewerObject *attached_obj = gAgentAvatarp->getWornAttachment(item_id);
+			if (!attached_obj)
+			{
+				LLAppearanceMgr::instance().removeCOFItemLinks(item_id, false);
+			}
 		}
 		return TRUE;
 	}
