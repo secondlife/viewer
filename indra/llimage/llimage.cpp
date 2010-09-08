@@ -147,7 +147,7 @@ U8* LLImageBase::allocateData(S32 size)
 		size = mWidth * mHeight * mComponents;
 		if (size <= 0)
 		{
-			llerrs << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,mComponents) << llendl;
+			llerrs << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << llendl;
 		}
 	}
 	
