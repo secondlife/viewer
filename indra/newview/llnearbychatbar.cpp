@@ -103,10 +103,10 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 	, mViewAllItemIndex(0)
 	, mGetMoreItemIndex(0)
 {
-	LLButton::Params button_params = p.combo_button;
+	LLBottomtrayButton::Params button_params = p.combo_button;
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
 
-	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+	mButton = LLUICtrlFactory::create<LLBottomtrayButton>(button_params);
 	mButton->reshape(getRect().getWidth(),getRect().getHeight());
 	mButton->setCommitCallback(boost::bind(&LLGestureComboList::onButtonCommit, this));
 
