@@ -41,7 +41,7 @@
 #include "llfloaterworldmap.h"
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
-#include "llgiveinventory.h"
+#include "llgiveinventory.h" 
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
