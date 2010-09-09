@@ -1984,6 +1984,7 @@ LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
 
 	mFocusCycleMode(FALSE),
+	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
 	mSnapOffsetRight(0)
 {
