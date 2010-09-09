@@ -44,8 +44,7 @@
   
   <spinner bottom_delta="0" left="140" width="120" height="16" initial_value="75" label_width="60" name="edge threshold" decimal_digits="0" min_val="0" max_val="180" increment="5" label="Hard Angle" tool_tip="Maximum angle that will be smoothed between triangles when using Generate Normals"/>
   <check_box bottom_delta="0" left="450" label="Show Edges" name="show edges" width="120" height="16" tool_tip="Render wireframe in preview window"/>
-  <slider bottom_delta="30" left="340" width="240" label="Explode" name="explode" height="16" initial_value="0" min_val="0" max_val="1" decimal_digits="2" increment="0.05"/>
-  <text bottom_delta="0" follows="top|left" height="15" left="10" name="high_lod_label">
+  <text bottom_delta="30" follows="top|left" height="15" left="10" name="high_lod_label">
     High LOD:
   </text>
   <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 

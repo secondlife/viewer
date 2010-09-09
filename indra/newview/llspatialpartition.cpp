@@ -3050,33 +3050,55 @@ public:
 		center.set(vl->mBounds[0].getF32ptr());
 		size.set(vl->mBounds[1].getF32ptr());
 
-		drawBoxOutline(center, size);
+		for (U32 i = 0; i < 2; i++)
+		{
+			LLGLDepthTest depth(GL_TRUE, GL_FALSE, i == 1 ? GL_LEQUAL : GL_GREATER);
+
+			if (i == 1)
+			{
+				gGL.color4f(0,1,1,0.5f);
+			}
+			else
+			{
+				gGL.color4f(0,0.5f,0.5f, 0.25f);
+			}
+
+			drawBoxOutline(center, size);
+
+			gGL.begin(LLRender::TRIANGLES);
+			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin();
+					iter != branch->getData().end();
+					++iter)
+			{
+				const LLVolumeTriangle* tri = *iter;
+				
+				gGL.vertex3fv(tri->mV[0]->getF32ptr());
+				gGL.vertex3fv(tri->mV[1]->getF32ptr());
+				gGL.vertex3fv(tri->mV[2]->getF32ptr());
+			}	
+			gGL.end();
+		}
 	}
 };
 
 void renderRaycast(LLDrawable* drawablep)
 {
-	if (drawablep->getVObj() != gDebugRaycastObject)
-	{
-		return;
-	}
-	
 	if (drawablep->getNumFaces())
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.color4f(0,1,1,0.5f);
 
-		if (drawablep->getVOVolume() && gDebugRaycastFaceHit != -1)
+		if (drawablep->getVOVolume())
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			pushVerts(drawablep->getFace(gDebugRaycastFaceHit), LLVertexBuffer::MAP_VERTEX);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			//pushVerts(drawablep->getFace(gDebugRaycastFaceHit), LLVertexBuffer::MAP_VERTEX);
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			LLVOVolume* vobj = drawablep->getVOVolume();
 			LLVolume* volume = vobj->getVolume();
-			if (volume && volume->getNumVolumeFaces() > gDebugRaycastFaceHit)
+			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
-				const LLVolumeFace& face = volume->getVolumeFace(gDebugRaycastFaceHit);
+				const LLVolumeFace& face = volume->getVolumeFace(i);
 				if (!face.mOctree)
 				{
 					((LLVolumeFace*) &face)->createOctree(); 
@@ -3089,50 +3111,58 @@ void renderRaycast(LLDrawable* drawablep)
 				end = vobj->agentPositionToVolume(gDebugRaycastEnd);
 
 				LLRenderOctreeRaycast render(start, end);
+				gGL.flush();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				render.traverse(face.mOctree);
 				gGL.popMatrix();		
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 		}
 		else if (drawablep->isAvatar())
 		{
-			LLGLDepthTest depth(GL_FALSE);
-			LLVOAvatar* av = (LLVOAvatar*) drawablep->getVObj().get();
-			av->renderCollisionVolumes();
+			if (drawablep->getVObj() == gDebugRaycastObject)
+			{
+				LLGLDepthTest depth(GL_FALSE);
+				LLVOAvatar* av = (LLVOAvatar*) drawablep->getVObj().get();
+				av->renderCollisionVolumes();
+			}
 		}
 
-		// draw intersection point
-		glPushMatrix();
-		glLoadMatrixd(gGLModelView);
-		LLVector3 translate = gDebugRaycastIntersection;
-		glTranslatef(translate.mV[0], translate.mV[1], translate.mV[2]);
-		LLCoordFrame orient;
-		orient.lookDir(gDebugRaycastNormal, gDebugRaycastBinormal);
-		LLMatrix4 rotation;
-		orient.getRotMatrixToParent(rotation);
-		glMultMatrixf((float*)rotation.mMatrix);
-		
-		gGL.color4f(1,0,0,0.5f);
-		drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));
-		gGL.color4f(0,1,0,0.5f);
-		drawBox(LLVector3(0, 0, 0), LLVector3(0.021f, 0.1f, 0.021f));
-		gGL.color4f(0,0,1,0.5f);
-		drawBox(LLVector3(0, 0, 0), LLVector3(0.02f, 0.02f, 0.1f));
-		glPopMatrix();
+		if (drawablep->getVObj() == gDebugRaycastObject)
+		{
+			// draw intersection point
+			glPushMatrix();
+			glLoadMatrixd(gGLModelView);
+			LLVector3 translate = gDebugRaycastIntersection;
+			glTranslatef(translate.mV[0], translate.mV[1], translate.mV[2]);
+			LLCoordFrame orient;
+			orient.lookDir(gDebugRaycastNormal, gDebugRaycastBinormal);
+			LLMatrix4 rotation;
+			orient.getRotMatrixToParent(rotation);
+			glMultMatrixf((float*)rotation.mMatrix);
+			
+			gGL.color4f(1,0,0,0.5f);
+			drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));
+			gGL.color4f(0,1,0,0.5f);
+			drawBox(LLVector3(0, 0, 0), LLVector3(0.021f, 0.1f, 0.021f));
+			gGL.color4f(0,0,1,0.5f);
+			drawBox(LLVector3(0, 0, 0), LLVector3(0.02f, 0.02f, 0.1f));
+			glPopMatrix();
 
-		// draw bounding box of prim
-		const LLVector4a* ext = drawablep->getSpatialExtents();
+			// draw bounding box of prim
+			const LLVector4a* ext = drawablep->getSpatialExtents();
 
-		LLVector4a pos;
-		pos.setAdd(ext[0], ext[1]);
-		pos.mul(0.5f);
-		LLVector4a size;
-		size.setSub(ext[1], ext[0]);
-		size.mul(0.5f);
+			LLVector4a pos;
+			pos.setAdd(ext[0], ext[1]);
+			pos.mul(0.5f);
+			LLVector4a size;
+			size.setSub(ext[1], ext[0]);
+			size.mul(0.5f);
 
-		LLGLDepthTest depth(GL_FALSE, GL_TRUE);
-		gGL.color4f(0,0.5f,0.5f,1);
-		drawBoxOutline(pos, size);
-
+			LLGLDepthTest depth(GL_FALSE, GL_TRUE);
+			gGL.color4f(0,0.5f,0.5f,1);
+			drawBoxOutline(pos, size);
+		}
 	}
 }
 
