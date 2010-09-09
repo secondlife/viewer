@@ -28,7 +28,7 @@
 #include "llinventorybridge.h"
 
 // external projects
-#include "lltransfersourceasset.h"
+#include "lltransfersourceasset.h" 
 
 #include "llagent.h"
 #include "llagentcamera.h"
