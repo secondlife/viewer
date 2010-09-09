@@ -269,8 +269,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("show edges", onShowEdgesCommit, this);
 	childSetCommitCallback("auto fill", onAutoFillCommit, this);
 
-	childSetCommitCallback("explode", onExplodeCommit, this);
-
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
 	for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
@@ -535,7 +533,7 @@ void LLFloaterModelPreview::onShowEdgesCommit(LLUICtrl* ctrl, void* userdata)
 //static
 void LLFloaterModelPreview::onExplodeCommit(LLUICtrl* ctrl, void* userdata)
 {
-	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	LLFloaterModelPreview* fp = LLFloaterModelPreview::sInstance;
 
 	fp->mModelPreview->refresh();
 }
@@ -778,7 +776,7 @@ void LLFloaterModelPreview::showDecompFloater()
 		mDecompFloater = new LLPhysicsDecompFloater(key);
 	
 		S32 left = 20;
-		S32 right = 270;
+		S32 right = 320;
 
 		S32 cur_y = 30;
 
@@ -839,15 +837,19 @@ void LLFloaterModelPreview::showDecompFloater()
 					continue;
 				}
 
+				std::string name(param[i].mName ? param[i].mName : "");
+				std::string description(param[i].mDescription ? param[i].mDescription : "");
+
 				if (param[i].mType == LLCDParam::LLCD_FLOAT)
 				{
 					LLSliderCtrl::Params p;
-					p.name(param[i].mName);
-					p.label(param[i].mName);
+					p.name(name);
+					p.label(name);
 					p.rect(LLRect(left, cur_y, right, cur_y-20));
 					p.min_value(param[i].mDetails.mRange.mLow.mFloat);
 					p.max_value(param[i].mDetails.mRange.mHigh.mFloat);
 					p.increment(param[i].mDetails.mRange.mDelta.mFloat);
+					p.tool_tip(description);
 					p.decimal_digits(3);
 					p.initial_value(param[i].mDefault.mFloat);
 					LLSliderCtrl* slider = LLUICtrlFactory::create<LLSliderCtrl>(p);
@@ -858,12 +860,13 @@ void LLFloaterModelPreview::showDecompFloater()
 				else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 				{
 					LLSliderCtrl::Params p;
-					p.name(param[i].mName);
-					p.label(param[i].mName);
+					p.name(name);
+					p.label(name);
 					p.rect(LLRect(left, cur_y, right, cur_y-20));
 					p.min_value(param[i].mDetails.mRange.mLow.mIntOrEnumValue);
 					p.max_value(param[i].mDetails.mRange.mHigh.mIntOrEnumValue);
 					p.increment(param[i].mDetails.mRange.mDelta.mIntOrEnumValue);
+					p.tool_tip(description);
 					p.initial_value(param[i].mDefault.mIntOrEnumValue);
 					LLSliderCtrl* slider = LLUICtrlFactory::create<LLSliderCtrl>(p);
 					slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
@@ -874,9 +877,10 @@ void LLFloaterModelPreview::showDecompFloater()
 				{
 					LLCheckBoxCtrl::Params p;
 					p.rect(LLRect(left, cur_y, right, cur_y-20));
-					p.name(param[i].mName);
-					p.label(param[i].mName);
+					p.name(name);
+					p.label(name);
 					p.initial_value(param[i].mDefault.mBool);
+					p.tool_tip(description);
 					LLCheckBoxCtrl* check_box = LLUICtrlFactory::create<LLCheckBoxCtrl>(p);
 					check_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 					mDecompFloater->addChild(check_box);
@@ -884,22 +888,59 @@ void LLFloaterModelPreview::showDecompFloater()
 				}
 				else if (param[i].mType == LLCDParam::LLCD_ENUM)
 				{
-					LLComboBox::Params p;
-					p.rect(LLRect(left, cur_y, right/3, cur_y-20));
-					p.name(param[i].mName);
-					p.label(param[i].mName);
-					LLComboBox* combo_box = LLUICtrlFactory::create<LLComboBox>(p);
-					for (S32 k = 0; k < param[i].mDetails.mEnumValues.mNumEnums; ++k)
-					{
-						combo_box->add(param[i].mDetails.mEnumValues.mEnumsArray[k].mName, 
-							LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
+					S32 cur_x = left;
+
+					{ //add label
+						LLTextBox::Params p;
+						const LLFontGL* font = (LLFontGL*) p.font();
+
+						p.rect(LLRect(left, cur_y, left+font->getWidth(name), cur_y-20));
+						p.name(name);
+						p.label(name);
+						p.initial_value(name);
+						LLTextBox* text_box = LLUICtrlFactory::create<LLTextBox>(p);
+						mDecompFloater->addChild(text_box);
+						cur_x += text_box->getRect().getWidth();
 					}
-					combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
-					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
-					mDecompFloater->addChild(combo_box);
-					cur_y += 30;
+
+					{ //add combo_box
+						LLComboBox::Params p;
+						p.rect(LLRect(cur_x, cur_y, right-right/4, cur_y-20));
+						p.name(name);
+						p.label(name);
+						p.tool_tip(description);
+
+						LLComboBox* combo_box = LLUICtrlFactory::create<LLComboBox>(p);
+						for (S32 k = 0; k < param[i].mDetails.mEnumValues.mNumEnums; ++k)
+						{
+							combo_box->add(param[i].mDetails.mEnumValues.mEnumsArray[k].mName, 
+								LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
+						}
+						combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
+						combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+						mDecompFloater->addChild(combo_box);
+						cur_y += 30;
+					}
 				}
 			}
+		}
+
+		cur_y += 30;
+		//explode slider
+		{
+			LLSliderCtrl::Params p;
+			p.initial_value(0);
+			p.min_value(0);
+			p.max_value(1);
+			p.decimal_digits(2);
+			p.increment(0.05f);
+			p.label("Explode");
+			p.name("explode");
+			p.rect(LLRect(left, cur_y, right, cur_y-20));
+			LLSliderCtrl* slider = LLUICtrlFactory::create<LLSliderCtrl>(p);
+
+			mDecompFloater->addChild(slider);
+			cur_y += 30;
 		}
 
 		//mesh render checkbox
@@ -928,15 +969,16 @@ void LLFloaterModelPreview::showDecompFloater()
 			LLTextBox::Params p;
 			p.label("Model");
 			p.name("model label");
-			p.rect(LLRect(right/3, cur_y, right/2, cur_y-20));
+			p.rect(LLRect(right/2, cur_y, right-right/3, cur_y-20));
 			LLTextBox* text_box = LLUICtrlFactory::create<LLTextBox>(p);
 			text_box->setValue("Model");
 			mDecompFloater->addChild(text_box);
 		}
+
 		{
 			//add submesh combo box
 			LLComboBox::Params p;
-			p.rect(LLRect(right/2, cur_y, right, cur_y-20));
+			p.rect(LLRect(right-right/2+p.font()->getWidth("Model"), cur_y, right, cur_y-20));
 			p.name("model");
 			LLComboBox* combo_box = LLUICtrlFactory::create<LLComboBox>(p);
 			for (S32 i = 0; i < mModelPreview->mBaseModel.size(); ++i)
@@ -955,6 +997,8 @@ void LLFloaterModelPreview::showDecompFloater()
 
 		mDecompFloater->setRect(LLRect(10, cur_y+20, right+20, 10)); 
 	}
+
+	mDecompFloater->childSetCommitCallback("explode", LLFloaterModelPreview::onExplodeCommit, this);
 
 	mDecompFloater->openFloater();
 }
@@ -2922,7 +2966,7 @@ BOOL LLModelPreview::render()
 
 	mFMP->childSetEnabled("consolidate", !avatar_preview);
 	
-	F32 explode = mFMP->childGetValue("explode").asReal();
+	F32 explode = mFMP->mDecompFloater ? mFMP->mDecompFloater->childGetValue("explode").asReal() : 0.f;
 
 	glMatrixMode(GL_PROJECTION);
 	gGL.popMatrix();
