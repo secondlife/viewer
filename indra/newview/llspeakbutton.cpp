@@ -37,6 +37,8 @@
 
 #include "llspeakbutton.h"
 
+#include "llbottomtray.h"
+
 static LLDefaultChildRegistry::Register<LLSpeakButton> t1("talk_button");
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,7 +69,7 @@ void LLSpeakButton::setSpeakBtnEnabled(bool enabled)
 }
 void LLSpeakButton::setFlyoutBtnEnabled(bool enabled)
 {
-	LLButton* show_btn = getChild<LLButton>("speak_flyout_btn");
+	LLButton* show_btn = getChild<LLBottomtrayButton>("speak_flyout_btn");
 	show_btn->setEnabled(enabled);
 }
 
@@ -96,9 +98,9 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	mSpeakBtn->setMouseUpCallback(boost::bind(&LLSpeakButton::onMouseUp_SpeakBtn, this));
 	mSpeakBtn->setToggleState(FALSE);
 
-	LLButton::Params show_params = p.show_button;
+	LLBottomtrayButton::Params show_params = p.show_button;
 	show_params.rect(show_rect);
-	mShowBtn = LLUICtrlFactory::create<LLButton>(show_params);
+	mShowBtn = LLUICtrlFactory::create<LLBottomtrayButton>(show_params);
 	addChild(mShowBtn);
 	LLTransientFloaterMgr::getInstance()->addControlView(mShowBtn);
 

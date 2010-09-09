@@ -86,6 +86,9 @@
 	<color
 	name="LtOrange"
 	value="1 .85 .73 1" />
+	<color
+	name="MdBlue"
+	value=".07 .38 .51 1" />
 
   <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
@@ -749,4 +752,7 @@
     <color
      name="ChatTimestampColor"
      reference="White" />
+    <color
+     name="MenuBarProjectBgColor"
+     reference="MdBlue" />
 </colors>

@@ -120,6 +120,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ardy Lay
+	VWR-19499
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -699,6 +701,8 @@ Whoops Babii
 	VWR-8298
 Wilton Lundquist
 	VWR-7682
+Zai Lynch
+	VWR-19505
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

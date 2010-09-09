@@ -78,93 +78,166 @@ bg_opaque_color="DkGray2"
          bevel_style="none"
          enabled="false"
          auto_resize="false"
-         follows="bottom"
+         follows="bottom|left|right"
          left="1"
          height="27"
          label="bottom_panel"
-         layout="topleft"
+         layout="bottom"
          name="edit_panel"
          top_pad="-2"
          width="313">
-            <button
-             enabled="false"
-             follows="bottom|left"
-             height="18"
-             image_selected="OptionsMenu_Press"
-             image_unselected="OptionsMenu_Off"
-              image_disabled="OptionsMenu_Disabled"
-             layout="topleft"
-             left="10"
-             name="gear_menu_btn"
-             top="9"
-             width="18" />
-            <button
-             follows="bottom|left"
-             height="18"
-             image_disabled="AddItem_Disabled"
-             image_selected="AddItem_Press"
-             image_unselected="AddItem_Off"
-             layout="topleft"
-             left_pad="15"
-             name="new_btn"
-             tool_tip="Create a new pick or classified at the current location"
-             top="9"
-             width="18" />
-            <button
-             follows="bottom|right"
-             height="18"
-             image_disabled="TrashItem_Disabled"
-             image_selected="TrashItem_Press"
-             image_unselected="TrashItem_Off"
-             layout="topleft"
-             name="trash_btn"
-             right="-10"
-             top="9"
-             width="18" />
-        </panel>
-        <panel
+         
+         <layout_stack
+		  follows="bottom|left|right"
+		  height="23"
+		  layout="bottomleft"
+		  name="edit_panel_ls"
+		  left="10"
+		  orientation="horizontal"
+		  top_pad="0"
+		  width="293">
+		  
+		  <layout_panel
+			  follows="bottom|left"
+			  height="18"
+			  layout="bottomleft"
+			  left="0"
+			  name="gear_menu_btn"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="51">
+	            <button
+	             enabled="false"
+	             follows="bottom|left"
+	             height="18"
+	             image_selected="OptionsMenu_Press"
+	             image_unselected="OptionsMenu_Off"
+	             image_disabled="OptionsMenu_Disabled"
+	             layout="topleft"
+	             left="0"
+	             name="gear_menu_btn"
+	             top_pad="0"
+	             width="18" />
+				<button
+	             follows="bottom|left"
+	             height="18"
+	             image_disabled="AddItem_Disabled"
+	             image_selected="AddItem_Press"
+	             image_unselected="AddItem_Off"
+	             layout="topleft"
+	             left_pad="15"
+	             name="new_btn"
+	             tool_tip="Create a new pick or classified at the current location"
+	             width="18" />
+		  </layout_panel>
+		  
+		  <layout_panel
+			  follows="bottom|right"
+			  height="18"
+			  layout="bottomleft"
+			  name="trash_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="18">
+				<button
+	             follows="bottom|right"
+	             height="18"
+	             image_disabled="TrashItem_Disabled"
+	             image_selected="TrashItem_Press"
+	             image_unselected="TrashItem_Off"
+	             layout="topleft"
+	             name="trash_btn"
+	             top="0"
+	             width="18" />
+		  </layout_panel>
+		  
+	  </layout_stack>
+	  </panel>
+	  
+	  <panel
  bg_opaque_color="DkGray"
        background_visible="true"
        background_opaque="true"
+         follows="bottom|left|right"
          layout="topleft"
          left="0"
          height="40"
-         top="502"
          name="buttons_cucks"
          width="313">
-       <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Info"
-         layout="topleft"
-         left="2"
-         name="info_btn"
-         tab_stop="false"
-         tool_tip="Show pick information"
-         top="5"
-         width="95" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Teleport"
-         layout="topleft"
-         left_pad="3"
-         name="teleport_btn"
-         tab_stop="false"
-         tool_tip="Teleport to the corresponding area"
-         width="117" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         left_pad="3"
-         name="show_on_map_btn"
-         tab_stop="false"
-         tool_tip="Show the corresponding area on the World Map"
-         width="90" />
-        </panel>
+      
+      <layout_stack
+		  follows="bottom|left|right"
+		  height="28"
+		  layout="topleft"
+		  left="2"
+		  name="buttons_cucks_ls"
+		  orientation="horizontal"
+		  top="0"
+		  width="313">
+		  	  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="28"
+			  layout="topleft"
+			  left="0"
+			  name="info_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true"
+			  top="0"
+			  width="95">
+		       <button
+		         enabled="false"
+		         follows="top|left|right"
+		         height="23"
+		         label="Info"
+		         layout="topleft"
+		         name="info_btn"
+		         tab_stop="false"
+		         tool_tip="Show pick information"
+		         width="95" />
+		  </layout_panel>
+		  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="28"
+			  layout="bottomleft" 
+			  left_pad="2"
+			  name="teleport_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="117">
+		        <button
+		         enabled="false"
+		         follows="top|left|right"
+		         height="23"
+		         label="Teleport"
+		         layout="topleft"
+		         name="teleport_btn"
+		         tab_stop="false"
+		         tool_tip="Teleport to the corresponding area"
+		         width="117" />
+		  </layout_panel>
+		  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="28"
+			  layout="bottomleft"
+			  name="show_on_map_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true" 
+			  left_pad="2"
+			  width="90">
+		        <button
+		         enabled="false"
+		         follows="top|left|right"
+		         height="23"
+		         label="Map"
+		         layout="topleft"
+		         name="show_on_map_btn"
+		         tab_stop="false"
+		         tool_tip="Show the corresponding area on the World Map"
+		         width="88" />
+		  </layout_panel>
+	</layout_stack>
+	</panel>
 </panel>

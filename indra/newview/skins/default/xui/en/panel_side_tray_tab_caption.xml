@@ -9,7 +9,7 @@
  left="0"
  name="sidetray_tab_panel">
     <text
-     follows="left|top"
+     follows="left|top|right"
      font="SansSerifHuge"
      height="16"
      layout="topleft"
@@ -22,15 +22,28 @@
      <button
      follows="right|top"
      height="16"
-     image_selected="Icon_Dock_Press"
-     image_unselected="Icon_Dock_Foreground"
-     image_disabled="Icon_Dock_Press"
+     image_selected="Sidebar_Icon_Undock_Press"
+     image_unselected="Sidebar_Icon_Undock_Foreground"
+     image_disabled="Sidebar_Icon_Undock_Press"
+     layout="topleft"
+     name="undock"
+     top="10"
+     right="-28"
+     width="16"
+     tool_tip="Undock" />
+     <button
+     follows="right|top"
+     height="16"
+     image_selected="Sidebar_Icon_Dock_Press"
+     image_unselected="Sidebar_Icon_Dock_Foreground"
+     image_disabled="Sidebar_Icon_Dock_Press"
      layout="topleft"
      name="dock"
      top="10"
      right="-28"
      width="16"
-     tool_tip="Dock/Undock tab" />
+     tool_tip="Dock"
+     visible="false" />
      <button
      follows="right|top"
      height="16"

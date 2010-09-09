@@ -11,7 +11,7 @@
  top="0"
  width="333">
     <button
-     follows="top|right"
+     follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"
@@ -121,30 +121,73 @@
      top_pad="5"
      left="8"
      name="buttons">
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Teleport"
-         layout="topleft"
-         left="0"
-         name="teleport_btn"
-         top="0"
-         width="101" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         left_pad="3"
-         name="show_on_map_btn"
-         width="100" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Edit"
-         layout="topleft"
-         name="edit_btn"
-         left_pad="3"
-         width="101" />
+       
+       <layout_stack
+		  follows="bottom|left|right"
+		  height="23"
+		  layout="topleft"
+		  name="layout_stack1"
+		  left="0"
+		  orientation="horizontal"
+		  top_pad="0"
+		  width="312">
+		  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="23"
+			  layout="bottomleft"
+			  left="0"
+			  name="layout_panel1"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="101">
+			  <button
+			  	 follows="bottom|left|right"
+		         height="23"
+		         label="Teleport"
+		         layout="topleft"
+		         name="teleport_btn"
+		         top="0"
+		         width="101" />
+		  </layout_panel>
+		  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="23"
+			  layout="bottomleft"
+			  left_pad="3"
+			  name="show_on_map_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="100">
+			  <button
+		         follows="bottom|left|right"
+		         height="23"
+		         label="Map"
+		         layout="topleft"
+		         name="show_on_map_btn"
+		         top_pad="0"
+		         width="100" />
+		  </layout_panel>	  
+		  
+		  <layout_panel
+			  follows="bottom|left|right"
+			  height="23"
+			  layout="bottomleft"
+			  left_pad="3"
+			  name="edit_btn_lp"
+		      user_resize="false" 
+		      auto_resize="true"
+			  width="101">
+			  <button
+		         follows="bottom|left|right"
+		         height="23"
+		         label="Edit"
+		         layout="topleft"
+		         name="edit_btn"
+		         top_pad="0"
+		         width="101" />
+		  </layout_panel>
+	   </layout_stack>
     </panel>
 </panel>
