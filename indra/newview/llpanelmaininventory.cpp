@@ -642,6 +642,7 @@ LLFloaterInventoryFinder::LLFloaterInventoryFinder(LLPanelMainInventory* invento
 	mPanelMainInventory(inventory_view),
 	mFilter(inventory_view->getPanel()->getFilter())
 {
+	buildFromFile("floater_inventory_view_finder.xml");
 	updateElementsFromFilter();
 }
 

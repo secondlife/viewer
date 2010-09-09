@@ -107,6 +107,8 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mCanApplyImmediately	( show_apply_immediate ),
 	  mContextConeOpacity	( 0.f )
 {
+	buildFromFile ( "floater_color_picker.xml");
+
 	// create user interface for this picker
 	createUI ();
 

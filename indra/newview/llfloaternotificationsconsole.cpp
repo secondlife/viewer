@@ -251,6 +251,7 @@ LLFloaterNotification::LLFloaterNotification(LLNotification* note)
 :	LLFloater(LLSD()),
 	mNote(note)
 {
+	buildFromFile("floater_notification.xml");
 }
 
 BOOL LLFloaterNotification::postBuild()
