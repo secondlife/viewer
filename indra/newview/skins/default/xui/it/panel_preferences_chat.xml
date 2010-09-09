@@ -65,18 +65,18 @@
 		<combo_box.item name="English" label="English" />
 		<combo_box.item name="Danish" label="Dansk (Danese)" />
 		<combo_box.item name="German" label="Deutsch (Tedesco)" />
-		<combo_box.item name="Spanish" label="EspaÃ±ol (Spagnolo)" />
-		<combo_box.item name="French" label="FranÃ§ais (Francese)" />
+		<combo_box.item name="Spanish" label="Español (Spagnolo)" />
+		<combo_box.item name="French" label="Français (Francese)" />
 		<combo_box.item name="Italian" label="Italiano" />
 		<combo_box.item name="Hungarian" label="Magyar (Ungherese)" />
 		<combo_box.item name="Dutch" label="Nederlands (Olandese)" />
 		<combo_box.item name="Polish" label="Polski (Polacco)" />
-		<combo_box.item name="Portugese" label="PortuguÃ©s (Portoghese)" />
-		<combo_box.item name="Russian" label="Ð ÑÑÑÐºÐžÐ¹ (Russo)" />
-		<combo_box.item name="Turkish" label="TÃŒrkÃ§e (Turco)" />
-		<combo_box.item name="Ukrainian" label="Ð£ÐºÑÐ°ÑÐœÑÑÐºÐ° (Ukraino)" />
-		<combo_box.item name="Chinese" label="äž­æ (ç®äœ) (Cinese)" />
-		<combo_box.item name="Japanese" label="æ¥æ¬èª (Giapponese)" />
-		<combo_box.item name="Korean" label="íêµ­ìŽ (Coreano)" />
+		<combo_box.item name="Portugese" label="Portugués (Portoghese)" />
+		<combo_box.item name="Russian" label="Русский (Russo)" />
+		<combo_box.item name="Turkish" label="Türkçe (Turco)" />
+		<combo_box.item name="Ukrainian" label="Українська (Ukraino)" />
+		<combo_box.item name="Chinese" label="中文 (简体) (Cinese)" />
+		<combo_box.item name="Japanese" label="日本語 (Giapponese)" />
+		<combo_box.item name="Korean" label="한국어 (Coreano)" />
 	</combo_box>
 </panel>

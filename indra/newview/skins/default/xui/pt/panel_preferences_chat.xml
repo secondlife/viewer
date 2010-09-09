@@ -58,25 +58,25 @@
 	</radio_group>
 	<check_box label="Traduzir Chat" name="translate_chat_checkbox" />
 	<text name="translate_language_text">
-		Chat LÃ­ngua:
+		Chat Língua:
 	</text>
 	<combo_box name="translate_language_combobox">
-		<combo_box.item name="System Default Language" label="PadrÃ£o do Sistema" />
-		<combo_box.item name="English" label="English (InglÃªs)" />
-		<combo_box.item name="Danish" label="Dansk (DinamarquÃªs)" />
-		<combo_box.item name="German" label="Deutsch (AlemÃ£o)" />
-		<combo_box.item name="Spanish" label="EspaÃ±ol (Espanhol)" />
-		<combo_box.item name="French" label="FranÃ§ais (FrancÃªs)" />
+		<combo_box.item name="System Default Language" label="Padrão do Sistema" />
+		<combo_box.item name="English" label="English (Inglês)" />
+		<combo_box.item name="Danish" label="Dansk (Dinamarquês)" />
+		<combo_box.item name="German" label="Deutsch (Alemão)" />
+		<combo_box.item name="Spanish" label="Español (Espanhol)" />
+		<combo_box.item name="French" label="Français (Francês)" />
 		<combo_box.item name="Italian" label="Italiano" />
-		<combo_box.item name="Hungarian" label="Magyar (HÃºngaro)" />
-		<combo_box.item name="Dutch" label="Nederlands (HolandÃªs)" />
-		<combo_box.item name="Polish" label="Polski (PolonÃªs)" />
-		<combo_box.item name="Portugese" label="PortuguÃªs" />
-		<combo_box.item name="Russian" label="Ð ÑÑÑÐºÐžÐ¹ (Russo)" />
-		<combo_box.item name="Turkish" label="TÃŒrkÃ§e (Turco)" />
-		<combo_box.item name="Ukrainian" label="Ð£ÐºÑÐ°ÑÐœÑÑÐºÐ° (Ucraniano)" />
-		<combo_box.item name="Chinese" label="äž­æ (ç®äœ) (ChinÃªs)" />
-		<combo_box.item name="Japanese" label="æ¥æ¬èª (JaponÃªs)" />
-		<combo_box.item name="Korean" label="íêµ­ìŽ (Coreano)" />
+		<combo_box.item name="Hungarian" label="Magyar (Húngaro)" />
+		<combo_box.item name="Dutch" label="Nederlands (Holandês)" />
+		<combo_box.item name="Polish" label="Polski (Polonês)" />
+		<combo_box.item name="Portugese" label="Português" />
+		<combo_box.item name="Russian" label="Русский (Russo)" />
+		<combo_box.item name="Turkish" label="Türkçe (Turco)" />
+		<combo_box.item name="Ukrainian" label="Українська (Ucraniano)" />
+		<combo_box.item name="Chinese" label="中文 (简体) (Chinês)" />
+		<combo_box.item name="Japanese" label="日本語 (Japonês)" />
+		<combo_box.item name="Korean" label="한국어 (Coreano)" />
 	</combo_box>
 </panel>

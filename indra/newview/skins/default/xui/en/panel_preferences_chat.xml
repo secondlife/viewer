@@ -436,11 +436,11 @@
          name="German"
          value="de" />
         <combo_box.item
-         label="EspaÃ±ol (Spanish)"
+         label="Español (Spanish)"
          name="Spanish"
          value="es" />
         <combo_box.item
-         label="FranÃ§ais (French)"
+         label="Français (French)"
          name="French"
          value="fr" />
         <combo_box.item
@@ -460,31 +460,31 @@
          name="Polish"
          value="pl" />
         <combo_box.item
-         label="PortuguÃ©s (Portuguese)"
+         label="Portugués (Portuguese)"
          name="Portugese"
          value="pt" />
         <combo_box.item
-         label="Ð ÑÑÑÐºÐžÐ¹ (Russian)"
+         label="Русский (Russian)"
          name="Russian"
          value="ru" />
         <combo_box.item
-         label="TÃŒrkÃ§e (Turkish)"
+         label="Türkçe (Turkish)"
          name="Turkish"
          value="tr" />
         <combo_box.item
-         label="Ð£ÐºÑÐ°ÑÐœÑÑÐºÐ° (Ukrainian)"
+         label="Українська (Ukrainian)"
          name="Ukrainian"
          value="uk" />
         <combo_box.item
-         label="äž­æ (ç®äœ) (Chinese)"
+         label="中文 (简体) (Chinese)"
          name="Chinese"
          value="zh" />
         <combo_box.item
-         label="æ¥æ¬èª (Japanese)"
+         label="日本語 (Japanese)"
          name="Japanese"
          value="ja" />
         <combo_box.item
-         label="íêµ­ìŽ (Korean)"
+         label="한국어 (Korean)"
          name="Korean"
          value="ko" />
     </combo_box>

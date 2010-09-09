@@ -63,20 +63,20 @@
 	<combo_box name="translate_language_combobox" width="200">
 		<combo_box.item name="System Default Language" label="Betriebssystem-Einstellung" />
 		<combo_box.item name="English" label="English (Englisch)" />
-		<combo_box.item name="Danish" label="Danks (DÃ€nisch)" />
+		<combo_box.item name="Danish" label="Danks (Dänisch)" />
 		<combo_box.item name="German" label="Deutsch" />
-		<combo_box.item name="Spanish" label="EspaÃ±ol (Spanisch)" />
-		<combo_box.item name="French" label="FranÃ§ais (FranzÃ¶sisch)" />
+		<combo_box.item name="Spanish" label="Español (Spanisch)" />
+		<combo_box.item name="French" label="Français (Französisch)" />
 		<combo_box.item name="Italian" label="Italiano (Italienisch)" />
 		<combo_box.item name="Hungarian" label="Magyar (Ungarisch)" />
-		<combo_box.item name="Dutch" label="Nederlands (NiederlÃ€ndisch)" />
+		<combo_box.item name="Dutch" label="Nederlands (Niederländisch)" />
 		<combo_box.item name="Polish" label="Polski (Polnisch)" />
-		<combo_box.item name="Portugese" label="PortuguÃªs (Portugiesisch)" />
-		<combo_box.item name="Russian" label="Ð ÑÑÑÐºÐžÐ¹ (Russian)" />
-		<combo_box.item name="Turkish" label="TÃŒrkÃ§e (TÃŒrkisch)" />
-		<combo_box.item name="Ukrainian" label="Ð£ÐºÑÐ°ÑÐœÑÑÐºÐ° (Ukrainisch)" />
-		<combo_box.item name="Chinese" label="äž­æ (ç®äœ) (Chinesisch)" />
-		<combo_box.item name="Japanese" label="æ¥æ¬èª (Japanisch)" />
-		<combo_box.item name="Korean" label="íêµ­ìŽ (Koreanisch)" />
+		<combo_box.item name="Portugese" label="Português (Portugiesisch)" />
+		<combo_box.item name="Russian" label="Русский (Russian)" />
+		<combo_box.item name="Turkish" label="Türkçe (Türkisch)" />
+		<combo_box.item name="Ukrainian" label="Українська (Ukrainisch)" />
+		<combo_box.item name="Chinese" label="中文 (简体) (Chinesisch)" />
+		<combo_box.item name="Japanese" label="日本語 (Japanisch)" />
+		<combo_box.item name="Korean" label="한국어 (Koreanisch)" />
 	</combo_box>
 </panel>
