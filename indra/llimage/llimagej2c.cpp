@@ -30,6 +30,7 @@
 #include "lldir.h"
 #include "llimagej2c.h"
 #include "llmemtype.h"
+#include "lltimer.h"
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
@@ -50,6 +51,9 @@ apr_dso_handle_t *j2cimpl_dso_handle;
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
 void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl);
 const char* fallbackEngineInfoLLImageJ2CImpl();
+
+// Test data gathering handle
+LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
 
 //static
 //Loads the required "create", "destroy" and "engineinfo" functions needed
@@ -195,6 +199,16 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 	{	// Array size is MAX_DISCARD_LEVEL+1
 		mDataSizes[i] = 0;
 	}
+
+	if (LLFastTimer::sMetricLog && !LLImageJ2C::sTesterp)
+	{
+		LLImageJ2C::sTesterp = new LLImageCompressionTester() ;
+        if (!LLImageJ2C::sTesterp->isValid())
+        {
+            delete LLImageJ2C::sTesterp;
+            LLImageJ2C::sTesterp = NULL;
+        }
+	}
 }
 
 // virtual
@@ -297,7 +311,12 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		// Update the raw discard level
 		updateRawDiscardLevel();
 		mDecoding = TRUE;
+        LLTimer elapsed;
 		res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
+        if (LLImageJ2C::sTesterp)
+        {
+            LLImageJ2C::sTesterp->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize(), elapsed.getElapsedTimeF32()) ;
+        }
 	}
 	
 	if (res)
@@ -540,3 +559,70 @@ void LLImageJ2C::updateRawDiscardLevel()
 LLImageJ2CImpl::~LLImageJ2CImpl()
 {
 }
+
+//----------------------------------------------------------------------------------------------
+// Start of LLImageCompressionTester
+//----------------------------------------------------------------------------------------------
+LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTesterBasic("ImageCompressionTester") 
+{
+	addMetric("TotalBytesInDecompression");
+	addMetric("TotalBytesOutDecompression");
+	addMetric("TotalBytesInCompression");
+	addMetric("TotalBytesOutCompression");
+    
+	addMetric("TimeTimeDecompression");
+	addMetric("TimeTimeCompression");
+	
+    mTotalBytesInDecompression = 0;
+    mTotalBytesOutDecompression = 0;
+    mTotalBytesInCompression = 0;
+    mTotalBytesOutCompression = 0;
+
+
+    mTotalTimeDecompression = 0.0f;
+    mTotalTimeCompression = 0.0f;
+}
+
+LLImageCompressionTester::~LLImageCompressionTester()
+{
+	LLImageJ2C::sTesterp = NULL;
+}
+
+//virtual 
+void LLImageCompressionTester::outputTestRecord(LLSD *sd) 
+{	
+    std::string currentLabel = getCurrentLabelName();
+	(*sd)[currentLabel]["TotalBytesInDecompression"]   = (LLSD::Integer)mTotalBytesInDecompression;
+	(*sd)[currentLabel]["TotalBytesOutDecompression"]  = (LLSD::Integer)mTotalBytesOutDecompression;
+	(*sd)[currentLabel]["TotalBytesInCompression"]     = (LLSD::Integer)mTotalBytesInCompression;
+	(*sd)[currentLabel]["TotalBytesOutCompression"]    = (LLSD::Integer)mTotalBytesOutCompression;
+    
+	(*sd)[currentLabel]["TimeTimeDecompression"]       = (LLSD::Real)mTotalTimeDecompression;
+	(*sd)[currentLabel]["TimeTimeCompression"]         = (LLSD::Real)mTotalTimeCompression;
+}
+
+void LLImageCompressionTester::updateCompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) 
+{
+    mTotalBytesInCompression += bytesIn;
+    mTotalBytesOutCompression += bytesOut;
+    mTotalTimeCompression += deltaTime;
+}
+
+void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) 
+{
+    mTotalBytesInDecompression += bytesIn;
+    mTotalBytesOutDecompression += bytesOut;
+    mTotalTimeDecompression += deltaTime;
+    if (mTotalBytesInDecompression > (5*1000000))
+    {
+        outputTestResults();
+        mTotalBytesInDecompression = 0;
+        mTotalBytesOutDecompression = 0;
+        mTotalTimeDecompression = 0.0f;
+    }
+}
+
+//----------------------------------------------------------------------------------------------
+// End of LLTexturePipelineTester
+//----------------------------------------------------------------------------------------------
+

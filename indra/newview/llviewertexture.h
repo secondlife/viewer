@@ -732,7 +732,7 @@ public:
 //it tracks the activities of the texture pipeline
 //records them, and outputs them to log files
 //
-class LLTexturePipelineTester : public LLMetricPerformanceTester
+class LLTexturePipelineTester : public LLMetricPerformanceTesterWithSession
 {
 	enum
 	{
@@ -747,8 +747,6 @@ public:
 	void updateTextureLoadingStats(const LLViewerFetchedTexture* imagep, const LLImageRaw* raw_imagep, BOOL from_cache) ;
 	void updateGrayTextureBinding() ;
 	void setStablizingTime() ;
-
-	/*virtual*/ void analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) ;
 
 private:
 	void reset() ;
@@ -820,7 +818,7 @@ private:
 		S32 mInstantPerformanceListCounter ;
 	};
 
-	/*virtual*/ LLMetricPerformanceTester::LLTestSession* loadTestSession(LLSD* log) ;
+	/*virtual*/ LLMetricPerformanceTesterWithSession::LLTestSession* loadTestSession(LLSD* log) ;
 	/*virtual*/ void compareTestSessions(std::ofstream* os) ;
 };
 

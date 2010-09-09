@@ -29,8 +29,11 @@
 
 #include "llimage.h"
 #include "llassettype.h"
+#include "llmetricperformancetester.h"
 
 class LLImageJ2CImpl;
+class LLImageCompressionTester ;
+
 class LLImageJ2C : public LLImageFormatted
 {
 protected:
@@ -72,6 +75,9 @@ public:
 	static void openDSO();
 	static void closeDSO();
 	static std::string getEngineInfo();
+
+    // Image compression/decompression tester
+	static LLImageCompressionTester* sTesterp ;
 	
 protected:
 	friend class LLImageJ2CImpl;
@@ -117,5 +123,39 @@ protected:
 };
 
 #define LINDEN_J2C_COMMENT_PREFIX "LL_"
+
+//
+// This class is used for performance data gathering only.
+// Tracks the image compression / decompression data,
+// records and outputs them to metric log files.
+//
+
+class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
+{
+    public:
+        LLImageCompressionTester();
+        ~LLImageCompressionTester();
+        
+        void updateDecompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) ;
+        void updateCompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) ;
+        
+    protected:
+        /*virtual*/ void outputTestRecord(LLSD* sd);
+        
+    private:
+        //
+        // Data size
+        //
+        U32 mTotalBytesInDecompression;     // Total bytes fed to decompressor
+        U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
+        U32 mTotalBytesInCompression;       // Total bytes fed to compressor
+        U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
+        
+        //
+        // Time
+        //
+        F32 mTotalTimeDecompression;        // Total time spent in computing decompression
+        F32 mTotalTimeCompression;          // Total time spent in computing compression
+    };
 
 #endif
