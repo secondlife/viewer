@@ -6835,12 +6835,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			llinfos << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
 		}
 
+		const F32 LOADING_TIMEOUT_SECONDS = 60.f;
 		// this isn't really a problem if we already have a non-default shape
-		if (visualParamWeightsAreDefault())
+		if (visualParamWeightsAreDefault() && mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT_SECONDS)
 		{
 			// re-request appearance, hoping that it comes back with a shape next time
 			llinfos << "Re-requesting AvatarAppearance for object: "  << getID() << llendl;
 			LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+			mRuthTimer.reset();
 		}
 		else
 		{
