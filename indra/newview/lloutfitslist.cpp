@@ -439,6 +439,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		if (!tab) continue;
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -455,10 +456,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			mAccordion->removeCollapsibleCtrl(tab);
 
 			// kill removed tab
-			if (tab != NULL)
-			{
-				tab->die();
-			}
+			tab->die();
 			continue;
 		}
 
