@@ -232,6 +232,7 @@ elseif(LINUX)
         libssl.so
         libstacktrace.so
         libtcmalloc.so
+        libuuid.so.1
         libssl.so.0.9.7
        )
 
