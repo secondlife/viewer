@@ -67,36 +67,70 @@
        visible="true"
        name="bottom_panel"
        width="310">
-      <button
-           follows="bottom|left"
-           height="23"
-           label="Save As"
-           left="0"
-           layout="topleft"
-           name="save_btn"
-           top_pad="0"
-           width="155" />
-      <button
-           follows="bottom|left"
-          height="23"
-           name="save_flyout_btn"
-           label=""
-           layout="topleft"
-           left_pad="-20"
-           tab_stop="false"
-           image_selected="SegmentedBtn_Right_Selected_Press"
-           image_unselected="SegmentedBtn_Right_Off"
-           image_pressed="SegmentedBtn_Right_Press"
-           image_pressed_selected="SegmentedBtn_Right_Selected_Press"
-           image_overlay="Arrow_Small_Up"
-           width="20"/>
-      <button
-          follows="bottom|left|right" 
-          height="23" 
-          label="Wear"
-          layout="topleft"
-          name="wear_btn"
-          left_pad="3"
-          width="152" />
+			<layout_stack
+     	         follows="bottom|left|right"
+		         height="23"
+		         layout="topleft"
+		         mouse_opaque="false"
+		         name="bottom_panel_ls"
+		         left="0"
+		         orientation="horizontal"
+		         top="0"
+		         width="313">	
+			    <layout_panel
+			         follows="bottom|left|right"
+			         height="23"
+                     layout="bottomleft"
+                     left="0"			
+                     mouse_opaque="false"
+                     name="save_btn_lp"
+                     user_resize="false" 
+                     auto_resize="true"
+                     width="156">
+                    <button
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Save As"
+                         left="1"
+                         layout="topleft"
+                         name="save_btn"
+                         top="0"
+                         width="155" />
+                    <button
+                         follows="bottom|right"
+                         height="23"
+                         name="save_flyout_btn"
+                         label=""
+                         layout="topleft"
+                         left_pad="-20"
+                         tab_stop="false"
+                         image_selected="SegmentedBtn_Right_Selected_Press"
+                         image_unselected="SegmentedBtn_Right_Off"
+                         image_pressed="SegmentedBtn_Right_Press"
+                         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+                         image_overlay="Arrow_Small_Up"
+                         width="20"/>
+			    </layout_panel>
+			    <layout_panel
+                     follows="bottom|left|right"
+                     height="23"
+                     layout="bottomleft"
+                     left_pad="3"			
+                     mouse_opaque="false"
+                     name="wear_btn_lp"
+                     user_resize="false" 
+                     auto_resize="true"
+                     width="152">
+                    <button
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Wear"
+                         layout="topleft"
+                         name="wear_btn"
+                         left="0"
+                         top="0"
+                         width="152" />
+			    </layout_panel>
+			</layout_stack>
    </panel>
 </panel>

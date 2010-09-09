@@ -156,6 +156,7 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
+#include "llversioninfo.h"
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewergesture.h"
@@ -1932,6 +1933,11 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     LLSD args;
     LLColor4 new_bg_color;
 
+	// no l10n problem because channel is always an english string
+	std::string channel = LLVersionInfo::getChannel();
+	bool isProject = (channel.find("Project") != std::string::npos);
+	
+	// god more important than project, proj more important than grid
     if(god_mode && LLGridManager::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
@@ -1939,6 +1945,10 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     else if(god_mode && !LLGridManager::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
+    }
+	else if (!god_mode && isProject)
+	{
+		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarProjectBgColor" );
     }
     else if(!god_mode && !LLGridManager::getInstance()->isInProductionGrid())
     {

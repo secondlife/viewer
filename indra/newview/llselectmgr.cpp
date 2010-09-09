@@ -5629,6 +5629,10 @@ void LLSelectMgr::updateSelectionCenter()
 		LLVector3d select_center;
 		// keep a list of jointed objects for showing the joint HUDEffects
 
+		// Initialize the bounding box to the root prim, so the BBox orientation 
+		// matches the root prim's (affecting the orientation of the manipulators). 
+		bbox.addBBoxAgent( (mSelectedObjects->getFirstRootObject(TRUE))->getBoundingBoxAgent() ); 
+	                 
 		std::vector < LLViewerObject *> jointed_objects;
 
 		for (LLObjectSelection::iterator iter = mSelectedObjects->begin();

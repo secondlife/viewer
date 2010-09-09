@@ -2787,6 +2787,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EffectScriptChatParticles</key>
+      <map>
+      <key>Comment</key>
+      <string>1 = normal behavior, 0 = disable display of swirling lights when scripts communicate</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
@@ -4664,6 +4675,17 @@
       <string>Show telehubs on world map</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MiniMapAutoCenter</key>
+    <map>
+      <key>Comment</key>
+      <string>Center the focal point of the minimap.</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

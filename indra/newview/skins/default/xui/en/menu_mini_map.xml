@@ -29,6 +29,7 @@
          function="Minimap.Zoom"
          parameter="far" />
     </menu_item_call>
+    <menu_item_separator />
     <menu_item_check
        label="Rotate Map"
        name="Rotate Map">
@@ -37,6 +38,15 @@
           <menu_item_check.on_click
              function="ToggleControl"
              parameter="MiniMapRotate" />
+    </menu_item_check>
+    <menu_item_check
+       label="Auto Center"
+       name="Auto Center">
+          <menu_item_check.on_check
+             control="MiniMapAutoCenter" />
+          <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="MiniMapAutoCenter" />
     </menu_item_check>
     <menu_item_separator />
     <menu_item_call

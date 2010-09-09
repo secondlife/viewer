@@ -3211,11 +3211,24 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLVertexBuffer::unbind();
 	
-	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
 	{
-		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();
-		gObjectList.resetObjectBeacons();
+		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		{
+		      // Render debugging beacons.
+		      gObjectList.renderObjectBeacons();
+		      gObjectList.resetObjectBeacons();
+		}
+		else
+		{
+			// Make sure particle effects disappear
+			LLHUDObject::renderAllForTimer();
+		}
+	}
+	else
+	{
+		// Make sure particle effects disappear
+		LLHUDObject::renderAllForTimer();
 	}
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");

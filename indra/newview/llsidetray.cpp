@@ -111,7 +111,11 @@ public:
 	};
 protected:
 	LLSideTrayTab(const Params& params);
-	
+
+	void			dock();
+	void			undock(LLFloater* floater_tab);
+
+	LLSideTray*		getSideTray();
 	
 public:
 	virtual ~LLSideTrayTab();
@@ -176,6 +180,7 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
+	getChild<LLButton>("undock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
 	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
 
 	return true;
@@ -210,63 +215,130 @@ void	LLSideTrayTab::onOpen		(const LLSD& key)
 		panel->onOpen(key);
 }
 
+// Attempts to get the existing side tray instance.
+// Needed to avoid recursive calls of LLSideTray::getInstance().
+LLSideTray* LLSideTrayTab::getSideTray()
+{
+	// First, check if the side tray is our parent (i.e. we're attached).
+	LLSideTray* side_tray = dynamic_cast<LLSideTray*>(getParent());
+	if (!side_tray)
+	{
+		// Detached? Ok, check if the instance exists at all/
+		if (LLSideTray::instanceCreated())
+		{
+			side_tray = LLSideTray::getInstance();
+		}
+		else
+		{
+			llerrs << "No safe way to get the side tray instance" << llendl;
+		}
+	}
+
+	return side_tray;
+}
+
 void LLSideTrayTab::toggleTabDocked()
 {
-	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	std::string tab_name = getName();
+
+	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 	if (!floater_tab) return;
 
-	LLFloaterReg::toggleInstance("side_bar_tab", LLSD().with("name", mTabTitle));
+	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 
-	LLSideTray* side_tray = LLSideTray::getInstance();
+	bool docking = !LLFloater::isShown(floater_tab);
 
-	if (LLFloater::isShown(floater_tab))
+	// Hide the "Tear Off" button when a tab gets undocked
+	// and show "Dock" button instead.
+	getChild<LLButton>("undock")->setVisible(docking);
+	getChild<LLButton>("dock")->setVisible(!docking);
+
+	if (docking)
 	{
-		// Remove the tab from Side Tray's tabs list.
-		// We have to do it despite removing the tab from Side Tray's child view tree
-		// by addChild(). Otherwise the tab could be accessed by the pointer in LLSideTray::mTabs.
-		if (!side_tray->removeTab(this))
-		{
-			llwarns << "Failed to remove tab " << getName() << " from side tray" << llendl;
-			return;
-		}
-
-		setVisible(true); // *HACK: restore visibility after being hidden by LLSideTray::selectTabByName().
-		floater_tab->addChild(this);
-		floater_tab->setTitle(mTabTitle);
-
-		LLRect rect = side_tray->getLocalRect();
-		floater_tab->reshape(rect.getWidth(), rect.getHeight());
-
-		rect.mTop -= floater_tab->getHeaderHeight();
-		setRect(rect);
-		reshape(rect.getWidth(), rect.getHeight());
-
-		// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
-		setFollowsAll();
-
-		if (!side_tray->getCollapsed())
-		{
-			side_tray->collapseSideBar();
-		}
+		dock();
 	}
 	else
 	{
-		if (!side_tray->addTab(this))
-		{
-			llwarns << "Failed to add tab " << getName() << " to side tray" << llendl;
-			return;
-		}
+		undock(floater_tab);
+	}
+}
 
-		setRect(side_tray->getLocalRect());
-		reshape(getRect().getWidth(), getRect().getHeight());
+void LLSideTrayTab::dock()
+{
+	LLSideTray* side_tray = getSideTray();
+	if (!side_tray) return;
 
-		// Select the re-docked tab.
-		side_tray->selectTabByName(getName());
+	if (!side_tray->addTab(this))
+	{
+		llwarns << "Failed to add tab " << getName() << " to side tray" << llendl;
+		return;
+	}
 
-		if (side_tray->getCollapsed())
-		{
-			side_tray->expandSideBar();
-		}
+	setRect(side_tray->getLocalRect());
+	reshape(getRect().getWidth(), getRect().getHeight());
+
+	// Select the re-docked tab.
+	side_tray->selectTabByName(getName());
+
+	if (side_tray->getCollapsed())
+	{
+		side_tray->expandSideBar();
+	}
+}
+
+void LLSideTrayTab::undock(LLFloater* floater_tab)
+{
+	LLSideTray* side_tray = getSideTray();
+	if (!side_tray) return;
+
+	// Remove the tab from Side Tray's tabs list.
+	// We have to do it despite removing the tab from Side Tray's child view tree
+	// by addChild(). Otherwise the tab could be accessed by the pointer in LLSideTray::mTabs.
+	if (!side_tray->removeTab(this))
+	{
+		llwarns << "Failed to remove tab " << getName() << " from side tray" << llendl;
+		return;
+	}
+
+	setVisible(true); // *HACK: restore visibility after being hidden by LLSideTray::selectTabByName().
+	floater_tab->addChild(this);
+	floater_tab->setTitle(mTabTitle);
+
+	// Reshape the floater if needed.
+	LLRect floater_rect;
+	if (floater_tab->hasSavedRect())
+	{
+		// We've got saved rect for the floater, hence no need to reshape it.
+		floater_rect = floater_tab->getLocalRect();
+	}
+	else
+	{
+		// Detaching for the first time. Reshape the floater.
+		floater_rect = side_tray->getLocalRect();
+		floater_tab->reshape(floater_rect.getWidth(), floater_rect.getHeight());
+	}
+
+	// Reshape the panel.
+	{
+		LLRect panel_rect = floater_rect;
+		panel_rect.mTop -= floater_tab->getHeaderHeight();
+		setRect(panel_rect);
+		reshape(panel_rect.getWidth(), panel_rect.getHeight());
+	}
+
+	// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
+	setFollowsAll();
+
+	if (!side_tray->getCollapsed())
+	{
+		side_tray->collapseSideBar();
+	}
+
+	if (side_tray->getActiveTab() != this)
+	{
+		// When a tab other then current active tab is detached from Side Tray
+		// onOpen() should be called as tab visibility is changed.
+		onOpen(LLSD());
 	}
 }
 
@@ -334,9 +406,8 @@ public:
 
 			tab->toggleTabDocked();
 
-			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", LLSD().with("name", tab->getTabTitle()));
+			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab->getName());
 			if (!floater_tab) return FALSE;
-
 
 			LLRect original_rect = floater_tab->getRect();
 			S32 header_snap_y = floater_tab->getHeaderHeight() / 2;
@@ -444,6 +515,7 @@ BOOL LLSideTray::postBuild()
 			getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel, _2));
 		}
 	}
+
 	return true;
 }
 
@@ -451,16 +523,20 @@ void LLSideTray::handleLoginComplete()
 {
 	//reset tab to "home" tab if it was changesd during login process
 	selectTabByName("sidebar_home");
+
+	detachTabs();
 }
 
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 {
-	return getChild<LLSideTrayTab>(name,false);
+	return findChild<LLSideTrayTab>(name,false);
 }
 
 bool LLSideTray::isTabAttached(const std::string& name)
 {
 	LLSideTrayTab* tab = getTab(name);
+	if (!tab) return false;
+
 	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();
 }
 
@@ -485,6 +561,54 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 	}
 }
 
+LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel_name, const LLSD& params)
+{
+	LLView* view = tab->findChildView(panel_name, true);
+	if (!view) return NULL;
+
+	std::string tab_name = tab->getName();
+
+	// Select tab and expand Side Tray only when a tab is attached.
+	if (isTabAttached(tab_name))
+	{
+		selectTabByName(tab_name);
+		if (mCollapsed)
+			expandSideBar();
+	}
+	else
+	{
+		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
+		if (!floater_tab) return NULL;
+
+		// Restore the floater if it was minimized.
+		if (floater_tab->isMinimized())
+		{
+			floater_tab->setMinimized(FALSE);
+		}
+
+		// Send the floater to the front.
+		floater_tab->setFrontmost();
+	}
+
+	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
+	if (container)
+	{
+		LLSD new_params = params;
+		new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
+		container->onOpen(new_params);
+
+		return container->getCurrentPanel();
+	}
+
+	LLPanel* panel = dynamic_cast<LLPanel*>(view);
+	if (panel)
+	{
+		panel->onOpen(params);
+	}
+
+	return panel;
+}
+
 bool LLSideTray::selectTabByIndex(size_t index)
 {
 	if(index>=mTabs.size())
@@ -497,6 +621,7 @@ bool LLSideTray::selectTabByIndex(size_t index)
 bool LLSideTray::selectTabByName	(const std::string& name)
 {
 	LLSideTrayTab* new_tab = getTab(name);
+	if (!new_tab) return false;
 
 	// Bail out if already selected.
 	if (new_tab == mActiveTab)
@@ -623,6 +748,9 @@ bool LLSideTray::removeTab(LLSideTrayTab* tab)
 	removeChild(tab);
 	mTabs.erase(tab_it);
 
+	// Add the tab to detached tabs list.
+	mDetachedTabs.push_back(tab);
+
 	// Remove the button from the buttons panel so that it isn't drawn anymore.
 	mButtonsPanel->removeChild(btn);
 
@@ -684,6 +812,13 @@ bool LLSideTray::addTab(LLSideTrayTab* tab)
 	// Arrange tabs after inserting a new one.
 	arrange();
 
+	// Remove the tab from the list of detached tabs.
+	child_vector_iter_t tab_it = std::find(mDetachedTabs.begin(), mDetachedTabs.end(), tab);
+	if (tab_it != mDetachedTabs.end())
+	{
+		mDetachedTabs.erase(tab_it);
+	}
+
 	return true;
 }
 
@@ -733,8 +868,10 @@ void		LLSideTray::processTriState ()
 
 void		LLSideTray::onTabButtonClick(string name)
 {
-	LLSideTrayTab* side_bar = getTab(name);
-	if(side_bar == mActiveTab)
+	LLSideTrayTab* tab = getTab(name);
+	if (!tab) return;
+
+	if(tab == mActiveTab)
 	{
 		processTriState ();
 		return;
@@ -825,6 +962,28 @@ void LLSideTray::arrange()
 
 	// The tab buttons should be shown only if there is at least one non-detached tab.
 	mButtonsPanel->setVisible(hasTabs());
+}
+
+// Detach those tabs that were detached when the viewer exited last time.
+void LLSideTray::detachTabs()
+{
+	// copy mTabs because LLSideTray::toggleTabDocked() modifies it.
+	child_vector_t tabs = mTabs;
+
+	for (child_vector_const_iter_t it = tabs.begin(); it != tabs.end(); ++it)
+	{
+		LLSideTrayTab* tab = *it;
+
+		std::string floater_ctrl_name = LLFloater::getControlName("side_bar_tab", LLSD(tab->getName()));
+		std::string vis_ctrl_name = LLFloaterReg::getVisibilityControlName(floater_ctrl_name);
+		if (!LLUI::sSettingGroups["floater"]->controlExists(vis_ctrl_name)) continue;
+
+		bool is_visible = LLUI::sSettingGroups["floater"]->getBOOL(vis_ctrl_name);
+		if (!is_visible) continue;
+
+		llassert(isTabAttached(tab->getName()));
+		tab->toggleTabDocked();
+	}
 }
 
 void LLSideTray::collapseSideBar()
@@ -919,35 +1078,19 @@ void LLSideTray::reshape(S32 width, S32 height, BOOL called_from_parent)
  */
 LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
 {
-	//arrange tabs
+	// Look up the tab in the list of detached tabs.
 	child_vector_const_iter_t child_it;
+	for ( child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+	{
+		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
+		if (panel) return panel;
+	}
+
+	// Look up the tab in the list of attached tabs.
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLView* view = (*child_it)->findChildView(panel_name,true);
-		if(view)
-		{
-			selectTabByName	((*child_it)->getName());
-			if(mCollapsed)
-				expandSideBar();
-
-			LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
-			if(container)
-			{
-				LLSD new_params = params;
-				new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
-				container->onOpen(new_params);
-
-				return container->getCurrentPanel();
-			}
-
-			LLPanel* panel = dynamic_cast<LLPanel*>(view);
-			if(panel)
-			{
-				panel->onOpen(params);
-			}
-
-			return panel;
-		}
+		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
+		if (panel) return panel;
 	}
 	return NULL;
 }
@@ -957,7 +1100,9 @@ void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name,
 	if(!sub_panel)
 		return;
 
-	if (sub_panel->isInVisibleChain())
+	// If a panel is visible and attached to Side Tray (has LLSideTray among its ancestors)
+	// it should be toggled off by collapsing Side Tray.
+	if (sub_panel->isInVisibleChain() && sub_panel->hasAncestor(this))
 	{
 		LLSideTray::getInstance()->collapseSideBar();
 	}
@@ -1001,6 +1146,17 @@ LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse)
 
 LLPanel* LLSideTray::getPanel(const std::string& panel_name)
 {
+	// Look up the panel in the list of detached tabs.
+	for ( child_vector_const_iter_t child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+	{
+		LLPanel *panel = findChildPanel(*child_it,panel_name,true);
+		if(panel)
+		{
+			return panel;
+		}
+	}
+
+	// Look up the panel in the list of attached tabs.
 	for ( child_vector_const_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
 		LLPanel *panel = findChildPanel(*child_it,panel_name,true);

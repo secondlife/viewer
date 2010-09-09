@@ -55,6 +55,7 @@
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 
@@ -69,6 +70,7 @@ const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll w
 const F32 MIN_DOT_RADIUS = 3.5f;
 const F32 DOT_SCALE = 0.75f;
 const F32 MIN_PICK_SCALE = 2.f;
+const S32 MOUSE_DRAG_SLOP = 2;		// How far the mouse needs to move before we think it's a drag
 
 LLNetMap::LLNetMap (const Params & p)
 :	LLUICtrl (p),
@@ -77,11 +79,12 @@ LLNetMap::LLNetMap (const Params & p)
 	mPixelsPerMeter( MAP_SCALE_MID / REGION_WIDTH_METERS ),
 	mObjectMapTPM(0.f),
 	mObjectMapPixels(0.f),
-	mTargetPanX(0.f),
-	mTargetPanY(0.f),
-	mCurPanX(0.f),
-	mCurPanY(0.f),
-	mUpdateNow(FALSE),
+	mTargetPan(0.f, 0.f),
+	mCurPan(0.f, 0.f),
+	mStartPan(0.f, 0.f),
+	mMouseDown(0, 0),
+	mPanning(false),
+	mUpdateNow(false),
 	mObjectImageCenterGlobal( gAgentCamera.getCameraPositionGlobal() ),
 	mObjectRawImagep(),
 	mObjectImagep(),
@@ -98,7 +101,9 @@ LLNetMap::~LLNetMap()
 
 void LLNetMap::setScale( F32 scale )
 {
-	mScale = llclamp(scale, 0.1f, 16.f*1024.f); // [reasonably small , unreasonably large]
+	scale = llclamp(scale, MAP_SCALE_MIN, MAP_SCALE_MAX);
+	mCurPan *= scale / mScale;
+	mScale = scale;
 	
 	if (mObjectImagep.notNull())
 	{
@@ -115,13 +120,7 @@ void LLNetMap::setScale( F32 scale )
 	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
 
-	mUpdateNow = TRUE;
-}
-
-void LLNetMap::translatePan( F32 delta_x, F32 delta_y )
-{
-	mTargetPanX += delta_x;
-	mTargetPanY += delta_y;
+	mUpdateNow = true;
 }
 
 
@@ -141,9 +140,12 @@ void LLNetMap::draw()
 	{
 		createObjectImage();
 	}
-	
-	mCurPanX = lerp(mCurPanX, mTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
-	mCurPanY = lerp(mCurPanY, mTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
+
+	static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
+	if (auto_center)
+	{
+		mCurPan = lerp(mCurPan, mTargetPan, LLCriticalDamp::getInterpolant(0.1f));
+	}
 
 	// Prepare a scissor region
 	F32 rotation = 0;
@@ -174,8 +176,8 @@ void LLNetMap::draw()
 		}
 
 		// region 0,0 is in the middle
-		S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPanX);
-		S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPanY);
+		S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPan.mV[VX]);
+		S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPan.mV[VY]);
 
 		gGL.pushMatrix();
 
@@ -256,26 +258,24 @@ void LLNetMap::draw()
 			}
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
-		
 
-		LLVector3d old_center = mObjectImageCenterGlobal;
-		LLVector3d new_center = gAgentCamera.getCameraPositionGlobal();
-
-		new_center.mdV[0] = (5.f/mObjectMapTPM)*floor(0.2f*mObjectMapTPM*new_center.mdV[0]);
-		new_center.mdV[1] = (5.f/mObjectMapTPM)*floor(0.2f*mObjectMapTPM*new_center.mdV[1]);
-		new_center.mdV[2] = 0.f;
-
+		// Redraw object layer periodically
 		if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
 		{
-			mUpdateNow = FALSE;
-			mObjectImageCenterGlobal = new_center;
+			mUpdateNow = false;
 
-			// Center moved enough.
+			// Locate the centre of the object layer, accounting for panning
+			LLVector3 new_center = globalPosToView(gAgentCamera.getCameraPositionGlobal());
+			new_center.mV[VX] -= mCurPan.mV[VX];
+			new_center.mV[VY] -= mCurPan.mV[VY];
+			new_center.mV[VZ] = 0.f;
+			mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
+
 			// Create the base texture.
 			U8 *default_texture = mObjectRawImagep->getData();
 			memset( default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents() );
 
-			// Draw buildings
+			// Draw objects
 			gObjectList.renderObjectsForMap(*this);
 
 			mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
@@ -361,7 +361,8 @@ void LLNetMap::draw()
 					show_as_friend ? map_avatar_friend_color : map_avatar_color, 
 					pos_map.mV[VZ], mDotRadius);
 
-				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]), LLVector2(local_mouse_x,local_mouse_y));
+				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+											  LLVector2(local_mouse_x,local_mouse_y));
 				if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
 				{
 					closest_dist = dist_to_cursor;
@@ -392,12 +393,22 @@ void LLNetMap::draw()
 		// Draw dot for self avatar position
 		pos_global = gAgent.getPositionGlobal();
 		pos_map = globalPosToView(pos_global);
-		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
 		S32 dot_width = llround(mDotRadius * 2.f);
-		you->draw(llround(pos_map.mV[VX] - mDotRadius),
-				  llround(pos_map.mV[VY] - mDotRadius),
-				  dot_width,
-				  dot_width);
+		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
+		if (you)
+		{
+			you->draw(llround(pos_map.mV[VX] - mDotRadius),
+					  llround(pos_map.mV[VY] - mDotRadius),
+					  dot_width,
+					  dot_width);
+
+			F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+										  LLVector2(local_mouse_x,local_mouse_y));
+			if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+			{
+				mClosestAgentToCursor = gAgent.getID();
+			}
+		}
 
 		// Draw frustum
 		F32 meters_to_pixels = mScale/ LLWorld::getInstance()->getRegionWidthInMeters();
@@ -472,8 +483,8 @@ LLVector3 LLNetMap::globalPosToView( const LLVector3d& global_pos )
 		pos_local.rotVec( rot );
 	}
 
-	pos_local.mV[VX] += getRect().getWidth() / 2 + mCurPanX;
-	pos_local.mV[VY] += getRect().getHeight() / 2 + mCurPanY;
+	pos_local.mV[VX] += getRect().getWidth() / 2 + mCurPan.mV[VX];
+	pos_local.mV[VY] += getRect().getHeight() / 2 + mCurPan.mV[VY];
 
 	return pos_local;
 }
@@ -506,8 +517,8 @@ void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,
 
 LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 {
-	x -= llround(getRect().getWidth() / 2 + mCurPanX);
-	y -= llround(getRect().getHeight() / 2 + mCurPanY);
+	x -= llround(getRect().getWidth() / 2 + mCurPan.mV[VX]);
+	y -= llround(getRect().getHeight() / 2 + mCurPan.mV[VY]);
 
 	LLVector3 pos_local( (F32)x, (F32)y, 0 );
 
@@ -532,10 +543,20 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	// note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
-	F32 scale = mScale;
-        
-	scale *= pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
-	setScale(llclamp(scale, MAP_SCALE_MIN, MAP_SCALE_MAX));
+	F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+	F32 old_scale = mScale;
+
+	setScale(new_scale);
+
+	static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
+	if (!auto_center)
+	{
+		// Adjust pan to center the zoom on the mouse pointer
+		LLVector2 zoom_offset;
+		zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
+		zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
+		mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
+	}
 
 	return TRUE;
 }
@@ -546,20 +567,32 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		return FALSE;
 	}
-	
-	// mToolTipMsg = "[AGENT][REGION](Double-click to open Map)"
-	
+
+	std::string avatar_name;
+	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, avatar_name))
+	{
+		// only show tooltip if same inspector not already open
+		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+		if (!existing_inspector 
+			|| !existing_inspector->getVisible()
+			|| existing_inspector->getKey()["avatar_id"].asUUID() != mClosestAgentToCursor)
+		{
+			LLInspector::Params p;
+			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+			p.message(avatar_name);
+			p.image.name("Inspector_I");
+			p.click_callback(boost::bind(showAvatarInspector, mClosestAgentToCursor));
+			p.visible_time_near(6.f);
+			p.visible_time_far(3.f);
+			p.delay_time(0.35f);
+			p.wrap(false);
+
+			LLToolTipMgr::instance().show(p);
+		}
+		return TRUE;
+	}
+
 	LLStringUtil::format_map_t args;
-	std::string fullname;
-	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, fullname))
-	{
-		args["[AGENT]"] = fullname + "\n";
-	}
-	else
-	{
-		args["[AGENT]"] = "";
-	}
-	
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
 	if( region )
 	{
@@ -569,10 +602,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		args["[REGION]"] = "";
 	}
-	
+
 	std::string msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);
-	
+
 	LLRect sticky_rect;
 	// set sticky_rect
 	if (region)
@@ -592,6 +625,21 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
+// static
+void LLNetMap::showAvatarInspector(const LLUUID& avatar_id)
+{
+	LLSD params;
+	params["avatar_id"] = avatar_id;
+
+	if (LLToolTipMgr::instance().toolTipVisible())
+	{
+		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
+		params["pos"]["x"] = rect.mLeft;
+		params["pos"]["y"] = rect.mTop;
+	}
+
+	LLFloaterReg::showInstance("inspect_avatar", params);
+}
 
 void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius_meters )
 {
@@ -715,5 +763,99 @@ void LLNetMap::createObjectImage()
 		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
 	}
 	setScale(mScale);
-	mUpdateNow = TRUE;
+	mUpdateNow = true;
+}
+
+BOOL LLNetMap::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	if (!(mask & MASK_SHIFT)) return FALSE;
+
+	// Start panning
+	gFocusMgr.setMouseCapture(this);
+
+	mStartPan = mCurPan;
+	mMouseDown.mX = x;
+	mMouseDown.mY = y;
+	return TRUE;
+}
+
+BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	if (hasMouseCapture())
+	{
+		if (mPanning)
+		{
+			// restore mouse cursor
+			S32 local_x, local_y;
+			local_x = mMouseDown.mX + llfloor(mCurPan.mV[VX] - mStartPan.mV[VX]);
+			local_y = mMouseDown.mY + llfloor(mCurPan.mV[VY] - mStartPan.mV[VY]);
+			LLRect clip_rect = getRect();
+			clip_rect.stretch(-8);
+			clip_rect.clipPointToRect(mMouseDown.mX, mMouseDown.mY, local_x, local_y);
+			LLUI::setMousePositionLocal(this, local_x, local_y);
+
+			// finish the pan
+			mPanning = false;
+
+			mMouseDown.set(0, 0);
+
+			// auto centre
+			mTargetPan.setZero();
+		}
+		gViewerWindow->showCursor();
+		gFocusMgr.setMouseCapture(NULL);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+// static
+bool LLNetMap::outsideSlop( S32 x, S32 y, S32 start_x, S32 start_y, S32 slop )
+{
+	S32 dx = x - start_x;
+	S32 dy = y - start_y;
+
+	return (dx <= -slop || slop <= dx || dy <= -slop || slop <= dy);
+}
+
+BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
+{
+	if (hasMouseCapture())
+	{
+		if (mPanning || outsideSlop(x, y, mMouseDown.mX, mMouseDown.mY, MOUSE_DRAG_SLOP))
+		{
+			if (!mPanning)
+			{
+				// just started panning, so hide cursor
+				mPanning = true;
+				gViewerWindow->hideCursor();
+			}
+
+			LLVector2 delta(static_cast<F32>(gViewerWindow->getCurrentMouseDX()),
+							static_cast<F32>(gViewerWindow->getCurrentMouseDY()));
+
+			// Set pan to value at start of drag + offset
+			mCurPan += delta;
+			mTargetPan = mCurPan;
+
+			gViewerWindow->moveCursorToCenter();
+		}
+
+		// Doesn't really matter, cursor should be hidden
+		gViewerWindow->setCursor( UI_CURSOR_TOOLPAN );
+	}
+	else
+	{
+		if (mask & MASK_SHIFT)
+		{
+			// If shift is held, change the cursor to hint that the map can be dragged
+			gViewerWindow->setCursor( UI_CURSOR_TOOLPAN );
+		}
+		else
+		{
+			gViewerWindow->setCursor( UI_CURSOR_CROSS );
+		}
+	}
+
+	return TRUE;
 }
