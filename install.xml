@@ -70,9 +70,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>39fae44d406aa56a0b3d00f5433bbf15</string>
+            <string>5f993f8092ddf4424ec3133dae9424dd</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GLOD-1.0pre4-windows-20100129.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-windows-20100908a.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1011,9 +1011,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>afd03c92ac261134237b648896c5e537</string>
+            <string>a68bd49c01710edc4b9c902376844317</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-windows-20100628.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-windows-20100909.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
