@@ -558,15 +558,19 @@ void LLButton::draw()
 		pressed_by_keyboard = gKeyboard->getKeyDown(' ') || (mCommitOnReturn && gKeyboard->getKeyDown(KEY_RETURN));
 	}
 
-	// Unselected image assignments
-	S32 local_mouse_x;
-	S32 local_mouse_y;
-	LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+	bool mouse_pressed_and_over = false;
+	if (hasMouseCapture())
+	{
+		S32 local_mouse_x ;
+		S32 local_mouse_y;
+		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+		mouse_pressed_and_over = pointInView(local_mouse_x, local_mouse_y);
+	}
 
 	bool enabled = isInEnabledChain();
 
 	bool pressed = pressed_by_keyboard 
-					|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y))
+					|| mouse_pressed_and_over
 					|| mForcePressedState;
 	bool selected = getToggleState();
 	
