@@ -98,7 +98,7 @@ public:
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
-	void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
+	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
 	boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
@@ -172,11 +172,6 @@ private:
 	 * @see applyFilter()
 	 */
 	void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
-
-	/**
-	 * Returns true if there are any items that can be taken off among currently selected, otherwise false.
-	 */
-	bool canTakeOffSelected();
 
 	/**
 	 * Returns true if all selected items can be worn.

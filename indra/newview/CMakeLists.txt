@@ -310,6 +310,7 @@ set(viewer_SOURCE_FILES
     lloutfitslist.cpp
     lloutfitobserver.cpp
     lloutputmonitorctrl.cpp
+    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
