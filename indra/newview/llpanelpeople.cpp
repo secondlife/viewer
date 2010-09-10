@@ -522,8 +522,10 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList = friends_tab->getChild<LLAvatarList>("avatars_all");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
 	mOnlineFriendList->setShowIcons("FriendsListShowIcons");
+	mOnlineFriendList->showPermissions("FriendsListShowPermissions");
 	mAllFriendList->setNoItemsCommentText(getString("no_friends"));
 	mAllFriendList->setShowIcons("FriendsListShowIcons");
+	mAllFriendList->showPermissions("FriendsListShowPermissions");
 
 	LLPanel* nearby_tab = getChild<LLPanel>(NEARBY_TAB_NAME);
 	nearby_tab->setVisibleCallback(boost::bind(&Updater::setActive, mNearbyListUpdater, _2));
@@ -1204,6 +1206,14 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 	{
 		mAllFriendList->toggleIcons();
 		mOnlineFriendList->toggleIcons();
+	}
+	else if (chosen_item == "view_permissions")
+	{
+		bool show_permissions = !gSavedSettings.getBOOL("FriendsListShowPermissions");
+		gSavedSettings.setBOOL("FriendsListShowPermissions", show_permissions);
+
+		mAllFriendList->showPermissions(show_permissions);
+		mOnlineFriendList->showPermissions(show_permissions);
 	}
 }
 
