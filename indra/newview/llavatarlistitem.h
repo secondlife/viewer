@@ -116,13 +116,13 @@ protected:
 	LLAvatarIconCtrl* mAvatarIcon;
 
 	/// Indicator for permission to see me online.
-	LLIconCtrl* mPermissionOnline;
+	LLIconCtrl* mIconPermissionOnline;
 	/// Indicator for permission to see my position on the map.
-	LLIconCtrl* mPermissionMap;
+	LLIconCtrl* mIconPermissionMap;
 	/// Indicator for permission to edit my objects.
-	LLIconCtrl* mPermissionEditMine;
+	LLIconCtrl* mIconPermissionEditMine;
 	/// Indicator for permission to edit their objects.
-	LLIconCtrl* mPermissionEditTheirs;
+	LLIconCtrl* mIconPermissionEditTheirs;
 
 private:
 
