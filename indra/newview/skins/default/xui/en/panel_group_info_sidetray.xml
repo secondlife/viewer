@@ -84,7 +84,7 @@ background_visible="true"
       follows="all"
      left="8"
      top_pad="0"
-     height="536"
+     height="506"
      width="292"
      border_size="0">
    <layout_panel
@@ -176,15 +176,27 @@ background_visible="true"
          </accordion_tab>
          </accordion>
    </layout_panel>
-   <layout_panel
+  </layout_stack>
+  
+  <layout_stack
+     name="layout"
+     orientation="horizontal"
+     follows="bottom|left|right"
+     left="8"
+     top_pad="0"
+     height="30"
+     width="292"
+     border_size="0">
+     
+     	<layout_panel
          height="30"
          layout="topleft"
          auto_resize="false"
          left="0"
          top_pad="0"
-   name="button_row"
-   follows="bottom|left|right"
-   width="313">
+	     name="button_row"
+	     follows="bottom|left|right"
+	     width="313">
    
    		   <layout_stack
 	     	follows="bottom|left|right"
@@ -307,5 +319,7 @@ background_visible="true"
      visible="false"
      width="65" />-->
      </layout_panel>
-  </layout_stack>
+     
+     </layout_stack>
+  
 </panel>

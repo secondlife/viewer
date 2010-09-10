@@ -2,7 +2,8 @@
 <floater
  can_close="false"
  can_resize="true"
- min_width="150"
+ min_width="333"
+ min_height="440"
  save_rect="true"
  save_visibility="true"
  >

@@ -84,6 +84,7 @@ set(viewer_SOURCE_FILES
     llappviewerlistener.cpp
     llassetuploadqueue.cpp
     llassetuploadresponders.cpp
+    llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
@@ -205,6 +206,7 @@ set(viewer_SOURCE_FILES
     llfloatersearch.cpp
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
+    llfloatersidetraytab.cpp
     llfloatersnapshot.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
@@ -310,6 +312,7 @@ set(viewer_SOURCE_FILES
     lloutfitslist.cpp
     lloutfitobserver.cpp
     lloutputmonitorctrl.cpp
+    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
@@ -607,6 +610,7 @@ set(viewer_HEADER_FILES
     llappviewerlistener.h
     llassetuploadqueue.h
     llassetuploadresponders.h
+    llattachmentsmgr.h
     llaudiosourcevo.h
     llavataractions.h
     llavatariconctrl.h
@@ -730,6 +734,7 @@ set(viewer_HEADER_FILES
     llfloatersearch.h
     llfloatersellland.h
     llfloatersettingsdebug.h
+    llfloatersidetraytab.h
     llfloatersnapshot.h
     llfloatertelehub.h
     llfloatertestinspectors.h
