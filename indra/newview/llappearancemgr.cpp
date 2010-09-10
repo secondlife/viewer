@@ -31,6 +31,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llattachmentsmgr.h"
 #include "llcommandhandler.h"
 #include "lleventtimer.h"
 #include "llgesturemgr.h"
@@ -2644,6 +2645,8 @@ LLAppearanceMgr::LLAppearanceMgr():
 
 	mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer(gSavedSettings.getS32(
 			"OutfitOperationsTimeout")));
+
+	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle,NULL);
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

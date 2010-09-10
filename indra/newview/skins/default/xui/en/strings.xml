@@ -2019,6 +2019,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
+	<string name="Invalid Attachment">Invalid Attachment Point</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS] [AGEMONTHS] old</string>
@@ -2182,7 +2183,6 @@ Clears (deletes) the media and all params from the given face.
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
-	<string name="Bad attachment point">Invalid Attachment Point</string>
 			
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
