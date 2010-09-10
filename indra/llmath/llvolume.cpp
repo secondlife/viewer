@@ -94,6 +94,8 @@ const F32 SKEW_MAX	=  0.95f;
 const F32 SCULPT_MIN_AREA = 0.002f;
 const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
+extern BOOL gDebugGL;
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -308,22 +310,26 @@ public:
 	}
 
 	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
-	{
+	{ //this is a depth first traversal, so it's safe to assum all children have complete
+		//bounding data
+
 		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
 
 		LLVector4a& min = node->mExtents[0];
 		LLVector4a& max = node->mExtents[1];
 
-		if (branch->getElementCount() != 0)
-		{
+		if (!branch->getData().empty())
+		{ //node has data, find AABB that binds data set
 			const LLVolumeTriangle* tri = *(branch->getData().begin());
-						
+			
+			//initialize min/max to first available vertex
 			min = *(tri->mV[0]);
 			max = *(tri->mV[0]);
 			
 			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
 				branch->getData().begin(); iter != branch->getData().end(); ++iter)
-			{
+			{ //for each triangle in node
+
 				//stretch by triangles in node
 				tri = *iter;
 				
@@ -335,33 +341,27 @@ public:
 				max.setMax(max, *tri->mV[1]);
 				max.setMax(max, *tri->mV[2]);
 			}
-
-			for (S32 i = 0; i < branch->getChildCount(); ++i)
-			{  //stretch by child extents
-				LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-				min.setMin(min, child->mExtents[0]);
-				max.setMax(min, child->mExtents[1]);
-			}
 		}
-		else if (branch->getChildCount() != 0)
-		{
+		else if (!branch->getChildren().empty())
+		{ //no data, but child nodes exist
 			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
 
+			//initialize min/max to extents of first child
 			min = child->mExtents[0];
 			max = child->mExtents[1];
-
-			for (S32 i = 1; i < branch->getChildCount(); ++i)
-			{  //stretch by child extents
-				child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-				min.setMin(min, child->mExtents[0]);
-				max.setMax(max, child->mExtents[1]);
-			}
 		}
 		else
 		{
 			llerrs << "WTF? Empty leaf" << llendl;
 		}
-		
+
+		for (S32 i = 0; i < branch->getChildCount(); ++i)
+		{  //stretch by child extents
+			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
+			min.setMin(min, child->mExtents[0]);
+			max.setMax(max, child->mExtents[1]);
+		}
+
 		node->mBounds[0].setAdd(min, max);
 		node->mBounds[0].mul(0.5f);
 
@@ -369,7 +369,6 @@ public:
 		node->mBounds[1].mul(0.5f);
 	}
 };
-
 
 //-------------------------------------------------------------------
 // statics
@@ -5474,45 +5473,59 @@ void LLVolumeFace::createOctree()
 	new LLVolumeOctreeListener(mOctree);
 
 	for (U32 i = 0; i < mNumIndices; i+= 3)
-	{
+	{ //for each triangle
 		LLPointer<LLVolumeTriangle> tri = new LLVolumeTriangle();
 				
 		const LLVector4a& v0 = mPositions[mIndices[i]];
 		const LLVector4a& v1 = mPositions[mIndices[i+1]];
 		const LLVector4a& v2 = mPositions[mIndices[i+2]];
 
+		//store pointers to vertex data
 		tri->mV[0] = &v0;
 		tri->mV[1] = &v1;
 		tri->mV[2] = &v2;
 
+		//store indices
 		tri->mIndex[0] = mIndices[i];
 		tri->mIndex[1] = mIndices[i+1];
 		tri->mIndex[2] = mIndices[i+2];
 
+		//get minimum point
 		LLVector4a min = v0;
 		min.setMin(min, v1);
 		min.setMin(min, v2);
 
+		//get maximum point
 		LLVector4a max = v0;
 		max.setMax(max, v1);
 		max.setMax(max, v2);
 
+		//compute center
 		LLVector4a center;
 		center.setAdd(min, max);
 		center.mul(0.5f);
 
 		*tri->mPositionGroup = center;
 
+		//compute "radius"
 		LLVector4a size;
 		size.setSub(max,min);
 		
 		tri->mRadius = size.getLength3().getF32() * 0.5f;
 		
+		//insert
 		mOctree->insert(tri);
 	}
 
+	//calculate AABB for each node
 	LLVolumeOctreeRebound rebound(this);
 	rebound.traverse(mOctree);
+
+	if (gDebugGL)
+	{
+		LLVolumeOctreeValidate validate;
+		validate.traverse(mOctree);
+	}
 }
 
 

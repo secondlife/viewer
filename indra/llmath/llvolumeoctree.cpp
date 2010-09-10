@@ -126,8 +126,8 @@ void LLOctreeTriangleRayIntersect::traverse(const LLOctreeNode<LLVolumeTriangle>
 	const F32* center = vl->mBounds[0].getF32();
 	const F32* size = vl->mBounds[1].getF32();*/
 
-	//if (LLLineSegmentBoxIntersect(mStart.getF32(), mEnd.getF32(), vl->mBounds[0].getF32(), vl->mBounds[1].getF32()))
-	if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
+	//if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
+	if (LLLineSegmentBoxIntersect(mStart.getF32ptr(), mEnd.getF32ptr(), vl->mBounds[0].getF32ptr(), vl->mBounds[1].getF32ptr()))
 	{
 		node->accept(this);
 		for (S32 i = 0; i < node->getChildCount(); ++i)
@@ -203,6 +203,63 @@ const LLVector4a& LLVolumeTriangle::getPositionGroup() const
 const F32& LLVolumeTriangle::getBinRadius() const
 {
 	return mRadius;
+}
+
+
+//TEST CODE
+
+void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
+{
+	LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
+
+	//make sure bounds matches extents
+	LLVector4a& min = node->mExtents[0];
+	LLVector4a& max = node->mExtents[1];
+
+	LLVector4a& center = node->mBounds[0];
+	LLVector4a& size = node->mBounds[1];
+
+	LLVector4a test_min, test_max;
+	test_min.setSub(center, size);
+	test_max.setAdd(center, size);
+
+	if (!test_min.equals3(min) ||
+		!test_max.equals3(max))
+	{
+		llerrs << "Bad bounding box data found." << llendl;
+	}
+
+	test_min.sub(LLVector4a::getEpsilon());
+	test_max.add(LLVector4a::getEpsilon());
+
+	for (U32 i = 0; i < branch->getChildCount(); ++i)
+	{
+		LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
+
+		//make sure all children fit inside this node
+		if (child->mExtents[0].lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ) ||
+			child->mExtents[1].greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ))
+		{
+			llerrs << "Child protrudes from bounding box." << llendl;
+		}
+	}
+
+	//children fit, check data
+	for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin(); 
+			iter != branch->getData().end(); ++iter)
+	{
+		const LLVolumeTriangle* tri = *iter;
+
+		//validate triangle
+		for (U32 i = 0; i < 3; i++)
+		{
+			if (tri->mV[i]->greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ) ||
+				tri->mV[i]->lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ))
+			{
+				llerrs << "Triangle protrudes from node." << llendl;
+			}
+		}
+	}
 }
 
 

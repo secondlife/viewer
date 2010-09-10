@@ -1016,10 +1016,12 @@ S32 LLFloaterTools::calcRenderCost()
 		LLSelectNode *select_node = *selection_iter;
 		if (select_node)
 		{
-			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
-			if (viewer_volume)
+			LLViewerObject *vobj = select_node->getObject();
+			if (vobj->getVolume())
 			{
-				cost += viewer_volume->getRenderCost(textures);
+				LLVOVolume* volume = (LLVOVolume*) vobj;
+
+				cost += volume->getRenderCost(textures);
 				for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
 				{
 					// add the cost of each individual texture in the linkset

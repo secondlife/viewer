@@ -3035,11 +3035,11 @@ class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
 	
-	LLRenderOctreeRaycast(const LLVector3& start, const LLVector3& end)
+	
+	LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
+		: LLOctreeTriangleRayIntersect(start, dir, NULL, closest_t, NULL, NULL, NULL, NULL)
 	{
-		mStart.load3(start.mV);
-		mEnd.load3(end.mV);
-		mDir.setSub(mEnd, mStart);
+
 	}
 
 	void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
@@ -3050,6 +3050,17 @@ public:
 		center.set(vl->mBounds[0].getF32ptr());
 		size.set(vl->mBounds[1].getF32ptr());
 
+		if (branch->getData().empty())
+		{
+			gGL.color3f(1.f,0.2f,0.f);
+		}
+		else
+		{
+			gGL.color3f(0.75f, 1.f, 0.f);
+		}
+		
+		drawBoxOutline(center, size);
+		
 		for (U32 i = 0; i < 2; i++)
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, i == 1 ? GL_LEQUAL : GL_GREATER);
@@ -3061,9 +3072,17 @@ public:
 			else
 			{
 				gGL.color4f(0,0.5f,0.5f, 0.25f);
+				if (!branch->getData().empty())
+				{
+					drawBoxOutline(center, size);
+				}
 			}
-
-			drawBoxOutline(center, size);
+			
+			if (i == 1)
+			{
+				gGL.flush();
+				glLineWidth(3.f);
+			}
 
 			gGL.begin(LLRender::TRIANGLES);
 			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin();
@@ -3077,6 +3096,12 @@ public:
 				gGL.vertex3fv(tri->mV[2]->getF32ptr());
 			}	
 			gGL.end();
+
+			if (i == 1)
+			{
+				gGL.flush();
+				glLineWidth(1.f);
+			}
 		}
 	}
 };
@@ -3110,7 +3135,15 @@ void renderRaycast(LLDrawable* drawablep)
 				start = vobj->agentPositionToVolume(gDebugRaycastStart);
 				end = vobj->agentPositionToVolume(gDebugRaycastEnd);
 
-				LLRenderOctreeRaycast render(start, end);
+				LLVector4a starta, enda;
+				starta.load3(start.mV);
+				enda.load3(end.mV);
+				LLVector4a dir;
+				dir.setSub(enda, starta);
+
+				F32 t = 1.f;
+
+				LLRenderOctreeRaycast render(starta, dir, &t);
 				gGL.flush();
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				render.traverse(face.mOctree);
