@@ -60,7 +60,11 @@ public:
 
 	/*virtual*/ void showGearMenu(LLView* spawning_view);
 
+	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
+
 	boost::signals2::connection setSelectionChangeCallback(commit_callback_t cb);
+
+	bool hasItemSelected();
 
 private:
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
