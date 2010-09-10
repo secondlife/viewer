@@ -86,7 +86,7 @@
              visible="true"
              width="20" />
         </layout_panel>
-        <layout_panel name="leave_call_panel">
+        <layout_panel name="leave_call_panel" height="26" auto_resize="false">
         <layout_stack
          clip="true"
          auto_resize="false"
