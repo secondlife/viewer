@@ -197,6 +197,7 @@ set(viewer_SOURCE_FILES
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
+    llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterscriptdebug.cpp
@@ -724,6 +725,7 @@ set(viewer_HEADER_FILES
     llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
+    llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterscriptdebug.h
