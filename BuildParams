@@ -56,6 +56,7 @@ viewer-release.build_viewer_update_version_manager = true
 
 viewer-development-import.build_debug_release_separately = true
 viewer-development-fixes.build_debug_release_separately = true
+viewer-development-tweaks.build_debug_release_separately = true
 
 # =======================================
 # brad
