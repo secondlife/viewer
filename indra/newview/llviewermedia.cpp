@@ -51,6 +51,7 @@
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
+#include "llfilepicker.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -2967,6 +2968,22 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		}
 		break;
 
+		case LLViewerMediaObserver::MEDIA_EVENT_PICK_FILE_REQUEST:
+		{
+			// Display a file picker
+			std::string response;
+			
+			LLFilePicker& picker = LLFilePicker::instance();
+			if (!picker.getOpenFile(LLFilePicker::FFLOAD_ALL))
+			{
+				// The user didn't pick a file -- the empty response string will indicate this.
+			}
+			
+			response = picker.getFirstFile();
+			
+			plugin->sendPickFileResponse(response);
+		}
+		break;
 		
 		default:
 		break;

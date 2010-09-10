@@ -688,6 +688,26 @@ private:
 			
 		}
 	}
+	
+	std::string mPickedFile;
+	
+	std::string blockingPickFile(void)
+	{
+		mPickedFile.clear();
+		
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+		message.setValueBoolean("blocking_request", true);
+		
+		// The "blocking_request" key in the message means this sendMessage call will block until a response is received.
+		sendMessage(message);
+		
+		return mPickedFile;
+	}
+
+	void onPickFileResponse(const std::string &file)
+	{
+		mPickedFile = file;
+	}
 
 };
 
@@ -1045,10 +1065,14 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_PASTE );
 				checkEditState();
 			}
+			if(message_name == "pick_file_response")
+			{
+				onPickFileResponse(message_in.getValue("file"));
+			}
 			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media message: " << message_string << std::endl;
-			};
+			}
 		}
 		else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
 		{

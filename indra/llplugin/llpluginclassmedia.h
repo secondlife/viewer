@@ -156,6 +156,8 @@ public:
 	void setLowPrioritySizeLimit(int size);
 	
 	F64 getCPUUsage();
+	
+	void sendPickFileResponse(const std::string &file);
 
 	// Valid after a MEDIA_EVENT_CURSOR_CHANGED event
 	std::string getCursorName() const { return mCursorName; };
@@ -176,7 +178,7 @@ public:
 	void	setLanguageCode(const std::string &language_code);
 	void	setPluginsEnabled(const bool enabled);
 	void	setJavascriptEnabled(const bool enabled);
-		
+	
 	///////////////////////////////////
 	// media browser class functions
 	bool pluginSupportsMediaBrowser(void);

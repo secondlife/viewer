@@ -669,6 +669,18 @@ F64 LLPluginClassMedia::getCPUUsage()
 	return result;
 }
 
+void LLPluginClassMedia::sendPickFileResponse(const std::string &file)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file_response");
+	message.setValue("file", file);
+	if(mPlugin->isBlocked())
+	{
+		// If the plugin sent a blocking pick-file request, the response should unblock it.
+		message.setValueBoolean("blocking_response", true);
+	}
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::cut()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_cut");
