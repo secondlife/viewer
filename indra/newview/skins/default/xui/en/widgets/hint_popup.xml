@@ -11,6 +11,7 @@
  up_arrow="hint_arrow_up" 
  right_arrow="hint_arrow_right"
  down_arrow="hint_arrow_down"
+ lower_left_arrow="hint_arrow_lower_left"
  left_arrow_offset="3"
  up_arrow_offset="-2"
  right_arrow_offset="-3"

@@ -43,7 +43,8 @@ public:
 		LEFT,
 		TOP,
 		RIGHT,
-		BOTTOM
+		BOTTOM,
+		TOP_RIGHT
 	} EPopupDirection;
 
 	struct PopupDirections : public LLInitParam::TypeValuesHelper<LLHintPopup::EPopupDirection, PopupDirections>
@@ -54,6 +55,7 @@ public:
 			declare("right", LLHintPopup::RIGHT);
 			declare("top", LLHintPopup::TOP);
 			declare("bottom", LLHintPopup::BOTTOM);
+			declare("top_right", LLHintPopup::TOP_RIGHT);
 		}
 	};
 
@@ -76,7 +78,9 @@ public:
 		Optional<LLUIImage*>			left_arrow,
 										up_arrow,
 										right_arrow,
-										down_arrow;	
+										down_arrow,
+										lower_left_arrow;
+				
 		Optional<S32>					left_arrow_offset,
 										up_arrow_offset,
 										right_arrow_offset,
@@ -90,6 +94,7 @@ public:
 			up_arrow("up_arrow"),
 			right_arrow("right_arrow"),
 			down_arrow("down_arrow"),
+			lower_left_arrow("lower_left_arrow"),
 			left_arrow_offset("left_arrow_offset"),
 			up_arrow_offset("up_arrow_offset"),
 			right_arrow_offset("right_arrow_offset"),
@@ -115,7 +120,8 @@ private:
 	LLUIImagePtr		mArrowLeft,
 						mArrowUp,
 						mArrowRight,
-						mArrowDown;
+						mArrowDown,
+						mArrowDownAndLeft;
 	S32					mArrowLeftOffset,
 						mArrowUpOffset,
 						mArrowRightOffset,
@@ -137,6 +143,7 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	mArrowUp(p.up_arrow),
 	mArrowRight(p.right_arrow),
 	mArrowDown(p.down_arrow),
+	mArrowDownAndLeft(p.lower_left_arrow),
 	mArrowLeftOffset(p.left_arrow_offset),
 	mArrowUpOffset(p.up_arrow_offset),
 	mArrowRightOffset(p.right_arrow_offset),
@@ -272,6 +279,19 @@ void LLHintPopup::draw()
 						arrow_imagep = mArrowUp;
 					}
 					break;
+				case TOP_RIGHT:
+					my_rect.setCenterAndSize(	target_rect.mRight + (my_local_rect.getWidth() / 2),
+												target_rect.mTop + (my_local_rect.getHeight() / 2 + mDistance),
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowDownAndLeft)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.mLeft + mArrowDownAndLeft->getWidth() / 2 + mArrowLeftOffset,
+													my_local_rect.mBottom - mArrowDownAndLeft->getHeight() / 2 + mArrowDownOffset,
+													mArrowDownAndLeft->getWidth(), 
+													mArrowDownAndLeft->getHeight());
+						arrow_imagep = mArrowDownAndLeft;
+					}
 				}
 				setShape(my_rect);
 				LLPanel::draw();
