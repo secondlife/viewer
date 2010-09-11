@@ -32,6 +32,7 @@
 #include "llbutton.h"
 #include "lltextbox.h"
 #include "llviewerwindow.h"
+#include "llviewercontrol.h"
 #include "llsdparam.h"
 
 class LLHintPopup : public LLPanel
@@ -309,27 +310,31 @@ std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
 //static
 void LLHints::show(LLNotificationPtr hint)
 {
-	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
-
-	LLParamSDParser parser;
-	parser.readSD(hint->getPayload(), p, true);
-	p.notification = hint;
-
-	if (p.validateBlock())
+	if (gSavedSettings.getBOOL("EnableUIHints"))
 	{
-		LLHintPopup* popup = new LLHintPopup(p);
+		LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
 
-		sHints[hint] = popup;
+		LLParamSDParser parser;
+		parser.readSD(hint->getPayload(), p, true);
+		p.notification = hint;
 
-		LLView* hint_holder = gViewerWindow->getHintHolder();
-		if (hint_holder)
+		if (p.validateBlock())
 		{
-			hint_holder->addChild(popup);
-			popup->centerWithin(hint_holder->getLocalRect());
+			LLHintPopup* popup = new LLHintPopup(p);
+
+			sHints[hint] = popup;
+
+			LLView* hint_holder = gViewerWindow->getHintHolder();
+			if (hint_holder)
+			{
+				hint_holder->addChild(popup);
+				popup->centerWithin(hint_holder->getLocalRect());
+			}
 		}
 	}
 }
 
+//static
 void LLHints::hide(LLNotificationPtr hint)
 {
 	hint_map_t::iterator found_it = sHints.find(hint);
@@ -338,6 +343,26 @@ void LLHints::hide(LLNotificationPtr hint)
 		found_it->second->hide();
 		sHints.erase(found_it);
 	}
+}
+
+//static
+void LLHints::hideAll()
+{
+	std::vector<LLNotificationPtr> notifications;
+	for (hint_map_t::iterator it = sHints.begin(), end_it = sHints.end();
+		it != end_it;
+		++it)
+	{
+		notifications.push_back(it->first);
+	}
+
+	for(std::vector<LLNotificationPtr>::iterator it = notifications.begin(), end_it = notifications.end();
+		it != end_it;
+		++it)
+	{
+		LLNotifications::instance().cancel(*it);
+	}
+
 }
 
 //static
