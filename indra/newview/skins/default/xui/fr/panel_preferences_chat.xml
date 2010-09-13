@@ -62,7 +62,7 @@
 	</text>
 	<combo_box name="translate_language_combobox">
 		<combo_box.item name="System Default Language" label="Choix par défaut" />
-		<combo_box.item name="English" label="English (Anglais" />
+		<combo_box.item name="English" label="English (Anglais)" />
 		<combo_box.item name="Danish" label="Dansk (Danois)" />
 		<combo_box.item name="German" label="Deutsch (Allemand)" />
 		<combo_box.item name="Spanish" label="Español (Espagnol)" />
