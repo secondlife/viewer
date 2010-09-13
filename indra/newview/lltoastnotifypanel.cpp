@@ -200,7 +200,7 @@ mCloseNotificationOnDestroy(true)
 			if(h_pad < 2*HPAD)
 			{
 				/*
-				 * Probably it is  a scriptdialog toast
+				 * Probably it is a scriptdialog toast
 				 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
 				 * In last case set default h_pad to avoid heaping of buttons 
 				 */
