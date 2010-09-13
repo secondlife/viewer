@@ -36,6 +36,7 @@ class LLHints
 public:
 	static void show(LLNotificationPtr hint);
 	static void hide(LLNotificationPtr hint);
+	static void hideAll();
 	static void registerHintTarget(const std::string& name, LLHandle<LLView> target);
 	static LLHandle<LLView> getHintTarget(const std::string& name);
 private:

@@ -470,6 +470,8 @@ BOOL LLBottomTray::postBuild()
 	gMenuHolder->addChild(mBottomTrayContextMenu);
 
 	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
+	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
+
 	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");

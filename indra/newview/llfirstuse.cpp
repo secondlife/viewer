@@ -74,7 +74,7 @@ void LLFirstUse::resetFirstUse()
 // static
 void LLFirstUse::otherAvatarChatFirst(bool enable)
 {
-	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "incoming_chat").with("direction", "right"));
+	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "chat_bar").with("direction", "top_right").with("distance", 24));
 }
 
 // static

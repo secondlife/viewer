@@ -86,7 +86,7 @@
              visible="true"
              width="20" />
         </layout_panel>
-        <layout_panel name="leave_call_panel">
+        <layout_panel name="leave_call_panel" height="26" auto_resize="false">
         <layout_stack
          clip="true"
          auto_resize="false"
@@ -98,10 +98,14 @@
          orientation="horizontal"
          width="262">
           <layout_panel
-           class="panel_voice_effect"
-           name="panel_voice_effect"
-           visiblity_control="VoiceMorphingEnabled"
-           filename="panel_voice_effect.xml" />
+            height="26"
+            width="200">
+            <panel
+             class="panel_voice_effect"
+             name="panel_voice_effect"
+             visiblity_control="VoiceMorphingEnabled"
+             filename="panel_voice_effect.xml" />
+          </layout_panel>
           <layout_panel
            auto_resize="false"
            user_resize="false"

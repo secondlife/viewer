@@ -32,6 +32,7 @@
 #include "llbutton.h"
 #include "lltextbox.h"
 #include "llviewerwindow.h"
+#include "llviewercontrol.h"
 #include "llsdparam.h"
 
 class LLHintPopup : public LLPanel
@@ -43,7 +44,8 @@ public:
 		LEFT,
 		TOP,
 		RIGHT,
-		BOTTOM
+		BOTTOM,
+		TOP_RIGHT
 	} EPopupDirection;
 
 	struct PopupDirections : public LLInitParam::TypeValuesHelper<LLHintPopup::EPopupDirection, PopupDirections>
@@ -54,6 +56,7 @@ public:
 			declare("right", LLHintPopup::RIGHT);
 			declare("top", LLHintPopup::TOP);
 			declare("bottom", LLHintPopup::BOTTOM);
+			declare("top_right", LLHintPopup::TOP_RIGHT);
 		}
 	};
 
@@ -76,7 +79,9 @@ public:
 		Optional<LLUIImage*>			left_arrow,
 										up_arrow,
 										right_arrow,
-										down_arrow;	
+										down_arrow,
+										lower_left_arrow;
+				
 		Optional<S32>					left_arrow_offset,
 										up_arrow_offset,
 										right_arrow_offset,
@@ -90,6 +95,7 @@ public:
 			up_arrow("up_arrow"),
 			right_arrow("right_arrow"),
 			down_arrow("down_arrow"),
+			lower_left_arrow("lower_left_arrow"),
 			left_arrow_offset("left_arrow_offset"),
 			up_arrow_offset("up_arrow_offset"),
 			right_arrow_offset("right_arrow_offset"),
@@ -115,7 +121,8 @@ private:
 	LLUIImagePtr		mArrowLeft,
 						mArrowUp,
 						mArrowRight,
-						mArrowDown;
+						mArrowDown,
+						mArrowDownAndLeft;
 	S32					mArrowLeftOffset,
 						mArrowUpOffset,
 						mArrowRightOffset,
@@ -137,6 +144,7 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	mArrowUp(p.up_arrow),
 	mArrowRight(p.right_arrow),
 	mArrowDown(p.down_arrow),
+	mArrowDownAndLeft(p.lower_left_arrow),
 	mArrowLeftOffset(p.left_arrow_offset),
 	mArrowUpOffset(p.up_arrow_offset),
 	mArrowRightOffset(p.right_arrow_offset),
@@ -272,6 +280,19 @@ void LLHintPopup::draw()
 						arrow_imagep = mArrowUp;
 					}
 					break;
+				case TOP_RIGHT:
+					my_rect.setCenterAndSize(	target_rect.mRight + (my_local_rect.getWidth() / 2),
+												target_rect.mTop + (my_local_rect.getHeight() / 2 + mDistance),
+												my_local_rect.getWidth(), 
+												my_local_rect.getHeight());
+					if (mArrowDownAndLeft)
+					{
+						arrow_rect.setCenterAndSize(my_local_rect.mLeft + mArrowDownAndLeft->getWidth() / 2 + mArrowLeftOffset,
+													my_local_rect.mBottom - mArrowDownAndLeft->getHeight() / 2 + mArrowDownOffset,
+													mArrowDownAndLeft->getWidth(), 
+													mArrowDownAndLeft->getHeight());
+						arrow_imagep = mArrowDownAndLeft;
+					}
 				}
 				setShape(my_rect);
 				LLPanel::draw();
@@ -289,27 +310,31 @@ std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
 //static
 void LLHints::show(LLNotificationPtr hint)
 {
-	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
-
-	LLParamSDParser parser;
-	parser.readSD(hint->getPayload(), p, true);
-	p.notification = hint;
-
-	if (p.validateBlock())
+	if (gSavedSettings.getBOOL("EnableUIHints"))
 	{
-		LLHintPopup* popup = new LLHintPopup(p);
+		LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
 
-		sHints[hint] = popup;
+		LLParamSDParser parser;
+		parser.readSD(hint->getPayload(), p, true);
+		p.notification = hint;
 
-		LLView* hint_holder = gViewerWindow->getHintHolder();
-		if (hint_holder)
+		if (p.validateBlock())
 		{
-			hint_holder->addChild(popup);
-			popup->centerWithin(hint_holder->getLocalRect());
+			LLHintPopup* popup = new LLHintPopup(p);
+
+			sHints[hint] = popup;
+
+			LLView* hint_holder = gViewerWindow->getHintHolder();
+			if (hint_holder)
+			{
+				hint_holder->addChild(popup);
+				popup->centerWithin(hint_holder->getLocalRect());
+			}
 		}
 	}
 }
 
+//static
 void LLHints::hide(LLNotificationPtr hint)
 {
 	hint_map_t::iterator found_it = sHints.find(hint);
@@ -318,6 +343,26 @@ void LLHints::hide(LLNotificationPtr hint)
 		found_it->second->hide();
 		sHints.erase(found_it);
 	}
+}
+
+//static
+void LLHints::hideAll()
+{
+	std::vector<LLNotificationPtr> notifications;
+	for (hint_map_t::iterator it = sHints.begin(), end_it = sHints.end();
+		it != end_it;
+		++it)
+	{
+		notifications.push_back(it->first);
+	}
+
+	for(std::vector<LLNotificationPtr>::iterator it = notifications.begin(), end_it = notifications.end();
+		it != end_it;
+		++it)
+	{
+		LLNotifications::instance().cancel(*it);
+	}
+
 }
 
 //static
