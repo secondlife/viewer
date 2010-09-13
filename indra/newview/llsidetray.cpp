@@ -314,6 +314,7 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 
 	floater_tab->addChild(this);
 	floater_tab->setTitle(mTabTitle);
+	floater_tab->setName(getName());
 
 	// Reshape the floater if needed.
 	LLRect floater_rect;
