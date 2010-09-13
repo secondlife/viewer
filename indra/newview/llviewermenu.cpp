@@ -62,6 +62,7 @@
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
+#include "llhints.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimview.h"
@@ -7740,6 +7741,26 @@ public:
 	}
 };
 
+class LLToggleUIHints : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool ui_hints_enabled = gSavedSettings.getBOOL("EnableUIHints");
+		if (ui_hints_enabled)
+		{
+			// hide existing hints
+			LLHints::hideAll();
+
+			gSavedSettings.setBOOL("EnableUIHints", FALSE);
+		}
+		else
+		{
+			gSavedSettings.setBOOL("EnableUIHints", TRUE);
+		}
+		return true;
+	}
+};
+
 void LLUploadCostCalculator::calculateCost()
 {
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
@@ -8220,4 +8241,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
+	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 }
