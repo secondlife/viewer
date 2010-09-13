@@ -83,6 +83,11 @@ def main(command, libpath=[], vars={}):
         # Append the sequence in libpath
         print "%s += %r" % (var, libpath)
         dirs.extend(libpath)
+        # Filter out some useless pieces
+        clean_dirs = []
+        for dir in dirs:
+            if dir and dir not in ('', '.'):
+                clean_dirs.append(dir)
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(dirs)
