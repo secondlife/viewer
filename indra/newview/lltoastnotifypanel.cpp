@@ -148,6 +148,11 @@ mCloseNotificationOnDestroy(true)
 	mTextBox->setVisible(TRUE);
 	mTextBox->setValue(notification->getMessage());
 
+	mUserInputBox = getChild<LLTextEditor>("user_input_box"); 
+	mUserInputBox->setMaxTextLength(254);// FIXME
+	mUserInputBox->setVisible(FALSE);
+	mUserInputBox->setEnabled(FALSE);
+
 	// add buttons for a script notification
 	if (mIsTip)
 	{
@@ -164,6 +169,16 @@ mCloseNotificationOnDestroy(true)
 			LLSD form_element = form->getElement(i);
 			if (form_element["type"].asString() != "button")
 			{
+				// not a button.
+				continue;
+			}
+			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+			{
+				// a textbox pretending to be a button.
+				// (re)enable the textbox for this panel, and continue.
+				mUserInputBox->setVisible(TRUE);
+				mUserInputBox->setEnabled(TRUE);
+				mUserInputBox->insertText("FOOOOOO!!!!");
 				continue;
 			}
 			LLButton* new_button = createButton(form_element, TRUE);
@@ -278,7 +293,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 		p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 		p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 	}
-	// for the scriptdialog buttons we use fixed button size. This  is a limit!
+	// for the scriptdialog buttons we use fixed button size. This is a limit!
 	if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > BUTTON_WIDTH)
 	{
 		p.rect.width = 1;
@@ -286,7 +301,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	}
 	else if (mIsScriptDialog && is_ignore_btn)
 	{
-		// this is ignore button,make it smaller
+		// this is ignore button, make it smaller
 		p.rect.height = BTN_HEIGHT_SMALL;
 		p.rect.width = 1;
 		p.auto_resize = true;
