@@ -68,6 +68,7 @@ Aleric Inglewood
 	SNOW-766
 Ales Beaumont
 	VWR-9352
+	SNOW-240
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -523,6 +524,8 @@ princess niven
 	CT-352
 Renault Clio
 	VWR-1976
+resu Ampan
+	SNOW-93
 Ringo Tuxing
 	CT-225
 	CT-226
@@ -584,6 +587,8 @@ Sergen Davies
 	CT-230
 	CT-231
 	CT-321
+Shawn Kaufmat
+	SNOW-240
 SignpostMarv Martin
 	VWR-153
 	VWR-154
@@ -679,6 +684,7 @@ Whoops Babii
 	VWR-631
 	VWR-1640
 	VWR-3340
+	SNOW-667
 	VWR-4800
 	VWR-4802
 	VWR-4804

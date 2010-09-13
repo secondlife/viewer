@@ -56,4 +56,27 @@
 		<radio_item label="Varias ventanas" name="radio" value="0"/>
 		<radio_item label="Pestañas" name="radio2" value="1"/>
 	</radio_group>
+	<check_box label="Traducir Chat" name="translate_chat_checkbox" />
+	<text name="translate_language_text">
+		Idioma de chat:
+	</text>
+	<combo_box name="translate_language_combobox">
+		<combo_box.item name="System Default Language" label="Predeterminado del sistema" />
+		<combo_box.item name="English" label="English (Inglés)" />
+		<combo_box.item name="Danish" label="Dansk (Danés)" />
+		<combo_box.item name="German" label="Deutsch (Alemán)" />
+		<combo_box.item name="Spanish" label="Español" />
+		<combo_box.item name="French" label="Français (Francés)" />
+		<combo_box.item name="Italian" label="Italiano" />
+		<combo_box.item name="Hungarian" label="Magyar (Húngaro)" />
+		<combo_box.item name="Dutch" label="Nederlands (Neerlandés)" />
+		<combo_box.item name="Polish" label="Polski (Polaco)" />
+		<combo_box.item name="Portugese" label="Portugués (Portugués)" />
+		<combo_box.item name="Russian" label="Русский (Ruso)" />
+		<combo_box.item name="Turkish" label="Türkçe (Turco)" />
+		<combo_box.item name="Ukrainian" label="Українська (Ucraniano)" />
+		<combo_box.item name="Chinese" label="中文 (简体) (Chino)" />
+		<combo_box.item name="Japanese" label="日本語 (Japonés)" />
+		<combo_box.item name="Korean" label="한국어 (Coreano)" />
+	</combo_box>
 </panel>

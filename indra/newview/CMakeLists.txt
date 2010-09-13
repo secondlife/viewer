@@ -13,6 +13,7 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
@@ -44,6 +45,7 @@ include(CMakeCopyIfDifferent)
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
+    ${JSONCPP_INCLUDE_DIRS}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -460,6 +462,7 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
+    lltranslate.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -986,6 +989,7 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
+    lltranslate.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
@@ -1655,6 +1659,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${OPENGL_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
