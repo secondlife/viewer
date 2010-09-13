@@ -334,6 +334,12 @@ std::string LLAvatarListItem::getAvatarToolTip() const
 	return mAvatarName->getToolTip();
 }
 
+void LLAvatarListItem::updateAvatarName()
+{
+	LLAvatarNameCache::get(getAvatarId(),
+			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+}
+
 //== PRIVATE SECITON ==========================================================
 
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)

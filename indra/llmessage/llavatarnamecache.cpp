@@ -41,6 +41,8 @@
 
 namespace LLAvatarNameCache
 {
+	use_display_name_signal_t mUseDisplayNamesSignal;
+
 	// Manual override for display names - can disable even if the region
 	// supports it.
 	bool sUseDisplayNames = true;
@@ -691,6 +693,8 @@ void LLAvatarNameCache::setUseDisplayNames(bool use)
 		sUseDisplayNames = use;
 		// flush our cache
 		sCache.clear();
+
+		mUseDisplayNamesSignal();
 	}
 }
 
@@ -751,6 +755,13 @@ bool LLAvatarNameCache::expirationFromCacheControl(LLSD headers, F64 *expires)
 	return false;
 }
 
+
+void LLAvatarNameCache::addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb) 
+{ 
+	mUseDisplayNamesSignal.connect(cb); 
+}
+
+
 static const std::string MAX_AGE("max-age");
 static const boost::char_separator<char> EQUALS_SEPARATOR("=");
 static const boost::char_separator<char> COMMA_SEPARATOR(",");
@@ -808,5 +819,4 @@ bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
 	}
 	return false;
 }
-
 

@@ -114,6 +114,9 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 	// force docked state since this floater doesn't save it between recreations
 	setDocked(true);
+
+	// update the agent's name if display name setting change
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
 }
 
 LLCallFloater::~LLCallFloater()
@@ -460,15 +463,12 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 	mSpeakingIndicator->setIsMuted(moderator_muted);
 }
 
-void LLCallFloater::updateAgentModeratorState()
+void LLCallFloater::onModeratorNameCache(const LLAvatarName& av_name)
 {
 	std::string name;
-	// Just use display name, because it's you
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(gAgentID, &av_name);
 	name = av_name.mDisplayName;
 
-	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
+	if(mSpeakerManager && gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
 		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
 		// in this case there are not any speakers yet.
@@ -484,6 +484,11 @@ void LLCallFloater::updateAgentModeratorState()
 		}
 	}
 	mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+}
+
+void LLCallFloater::updateAgentModeratorState()
+{
+	LLAvatarNameCache::get(gAgentID, boost::bind(&LLCallFloater::onModeratorNameCache, this, _2));
 }
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)

@@ -126,6 +126,7 @@ private:
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
 	void updateAgentModeratorState();
+	void onModeratorNameCache(const LLAvatarName& av_name);
 
 	/**
 	 * Sets initial participants voice states in avatar list (Invited, Joined, Has Left).

@@ -37,6 +37,9 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
+		
+	typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
+
 	// Until the cache is set running, immediate lookups will fail and
 	// async lookups will be queued.  This allows us to block requests
 	// until we know if the first region supports display names.
@@ -88,6 +91,8 @@ namespace LLAvatarNameCache
 	// Compute name expiration time from HTTP Cache-Control header,
 	// or return default value, in seconds from epoch.
 	F64 nameExpirationFromHeaders(LLSD headers);
+
+	void addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb);
 }
 
 // Parse a cache-control header to get the max-age delta-seconds.

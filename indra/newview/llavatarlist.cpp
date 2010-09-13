@@ -117,6 +117,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowLastInteractionTime(p.show_last_interaction_time)
 , mContextMenu(NULL)
 , mDirty(true) // to force initial update
+, mNeedUpdateNames(false)
 , mLITUpdateTimer(NULL)
 , mShowIcons(true)
 , mShowInfoBtn(p.show_info_btn)
@@ -134,7 +135,16 @@ LLAvatarList::LLAvatarList(const Params& p)
 		mLITUpdateTimer->setTimerExpirySec(0); // zero to force initial update
 		mLITUpdateTimer->start();
 	}
+	
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
 }
+
+
+void LLAvatarList::handleDisplayNamesOptionChanged()
+{
+	mNeedUpdateNames = true;
+}
+
 
 LLAvatarList::~LLAvatarList()
 {
@@ -154,6 +164,11 @@ void LLAvatarList::draw()
 	// Call refresh() after draw() to avoid flickering of avatar list items.
 
 	LLFlatListViewEx::draw();
+
+	if (mNeedUpdateNames)
+	{
+		updateAvatarNames();
+	}
 
 	if (mDirty)
 		refresh();
@@ -218,7 +233,6 @@ void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_i
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED SECTION
 //////////////////////////////////////////////////////////////////////////
-
 void LLAvatarList::refresh()
 {
 	bool have_names			= TRUE;
@@ -328,6 +342,20 @@ void LLAvatarList::refresh()
 	if (modified)
 		onCommit();
 }
+
+void LLAvatarList::updateAvatarNames()
+{
+	std::vector<LLPanel*> items;
+	getItems(items);
+
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
+		item->updateAvatarName();
+	}
+	mNeedUpdateNames = false;
+}
+
 
 bool LLAvatarList::filterHasMatches()
 {
