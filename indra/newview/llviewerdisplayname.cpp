@@ -178,16 +178,11 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		// force name tag to update
 		LLVOAvatar::invalidateNameTag(agent_id);
 
-		// Don't show a notification for my name, because we'll show a nicer
-		// dialog
-		if (agent_id != gAgent.getID())
-		{
-			LLSD args;
-			args["OLD_NAME"] = old_display_name;
-			args["SLID"] = av_name.mUsername;
-			args["NEW_NAME"] = av_name.mDisplayName;
-			LLNotificationsUtil::add("DisplayNameUpdate", args);
-		}
+		LLSD args;
+		args["OLD_NAME"] = old_display_name;
+		args["SLID"] = av_name.mUsername;
+		args["NEW_NAME"] = av_name.mDisplayName;
+		LLNotificationsUtil::add("DisplayNameUpdate", args);
 	}
 };
 
