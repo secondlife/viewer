@@ -460,7 +460,7 @@
          name="Polish"
          value="pl" />
         <combo_box.item
-         label="Portugués (Portuguese)"
+         label="Português (Portuguese)"
          name="Portugese"
          value="pt" />
         <combo_box.item
