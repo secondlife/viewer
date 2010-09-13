@@ -499,7 +499,7 @@ void LLFloater::storeRectControl()
 {
 	if( mRectControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setRect( mRectControl, getRect() );
+		getControlGroup()->setRect( mRectControl, getRect() );
 	}
 }
 
@@ -507,7 +507,7 @@ void LLFloater::storeVisibilityControl()
 {
 	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
+		getControlGroup()->setBOOL( mVisibilityControl, getVisible() );
 	}
 }
 
@@ -515,7 +515,7 @@ void LLFloater::storeDockStateControl()
 {
 	if( !sQuitting && mDocStateControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mDocStateControl, isDocked() );
+		getControlGroup()->setBOOL( mDocStateControl, isDocked() );
 	}
 }
 
@@ -525,7 +525,7 @@ LLRect LLFloater::getSavedRect() const
 
 	if (mRectControl.size() > 1)
 	{
-		rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		rect = getControlGroup()->getRect(mRectControl);
 	}
 
 	return rect;
@@ -548,6 +548,13 @@ std::string LLFloater::getControlName(const std::string& name, const LLSD& key)
 	}
 
 	return ctrl_name;
+}
+
+// static
+LLControlGroup*	LLFloater::getControlGroup()
+{
+	// Floater size, position, visibility, etc are saved in per-account settings.
+	return LLUI::sSettingGroups["account"];
 }
 
 void LLFloater::setVisible( BOOL visible )
@@ -805,7 +812,7 @@ void LLFloater::applyRectControl()
 	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		if (rect.getWidth() > 0 && rect.getHeight() > 0)
 		{
 			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
@@ -821,7 +828,7 @@ void LLFloater::applyDockState()
 {
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
+		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
 		setDocked(dockState);
 	}
 
