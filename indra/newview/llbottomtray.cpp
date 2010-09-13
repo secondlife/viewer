@@ -67,7 +67,7 @@ BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass hover to bottomtray
-	LLBottomTray::getInstance()->handleHover(screenX, screenY, mask);
+	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY, mask);
 	return FALSE;
 }
 //virtual
@@ -607,7 +607,7 @@ LLPanel* LLBottomTray::findChildPanelByLocalCoords(S32 x, S32 y)
 	return ctrl;
 }
 
-BOOL LLBottomTray::handleHover(S32 x, S32 y, MASK mask)
+void LLBottomTray::onDraggableButtonHover(S32 x, S32 y, MASK mask)
 {
 	// if mouse down on draggable item was done, check whether we should start DnD
 	if (mCheckForDrag)
@@ -634,8 +634,6 @@ BOOL LLBottomTray::handleHover(S32 x, S32 y, MASK mask)
 			gViewerWindow->getWindow()->setCursor(UI_CURSOR_NO);
 		}
 	}
-
-	return TRUE;
 }
 
 bool LLBottomTray::isCursorOverDraggableArea(S32 x, S32 y)
