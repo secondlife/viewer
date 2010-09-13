@@ -998,9 +998,9 @@ void LLSideTray::detachTabs()
 
 		std::string floater_ctrl_name = LLFloater::getControlName("side_bar_tab", LLSD(tab->getName()));
 		std::string vis_ctrl_name = LLFloaterReg::getVisibilityControlName(floater_ctrl_name);
-		if (!LLUI::sSettingGroups["floater"]->controlExists(vis_ctrl_name)) continue;
+		if (!LLFloater::getControlGroup()->controlExists(vis_ctrl_name)) continue;
 
-		bool is_visible = LLUI::sSettingGroups["floater"]->getBOOL(vis_ctrl_name);
+		bool is_visible = LLFloater::getControlGroup()->getBOOL(vis_ctrl_name);
 		if (!is_visible) continue;
 
 		llassert(isTabAttached(tab->getName()));

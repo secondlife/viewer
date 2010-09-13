@@ -1526,7 +1526,7 @@ void LLBottomTray::setButtonsControlsAndListeners()
 	// set control name for Build button. It is not enough to link it with Button.SetFloaterToggle in xml
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl("build");
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	build_btn->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	build_btn->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 }
 
 bool LLBottomTray::toggleShowButton(LLBottomTray::EResizeState button_type, const LLSD& new_visibility)
