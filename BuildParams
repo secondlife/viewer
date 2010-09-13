@@ -79,6 +79,14 @@ brad-parabuild.build_server = false
 brad-parabuild.build_server_tests = false
 
 # ========================================
+# CG
+# ========================================
+
+cg_viewer-development_lenny.build_Darwin = false
+cg_viewer-development_lenny.build_CYGWIN = false
+cg_viewer-development_lenny.collect_metrics = true
+
+# ========================================
 # gooey
 # ========================================
 
