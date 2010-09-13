@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+   tab_stop="false"
   background_opaque="false"
       border_visible="false"
   background_visible="true"
@@ -15,6 +16,7 @@
   width="305">
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
+   tab_stop="false"
       border_visible="false"
  bevel_style="none"
     background_visible="true"
@@ -70,7 +72,8 @@
       name="user_input_box"
       read_only="false"
       tab_stop="false"
-      text_color="red"
+      text_color="green"
+      text_readonly_color="red"
       top="50"
       visible="false"
       width="285"
@@ -103,6 +106,7 @@
       parse_urls="true"/>
   </panel>
   <panel
+   tab_stop="false"
     background_visible="false"
     follows="left|right|bottom"
     height="30" 

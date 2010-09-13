@@ -178,6 +178,7 @@ mCloseNotificationOnDestroy(true)
 				// (re)enable the textbox for this panel, and continue.
 				mUserInputBox->setVisible(TRUE);
 				mUserInputBox->setEnabled(TRUE);
+				mUserInputBox->setFocus(TRUE);
 				mUserInputBox->insertText("FOOOOOO!!!!");
 				continue;
 			}
