@@ -99,6 +99,7 @@ protected:
 
 	// panel elements
 	LLTextBase*		mTextBox;
+	LLTextEditor*           mUserInputBox;
 	LLPanel*		mInfoPanel;		// a panel, that contains an information
 	LLPanel*		mControlPanel;	// a panel, that contains buttons (if present)
 
@@ -121,6 +122,7 @@ protected:
 	void disableRespondedOptions(LLNotificationPtr& notification);
 
 	bool mIsTip;
+	bool mIsScriptTextBox;
 	bool mAddedDefaultBtn;
 	bool mIsScriptDialog;
 	bool mIsCaution; 

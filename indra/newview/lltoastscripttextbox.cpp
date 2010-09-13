@@ -1,6 +1,6 @@
 /**
- * @file lltoastgroupnotifypanel.cpp
- * @brief Panel for group notify toasts.
+ * @file lltoastscripttextbox.cpp
+ * @brief Panel for script llTextBox dialogs
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lltoastgroupnotifypanel.h"
+#include "lltoastscripttextbox.h"
 
 #include "llfocusmgr.h"
 
@@ -54,7 +54,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 :	LLToastPanel(notification),
 	mInventoryOffer(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_notify.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notify_textbox.xml");
 	const LLSD& payload = notification->getPayload();
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))
