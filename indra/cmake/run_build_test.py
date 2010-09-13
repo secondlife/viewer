@@ -86,6 +86,7 @@ def main(command, libpath=[], vars={}):
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(dirs)
+        print "%s = %r" % (var, os.environ[var])
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:
