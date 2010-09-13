@@ -104,6 +104,14 @@
       wrap="true"
       parse_highlights="true"
       parse_urls="true"/>
+      <button
+	 follows="left|top"
+	 height="25"
+	 layout="topleft"
+	 left_pad="10"
+	 label="Submit"
+	 name="submit"
+	 width="35" />
   </panel>
   <panel
    tab_stop="false"
