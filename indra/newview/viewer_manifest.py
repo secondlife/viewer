@@ -928,6 +928,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
+            self.path("libglod.so")
             self.path("libssl.so.0.9.7")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
