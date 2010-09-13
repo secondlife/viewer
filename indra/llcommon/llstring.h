@@ -435,7 +435,7 @@ LL_COMMON_API bool iswindividual(llwchar elem);
  */
 
 // Make the incoming string a utf8 string. Replaces any unknown glyph
-// with the UNKOWN_CHARACTER. Once any unknown glph is found, the rest
+// with the UNKNOWN_CHARACTER. Once any unknown glyph is found, the rest
 // of the data may not be recovered.
 LL_COMMON_API std::string rawstr_to_utf8(const std::string& raw);
 

@@ -353,7 +353,7 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(), groupData))
 	{
 		llwarns
-						<< "Group notice for unkown group: "
+						<< "Group notice for unknown group: "
 								<< payload["group_id"].asUUID() << llendl;
 		return;
 	}
