@@ -51,7 +51,7 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
+LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect, bool show_images) : 
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
@@ -120,6 +120,7 @@ mCloseNotificationOnDestroy(true)
 
 	mTextBox->setMaxTextLength(MAX_LENGTH);
 	mTextBox->setVisible(TRUE);
+	mTextBox->setPlainText(!show_images);
 	mTextBox->setValue(notification->getMessage());
 
 	// add buttons for a script notification
@@ -523,8 +524,9 @@ void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification
 
 //////////////////////////////////////////////////////////////////////////
 
-LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */)
- : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect)
+LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */,
+										   bool show_images /* = true */)
+ : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect, show_images)
 {
 	mTextBox->setFollowsAll();
 }
