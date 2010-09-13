@@ -957,6 +957,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mMediaName = message.getValue("name");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAME_CHANGED);
 		}
+		else if(message_name == "pick_file")
+		{
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PICK_FILE_REQUEST);
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;
