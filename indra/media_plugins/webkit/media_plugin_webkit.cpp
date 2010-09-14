@@ -543,6 +543,13 @@ private:
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "close_request");
 		sendMessage(message);
 	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	std::string onRequestFilePicker( const EventType& eventIn )
+	{
+		return blockingPickFile();
+	}
 	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
