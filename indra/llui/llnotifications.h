@@ -110,6 +110,18 @@ typedef enum e_notification_priority
 	NOTIFICATION_PRIORITY_CRITICAL
 } ENotificationPriority;
 
+struct NotificationPriorityValues : public LLInitParam::TypeValuesHelper<ENotificationPriority, NotificationPriorityValues>
+{
+	static void declareValues();
+};
+
+namespace LLNotificationTemplateParams
+{
+	struct Notification;
+	struct Form;
+	struct Template;
+};
+
 class LLNotificationResponderInterface
 {
 public:
@@ -167,8 +179,7 @@ public:
 
 	LLNotificationForm();
 	LLNotificationForm(const LLSD& sd);
-	LLNotificationForm(const std::string& name, 
-		const LLPointer<class LLXMLNode> xml_node);
+	LLNotificationForm(const std::string& name, const LLNotificationTemplateParams::Form& p);
 
 	LLSD asLLSD() const;
 
@@ -193,11 +204,12 @@ private:
 
 typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 
+
 // This is the class of object read from the XML file (notifications.xml, 
 // from the appropriate local language directory).
 struct LLNotificationTemplate
 {
-	LLNotificationTemplate();
+	LLNotificationTemplate(const LLNotificationTemplateParams::Notification& p);
     // the name of the notification -- the key used to identify it
     // Ideally, the key should follow variable naming rules 
     // (no spaces or punctuation).
@@ -247,7 +259,7 @@ struct LLNotificationTemplate
     // messages when we allow clickable URLs in the UI
     U32 mURLOption;
 	
-	U32 mURLOpenExternally;
+	std::string mURLTarget;
 	//This is a flag that tells if the url needs to open externally dispite 
 	//what the user setting is.
 	
@@ -302,7 +314,7 @@ public:
 		// optional
 		Optional<LLSD>							substitutions;
 		Optional<LLSD>							payload;
-		Optional<ENotificationPriority>			priority;
+		Optional<ENotificationPriority, NotificationPriorityValues>	priority;
 		Optional<LLSD>							form_elements;
 		Optional<LLDate>						time_stamp;
 		Optional<LLNotificationContext*>		context;
@@ -519,7 +531,7 @@ public:
     
 	S32 getURLOpenExternally() const
 	{
-		return(mTemplatep? mTemplatep->mURLOpenExternally : -1);
+		return(mTemplatep? mTemplatep->mURLTarget == "_external": -1);
 	}
 	
 	const LLNotificationFormPtr getForm();
@@ -872,7 +884,6 @@ public:
 	// load notification descriptions from file; 
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
-	LLPointer<class LLXMLNode> checkForXMLTemplate(LLPointer<class LLXMLNode> item);
 	
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
@@ -918,8 +929,6 @@ public:
 
 	// test for existence
 	bool templateExists(const std::string& name);
-	// useful if you're reloading the file
-	void clearTemplates();   // erase all templates
 
 	void forceResponse(const LLNotification::Params& params, S32 option);
 
@@ -957,9 +966,6 @@ private:
 
 	std::string mFileName;
 	
-	typedef std::map<std::string, LLPointer<class LLXMLNode> > XMLTemplateMap;
-	XMLTemplateMap mXmlTemplates;
-
 	LLNotificationMap mUniqueNotifications;
 	
 	typedef std::map<std::string, std::string> GlobalStringMap;
