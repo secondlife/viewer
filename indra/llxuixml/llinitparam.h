@@ -1027,6 +1027,7 @@ namespace LLInitParam
 		operator value_assignment_t() const { return self_t::get(); } 
 		// explicit conversion
 		value_assignment_t operator()() const { return get(); } 
+		container_t& operator()() { return mValues; }
 
 		U32 numValidElements() const
 		{
@@ -1210,6 +1211,7 @@ namespace LLInitParam
 		operator value_assignment_t() const { return self_t::get(); } 
 		// explicit conversion
 		value_assignment_t operator()() const { return get(); } 
+		container_t& operator()() { return mValues; }
 
 		U32 numValidElements() const
 		{
