@@ -1145,6 +1145,8 @@ void LLSimpleXUIParser::characterDataHandler(void *userData, const char *s, int 
 
 void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 {
+	processText();
+
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(".");
 
@@ -1238,8 +1240,7 @@ bool LLSimpleXUIParser::readAttributes(const char **atts)
 	return any_parsed;
 }
 
-
-void LLSimpleXUIParser::endElement(const char *name)
+void LLSimpleXUIParser::processText()
 {
 	if (!mTextContents.empty())
 	{
@@ -1250,9 +1251,14 @@ void LLSimpleXUIParser::endElement(const char *name)
 			mCurAttributeValueBegin = mTextContents.c_str();
 			mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
 			mNameStack.pop_back();
-			mTextContents.clear();
 		}
+		mTextContents.clear();
 	}
+}
+
+void LLSimpleXUIParser::endElement(const char *name)
+{
+	processText();
 
 	if (--mOutputStack.back().second == 0)
 	{

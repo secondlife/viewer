@@ -218,6 +218,7 @@ private:
 	void endElement(const char *name);
 	void characterData(const char *s, int len);
 	bool readAttributes(const char **atts);
+	void processText();
 
 	Parser::name_stack_t			mNameStack;
 	struct XML_ParserStruct*		mParser;
