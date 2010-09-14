@@ -251,13 +251,13 @@ then
     begin_section "Build$variant"
     build_dir=`build_dir_$arch $variant`
     build_dir_stubs="$build_dir/win_setup/$variant"
-    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
     if `cat "$build_dir/build_ok"`
     then
       echo so far so good.
     else
       record_failure "Parallel build of \"$variant\" failed."
     fi
+    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
     end_section "Build$variant"
   done
   end_section WaitParallel
