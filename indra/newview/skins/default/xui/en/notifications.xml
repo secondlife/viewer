@@ -723,7 +723,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <url
 	option="0"
 	name="url"
-	openexternally = "1">
+	target = "_external">
 
 			http://join.secondlife.com/
     </url>
@@ -6453,6 +6453,24 @@ Mute everyone?
     <unique/>
   </notification>
 
+  <notification
+  name="PopupAttempt"
+  type="browser">
+    A pop-up was prevented from opening.
+    <unique/>
+    <form name="form">
+      <ignore name="ignore"
+       text="Enable all pop-ups"/>
+      <button default="true"
+              index="0"
+              name="open"
+              text="Open pop-up window"/>
+    </form>
+
+
+  </notification>
+
+  
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
