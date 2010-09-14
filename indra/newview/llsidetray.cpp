@@ -762,8 +762,15 @@ bool LLSideTray::removeTab(LLSideTrayTab* tab)
 	// Deselect the tab.
 	if (mActiveTab == tab)
 	{
-		child_vector_iter_t next_tab_it =
-				(tab_it < (mTabs.end() - 1)) ? tab_it + 1 : mTabs.begin();
+		// Select the next tab (or first one, if we're removing the last tab),
+		// skipping the fake open/close tab (STORM-155).
+		child_vector_iter_t next_tab_it = tab_it;
+		do
+		{
+			next_tab_it = (next_tab_it < (mTabs.end() - 1)) ? next_tab_it + 1 : mTabs.begin();
+		}
+		while ((*next_tab_it)->getName() == "sidebar_openclose");
+
 		selectTabByName((*next_tab_it)->getName(), true); // Don't hide the tab being removed.
 	}
 
