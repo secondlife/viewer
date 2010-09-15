@@ -63,7 +63,8 @@ pre_build()
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \
     -DLOCALIZESETUP:BOOL=ON \
-    -DPACKAGE:BOOL=ON
+    -DPACKAGE:BOOL=ON \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE
   end_section "Pre$variant"
 }
 
