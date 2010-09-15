@@ -51,7 +51,7 @@ private:
 	static bool writeTypedValue(Parser& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
 	{
 		LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
-		if (!sdparser.mWriteSD) return false;
+		if (!sdparser.mWriteRootSD) return false;
 		
 		LLSD* sd_to_write = sdparser.getSDWriteNode(name_stack);
 		if (!sd_to_write) return false;
@@ -77,7 +77,8 @@ private:
 
 	Parser::name_stack_t	mNameStack;
 	const LLSD*				mCurReadSD;
-	LLSD*					mWriteSD;
+	LLSD*					mWriteRootSD;
+	LLSD*					mCurWriteSD;
 };
 
 template<typename T>
