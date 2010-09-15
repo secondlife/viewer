@@ -3409,7 +3409,7 @@ void LLFloaterModelPreview::onModelDecompositionComplete(LLModel* model, std::ve
 	{
 		sInstance->mModelPreview->mPhysicsMesh[model] = physics_mesh;
 
-		sInstance->mModelPreview->mResourceCost = sInstance->mModelPreview->calcResourceCost();
+		sInstance->mModelPreview->mDirty = true;
 	}
 }
 
