@@ -42,7 +42,11 @@ public:
     LOG_CLASS(LLFloaterMediaBrowser);
 	LLFloaterMediaBrowser(const LLSD& key);
 
-	static void create(const std::string &url, const std::string& target);
+	static void create(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null);
+
+	static void closeRequest(const std::string &uuid);
+	static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);
+	void geometryChanged(S32 x, S32 y, S32 width, S32 height);
 	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
@@ -51,7 +55,7 @@ public:
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
-	void openMedia(const std::string& media_url);
+	void openMedia(const std::string& media_url, const std::string& target);
 	void buildURLHistory();
 	std::string getSupportURL();
 	void setCurrentURL(const std::string& url);
@@ -73,6 +77,7 @@ private:
 	LLMediaCtrl* mBrowser;
 	LLComboBox* mAddressCombo;
 	std::string mCurrentURL;
+	std::string mUUID;
 };
 
 #endif  // LL_LLFLOATERMEDIABROWSER_H

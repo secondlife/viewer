@@ -45,7 +45,8 @@
 #include "llviewermedia.h"
 #include "llviewerparcelmedia.h"
 #include "llcombobox.h"
-
+#include "llwindow.h"
+#include "lllayoutstack.h"
 
 // TEMP
 #include "llsdutil.h"
@@ -56,16 +57,25 @@ LLFloaterMediaBrowser::LLFloaterMediaBrowser(const LLSD& key)
 }
 
 //static 
-void LLFloaterMediaBrowser::create(const std::string &url, const std::string& target)
+void LLFloaterMediaBrowser::create(const std::string &url, const std::string& target, const std::string& uuid)
 {
+	lldebugs << "url = " << url << ", target = " << target << ", uuid = " << uuid << llendl;
+	
 	std::string tag = target;
 	
 	if(target.empty() || target == "_blank")
 	{
-		// create a unique tag for this instance
-		LLUUID id;
-		id.generate();
-		tag = id.asString();
+		if(!uuid.empty())
+		{
+			tag = uuid;
+		}
+		else
+		{
+			// create a unique tag for this instance
+			LLUUID id;
+			id.generate();
+			tag = id.asString();
+		}
 	}
 	
 	S32 browser_window_limit = gSavedSettings.getS32("MediaBrowserWindowLimit");
@@ -98,10 +108,69 @@ void LLFloaterMediaBrowser::create(const std::string &url, const std::string& ta
 	llassert(browser);
 	if(browser)
 	{
+		browser->mUUID = uuid;
+
 		// tell the browser instance to load the specified URL
-		browser->openMedia(url);
+		browser->openMedia(url, target);
+		LLViewerMedia::proxyWindowOpened(target, uuid);
 	}
 }
+
+//static 
+void LLFloaterMediaBrowser::closeRequest(const std::string &uuid)
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("media_browser");
+	lldebugs << "instance list size is " << inst_list.size() << ", incoming uuid is " << uuid << llendl;
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	{
+		LLFloaterMediaBrowser* i = dynamic_cast<LLFloaterMediaBrowser*>(*iter);
+		lldebugs << "    " << i->mUUID << llendl;
+		if (i && i->mUUID == uuid)
+		{
+			i->closeFloater(false);
+			return;
+ 		}
+ 	}
+}
+
+//static 
+void LLFloaterMediaBrowser::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("media_browser");
+	lldebugs << "instance list size is " << inst_list.size() << ", incoming uuid is " << uuid << llendl;
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	{
+		LLFloaterMediaBrowser* i = dynamic_cast<LLFloaterMediaBrowser*>(*iter);
+		lldebugs << "    " << i->mUUID << llendl;
+		if (i && i->mUUID == uuid)
+		{
+			i->geometryChanged(x, y, width, height);
+			return;
+ 		}
+ 	}
+}
+	
+void LLFloaterMediaBrowser::geometryChanged(S32 x, S32 y, S32 width, S32 height)
+{	
+	// Make sure the layout of the browser control is updated, so this calculation is correct.
+	LLLayoutStack::updateClass();
+		
+	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
+	LLCoordWindow window_size;
+	getWindow()->getSize(&window_size);
+
+	// Adjust width and height for the size of the chrome on the Media Browser window.
+	width += getRect().getWidth() - mBrowser->getRect().getWidth();
+	height += getRect().getHeight() - mBrowser->getRect().getHeight();
+	
+	LLRect geom;
+	geom.setOriginAndSize(x, window_size.mY - (y + height), width, height);
+
+	lldebugs << "geometry change: " << geom << llendl;
+	
+	handleReshape(geom,false);
+}
+
 
 void LLFloaterMediaBrowser::draw()
 {
@@ -161,6 +230,7 @@ BOOL LLFloaterMediaBrowser::postBuild()
 	childSetAction("assign", onClickAssign, this);
 
 	buildURLHistory();
+
 	return TRUE;
 }
 
@@ -201,6 +271,7 @@ std::string LLFloaterMediaBrowser::getSupportURL()
 //virtual
 void LLFloaterMediaBrowser::onClose(bool app_quitting)
 {
+	LLViewerMedia::proxyWindowClosed(mUUID);
 	//setVisible(FALSE);
 	destroy();
 }
@@ -222,7 +293,12 @@ void LLFloaterMediaBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEve
 		// The browser instance wants its window closed.
 		closeFloater();
 	}
+	else if(event == MEDIA_EVENT_GEOMETRY_CHANGE)
+	{
+		geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
+	}
 }
+
 void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 {
 	mCurrentURL = url;
@@ -368,9 +444,10 @@ void LLFloaterMediaBrowser::onClickSeek(void* user_data)
 	if(self->mBrowser->getMediaPlugin())
 		self->mBrowser->getMediaPlugin()->start(2.0f);
 }
-void LLFloaterMediaBrowser::openMedia(const std::string& media_url)
+void LLFloaterMediaBrowser::openMedia(const std::string& media_url, const std::string& target)
 {
 	mBrowser->setHomePageUrl(media_url);
+	mBrowser->setTarget(target);
 	mBrowser->navigateTo(media_url);
 	setCurrentURL(media_url);
 }

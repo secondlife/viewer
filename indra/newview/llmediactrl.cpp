@@ -572,6 +572,15 @@ void LLMediaCtrl::setHomePageUrl( const std::string& urlIn, const std::string& m
 	}
 }
 
+void LLMediaCtrl::setTarget(const std::string& target)
+{
+	mTarget = target;
+	if (mMediaSource)
+	{
+		mMediaSource->setTarget(mTarget);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned int blue)
@@ -613,6 +622,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 		{
 			mMediaSource->setUsedInUI(true);
 			mMediaSource->setHomeURL(mHomePageUrl, mHomePageMimeType);
+			mMediaSource->setTarget(mTarget);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
@@ -960,6 +970,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_PICK_FILE_REQUEST:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PICK_FILE_REQUEST" << LL_ENDL;
+		}
+		break;
+		
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+		{
+			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;
 		}
 		break;
 	};

@@ -580,6 +580,12 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PICK_FILE_REQUEST" << LL_ENDL;
 		}
 		break;
+
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+		{
+			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;
+		}
+		break;
 	};
 }
 
