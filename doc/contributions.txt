@@ -653,6 +653,8 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-421
+	SNOW-462
 	SNOW-586
 	SNOW-743
 	VWR-7109
@@ -673,6 +675,8 @@ Tue Torok
 	CT-72
 	CT-73
 	CT-74
+Twisted Laws
+	SNOW-352
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
