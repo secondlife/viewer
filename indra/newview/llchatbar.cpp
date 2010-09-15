@@ -126,7 +126,7 @@ BOOL LLChatBar::postBuild()
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
 
-	mInputEditor->setMaxTextLength(1023);
+	mInputEditor->setMaxTextLength(DB_CHAT_MSG_STR_LEN);
 	mInputEditor->setEnableLineHistory(TRUE);
 
 	mIsBuilt = TRUE;
@@ -569,8 +569,12 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL 
 	S32 channel = 0;
 	LLWString out_text = stripChannelNumber(wtext, &channel);
 	std::string utf8_out_text = wstring_to_utf8str(out_text);
-	std::string utf8_text = wstring_to_utf8str(wtext);
+	if (!utf8_out_text.empty())
+	{
+		utf8_out_text = utf8str_truncate(utf8_out_text, MAX_MSG_STR_LEN);
+	}
 
+	std::string utf8_text = wstring_to_utf8str(wtext);
 	utf8_text = utf8str_trim(utf8_text);
 	if (!utf8_text.empty())
 	{

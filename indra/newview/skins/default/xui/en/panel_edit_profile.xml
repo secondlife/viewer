@@ -320,7 +320,7 @@
          left="10"
          name="partner_edit_link"
          value="[[URL] Edit]"
-         width="50" />
+         width="70" />
     </panel>
     </panel>
     </scroll_container>
