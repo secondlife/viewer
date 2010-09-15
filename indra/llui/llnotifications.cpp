@@ -37,6 +37,8 @@
 #include "lltrans.h"
 #include "llnotificationslistener.h"
 #include "llstring.h"
+#include "llsdparam.h"
+#include "llsdutil.h"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -90,6 +92,7 @@ namespace LLNotificationTemplateParams
 	struct FormElementBase : public Block<FormElementBase>
 	{
 		Mandatory<std::string>	name;
+
 		FormElementBase()
 		:	name("name")
 		{}
@@ -113,12 +116,18 @@ namespace LLNotificationTemplateParams
 		Optional<std::string>	ignore;
 		Optional<bool>			is_default;
 
+		Mandatory<std::string>	type;
+
 		FormButton()
 		:	index("index"),
 			text("text"),
 			ignore("ignore"),
-			is_default("default")
-		{}
+			is_default("default"),
+			type("type")
+		{
+			// set type here so it gets serialized
+			type = "button";
+		}
 	};
 
 	struct FormInput : public Block<FormInput, FormElementBase>
@@ -143,11 +152,19 @@ namespace LLNotificationTemplateParams
 		{}
 	};
 
+	struct FormElements : public Block<FormElements>
+	{
+		Multiple<FormElement> elements;
+		FormElements()
+		:	elements("")
+		{}
+	};
+
 	struct Form : public Block<Form>
 	{
 		Optional<std::string>	name;
 		Optional<FormIgnore>	ignore;
-		Multiple<FormElement>	form_elements;
+		Optional<FormElements>	form_elements;
 
 		Form()
 		:	name("form"),
@@ -209,7 +226,7 @@ namespace LLNotificationTemplateParams
 
 		FormRef()
 		:	form("form"),
-			form_template("use_template")
+			form_template("usetemplate")
 		{}
 	};
 
@@ -226,7 +243,6 @@ namespace LLNotificationTemplateParams
 		Optional<U32>					duration;
 		Optional<S32>					expire_option;
 		Optional<URL>					url;
-		Optional<TemplateRef>			use_template;
 		Optional<UniquenessConstraint>	unique;
 		Optional<FormRef>				form_ref;
 		Optional<ENotificationPriority, 
@@ -246,7 +262,6 @@ namespace LLNotificationTemplateParams
 			duration("duration"),
 			expire_option("expireOption", -1),
 			url("url"),
-			use_template("usetemplate"),
 			unique("unique"),
 			form_ref("")
 		{}
@@ -358,15 +373,13 @@ namespace LLNotificationFilters
 };
 
 LLNotificationForm::LLNotificationForm()
-:	mFormData(LLSD::emptyArray()),
-	mIgnore(IGNORE_NO)
+:	mIgnore(IGNORE_NO)
 {
 }
 
 
 LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationTemplateParams::Form& p) 
-:	mFormData(LLSD::emptyArray()),
-	mIgnore(IGNORE_NO)
+:	mIgnore(IGNORE_NO)
 {
 	if (p.ignore.isProvided())
 	{
@@ -387,8 +400,20 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Ignore notification with this name", TRUE);
 	}
 
-	// TODO: serialize params.form_elements to mFormData
-	//mFormData.append(item_entry);
+	LLParamSDParser parser;
+	parser.writeSD(mFormData, p.form_elements);
+
+	for (LLSD::array_iterator it = mFormData.beginArray(), end_it = mFormData.endArray();
+		it != end_it;
+		++it)
+	{
+		// lift contents of form element up a level, since element type is already encoded in "type" param
+		if (it->isMap() && it->beginMap() != it->endMap())
+		{
+			*it = it->beginMap()->second;
+		}
+	}
+	//llinfos << ll_pretty_print_sd(mFormData) << llendl;
 }
 
 LLNotificationForm::LLNotificationForm(const LLSD& sd)
@@ -1381,8 +1406,8 @@ void replaceFormText(LLNotificationTemplateParams::Form& form, const std::string
 	{
 		form.ignore.text = replace;
 	}
-	for (LLInitParam::ParamIterator<LLNotificationTemplateParams::FormElement>::iterator it = form.form_elements().begin(),
-			end_it = form.form_elements().end();
+	for (LLInitParam::ParamIterator<LLNotificationTemplateParams::FormElement>::iterator it = form.form_elements.elements().begin(),
+			end_it = form.form_elements.elements().end();
 		it != end_it;
 		++it)
 	{
@@ -1396,11 +1421,20 @@ void replaceFormText(LLNotificationTemplateParams::Form& form, const std::string
 bool LLNotifications::loadTemplates()
 {
 	const std::string xml_filename = "notifications.xml";
-
 	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), xml_filename);
+
+	LLXMLNodePtr root;
+	BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	
+	if (!success || root.isNull() || !root->hasName( "notifications" ))
+	{
+		llerrs << "Problem reading UI Notifications file: " << full_filename << llendl;
+		return false;
+	}
+
 	LLNotificationTemplateParams::Notifications params;
-	LLSimpleXUIParser parser;
-	parser.readXUI(full_filename, params);
+	LLXUIParser parser;
+	parser.readXUI(root, params, full_filename);
 
 	mTemplates.clear();
 
@@ -1448,142 +1482,6 @@ bool LLNotifications::loadTemplates()
 		addTemplate(it->name, LLNotificationTemplatePtr(new LLNotificationTemplate(*it)));
 	}
 
-	//for (LLXMLNodePtr item = root->getFirstChild();
-	//	 item.notNull(); item = item->getNextSibling())
-	//{
-	//	// we do this FIRST so that item can be changed if we 
-	//	// encounter a usetemplate -- we just replace the
-	//	// current xml node and keep processing
-	//	item = checkForXMLTemplate(item);
-	//	
-	//	if (item->hasName("global"))
-	//	{
-	//		std::string global_name;
-	//		if (item->getAttributeString("name", global_name))
-	//		{
-	//			mGlobalStrings[global_name] = item->getTextContents();
-	//		}
-	//		continue;
-	//	}
-	//	
-	//	if (item->hasName("template"))
-	//	{
-	//		// store an xml template; templates must have a single node (can contain
-	//		// other nodes)
-	//		std::string name;
-	//		item->getAttributeString("name", name);
-	//		LLXMLNodePtr ptr = item->getFirstChild();
-	//		mXmlTemplates[name] = ptr;
-	//		continue;
-	//	}
-	//	
-	//	if (!item->hasName("notification"))
-	//	{
- //           llwarns << "Unexpected entity " << item->getName()->mString << 
- //                      " found in " << xml_filename << llendl;
-	//		continue;
-	//	}
-	//	
-	//	// now we know we have a notification entry, so let's build it
-	//	LLNotificationTemplatePtr pTemplate(new LLNotificationTemplate());
-
-	//	if (!item->getAttributeString("name", pTemplate->mName))
-	//	{
-	//		llwarns << "Unable to parse notification with no name" << llendl;
-	//		continue;
-	//	}
-	//	
-	//	//llinfos << "Parsing " << pTemplate->mName << llendl;
-	//	
-	//	pTemplate->mMessage = item->getTextContents();
-	//	pTemplate->mDefaultFunctor = pTemplate->mName;
-	//	item->getAttributeString("type", pTemplate->mType);
-	//	item->getAttributeString("icon", pTemplate->mIcon);
-	//	item->getAttributeString("label", pTemplate->mLabel);
-	//	item->getAttributeU32("duration", pTemplate->mExpireSeconds);
-	//	item->getAttributeU32("expireOption", pTemplate->mExpireOption);
-
-	//	std::string priority;
-	//	item->getAttributeString("priority", priority);
-	//	pTemplate->mPriority = NOTIFICATION_PRIORITY_NORMAL;
-	//	if (!priority.empty())
-	//	{
-	//		if (priority == "low")      pTemplate->mPriority = NOTIFICATION_PRIORITY_LOW;
-	//		if (priority == "normal")   pTemplate->mPriority = NOTIFICATION_PRIORITY_NORMAL;
-	//		if (priority == "high")     pTemplate->mPriority = NOTIFICATION_PRIORITY_HIGH;
-	//		if (priority == "critical") pTemplate->mPriority = NOTIFICATION_PRIORITY_CRITICAL;
-	//	}
-	//	
-	//	item->getAttributeString("functor", pTemplate->mDefaultFunctor);
-
-	//	BOOL persist = false;
-	//	item->getAttributeBOOL("persist", persist);
-	//	pTemplate->mPersist = persist;
-	//	
-	//	std::string sound;
-	//	item->getAttributeString("sound", sound);
-	//	if (!sound.empty())
-	//	{
-	//		// test for bad sound effect name / missing effect
-	//		if (LLUI::sSettingGroups["config"]->controlExists(sound))
-	//		{
-	//			pTemplate->mSoundEffect = 
-	//				LLUUID(LLUI::sSettingGroups["config"]->getString(sound));
-	//		}
-	//		else
-	//		{
-	//			llwarns << "Unknown sound effect control name " << sound
-	//				<< llendl;
-	//		}
-	//	}
-
-	//	for (LLXMLNodePtr child = item->getFirstChild();
-	//		 !child.isNull(); child = child->getNextSibling())
-	//	{
-	//		child = checkForXMLTemplate(child);
-	//		
-	//		// <url>
-	//		if (child->hasName("url"))
-	//		{
-	//			pTemplate->mURL = child->getTextContents();
-	//			child->getAttributeU32("option", pTemplate->mURLOption);
-	//			child->getAttributeU32("openexternally", pTemplate->mURLOpenExternally);
-	//		}
-	//		
- //           if (child->hasName("unique"))
- //           {
- //               pTemplate->mUnique = true;
- //               for (LLXMLNodePtr formitem = child->getFirstChild();
- //                    !formitem.isNull(); formitem = formitem->getNextSibling())
- //               {
- //                   if (formitem->hasName("context"))
- //                   {
- //                       std::string key;
- //                       formitem->getAttributeString("key", key);
- //                       pTemplate->mUniqueContext.push_back(key);
- //                       //llwarns << "adding " << key << " to unique context" << llendl;
- //                   }
- //                   else
- //                   {
- //                       llwarns << "'unique' has unrecognized subelement " 
- //                       << formitem->getName()->mString << llendl;
- //                   }
- //               }
- //           }
- //           
-	//		// <form>
-	//		if (child->hasName("form"))
-	//		{
- //               pTemplate->mForm = LLNotificationFormPtr(new LLNotificationForm(pTemplate->mName, child));
-	//		}
-	//	}
-	//	addTemplate(pTemplate->mName, pTemplate);
-	//}
-	
-	//std::ostringstream ostream;
-	//root->writeToOstream(ostream, "\n  ");
-	//llwarns << ostream.str() << llendl;
-	
 	return true;
 }
 
