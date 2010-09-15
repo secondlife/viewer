@@ -222,7 +222,10 @@ do
       fi
     else
       begin_section "Build$variant"
-      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | grep --line-buffered "^##teamcity"
+      build "$variant" "$build_dir" > "$build_log" 2>&1
+      begin_section Tests
+      grep --line-buffered "^##teamcity" "$build_log"
+      end_section Tests
       if `cat "$build_dir/build_ok"`
       then
         echo so far so good.
@@ -257,7 +260,9 @@ then
     else
       record_failure "Parallel build of \"$variant\" failed."
     fi
+    begin_section Tests
     tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
+    end_section Tests
     end_section "Build$variant"
   done
   end_section WaitParallel
