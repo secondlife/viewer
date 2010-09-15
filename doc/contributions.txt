@@ -407,6 +407,7 @@ Michelle2 Zenovka
 	VWR-8310
 	VWR-9499
 Mm Alder
+	SNOW-376
 	VWR-197
 	VWR-3777
 	VWR-4232
@@ -646,6 +647,7 @@ Techwolf Lupindo
 	SNOW-649
 	SNOW-680
 	SNOW-681
+	SNOW-690
 	VWR-12385
 tenebrous pau
 	VWR-247
