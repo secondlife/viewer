@@ -1120,6 +1120,9 @@
 	<string name="InvFolder Favorite">
 		Favoritos
 	</string>
+	<string name="InvFolder favorite">
+		Favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
 	</string>
