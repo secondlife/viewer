@@ -119,7 +119,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	{
 		params.font(p.font);
 	}
-	params.max_length_bytes(MAX_STRING_LENGTH);
+	params.max_length.bytes(MAX_STRING_LENGTH);
 	params.commit_callback.function((boost::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
 	
 	if( mPrecision>0 )//should accept float numbers

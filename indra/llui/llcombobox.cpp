@@ -484,7 +484,7 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		LLLineEditor::Params params = p.combo_editor;
 		params.rect(text_entry_rect);
 		params.default_text(LLStringUtil::null);
-		params.max_length_bytes(mMaxChars);
+		params.max_length.bytes(mMaxChars);
 		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
 		params.commit_on_focus_lost(false);

@@ -3197,7 +3197,7 @@ Press reset to make it the same as your username.
 
 Change your display name?
     <form name="form">
-      <input name="display_name" type="text">
+      <input name="display_name" max_length_chars="31" type="text">
 [DISPLAY_NAME]
       </input>
       <button
