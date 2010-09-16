@@ -234,7 +234,7 @@ public:
 	void        setSoundFlags(U8 flags)			{ mSoundFlags = flags; }
 	void		setName(std::string name)			{ mName = name; }
 	void		setUseBoundingRect( BOOL use_bounding_rect );
-	BOOL		getUseBoundingRect();
+	BOOL		getUseBoundingRect() const;
 
 	ECursorType	getHoverCursor() { return mHoverCursor; }
 
