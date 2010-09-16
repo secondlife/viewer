@@ -242,7 +242,7 @@
        left="8"
        name="show_in_search_checkbox"
        height="15"
-       text_enabled_color="white"
+       label_text.text_color="white"
        top_pad="12"
        width="100" />
       <text

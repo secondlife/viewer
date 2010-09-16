@@ -16,7 +16,7 @@
      layout="topleft"
      left="5"
      name="DontShowFirstTimeTip_checkbox"
-     text_enabled_color="white"
+     label_text.text_color="white"
      top="225"
      width="200" />
 </floater>
