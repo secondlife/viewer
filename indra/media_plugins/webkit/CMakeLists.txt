@@ -29,6 +29,14 @@ include_directories(
 
 ### media_plugin_webkit
 
+if(NOT CMAKE_SIZEOF_VOID_P MATCHES 4)
+  if(WINDOWS)
+    add_definitions(/FIXED:NO)
+  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+    add_definitions(-fPIC)
+  endif(WINDOWS)
+endif (NOT CMAKE_SIZEOF_VOID_P MATCHES 4)
+
 set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )

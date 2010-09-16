@@ -250,6 +250,13 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 if(LLCOMMON_LINK_SHARED)
     add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
+    if(NOT CMAKE_SIZEOF_VOID_P MATCHES 4)
+      if(WINDOWS)
+        add_definitions(/FIXED:NO)
+      else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+        add_definitions(-fPIC)
+      endif(WINDOWS)
+    endif(NOT CMAKE_SIZEOF_VOID_P MATCHES 4)
     ll_stage_sharedlib(llcommon)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
