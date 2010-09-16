@@ -568,8 +568,9 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 	{
 		LLButton* btn = it->second;
 		bool new_state = !btn->getToggleState();
-		btn->setToggleState(new_state); 
-		btn->setImageOverlay( new_state ? tab->mImageSelected : tab->mImage );
+		btn->setToggleState(new_state);
+		// Only highlight the tab if side tray is expanded (STORM-157).
+		btn->setImageOverlay( new_state && !getCollapsed() ? tab->mImageSelected : tab->mImage );
 	}
 }
 
@@ -762,8 +763,15 @@ bool LLSideTray::removeTab(LLSideTrayTab* tab)
 	// Deselect the tab.
 	if (mActiveTab == tab)
 	{
-		child_vector_iter_t next_tab_it =
-				(tab_it < (mTabs.end() - 1)) ? tab_it + 1 : mTabs.begin();
+		// Select the next tab (or first one, if we're removing the last tab),
+		// skipping the fake open/close tab (STORM-155).
+		child_vector_iter_t next_tab_it = tab_it;
+		do
+		{
+			next_tab_it = (next_tab_it < (mTabs.end() - 1)) ? next_tab_it + 1 : mTabs.begin();
+		}
+		while ((*next_tab_it)->getName() == "sidebar_openclose");
+
 		selectTabByName((*next_tab_it)->getName(), true); // Don't hide the tab being removed.
 	}
 
