@@ -56,9 +56,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>ab78835bafcad3bb7223eaeecb5a6a4b</string>
+            <string>70b8bebe5b107a5f9eb175ff992b148c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GLOD-1.0pre4-darwin-20090918.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20100916a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -1006,9 +1006,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>b9fe5149a23cbc55a341867c2f6abb8e</string>
+            <string>a6969a966e83ac3f0dc652df3e499797</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100626.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100914.tar.bz2</uri>
           </map>          
         </map>
       </map>
