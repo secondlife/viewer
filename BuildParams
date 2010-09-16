@@ -84,8 +84,6 @@ brad-parabuild.build_server_tests = false
 
 cg_viewer-development_lenny.build_Darwin = false
 cg_viewer-development_lenny.build_CYGWIN = false
-cg_viewer-development_lenny.build_Linux_Debug = false
-cg_viewer-development_lenny.build_Linux_RelWithDebInfo = false
 cg_viewer-development_lenny.build_link_parallel = false
 cg_viewer-development_lenny.collect_metrics = true
 
