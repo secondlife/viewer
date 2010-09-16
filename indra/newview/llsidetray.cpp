@@ -568,8 +568,9 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 	{
 		LLButton* btn = it->second;
 		bool new_state = !btn->getToggleState();
-		btn->setToggleState(new_state); 
-		btn->setImageOverlay( new_state ? tab->mImageSelected : tab->mImage );
+		btn->setToggleState(new_state);
+		// Only highlight the tab if side tray is expanded (STORM-157).
+		btn->setImageOverlay( new_state && !getCollapsed() ? tab->mImageSelected : tab->mImage );
 	}
 }
 
