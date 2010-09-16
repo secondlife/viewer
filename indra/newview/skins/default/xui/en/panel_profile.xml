@@ -344,7 +344,7 @@
 				name="add_friend_btn_lp"
 			    user_resize="false" 
 			    auto_resize="true"
-				width="118">
+				width="121">
 					<button
 			         follows="bottom|left|right"
 			         height="23"
@@ -355,7 +355,7 @@
 			         name="add_friend"
 			         tool_tip="Offer friendship to the Resident"
 			         top="0"
-			         width="117" />	
+			         width="120" />	
 				</layout_panel>
 				
 				<layout_panel
@@ -430,8 +430,8 @@
 				left_pad="3"
 				name="overflow_btn_lp"
 			    user_resize="false" 
-			    auto_resize="true"
-				width="27">
+			    auto_resize="false"
+				width="24">
 					<button
 			         follows="bottom|left|right"
 			         height="23"
