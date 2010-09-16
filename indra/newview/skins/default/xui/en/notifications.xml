@@ -2059,7 +2059,8 @@ Would you be my friend?
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"
- type="alertmodal">
+ type="alertmodal"
+ unique="true">
     Save what I'm wearing as a new Outfit:
     <form name="form">
       <input name="message" type="text">
@@ -2075,7 +2076,6 @@ Would you be my friend?
        name="Cancel"
        text="Cancel"/>
     </form>
-    <unique/>
   </notification>
 
   <notification
@@ -4010,37 +4010,37 @@ Go to your [http://secondlife.com/account/ Dashboard] to see your account histor
   <notification
    icon="alertmodal.tga"
    name="ConfirmQuit"
-   type="alertmodal">
+   type="alertmodal"
+   unique="true">
 Are you sure you want to quit?
     <usetemplate
      ignoretext="Confirm before I quit"
      name="okcancelignore"
      notext="Don&apos;t Quit"
      yestext="Quit"/>
-     <unique/>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="DeleteItems"
-   type="alertmodal">
+   type="alertmodal"
+   unique="true">
     [QUESTION]
     <usetemplate
      ignoretext="Confirm before deleting items"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
-    <unique/>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
-   type="alert">
+   type="alert"
+   unique="true">
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
 All reported abuses are investigated and resolved.
-   <unique/>
   </notification>
 
   <notification
@@ -4982,47 +4982,47 @@ Message from [NAME]:
    icon="notify.tga"
    name="NotSafe"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This land has damage enabled.
 You can be hurt here. If you die, you will be teleported to your home location.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoFly"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has flying disabled.
 You can&apos;t fly here.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="PushRestricted"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area does not allow pushing. You can&apos;t push others here unless you own the land.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoVoice"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoBuild"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has building disabled. You can&apos;t build or rez objects here.
-    <unique/>
   </notification>
 
   <notification
@@ -5943,9 +5943,9 @@ The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum
   <notification
    icon="notifytip.tga"
    name="ProximalVoiceChannelFull"
-   type="notifytip">
+   type="notifytip"
+   unique="true">
 We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
-    <unique/>
   </notification>
 
   <notification
@@ -6002,9 +6002,9 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
    duration="10"
    icon="notifytip.tga"
    name="VoiceLoginRetry"
-   type="notifytip">
+   type="notifytip"
+   unique="true">
 We are creating a voice channel for you. This may take up to one minute.
-    <unique/>
   </notification>
 
   <notification
@@ -6012,10 +6012,10 @@ We are creating a voice channel for you. This may take up to one minute.
    name="VoiceEffectsExpired"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 One or more of your subscribed Voice Morphs has expired.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
 
   <notification
@@ -6023,10 +6023,10 @@ One or more of your subscribed Voice Morphs has expired.
    name="VoiceEffectsExpiredInUse"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 The active Voice Morph has expired, your normal voice settings have been applied.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
 
   <notification
@@ -6034,10 +6034,10 @@ The active Voice Morph has expired, your normal voice settings have been applied
    name="VoiceEffectsWillExpire"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 One or more of your Voice Morphs will expire in less than [INTERVAL] days.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
 
   <notification
@@ -6045,9 +6045,9 @@ One or more of your Voice Morphs will expire in less than [INTERVAL] days.
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 New Voice Morphs are available!
-    <unique/>
   </notification>
 
   <notification
@@ -6374,8 +6374,8 @@ Are you sure you want to leave this call?
      ignoretext="Confirm before I leave call"
      name="okcancelignore"
      notext="No"
-     yestext="Yes"/>
-    <unique/>
+     yestext="Yes"
+     unique="true"/>
   </notification>
 
   <notification
@@ -6391,64 +6391,64 @@ Mute everyone?
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
      yestext="Ok"
-     notext="Cancel"/>
-    <unique/>
+     notext="Cancel"
+     unique="true"/>
   </notification>
 
   <notification
   name="HintChat"
   label="Chat"
-  type="hint">
+  type="hint"
+  unique="true">
     To join the conversation, type into the chat field below.
-    <unique/>
   </notification>
 
   <notification
   name="HintSit"
   label="Stand"
-  type="hint">
+  type="hint"
+  unique="true">
     To stand up and exit the sitting position, click the Stand button.
-    <unique/>
   </notification>
 
   <notification
   name="HintDestinationGuide"
   label="Explore the World"
-  type="hint">
+  type="hint"
+  unique="true">
     The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
-    <unique/>
   </notification>
 
   <notification
     name="HintSidePanel"
     label="Side Panel"
-    type="hint">
+    type="hint"
+    unique="true">
     Get quick access to your inventory, outfits, profiles and more in the side panel.
-    <unique/>
   </notification>
 
   <notification
   name="HintMove"
   label="Move"
-  type="hint">
+  type="hint"
+  unique="true">
     To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
-    <unique/>
   </notification>
 
   <notification
   name="HintInventory"
   label="Inventory"
-  type="hint">
+  type="hint"
+  unique="true">
     Check your inventory to find items. Newest items can be easily found in the Recent tab.
-    <unique/>
   </notification>
 
   <notification
   name="HintLindenDollar"
   label="You've got Linden Dollars!"
-  type="hint">
+  type="hint"
+  unique="true">
     Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
-    <unique/>
   </notification>
 
   <notification
@@ -6456,9 +6456,8 @@ Mute everyone?
   icon="Popup_Caution"
   type="browser"
   duration="10"
-  >
+  unique="true">
     A pop-up was prevented from opening.
-    <unique/>
     <form name="form">
       <ignore name="ignore"
               control="MediaEnablePopups" 
