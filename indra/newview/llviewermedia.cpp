@@ -61,6 +61,8 @@
 //#include "llfirstuse.h"
 #include "llwindow.h"
 
+#include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
+
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
@@ -1366,6 +1368,38 @@ void LLViewerMedia::openIDCookieResponse(const std::string &cookie)
 	setOpenIDCookie();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::proxyWindowOpened(const std::string &target, const std::string &uuid)
+{
+	if(uuid.empty())
+		return;
+		
+	for (impl_list::iterator iter = sViewerMediaImplList.begin(); iter != sViewerMediaImplList.end(); iter++)
+	{
+		if((*iter)->mMediaSource && (*iter)->mMediaSource->pluginSupportsMediaBrowser())
+		{
+			(*iter)->mMediaSource->proxyWindowOpened(target, uuid);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::proxyWindowClosed(const std::string &uuid)
+{
+	if(uuid.empty())
+		return;
+
+	for (impl_list::iterator iter = sViewerMediaImplList.begin(); iter != sViewerMediaImplList.end(); iter++)
+	{
+		if((*iter)->mMediaSource && (*iter)->mMediaSource->pluginSupportsMediaBrowser())
+		{
+			(*iter)->mMediaSource->proxyWindowClosed(uuid);
+		}
+	}
+}
+
 bool LLViewerMedia::hasInWorldMedia()
 {
 	if (sInWorldMediaDisabled) return false;
@@ -1599,7 +1633,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	
@@ -1655,7 +1689,9 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
 			media_source->setJavascriptEnabled( javascript_enabled );
-
+			
+			media_source->setTarget(target);
+			
 			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
@@ -1706,7 +1742,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	// Save the MIME type that really caused the plugin to load
 	mCurrentMimeType = mMimeType;
 
-	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
+	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget);
 	
 	if (media_source)
 	{
@@ -2806,6 +2842,7 @@ bool LLViewerMediaImpl::isPlayable() const
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent event)
 {
+	bool pass_through = true;
 	switch(event)
 	{
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
@@ -2967,12 +3004,53 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		}
 		break;
 		
+		case LLViewerMediaObserver::MEDIA_EVENT_CLOSE_REQUEST:
+		{
+			std::string uuid = plugin->getClickUUID();
+
+			llinfos << "MEDIA_EVENT_CLOSE_REQUEST for uuid " << uuid << llendl;
+
+			if(uuid.empty())
+			{
+				// This close request is directed at this instance, let it fall through.
+			}
+			else
+			{
+				// This close request is directed at another instance
+				pass_through = false;
+				LLFloaterMediaBrowser::closeRequest(uuid);
+			}
+		}
+		break;
+
+		case LLViewerMediaObserver::MEDIA_EVENT_GEOMETRY_CHANGE:
+		{
+			std::string uuid = plugin->getClickUUID();
+
+			llinfos << "MEDIA_EVENT_GEOMETRY_CHANGE for uuid " << uuid << llendl;
+
+			if(uuid.empty())
+			{
+				// This geometry change request is directed at this instance, let it fall through.
+			}
+			else
+			{
+				// This request is directed at another instance
+				pass_through = false;
+				LLFloaterMediaBrowser::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
+			}
+		}
+		break;
+
 		default:
 		break;
 	}
 
-	// Just chain the event to observers.
-	emitEvent(plugin, event);
+	if(pass_through)
+	{
+		// Just chain the event to observers.
+		emitEvent(plugin, event);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

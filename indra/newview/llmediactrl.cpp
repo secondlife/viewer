@@ -575,6 +575,15 @@ void LLMediaCtrl::setHomePageUrl( const std::string& urlIn, const std::string& m
 	}
 }
 
+void LLMediaCtrl::setTarget(const std::string& target)
+{
+	mTarget = target;
+	if (mMediaSource)
+	{
+		mMediaSource->setTarget(mTarget);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned int blue)
@@ -616,6 +625,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 		{
 			mMediaSource->setUsedInUI(true);
 			mMediaSource->setHomeURL(mHomePageUrl, mHomePageMimeType);
+			mMediaSource->setTarget(mTarget);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
@@ -930,23 +940,14 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			// retrieve the event parameters
 			std::string url = self->getClickURL();
 			std::string target = self->getClickTarget();
-			U32 target_type = self->getClickTargetType();
-
-			switch (target_type)
+			std::string uuid = self->getClickUUID();
+			
+			if(gSavedSettings.getBOOL("MediaEnablePopups"))
 			{
-			case LLPluginClassMedia::TARGET_NONE:
-				// ignore this click and let media plugin handle it
-				break;
-			default:
-				if(gSavedSettings.getBOOL("MediaEnablePopups"))
-				{
-
-					LLNotificationsUtil::add("PopupAttempt", 
-						LLSD(), 
-						LLSD().with("source", mMediaID).with("target", target).with("url", url),
-						boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
-				}
-				break;
+				LLNotificationsUtil::add("PopupAttempt", 
+					LLSD(), 
+					LLSD().with("source", mMediaID).with("target", target).with("url", url).with("uuid", uuid),
+					boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
 			}
 		};
 
@@ -985,6 +986,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PICK_FILE_REQUEST" << LL_ENDL;
 		}
 		break;
+		
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+		{
+			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;
+		}
+		break;
 	};
 
 	// chain all events to any potential observers of this object.
@@ -1002,6 +1009,12 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 {
 	if (response["open"])
 	{
-		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"]);
+		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 	}
+	else
+	{
+		// Make sure the opening instance knows its window open request was denied, so it can clean things up.
+		LLViewerMedia::proxyWindowClosed(notification["payload"]["uuid"]);
+	}
+
 }

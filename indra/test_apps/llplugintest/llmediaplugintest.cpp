@@ -2218,6 +2218,10 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 			// TODO: display an actual file picker
 			self->sendPickFileResponse("cake");
 		break;
+
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+			std::cerr <<  "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << ", rect is " << self->getGeometryRect() << std::endl;
+		break;
 	}
 }
 

@@ -108,6 +108,8 @@ public:
 
 		void setHomePageUrl( const std::string& urlIn, const std::string& mime_type = LLStringUtil::null );
 		std::string getHomePageUrl();
+		
+		void setTarget(const std::string& target);
 
 		// set/clear URL to visit when a 404 page is reached
 		void set404RedirectUrl( std::string redirect_url );
@@ -174,6 +176,7 @@ public:
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
+		std::string mTarget;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;
 		viewer_media_t mMediaSource;
