@@ -1101,24 +1101,28 @@ namespace LLInitParam
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
+			bool new_value = false;
 			if (generation != typed_param.mLastParamGeneration || typed_param.mValues.empty())
 			{
+				new_value = true;
 				typed_param.mValues.push_back(value_t());
 				typed_param.mCachedKeys.push_back(Data());
-				typed_param.enclosingBlock().setLastChangedParam(param, true);
-				typed_param.mLastParamGeneration = generation;
 			}
 
-			value_t& value = typed_param.mValues.back();
+			value_ref_t value = typed_param.mValues.back();
 
 			// attempt to parse block...
 			if(value.deserializeBlock(parser, name_stack))
 			{
+				if (new_value)
+				{	// successfully parsed new value, let's keep it
+					typed_param.mLastParamGeneration = generation;
+				}
+				typed_param.enclosingBlock().setLastChangedParam(param, true);
 				typed_param.setProvided(true);
 				return true;
 			}
-
-			if(!NAME_VALUE_LOOKUP::empty())
+			else if(!NAME_VALUE_LOOKUP::empty())
 			{
 				// try to parse a known named value
 				std::string name;
@@ -1127,6 +1131,11 @@ namespace LLInitParam
 					// try to parse a per type named value
 					if (NAME_VALUE_LOOKUP::get(name, value))
 					{
+						if (new_value)
+						{	// successfully parsed new value, let's keep it
+							typed_param.mLastParamGeneration = generation;
+						}
+
 						typed_param.mCachedKeys.back().setKey(name);
 						typed_param.mCachedKeys.back().mKeyVersion = value.getLastChangeVersion();
 						typed_param.enclosingBlock().setLastChangedParam(param, true);
@@ -1135,6 +1144,12 @@ namespace LLInitParam
 					}
 
 				}
+			}
+
+			if (new_value)
+			{	// failed to parse new value, pop it off
+				typed_param.mValues.pop_back();
+				typed_param.mCachedKeys.pop_back();
 			}
 
 			return false;

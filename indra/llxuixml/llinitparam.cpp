@@ -178,7 +178,7 @@ namespace LLInitParam
 			param_handle_t param_handle = it->second->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = it->second->mSerializeFunc;
-			if (serialize_func)
+			if (serialize_func && param->getProvided())
 			{
 				// Ensure this param has not already been serialized
 				// Prevents <rect> from being serialized as its own tag.
