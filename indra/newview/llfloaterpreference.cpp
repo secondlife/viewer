@@ -798,7 +798,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = LLUI::sSettingGroups["ignores"]->getBOOL(templatep->mName);
+		bool show_popup = formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -1150,9 +1150,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		//gSavedSettings.setWarning(templatep->mName, TRUE);
-		std::string notification_name = templatep->mName;
-		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
+		templatep->mForm->setIgnored(false);
 	}
 	
 	buildPopupLists();
@@ -1166,7 +1164,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, TRUE);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
@@ -1179,7 +1177,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, FALSE);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }

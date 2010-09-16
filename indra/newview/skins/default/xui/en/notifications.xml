@@ -6461,14 +6461,13 @@ Mute everyone?
     <unique/>
     <form name="form">
       <ignore name="ignore"
-       text="Enable all pop-ups"/>
+              control="MediaEnablePopups" 
+              text="Enable all pop-ups"/>
       <button default="true"
               index="0"
               name="open"
               text="Open pop-up window"/>
     </form>
-
-
   </notification>
 
   

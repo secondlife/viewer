@@ -140,8 +140,9 @@ public:
 		bool getDecoupleTextureSize() { return mDecoupleTextureSize; }
 
 		void setTextureSize(S32 width, S32 height);
-		void setMediaID(const std::string& id) { mMediaID = id; }
 
+		void showNotification(boost::shared_ptr<class LLNotification> notify);
+		void hideNotification();
 
 		// over-rides
 		virtual BOOL handleKeyHere( KEY key, MASK mask);
@@ -164,6 +165,9 @@ public:
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
 		void onPopup(const LLSD& notification, const LLSD& response);
+		void onCloseNotification();
+		void onClickNotificationButton(const std::string& name);
+		void onClickIgnore(LLUICtrl* ctrl);
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
@@ -185,8 +189,8 @@ public:
 		bool mDecoupleTextureSize;
 		S32 mTextureWidth;
 		S32 mTextureHeight;
-		std::string mMediaID;
 		bool mClearCache;
+		boost::shared_ptr<class LLNotification> mCurNotification;
 };
 
 #endif // LL_LLMediaCtrl_H
