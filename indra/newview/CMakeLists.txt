@@ -91,6 +91,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallfloater.cpp
