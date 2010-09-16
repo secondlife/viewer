@@ -36,22 +36,6 @@ using namespace LLNotificationsUI;
 
 bool LLBrowserNotification::processNotification(const LLSD& notify)
 {
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if (notification)
-	{
-		LLFloaterMediaBrowser* browserp = dynamic_cast<LLFloaterMediaBrowser*>(LLFloaterReg::findInstance("media_browser", notification->getPayload()["source"]));
-		if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
-		{
-			if (browserp)
-			{
-				browserp->showNotification(notification);
-			}
-		}
-		else if (notify["sigtype"].asString() == "delete")
-		{
-			browserp->hideNotification();
-		}
-	}
+	// browser notifications are currently handled directly by the LLMediaCtrl instance that spawned them
 	return false;
 }

@@ -60,8 +60,6 @@ public:
 	void buildURLHistory();
 	std::string getSupportURL();
 	void setCurrentURL(const std::string& url);
-	void showNotification(boost::shared_ptr<LLNotification> notify);
-	void hideNotification();
 
 	static void onEnterAddress(LLUICtrl* ctrl, void* user_data);
 	static void onClickRefresh(void* user_data);
@@ -77,10 +75,6 @@ public:
 	static void onClickSeek(void* user_data);
 
 private:
-	void onCloseNotification();
-	void onClickIgnore(LLUICtrl* ctrl);
-	void onClickNotificationButton(const std::string& name);
-
 	LLMediaCtrl* mBrowser;
 	LLComboBox* mAddressCombo;
 	std::string mCurrentURL;
