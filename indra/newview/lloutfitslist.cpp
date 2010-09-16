@@ -85,7 +85,7 @@ public:
 
 		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
 
-		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitsList::isActionEnabled, mOutfitList, _2));
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
 		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
@@ -207,6 +207,20 @@ private:
 		}
 
 		LLAgentWearables::createWearable(type, true);
+	}
+
+	bool onEnable(LLSD::String param)
+	{
+		// Handle the "Wear - Replace Current Outfit" menu option specially
+		// because LLOutfitList::isActionEnabled() checks whether it's allowed
+		// to wear selected outfit OR selected items, while we're only
+		// interested in the outfit (STORM-183).
+		if ("wear" == param)
+		{
+			return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
+		}
+
+		return mOutfitList->isActionEnabled(param);
 	}
 
 	bool onVisible(LLSD::String param)
