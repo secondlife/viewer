@@ -41,9 +41,17 @@ public:
 
 	virtual void showGearMenu(LLView* spawning_view) = 0;
 
+	virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
+
 	static const std::string& getFilterSubString() { return sFilterSubString; }
 
 protected:
+
+	/**
+	 * Returns true if there are any items that can be taken off among currently selected, otherwise false.
+	 */
+	bool canTakeOffSelected();
+
 	static std::string		sFilterSubString;
 };
 

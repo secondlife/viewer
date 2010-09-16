@@ -29,6 +29,7 @@
 #include "llpanelwearing.h"
 
 #include "llappearancemgr.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llsidetray.h"
@@ -46,12 +47,16 @@ static void edit_outfit()
 class LLWearingGearMenu
 {
 public:
-	LLWearingGearMenu()
-	:	mMenu(NULL)
+	LLWearingGearMenu(LLPanelWearing* panel_wearing)
+	:	mMenu(NULL), mPanelWearing(panel_wearing)
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
 		registrar.add("Gear.Edit", boost::bind(&edit_outfit));
+		registrar.add("Gear.TakeOff", boost::bind(&LLWearingGearMenu::onTakeOff, this));
+
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
 
 		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
 			"menu_wearing_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -70,7 +75,20 @@ public:
 	}
 
 private:
+
+	void onTakeOff()
+	{
+		uuid_vec_t selected_uuids;
+		mPanelWearing->getSelectedItemsUUIDs(selected_uuids);
+
+		for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
+		{
+				LLAppearanceMgr::instance().removeItemFromAvatar(*it);
+		}
+	}
+
 	LLMenuGL*		mMenu;
+	LLPanelWearing* mPanelWearing;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -150,7 +168,7 @@ LLPanelWearing::LLPanelWearing()
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 
-	mGearMenu = new LLWearingGearMenu();
+	mGearMenu = new LLWearingGearMenu(this);
 	mContextMenu = new LLWearingContextMenu();
 }
 
@@ -226,6 +244,12 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 		// allow save only if outfit isn't locked and is dirty
 		return !outfit_locked && outfit_dirty;
 	}
+
+	if (command_name == "take_off")
+	{
+		return hasItemSelected() && canTakeOffSelected();
+	}
+
 	return false;
 }
 
@@ -253,6 +277,16 @@ void LLPanelWearing::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 	list->getSelectedUUIDs(selected_uuids);
 
 	mContextMenu->show(ctrl, selected_uuids, x, y);
+}
+
+bool LLPanelWearing::hasItemSelected()
+{
+	return mCOFItemsList->getSelectedItem() != NULL;
+}
+
+void LLPanelWearing::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
+{
+	mCOFItemsList->getSelectedUUIDs(selected_uuids);
 }
 
 // EOF

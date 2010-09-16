@@ -56,6 +56,7 @@
      left_pad="5"
      right="-3"
      name="profile_btn"
+     tab_stop="false"
      tool_tip="Show item info"
      top="1"
      visible="false"

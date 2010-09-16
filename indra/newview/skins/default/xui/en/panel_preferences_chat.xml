@@ -104,7 +104,7 @@
      layout="topleft"
      left="190"
      name="agent"
-     top_pad="-17"
+     top_pad="-15"
      width="44" >
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -135,7 +135,7 @@
      layout="topleft"
      left="360"
      name="im"
-     top_pad="-17"
+     top_pad="-15"
      width="44">
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -166,7 +166,7 @@
      layout="topleft"
      left="40"
      name="system"
-     top_pad="40"
+     top_pad="22"
      width="44" >
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -196,7 +196,7 @@
      layout="topleft"
      left="190"
      name="script_error"
-     top_pad="-17"
+     top_pad="-15"
      width="44">
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -226,7 +226,7 @@
      layout="topleft"
      left="360"
      name="objects"
-     top_pad="-17"
+     top_pad="-15"
      width="44" >
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -256,7 +256,7 @@
      layout="topleft"
      left="40"
      name="owner"
-     top_pad="40"
+     top_pad="22"
      width="44" >
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -286,7 +286,7 @@
      layout="topleft"
      left="190"
      name="links"
-     top_pad="-17"
+     top_pad="-15"
      width="44" >
 		<color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -316,7 +316,7 @@
      layout="topleft"
      left="30"
      name="play_typing_animation"
-     top_pad="40"
+     top_pad="32"
      width="400" />
     <check_box
      enabled="false"
@@ -343,7 +343,7 @@
      left="30"
      height="20"
      width="170"
-     top_pad="20">
+     top_pad="14">
      Show IMs in:
     </text>
     <text
@@ -386,4 +386,106 @@
       top_pad="5"
       width="150" />
     </radio_group>
+    <check_box
+     control_name="TranslateChat"
+     enabled="true"
+     height="16"
+     label="Use machine translation while chatting (powered by Google)"
+     layout="topleft"
+     left="30"
+     name="translate_chat_checkbox"
+     bottom_delta="40"
+     width="400" />
+    <text
+     bottom_delta="30"
+     name="translate_language_text"
+     follows="left|top"
+     layout="topleft"
+     left_delta="20"
+     height="20"
+     width="110">
+     Translate chat into: 
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     bottom_delta="3"
+     control_name="TranslateLanguage"
+     enabled="true"
+     follows="left|top"
+     height="23"
+     left_delta="110"
+     max_chars="135"
+     mouse_opaque="true"
+     name="translate_language_combobox"
+     width="146">
+        <combo_box.item
+         label="System Default"
+         name="System Default Language"
+         value="default" />
+        <combo_box.item
+         label="English"
+         name="English"
+         value="en" />
+        <!-- After "System Default" and "English", please keep the rest of these combo_box.items in alphabetical order by the first character in the string. -->
+        <combo_box.item
+         label="Dansk (Danish)"
+         name="Danish"
+         value="da" />
+        <combo_box.item
+         label="Deutsch (German)"
+         name="German"
+         value="de" />
+        <combo_box.item
+         label="Español (Spanish)"
+         name="Spanish"
+         value="es" />
+        <combo_box.item
+         label="Français (French)"
+         name="French"
+         value="fr" />
+        <combo_box.item
+         label="Italiano (Italian)"
+         name="Italian"
+         value="it" />
+        <combo_box.item
+         label="Magyar (Hungarian)"
+         name="Hungarian"
+         value="hu" />
+        <combo_box.item
+         label="Nederlands (Dutch)"
+         name="Dutch"
+         value="nl" />
+        <combo_box.item
+         label="Polski (Polish)"
+         name="Polish"
+         value="pl" />
+        <combo_box.item
+         label="Português (Portuguese)"
+         name="Portugese"
+         value="pt" />
+        <combo_box.item
+         label="Русский (Russian)"
+         name="Russian"
+         value="ru" />
+        <combo_box.item
+         label="Türkçe (Turkish)"
+         name="Turkish"
+         value="tr" />
+        <combo_box.item
+         label="Українська (Ukrainian)"
+         name="Ukrainian"
+         value="uk" />
+        <combo_box.item
+         label="中文 (简体) (Chinese)"
+         name="Chinese"
+         value="zh" />
+        <combo_box.item
+         label="日本語 (Japanese)"
+         name="Japanese"
+         value="ja" />
+        <combo_box.item
+         label="한국어 (Korean)"
+         name="Korean"
+         value="ko" />
+    </combo_box>
 </panel>

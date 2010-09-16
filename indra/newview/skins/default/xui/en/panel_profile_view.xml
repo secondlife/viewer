@@ -17,7 +17,7 @@
         Offline
     </string>
     <button
-     follows="top|right"
+     follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"
@@ -79,7 +79,7 @@
      width="150" />
     <tab_container
      follows="all"
-     height="537"
+     height="515"
      halign="center"
      layout="topleft"
      left="5"

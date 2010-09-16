@@ -217,7 +217,6 @@ public:
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
-	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
 
 	//--------------------------------------------------------------------

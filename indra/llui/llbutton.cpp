@@ -1117,7 +1117,7 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	// Get the visibility control name for the floater
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleFloaterInstance, sdname));
 }
@@ -1131,7 +1131,7 @@ void LLButton::setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	// Get the visibility control name for the floater
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLDockableFloater::toggleInstance, sdname));
 }

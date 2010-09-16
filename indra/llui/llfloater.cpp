@@ -499,7 +499,7 @@ void LLFloater::storeRectControl()
 {
 	if( mRectControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setRect( mRectControl, getRect() );
+		getControlGroup()->setRect( mRectControl, getRect() );
 	}
 }
 
@@ -507,7 +507,7 @@ void LLFloater::storeVisibilityControl()
 {
 	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
+		getControlGroup()->setBOOL( mVisibilityControl, getVisible() );
 	}
 }
 
@@ -515,10 +515,47 @@ void LLFloater::storeDockStateControl()
 {
 	if( !sQuitting && mDocStateControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mDocStateControl, isDocked() );
+		getControlGroup()->setBOOL( mDocStateControl, isDocked() );
 	}
 }
 
+LLRect LLFloater::getSavedRect() const
+{
+	LLRect rect;
+
+	if (mRectControl.size() > 1)
+	{
+		rect = getControlGroup()->getRect(mRectControl);
+	}
+
+	return rect;
+}
+
+bool LLFloater::hasSavedRect() const
+{
+	return !getSavedRect().isEmpty();
+}
+
+// static
+std::string LLFloater::getControlName(const std::string& name, const LLSD& key)
+{
+	std::string ctrl_name = name;
+
+	// Add the key to the control name if appropriate.
+	if (key.isString() && !key.asString().empty())
+	{
+		ctrl_name += "_" + key.asString();
+	}
+
+	return ctrl_name;
+}
+
+// static
+LLControlGroup*	LLFloater::getControlGroup()
+{
+	// Floater size, position, visibility, etc are saved in per-account settings.
+	return LLUI::sSettingGroups["account"];
+}
 
 void LLFloater::setVisible( BOOL visible )
 {
@@ -775,7 +812,7 @@ void LLFloater::applyRectControl()
 	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		if (rect.getWidth() > 0 && rect.getHeight() > 0)
 		{
 			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
@@ -791,7 +828,7 @@ void LLFloater::applyDockState()
 {
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
+		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
 		setDocked(dockState);
 	}
 
@@ -1954,6 +1991,7 @@ LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
 
 	mFocusCycleMode(FALSE),
+	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
 	mSnapOffsetRight(0)
 {
@@ -2664,18 +2702,20 @@ void LLFloater::setInstanceName(const std::string& name)
 	mInstanceName = name;
 	if (!mInstanceName.empty())
 	{
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
+
 		// save_rect and save_visibility only apply to registered floaters
 		if (!mRectControl.empty())
 		{
-			mRectControl = LLFloaterReg::declareRectControl(mInstanceName);
+			mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
 		}
 		if (!mVisibilityControl.empty())
 		{
-			mVisibilityControl = LLFloaterReg::declareVisibilityControl(mInstanceName);
+			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
 		}
 		if(!mDocStateControl.empty())
 		{
-			mDocStateControl = LLFloaterReg::declareDockStateControl(mInstanceName);
+			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
 
 	}

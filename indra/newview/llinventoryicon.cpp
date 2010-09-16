@@ -85,6 +85,8 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryIcon::ICONNAME_LINKITEM, 				new IconEntry("Inv_LinkItem"));
 	addEntry(LLInventoryIcon::ICONNAME_LINKFOLDER, 				new IconEntry("Inv_LinkItem"));
 
+	addEntry(LLInventoryIcon::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
+
 	addEntry(LLInventoryIcon::ICONNAME_NONE, 					new IconEntry("NONE"));
 }
 

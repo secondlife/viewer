@@ -12,6 +12,9 @@
  top="28"
  width="1310">
     <string
+     name="DragIndicationImageName"
+     value="Accordion_ArrowOpened_Off" />
+    <string
      name="SpeakBtnToolTip"
      value="Turns microphone on/off" />
     <string
@@ -135,7 +138,7 @@
          name="movement_panel"
          user_resize="false"
          width="83">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -152,7 +155,8 @@
                 <init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
-            </button>
+            </bottomtray_button>
+
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -165,7 +169,7 @@
          name="cam_panel"
          user_resize="false"
          width="83">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -183,7 +187,7 @@
                 <init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -195,7 +199,7 @@
          name="snapshot_panel"
          user_resize="false"
          width="39">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_overlay="Snapshot_Off"
@@ -212,7 +216,7 @@
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="snapshot" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -228,7 +232,7 @@
 <!--*FIX: Build Floater is not opened with default registration. Will be fixed soon.
 Disabled for now.
 -->
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -246,7 +250,7 @@ Disabled for now.
                 <commit_callback
                  function="Build.Toggle"
                  parameter="build" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -259,7 +263,7 @@ Disabled for now.
          name="search_btn_panel"
          user_resize="false"
          width="83">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -277,7 +281,7 @@ Disabled for now.
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="search" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -290,7 +294,7 @@ Disabled for now.
          name="world_map_btn_panel"
          user_resize="false"
          width="83">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -308,7 +312,7 @@ Disabled for now.
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="world_map" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -321,7 +325,7 @@ Disabled for now.
          name="mini_map_btn_panel"
          user_resize="false"
          width="83">
-            <button
+            <bottomtray_button
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -339,7 +343,7 @@ Disabled for now.
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="mini_map" />
-            </button>
+            </bottomtray_button>
         </layout_panel>
         <layout_panel
          follows="left|right"

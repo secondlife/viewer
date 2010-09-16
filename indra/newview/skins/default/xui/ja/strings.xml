@@ -1147,6 +1147,9 @@
 	<string name="InvFolder Favorite">
 		お気に入り
 	</string>
+	<string name="InvFolder favorite">
+		お気に入り
+	</string>
 	<string name="InvFolder Current Outfit">
 		着用中のアウトフィット
 	</string>

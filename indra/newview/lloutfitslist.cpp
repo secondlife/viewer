@@ -439,6 +439,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		if (!tab) continue;
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -455,10 +456,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			mAccordion->removeCollapsibleCtrl(tab);
 
 			// kill removed tab
-			if (tab != NULL)
-			{
-				tab->die();
-			}
+			tab->die();
 			continue;
 		}
 
@@ -972,23 +970,6 @@ void LLOutfitsList::applyFilterToTab(
 		// when some changes occur in it.
 		list->setForceRefresh(true);
 	}
-}
-
-bool LLOutfitsList::canTakeOffSelected()
-{
-	uuid_vec_t selected_uuids;
-	getSelectedItemsUUIDs(selected_uuids);
-
-	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
-
-	for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (!item) continue;
-
-		if (is_worn(NULL, item)) return true;
-	}
-	return false;
 }
 
 bool LLOutfitsList::canWearSelected()

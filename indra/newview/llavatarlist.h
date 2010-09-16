@@ -53,7 +53,8 @@ public:
 						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
 						show_info_btn,
 						show_profile_btn,
-						show_speaking_indicator;
+						show_speaking_indicator,
+						show_permissions_granted;
 		Params();
 	};
 
@@ -77,6 +78,7 @@ public:
 
 	void toggleIcons();
 	void setSpeakingIndicatorsVisible(bool visible);
+	void showPermissions(bool visible);
 	void sortByName();
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
@@ -118,6 +120,7 @@ private:
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
 	bool mShowSpeakingIndicator;
+	bool mShowPermissions;
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;

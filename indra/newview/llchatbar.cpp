@@ -126,7 +126,7 @@ BOOL LLChatBar::postBuild()
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
 
-	mInputEditor->setMaxTextLength(1023);
+	mInputEditor->setMaxTextLength(DB_CHAT_MSG_STR_LEN);
 	mInputEditor->setEnableLineHistory(TRUE);
 
 	mIsBuilt = TRUE;
@@ -569,8 +569,12 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL 
 	S32 channel = 0;
 	LLWString out_text = stripChannelNumber(wtext, &channel);
 	std::string utf8_out_text = wstring_to_utf8str(out_text);
-	std::string utf8_text = wstring_to_utf8str(wtext);
+	if (!utf8_out_text.empty())
+	{
+		utf8_out_text = utf8str_truncate(utf8_out_text, MAX_MSG_STR_LEN);
+	}
 
+	std::string utf8_text = wstring_to_utf8str(wtext);
 	utf8_text = utf8str_trim(utf8_text);
 	if (!utf8_text.empty())
 	{
@@ -673,11 +677,30 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		if (tokens.size() < 2) return false;
-		S32 channel = tokens[0].asInteger();
-		std::string mesg = tokens[1].asString();
-		send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
-		return true;
+		bool retval = false;
+		// Need at least 2 tokens to have a valid message.
+		if (tokens.size() < 2) 
+		{
+			retval = false;
+		}
+		else
+		{
+			S32 channel = tokens[0].asInteger();
+			// VWR-19499 Restrict function to chat channels greater than 0.
+			if ((channel > 0) && (channel < 2147483647))
+			{
+				retval = true;
+				// Say mesg on channel
+				std::string mesg = tokens[1].asString();
+				send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
+			}
+			else
+			{
+				retval = false;
+				// Tell us this is an unsupported SLurl.
+			}
+		}
+		return retval;
 	}
 };
 

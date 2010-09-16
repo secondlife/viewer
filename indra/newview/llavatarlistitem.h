@@ -37,6 +37,7 @@
 
 class LLAvatarIconCtrl;
 class LLAvatarName;
+class LLIconCtrl;
 
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
@@ -97,6 +98,7 @@ public:
 	void setShowProfileBtn(bool show);
 	void setShowInfoBtn(bool show);
 	void showSpeakingIndicator(bool show);
+	void setShowPermissions(bool show) { mShowPermissions = show; };
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
 	
@@ -117,6 +119,15 @@ protected:
 
 	LLAvatarIconCtrl* mAvatarIcon;
 
+	/// Indicator for permission to see me online.
+	LLIconCtrl* mIconPermissionOnline;
+	/// Indicator for permission to see my position on the map.
+	LLIconCtrl* mIconPermissionMap;
+	/// Indicator for permission to edit my objects.
+	LLIconCtrl* mIconPermissionEditMine;
+	/// Indicator for permission to edit their objects.
+	LLIconCtrl* mIconPermissionEditTheirs;
+
 private:
 
 	typedef enum e_online_status {
@@ -136,6 +147,10 @@ private:
 		ALIC_SPEAKER_INDICATOR,
 		ALIC_PROFILE_BUTTON,
 		ALIC_INFO_BUTTON,
+		ALIC_PERMISSION_EDIT_THEIRS,
+		ALIC_PERMISSION_EDIT_MINE,
+		ALIC_PERMISSION_MAP,
+		ALIC_PERMISSION_ONLINE,
 		ALIC_INTERACTION_TIME,
 		ALIC_NAME,
 		ALIC_ICON,
@@ -163,6 +178,13 @@ private:
 	void updateChildren();
 
 	/**
+	 * Update visibility of active permissions icons.
+	 *
+	 * Need to call updateChildren() afterwards to sort out their layout.
+	 */
+	bool showPermissions(bool visible);
+
+	/**
 	 * Gets child view specified by index.
 	 *
 	 * This method implemented via switch by all EAvatarListItemChildIndex values.
@@ -184,6 +206,12 @@ private:
 	//Speaker indicator and avatar name coords are translated accordingly
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
+
+	/// indicates whether to show icons representing permissions granted
+	bool mShowPermissions;
+
+	/// true when the mouse pointer is hovering over this item
+	bool mHovered;
 
 	static bool	sStaticInitialized; // this variable is introduced to improve code readability
 	static S32  sLeftPadding; // padding to first left visible child (icon or name)

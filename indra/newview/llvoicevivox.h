@@ -668,7 +668,10 @@ protected:
 
 private:
 	LLVoiceVersionInfo mVoiceVersion;
-		
+
+	/// Clean up objects created during a voice session.
+	void cleanUp();
+
 	state mState;
 	bool mSessionTerminateRequested;
 	bool mRelogRequested;

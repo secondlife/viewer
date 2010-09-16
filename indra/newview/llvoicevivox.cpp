@@ -390,7 +390,7 @@ LLVivoxVoiceClient::~LLVivoxVoiceClient()
 {
 }
 
-//----------------------------------------------
+//---------------------------------------------------
 
 void LLVivoxVoiceClient::init(LLPumpIO *pump)
 {
@@ -404,13 +404,26 @@ void LLVivoxVoiceClient::terminate()
 	{
 		logout();
 		connectorShutdown();
-		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.	
+		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
+		cleanUp();
 	}
 	else
 	{
 		killGateway();
 	}
 }
+
+//---------------------------------------------------
+
+void LLVivoxVoiceClient::cleanUp()
+{
+	deleteAllSessions();
+	deleteAllBuddies();
+	deleteAllVoiceFonts();
+	deleteVoiceFontTemplates();
+}
+
+//---------------------------------------------------
 
 const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
 {
@@ -780,14 +793,10 @@ void LLVivoxVoiceClient::stateMachine()
 	{
 		//MARK: stateDisableCleanup
 		case stateDisableCleanup:
-			// Clean up and reset everything. 
+			// Clean up and reset everything.
 			closeSocket();
-			deleteAllSessions();
-			deleteAllBuddies();
-			deleteAllVoiceFonts();
-			deleteVoiceFontTemplates();
+			cleanUp();
 
-			mConnectorHandle.clear();
 			mAccountHandle.clear();
 			mAccountPassword.clear();
 			mVoiceAccountServerURI.clear();
@@ -1679,12 +1688,9 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateLoggedOut
 		case stateLoggedOut:			// logout response received
 			
-			// Once we're logged out, all these things are invalid.
+			// Once we're logged out, these things are invalid.
 			mAccountHandle.clear();
-			deleteAllSessions();
-			deleteAllBuddies();
-			deleteAllVoiceFonts();
-			deleteVoiceFontTemplates();
+			cleanUp();
 
 			if(mVoiceEnabled && !mRelogRequested)
 			{
@@ -1782,6 +1788,8 @@ void LLVivoxVoiceClient::closeSocket(void)
 {
 	mSocket.reset();
 	mConnected = false;	
+	mConnectorHandle.clear();
+	mAccountHandle.clear();
 }
 
 void LLVivoxVoiceClient::loginSendMessage()
@@ -2374,8 +2382,7 @@ void LLVivoxVoiceClient::giveUp()
 {
 	// All has failed.  Clean up and stop trying.
 	closeSocket();
-	deleteAllSessions();
-	deleteAllBuddies();
+	cleanUp();
 	
 	setState(stateJail);
 }

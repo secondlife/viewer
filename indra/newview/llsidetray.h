@@ -76,9 +76,12 @@ public:
 	// interface functions
 	    
 	/**
-     * Select tab with specific name and set it active    
-     */
-	bool 		selectTabByName	(const std::string& name);
+	 * Select tab with specific name and set it active
+	 *
+	 * @param name				Tab to switch to.
+	 * @param keep_prev_visible	Whether to keep the previously selected tab visible.
+	 */
+	bool 		selectTabByName	(const std::string& name, bool keep_prev_visible = false);
 	
 	/**
      * Select tab with specific index and set it active    
@@ -119,8 +122,10 @@ public:
     
 	/*
      * expand SideBar
+     *
+     * @param open_active Whether to call onOpen() for the active tab.
      */
-	void		expandSideBar	();
+	void		expandSideBar(bool open_active = true);
 
 
 	/**
@@ -173,9 +178,12 @@ protected:
 	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
 									LLUICtrl::commit_callback_t callback);
 	void		arrange			();
+	void		detachTabs		();
 	void		reflectCollapseChange();
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
+
+	LLPanel*	openChildPanel	(LLSideTrayTab* tab, const std::string& panel_name, const LLSD& params);
 
 private:
 	// Implementation of LLDestroyClass<LLSideTray>
@@ -187,15 +195,11 @@ private:
 	}
 	
 private:
-
-	typedef std::pair<LLButton*, LLSideTrayTab*> detached_tab_t;
-	typedef std::map<std::string, detached_tab_t> detached_tab_map_t;
-
 	LLPanel*						mButtonsPanel;
 	typedef std::map<std::string,LLButton*> button_map_t;
 	button_map_t					mTabButtons;
 	child_vector_t					mTabs;
-	detached_tab_map_t				mDetachedTabs;
+	child_vector_t					mDetachedTabs;
 	tab_order_vector_t				mOriginalTabOrder;
 	LLSideTrayTab*					mActiveTab;	
 	
