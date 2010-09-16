@@ -1,6 +1,5 @@
 <?xml version="1.0" ?><notifications>
-
-  <global name="skipnexttime">
+    <global name="skipnexttime">
 
 		Don&apos;t show me this again
   </global>
@@ -2033,8 +2032,8 @@ Offer friendship to [NAME]?
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   label="Add Friend"
+ icon="alertmodal.tga"
+ label="Add Friend"
    name="AddFriendWithMessage"
    type="alertmodal">
 Friends can give permissions to track each other on the map and receive online status updates.
@@ -6454,7 +6453,10 @@ Mute everyone?
 
   <notification
   name="PopupAttempt"
-  type="browser">
+  icon="Popup_Caution"
+  type="browser"
+  duration="10"
+  >
     A pop-up was prevented from opening.
     <unique/>
     <form name="form">
