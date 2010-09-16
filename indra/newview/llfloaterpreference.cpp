@@ -57,6 +57,7 @@
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llnotificationtemplate.h"
 #include "llpanellogin.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"
