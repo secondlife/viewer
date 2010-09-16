@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llnotifications.h"
+#include "llnotificationtemplate.h"
 
 #include "llinstantmessage.h"
 #include "llxmlnode.h"
@@ -54,233 +55,6 @@ void NotificationPriorityValues::declareValues()
 	declare("critical", NOTIFICATION_PRIORITY_CRITICAL);
 }
 
-
-namespace LLNotificationTemplateParams
-{
-	using namespace LLInitParam;
-
-	struct GlobalString : public Block<GlobalString>
-	{
-		Mandatory<std::string>	name,
-								value;
-
-		GlobalString()
-		:	name("name"),
-			value("value")
-		{}
-	};
-
-	struct UniquenessContext : public Block<UniquenessContext>
-	{
-		Mandatory<std::string>	key;
-
-		UniquenessContext()
-		:	key("key")
-		{}
-		
-	};
-
-	struct UniquenessConstraint : public Block<UniquenessConstraint>
-	{
-		Multiple<UniquenessContext>	contexts;
-
-		UniquenessConstraint()
-		:	contexts("context")
-		{}
-	};
-
-	struct FormElementBase : public Block<FormElementBase>
-	{
-		Mandatory<std::string>	name;
-
-		FormElementBase()
-		:	name("name")
-		{}
-	};
-
-	struct FormIgnore : public Block<FormIgnore, FormElementBase>
-	{
-		Optional<std::string>	text;
-		Optional<bool>			save_option;
-
-		FormIgnore()
-		:	text("text"),
-			save_option("save_option", false)
-		{}
-	};
-
-	struct FormButton : public Block<FormButton, FormElementBase>
-	{
-		Mandatory<S32>			index;
-		Mandatory<std::string>	text;
-		Optional<std::string>	ignore;
-		Optional<bool>			is_default;
-
-		Mandatory<std::string>	type;
-
-		FormButton()
-		:	index("index"),
-			text("text"),
-			ignore("ignore"),
-			is_default("default"),
-			type("type")
-		{
-			// set type here so it gets serialized
-			type = "button";
-		}
-	};
-
-	struct FormInput : public Block<FormInput, FormElementBase>
-	{
-		Mandatory<std::string>	type;
-		Optional<S32>			width;
-
-		FormInput()
-		:	type("type"),
-			width("width", 0)
-		{}
-	};
-
-	struct FormElement : public Choice<FormElement>
-	{
-		Alternative<FormButton> button;
-		Alternative<FormInput>	input;
-
-		FormElement()
-		:	button("button"),
-			input("input")
-		{}
-	};
-
-	struct FormElements : public Block<FormElements>
-	{
-		Multiple<FormElement> elements;
-		FormElements()
-		:	elements("")
-		{}
-	};
-
-	struct Form : public Block<Form>
-	{
-		Optional<std::string>	name;
-		Optional<FormIgnore>	ignore;
-		Optional<FormElements>	form_elements;
-
-		Form()
-		:	name("form"),
-			ignore("ignore"),
-			form_elements("")
-		{}
-	};
-
-	// Templates are used to define common form types, such as OK/Cancel dialogs, etc.
-
-	struct Template : public Block<Template>
-	{
-		Mandatory<std::string>	name;
-		Mandatory<Form>			form;
-
-		Template()
-		:	name("name"),
-			form("form")
-		{}
-	};
-
-	// Reference a template to use its form elements
-	struct TemplateRef : public Block<TemplateRef>
-	{
-		Mandatory<std::string>	name;
-		Optional<std::string>	yes_text,
-								no_text,
-								cancel_text,
-								ignore_text;
-
-		TemplateRef()
-		:	name("name"),
-			yes_text("yestext"),
-			no_text("notext"),
-			cancel_text("canceltext"),
-			ignore_text("ignoretext")
-		{}
-	};
-
-	struct URL : public Block<URL>
-	{
-		Mandatory<S32>			option;
-		Mandatory<std::string>	value;
-		Optional<std::string>	target;
-		Ignored					name;
-
-		URL()
-		:	option("option", -1),
-			value("value"),
-			target("target", "_blank"),
-			name("name")
-		{}
-	};
-
-	struct FormRef : public Choice<FormRef>
-	{
-		Alternative<Form>			form;
-		Alternative<TemplateRef>	form_template;
-
-		FormRef()
-		:	form("form"),
-			form_template("usetemplate")
-		{}
-	};
-
-	struct Notification : public Block<Notification>
-	{
-		Mandatory<std::string>			name;
-		Optional<bool>					persist;
-		Optional<std::string>			functor,
-										icon,
-										label,
-										sound,
-										type,
-										value;
-		Optional<U32>					duration;
-		Optional<S32>					expire_option;
-		Optional<URL>					url;
-		Optional<UniquenessConstraint>	unique;
-		Optional<FormRef>				form_ref;
-		Optional<ENotificationPriority, 
-			NotificationPriorityValues> priority;
-
-
-		Notification()
-		:	name("name"),
-			persist("persist", false),
-			functor("functor"),
-			icon("icon"),
-			label("label"),
-			priority("priority"),
-			sound("sound"),
-			type("type"),
-			value("value"),
-			duration("duration"),
-			expire_option("expireOption", -1),
-			url("url"),
-			unique("unique"),
-			form_ref("")
-		{}
-
-	};
-
-	struct Notifications : public Block<Notifications>
-	{
-		Multiple<GlobalString>	strings;
-		Multiple<Template>		templates;
-		Multiple<Notification>	notifications;
-
-		Notifications()
-		:	strings("global"),
-			notifications("notification"),
-			templates("template")
-		{}
-	};
-}
 
 // Local channel for persistent notifications
 // Stores only persistent notifications.
@@ -378,7 +152,7 @@ LLNotificationForm::LLNotificationForm()
 }
 
 
-LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationTemplateParams::Form& p) 
+LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationForm::Params& p) 
 :	mIgnore(IGNORE_NO)
 {
 	if (p.ignore.isProvided())
@@ -403,6 +177,15 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 	LLParamSDParser parser;
 	parser.writeSD(mFormData, p.form_elements);
 
+	mFormData = mFormData[""];
+	if (!mFormData.isArray())
+	{
+		// change existing contents to a one element array
+		LLSD new_llsd_array = LLSD::emptyArray();
+		new_llsd_array.append(mFormData);
+		mFormData = new_llsd_array;
+	}
+
 	for (LLSD::array_iterator it = mFormData.beginArray(), end_it = mFormData.endArray();
 		it != end_it;
 		++it)
@@ -413,7 +196,9 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 			*it = it->beginMap()->second;
 		}
 	}
-	//llinfos << ll_pretty_print_sd(mFormData) << llendl;
+
+	LL_DEBUGS("Notifications") << name << LL_ENDL;
+	LL_DEBUGS("Notifications") << ll_pretty_print_sd(mFormData) << LL_ENDL;
 }
 
 LLNotificationForm::LLNotificationForm(const LLSD& sd)
@@ -515,7 +300,7 @@ std::string LLNotificationForm::getDefaultOption()
 	return "";
 }
 
-LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplateParams::Notification& p)
+LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Params& p)
 :	mName(p.name),
 	mType(p.type),
 	mMessage(p.value),
@@ -537,7 +322,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplateParam
 		mSoundEffect = LLUUID(LLUI::sSettingGroups["config"]->getString(p.sound));
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplateParams::UniquenessContext>::const_iterator it = p.unique.contexts().begin(),
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::UniquenessContext>::const_iterator it = p.unique.contexts().begin(),
 			end_it = p.unique.contexts().end();
 		it != end_it;
 		++it)
@@ -770,6 +555,43 @@ void LLNotification::respond(const LLSD& response)
 
 	update();
 }
+
+const std::string& LLNotification::getName() const
+{
+	return mTemplatep->mName;
+}
+
+const std::string& LLNotification::getIcon() const
+{
+	return mTemplatep->mIcon;
+}
+
+
+bool LLNotification::isPersistent() const
+{
+	return mTemplatep->mPersist;
+}
+
+std::string LLNotification::getType() const
+{
+	return (mTemplatep ? mTemplatep->mType : "");
+}
+
+S32 LLNotification::getURLOption() const
+{
+	return (mTemplatep ? mTemplatep->mURLOption : -1);
+}
+
+S32 LLNotification::getURLOpenExternally() const
+{
+	return(mTemplatep? mTemplatep->mURLTarget == "_external": -1);
+}
+
+bool LLNotification::hasUniquenessConstraints() const 
+{ 
+	return (mTemplatep ? mTemplatep->mUnique : false);
+}
+
 
 void LLNotification::setIgnored(bool ignore)
 {
@@ -1400,13 +1222,13 @@ void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 	}
 }
 
-void replaceFormText(LLNotificationTemplateParams::Form& form, const std::string& pattern, const std::string& replace)
+void replaceFormText(LLNotificationForm::Params& form, const std::string& pattern, const std::string& replace)
 {
 	if (form.ignore.isProvided() && form.ignore.text() == pattern)
 	{
 		form.ignore.text = replace;
 	}
-	for (LLInitParam::ParamIterator<LLNotificationTemplateParams::FormElement>::iterator it = form.form_elements.elements().begin(),
+	for (LLInitParam::ParamIterator<LLNotificationForm::FormElement>::iterator it = form.form_elements.elements().begin(),
 			end_it = form.form_elements.elements().end();
 		it != end_it;
 		++it)
@@ -1432,29 +1254,29 @@ bool LLNotifications::loadTemplates()
 		return false;
 	}
 
-	LLNotificationTemplateParams::Notifications params;
+	LLNotificationTemplate::Notifications params;
 	LLXUIParser parser;
 	parser.readXUI(root, params, full_filename);
 
 	mTemplates.clear();
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplateParams::GlobalString>::const_iterator it = params.strings().begin(), end_it = params.strings().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::GlobalString>::const_iterator it = params.strings().begin(), end_it = params.strings().end();
 		it != end_it;
 		++it)
 	{
 		mGlobalStrings[it->name] = it->value;
 	}
 
-	std::map<std::string, LLNotificationTemplateParams::Form> form_templates;
+	std::map<std::string, LLNotificationForm::Params> form_templates;
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplateParams::Template>::const_iterator it = params.templates().begin(), end_it = params.templates().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::Template>::const_iterator it = params.templates().begin(), end_it = params.templates().end();
 		it != end_it;
 		++it)
 	{
 		form_templates[it->name] = it->form;
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplateParams::Notification>::iterator it = params.notifications().begin(), end_it = params.notifications().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::Params>::iterator it = params.notifications().begin(), end_it = params.notifications().end();
 		it != end_it;
 		++it)
 	{
@@ -1532,6 +1354,8 @@ LLNotificationPtr LLNotifications::add(const LLNotification::Params& p)
 
 void LLNotifications::add(const LLNotificationPtr pNotif)
 {
+	if (pNotif == NULL) return;
+
 	// first see if we already have it -- if so, that's a problem
 	LLNotificationSet::iterator it=mItems.find(pNotif);
 	if (it != mItems.end())
@@ -1544,6 +1368,8 @@ void LLNotifications::add(const LLNotificationPtr pNotif)
 
 void LLNotifications::cancel(LLNotificationPtr pNotif)
 {
+	if (pNotif == NULL) return;
+
 	LLNotificationSet::iterator it=mItems.find(pNotif);
 	if (it == mItems.end())
 	{

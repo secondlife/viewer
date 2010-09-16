@@ -100,7 +100,6 @@
 #include "llnotificationptr.h"
 #include "llcachename.h"
 
-	
 typedef enum e_notification_priority
 {
 	NOTIFICATION_PRIORITY_UNSPECIFIED,
@@ -113,13 +112,6 @@ typedef enum e_notification_priority
 struct NotificationPriorityValues : public LLInitParam::TypeValuesHelper<ENotificationPriority, NotificationPriorityValues>
 {
 	static void declareValues();
-};
-
-namespace LLNotificationTemplateParams
-{
-	struct Notification;
-	struct Form;
-	struct Template;
 };
 
 class LLNotificationResponderInterface
@@ -169,6 +161,90 @@ class LLNotificationForm
 	LOG_CLASS(LLNotificationForm);
 
 public:
+	struct FormElementBase : public LLInitParam::Block<FormElementBase>
+	{
+		Mandatory<std::string>	name;
+
+		FormElementBase()
+		:	name("name")
+		{}
+	};
+
+	struct FormIgnore : public LLInitParam::Block<FormIgnore, FormElementBase>
+	{
+		Optional<std::string>	text;
+		Optional<bool>			save_option;
+
+		FormIgnore()
+		:	text("text"),
+			save_option("save_option", false)
+		{}
+	};
+
+	struct FormButton : public LLInitParam::Block<FormButton, FormElementBase>
+	{
+		Mandatory<S32>			index;
+		Mandatory<std::string>	text;
+		Optional<std::string>	ignore;
+		Optional<bool>			is_default;
+
+		Mandatory<std::string>	type;
+
+		FormButton()
+		:	index("index"),
+			text("text"),
+			ignore("ignore"),
+			is_default("default"),
+			type("type")
+		{
+			// set type here so it gets serialized
+			type = "button";
+		}
+	};
+
+	struct FormInput : public LLInitParam::Block<FormInput, FormElementBase>
+	{
+		Mandatory<std::string>	type;
+		Optional<S32>			width;
+
+		FormInput()
+		:	type("type"),
+			width("width", 0)
+		{}
+	};
+
+	struct FormElement : public LLInitParam::Choice<FormElement>
+	{
+		Alternative<FormButton> button;
+		Alternative<FormInput>	input;
+
+		FormElement()
+		:	button("button"),
+			input("input")
+		{}
+	};
+
+	struct FormElements : public LLInitParam::Block<FormElements>
+	{
+		Multiple<FormElement> elements;
+		FormElements()
+		:	elements("")
+		{}
+	};
+
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Optional<std::string>	name;
+		Optional<FormIgnore>	ignore;
+		Optional<FormElements>	form_elements;
+
+		Params()
+		:	name("name"),
+			ignore("ignore"),
+			form_elements("")
+		{}
+	};
+
 	typedef enum e_ignore_type
 	{ 
 		IGNORE_NO,
@@ -179,7 +255,7 @@ public:
 
 	LLNotificationForm();
 	LLNotificationForm(const LLSD& sd);
-	LLNotificationForm(const std::string& name, const LLNotificationTemplateParams::Form& p);
+	LLNotificationForm(const std::string& name, const Params& p);
 
 	LLSD asLLSD() const;
 
@@ -205,80 +281,7 @@ private:
 typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 
 
-// This is the class of object read from the XML file (notifications.xml, 
-// from the appropriate local language directory).
-struct LLNotificationTemplate
-{
-	LLNotificationTemplate(const LLNotificationTemplateParams::Notification& p);
-    // the name of the notification -- the key used to identify it
-    // Ideally, the key should follow variable naming rules 
-    // (no spaces or punctuation).
-    std::string mName;
-    // The type of the notification
-    // used to control which queue it's stored in
-    std::string mType;
-    // The text used to display the notification. Replaceable parameters
-    // are enclosed in square brackets like this [].
-    std::string mMessage;
-	// The label for the notification; used for 
-	// certain classes of notification (those with a window and a window title). 
-	// Also used when a notification pops up underneath the current one.
-	// Replaceable parameters can be used in the label.
-	std::string mLabel;
-	// The name of the icon image. This should include an extension.
-	std::string mIcon;
-    // This is the Highlander bit -- "There Can Be Only One"
-    // An outstanding notification with this bit set
-    // is updated by an incoming notification with the same name,
-    // rather than creating a new entry in the queue.
-    // (used for things like progress indications, or repeating warnings
-    // like "the grid is going down in N minutes")
-    bool mUnique;
-    // if we want to be unique only if a certain part of the payload is constant
-    // specify the field names for the payload. The notification will only be
-    // combined if all of the fields named in the context are identical in the
-    // new and the old notification; otherwise, the notification will be
-    // duplicated. This is to support suppressing duplicate offers from the same
-    // sender but still differentiating different offers. Example: Invitation to
-    // conference chat.
-    std::vector<std::string> mUniqueContext;
-    // If this notification expires automatically, this value will be 
-    // nonzero, and indicates the number of seconds for which the notification
-    // will be valid (a teleport offer, for example, might be valid for 
-    // 300 seconds). 
-    U32 mExpireSeconds;
-    // if the offer expires, one of the options is chosen automatically
-    // based on its "value" parameter. This controls which one. 
-    // If expireSeconds is specified, expireOption should also be specified.
-    U32 mExpireOption;
-    // if the notification contains a url, it's stored here (and replaced 
-    // into the message where [_URL] is found)
-    std::string mURL;
-    // if there's a URL in the message, this controls which option visits
-    // that URL. Obsolete this and eliminate the buttons for affected
-    // messages when we allow clickable URLs in the UI
-    U32 mURLOption;
-	
-	std::string mURLTarget;
-	//This is a flag that tells if the url needs to open externally dispite 
-	//what the user setting is.
-	
-	// does this notification persist across sessions? if so, it will be
-	// serialized to disk on first receipt and read on startup
-	bool mPersist;
-	// This is the name of the default functor, if present, to be
-	// used for the notification's callback. It is optional, and used only if 
-	// the notification is constructed without an identified functor.
-	std::string mDefaultFunctor;
-	// The form data associated with a given notification (buttons, text boxes, etc)
-    LLNotificationFormPtr mForm;
-	// default priority for notifications of this type
-	ENotificationPriority mPriority;
-	// UUID of the audio file to be played when this notification arrives
-	// this is loaded as a name, but looked up to get the UUID upon template load.
-	// If null, it wasn't specified.
-	LLUUID mSoundEffect;
-};
+struct LLNotificationTemplate;
 
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
@@ -481,15 +484,11 @@ public:
 		return mIgnored;
 	}
 
-	const std::string& getName() const
-	{
-		return mTemplatep->mName;
-	}
+	const std::string& getName() const;
 
-	bool isPersistent() const
-	{
-		return mTemplatep->mPersist;
-	}
+	const std::string& getIcon() const;
+
+	bool isPersistent() const;
 
 	const LLUUID& id() const
 	{
@@ -511,28 +510,12 @@ public:
 		return mTimestamp;
 	}
 
-	std::string getType() const
-	{
-		return (mTemplatep ? mTemplatep->mType : "");
-	}
-
+	std::string getType() const;
 	std::string getMessage() const;
 	std::string getLabel() const;
-
 	std::string getURL() const;
-//	{
-//		return (mTemplatep ? mTemplatep->mURL : "");
-//	}
-
-	S32 getURLOption() const
-	{
-		return (mTemplatep ? mTemplatep->mURLOption : -1);
-	}
-    
-	S32 getURLOpenExternally() const
-	{
-		return(mTemplatep? mTemplatep->mURLTarget == "_external": -1);
-	}
+	S32 getURLOption() const;
+    S32 getURLOpenExternally() const;
 	
 	const LLNotificationFormPtr getForm();
 
@@ -602,7 +585,7 @@ public:
 	
 	std::string summarize() const;
 
-	bool hasUniquenessConstraints() const { return (mTemplatep ? mTemplatep->mUnique : false);}
+	bool hasUniquenessConstraints() const;
 
 	virtual ~LLNotification() {}
 };
