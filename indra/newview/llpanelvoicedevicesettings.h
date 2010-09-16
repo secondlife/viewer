@@ -58,26 +58,4 @@ protected:
 	BOOL mDevicesUpdated;
 };
 
-class LLFloaterVoiceDeviceSettings : public LLFloater
-{
-	friend class LLFloaterReg;
-
-public:
-
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_settings);
-	/*virtual*/ void draw();
-	void apply();
-	void cancel();
-private:
-	LLFloaterVoiceDeviceSettings(const LLSD& seed);
-	
-protected:
-	static void* createPanelVoiceDeviceSettings(void* user_data);
-		
-protected:
-	LLPanelVoiceDeviceSettings* mDevicePanel;
-};
-
 #endif // LL_LLFLOATERVOICEDEVICESETTINGS_H

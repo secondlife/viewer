@@ -1,5 +1,5 @@
 /** 
- * @file llfloatervoicedevicesettings.cpp
+ * @file llpanelvoicedevicesettings.cpp
  * @author Richard Nelson
  * @brief Voice communication set-up 
  *
@@ -27,7 +27,7 @@
  
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloatervoicedevicesettings.h"
+#include "llpanelvoicedevicesettings.h"
 
 // Viewer includes
 #include "llbutton.h"
@@ -319,75 +319,4 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user
 	{
 		LLVoiceClient::getInstance()->setRenderDevice(ctrl->getValue().asString());
 	}
-}
-
-//
-// LLFloaterVoiceDeviceSettings
-//
-
-LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
-	: LLFloater(seed),
-	  mDevicePanel(NULL)
-{
-	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
-	// do not automatically open singleton floaters (as result of getInstance())
-//	BOOL no_open = FALSE;
-//	Called from floater reg:  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);	
-}
-BOOL LLFloaterVoiceDeviceSettings::postBuild()
-{
-	center();
-	return TRUE;
-}
-
-// virtual
-void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
-{
-	if(mDevicePanel)
-	{
-		mDevicePanel->initialize();
-	}
-}
-
-// virtual
-void LLFloaterVoiceDeviceSettings::onClose(bool app_settings)
-{
-	if(mDevicePanel)
-	{
-		mDevicePanel->apply();
-		mDevicePanel->cleanup();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::apply()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->apply();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::cancel()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->cancel();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::draw()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->refresh();
-	}
-	LLFloater::draw();
-}
-
-// static
-void* LLFloaterVoiceDeviceSettings::createPanelVoiceDeviceSettings(void* user_data)
-{
-	LLFloaterVoiceDeviceSettings* floaterp = (LLFloaterVoiceDeviceSettings*)user_data;
-	floaterp->mDevicePanel = new LLPanelVoiceDeviceSettings();
-	return floaterp->mDevicePanel;
 }
