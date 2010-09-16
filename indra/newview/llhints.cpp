@@ -360,7 +360,7 @@ void LLHints::hideAll()
 		it != end_it;
 		++it)
 	{
-		LLNotifications::instance().cancel(*it);
+		hide(*it);
 	}
 
 }
