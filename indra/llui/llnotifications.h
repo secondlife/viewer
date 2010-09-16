@@ -163,22 +163,19 @@ class LLNotificationForm
 public:
 	struct FormElementBase : public LLInitParam::Block<FormElementBase>
 	{
-		Mandatory<std::string>	name;
+		Optional<std::string>	name;
 
-		FormElementBase()
-		:	name("name")
-		{}
+		FormElementBase();
 	};
 
 	struct FormIgnore : public LLInitParam::Block<FormIgnore, FormElementBase>
 	{
 		Optional<std::string>	text;
 		Optional<bool>			save_option;
+		Optional<std::string>	control;
+		Optional<bool>			invert_control;
 
-		FormIgnore()
-		:	text("text"),
-			save_option("save_option", false)
-		{}
+		FormIgnore();
 	};
 
 	struct FormButton : public LLInitParam::Block<FormButton, FormElementBase>
@@ -190,16 +187,7 @@ public:
 
 		Mandatory<std::string>	type;
 
-		FormButton()
-		:	index("index"),
-			text("text"),
-			ignore("ignore"),
-			is_default("default"),
-			type("type")
-		{
-			// set type here so it gets serialized
-			type = "button";
-		}
+		FormButton();
 	};
 
 	struct FormInput : public LLInitParam::Block<FormInput, FormElementBase>
@@ -207,10 +195,7 @@ public:
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
 
-		FormInput()
-		:	type("type"),
-			width("width", 0)
-		{}
+		FormInput();
 	};
 
 	struct FormElement : public LLInitParam::Choice<FormElement>
@@ -218,18 +203,13 @@ public:
 		Alternative<FormButton> button;
 		Alternative<FormInput>	input;
 
-		FormElement()
-		:	button("button"),
-			input("input")
-		{}
+		FormElement();
 	};
 
 	struct FormElements : public LLInitParam::Block<FormElements>
 	{
 		Multiple<FormElement> elements;
-		FormElements()
-		:	elements("")
-		{}
+		FormElements();
 	};
 
 	struct Params : public LLInitParam::Block<Params>
@@ -238,11 +218,7 @@ public:
 		Optional<FormIgnore>	ignore;
 		Optional<FormElements>	form_elements;
 
-		Params()
-		:	name("name"),
-			ignore("ignore"),
-			form_elements("")
-		{}
+		Params();
 	};
 
 	typedef enum e_ignore_type
@@ -268,14 +244,19 @@ public:
 	// appends form elements from another form serialized as LLSD
 	void append(const LLSD& sub_form);
 	std::string getDefaultOption();
+	LLPointer<class LLControlVariable> getIgnoreSetting();
+	bool getIgnored();
+	void setIgnored(bool ignored);
 
 	EIgnoreType getIgnoreType() { return mIgnore; }
 	std::string getIgnoreMessage() { return mIgnoreMsg; }
 
 private:
-	LLSD	mFormData;
-	EIgnoreType mIgnore;
-	std::string mIgnoreMsg;
+	LLSD								mFormData;
+	EIgnoreType							mIgnore;
+	std::string							mIgnoreMsg;
+	LLPointer<class LLControlVariable>	mIgnoreSetting;
+	bool								mInvertSetting;
 };
 
 typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;

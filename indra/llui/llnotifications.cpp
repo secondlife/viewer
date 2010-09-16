@@ -55,6 +55,47 @@ void NotificationPriorityValues::declareValues()
 	declare("critical", NOTIFICATION_PRIORITY_CRITICAL);
 }
 
+LLNotificationForm::FormElementBase::FormElementBase()
+:	name("name")
+{}
+
+LLNotificationForm::FormIgnore::FormIgnore()
+:	text("text"),
+	control("control"),
+	invert_control("invert_control", false),
+	save_option("save_option", false)
+{}
+
+LLNotificationForm::FormButton::FormButton()
+:	index("index"),
+	text("text"),
+	ignore("ignore"),
+	is_default("default"),
+	type("type")
+{
+	// set type here so it gets serialized
+	type = "button";
+}
+
+LLNotificationForm::FormInput::FormInput()
+:	type("type"),
+	width("width", 0)
+{}
+
+LLNotificationForm::FormElement::FormElement()
+:	button("button"),
+	input("input")
+{}
+
+LLNotificationForm::FormElements::FormElements()
+:	elements("")
+{}
+
+LLNotificationForm::Params::Params()
+:	name("name"),
+	ignore("ignore"),
+	form_elements("")
+{}
 
 // Local channel for persistent notifications
 // Stores only persistent notifications.
@@ -100,12 +141,7 @@ bool filterIgnoredNotifications(LLNotificationPtr notification)
 
 	LLNotificationFormPtr form = notification->getForm();
 	// Check to see if the user wants to ignore this alert
-	if (form->getIgnoreType() != LLNotificationForm::IGNORE_NO)
-	{
-		return LLUI::sSettingGroups["ignores"]->getBOOL(notification->getName());
-	}
-
-	return true;
+	return !notification->getForm()->getIgnored();
 }
 
 bool handleIgnoredNotification(const LLSD& payload)
@@ -153,7 +189,8 @@ LLNotificationForm::LLNotificationForm()
 
 
 LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationForm::Params& p) 
-:	mIgnore(IGNORE_NO)
+:	mIgnore(IGNORE_NO),
+	mInvertSetting(false)
 {
 	if (p.ignore.isProvided())
 	{
@@ -171,7 +208,16 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		}
 
 		BOOL show_notification = TRUE;
-		LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Ignore notification with this name", TRUE);
+		if (p.ignore.control.isProvided())
+		{
+			mIgnoreSetting = LLUI::sSettingGroups["config"]->getControl(p.ignore.control);
+			mInvertSetting = p.ignore.invert_control;
+		}
+		else
+		{
+			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Ignore notification with this name", TRUE);
+			mIgnoreSetting = LLUI::sSettingGroups["ignores"]->getControl(name);
+		}
 	}
 
 	LLParamSDParser parser;
@@ -298,6 +344,27 @@ std::string LLNotificationForm::getDefaultOption()
 		if ((*it)["default"]) return (*it)["name"].asString();
 	}
 	return "";
+}
+
+LLControlVariablePtr LLNotificationForm::getIgnoreSetting() 
+{ 
+	return mIgnoreSetting; 
+}
+
+bool LLNotificationForm::getIgnored()
+{
+	if (mIgnore != LLNotificationForm::IGNORE_NO
+		&& mIgnoreSetting) 
+	{
+		return mIgnoreSetting->getValue().asBoolean() != mInvertSetting;
+	}
+
+	return false;
+}
+
+void LLNotificationForm::setIgnored(bool ignored)
+{
+	if (mIgnoreSetting) mIgnoreSetting->setValue(ignored != mInvertSetting);
 }
 
 LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Params& p)
@@ -545,8 +612,8 @@ void LLNotification::respond(const LLSD& response)
 
 	if (mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 	{
-		BOOL show_notification = mIgnored ? FALSE : TRUE;
-		LLUI::sSettingGroups["ignores"]->setBOOL(getName(), show_notification);
+		bool show_notification = !mIgnored;
+		mForm->setIgnored(!show_notification);
 		if (mIgnored && mForm->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 		{
 			LLUI::sSettingGroups["ignores"]->setLLSD("Default" + getName(), response);
@@ -1294,11 +1361,11 @@ bool LLNotifications::loadTemplates()
 			}
 			if(it->form_ref.form_template.cancel_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$cancel_text", it->form_ref.form_template.cancel_text);
+				replaceFormText(it->form_ref.form, "$canceltext", it->form_ref.form_template.cancel_text);
 			}
 			if(it->form_ref.form_template.ignore_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$ignore_text", it->form_ref.form_template.ignore_text);
+				replaceFormText(it->form_ref.form, "$ignoretext", it->form_ref.form_template.ignore_text);
 			}
 		}
 		addTemplate(it->name, LLNotificationTemplatePtr(new LLNotificationTemplate(*it)));
