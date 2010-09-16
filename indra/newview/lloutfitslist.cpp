@@ -155,27 +155,11 @@ private:
 
 	void onTakeOff()
 	{
-		// Take off selected items if there are any
-		if (mOutfitList->hasItemSelected())
+		// Take off selected outfit.
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
 		{
-			uuid_vec_t selected_uuids;
-			mOutfitList->getSelectedItemsUUIDs(selected_uuids);
-
-			for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-			{
-				if (get_is_item_worn(*it))
-				{
-					LLAppearanceMgr::instance().removeItemFromAvatar(*it);
-				}
-			}
-		}
-		else // or take off the whole selected outfit if no items specified.
-		{
-			const LLUUID& selected_outfit_id = getSelectedOutfitID();
-			if (selected_outfit_id.notNull())
-			{
-				LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
-			}
+			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
 		}
 	}
 
