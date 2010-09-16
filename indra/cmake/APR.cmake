@@ -56,7 +56,7 @@ else (STANDALONE)
 
   if (LINUX)
     if (VIEWER)
-      list(APPEND APRUTIL_LIBRARIES ${DB_LIBRARIES})
+      list(APPEND APRUTIL_LIBRARIES ${DB_LIBRARIES} uuid)
     endif (VIEWER)
     list(APPEND APRUTIL_LIBRARIES ${DB_LIBRARIES} rt)
   endif (LINUX)
