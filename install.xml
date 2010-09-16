@@ -63,9 +63,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>cb9409ee84d5f33db14335ed5bfd7ca7</string>
+            <string>d0ee98de1861afdf3df1ab8741b09afc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100910.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100914.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
