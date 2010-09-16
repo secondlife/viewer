@@ -17,6 +17,7 @@
    left="10"
    name="stack"
    top_pad="10"
+   orientation="vertical" 
    width="313">
     <layout_panel
      height="550"
