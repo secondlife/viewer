@@ -287,7 +287,7 @@ namespace LLInitParam
 		void setProvided(bool is_provided) { mIsProvided = is_provided; }
 
 	protected:
-		bool getProvided() const { return mIsProvided; }
+		bool anyProvided() const { return mIsProvided; }
 
 		Param(class BaseBlock* enclosing_block);
 
@@ -568,7 +568,7 @@ namespace LLInitParam
 			mData.mValue = value;
 		} 
 
-		bool isProvided() const { return Param::getProvided(); }
+		bool isProvided() const { return Param::anyProvided(); }
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
 		{ 
@@ -795,13 +795,13 @@ namespace LLInitParam
 		bool isProvided() const 
 		{ 
 			// only validate block when it hasn't already passed validation and user has supplied *some* value
-			if (Param::getProvided() && mData.mValidatedVersion < T::getLastChangeVersion())
+			if (Param::anyProvided() && mData.mValidatedVersion < T::getLastChangeVersion())
 			{
 				// a sub-block is "provided" when it has been filled in enough to be valid
 				mData.mValidated = T::validateBlock(false);
 				mData.mValidatedVersion = T::getLastChangeVersion();
 			}
-			return Param::getProvided() && mData.mValidated;
+			return Param::anyProvided() && mData.mValidated;
 		}
 
 		// assign block contents to this param-that-is-a-block
@@ -852,7 +852,7 @@ namespace LLInitParam
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
-			if (dst_typed_param.T::merge(T::selfBlockDescriptor(), src_typed_param, overwrite || !dst_typed_param.isProvided()))
+			if (dst_typed_param.T::merge(T::selfBlockDescriptor(), src_typed_param, overwrite))
 			{
 				dst_typed_param.mData.clearKey();
 				return true;
@@ -909,7 +909,7 @@ namespace LLInitParam
 			}
 		} 
 
-		bool isProvided() const { return Param::getProvided(); }
+		bool isProvided() const { return Param::anyProvided(); }
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
 		{ 
@@ -1093,7 +1093,7 @@ namespace LLInitParam
 			}
 		} 
 
-		bool isProvided() const { return Param::getProvided(); }
+		bool isProvided() const { return Param::anyProvided(); }
 
 		value_ref_t operator[](S32 index) { return mValues[index]; }
 		value_const_ref_t operator[](S32 index) const { return mValues[index]; }
@@ -1736,7 +1736,7 @@ namespace LLInitParam
 
 		bool isProvided() const 
 		{
-			if (!Param::getProvided()) return false;
+			if (!Param::anyProvided()) return false;
 
 			// block has an updated parameter
 			// if cached value is stale, regenerate from params
@@ -1803,7 +1803,7 @@ namespace LLInitParam
 		value_assignment_t get() const
 		{
 			// if some parameters were provided, issue warnings on invalid blocks
-			if (Param::getProvided() && (mData.mValueAge == OLDER_THAN_BLOCK))
+			if (Param::anyProvided() && (mData.mValueAge == OLDER_THAN_BLOCK))
 			{
 				// go ahead and issue warnings at this point if any param is invalid
 				if(block_t::validateBlock(true))
