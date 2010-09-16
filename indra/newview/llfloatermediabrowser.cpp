@@ -45,7 +45,10 @@
 #include "llviewermedia.h"
 #include "llviewerparcelmedia.h"
 #include "llcombobox.h"
+#include "lllayoutstack.h"
+#include "llcheckboxctrl.h"
 
+#include "llnotifications.h"
 
 // TEMP
 #include "llsdutil.h"
@@ -141,11 +144,15 @@ void LLFloaterMediaBrowser::draw()
 BOOL LLFloaterMediaBrowser::postBuild()
 {
 	mBrowser = getChild<LLMediaCtrl>("browser");
+	mBrowser->setMediaID(mKey);
 	mBrowser->addObserver(this);
 
 	mAddressCombo = getChild<LLComboBox>("address");
 	mAddressCombo->setCommitCallback(onEnterAddress, this);
 	mAddressCombo->sortByName();
+
+	LLButton& notification_close = getChildRef<LLButton>("close_notification");
+	notification_close.setClickedCallback(boost::bind(&LLFloaterMediaBrowser::onCloseNotification, this), NULL);
 
 	childSetAction("back", onClickBack, this);
 	childSetAction("forward", onClickForward, this);
@@ -241,6 +248,73 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
 	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
 	getChildView("reload")->setEnabled(TRUE);
+}
+
+void LLFloaterMediaBrowser::showNotification(LLNotificationPtr notify)
+{
+	mCurNotification = notify;
+
+	// add popup here
+	LLSD payload = notify->getPayload();
+
+	LLNotificationFormPtr formp = notify->getForm();
+	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
+	panel.setVisible(true);
+	panel.getChild<LLUICtrl>("notification_icon")->setValue(notify->getIcon());
+	panel.getChild<LLUICtrl>("notification_text")->setValue(notify->getMessage());
+	panel.getChild<LLUICtrl>("notification_text")->setToolTip(notify->getMessage());
+	LLNotificationForm::EIgnoreType ignore_type = formp->getIgnoreType(); 
+	LLLayoutPanel& form_elements = panel.getChildRef<LLLayoutPanel>("form_elements");
+
+	const S32 FORM_PADDING_HORIZONTAL = 10;
+	const S32 FORM_PADDING_VERTICAL = 5;
+	S32 cur_x = FORM_PADDING_HORIZONTAL;
+
+	if (ignore_type != LLNotificationForm::IGNORE_NO)
+	{
+		LLCheckBoxCtrl::Params checkbox_p;
+		checkbox_p.name = "ignore_check";
+		checkbox_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
+		checkbox_p.label = formp->getIgnoreMessage();
+		checkbox_p.label_text.text_color = LLColor4::black;
+		checkbox_p.commit_callback.function = boost::bind(&LLFloaterMediaBrowser::onClickIgnore, this, _1);
+
+		LLCheckBoxCtrl* check = LLUICtrlFactory::create<LLCheckBoxCtrl>(checkbox_p);
+		check->setRect(check->getBoundingRect());
+		form_elements.addChild(check);
+		cur_x = check->getRect().mRight + FORM_PADDING_HORIZONTAL;
+	}
+
+	for (S32 i = 0; i < formp->getNumElements(); i++)
+	{
+		LLSD form_element = formp->getElement(i);
+		if (form_element["type"].asString() == "button")
+		{
+			LLButton::Params button_p;
+			button_p.name = form_element["name"];
+			button_p.label = form_element["text"];
+			button_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
+			button_p.commit_callback.function = boost::bind(&LLFloaterMediaBrowser::onClickNotificationButton, this, form_element["name"].asString());
+			button_p.auto_resize = true;
+
+			LLButton* button = LLUICtrlFactory::create<LLButton>(button_p);
+			button->autoResize();
+			form_elements.addChild(button);
+
+			cur_x = button->getRect().mRight + FORM_PADDING_HORIZONTAL;
+		}
+	}
+
+
+	form_elements.reshape(cur_x, form_elements.getRect().getHeight());
+
+	//LLWeb::loadURL(payload["url"], payload["target"]);
+}
+
+void LLFloaterMediaBrowser::hideNotification()
+{
+	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
+	panel.setVisible(FALSE);
 }
 
 //static 
@@ -373,4 +447,30 @@ void LLFloaterMediaBrowser::openMedia(const std::string& media_url)
 	mBrowser->setHomePageUrl(media_url);
 	mBrowser->navigateTo(media_url);
 	setCurrentURL(media_url);
+}
+
+void LLFloaterMediaBrowser::onCloseNotification()
+{
+	LLNotifications::instance().cancel(mCurNotification);
+}
+
+void LLFloaterMediaBrowser::onClickIgnore(LLUICtrl* ctrl)
+{
+	bool check = ctrl->getValue().asBoolean();
+	if (mCurNotification && mCurNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
+	{
+		// question was "show again" so invert value to get "ignore"
+		check = !check;
+	}
+	mCurNotification->setIgnored(check);
+}
+
+void LLFloaterMediaBrowser::onClickNotificationButton(const std::string& name)
+{
+	if (!mCurNotification) return;
+
+	LLSD response = mCurNotification->getResponseTemplate();
+	response[name] = true;
+
+	mCurNotification->respond(response); 
 }

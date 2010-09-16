@@ -276,6 +276,15 @@ public:
 	virtual bool processNotification(const LLSD& notify);
 };
 
+/**
+ * Handler for browser notifications
+ */
+class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
+{
+public:
+	virtual bool processNotification(const LLSD& notify);
+	
+};
 
 class LLHandlerUtil
 {

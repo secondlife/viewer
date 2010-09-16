@@ -2819,24 +2819,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << plugin->getClickTarget() << "\", uri is " << plugin->getClickURL() << LL_ENDL;
-			// retrieve the event parameters
-			std::string url = plugin->getClickURL();
-			std::string target = plugin->getClickTarget();
-			U32 target_type = plugin->getClickTargetType();
-
-			switch (target_type)
-			{
-			case LLPluginClassMedia::TARGET_NONE:
-				// ignore this click and let media plugin handle it
-				break;
-			default:
-				if(gSavedSettings.getBOOL("MediaEnablePopups"))
-				{
-					// loadURL now handles distinguishing between _blank, _external, and other named targets.
-					LLWeb::loadURL(url, target);
-				}
-				break;
-			}
 		};
 		break;
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
