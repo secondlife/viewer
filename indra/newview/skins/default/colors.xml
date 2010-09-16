@@ -546,9 +546,6 @@
      name="NameTagFriend"
      value="0.447 0.784 0.663 1" />
     <color
-     name="NameTagGroup"
-     value="1 1 1 1" />
-    <color
      name="NameTagLegacy"
      reference="White" />
     <color
@@ -557,12 +554,6 @@
     <color
      name="NameTagMismatch"
      reference="White" />
-    <color
-     name="NameTagSLID"
-     value="1 1 1 1" />
-    <color
-     name="NameTagStatus"
-     value="1 1 1 1" />
     <color
      name="NetMapBackgroundColor"
      value="0 0 0 1" />

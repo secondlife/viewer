@@ -2952,20 +2952,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			LLColor4 status_color =
-				LLUIColorTable::getInstance()->getColor("NameTagStatus");
-			addNameTagLine(line, status_color, LLFontGL::NORMAL,
+			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
 		if (sRenderGroupTitles
 			&& title && title->getString() && title->getString()[0] != '\0')
 						{
-			LLColor4 group_color =
-				LLUIColorTable::getInstance()->getColor("NameTagGroup");
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
+			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 						}
 
