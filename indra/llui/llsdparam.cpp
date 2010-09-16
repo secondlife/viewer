@@ -29,6 +29,7 @@
 
 // Project includes
 #include "llsdparam.h"
+#include "llsdutil.h"
 
 static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
@@ -162,28 +163,7 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 			}
 		}
 
-		LLSD* child_sd = NULL;
-		if (it->first.empty())
-		{
-			if (sd_to_write->isUndefined())
-			{
-				*sd_to_write = LLSD::emptyArray();
-				child_sd = sd_to_write;
-			}
-			else if (sd_to_write->isArray())
-			{
-				child_sd = sd_to_write;
-			}
-			else
-			{
-				// go ahead and use the empty string as a map key
-				child_sd = &(*sd_to_write)[""];
-			}
-		}
-		else
-		{
-			child_sd = &(*sd_to_write)[it->first];
-		}
+		LLSD* child_sd = &(*sd_to_write)[it->first];
 
 		if (child_sd->isArray())
 		{
@@ -222,6 +202,7 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 	}
 	mNameStack = name_stack;
 	
+	//llinfos << ll_pretty_print_sd(*mWriteRootSD) << llendl;
 	return sd_to_write;
 }
 
