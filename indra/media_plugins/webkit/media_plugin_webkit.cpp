@@ -549,13 +549,17 @@ private:
 		int x, y, width, height;
 		event.getRectValue(x, y, width, height);
 
-		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "geometry_change");
-		message.setValue("uuid", event.getStringValue());
-		message.setValueS32("x", x);
-		message.setValueS32("y", y);
-		message.setValueS32("width", width);
-		message.setValueS32("height", height);
-		sendMessage(message);
+		// This sometimes gets called with a zero-size request.  Don't pass these along.
+		if(width > 0 && height > 0)
+		{
+			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "geometry_change");
+			message.setValue("uuid", event.getStringValue());
+			message.setValueS32("x", x);
+			message.setValueS32("y", y);
+			message.setValueS32("width", width);
+			message.setValueS32("height", height);
+			sendMessage(message);
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
