@@ -69,7 +69,8 @@ LLMediaCtrl::Params::Params()
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
-	media_id("media_id")
+	media_id("media_id"),
+	always_allow_popups("always_allow_popups", false)
 {
 	tab_stop(false);
 }
@@ -95,7 +96,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
-	mHomePageMimeType(p.initial_mime_type)
+	mHomePageMimeType(p.initial_mime_type),
+	mAlwaysAllowPopups(p.always_allow_popups)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -1042,11 +1044,19 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			std::string target = self->getClickTarget();
 			std::string uuid = self->getClickUUID();
 
-			LLNotificationPtr popup_notify = LLNotifications::instance().add("PopupAttempt", 
-				LLSD(), 
-				LLSD().with("target", target).with("url", url).with("uuid", uuid),
-				boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
-			showNotification(popup_notify);
+			LLNotification::Params notify_params;
+			notify_params.name = "PopupAttempt";
+			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid);
+			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+
+			if (mAlwaysAllowPopups)
+			{
+				LLNotifications::instance().forceResponse(notify_params, 0);
+			}
+			else
+			{
+				showNotification(LLNotifications::instance().add(notify_params));
+			}
 			break;
 		};
 

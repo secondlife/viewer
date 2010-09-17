@@ -51,7 +51,8 @@ public:
 		Optional<bool>			border_visible,
 								ignore_ui_scale,
 								hide_loading,
-								decouple_texture_size;
+								decouple_texture_size,
+								always_allow_popups;
 								
 		Optional<S32>			texture_width,
 								texture_height;
@@ -193,6 +194,7 @@ public:
 		S32 mTextureWidth;
 		S32 mTextureHeight;
 		bool mClearCache;
+		bool mAlwaysAllowPopups;
 		boost::shared_ptr<class LLNotification> mCurNotification;
 };
 
