@@ -29,13 +29,13 @@
 
 #include "llnotificationhandler.h"
 #include "llnotifications.h"
-#include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
 
 using namespace LLNotificationsUI;
 
 bool LLBrowserNotification::processNotification(const LLSD& notify)
 {
+
 	// browser notifications are currently handled directly by the LLMediaCtrl instance that spawned them
 	return false;
 }

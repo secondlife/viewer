@@ -990,6 +990,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
+			hideNotification();
 		};
 		break;
 		
