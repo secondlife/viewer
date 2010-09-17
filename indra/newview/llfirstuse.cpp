@@ -86,7 +86,8 @@ void LLFirstUse::sit(bool enable)
 // static
 void LLFirstUse::newInventory(bool enable)
 {
-	firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
+	// turning this off until bug EXP-62 can be fixed (inventory hint appears for new users when their initial inventory is acquired)
+	// firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
 }
 
 // static
