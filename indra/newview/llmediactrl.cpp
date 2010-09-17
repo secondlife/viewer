@@ -70,7 +70,7 @@ LLMediaCtrl::Params::Params()
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
 	media_id("media_id"),
-	always_allow_popups("always_allow_popups", false)
+	trusted_content("trusted_content", false)
 {
 	tab_stop(false);
 }
@@ -97,7 +97,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
 	mHomePageMimeType(p.initial_mime_type),
-	mAlwaysAllowPopups(p.always_allow_popups)
+	mTrusted(p.trusted_content)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -167,16 +167,6 @@ void LLMediaCtrl::setBorderVisible( BOOL border_visible )
 void LLMediaCtrl::setTakeFocusOnClick( bool take_focus )
 {
 	mTakeFocusOnClick = take_focus;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void LLMediaCtrl::setTrusted( bool valIn )
-{
-	if(mMediaSource)
-	{
-		mMediaSource->setTrustedBrowser(valIn);
-	}
-	mTrusted = valIn;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1049,7 +1039,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid);
 			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
 
-			if (mAlwaysAllowPopups)
+			if (mTrusted)
 			{
 				LLNotifications::instance().forceResponse(notify_params, 0);
 			}

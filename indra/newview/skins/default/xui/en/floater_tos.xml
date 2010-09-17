@@ -58,7 +58,7 @@
         Please read the following Terms of Service and Privacy Policy carefully. To continue logging in to [SECOND_LIFE], you must accept the agreement.
     </text>
     <web_browser
-      always_allow_popups="true" 
+      trusted_content="true" 
      follows="left|top"
      height="340"
      layout="topleft"

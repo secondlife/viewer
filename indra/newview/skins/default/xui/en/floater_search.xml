@@ -38,7 +38,7 @@
          user_resize="false"
          width="630">
             <web_browser
-              always_allow_popups="true" 
+              trusted_content="true" 
              follows="left|right|top|bottom"
              layout="topleft"
              left="0"

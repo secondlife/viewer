@@ -257,13 +257,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// Clear the browser's cache to avoid any potential for the cache messing up the login screen.
 	web_browser->clearCache();
 
-	// Need to handle login secondlife:///app/ URLs
-	web_browser->setTrusted( true );
-
-	// don't make it a tab stop until SL-27594 is fixed
-	web_browser->setTabStop(FALSE);
-	// web_browser->navigateToLocalPage( "loading", "loading.html" );
-
 	reshapeBrowser();
 
 	// kick off a request to grab the url manually

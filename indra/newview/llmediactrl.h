@@ -52,7 +52,7 @@ public:
 								ignore_ui_scale,
 								hide_loading,
 								decouple_texture_size,
-								always_allow_popups;
+								trusted_content;
 								
 		Optional<S32>			texture_width,
 								texture_height;
@@ -105,8 +105,6 @@ public:
 		// Javascript or some other mechanism.  However, we need the search
 		// floater and login page to handle these URLs.  Those are safe
 		// because we control the page content.  See DEV-9530.  JC.
-		void setTrusted( bool valIn );
-
 		void setHomePageUrl( const std::string& urlIn, const std::string& mime_type = LLStringUtil::null );
 		std::string getHomePageUrl();
 
@@ -177,7 +175,7 @@ public:
 		LLViewBorder* mBorder;
 		bool mFrequentUpdates;
 		bool mForceUpdate;
-		bool mTrusted;
+		const bool mTrusted;
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
@@ -194,7 +192,6 @@ public:
 		S32 mTextureWidth;
 		S32 mTextureHeight;
 		bool mClearCache;
-		bool mAlwaysAllowPopups;
 		boost::shared_ptr<class LLNotification> mCurNotification;
 };
 

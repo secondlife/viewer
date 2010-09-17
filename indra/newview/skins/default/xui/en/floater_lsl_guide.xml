@@ -54,7 +54,6 @@
      top_delta="0"
      width="70" />
     <web_browser
-      always_allow_popups="true" 
      bottom="390"
      follows="left|right|top|bottom"
      layout="topleft"

@@ -28,7 +28,7 @@
      top_delta="0"
      width="313">
       <web_browser
-        always_allow_popups="true"
+        trusted_content="true"
        border_visible="false"
        follows="all"
        height="550"
