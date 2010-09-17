@@ -74,6 +74,16 @@ struct LLNotificationTemplate
 
 	struct UniquenessContext : public LLInitParam::Block<UniquenessContext>
 	{
+		Mandatory<std::string>	key;
+
+		UniquenessContext()
+		:	key("key")
+		{}
+		
+	};
+
+	struct UniquenessConstraint : public LLInitParam::Block<UniquenessConstraint>
+	{
 	private:
 		// this idiom allows 
 		// <notification unique="true">
@@ -81,21 +91,11 @@ struct LLNotificationTemplate
 		// <notification> <unique> <context key=""/> </unique>...
 		Optional<bool>			dummy_val;
 	public:
-		Mandatory<std::string>	key;
-
-		UniquenessContext()
-		:	key("key"),
-			dummy_val("")
-		{}
-		
-	};
-
-	struct UniquenessConstraint : public LLInitParam::Block<UniquenessConstraint>
-	{
 		Multiple<UniquenessContext>	contexts;
 
 		UniquenessConstraint()
-		:	contexts("context")
+		:	contexts("context"),
+			dummy_val("")
 		{}
 	};
 
