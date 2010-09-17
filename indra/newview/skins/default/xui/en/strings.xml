@@ -3029,7 +3029,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Ad-hoc Conference
   </string>
   <string name="conference-title-incoming">
-    [AGENT_NAME] Conference
+    Conference with [AGENT_NAME]
   </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
@@ -3039,6 +3039,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
 
 
+  <string name="no_session_message">
+    (IM Session Doesn't Exist)
+  </string>
   <string name="only_user_message">
     You are the only user in this session.
   </string>
