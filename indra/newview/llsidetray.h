@@ -76,9 +76,12 @@ public:
 	// interface functions
 	    
 	/**
-     * Select tab with specific name and set it active    
-     */
-	bool 		selectTabByName	(const std::string& name);
+	 * Select tab with specific name and set it active
+	 *
+	 * @param name				Tab to switch to.
+	 * @param keep_prev_visible	Whether to keep the previously selected tab visible.
+	 */
+	bool 		selectTabByName	(const std::string& name, bool keep_prev_visible = false);
 	
 	/**
      * Select tab with specific index and set it active    
@@ -119,8 +122,10 @@ public:
     
 	/*
      * expand SideBar
+     *
+     * @param open_active Whether to call onOpen() for the active tab.
      */
-	void		expandSideBar	();
+	void		expandSideBar(bool open_active = true);
 
 
 	/**

@@ -11,7 +11,7 @@
 		<combo_box.item label="Español (Spansk) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Fransk) - Beta" name="French"/>
 		<combo_box.item label="Polski (Polsk) - Beta" name="Polish"/>
-		<combo_box.item label="Portugués (Portugisisk) - Beta" name="Portugese"/>
+		<combo_box.item label="Português (Portugisisk) - Beta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japansk) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">

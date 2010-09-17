@@ -206,7 +206,8 @@ public:
 	LLRect			getSavedRect() const;
 	bool			hasSavedRect() const;
 
-	static std::string	getControlName(const std::string& name, const LLSD& key);
+	static std::string		getControlName(const std::string& name, const LLSD& key);
+	static LLControlGroup*	getControlGroup();
 
 	bool			isMinimizeable() const{ return mCanMinimize; }
 	bool			isCloseable() const{ return mCanClose; }

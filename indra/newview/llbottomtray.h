@@ -131,10 +131,12 @@ public:
 
 	/**
 	 * These three methods handle drag'n'drop, they may be called directly from child buttons.
+	 * handleHover and other virtual handle* couldn't be used here, because we should call LLPanel::handle*,
+	 * but x and y here are often outside of bottomtray.
 	 */
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	void onDraggableButtonMouseDown(LLUICtrl* button, S32 x, S32 y, MASK mask);
-	void onDraggableButtonMouseUp(LLUICtrl* button, S32 x, S32 y, MASK mask);
+	void onDraggableButtonHover(S32 x, S32 y);
+	void onDraggableButtonMouseDown(LLUICtrl* button, S32 x, S32 y);
+	void onDraggableButtonMouseUp(LLUICtrl* button, S32 x, S32 y);
 
 
 private:

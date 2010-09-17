@@ -67,7 +67,7 @@ BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass hover to bottomtray
-	LLBottomTray::getInstance()->handleHover(screenX, screenY, mask);
+	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
 	return FALSE;
 }
 //virtual
@@ -76,7 +76,7 @@ BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
-	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this,screenX, screenY, mask);
+	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
 	LLButton::handleMouseUp(x, y, mask);
 	return FALSE;
 }
@@ -86,7 +86,7 @@ BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
-	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this,screenX, screenY, mask);
+	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
 	LLButton::handleMouseDown(x, y, mask);
 	return FALSE;
 }
@@ -561,7 +561,7 @@ BOOL LLBottomTray::postBuild()
 
 //Drag-n-drop
 
-void LLBottomTray::onDraggableButtonMouseDown(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+void LLBottomTray::onDraggableButtonMouseDown(LLUICtrl* ctrl, S32 x, S32 y)
 {
 	if (ctrl == NULL) return;
 	LLView* parent_view = ctrl->getParent();
@@ -607,7 +607,7 @@ LLPanel* LLBottomTray::findChildPanelByLocalCoords(S32 x, S32 y)
 	return ctrl;
 }
 
-BOOL LLBottomTray::handleHover(S32 x, S32 y, MASK mask)
+void LLBottomTray::onDraggableButtonHover(S32 x, S32 y)
 {
 	// if mouse down on draggable item was done, check whether we should start DnD
 	if (mCheckForDrag)
@@ -634,8 +634,6 @@ BOOL LLBottomTray::handleHover(S32 x, S32 y, MASK mask)
 			gViewerWindow->getWindow()->setCursor(UI_CURSOR_NO);
 		}
 	}
-
-	return TRUE;
 }
 
 bool LLBottomTray::isCursorOverDraggableArea(S32 x, S32 y)
@@ -767,7 +765,7 @@ void LLBottomTray::loadButtonsOrder()
 	mToolbarStack->movePanel(mNearbyChatBar, NULL, true);
 }
 
-void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y)
 {
 	//if mouse up happened over area where drop is possible, change order of buttons
 	if (mLandingTab != NULL && mDraggedItem != NULL && mDragStarted)
@@ -1526,7 +1524,7 @@ void LLBottomTray::setButtonsControlsAndListeners()
 	// set control name for Build button. It is not enough to link it with Button.SetFloaterToggle in xml
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl("build");
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	build_btn->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	build_btn->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 }
 
 bool LLBottomTray::toggleShowButton(LLBottomTray::EResizeState button_type, const LLSD& new_visibility)

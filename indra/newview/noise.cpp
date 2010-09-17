@@ -30,6 +30,7 @@
 
 #include "llrand.h"
 
+
 // static
 #define B 0x100
 S32 p[B + B + 2];

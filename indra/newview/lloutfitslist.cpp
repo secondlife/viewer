@@ -85,7 +85,7 @@ public:
 
 		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
 
-		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitsList::isActionEnabled, mOutfitList, _2));
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
 		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
@@ -155,27 +155,11 @@ private:
 
 	void onTakeOff()
 	{
-		// Take off selected items if there are any
-		if (mOutfitList->hasItemSelected())
+		// Take off selected outfit.
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
 		{
-			uuid_vec_t selected_uuids;
-			mOutfitList->getSelectedItemsUUIDs(selected_uuids);
-
-			for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-			{
-				if (get_is_item_worn(*it))
-				{
-					LLAppearanceMgr::instance().removeItemFromAvatar(*it);
-				}
-			}
-		}
-		else // or take off the whole selected outfit if no items specified.
-		{
-			const LLUUID& selected_outfit_id = getSelectedOutfitID();
-			if (selected_outfit_id.notNull())
-			{
-				LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
-			}
+			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
 		}
 	}
 
@@ -207,6 +191,20 @@ private:
 		}
 
 		LLAgentWearables::createWearable(type, true);
+	}
+
+	bool onEnable(LLSD::String param)
+	{
+		// Handle the "Wear - Replace Current Outfit" menu option specially
+		// because LLOutfitList::isActionEnabled() checks whether it's allowed
+		// to wear selected outfit OR selected items, while we're only
+		// interested in the outfit (STORM-183).
+		if ("wear" == param)
+		{
+			return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
+		}
+
+		return mOutfitList->isActionEnabled(param);
 	}
 
 	bool onVisible(LLSD::String param)
@@ -439,6 +437,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		if (!tab) continue;
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -455,10 +454,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			mAccordion->removeCollapsibleCtrl(tab);
 
 			// kill removed tab
-			if (tab != NULL)
-			{
-				tab->die();
-			}
+			tab->die();
 			continue;
 		}
 
@@ -972,23 +968,6 @@ void LLOutfitsList::applyFilterToTab(
 		// when some changes occur in it.
 		list->setForceRefresh(true);
 	}
-}
-
-bool LLOutfitsList::canTakeOffSelected()
-{
-	uuid_vec_t selected_uuids;
-	getSelectedItemsUUIDs(selected_uuids);
-
-	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
-
-	for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (!item) continue;
-
-		if (is_worn(NULL, item)) return true;
-	}
-	return false;
 }
 
 bool LLOutfitsList::canWearSelected()

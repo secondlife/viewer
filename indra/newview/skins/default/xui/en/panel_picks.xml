@@ -30,7 +30,7 @@ bg_opaque_color="DkGray2"
  <accordion
   fit_parent="true" 
   follows="all"
-  height="470"
+  height="485"
   layout="topleft"
   left="0"
   name="accordion"

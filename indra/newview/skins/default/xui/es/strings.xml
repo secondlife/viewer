@@ -1120,6 +1120,9 @@
 	<string name="InvFolder Favorite">
 		Favoritos
 	</string>
+	<string name="InvFolder favorite">
+		Favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
 	</string>
@@ -1657,7 +1660,7 @@
 		Script nuevo
 	</string>
 	<string name="BusyModeResponseDefault">
-		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
+		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado. Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
 	</string>
 	<string name="NoOutfits">
 		Todavía no tienes vestuario. Intenta con [secondlife:///app/search/all/ Buscar]
@@ -3799,7 +3802,7 @@ Denuncia de infracción
 		PM
 	</string>
 	<string name="LocalEstimateUSD">
-		[AMOUNT] dólares estadounidenses
+		[AMOUNT] US$
 	</string>
 	<string name="Membership">
 		Membresía

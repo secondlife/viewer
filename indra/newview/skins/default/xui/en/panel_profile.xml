@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="540"
+ height="430"
  label="Profile"
  layout="topleft"
  left="0"
@@ -41,7 +41,7 @@
      layout="topleft"
      left="0"
      top="0"
-     height="524"
+     height="400"
      width="317"
      border_size="0">
       <layout_panel
@@ -50,7 +50,7 @@
          layout="topleft"
          top="0"
          left="0"
-         height="524"
+         height="400"
          width="317">
         <scroll_container
          color="DkGray2"
@@ -304,11 +304,25 @@
           </panel>
         </scroll_container>
       </layout_panel>
-      <layout_panel
+           
+</layout_stack>
+
+	<layout_stack
+     name="layout_verb_buttons"
+     orientation="horizontal"
+     follows="bottom|left|right"
+     layout="topleft"
+     left="2"
+     top_pad="1"
+     height="30"
+     width="315"
+     border_size="0">
+     	<layout_panel
          follows="bottom|left"
          height="30"
          layout="topleft"
          name="profile_buttons_panel"
+         top="0"
          auto_resize="false"
          width="317">
          	
@@ -448,6 +462,6 @@
          tool_tip="Edit your personal information"
          width="130" />
         </layout_panel>
+     </layout_stack>
 
-</layout_stack>
 </panel>
