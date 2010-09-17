@@ -5233,7 +5233,7 @@
   <key>MediaEnablePopups</key>
   <map>
     <key>Comment</key>
-    <string>If true, enable targeted links and javascript in media to open new media browser windows.</string>
+    <string>If true, enable targeted links and javascript in media to open new media browser windows without a prompt.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
