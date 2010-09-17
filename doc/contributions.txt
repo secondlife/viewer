@@ -162,6 +162,7 @@ Boroondas Gupte
 	SNOW-527
 	SNOW-610
 	SNOW-624
+	SNOW-737
 	VWR-233
 	WEB-262
 Bulli Schumann
@@ -645,6 +646,7 @@ Teardrops Fall
 Techwolf Lupindo
 	SNOW-92
 	SNOW-649
+	SNOW-687
 	SNOW-680
 	SNOW-681
 	SNOW-690
@@ -655,6 +657,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	SNOW-207
+	SNOW-390
 	SNOW-421
 	SNOW-462
 	SNOW-586
