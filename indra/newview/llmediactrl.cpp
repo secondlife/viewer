@@ -1042,16 +1042,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			std::string target = self->getClickTarget();
 			std::string uuid = self->getClickUUID();
 
-			if(gSavedSettings.getBOOL("MediaEnablePopups"))
-			{
-
-				LLNotificationPtr popup_notify = LLNotifications::instance().add("PopupAttempt", 
-					LLSD(), 
-					LLSD().with("target", target).with("url", url).with("uuid", uuid),
-					boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
-				showNotification(popup_notify);
-				break;
-			}
+			LLNotificationPtr popup_notify = LLNotifications::instance().add("PopupAttempt", 
+				LLSD(), 
+				LLSD().with("target", target).with("url", url).with("uuid", uuid),
+				boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
+			showNotification(popup_notify);
+			break;
 		};
 
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
