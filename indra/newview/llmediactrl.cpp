@@ -1045,9 +1045,9 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			if(gSavedSettings.getBOOL("MediaEnablePopups"))
 			{
 
-				LLNotificationPtr popup_notify = LLNotificationsUtil::add("PopupAttempt", 
+				LLNotificationPtr popup_notify = LLNotifications::instance().add("PopupAttempt", 
 					LLSD(), 
-					LLSD().with("source", mMediaID).with("target", target).with("url", url).with("uuid", uuid),
+					LLSD().with("target", target).with("url", url).with("uuid", uuid),
 					boost::bind(&LLMediaCtrl::onPopup, this, _1, _2));
 				showNotification(popup_notify);
 				break;
