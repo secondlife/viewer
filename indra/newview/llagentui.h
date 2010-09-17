@@ -26,6 +26,7 @@
 
 #ifndef LLAGENTUI_H
 #define LLAGENTUI_H
+
 class LLSLURL;
 
 class LLAgentUI
