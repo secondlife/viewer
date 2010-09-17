@@ -225,55 +225,55 @@ ou divisé.
 			<text name="Simulator primitive usage:">
 				Utilisation des primitives :
 			</text>
-			<text left="214" name="objects_available" width="230">
+			<text name="objects_available">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Prims max. sur la parcelle :
 			</text>
-			<text left="214" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims sur la parcelle :
 			</text>
-			<text left="214" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Appartenant au propriétaire :
 			</text>
-			<text left="214" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnOwner..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Afficher" label_selected="Afficher" name="ShowOwner"/>
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnOwner..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Set to group:">
 				Données au groupe :
 			</text>
-			<text left="214" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnGroup..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Afficher" label_selected="Afficher" name="ShowGroup" />
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnGroup..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Owned by others:">
 				Appartenant à d&apos;autres :
 			</text>
-			<text left="214" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowOther" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnOther..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="220">
+			<button label="Afficher" label_selected="Afficher" name="ShowOther"/>
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnOther..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Selected / sat upon:">
 				Sélectionnées/où quelqu&apos;un est assis :
 			</text>
-			<text left_delta="214" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Renvoi automatique des objets d&apos;autres résidents (minutes, 0 pour désactiver) :
 			</text>
-			<line_editor name="clean other time" right="-6" width="36"/>
+			<line_editor name="clean other time"/>
 			<text name="Object Owners:">
 				Propriétaires :
 			</text>
@@ -282,9 +282,9 @@ ou divisé.
 			<name_list label="Plus récents" name="owner list">
 				<name_list.columns label="Type" name="type"/>
 				<name_list.columns name="online_status"/>
-				<name_list.columns label="Nom" name="name" width="100"/>
-				<name_list.columns label="Nombre" name="count" width="100"/>
-				<name_list.columns label="Plus récents" name="mostrecent" width="120"/>
+				<name_list.columns label="Nom" name="name"/>
+				<name_list.columns label="Nombre" name="count"/>
+				<name_list.columns label="Plus récents" name="mostrecent"/>
 			</name_list>
 		</panel>
 		<panel label="OPTIONS" name="land_options_panel">
