@@ -25,10 +25,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERVOICEDEVICESETTINGS_H
-#define LL_LLFLOATERVOICEDEVICESETTINGS_H
+#ifndef LL_LLPANELVOICEDEVICESETTINGS_H
+#define LL_LLPANELVOICEDEVICESETTINGS_H
 
-#include "llfloater.h"
+#include "llpanel.h"
 
 class LLPanelVoiceDeviceSettings : public LLPanel
 {
@@ -47,8 +47,8 @@ public:
 	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
 	
 protected:
-	static void onCommitInputDevice(LLUICtrl* ctrl, void* user_data);
-	static void onCommitOutputDevice(LLUICtrl* ctrl, void* user_data);
+	void onCommitInputDevice();
+	void onCommitOutputDevice();
 
 	F32 mMicVolume;
 	std::string mInputDevice;
@@ -58,4 +58,4 @@ protected:
 	BOOL mDevicesUpdated;
 };
 
-#endif // LL_LLFLOATERVOICEDEVICESETTINGS_H
+#endif // LL_LLPANELVOICEDEVICESETTINGS_H

@@ -30,10 +30,7 @@
 #include "llpanelvoicedevicesettings.h"
 
 // Viewer includes
-#include "llbutton.h"
 #include "llcombobox.h"
-#include "llfocusmgr.h"
-#include "lliconctrl.h"
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
@@ -70,8 +67,10 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	// set mic volume tuning slider based on last mic volume setting
 	volume_slider->setValue(mMicVolume);
 
-	childSetCommitCallback("voice_input_device", onCommitInputDevice, this);
-	childSetCommitCallback("voice_output_device", onCommitOutputDevice, this);
+	getChild<LLComboBox>("voice_input_device")->setCommitCallback(
+		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
+	getChild<LLComboBox>("voice_output_device")->setCommitCallback(
+		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
 	
 	return TRUE;
 }
@@ -303,20 +302,20 @@ void LLPanelVoiceDeviceSettings::cleanup()
 	LLVoiceChannel::resume();
 }
 
-// static
-void LLPanelVoiceDeviceSettings::onCommitInputDevice(LLUICtrl* ctrl, void* user_data)
+void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setCaptureDevice(ctrl->getValue().asString());
+		LLVoiceClient::getInstance()->setCaptureDevice(
+			getChild<LLComboBox>("voice_input_device")->getValue().asString());
 	}
 }
 
-// static
-void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user_data)
+void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setRenderDevice(ctrl->getValue().asString());
+		LLVoiceClient::getInstance()->setRenderDevice(
+			getChild<LLComboBox>("voice_input_device")->getValue().asString());
 	}
 }
