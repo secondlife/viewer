@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llnotificationhandler.h"
+#include "llchannelmanager.h"
 
 #include "llagentdata.h"
 #include "llnotifications.h"

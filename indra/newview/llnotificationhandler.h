@@ -27,19 +27,17 @@
 #ifndef LL_LLNOTIFICATIONHANDLER_H
 #define LL_LLNOTIFICATIONHANDLER_H
 
-
-#include "llwindow.h"
-
-//#include "llnotificationsutil.h"
-#include "llchannelmanager.h"
-#include "llchat.h"
-#include "llinstantmessage.h"
-#include "llnotificationptr.h"
-
 class LLIMFloater;
+class LLChat;
+
+typedef boost::shared_ptr<class LLNotification> LLNotificationPtr;
+enum EInstantMessage;
+typedef enum e_chat_source_type EChatSourceType;
 
 namespace LLNotificationsUI
 {
+	class LLToast;
+
 // ENotificationType enumerates all possible types of notifications that could be met
 // 
 typedef enum e_notification_type
@@ -103,7 +101,7 @@ protected:
 	// at the moment, when a handlers creates a channel.
 	virtual void initChannel()=0;
 
-	LLScreenChannelBase*	mChannel;
+	class LLScreenChannelBase*	mChannel;
 	e_notification_type		mType;
 
 };

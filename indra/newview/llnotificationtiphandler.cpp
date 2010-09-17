@@ -27,6 +27,8 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llchannelmanager.h"
+#include "llinstantmessage.h"
 #include "llfloaterreg.h"
 #include "llnearbychat.h"
 #include "llnotificationhandler.h"
@@ -36,6 +38,7 @@
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
 #include "llpaneltiptoast.h"
+#include "lltoast.h"
 
 using namespace LLNotificationsUI;
 

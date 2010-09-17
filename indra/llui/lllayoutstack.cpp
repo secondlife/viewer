@@ -208,8 +208,8 @@ S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
 
 void LLLayoutStack::movePanel(LLPanel* panel_to_move, LLPanel* target_panel, bool move_to_front)
 {
-	LayoutPanel* embedded_panel_to_move = findEmbeddedPanel(panel_to_move);
-	LayoutPanel* embedded_target_panel = move_to_front ? *mPanels.begin() : findEmbeddedPanel(target_panel);
+	LLLayoutPanel* embedded_panel_to_move = findEmbeddedPanel(panel_to_move);
+	LLLayoutPanel* embedded_target_panel = move_to_front ? *mPanels.begin() : findEmbeddedPanel(target_panel);
 
 	if (!embedded_panel_to_move || !embedded_target_panel || embedded_panel_to_move == embedded_target_panel)
 	{

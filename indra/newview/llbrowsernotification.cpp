@@ -28,9 +28,9 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llnotificationhandler.h"
-#include "llnotifications.h"
-#include "llfloatermediabrowser.h"
-#include "llfloaterreg.h"
+//#include "llnotifications.h"
+//#include "llfloatermediabrowser.h"
+//#include "llfloaterreg.h"
 
 using namespace LLNotificationsUI;
 

@@ -40,6 +40,7 @@
 #include "llviewerwindow.h"
 
 #include "llchiclet.h"
+#include "llchannelmanager.h"
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"

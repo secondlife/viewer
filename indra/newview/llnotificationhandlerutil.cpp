@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llnearbychat.h"
 #include "llimfloater.h"
+#include "llscreenchannel.h"
 
 using namespace LLNotificationsUI;
 

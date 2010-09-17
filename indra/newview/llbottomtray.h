@@ -29,6 +29,7 @@
 
 #include "llpanel.h"
 #include "llimview.h"
+#include "llbutton.h"
 
 class LLChicletPanel;
 class LLLayoutStack;
