@@ -187,7 +187,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_login.xml");
+	buildFromFile( "panel_login.xml");
 	
 #if USE_VIEWER_AUTH
 	//leave room for the login menu bar
@@ -1104,9 +1104,10 @@ void LLPanelLogin::updateServerCombo()
 	{
 		if (!grid_choice->first.empty())
 		{
-			server_choice_combo->add(grid_choice->second, grid_choice->first, ADD_SORTED);
+			server_choice_combo->add(grid_choice->second, grid_choice->first);
 		}
 	}
+	server_choice_combo->sortByName();
 	
 	server_choice_combo->addSeparator(ADD_TOP);
 	

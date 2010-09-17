@@ -60,7 +60,6 @@ LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
 	mSortColumn(""),
 	mSortAscending(TRUE)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_land_holdings.xml");
 }
 
 BOOL LLFloaterLandHoldings::postBuild()
@@ -69,10 +68,9 @@ BOOL LLFloaterLandHoldings::postBuild()
 	childSetAction("Show on Map", onClickMap, this);
 
 	// Grant list
-	getChild<LLScrollListCtrl>("grant list")->setDoubleClickCallback(onGrantList, this);
-
-	LLCtrlListInterface *list = childGetListInterface("grant list");
-	if (!list) return TRUE;
+	LLScrollListCtrl* grant_list = getChild<LLScrollListCtrl>("grant list");
+	grant_list->sortByColumnIndex(0, TRUE);
+	grant_list->setDoubleClickCallback(onGrantList, this);
 
 	S32 count = gAgent.mGroups.count();
 	for(S32 i = 0; i < count; ++i)
@@ -91,7 +89,7 @@ BOOL LLFloaterLandHoldings::postBuild()
 		element["columns"][1]["value"] = areastr;
 		element["columns"][1]["font"] = "SANSSERIF";
 
-		list->addElement(element, ADD_SORTED);
+		grant_list->addElement(element);
 	}
 	
 	center();

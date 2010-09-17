@@ -59,6 +59,7 @@ public:
 		Optional<LLUIColor>		caret_color;
 
 		Optional<std::string>	initial_mime_type;
+		Optional<std::string>	media_id;
 		
 		Params();
 	};
@@ -108,6 +109,8 @@ public:
 		void setHomePageUrl( const std::string& urlIn, const std::string& mime_type = LLStringUtil::null );
 		std::string getHomePageUrl();
 
+		void setTarget(const std::string& target);
+
 		// set/clear URL to visit when a 404 page is reached
 		void set404RedirectUrl( std::string redirect_url );
 		void clr404RedirectUrl();
@@ -140,6 +143,8 @@ public:
 
 		void setTextureSize(S32 width, S32 height);
 
+		void showNotification(boost::shared_ptr<class LLNotification> notify);
+		void hideNotification();
 
 		// over-rides
 		virtual BOOL handleKeyHere( KEY key, MASK mask);
@@ -161,6 +166,10 @@ public:
 
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
+		void onPopup(const LLSD& notification, const LLSD& response);
+		void onCloseNotification();
+		void onClickNotificationButton(const std::string& name);
+		void onClickIgnore(LLUICtrl* ctrl);
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
@@ -171,6 +180,7 @@ public:
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
+		std::string mTarget;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;
 		viewer_media_t mMediaSource;
@@ -183,6 +193,7 @@ public:
 		S32 mTextureWidth;
 		S32 mTextureHeight;
 		bool mClearCache;
+		boost::shared_ptr<class LLNotification> mCurNotification;
 };
 
 #endif // LL_LLMediaCtrl_H

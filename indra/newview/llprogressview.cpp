@@ -128,15 +128,10 @@ void LLProgressView::setVisible(BOOL visible)
 	if (getVisible() && !visible)
 	{
 		mFadeTimer.start();
-		// hiding progress view, so show menu bars
-		LLUI::getRootView()->getChildView("menu_bar_holder")->setVisible(TRUE);
 	}
 	// showing progress view
 	else if (!getVisible() && visible)
 	{
-		// showing progress view, so hide menu bars
-		LLUI::getRootView()->getChildView("menu_bar_holder")->setVisible(FALSE);
-		
 		setFocus(TRUE);
 		mFadeTimer.stop();
 		mProgressTimer.start();

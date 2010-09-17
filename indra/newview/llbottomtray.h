@@ -27,20 +27,17 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include "llmenugl.h"
-
 #include "llpanel.h"
 #include "llimview.h"
-#include "llcombobox.h"
 
 class LLChicletPanel;
-class LLLineEditor;
 class LLLayoutStack;
-class LLNotificationChiclet;
 class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 class LLBottomTrayLite;
+class LLLayoutPanel;
+class LLMenuGL;
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBOTTOMTRAY_CPP
@@ -443,6 +440,7 @@ protected:
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
+	LLLayoutPanel*		mChatBarContainer;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLButton*			mCamButton;

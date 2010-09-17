@@ -54,7 +54,7 @@ LLFloaterInventory::~LLFloaterInventory()
 
 BOOL LLFloaterInventory::postBuild()
 {
-	mPanelMainInventory = getChild<LLPanelMainInventory>("Inventory Panel");
+	mPanelMainInventory = findChild<LLPanelMainInventory>("Inventory Panel");
 	return TRUE;
 }
 

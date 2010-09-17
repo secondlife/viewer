@@ -74,7 +74,7 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 {
 	if (not_from_ui_factory)
 	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+		buildFromFile("panel_avatar_list_item.xml");
 	}
 	// *NOTE: mantipov: do not use any member here. They can be uninitialized here in case instance
 	// is created from the UICtrlFactory
@@ -91,7 +91,7 @@ BOOL  LLAvatarListItem::postBuild()
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	mAvatarName = getChild<LLTextBox>("avatar_name");
 	mLastInteractionTime = getChild<LLTextBox>("last_interaction");
-
+	
 	mIconPermissionOnline = getChild<LLIconCtrl>("permission_online_icon");
 	mIconPermissionMap = getChild<LLIconCtrl>("permission_map_icon");
 	mIconPermissionEditMine = getChild<LLIconCtrl>("permission_edit_mine_icon");
@@ -597,7 +597,7 @@ LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_
 		child_view = mLastInteractionTime;
 		break;
 	case ALIC_SPEAKER_INDICATOR:
-		child_view = mSpeakingIndicator;
+		child_view = mSpeakingIndicator; 
 		break;
 	case ALIC_PERMISSION_ONLINE:
 		child_view = mIconPermissionOnline;
