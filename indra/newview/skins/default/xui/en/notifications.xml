@@ -6455,8 +6455,7 @@ Mute everyone?
   name="PopupAttempt"
   icon="Popup_Caution"
   type="browser"
-  duration="10"
-  unique="true">
+  duration="10">
     A pop-up was prevented from opening.
     <form name="form">
       <ignore name="ignore"
