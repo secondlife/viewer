@@ -920,14 +920,10 @@ void LLMediaCtrl::draw()
 	if ( mBorder && mBorder->getVisible() )
 		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus( this ) );
 
-	if (mCurNotification)
+	if (mCurNotification && !mCurNotification->isActive())
 	{
-		if (mCurNotification->isCancelled() || mCurNotification->isExpired())
-		{
-			hideNotification();
-		}
+		hideNotification();
 	}
-
 	
 	LLPanel::draw();
 

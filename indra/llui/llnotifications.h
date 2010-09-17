@@ -458,6 +458,13 @@ public:
 		return mRespondedTo;
 	}
 
+	bool isActive() const
+	{
+		return !isRespondedTo()
+			&& !isCancelled()
+			&& !isExpired();
+	}
+
 	const LLSD& getResponse() { return mResponse; }
 
 	bool isIgnored() const
