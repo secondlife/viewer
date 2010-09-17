@@ -1844,7 +1844,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if (cdp)
 		{
 			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
-			LLVector3 diff = getVelocity() * (0.5f*mTimeDilation*(gFrameDTClamped + ((F32)ping_delay)*0.001f)); 
+			LLVector3 diff = getVelocity() * ping_delay; 
 			new_pos_parent += diff;
 		}
 		else
