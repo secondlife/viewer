@@ -6460,7 +6460,8 @@ Mute everyone?
     A pop-up was prevented from opening.
     <form name="form">
       <ignore name="ignore"
-              control="MediaEnablePopups" 
+              control="MediaEnablePopups"
+              invert_control="false"
               text="Enable all pop-ups"/>
       <button default="true"
               index="0"

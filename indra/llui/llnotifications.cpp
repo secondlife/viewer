@@ -62,7 +62,7 @@ LLNotificationForm::FormElementBase::FormElementBase()
 LLNotificationForm::FormIgnore::FormIgnore()
 :	text("text"),
 	control("control"),
-	invert_control("invert_control", false),
+	invert_control("invert_control", true),
 	save_option("save_option", false)
 {}
 
@@ -190,7 +190,7 @@ LLNotificationForm::LLNotificationForm()
 
 LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationForm::Params& p) 
 :	mIgnore(IGNORE_NO),
-	mInvertSetting(false)
+	mInvertSetting(true) // ignore settings by default mean true=show, false=ignore
 {
 	if (p.ignore.isProvided())
 	{
@@ -353,18 +353,24 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 
 bool LLNotificationForm::getIgnored()
 {
+	bool ignored = false;
 	if (mIgnore != LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
-		return mIgnoreSetting->getValue().asBoolean() != mInvertSetting;
+		ignored = mIgnoreSetting->getValue().asBoolean();
+		if (mInvertSetting) ignored = !ignored;
 	}
 
-	return false;
+	return ignored;
 }
 
 void LLNotificationForm::setIgnored(bool ignored)
 {
-	if (mIgnoreSetting) mIgnoreSetting->setValue(ignored != mInvertSetting);
+	if (mIgnoreSetting)
+	{
+		if (mInvertSetting) ignored = !ignored;
+		mIgnoreSetting->setValue(ignored);
+	}
 }
 
 LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Params& p)
