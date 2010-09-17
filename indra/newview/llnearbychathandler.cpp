@@ -28,7 +28,7 @@
 
 #include "llagentdata.h" // for gAgentID
 #include "llnearbychathandler.h"
-#include "llchannelmanager.h"
+
 #include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
 #include "llfirstuse.h"
@@ -36,7 +36,6 @@
 #include "llhints.h"
 #include "llnearbychat.h"
 #include "llrecentpeople.h"
-#include "llscreenchannel.h"
 
 #include "llviewercontrol.h"
 

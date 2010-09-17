@@ -27,7 +27,6 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
-#include "llchannelmanager.h"
 #include "llnotificationhandler.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
