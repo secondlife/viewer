@@ -85,6 +85,7 @@
              left_pad="5"
              max_chars="1024"
              name="address"
+             combo_editor.select_on_focus="true"
              top_delta="0"
              width="540">
 				<combo_box.commit_callback
