@@ -127,18 +127,19 @@ protected:
 //
 // This class is used for performance data gathering only.
 // Tracks the image compression / decompression data,
-// records and outputs them to metric log files.
+// records and outputs them to metric.slp log files.
 //
-
 class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
 {
     public:
         LLImageCompressionTester();
         ~LLImageCompressionTester();
         
-        void updateDecompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) ;
-        void updateCompressionStats(const S32 bytesIn, const S32 bytesOut, const F32 deltaTime) ;
-        
+        void updateDecompressionStats(const F32 deltaTime) ;
+        void updateDecompressionStats(const S32 bytesIn, const S32 bytesOut) ;
+        void updateCompressionStats(const F32 deltaTime) ;
+        void updateCompressionStats(const S32 bytesIn, const S32 bytesOut) ;
+    
     protected:
         /*virtual*/ void outputTestRecord(LLSD* sd);
         
@@ -150,7 +151,6 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
         U32 mTotalBytesInCompression;       // Total bytes fed to compressor
         U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
-        
         //
         // Time
         //
