@@ -618,8 +618,7 @@ void LLNotification::respond(const LLSD& response)
 
 	if (mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 	{
-		bool show_notification = !mIgnored;
-		mForm->setIgnored(!show_notification);
+		mForm->setIgnored(mIgnored);
 		if (mIgnored && mForm->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 		{
 			LLUI::sSettingGroups["ignores"]->setLLSD("Default" + getName(), response);
@@ -744,6 +743,8 @@ void LLNotification::init(const std::string& template_name, const LLSD& form_ele
 
 	// apply substitution to form labels
 	mForm->formatElements(mSubstitutions);
+
+	mIgnored = mForm->getIgnored();
 
 	LLDate rightnow = LLDate::now();
 	if (mTemplatep->mExpireSeconds)
