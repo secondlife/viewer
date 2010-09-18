@@ -31,18 +31,19 @@
 #include "llnotifications.h"
 
 
-class LLHints
+class LLHints :  public LLInitClass<LLHints>
 {
 public:
 	static void show(LLNotificationPtr hint);
 	static void hide(LLNotificationPtr hint);
-	static void hideAll();
 	static void registerHintTarget(const std::string& name, LLHandle<LLView> target);
 	static LLHandle<LLView> getHintTarget(const std::string& name);
+	static void initClass();
 private:
 	static LLRegistry<std::string, LLHandle<LLView> > sTargetRegistry;
 	typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
 	static hint_map_t sHints;
+	static void showHints(const LLSD& show);
 };
 
 

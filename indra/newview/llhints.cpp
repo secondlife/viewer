@@ -346,26 +346,6 @@ void LLHints::hide(LLNotificationPtr hint)
 }
 
 //static
-void LLHints::hideAll()
-{
-	std::vector<LLNotificationPtr> notifications;
-	for (hint_map_t::iterator it = sHints.begin(), end_it = sHints.end();
-		it != end_it;
-		++it)
-	{
-		notifications.push_back(it->first);
-	}
-
-	for(std::vector<LLNotificationPtr>::iterator it = notifications.begin(), end_it = notifications.end();
-		it != end_it;
-		++it)
-	{
-		hide(*it);
-	}
-
-}
-
-//static
 void LLHints::registerHintTarget(const std::string& name, LLHandle<LLView> target)
 {
 	sTargetRegistry.defaultRegistrar().replace(name, target);
@@ -383,4 +363,22 @@ LLHandle<LLView> LLHints::getHintTarget(const std::string& name)
 	{
 		return LLHandle<LLView>();
 	}
+}
+
+//static
+void LLHints::initClass()
+{
+	sRegister.reference();
+
+	LLControlVariablePtr control = gSavedSettings.getControl("EnableUIHints");
+	control->getSignal()->connect(boost::bind(&showHints, _2));
+	gViewerWindow->getHintHolder()->setVisible(control->getValue().asBoolean());
+
+}
+
+//staic
+void LLHints::showHints(const LLSD& show)
+{
+	bool visible = show.asBoolean();
+	gViewerWindow->getHintHolder()->setVisible(visible);
 }

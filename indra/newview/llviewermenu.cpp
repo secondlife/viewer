@@ -7756,17 +7756,9 @@ class LLToggleUIHints : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool ui_hints_enabled = gSavedSettings.getBOOL("EnableUIHints");
-		if (ui_hints_enabled)
-		{
-			// hide existing hints
-			LLHints::hideAll();
-
-			gSavedSettings.setBOOL("EnableUIHints", FALSE);
-		}
-		else
-		{
-			gSavedSettings.setBOOL("EnableUIHints", TRUE);
-		}
+		// toggle
+		ui_hints_enabled = !ui_hints_enabled;
+		gSavedSettings.setBOOL("EnableUIHints", ui_hints_enabled);
 		return true;
 	}
 };
