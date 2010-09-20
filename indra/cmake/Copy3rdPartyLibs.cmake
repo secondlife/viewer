@@ -221,6 +221,7 @@ elseif(LINUX)
         libcrypto.so.0.9.7
         libdb-4.2.so
         libexpat.so
+        libexpat.so.1
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so

@@ -310,6 +310,7 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
+        self.path("featuretable_xp.txt")
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")

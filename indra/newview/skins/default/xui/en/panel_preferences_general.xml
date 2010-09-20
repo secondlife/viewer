@@ -77,7 +77,7 @@
          value="pl" />
         <combo_box.item
          enabled="true"
-         label="Portugués (Portuguese) - Beta"
+         label="Português (Portuguese) - Beta"
          name="Portugese"
          value="pt" />
         <combo_box.item

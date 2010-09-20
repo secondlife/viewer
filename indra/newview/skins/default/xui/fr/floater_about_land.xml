@@ -225,55 +225,55 @@ ou divisé.
 			<text name="Simulator primitive usage:">
 				Utilisation des primitives :
 			</text>
-			<text left="214" name="objects_available" width="230">
+			<text name="objects_available">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Prims max. sur la parcelle :
 			</text>
-			<text left="214" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims sur la parcelle :
 			</text>
-			<text left="214" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Appartenant au propriétaire :
 			</text>
-			<text left="214" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnOwner..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Afficher" label_selected="Afficher" name="ShowOwner"/>
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnOwner..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Set to group:">
 				Données au groupe :
 			</text>
-			<text left="214" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnGroup..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Afficher" label_selected="Afficher" name="ShowGroup" />
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnGroup..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Owned by others:">
 				Appartenant à d&apos;autres :
 			</text>
-			<text left="214" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowOther" right="-135" width="60"/>
-			<button label="Retour" label_selected="Renvoyer..." name="ReturnOther..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="220">
+			<button label="Afficher" label_selected="Afficher" name="ShowOther"/>
+			<button label="Retour" label_selected="Renvoyer..." name="ReturnOther..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
+			<text name="Selected / sat upon:">
 				Sélectionnées/où quelqu&apos;un est assis :
 			</text>
-			<text left_delta="214" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Renvoi automatique des objets d&apos;autres résidents (minutes, 0 pour désactiver) :
 			</text>
-			<line_editor name="clean other time" right="-6" width="36"/>
+			<line_editor name="clean other time"/>
 			<text name="Object Owners:">
 				Propriétaires :
 			</text>
@@ -281,10 +281,9 @@ ou divisé.
 			<button label="Renvoi des objets" label_selected="Renvoyer les objets..." name="Return objects..."/>
 			<name_list label="Plus récents" name="owner list">
 				<name_list.columns label="Type" name="type"/>
-				<name_list.columns name="online_status"/>
-				<name_list.columns label="Nom" name="name" width="100"/>
-				<name_list.columns label="Nombre" name="count" width="100"/>
-				<name_list.columns label="Plus récents" name="mostrecent" width="120"/>
+				<name_list.columns label="Nom" name="name"/>
+				<name_list.columns label="Nombre" name="count"/>
+				<name_list.columns label="Plus récents" name="mostrecent"/>
 			</name_list>
 		</panel>
 		<panel label="OPTIONS" name="land_options_panel">
@@ -343,9 +342,9 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Options du terrain :
 			</text>
 			<check_box label="Sécurisé (pas de dégâts)" name="check safe" tool_tip="Si cette option est cochée, le terrain est sécurisé et il n&apos;y pas de risques de dommages causés par des combats. Si elle est décochée, des dommages causés par les combats peuvent avoir lieu."/>
-			<check_box bottom="-140" label="Pas de bousculades" left="14" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
-			<check_box bottom="-160" label="Afficher le lieu dans la recherche (30 L$/semaine)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
-			<combo_box bottom="-160" left="286" name="land category with adult" width="146">
+			<check_box  label="Pas de bousculades" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
+			<check_box label="Afficher le lieu dans la recherche (30 L$/semaine)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
+			<combo_box name="land category with adult">
 				<combo_box.item label="Toutes catégories" name="item0"/>
 				<combo_box.item label="Appartenant aux Lindens" name="item1"/>
 				<combo_box.item label="Adult" name="item2"/>
@@ -360,7 +359,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Autre" name="item12"/>
 			</combo_box>
-			<combo_box bottom="-160" left="286" name="land category" width="146">
+			<combo_box name="land category">
 				<combo_box.item label="Toutes catégories" name="item0"/>
 				<combo_box.item label="Appartenant aux Lindens" name="item1"/>
 				<combo_box.item label="Art et Culture" name="item3"/>
@@ -374,20 +373,20 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Autre" name="item12"/>
 			</combo_box>
-			<check_box bottom="-180" label="Contenu Modéré" name="MatureCheck" tool_tip=""/>
-			<text bottom="-200" name="Snapshot:">
+			<check_box label="Contenu Modéré" name="MatureCheck" tool_tip=""/>
+			<text name="Snapshot:">
 				Photo :
 			</text>
-			<texture_picker bottom="-319" label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
+			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="landing_point">
 				Lieu d&apos;arrivée : [LANDING]
 			</text>
 			<button label="Définir" label_selected="Définir" name="Set" tool_tip="Définit le point d&apos;arrivée des visiteurs. Définit l&apos;emplacement de votre avatar sur ce terrain."/>
 			<button label="Annuler" label_selected="Annuler" name="Clear" tool_tip="Effacer le lieu d&apos;arrivée"/>
-			<text bottom="-343" name="Teleport Routing: ">
+			<text name="Teleport Routing: ">
 				Règles de téléportation :
 			</text>
-			<combo_box bottom="-343" left="140" name="landing type" tool_tip="Règles de téléportation - Choisissez les règles de téléportation sur votre terrain" width="140">
+			<combo_box name="landing type" tool_tip="Règles de téléportation - Choisissez les règles de téléportation sur votre terrain" width="140">
 				<combo_box.item label="Bloqué" name="Blocked"/>
 				<combo_box.item label="Lieu d&apos;arrivée fixe" name="LandingPoint"/>
 				<combo_box.item label="Lieu d&apos;arrivée libre" name="Anywhere"/>

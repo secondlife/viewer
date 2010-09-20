@@ -139,10 +139,10 @@ protected:
 	~LLSkyTex();
 
 
-	static S32 getResolution()						{ return sResolution; }
+	static S32 getResolution()					{ return sResolution; }
 	static S32 getCurrent()						{ return sCurrent; }
-	static S32 stepCurrent()					{ return (sCurrent = (sCurrent + 1) % 2); }
-	static S32 getNext()						{ return ((sCurrent+1) % 2); }
+	static S32 stepCurrent()					{ sCurrent++; sCurrent &= 1; return sCurrent; }
+	static S32 getNext()						{ return ((sCurrent+1) & 1); }
 	static S32 getWhich(const BOOL curr)		{ return curr ? sCurrent : getNext(); }
 
 	void initEmpty(const S32 tex);
