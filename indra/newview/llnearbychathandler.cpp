@@ -54,6 +54,7 @@ LLToastPanelBase* createToastPanel()
 
 class LLNearbyChatScreenChannel: public LLScreenChannelBase
 {
+	LOG_CLASS(LLNearbyChatScreenChannel);
 public:
 	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mStopProcessing = false;};
 
@@ -90,6 +91,7 @@ public:
 
 	virtual void deleteAllChildren()
 	{
+		LL_DEBUGS("NearbyChat") << "Clearing toast pool" << llendl;
 		m_toast_pool.clear();
 		m_active_toasts.clear();
 		LLScreenChannelBase::deleteAllChildren();
@@ -99,6 +101,7 @@ protected:
 	void	deactivateToast(LLToast* toast);
 	void	addToToastPool(LLToast* toast)
 	{
+		LL_DEBUGS("NearbyChat") << "Pooling toast" << llendl;
 		toast->setVisible(FALSE);
 		toast->stopTimer();
 		toast->setIsHidden(true);
@@ -153,6 +156,7 @@ void LLNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 		return;
 	}
 
+	LL_DEBUGS("NearbyChat") << "Deactivating toast" << llendl;
 	m_active_toasts.erase(pos);
 }
 
@@ -163,6 +167,8 @@ void	LLNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 
 void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool app_quitting)
 {	
+	LL_DEBUGS("NearbyChat") << "Toast destroyed (app_quitting=" << app_quitting << ")" << llendl;
+
 	if (app_quitting)
 	{
 		// Viewer is quitting.
@@ -179,7 +185,9 @@ void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool app_quitti
 }
 
 void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
-{	
+{
+	LL_DEBUGS("NearbyChat") << "Toast fading" << llendl;
+
 	//fade mean we put toast to toast pool
 	if(!toast)
 		return;
@@ -208,6 +216,7 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	toast->setOnFadeCallback(boost::bind(&LLNearbyChatScreenChannel::onToastFade, this, _1));
 	
+	LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << llendl;
 	m_toast_pool.push_back(toast);
 	return true;
 }
@@ -245,6 +254,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	if(m_toast_pool.empty())
 	{
 		//"pool" is empty - create one more panel
+		LL_DEBUGS("NearbyChat") << "Empty pool" << llendl;
 		if(!createPoolToast())//created toast will go to pool. so next call will find it
 			return;
 		addNotification(notification);
@@ -264,6 +274,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 	//take 1st element from pool, (re)initialize it, put it in active toasts
 
+	LL_DEBUGS("NearbyChat") << "Getting toast from pool" << llendl;
 	LLToast* toast = m_toast_pool.back();
 
 	m_toast_pool.pop_back();
