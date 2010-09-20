@@ -310,26 +310,23 @@ std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
 //static
 void LLHints::show(LLNotificationPtr hint)
 {
-	if (gSavedSettings.getBOOL("EnableUIHints"))
+	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
+
+	LLParamSDParser parser;
+	parser.readSD(hint->getPayload(), p, true);
+	p.notification = hint;
+
+	if (p.validateBlock())
 	{
-		LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
+		LLHintPopup* popup = new LLHintPopup(p);
 
-		LLParamSDParser parser;
-		parser.readSD(hint->getPayload(), p, true);
-		p.notification = hint;
+		sHints[hint] = popup;
 
-		if (p.validateBlock())
+		LLView* hint_holder = gViewerWindow->getHintHolder();
+		if (hint_holder)
 		{
-			LLHintPopup* popup = new LLHintPopup(p);
-
-			sHints[hint] = popup;
-
-			LLView* hint_holder = gViewerWindow->getHintHolder();
-			if (hint_holder)
-			{
-				hint_holder->addChild(popup);
-				popup->centerWithin(hint_holder->getLocalRect());
-			}
+			hint_holder->addChild(popup);
+			popup->centerWithin(hint_holder->getLocalRect());
 		}
 	}
 }
