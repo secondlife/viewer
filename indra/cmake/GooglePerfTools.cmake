@@ -6,7 +6,7 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(google)
   if (WINDOWS)
-    use_prebuilt_binary(google-perftools)
+    use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
         debug libtcmalloc_minimal-debug
         optimized libtcmalloc_minimal)
@@ -29,8 +29,7 @@ if (GOOGLE_PERFTOOLS_FOUND)
 endif (GOOGLE_PERFTOOLS_FOUND)
 
 if (WINDOWS)
-    # *TODO -reenable this once we get server usage sorted out
-    #set(USE_GOOGLE_PERFTOOLS ON)
+    set(USE_GOOGLE_PERFTOOLS ON)
 endif (WINDOWS)
 
 if (USE_GOOGLE_PERFTOOLS)
