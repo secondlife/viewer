@@ -5,7 +5,7 @@
  label="instant_message"
  layout="topleft"
  left="0"
- name="panel_group_notify"
+ name="panel_notify_textbox"
  top="0"
  width="305">
     <string
