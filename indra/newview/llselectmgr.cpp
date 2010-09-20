@@ -5395,6 +5395,42 @@ BOOL LLSelectNode::allowOperationOnNode(PermissionBit op, U64 group_proxy_power)
 	return (mPermissions->allowOperationBy(op, proxy_agent_id, group_id));
 }
 
+
+//helper function for pushing relevant vertices from drawable to GL
+void pushWireframe(LLDrawable* drawable)
+{
+	if (drawable->isState(LLDrawable::RIGGED))
+	{ //render straight from rigged volume if this is a rigged attachment
+		LLVOVolume* vobj = drawable->getVOVolume();
+		if (vobj)
+		{
+			vobj->updateRiggedVolume();
+			LLRiggedVolume* rigged_volume = vobj->getRiggedVolume();
+			if (rigged_volume)
+			{
+				LLVertexBuffer::unbind();
+				gGL.pushMatrix();
+				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+				for (S32 i = 0; i < rigged_volume->getNumVolumeFaces(); ++i)
+				{
+					const LLVolumeFace& face = rigged_volume->getVolumeFace(i);
+					glVertexPointer(3, GL_FLOAT, 16, face.mPositions);
+					glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+				}
+				gGL.popMatrix();
+			}
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+		{
+			LLFace* face = drawable->getFace(i);
+			pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+		}
+	}
+}
+
 void LLSelectNode::renderOneWireframe(const LLColor4& color)
 {
 	LLViewerObject* objectp = getObject();
@@ -5442,11 +5478,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		{
 			glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
-			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
-			{
-				LLFace* face = drawable->getFace(i);
-				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
-			}
+			pushWireframe(drawable);
 		}
 	}
 
@@ -5455,13 +5487,9 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	glColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
-	glPolygonOffset(3.f, 2.f);
+	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
-	for (S32 i = 0; i < drawable->getNumFaces(); ++i)
-	{
-		LLFace* face = drawable->getFace(i);
-		pushVerts(face, LLVertexBuffer::MAP_VERTEX);
-	}
+	pushWireframe(drawable);
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	gGL.popMatrix();

@@ -95,22 +95,30 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
+	/*void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}*/
+
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
 					BaseType* parent, 
-					S32 octant = -1)
+					U8 octant = 255)
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
-		mD = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*4);
-
-		mD[CENTER] = center;
-		mD[SIZE] = size;
+		mCenter = center;
+		mSize = size;
 
 		updateMinMax();
-		if ((mOctant == -1) && mParent)
+		if ((mOctant == 255) && mParent)
 		{
-			mOctant = ((oct_node*) mParent)->getOctant(mD[CENTER]);
+			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
 
 		clearChildren();
@@ -124,30 +132,27 @@ public:
 		{
 			delete getChild(i);
 		} 
-
-		ll_aligned_free_16(mD);
 	}
 
 	inline const BaseType* getParent()	const			{ return mParent; }
 	inline void setParent(BaseType* parent)				{ mParent = (oct_node*) parent; }
-	inline const LLVector4a& getCenter() const			{ return mD[CENTER]; }
-	inline const LLVector4a& getSize() const			{ return mD[SIZE]; }
-	inline void setCenter(const LLVector4a& center)		{ mD[CENTER] = center; }
-	inline void setSize(const LLVector4a& size)			{ mD[SIZE] = size; }
+	inline const LLVector4a& getCenter() const			{ return mCenter; }
+	inline const LLVector4a& getSize() const			{ return mSize; }
+	inline void setCenter(const LLVector4a& center)		{ mCenter = center; }
+	inline void setSize(const LLVector4a& size)			{ mSize = size; }
     inline oct_node* getNodeAt(T* data)					{ return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
-	inline S32 getOctant() const						{ return mOctant; }
-	inline void setOctant(S32 octant)					{ mOctant = octant; }
+	inline U8 getOctant() const							{ return mOctant; }
 	inline const oct_node*	getOctParent() const		{ return (const oct_node*) getParent(); }
 	inline oct_node* getOctParent() 					{ return (oct_node*) getParent(); }
 	
-	S32 getOctant(const LLVector4a& pos) const			//get the octant pos is in
+	U8 getOctant(const LLVector4a& pos) const			//get the octant pos is in
 	{
-		return pos.greaterThan(mD[CENTER]).getGatheredBits() & 0x7;
+		return (U8) (pos.greaterThan(mCenter).getGatheredBits() & 0x7);
 	}
 	
 	inline bool isInside(const LLVector4a& pos, const F32& rad) const
 	{
-		return rad <= mD[SIZE][0]*2.f && isInside(pos); 
+		return rad <= mSize[0]*2.f && isInside(pos); 
 	}
 
 	inline bool isInside(T* data) const			
@@ -157,13 +162,13 @@ public:
 
 	bool isInside(const LLVector4a& pos) const
 	{
-		S32 gt = pos.greaterThan(mD[MAX]).getGatheredBits() & 0x7;
+		S32 gt = pos.greaterThan(mMax).getGatheredBits() & 0x7;
 		if (gt)
 		{
 			return false;
 		}
 
-		S32 lt = pos.lessEqual(mD[MIN]).getGatheredBits() & 0x7;
+		S32 lt = pos.lessEqual(mMin).getGatheredBits() & 0x7;
 		if (lt)
 		{
 			return false;
@@ -174,8 +179,8 @@ public:
 	
 	void updateMinMax()
 	{
-		mD[MAX].setAdd(mD[CENTER], mD[SIZE]);
-		mD[MIN].setSub(mD[CENTER], mD[SIZE]);
+		mMax.setAdd(mCenter, mSize);
+		mMin.setSub(mCenter, mSize);
 	}
 
 	inline oct_listener* getOctListener(U32 index) 
@@ -195,7 +200,7 @@ public:
 			return false;
 		}
 
-		F32 size = mD[SIZE][0];
+		F32 size = mSize[0];
 		F32 p_size = size * 2.f;
 
 		return (radius <= 0.001f && size <= 0.001f) ||
@@ -234,6 +239,29 @@ public:
 	void accept(tree_traveler* visitor) const		{ visitor->visit(this); }
 	void accept(oct_traveler* visitor) const		{ visitor->visit(this); }
 	
+	void validateChildMap()
+	{
+		for (U32 i = 0; i < 8; i++)
+		{
+			U8 idx = mChildMap[i];
+			if (idx != 255)
+			{
+				LLOctreeNode<T>* child = mChild[idx];
+
+				if (child->getOctant() != i)
+				{
+					llerrs << "Invalid child map, bad octant data." << llendl;
+				}
+
+				if (getOctant(child->getCenter()) != child->getOctant())
+				{
+					llerrs << "Invalid child octant compared to position data." << llendl;
+				}
+			}
+		}
+	}
+
+
 	oct_node* getNodeAt(const LLVector4a& pos, const F32& rad)
 	{ 
 		LLOctreeNode<T>* node = this;
@@ -241,25 +269,19 @@ public:
 		if (node->isInside(pos, rad))
 		{		
 			//do a quick search by octant
-			S32 octant = node->getOctant(pos);
-			BOOL keep_going = TRUE;
-
+			U8 octant = node->getOctant(pos);
+			
 			//traverse the tree until we find a node that has no node
 			//at the appropriate octant or is smaller than the object.  
 			//by definition, that node is the smallest node that contains 
 			// the data
-			while (keep_going && node->getSize()[0] >= rad)
+			U8 next_node = node->mChildMap[octant];
+			
+			while (next_node != 255 && node->getSize()[0] >= rad)
 			{	
-				keep_going = FALSE;
-				for (U32 i = 0; i < node->getChildCount() && !keep_going; i++)
-				{
-					if (node->getChild(i)->getOctant() == octant)
-					{
-						node = node->getChild(i);
-						octant = node->getOctant(pos);
-						keep_going = TRUE;
-					}
-				}
+				node = node->getChild(next_node);
+				octant = node->getOctant(pos);
+				next_node = node->mChildMap[octant];
 			}
 		}
 		else if (!node->contains(rad) && node->getParent())
@@ -439,6 +461,9 @@ public:
 	void clearChildren()
 	{
 		mChild.clear();
+
+		U32* foo = (U32*) mChildMap;
+		foo[0] = foo[1] = 0xFFFFFFFF;
 	}
 
 	void validate()
@@ -496,6 +521,8 @@ public:
 		}
 #endif
 
+		mChildMap[child->getOctant()] = (U8) mChild.size();
+
 		mChild.push_back(child);
 		child->setParent(this);
 
@@ -517,12 +544,23 @@ public:
 			listener->handleChildRemoval(this, getChild(index));
 		}
 
+		
+
 		if (destroy)
 		{
 			mChild[index]->destroy();
 			delete mChild[index];
 		}
 		mChild.erase(mChild.begin() + index);
+
+		//rebuild child map
+		U32* foo = (U32*) mChildMap;
+		foo[0] = foo[1] = 0xFFFFFFFF;
+
+		for (U32 i = 0; i < mChild.size(); ++i)
+		{
+			mChildMap[mChild[i]->getOctant()] = i;
+		}
 
 		checkAlive();
 	}
@@ -562,15 +600,20 @@ protected:
 		MIN = 3
 	} eDName;
 
-	LLVector4a* mD;
+	LLVector4a mCenter;
+	LLVector4a mSize;
+	LLVector4a mMax;
+	LLVector4a mMin;
 	
 	oct_node* mParent;
-	S32 mOctant;
+	U8 mOctant;
 
 	child_list mChild;
+	U8 mChildMap[8];
+
 	element_list mData;
 		
-};
+}; 
 
 //just like a regular node, except it might expand on insert and compress on balance
 template <class T>
@@ -613,6 +656,8 @@ public:
 			//destroy child
 			child->clearChildren();
 			delete child;
+
+			return false;
 		}
 		
 		return true;
@@ -639,7 +684,7 @@ public:
 		const LLVector4a& v = data->getPositionGroup();
 
 		LLVector4a val;
-		val.setSub(v, BaseType::mD[BaseType::CENTER]);
+		val.setSub(v, BaseType::mCenter);
 		val.setAbs(val);
 		S32 lt = val.lessThan(MAX_MAG).getGatheredBits() & 0x7;
 

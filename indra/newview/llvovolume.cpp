@@ -41,9 +41,11 @@
 #include "llviewercontrol.h"
 #include "lldir.h"
 #include "llflexibleobject.h"
+#include "llfloatertools.h"
 #include "llmaterialtable.h"
 #include "llprimitive.h"
 #include "llvolume.h"
+#include "llvolumeoctree.h"
 #include "llvolumemgr.h"
 #include "llvolumemessage.h"
 #include "material_codes.h"
@@ -70,6 +72,7 @@
 #include "llselectmgr.h"
 #include "pipeline.h"
 #include "llsdutil.h"
+#include "llmatrix4a.h"
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llmeshrepository.h"
@@ -1355,7 +1358,14 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	LLVector4a min,max;
 
-	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION);
+	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
+
+	bool rigged = false;
+	LLVolume* volume = mRiggedVolume;
+	if (!volume)
+	{
+		volume = getVolume();
+	}
 
 	for (S32 i = 0; i < getVolume()->getNumVolumeFaces(); i++)
 	{
@@ -1364,7 +1374,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		{
 			continue;
 		}
-		res &= face->genVolumeBBoxes(*getVolume(), i,
+		res &= face->genVolumeBBoxes(*volume, i,
 										mRelativeXform, mRelativeXformInvTrans,
 										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
 		
@@ -1415,7 +1425,21 @@ void LLVOVolume::updateRelativeXform()
 	
 	LLDrawable* drawable = mDrawable;
 	
-	if (drawable->isActive())
+	if (drawable->isState(LLDrawable::RIGGED) && mRiggedVolume.notNull())
+	{ //rigged volume (which is in agent space) is used for generating bounding boxes etc
+	  //inverse of render matrix should go to partition space
+		mRelativeXform = getRenderMatrix();
+
+		F32* dst = (F32*) mRelativeXformInvTrans.mMatrix;
+		F32* src = (F32*) mRelativeXform.mMatrix;
+		dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];
+		dst[3] = src[4]; dst[4] = src[5]; dst[5] = src[6];
+		dst[6] = src[8]; dst[7] = src[9]; dst[8] = src[10];
+		
+		mRelativeXform.invert();
+		mRelativeXformInvTrans.transpose();
+	}
+	else if (drawable->isActive())
 	{				
 		// setup relative transforms
 		LLQuaternion delta_rot;
@@ -1497,11 +1521,22 @@ void LLVOVolume::updateRelativeXform()
 
 static LLFastTimer::DeclareTimer FTM_GEN_FLEX("Generate Flexies");
 static LLFastTimer::DeclareTimer FTM_UPDATE_PRIMITIVES("Update Primitives");
+static LLFastTimer::DeclareTimer FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
 
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer t(FTM_UPDATE_PRIMITIVES);
 	
+	if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
+	{
+		{
+			LLFastTimer t(FTM_UPDATE_RIGGED_VOLUME);
+			updateRiggedVolume();
+		}
+		genBBoxes(FALSE);
+		mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
+	}
+
 	if (mVolumeImpl != NULL)
 	{
 		BOOL res;
@@ -1597,7 +1632,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	{
 		LLPipeline::sCompiles++;
 	}
-	
+		
 	mVolumeChanged = FALSE;
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
@@ -2724,6 +2759,11 @@ BOOL LLVOVolume::isVolumeGlobal() const
 	{
 		return mVolumeImpl->isVolumeGlobal() ? TRUE : FALSE;
 	}
+	else if (mRiggedVolume.notNull())
+	{
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -3390,12 +3430,37 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	BOOL ret = FALSE;
 
 	LLVolume* volume = getVolume();
+
+	bool transform = true;
+
+	if (mDrawable->isState(LLDrawable::RIGGED))
+	{
+		if (LLFloater::isVisible(gFloaterTools) && getAvatar()->isSelf())
+		{
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_RIGGED, TRUE);
+			volume = mRiggedVolume;
+			transform = false;
+		}
+		else
+		{ //cannot pick rigged attachments on other avatars or when not in build mode
+			return FALSE;
+		}
+	}
+	
 	if (volume)
 	{	
 		LLVector3 v_start, v_end, v_dir;
 	
-		v_start = agentPositionToVolume(start);
-		v_end = agentPositionToVolume(end);
+		if (transform)
+		{
+			v_start = agentPositionToVolume(start);
+			v_end = agentPositionToVolume(end);
+		}
+		else
+		{
+			v_start = start;
+			v_end = end;
+		}
 		
 		LLVector3 p;
 		LLVector3 n;
@@ -3455,18 +3520,40 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 					
 					if (intersection != NULL)
 					{
-						*intersection = volumePositionToAgent(p);  // must map back to agent space
+						if (transform)
+						{
+							*intersection = volumePositionToAgent(p);  // must map back to agent space
+						}
+						else
+						{
+							*intersection = p;
+						}
 					}
 
 					if (normal != NULL)
 					{
-						*normal = volumeDirectionToAgent(n);
+						if (transform)
+						{
+							*normal = volumeDirectionToAgent(n);
+						}
+						else
+						{
+							*normal = n;
+						}
+
 						(*normal).normVec();
 					}
 
 					if (bi_normal != NULL)
 					{
-						*bi_normal = volumeDirectionToAgent(bn);
+						if (transform)
+						{
+							*bi_normal = volumeDirectionToAgent(bn);
+						}
+						else
+						{
+							*bi_normal = bn;
+						}
 						(*bi_normal).normVec();
 					}
 
@@ -3482,6 +3569,201 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	}
 		
 	return ret;
+}
+
+bool LLVOVolume::treatAsRigged()
+{
+	return LLFloater::isVisible(gFloaterTools) && 
+			isAttachment() && 
+			getAvatar() &&
+			getAvatar()->isSelf() &&
+			mDrawable.notNull() &&
+			mDrawable->isState(LLDrawable::RIGGED);
+}
+
+LLRiggedVolume* LLVOVolume::getRiggedVolume()
+{
+	return mRiggedVolume;
+}
+
+void LLVOVolume::clearRiggedVolume()
+{
+	if (mRiggedVolume.notNull())
+	{
+		mRiggedVolume = NULL;
+		updateRelativeXform();
+	}
+}
+
+void LLVOVolume::updateRiggedVolume()
+{
+	//Update mRiggedVolume to match current animation frame of avatar. 
+	//Also update position/size in octree.  
+
+	if (!treatAsRigged())
+	{
+		clearRiggedVolume();
+		
+		return;
+	}
+
+	LLVolume* volume = getVolume();
+
+	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(volume->getParams().getSculptID());
+
+	if (!skin)
+	{
+		clearRiggedVolume();
+		return;
+	}
+
+	LLVOAvatar* avatar = getAvatar();
+
+	if (!avatar)
+	{
+		clearRiggedVolume();
+		return;
+	}
+
+	if (!mRiggedVolume)
+	{
+		LLVolumeParams p;
+		mRiggedVolume = new LLRiggedVolume(p);
+		updateRelativeXform();
+	}
+
+	mRiggedVolume->update(skin, avatar, volume);
+
+}
+
+static LLFastTimer::DeclareTimer FTM_SKIN_RIGGED("Skin");
+static LLFastTimer::DeclareTimer FTM_RIGGED_OCTREE("Octree");
+
+void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume)
+{
+	bool copy = false;
+	if (volume->getNumVolumeFaces() != getNumVolumeFaces())
+	{ 
+		copy = true;
+	}
+
+	for (S32 i = 0; i < volume->getNumVolumeFaces() && !copy; ++i)
+	{
+		const LLVolumeFace& src_face = volume->getVolumeFace(i);
+		const LLVolumeFace& dst_face = getVolumeFace(i);
+
+		if (src_face.mNumIndices != dst_face.mNumIndices ||
+			src_face.mNumVertices != dst_face.mNumVertices)
+		{
+			copy = true;
+		}
+	}
+
+	if (copy)
+	{
+		copyVolumeFaces(volume);	
+	}
+
+	//build matrix palette
+	LLMatrix4a mp[64];
+	LLMatrix4* mat = (LLMatrix4*) mp;
+	
+	for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+	{
+		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
+		if (joint)
+		{
+			mat[j] = skin->mInvBindMatrix[j];
+			mat[j] *= joint->getWorldMatrix();
+		}
+	}
+
+	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+	{
+		const LLVolumeFace& vol_face = volume->getVolumeFace(i);
+		
+		LLVolumeFace& dst_face = mVolumeFaces[i];
+		
+		LLVector4a* weight = vol_face.mWeights;
+
+		LLMatrix4a bind_shape_matrix;
+		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+
+		LLVector4a* pos = dst_face.mPositions;
+
+		{
+			LLFastTimer t(FTM_SKIN_RIGGED);
+
+			for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+			{
+				LLMatrix4a final_mat;
+				final_mat.clear();
+
+				S32 idx[4];
+
+				LLVector4 wght;
+
+				F32 scale = 0.f;
+				for (U32 k = 0; k < 4; k++)
+				{
+					F32 w = weight[j][k];
+
+					idx[k] = (S32) floorf(w);
+					wght[k] = w - floorf(w);
+					scale += wght[k];
+				}
+
+				wght *= 1.f/scale;
+
+				for (U32 k = 0; k < 4; k++)
+				{
+					F32 w = wght[k];
+
+					LLMatrix4a src;
+					src.setMul(mp[idx[k]], w);
+
+					final_mat.add(src);
+				}
+
+				
+				LLVector4a& v = vol_face.mPositions[j];
+				LLVector4a t;
+				LLVector4a dst;
+				bind_shape_matrix.affineTransform(v, t);
+				final_mat.affineTransform(t, dst);
+				pos[j] = dst;
+			}
+
+			//update bounding box
+			LLVector4a& min = dst_face.mExtents[0];
+			LLVector4a& max = dst_face.mExtents[1];
+
+			min = pos[0];
+			max = pos[1];
+
+			for (U32 j = 1; j < dst_face.mNumVertices; ++j)
+			{
+				min.setMin(min, pos[j]);
+				max.setMax(max, pos[j]);
+			}
+
+			dst_face.mCenter->setAdd(dst_face.mExtents[0], dst_face.mExtents[1]);
+			dst_face.mCenter->mul(0.5f);
+
+		}
+
+		{
+			LLFastTimer t(FTM_RIGGED_OCTREE);
+			delete dst_face.mOctree;
+			dst_face.mOctree = NULL;
+
+			LLVector4a size;
+			size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
+			size.splat(size.getLength3().getF32()*0.5f);
+			
+			dst_face.createOctree(1.f);
+		}
+	}
 }
 
 U32 LLVOVolume::getPartitionType() const
@@ -3732,6 +4014,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
+		bool is_rigged = false;
+
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
@@ -3747,8 +4031,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->mVertexBuffer = NULL;
 					facep->mLastVertexBuffer = NULL;
 				}
-				
+		
 				facep->setState(LLFace::RIGGED);
+				is_rigged = true;
 				
 				//get drawpool of avatar with rigged face
 				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
@@ -3957,6 +4242,15 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				facep->mVertexBuffer = NULL;
 				facep->mLastVertexBuffer = NULL;
 			}		
+		}
+
+		if (is_rigged)
+		{
+			drawablep->setState(LLDrawable::RIGGED);
+		}
+		else
+		{
+			drawablep->clearState(LLDrawable::RIGGED);
 		}
 	}
 

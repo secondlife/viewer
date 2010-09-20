@@ -88,8 +88,6 @@ public:
 	F32* mClosestT;
 	bool mHitFace;
 
-	LLOctreeTriangleRayIntersect() { };
-
 	LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir, 
 								   const LLVolumeFace* face, F32* closest_t,
 								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal);
@@ -134,5 +132,9 @@ public:
 	virtual const F32& getBinRadius() const;
 };
 
+class LLVolumeOctreeValidate : public LLOctreeTraveler<LLVolumeTriangle>
+{
+	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* branch);
+};
 
 #endif

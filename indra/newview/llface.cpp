@@ -556,8 +556,36 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		}
 
 		glColor4fv(color.mV);
-		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
-		mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+	
+		if (mDrawablep->isState(LLDrawable::RIGGED))
+		{
+			LLVOVolume* volume = mDrawablep->getVOVolume();
+			if (volume)
+			{
+				LLRiggedVolume* rigged = volume->getRiggedVolume();
+				if (rigged)
+				{
+					LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-1.f, -1.f);
+					glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+					const LLVolumeFace& vol_face = rigged->getVolumeFace(getTEOffset());
+					LLVertexBuffer::unbind();
+					glVertexPointer(3, GL_FLOAT, 16, vol_face.mPositions);
+					if (vol_face.mTexCoords)
+					{
+						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+						glTexCoordPointer(2, GL_FLOAT, 8, vol_face.mTexCoords);
+					}
+					glDrawElements(GL_TRIANGLES, vol_face.mNumIndices, GL_UNSIGNED_SHORT, vol_face.mIndices);
+					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				}
+			}
+		}
+		else
+		{
+			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+			mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+		}
 
 		gGL.popMatrix();
 	}
@@ -720,7 +748,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
 
 	//get bounding box
-	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
+	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
 		//VECTORIZE THIS
 		LLMatrix4a mat_vert;

@@ -1325,6 +1325,12 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 #if LL_MESH_ENABLED
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
 {
+	LLVector4a* weight = vol_face.mWeights;
+	if (!weight)
+	{
+		return;
+	}
+
 	LLVertexBuffer* buffer = face->mVertexBuffer;
 
 	U32 data_mask = 0;
@@ -1403,8 +1409,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			}
 		}
 
-		LLVector4a* weight = vol_face.mWeights;
-
 		LLMatrix4a bind_shape_matrix;
 		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
@@ -1422,7 +1426,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			{
 				F32 w = weight[j][k];
 
-				idx[k] = (S32) floorf(w);
+				idx[k] = llclamp((S32) floorf(w), 0, 63);
 				wght[k] = w - floorf(w);
 				scale += wght[k];
 			}
