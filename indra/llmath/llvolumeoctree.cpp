@@ -223,14 +223,14 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 	test_min.setSub(center, size);
 	test_max.setAdd(center, size);
 
-	if (!test_min.equals3(min) ||
-		!test_max.equals3(max))
+	if (!test_min.equals3(min, 0.001f) ||
+		!test_max.equals3(max, 0.001f))
 	{
 		llerrs << "Bad bounding box data found." << llendl;
 	}
 
-	test_min.sub(LLVector4a::getEpsilon());
-	test_max.add(LLVector4a::getEpsilon());
+	test_min.sub(LLVector4a(0.001f));
+	test_max.add(LLVector4a(0.001f));
 
 	for (U32 i = 0; i < branch->getChildCount(); ++i)
 	{

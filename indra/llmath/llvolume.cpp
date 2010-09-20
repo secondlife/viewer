@@ -2569,13 +2569,12 @@ void LLVolume::makeTetrahedron()
 	mIsTetrahedron = TRUE;
 }
 
-void LLVolume::copyVolumeFaces(LLVolume* volume)
+void LLVolume::copyVolumeFaces(const LLVolume* volume)
 {
 	mVolumeFaces = volume->mVolumeFaces;
 	mSculptLevel = 0;
 	mIsTetrahedron = FALSE;
 }
-
 
 S32	LLVolume::getNumFaces() const
 {
@@ -5462,12 +5461,17 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 }
 
 
-void LLVolumeFace::createOctree()
+void LLVolumeFace::createOctree(F32 scaler)
 {
+	if (mOctree)
+	{
+		return;
+	}
+
 	LLVector4a center;
 	LLVector4a size;
 	center.splat(0.f);
-	size.splat(1.f);
+	size.splat(0.5f);
 
 	mOctree = new LLOctreeRoot<LLVolumeTriangle>(center, size, NULL);
 	new LLVolumeOctreeListener(mOctree);
@@ -5511,11 +5515,14 @@ void LLVolumeFace::createOctree()
 		LLVector4a size;
 		size.setSub(max,min);
 		
-		tri->mRadius = size.getLength3().getF32() * 0.5f;
+		tri->mRadius = size.getLength3().getF32() * scaler;
 		
 		//insert
 		mOctree->insert(tri);
 	}
+
+	//remove unneeded octree layers
+	while (!mOctree->balance())	{ }
 
 	//calculate AABB for each node
 	LLVolumeOctreeRebound rebound(this);

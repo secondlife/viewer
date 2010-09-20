@@ -189,6 +189,20 @@ LLVOVolume* LLDrawable::getVOVolume() const
 	}
 }
 
+const LLMatrix4& LLDrawable::getRenderMatrix() const
+{ 
+	if (LLDrawable::isState(LLDrawable::RIGGED))
+	{
+		LLVOAvatar* avatar = mVObjp->getAvatar();
+		if (avatar)
+		{
+			return avatar->mDrawable->getWorldMatrix();
+		}
+	}
+
+	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
+}
+
 BOOL LLDrawable::isLight() const
 {
 	LLViewerObject* objectp = mVObjp;

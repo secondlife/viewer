@@ -101,7 +101,7 @@ public:
 	LLVOVolume*	getVOVolume() const; // cast mVObjp tp LLVOVolume if OK
 
 	const LLMatrix4&      getWorldMatrix() const		{ return mXform.getWorldMatrix(); }
-	const LLMatrix4&	  getRenderMatrix() const		{ return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix(); }
+	const LLMatrix4&	  getRenderMatrix() const;
 	void				  setPosition(LLVector3 v) const { }
 	const LLVector3&	  getPosition() const			{ return mXform.getPosition(); }
 	const LLVector3&      getWorldPosition() const		{ return mXform.getPositionW(); }
@@ -250,35 +250,37 @@ public:
 	
 	typedef enum e_drawable_flags
 	{
- 		IN_REBUILD_Q1	= 0x00000002,
- 		IN_REBUILD_Q2	= 0x00000004,
- 		IN_LIGHT_Q		= 0x00000008,
-		EARLY_MOVE		= 0x00000010,
-		MOVE_UNDAMPED	= 0x00000020,
-		ON_MOVE_LIST	= 0x00000040,
-		USE_BACKLIGHT	= 0x00000080,
-		UV				= 0x00000100,
-		UNLIT			= 0x00000200,
-		LIGHT			= 0x00000400,
-		LIGHTING_BUILT	= 0x00000800,
-		REBUILD_VOLUME  = 0x00001000,	//volume changed LOD or parameters, or vertex buffer changed
-		REBUILD_TCOORD	= 0x00002000,	//texture coordinates changed
-		REBUILD_COLOR	= 0x00004000,	//color changed
-		REBUILD_POSITION= 0x00010000,	//vertex positions/normals changed
+ 		IN_REBUILD_Q1	= 0x00000001,
+ 		IN_REBUILD_Q2	= 0x00000002,
+ 		IN_LIGHT_Q		= 0x00000004,
+		EARLY_MOVE		= 0x00000008,
+		MOVE_UNDAMPED	= 0x00000010,
+		ON_MOVE_LIST	= 0x00000020,
+		USE_BACKLIGHT	= 0x00000040,
+		UV				= 0x00000080,
+		UNLIT			= 0x00000100,
+		LIGHT			= 0x00000200,
+		LIGHTING_BUILT	= 0x00000400,
+		REBUILD_VOLUME  = 0x00000800,	//volume changed LOD or parameters, or vertex buffer changed
+		REBUILD_TCOORD	= 0x00001000,	//texture coordinates changed
+		REBUILD_COLOR	= 0x00002000,	//color changed
+		REBUILD_POSITION= 0x00004000,	//vertex positions/normals changed
 		REBUILD_GEOMETRY= REBUILD_POSITION|REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_MATERIAL= REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_ALL		= REBUILD_GEOMETRY|REBUILD_VOLUME,
-		ON_SHIFT_LIST	= 0x00100000,
-		BLOCKER			= 0x00400000,
-		ACTIVE			= 0x00800000,
-		DEAD			= 0x01000000,
-		INVISIBLE		= 0x02000000, // stay invisible until flag is cleared
- 		NEARBY_LIGHT	= 0x04000000, // In gPipeline.mNearbyLightSet
-		BUILT			= 0x08000000,
-		FORCE_INVISIBLE = 0x10000000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
-		CLEAR_INVISIBLE = 0x20000000, // clear FORCE_INVISIBLE next draw frame
-		REBUILD_SHADOW =  0x40000000,
-		HAS_ALPHA		= 0x80000000,
+		REBUILD_RIGGED	= 0x00008000,
+		ON_SHIFT_LIST	= 0x00010000,
+		BLOCKER			= 0x00020000,
+		ACTIVE			= 0x00040000,
+		DEAD			= 0x00080000,
+		INVISIBLE		= 0x00100000, // stay invisible until flag is cleared
+ 		NEARBY_LIGHT	= 0x00200000, // In gPipeline.mNearbyLightSet
+		BUILT			= 0x00400000,
+		FORCE_INVISIBLE = 0x00800000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
+		CLEAR_INVISIBLE = 0x01000000, // clear FORCE_INVISIBLE next draw frame
+		REBUILD_SHADOW =  0x02000000,
+		HAS_ALPHA		= 0x04000000,
+		RIGGED			= 0x08000000,
 	} EDrawableFlags;
 
 	LLXformMatrix       mXform;

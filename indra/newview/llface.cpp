@@ -720,7 +720,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
 
 	//get bounding box
-	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
+	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
 		//VECTORIZE THIS
 		LLMatrix4a mat_vert;

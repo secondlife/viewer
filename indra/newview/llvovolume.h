@@ -46,12 +46,26 @@ class LLDrawPool;
 class LLSelectNode;
 class LLObjectMediaDataClient;
 class LLObjectMediaNavigateClient;
+class LLVOAvatar;
+class LLMeshSkinInfo;
 
 typedef std::vector<viewer_media_t> media_list_t;
 
 enum LLVolumeInterfaceType
 {
 	INTERFACE_FLEXIBLE = 1,
+};
+
+
+class LLRiggedVolume : public LLVolume
+{
+public:
+	LLRiggedVolume(const LLVolumeParams& params)
+		: LLVolume(params, 0.f)
+	{
+	}
+
+	void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume);
 };
 
 // Base class for implementations of the volume - Primitive, Flexible Object, etc.
@@ -289,6 +303,11 @@ public:
 	void removeMDCImpl() { --mMDCImplCount; }
 	S32 getMDCImplCount() { return mMDCImplCount; }
 	
+
+	//rigged volume update (for raycasting)
+	void updateRiggedVolume();
+	LLRiggedVolume* getRiggedVolume() { return mRiggedVolume; }
+
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
@@ -322,6 +341,9 @@ private:
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
 	S32 mIndexInTex;
 	S32 mMDCImplCount;
+
+	LLPointer<LLRiggedVolume> mRiggedVolume;
+
 	// statics
 public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop 
