@@ -2022,12 +2022,13 @@ even though the user gets a free copy.
              type="string"
              length="1"
              follows="left|top"
-             height="10"
+             height="20"
              layout="topleft"
              left="10"
              name="select_single"
              top="5"
-             width="252">
+             width="252"
+             word_wrap="true">
                 Select only one primitive to edit features.
             </text>
             <text
@@ -2049,7 +2050,7 @@ even though the user gets a free copy.
              left="10"
              name="Flexible1D Checkbox Ctrl"
              tool_tip="Allows object to flex about the Z axis (Client-side only)"
-             top_pad="10"
+             top_pad="20"
              width="121" />
             <spinner
              follows="left|top"
