@@ -6268,7 +6268,6 @@ You sent out an update of your appearance after [TIME] seconds.
 [STATUS]
   </notification>
 
-
   <notification
    icon="notifytip.tga"
    name="AvatarRezCloudNotification"
