@@ -882,7 +882,7 @@ public:
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);
-	void createOctree(F32 scaler = 0.25f);
+	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
 
 	enum
 	{

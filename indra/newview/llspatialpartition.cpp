@@ -3121,9 +3121,11 @@ void renderRaycast(LLDrawable* drawablep)
 			LLVOVolume* vobj = drawablep->getVOVolume();
 			LLVolume* volume = vobj->getVolume();
 
+			bool transform = true;
 			if (drawablep->isState(LLDrawable::RIGGED))
 			{
-				volume = NULL;
+				volume = vobj->getRiggedVolume();
+				transform = false;
 			}
 
 			if (volume)
@@ -3140,8 +3142,16 @@ void renderRaycast(LLDrawable* drawablep)
 					glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
 
 					LLVector3 start, end;
-					start = vobj->agentPositionToVolume(gDebugRaycastStart);
-					end = vobj->agentPositionToVolume(gDebugRaycastEnd);
+					if (transform)
+					{
+						start = vobj->agentPositionToVolume(gDebugRaycastStart);
+						end = vobj->agentPositionToVolume(gDebugRaycastEnd);
+					}
+					else
+					{
+						start = gDebugRaycastStart;
+						end = gDebugRaycastEnd;
+					}
 
 					LLVector4a starta, enda;
 					starta.load3(start.mV);

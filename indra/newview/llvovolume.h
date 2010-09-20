@@ -306,7 +306,17 @@ public:
 
 	//rigged volume update (for raycasting)
 	void updateRiggedVolume();
-	LLRiggedVolume* getRiggedVolume() { return mRiggedVolume; }
+	LLRiggedVolume* getRiggedVolume();
+
+	//returns true if volume should be treated as a rigged volume
+	// - Build tools are open
+	// - object is an attachment
+	// - object is attached to self
+	// - object is rendered as rigged
+	bool treatAsRigged();
+
+	//clear out rigged volume and revert back to non-rigged state for picking/LOD/distance updates
+	void clearRiggedVolume();
 
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);

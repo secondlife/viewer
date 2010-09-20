@@ -191,15 +191,6 @@ LLVOVolume* LLDrawable::getVOVolume() const
 
 const LLMatrix4& LLDrawable::getRenderMatrix() const
 { 
-	if (LLDrawable::isState(LLDrawable::RIGGED))
-	{
-		LLVOAvatar* avatar = mVObjp->getAvatar();
-		if (avatar)
-		{
-			return avatar->mDrawable->getWorldMatrix();
-		}
-	}
-
 	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
@@ -727,8 +718,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		LLVOVolume* volume = getVOVolume();
 		if (volume)
 		{
-			volume->updateRelativeXform();
-			pos = volume->getRelativeXform().getTranslation();
+			pos.set(getPositionGroup().getF32ptr());
 			if (isStatic())
 			{
 				pos += volume->getRegion()->getOriginAgent();
