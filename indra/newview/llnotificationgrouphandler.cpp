@@ -104,7 +104,7 @@ bool LLGroupHandler::processNotification(const LLSD& notify)
 	{
 		mChannel->killToastByNotificationID(notification->getID());
 	}
-	return true;
+	return false;
 }
 
 //--------------------------------------------------------------------------

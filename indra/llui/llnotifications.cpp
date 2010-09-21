@@ -628,6 +628,12 @@ void LLNotification::respond(const LLSD& response)
 	update();
 }
 
+void LLNotification::respondWithDefault()
+{
+	respond(getResponseTemplate(WITH_DEFAULT_BUTTON));
+}
+
+
 const std::string& LLNotification::getName() const
 {
 	return mTemplatep->mName;
