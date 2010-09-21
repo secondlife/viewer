@@ -40,7 +40,8 @@ class LLUICtrlFactory;
 class LLMediaCtrl :
 	public LLPanel,
 	public LLViewerMediaObserver,
-	public LLViewerMediaEventEmitter
+	public LLViewerMediaEventEmitter,
+	public LLInstanceTracker<LLMediaCtrl, LLUUID>
 {
 	LOG_CLASS(LLMediaCtrl);
 public:

@@ -30,12 +30,19 @@
 #include "llnotificationhandler.h"
 #include "llnotifications.h"
 #include "llfloaterreg.h"
+#include "llmediactrl.h"
 
 using namespace LLNotificationsUI;
 
 bool LLBrowserNotification::processNotification(const LLSD& notify)
 {
+	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+	if (!notification) return false;
 
-	// browser notifications are currently handled directly by the LLMediaCtrl instance that spawned them
+	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(notification->getPayload()["media_id"].asUUID());
+	if (media_instance)
+	{
+		media_instance->showNotification(notification);
+	}
 	return false;
 }
