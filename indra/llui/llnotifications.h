@@ -441,6 +441,7 @@ public:
 	LLSD asLLSD();
 
 	void respond(const LLSD& sd);
+	void respondWithDefault();
 
 	void* getResponder() { return mResponderObj; }
 

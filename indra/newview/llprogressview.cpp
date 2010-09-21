@@ -41,6 +41,7 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llprogressbar.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
@@ -89,6 +90,8 @@ BOOL LLProgressView::postBuild()
 
 	// hidden initially, until we need it
 	LLPanel::setVisible(FALSE);
+
+	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
 
 	sInstance = this;
 	return TRUE;
@@ -286,6 +289,21 @@ bool LLProgressView::handleUpdate(const LLSD& event_data)
 	if(percent.isDefined())
 	{
 		setPercent(percent.asReal());
+	}
+	return false;
+}
+
+bool LLProgressView::onAlertModal(const LLSD& notify)
+{
+	// if the progress view is visible, it will obscure the notification window
+	// in this case, we want to auto-accept WebLaunchExternalTarget notifications
+	if (isInVisibleChain())
+	{
+		LLNotificationPtr notifyp = LLNotifications::instance().find(notify["id"].asUUID());
+		if (notifyp && notifyp->getName() == "WebLaunchExternalTarget")
+		{
+			notifyp->respondWithDefault();
+		}
 	}
 	return false;
 }

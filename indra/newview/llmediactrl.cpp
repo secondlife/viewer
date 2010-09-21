@@ -77,6 +77,7 @@ LLMediaCtrl::Params::Params()
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	LLPanel( p ),
+	LLInstanceTracker(LLUUID::generateNewID()),
 	mTextureDepthBytes( 4 ),
 	mBorder(NULL),
 	mFrequentUpdates( true ),
@@ -1032,7 +1033,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 			LLNotification::Params notify_params;
 			notify_params.name = "PopupAttempt";
-			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid);
+			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", getKey());
 			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
 
 			if (mTrusted)
@@ -1041,7 +1042,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			}
 			else
 			{
-				showNotification(LLNotifications::instance().add(notify_params));
+				LLNotifications::instance().add(notify_params);
 			}
 			break;
 		};

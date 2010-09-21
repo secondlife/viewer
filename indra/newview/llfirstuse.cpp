@@ -130,12 +130,15 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
 
 	if (enable)
 	{
-		LL_DEBUGS("LLFirstUse") << "Trigger first use notification " << notification_name << LL_ENDL;
+		if (gSavedSettings.getBOOL("EnableUIHints"))
+		{
+			LL_DEBUGS("LLFirstUse") << "Trigger first use notification " << notification_name << LL_ENDL;
 
-		// if notification doesn't already exist and this notification hasn't been disabled...
-		if (gWarningSettings.getBOOL(control_var))
-		{ // create new notification
-			LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload.with("control_var", control_var)));
+			// if notification doesn't already exist and this notification hasn't been disabled...
+			if (gWarningSettings.getBOOL(control_var))
+			{ // create new notification
+				LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload.with("control_var", control_var)));
+			}
 		}
 	}	
 	else
