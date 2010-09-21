@@ -2603,6 +2603,9 @@ void LLModelPreview::genLODs(S32 which_lod)
 			target_model->mInvBindMatrix = base->mInvBindMatrix;
 			target_model->mBindShapeMatrix = base->mBindShapeMatrix;
 
+			//copy material list
+			target_model->mMaterialList = base->mMaterialList;
+
 			if (!validate_model(target_model))
 			{
 				llerrs << "Invalid model generated when creating LODs" << llendl;
