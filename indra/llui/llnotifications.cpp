@@ -600,13 +600,18 @@ void LLNotification::respond(const LLSD& response)
 	{
 		mResponder->handleRespond(asLLSD(), response);
 	}
-	else
+	else if (!mResponseFunctorName.empty())
 	{
 		// look up the functor
 		LLNotificationFunctorRegistry::ResponseFunctor functor =
 			LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
 		// and then call it
 		functor(asLLSD(), response);
+	}
+	else
+	{
+		// no registered responder
+		return;
 	}
 
 	if (mTemporaryResponder && !isReusable())
