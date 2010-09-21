@@ -217,15 +217,6 @@ void LLPanelOutfitsInventory::onSave()
 	//payload["ids"].append(*it);
 	
 	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
-
-	//)
-	
-/*
-	LLOutfitSaveAsDialog* save_as_dialog = LLFloaterReg::showTypedInstance<LLOutfitSaveAsDialog>("outfit_save_as", LLSD(outfit_name), TRUE);
-	if (save_as_dialog)
-	{
-		save_as_dialog->setSaveAsCommit(boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1 ));
-	}*/
 }
 
 //static
