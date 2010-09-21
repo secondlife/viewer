@@ -197,9 +197,29 @@ protected:
 	virtual void initChannel();
 
 	// own handlers
-	void onRejectToast(LLUUID& id);
+	virtual void onRejectToast(LLUUID& id);
 };
 
+/**
+ * Handler for specific textbox-based script notices.
+ */
+
+class LLScriptTextboxHandler : public LLSysHandler
+{
+ public:
+	LLScriptTextboxHandler(e_notification_type type, const LLSD& id);
+	virtual ~LLScriptTextboxHandler();
+
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
+
+protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
+
+	// own handlers
+	virtual void onRejectToast(LLUUID& id);
+};
 
 /**
  * Handler for group system notices.
