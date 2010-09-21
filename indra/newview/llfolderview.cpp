@@ -1972,7 +1972,11 @@ void LLFolderView::scrollToShowSelection()
 {
 	// If items are filtered while background fetch is in progress
 	// scrollbar resets to the first filtered item. See EXT-3981.
-	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && mSelectedItems.size())
+	// However we allow scrolling for folder views with mAutoSelectOverride
+	// (used in Places SP) as an exception because the selection in them
+	// is not reset during items filtering. See STORM-133.
+	if ( (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mAutoSelectOverride)
+			&& mSelectedItems.size() )
 	{
 		mNeedsScroll = TRUE;
 	}
