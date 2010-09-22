@@ -56,8 +56,8 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
 	typedef std::map<std::string, std::string> string_string_map_t;
 	string_string_map_t unresolved_refs;
 
-	for(LLInitParam::ParamIterator<ColorEntryParams>::const_iterator it = p.color_entries().begin();
-		it != p.color_entries().end();
+	for(LLInitParam::ParamIterator<ColorEntryParams>::const_iterator it = p.color_entries.begin();
+		it != p.color_entries.end();
 		++it)
 	{
 		ColorEntryParams color_entry = *it;

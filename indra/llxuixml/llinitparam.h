@@ -958,7 +958,7 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			if (!typed_param.isProvided() || name_stack.empty()) return;
 
-			typename container_t::const_iterator it = typed_param.mValues.begin();
+			typename const_iterator it = typed_param.mValues.begin();
 			for (typename std::vector<key_cache_t>::const_iterator key_it = typed_param.mCachedKeys.begin();
 				it != typed_param.mValues.end();
 				++key_it, ++it)
@@ -1025,9 +1025,15 @@ namespace LLInitParam
 
 		// implicit conversion
 		operator value_assignment_t() const { return self_t::get(); } 
-		// explicit conversion
-		value_assignment_t operator()() const { return get(); } 
-		container_t& operator()() { return mValues; }
+
+		typedef typename container_t::iterator iterator;
+		typedef typename container_t::const_iterator const_iterator;
+		iterator begin() { return mValues.begin(); }
+		iterator end() { return mValues.end(); }
+		const_iterator begin() const { return mValues.begin(); }
+		const_iterator end() const { return mValues.end(); }
+		bool empty() const { return mValues.empty(); }
+		size_t size() const { return mValues.size(); }
 
 		U32 numValidElements() const
 		{
@@ -1160,7 +1166,7 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			if (!typed_param.isProvided() || name_stack.empty()) return;
 
-			typename container_t::const_iterator it = typed_param.mValues.begin();
+			const_iterator it = typed_param.mValues.begin();
 			for (typename std::vector<Data>::const_iterator key_it = typed_param.mCachedKeys.begin();
 				it != typed_param.mValues.end();
 				++key_it, ++it)
@@ -1224,14 +1230,20 @@ namespace LLInitParam
 
 		// implicit conversion
 		operator value_assignment_t() const { return self_t::get(); } 
-		// explicit conversion
-		value_assignment_t operator()() const { return get(); } 
-		container_t& operator()() { return mValues; }
+
+		typedef typename container_t::iterator iterator;
+		typedef typename container_t::const_iterator const_iterator;
+		iterator begin() { return mValues.begin(); }
+		iterator end() { return mValues.end(); }
+		const_iterator begin() const { return mValues.begin(); }
+		const_iterator end() const { return mValues.end(); }
+		bool empty() const { return mValues.empty(); }
+		size_t size() const { return mValues.size(); }
 
 		U32 numValidElements() const
 		{
 			U32 count = 0;
-			for (typename container_t::const_iterator it = mValues.begin();
+			for (const_iterator it = mValues.begin();
 				it != mValues.end();
 				++it)
 			{
@@ -1518,14 +1530,12 @@ namespace LLInitParam
 			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
 			typedef typename super_t::container_t									container_t;
 			typedef typename super_t::value_assignment_t							value_assignment_t;
-			typedef typename container_t::iterator									iterator;
-			typedef typename container_t::const_iterator							const_iterator;
+			typedef typename super_t::iterator										iterator;
+			typedef typename super_t::const_iterator								const_iterator;
 
 			explicit Multiple(const char* name = "", value_assignment_t val = DefaultInitializer<container_t>::get())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, &validate, RANGE::minCount(), RANGE::maxCount())
 			{}
-
-			using super_t::operator();
 
 			Multiple& operator=(value_assignment_t val)
 			{

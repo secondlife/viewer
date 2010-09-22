@@ -446,8 +446,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 		setVisibleCallback(initCommitCallback(p.visible_callback));
 	}
 	
-	for (LLInitParam::ParamIterator<LocalizedString>::const_iterator it = p.strings().begin();
-		it != p.strings().end();
+	for (LLInitParam::ParamIterator<LocalizedString>::const_iterator it = p.strings.begin();
+		it != p.strings.end();
 		++it)
 	{
 		mUIStrings[it->name] = it->value;

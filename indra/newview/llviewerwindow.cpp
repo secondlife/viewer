@@ -2393,7 +2393,7 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 {
 	if (viewp) 
 	{
-		if (!params.styled_message().empty())
+		if (!params.styled_message.empty())
 		{
 			params.styled_message.add().text("\n---------\n"); 
 		}

@@ -395,8 +395,8 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		mSoundEffect = LLUUID(LLUI::sSettingGroups["config"]->getString(p.sound));
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::UniquenessContext>::const_iterator it = p.unique.contexts().begin(),
-			end_it = p.unique.contexts().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::UniquenessContext>::const_iterator it = p.unique.contexts.begin(),
+			end_it = p.unique.contexts.end();
 		it != end_it;
 		++it)
 	{
@@ -1313,8 +1313,8 @@ void replaceFormText(LLNotificationForm::Params& form, const std::string& patter
 	{
 		form.ignore.text = replace;
 	}
-	for (LLInitParam::ParamIterator<LLNotificationForm::FormElement>::iterator it = form.form_elements.elements().begin(),
-			end_it = form.form_elements.elements().end();
+	for (LLInitParam::ParamIterator<LLNotificationForm::FormElement>::iterator it = form.form_elements.elements.begin(),
+			end_it = form.form_elements.elements.end();
 		it != end_it;
 		++it)
 	{
@@ -1345,7 +1345,7 @@ bool LLNotifications::loadTemplates()
 
 	mTemplates.clear();
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::GlobalString>::const_iterator it = params.strings().begin(), end_it = params.strings().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::GlobalString>::const_iterator it = params.strings.begin(), end_it = params.strings.end();
 		it != end_it;
 		++it)
 	{
@@ -1354,14 +1354,14 @@ bool LLNotifications::loadTemplates()
 
 	std::map<std::string, LLNotificationForm::Params> form_templates;
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::Template>::const_iterator it = params.templates().begin(), end_it = params.templates().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::Template>::const_iterator it = params.templates.begin(), end_it = params.templates.end();
 		it != end_it;
 		++it)
 	{
 		form_templates[it->name] = it->form;
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::Params>::iterator it = params.notifications().begin(), end_it = params.notifications().end();
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::Params>::iterator it = params.notifications.begin(), end_it = params.notifications.end();
 		it != end_it;
 		++it)
 	{

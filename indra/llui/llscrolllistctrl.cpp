@@ -259,15 +259,15 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	}
 
 	
-	for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = p.contents.columns().begin();
-		row_it != p.contents.columns().end();
+	for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = p.contents.columns.begin();
+		row_it != p.contents.columns.end();
 		++row_it)
 	{
 		addColumn(*row_it);
 	}
 
-	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows().begin();
-		row_it != p.contents.rows().end();
+	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
+		row_it != p.contents.rows.end();
 		++row_it)
 	{
 		addRow(*row_it);
@@ -2776,8 +2776,8 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 	// Add any columns we don't already have
 	S32 col_index = 0;
 
-	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns().begin();
-		itor != item_p.columns().end();
+	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns.begin();
+		itor != item_p.columns.end();
 		++itor)
 	{
 		LLScrollListCell::Params cell_p = *itor;
@@ -2828,7 +2828,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 		col_index++;
 	}
 
-	if (item_p.columns().empty())
+	if (item_p.columns.empty())
 	{
 		if (mColumns.empty())
 		{
