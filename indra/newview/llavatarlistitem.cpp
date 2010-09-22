@@ -70,7 +70,8 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
-	mShowPermissions(false)
+	mShowPermissions(false),
+	mHovered(false)
 {
 	if (not_from_ui_factory)
 	{
