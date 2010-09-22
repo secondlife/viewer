@@ -32,7 +32,7 @@
 class LLPopupView : public LLPanel
 {
 public:
-	LLPopupView();
+	LLPopupView(const Params& p = LLPanel::Params());
 	~LLPopupView();
 
 	/*virtual*/ void draw();

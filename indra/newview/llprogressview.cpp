@@ -297,7 +297,7 @@ bool LLProgressView::onAlertModal(const LLSD& notify)
 {
 	// if the progress view is visible, it will obscure the notification window
 	// in this case, we want to auto-accept WebLaunchExternalTarget notifications
-	if (isInVisibleChain())
+	if (isInVisibleChain() && notify["sigtype"].asString() == "add")
 	{
 		LLNotificationPtr notifyp = LLNotifications::instance().find(notify["id"].asUUID());
 		if (notifyp && notifyp->getName() == "WebLaunchExternalTarget")
