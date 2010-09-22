@@ -133,12 +133,6 @@ private:
 
 bool filterIgnoredNotifications(LLNotificationPtr notification)
 {
-	// filter everything if we are to ignore ALL
-	if(LLNotifications::instance().getIgnoreAllNotifications())
-	{
-		return false;
-	}
-
 	LLNotificationFormPtr form = notification->getForm();
 	// Check to see if the user wants to ignore this alert
 	return !notification->getForm()->getIgnored();
@@ -169,6 +163,20 @@ bool handleIgnoredNotification(const LLSD& payload)
 		pNotif->setIgnored(true);
 		pNotif->respond(response);
 		return true; 	// don't process this item any further
+	}
+	return false;
+}
+
+bool defaultResponse(const LLSD& payload)
+{
+	if (payload["sigtype"].asString() == "add")
+	{
+		LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
+		if (pNotif) 
+		{
+			// supply default response
+			pNotif->respond(pNotif->getResponseTemplate(LLNotification::WITH_DEFAULT_BUTTON));
+		}
 	}
 	return false;
 }
@@ -1187,9 +1195,11 @@ void LLNotifications::createDefaultChannels()
 {
 	// now construct the various channels AFTER loading the notifications,
 	// because the history channel is going to rewrite the stored notifications file
-	LLNotificationChannel::buildChannel("Expiration", "",
+	LLNotificationChannel::buildChannel("Enabled", "",
+		!boost::bind(&LLNotifications::getIgnoreAllNotifications, this));
+	LLNotificationChannel::buildChannel("Expiration", "Enabled",
 		boost::bind(&LLNotifications::expirationFilter, this, _1));
-	LLNotificationChannel::buildChannel("Unexpired", "",
+	LLNotificationChannel::buildChannel("Unexpired", "Enabled",
 		!boost::bind(&LLNotifications::expirationFilter, this, _1)); // use negated bind
 	LLNotificationChannel::buildChannel("Unique", "Unexpired",
 		boost::bind(&LLNotifications::uniqueFilter, this, _1));
@@ -1203,6 +1213,8 @@ void LLNotifications::createDefaultChannels()
 	new LLPersistentNotificationChannel();
 
 	// connect action methods to these channels
+	LLNotifications::instance().getChannel("Enabled")->
+		connectFailedFilter(&defaultResponse);
 	LLNotifications::instance().getChannel("Expiration")->
         connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
 	// uniqueHandler slot should be added as first slot of the signal due to

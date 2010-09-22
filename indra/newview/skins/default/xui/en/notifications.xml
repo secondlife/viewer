@@ -2069,7 +2069,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -2091,7 +2091,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -2114,7 +2114,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -4812,24 +4812,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="GroupVote"
-   type="notify">
-[NAME] has proposed to vote on:
-[MESSAGE]
-    <form name="form">
-      <button
-       index="0"
-       name="VoteNow"
-       text="Vote Now"/>
-      <button
-       index="1"
-       name="Later"
-       text="Later"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="SystemMessage"
    persist="true"
    type="notify">
@@ -6313,13 +6295,9 @@ Avatar '[NAME]' left appearance mode.
    type="alertmodal">
 We're having trouble connecting using [PROTOCOL] [HOSTID].
 Please check your network and firewall setup.
-    <form name="form">
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-    </form>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -6332,13 +6310,9 @@ We're having trouble connecting to your voice server:
 
 Voice communications will not be available.
 Please check your network and firewall setup.
-    <form name="form">
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-    </form>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
