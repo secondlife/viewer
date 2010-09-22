@@ -168,12 +168,12 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLModelLoader::model_list mModel[LLModel::NUM_LODS];
 	LLModelLoader::model_list mBaseModel;
 
-	std::map<LLModel*, U32> mGroup;
-	std::map<LLModel*, U32> mObject;
-	std::map<LLModel*, std::vector<U32> > mPatch;
+	std::map<LLPointer<LLModel>, U32> mGroup;
+	std::map<LLPointer<LLModel>, U32> mObject;
+	std::map<LLPointer<LLModel>, std::vector<U32> > mPatch;
+	std::map<LLPointer<LLModel>, F32> mPercentage;
 
-	std::map<LLModel*, F32> mPercentage;
-	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
+	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
 	LLMeshUploadThread::instance_list mUploadData;
 	std::set<LLPointer<LLViewerFetchedTexture> > mTextureSet;
