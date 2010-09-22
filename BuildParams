@@ -88,8 +88,8 @@ viewer-mesh.build_hg_bundle = true
 viewer-mesh.build_viewer_update_version_manager = false
 viewer-mesh.build_Debug = false
 viewer-mesh.build_RelWithDebInfo = false
-viewer-mesh.viewer_channel = "Second Life Mesh Beta"
-viewer-mesh.login_channel = "Second Life Mesh Beta"
+viewer-mesh.viewer_channel = "Project Viewer - Mesh"
+viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
