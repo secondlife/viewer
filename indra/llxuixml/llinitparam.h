@@ -958,7 +958,7 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			if (!typed_param.isProvided() || name_stack.empty()) return;
 
-			typename const_iterator it = typed_param.mValues.begin();
+			const_iterator it = typed_param.mValues.begin();
 			for (typename std::vector<key_cache_t>::const_iterator key_it = typed_param.mCachedKeys.begin();
 				it != typed_param.mValues.end();
 				++key_it, ++it)
