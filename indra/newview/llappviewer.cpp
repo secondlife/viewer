@@ -2135,7 +2135,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("nonotifications"))
 	{
-		gSavedSettings.setBOOL("IgnoreAllNotifications", TRUE);
+		gSavedSettings.getControl("IgnoreAllNotifications")->setValue(true, false);
 	}
 	
 	if (clp.hasOption("debugsession"))
