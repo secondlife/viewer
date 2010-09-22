@@ -350,6 +350,10 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	{
 		mFolders.insert(mFolders.begin(), folder);
 	}
+	if (folder->numSelected())
+	{
+		recursiveIncrementNumDescendantsSelected(folder->numSelected());
+	}
 	folder->setShowLoadStatus(true);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
@@ -692,29 +696,24 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	return rv;
 }
 
-S32 LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items)
+void LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items)
 {
-	S32 rv = 0;
-
 	// now store resulting selection
 	if (mAllowMultiSelect)
 	{
 		LLFolderViewItem *cur_selection = getCurSelectedItem();
-		rv = LLFolderViewFolder::extendSelection(selection, cur_selection, items);
+		LLFolderViewFolder::extendSelection(selection, cur_selection, items);
 		for (S32 i = 0; i < items.count(); i++)
 		{
 			addToSelectionList(items[i]);
-			rv++;
 		}
 	}
 	else
 	{
 		setSelection(selection, FALSE, FALSE);
-		rv++;
 	}
 
 	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
-	return rv;
 }
 
 void LLFolderView::sanitizeSelection()
