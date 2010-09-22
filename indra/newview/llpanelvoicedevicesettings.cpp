@@ -1,5 +1,5 @@
 /** 
- * @file llfloatervoicedevicesettings.cpp
+ * @file llpanelvoicedevicesettings.cpp
  * @author Richard Nelson
  * @brief Voice communication set-up 
  *
@@ -27,13 +27,10 @@
  
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloatervoicedevicesettings.h"
+#include "llpanelvoicedevicesettings.h"
 
 // Viewer includes
-#include "llbutton.h"
 #include "llcombobox.h"
-#include "llfocusmgr.h"
-#include "lliconctrl.h"
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
@@ -70,8 +67,10 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	// set mic volume tuning slider based on last mic volume setting
 	volume_slider->setValue(mMicVolume);
 
-	childSetCommitCallback("voice_input_device", onCommitInputDevice, this);
-	childSetCommitCallback("voice_output_device", onCommitOutputDevice, this);
+	getChild<LLComboBox>("voice_input_device")->setCommitCallback(
+		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
+	getChild<LLComboBox>("voice_output_device")->setCommitCallback(
+		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
 	
 	return TRUE;
 }
@@ -303,91 +302,20 @@ void LLPanelVoiceDeviceSettings::cleanup()
 	LLVoiceChannel::resume();
 }
 
-// static
-void LLPanelVoiceDeviceSettings::onCommitInputDevice(LLUICtrl* ctrl, void* user_data)
+void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setCaptureDevice(ctrl->getValue().asString());
+		LLVoiceClient::getInstance()->setCaptureDevice(
+			getChild<LLComboBox>("voice_input_device")->getValue().asString());
 	}
 }
 
-// static
-void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user_data)
+void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setRenderDevice(ctrl->getValue().asString());
+		LLVoiceClient::getInstance()->setRenderDevice(
+			getChild<LLComboBox>("voice_input_device")->getValue().asString());
 	}
-}
-
-//
-// LLFloaterVoiceDeviceSettings
-//
-
-LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
-	: LLFloater(seed),
-	  mDevicePanel(NULL)
-{
-	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
-	// do not automatically open singleton floaters (as result of getInstance())
-//	BOOL no_open = FALSE;
-//	Called from floater reg:  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);	
-}
-BOOL LLFloaterVoiceDeviceSettings::postBuild()
-{
-	center();
-	return TRUE;
-}
-
-// virtual
-void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
-{
-	if(mDevicePanel)
-	{
-		mDevicePanel->initialize();
-	}
-}
-
-// virtual
-void LLFloaterVoiceDeviceSettings::onClose(bool app_settings)
-{
-	if(mDevicePanel)
-	{
-		mDevicePanel->apply();
-		mDevicePanel->cleanup();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::apply()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->apply();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::cancel()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->cancel();
-	}
-}
-
-void LLFloaterVoiceDeviceSettings::draw()
-{
-	if (mDevicePanel)
-	{
-		mDevicePanel->refresh();
-	}
-	LLFloater::draw();
-}
-
-// static
-void* LLFloaterVoiceDeviceSettings::createPanelVoiceDeviceSettings(void* user_data)
-{
-	LLFloaterVoiceDeviceSettings* floaterp = (LLFloaterVoiceDeviceSettings*)user_data;
-	floaterp->mDevicePanel = new LLPanelVoiceDeviceSettings();
-	return floaterp->mDevicePanel;
 }

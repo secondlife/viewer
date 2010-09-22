@@ -216,7 +216,6 @@ set(viewer_SOURCE_FILES
     llfloatertos.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoicedevicesettings.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
@@ -364,6 +363,7 @@ set(viewer_SOURCE_FILES
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
+    llpanelvoicedevicesettings.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llpanelwearing.cpp
@@ -746,7 +746,6 @@ set(viewer_HEADER_FILES
     llfloatertos.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoicedevicesettings.h
     llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
@@ -886,6 +885,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoicedevicesettings.h
     llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h

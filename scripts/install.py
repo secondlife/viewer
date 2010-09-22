@@ -84,18 +84,6 @@ except ImportError:
 from indra.base import llsd
 from indra.util import helpformatter
 
-# *HACK: Necessary for python 2.3. Consider removing this code wart
-# after etch has deployed everywhere. 2008-12-23 Phoenix
-try:
-    sorted = sorted
-except NameError:
-    def sorted(in_list):
-        "Return a list which is a sorted copy of in_list."
-        # Copy the source to be more functional and side-effect free.
-        out_list = copy.copy(in_list)
-        out_list.sort()
-        return out_list
-
 class InstallFile(object):
     "This is just a handy way to throw around details on a file in memory."
     def __init__(self, pkgname, url, md5sum, cache_dir, platform_path):

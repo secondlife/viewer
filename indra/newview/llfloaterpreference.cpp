@@ -49,7 +49,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
-#include "llfloatervoicedevicesettings.h"
 #include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
@@ -58,6 +57,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanellogin.h"
+#include "llpanelvoicedevicesettings.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"
 #include "llsky.h"
@@ -407,12 +407,6 @@ void LLFloaterPreference::apply()
 		hardware_settings->apply();
 	}
 	
-	LLFloaterVoiceDeviceSettings* voice_device_settings = LLFloaterReg::findTypedInstance<LLFloaterVoiceDeviceSettings>("pref_voicedevicesettings");
-	if(voice_device_settings)
-	{
-		voice_device_settings->apply();
-	}
-	
 	gViewerWindow->requestResolutionUpdate(); // for UIScaleFactor
 
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
@@ -487,15 +481,6 @@ void LLFloaterPreference::cancel()
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
-	
-	LLFloaterVoiceDeviceSettings* voice_device_settings = LLFloaterReg::findTypedInstance<LLFloaterVoiceDeviceSettings>("pref_voicedevicesettings");
-	if (voice_device_settings)
-	{
-		voice_device_settings ->cancel();
-	}
-	
-	LLFloaterReg::hideInstance("pref_voicedevicesettings");
-	
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
