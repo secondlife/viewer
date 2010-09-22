@@ -259,7 +259,8 @@ void LLVOCache::destroyClass()
 LLVOCache::LLVOCache():
 	mInitialized(FALSE),
 	mReadOnly(TRUE),
-	mNumEntries(0)
+	mNumEntries(0),
+	mCacheSize(1)
 {
 	mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
 }
@@ -291,8 +292,8 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	{
 		LLFile::mkdir(mObjectCacheDirName);
 	}	
-	mCacheSize = llmin(size, MAX_NUM_OBJECT_ENTRIES) ;
-	mCacheSize = llmax(mCacheSize, NUM_ENTRIES_TO_PURGE);
+	mCacheSize = llclamp(size,
+			     MAX_NUM_OBJECT_ENTRIES, NUM_ENTRIES_TO_PURGE);
 
 	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();
