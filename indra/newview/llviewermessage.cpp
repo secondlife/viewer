@@ -4213,13 +4213,11 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 
 	// Don't play sounds from a region with maturity above current agent maturity
 	LLVector3d pos_global = objectp->getPositionGlobal();
-	if( !gAgent.canAccessMaturityAtGlobal( pos_global ) )
+	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
-		return;
+		// Add audioData starts a transfer internally.
+		sourcep->addAudioData(datap, FALSE);
 	}
-	
-	// Add audioData starts a transfer internally.
-	sourcep->addAudioData(datap, FALSE);
 }
 
 void process_attached_sound(LLMessageSystem *msg, void **user_data)
