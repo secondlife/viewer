@@ -304,7 +304,11 @@ private:
 		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 		
 		// create single browser window
+#if LLQTWEBKIT_API_VERSION < 2
+		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight);
+#else
 		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight, mTarget);
+#endif
 
 		// tell LLQtWebKit about the size of the browser window
 		LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
@@ -505,9 +509,14 @@ private:
 	void onClickLinkHref(const EventType& event)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
+#if LLQTWEBKIT_API_VERSION < 2
+		message.setValue("uri", event.getStringValue());
+		message.setValue("target", event.getStringValue2());
+#else
 		message.setValue("uri", event.getEventUri());
 		message.setValue("target", event.getStringValue());
 		message.setValue("uuid", event.getStringValue2());
+#endif
 		sendMessage(message);
 	}
 	
@@ -516,7 +525,11 @@ private:
 	void onClickLinkNoFollow(const EventType& event)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
+#if LLQTWEBKIT_API_VERSION < 2
+		message.setValue("uri", event.getStringValue());
+#else
 		message.setValue("uri", event.getEventUri());
+#endif
 		sendMessage(message);
 	}
 	
@@ -538,7 +551,9 @@ private:
 	void onWindowCloseRequested(const EventType& event)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "close_request");
+#if LLQTWEBKIT_API_VERSION >= 2
 		message.setValue("uuid", event.getStringValue());
+#endif
 		sendMessage(message);
 	}
 
@@ -1199,6 +1214,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 					}
 				}
 			}
+#if LLQTWEBKIT_API_VERSION >= 2
 			else if(message_name == "proxy_window_opened")
 			{
 				std::string target = message_in.getValue("target");
@@ -1210,6 +1226,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				std::string uuid = message_in.getValue("uuid");
 				LLQtWebKit::getInstance()->proxyWindowClosed(mBrowserWindowId, uuid);
 			}
+#endif
 			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media_browser message: " << message_string << std::endl;
