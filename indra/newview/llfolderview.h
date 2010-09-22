@@ -150,7 +150,7 @@ public:
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
 
 	// Called once a frame to update the selection if mSelectThisID has been set
-	void updateSelection(); 
+	void updateSelection();
 
 	// This method is used to toggle the selection of an item. Walks
 	// children, and keeps track of selected objects.
