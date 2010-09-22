@@ -6206,7 +6206,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 {
 	S32 new_verts = mNumVertices+1;
 	S32 new_size = new_verts*16;
-	S32 old_size = mNumVertices*16;
+//	S32 old_size = mNumVertices*16;
 
 	//positions
 	mPositions = (LLVector4a*) realloc(mPositions, new_size);
