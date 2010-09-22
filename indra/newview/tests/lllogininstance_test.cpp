@@ -100,8 +100,6 @@ void LLCredential::authenticatorType(std::string &idType)
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
 LLGridManager::~LLGridManager()
-:
-	mIsInProductionGrid(false)
 {
 }
 
@@ -109,6 +107,8 @@ void LLGridManager::addGrid(LLSD& grid_data)
 {
 }
 LLGridManager::LLGridManager()
+:
+	mIsInProductionGrid(false)
 {	
 }
 
