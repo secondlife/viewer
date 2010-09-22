@@ -1257,6 +1257,12 @@ void LLMeshUploadThread::run()
 
 	// now upload the object asset
 	std::string url = mUploadObjectAssetCapability;
+
+	if (object_asset["objects"][0].has("permissions"))
+	{ //copy permissions from first available object to be used for coalesced object
+		object_asset["permissions"] = object_asset["objects"][0]["permissions"];
+	}
+
 	LLHTTPClient::post(url, object_asset, new LLHTTPClient::Responder());
 
 	mFinished = true;
@@ -2399,6 +2405,8 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	perm.setEveryoneBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getEveryonePerms());
 
 	object_params["permissions"] = ll_create_sd_from_permissions(perm);
+
+	object_params["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 
 	return object_params;
 }
