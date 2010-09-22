@@ -603,7 +603,7 @@ void LLVertexBuffer::createGLBuffer()
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
-		mMappedData = (U8*) ll_aligned_malloc_16(size);
+		mMappedData = (U8*) malloc(size);
 	}
 }
 
@@ -637,7 +637,7 @@ void LLVertexBuffer::createGLIndices()
 	}
 	else
 	{
-		mMappedIndexData = (U8*) ll_aligned_malloc_16(size);
+		mMappedIndexData = (U8*) malloc(size);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
 	}
@@ -658,7 +658,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			ll_aligned_free_16(mMappedData);
+			free(mMappedData);
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -685,7 +685,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			ll_aligned_free_16(mMappedIndexData);
+			free(mMappedIndexData);
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -818,8 +818,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					ll_aligned_free_16(mMappedData);
-					mMappedData = (U8*) ll_aligned_malloc_16(newsize);
+					free(mMappedData);
+					mMappedData = (U8*) malloc(newsize);
 				}
 				mResized = TRUE;
 			}
@@ -839,8 +839,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					ll_aligned_free_16(mMappedIndexData);
-					mMappedIndexData = (U8*) ll_aligned_malloc_16(new_index_size);
+					free(mMappedIndexData);
+					mMappedIndexData = (U8*) malloc(new_index_size);
 				}
 				mResized = TRUE;
 			}
