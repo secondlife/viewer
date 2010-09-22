@@ -45,7 +45,6 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
-#include "llmodel.h" //for LL_MESH_ENaBLED
 
 #include <stack>
 
@@ -67,9 +66,7 @@ class LLVOAvatar;
 class LLGLSLShader;
 class LLCurlRequest;
 
-#if LL_MESH_ENABLED
 class LLMeshResponder;
-#endif
 
 typedef enum e_avatar_skinning_method
 {
@@ -475,9 +472,7 @@ public:
 
 	S32						 mDebugTextureUploadCost;
 	S32						 mDebugSculptUploadCost;
-#if LL_MESH_ENABLED
 	S32						 mDebugMeshUploadCost;
-#endif
 
 	S32						 mLightingChanges;
 	S32						 mGeometryChanges;

@@ -37,8 +37,6 @@
 
 #include "glod/glod.h"
 
-#if LL_MESH_ENABLED
-
 static BOOL stop_gloderror()
 {
 	GLuint error = glodGetError();
@@ -287,5 +285,4 @@ LLPointer<LLModel> LLMeshReduction::reduce(LLModel* in_model, F32 limit, S32 mod
 	return out_model;
 }
 
-#endif
 

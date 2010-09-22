@@ -212,13 +212,11 @@ void LLFace::destroy()
 	
 	if (mDrawPoolp)
 	{
-#if LL_MESH_ENABLED
 		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
 		{
 			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
 		}
 		else
-#endif
 		{
 			mDrawPoolp->removeFace(this);
 		}

@@ -98,9 +98,6 @@
 
 #include "glod/glod.h"
 
-
-#if LL_MESH_ENABLED
-
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
@@ -3436,6 +3433,4 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
 }
-
-#endif
 

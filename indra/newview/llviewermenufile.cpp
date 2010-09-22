@@ -350,7 +350,6 @@ class LLFileUploadImage : public view_listener_t
 	}
 };
 
-#if LL_MESH_ENABLED
 class LLFileUploadScene : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -377,7 +376,6 @@ class LLFileUploadModel : public view_listener_t
 		return TRUE;
 	}
 };
-#endif
 	
 class LLFileUploadSound : public view_listener_t
 {
@@ -1186,7 +1184,6 @@ void upload_new_resource(
 	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 
-#if LL_MESH_ENABLED
 	std::string url = gAgent.getRegion()->getCapability(
 		"NewFileAgentInventory");
 
@@ -1216,7 +1213,6 @@ void upload_new_resource(
 		LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, uuid, asset_type));
 	}
 	else
-#endif
 	{
 		llinfos << "NewAgentInventory capability not found, new agent inventory via asset system." << llendl;
 		// check for adequate funds
@@ -1264,7 +1260,6 @@ void upload_new_resource(
 	}
 }
 
-#if LL_MESH_ENABLED
 BOOL upload_new_variable_price_resource(
 	const LLTransactionID &tid, 
 	LLAssetType::EType asset_type,
@@ -1336,7 +1331,6 @@ BOOL upload_new_variable_price_resource(
 		return FALSE;
 	}
 }
-#endif
 
 LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid)
 {
@@ -1407,10 +1401,8 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileUploadImage(), "File.UploadImage");
 	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
 	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
-#if LL_MESH_ENABLED
 	view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
 	view_listener_t::addCommit(new LLFileUploadScene(), "File.UploadScene");
-#endif
 	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
 	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");

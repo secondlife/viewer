@@ -946,7 +946,6 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 
 	BOOL is404 = FALSE;
 
-#if LL_MESH_ENABLED
 	if (isSculpted())
 	{
 		// if it's a mesh
@@ -966,7 +965,6 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			}
 		}
 	}
-#endif
 
 	// Check if we need to change implementations
 	bool is_flexible = (volume_params.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE);
@@ -1015,7 +1013,6 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		if (isSculpted())
 		{
 			updateSculptTexture();
-#if LL_MESH_ENABLED
 			// if it's a mesh
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
@@ -1031,7 +1028,6 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 				}
 			}
 			else // otherwise is sculptie
-#endif
 			{
 				if (mSculptTexture.notNull())
 				{
@@ -2725,7 +2721,6 @@ BOOL LLVOVolume::isSculpted() const
 
 BOOL LLVOVolume::isMesh() const
 {
-#if LL_MESH_ENABLED
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
@@ -2737,8 +2732,6 @@ BOOL LLVOVolume::isMesh() const
 			return TRUE;	
 		}
 	}
-#endif
-
 
 	return FALSE;
 }
@@ -3258,7 +3251,6 @@ F32 LLVOVolume::getBinRadius()
 	
 	F32 scale = 1.f;
 
-#if LL_MESH_ENABLED
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
@@ -3280,7 +3272,6 @@ F32 LLVOVolume::getBinRadius()
 			scale = 1.f/llmax(vert_count/1024.f, 1.f);
 		}
 	}
-#endif
 
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
@@ -3912,7 +3903,6 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
-#if LL_MESH_ENABLED
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
 	LLVOAvatar* avatar = vobj->getAvatar();
@@ -3939,7 +3929,6 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 
 	return NULL;
 }
-#endif		
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -4006,11 +3995,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
 
-#if LL_MESH_ENABLED
 		bool rigged = vobj->isAttachment() && 
 					vobj->isMesh() && 
 					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID());
-#endif
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
@@ -4023,7 +4010,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
 
-#if LL_MESH_ENABLED
 			if (rigged) 
 			{
 				if (!facep->isState(LLFace::RIGGED))
@@ -4129,7 +4115,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->clearState(LLFace::RIGGED);
 				}
 			}
-#endif
 
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{

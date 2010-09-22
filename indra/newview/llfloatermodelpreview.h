@@ -40,7 +40,6 @@
 #include "llmodel.h"
 #include "llthread.h"
 
-#if LL_MESH_ENABLED
 class LLComboBox;
 class LLJoint;
 class LLViewerJointMesh;
@@ -271,7 +270,5 @@ protected:
 	BOOL			mLoading;
 	static S32		sUploadAmount;
 };
-
-#endif
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H

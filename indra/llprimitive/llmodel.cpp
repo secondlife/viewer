@@ -41,7 +41,6 @@
 #include "dom/domMesh.h"
 #include "zlib/zlib.h"
 
-#if LL_MESH_ENABLED
 
 std::string model_names[] =
 {
@@ -1710,5 +1709,4 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}					
 }
 
-#endif
 
