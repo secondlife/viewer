@@ -1356,7 +1356,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
-	bool rigged = false;
+//	bool rigged = false;
 	LLVolume* volume = mRiggedVolume;
 	if (!volume)
 	{
