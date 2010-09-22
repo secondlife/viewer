@@ -1354,6 +1354,9 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	LLVector4a min,max;
 
+	min.clear();
+	max.clear();
+
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
 //	bool rigged = false;
