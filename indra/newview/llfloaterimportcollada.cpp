@@ -74,8 +74,6 @@
 // floater
 //
 
-#if LL_MESH_ENABLED
-
 LLFloaterImportCollada::LLFloaterImportCollada(const LLSD& key)
 	: LLFloater(key)
 {
@@ -1113,4 +1111,3 @@ void LLImportCollada::onCommitCancel(LLUICtrl*, void*)
 	getInstance()->endImport();
 }
 
-#endif

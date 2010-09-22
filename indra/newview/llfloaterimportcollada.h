@@ -34,9 +34,6 @@
 #define LL_LLFLOATERIMPORTCOLLADA_H
 
 #include "llfloater.h"
-#include "llvolume.h" //for LL_MESH_ENABLED
-
-#if LL_MESH_ENABLED
 
 class LLFloaterImportCollada : public LLFloater
 {
@@ -137,7 +134,5 @@ private:
 	
 	LLMatrix4   mSceneTransformation;
 };
-
-#endif
 
 #endif // LL_LLFLOATERIMPORTCOLLADA_H

@@ -36,8 +36,6 @@
 #include "v4math.h"
 #include "m4math.h"
 
-#if LL_MESH_ENABLED
-
 class daeElement;
 class domMesh;
 
@@ -172,8 +170,5 @@ protected:
 	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromDomMesh(domMesh *mesh);
 };
-
-
-#endif
 
 #endif //LL_LLMODEL_H

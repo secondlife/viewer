@@ -331,9 +331,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 	addEntry(DAD_ANIMATION, 	new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_GESTURE, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dActivateGesture,		&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_LINK, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,						&LLToolDragAndDrop::dad3dNULL));
-#if LL_MESH_ENABLED
 	addEntry(DAD_MESH, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dMeshObject,			&LLToolDragAndDrop::dad3dNULL));
-#endif
 	// TODO: animation on self could play it?  edit it?
 	// TODO: gesture on self could play it?  edit it?
 };
@@ -1037,7 +1035,6 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	hit_obj->sendTEUpdate();
 }
 
-#if LL_MESH_ENABLED
 void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 								 LLInventoryItem* item,
 								 LLToolDragAndDrop::ESource source,
@@ -1062,7 +1059,6 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 	
 	dialog_refresh_all();
 }
-#endif
 
 /*
 void LLToolDragAndDrop::dropTextureOneFaceAvatar(LLVOAvatar* avatar, S32 hit_face, LLInventoryItem* item)
@@ -1505,9 +1501,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_ANIMATION:
 	case DAD_GESTURE:
 	case DAD_CALLINGCARD:
-#if LL_MESH_ENABLED
 	case DAD_MESH:
-#endif
 	{
 		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 		if(gInventory.getItem(inv_item->getUUID())
@@ -1864,12 +1858,10 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 				dropTextureOneFace(obj, face, item, mSource, mSourceID);
 			}
 		}
-#if LL_MESH_ENABLED
 		else if (cargo_type == DAD_MESH)
 		{
 			dropMesh(obj, item, mSource, mSourceID);
 		}
-#endif
 		else
 		{
 			llwarns << "unsupported asset type" << llendl;
@@ -1894,15 +1886,11 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	return dad3dApplyToObject(obj, face, mask, drop, DAD_TEXTURE);
 }
 
-#if LL_MESH_ENABLED
 EAcceptance LLToolDragAndDrop::dad3dMeshObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	return dad3dApplyToObject(obj, face, mask, drop, DAD_MESH);
 }
-#endif
-
-
 
 
 /*

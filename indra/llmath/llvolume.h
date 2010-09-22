@@ -41,8 +41,6 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-#define LL_MESH_ENABLED 1
-
 template <class T> class LLOctreeNode;
 
 class LLVector4a;
@@ -192,15 +190,9 @@ const U8 LL_SCULPT_TYPE_SPHERE    = 1;
 const U8 LL_SCULPT_TYPE_TORUS     = 2;
 const U8 LL_SCULPT_TYPE_PLANE     = 3;
 const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
-#if LL_MESH_ENABLED
 const U8 LL_SCULPT_TYPE_MESH      = 5;
-
 const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
 	LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH;
-#else
-const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
-	LL_SCULPT_TYPE_CYLINDER;
-#endif
 
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
@@ -882,7 +874,7 @@ public:
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);
-	void createOctree();
+	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
 
 	enum
 	{
@@ -1044,7 +1036,7 @@ public:
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 	
 	void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level);
-	void copyVolumeFaces(LLVolume* volume);
+	void copyVolumeFaces(const LLVolume* volume);
 
 private:
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);

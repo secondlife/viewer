@@ -98,9 +98,6 @@
 
 #include "glod/glod.h"
 
-
-#if LL_MESH_ENABLED
-
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
@@ -2603,6 +2600,9 @@ void LLModelPreview::genLODs(S32 which_lod)
 			target_model->mInvBindMatrix = base->mInvBindMatrix;
 			target_model->mBindShapeMatrix = base->mBindShapeMatrix;
 
+			//copy material list
+			target_model->mMaterialList = base->mMaterialList;
+
 			if (!validate_model(target_model))
 			{
 				llerrs << "Invalid model generated when creating LODs" << llendl;
@@ -3433,6 +3433,4 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
 }
-
-#endif
 

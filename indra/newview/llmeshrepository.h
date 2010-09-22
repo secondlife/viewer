@@ -39,8 +39,6 @@
 #include "llviewertexture.h"
 #include "llvolume.h"
 
-#if LL_MESH_ENABLED
-
 #define LLCONVEXDECOMPINTER_STATIC 1
 
 #include "llconvexdecomposition.h"
@@ -463,8 +461,6 @@ public:
 };
 
 extern LLMeshRepository gMeshRepo;
-
-#endif
 
 #endif
 

@@ -189,6 +189,11 @@ LLVOVolume* LLDrawable::getVOVolume() const
 	}
 }
 
+const LLMatrix4& LLDrawable::getRenderMatrix() const
+{ 
+	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
+}
+
 BOOL LLDrawable::isLight() const
 {
 	LLViewerObject* objectp = mVObjp;
@@ -713,8 +718,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		LLVOVolume* volume = getVOVolume();
 		if (volume)
 		{
-			volume->updateRelativeXform();
-			pos = volume->getRelativeXform().getTranslation();
+			pos.set(getPositionGroup().getF32ptr());
 			if (isStatic())
 			{
 				pos += volume->getRegion()->getOriginAgent();

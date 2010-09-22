@@ -2039,9 +2039,7 @@ void LLPipeline::rebuildPriorityGroups()
 	
 	assertInitialized();
 
-#if LL_MESH_ENABLED
 	gMeshRepo.notifyLoadedMeshes();
-#endif
 
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
@@ -3857,7 +3855,6 @@ void LLPipeline::renderDebug()
 		gPipeline.mDebugTextureUploadCost = textures.size() * 10;
 		gPipeline.mDebugSculptUploadCost = sculpts.size()*10;
 		
-#if LL_MESH_ENABLED
 		U32 mesh_cost = 0;
 
 		for (std::set<LLUUID>::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
@@ -3866,7 +3863,6 @@ void LLPipeline::renderDebug()
 		}
 
 		gPipeline.mDebugMeshUploadCost = mesh_cost;
-#endif
 	}
 
 	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)

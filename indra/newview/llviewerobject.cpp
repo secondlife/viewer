@@ -3279,6 +3279,15 @@ const LLVector3 LLViewerObject::getPositionEdit() const
 
 const LLVector3 LLViewerObject::getRenderPosition() const
 {
+	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
+	{
+		LLVOAvatar* avatar = getAvatar();
+		if (avatar)
+		{
+			return avatar->getPositionAgent();
+		}
+	}
+
 	if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
 	{
 		return getPositionAgent();
@@ -3297,6 +3306,11 @@ const LLVector3 LLViewerObject::getPivotPositionAgent() const
 const LLQuaternion LLViewerObject::getRenderRotation() const
 {
 	LLQuaternion ret;
+	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
+	{
+		return ret;
+	}
+	
 	if (mDrawable.isNull() || mDrawable->isStatic())
 	{
 		ret = getRotationEdit();

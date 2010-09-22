@@ -295,10 +295,8 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 {
 	BOOL handled = FALSE;
 
-	bool is_mesh = false;
-#if LL_MESH_ENABLED
-	is_mesh = cargo_type == DAD_MESH;
-#endif
+	bool is_mesh = cargo_type == DAD_MESH;
+
 	if ((cargo_type == DAD_TEXTURE) || is_mesh)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
@@ -1214,10 +1212,8 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	// returns true, then the cast was valid, and we can perform
 	// the third test without problems.
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
-	bool is_mesh = false;
-#if LL_MESH_ENABLED
-	is_mesh = cargo_type == DAD_MESH;
-#endif
+	bool is_mesh = cargo_type == DAD_MESH;
+
 	if (getEnabled() &&
 		((cargo_type == DAD_TEXTURE) || is_mesh) &&
 		 allowDrop(item))

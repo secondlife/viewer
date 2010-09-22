@@ -56,16 +56,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>ab78835bafcad3bb7223eaeecb5a6a4b</string>
+            <string>cc3a93782ac74982eb74aa5dbcd923f0</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GLOD-1.0pre4-darwin-20090918.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20100922.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>cb9409ee84d5f33db14335ed5bfd7ca7</string>
+            <string>ca7368e9a1baf266b82d910fa8f821bd</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100910.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100920a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -630,12 +630,12 @@
           </map>
         </map>
       </map>
-      <key>google-perftools</key>
+      <key>tcmalloc</key>
       <map>
         <key>copyright</key>
         <string>Copyright (c) 2005, Google Inc.</string>
         <key>description</key>
-        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
+        <string>High performance memory allocator.</string>
         <key>license</key>
         <string>bsd</string>
         <key>packages</key>
@@ -643,9 +643,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>32dba32ddd460a08e082898ebba6315c</string>
+            <string>8b11a7d3caee8a4ba70da41d6a5ee131</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tcmalloc-1.6-windows-20100916b.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -957,6 +957,25 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
+      <key>libuuid</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
+        <key>description</key>
+        <string>Generates UUIDs under Linux. Originally a part of the ext2fs filesystem. Also see lluuid.cpp for all platforms. Part of the e2fsprogs package.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>91b194aed4b38bc23493b198009a8c6a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20090417.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>libxml</key>
       <map>
         <key>license</key>
@@ -1006,9 +1025,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>b9fe5149a23cbc55a341867c2f6abb8e</string>
+            <string>a6969a966e83ac3f0dc652df3e499797</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100626.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100914.tar.bz2</uri>
           </map>          
         </map>
       </map>

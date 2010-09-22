@@ -2789,7 +2789,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 	U32 data_mask = LLVertexBuffer::MAP_VERTEX;
 
-#if LL_MESH_ENABLED
 	if (volume->isMesh())
 	{			
 		LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
@@ -2826,7 +2825,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			return;
 		}
 	}
-#endif //LL_MESH_ENABLED
 	
 	//push faces
 	glColor3fv(color.mV);
@@ -3035,11 +3033,11 @@ class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
 	
-	LLRenderOctreeRaycast(const LLVector3& start, const LLVector3& end)
+	
+	LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
+		: LLOctreeTriangleRayIntersect(start, dir, NULL, closest_t, NULL, NULL, NULL, NULL)
 	{
-		mStart.load3(start.mV);
-		mEnd.load3(end.mV);
-		mDir.setSub(mEnd, mStart);
+
 	}
 
 	void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
@@ -3047,9 +3045,22 @@ public:
 		LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) branch->getListener(0);
 
 		LLVector3 center, size;
-		center.set(vl->mBounds[0].getF32ptr());
-		size.set(vl->mBounds[1].getF32ptr());
+		
+		if (branch->getData().empty())
+		{
+			gGL.color3f(1.f,0.2f,0.f);
+			center.set(branch->getCenter().getF32ptr());
+			size.set(branch->getSize().getF32ptr());
+		}
+		else
+		{
+			gGL.color3f(0.75f, 1.f, 0.f);
+			center.set(vl->mBounds[0].getF32ptr());
+			size.set(vl->mBounds[1].getF32ptr());
+		}
 
+		drawBoxOutline(center, size);	
+		
 		for (U32 i = 0; i < 2; i++)
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, i == 1 ? GL_LEQUAL : GL_GREATER);
@@ -3061,9 +3072,14 @@ public:
 			else
 			{
 				gGL.color4f(0,0.5f,0.5f, 0.25f);
+				drawBoxOutline(center, size);
 			}
-
-			drawBoxOutline(center, size);
+			
+			if (i == 1)
+			{
+				gGL.flush();
+				glLineWidth(3.f);
+			}
 
 			gGL.begin(LLRender::TRIANGLES);
 			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin();
@@ -3077,6 +3093,12 @@ public:
 				gGL.vertex3fv(tri->mV[2]->getF32ptr());
 			}	
 			gGL.end();
+
+			if (i == 1)
+			{
+				gGL.flush();
+				glLineWidth(1.f);
+			}
 		}
 	}
 };
@@ -3096,26 +3118,63 @@ void renderRaycast(LLDrawable* drawablep)
 
 			LLVOVolume* vobj = drawablep->getVOVolume();
 			LLVolume* volume = vobj->getVolume();
-			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+
+			bool transform = true;
+			if (drawablep->isState(LLDrawable::RIGGED))
 			{
-				const LLVolumeFace& face = volume->getVolumeFace(i);
-				if (!face.mOctree)
+				volume = vobj->getRiggedVolume();
+				transform = false;
+			}
+
+			if (volume)
+			{
+				for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 				{
-					((LLVolumeFace*) &face)->createOctree(); 
+					const LLVolumeFace& face = volume->getVolumeFace(i);
+					if (!face.mOctree)
+					{
+						((LLVolumeFace*) &face)->createOctree(); 
+					}
+
+					gGL.pushMatrix();
+					glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+
+					LLVector3 start, end;
+					if (transform)
+					{
+						start = vobj->agentPositionToVolume(gDebugRaycastStart);
+						end = vobj->agentPositionToVolume(gDebugRaycastEnd);
+					}
+					else
+					{
+						start = gDebugRaycastStart;
+						end = gDebugRaycastEnd;
+					}
+
+					LLVector4a starta, enda;
+					starta.load3(start.mV);
+					enda.load3(end.mV);
+					LLVector4a dir;
+					dir.setSub(enda, starta);
+
+					F32 t = 1.f;
+
+					LLRenderOctreeRaycast render(starta, dir, &t);
+					gGL.flush();
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+					{
+						//render face positions
+						LLVertexBuffer::unbind();
+						glColor4f(0,1,1,0.5f);
+						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
+						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+					}
+						
+					render.traverse(face.mOctree);
+					gGL.popMatrix();		
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
-
-				gGL.pushMatrix();
-				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
-				LLVector3 start, end;
-				start = vobj->agentPositionToVolume(gDebugRaycastStart);
-				end = vobj->agentPositionToVolume(gDebugRaycastEnd);
-
-				LLRenderOctreeRaycast render(start, end);
-				gGL.flush();
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				render.traverse(face.mOctree);
-				gGL.popMatrix();		
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 		}
 		else if (drawablep->isAvatar())

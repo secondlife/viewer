@@ -818,9 +818,7 @@ BOOL LLTaskCategoryBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_CALLINGCARD:
-#if LL_MESH_ENABLED
 		case DAD_MESH:
-#endif
 			accept = LLToolDragAndDrop::isInventoryDropAcceptable(object, (LLViewerInventoryItem*)cargo_data);
 			if(accept && drop)
 			{
@@ -1246,7 +1244,6 @@ LLUIImagePtr LLTaskWearableBridge::getIcon() const
 	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, mFlags, FALSE );
 }
 
-#if LL_MESH_ENABLED
 ///----------------------------------------------------------------------------
 /// Class LLTaskMeshBridge
 ///----------------------------------------------------------------------------
@@ -1358,8 +1355,6 @@ void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-#endif
-
 ///----------------------------------------------------------------------------
 /// LLTaskInvFVBridge impl
 //----------------------------------------------------------------------------
@@ -1439,13 +1434,11 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 						 object->getUUID(),
 						 object->getName());
 		break;
-#if LL_MESH_ENABLED
 	case LLAssetType::AT_MESH:
 		new_bridge = new LLTaskMeshBridge(panel,
 										  object->getUUID(),
 										  object->getName());
 		break;
-#endif
 	default:
 		llinfos << "Unhandled inventory type (llassetstorage.h): "
 				<< (S32)type << llendl;

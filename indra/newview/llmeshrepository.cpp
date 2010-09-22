@@ -68,8 +68,6 @@
 
 #include <queue>
 
-#if LL_MESH_ENABLED
-
 LLFastTimer::DeclareTimer FTM_MESH_UPDATE("Mesh Update");
 LLFastTimer::DeclareTimer FTM_LOAD_MESH("Load Mesh");
 
@@ -2395,6 +2393,13 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	extra_parameter["param_data"] = v;
 	object_params["extra_parameters"].append(extra_parameter);
 
+	LLPermissions perm;
+	perm.setNextOwnerBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getNextOwnerPerms());
+	perm.setGroupBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getGroupPerms());
+	perm.setEveryoneBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getEveryonePerms());
+
+	object_params["permissions"] = ll_create_sd_from_permissions(perm);
+
 	return object_params;
 }
 
@@ -2696,5 +2701,4 @@ void LLPhysicsDecomp::run()
 	mDone = true;
 }
 
-#endif
 

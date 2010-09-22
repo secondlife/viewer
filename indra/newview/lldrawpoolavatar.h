@@ -34,7 +34,6 @@
 #define LL_LLDRAWPOOLAVATAR_H
 
 #include "lldrawpool.h"
-#include "llvolume.h" // for LL_MESH_ENABLED
 
 class LLVOAvatar;
 class LLGLSLShader;
@@ -113,7 +112,6 @@ public:
 	void beginPostDeferredAlpha();
 	void endPostDeferredAlpha();
 
-#if LL_MESH_ENABLED
 	void beginRiggedSimple();
 	void beginRiggedFullbright();
 	void beginRiggedFullbrightShiny();
@@ -205,7 +203,6 @@ public:
 	void removeRiggedFace(LLFace* facep); 
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
-#endif
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display

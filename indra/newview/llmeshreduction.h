@@ -34,8 +34,6 @@
 
 #include "llmodel.h"
 
-#if LL_MESH_ENABLED
-
 class LLMeshReduction
 {
  public:
@@ -53,7 +51,5 @@ class LLMeshReduction
 private:
 	U32 mCounter;
 };
-
-#endif
 
 #endif  // LL_LLMESHREDUCTION_H

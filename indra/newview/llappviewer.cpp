@@ -1360,10 +1360,8 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cleaning Up" << llendflush;
 
-#if LL_MESH_ENABLED
 	// shut down mesh streamer
 	gMeshRepo.shutdown();
-#endif
 
 	// Must clean up texture references before viewer window is destroyed.
 	LLHUDManager::getInstance()->updateEffects();
@@ -1761,10 +1759,8 @@ bool LLAppViewer::initThreads()
 		mFastTimerLogThread->start();
 	}
 
-#if LL_MESH_ENABLED
 	// Mesh streaming and caching
 	gMeshRepo.init();
-#endif
 
 	LLFilePickerThread::initClass();
 
