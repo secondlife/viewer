@@ -163,8 +163,6 @@ LLView::~LLView()
 
 	if (mDefaultWidgets)
 	{
-		std::for_each(mDefaultWidgets->begin(), mDefaultWidgets->end(),
-					  DeletePairedPointer());
 		delete mDefaultWidgets;
 		mDefaultWidgets = NULL;
 	}
@@ -1682,18 +1680,7 @@ BOOL LLView::hasChild(const std::string& childname, BOOL recurse) const
 //-----------------------------------------------------------------------------
 LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 {
-	LLView* child = findChildView(name, recurse);
-	if (!child)
-	{
-		child = getDefaultWidget<LLView>(name);
-		if (!child)
-		{
-			LLView::Params view_params;
-			view_params.name = name;
-			child = LLUICtrlFactory::create<LLView>(view_params);
-		}
-	}
-	return child;
+	return getChild<LLView>(name, recurse);
 }
 
 static LLFastTimer::DeclareTimer FTM_FIND_VIEWS("Find Widgets");
@@ -2804,11 +2791,14 @@ LLView::root_to_view_iterator_t LLView::endRootToView()
 
 // only create maps on demand, as they incur heap allocation/deallocation cost
 // when a view is constructed/deconstructed
-LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
+LLView& LLView::getDefaultWidgetContainer() const
 {
 	if (!mDefaultWidgets)
 	{
-		mDefaultWidgets = new default_widget_map_t();
+		LLView::Params p;
+		p.name = "default widget container";
+		p.visible = false; // ensures default widgets can't steal focus, etc.
+		mDefaultWidgets = new LLView(p);
 	}
 	return *mDefaultWidgets;
 }
