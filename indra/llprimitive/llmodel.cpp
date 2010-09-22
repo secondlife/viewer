@@ -120,7 +120,7 @@ void load_face_from_dom_inputs(LLVolumeFace& face, const domInputLocalOffset_Arr
 			{
 				LLVector4a* norm = (LLVector4a*) face.mNormals + (j-min_idx);
 				norm->set(n[j*3+0], n[j*3+1], n[j*3+2]);
-				norm->normalize3fast();
+				norm->normalize3();
 			}
 		}
 		else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[j]->getSemantic()) == 0)
@@ -1041,6 +1041,12 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 	{
 		LLVolumeFace& vol_face = mVolumeFaces[j];
 
+		if (vol_face.mNumIndices > 65535)
+		{
+			llwarns << "Too many vertices for normal generation to work." << llendl;
+			continue;
+		}
+
 		//create faceted copy of current face with no texture coordinates (step 1)
 		LLVolumeFace faceted;
 
@@ -1048,16 +1054,16 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 		//LLVector4a* src_norm = (LLVector4a*) vol_face.mNormals;
 
 
-		//bake out triangles into temporary face, clearing normals and texture coordinates
+		faceted.resizeVertices(vol_face.mNumIndices);
+		faceted.resizeIndices(vol_face.mNumIndices);
+		//bake out triangles into temporary face, clearing texture coordinates
 		for (U32 i = 0; i < vol_face.mNumIndices; ++i)
 		{
 			U32 idx = vol_face.mIndices[i];
-			LLVolumeFace::VertexData v;
-			v.setPosition(src_pos[idx]); 
-			v.getNormal().clear();
-			v.mTexCoord.clear();
-			faceted.pushVertex(v);
-			faceted.pushIndex(i);
+		
+			faceted.mPositions[i] = src_pos[idx];
+			faceted.mTexCoords[i] = LLVector2(0,0);
+			faceted.mIndices[i] = i;
 		}
 
 		//generate normals for temporary face
@@ -1080,7 +1086,7 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 			rhs.setSub(p2, p0);
 
 			n0.setCross3(lhs, rhs);
-			n0.normalize3fast();
+			n0.normalize3();
 			n1 = n0;
 			n2 = n0;
 		}
@@ -1126,7 +1132,7 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 
 		for (U32 i = 0; i < faceted.mNumVertices; ++i)
 		{
-			faceted.mNormals[i].normalize3fast();
+			faceted.mNormals[i].normalize3();
 
 			LLVolumeFace::VertexMapData v;
 			v.setPosition(faceted.mPositions[i]);
@@ -1139,16 +1145,17 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 		LLVolumeFace new_face;
 
 		//bake out triangles into new face
+		new_face.resizeIndices(vol_face.mNumIndices);
+		new_face.resizeVertices(vol_face.mNumIndices);
+		
 		for (U32 i = 0; i < vol_face.mNumIndices; ++i)
 		{
 			U32 idx = vol_face.mIndices[i];
 			LLVolumeFace::VertexData v;
-			v.setPosition(vol_face.mPositions[idx]);
-			v.setNormal(vol_face.mNormals[idx]);
-			v.mTexCoord = vol_face.mTexCoords[idx];
-
-			new_face.pushVertex(v);
-			new_face.pushIndex(i);
+			new_face.mPositions[i] = vol_face.mPositions[idx];
+			new_face.mNormals[i].clear();
+			new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
+			new_face.mIndices[i] = i;
 		}
 
 		//generate normals for new face
@@ -1171,7 +1178,7 @@ void LLModel::smoothNormals(F32 angle_cutoff)
 			rhs.setSub(p2, p0);
 
 			n0.setCross3(lhs, rhs);
-			n0.normalize3fast();
+			n0.normalize3();
 			n1 = n0;
 			n2 = n0;
 		}
