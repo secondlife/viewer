@@ -44,25 +44,27 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
+	:
+	mLocalID(local_id),
+	mCRC(crc),
+	mHitCount(0),
+	mDupeCount(0),
+	mCRCChangeCount(0)
 {
-	mLocalID = local_id;
-	mCRC = crc;
-	mHitCount = 0;
-	mDupeCount = 0;
-	mCRCChangeCount = 0;
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
+	:
+	mLocalID(0),
+	mCRC(0),
+	mHitCount(0),
+	mDupeCount(0),
+	mCRCChangeCount(0),
+	mBuffer(NULL)
 {
-	mLocalID = 0;
-	mCRC = 0;
-	mHitCount = 0;
-	mDupeCount = 0;
-	mCRCChangeCount = 0;
-	mBuffer = NULL;
 	mDP.assignBuffer(mBuffer, 0);
 }
 
@@ -73,7 +75,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
-{
+	{
 		success = check_read(apr_file, &mCRC, sizeof(U32));
 	}
 	if(success)
@@ -83,27 +85,24 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mDupeCount, sizeof(S32));
-}
+	}
 	if(success)
-{
+	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
 	}
 	if(success)
 	{
 		success = check_read(apr_file, &size, sizeof(S32));
 
-	// Corruption in the cache entries
-	if ((size > 10000) || (size < 1))
-	{
-		// We've got a bogus size, skip reading it.
-		// We won't bother seeking, because the rest of this file
-		// is likely bogus, and will be tossed anyway.
-		llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
-		mLocalID = 0;
-		mCRC = 0;
-		mBuffer = NULL;
-		return;
-	}
+		// Corruption in the cache entries
+		if ((size > 10000) || (size < 1))
+		{
+			// We've got a bogus size, skip reading it.
+			// We won't bother seeking, because the rest of this file
+			// is likely bogus, and will be tossed anyway.
+			llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
+			success = FALSE;
+		}
 	}
 	if(success && size > 0)
 	{
@@ -112,8 +111,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 		if(success)
 		{
-	mDP.assignBuffer(mBuffer, size);
-}
+			mDP.assignBuffer(mBuffer, size);
+		}
 		else
 		{
 			delete[] mBuffer ;
@@ -125,6 +124,9 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	{
 		mLocalID = 0;
 		mCRC = 0;
+		mHitCount = 0;
+		mDupeCount = 0;
+		mCRCChangeCount = 0;
 		mBuffer = NULL;
 	}
 }
