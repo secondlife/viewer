@@ -858,10 +858,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if(mCanUseHTTP)
 		{
 			//NOTE:
-			//it seems ok to let sim control the UDP traffic
-			//so there is no throttle for http here.
+			//control the number of the http requests issued for:
+			//1, not openning too many file descriptors at the same time;
+			//2, control the traffic of http so udp gets bandwidth.
 			//
-			
+			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 32 ;
+			if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
+			{
+				return false ; //wait.
+			}
+
 			mFetcher->removeFromNetworkQueue(this, false);
 			
 			S32 cur_size = 0;
