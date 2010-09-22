@@ -55,9 +55,8 @@ public:
     /*virtual*/
     void result(const LLSD& content)
     {
-        std::string text = content.asString();
-        text += '\n';
-        mOutput->appendText(text, true);
+		std::string text = content.asString() + "\n\n> ";
+		mOutput->appendText(text, false);
     };
 
     LLTextEditor * mOutput;
@@ -70,20 +69,46 @@ LLFloaterRegionDebugConsole::LLFloaterRegionDebugConsole(LLSD const & key)
 
 BOOL LLFloaterRegionDebugConsole::postBuild()
 {
-	getChild<LLLineEditor>("region_debug_console_input")->setCommitCallback(boost::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
+	LLLineEditor* input = getChild<LLLineEditor>("region_debug_console_input");
+	input->setEnableLineHistory(true);
+	input->setCommitCallback(boost::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
+	input->setFocus(true);
+	input->setCommitOnFocusLost(false);
+
 	mOutput = getChild<LLTextEditor>("region_debug_console_output");
+
+	std::string url = gAgent.getRegion()->getCapability("SimConsole");
+	if ( url.size() == 0 )
+	{
+		mOutput->appendText("This region does not support the simulator console.\n\n> ", false);
+	}
+	else
+	{
+		mOutput->appendText("> ", false);
+	}
+	
+
 	return TRUE;
 }
 
 void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
 {
-	LLLineEditor * input = static_cast<LLLineEditor*>(ctrl);
-	std::string text = "\\POST: ";
-	text += input->getText();
-	mOutput->appendText(text, true);
+	LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
+	std::string text = input->getText() + "\n";
+
 
     std::string url = gAgent.getRegion()->getCapability("SimConsole");
-    LLHTTPClient::post(url, LLSD(input->getText()), new ::Responder(mOutput));
+
+	if ( url.size() > 0 )
+	{
+		LLHTTPClient::post(url, LLSD(input->getText()), new ::Responder(mOutput));
+	}
+	else
+	{
+		text += "\nError: No console available for this region/simulator.\n\n> ";
+	}
+
+	mOutput->appendText(text, false);
 
 	input->clear();
 }
