@@ -107,6 +107,8 @@ void LLGridManager::addGrid(LLSD& grid_data)
 {
 }
 LLGridManager::LLGridManager()
+:
+	mIsInProductionGrid(false)
 {	
 }
 

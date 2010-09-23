@@ -295,6 +295,8 @@ protected:
 
 	menuentry_vec_t getMenuItems() { return mItems; } // returns a copy of current menu items
 
+	void dropToFavorites(LLInventoryItem* inv_item);
+	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options

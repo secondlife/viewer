@@ -439,6 +439,10 @@ protected:
 	void onContextMenuItemClicked(const LLSD& userdata);
 	bool onContextMenuItemEnabled(const LLSD& userdata);
 
+	// Either default or saved after user's manual resize width of nearby chat.
+	// Nearby chat will not always have it, because sometimes it can be shrunk on resize,
+	// but when possible it will be restored back to this value.
+	S32					mDesiredNearbyChatWidth;
 	LLChicletPanel* 	mChicletPanel;
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;

@@ -1,8 +1,9 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llpanelvoicedevicesettings.h
+ * @author Richard Nelson
+ * @brief Voice communication set-up wizard
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,14 +25,37 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#ifndef LL_LLPANELVOICEDEVICESETTINGS_H
+#define LL_LLPANELVOICEDEVICESETTINGS_H
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 2;
-const S32 LL_VERSION_PATCH = 1;
-const S32 LL_VERSION_BUILD = 0;
+#include "llpanel.h"
 
-const char * const LL_CHANNEL = "Second Life Developer";
+class LLPanelVoiceDeviceSettings : public LLPanel
+{
+public:
+	LLPanelVoiceDeviceSettings();
+	~LLPanelVoiceDeviceSettings();
 
-#endif
+	/*virtual*/ void draw();
+	/*virtual*/ BOOL postBuild();
+	void apply();
+	void cancel();
+	void refresh();
+	void initialize();
+	void cleanup();
+
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
+	
+protected:
+	void onCommitInputDevice();
+	void onCommitOutputDevice();
+
+	F32 mMicVolume;
+	std::string mInputDevice;
+	std::string mOutputDevice;
+	class LLComboBox		*mCtrlInputDevices;
+	class LLComboBox		*mCtrlOutputDevices;
+	BOOL mDevicesUpdated;
+};
+
+#endif // LL_LLPANELVOICEDEVICESETTINGS_H

@@ -360,10 +360,10 @@ with the same filename but different name
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />
   <texture name="Pause_Press" file_name="icons/Pause_Press.png" preload="false" />
 
-  <texture name="Permission_Visible_Online" file_name="ff_visible_online_button.tga" preload="false" />
-  <texture name="Permission_Visible_Map" file_name="ff_visible_map_button.tga" preload="false" />
-  <texture name="Permission_Edit_Objects_Mine" file_name="ff_edit_mine_button.tga" preload="false" />
-  <texture name="Permission_Edit_Objects_Theirs" file_name="ff_edit_theirs_button.tga" preload="false" />
+  <texture name="Permission_Visible_Online" file_name="icons/see_me_online.png" preload="false" />
+  <texture name="Permission_Visible_Map" file_name="icons/see_on_map.png" preload="false" />
+  <texture name="Permission_Edit_Objects_Mine" file_name="icons/edit_mine.png" preload="false" />
+  <texture name="Permission_Edit_Objects_Theirs" file_name="icons/edit_theirs.png" preload="false" />
 
   <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
