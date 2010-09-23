@@ -653,6 +653,7 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
@@ -676,6 +677,7 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 

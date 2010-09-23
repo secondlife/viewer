@@ -169,7 +169,8 @@ elseif(DARWIN)
         libaprutil-1.dylib
         libexpat.0.5.0.dylib
         libexpat.dylib
-        libllqtwebkit.dylib
+        libGLOD.dylib
+	libllqtwebkit.dylib
         libndofdev.dylib
         libexception_handler.dylib
        )
