@@ -56,6 +56,7 @@
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llnotificationtemplate.h"
 #include "llpanellogin.h"
 #include "llpanelvoicedevicesettings.h"
 #include "llradiogroup.h"
@@ -131,7 +132,6 @@ LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
   : LLModalDialog(key),
 	mParent(NULL)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
 }
 
 //virtual
@@ -783,7 +783,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = LLUI::sSettingGroups["ignores"]->getBOOL(templatep->mName);
+		bool show_popup = formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -805,13 +805,11 @@ void LLFloaterPreference::buildPopupLists()
 				row["columns"][1]["font"] = "SANSSERIF_SMALL";
 				row["columns"][1]["width"] = 360;
 			}
-			item = disabled_popups.addElement(row,
-											  ADD_SORTED);
+			item = disabled_popups.addElement(row);
 		}
 		else
 		{
-			item = enabled_popups.addElement(row,
-											 ADD_SORTED);
+			item = enabled_popups.addElement(row);
 		}
 		
 		if (item)
@@ -1137,9 +1135,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		//gSavedSettings.setWarning(templatep->mName, TRUE);
-		std::string notification_name = templatep->mName;
-		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
+		templatep->mForm->setIgnored(false);
 	}
 	
 	buildPopupLists();
@@ -1153,7 +1149,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, TRUE);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
@@ -1166,7 +1162,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, FALSE);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }

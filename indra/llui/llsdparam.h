@@ -31,17 +31,14 @@
 #include "llinitparam.h"
 
 class LLParamSDParser 
-:	public LLInitParam::Parser, 
-	public LLSingleton<LLParamSDParser>
+:	public LLInitParam::Parser
 {
 LOG_CLASS(LLParamSDParser);
 
 typedef LLInitParam::Parser parser_t;
 
-protected:
-	LLParamSDParser();
-	friend class LLSingleton<LLParamSDParser>;
 public:
+	LLParamSDParser();
 	void readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent = false);
 	void writeSD(LLSD& sd, const LLInitParam::BaseBlock& block);
 
@@ -51,20 +48,12 @@ private:
 	void readSDValues(const LLSD& sd, LLInitParam::BaseBlock& block);
 
 	template<typename T>
-	bool readTypedValue(void* val_ptr, boost::function<T(const LLSD&)> parser_func)
-    {
-	    if (!mCurReadSD) return false;
-
-	    *((T*)val_ptr) = parser_func(*mCurReadSD);
-	    return true;
-    }
-
-	template<typename T>
-	bool writeTypedValue(const void* val_ptr, const parser_t::name_stack_t& name_stack)
+	static bool writeTypedValue(Parser& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
 	{
-		if (!mWriteSD) return false;
+		LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
+		if (!sdparser.mWriteRootSD) return false;
 		
-		LLSD* sd_to_write = getSDWriteNode(name_stack);
+		LLSD* sd_to_write = sdparser.getSDWriteNode(name_stack);
 		if (!sd_to_write) return false;
 
 		sd_to_write->assign(*((const T*)val_ptr));
@@ -73,12 +62,23 @@ private:
 
 	LLSD* getSDWriteNode(const parser_t::name_stack_t& name_stack);
 
-	bool readSDParam(void* value_ptr);
-	bool writeU32Param(const void* value_ptr, const parser_t::name_stack_t& name_stack);
+	static bool writeU32Param(Parser& parser, const void* value_ptr, const parser_t::name_stack_t& name_stack);
+
+	static bool readS32(Parser& parser, void* val_ptr);
+	static bool readU32(Parser& parser, void* val_ptr);
+	static bool readF32(Parser& parser, void* val_ptr);
+	static bool readF64(Parser& parser, void* val_ptr);
+	static bool readBool(Parser& parser, void* val_ptr);
+	static bool readString(Parser& parser, void* val_ptr);
+	static bool readUUID(Parser& parser, void* val_ptr);
+	static bool readDate(Parser& parser, void* val_ptr);
+	static bool readURI(Parser& parser, void* val_ptr);
+	static bool readSD(Parser& parser, void* val_ptr);
 
 	Parser::name_stack_t	mNameStack;
 	const LLSD*				mCurReadSD;
-	LLSD*					mWriteSD;
+	LLSD*					mWriteRootSD;
+	LLSD*					mCurWriteSD;
 };
 
 template<typename T>
@@ -88,7 +88,8 @@ class LLSDParamAdapter : public T
 		LLSDParamAdapter() {}
 		LLSDParamAdapter(const LLSD& sd)
 		{
-			LLParamSDParser::instance().readSD(sd, *this);
+			LLParamSDParser parser;
+			parser.readSD(sd, *this);
 		}
 		
 		LLSDParamAdapter(const T& val)

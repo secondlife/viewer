@@ -38,6 +38,7 @@
          user_resize="false"
          width="630">
             <web_browser
+              trusted_content="true" 
              follows="left|right|top|bottom"
              layout="topleft"
              left="0"

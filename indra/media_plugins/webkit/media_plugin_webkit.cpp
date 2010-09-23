@@ -115,6 +115,7 @@ private:
 	F32 mBackgroundR;
 	F32 mBackgroundG;
 	F32 mBackgroundB;
+	std::string mTarget;
 	
 	VolumeCatcher mVolumeCatcher;
 
@@ -303,7 +304,11 @@ private:
 		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 		
 		// create single browser window
-		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight );
+#if LLQTWEBKIT_API_VERSION < 2
+		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight);
+#else
+		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight, mTarget);
+#endif
 
 		// tell LLQtWebKit about the size of the browser window
 		LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
@@ -313,9 +318,6 @@ private:
 
 		// append details to agent string
 		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
-
-		// Set up window open behavior
-		LLQtWebKit::getInstance()->setWindowOpenBehavior(mBrowserWindowId, LLQtWebKit::WOB_SIMULATE_BLANK_HREF_CLICK);
 		
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
@@ -507,9 +509,14 @@ private:
 	void onClickLinkHref(const EventType& event)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
+#if LLQTWEBKIT_API_VERSION < 2
 		message.setValue("uri", event.getStringValue());
 		message.setValue("target", event.getStringValue2());
-		message.setValueU32("target_type", event.getLinkType());
+#else
+		message.setValue("uri", event.getEventUri());
+		message.setValue("target", event.getStringValue());
+		message.setValue("uuid", event.getStringValue2());
+#endif
 		sendMessage(message);
 	}
 	
@@ -518,7 +525,11 @@ private:
 	void onClickLinkNoFollow(const EventType& event)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
+#if LLQTWEBKIT_API_VERSION < 2
 		message.setValue("uri", event.getStringValue());
+#else
+		message.setValue("uri", event.getEventUri());
+#endif
 		sendMessage(message);
 	}
 	
@@ -533,6 +544,44 @@ private:
 //		message.setValue("uri", event.getEventUri());
 //		message.setValueBoolean("dead", (event.getIntValue() != 0))
 		sendMessage(message);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onWindowCloseRequested(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "close_request");
+#if LLQTWEBKIT_API_VERSION >= 2
+		message.setValue("uuid", event.getStringValue());
+#endif
+		sendMessage(message);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onWindowGeometryChangeRequested(const EventType& event)
+	{
+		int x, y, width, height;
+		event.getRectValue(x, y, width, height);
+
+		// This sometimes gets called with a zero-size request.  Don't pass these along.
+		if(width > 0 && height > 0)
+		{
+			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "geometry_change");
+			message.setValue("uuid", event.getStringValue());
+			message.setValueS32("x", x);
+			message.setValueS32("y", y);
+			message.setValueS32("width", width);
+			message.setValueS32("height", height);
+			sendMessage(message);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	std::string onRequestFilePicker( const EventType& eventIn )
+	{
+		return blockingPickFile();
 	}
 	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
@@ -679,6 +728,26 @@ private:
 			
 		}
 	}
+	
+	std::string mPickedFile;
+	
+	std::string blockingPickFile(void)
+	{
+		mPickedFile.clear();
+		
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+		message.setValueBoolean("blocking_request", true);
+		
+		// The "blocking_request" key in the message means this sendMessage call will block until a response is received.
+		sendMessage(message);
+		
+		return mPickedFile;
+	}
+
+	void onPickFileResponse(const std::string &file)
+	{
+		mPickedFile = file;
+	}
 
 };
 
@@ -817,6 +886,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 		{
 			if(message_name == "init")
 			{
+				mTarget = message_in.getValue("target");
+				
 				// This is the media init message -- all necessary data for initialization should have been received.
 				if(initBrowser())
 				{
@@ -1036,10 +1107,14 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_PASTE );
 				checkEditState();
 			}
+			if(message_name == "pick_file_response")
+			{
+				onPickFileResponse(message_in.getValue("file"));
+			}
 			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media message: " << message_string << std::endl;
-			};
+			}
 		}
 		else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
 		{
@@ -1139,6 +1214,19 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 					}
 				}
 			}
+#if LLQTWEBKIT_API_VERSION >= 2
+			else if(message_name == "proxy_window_opened")
+			{
+				std::string target = message_in.getValue("target");
+				std::string uuid = message_in.getValue("uuid");
+				LLQtWebKit::getInstance()->proxyWindowOpened(mBrowserWindowId, target, uuid);
+			}
+			else if(message_name == "proxy_window_closed")
+			{
+				std::string uuid = message_in.getValue("uuid");
+				LLQtWebKit::getInstance()->proxyWindowClosed(mBrowserWindowId, uuid);
+			}
+#endif
 			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media_browser message: " << message_string << std::endl;

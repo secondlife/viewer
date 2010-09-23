@@ -950,6 +950,14 @@
              function="Floater.Show"
              parameter="sl_about" />
         </menu_item_call>
+        <menu_item_check
+         label="Enable Hints"
+         name="Enable Hints">
+          <on_check
+            control="EnableUIHints"/>
+          <on_click
+            function="ToggleUIHints"/>
+        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"
@@ -2629,8 +2637,8 @@
                  function="Advanced.PrintTextureMemoryStats" />
             </menu_item_call>
             <menu_item_check
-             label="Double-Click Auto-Pilot"
-             name="Double-Click Auto-Pilot">
+             label="Double-ClickAuto-Pilot"
+             name="Double-ClickAuto-Pilot">
                 <menu_item_check.on_check
                  function="CheckControl"
                  parameter="DoubleClickAutoPilot" />

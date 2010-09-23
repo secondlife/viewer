@@ -141,6 +141,7 @@ public:
 
 	// Don't export top/left for rect, only height/width
 	static void setupParamsForExport(Params& p, LLView* parent);
+	bool buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	void initFromParams(const LLFloater::Params& p);
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
