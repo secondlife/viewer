@@ -103,7 +103,6 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mCopyrightWarningSeen( FALSE ),
 	mResourceDatap(new LLResourceData())
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_abuse.xml");
 }
 
 // static

@@ -141,7 +141,7 @@ BOOL LLCallFloater::postBuild()
 
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
-	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
+	mNonAvatarCaller = findChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");

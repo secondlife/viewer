@@ -485,7 +485,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this, _2));
 
-	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
+	mCOFWearables = findChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
 
 	mCOFWearables->getCOFCallbacks().mAddWearable = boost::bind(&LLPanelOutfitEdit::onAddWearableClicked, this);
@@ -912,7 +912,7 @@ void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 {
 	LLUUID id_to_remove = mCOFWearables->getSelectedUUID();
 	LLWearableType::EType type = getWearableTypeByItemUUID(id_to_remove);
-
+	
 	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
 
 	if (!mCOFWearables->getSelectedItem())
@@ -1031,7 +1031,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 			LLUUID selected_item_id = mWearableItemsList->getSelectedUUID();
 			LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
 			if(item)
-			{
+		{
 				showFilteredWearablesListView(item->getWearableType());
 				return;
 			}
