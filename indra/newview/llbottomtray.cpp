@@ -161,12 +161,14 @@ public:
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
 
 		// Hide "show_nearby_chat" button 
-		LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
-		LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
-		S32 delta_width = show_btn->getRect().getWidth();
-		show_btn->setVisible(FALSE);
-		chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
-
+		if (mNearbyChatBar)
+		{
+			LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
+			LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
+			S32 delta_width = show_btn->getRect().getWidth();
+			show_btn->setVisible(FALSE);
+			chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
+		}
 		return TRUE;
 	}
 
@@ -226,7 +228,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	}
 
 	mImageDragIndication = LLUI::getUIImage(getString("DragIndicationImageName"));
-	mDesiredNearbyChatWidth = getChild<LLNearbyChatBar>("chat_bar")->getRect().getWidth();
+	mDesiredNearbyChatWidth = mNearbyChatBar ? mNearbyChatBar->getRect().getWidth() : 0;
 }
 
 LLBottomTray::~LLBottomTray()

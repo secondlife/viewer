@@ -154,7 +154,7 @@ private:
 
 void LLNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 {
-	std::vector<LLToast*>::iterator pos = std::find(m_active_toasts.begin(), m_active_toasts.end(), toast);
+	toast_vec_t::iterator pos = std::find(m_active_toasts.begin(), m_active_toasts.end(), toast->getHandle());
 
 	if (pos == m_active_toasts.end())
 	{
