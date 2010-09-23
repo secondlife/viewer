@@ -2917,16 +2917,6 @@ void LLModelPreview::genBuffers(S32 lod)
 
 		}
 	}
-
-	if (lod == 4)
-	{
-		for (U32 i = 0; i < 4; i++)
-		{
-			LLSpinCtrl* lim = mFMP->getChild<LLSpinCtrl>(limit_name[i], TRUE);
-
-			lim->setMaxValue(tri_count);
-		}
-	}
 }
 
 void LLModelPreview::update()
