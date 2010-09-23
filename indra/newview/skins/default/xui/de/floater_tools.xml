@@ -71,8 +71,8 @@
 	<text label="Beide Seiten dehnen" name="checkbox uniform label">
 		Beide Seiten dehnen
 	</text>
-	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="An Raster ausrichten" name="checkbox snap to grid" top_pad="10"/>
+	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures" top_pad="-5"/>
+	<check_box initial_value="true" label="An Raster ausrichten" name="checkbox snap to grid" top_pad="15"/>
 	<combo_box name="combobox grid mode" tool_tip="Wählen Sie ein Rasterlineal zum Positionieren des Objekts aus.">
 		<combo_box.item label="Globales Raster" name="World"/>
 		<combo_box.item label="Lokales Raster" name="Local"/>
