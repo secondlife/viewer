@@ -1676,6 +1676,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${LLCONVEXDECOMP_LIBRARY}
+    ${TCMALLOC_LIBRARIES}
     )
 
 build_version(viewer)

@@ -640,6 +640,13 @@
         <string>bsd</string>
         <key>packages</key>
         <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>05e42157c7324115f0266b61baf5fa07</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tcmalloc-1.6-linux-20100921.tar.bz2</uri>
+          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
