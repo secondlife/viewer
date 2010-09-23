@@ -13,7 +13,10 @@ else (STANDALONE)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
   if (LINUX)
-    set(TCMALLOC_LIBRARIES tcmalloc)
+    use_prebuilt_binary(tcmalloc)
+    set(TCMALLOC_LIBRARIES 
+	debug libtcmalloc_minimal_debug
+	optimized libtcmalloc_minimal)
     set(STACKTRACE_LIBRARIES stacktrace)
     set(PROFILER_LIBRARIES profiler)
     set(GOOGLE_PERFTOOLS_INCLUDE_DIR
