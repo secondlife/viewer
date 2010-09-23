@@ -35,7 +35,7 @@ LLPanelOnlineStatus::LLPanelOnlineStatus(
 	LLPanelTipToast(notification)
 {
 
-	LLUICtrlFactory::getInstance()->buildPanel(this,
+	buildFromFile(
 			"panel_online_status_toast.xml");
 
 

@@ -197,7 +197,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
+	buildFromFile( "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
@@ -1013,9 +1013,9 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 			// Disable "Show on Map" if landmark loading is in progress.
 			return !gLandmarkList.isAssetInLoadedCallbackMap(asset_uuid);
-		}
-		else if ("rename" == command_name)
-		{
+	}
+	else if ("rename" == command_name)
+	{
 			LLFolderViewItem* selected_item = getCurSelectedItem();
 			if (!selected_item) return false;
 

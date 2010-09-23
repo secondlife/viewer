@@ -40,7 +40,6 @@ LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
   : LLFloater(id),
 	mID(id.asUUID())
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
