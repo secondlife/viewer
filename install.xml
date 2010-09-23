@@ -643,9 +643,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>05e42157c7324115f0266b61baf5fa07</string>
+            <string>03d09d0336ec52244679da8ebba39074</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tcmalloc-1.6-linux-20100921.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tcmalloc-1.6-linux-20100923.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
