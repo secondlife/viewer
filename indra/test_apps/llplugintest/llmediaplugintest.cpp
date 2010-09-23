@@ -2160,39 +2160,32 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 			// retrieve the event parameters
 			std::string url = self->getClickURL();
 			std::string target = self->getClickTarget();
-			U32 target_type = self->getClickTargetType();
-
-			switch (target_type)
+			
+			if(target == "_external")
 			{
-				case LLPluginClassMedia::TARGET_NONE:
-					// ignore this click
-				break;
-				
-				case LLPluginClassMedia::TARGET_EXTERNAL:
-					// this should open in an external browser, but since this is a test app we don't care.
-				break;
-				
-				case LLPluginClassMedia::TARGET_BLANK:
-					// Create a new panel with the specified URL.
-					addMediaPanel(url);
-				break;
+				// this should open in an external browser, but since this is a test app we don't care.
+			}
+			else if(target == "_blank")
+			{
+				// Create a new panel with the specified URL.
+				addMediaPanel(url);
+			}
+			else // other named target
+			{
+				mediaPanel *target_panel = findMediaPanel(target);
+				if(target_panel)
+				{
+					target_panel = replaceMediaPanel(target_panel, url);
+				}
+				else
+				{
+					target_panel = addMediaPanel(url);
+				}
 
-				case LLPluginClassMedia::TARGET_OTHER:
-					mediaPanel *target_panel = findMediaPanel(target);
-					if(target_panel)
-					{
-						target_panel = replaceMediaPanel(target_panel, url);
-					}
-					else
-					{
-						target_panel = addMediaPanel(url);
-					}
-
-					if(target_panel)
-					{
-						target_panel->mTarget = target;
-					}
-				break;
+				if(target_panel)
+				{
+					target_panel->mTarget = target;
+				}
 			}
 		}
 		break;
@@ -2220,7 +2213,12 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		break;
 
 		case MEDIA_EVENT_GEOMETRY_CHANGE:
-			std::cerr <<  "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << ", rect is " << self->getGeometryRect() << std::endl;
+			std::cerr <<  "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() 
+				<< ", x = " << self->getGeometryX() 
+				<< ", y = " << self->getGeometryY() 
+				<< ", width = " << self->getGeometryWidth() 
+				<< ", height = " << self->getGeometryHeight() 
+				<< std::endl;
 		break;
 	}
 }
