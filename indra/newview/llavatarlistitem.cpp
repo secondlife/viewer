@@ -449,20 +449,20 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	//info btn width + padding
 	S32 info_btn_width = avatar_item->mProfileBtn->getRect().mLeft - avatar_item->mInfoBtn->getRect().mLeft;
 
-	// edit their objects permission icon width + padding
-	S32 permission_edit_theirs_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mIconPermissionEditTheirs->getRect().mLeft;
-
-	// edit my objects permission icon width + padding
-	S32 permission_edit_mine_width = avatar_item->mIconPermissionEditTheirs->getRect().mLeft - avatar_item->mIconPermissionEditMine->getRect().mLeft;
+	// online permission icon width + padding
+	S32 permission_online_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mIconPermissionOnline->getRect().mLeft;
 
 	// map permission icon width + padding
-	S32 permission_map_width = avatar_item->mIconPermissionEditMine->getRect().mLeft - avatar_item->mIconPermissionMap->getRect().mLeft;
+	S32 permission_map_width = avatar_item->mIconPermissionOnline->getRect().mLeft - avatar_item->mIconPermissionMap->getRect().mLeft;
 
-	// online permission icon width + padding
-	S32 permission_online_width = avatar_item->mIconPermissionMap->getRect().mLeft - avatar_item->mIconPermissionOnline->getRect().mLeft;
+	// edit my objects permission icon width + padding
+	S32 permission_edit_mine_width = avatar_item->mIconPermissionMap->getRect().mLeft - avatar_item->mIconPermissionEditMine->getRect().mLeft;
+
+	// edit their objects permission icon width + padding
+	S32 permission_edit_theirs_width = avatar_item->mIconPermissionEditMine->getRect().mLeft - avatar_item->mIconPermissionEditTheirs->getRect().mLeft;
 
 	// last interaction time textbox width + padding
-	S32 last_interaction_time_width = avatar_item->mIconPermissionOnline->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
+	S32 last_interaction_time_width = avatar_item->mIconPermissionEditTheirs->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
 
 	// avatar icon width + padding
 	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
@@ -474,10 +474,10 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	sChildrenWidths[--index] = icon_width;
 	sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
 	sChildrenWidths[--index] = last_interaction_time_width;
-	sChildrenWidths[--index] = permission_online_width;
-	sChildrenWidths[--index] = permission_map_width;
-	sChildrenWidths[--index] = permission_edit_mine_width;
 	sChildrenWidths[--index] = permission_edit_theirs_width;
+	sChildrenWidths[--index] = permission_edit_mine_width;
+	sChildrenWidths[--index] = permission_map_width;
+	sChildrenWidths[--index] = permission_online_width;
 	sChildrenWidths[--index] = info_btn_width;
 	sChildrenWidths[--index] = profile_btn_width;
 	sChildrenWidths[--index] = speaking_indicator_width;
