@@ -39,11 +39,11 @@
    value="Display Name:"
    width="80" />
   <text
-   follows="top|left"
+   follows="top|right"
    halign="right"
    height="13"
    layout="topleft"
-   left="165"
+   right="-15"
    name="status"
    text_color="LtGray_50"
    top_delta="0"
@@ -75,7 +75,18 @@
    value="Jack Linden"
    visible="true"
    use_ellipses="true"
-   width="275" />
+   width="275" /> 
+  <button
+         name="copy_to_clipboard"
+         layout="topleft"
+         follows="top|right"
+         image_overlay="Copy"
+         top_delta="0"
+         right="-15"
+         height="21"
+         width="21"
+         tab_stop="false" 
+         tool_tip="Copy to Clipboard"/>
   <text
    follows="top|left"
    height="13"
@@ -83,6 +94,7 @@
    left="45"
    name="user_label"
    text_color="LtGray"
+   top_pad="10" 
    value="Username:"
    width="70" />
   <text
