@@ -2143,7 +2143,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if (mask & (MASK_CONTROL | MASK_ALT) && !gFocusMgr.focusLocked())
 	{
 		// Check the current floater's menu first, if it has one.
-		if (gFocusMgr.keyboardFocusHasMenus()
+		if (gFocusMgr.keyboardFocusHasAccelerators()
 			&& keyboard_focus 
 			&& keyboard_focus->handleKey(key,mask,FALSE))
 		{
