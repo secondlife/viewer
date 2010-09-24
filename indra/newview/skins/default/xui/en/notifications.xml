@@ -3189,16 +3189,19 @@ You are no longer frozen.
    icon="alertmodal.tga"
    name="SetDisplayName"
    type="alert">
-The name above your avatar's head is called a [http://wiki.secondlife.com/wiki/Setting_your_display_name display name]. You can change it periodically.
+    The name above your avatar's head is called a [secondlife:///app/help/script display_name]. You can change it periodically.
 
-During the evaluation period of this Project Viewer release, you are able to update your Display Name as frequently as you wish. When this feature goes officially live, you will able to update your Display Name only once a week.
+    During the evaluation period of this Project Viewer release, you are able to update your Display Name as frequently as you wish. When this feature goes officially live, you will able to update your Display Name only once a week.
 
-Press reset to make it the same as your username.
+    Press reset to make it the same as your username.
 
-Change your display name?
+    Change your display name?
     <form name="form">
       <input name="display_name" max_length_chars="31" type="text">
 [DISPLAY_NAME]
+      </input>
+      <input name="display_name_repeat" max_length_chars="31" type="text">
+        [DISPLAY_NAME]
       </input>
       <button
        default="true"
@@ -3284,6 +3287,14 @@ Please try again later.
  type="alertmodal">
     The display name you wish to set contains invalid characters.
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+ name="AgentDisplayNameSetOnlyPunctuation"
+ type="alertmodal">
+    Your display name can't contain only punctuation.
+  </notification>
+
 
   <notification
    icon="notifytip.tga"
