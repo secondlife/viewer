@@ -135,6 +135,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void rebuildUploadData();
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
+	bool containsRiggedAsset( void );
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 

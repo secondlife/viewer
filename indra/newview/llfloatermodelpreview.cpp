@@ -318,7 +318,10 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
 
-	gAgentAvatarp->resetJointPositions();
+	if ( mModelPreview->containsRiggedAsset() )
+	{
+		gAgentAvatarp->resetJointPositions();
+	}
 	
 	delete mModelPreview;
 	
@@ -2461,6 +2464,21 @@ void LLModelPreview::scrubMaterials()
 	refresh();
 }
 
+bool LLModelPreview::containsRiggedAsset( void )
+{
+	//loop through the models and determine if any of them contained a rigged asset, and if so
+	//return true.
+	//This is used to cleanup the joint positions after a preview.
+	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
+	{
+		LLModel* pModel = *iter;
+		if ( pModel->mAlternateBindMatrix.size() > 0 )
+		{
+			return true;
+		}
+	}
+	return false;
+}
 void LLModelPreview::genLODs(S32 which_lod)
 {
 	if (mBaseModel.empty())
