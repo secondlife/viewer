@@ -315,6 +315,20 @@ void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLFocusableElement* f
 	}
 }
 
+bool LLFocusMgr::keyboardFocusHasMenus() const
+{
+	LLView* focus_view = dynamic_cast<LLView*>(mKeyboardFocus);
+	while( focus_view )
+	{
+		if(focus_view->hasMenus())
+		{
+			return true;
+		}
+
+		focus_view = focus_view->getParent();
+	}
+	return false;
+}
 
 void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 {
