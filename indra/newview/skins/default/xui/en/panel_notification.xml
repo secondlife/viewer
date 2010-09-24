@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-   tab_stop="false"
   background_opaque="false"
       border_visible="false"
   background_visible="true"
@@ -16,7 +15,6 @@
   width="305">
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
-   tab_stop="false"
       border_visible="false"
  bevel_style="none"
     background_visible="true"
@@ -60,29 +58,6 @@
     <text_editor
     	h_pad="0"
 	v_pad="0"
-      border_visible="true"
-      embedded_items="false"
-      enabled="false"
-      follows="left|right|top|bottom"
-      font="SansSerif"
-      height="85" 
-      layout="topleft"
-      left="10"
-      mouse_opaque="false"
-      name="user_input_box"
-      read_only="false"
-      tab_stop="false"
-      text_color="green"
-      text_readonly_color="red"
-      top="50"
-      visible="false"
-      width="285"
-      wrap="true"
-      parse_highlights="true"
-      parse_urls="true"/>
-    <text_editor
-    	h_pad="0"
-	v_pad="0"
       bg_readonly_color="0.0 0.0 0.0 0"
       border_visible="false"
       embedded_items="false"
@@ -104,17 +79,8 @@
       wrap="true"
       parse_highlights="true"
       parse_urls="true"/>
-      <button
-	 follows="left|top"
-	 height="25"
-	 layout="topleft"
-	 left_pad="10"
-	 label="Submit"
-	 name="submit"
-	 width="35" />
   </panel>
   <panel
-   tab_stop="false"
     background_visible="false"
     follows="left|right|bottom"
     height="30" 
