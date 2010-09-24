@@ -138,6 +138,9 @@ public:
 	LLScriptEdCore* getEditorCore() { return mEditorCore; }
 	static LLFloaterScriptSearch* getInstance() { return sInstance; }
 
+	virtual bool hasAccelerators() const;
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
+
 private:
 
 	LLScriptEdCore* mEditorCore;
@@ -242,7 +245,24 @@ void LLFloaterScriptSearch::handleBtnReplaceAll()
 	mEditorCore->mEditor->replaceTextAll(getChild<LLUICtrl>("search_text")->getValue().asString(), getChild<LLUICtrl>("replace_text")->getValue().asString(), caseChk->get());
 }
 
+bool LLFloaterScriptSearch::hasAccelerators() const
+{
+	if (mEditorCore)
+	{
+		return mEditorCore->hasAccelerators();
+	}
+	return FALSE;
+}
 
+BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
+{
+	if (mEditorCore)
+	{
+		return mEditorCore->handleKeyHere(key, mask);
+	}
+
+	return FALSE;
+}
 
 /// ---------------------------------------------------------------------------
 /// LLScriptEdCore
