@@ -20,7 +20,7 @@
   <string name="nudge_parabuild" translate="false">Nudge 1</string>
   <string name="test_the_vlt">This string CHANGE2 is extracted.</string>
   <string name="testing_eli">Just a test. changes.</string>
-  <chat_history
+  <text_editor
    parse_urls="true"
    bg_readonly_color="ChatHistoryBgColor"
    bg_writeable_color="ChatHistoryBgColor" 
@@ -32,26 +32,51 @@
    layout="topleft"
 	 height="260"
    name="chat_history"
+   max_length="200000" 
    parse_highlights="true"
    text_color="ChatHistoryTextColor"
    text_readonly_color="ChatHistoryTextColor"
    translate="false"
+   track_end="true" 
+   wrap="true" 
    width="320">
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-Really long line that is long enough to wrap once with jyg descenders.
-  </chat_history>
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    Really long line that is long enough to wrap once with jyg descenders.
+    </text_editor>
 </floater>

@@ -31,6 +31,7 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
@@ -50,7 +51,7 @@ LLSidepanelInventory::LLSidepanelInventory()
 		mPanelMainInventory(NULL)
 {
 
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()
@@ -84,7 +85,7 @@ BOOL LLSidepanelInventory::postBuild()
 		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
 		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 		
-		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		mPanelMainInventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 		LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
 		tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
@@ -102,7 +103,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// UI elements from item panel
 	{
-		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
+		mItemPanel = findChild<LLSidepanelItemInfo>("sidepanel__item_panel");
 		
 		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
 		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
@@ -110,7 +111,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// UI elements from task panel
 	{
-		mTaskPanel = getChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
+		mTaskPanel = findChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
 		if (mTaskPanel)
 		{
 			LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
@@ -123,6 +124,8 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
+	LLFirstUse::newInventory(false);
+
 	if(key.size() == 0)
 		return;
 
@@ -168,7 +171,7 @@ void LLSidepanelInventory::onShopButtonClicked()
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -306,7 +309,7 @@ void LLSidepanelInventory::updateVerbs()
 bool LLSidepanelInventory::canShare()
 {
 	LLPanelMainInventory* panel_main_inventory =
-		mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
 	LLFolderView* root_folder =
 		panel_main_inventory->getActivePanel()->getRootFolder();
@@ -324,7 +327,7 @@ bool LLSidepanelInventory::canShare()
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -337,7 +340,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 
 U32 LLSidepanelInventory::getSelectedCount()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	return selection_list.size();
 }

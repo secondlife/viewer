@@ -74,7 +74,6 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
   : LLFloater(key),
 	mParcelID(-1)
 {
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
 	mCommitCallbackRegistrar.add("ClickSnapshot",	boost::bind(&LLFloaterAuction::onClickSnapshot, this));
 	mCommitCallbackRegistrar.add("ClickSellToAnyone",		boost::bind(&LLFloaterAuction::onClickSellToAnyone, this));
 	mCommitCallbackRegistrar.add("ClickStartAuction",		boost::bind(&LLFloaterAuction::onClickStartAuction, this));

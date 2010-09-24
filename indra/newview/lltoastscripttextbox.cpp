@@ -54,7 +54,8 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 :	LLToastPanel(notification),
 	mInventoryOffer(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notify_textbox.xml");
+	buildFromFile( "panel_notify_textbox.xml");
+
 	const LLSD& payload = notification->getPayload();
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))

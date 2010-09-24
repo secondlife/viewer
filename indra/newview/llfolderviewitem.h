@@ -108,7 +108,7 @@ public:
 
 	// layout constants
 	static const S32 LEFT_PAD = 5;
-    // LEFT_INDENTATION is set via folder_indentation above
+	// LEFT_INDENTATION is set via folder_indentation above
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
@@ -217,21 +217,21 @@ public:
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
-    
+
 	// This method is used to set the selection state of an item.
 	// If 'selection' is 'this' then note selection.
 	// Returns TRUE if the selection state of this item was changed.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
-    
+
 	// this method is used to group select items
 	virtual void extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items) { }
-    
+
 	// this method is used to deselect this element
 	void deselectItem();
-    
+
 	// this method is used to select this element
 	void selectItem();
-    
+
 	// gets multiple-element selection
 	virtual std::set<LLUUID> getSelectionList() const;
 
@@ -253,7 +253,7 @@ public:
 	BOOL getIsCurSelection() { return mIsCurSelection; }
 
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
-	
+
 	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
 
 	// Call through to the viewed object and return true if it can be
@@ -437,13 +437,13 @@ public:
 	// Returns TRUE if this object (or a child) ends up being selected.
 	// If 'openitem' is TRUE then folders are opened up along the way to the selection.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
-    
+
 	// This method is used to change the selection of an item.
 	// Recursively traverse all children; if 'selection' is 'this' then change
 	// the select status if necessary.
 	// Returns TRUE if the selection state of this folder, or of a child, was changed.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
-    
+
 	// this method is used to group select items
 	virtual void extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
 

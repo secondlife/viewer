@@ -528,9 +528,9 @@ BOOL LLFolderViewItem::changeSelection(LLFolderViewItem* selection, BOOL selecte
 void LLFolderViewItem::deselectItem(void)
 {
 	llassert(mIsSelected);
-    
+
 	mIsSelected = FALSE;
-    
+
 	// Update ancestors' count of selected descendents.
 	LLFolderViewFolder* parent_folder = getParentFolder();
 	if (parent_folder)
@@ -542,9 +542,9 @@ void LLFolderViewItem::deselectItem(void)
 void LLFolderViewItem::selectItem(void)
 {
 	llassert(!mIsSelected);
-    
+
 	mIsSelected = TRUE;
-    
+
 	// Update ancestors' count of selected descendents.
 	LLFolderViewFolder* parent_folder = getParentFolder();
 	if (parent_folder)
@@ -1107,7 +1107,7 @@ void LLFolderViewItem::draw()
 
 LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
 	LLFolderViewItem( p ),	// 0 = no create time
-    mNumDescendantsSelected(0),
+	mNumDescendantsSelected(0),
 	mIsOpen(FALSE),
 	mExpanderHighlighted(FALSE),
 	mCurHeight(0.f),
@@ -1499,10 +1499,10 @@ void LLFolderViewFolder::recursiveIncrementNumDescendantsSelected(S32 increment)
 	do
 	{
 		parent_folder->mNumDescendantsSelected += increment;
-        
+
 		// Make sure we don't have negative values.
 		llassert(parent_folder->mNumDescendantsSelected >= 0);
-        
+
 		parent_folder = parent_folder->getParentFolder();
 	}
 	while(parent_folder);
@@ -1511,7 +1511,7 @@ void LLFolderViewFolder::recursiveIncrementNumDescendantsSelected(S32 increment)
 // Passes selection information on to children and record selection
 // information if necessary.
 BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem,
-									  BOOL take_keyboard_focus)
+                                      BOOL take_keyboard_focus)
 {
 	BOOL rv = FALSE;
 	if (selection == this)

@@ -1446,10 +1446,10 @@ static void give_inventory_cb(const LLSD& notification, const LLSD& response)
 }
 
 static void show_item_sharing_confirmation(const std::string name,
-										   LLViewerInventoryItem* inv_item,
-										   const LLSD& dest,
-										   const LLUUID& dest_agent,
-										   const LLUUID& session_id = LLUUID::null)
+					   LLViewerInventoryItem* inv_item,
+					   const LLSD& dest,
+					   const LLUUID& dest_agent,
+					   const LLUUID& session_id = LLUUID::null)
 {
 	if (!inv_item)
 	{
@@ -1459,7 +1459,7 @@ static void show_item_sharing_confirmation(const std::string name,
 
 	LLSD substitutions;
 	substitutions["RESIDENTS"] = name;
-	substitutions["ITEMS"] = inv_item ? inv_item->getName() : LLStringUtil::null;
+	substitutions["ITEMS"] = inv_item->getName();
 	LLSD payload;
 	payload["agent_id"] = dest_agent;
 	payload["item_id"] = inv_item->getUUID();

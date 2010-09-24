@@ -42,11 +42,10 @@ public:
 	/*virtual*/ void setGain(const F32 gain);
 
 private:
-	void updateGain();
+	void updateMute();
 
 private:
 	LLPointer<LLViewerObject>	mObjectp;
-	F32							mActualGain; // The "real" gain, when not off due to parcel effects
 };
 
 #endif // LL_LLAUDIOSOURCEVO_H

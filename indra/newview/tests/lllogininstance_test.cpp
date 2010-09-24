@@ -62,6 +62,12 @@ LLSLURL LLStartUp::sStartSLURL;
 static std::string gLoginURI;
 static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
+
+#include "../llviewerwindow.h"
+void LLViewerWindow::setShowProgress(BOOL show) {}
+
+LLViewerWindow* gViewerWindow;
+
 class LLLogin::Impl
 {
 };
@@ -107,6 +113,8 @@ void LLGridManager::addGrid(LLSD& grid_data)
 {
 }
 LLGridManager::LLGridManager()
+:
+	mIsInProductionGrid(false)
 {	
 }
 
