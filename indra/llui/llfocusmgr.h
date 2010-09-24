@@ -118,6 +118,8 @@ public:
 	void			unlockFocus();
 	BOOL			focusLocked() const { return mLockedView != NULL; }
 
+	bool			keyboardFocusHasMenus() const;
+
 private:
 	LLUICtrl*			mLockedView;
 

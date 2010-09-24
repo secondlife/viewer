@@ -277,6 +277,11 @@ public:
 	BOOL focusNextRoot();
 	BOOL focusPrevRoot();
 
+	// Normally we want the app menus to get priority on modified keys
+	// However, if this item claims to have menus then we want to give
+	// it first chance at handling them. (eg. the script editor)
+	virtual bool	hasMenus() const { return false; };
+
 	// delete all children. Override this function if you need to
 	// perform any extra clean up such as cached pointers to selected
 	// children, etc.
