@@ -11366,6 +11366,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>VoiceDisableMic</key>
+    <map>
+      <key>Comment</key>
+      <string>Completely disable the ability to open the mic.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>VoiceEffectExpiryWarningTime</key>
     <map>
       <key>Comment</key>
