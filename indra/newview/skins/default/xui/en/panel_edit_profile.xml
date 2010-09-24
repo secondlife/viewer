@@ -88,40 +88,64 @@
          left="0"
          width="292">
       <text
+     top="5"
+     follows="top|left"
+     height="13"
+     layout="topleft"
+     left="10"
+     name="user_label"
+     text_color="LtGray"
+     value="Display Name:"
+     width="80" />
+      <button
+         name="set_name"
+         layout="topleft"
+         follows="top|left"
+         image_overlay="Edit_Wrench"
+         top="21"
+         left="10"
+         height="23"
+         width="23"
+         tool_tip="Set Display Name"/>
+      <text
        follows="top|left"
        font="SansSerifBigBold"
        height="20"
        layout="topleft"
-       left="10"
+       left_pad="10"
        name="user_name"
        text_color="white"
-       top="4"
+       top_delta="3"
        value="Hamilton Hitchings"
-       width="280" />
+       use_ellipses="true" 
+       width="265" />
+      <text
+    follows="top|left"
+    height="13"
+    layout="topleft"
+    left="10"
+    name="user_label"
+    text_color="LtGray"
+    top_pad="4" 
+    value="Username:"
+    width="70" />
       <text
        follows="top|left"
        height="13"
        layout="topleft"
-       left="10"
+       left_pad="0"
        name="user_slid"
-       text_color="LtGray"
-       top_pad="5"
-       value="(hamilton.linden)"
+       text_color="EmphasisColor"
+        font="SansSerifBold"
+       top_delta="-2"
+       value="hamilton.linden"
        width="150" />
-      <button
-       follows="top|left"
-       height="20"
-       label="Set Display Name..."
-       left="165"
-       name="set_name"
-       top_delta="-4"
-       width="120" />
      <panel
        name="lifes_images_panel"
          follows="left|top|right"
          height="244"
          layout="topleft"
-         top="37"
+         top="65"
          left="0"
          width="292">
 	 <panel
@@ -175,7 +199,7 @@
        height="102"
        layout="topleft"
        left="123"
-       top="62"
+       top="90"
        max_length="512"
        name="sl_description_edit"
        width="157"
@@ -232,7 +256,7 @@
        layout="topleft"
        left="123"
        max_length="512"
-       top="195"
+       top="223"
        name="fl_description_edit"
        width="157"
        word_wrap="true">
