@@ -1342,6 +1342,21 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 				mdl["skin"]["bind_shape_matrix"][i*4+j] = high->mBindShapeMatrix.mMatrix[i][j];
 			}
 		}
+		
+		if ( high->mAlternateBindMatrix.size() > 0 )
+		{
+			for (U32 i = 0; i < high->mJointList.size(); ++i)
+			{
+				for (U32 j = 0; j < 4; j++)
+				{
+					for (U32 k = 0; k < 4; k++)
+					{
+						mdl["skin"]["alt_inverse_bind_matrix"][i][j*4+k] = high->mAlternateBindMatrix[i].mMatrix[j][k]; 
+					}
+				}
+			}
+		}
+		
 	}
 
 	if (!decomp.empty())

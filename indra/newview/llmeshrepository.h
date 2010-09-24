@@ -132,6 +132,8 @@ public:
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
 	std::vector<LLMatrix4> mInvBindMatrix;
+	std::vector<LLMatrix4> mAlternateBindMatrix;
+	
 	LLMatrix4 mBindShapeMatrix;
 };
 

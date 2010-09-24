@@ -4027,6 +4027,32 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//get drawpool of avatar with rigged face
 				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
 				
+				//Determine if we've received skininfo that contains an
+				//alternate bind matrix - if it does then apply the translational component
+				//to the joints of the avatar.
+				const LLVOAvatar* pAvatarVO = vobj->getAvatar();
+				if ( pAvatarVO )
+				{
+					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
+					if ( pSkinData )
+					{
+						static const int bindCnt = pSkinData->mAlternateBindMatrix.size();
+						if ( bindCnt > 0 )
+						{					
+							static const int jointCnt = pSkinData->mJointNames.size();
+							for ( int i=0; i<jointCnt; ++i )
+							{
+								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+								LLJoint* pJoint = vobj->getAvatar()->getJoint( lookingForJoint );
+								if ( pJoint )
+								{   
+									pJoint->storeCurrentXform( pSkinData->mAlternateBindMatrix[i].getTranslation() );												
+								}
+							}
+						}
+					}
+				}
+				
 				if (pool)
 				{
 					const LLTextureEntry* te = facep->getTextureEntry();

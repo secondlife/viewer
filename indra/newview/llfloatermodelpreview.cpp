@@ -318,6 +318,8 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
 
+	gAgentAvatarp->resetJointPositions();
+	
 	delete mModelPreview;
 	
 	if (mGLName)
@@ -1304,6 +1306,106 @@ void LLModelLoader::run()
 								model->mBindShapeMatrix = rotation;
 							}*/
 
+							//The joint transfom map that we'll populate below
+							std::map<std::string,LLMatrix4> jointTransforms;
+							jointTransforms.clear();
+							
+							//Some collada setup for accessing the skeleton
+							daeElement* pElement = 0;
+							dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
+							domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
+							if ( pSkeleton )
+							{       
+								//Get the root node of the skeleton
+								daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
+								if ( pSkeletonRootNode )
+								{       
+									//Once we have the root node - start acccessing it's joint components       
+									static const int jointCnt = mJointMap.size();
+									std::map<std::string, std::string> :: const_iterator jointIt = mJointMap.begin();
+									bool missingID = false;
+									//Loop over all the possible joints within the .dae - using the allowed joint list in the ctor.
+									for ( int i=0; i<jointCnt; ++i, ++jointIt )
+									{
+										//Build a joint for the resolver to work with
+										char str[64]={0};           
+										sprintf(str,"./%s",(*jointIt).second.c_str() );                   
+										//llwarns<<"Joint "<< str <<llendl;
+										
+										//Setup the resolver
+										daeSIDResolver resolver( pSkeletonRootNode, str );
+										
+										//Look for the joint
+										domNode* pJoint = daeSafeCast<domNode>(resolver.getElement());
+										if ( pJoint )
+										{               
+											//Pull out the translate id and store it in the jointTranslations map
+											daeSIDResolver jointResolver( pJoint, "./translate" );    						   
+											domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+											
+											LLMatrix4 workingTransform;
+											
+											//Translation
+											if ( pTranslate )
+											{               
+												domFloat3 jointTrans = pTranslate->getValue();
+												LLVector3 singleJointTranslation( jointTrans[0], jointTrans[1], jointTrans[2] );
+												workingTransform.setTranslation( singleJointTranslation );											
+											}
+											else
+											{
+												missingID = true;
+												llwarns<< "No translation sid!" << llendl;
+											}
+											//Store the joint transform w/respect to it's name. 
+											jointTransforms[(*jointIt).second.c_str()] = workingTransform; 
+											
+										}
+										else
+										{
+											missingID = true;
+											llwarns<< "Missing joint." << llendl;
+										}
+									}
+									
+									//If anything failed in regards to extracting the skeleton, joints or translation id,
+									//mention it
+									if ( missingID )
+									{
+										llwarns<< "Partial jointmap found in asset - did you mean to just have a partial map?" << llendl;
+									}
+									
+									//Set the joint translations on the avatar
+									//The joints are reset in the dtor
+									jointIt = mJointMap.begin();
+									for ( int i=0; i<jointCnt; ++i, ++jointIt )
+									{
+										std::string lookingForJoint = (*jointIt).first.c_str();
+										if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+										{											
+											LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+											LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
+											if ( pJoint )
+											{   
+												pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+											}
+											else
+											{
+												//Most likely an error in the asset.
+												llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
+											}
+										}
+									}  		 
+								}
+								else
+								{           
+									llwarns<<"No root node in this skeleton" << llendl;
+								}
+							}
+							else
+							{
+								llwarns<<"No skeleton in this asset" << llendl;
+							}
 							
 							domSkin::domJoints* joints = skin->getJoints();
 
@@ -1391,6 +1493,29 @@ void LLModelLoader::run()
 								}
 							}
 
+							//We need to construct the alternate bind matrix (which contains the new joint positions)
+							//in the same order as they were stored in the joint buffer. The joints associated
+							//with the skeleton are not stored in the same order as they are in the exported joint buffer.
+							//This remaps the skeletal joints to be in the same order as the joints stored in the model.
+							std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();							
+							static const int jointCnt = model->mJointList.size();
+							for ( int i=0; i<jointCnt; ++i, ++jointIt )
+							{
+								std::string lookingForJoint = (*jointIt).c_str();
+								//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
+								//and store it in the alternate bind matrix
+								if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+								{											
+									LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+									LLMatrix4 newInverse = model->mInvBindMatrix[i];
+									newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
+									model->mAlternateBindMatrix.push_back( newInverse );								
+								}
+								else
+								{
+									llwarns<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<llendl;
+								}
+							}   
 							
 							//grab raw position array
 							
@@ -2617,7 +2742,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 			target_model->mJointList = base->mJointList;
 			target_model->mInvBindMatrix = base->mInvBindMatrix;
 			target_model->mBindShapeMatrix = base->mBindShapeMatrix;
-
+			target_model->mAlternateBindMatrix = base->mAlternateBindMatrix;
 			//copy material list
 			target_model->mMaterialList = base->mMaterialList;
 

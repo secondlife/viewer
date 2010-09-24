@@ -152,7 +152,7 @@ public:
 
 	LLMatrix4 mBindShapeMatrix;
 	std::vector<LLMatrix4> mInvBindMatrix;
-
+	std::vector<LLMatrix4> mAlternateBindMatrix;
 	std::string mLabel;
 
 	LLVector3 mNormalizedScale;

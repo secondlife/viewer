@@ -1016,6 +1016,23 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 			}
 		}
 
+		if (skin.has("alt_inverse_bind_matrix"))
+		{
+			for (U32 i = 0; i < skin["alt_inverse_bind_matrix"].size(); ++i)
+			{
+				LLMatrix4 mat;
+				for (U32 j = 0; j < 4; j++)
+				{
+					for (U32 k = 0; k < 4; k++)
+					{
+						mat.mMatrix[j][k] = skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
+					}
+				}
+				
+				info.mAlternateBindMatrix.push_back(mat);
+			}
+		}
+		
 		mSkinInfoQ.push(info);
 	}
 

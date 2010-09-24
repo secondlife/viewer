@@ -86,6 +86,7 @@ protected:
 
 	// explicit transformation members
 	LLXformMatrix		mXform;
+	LLXformMatrix		mOldXform;
 
 public:
 	U32				mDirtyFlags;
@@ -178,6 +179,9 @@ public:
 
 	S32 getJointNum() const { return mJointNum; }
 	void setJointNum(S32 joint_num) { mJointNum = joint_num; }
+	
+	void restoreOldXform( void );
+	void storeCurrentXform( const LLVector3& pos );
 };
 #endif // LL_LLJOINT_H
 

@@ -239,6 +239,21 @@ void LLJoint::setPosition( const LLVector3& pos )
 	}
 }
 
+//--------------------------------------------------------------------
+// storeCurrentXform()
+//--------------------------------------------------------------------
+void LLJoint::storeCurrentXform( const LLVector3& pos )
+{
+	mOldXform = mXform;
+	setPosition( pos );
+}
+//--------------------------------------------------------------------
+// restoreOldXform()
+//--------------------------------------------------------------------
+void LLJoint::restoreOldXform( void )
+{
+	mXform = mOldXform;
+}
 
 //--------------------------------------------------------------------
 // getWorldPosition()
