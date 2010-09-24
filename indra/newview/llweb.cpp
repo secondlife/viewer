@@ -106,7 +106,7 @@ void LLWeb::loadURLInternal(const std::string &url, const std::string& target, c
 // static
 void LLWeb::loadURLExternal(const std::string& url, const std::string& uuid)
 {
-	loadURLExternal(url, true);
+	loadURLExternal(url, true, uuid);
 }
 
 
