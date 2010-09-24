@@ -175,5 +175,9 @@ viewer-tut-teamcity.email = enus@lindenlab.com
 viewer-tut-teamcity.build_server = false
 viewer-tut-teamcity.build_server_tests = false
 
+# ========================================
+# experience
+# ========================================
+viewer-experience.public_build = false
 
 # eof
