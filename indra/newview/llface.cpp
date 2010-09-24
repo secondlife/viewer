@@ -581,8 +581,8 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		}
 		else
 		{
-			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 			mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 		}
 
 		gGL.popMatrix();
