@@ -3200,9 +3200,6 @@ You are no longer frozen.
       <input name="display_name" max_length_chars="31" type="text">
 [DISPLAY_NAME]
       </input>
-      <input name="display_name_repeat" max_length_chars="31" type="text">
-        [DISPLAY_NAME]
-      </input>
       <button
        default="true"
        index="0"
