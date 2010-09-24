@@ -87,7 +87,7 @@ public:
 	static void		onBtnInsertSample(void*);
 	static void		onBtnInsertFunction(LLUICtrl*, void*);
 
-	virtual bool	hasMenus() const { return true; }
+	virtual bool	hasAccelerators() const { return true; }
 
 private:
 	void		onBtnHelp();

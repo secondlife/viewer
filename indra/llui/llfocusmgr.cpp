@@ -315,12 +315,12 @@ void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLFocusableElement* f
 	}
 }
 
-bool LLFocusMgr::keyboardFocusHasMenus() const
+bool LLFocusMgr::keyboardFocusHasAccelerators() const
 {
 	LLView* focus_view = dynamic_cast<LLView*>(mKeyboardFocus);
 	while( focus_view )
 	{
-		if(focus_view->hasMenus())
+		if(focus_view->hasAccelerators())
 		{
 			return true;
 		}
