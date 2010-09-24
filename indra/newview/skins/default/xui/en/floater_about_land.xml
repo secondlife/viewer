@@ -1044,7 +1044,7 @@ Leyla Linden               </text>
              left="28"
              name="Selected / sat upon:"
              top_pad="5"
-             width="176">
+             width="230">
                 Selected / sat upon:
             </text>
             <text
@@ -1053,7 +1053,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="23"
              layout="topleft"
-             left_delta="172"
+             left_delta="220"
              name="selected_objects_text"
              top_delta="0"
              width="48">
@@ -1143,11 +1143,11 @@ Leyla Linden               </text>
                 <name_list.columns
                  label="Count"
                  name="count"
-                 width="60" />
+                 width="67" />
                 <name_list.columns
                  label="Most Recent"
                  name="mostrecent"
-                 width="170" />
+                 width="163" />
             </name_list>
         </panel>
         <panel

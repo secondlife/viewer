@@ -11,7 +11,7 @@
 	<menu_item_check label="人のアイコン表示" name="View Icons"/>
 	<menu_item_check label="ボイスをブロック" name="Block/Unblock"/>
 	<menu_item_check label="文字をブロック" name="MuteText"/>
-	<context_menu label="モデレーターのオプション &gt;" name="Moderator Options">
+	<context_menu label="モデレーターのオプション" name="Moderator Options">
 		<menu_item_check label="文字チャットを許可" name="AllowTextChat"/>
 		<menu_item_call label="この参加者をミュートする" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="この参加者のミュートを解除する" name="ModerateVoiceUnMuteSelected"/>

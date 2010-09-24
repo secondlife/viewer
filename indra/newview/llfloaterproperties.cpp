@@ -108,8 +108,6 @@ LLFloaterProperties::LLFloaterProperties(const LLUUID& item_id)
 	mDirty(TRUE)
 {
 	mPropertiesObserver = new LLPropertiesObserver(this);
-	
-	//LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
 }
 
 // Destroys the object

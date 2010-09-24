@@ -45,7 +45,6 @@ const F32 SOUND_GAIN = 1.0f;
 LLPreviewSound::LLPreviewSound(const LLSD& key)
   : LLPreview( key )
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_sound.xml", FALSE);
 }
 
 // virtual

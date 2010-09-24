@@ -3738,8 +3738,7 @@ void LLContextMenuBranch::buildDrawLabel( void )
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 	
-	// No special branch suffix
-	mDrawBranchLabel.clear();
+	mDrawBranchLabel = LLMenuGL::BRANCH_SUFFIX;
 }
 
 void	LLContextMenuBranch::showSubMenu()
