@@ -516,7 +516,7 @@ void gst_slvideo_init_class (void)
 				  GST_VERSION_MINOR,
 				  "private-slvideoplugin", 
 				  "SL Video sink plugin",
-				  plugin_init, "0.1", GST_LICENSE_UNKNOWN,
+				  plugin_init, "1.0", "LGPL",
 				  "Second Life",
 				  "http://www.secondlife.com/");
 #undef PACKAGE
