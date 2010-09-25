@@ -2001,6 +2001,8 @@ std::string zip_llsd(LLSD& data)
 
 	LLSDSerialize::serialize(data, llsd_strm, LLSDSerialize::LLSD_BINARY);
 
+	const U32 CHUNK = 65536;
+
 	z_stream strm;
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
@@ -2015,24 +2017,55 @@ std::string zip_llsd(LLSD& data)
 
 	std::string source = llsd_strm.str();
 
+	U8 out[CHUNK];
+
 	strm.avail_in = source.size();
 	strm.next_in = (U8*) source.data();
-	U8* output = new U8[strm.avail_in];
-	strm.avail_out = strm.avail_in;
-	strm.next_out = output;
-	ret = deflate(&strm, Z_FINISH);
-	if (ret != Z_STREAM_END)
-	{
-		delete [] output;
-		llwarns << "Failed to compress LLSD block." << llendl;
-		return std::string();
-	}
+	U8* output = NULL;
 
-	std::string::size_type size = source.size()-strm.avail_out;
+	U32 cur_size = 0;
+
+	U32 have = 0;
+
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+
+		ret = deflate(&strm, Z_FINISH);
+		if (ret == Z_OK || ret == Z_STREAM_END)
+		{ //copy result into output
+			if (strm.avail_out >= CHUNK)
+			{
+				llerrs << "WTF?" << llendl;
+			}
+
+			have = CHUNK-strm.avail_out;
+			output = (U8*) realloc(output, cur_size+have);
+			memcpy(output+cur_size, out, have);
+			cur_size += have;
+		}
+		else 
+		{
+			free(output);
+			llwarns << "Failed to compress LLSD block." << llendl;
+			return std::string();
+		}
+	}
+	while (strm.avail_out == 0);
+
+	std::string::size_type size = cur_size;
 
 	std::string result((char*) output, size);
 	deflateEnd(&strm);
-	delete [] output;
+	free(output);
+
+	std::istringstream test(result);
+	LLSD test_sd;
+	if (!unzip_llsd(test_sd, test, result.size()))
+	{
+		llerrs << "Invalid compression result!" << llendl;
+	}
 
 	return result;
 }
