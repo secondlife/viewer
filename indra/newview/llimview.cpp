@@ -622,10 +622,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids, voice);
 	mId2SessionMap[session_id] = session;
 
-	// When notifying observer, name of session is used instead of "name", because they may not be the
-	// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
-	std::string session_name = LLIMModel::getInstance()->getName(session_id);
-	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id);
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
 
 	return true;
 
@@ -2280,9 +2277,6 @@ void LLIMMgr::addMessage(
 	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
-		// When addidng messages further here, name of session is used instead of "name", because they may not be the
-		// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
-		fixed_session_name = LLIMModel::getInstance()->getName(new_session_id);
 
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
@@ -2302,13 +2296,13 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			LLIMModel::instance().addMessage(new_session_id, fixed_session_name, other_participant_id, bonus_info.str());
+			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	LLIMModel::instance().addMessage(new_session_id, fixed_session_name, other_participant_id, msg);
+	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)
