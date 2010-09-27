@@ -670,6 +670,14 @@
 			<menu_item_call.on_enable
                function="Tools.EnableSaveToObjectInventory" />
           </menu_item_call>
+          <menu_item_call
+			 label="Return Object"
+			 name="Return Object back to Owner">
+			<menu_item_call.on_click
+               function="Object.Return" />
+			<menu_item_call.on_enable
+               function="Object.EnableReturn" />
+          </menu_item_call>
 		</menu>
         <menu
            create_jump_keys="true"
