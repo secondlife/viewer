@@ -62,7 +62,7 @@
    use_ellipses="true"
    word_wrap="true"
    visible="false"
-   width="275" />
+   width="255" />
   <text
    follows="top|left|right"
    font="SansSerifHugeBold"
@@ -75,7 +75,7 @@
    value="Jack Linden"
    visible="true"
    use_ellipses="true"
-   width="275" /> 
+   width="258" /> 
   <button
          name="copy_to_clipboard"
          layout="topleft"
@@ -106,8 +106,9 @@
    text_color="EmphasisColor"
    font="SansSerifBold"
    top_delta="-2"
-   value="Jack Linden"
-   width="120" />
+   use_ellipses="true"
+   value="jack.linden"
+   width="215" />
   <tab_container
    follows="all"
    height="491"
