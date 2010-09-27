@@ -35,7 +35,7 @@
          user_resize="false"
          width="620">
             <web_browser
-             bottom="-11"
+             bottom="-25"
              follows="left|right|top|bottom"
              layout="topleft"
              left="0"
