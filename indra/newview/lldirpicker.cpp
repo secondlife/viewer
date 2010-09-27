@@ -35,6 +35,7 @@
 #include "llframetimer.h"
 #include "lltrans.h"
 #include "llwindow.h"	// beforeDialog()
+#include "llviewercontrol.h"
 
 #if LL_LINUX || LL_SOLARIS
 # include "llfilepicker.h"
@@ -53,6 +54,23 @@ LLDirPicker LLDirPicker::sInstance;
 //
 // Implementation
 //
+
+// utility function to check if access to local file system via file browser 
+// is enabled and if not, tidy up and indicate we're not allowed to do this.
+bool LLDirPicker::check_local_file_access_enabled()
+{
+	// if local file browsing is turned off, return without opening dialog
+	bool local_file_system_browsing_enabled = gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled");
+	if ( ! local_file_system_browsing_enabled )
+	{
+		mDir.clear();	// Windows
+		mFileName = NULL; // Mac/Linux
+		return false;
+	}
+
+	return true;
+}
+
 #if LL_WINDOWS
 
 LLDirPicker::LLDirPicker() :
@@ -72,6 +90,13 @@ BOOL LLDirPicker::getDir(std::string* filename)
 	{
 		return FALSE;
 	}
+
+	// if local file browsing is turned off, return without opening dialog
+	if ( check_local_file_access_enabled() == false )
+	{
+		return FALSE;
+	}
+
 	BOOL success = FALSE;
 
 	// Modal, so pause agent
@@ -231,7 +256,13 @@ BOOL LLDirPicker::getDir(std::string* filename)
 	if( mLocked ) return FALSE;
 	BOOL success = FALSE;
 	OSStatus	error = noErr;
-	
+
+	// if local file browsing is turned off, return without opening dialog
+	if ( check_local_file_access_enabled() == false )
+	{
+		return FALSE;
+	}
+
 	mFileName = filename;
 	
 //	mNavOptions.saveFileName 
@@ -289,6 +320,13 @@ void LLDirPicker::reset()
 BOOL LLDirPicker::getDir(std::string* filename)
 {
 	reset();
+
+	// if local file browsing is turned off, return without opening dialog
+	if ( check_local_file_access_enabled() == false )
+	{
+		return FALSE;
+	}
+
 	if (mFilePicker)
 	{
 		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,

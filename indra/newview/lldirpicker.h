@@ -75,6 +75,7 @@ private:
 	};
 	
 	void buildDirname( void );
+	bool check_local_file_access_enabled();
 
 #if LL_DARWIN
 	NavDialogCreationOptions mNavOptions;
