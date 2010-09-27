@@ -9,7 +9,7 @@ CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
 # Use Public Upload Locations
-public_build = false
+public_build = true
 
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = false
