@@ -30,6 +30,7 @@
 
 #include "llavatarconstants.h"
 #include "llavatarnamecache.h"	// IDEVO
+#include "llclipboard.h"
 #include "lluserrelations.h"
 
 #include "llavatarpropertiesprocessor.h"
@@ -129,7 +130,8 @@ BOOL LLPanelProfileView::postBuild()
 	mStatusText->setVisible(false);
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
-	
+	childSetCommitCallback("copy_to_clipboard",boost::bind(&LLPanelProfileView::onCopyToClipboard,this),NULL);
+		
 	return TRUE;
 }
 
@@ -147,6 +149,12 @@ void LLPanelProfileView::onBackBtnClick()
 	{
 		parent->openPreviousPanel();
 	}
+}
+
+void LLPanelProfileView::onCopyToClipboard()
+{
+	std::string name = getChild<LLUICtrl>("user_name")->getValue().asString() + " (" + getChild<LLUICtrl>("user_slid")->getValue().asString() + ")";
+	gClipboard.copyFromString(utf8str_to_wstring(name));
 }
 
 bool LLPanelProfileView::isGrantedToSeeOnlineStatus()

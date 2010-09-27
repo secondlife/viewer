@@ -74,6 +74,7 @@ public:
 protected:
 
 	void onBackBtnClick();
+	void onCopyToClipboard();
 	bool isGrantedToSeeOnlineStatus();
 
 	/**
