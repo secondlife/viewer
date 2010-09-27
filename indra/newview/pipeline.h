@@ -2,25 +2,31 @@
  * @file pipeline.h
  * @brief Rendering pipeline definitions
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -42,6 +48,10 @@
 
 #include <stack>
 
+#include <stack>
+
+#include <stack>
+
 class LLViewerTexture;
 class LLEdge;
 class LLFace;
@@ -54,6 +64,9 @@ class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
+class LLCurlRequest;
+
+class LLMeshResponder;
 
 typedef enum e_avatar_skinning_method
 {
@@ -209,6 +222,7 @@ public:
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
+	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
@@ -221,6 +235,14 @@ public:
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
+	void clearReferences();
+
+	//check references will assert that there are no references in sCullResult to the provided data
+	void checkReferences(LLFace* face);
+	void checkReferences(LLDrawable* drawable);
+	void checkReferences(LLDrawInfo* draw_info);
+	void checkReferences(LLSpatialGroup* group);
+
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
@@ -302,6 +324,7 @@ public:
 	static BOOL toggleRenderTypeControlNegated(void* data);
 	static BOOL toggleRenderDebugControl(void* data);
 	static BOOL toggleRenderDebugFeatureControl(void* data);
+	static void setRenderDebugFeatureControl(U32 bit, bool value);
 
 	static void setRenderParticleBeacons(BOOL val);
 	static void toggleRenderParticleBeacons(void* data);
@@ -423,6 +446,8 @@ public:
 		RENDER_DEBUG_AVATAR_VOLUME      = 0x0100000,
 		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
 		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
+		RENDER_DEBUG_PHYSICS_SHAPES     = 0x0800000,
+		RENDER_DEBUG_NORMALS	        = 0x1000000,
 	};
 
 public:
@@ -445,6 +470,10 @@ public:
 	S32						 mNumVisibleNodes;
 	S32						 mVerticesRelit;
 
+	S32						 mDebugTextureUploadCost;
+	S32						 mDebugSculptUploadCost;
+	S32						 mDebugMeshUploadCost;
+
 	S32						 mLightingChanges;
 	S32						 mGeometryChanges;
 
@@ -460,6 +489,8 @@ public:
 	static BOOL				sAutoMaskAlphaNonDeferred;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
+	static BOOL				sBakeSunlight;
+	static BOOL				sNoAlpha;
 	static BOOL				sUseTriStrips;
 	static BOOL				sUseFarClip;
 	static BOOL				sShadowRender;

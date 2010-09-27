@@ -2,25 +2,31 @@
  * @file llselectmgr.cpp
  * @brief A manager for selected objects and faces.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -64,6 +70,7 @@
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
 #include "llmenugl.h"
+#include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
@@ -175,7 +182,6 @@ LLObjectSelection *get_null_object_selection()
 
 // Build time optimization, generate this function once here
 template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
-
 //-----------------------------------------------------------------------------
 // LLSelectMgr()
 //-----------------------------------------------------------------------------
@@ -1095,8 +1101,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		mGridRotation = first_grid_object->getRenderRotation();
 		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
 
-		LLVector3 min_extents(F32_MAX, F32_MAX, F32_MAX);
-		LLVector3 max_extents(-F32_MAX, -F32_MAX, -F32_MAX);
+		LLVector4a min_extents(F32_MAX);
+		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
 		for (LLObjectSelection::iterator iter = mGridObjects.begin();
 			 iter != mGridObjects.end(); ++iter)
@@ -1105,7 +1111,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			LLDrawable* drawable = object->mDrawable;
 			if (drawable)
 			{
-				const LLVector3* ext = drawable->getSpatialExtents();
+				const LLVector4a* ext = drawable->getSpatialExtents();
 				update_min_max(min_extents, max_extents, ext[0]);
 				update_min_max(min_extents, max_extents, ext[1]);
 				grid_changed = TRUE;
@@ -1113,13 +1119,19 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		}
 		if (grid_changed)
 		{
-			mGridOrigin = lerp(min_extents, max_extents, 0.5f);
+			LLVector4a center, size;
+			center.setAdd(min_extents, max_extents);
+			center.mul(0.5f);
+			size.setSub(max_extents, min_extents);
+			size.mul(0.5f);
+
+			mGridOrigin.set(center.getF32ptr());
 			LLDrawable* drawable = first_grid_object->mDrawable;
 			if (drawable && drawable->isActive())
 			{
 				mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
 			}
-			mGridScale = (max_extents - min_extents) * 0.5f;
+			mGridScale.set(size.getF32ptr());
 		}
 	}
 	else // GRID_MODE_WORLD or just plain default
@@ -3532,7 +3544,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 		{
 			if (mDebugSelectMgr)
 			{
-				llinfos << "Selection manager: auto-deselecting, select_dist = " << fsqrtf(select_dist_sq) << llendl;
+				llinfos << "Selection manager: auto-deselecting, select_dist = " << (F32) sqrt(select_dist_sq) << llendl;
 				llinfos << "agent pos global = " << gAgent.getPositionGlobal() << llendl;
 				llinfos << "selection pos global = " << selectionCenter << llendl;
 			}
@@ -3930,6 +3942,44 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
+struct LLSelectMgrApplyPhysicsParam : public LLSelectedObjectFunctor
+{
+	LLSelectMgrApplyPhysicsParam(U8 type, F32 gravity, F32 friction, 
+									F32 density, F32 restitution) :
+		mType(type),
+		mGravity(gravity),
+		mFriction(friction),
+		mDensity(density),
+		mRestitution(restitution)
+	{}
+	U8 mType;
+	F32 mGravity;
+	F32 mFriction;
+	F32 mDensity;
+	F32 mRestitution;
+	virtual bool apply(LLViewerObject* object)
+	{
+		if ( object->permModify() ) 	// preemptive permissions check
+		{
+			object->setPhysicsShapeType( mType );
+			object->setPhysicsGravity(mGravity);
+			object->setPhysicsFriction(mFriction);
+			object->setPhysicsDensity(mDensity);
+			object->setPhysicsRestitution(mRestitution);
+			object->updateFlags();
+		}
+		return true;
+	}
+};
+
+
+void LLSelectMgr::selectionUpdatePhysicsParam(U8 type, F32 gravity, F32 friction, 
+											  F32 density, F32 restitution)
+{
+	llwarns << "physics shape type ->" << (U32)type << llendl;
+	LLSelectMgrApplyPhysicsParam func(type, gravity, friction, density, restitution);
+	getSelection()->applyToObjects(&func);	
+}
 
 //----------------------------------------------------------------------
 // Helpful packing functions for sendObjectMessage()
@@ -4618,7 +4668,6 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	// Don't select, just highlight
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
-
 
 extern LLGLdouble	gGLModelView[16];
 
@@ -5337,6 +5386,106 @@ BOOL LLSelectNode::allowOperationOnNode(PermissionBit op, U64 group_proxy_power)
 	return (mPermissions->allowOperationBy(op, proxy_agent_id, group_id));
 }
 
+
+//helper function for pushing relevant vertices from drawable to GL
+void pushWireframe(LLDrawable* drawable)
+{
+	if (drawable->isState(LLDrawable::RIGGED))
+	{ //render straight from rigged volume if this is a rigged attachment
+		LLVOVolume* vobj = drawable->getVOVolume();
+		if (vobj)
+		{
+			vobj->updateRiggedVolume();
+			LLRiggedVolume* rigged_volume = vobj->getRiggedVolume();
+			if (rigged_volume)
+			{
+				LLVertexBuffer::unbind();
+				gGL.pushMatrix();
+				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+				for (S32 i = 0; i < rigged_volume->getNumVolumeFaces(); ++i)
+				{
+					const LLVolumeFace& face = rigged_volume->getVolumeFace(i);
+					glVertexPointer(3, GL_FLOAT, 16, face.mPositions);
+					glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+				}
+				gGL.popMatrix();
+			}
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+		{
+			LLFace* face = drawable->getFace(i);
+			pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+		}
+	}
+}
+
+void LLSelectNode::renderOneWireframe(const LLColor4& color)
+{
+	LLViewerObject* objectp = getObject();
+	if (!objectp)
+	{
+		return;
+	}
+
+	LLDrawable* drawable = objectp->mDrawable;
+	if(!drawable)
+	{
+		return;
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	gGL.pushMatrix();
+
+	BOOL is_hud_object = objectp->isHUDAttachment();
+
+	if (!is_hud_object)
+	{
+		glLoadIdentity();
+		glMultMatrixd(gGLModelView);
+	}
+	
+	if (drawable->isActive())
+	{
+		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
+	{
+		gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
+		LLGLEnable fog(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+		float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
+		LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+		glFogf(GL_FOG_START, d);
+		glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+		glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		{
+			glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+			pushWireframe(drawable);
+		}
+	}
+
+	gGL.flush();
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	glColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(3.f, 3.f);
+	glLineWidth(3.f);
+	pushWireframe(drawable);
+	glLineWidth(1.f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gGL.popMatrix();
+}
+
 //-----------------------------------------------------------------------------
 // renderOneSilhouette()
 //-----------------------------------------------------------------------------
@@ -5351,6 +5500,13 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	LLDrawable* drawable = objectp->mDrawable;
 	if(!drawable)
 	{
+		return;
+	}
+
+	LLVOVolume* vobj = drawable->getVOVolume();
+	if (vobj && vobj->isMesh())
+	{
+		renderOneWireframe(color);
 		return;
 	}
 
@@ -6047,13 +6203,61 @@ BOOL LLObjectSelection::isEmpty() const
 //-----------------------------------------------------------------------------
 // getObjectCount() - returns number of non null objects
 //-----------------------------------------------------------------------------
-S32 LLObjectSelection::getObjectCount()
+S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 {
 	cleanupNodes();
 	S32 count = mList.size();
+
 	return count;
 }
 
+F32 LLObjectSelection::getSelectedObjectCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			cost += object->getObjectCost();
+		}
+	}
+
+	return cost;
+}
+
+F32 LLObjectSelection::getSelectedLinksetCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	std::set<LLViewerObject*> me_roots;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
+			if (root)
+			{
+				if (me_roots.find(root) == me_roots.end())
+				{
+					me_roots.insert(root);
+					cost += root->getLinksetCost();
+				}
+			}
+		}
+	}
+
+	return cost;
+}
 
 //-----------------------------------------------------------------------------
 // getTECount()

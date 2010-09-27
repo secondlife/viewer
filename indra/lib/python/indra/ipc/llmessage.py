@@ -26,6 +26,8 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
+from sets import Set, ImmutableSet
+
 from compatibility import Incompatible, Older, Newer, Same
 from tokenstream import TokenStream
 
@@ -42,8 +44,8 @@ class Template:
     
     def compatibleWithBase(self, base):
         messagenames = (
-              frozenset(self.messages.keys())
-            | frozenset(base.messages.keys())
+              ImmutableSet(self.messages.keys())
+            | ImmutableSet(base.messages.keys())
             )
             
         compatibility = Same()

@@ -22,7 +22,6 @@ varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
-varying vec3 vary_light;
 
 uniform mat4 inv_proj;
 
@@ -55,7 +54,6 @@ void main()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	//gl_FragColor = gl_Color;
 	gl_FragColor = color;
 	//gl_FragColor = vec4(1,0,1,1);
 	//gl_FragColor = vec4(1,0,1,1)*shadow;

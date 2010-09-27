@@ -2,25 +2,31 @@
  * @file lldrawable.h
  * @brief LLDrawable class definition
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -35,6 +41,7 @@
 #include "v4math.h"
 #include "m4math.h"
 #include "v4coloru.h"
+#include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
 #include "llmemtype.h"
@@ -60,6 +67,17 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 class LLDrawable : public LLRefCount
 {
 public:
+	LLDrawable(const LLDrawable& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLDrawable& operator=(const LLDrawable& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static void initClass();
 
 	LLDrawable()				{ init(); }
@@ -83,19 +101,19 @@ public:
 	LLVOVolume*	getVOVolume() const; // cast mVObjp tp LLVOVolume if OK
 
 	const LLMatrix4&      getWorldMatrix() const		{ return mXform.getWorldMatrix(); }
-	const LLMatrix4&	  getRenderMatrix() const		{ return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix(); }
+	const LLMatrix4&	  getRenderMatrix() const;
 	void				  setPosition(LLVector3 v) const { }
 	const LLVector3&	  getPosition() const			{ return mXform.getPosition(); }
 	const LLVector3&      getWorldPosition() const		{ return mXform.getPositionW(); }
 	const LLVector3		  getPositionAgent() const;
-	const LLVector3d&	  getPositionGroup() const		{ return mPositionGroup; }
+	const LLVector4a&	  getPositionGroup() const		{ return *mPositionGroup; }
 	const LLVector3&	  getScale() const				{ return mCurrentScale; }
 	void				  setScale(const LLVector3& scale) { mCurrentScale = scale; }
 	const LLQuaternion&   getWorldRotation() const		{ return mXform.getWorldRotation(); }
 	const LLQuaternion&   getRotation() const			{ return mXform.getRotation(); }
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
 	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
-	F64					  getBinRadius() const			{ return mBinRadius; }
+	F32					  getBinRadius() const			{ return mBinRadius; }
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
@@ -149,7 +167,7 @@ public:
 		
 	void updateSpecialHoverCursor(BOOL enabled);
 
-	virtual void shiftPos(const LLVector3 &shift_vector);
+	virtual void shiftPos(const LLVector4a &shift_vector);
 
 	S32 getGeneration() const					{ return mGeneration; }
 
@@ -167,11 +185,12 @@ public:
 	const LLVector3& getBounds(LLVector3& min, LLVector3& max) const;
 	virtual void updateSpatialExtents();
 	virtual void updateBinRadius();
-	const LLVector3* getSpatialExtents() const;
-	void setSpatialExtents(LLVector3 min, LLVector3 max);
-	void setPositionGroup(const LLVector3d& pos);
-	void setPositionGroup(const LLVector3& pos) { setPositionGroup(LLVector3d(pos)); }
+	const LLVector4a* getSpatialExtents() const;
+	void setSpatialExtents(const LLVector3& min, const LLVector3& max);
+	void setSpatialExtents(const LLVector4a& min, const LLVector4a& max);
 
+	void setPositionGroup(const LLVector4a& pos);
+	
 	void setRenderType(S32 type) 				{ mRenderType = type; }
 	BOOL isRenderType(S32 type) 				{ return mRenderType == type; }
 	S32  getRenderType()						{ return mRenderType; }
@@ -231,35 +250,37 @@ public:
 	
 	typedef enum e_drawable_flags
 	{
- 		IN_REBUILD_Q1	= 0x00000002,
- 		IN_REBUILD_Q2	= 0x00000004,
- 		IN_LIGHT_Q		= 0x00000008,
-		EARLY_MOVE		= 0x00000010,
-		MOVE_UNDAMPED	= 0x00000020,
-		ON_MOVE_LIST	= 0x00000040,
-		USE_BACKLIGHT	= 0x00000080,
-		UV				= 0x00000100,
-		UNLIT			= 0x00000200,
-		LIGHT			= 0x00000400,
-		LIGHTING_BUILT	= 0x00000800,
-		REBUILD_VOLUME  = 0x00001000,	//volume changed LOD or parameters, or vertex buffer changed
-		REBUILD_TCOORD	= 0x00002000,	//texture coordinates changed
-		REBUILD_COLOR	= 0x00004000,	//color changed
-		REBUILD_POSITION= 0x00010000,	//vertex positions/normals changed
+ 		IN_REBUILD_Q1	= 0x00000001,
+ 		IN_REBUILD_Q2	= 0x00000002,
+ 		IN_LIGHT_Q		= 0x00000004,
+		EARLY_MOVE		= 0x00000008,
+		MOVE_UNDAMPED	= 0x00000010,
+		ON_MOVE_LIST	= 0x00000020,
+		USE_BACKLIGHT	= 0x00000040,
+		UV				= 0x00000080,
+		UNLIT			= 0x00000100,
+		LIGHT			= 0x00000200,
+		LIGHTING_BUILT	= 0x00000400,
+		REBUILD_VOLUME  = 0x00000800,	//volume changed LOD or parameters, or vertex buffer changed
+		REBUILD_TCOORD	= 0x00001000,	//texture coordinates changed
+		REBUILD_COLOR	= 0x00002000,	//color changed
+		REBUILD_POSITION= 0x00004000,	//vertex positions/normals changed
 		REBUILD_GEOMETRY= REBUILD_POSITION|REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_MATERIAL= REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_ALL		= REBUILD_GEOMETRY|REBUILD_VOLUME,
-		ON_SHIFT_LIST	= 0x00100000,
-		BLOCKER			= 0x00400000,
-		ACTIVE			= 0x00800000,
-		DEAD			= 0x01000000,
-		INVISIBLE		= 0x02000000, // stay invisible until flag is cleared
- 		NEARBY_LIGHT	= 0x04000000, // In gPipeline.mNearbyLightSet
-		BUILT			= 0x08000000,
-		FORCE_INVISIBLE = 0x10000000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
-		CLEAR_INVISIBLE = 0x20000000, // clear FORCE_INVISIBLE next draw frame
-		REBUILD_SHADOW =  0x40000000,
-		HAS_ALPHA		= 0x80000000,
+		REBUILD_RIGGED	= 0x00008000,
+		ON_SHIFT_LIST	= 0x00010000,
+		BLOCKER			= 0x00020000,
+		ACTIVE			= 0x00040000,
+		DEAD			= 0x00080000,
+		INVISIBLE		= 0x00100000, // stay invisible until flag is cleared
+ 		NEARBY_LIGHT	= 0x00200000, // In gPipeline.mNearbyLightSet
+		BUILT			= 0x00400000,
+		FORCE_INVISIBLE = 0x00800000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
+		CLEAR_INVISIBLE = 0x01000000, // clear FORCE_INVISIBLE next draw frame
+		REBUILD_SHADOW =  0x02000000,
+		HAS_ALPHA		= 0x04000000,
+		RIGGED			= 0x08000000,
 	} EDrawableFlags;
 
 	LLXformMatrix       mXform;
@@ -282,6 +303,9 @@ public:
 private:
 	typedef std::vector<LLFace*> face_list_t;
 	
+	LLVector4a*		mExtents;
+	LLVector4a*		mPositionGroup;
+		
 	U32				mState;
 	S32				mRenderType;
 	LLPointer<LLViewerObject> mVObjp;
@@ -291,9 +315,7 @@ private:
 	
 	mutable U32		mVisible;
 	F32				mRadius;
-	LLVector3		mExtents[2];
-	LLVector3d		mPositionGroup;
-	F64				mBinRadius;
+	F32				mBinRadius;
 	S32				mGeneration;
 	
 	LLVector3		mCurrentScale;

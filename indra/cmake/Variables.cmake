@@ -82,7 +82,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # otherwise CMAKE_OSX_SYSROOT will be overridden here. We can't just check
   # for it being unset, as it gets set to the system default :(
 
-  # Default to building against the 10.4 SDK if no deployment target is
+  # Default to building against the 10.4u SDK if no deployment target is
   # specified.
   if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     # NOTE: setting -isysroot is NOT adequate: http://lists.apple.com/archives/Xcode-users/2007/Oct/msg00696.html

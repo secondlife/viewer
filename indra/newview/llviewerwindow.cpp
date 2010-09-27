@@ -2,30 +2,35 @@
  * @file llviewerwindow.cpp
  * @brief Implementation of the LLViewerWindow class.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewerwindow.h"
 
 #if LL_WINDOWS
@@ -41,6 +46,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfloaterreg.h"
+#include "llmeshrepository.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
@@ -226,6 +232,8 @@ LLVector2       gDebugRaycastTexCoord;
 LLVector3       gDebugRaycastNormal;
 LLVector3       gDebugRaycastBinormal;
 S32				gDebugRaycastFaceHit;
+LLVector3		gDebugRaycastStart;
+LLVector3		gDebugRaycastEnd;
 
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
@@ -316,7 +324,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		U32 xpos = mWindow->getWindowWidthScaled() - 350;
+		U32 xpos = mWindow->getWorldViewWidthScaled() - 350;
 		U32 ypos = 64;
 		const U32 y_inc = 20;
 
@@ -501,6 +509,19 @@ public:
 			
 			ypos += y_inc;
 
+			addText(xpos, ypos, llformat("%.3f MB Mesh Data Received", LLMeshRepository::sBytesReceived/(1024.f*1024.f)));
+			
+			ypos += y_inc;
+			
+			addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
+				LLMeshRepository::sHTTPRetryCount));
+			
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
+
+			ypos += y_inc;
+
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
 				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
@@ -580,6 +601,50 @@ public:
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
 				ypos += y_inc;
 			}
+		}
+
+
+		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
+		{
+			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
+			ypos += y_inc/2;
+			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
+			ypos += y_inc/2;
+			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
+			ypos += y_inc/2;
+			addText(xpos, ypos, "Upload Cost: ");
+						
+			ypos += y_inc;
+		}
+
+		//temporary hack to give feedback on mesh upload progress
+		if (!gMeshRepo.mUploads.empty())
+		{
+			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
+				iter != gMeshRepo.mUploads.end(); ++iter)
+			{
+				LLMeshUploadThread* thread = *iter;
+
+				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
+								thread->mPendingConfirmations, thread->mUploadQ.size()+thread->mTextureQ.size(),
+								thread->mPendingUploads, thread->mConfirmedQ.size()+thread->mConfirmedTextureQ.size(),
+								thread->mInstanceQ.size()));
+				ypos += y_inc;
+			}
+		}
+
+		S32 pending = (S32) gMeshRepo.mPendingRequests.size();
+		S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
+		S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
+
+		if (pending + header + lod + LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests != 0)
+		{
+			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
+												pending,
+												LLMeshRepoThread::sActiveHeaderRequests, header,
+												LLMeshRepoThread::sActiveLODRequests, lod));
+
+			ypos += y_inc;
 		}
 	}
 
@@ -2477,7 +2542,9 @@ void LLViewerWindow::updateUI()
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
 											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal);
+											  &gDebugRaycastBinormal,
+											  &gDebugRaycastStart,
+											  &gDebugRaycastEnd);
 	}
 
 	updateMouseDelta();
@@ -3422,7 +3489,9 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												LLVector3 *intersection,
 												LLVector2 *uv,
 												LLVector3 *normal,
-												LLVector3 *binormal)
+												LLVector3 *binormal,
+												LLVector3* start,
+												LLVector3* end)
 {
 	S32 x = mouse_x;
 	S32 y = mouse_y;
@@ -3454,7 +3523,16 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	
+	if (start)
+	{
+		*start = mouse_world_start;
+	}
+
+	if (end)
+	{
+		*end = mouse_world_end;
+	}
+
 	LLViewerObject* found = NULL;
 
 	if (this_object)  // check only this object
@@ -4491,6 +4569,7 @@ BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsyn
 	//BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 
 	//gResizeScreenTexture = TRUE;
+
 
 	//U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
 	//U32 old_fsaa = mWindow->getFSAASamples();

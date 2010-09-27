@@ -3,25 +3,31 @@
  * @brief Declaration of LLVOAvatar class which is a derivation of
  * LLViewerObject
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -122,7 +128,7 @@ public:
 	virtual BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
 	virtual void   	 	 	updateTextures();
 	virtual S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
-	virtual void   	 	 	onShift(const LLVector3& shift_vector);
+	virtual void   	 	 	onShift(const LLVector4a& shift_vector);
 	virtual U32    	 	 	getPartitionType() const;
 	virtual const  	 	 	LLVector3 getRenderPosition() const;
 	virtual void   	 	 	updateDrawable(BOOL force_damped);
@@ -130,8 +136,8 @@ public:
 	virtual BOOL   	 	 	updateGeometry(LLDrawable *drawable);
 	virtual void   	 	 	setPixelAreaAndAngle(LLAgent &agent);
 	virtual void   	 	 	updateRegion(LLViewerRegion *regionp);
-	virtual void   	 	 	updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax);
-	virtual void   	 	 	getSpatialExtents(LLVector3& newMin, LLVector3& newMax);
+	virtual void   	 	 	updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
+	virtual void   	 	 	getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	virtual BOOL   	 	 	lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 												 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
 												 BOOL pick_transparent = FALSE,
@@ -163,7 +169,9 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	virtual LLJoint*     	getRootJoint() { return &mRoot; }
-
+	
+	void					resetJointPositions( void );
+	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
 	virtual const LLUUID&   getID();
 	virtual LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
@@ -338,6 +346,8 @@ public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
+	F32			getLastSkinTime() { return mLastSkinTime; }
+	U32			renderSkinnedAttachments();
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
 	static void	deleteCachedImages(bool clearAll=true);
@@ -349,6 +359,8 @@ private:
 	bool		shouldAlphaMask();
 
 	BOOL 		mNeedsSkin; // avatar has been animated and verts have not been updated
+	F32			mLastSkinTime; //value of gFrameTimeSeconds at last skin update
+
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
@@ -388,7 +400,7 @@ public:
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
-	void 		getImpostorValues(LLVector3* extents, LLVector3& angle, F32& distance) const;
+	void 		getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
 	void 		cacheImpostorValues();
 	void 		setImpostorDim(const LLVector2& dim);
 	static void	resetImpostors();
@@ -399,7 +411,7 @@ private:
 	LLVector3	mImpostorOffset;
 	LLVector2	mImpostorDim;
 	BOOL		mNeedsAnimUpdate;
-	LLVector3	mImpostorExtents[2];
+	LLVector4a*	mImpostorExtents;
 	LLVector3	mImpostorAngle;
 	F32			mImpostorDistance;
 	F32			mImpostorPixelArea;

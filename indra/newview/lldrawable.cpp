@@ -2,25 +2,31 @@
  * @file lldrawable.cpp
  * @brief LLDrawable class implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -35,6 +41,7 @@
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
+#include "llmatrix4a.h"
 #include "llsky.h"
 #include "llsurfacepatch.h"
 #include "llviewercamera.h"
@@ -85,8 +92,12 @@ void LLDrawable::incrementVisible()
 	sCurVisible++;
 	sCurPixelAngle = (F32) gViewerWindow->getWindowHeightRaw()/LLViewerCamera::getInstance()->getView();
 }
+
 void LLDrawable::init()
 {
+	mExtents = (LLVector4a*) ll_aligned_malloc_32(sizeof(LLVector4a)*3);
+	mPositionGroup = mExtents + 2;
+
 	// mXform
 	mParent = NULL;
 	mRenderType = 0;
@@ -115,6 +126,11 @@ void LLDrawable::initClass()
 
 void LLDrawable::destroy()
 {
+	if (gDebugGL)
+	{
+		gPipeline.checkReferences(this);
+	}
+
 	if (isDead())
 	{
 		sNumZombieDrawables--;
@@ -133,6 +149,9 @@ void LLDrawable::destroy()
 	{
 		llinfos << "- Zombie drawables: " << sNumZombieDrawables << llendl;
 	}*/	
+
+	ll_aligned_free_32(mExtents);
+	mExtents = mPositionGroup = NULL;
 }
 
 void LLDrawable::markDead()
@@ -170,6 +189,11 @@ LLVOVolume* LLDrawable::getVOVolume() const
 	}
 }
 
+const LLMatrix4& LLDrawable::getRenderMatrix() const
+{ 
+	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
+}
+
 BOOL LLDrawable::isLight() const
 {
 	LLViewerObject* objectp = mVObjp;
@@ -183,20 +207,30 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
+static LLFastTimer::DeclareTimer FTM_DEREF_DRAWABLE("Deref");
+static LLFastTimer::DeclareTimer FTM_DELETE_FACES("Faces");
+
 void LLDrawable::cleanupReferences()
 {
-	LLFastTimer t(FTM_PIPELINE);
+	LLFastTimer t(FTM_CLEANUP_DRAWABLE);
 	
-	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
-	mFaces.clear();
+	{
+		LLFastTimer t(FTM_DELETE_FACES);
+		std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
+		mFaces.clear();
+	}
 
 	gObjectList.removeDrawable(this);
 	
 	gPipeline.unlinkDrawable(this);
 	
-	// Cleanup references to other objects
-	mVObjp = NULL;
-	mParent = NULL;
+	{
+		LLFastTimer t(FTM_DEREF_DRAWABLE);
+		// Cleanup references to other objects
+		mVObjp = NULL;
+		mParent = NULL;
+	}
 }
 
 void LLDrawable::cleanupDeadDrawables()
@@ -684,8 +718,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		LLVOVolume* volume = getVOVolume();
 		if (volume)
 		{
-			volume->updateRelativeXform();
-			pos = volume->getRelativeXform().getTranslation();
+			pos.set(getPositionGroup().getF32ptr());
 			if (isStatic())
 			{
 				pos += volume->getRegion()->getOriginAgent();
@@ -698,12 +731,14 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 					LLFace* facep = getFace(i);
 					if (force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA)
 					{
-						LLVector3 box = (facep->mExtents[1] - facep->mExtents[0]) * 0.25f;
+						LLVector4a box;
+						box.setSub(facep->mExtents[1], facep->mExtents[0]);
+						box.mul(0.25f);
 						LLVector3 v = (facep->mCenterLocal-camera.getOrigin());
 						const LLVector3& at = camera.getAtAxis();
 						for (U32 j = 0; j < 3; j++)
 						{
-							v.mV[j] -= box.mV[j] * at.mV[j];
+							v.mV[j] -= box[j] * at.mV[j];
 						}
 						facep->mDistance = v * camera.getAtAxis();
 					}
@@ -712,7 +747,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		}
 		else
 		{
-			pos = LLVector3(getPositionGroup());
+			pos = LLVector3(getPositionGroup().getF32ptr());
 		}
 
 		pos -= camera.getOrigin();	
@@ -761,7 +796,7 @@ BOOL LLDrawable::updateGeometry(BOOL priority)
 	return res;
 }
 
-void LLDrawable::shiftPos(const LLVector3 &shift_vector)
+void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 {
 	if (isDead())
 	{
@@ -793,9 +828,9 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
 			LLFace *facep = getFace(i);
-			facep->mCenterAgent += shift_vector;
-			facep->mExtents[0] += shift_vector;
-			facep->mExtents[1] += shift_vector;
+			facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
+			facep->mExtents[0].add(shift_vector);
+			facep->mExtents[1].add(shift_vector);
 			
 			if (!volume && facep->hasGeometry())
 			{
@@ -804,9 +839,9 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 			}
 		}
 		
-		mExtents[0] += shift_vector;
-		mExtents[1] += shift_vector;
-		mPositionGroup += LLVector3d(shift_vector);
+		mExtents[0].add(shift_vector);
+		mExtents[1].add(shift_vector);
+		mPositionGroup->add(shift_vector);
 	}
 	else if (mSpatialBridge)
 	{
@@ -814,9 +849,9 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 	}
 	else if (isAvatar())
 	{
-		mExtents[0] += shift_vector;
-		mExtents[1] += shift_vector;
-		mPositionGroup += LLVector3d(shift_vector);
+		mExtents[0].add(shift_vector);
+		mExtents[1].add(shift_vector);
+		mPositionGroup->add(shift_vector);
 	}
 	
 	mVObjp->onShift(shift_vector);
@@ -828,21 +863,26 @@ const LLVector3& LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
 	return mXform.getPositionW();
 }
 
-const LLVector3* LLDrawable::getSpatialExtents() const
+const LLVector4a* LLDrawable::getSpatialExtents() const
 {
 	return mExtents;
 }
 
-void LLDrawable::setSpatialExtents(LLVector3 min, LLVector3 max)
+void LLDrawable::setSpatialExtents(const LLVector3& min, const LLVector3& max)
 { 
-	LLVector3 size = max - min;
-	mExtents[0] = min; 
-	mExtents[1] = max; 
+	mExtents[0].load3(min.mV); 
+	mExtents[1].load3(max.mV);
 }
 
-void LLDrawable::setPositionGroup(const LLVector3d& pos)
+void LLDrawable::setSpatialExtents(const LLVector4a& min, const LLVector4a& max)
+{ 
+	mExtents[0] = min; 
+	mExtents[1] = max;
+}
+
+void LLDrawable::setPositionGroup(const LLVector4a& pos)
 {
-	mPositionGroup.setVec(pos);
+	*mPositionGroup = pos;
 }
 
 void LLDrawable::updateSpatialExtents()
@@ -856,7 +896,7 @@ void LLDrawable::updateSpatialExtents()
 	
 	if (mSpatialBridge.notNull())
 	{
-		mPositionGroup.setVec(0,0,0);
+		mPositionGroup->splat(0.f);
 	}
 }
 
@@ -1067,59 +1107,72 @@ void LLSpatialBridge::updateSpatialExtents()
 		root->rebound();
 	}
 	
-	LLXformMatrix* mat = mDrawable->getXform();
-	
-	LLVector3 offset = root->mBounds[0];
-	LLVector3 size = root->mBounds[1];
+	LLVector4a offset;
+	LLVector4a size = root->mBounds[1];
 		
-	LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
-	LLQuaternion rotation = LLQuaternion(mat->getWorldMatrix());
-	
-	offset *= rotation;
-	center += offset;
-	
-	LLVector3 v[4];
-	//get 4 corners of bounding box
-	v[0] = (size * rotation);
-	v[1] = (LLVector3(-size.mV[0], -size.mV[1], size.mV[2]) * rotation);
-	v[2] = (LLVector3(size.mV[0], -size.mV[1], -size.mV[2]) * rotation);
-	v[3] = (LLVector3(-size.mV[0], size.mV[1], -size.mV[2]) * rotation);
+	//VECTORIZE THIS
+	LLMatrix4a mat;
+	mat.loadu(mDrawable->getXform()->getWorldMatrix());
 
-	LLVector3& newMin = mExtents[0];
-	LLVector3& newMax = mExtents[1];
+	LLVector4a t;
+	t.splat(0.f);
+
+	LLVector4a center;
+	mat.affineTransform(t, center);
+	
+	mat.rotate(root->mBounds[0], offset);
+	center.add(offset);
+	
+	LLVector4a v[4];
+
+	//get 4 corners of bounding box
+	mat.rotate(size,v[0]);
+
+	LLVector4a scale;
+	
+	scale.set(-1.f, -1.f, 1.f);
+	scale.mul(size);
+	mat.rotate(scale, v[1]);
+	
+	scale.set(1.f, -1.f, -1.f);
+	scale.mul(size);
+	mat.rotate(scale, v[2]);
+	
+	scale.set(-1.f, 1.f, -1.f);
+	scale.mul(size);
+	mat.rotate(scale, v[3]);
+
+	
+	LLVector4a& newMin = mExtents[0];
+	LLVector4a& newMax = mExtents[1];
 	
 	newMin = newMax = center;
 	
 	for (U32 i = 0; i < 4; i++)
 	{
-		for (U32 j = 0; j < 3; j++)
-		{
-			F32 delta = fabsf(v[i].mV[j]);
-			F32 min = center.mV[j] - delta;
-			F32 max = center.mV[j] + delta;
-			
-			if (min < newMin.mV[j])
-			{
-				newMin.mV[j] = min;
-			}
-			
-			if (max > newMax.mV[j])
-			{
-				newMax.mV[j] = max;
-			}
-		}
-	}
+		LLVector4a delta;
+		delta.setAbs(v[i]);
+		LLVector4a min;
+		min.setSub(center, delta);
+		LLVector4a max;
+		max.setAdd(center, delta);
 
-	LLVector3 diagonal = newMax - newMin;
-	mRadius = diagonal.magVec() * 0.5f;
+		newMin.setMin(newMin, min);
+		newMax.setMax(newMax, max);
+	}
 	
-	mPositionGroup.setVec((newMin + newMax) * 0.5f);
+	LLVector4a diagonal;
+	diagonal.setSub(newMax, newMin);
+	mRadius = diagonal.getLength3().getF32() * 0.5f;
+	
+	mPositionGroup->setAdd(newMin,newMax);
+	mPositionGroup->mul(0.5f);
 	updateBinRadius();
 }
 
 void LLSpatialBridge::updateBinRadius()
 {
-	mBinRadius = llmin((F32) mOctree->getSize().mdV[0]*0.5f, 256.f);
+	mBinRadius = llmin( mOctree->getSize()[0]*0.5f, 256.f);
 }
 
 LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
@@ -1260,8 +1313,12 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 	LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 	group->rebound();
 	
-	LLVector3 center = (mExtents[0] + mExtents[1]) * 0.5f;
-	LLVector3 size = (mExtents[1]-mExtents[0]) * 0.5f;
+	LLVector4a center;
+	center.setAdd(mExtents[0], mExtents[1]);
+	center.mul(0.5f);
+	LLVector4a size;
+	size.setSub(mExtents[1], mExtents[0]);
+	size.mul(0.5f);
 
 	if ((LLPipeline::sShadowRender && camera_in.AABBInFrustum(center, size)) ||
 		LLPipeline::sImpostorRender ||
@@ -1374,11 +1431,11 @@ BOOL LLSpatialBridge::updateMove()
 	return TRUE;
 }
 
-void LLSpatialBridge::shiftPos(const LLVector3& vec)
+void LLSpatialBridge::shiftPos(const LLVector4a& vec)
 {
-	mExtents[0] += vec;
-	mExtents[1] += vec;
-	mPositionGroup += LLVector3d(vec);
+	mExtents[0].add(vec);
+	mExtents[1].add(vec);
+	mPositionGroup->add(vec);
 }
 
 void LLSpatialBridge::cleanupReferences()
@@ -1496,7 +1553,7 @@ F32 LLHUDBridge::calcPixelArea(LLSpatialGroup* group, LLCamera& camera)
 }
 
 
-void LLHUDBridge::shiftPos(const LLVector3& vec)
+void LLHUDBridge::shiftPos(const LLVector4a& vec)
 {
 	//don't shift hud bridges on region crossing
 }

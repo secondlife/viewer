@@ -994,6 +994,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 						    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 						    name,
 						    callback, expected_upload_cost, userdata);
+
 			}
 			else
 			{

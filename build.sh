@@ -32,19 +32,19 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin Release)/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux Release)/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN ${last_built_variant:-Release})
-  p=$(sed 's:.*=::' "$d/newview/${last_built_variant:-Release}/touched.bat")
-  echo "$d/newview/${last_built_variant:-Release}/$p"
+  d=$(build_dir_CYGWIN Release)
+  p=$(sed 's:.*=::' "$d/newview/Release/touched.bat")
+  echo "$d/newview/Release/$p"
 }
 
 pre_build()
@@ -59,11 +59,12 @@ pre_build()
     -t $variant \
     -G "$cmake_generator" \
    configure \
+    -DGRID:STRING="$viewer_grid"\
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \
     -DLOCALIZESETUP:BOOL=ON \
-    -DPACKAGE:BOOL=ON \
+    -DPACKAGE:BOOL=ON
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE
   end_section "Pre$variant"
 }
@@ -255,6 +256,7 @@ then
     begin_section "Build$variant"
     build_dir=`build_dir_$arch $variant`
     build_dir_stubs="$build_dir/win_setup/$variant"
+    cat "$build_dir/build.log" >> "$build_log"
     if `cat "$build_dir/build_ok"`
     then
       echo so far so good.

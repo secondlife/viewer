@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ height="240"
+ layout="topleft"
+ name="price_for_listing"
+ help_topic="price_for_listing"
+ title="PUBLISH CLASSIFIED AD"
+ width="320">
+    <text
+     type="string"
+     length="1"
+     bottom="200"
+     follows="top|left"
+     font="SansSerif"
+     height="165"
+     layout="topleft"
+     left="15"
+     word_wrap="true"
+     name="explanation_text">
+        Your classified ad will run for one week from the day it is published.
+
+Your ad&apos;s position in the classified listings is determined by how much you choose to pay.
+
+The highest paid ads go to the top of the list, and appear higher in searches.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="140"
+     name="price_text"
+     top_delta="135"
+     width="85">
+        Price for Ad:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_pad="4"
+     name="price_symbol"
+     top_delta="0"
+     width="20">
+        L$
+    </text>
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_pad="0"
+     max_length="6"
+     top_delta="-4"
+     name="price_edit"
+     width="60" />
+    <button
+     follows="top|left"
+     height="22"
+     label="OK"
+     layout="topleft"
+     left="105"
+     name="set_price_btn"
+     top_pad="22"
+     width="100" />
+    <button
+     follows="top|left"
+     height="22"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
+     width="100" />
+
+</floater>

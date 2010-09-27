@@ -4,25 +4,31 @@
  * @date 2006-03-05
  * @brief Implementation of LLSD parsers and formatters
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -33,6 +39,7 @@
 
 #include <iostream>
 #include "apr_base64.h"
+#include "zlib/zlib.h"  // for davep's dirty little zip functions
 
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl
@@ -1982,4 +1989,175 @@ std::ostream& operator<<(std::ostream& s, const LLSD& llsd)
 	s << LLSDNotationStreamer(llsd);
 	return s;
 }
+
+
+//dirty little zippers -- yell at davep if these are horrid
+
+//return a string containing gzipped bytes of binary serialized LLSD
+// VERY inefficient -- creates several copies of LLSD block in memory
+std::string zip_llsd(LLSD& data)
+{ 
+	std::stringstream llsd_strm;
+
+	LLSDSerialize::serialize(data, llsd_strm, LLSDSerialize::LLSD_BINARY);
+
+	const U32 CHUNK = 65536;
+
+	z_stream strm;
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+
+	S32 ret = deflateInit(&strm, Z_BEST_COMPRESSION);
+	if (ret != Z_OK)
+	{
+		llwarns << "Failed to compress LLSD block." << llendl;
+		return std::string();
+	}
+
+	std::string source = llsd_strm.str();
+
+	U8 out[CHUNK];
+
+	strm.avail_in = source.size();
+	strm.next_in = (U8*) source.data();
+	U8* output = NULL;
+
+	U32 cur_size = 0;
+
+	U32 have = 0;
+
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+
+		ret = deflate(&strm, Z_FINISH);
+		if (ret == Z_OK || ret == Z_STREAM_END)
+		{ //copy result into output
+			if (strm.avail_out >= CHUNK)
+			{
+				llerrs << "WTF?" << llendl;
+			}
+
+			have = CHUNK-strm.avail_out;
+			output = (U8*) realloc(output, cur_size+have);
+			memcpy(output+cur_size, out, have);
+			cur_size += have;
+		}
+		else 
+		{
+			free(output);
+			llwarns << "Failed to compress LLSD block." << llendl;
+			return std::string();
+		}
+	}
+	while (strm.avail_out == 0);
+
+	std::string::size_type size = cur_size;
+
+	std::string result((char*) output, size);
+	deflateEnd(&strm);
+	free(output);
+
+	std::istringstream test(result);
+	LLSD test_sd;
+	if (!unzip_llsd(test_sd, test, result.size()))
+	{
+		llerrs << "Invalid compression result!" << llendl;
+	}
+
+	return result;
+}
+
+//decompress a block of LLSD from provided istream
+// not very efficient -- creats a copy of decompressed LLSD block in memory
+// and deserializes from that copy using LLSDSerialize
+bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
+{
+	U8* result = NULL;
+	U32 cur_size = 0;
+	z_stream strm;
+		
+	const U32 CHUNK = 65536;
+
+	U8 *in = new U8[size];
+	is.read((char*) in, size); 
+
+	U8 out[CHUNK];
+		
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = size;
+	strm.next_in = in;
+
+	S32 ret = inflateInit(&strm);
+
+	if (ret != Z_OK)
+	{
+		llerrs << "WTF?" << llendl;
+	}
+	
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if (ret == Z_STREAM_ERROR)
+		{
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+		}
+		
+		switch (ret)
+		{
+		case Z_NEED_DICT:
+			ret = Z_DATA_ERROR;
+		case Z_DATA_ERROR:
+		case Z_MEM_ERROR:
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+			break;
+		}
+
+		U32 have = CHUNK-strm.avail_out;
+
+		result = (U8*) realloc(result, cur_size + have);
+		memcpy(result+cur_size, out, have);
+		cur_size += have;
+
+	} while (strm.avail_out == 0);
+
+	inflateEnd(&strm);
+	delete [] in;
+
+	if (ret != Z_STREAM_END)
+	{
+		free(result);
+		return false;
+	}
+
+	//result now points to the decompressed LLSD block
+	{
+		std::string res_str((char*) result, cur_size);
+		std::istringstream istr(res_str);
+
+		if (!LLSDSerialize::deserialize(data, istr, cur_size))
+		{
+			llwarns << "Failed to unzip LLSD block" << llendl;
+			free(result);
+			return false;
+		}
+	}
+
+	free(result);
+	return true;
+}
+
+
 

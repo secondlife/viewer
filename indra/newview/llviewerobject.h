@@ -2,25 +2,31 @@
  * @file llviewerobject.h
  * @brief Description of LLViewerObject class, which is the base class for most objects in the viewer.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -175,6 +181,7 @@ public:
 	void			setOnActiveList(BOOL on_active)		{ mOnActiveList = on_active; }
 
 	virtual BOOL	isAttachment() const { return FALSE; }
+	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
@@ -223,6 +230,7 @@ public:
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
+	virtual BOOL isMesh() const						{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
@@ -326,6 +334,12 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
+	void setObjectCost(F32 cost);
+	F32 getObjectCost();
+	void setLinksetCost(F32 cost);
+	F32 getLinksetCost();
+	
+
 	void sendShapeUpdate();
 
 	U8 getState()							{ return mState; }
@@ -365,7 +379,7 @@ public:
 
 	void markForUpdate(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
-	virtual	void updateSpatialExtents(LLVector3& min, LLVector3& max);
+	virtual	void updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual F32 getBinRadius();
 	
 	LLBBox				getBoundingBoxAgent() const;
@@ -378,7 +392,7 @@ public:
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);
 
 	// Called when the drawable shifts
-	virtual void onShift(const LLVector3 &shift_vector)	{ }
+	virtual void onShift(const LLVector4a &shift_vector)	{ }
 		
 	//////////////////////////////////////
 	//
@@ -453,6 +467,12 @@ public:
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
+	inline U8       getPhysicsShapeType() const     { return mPhysicsShapeType; }
+	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
+	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
+	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
+	inline F32      getPhysicsRestitution() const   { return mPhysicsRestitution; }
+	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
 
@@ -468,6 +488,11 @@ public:
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
+	void setPhysicsShapeType(U8 type);
+	void setPhysicsGravity(F32 gravity);
+	void setPhysicsFriction(F32 friction);
+	void setPhysicsDensity(F32 density);
+	void setPhysicsRestitution(F32 restitution);
 	
 	virtual void dump() const;
 	static U32		getNumZombieObjects()			{ return sNumZombieObjects; }
@@ -529,6 +554,13 @@ public:
 		LL_VO_HUD_PART_GROUP =		LL_PCODE_APP | 0xc0,
 	} EVOType;
 
+	typedef enum e_physics_shape_types
+	{
+		PHYSICS_SHAPE_PRIM = 0,
+		PHYSICS_SHAPE_NONE,
+		PHYSICS_SHAPE_CONVEX_HULL,
+	} EPhysicsShapeType;
+
 	LLUUID			mID;
 
 	// unique within region, not unique across regions
@@ -546,6 +578,14 @@ public:
 
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
+
+	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
+	U8              mPhysicsShapeType;
+	F32             mPhysicsGravity;
+	F32             mPhysicsFriction;
+	F32             mPhysicsDensity;
+	F32             mPhysicsRestitution;
+	
 
 	// Pipeline classes
 	LLPointer<LLDrawable> mDrawable;
@@ -654,6 +694,9 @@ protected:
 	U8				mState;	// legacy
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
+	F32 mObjectCost; //resource cost of this object or -1 if unknown
+	F32 mLinksetCost;
+	bool mCostStale;
 
 	static			U32			sNumZombieObjects;			// Objects which are dead, but not deleted
 

@@ -21,6 +21,7 @@ varying vec3 vary_position;
 varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_normal;
+varying vec3 vary_fragcoord;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -77,7 +78,7 @@ void main()
 	gl_FrontColor = col;
 
 	gl_FogFragCoord = pos.z;
-
+	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 }
 
 

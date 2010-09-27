@@ -2,25 +2,31 @@
  * @file pipeline.cpp
  * @brief Rendering pipeline.
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * 
+ * Copyright (c) 2005-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -65,6 +71,7 @@
 #include "llgldbg.h"
 #include "llhudmanager.h"
 #include "lllightconstants.h"
+#include "llmeshrepository.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -98,6 +105,7 @@
 #include "llspatialpartition.h"
 #include "llmutelist.h"
 #include "lltoolpie.h"
+#include "llcurl.h"
 
 
 #ifdef _DEBUG
@@ -267,6 +275,8 @@ BOOL	LLPipeline::sAutoMaskAlphaDeferred = TRUE;
 BOOL	LLPipeline::sAutoMaskAlphaNonDeferred = FALSE;
 BOOL	LLPipeline::sDisableShaders = FALSE;
 BOOL	LLPipeline::sRenderBump = TRUE;
+BOOL	LLPipeline::sBakeSunlight = FALSE;
+BOOL	LLPipeline::sNoAlpha = FALSE;
 BOOL	LLPipeline::sUseTriStrips = TRUE;
 BOOL	LLPipeline::sUseFarClip = TRUE;
 BOOL	LLPipeline::sShadowRender = FALSE;
@@ -390,6 +400,14 @@ void LLPipeline::init()
 	if(!gSavedSettings.getBOOL("RenderGround"))
 	{
 		toggleRenderType(RENDER_TYPE_GROUND);
+	}
+
+	// make sure RenderPerformanceTest persists (hackity hack hack)
+	// disables non-object rendering (UI, sky, water, etc)
+	if (gSavedSettings.getBOOL("RenderPerformanceTest"))
+	{
+		gSavedSettings.setBOOL("RenderPerformanceTest", FALSE);
+		gSavedSettings.setBOOL("RenderPerformanceTest", TRUE);
 	}
 
 	mOldRenderDebugMask = mRenderDebugMask;
@@ -1153,9 +1171,15 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 }
 
 
+static LLFastTimer::DeclareTimer FTM_UNLINK("Unlink");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_MOVE_LIST("Movelist");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_SPATIAL_PARTITION("Spatial Partition");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_LIGHT_SET("Light Set");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_HIGHLIGHT_SET("Highlight Set");
+
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
-	LLFastTimer t(FTM_PIPELINE);
+	LLFastTimer t(FTM_UNLINK);
 
 	assertInitialized();
 
@@ -1164,6 +1188,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 	// Based on flags, remove the drawable from the queues that it's on.
 	if (drawablep->isState(LLDrawable::ON_MOVE_LIST))
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_MOVE_LIST);
 		LLDrawable::drawable_vector_t::iterator iter = std::find(mMovedList.begin(), mMovedList.end(), drawablep);
 		if (iter != mMovedList.end())
 		{
@@ -1173,6 +1198,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 
 	if (drawablep->getSpatialGroup())
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_SPATIAL_PARTITION);
 		if (!drawablep->getSpatialGroup()->mSpatialPartition->remove(drawablep, drawablep->getSpatialGroup()))
 		{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
@@ -1183,18 +1209,23 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		}
 	}
 
-	mLights.erase(drawablep);
-	for (light_set_t::iterator iter = mNearbyLights.begin();
-				iter != mNearbyLights.end(); iter++)
 	{
-		if (iter->drawable == drawablep)
+		LLFastTimer t(FTM_REMOVE_FROM_LIGHT_SET);
+		mLights.erase(drawablep);
+
+		for (light_set_t::iterator iter = mNearbyLights.begin();
+					iter != mNearbyLights.end(); iter++)
 		{
-			mNearbyLights.erase(iter);
-			break;
+			if (iter->drawable == drawablep)
+			{
+				mNearbyLights.erase(iter);
+				break;
+			}
 		}
 	}
 
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_HIGHLIGHT_SET);
 		HighlightItem item(drawablep);
 		mHighlightSet.erase(item);
 
@@ -1491,10 +1522,213 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	return radius*radius * F_PI;
 }
 
+//static
+F32 LLPipeline::calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera)
+{
+	LLVector4a origin;
+	origin.load3(camera.getOrigin().mV);
+
+	LLVector4a lookAt;
+	lookAt.setSub(center, origin);
+	F32 dist = lookAt.getLength3().getF32();
+
+	//ramp down distance for nearby objects
+	//shrink dist by dist/16.
+	if (dist < 16.f)
+	{
+		dist /= 16.f;
+		dist *= dist;
+		dist *= 16.f;
+	}
+
+	//get area of circle around node
+	F32 app_angle = atanf(size.getLength3().getF32()/dist);
+	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
+	return radius*radius * F_PI;
+}
+
 void LLPipeline::grabReferences(LLCullResult& result)
 {
 	sCull = &result;
 }
+
+void LLPipeline::clearReferences()
+{
+	sCull = NULL;
+}
+
+void check_references(LLSpatialGroup* group, LLDrawable* drawable)
+{
+	for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	{
+		if (drawable == *i)
+		{
+			llerrs << "LLDrawable deleted while actively reference by LLPipeline." << llendl;
+		}
+	}			
+}
+
+void check_references(LLDrawable* drawable, LLFace* face)
+{
+	for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+	{
+		if (drawable->getFace(i) == face)
+		{
+			llerrs << "LLFace deleted while actively referenced by LLPipeline." << llendl;
+		}
+	}
+}
+
+void check_references(LLSpatialGroup* group, LLFace* face)
+{
+	for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	{
+		LLDrawable* drawable = *i;
+		check_references(drawable, face);
+	}			
+}
+
+void LLPipeline::checkReferences(LLFace* face)
+{
+#if 0
+	if (sCull)
+	{
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, face);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, face);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, face);
+		}
+
+		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
+		{
+			LLDrawable* drawable = *iter;
+			check_references(drawable, face);	
+		}
+	}
+#endif
+}
+
+void LLPipeline::checkReferences(LLDrawable* drawable)
+{
+#if 0
+	if (sCull)
+	{
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, drawable);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, drawable);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, drawable);
+		}
+
+		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
+		{
+			if (drawable == *iter)
+			{
+				llerrs << "LLDrawable deleted while actively referenced by LLPipeline." << llendl;
+			}
+		}
+	}
+#endif
+}
+
+void check_references(LLSpatialGroup* group, LLDrawInfo* draw_info)
+{
+	for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
+	{
+		LLSpatialGroup::drawmap_elem_t& draw_vec = i->second;
+		for (LLSpatialGroup::drawmap_elem_t::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)
+		{
+			LLDrawInfo* params = *j;
+			if (params == draw_info)
+			{
+				llerrs << "LLDrawInfo deleted while actively referenced by LLPipeline." << llendl;
+			}
+		}
+	}
+}
+
+
+void LLPipeline::checkReferences(LLDrawInfo* draw_info)
+{
+#if 0
+	if (sCull)
+	{
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, draw_info);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, draw_info);
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			check_references(group, draw_info);
+		}
+	}
+#endif
+}
+
+void LLPipeline::checkReferences(LLSpatialGroup* group)
+{
+#if 0
+	if (sCull)
+	{
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			if (group == *iter)
+			{
+				llerrs << "LLSpatialGroup deleted while actively referenced by LLPipeline." << llendl;
+			}
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		{
+			if (group == *iter)
+			{
+				llerrs << "LLSpatialGroup deleted while actively referenced by LLPipeline." << llendl;
+			}
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		{
+			if (group == *iter)
+			{
+				llerrs << "LLSpatialGroup deleted while actively referenced by LLPipeline." << llendl;
+			}
+		}
+	}
+#endif
+}
+
 
 BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera)
 {
@@ -1697,7 +1931,7 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 	}
 
 	if (sMinRenderSize > 0.f && 
-			llmax(llmax(group->mBounds[1].mV[0], group->mBounds[1].mV[1]), group->mBounds[1].mV[2]) < sMinRenderSize)
+			llmax(llmax(group->mBounds[1][0], group->mBounds[1][1]), group->mBounds[1][2]) < sMinRenderSize)
 	{
 		return;
 	}
@@ -1805,6 +2039,8 @@ void LLPipeline::rebuildPriorityGroups()
 	
 	assertInitialized();
 
+	gMeshRepo.notifyLoadedMeshes();
+
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
@@ -1815,6 +2051,7 @@ void LLPipeline::rebuildPriorityGroups()
 	}
 
 	mGroupQ1.clear();
+
 }
 		
 void LLPipeline::rebuildGroups()
@@ -2080,6 +2317,9 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	gDepthDirty = TRUE;
 		
+	LLVector4a offseta;
+	offseta.load3(offset.mV);
+
 	for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
 		 iter != mShiftList.end(); iter++)
 	{
@@ -2088,7 +2328,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 		{
 			continue;
 		}	
-		drawablep->shiftPos(offset);	
+		drawablep->shiftPos(offseta);	
 		drawablep->clearState(LLDrawable::ON_SHIFT_LIST);
 	}
 	mShiftList.resize(0);
@@ -2102,7 +2342,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				part->shift(offset);
+				part->shift(offseta);
 			}
 		}
 	}
@@ -2133,8 +2373,7 @@ void LLPipeline::markGLRebuild(LLGLUpdate* glu)
 void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	//assert_main_thread();
-
+	
 	if (group && !group->isDead() && group->mSpatialPartition)
 	{
 		if (group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_HUD)
@@ -2635,8 +2874,10 @@ void LLPipeline::postSort(LLCamera& camera)
 			{
 				if (sMinRenderSize > 0.f)
 				{
-					LLVector3 bounds = (*k)->mExtents[1]-(*k)->mExtents[0];
-					if (llmax(llmax(bounds.mV[0], bounds.mV[1]), bounds.mV[2]) > sMinRenderSize)
+					LLVector4a bounds;
+					bounds.setSub((*k)->mExtents[1],(*k)->mExtents[0]);
+
+					if (llmax(llmax(bounds[0], bounds[1]), bounds[2]) > sMinRenderSize)
 					{
 						sCull->pushDrawInfo(j->first, *k);
 					}
@@ -3580,6 +3821,63 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+	if (gSavedSettings.getBOOL("DebugShowUploadCost"))
+	{
+		std::set<LLUUID> textures;
+		std::set<LLUUID> sculpts;
+		std::set<LLUUID> meshes;
+		
+		BOOL selected = TRUE;
+		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		{
+			selected = FALSE;
+		}
+			
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
+			for (LLSpatialGroup::OctreeNode::element_iter elem = node->getData().begin(); elem != node->getData().end(); ++elem)
+			{
+				LLDrawable* drawable = *elem;
+				LLVOVolume* volume = drawable->getVOVolume();
+				if (volume && volume->isSelected() == selected)
+				{
+					for (U32 i = 0; i < volume->getNumTEs(); ++i)
+					{
+						LLTextureEntry* te = volume->getTE(i);
+						textures.insert(te->getID());
+					}
+
+					if (volume->isSculpted())
+					{
+						LLUUID sculpt_id = volume->getVolume()->getParams().getSculptID();
+						if (volume->isMesh())
+						{
+							meshes.insert(sculpt_id);
+						}
+						else
+						{
+							sculpts.insert(sculpt_id);
+						}
+					}
+				}
+			}
+		}
+
+		gPipeline.mDebugTextureUploadCost = textures.size() * 10;
+		gPipeline.mDebugSculptUploadCost = sculpts.size()*10;
+		
+		U32 mesh_cost = 0;
+
+		for (std::set<LLUUID>::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
+		{
+			mesh_cost += gMeshRepo.getResourceCost(*iter)*10;
+		}
+
+		gPipeline.mDebugMeshUploadCost = mesh_cost;
+	}
+
 	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 	{
 		LLSpatialBridge* bridge = *i;
@@ -3594,6 +3892,8 @@ void LLPipeline::renderDebug()
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 	{
+		LLVertexBuffer::unbind();
+
 		LLGLEnable blend(GL_BLEND);
 		LLGLDepthTest depth(TRUE, FALSE);
 		LLGLDisable cull(GL_CULL_FACE);
@@ -3657,7 +3957,7 @@ void LLPipeline::renderDebug()
 			if (i < 4)
 			{
 				
-				if (i == 0 || !mShadowFrustPoints[i].empty())
+				//if (i == 0 || !mShadowFrustPoints[i].empty())
 				{
 					//render visible point cloud
 					gGL.flush();
@@ -4387,7 +4687,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 	{
 		return max_dist;
 	}
-	F32 dist = fsqrtf(dist2);
+	F32 dist = (F32) sqrt(dist2);
 	dist *= 1.f / inten;
 	dist -= radius;
 	if (selected)
@@ -4416,7 +4716,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
-// 		LLVector3 cam_pos = gAgentCamera.getCameraPositionAgent();
+// 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
 		LLVector3 cam_pos = LLViewerJoystick::getInstance()->getOverrideCamera() ?
 						camera.getOrigin() : 
 						gAgent.getPositionAgent();
@@ -4661,8 +4961,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
 		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 	}
-
-	if (isAgentAvatarValid() &&
+	if (gAgentAvatarp &&
 		gAgentAvatarp->mSpecialRenderMode == 3)
 	{
 		LLColor4  light_color = LLColor4::white;
@@ -5076,6 +5375,18 @@ BOOL LLPipeline::toggleRenderDebugFeatureControl(void* data)
 	return gPipeline.hasRenderDebugFeatureMask(bit);
 }
 
+void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
+{
+	if (value)
+	{
+		gPipeline.mRenderDebugFeatureMask |= bit;
+	}
+	else
+	{
+		gPipeline.mRenderDebugFeatureMask &= !bit;
+	}
+}
+
 // static
 void LLPipeline::setRenderScriptedBeacons(BOOL val)
 {
@@ -5417,6 +5728,8 @@ void LLPipeline::resetVertexBuffers()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
+	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -6693,8 +7006,9 @@ void LLPipeline::renderDeferredLighting()
 					}
 
 
-					LLVector3 center = drawablep->getPositionAgent();
-					F32* c = center.mV;
+					LLVector4a center;
+					center.load3(drawablep->getPositionAgent().mV);
+					const F32* c = center.getF32ptr();
 					F32 s = volume->getLightRadius()*1.5f;
 
 					LLColor3 col = volume->getLightColor();
@@ -6710,7 +7024,9 @@ void LLPipeline::renderDeferredLighting()
 						continue;
 					}
 
-					if (camera->AABBInFrustumNoFarClip(center, LLVector3(s,s,s)) == 0)
+					LLVector4a sa;
+					sa.splat(s);
+					if (camera->AABBInFrustumNoFarClip(center, sa) == 0)
 					{
 						continue;
 					}
@@ -6788,8 +7104,9 @@ void LLPipeline::renderDeferredLighting()
 
 					LLVOVolume* volume = drawablep->getVOVolume();
 
-					LLVector3 center = drawablep->getPositionAgent();
-					F32* c = center.mV;
+					LLVector4a center;
+					center.load3(drawablep->getPositionAgent().mV);
+					const F32* c = center.getF32ptr();
 					F32 s = volume->getLightRadius()*1.5f;
 
 					sVisibleLightCount++;
@@ -7356,7 +7673,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
-				}
+				}	
 				
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
@@ -7717,7 +8034,7 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 		0,1,
 		1,2,
 		2,3,
-		3,1,
+		3,0,
 
 		4,5,
 		5,6,
@@ -8116,6 +8433,14 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	//currently used for amount to extrude frusta corners for constructing shadow frusta
 	LLVector3 n = gSavedSettings.getVector3("RenderShadowNearDist");
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
+
+	//put together a universal "near clip" plane for shadow frusta
+	LLPlane shadow_near_clip;
+	{
+		LLVector3 p = gAgent.getPositionAgent();
+		p += mSunDir * gSavedSettings.getF32("RenderFarClip")*2.f;
+		shadow_near_clip.setVec(p, mSunDir);
+	}
 
 	LLVector3 lightDir = -mSunDir;
 	lightDir.normVec();
@@ -8551,7 +8876,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
 
-		shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
+		//shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
+		shadow_cam.getAgentPlane(LLCamera::AGENT_PLANE_NEAR).set(shadow_near_clip);
 
 		//translate and scale to from [-1, 1] to [0, 1]
 		glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
@@ -8862,7 +9188,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	stateSort(*LLViewerCamera::getInstance(), result);
 	
-	const LLVector3* ext = avatar->mDrawable->getSpatialExtents();
+	const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
 	LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
 	LLCamera camera = *viewer_camera;
@@ -8871,18 +9197,23 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	LLVector2 tdim;
 
-	LLVector3 half_height = (ext[1]-ext[0])*0.5f;
 
-	LLVector3 left = camera.getLeftAxis();
-	left *= left;
-	left.normalize();
+	LLVector4a half_height;
+	half_height.setSub(ext[1], ext[0]);
+	half_height.mul(0.5f);
 
-	LLVector3 up = camera.getUpAxis();
-	up *= up;
-	up.normalize();
+	LLVector4a left;
+	left.load3(camera.getLeftAxis().mV);
+	left.mul(left);
+	left.normalize3fast();
 
-	tdim.mV[0] = fabsf(half_height * left);
-	tdim.mV[1] = fabsf(half_height * up);
+	LLVector4a up;
+	up.load3(camera.getUpAxis().mV);
+	up.mul(up);
+	up.normalize3fast();
+
+	tdim.mV[0] = fabsf(half_height.dot3(left).getF32());
+	tdim.mV[1] = fabsf(half_height.dot3(up).getF32());
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();

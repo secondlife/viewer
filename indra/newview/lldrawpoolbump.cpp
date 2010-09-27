@@ -2,25 +2,31 @@
  * @file lldrawpoolbump.cpp
  * @brief LLDrawPoolBump class implementation
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -334,30 +340,43 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 		sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD0;
 	}
 	
-	if (LLPipeline::sUnderWaterRender)
+	if (getVertexShaderLevel() > 0)
 	{
-		shader = &gObjectShinyWaterProgram;
+		if (LLPipeline::sUnderWaterRender)
+		{
+			shader = &gObjectShinyWaterProgram;
+		}
+		else
+		{
+			shader = &gObjectShinyProgram;
+		}
+		shader->bind();
 	}
 	else
 	{
-		shader = &gObjectShinyProgram;
+		shader = NULL;
 	}
 
+	bindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+}
+
+//static
+void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible)
+{
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	if( cube_map )
 	{
-		if (!invisible && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0 )
+		if (!invisible && shader )
 		{
 			LLMatrix4 mat;
 			mat.initRows(LLVector4(gGLModelView+0),
 						 LLVector4(gGLModelView+4),
 						 LLVector4(gGLModelView+8),
 						 LLVector4(gGLModelView+12));
-			shader->bind();
 			LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 			LLVector4 vec4(vec, gShinyOrigin.mV[3]);
 			shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);			
-			if (mVertexShaderLevel > 1)
+			if (shader_level > 1)
 			{
 				cube_map->setMatrix(1);
 				// Make sure that texture coord generation happens for tex unit 1, as that's the one we use for 
@@ -419,22 +438,16 @@ void LLDrawPoolBump::renderShiny(bool invisible)
 	}
 }
 
-void LLDrawPoolBump::endShiny(bool invisible)
+//static
+void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible)
 {
-	LLFastTimer t(FTM_RENDER_SHINY);
-	if ((!invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_SHINY))|| 
-		(invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_INVISI_SHINY)))
-	{
-		return;
-	}
-
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	if( cube_map )
 	{
 		cube_map->disable();
 		cube_map->restoreMatrix();
 
-		if (!invisible && mVertexShaderLevel > 1)
+		if (!invisible && shader_level > 1)
 		{
 			shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 					
@@ -445,7 +458,6 @@ void LLDrawPoolBump::endShiny(bool invisible)
 					shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 				}
 			}
-			shader->unbind();
 		}
 	}
 	gGL.getTexUnit(diffuse_channel)->disable();
@@ -453,6 +465,22 @@ void LLDrawPoolBump::endShiny(bool invisible)
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+}
+
+void LLDrawPoolBump::endShiny(bool invisible)
+{
+	LLFastTimer t(FTM_RENDER_SHINY);
+	if ((!invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_SHINY))|| 
+		(invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_INVISI_SHINY)))
+	{
+		return;
+	}
+
+	unbindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+	if (shader)
+	{
+		shader->unbind();
+	}
 
 	diffuse_channel = -1;
 	cube_channel = 0;
@@ -473,7 +501,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
-		shader = &gObjectShinyWaterProgram;
+		shader = &gObjectFullbrightShinyWaterProgram;
 	}
 	else
 	{
@@ -580,17 +608,36 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 // static
 BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 {
-	LLViewerTexture* bump = NULL;
-
 	U8 bump_code = params.mBump;
 
+	return bindBumpMap(bump_code, params.mTexture, params.mVSize, channel);
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(LLFace* face, S32 channel)
+{
+	const LLTextureEntry* te = face->getTextureEntry();
+	if (te)
+	{
+		U8 bump_code = te->getBumpmap();
+		return bindBumpMap(bump_code, face->getTexture(), face->getVirtualSize(), channel);
+	}
+
+	return FALSE;
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsize, S32 channel)
+{
 	//Note: texture atlas does not support bump texture now.
-	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params.mTexture) ;
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texture) ;
 	if(!tex)
 	{
 		//if the texture is not a fetched texture
 		return FALSE;
 	}
+
+	LLViewerTexture* bump = NULL;
 
 	switch( bump_code )
 	{
@@ -605,7 +652,7 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
 			bump = gStandardBumpmapList[bump_code].mImage;
-			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize);
+			gBumpImageList.addTextureStats(bump_code, tex->getID(), vsize);
 		}
 		break;
 	}

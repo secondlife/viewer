@@ -2,25 +2,31 @@
  * @file llpolymesh.cpp
  * @brief Implementation of LLPolyMesh class
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -29,7 +35,8 @@
 //-----------------------------------------------------------------------------
 #include "llviewerprecompiledheaders.h"
 
-#include "llpolymesh.h"
+#include "llfasttimer.h"
+#include "llmemory.h"
 
 #include "llviewercontrol.h"
 #include "llxmltree.h"
@@ -39,7 +46,7 @@
 #include "llvolume.h"
 #include "llendianswizzle.h"
 
-#include "llfasttimer.h"
+#include "llpolymesh.h"
 
 #define HEADER_ASCII "Linden Mesh 1.0"
 #define HEADER_BINARY "Linden Binary Mesh 1.0"
@@ -134,7 +141,7 @@ void LLPolyMeshSharedData::freeMeshData()
 		delete [] mDetailTexCoords;
 		mDetailTexCoords = NULL;
 
-		delete [] mWeights;
+		ll_aligned_free_16(mWeights);
 		mWeights = NULL;
 	}
 
@@ -224,7 +231,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 	mBaseBinormals = new LLVector3[ numVertices ];
 	mTexCoords = new LLVector2[ numVertices ];
 	mDetailTexCoords = new LLVector2[ numVertices ];
-	mWeights = new F32[ numVertices ];
+	mWeights = (F32*) ll_aligned_malloc_16((numVertices*sizeof(F32)+0xF) & ~0xF);
 	for (i = 0; i < numVertices; i++)
 	{
 		mWeights[i] = 0.f;
@@ -702,20 +709,29 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		mClothingWeights = reference_mesh->mClothingWeights;
 	}
 	else
-	{
+	{ 	 
 #if 1	// Allocate memory without initializing every vector
 		// NOTE: This makes asusmptions about the size of LLVector[234]
 		int nverts = mSharedData->mNumVertices;
-		int nfloats = nverts * (3*5 + 2 + 4);
-		mVertexData = new F32[nfloats];
+		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
+
+		//use aligned vertex data to make LLPolyMesh SSE friendly
+		mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
 		int offset = 0;
-		mCoords = 				(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mNormals = 				(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mScaledNormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mBinormals = 			(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mScaledBinormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mTexCoords = 			(LLVector2*)(mVertexData + offset); offset += 2*nverts;
-		mClothingWeights = 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+
+		//all members must be 16-byte aligned except the last 3
+		mCoords				= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mNormals			=	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mClothingWeights	= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mTexCoords			= 	(LLVector2*)(mVertexData + offset); offset += 2*nverts;
+
+		// these members don't need to be 16-byte aligned, but the first one might be
+		// read during an aligned memcpy of mTexCoords
+		mScaledNormals		=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		mBinormals			=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		mScaledBinormals	=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		
+		
 #else
 		mCoords = new LLVector3[mSharedData->mNumVertices];
 		mNormals = new LLVector3[mSharedData->mNumVertices];
@@ -751,7 +767,7 @@ LLPolyMesh::~LLPolyMesh()
 	delete [] mClothingWeights;
 	delete [] mTexCoords;
 #else
-	delete [] mVertexData;
+	ll_aligned_free_16(mVertexData);
 #endif
 }
 
@@ -858,7 +874,7 @@ void LLPolyMesh::dumpDiagInfo()
 //-----------------------------------------------------------------------------
 // getWritableCoords()
 //-----------------------------------------------------------------------------
-LLVector3 *LLPolyMesh::getWritableCoords()
+LLVector4 *LLPolyMesh::getWritableCoords()
 {
 	return mCoords;
 }
@@ -866,7 +882,7 @@ LLVector3 *LLPolyMesh::getWritableCoords()
 //-----------------------------------------------------------------------------
 // getWritableNormals()
 //-----------------------------------------------------------------------------
-LLVector3 *LLPolyMesh::getWritableNormals()
+LLVector4 *LLPolyMesh::getWritableNormals()
 {
 	return mNormals;
 }
@@ -921,8 +937,12 @@ void LLPolyMesh::initializeForMorph()
 	if (!mSharedData)
 		return;
 
-	memcpy(mCoords, mSharedData->mBaseCoords, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
-	memcpy(mNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
+	{
+		mCoords[i] = LLVector4(mSharedData->mBaseCoords[i]);
+		mNormals[i] = LLVector4(mSharedData->mBaseNormals[i]);
+	}
+
 	memcpy(mScaledNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
 	memcpy(mBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
 	memcpy(mScaledBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);		/*Flawfinder: ignore*/

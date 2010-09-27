@@ -6,14 +6,17 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(google)
   if (WINDOWS)
-    use_prebuilt_binary(google-perftools)
+    use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
         debug libtcmalloc_minimal-debug
         optimized libtcmalloc_minimal)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
   if (LINUX)
-    set(TCMALLOC_LIBRARIES tcmalloc)
+    use_prebuilt_binary(tcmalloc)
+    set(TCMALLOC_LIBRARIES 
+	debug tcmalloc_minimal_debug
+	optimized tcmalloc_minimal)
     set(STACKTRACE_LIBRARIES stacktrace)
     set(PROFILER_LIBRARIES profiler)
     set(GOOGLE_PERFTOOLS_INCLUDE_DIR
@@ -29,12 +32,11 @@ if (GOOGLE_PERFTOOLS_FOUND)
 endif (GOOGLE_PERFTOOLS_FOUND)
 
 if (WINDOWS)
-    # *TODO -reenable this once we get server usage sorted out
-    #set(USE_GOOGLE_PERFTOOLS ON)
+    set(USE_GOOGLE_PERFTOOLS ON)
 endif (WINDOWS)
 
 if (USE_GOOGLE_PERFTOOLS)
-  set(TCMALLOC_FLAG -DLL_USE_TCMALLOC=1)
+  set(TCMALLOC_FLAG -ULL_USE_TCMALLOC=1)
   include_directories(${GOOGLE_PERFTOOLS_INCLUDE_DIR})
   set(GOOGLE_PERFTOOLS_LIBRARIES ${TCMALLOC_LIBRARIES} ${STACKTRACE_LIBRARIES} ${PROFILER_LIBRARIES})
 else (USE_GOOGLE_PERFTOOLS)

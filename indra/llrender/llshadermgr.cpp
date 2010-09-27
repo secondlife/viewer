@@ -2,25 +2,31 @@
  * @file llshadermgr.cpp
  * @brief Shader manager implementation.
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * 
+ * Copyright (c) 2005-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -146,6 +152,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
+
+	if (features->hasObjectSkinning)
+	{
+		if (!shader->attachObject("avatar/objectSkinV.glsl"))
+		{
+			return FALSE;
+		}
+	}
 	
 	///////////////////////////////////////
 	// Attach Fragment Shader Features Next
@@ -220,7 +234,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	else if (features->isFullbright)
 	{
 	
-		if (features->hasWaterFog)
+		if (features->isShiny && features->hasWaterFog)
+		{
+			if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (features->hasWaterFog)
 		{
 			if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
 			{
@@ -307,11 +328,14 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
 {
-	GLenum error;
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	GLenum error = GL_NO_ERROR;
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		}
 	}
 	
 	LL_DEBUGS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
@@ -366,31 +390,39 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//create shader object
 	GLhandleARB ret = glCreateShaderObjectARB(type);
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		}
 	}
-	else
+	
+	//load source
+	glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
+
+	if (gDebugGL)
 	{
-		//load source
-		glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
 		error = glGetError();
 		if (error != GL_NO_ERROR)
 		{
 			LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << LL_ENDL;
 		}
-		else
+	}
+
+	//compile source
+	glCompileShaderARB(ret);
+
+	if (gDebugGL)
+	{
+		error = glGetError();
+		if (error != GL_NO_ERROR)
 		{
-			//compile source
-			glCompileShaderARB(ret);
-			error = glGetError();
-			if (error != GL_NO_ERROR)
-			{
-				LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
-			}
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
 		}
 	}
+		
 	//free memory
 	for (GLuint i = 0; i < count; i++)
 	{
@@ -401,13 +433,16 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		//check for errors
 		GLint success = GL_TRUE;
 		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		error = glGetError();
-		if (error != GL_NO_ERROR || success == GL_FALSE) 
+		if (gDebugGL || success == GL_FALSE)
 		{
-			//an error occured, print log
-			LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-			dumpObjectLog(ret);
-			ret = 0;
+			error = glGetError();
+			if (error != GL_NO_ERROR || success == GL_FALSE) 
+			{
+				//an error occured, print log
+				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
+				dumpObjectLog(ret);
+				ret = 0;
+			}
 		}
 	}
 	else

@@ -1821,7 +1821,7 @@
     <key>DebugShowRenderInfo</key>
     <map>
       <key>Comment</key>
-      <string>Show depth buffer contents</string>
+      <string>Show stats about current scene</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1829,6 +1829,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DebugShowUploadCost</key>
+  <map>
+    <key>Comment</key>
+    <string>Show what it would cost to upload assets in current scene</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>DebugShowRenderMatrices</key>
   <map>
     <key>Comment</key>
@@ -5373,7 +5384,18 @@
       <key>Value</key>
       <real>0</real>
     </map>
-    <key>MigrateCacheDirectory</key>
+  <key>MeshEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Expose UI for mesh functionality (may require restart to take effect).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>1</real>
+  </map>
+  <key>MigrateCacheDirectory</key>
     <map>
       <key>Comment</key>
       <string>Check for old version of disk cache to migrate to current location</string>
@@ -6036,6 +6058,66 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+  <key>ObjectCostHighThreshold</key>
+  <map>
+    <key>Comment</key>
+    <string>Threshold at which object cost is considered high (displayed in red).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50.0</real>
+  </map>
+  <key>ObjectCostLowColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object with a low object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>0.0</real>
+      <real>0.5</real>
+      <real>1.0</real>
+      <real>0.5</real>
+    </array>
+  </map>
+  <key>ObjectCostMidColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object with a medium object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>0.75</real>
+      <real>0.0</real>
+      <real>0.65</real>
+    </array>
+  </map>
+  <key>ObjectCostHighColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object a high object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>0.0</real>
+      <real>0.0</real>
+      <real>0.75</real>
+    </array>
+  </map>
+  
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
@@ -6711,7 +6793,30 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  
+    <key>RenderPerformanceTest</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable rendering of everything but in-world content for 
+        performance testing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+      <key>RenderLightingDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+
   <key>RenderShadowNearDist</key>
   <map>
     <key>Comment</key>
@@ -6908,7 +7013,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDebugPipeline</key>
+  <key>RenderDebugNormalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scale of normals in debug display.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.03</real>
+  </map>
+  <key>RenderDebugPipeline</key>
     <map>
       <key>Comment</key>
       <string>Enable strict pipeline debugging.</string>
@@ -6941,6 +7057,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+ 
   <key>RenderAnimateRes</key>
   <map>
     <key>Comment</key>
@@ -6952,7 +7069,31 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>RenderBakeSunlight</key>
+  <map>
+    <key>Comment</key>
+    <string>Bake sunlight into vertex buffers for static objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderNoAlpha</key>
+  <map>
+    <key>Comment</key>
+    <string>Disable rendering of alpha objects (render all alpha objects as alpha masks).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>RenderAnimateTrees</key>
   <map>
     <key>Comment</key>
@@ -7109,6 +7250,18 @@
     <real>16.0</real>
    </map>
 
+  <key>RenderMinimumLODTriangleCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Triangle count threshold at which automatic LOD generation stops</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+
   <key>RenderEdgeDepthCutoff</key>
   <map>
     <key>Comment</key>
@@ -7244,7 +7397,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>-0.001</real>
   </map>
   <key>RenderSpotShadowOffset</key>
   <map>
@@ -7952,7 +8105,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderHideGroupTitle</key>
     <map>
@@ -8272,8 +8425,19 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
+  <key>RenderUseTriStrips</key>
+  <map>
+    <key>Comment</key>
+    <string>Use triangle strips for rendering prims.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderUseTriStrips</key>
   <map>
     <key>Comment</key>
@@ -8417,7 +8581,40 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>SafeMode</key>
+  <key>MeshThreadCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of threads to use for loading meshes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
+  <key>MeshMaxConcurrentRequests</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of threads to use for loading meshes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>32</integer>
+  </map>
+   <key>RunMultipleThreads</key>
+    <map>
+      <key>Comment</key>
+      <string>If TRUE keep background threads active during render</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  <key>SafeMode</key>
     <map>
       <key>Comment</key>
       <string>Reset preferences, run in safe mode.</string>
@@ -11088,7 +11285,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>SpeakerParticipantRemoveDelay</key>
     <map>

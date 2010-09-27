@@ -906,6 +906,18 @@
                  parameter="Upload Animation" />
             </menu_item_call>
             <menu_item_call
+           label="Model..."
+           layout="topleft"
+           name="Upload Model">
+            <menu_item_call.on_click
+             function="File.UploadModel"
+             parameter="" />
+            <menu_item_call.on_enable
+             function="File.EnableUploadModel" />
+            <menu_item_call.on_visible
+            function="File.MeshEnabled"/>
+            </menu_item_call>
+            <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
              name="Bulk Upload">
@@ -1907,6 +1919,17 @@
                  function="ToggleControl"
                  parameter="DebugShowTime" />
             </menu_item_check>
+          <menu_item_check
+             label="Show Upload Cost"
+             layout="topleft"
+             name="Show Upload Cost">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="DebugShowUploadCost" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DebugShowUploadCost" />
+          </menu_item_check>
             <menu_item_check
              label="Show Render Info"
              name="Show Render Info">
@@ -2070,6 +2093,16 @@
          parameter="bboxes" />
         </menu_item_check>
         <menu_item_check
+         label="Normals"
+         name="Normals">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="normals" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="normals" />
+        </menu_item_check>
+        <menu_item_check
          label="Octree"
          name="Octree">
           <menu_item_check.on_check
@@ -2088,6 +2121,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="shadow frusta" />
+        </menu_item_check>
+        <menu_item_check
+         label="Physics Shapes"
+         name="Physics Shapes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="physics shapes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="physics shapes" />
         </menu_item_check>
         <menu_item_check
          label="Occlusion"
@@ -3086,6 +3129,16 @@
          shortcut="control|alt|shift|G">
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
+        </menu_item_call>
+		<menu_item_call
+           label="HACK Upload Model..."
+           layout="topleft"
+           name="Upload Model">
+          <menu_item_call.on_click
+             function="File.UploadModel"
+             parameter="" />
+          <menu_item_call.on_enable
+             function="File.EnableUploadModel" />
         </menu_item_call>
     </menu>
     <menu
