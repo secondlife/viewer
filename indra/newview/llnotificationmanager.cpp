@@ -73,7 +73,8 @@ void LLNotificationManager::init()
 	LLNotifications::instance().getChannel("Hints")->connectChanged(boost::bind(&LLHintHandler::processNotification, LLHintHandler::getInstance(), _1));
 	LLNotifications::instance().getChannel("Browser")->connectChanged(boost::bind(&LLBrowserNotification::processNotification, LLBrowserNotification::getInstance(), _1));
 
-	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptHandler(NT_NOTIFY, LLSD()));
+	//mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptHandler(NT_NOTIFY, LLSD()));
+	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptTextboxHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["notifytip"] =  boost::shared_ptr<LLEventHandler>(new LLTipHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["groupnotify"] = boost::shared_ptr<LLEventHandler>(new LLGroupHandler(NT_GROUPNOTIFY, LLSD()));
 	mNotifyHandlers["alert"] = boost::shared_ptr<LLEventHandler>(new LLAlertHandler(NT_ALERT, LLSD()));

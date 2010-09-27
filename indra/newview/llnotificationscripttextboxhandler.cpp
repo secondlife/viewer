@@ -96,7 +96,7 @@ bool LLScriptTextboxHandler::processNotification(const LLSD& notify)
 			LLHandlerUtil::logToIMP2P(notification);
 		}
 
-		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
+		if(0)//(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 		}
