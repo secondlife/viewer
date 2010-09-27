@@ -773,6 +773,16 @@
           <menu_item_separator/>
 
                 <menu_item_check
+                 label="Show Selection Outlines"
+                 name="Show Selection Outlines">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="RenderHighlightSelections" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="RenderHighlightSelections" />
+                </menu_item_check>
+                <menu_item_check
                  label="Show Hidden Selection"
                  name="Show Hidden Selection">
                     <menu_item_check.on_check
