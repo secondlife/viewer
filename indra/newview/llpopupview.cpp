@@ -40,7 +40,8 @@ bool view_visible(LLView* viewp)
 }
 
 
-LLPopupView::LLPopupView()
+LLPopupView::LLPopupView(const LLPopupView::Params& p)
+: LLPanel(p)
 {
 	// register ourself as handler of UI popups
 	LLUI::setPopupFuncs(boost::bind(&LLPopupView::addPopup, this, _1), boost::bind(&LLPopupView::removePopup, this, _1), boost::bind(&LLPopupView::clearPopups, this));

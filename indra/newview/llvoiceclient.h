@@ -191,25 +191,9 @@ public:
 	virtual void setVoiceEnabled(bool enabled)=0;
 	virtual void setLipSyncEnabled(BOOL enabled)=0;
 	virtual BOOL lipSyncEnabled()=0;	
-	virtual void setMuteMic(bool muted)=0;		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
+	virtual void setMuteMic(bool muted)=0;		// Set the mute state of the local mic.
 	//@}
-	
-	////////////////////////
-	/// @name PTT
-	//@{
-	virtual void setUserPTTState(bool ptt)=0;
-	virtual bool getUserPTTState()=0;
-	virtual void setUsePTT(bool usePTT)=0;
-	virtual void setPTTIsToggle(bool PTTIsToggle)=0;
-	virtual bool getPTTIsToggle()=0;	
-	virtual void toggleUserPTTState(void)=0;
-	virtual void inputUserControlState(bool down)=0;  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
-	
-	virtual void keyDown(KEY key, MASK mask)=0;
-	virtual void keyUp(KEY key, MASK mask)=0;
-	virtual void middleMouseState(bool down)=0;
-	//@}
-	
+		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
@@ -406,6 +390,9 @@ public:
 	void setUsePTT(bool usePTT);
 	void setPTTIsToggle(bool PTTIsToggle);
 	bool getPTTIsToggle();	
+	void setPTTKey(std::string &key);
+	
+	void updateMicMuteLogic();
 	
 	BOOL lipSyncEnabled();
 	
@@ -471,6 +458,17 @@ protected:
 
 	LLCachedControl<bool> mVoiceEffectEnabled;
 	LLCachedControl<std::string> mVoiceEffectDefault;
+
+	bool		mPTTDirty;
+	bool		mPTT;
+	
+	bool		mUsePTT;
+	bool		mPTTIsMiddleMouse;
+	KEY			mPTTKey;
+	bool		mPTTIsToggle;
+	bool		mUserPTTState;
+	bool		mMuteMic;
+	bool		mDisableMic;
 };
 
 /**

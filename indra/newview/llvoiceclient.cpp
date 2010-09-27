@@ -35,6 +35,7 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llui.h"
+#include "llkeyboard.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -113,8 +114,18 @@ LLVoiceClient::LLVoiceClient()
 	mVoiceModule(NULL),
 	m_servicePump(NULL),
 	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled")),
-	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault"))
+	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault")),
+	mPTTDirty(true),
+	mPTT(true),
+	mUsePTT(true),
+	mPTTIsMiddleMouse(false),
+	mPTTKey(0),
+	mPTTIsToggle(false),
+	mUserPTTState(false),
+	mMuteMic(false),
+	mDisableMic(false)
 {
+	updateSettings();
 }
 
 //---------------------------------------------------
@@ -173,6 +184,14 @@ const LLVoiceVersionInfo LLVoiceClient::getVersion()
 
 void LLVoiceClient::updateSettings()
 {
+	setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
+	std::string keyString = gSavedSettings.getString("PushToTalkButton");
+	setPTTKey(keyString);
+	setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
+	mDisableMic = gSavedSettings.getBOOL("VoiceDisableMic");
+
+	updateMicMuteLogic();
+
 	if (mVoiceModule) mVoiceModule->updateSettings();
 }
 
@@ -481,6 +500,26 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
 	if (mVoiceModule) mVoiceModule->setVoiceEnabled(enabled);
 }
 
+void LLVoiceClient::updateMicMuteLogic()
+{
+	// If not configured to use PTT, the mic should be open (otherwise the user will be unable to speak).
+	bool new_mic_mute = false;
+	
+	if(mUsePTT)
+	{
+		// If configured to use PTT, track the user state.
+		new_mic_mute = !mUserPTTState;
+	}
+
+	if(mMuteMic || mDisableMic)
+	{
+		// Either of these always overrides any other PTT setting.
+		new_mic_mute = true;
+	}
+	
+	if (mVoiceModule) mVoiceModule->setMuteMic(new_mic_mute);
+}
+
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
 {
 	if (mVoiceModule) mVoiceModule->setLipSyncEnabled(enabled);
@@ -500,7 +539,8 @@ BOOL LLVoiceClient::lipSyncEnabled()
 
 void LLVoiceClient::setMuteMic(bool muted)
 {
-	if (mVoiceModule) mVoiceModule->setMuteMic(muted);
+	mMuteMic = muted;
+	updateMicMuteLogic();
 }
 
 
@@ -509,64 +549,116 @@ void LLVoiceClient::setMuteMic(bool muted)
 
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
-	if (mVoiceModule) mVoiceModule->setUserPTTState(ptt);
+	mUserPTTState = ptt;
+	updateMicMuteLogic();
 }
 
 bool LLVoiceClient::getUserPTTState()
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getUserPTTState();
-	}
-	else
-	{
-		return false;
-	}
+	return mUserPTTState;
 }
 
 void LLVoiceClient::setUsePTT(bool usePTT)
 {
-	if (mVoiceModule) mVoiceModule->setUsePTT(usePTT);
+	if(usePTT && !mUsePTT)
+	{
+		// When the user turns on PTT, reset the current state.
+		mUserPTTState = false;
+	}
+	mUsePTT = usePTT;
+	
+	updateMicMuteLogic();
 }
 
 void LLVoiceClient::setPTTIsToggle(bool PTTIsToggle)
 {
-	if (mVoiceModule) mVoiceModule->setPTTIsToggle(PTTIsToggle);
+	if(!PTTIsToggle && mPTTIsToggle)
+	{
+		// When the user turns off toggle, reset the current state.
+		mUserPTTState = false;
+	}
+	
+	mPTTIsToggle = PTTIsToggle;
+
+	updateMicMuteLogic();
 }
 
 bool LLVoiceClient::getPTTIsToggle()
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getPTTIsToggle();
-	}
-	else {
-		return false;
-	}
+	return mPTTIsToggle;
+}
 
+void LLVoiceClient::setPTTKey(std::string &key)
+{
+	if(key == "MiddleMouse")
+	{
+		mPTTIsMiddleMouse = true;
+	}
+	else
+	{
+		mPTTIsMiddleMouse = false;
+		if(!LLKeyboard::keyFromString(key, &mPTTKey))
+		{
+			// If the call failed, don't match any key.
+			key = KEY_NONE;
+		}
+	}
 }
 
 void LLVoiceClient::inputUserControlState(bool down)
 {
-	if (mVoiceModule) mVoiceModule->inputUserControlState(down);	
+	if(mPTTIsToggle)
+	{
+		if(down) // toggle open-mic state on 'down'                                                        
+		{
+			toggleUserPTTState();
+		}
+	}
+	else // set open-mic state as an absolute                                                                  
+	{
+		setUserPTTState(down);
+	}
 }
 
 void LLVoiceClient::toggleUserPTTState(void)
 {
-	if (mVoiceModule) mVoiceModule->toggleUserPTTState();
+	setUserPTTState(!getUserPTTState());
 }
 
 void LLVoiceClient::keyDown(KEY key, MASK mask)
 {	
-	if (mVoiceModule) mVoiceModule->keyDown(key, mask);
+	if (gKeyboard->getKeyRepeated(key))
+	{
+		// ignore auto-repeat keys                                                                         
+		return;
+	}
+	
+	if(!mPTTIsMiddleMouse)
+	{
+		bool down = (mPTTKey != KEY_NONE)
+		&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
+	}
+	
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
-	if (mVoiceModule) mVoiceModule->keyUp(key, mask);
+	if(!mPTTIsMiddleMouse)
+	{
+		bool down = (mPTTKey != KEY_NONE)
+		&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
+	}
 }
 void LLVoiceClient::middleMouseState(bool down)
 {
-	if (mVoiceModule) mVoiceModule->middleMouseState(down);
+	if(mPTTIsMiddleMouse)
+	{
+        if(mPTTIsMiddleMouse)
+        {
+			inputUserControlState(down);
+        }		
+	}
 }
 
 

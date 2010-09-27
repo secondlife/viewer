@@ -3066,7 +3066,10 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		mAltKeyTrigger = FALSE;
 	}
 
-	if(!result && (key == KEY_F10 && mask == MASK_CONTROL) && !gKeyboard->getKeyRepeated(key))
+	if(!result 
+		&& (key == KEY_F10 && mask == MASK_CONTROL) 
+		&& !gKeyboard->getKeyRepeated(key)
+		&& isInVisibleChain())
 	{
 		if (getHighlightedItem())
 		{
