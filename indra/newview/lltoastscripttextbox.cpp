@@ -51,7 +51,7 @@
 const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;
 
 LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
-:	LLToastPanel(notification),
+:	LLToastNotifyPanel(notification),
 	mInventoryOffer(NULL)
 {
 	buildFromFile( "panel_notify_textbox.xml");

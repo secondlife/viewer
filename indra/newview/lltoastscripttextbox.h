@@ -28,7 +28,7 @@
 #define LL_LLTOASTSCRIPTTEXTBOX_H
 
 #include "llfontgl.h"
-#include "lltoastpanel.h"
+#include "lltoastnotifypanel.h"
 #include "lldarray.h"
 #include "lltimer.h"
 #include "llviewermessage.h"
@@ -42,7 +42,7 @@ class LLButton;
  * Replaces class LLGroupNotifyBox.
  */
 class LLToastScriptTextbox
-:	public LLToastPanel
+:	public LLToastNotifyPanel
 {
 public:
 	void close();

@@ -152,9 +152,9 @@ void LLScriptFloater::createForm(const LLUUID& notification_id)
 
 	// create new form
 	LLRect toast_rect = getRect();
-	if (isScriptTextBox())
+	if (isScriptTextbox())
 	{
-		mScriptForm = new LLToastScriptTextbox(notify, toast_rect);
+		mScriptForm = new LLToastScriptTextbox(notification);
 	}
 	else
 	{
@@ -571,6 +571,13 @@ void LLScriptFloaterManager::setFloaterVisible(const LLUUID& notification_id, bo
 	{
 		floater->setVisible(visible);
 	}
+}
+
+//////////////////////////////////////////////////////////////////
+
+bool  LLScriptFloater::isScriptTextbox()
+{
+	return true;
 }
 
 // EOF

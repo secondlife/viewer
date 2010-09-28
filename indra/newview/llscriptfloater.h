@@ -203,6 +203,8 @@ protected:
 	void dockToChiclet(bool dock);
 
 private:
+	bool isScriptTextbox();
+
 	LLToastNotifyPanel* mScriptForm;
 	LLUUID mNotificationId;
 	LLUUID mObjectId;
