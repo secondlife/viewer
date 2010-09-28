@@ -698,6 +698,8 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	}
 
 	volume->updateRelativeXform();
+
+	if (mRenderRes > -1)
 	{
 		LLFastTimer t(FTM_DO_FLEXIBLE_UPDATE);
 		doFlexibleUpdate();
