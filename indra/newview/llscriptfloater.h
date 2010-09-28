@@ -28,6 +28,7 @@
 #define LL_SCRIPTFLOATER_H
 
 #include "lltransientdockablefloater.h"
+#include "llnotificationptr.h"
 
 class LLToastNotifyPanel;
 
@@ -203,7 +204,7 @@ protected:
 	void dockToChiclet(bool dock);
 
 private:
-	bool isScriptTextbox();
+	bool isScriptTextbox(LLNotificationPtr notification);
 
 	LLToastNotifyPanel* mScriptForm;
 	LLUUID mNotificationId;

@@ -32,6 +32,7 @@
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
+#include "lllslconstants.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llscreenchannel.h"
@@ -152,7 +153,7 @@ void LLScriptFloater::createForm(const LLUUID& notification_id)
 
 	// create new form
 	LLRect toast_rect = getRect();
-	if (isScriptTextbox())
+	if (isScriptTextbox(notification))
 	{
 		mScriptForm = new LLToastScriptTextbox(notification);
 	}
@@ -575,9 +576,31 @@ void LLScriptFloaterManager::setFloaterVisible(const LLUUID& notification_id, bo
 
 //////////////////////////////////////////////////////////////////
 
-bool  LLScriptFloater::isScriptTextbox()
+bool LLScriptFloater::isScriptTextbox(LLNotificationPtr notification)
 {
-	return true;
+	// get a form for the notification
+	LLNotificationFormPtr form(notification->getForm());
+
+	if (form)
+	{
+		// get number of elements
+		int num_options = form->getNumElements();
+	
+		// if ANY of the buttons have the magic lltextbox string as name, then
+		// treat the whole dialog as a simple text entry box (i.e. mixed button
+		// and textbox forms are not supported)
+		for (int i=0; i<num_options; ++i)
+		{
+			LLSD form_element = form->getElement(i);
+			llwarns << form_element << llendl;
+			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 // EOF
