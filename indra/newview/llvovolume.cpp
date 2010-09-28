@@ -4036,10 +4036,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
 					if ( pSkinData )
 					{
-						static const int bindCnt = pSkinData->mAlternateBindMatrix.size();
+						const int bindCnt = pSkinData->mAlternateBindMatrix.size();
 						if ( bindCnt > 0 )
 						{					
-							static const int jointCnt = pSkinData->mJointNames.size();
+							const int jointCnt = pSkinData->mJointNames.size();
 							for ( int i=0; i<jointCnt; ++i )
 							{
 								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();

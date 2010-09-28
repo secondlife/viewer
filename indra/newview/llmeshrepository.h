@@ -334,6 +334,8 @@ public:
 	bool			mFinished;
 	LLVector3		mOrigin;
 	bool			mUploadTextures;
+	bool			mUploadSkin;
+	bool			mUploadJoints;
 
 	LLHost			mHost;
 	std::string		mUploadObjectAssetCapability;
@@ -348,7 +350,8 @@ public:
 
 	std::map<LLPointer<LLViewerFetchedTexture>, LLTextureUploadData> mTextureMap;
 
-	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures);
+	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
+			bool upload_skin, bool upload_joints);
 	~LLMeshUploadThread();
 
 	void uploadTexture(LLTextureUploadData& data);
@@ -403,7 +406,8 @@ public:
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
 	const LLMeshDecomposition* getDecomposition(const LLUUID& mesh_id);
 
-	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures);
+	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+			bool upload_skin, bool upload_joints);
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 

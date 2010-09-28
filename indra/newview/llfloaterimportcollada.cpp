@@ -29,7 +29,10 @@
  * $/LicenseInfo$
  */
 
+
 #include "llviewerprecompiledheaders.h"
+
+#if 0 //DEPRECATED
 
 #include "llfloaterimportcollada.h"
 
@@ -1111,3 +1114,4 @@ void LLImportCollada::onCommitCancel(LLUICtrl*, void*)
 	getInstance()->endImport();
 }
 
+#endif

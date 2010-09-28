@@ -134,8 +134,21 @@
   <text bottom_delta="25" follows="top|left" height="15" left="10" name="physics info" width="300">
     [TRIANGLES] Triangles, [HULLS] Hulls, [POINTS] Points
   </text>
-  
-  <text bottom_delta="20" follows="top|left" height="15" name="description_label">
+
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="physics info" width="300">
+    Include:
+  </text>
+
+  <check_box bottom_delta="20" follow="bottom|left" height="20" label="Textures"
+             left="15" width="125" name="upload_textures" tool_tip="Upload associated textures "/>
+
+  <check_box bottom_delta="20" follow="bottom|left" height="20" label="Skin Weights"
+             left="15" width="125" name="upload_skin" tool_tip="Upload vertex skin weighting information."/>
+
+  <check_box bottom_delta="20" follow="bottom|left" height="20" label="Joint Positions"
+             left="15" width="125" name="upload_joints" tool_tip="Upload joint position information (will override avatar joint positions when mesh is worn)."/>
+
+  <text bottom_delta="35" follows="top|left" height="15" name="description_label">
 	  Description:
 	  <!-- Info: [PRIM_COST] prim equivalents, [TEXTURES] textures. -->
 	</text>
@@ -144,8 +157,6 @@
 	<button bottom_delta="25" follows="bottom|left" height="20" label="Upload"
 	     left="15" name="ok_btn" width="125" tool_tip="Upload to simulator"/>
 
-  <check_box bottom_delta="0" follow="bottom|left" height="20" label="Upload Textures"
-             left="160" width="125" name="upload_textures" tool_tip="Upload associated textures "/>
   <text bottom_delta="20" left="15" follows="top|left" height="15" name="description_label" text_color="1 0.82 0.46 1">
 	  (No charge for upload during First Look)
 	</text>

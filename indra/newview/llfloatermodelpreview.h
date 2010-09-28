@@ -113,12 +113,14 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	 LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp);
 	virtual ~LLModelPreview();
 
+	void resetPreviewTarget();
 	void setPreviewTarget(F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
 
 	BOOL render();
 	void update();
-	void genBuffers(S32 lod);
+	void genBuffers(S32 lod, bool skinned);
+	void clearBuffers();
 	void refresh();
 	void rotate(F32 yaw_radians, F32 pitch_radians);
 	void zoom(F32 zoom_amt);
@@ -224,6 +226,9 @@ protected:
 	friend class LLMeshFilePicker;
 	friend class LLPhysicsDecomp;
 	friend class LLPhysicsDecompFloater;
+	
+	static void		onUploadJointsCommit(LLUICtrl*,void*);
+	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	

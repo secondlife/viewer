@@ -40,7 +40,6 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llbuycurrencyhtml.h"
-#include "llfloaterimportcollada.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
 #include "llimage.h"
@@ -67,7 +66,6 @@
 #include "lluploaddialog.h"
 #include "lltrans.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterimportcollada.h"
 
 // linden libraries
 #include "llassetuploadresponders.h"
@@ -345,19 +343,6 @@ class LLFileUploadImage : public view_listener_t
 		if (!filename.empty())
 		{
 			LLFloaterReg::showInstance("upload_image", LLSD(filename));
-		}
-		return TRUE;
-	}
-};
-
-class LLFileUploadScene : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_COLLADA);
-		if (!filename.empty())
-		{
-			LLImportCollada::getInstance()->importFile(filename);
 		}
 		return TRUE;
 	}
@@ -1402,7 +1387,6 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
 	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
 	view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
-	view_listener_t::addCommit(new LLFileUploadScene(), "File.UploadScene");
 	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
 	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");

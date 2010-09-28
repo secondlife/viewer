@@ -1121,11 +1121,14 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	return true;
 }
 
-LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures)
+LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
+										bool upload_skin, bool upload_joints)
 : LLThread("mesh upload")
 {
 	mInstanceList = data;
 	mUploadTextures = upload_textures;
+	mUploadSkin = upload_skin;
+	mUploadJoints = upload_joints;
 	mMutex = new LLMutex(NULL);
 	mCurlRequest = NULL;
 	mPendingConfirmations = 0;
@@ -2118,9 +2121,10 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 	return NULL;
 }
 
-void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures)
+void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+									bool upload_skin, bool upload_joints)
 {
-	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures);
+	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints);
 	mUploads.push_back(thread);
 	thread->start();
 }
@@ -2165,6 +2169,8 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_LOW],
 		data.mModel[LLModel::LOD_IMPOSTOR], 
 		phys_shape,
+		mUploadSkin,
+		mUploadJoints,
 		true);
 
 	std::string desc = data.mBaseModel->mLabel;
@@ -2248,7 +2254,9 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 			data.mModel[LLModel::LOD_MEDIUM],
 			data.mModel[LLModel::LOD_LOW],
 			data.mModel[LLModel::LOD_IMPOSTOR], 
-			phys_shape);
+			phys_shape,
+			mUploadSkin,
+			mUploadJoints);
 
 		data.mAssetData = ostr.str();
 

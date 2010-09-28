@@ -297,6 +297,12 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
 	
+	childSetCommitCallback("upload_skin", onUploadSkinCommit, this);
+	childSetCommitCallback("upload_joints", onUploadJointsCommit, this);
+
+	childDisable("upload_skin");
+	childDisable("upload_joints");
+
 	const U32 width = 512;
 	const U32 height = 512;
 
@@ -389,6 +395,35 @@ void LLFloaterModelPreview::setLimit(S32 lod, S32 limit)
 	}
 }
 
+//static 
+void LLFloaterModelPreview::onUploadJointsCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->refresh();
+}
+
+//static 
+void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->refresh();
+	fp->mModelPreview->resetPreviewTarget();
+	fp->mModelPreview->clearBuffers();
+}
+	
+//static
 void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
@@ -2031,13 +2066,15 @@ U32 LLModelPreview::calcResourceCost()
 			LLModel::physics_shape& physics_shape = instance.mLOD[LLModel::LOD_PHYSICS] ? instance.mLOD[LLModel::LOD_PHYSICS]->mPhysicsShape : instance.mModel->mPhysicsShape;
 
 			LLSD ret = LLModel::writeModel("",  
-									instance.mLOD[4], 
+									instance.mLOD[4],
 									instance.mLOD[3], 
 									instance.mLOD[2], 
 									instance.mLOD[1], 
 									instance.mLOD[0],
 									physics_shape,
-									TRUE);
+									mFMP->childGetValue("upload_skin").asBoolean(),
+									mFMP->childGetValue("upload_joints").asBoolean(),
+									true);
 			cost += gMeshRepo.calcResourceCost(ret);
 
 			
@@ -2203,12 +2240,17 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mDirty = true;
 	
+	resetPreviewTarget();
+	
+	mFMP->mLoading = FALSE;
+	refresh();
+}
+
+void LLModelPreview::resetPreviewTarget()
+{
 	mPreviewTarget = (mModelLoader->mExtents[0] + mModelLoader->mExtents[1]) * 0.5f;
 	mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
 	setPreviewTarget(mPreviewScale.magVec()*2.f);
-
-	mFMP->mLoading = FALSE;
-	refresh();
 }
 
 void LLModelPreview::smoothNormals()
@@ -2556,7 +2598,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			if (mVertexBuffer[5].empty())
 			{
-				genBuffers(5);
+				genBuffers(5, false);
 			}
 
 			U32 tri_count = 0;
@@ -2935,7 +2977,15 @@ void LLModelPreview::setPreviewTarget(F32 distance)
 	mCameraOffset.clearVec();
 }
 
-void LLModelPreview::genBuffers(S32 lod)
+void LLModelPreview::clearBuffers()
+{
+	for (U32 i = 0; i < 6; i++)
+	{
+		mVertexBuffer[i].clear();
+	}
+}
+
+void LLModelPreview::genBuffers(S32 lod, bool avatar_preview)
 {
 	U32 tri_count = 0;
 	U32 vertex_count = 0;
@@ -2986,7 +3036,7 @@ void LLModelPreview::genBuffers(S32 lod)
 
 			LLVertexBuffer* vb = NULL;
 			
-			bool skinned = !mdl->mSkinWeights.empty();
+			bool skinned = avatar_preview && !mdl->mSkinWeights.empty();
 
 			U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 			
@@ -3021,13 +3071,12 @@ void LLModelPreview::genBuffers(S32 lod)
 
 			if (skinned)
 			{
-				// build vertices and normals
 				for (U32 i = 0; i < num_vertices; i++)
 				{
 					//find closest weight to vf.mVertices[i].mPosition
 					LLVector3 pos(vf.mPositions[i].getF32ptr());
 
-					LLModel::weight_list weight_list = base_mdl->getJointInfluences(pos);
+					const LLModel::weight_list& weight_list = base_mdl->getJointInfluences(pos);
 
 					LLVector4 w(0,0,0,0);
 					if (weight_list.size() > 4)
@@ -3102,6 +3151,9 @@ BOOL LLModelPreview::render()
 	gl_rect_2d_simple( width, height );
 
 	bool avatar_preview = false;
+	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
+	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
+
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 	{
 		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
@@ -3115,6 +3167,39 @@ BOOL LLModelPreview::render()
 		}
 	}
 
+	if (upload_skin && !avatar_preview)
+	{
+		mFMP->childSetValue("upload_skin", false);
+		upload_skin = false;
+	}
+
+	if (!upload_skin && upload_joints)
+	{
+		mFMP->childSetValue("upload_joints", false);
+		upload_joints = false;
+	}
+
+	if (!avatar_preview)
+	{
+		mFMP->childDisable("upload_skin");
+	}
+	else
+	{
+		mFMP->childEnable("upload_skin");
+	}
+
+	if (!upload_skin)
+	{
+		mFMP->childDisable("upload_joints");
+	}
+	else
+	{
+		mFMP->childEnable("upload_joints");
+	}
+
+	avatar_preview = avatar_preview && upload_skin;
+
+		
 	mFMP->childSetEnabled("consolidate", !avatar_preview);
 	
 	F32 explode = mFMP->mDecompFloater ? mFMP->mDecompFloater->childGetValue("explode").asReal() : 0.f;
@@ -3171,8 +3256,8 @@ BOOL LLModelPreview::render()
 
 	if (!mBaseModel.empty() && mVertexBuffer[5].empty())
 	{
-		genBuffers(-1);
-		genBuffers(3);
+		genBuffers(-1, avatar_preview);
+		//genBuffers(3);
 		//genLODs();
 	}
 
@@ -3194,7 +3279,7 @@ BOOL LLModelPreview::render()
 	{
 		if (mVertexBuffer[mPreviewLOD].empty())
 		{
-			genBuffers(mPreviewLOD);
+			genBuffers(mPreviewLOD, avatar_preview);
 		}
 
 		if (!avatar_preview)
@@ -3527,7 +3612,8 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	mp->mModelPreview->rebuildUploadData();
 		
-	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale, mp->childGetValue("upload_textures").asBoolean());
+	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale, 
+		mp->childGetValue("upload_textures").asBoolean(), mp->childGetValue("upload_skin"), mp->childGetValue("upload_joints"));
 
 	mp->closeFloater(false);
 }

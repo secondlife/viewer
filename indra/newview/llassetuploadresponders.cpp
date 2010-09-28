@@ -42,7 +42,6 @@
 #include "llinventorydefines.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llfloaterimportcollada.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
@@ -334,7 +333,7 @@ void LLNewAgentInventoryResponder::uploadFailure(const LLSD& content)
 {
 	LLAssetUploadResponder::uploadFailure(content);
 
-	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], FALSE);
+	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], FALSE);
 }
 
 //virtual 
@@ -424,7 +423,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			userdata);
 	}
 
-	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], TRUE);
+	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], TRUE);
 }
 
 LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,

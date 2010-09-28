@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#if 0 //DEPRECATED
+
 #ifndef LL_LLFLOATERIMPORTCOLLADA_H
 #define LL_LLFLOATERIMPORTCOLLADA_H
 
@@ -136,3 +138,5 @@ private:
 };
 
 #endif // LL_LLFLOATERIMPORTCOLLADA_H
+
+#endif //DEPRECATED
