@@ -311,18 +311,17 @@ bool LLSidepanelInventory::canShare()
 	LLPanelMainInventory* panel_main_inventory =
 		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
-	LLFolderView* root_folder =
-		panel_main_inventory->getActivePanel()->getRootFolder();
+	if (!panel_main_inventory)
+	{
+		llwarns << "Failed to get the main inventory panel" << llendl;
+		return false;
+	}
 
-	LLFolderViewItem* current_item = root_folder->hasVisibleChildren()
-		? root_folder->getCurSelectedItem()
-		: NULL;
+	LLInventoryPanel* active_panel = panel_main_inventory->getActivePanel();
+	// Avoid flicker in the Recent tab while inventory is being loaded.
+	if (!active_panel->getRootFolder()->hasVisibleChildren()) return false;
 
-	LLInvFVBridge* bridge = current_item
-		? dynamic_cast <LLInvFVBridge*> (current_item->getListener())
-		: NULL;
-
-	return bridge ? bridge->canShare() : false;
+	return LLAvatarActions::canShareSelectedItems(active_panel);
 }
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
