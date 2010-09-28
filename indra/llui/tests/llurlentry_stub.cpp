@@ -120,7 +120,6 @@ namespace LLInitParam
 	
 	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
 	{
-		mBlockDescriptor = &descriptor;
 		descriptor.mCurrentBlockPtr = this;
 	}
 	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack){ return true; }

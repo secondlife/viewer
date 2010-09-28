@@ -262,6 +262,7 @@ const F64 FRAME_STALL_THRESHOLD = 1.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
+LLFrameTimer gLoggedInTime;
 LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
@@ -360,19 +361,19 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	if(gAgent.isInGroup(match_id, TRUE))
 	{
-		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
 	}
 	else
 	{
-		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
 	}
 
 	LLInlineViewSegment::Params params;
@@ -588,6 +589,7 @@ LLAppViewer::LLAppViewer() :
 
 	setupErrorHandling();
 	sInstance = this;
+	gLoggedInTime.stop();
 }
 
 LLAppViewer::~LLAppViewer()
@@ -925,8 +927,9 @@ bool LLAppViewer::init()
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
 	//datetime formatting functions didn't support some parameters such as "weekday".
+	//Names for days and months localized in xml are also useful for Polish locale(STORM-107).
 	std::string language = LLControlGroup::getInstance(sGlobalSettingsName)->getString("Language");
-	if(language == "ja")
+	if(language == "ja" || language == "pl")
 	{
 		LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
 		LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
@@ -4332,6 +4335,7 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::handleLoginComplete()
 {
+	gLoggedInTime.start();
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.

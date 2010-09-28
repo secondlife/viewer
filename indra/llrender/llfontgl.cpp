@@ -977,37 +977,43 @@ LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 //static
 LLFontGL* LLFontGL::getFontMonospace()
 {
-	return getFont(LLFontDescriptor("Monospace","Monospace",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("Monospace","Monospace",0));
+	return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontSansSerifSmall()
 {
-	return getFont(LLFontDescriptor("SansSerif","Small",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Small",0));
+	return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontSansSerif()
 {
-	return getFont(LLFontDescriptor("SansSerif","Medium",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Medium",0));
+	return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontSansSerifBig()
 {
-	return getFont(LLFontDescriptor("SansSerif","Large",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Large",0));
+	return fontp;
 }
 
 //static 
 LLFontGL* LLFontGL::getFontSansSerifHuge()
 {
-	return getFont(LLFontDescriptor("SansSerif","Huge",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Large",0));
+	return fontp;
 }
 
 //static 
 LLFontGL* LLFontGL::getFontSansSerifBold()
 {
-	return getFont(LLFontDescriptor("SansSerif","Medium",BOLD));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Medium",BOLD));
+	return fontp;
 }
 
 //static

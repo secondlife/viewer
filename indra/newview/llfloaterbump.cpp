@@ -45,7 +45,6 @@ LLFloaterBump::LLFloaterBump(const LLSD& key)
 :	LLFloater(key)
 {
 	if(gNoRender) return;
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
 }
 
 

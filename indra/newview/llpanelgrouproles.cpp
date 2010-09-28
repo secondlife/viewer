@@ -1621,7 +1621,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 			row["columns"][2]["value"] = mMemberProgress->second->getOnlineStatus();
 			row["columns"][2]["font"] = "SANSSERIF_SMALL";
 
-			LLScrollListItem* member = mMembersList->addElement(row);//, ADD_SORTED);
+			LLScrollListItem* member = mMembersList->addElement(row);
 
 			LLUUID id = member->getUUID();
 			mHasMatch = TRUE;

@@ -73,7 +73,6 @@ namespace LLInitParam
 	
 	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
 	{
-		mBlockDescriptor = &descriptor;
 		descriptor.mCurrentBlockPtr = this;
 	}
 

@@ -235,6 +235,7 @@ class LLTextBase
 public:
 	friend class LLTextSegment;
 	friend class LLNormalTextSegment;
+	friend class LLUICtrlFactory;
 
 	struct LineSpacingParams : public LLInitParam::Choice<LineSpacingParams>
 	{

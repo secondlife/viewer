@@ -232,7 +232,7 @@ public:
 	 * For an incoming ad-hoc chat - is received from the server and is in a from of "<Avatar's name> Conference"
 	 *	It is updated in LLIMModel::LLIMSession's constructor to localize the "Conference".
 	 */
-	const std::string& getName(const LLUUID& session_id) const;
+	const std::string getName(const LLUUID& session_id) const;
 
 	/** 
 	 * Get number of unread messages in a session with session_id

@@ -36,7 +36,7 @@ LLPanelGenericTip::LLPanelGenericTip(
 		const LLNotificationPtr& notification) :
 		LLPanelTipToast(notification)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_generic_tip.xml");
+	buildFromFile( "panel_generic_tip.xml");
 
 	getChild<LLUICtrl>("message")->setValue(notification->getMessage());
 

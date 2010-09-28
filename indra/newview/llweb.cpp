@@ -78,36 +78,44 @@ void LLWeb::initClass()
 
 
 // static
-void LLWeb::loadURL(const std::string& url)
+void LLWeb::loadURL(const std::string& url, const std::string& target, const std::string& uuid)
 {
-	if (gSavedSettings.getBOOL("UseExternalBrowser"))
+	if(target == "_internal")
+	{
+		// Force load in the internal browser, as if with a blank target.
+		loadURLInternal(url, "", uuid);
+	}
+	else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
 	{
 		loadURLExternal(url);
 	}
 	else
 	{
-		loadURLInternal(url);
+		loadURLInternal(url, target, uuid);
 	}
 }
 
 
 // static
-void LLWeb::loadURLInternal(const std::string &url)
+void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
-	LLFloaterReg::showInstance("media_browser", url);
+	LLFloaterMediaBrowser::create(url, target, uuid);
 }
 
 
 // static
-void LLWeb::loadURLExternal(const std::string& url)
+void LLWeb::loadURLExternal(const std::string& url, const std::string& uuid)
 {
-	loadURLExternal(url, true);
+	loadURLExternal(url, true, uuid);
 }
 
 
 // static
-void LLWeb::loadURLExternal(const std::string& url, bool async)
+void LLWeb::loadURLExternal(const std::string& url, bool async, const std::string& uuid)
 {
+	// Act like the proxy window was closed, since we won't be able to track targeted windows in the external browser.
+	LLViewerMedia::proxyWindowClosed(uuid);
+	
 	LLSD payload;
 	payload["url"] = url;
 	LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, boost::bind(on_load_url_external_response, _1, _2, async));

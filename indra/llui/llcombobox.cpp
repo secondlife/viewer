@@ -137,8 +137,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	// Grab the mouse-up event and make sure the button state is correct
 	mList->setMouseUpCallback(boost::bind(&LLComboBox::onListMouseUp, this));
 
-	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items().begin();
-		it != p.items().end();
+	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
+		it != p.items.end();
 		++it)
 	{
 		LLScrollListItem::Params item_params = *it;

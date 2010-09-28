@@ -54,7 +54,7 @@ LLPanelVolumePulldown::LLPanelVolumePulldown()
 
     mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
 	mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
-	LLUICtrlFactory::instance().buildPanel(this, "panel_volume_pulldown.xml");
+	buildFromFile( "panel_volume_pulldown.xml");
 }
 
 BOOL LLPanelVolumePulldown::postBuild()

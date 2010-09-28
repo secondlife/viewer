@@ -184,6 +184,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              follows="all"
              height="185"
              width="313"
+             orientation="vertical" 
              layout="topleft"
              name="filter_panels"
              top="0"
@@ -515,30 +516,30 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      user_resize="false" 
                      auto_resize="true"
                      width="156">
-                    <button
+        <button
                          follows="bottom|left|right"
-                         height="23"
-                         label="Save"
+         height="23"
+         label="Save"
                          left="1"
-                         layout="topleft"
-                         name="save_btn"
-                         top="0"
-                         width="155" />
-                    <button
+         layout="topleft"
+         name="save_btn"
+         top="0"
+         width="155" />
+        <button
                          follows="bottom|right"
-                         height="23"
-                         name="save_flyout_btn"
-                         label=""
-                         layout="topleft"
-                         left_pad="-20"
-                         tab_stop="false"
-                         top="0"
-                         image_selected="SegmentedBtn_Right_Selected_Press"
-                         image_unselected="SegmentedBtn_Right_Off"
-                         image_pressed="SegmentedBtn_Right_Press"
-                         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
-                         image_overlay="Arrow_Small_Up"
-                         width="20"/>
+         height="23"
+         name="save_flyout_btn"
+         label=""
+         layout="topleft"
+         left_pad="-20"
+         tab_stop="false"
+         top="0"
+         image_selected="SegmentedBtn_Right_Selected_Press"
+         image_unselected="SegmentedBtn_Right_Off"
+         image_pressed="SegmentedBtn_Right_Press"
+         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+         image_overlay="Arrow_Small_Up"
+         width="20"/>
 			    </layout_panel>
 			    <layout_panel
                      follows="bottom|left|right"
@@ -550,16 +551,16 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      user_resize="false" 
                      auto_resize="true"
                      width="147">
-                    <button
-                         follows="bottom|left|right"
-                         height="23"
+        <button
+         follows="bottom|left|right"
+         height="23"
                          left="0"
-                         label="Undo Changes"
-                         layout="topleft"
-                         name="revert_btn"
-                         top="0"
-                         tool_tip="Revert to last saved version"
-                         width="147" />
+         label="Undo Changes"
+         layout="topleft"
+         name="revert_btn"
+         top="0"
+         tool_tip="Revert to last saved version"
+         width="147" />
 			    </layout_panel>
 			</layout_stack>
     </panel>

@@ -1304,7 +1304,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			if( mCurrentHistoryLine > mLineHistory.begin() )
 			{
 				mText.assign( *(--mCurrentHistoryLine) );
-				setCursor(llmin((S32)mText.length(), getCursor()));
+				setCursorToEnd();
 			}
 			else
 			{
@@ -1321,7 +1321,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.end() - 1 )
 			{
 				mText.assign( *(++mCurrentHistoryLine) );
-				setCursor(llmin((S32)mText.length(), getCursor()));
+				setCursorToEnd();
 			}
 			else
 			{

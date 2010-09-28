@@ -248,8 +248,6 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
-
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
 }
@@ -2426,7 +2424,7 @@ void LLPanelLandAccess::refresh()
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		
@@ -2467,7 +2465,7 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		

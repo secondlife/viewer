@@ -59,7 +59,7 @@ LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
     mPermsWorldControl( 0 )
 {
     // build dialog from XML
-    LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_permissions.xml");
+    buildFromFile( "panel_media_settings_permissions.xml");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

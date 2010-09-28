@@ -138,7 +138,7 @@ LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
 LLPanelClassifiedInfo* LLPanelClassifiedInfo::create()
 {
 	LLPanelClassifiedInfo* panel = new LLPanelClassifiedInfo();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_classified_info.xml");
+	panel->buildFromFile("panel_classified_info.xml");
 	return panel;
 }
 
@@ -611,7 +611,7 @@ LLPanelClassifiedEdit::~LLPanelClassifiedEdit()
 LLPanelClassifiedEdit* LLPanelClassifiedEdit::create()
 {
 	LLPanelClassifiedEdit* panel = new LLPanelClassifiedEdit();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_edit_classified.xml");
+	panel->buildFromFile("panel_edit_classified.xml");
 	return panel;
 }
 

@@ -122,8 +122,6 @@ LLFloaterGodTools::LLFloaterGodTools(const LLSD& key)
 	mFactoryMap["region"] = LLCallbackMap(createPanelRegion, this);
 	mFactoryMap["objects"] = LLCallbackMap(createPanelObjects, this);
 	mFactoryMap["request"] = LLCallbackMap(createPanelRequest, this);
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_god_tools.xml");
-
 }
 
 BOOL LLFloaterGodTools::postBuild()

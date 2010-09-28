@@ -59,7 +59,6 @@ const F32 LLFloaterDayCycle::sHoursPerDay = 24.0f;
 LLFloaterDayCycle::LLFloaterDayCycle(const LLSD& key)	
 : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_day_cycle_options.xml");
 }
 
 BOOL LLFloaterDayCycle::postBuild()

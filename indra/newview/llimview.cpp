@@ -65,7 +65,6 @@
 #include "llviewerparcelmgr.h"
 
 
-const static std::string NO_SESSION("(IM Session Doesn't Exist)");
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
@@ -236,25 +235,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
 	}
 
-	// *WORKAROUND: for server hard-coded string in indra\newsim\llsimchatterbox.cpp
-	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
-	{
-		// For an ad-hoc incoming chat name is received from the server and is in a form of "<Avatar's name> Conference"
-		// Lets update it to localize the "Conference" word. See EXT-8429.
-		S32 separator_index = mName.rfind(" ");
-		std::string name = mName.substr(0, separator_index);
-		++separator_index;
-		std::string conference_word = mName.substr(separator_index, mName.length());
-
-		// additional check that session name is what we expected
-		if ("Conference" == conference_word)
-		{
-			LLStringUtil::format_map_t args;
-			args["[AGENT_NAME]"] = name;
-			LLTrans::findString(mName, "conference-title-incoming", args);
-		}
-	}
-
 	if (IM_NOTHING_SPECIAL == type)
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
@@ -270,6 +250,27 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		//involves parsing of a chat history
 		LLLogChat::loadAllHistory(mHistoryFileName, chat_history);
 		addMessagesFromHistory(chat_history);
+	}
+
+	// Localizing name of ad-hoc session. STORM-153
+	// Changing name should happen here- after the history file was created, so that
+	// history files have consistent (English) names in different locales.
+	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
+	{
+		// Name here has a form of "<Avatar's name> Conference"
+		// Lets update it to localize the "Conference" word. See EXT-8429.
+		S32 separator_index = mName.rfind(" ");
+		std::string name = mName.substr(0, separator_index);
+		++separator_index;
+		std::string conference_word = mName.substr(separator_index, mName.length());
+
+		// additional check that session name is what we expected
+		if ("Conference" == conference_word)
+		{
+			LLStringUtil::format_map_t args;
+			args["[AGENT_NAME]"] = name;
+			LLTrans::findString(mName, "conference-title-incoming", args);
+		}
 	}
 }
 
@@ -641,7 +642,10 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids, voice);
 	mId2SessionMap[session_id] = session;
 
-	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
+	// When notifying observer, name of session is used instead of "name", because they may not be the
+	// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
+	std::string session_name = LLIMModel::getInstance()->getName(session_id);
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id);
 
 	return true;
 
@@ -811,14 +815,14 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 }
 
 
-const std::string& LLIMModel::getName(const LLUUID& session_id) const
+const std::string LLIMModel::getName(const LLUUID& session_id) const
 {
 	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
-		return NO_SESSION;
+		return LLTrans::getString("no_session_message");
 	}
 
 	return session->mName;

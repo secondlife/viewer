@@ -40,7 +40,8 @@ class LLUICtrlFactory;
 class LLMediaCtrl :
 	public LLPanel,
 	public LLViewerMediaObserver,
-	public LLViewerMediaEventEmitter
+	public LLViewerMediaEventEmitter,
+	public LLInstanceTracker<LLMediaCtrl, LLUUID>
 {
 	LOG_CLASS(LLMediaCtrl);
 public:
@@ -51,7 +52,8 @@ public:
 		Optional<bool>			border_visible,
 								ignore_ui_scale,
 								hide_loading,
-								decouple_texture_size;
+								decouple_texture_size,
+								trusted_content;
 								
 		Optional<S32>			texture_width,
 								texture_height;
@@ -59,6 +61,7 @@ public:
 		Optional<LLUIColor>		caret_color;
 
 		Optional<std::string>	initial_mime_type;
+		Optional<std::string>	media_id;
 		
 		Params();
 	};
@@ -103,10 +106,10 @@ public:
 		// Javascript or some other mechanism.  However, we need the search
 		// floater and login page to handle these URLs.  Those are safe
 		// because we control the page content.  See DEV-9530.  JC.
-		void setTrusted( bool valIn );
-
 		void setHomePageUrl( const std::string& urlIn, const std::string& mime_type = LLStringUtil::null );
 		std::string getHomePageUrl();
+
+		void setTarget(const std::string& target);
 
 		// set/clear URL to visit when a 404 page is reached
 		void set404RedirectUrl( std::string redirect_url );
@@ -140,6 +143,8 @@ public:
 
 		void setTextureSize(S32 width, S32 height);
 
+		void showNotification(boost::shared_ptr<class LLNotification> notify);
+		void hideNotification();
 
 		// over-rides
 		virtual BOOL handleKeyHere( KEY key, MASK mask);
@@ -161,16 +166,21 @@ public:
 
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
+		void onPopup(const LLSD& notification, const LLSD& response);
+		void onCloseNotification();
+		void onClickNotificationButton(const std::string& name);
+		void onClickIgnore(LLUICtrl* ctrl);
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
 		LLViewBorder* mBorder;
 		bool mFrequentUpdates;
 		bool mForceUpdate;
-		bool mTrusted;
+		const bool mTrusted;
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
+		std::string mTarget;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;
 		viewer_media_t mMediaSource;
@@ -183,6 +193,7 @@ public:
 		S32 mTextureWidth;
 		S32 mTextureHeight;
 		bool mClearCache;
+		boost::shared_ptr<class LLNotification> mCurNotification;
 };
 
 #endif // LL_LLMediaCtrl_H

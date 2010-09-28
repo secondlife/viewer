@@ -159,6 +159,7 @@ set(llcommon_HEADER_FILES
     lleventemitter.h
     llextendedstatus.h
     llfasttimer.h
+    llfasttimer_class.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h

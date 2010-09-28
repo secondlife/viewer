@@ -80,7 +80,6 @@ public:
 LLFloaterWindowSize::LLFloaterWindowSize(const LLSD& key) 
 :	LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_window_size.xml");	
 }
 
 LLFloaterWindowSize::~LLFloaterWindowSize()

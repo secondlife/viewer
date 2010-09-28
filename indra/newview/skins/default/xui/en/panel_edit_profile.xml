@@ -296,7 +296,7 @@
        left="8"
        name="show_in_search_checkbox"
        height="15"
-       text_enabled_color="white"
+       label_text.text_color="white"
        top_pad="12"
        width="100" />
       <text
@@ -405,15 +405,15 @@
 		      user_resize="false" 
 		      auto_resize="true"
 			  width="153">
-			<button
+        <button
 		         follows="bottom|left|right"
-		         height="23"
-		         label="Save Changes"
-		         layout="topleft"
+         height="23"
+         label="Save Changes"
+         layout="topleft"
 		         left="1"
-		         name="save_btn"
+         name="save_btn"
 		         top="0"
-		         width="152" />
+         width="152" />
 		  </layout_panel>
 		  
 		  <layout_panel
@@ -426,15 +426,15 @@
 		      user_resize="false" 
 		      auto_resize="true"
 			  width="154">
-	        <button
+        <button
 		         follows="bottom|left|right"
-		         height="23"
-		         label="Cancel"
-		         layout="topleft"
+         height="23"
+         label="Cancel"
+         layout="topleft"
 		         left="1"
-		         name="cancel_btn"
+         name="cancel_btn"
 		         top="0"
-		         width="153" />
+         width="153" />
 		  </layout_panel>
 	   </layout_stack>
     </panel>

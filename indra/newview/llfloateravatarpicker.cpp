@@ -88,7 +88,6 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
 	mNearMeListComplete(FALSE),
 	mCloseOnSelect(FALSE)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_picker.xml");
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
 }
 
