@@ -3803,6 +3803,11 @@ void LLContextMenu::setVisible(BOOL visible)
 // Takes cursor position in screen space?
 void LLContextMenu::show(S32 x, S32 y)
 {
+	if (getChildList()->empty())
+	{
+		// nothing to show, so abort
+		return;
+	}
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
