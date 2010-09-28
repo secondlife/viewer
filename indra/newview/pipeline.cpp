@@ -565,6 +565,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 	if (LLPipeline::sRenderDeferred)
 	{
+		samples = llmin(samples, (U32) 8); //cap multisample buffers to 8 samples when rendering deferred
 		//allocate deferred rendering color buffers
 		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
