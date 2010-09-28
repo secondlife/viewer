@@ -28,6 +28,7 @@
 
 #include "llnotifications.h"
 #include "llnotificationtemplate.h"
+#include "llnotificationvisibilityrule.h"
 
 #include "llinstantmessage.h"
 #include "llxmlnode.h"
@@ -412,6 +413,13 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	}
 
 	mForm = LLNotificationFormPtr(new LLNotificationForm(p.name, p.form_ref.form));
+}
+
+LLNotificationVisibilityRule::LLNotificationVisibilityRule(const LLNotificationVisibilityRule::Params &p)
+:	mVisible(p.visible),
+	mType(p.type),
+	mTag(p.tag)
+{
 }
 
 LLNotification::LLNotification(const LLNotification::Params& p) : 
@@ -1188,6 +1196,7 @@ LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelN
 void LLNotifications::initSingleton()
 {
 	loadTemplates();
+	loadVisibilityRules();
 	createDefaultChannels();
 }
 
@@ -1205,7 +1214,9 @@ void LLNotifications::createDefaultChannels()
 		boost::bind(&LLNotifications::uniqueFilter, this, _1));
 	LLNotificationChannel::buildChannel("Ignore", "Unique",
 		filterIgnoredNotifications);
-	LLNotificationChannel::buildChannel("Visible", "Ignore",
+	LLNotificationChannel::buildChannel("VisibilityRules", "Ignore",
+		boost::bind(&LLNotifications::isVisibleByRules, this, _1));
+	LLNotificationChannel::buildChannel("Visible", "VisibilityRules",
 		&LLNotificationFilters::includeEverything);
 
 	// create special persistent notification channel
@@ -1225,6 +1236,8 @@ void LLNotifications::createDefaultChannels()
 //	LLNotifications::instance().getChannel("Unique")->
 //        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
 	LLNotifications::instance().getChannel("Ignore")->
+		connectFailedFilter(&handleIgnoredNotification);
+	LLNotifications::instance().getChannel("VisibilityRules")->
 		connectFailedFilter(&handleIgnoredNotification);
 }
 
@@ -1404,6 +1417,36 @@ bool LLNotifications::loadTemplates()
 	return true;
 }
 
+bool LLNotifications::loadVisibilityRules()
+{
+	const std::string xml_filename = "notification_visibility.xml";
+	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), xml_filename);
+
+	LLXMLNodePtr root;
+	BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	
+	if (!success || root.isNull() || !root->hasName( "notification_visibility" ))
+	{
+		llerrs << "Problem reading UI Notification Visibility Rules file: " << full_filename << llendl;
+		return false;
+	}
+
+	LLNotificationVisibilityRule::Rules params;
+	LLXUIParser parser;
+	parser.readXUI(root, params, full_filename);
+
+	mVisibilityRules.clear();
+
+	for(LLInitParam::ParamIterator<LLNotificationVisibilityRule::Params>::iterator it = params.rules.begin(), end_it = params.rules.end();
+		it != end_it;
+		++it)
+	{
+		mVisibilityRules.push_back(LLNotificationVisibilityRulePtr(new LLNotificationVisibilityRule(*it)));
+	}
+
+	return true;
+}
+
 // Add a simple notification (from XUI)
 void LLNotifications::addFromCallback(const LLSD& name)
 {
@@ -1552,6 +1595,36 @@ void LLNotifications::setIgnoreAllNotifications(bool setting)
 bool LLNotifications::getIgnoreAllNotifications()
 {
 	return mIgnoreAllNotifications; 
+}
+
+bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
+{
+	VisibilityRuleList::iterator it;
+	
+	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
+	{
+		// An empty type or tag string will match any notification, so only do the comparison when the string is non-empty in the rule.
+
+		if(!(*it)->mType.empty())
+		{
+			if((*it)->mType != n->getType())
+			{
+				// Type doesn't match, so skip this rule.
+				continue;
+			}
+		}
+		
+		if(!(*it)->mTag.empty())
+		{
+			// TODO: check this notification's tag(s) against it->mTag and continue if no match is found.
+		}
+		
+		// If we got here, the rule matches.  Don't evaluate subsequent rules.
+		return (*it)->mVisible;
+	}
+	
+	// Default for cases with no rules or incomplete rules is to show all notifications.
+	return true;
 }
 													
 // ---
