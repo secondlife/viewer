@@ -324,7 +324,7 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 void LLNewAgentInventoryResponder::error(U32 statusNum, const std::string& reason)
 {
 	LLAssetUploadResponder::error(statusNum, reason);
-	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, LLUUID(), FALSE);
+	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, LLUUID(), FALSE);
 }
 
 
