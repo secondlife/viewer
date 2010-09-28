@@ -366,7 +366,7 @@
      name="chat_window"
      top_pad="0"
      tool_tip="Show your Instant Messages in separate floaters, or in one floater with many tabs (Requires restart)"
-     width="331">
+     width="150">
      <radio_item
       height="16"
       label="Separate windows"
