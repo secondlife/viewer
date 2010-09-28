@@ -405,6 +405,11 @@ private:
     /// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
     LLCapabilityListener mCapabilityListener;
 
+	/// Post an event to this LLCapabilityListener to invoke a capability message on
+	/// this LLViewerRegion's server
+	/// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
+	LLCapabilityListener mCapabilityListener;
+
 private:
 	bool	mAlive;					// can become false if circuit disconnects
 

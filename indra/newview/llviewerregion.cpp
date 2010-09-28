@@ -1365,6 +1365,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
+	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("FetchInventory");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
@@ -1488,6 +1489,11 @@ void LLViewerRegion::showReleaseNotes()
 
 	LLWeb::loadURL(url);
 	mReleaseNotesRequested = FALSE;
+}
+
+std::string LLViewerRegion::getDescription() const
+{
+    return stringize(*this);
 }
 
 std::string LLViewerRegion::getDescription() const

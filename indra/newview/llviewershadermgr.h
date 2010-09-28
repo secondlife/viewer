@@ -240,20 +240,12 @@ public:
 		base_iter_t mIter;
 	};
 
-	shader_iter beginShaders() const
-	{
-		return mShaderList.begin();
-	}
+	shader_iter beginShaders() const;
+	shader_iter endShaders() const;
 
-	shader_iter endShaders() const
-	{
-		return mShaderList.end();
-	}
+	/* virtual */ std::string getShaderDirPrefix(void);
 
-
-	/* virtual */ std::string getShaderDirPrefix(void); // Virtual
-
-	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader); // Virtual
+	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
 
 private:
 	

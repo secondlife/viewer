@@ -40,6 +40,8 @@
 #include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
+#include "llsd.h"
+#include "llsdserialize.h"
 
 #include "llagent.h"
 #include "llappviewer.h"
@@ -47,6 +49,7 @@
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
@@ -80,6 +83,9 @@
 #include "llvlcomposition.h"
 #include "lltrans.h"
 #include "llagentui.h"
+
+// contains includes needed for WL estate settings
+#include "llfloaterwater.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -287,6 +293,10 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 		return;
 	}
 	
+
+	// currently, region can send this message when its windlight settings change
+	LLEnvManager::instance().refreshFromStorage(LLEnvKey::SCOPE_REGION);
+
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -1144,9 +1154,32 @@ void LLPanelRegionTextureInfo::onClickDump(void* data)
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionTerrainInfo
 /////////////////////////////////////////////////////////////////////////////
+// Initialize statics
+LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::sPanelRegionTerrainInfo = NULL;
+
+LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::instance()
+{
+       if (!sPanelRegionTerrainInfo)
+       {
+               sPanelRegionTerrainInfo = new LLPanelRegionTerrainInfo();
+       }
+       return sPanelRegionTerrainInfo;
+}
+
+// virtual
+void LLPanelRegionTerrainInfo::close(bool app_quitting)
+{
+       if (sPanelRegionTerrainInfo)
+       {
+               sPanelRegionTerrainInfo = NULL;
+       }
+}
+
 BOOL LLPanelRegionTerrainInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
+	
+	sPanelRegionTerrainInfo = this; // singleton instance pointer
 
 	initCtrl("water_height_spin");
 	initCtrl("terrain_raise_spin");
@@ -1161,26 +1194,66 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	childSetAction("upload_raw_btn", onClickUploadRaw, this);
 	childSetAction("bake_terrain_btn", onClickBakeTerrain, this);
 
+       // WL advanced buttons
+       childSetAction("EnvAdvancedSkyButton", onOpenAdvancedSky, this);
+       childSetAction("EnvAdvancedWaterButton", onOpenAdvancedWater, this);
+       childSetAction("EnvUseEstateTimeButton", onUseEstateTime, this);
+
+       // Commit, cancel, and default
+       childSetAction("WLRegionApply", onCommitRegionWL, this);
+       childSetAction("WLRegionCancel", onCancelRegionWL, this);
+       childSetAction("WLRegionDefault", onSetRegionToDefaultWL, this);
+
 	return TRUE;
+}
+
+F32 LLPanelRegionTerrainInfo::getSunHour()
+{
+       if (childIsEnabled("sun_hour_slider"))
+       {
+               return (F32)childGetValue("sun_hour_slider").asReal();
+       }
+       return 0.f;
 }
 
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	llinfos << "LLPanelRegionTerrainInfo::refreshFromRegion" << llendl;
-
 	BOOL owner_or_god = gAgent.isGodlike() 
 						|| (region && (region->getOwner() == gAgent.getID()));
 	BOOL owner_or_god_or_manager = owner_or_god
 						|| (region && region->isEstateManager());
 	setCtrlsEnabled(owner_or_god_or_manager);
+
+	// Disable select children
+       LLPanelRegionTerrainInfo::instance()->setCommitControls(false);
+       LLPanelRegionTerrainInfo::instance()->setEnvControls(LLEnvManager::getInstance()->regionCapable());
 	getChildView("apply_btn")->setEnabled(FALSE);
+	LLEnvManager::instance().maybeClearEditingScope(LLEnvKey::SCOPE_REGION, false, false);
 
 	getChildView("download_raw_btn")->setEnabled(owner_or_god);
 	getChildView("upload_raw_btn")->setEnabled(owner_or_god);
 	getChildView("bake_terrain_btn")->setEnabled(owner_or_god);
 
 	return LLPanelRegionInfo::refreshFromRegion(region);
+}
+
+void LLPanelRegionTerrainInfo::setEnvControls(bool available)
+{
+	getChildView("EnvUseEstateTimeButton")->setVisible(available);
+	getChildView("EnvAdvancedSkyButton")->setVisible(available);
+	getChildView("EnvAdvancedWaterButton")->setVisible(available);
+	getChildView("WLRegionApply")->setVisible(available);
+	getChildView("WLRegionCancel")->setVisible(available);
+	getChildView("WLRegionDefault")->setVisible(available);
+	getChildView("wl_settings_unavailable")->setVisible(!available);
+}
+
+void LLPanelRegionTerrainInfo::setCommitControls(bool available)
+{
+	getChildView("WLRegionApply")->setEnabled(available);
+	getChildView("WLRegionCancel")->setEnabled(available);
+	refresh();
 }
 
 // virtual
@@ -1320,7 +1393,68 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
 	strings.push_back("bake");
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
+
 	return false;
+}
+
+///////////////////////////////////////////////////////////////
+// Callbacks for WindLight additions to Region terrain panel
+
+void LLPanelRegionTerrainInfo::onOpenAdvancedSky(void* userData)
+{
+	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
+}
+
+void LLPanelRegionTerrainInfo::onOpenAdvancedWater(void* userData)
+{
+	LLFloaterWater::show(LLEnvKey::SCOPE_REGION);
+}
+
+
+void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
+{
+	if(LLFloaterWindLight::isOpen())
+	{
+		// select the blank value in
+		LLFloaterWindLight* wl = LLFloaterWindLight::instance();
+		LLComboBox* box = wl->getChild<LLComboBox>("WLPresetsCombo");
+		box->selectByValue("");
+	}
+
+	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
+}
+
+///////////////////////////////////////////////////////
+// Advanced handling for WL region estate integration
+
+// Handle commit of WL settings to region
+void LLPanelRegionTerrainInfo::onCommitRegionWL(void* userData)
+{
+	LLEnvManager::getInstance()->commitSettings(LLEnvKey::SCOPE_REGION);
+	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
+}
+
+// Handle cancel of WL settings for region
+void LLPanelRegionTerrainInfo::onCancelRegionWL(void* userData)
+{
+	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
+}
+
+// Handle reversion of region WL settings to default
+void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
+{
+	LLEnvManager::instance().resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
+	LLEnvManager::instance().startEditingScope(LLEnvKey::SCOPE_REGION);
+}
+
+void LLPanelRegionTerrainInfo::cancelChanges()
+{
+	LLFloaterWindLight::instance()->close();
+	LLFloaterWater::instance()->close();
+	LLFloaterDayCycle::instance()->close();
+
+	// disable commmit and cancel
+	LLPanelRegionTerrainInfo::instance()->setCommitControls(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1994,6 +2128,16 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	refresh();
 
 	return rv;
+}
+
+void LLFloaterRegionInfo::close(bool app_quitting)
+{
+	if(!app_quitting)
+	{
+		LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
+		LLPanelRegionTerrainInfo::close(app_quitting);
+	}
+	LLFloater::close(app_quitting);
 }
 
 void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)

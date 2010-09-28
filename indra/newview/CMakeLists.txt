@@ -139,6 +139,7 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldriverparam.cpp
     lldynamictexture.cpp
+    llenvmanager.cpp
     llemote.cpp
     lleventinfo.cpp
     lleventnotifier.cpp
@@ -562,6 +563,7 @@ set(viewer_SOURCE_FILES
     llwind.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
+    llwlhandlers.cpp
     llwlparammanager.cpp
     llwlparamset.cpp
     llworld.cpp
@@ -670,6 +672,7 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
+    llenvmanager.h
     lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
@@ -1088,6 +1091,7 @@ set(viewer_HEADER_FILES
     llwind.h
     llwlanimator.h
     llwldaycycle.h
+    llwlhandlers.h
     llwlparammanager.h
     llwlparamset.h
     llworld.h
@@ -1932,6 +1936,23 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+
+include(LLAddBuildTest)
+SET(viewer_TEST_SOURCE_FILES
+  llagentaccess.cpp
+  llwlparammanager.cpp
+  # Not *actually* a unit test, it's an integration test.
+  # Because it won't work in the new unit test iface, i've commented out
+  # and notified Nat. Delete this when it's replaced!
+  # + poppy & brad 2009-06-05
+  # llcapabilitylistener.cpp
+  )
+set_source_files_properties(
+  ${viewer_TEST_SOURCE_FILES}
+  PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
 endif (LL_TESTS)
 

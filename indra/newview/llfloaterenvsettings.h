@@ -2,25 +2,31 @@
  * @file llfloaterskysettings.h
  * @brief LLFloaterEnvSettings class definition
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -33,50 +39,77 @@
 
 #include "llfloater.h"
 
-struct WaterColorControl;
-struct WaterExpFloatControl;
 
 /// Menuing system for all of windlight's functionality
 class LLFloaterEnvSettings : public LLFloater
 {
 public:
 
-	LLFloaterEnvSettings(const LLSD& key);
-	/*virtual*/ ~LLFloaterEnvSettings();
-	/*virtual*/	BOOL	postBuild();	
+	LLFloaterEnvSettings();
+	virtual ~LLFloaterEnvSettings();
+	
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
+	/// one and one instance only
+	static LLFloaterEnvSettings* instance();
+	
+	/// callback for the menus help button
+	static void onClickHelp(void* data);
+	
 	/// handle if time of day is changed
-	void onChangeDayTime(LLUICtrl* ctrl);
+	static void onChangeDayTime(LLUICtrl* ctrl, void* userData);
 
 	/// handle if cloud coverage is changed
-	void onChangeCloudCoverage(LLUICtrl* ctrl);
+	static void onChangeCloudCoverage(LLUICtrl* ctrl, void* userData);
 
 	/// handle change in water fog density
-	void onChangeWaterFogDensity(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl);
+	static void onChangeWaterFogDensity(LLUICtrl* ctrl, void* userData);
+
+	/// handle change in under water fog density
+	static void onChangeUnderWaterFogMod(LLUICtrl* ctrl, void* userData);
 
 	/// handle change in water fog color
-	void onChangeWaterColor(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	static void onChangeWaterColor(LLUICtrl* ctrl, void* userData);
 
 	/// open the advanced sky settings menu
-	void onOpenAdvancedSky();
+	static void onOpenAdvancedSky(void* userData);
 
 	/// open the advanced water settings menu
-	void onOpenAdvancedWater();
+	static void onOpenAdvancedWater(void* userData);
 
 	/// sync time with the server
-	void onUseEstateTime();
+	static void onUseEstateTime(void* userData);
+
+	/// sync time with local clock
+	static void onUseLocalTime(void* userData);
+
+	// opt-in for region Windlight settings
+	//static void onUseRegionEnvironment(LLUICtrl* ctrl, void* userData);
+	static void onUseRegionEnvironment(LLUICtrl*, void*);
 
 	//// menu management
+
+	/// enables or disable all controls
+	void setControlsEnabled(bool enable);
+
+	/// show off our menu
+	static void show();
+
+	/// return if the menu exists or not
+	static bool isOpen();
+
+	/// stuff to do on exit
+	virtual void onClose(bool app_quitting);
 
 	/// sync up sliders with parameters
 	void syncMenu();
 
-	/// convert the present time to a digital clock time
-	std::string timeToString(F32 curTime);
-
 private:
+	// one instance on the inside
+	static LLFloaterEnvSettings* sEnvSettings;
+
+	static void setOptIn(bool opt_in);
 };
 
 
