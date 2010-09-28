@@ -99,7 +99,7 @@
    width="70" />
   <text
    follows="top|left"
-   height="17"
+   height="20"
    layout="topleft"
    left_pad="0"
    name="user_slid"
@@ -108,10 +108,11 @@
    top_delta="-2"
    use_ellipses="true"
    value="jack.linden"
-   width="215" />
+   width="215" 
+   wrap="true "/>
   <tab_container
    follows="all"
-   height="491"
+   height="489"
    halign="center"
    layout="topleft"
    left="5"
