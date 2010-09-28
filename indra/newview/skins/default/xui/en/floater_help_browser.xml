@@ -37,7 +37,7 @@
          width="620">
             <web_browser
               trusted_content="true" 
-             bottom="-11"
+             bottom="-25"
              follows="left|right|top|bottom"
              layout="topleft"
              left="0"
