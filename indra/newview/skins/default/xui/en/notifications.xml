@@ -3188,7 +3188,7 @@ You are no longer frozen.
    icon="alertmodal.tga"
    name="SetDisplayName"
    type="alert">
-    The name above your avatar's head is called a [secondlife:///app/help/script display_name]. You can change it periodically.
+    The name above your avatar's head is called a [secondlife:///app/help/display_name display_name]. You can change it periodically.
 
     During the evaluation period of this Project Viewer release, you are able to update your Display Name as frequently as you wish. When this feature goes officially live, you will able to update your Display Name only once a week.
 
