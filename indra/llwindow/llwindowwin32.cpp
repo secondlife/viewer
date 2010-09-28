@@ -544,7 +544,27 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		if (closest_refresh == 0)
 		{
 			LL_WARNS("Window") << "Couldn't find display mode " << width << " by " << height << " at " << BITS_PER_PIXEL << " bits per pixel" << LL_ENDL;
-			success = FALSE;
+			//success = FALSE;
+
+			if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+			{
+				success = FALSE;
+			}
+			else
+			{
+				if (dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
+				{
+					LL_WARNS("Window") << "Current BBP is OK falling back to that" << LL_ENDL;
+					window_rect.right=width=dev_mode.dmPelsWidth;
+					window_rect.bottom=height=dev_mode.dmPelsHeight;
+					success = TRUE;
+				}
+				else
+				{
+					LL_WARNS("Window") << "Current BBP is BAD" << LL_ENDL;
+					success = FALSE;
+				}
+			}
 		}
 
 		// If we found a good resolution, use it.

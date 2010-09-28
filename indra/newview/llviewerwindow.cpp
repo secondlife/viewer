@@ -1349,8 +1349,17 @@ LLViewerWindow::LLViewerWindow(
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
-	}
+    }
+ 
+	LLCoordScreen scr;
+    mWindow->getSize(&scr);
 
+    if(fullscreen && ( scr.mX!=width || scr.mY!=height))
+    {
+		llwarns << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<llendl;
+		gSavedSettings.setS32("FullScreenWidth",scr.mX);
+		gSavedSettings.setS32("FullScreenHeight",scr.mY);
+    }
 
 	if (NULL == mWindow)
 	{

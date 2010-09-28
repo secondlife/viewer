@@ -2386,7 +2386,7 @@ bool LLAppViewer::initWindow()
 		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		FALSE, ignorePixelDepth);
+		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
 
 	// Need to load feature table before cheking to start watchdog.
 	const S32 NEVER_SUBMIT_REPORT = 2;
