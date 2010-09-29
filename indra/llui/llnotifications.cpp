@@ -1367,6 +1367,12 @@ bool LLNotifications::loadTemplates()
 	LLNotificationTemplate::Notifications params;
 	LLXUIParser parser;
 	parser.readXUI(root, params, full_filename);
+	
+	if(!params.validateBlock())
+	{
+		llerrs << "Problem reading UI Notifications file: " << full_filename << llendl;
+		return false;
+	}
 
 	mTemplates.clear();
 
@@ -1434,6 +1440,12 @@ bool LLNotifications::loadVisibilityRules()
 	LLNotificationVisibilityRule::Rules params;
 	LLXUIParser parser;
 	parser.readXUI(root, params, full_filename);
+
+	if(!params.validateBlock())
+	{
+		llerrs << "Problem reading UI Notification Visibility Rules file: " << full_filename << llendl;
+		return false;
+	}
 
 	mVisibilityRules.clear();
 
