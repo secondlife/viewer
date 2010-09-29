@@ -63,8 +63,6 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	llwarns << "LABEL " << notification->getLabel() << llendl;
 	llwarns << "URL " << notification->getURL() << llendl;
 
-	//message subject
-	//const std::string& subject = payload["subject"].asString();
 	//message body
 	const std::string& message = payload["message"].asString();
 

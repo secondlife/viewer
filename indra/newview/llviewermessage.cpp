@@ -6180,9 +6180,12 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 	std::string rtn_text;
 	S32 button_idx;
 	button_idx = LLNotification::getSelectedOption(notification, response);
-	if (response[TEXTBOX_MAGIC_TOKEN].isString())
+	if (response[TEXTBOX_MAGIC_TOKEN].isDefined())
 	{
-		rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
+		if (response[TEXTBOX_MAGIC_TOKEN].isString())
+			rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
+		else
+			rtn_text.clear(); // bool marks empty string
 	}
 	else
 	{
