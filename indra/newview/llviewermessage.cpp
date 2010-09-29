@@ -6176,10 +6176,20 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
 	//std::string button = "booya";//LLNotification::getSelectedOptionName(response);
-	std::string button = response.has(TEXTBOX_MAGIC_TOKEN) ?
-		response[TEXTBOX_MAGIC_TOKEN].asString() :
-		LLNotification::getSelectedOptionName(response);
-	S32 button_idx = LLNotification::getSelectedOption(notification, response);
+	llwarns << "ok: " << response << llendl;
+	std::string rtn_text;
+	S32 button_idx;
+	if (response[TEXTBOX_MAGIC_TOKEN].isDefined())
+	{
+		rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
+		button_idx = 0;
+	}
+	else
+	{
+		rtn_text = LLNotification::getSelectedOptionName(response);
+		button_idx = LLNotification::getSelectedOption(notification, response);
+	}
+	llwarns << "rtn: " << rtn_text << " btnidx: " << button_idx << llendl;
 	// Didn't click "Ignore"
 	if (button_idx != -1)
 	{
@@ -6192,7 +6202,7 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addUUID("ObjectID", notification["payload"]["object_id"].asUUID());
 		msg->addS32("ChatChannel", notification["payload"]["chat_channel"].asInteger());
 		msg->addS32("ButtonIndex", button_idx);
-		msg->addString("ButtonLabel", button);
+		msg->addString("ButtonLabel", rtn_text);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
 	}
 
