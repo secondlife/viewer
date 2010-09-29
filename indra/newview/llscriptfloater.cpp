@@ -583,12 +583,12 @@ bool LLScriptFloater::isScriptTextbox(LLNotificationPtr notification)
 
 	if (form)
 	{
-		// get number of elements
+		// get number of elements in the form
 		int num_options = form->getNumElements();
 	
-		// if ANY of the buttons have the magic lltextbox string as name, then
-		// treat the whole dialog as a simple text entry box (i.e. mixed button
-		// and textbox forms are not supported)
+		// if ANY of the buttons have the magic lltextbox string as
+		// name, then treat the whole dialog as a simple text entry
+		// box (i.e. mixed button and textbox forms are not supported)
 		for (int i=0; i<num_options; ++i)
 		{
 			LLSD form_element = form->getElement(i);
