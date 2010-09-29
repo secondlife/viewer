@@ -3694,9 +3694,7 @@ public:
 	LLContextMenuBranch(const Params&);
 
 	virtual ~LLContextMenuBranch()
-	{
-		delete mBranch;
-	}
+	{}
 
 	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );
@@ -3704,21 +3702,21 @@ public:
 	// onCommit() - do the primary funcationality of the menu item.
 	virtual void	onCommit( void );
 
-	LLContextMenu*	getBranch() { return mBranch; }
+	LLContextMenu*	getBranch() { return mBranch.get(); }
 	void			setHighlight( BOOL highlight );
 
 protected:
 	void	showSubMenu();
 
-	LLContextMenu* mBranch;
+	LLHandle<LLContextMenu> mBranch;
 };
 
 LLContextMenuBranch::LLContextMenuBranch(const LLContextMenuBranch::Params& p) 
 :	LLMenuItemGL(p),
-	mBranch( p.branch )
+	mBranch( p.branch()->getHandle() )
 {
-	mBranch->hide();
-	mBranch->setParentMenuItem(this);
+	mBranch.get()->hide();
+	mBranch.get()->setParentMenuItem(this);
 }
 
 // called to rebuild the draw label
@@ -3727,12 +3725,12 @@ void LLContextMenuBranch::buildDrawLabel( void )
 	{
 		// default enablement is this -- if any of the subitems are
 		// enabled, this item is enabled. JC
-		U32 sub_count = mBranch->getItemCount();
+		U32 sub_count = mBranch.get()->getItemCount();
 		U32 i;
 		BOOL any_enabled = FALSE;
 		for (i = 0; i < sub_count; i++)
 		{
-			LLMenuItemGL* item = mBranch->getItem(i);
+			LLMenuItemGL* item = mBranch.get()->getItem(i);
 			item->buildDrawLabel();
 			if (item->getEnabled() && !item->getDrawTextDisabled() )
 			{
@@ -3754,13 +3752,13 @@ void LLContextMenuBranch::buildDrawLabel( void )
 
 void	LLContextMenuBranch::showSubMenu()
 {
-	LLMenuItemGL* menu_item = mBranch->getParentMenuItem();
+	LLMenuItemGL* menu_item = mBranch.get()->getParentMenuItem();
 	if (menu_item != NULL && menu_item->getVisible())
 	{
 		S32 center_x;
 		S32 center_y;
 		localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-		mBranch->show(center_x, center_y);
+		mBranch.get()->show(center_x, center_y);
 	}
 }
 
@@ -3780,7 +3778,7 @@ void LLContextMenuBranch::setHighlight( BOOL highlight )
 	}
 	else
 	{
-		mBranch->hide();
+		mBranch.get()->hide();
 	}
 }
 

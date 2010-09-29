@@ -99,9 +99,9 @@ public:
 	{
 		return lhs.mTombStone > rhs.mTombStone;
 	}
-protected:
 
 protected:
+	template<typename T> friend class LLHandle;
 	LLPointer<LLTombStone<T> > mTombStone;
 
 private:
