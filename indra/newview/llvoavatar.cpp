@@ -6089,9 +6089,9 @@ void LLVOAvatar::updateMeshTextures()
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
 
-			const BOOL layerset_invalid = !mBakedTextureDatas[i].mTexLayerSet 
-										  || !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
-										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable();
+			const BOOL layerset_invalid = mBakedTextureDatas[i].mTexLayerSet 
+										  && ( !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
+										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable() );
 
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 

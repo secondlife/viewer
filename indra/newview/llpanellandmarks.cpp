@@ -1245,7 +1245,12 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 	landmark->getGlobalPos(landmark_global_pos);
 
 	// let's toggle pick panel into  panel places
-	LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
+	LLPanel* panel_places =  LLSideTray::getInstance()->getPanel("panel_places");//-> sidebar_places
+	if (!panel_places)
+	{
+		llassert(NULL != panel_places);
+		return;
+	}
 	panel_places->addChild(panel_pick);
 	LLRect paren_rect(panel_places->getRect());
 	panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
