@@ -71,8 +71,7 @@ protected:
 	static void handleMultiple(functor_t functor, const uuid_vec_t& ids);
 
 	uuid_vec_t			mUUIDs;
-	LLContextMenu*		mMenu;
-	LLHandle<LLView>	mMenuHandle;
+	LLHandle<LLContextMenu>	mMenuHandle;
 };
 
 #endif // LL_LLLISTCONTEXTMENU_H

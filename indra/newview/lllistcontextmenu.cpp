@@ -36,7 +36,6 @@
 #include "llviewermenu.h" // for LLViewerMenuHolderGL
 
 LLListContextMenu::LLListContextMenu()
-:	mMenu(NULL)
 {
 }
 
@@ -51,23 +50,22 @@ LLListContextMenu::~LLListContextMenu()
 	// of mMenu has already been deleted except of using LLHandle. EXT-4762.
 	if (!mMenuHandle.isDead())
 	{
-		mMenu->die();
-		mMenu = NULL;
+		mMenuHandle.get()->die();
 	}
 }
 
 void LLListContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
 {
-	if (mMenu)
+	LLContextMenu* menup = mMenuHandle.get();
+	if (menup)
 	{
 		//preventing parent (menu holder) from deleting already "dead" context menus on exit
-		LLView* parent = mMenu->getParent();
+		LLView* parent = menup->getParent();
 		if (parent)
 		{
-			parent->removeChild(mMenu);
+			parent->removeChild(menup);
 		}
-		delete mMenu;
-		mMenu = NULL;
+		delete menup;
 		mUUIDs.clear();
 	}
 
@@ -79,23 +77,23 @@ void LLListContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32
 	mUUIDs.resize(uuids.size());
 	std::copy(uuids.begin(), uuids.end(), mUUIDs.begin());
 
-	mMenu = createMenu();
-	if (!mMenu)
+	menup = createMenu();
+	if (!menup)
 	{
 		llwarns << "Context menu creation failed" << llendl;
 		return;
 	}
 
-	mMenuHandle = mMenu->getHandle();
-	mMenu->show(x, y);
-	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
+	mMenuHandle = menup->getHandle();
+	menup->show(x, y);
+	LLMenuGL::showPopup(spawning_view, menup, x, y);
 }
 
 void LLListContextMenu::hide()
 {
-	if(mMenu)
+	if(mMenuHandle.get())
 	{
-		mMenu->hide();
+		mMenuHandle.get()->hide();
 	}
 }
 
