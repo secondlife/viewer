@@ -182,8 +182,26 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 
 void LLSidepanelInventory::onWearButtonClicked()
 {
-	performActionOnSelection("wear");
-	performActionOnSelection("attach");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+	if (!panel_main_inventory)
+	{
+		llassert(panel_main_inventory != NULL);
+		return;
+	}
+
+	// Get selected items set.
+	const std::set<LLUUID> selected_uuids_set = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
+	if (selected_uuids_set.empty()) return; // nothing selected
+
+	// Convert the set to a vector.
+	uuid_vec_t selected_uuids_vec;
+	for (std::set<LLUUID>::const_iterator it = selected_uuids_set.begin(); it != selected_uuids_set.end(); ++it)
+	{
+		selected_uuids_vec.push_back(*it);
+	}
+
+	// Wear all selected items.
+	wear_multiple(selected_uuids_vec, true);
 }
 
 void LLSidepanelInventory::onPlayButtonClicked()
@@ -286,7 +304,7 @@ void LLSidepanelInventory::updateVerbs()
 		case LLInventoryType::IT_OBJECT:
 		case LLInventoryType::IT_ATTACHMENT:
 			mWearBtn->setVisible(TRUE);
-			mWearBtn->setEnabled(get_can_item_be_worn(item->getLinkedUUID()));
+			mWearBtn->setEnabled(canWearSelected());
 		 	mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_SOUND:
@@ -323,6 +341,28 @@ bool LLSidepanelInventory::canShare()
 		: NULL;
 
 	return bridge ? bridge->canShare() : false;
+}
+
+bool LLSidepanelInventory::canWearSelected()
+{
+	LLPanelMainInventory* panel_main_inventory =
+		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+
+	if (!panel_main_inventory)
+	{
+		llassert(panel_main_inventory != NULL);
+		return false;
+	}
+
+	std::set<LLUUID> selected_uuids = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
+	for (std::set<LLUUID>::const_iterator it = selected_uuids.begin();
+		it != selected_uuids.end();
+		++it)
+	{
+		if (!get_can_item_be_worn(*it)) return false;
+	}
+
+	return true;
 }
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
