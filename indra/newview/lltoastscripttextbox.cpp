@@ -151,12 +151,13 @@ void LLToastScriptTextbox::close()
 	// The group notice dialog may be an inventory offer.
 	// If it has an inventory save button and that button is still enabled
 	// Then we need to send the inventory declined message
+	/*
 	if(mInventoryOffer != NULL)
 	{
 		mInventoryOffer->forceResponse(IOR_DECLINE);
 		mInventoryOffer = NULL;
 	}
-
+	*/
 	die();
 }
 
@@ -166,8 +167,9 @@ void LLToastScriptTextbox::onClickOk()
 	response["OH MY GOD WHAT A HACK"] = true;
 	mNotification->respond(response);
 	close();
+	//llerrs << response << llendl;
 }
-
+/*
 void LLToastScriptTextbox::onClickAttachment()
 {
 	if (mInventoryOffer != NULL) {
@@ -190,7 +192,9 @@ void LLToastScriptTextbox::onClickAttachment()
 		mInventoryOffer = NULL;
 	}
 }
+*/
 
+ /*
 //static
 bool LLToastScriptTextbox::isAttachmentOpenable(LLAssetType::EType type)
 {
@@ -208,3 +212,4 @@ bool LLToastScriptTextbox::isAttachmentOpenable(LLAssetType::EType type)
 	}
 }
 
+ */
