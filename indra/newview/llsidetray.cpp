@@ -155,8 +155,6 @@ LLSideTrayTab::LLSideTrayTab(const Params& p)
 	mDescription(p.description),
 	mMainPanel(NULL)
 {
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 }
 
 LLSideTrayTab::~LLSideTrayTab()

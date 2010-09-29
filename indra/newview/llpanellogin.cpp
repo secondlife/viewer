@@ -163,8 +163,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mHtmlAvailable( TRUE ),
 	mListener(new LLPanelLoginListener(this))
 {
-	setFocusRoot(TRUE);
-
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
