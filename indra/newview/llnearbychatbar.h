@@ -46,6 +46,8 @@ public:
 	{
 		Optional<LLBottomtrayButton::Params>			combo_button;
 		Optional<LLScrollListCtrl::Params>	combo_list;
+		Optional<bool>						get_more,
+											view_all;
 		
 		Params();
 	};
@@ -56,6 +58,8 @@ protected:
 	LLGestureComboList(const Params&);
 	std::vector<LLMultiGesture*> mGestures;
 	std::string mLabel;
+	bool			mShowViewAll;
+	bool			mShowGetMore;
 	LLSD::Integer mViewAllItemIndex;
 	LLSD::Integer mGetMoreItemIndex;
 

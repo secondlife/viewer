@@ -94,15 +94,19 @@ public:
 
 LLGestureComboList::Params::Params()
 :	combo_button("combo_button"),
-	combo_list("combo_list")
+	combo_list("combo_list"),
+	get_more("get_more", true),
+	view_all("view_all", true)
 {
 }
 
 LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
-:	LLUICtrl(p)
-	, mLabel(p.label)
-	, mViewAllItemIndex(0)
-	, mGetMoreItemIndex(0)
+:	LLUICtrl(p),
+	mLabel(p.label),
+	mViewAllItemIndex(-1),
+	mGetMoreItemIndex(-1),
+	mShowViewAll(p.view_all),
+	mShowGetMore(p.get_more)
 {
 	LLBottomtrayButton::Params button_params = p.combo_button;
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
@@ -286,12 +290,16 @@ void LLGestureComboList::refreshGestures()
 	sortByName();
 
 	// store indices for Get More and View All items (idx is the index followed by the last added Gesture)
-	mGetMoreItemIndex = idx;
-	mViewAllItemIndex = idx + 1;
-
-	// add Get More and View All items at the bottom
-	mList->addSimpleElement(LLTrans::getString("GetMoreGestures"), ADD_BOTTOM, LLSD(mGetMoreItemIndex));
-	mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
+	if (mShowGetMore)
+	{
+		mGetMoreItemIndex = idx;
+		mList->addSimpleElement(LLTrans::getString("GetMoreGestures"), ADD_BOTTOM, LLSD(mGetMoreItemIndex));
+	}
+	if (mShowViewAll)
+	{
+		mViewAllItemIndex = idx + 1;
+		mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
+	}
 
 	// Insert label after sorting, at top, with separator below it
 	mList->addSeparator(ADD_TOP);	
