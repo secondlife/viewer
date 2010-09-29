@@ -6171,10 +6171,14 @@ const S32 SCRIPT_DIALOG_BUTTON_STR_SIZE = 24;
 const S32 SCRIPT_DIALOG_MAX_MESSAGE_SIZE = 512;
 const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 
+#include "lllslconstants.h"
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
-	std::string button = LLNotification::getSelectedOptionName(response);
+	//std::string button = "booya";//LLNotification::getSelectedOptionName(response);
+	std::string button = response[TEXTBOX_MAGIC_TOKEN].asString().empty() ?
+		LLNotification::getSelectedOptionName(response) :
+		response[TEXTBOX_MAGIC_TOKEN].asString();
 	S32 button_idx = LLNotification::getSelectedOption(notification, response);
 	// Didn't click "Ignore"
 	if (button_idx != -1)

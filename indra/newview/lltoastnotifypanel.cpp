@@ -527,6 +527,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		self->mNotification->setResponder(new_info);
 	}
 
+	llwarns << response << llendl;
 	self->mNotification->respond(response);
 
 	if(is_reusable)
