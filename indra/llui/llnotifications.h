@@ -194,6 +194,7 @@ public:
 	{
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
+		Optional<S32>			max_length_chars;
 
 		FormInput();
 	};

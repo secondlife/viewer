@@ -81,6 +81,7 @@ LLNotificationForm::FormButton::FormButton()
 
 LLNotificationForm::FormInput::FormInput()
 :	type("type"),
+	max_length_chars("max_length_chars"),
 	width("width", 0)
 {}
 
