@@ -108,7 +108,7 @@
    top_delta="-2"
    use_ellipses="true"
    value="jack.linden"
-   width="215" 
+   width="205" 
    wrap="true "/>
   <tab_container
    follows="all"
