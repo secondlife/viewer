@@ -2820,6 +2820,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGrab</key>
+    <map>
+      <key>Comment</key>
+      <string>Use Ctrl+mouse to grab and manipulate objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableAltZoom</key>
+    <map>
+      <key>Comment</key>
+      <string>Use Alt+mouse to look at and zoom in on objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
