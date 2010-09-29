@@ -1134,13 +1134,18 @@ void LLLineEditor::pasteHelper(bool is_primary)
 				LLUI::reportBadKeystroke();
 			}
 
-			U32 available_chars = mMaxLengthChars - mText.getWString().size();
-
-			if (available_chars < clean_string.size())
+			if (mMaxLengthChars)
 			{
-				clean_string = clean_string.substr(0, available_chars);
+				U32 available_chars = mMaxLengthChars - mText.getWString().size();
+		
+				if (available_chars < clean_string.size())
+				{
+					clean_string = clean_string.substr(0, available_chars);
+				}
+
+				LLUI::reportBadKeystroke();
 			}
- 
+
 			mText.insert(getCursor(), clean_string);
 			setCursor( getCursor() + (S32)clean_string.length() );
 			deselect();
