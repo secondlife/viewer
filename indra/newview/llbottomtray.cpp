@@ -65,31 +65,42 @@ LLDefaultChildRegistry::Register<LLBottomtrayButton> bottomtray_button("bottomtr
 // virtual
 BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 {
-	S32 screenX, screenY;
-	localPointToScreen(x, y, &screenX, &screenY);
-	// pass hover to bottomtray
-	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
-	return FALSE;
+	if (mCanDrag)
+	{
+		S32 screenX, screenY;
+		localPointToScreen(x, y, &screenX, &screenY);
+		// pass hover to bottomtray
+		LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
+		return TRUE;
+	}
+	else
+	{
+		return LLButton::handleHover(x, y, mask);
+	}
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	S32 screenX, screenY;
-	localPointToScreen(x, y, &screenX, &screenY);
-	// pass mouse up to bottomtray
-	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
-	LLButton::handleMouseUp(x, y, mask);
-	return FALSE;
+	if (mCanDrag)
+	{
+		S32 screenX, screenY;
+		localPointToScreen(x, y, &screenX, &screenY);
+		// pass mouse up to bottomtray
+		LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
+	}
+	return LLButton::handleMouseUp(x, y, mask);
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	S32 screenX, screenY;
-	localPointToScreen(x, y, &screenX, &screenY);
-	// pass mouse up to bottomtray
-	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
-	LLButton::handleMouseDown(x, y, mask);
-	return FALSE;
+	if (mCanDrag)
+	{
+		S32 screenX, screenY;
+		localPointToScreen(x, y, &screenX, &screenY);
+		// pass mouse up to bottomtray
+		LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
+	}
+	return LLButton::handleMouseDown(x, y, mask);
 }
 
 static void update_build_button_enable_state()
@@ -150,8 +161,6 @@ public:
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 		buildFromFile("panel_bottomtray_lite.xml");
-		// Necessary for focus movement among child controls
-		setFocusRoot(TRUE);
 	}
 
 	BOOL postBuild()
@@ -211,15 +220,10 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	buildFromFile("panel_bottomtray.xml");
 
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
-
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
 	//destroyed LLBottomTray requires some subsystems that are long gone
 	//LLUI::getRootView()->addChild(this);
-
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 
 	{
 		mBottomTrayLite = new LLBottomTrayLite();

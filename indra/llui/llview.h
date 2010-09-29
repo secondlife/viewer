@@ -116,7 +116,8 @@ public:
 									visible,
 									mouse_opaque,
 									use_bounding_rect,
-									from_xui;
+									from_xui,
+									focus_root;
 
 		Optional<S32>				tab_group,
 									default_tab_group;

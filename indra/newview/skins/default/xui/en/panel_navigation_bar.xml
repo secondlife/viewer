@@ -4,6 +4,7 @@
  background_visible="true"
  bg_opaque_color="MouseGray"
  follows="left|top|right"
+ focus_root="true" 
  height="60"
  layout="topleft"
  name="navigation_bar"

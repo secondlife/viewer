@@ -1210,15 +1210,17 @@ void LLToolPie::handleDeselect()
 
 LLTool* LLToolPie::getOverrideTool(MASK mask)
 {
-	if (mask == MASK_CONTROL)
+	if (gSavedSettings.getBOOL("EnableGrab"))
 	{
-		return LLToolGrab::getInstance();
+		if (mask == MASK_CONTROL)
+		{
+			return LLToolGrab::getInstance();
+		}
+		else if (mask == (MASK_CONTROL | MASK_SHIFT))
+		{
+			return LLToolGrab::getInstance();
+		}
 	}
-	else if (mask == (MASK_CONTROL | MASK_SHIFT))
-	{
-		return LLToolGrab::getInstance();
-	}
-
 	return LLTool::getOverrideTool(mask);
 }
 
