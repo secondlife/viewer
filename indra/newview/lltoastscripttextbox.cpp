@@ -57,25 +57,23 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	buildFromFile( "panel_notify_textbox.xml");
 
 	const LLSD& payload = notification->getPayload();
-	LLGroupData groupData;
-	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))
-	{
-		llwarns << "Group notice for unknown group: " << payload["group_id"].asUUID() << llendl;
-	}
+	llwarns << "PAYLOAD " << payload << llendl;
+	llwarns << "TYPE " << notification->getType() << llendl;
+	llwarns << "MESSAGE " << notification->getMessage() << llendl;
+	llwarns << "LABEL " << notification->getLabel() << llendl;
+	llwarns << "URL " << notification->getURL() << llendl;
 
-	//group icon
-	LLIconCtrl* pGroupIcon = getChild<LLIconCtrl>("group_icon", TRUE);
-	pGroupIcon->setValue(groupData.mInsigniaID);
-
-	//header title
-	const std::string& from_name = payload["sender_name"].asString();
-	std::stringstream from;
-	from << from_name << "/" << groupData.mName;
-	LLTextBox* pTitleText = getChild<LLTextBox>("title");
-	pTitleText->setValue(from.str());
+	/*
+2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: PAYLOAD {'chat_channel':i-376,'object_id':ubb05bcf2-4eca-2203-13f4-b328411d344f,'sender':'216.82.20.80:13001'}
+2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: TYPE notify
+2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: MESSAGE Tofu Tester's 'lltextbox test'
+Write something here...
+2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: LABEL 
+2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: URL 
+*/
 
 	//message subject
-	const std::string& subject = payload["subject"].asString();
+	//const std::string& subject = payload["subject"].asString();
 	//message body
 	const std::string& message = payload["message"].asString();
 
@@ -97,10 +95,6 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	pMessageText->clear();
 
 	LLStyle::Params style;
-	LLFontGL* subject_font = LLFontGL::getFontByName(getString("subject_font"));
-	if (subject_font) 
-		style.font = subject_font;
-	pMessageText->appendText(subject, FALSE, style);
 
 	LLFontGL* date_font = LLFontGL::getFontByName(getString("date_font"));
 	if (date_font)
@@ -109,7 +103,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	
 	style.font = pMessageText->getDefaultFont();
 	pMessageText->appendText(message, TRUE, style);
-
+	/*
 	//attachment
 	BOOL hasInventory = payload["inventory_offer"].isDefined();
 
@@ -132,7 +126,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 												LLInventoryType::IT_TEXTURE);
 		pAttachIcon->setValue(attachIconImg->getName());
 	}
-
+	*/
 	//ok button
 	LLButton* pOkBtn = getChild<LLButton>("btn_ok");
 	pOkBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickOk, this)));
@@ -169,6 +163,7 @@ void LLToastScriptTextbox::close()
 void LLToastScriptTextbox::onClickOk()
 {
 	LLSD response = mNotification->getResponseTemplate();
+	response["OH MY GOD WHAT A HACK"] = true;
 	mNotification->respond(response);
 	close();
 }
