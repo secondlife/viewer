@@ -6179,15 +6179,14 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 	llwarns << "ok: " << response << llendl;
 	std::string rtn_text;
 	S32 button_idx;
-	if (response[TEXTBOX_MAGIC_TOKEN].isDefined())
+	button_idx = LLNotification::getSelectedOption(notification, response);
+	if (response[TEXTBOX_MAGIC_TOKEN].isString())
 	{
 		rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
-		button_idx = 0;
 	}
 	else
 	{
 		rtn_text = LLNotification::getSelectedOptionName(response);
-		button_idx = LLNotification::getSelectedOption(notification, response);
 	}
 	llwarns << "rtn: " << rtn_text << " btnidx: " << button_idx << llendl;
 	// Didn't click "Ignore"

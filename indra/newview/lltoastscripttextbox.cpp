@@ -171,6 +171,12 @@ void LLToastScriptTextbox::onClickOk()
 		LLSD response = mNotification->getResponseTemplate();
 		//response["OH MY GOD WHAT A HACK"] = "woot";
 		response[TEXTBOX_MAGIC_TOKEN] = pMessageText->getText();
+		if (response[TEXTBOX_MAGIC_TOKEN].asString().empty())
+		{
+			// so we can distinguish between a successfully
+			// submitted blank textbox, and an ignored toast
+			response[TEXTBOX_MAGIC_TOKEN] = true;
+		}
 		mNotification->respond(response);
 		close();
 		llwarns << response << llendl;
