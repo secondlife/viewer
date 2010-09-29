@@ -63,15 +63,6 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	llwarns << "LABEL " << notification->getLabel() << llendl;
 	llwarns << "URL " << notification->getURL() << llendl;
 
-	/*
-2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: PAYLOAD {'chat_channel':i-376,'object_id':ubb05bcf2-4eca-2203-13f4-b328411d344f,'sender':'216.82.20.80:13001'}
-2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: TYPE notify
-2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: MESSAGE Tofu Tester's 'lltextbox test'
-Write something here...
-2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: LABEL 
-2010-09-29T12:24:44Z WARNING: LLToastScriptTextbox: URL 
-*/
-
 	//message subject
 	//const std::string& subject = payload["subject"].asString();
 	//message body
@@ -103,30 +94,7 @@ Write something here...
 	
 	style.font = pMessageText->getDefaultFont();
 	pMessageText->appendText(message, TRUE, style);
-	/*
-	//attachment
-	BOOL hasInventory = payload["inventory_offer"].isDefined();
 
-	//attachment text
-	LLTextBox * pAttachLink = getChild<LLTextBox>("attachment");
-	//attachment icon
-	LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", TRUE);
-
-	//If attachment is empty let it be invisible and not take place at the panel
-	pAttachLink->setVisible(hasInventory);
-	pAttachIcon->setVisible(hasInventory);
-	if (hasInventory) {
-		pAttachLink->setValue(payload["inventory_name"]);
-
-		mInventoryOffer = new LLOfferInfo(payload["inventory_offer"]);
-		getChild<LLTextBox>("attachment")->setClickedCallback(boost::bind(
-				&LLToastScriptTextbox::onClickAttachment, this));
-
-		LLUIImagePtr attachIconImg = LLInventoryIcon::getIcon(mInventoryOffer->mType,
-												LLInventoryType::IT_TEXTURE);
-		pAttachIcon->setValue(attachIconImg->getName());
-	}
-	*/
 	//ok button
 	LLButton* pOkBtn = getChild<LLButton>("btn_ok");
 	pOkBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickOk, this)));
@@ -148,16 +116,6 @@ LLToastScriptTextbox::~LLToastScriptTextbox()
 
 void LLToastScriptTextbox::close()
 {
-	// The group notice dialog may be an inventory offer.
-	// If it has an inventory save button and that button is still enabled
-	// Then we need to send the inventory declined message
-	/*
-	if(mInventoryOffer != NULL)
-	{
-		mInventoryOffer->forceResponse(IOR_DECLINE);
-		mInventoryOffer = NULL;
-	}
-	*/
 	die();
 }
 
@@ -182,47 +140,3 @@ void LLToastScriptTextbox::onClickOk()
 		llwarns << response << llendl;
 	}
 }
-/*
-void LLToastScriptTextbox::onClickAttachment()
-{
-	if (mInventoryOffer != NULL) {
-		mInventoryOffer->forceResponse(IOR_ACCEPT);
-
-		LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment");
-		static const LLUIColor textColor = LLUIColorTable::instance().getColor(
-				"GroupNotifyDimmedTextColor");
-		pAttachLink->setColor(textColor);
-
-		LLIconCtrl* pAttachIcon =
-				getChild<LLIconCtrl> ("attachment_icon", TRUE);
-		pAttachIcon->setEnabled(FALSE);
-
-		//if attachment isn't openable - notify about saving
-		if (!isAttachmentOpenable(mInventoryOffer->mType)) {
-			LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
-		}
-
-		mInventoryOffer = NULL;
-	}
-}
-*/
-
- /*
-//static
-bool LLToastScriptTextbox::isAttachmentOpenable(LLAssetType::EType type)
-{
-	switch(type)
-	{
-	case LLAssetType::AT_LANDMARK:
-	case LLAssetType::AT_NOTECARD:
-	case LLAssetType::AT_IMAGE_JPEG:
-	case LLAssetType::AT_IMAGE_TGA:
-	case LLAssetType::AT_TEXTURE:
-	case LLAssetType::AT_TEXTURE_TGA:
-		return true;
-	default:
-		return false;
-	}
-}
-
- */
