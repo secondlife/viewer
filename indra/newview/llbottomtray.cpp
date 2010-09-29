@@ -770,7 +770,7 @@ void LLBottomTray::loadButtonsOrder()
 	}
 	// Nearbychat is not stored in order settings file, but it must be the first of the panels, so moving it
 	// manually here
-	mToolbarStack->movePanel(mNearbyChatBar, NULL, true);
+	mToolbarStack->movePanel(mChatBarContainer, NULL, true);
 }
 
 void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y)
