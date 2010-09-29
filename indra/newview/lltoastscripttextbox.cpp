@@ -164,12 +164,17 @@ void LLToastScriptTextbox::close()
 #include "lllslconstants.h"
 void LLToastScriptTextbox::onClickOk()
 {
-	LLSD response = mNotification->getResponseTemplate();
-	//response["OH MY GOD WHAT A HACK"] = "woot";
-	response[TEXTBOX_MAGIC_TOKEN] = "ffffffffuuuuu";
-	mNotification->respond(response);
-	close();
-	llwarns << response << llendl;
+	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
+
+	if (pMessageText)
+	{
+		LLSD response = mNotification->getResponseTemplate();
+		//response["OH MY GOD WHAT A HACK"] = "woot";
+		response[TEXTBOX_MAGIC_TOKEN] = pMessageText->getText();
+		mNotification->respond(response);
+		close();
+		llwarns << response << llendl;
+	}
 }
 /*
 void LLToastScriptTextbox::onClickAttachment()

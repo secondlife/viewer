@@ -6176,9 +6176,9 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
 	//std::string button = "booya";//LLNotification::getSelectedOptionName(response);
-	std::string button = response[TEXTBOX_MAGIC_TOKEN].asString().empty() ?
-		LLNotification::getSelectedOptionName(response) :
-		response[TEXTBOX_MAGIC_TOKEN].asString();
+	std::string button = response.has(TEXTBOX_MAGIC_TOKEN) ?
+		response[TEXTBOX_MAGIC_TOKEN].asString() :
+		LLNotification::getSelectedOptionName(response);
 	S32 button_idx = LLNotification::getSelectedOption(notification, response);
 	// Didn't click "Ignore"
 	if (button_idx != -1)
