@@ -118,7 +118,22 @@
        top_delta="3"
        value="Hamilton Hitchings"
        use_ellipses="true" 
-       width="265" />
+       visible="true" 
+       width="250" />
+      <text
+       follows="top|left"
+       font="SansSerifBold"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       name="user_name_small"
+       text_color="white"
+       top_delta="-4"
+       value="Hamilton Hitchings"
+       use_ellipses="true"
+       visible="false" 
+       wrap="true"
+       width="245" />
       <text
     follows="top|left"
     height="13"
@@ -126,7 +141,7 @@
     left="10"
     name="user_label"
     text_color="LtGray"
-    top_pad="4" 
+    top_pad="8" 
     value="Username:"
     width="70" />
       <text
