@@ -127,6 +127,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void pan(F32 right, F32 up);
 	virtual BOOL needsRender() { return mNeedsUpdate; }
 	void setPreviewLOD(S32 lod);
+	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1);
@@ -182,7 +183,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	std::set<LLPointer<LLViewerFetchedTexture> > mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
-	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[6];
+	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
 };
 
 class LLFloaterModelPreview : public LLFloater
@@ -227,6 +228,7 @@ protected:
 	friend class LLPhysicsDecomp;
 	friend class LLPhysicsDecompFloater;
 	
+	static void		onDebugScaleCommit(LLUICtrl*, void*);
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	

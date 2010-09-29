@@ -8581,6 +8581,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>MeshStreamingCostScaler</key>
+  <map>
+    <key>Comment</key>
+    <string>DEBUG</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.25f</real>
+  </map>
   <key>MeshThreadCount</key>
   <map>
     <key>Comment</key>

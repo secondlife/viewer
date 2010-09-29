@@ -49,10 +49,13 @@
   </text>
   <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 
              name="high detail combo" width="100" tool_tip="Specify mesh for this level of detail">
-    <combo_item name="high choose file">
+    <combo_item name="high none" value="none">
+      None
+    </combo_item>
+    <combo_item name="high choose file" value="file">
       Choose File...
     </combo_item>
-    <combo_item name="high triangle limit">
+    <combo_item name="high triangle limit" value="limit">
       Triangle Limit
     </combo_item>
   </combo_box>
@@ -67,10 +70,13 @@
   </text>
   <combo_box bottom_delta="0" left="97" follows="left|top" height="18"
              name="medium detail combo" width="100" tool_tip="Specify mesh for this level of detail">
-    <combo_item name="medium choose file">
+    <combo_item name="medium none" value="none">
+      None
+    </combo_item>
+    <combo_item name="medium choose file" value="file">
       Choose File...
     </combo_item>
-    <combo_item name="medium triangle limit">
+    <combo_item name="medium triangle limit" value="limit">
       Triangle Limit
     </combo_item>
   </combo_box>
@@ -85,10 +91,13 @@
   </text>
   <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 
              name="low detail combo" width="100" tool_tip="Specify mesh for this level of detail">
-    <combo_item name="low choose file">
+    <combo_item name="low none" value="none">
+      None
+    </combo_item>
+    <combo_item name="low choose file" value="file">
       Choose File...
     </combo_item>
-    <combo_item name="low triangle limit">
+    <combo_item name="low triangle limit" value="limit">
       Triangle Limit
     </combo_item>
   </combo_box>
@@ -101,12 +110,15 @@
   <text bottom_delta="35" follows="top|left" height="15" left="10" name="lowest_lod_label">
     Lowest LOD:
   </text>
-  <combo_box bottom_delta="0" left="97" folimpostors="left|top" height="18" 
+  <combo_box bottom_delta="0" left="97" follows="left|top" height="18" 
              name="lowest detail combo" width="100" tool_tip="Specify mesh for this level of detail">
-    <combo_item name="lowest choose file">
+    <combo_item name="lowest none" value="none">
+      None
+    </combo_item>
+    <combo_item name="lowest choose file" value="file">
       Choose File...
     </combo_item>
-    <combo_item name="lowest triangle limit">
+    <combo_item name="lowest triangle limit" value="limit">
       Triangle Limit
     </combo_item>
   </combo_box>
@@ -121,10 +133,13 @@
   </text>
   <combo_box bottom_delta="0" left="97" follows="left|top" height="18"
              name="physics detail combo" width="100">
-    <combo_item name="physics choose file">
+    <combo_item name="physics none" value="none">
+      None
+    </combo_item>
+    <combo_item name="physics choose file" value="file">
       Choose File...
     </combo_item>
-    <combo_item name="physics triangle limit">
+    <combo_item name="physics triangle limit" value="limit">
       Triangle Limit...
     </combo_item>
   </combo_box>
@@ -163,4 +178,12 @@
   <text bottom_delta="20" left="15" follows="top|left" height="15" name="upload_message">
     [MESSAGE]
   </text>
- </floater>
+  <text bottom_delta="45" left="15" follows="top|left" height="15" name="debug section">
+    DEBUG:
+  </text>
+  <text bottom_delta="20" left="15" follows="top|left" height="15" name="streaming cost">
+    Streaming Cost: [COST]
+  </text>
+  <spinner bottom_delta="20" label="Scale" left="15" width="120"  name="debug scale" decimal_digits="3" increment="1" min_val="0" max_val="64" initial_value="1" tool_tip="Scale to base streaming cost on."/>  
+
+</floater>

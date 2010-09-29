@@ -1660,7 +1660,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 
 	if (!nowrite)
 	{
-		LLSDSerialize::serialize(header, ostr, LLSDSerialize::LLSD_BINARY);
+		LLSDSerialize::toBinary(header, ostr);
 
 		if (!skin.empty())
 		{ //write skin block

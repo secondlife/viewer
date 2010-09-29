@@ -897,15 +897,24 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	{
 		std::string res_str((char*) data, data_size);
 
+		std::string deprecated_header("<? LLSD/Binary ?>");
+
+		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		{
+			res_str = res_str.substr(deprecated_header.size()+1, data_size);
+			header_size = deprecated_header.size()+1;
+		}
+		data_size = res_str.size();
+
 		std::istringstream stream(res_str);
 
-		if (!LLSDSerialize::deserialize(header, stream, data_size))
+		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
 			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
 			return false;
 		}
 
-		header_size = stream.tellg();
+		header_size += stream.tellg();
 	}
 	else
 	{
@@ -2121,6 +2130,28 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 	return NULL;
 }
 
+const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
+{
+	return mThread->getMeshHeader(mesh_id);
+}
+
+const LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
+{
+	static LLSD dummy_ret;
+	if (mesh_id.notNull())
+	{
+		LLMutexLock lock(mHeaderMutex);
+		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+		if (iter != mMeshHeader.end())
+		{
+			return iter->second;
+		}
+	}
+
+	return dummy_ret;
+}
+
+
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
 									bool upload_skin, bool upload_joints)
 {
@@ -2491,6 +2522,50 @@ void LLMeshRepository::uploadError(LLSD& args)
 {
 	LLMutexLock lock(mMeshMutex);
 	mUploadErrorQ.push(args);
+}
+
+//static
+F32 LLMeshRepository::getStreamingCost(const LLSD& header, F32 radius)
+{
+	F32 dlowest = llmin(radius/0.06f, 256.f);
+	F32 dlow = llmin(radius/0.24f, 256.f);
+	F32 dmid = llmin(radius/1.0f, 256.f);
+	F32 dhigh = 0.f;
+
+
+	F32 bytes_lowest = header["lowest_lod"]["size"].asReal()/1024.f;
+	F32 bytes_low = header["low_lod"]["size"].asReal()/1024.f;
+	F32 bytes_mid = header["medium_lod"]["size"].asReal()/1024.f;
+	F32 bytes_high = header["high_lod"]["size"].asReal()/1024.f;
+
+	if (bytes_high == 0.f)
+	{
+		return 0.f;
+	}
+
+	if (bytes_mid == 0.f)
+	{
+		bytes_mid = bytes_high;
+	}
+
+	if (bytes_low == 0.f)
+	{
+		bytes_low = bytes_mid;
+	}
+
+	if (bytes_lowest == 0.f)
+	{
+		bytes_lowest = bytes_low;
+	}
+
+	F32 cost = 0.f;
+	cost += llmax(256.f-dlowest, 1.f)/32.f*bytes_lowest;
+	cost += llmax(dlowest-dlow, 1.f)/32.f*bytes_low;
+	cost += llmax(dlow-dmid, 1.f)/32.f*bytes_mid;
+	cost += llmax(dmid-dhigh, 1.f)/32.f*bytes_high;
+
+	cost *= gSavedSettings.getF32("MeshStreamingCostScaler");
+	return cost;
 }
 
 

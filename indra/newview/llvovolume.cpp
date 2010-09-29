@@ -3207,6 +3207,45 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 }
 
+F32 LLVOVolume::getStreamingCost()
+{
+	std::string header_lod[] = 
+	{
+		"lowest_lod",
+		"low_lod",
+		"medium_lod",
+		"high_lod"
+	};
+
+
+	if (isMesh())
+	{	
+		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
+
+		F32 radius = getRadius();
+		
+		return LLMeshRepository::getStreamingCost(header, radius);
+	}
+		
+	
+	return 0.f;
+}
+
+U32 LLVOVolume::getTriangleCount()
+{
+	U32 count = 0;
+	LLVolume* volume = getVolume();
+	if (volume)
+	{
+		for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+		{
+			count += volume->getVolumeFace(i).mNumIndices/3;
+		}
+	}
+
+	return count;
+}
+
 //static
 void LLVOVolume::preUpdateGeom()
 {
