@@ -897,15 +897,24 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	{
 		std::string res_str((char*) data, data_size);
 
+		std::string deprecated_header("<? LLSD/Binary ?>");
+
+		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		{
+			res_str = res_str.substr(deprecated_header.size()+1, data_size);
+			header_size = deprecated_header.size()+1;
+		}
+		data_size = res_str.size();
+
 		std::istringstream stream(res_str);
 
-		if (!LLSDSerialize::deserialize(header, stream, data_size))
+		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
 			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
 			return false;
 		}
 
-		header_size = stream.tellg();
+		header_size += stream.tellg();
 	}
 	else
 	{

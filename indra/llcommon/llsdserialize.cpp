@@ -1999,7 +1999,7 @@ std::string zip_llsd(LLSD& data)
 { 
 	std::stringstream llsd_strm;
 
-	LLSDSerialize::serialize(data, llsd_strm, LLSDSerialize::LLSD_BINARY);
+	LLSDSerialize::toBinary(data, llsd_strm);
 
 	const U32 CHUNK = 65536;
 
@@ -2052,7 +2052,7 @@ std::string zip_llsd(LLSD& data)
 			return std::string();
 		}
 	}
-	while (strm.avail_out == 0);
+	while (ret == Z_OK);
 
 	std::string::size_type size = cur_size;
 
@@ -2060,12 +2060,14 @@ std::string zip_llsd(LLSD& data)
 	deflateEnd(&strm);
 	free(output);
 
+#if 0 //verify results work with unzip_llsd
 	std::istringstream test(result);
 	LLSD test_sd;
 	if (!unzip_llsd(test_sd, test, result.size()))
 	{
 		llerrs << "Invalid compression result!" << llendl;
 	}
+#endif
 
 	return result;
 }
@@ -2131,7 +2133,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		memcpy(result+cur_size, out, have);
 		cur_size += have;
 
-	} while (strm.avail_out == 0);
+	} while (ret == Z_OK);
 
 	inflateEnd(&strm);
 	delete [] in;
@@ -2145,9 +2147,18 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 	//result now points to the decompressed LLSD block
 	{
 		std::string res_str((char*) result, cur_size);
-		std::istringstream istr(res_str);
 
-		if (!LLSDSerialize::deserialize(data, istr, cur_size))
+		std::string deprecated_header("<? LLSD/Binary ?>");
+
+		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		{
+			res_str = res_str.substr(deprecated_header.size()+1, cur_size);
+		}
+		cur_size = res_str.size();
+
+		std::istringstream istr(res_str);
+		
+		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
 		{
 			llwarns << "Failed to unzip LLSD block" << llendl;
 			free(result);
