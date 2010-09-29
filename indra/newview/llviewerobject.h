@@ -336,6 +336,9 @@ public:
 
 	void setObjectCost(F32 cost);
 	F32 getObjectCost();
+	virtual F32 getStreamingCost();
+	virtual U32 getTriangleCount();
+
 	void setLinksetCost(F32 cost);
 	F32 getLinksetCost();
 	

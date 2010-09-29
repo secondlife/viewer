@@ -6230,6 +6230,40 @@ F32 LLObjectSelection::getSelectedObjectCost()
 	return cost;
 }
 
+F32 LLObjectSelection::getSelectedObjectStreamingCost()
+{
+	F32 cost = 0.f;
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			cost += object->getStreamingCost();
+		}
+	}
+
+	return cost;
+}
+
+U32 LLObjectSelection::getSelectedObjectTriangleCount()
+{
+	U32 count = 0;
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			count += object->getTriangleCount();
+		}
+	}
+
+	return count;
+}
+
 F32 LLObjectSelection::getSelectedLinksetCost()
 {
 	cleanupNodes();

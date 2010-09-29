@@ -136,7 +136,8 @@ public:
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 				typedef std::map<LLUUID, S32> texture_cost_t;
 				U32 	getRenderCost(texture_cost_t &textures) const;
-
+	/*virtual*/	F32		getStreamingCost();
+	/*virtual*/ U32		getTriangleCount();
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,

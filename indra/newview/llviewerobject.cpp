@@ -2942,6 +2942,16 @@ F32 LLViewerObject::getObjectCost()
 	return mObjectCost;
 }
 
+F32 LLViewerObject::getStreamingCost()
+{
+	return 0.f;
+}
+
+U32 LLViewerObject::getTriangleCount()
+{
+	return 0;
+}
+
 F32 LLViewerObject::getLinksetCost()
 {
 	if (mCostStale)

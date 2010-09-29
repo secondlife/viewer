@@ -300,6 +300,8 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("upload_skin", onUploadSkinCommit, this);
 	childSetCommitCallback("upload_joints", onUploadJointsCommit, this);
 
+	childSetCommitCallback("debug scale", onDebugScaleCommit, this);
+
 	childDisable("upload_skin");
 	childDisable("upload_joints");
 
@@ -354,6 +356,23 @@ void LLFloaterModelPreview::setLODMode(S32 lod, S32 mode)
 {
 	if (mode == 0)
 	{
+		if (lod != LLModel::LOD_PHYSICS)
+		{
+			for (S32 i = lod; i > 0; i--)
+			{
+				mModelPreview->clearModel(lod);
+			}
+		}
+		else
+		{
+			mModelPreview->clearModel(lod);
+		}
+
+		mModelPreview->refresh();
+		mModelPreview->calcResourceCost();
+	}
+	else if (mode == 1)
+	{
 		loadModel(lod);
 	}
 	else if (mode != mModelPreview->mLODMode[lod])
@@ -367,7 +386,7 @@ void LLFloaterModelPreview::setLODMode(S32 lod, S32 mode)
 	
 	LLSpinCtrl* lim = getChild<LLSpinCtrl>(limit_name[lod], TRUE);
 
-	if (mode == 1) //triangle count
+	if (mode == 2) //triangle count
 	{
 		U32 tri_count = 0;
 		for (LLModelLoader::model_list::iterator iter = mModelPreview->mBaseModel.begin();
@@ -393,6 +412,19 @@ void LLFloaterModelPreview::setLimit(S32 lod, S32 limit)
 		mModelPreview->genLODs(lod);
 		mModelPreview->setPreviewLOD(lod);
 	}
+}
+
+//static 
+void LLFloaterModelPreview::onDebugScaleCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->calcResourceCost();
 }
 
 //static 
@@ -2055,6 +2087,10 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 
+	F32 debug_scale = mFMP->childGetValue("debug scale").asReal();
+
+	F32 streaming_cost = 0.f;
+
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
@@ -2076,18 +2112,35 @@ U32 LLModelPreview::calcResourceCost()
 									mFMP->childGetValue("upload_joints").asBoolean(),
 									true);
 			cost += gMeshRepo.calcResourceCost(ret);
-
 			
 			num_hulls += physics_shape.size();
 			for (U32 i = 0; i < physics_shape.size(); ++i)
 			{
 				num_points += physics_shape[i].size();
 			}
+
+			//calculate streaming cost
+			LLMatrix4 transformation = instance.mTransform;
+
+			LLVector3 position = LLVector3(0, 0, 0) * transformation;
+
+			LLVector3 x_transformed = LLVector3(1, 0, 0) * transformation - position;
+			LLVector3 y_transformed = LLVector3(0, 1, 0) * transformation - position;
+			LLVector3 z_transformed = LLVector3(0, 0, 1) * transformation - position;
+			F32 x_length = x_transformed.normalize();
+			F32 y_length = y_transformed.normalize();
+			F32 z_length = z_transformed.normalize();
+			LLVector3 scale = LLVector3(x_length, y_length, z_length);
+
+			F32 radius = scale.length()*debug_scale;
+
+			streaming_cost += LLMeshRepository::getStreamingCost(ret, radius);
 		}
 	}
 
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
+	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
 
 	updateStatusMessages();
 	
@@ -2135,6 +2188,18 @@ void LLModelPreview::rebuildUploadData()
 	}
 }
 
+
+void LLModelPreview::clearModel(S32 lod)
+{
+	if (lod < 0 || lod > LLModel::LOD_PHYSICS)
+	{
+		return;
+	}
+
+	mVertexBuffer[lod].clear();
+	mModel[lod].clear();
+	mScene[lod].clear();
+}
 
 void LLModelPreview::loadModel(std::string filename, S32 lod)
 {
@@ -2639,65 +2704,63 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 		}
 		
-		if (which_lod == -1 || mLODMode[which_lod] == 1)
-		{
-			//generating LODs for all entries, or this entry has a triangle budget
-			glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
-			stop_gloderror();		
-		}
-		else
-		{ 
-			//this entry uses error mode
-			glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_OBJECT_SPACE_ERROR);
-			stop_gloderror();
-		}
-
-		if (which_lod != -1 && mLODMode[which_lod] == 2)
-		{
-			glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, llmax(limit/100.f, 0.01f));
-			stop_gloderror();
-		}
-		else
-		{
-			glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
-			stop_gloderror();
-		}
+		//generating LODs for all entries, or this entry has a triangle budget
+		glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
+		stop_gloderror();		
+		
+		glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
+		stop_gloderror();
 	}
 
 
 	S32 start = LLModel::LOD_HIGH;
 	S32 end = 0;
 
-	BOOL error_mode = FALSE;
-
 	if (which_lod != -1)
 	{
 		start = end = which_lod;
-
-		if (mLODMode[which_lod] == 2)
-		{
-			error_mode = TRUE;
-		}
 	}
 	
 	
+	std::string combo_name[] = 
+	{
+		"lowest detail combo",
+		"low detail combo",
+		"medium detail combo",
+		"high detail combo",
+		"physics detail combo"
+	};
+
+	std::string limit_name[] =
+	{
+		"lowest limit",
+		"low limit",
+		"medium limit",
+		"high limit",
+		"physics limit"
+	};
+
 	for (S32 lod = start; lod >= end; --lod)
 	{
-		if (!error_mode)
+		if (which_lod == -1)
 		{
-			if (which_lod == -1)
+			if (lod < start)
 			{
-				if (lod < start)
-				{
-					triangle_count /= 3;
-				}
-			}
-			else
-			{
-				triangle_count = limit;
+				triangle_count /= 3;
 			}
 		}
+		else
+		{
+			triangle_count = limit;
+		}
 
+		LLComboBox* combo_box = mFMP->findChild<LLComboBox>(combo_name[lod]);
+		combo_box->setCurrentByIndex(2);
+	
+		LLSpinCtrl* lim = mFMP->getChild<LLSpinCtrl>(limit_name[lod], TRUE);
+		lim->setMaxValue(base_triangle_count);
+		lim->setVisible(true);
+					
 		mModel[lod].clear();
 		mModel[lod].resize(mBaseModel.size());
 		mVertexBuffer[lod].clear();
@@ -2712,22 +2775,14 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			U32 target_count = U32(mPercentage[base]*triangle_count);
 
-			if (error_mode)
-			{
-				target_count = base->getNumTriangles();
-			}
-
 			if (target_count < 4)
 			{ 
 				target_count = 4;
 			}
 
-			if (which_lod == -1 || mLODMode[which_lod] == 1)
-			{
-				glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
-				stop_gloderror();
-			}
-			
+			glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
+			stop_gloderror();
+						
 			glodAdaptGroup(mGroup[base]);
 			stop_gloderror();
 
