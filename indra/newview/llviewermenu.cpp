@@ -844,6 +844,25 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
+void LLDestinationGuideToggle()
+{
+	LLView* destination_guide = gViewerWindow->getRootView()->getChildView("destination_guide_container");
+	if ( destination_guide )
+	{
+		if ( destination_guide->getVisible() )
+		{
+			destination_guide->setVisible( FALSE );
+		}
+		else
+		{
+			destination_guide->setVisible( true );
+		}
+	}
+	else
+	{
+		llwarns << "ERROR: unable to find destination guide container" << llendl;
+	}
+};
 
 //////////////////
 // INFO DISPLAY //
@@ -8275,4 +8294,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+	commit.add("DestinationGuide.toggle", boost::bind(&LLDestinationGuideToggle));
 }
