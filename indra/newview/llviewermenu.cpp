@@ -190,6 +190,8 @@ BOOL is_selection_buy_not_take();
 S32 selection_price();
 BOOL enable_take();
 void handle_take();
+void handle_object_show_inspector();
+void handle_avatar_show_inspector();
 bool confirm_take(const LLSD& notification, const LLSD& response);
 
 void handle_buy_object(LLSaleInfo sale_info);
@@ -4368,6 +4370,33 @@ void handle_take()
 	}
 }
 
+void handle_object_show_inspector()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* objectp = selection->getFirstRootObject(TRUE);
+ 	if (!objectp)
+ 	{
+ 		return;
+ 	}
+
+	LLSD params;
+	params["object_id"] = objectp->getID();
+	LLFloaterReg::showInstance("inspect_object", params);
+}
+
+void handle_avatar_show_inspector()
+{
+	LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+	if(avatar)
+	{
+		LLSD params;
+		params["avatar_id"] = avatar->getID();
+		LLFloaterReg::showInstance("inspect_avatar", params);
+	}
+}
+
+
+
 bool confirm_take(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -8158,6 +8187,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+	commit.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
@@ -8185,6 +8215,7 @@ void initialize_menus()
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
+	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
