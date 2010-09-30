@@ -325,6 +325,7 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
+        self.path("featuretable_xp.txt")
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
@@ -653,6 +654,7 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
@@ -676,6 +678,7 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -937,6 +940,8 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
+            self.path("libtcmalloc_minimal.so", "libtcmalloc_minimal.so") #formerly called google perf tools
+            self.path("libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.0") #formerly called google perf tools
             try:
                     self.path("libkdu.so")
                     pass

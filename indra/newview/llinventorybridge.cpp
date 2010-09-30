@@ -34,19 +34,20 @@
 #include "llinventorybridge.h"
 
 // external projects
-#include "lltransfersourceasset.h"
+#include "lltransfersourceasset.h" 
 
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llavataractions.h"
+#include "llattachmentsmgr.h"
+#include "llavataractions.h" 
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
-#include "llgiveinventory.h"
+#include "llgiveinventory.h" 
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
@@ -106,7 +107,7 @@ void dec_busy_count()
 void remove_inventory_category_from_avatar(LLInventoryCategory* category);
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
-bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response);
+bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 
 // +=================================================+
@@ -2487,6 +2488,10 @@ void LLFolderBridge::folderOptionsMenu()
 		{
 			disabled_items.push_back(std::string("Remove From Outfit"));
 		}
+		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
+		{
+			disabled_items.push_back(std::string("Replace Outfit"));
+		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
 	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
@@ -2869,6 +2874,66 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	return false;
 }
 
+// Returns true if the item can be moved to Current Outfit or any outfit folder.
+static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
+{
+	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
+		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
+		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
+	{
+		return FALSE;
+	}
+
+	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
+{
+	// use callback to rearrange favorite landmarks after adding
+	// to have new one placed before target (on which it was dropped). See EXT-4312.
+	LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
+	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+	if (drag_over_item && drag_over_item->getListener())
+	{
+		cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
+	}
+
+	copy_inventory_item(
+		gAgent.getID(),
+		inv_item->getPermissions().getOwner(),
+		inv_item->getUUID(),
+		mUUID,
+		std::string(),
+		cb);
+}
+
+void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
+{
+	// BAP - should skip if dup.
+	if (move_is_into_current_outfit)
+	{
+		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item->getUUID(), true, true);
+	}
+	else
+	{
+		LLPointer<LLInventoryCallback> cb = NULL;
+		link_inventory_item(
+			gAgent.getID(),
+			inv_item->getLinkedUUID(),
+			mUUID,
+			inv_item->getName(),
+			inv_item->getDescription(),
+			LLAssetType::AT_LINK,
+			cb);
+	}
+}
+
 // This is used both for testing whether an item can be dropped
 // into the folder, as well as performing the actual drop, depending
 // if drop == TRUE.
@@ -2881,18 +2946,20 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	if(!isAgentInventory()) return FALSE; // cannot drag into library
 	if (!isAgentAvatarValid()) return FALSE;
 
+	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+	const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
+
+	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+	const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
 	{
 		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
-		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
-		const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
 
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
-		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
 		const BOOL folder_allows_reorder = (mUUID == favorites_id);
 
@@ -2944,14 +3011,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			accept = FALSE;
 		if (move_is_into_current_outfit || move_is_into_outfit)
 		{
-			if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
-				(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
-				(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
-				accept = FALSE;
-		}
-		if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
-		{
-			accept = FALSE;
+			accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
 		}
 
 		if(accept && drop)
@@ -2995,50 +3055,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// (copy the item)
 			else if (favorites_id == mUUID)
 			{
-				// use callback to rearrange favorite landmarks after adding
-				// to have new one placed before target (on which it was dropped). See EXT-4312.
-				LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
-				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
-				LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
-				if (drag_over_item && drag_over_item->getListener())
-				{
-					cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
-				}
-
-				copy_inventory_item(
-					gAgent.getID(),
-					inv_item->getPermissions().getOwner(),
-					inv_item->getUUID(),
-					mUUID,
-					std::string(),
-					cb);
+				dropToFavorites(inv_item);
 			}
 			// CURRENT OUTFIT or OUTFIT folder
 			// (link the item)
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{
-				if ((inv_item->getInventoryType() == LLInventoryType::IT_WEARABLE) || 
-					(inv_item->getInventoryType() == LLInventoryType::IT_GESTURE) || 
-					(inv_item->getInventoryType() == LLInventoryType::IT_OBJECT))
-				{
-					// BAP - should skip if dup.
-					if (move_is_into_current_outfit)
-					{
-						LLAppearanceMgr::instance().wearItemOnAvatar(inv_item->getUUID(), true, true);
-					}
-					else
-					{
-						LLPointer<LLInventoryCallback> cb = NULL;
-						link_inventory_item(
-							gAgent.getID(),
-							inv_item->getLinkedUUID(),
-							mUUID,
-							inv_item->getName(),
-							inv_item->getDescription(),
-							LLAssetType::AT_LINK,
-							cb);
-					}
-				}
+				dropToOutfit(inv_item, move_is_into_current_outfit);
 			}
 			// NORMAL or TRASH folder
 			// (move the item, restamp if into trash)
@@ -3087,6 +3110,15 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			is_move = TRUE;
 			accept = TRUE;
 		}
+
+		// Don't allow placing an original item into Current Outfit or an outfit folder
+		// because they must contain only links to wearable items.
+		// *TODO: Probably we should create a link to an item if it was dragged to outfit or COF.
+		if(move_is_into_current_outfit || move_is_into_outfit)
+		{
+			accept = FALSE;
+		}
+
 		if(drop && accept)
 		{
 			LLMoveInv* move_inv = new LLMoveInv;
@@ -3126,15 +3158,36 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(item && item->isFinished())
 		{
 			accept = TRUE;
-			if(drop)
+
+			if (move_is_into_current_outfit || move_is_into_outfit)
 			{
-				copy_inventory_item(
-					gAgent.getID(),
-					inv_item->getPermissions().getOwner(),
-					inv_item->getUUID(),
-					mUUID,
-					std::string(),
-					LLPointer<LLInventoryCallback>(NULL));
+				accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+			}
+
+			if (accept && drop)
+			{
+				// FAVORITES folder
+				// (copy the item)
+				if (favorites_id == mUUID)
+				{
+					dropToFavorites(inv_item);
+				}
+				// CURRENT OUTFIT or OUTFIT folder
+				// (link the item)
+				else if (move_is_into_current_outfit || move_is_into_outfit)
+				{
+					dropToOutfit(inv_item, move_is_into_current_outfit);
+				}
+				else
+				{
+					copy_inventory_item(
+						gAgent.getID(),
+						inv_item->getPermissions().getOwner(),
+						inv_item->getUUID(),
+						mUUID,
+						std::string(),
+						LLPointer<LLInventoryCallback>(NULL));
+				}
 			}
 		}
 	}
@@ -3997,22 +4050,22 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		if (!isAgentAvatarValid())
+		if (!isAgentAvatarValid()) // Error condition, can't figure out attach point
 		{
 			return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
 		}
-
 		std::string attachment_point_name = gAgentAvatarp->getAttachedPointName(mUUID);
-
+		if (attachment_point_name == LLStringUtil::null) // Error condition, invalid attach point
+		{
+			attachment_point_name = "Invalid Attachment";
+		}
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
+
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
-	else
-	{
-		return LLItemBridge::getLabelSuffix();
-	}
+	return LLItemBridge::getLabelSuffix();
 }
 
 void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment, bool replace)
@@ -4043,19 +4096,15 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		}
 	}
 
-	if (!replace)
-	{
-		attach_pt |= ATTACHMENT_ADD;
-	}
-
 	LLSD payload;
 	payload["item_id"] = item_id; // Wear the base object in case this is a link.
 	payload["attachment_point"] = attach_pt;
+	payload["is_add"] = !replace;
 
 	if (replace &&
 		(attachment && attachment->getNumObjects() > 0))
 	{
-		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
+		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_attachment_rez);
 	}
 	else
 	{
@@ -4063,7 +4112,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	}
 }
 
-bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
+bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 {
 	if (!gAgentAvatarp->canAttachMoreObjects())
 	{
@@ -4081,27 +4130,41 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 
 		if (itemp)
 		{
-			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-			
+			/*
+			{
+				U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+				
+				LLMessageSystem* msg = gMessageSystem;
+				msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
+				msg->nextBlockFast(_PREHASH_AgentData);
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+				msg->nextBlockFast(_PREHASH_ObjectData);
+				msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
+				msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
+				msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
+				pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
+				msg->addStringFast(_PREHASH_Name, itemp->getName());
+				msg->addStringFast(_PREHASH_Description, itemp->getDescription());
+				msg->sendReliable(gAgent.getRegion()->getHost());
+				return false;
+			}
+			*/
 
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_ObjectData);
-			msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
-			msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-			msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
-			pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
-			msg->addStringFast(_PREHASH_Name, itemp->getName());
-			msg->addStringFast(_PREHASH_Description, itemp->getDescription());
-			msg->sendReliable(gAgent.getRegion()->getHost());
+			// Queue up attachments to be sent in next idle tick, this way the
+			// attachments are batched up all into one message versus each attachment
+			// being sent in its own separate attachments message.
+			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+			BOOL is_add = notification["payload"]["is_add"].asBoolean();
+
+			LLAttachmentsMgr::instance().addAttachment(item_id,
+													   attachment_pt,
+													   is_add);
 		}
 	}
 	return false;
 }
-static LLNotificationFunctorRegistration confirm_replace_attachment_rez_reg("ReplaceAttachment", confirm_replace_attachment_rez);
+static LLNotificationFunctorRegistration confirm_replace_attachment_rez_reg("ReplaceAttachment", confirm_attachment_rez);
 
 void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {

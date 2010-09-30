@@ -67,7 +67,6 @@ BOOL LLPanelHome::postBuild()
 		std::string url = LLViewerHome::getHomeURL();
 
 		mBrowser->addObserver(this);
-		mBrowser->setTrusted(true);
 		mBrowser->setHomePageUrl(url);
 	}
 

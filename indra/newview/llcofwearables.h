@@ -86,6 +86,11 @@ public:
 
 	LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
 
+	/**
+	 * Selects first clothing item with specified LLWearableType::EType from clothing list
+	 */
+	void selectClothing(LLWearableType::EType clothing_type);
+
 protected:
 
 	void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);

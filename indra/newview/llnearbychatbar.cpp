@@ -38,6 +38,7 @@
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
+#include "llfirstuse.h"
 #include "llnearbychatbar.h"
 #include "llbottomtray.h"
 #include "llagent.h"
@@ -109,10 +110,10 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 	, mViewAllItemIndex(0)
 	, mGetMoreItemIndex(0)
 {
-	LLButton::Params button_params = p.combo_button;
+	LLBottomtrayButton::Params button_params = p.combo_button;
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
 
-	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+	mButton = LLUICtrlFactory::create<LLBottomtrayButton>(button_params);
 	mButton->reshape(getRect().getWidth(),getRect().getHeight());
 	mButton->setCommitCallback(boost::bind(&LLGestureComboList::onButtonCommit, this));
 
@@ -397,8 +398,7 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 
-	: LLPanel()
-	, mChatBox(NULL)
+:	mChatBox(NULL)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -490,6 +490,7 @@ BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::strin
 
 void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 {
+	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLNearbyChatBar* self = (LLNearbyChatBar *)userdata;
 
@@ -871,14 +872,30 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		if (tokens.size() < 2) return false;
+		bool retval = false;
+		// Need at least 2 tokens to have a valid message.
+		if (tokens.size() < 2)
+		{
+			retval = false;
+		}
+		else
+		{
 		S32 channel = tokens[0].asInteger();
-
+			// VWR-19499 Restrict function to chat channels greater than 0.
+			if ((channel > 0) && (channel < 2147483647))
+			{
+				retval = true;
 		// Send unescaped message, see EXT-6353.
 		std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
-
 		send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
-		return true;
+			}
+			else
+			{
+				retval = false;
+				// Tell us this is an unsupported SLurl.
+			}
+		}
+		return retval;
 	}
 };
 

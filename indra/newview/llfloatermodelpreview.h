@@ -113,18 +113,21 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	 LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp);
 	virtual ~LLModelPreview();
 
+	void resetPreviewTarget();
 	void setPreviewTarget(F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
 
 	BOOL render();
 	void update();
-	void genBuffers(S32 lod);
+	void genBuffers(S32 lod, bool skinned);
+	void clearBuffers();
 	void refresh();
 	void rotate(F32 yaw_radians, F32 pitch_radians);
 	void zoom(F32 zoom_amt);
 	void pan(F32 right, F32 up);
 	virtual BOOL needsRender() { return mNeedsUpdate; }
 	void setPreviewLOD(S32 lod);
+	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1);
@@ -135,6 +138,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void rebuildUploadData();
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
+	bool containsRiggedAsset( void );
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
@@ -168,18 +172,18 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLModelLoader::model_list mModel[LLModel::NUM_LODS];
 	LLModelLoader::model_list mBaseModel;
 
-	std::map<LLModel*, U32> mGroup;
-	std::map<LLModel*, U32> mObject;
-	std::map<LLModel*, std::vector<U32> > mPatch;
+	std::map<LLPointer<LLModel>, U32> mGroup;
+	std::map<LLPointer<LLModel>, U32> mObject;
+	std::map<LLPointer<LLModel>, std::vector<U32> > mPatch;
+	std::map<LLPointer<LLModel>, F32> mPercentage;
 
-	std::map<LLModel*, F32> mPercentage;
-	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
+	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
 	LLMeshUploadThread::instance_list mUploadData;
 	std::set<LLPointer<LLViewerFetchedTexture> > mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
-	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[6];
+	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
 };
 
 class LLFloaterModelPreview : public LLFloater
@@ -223,6 +227,10 @@ protected:
 	friend class LLMeshFilePicker;
 	friend class LLPhysicsDecomp;
 	friend class LLPhysicsDecompFloater;
+	
+	static void		onDebugScaleCommit(LLUICtrl*, void*);
+	static void		onUploadJointsCommit(LLUICtrl*,void*);
+	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	

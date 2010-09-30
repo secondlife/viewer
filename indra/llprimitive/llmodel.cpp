@@ -1288,11 +1288,11 @@ LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 }
 
 //static 
-LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, BOOL nowrite)
+LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, bool upload_skin, bool upload_joints, bool nowrite)
 {
 	std::ofstream os(filename.c_str(), std::ofstream::out | std::ofstream::binary);
 
-	LLSD header = writeModel(os, physics, high, medium, low, impostor, decomp, nowrite);
+	LLSD header = writeModel(os, physics, high, medium, low, impostor, decomp, upload_skin, upload_joints, nowrite);
 
 	os.close();
 
@@ -1300,7 +1300,7 @@ LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, 
 }
 
 //static
-LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, BOOL nowrite)
+LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, bool upload_skin, bool upload_joints, bool nowrite)
 {
 	LLSD mdl;
 
@@ -1313,7 +1313,7 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 		physics
 	};
 
-	bool skinning = high && !high->mSkinWeights.empty();
+	bool skinning = upload_skin && high && !high->mSkinWeights.empty();
 
 	if (skinning)
 	{ //write skinning block
@@ -1342,6 +1342,21 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 				mdl["skin"]["bind_shape_matrix"][i*4+j] = high->mBindShapeMatrix.mMatrix[i][j];
 			}
 		}
+		
+		if ( upload_joints && high->mAlternateBindMatrix.size() > 0 )
+		{
+			for (U32 i = 0; i < high->mJointList.size(); ++i)
+			{
+				for (U32 j = 0; j < 4; j++)
+				{
+					for (U32 k = 0; k < 4; k++)
+					{
+						mdl["skin"]["alt_inverse_bind_matrix"][i][j*4+k] = high->mAlternateBindMatrix[i].mMatrix[j][k]; 
+					}
+				}
+			}
+		}
+		
 	}
 
 	if (!decomp.empty())
@@ -1645,7 +1660,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 
 	if (!nowrite)
 	{
-		LLSDSerialize::serialize(header, ostr, LLSDSerialize::LLSD_BINARY);
+		LLSDSerialize::toBinary(header, ostr);
 
 		if (!skin.empty())
 		{ //write skin block

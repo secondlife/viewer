@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="533"
+ height="515"
  label="Notes &amp; Privacy"
  layout="topleft"
  left="0"
@@ -112,58 +112,125 @@
          name="notes_buttons_panel"
          auto_resize="false"
          width="313">
-       <button
-         follows="bottom|left"
-         height="23"
-         label="Add Friend"
-         layout="topleft"
-         left="2"
-         mouse_opaque="false"
-         name="add_friend"
-         tool_tip="Offer friendship to the Resident"
-         top="5"
-         width="80" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="IM"
-         layout="topleft"
-         name="im"
-         tool_tip="Open instant message session"
-         top="5"
-         left_pad="3"
-         width="45" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Call"
-         layout="topleft"
-         name="call"
-         tool_tip="Call this Resident"
-         left_pad="3"
-         top="5"
-         width="46" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         name="show_on_map_btn"
-         tool_tip="Show the Resident on the map"
-         top="5"
-         left_pad="3"
-         width="45" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Teleport"
-         layout="topleft"
-         name="teleport"
-         tool_tip="Offer teleport"
-         left_pad="3"
-         top="5"
-         width="80" />
+         
+         <layout_stack
+	     	follows="bottom|left|right"
+			height="23"
+			layout="topleft"
+			name="bottom_bar_ls"
+			left="2"
+			orientation="horizontal"
+			top_pad="5"
+			width="309">
+	
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left="0"
+				name="add_friend_btn_lp"
+			    user_resize="false" 
+			    auto_resize="true"
+				width="118">
+					<button
+			         follows="bottom|left|right"
+			         height="23"
+			         label="Add Friend"
+			         layout="topleft"
+			         left="1"
+			         mouse_opaque="false"
+			         name="add_friend"
+			         tool_tip="Offer friendship to the Resident"
+			         top="0"
+			         width="117" />	
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="im_btn_lp"
+			    user_resize="false" 
+			    auto_resize="true"
+				width="22">
+					<button
+			         follows="bottom|left|right"
+			         height="23"
+			         label="IM"
+			         layout="topleft"
+			         name="im"
+			         tool_tip="Open instant message session"
+			         top="0"
+			         left="1"
+			         width="21" />		
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="call_btn_lp"
+			    user_resize="false" 
+			    auto_resize="true"
+				width="52">
+					<button
+			         follows="bottom|left|right"
+			         height="23"
+			         label="Call"
+			         layout="topleft"
+			         name="call"
+			         tool_tip="Call this Resident"
+			         left="1"
+			         top="0"
+			         use_ellipses="true"
+			         width="51" />		
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="show_on_map_btn_lp"
+			    user_resize="false" 
+			    auto_resize="true"
+				width="46">
+					<button
+			         enabled="false"
+			         follows="bottom|left|right"
+			         height="23"
+			         label="Map"
+			         layout="topleft"
+			         name="show_on_map_btn"
+			         tool_tip="Show the Resident on the map"
+			         top="0"
+			         left="1"
+			         width="45" />
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="teleport_btn_lp"
+			    user_resize="false" 
+			    auto_resize="true"
+				width="81">
+					<button
+			         follows="bottom|left|right"
+			         height="23"
+			         label="Teleport"
+			         layout="topleft"
+			         name="teleport"
+			         tool_tip="Offer teleport"
+			         left="1"
+			         top="0"
+			         width="80" />	
+				</layout_panel>
+		</layout_stack>     
         </layout_panel>
     </layout_stack>
 </panel>

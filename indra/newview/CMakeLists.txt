@@ -13,6 +13,7 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
@@ -46,6 +47,7 @@ include(CMakeCopyIfDifferent)
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
+    ${JSONCPP_INCLUDE_DIRS}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -88,6 +90,7 @@ set(viewer_SOURCE_FILES
     llappviewerlistener.cpp
     llassetuploadqueue.cpp
     llassetuploadresponders.cpp
+    llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
@@ -97,6 +100,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallfloater.cpp
@@ -212,6 +216,7 @@ set(viewer_SOURCE_FILES
     llfloatersearch.cpp
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
+    llfloatersidetraytab.cpp
     llfloatersnapshot.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
@@ -221,7 +226,6 @@ set(viewer_SOURCE_FILES
     llfloatertos.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoicedevicesettings.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
@@ -239,6 +243,7 @@ set(viewer_SOURCE_FILES
     llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
+    llhints.cpp
     llhomelocationresponder.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -311,6 +316,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
+    llnotificationhinthandler.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -319,6 +325,7 @@ set(viewer_SOURCE_FILES
     lloutfitslist.cpp
     lloutfitobserver.cpp
     lloutputmonitorctrl.cpp
+    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
@@ -369,6 +376,7 @@ set(viewer_SOURCE_FILES
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
+    llpanelvoicedevicesettings.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llpanelwearing.cpp
@@ -467,6 +475,7 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
+    lltranslate.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -615,6 +624,7 @@ set(viewer_HEADER_FILES
     llappviewerlistener.h
     llassetuploadqueue.h
     llassetuploadresponders.h
+    llattachmentsmgr.h
     llaudiosourcevo.h
     llavataractions.h
     llavatariconctrl.h
@@ -741,6 +751,7 @@ set(viewer_HEADER_FILES
     llfloatersearch.h
     llfloatersellland.h
     llfloatersettingsdebug.h
+    llfloatersidetraytab.h
     llfloatersnapshot.h
     llfloatertelehub.h
     llfloatertestinspectors.h
@@ -750,7 +761,6 @@ set(viewer_HEADER_FILES
     llfloatertos.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoicedevicesettings.h
     llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
@@ -768,6 +778,7 @@ set(viewer_HEADER_FILES
     llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
+    llhints.h
     llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
@@ -892,6 +903,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoicedevicesettings.h
     llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h
@@ -995,6 +1007,7 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
+    lltranslate.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
@@ -1317,6 +1330,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/cmd_line.xml
     app_settings/grass.xml
     app_settings/high_graphics.xml
+    app_settings/ignorable_dialogs.xml
     app_settings/keys.ini
     app_settings/keywords.ini
     app_settings/logcontrol.xml
@@ -1494,6 +1508,7 @@ if (WINDOWS)
       ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
+      ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
       ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
@@ -1668,6 +1683,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${GLOD_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
@@ -1678,6 +1694,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${LLCONVEXDECOMP_LIBRARY}
+    ${TCMALLOC_LIBRARIES}
     )
 
 build_version(viewer)

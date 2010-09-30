@@ -60,8 +60,8 @@ public:
 	typedef  std::vector<std::vector<LLVector3> > physics_shape;
 	
 	LLModel(LLVolumeParams& params, F32 detail);
-	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, BOOL nowrite = FALSE);
-	static LLSD writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, BOOL nowrite = FALSE);
+	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
+	static LLSD writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
 	static LLSD writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite = FALSE);
 	static LLModel* loadModelFromAsset(std::string filename, S32 lod);
 	static LLModel* loadModelFromDae(std::string filename);
@@ -152,7 +152,7 @@ public:
 
 	LLMatrix4 mBindShapeMatrix;
 	std::vector<LLMatrix4> mInvBindMatrix;
-
+	std::vector<LLMatrix4> mAlternateBindMatrix;
 	std::string mLabel;
 
 	LLVector3 mNormalizedScale;

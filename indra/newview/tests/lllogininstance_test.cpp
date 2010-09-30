@@ -45,6 +45,12 @@ LLSLURL LLStartUp::sStartSLURL;
 static std::string gLoginURI;
 static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
+
+#include "../llviewerwindow.h"
+void LLViewerWindow::setShowProgress(BOOL show) {}
+
+LLViewerWindow* gViewerWindow;
+
 class LLLogin::Impl
 {
 };
@@ -90,6 +96,8 @@ void LLGridManager::addGrid(LLSD& grid_data)
 {
 }
 LLGridManager::LLGridManager()
+:
+	mIsInProductionGrid(false)
 {	
 }
 
@@ -297,7 +305,7 @@ namespace tut
 
     typedef test_group<lllogininstance_data> lllogininstance_group;
     typedef lllogininstance_group::object lllogininstance_object;
-    lllogininstance_group llsdmgr("lllogininstance");
+    lllogininstance_group llsdmgr("LLLoginInstance");
 
     template<> template<>
     void lllogininstance_object::test<1>()

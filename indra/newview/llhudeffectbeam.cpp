@@ -311,6 +311,11 @@ void LLHUDEffectBeam::render()
 	}
 }
 
+void LLHUDEffectBeam::renderForTimer()
+{
+	render();
+}
+
 void LLHUDEffectBeam::setupParticle(const S32 i)
 {
 	LLVector3d start_pos_global;

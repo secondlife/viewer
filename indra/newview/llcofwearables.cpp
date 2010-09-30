@@ -403,12 +403,20 @@ void LLCOFWearables::refresh()
 
 	mCOFVersion = catp->getVersion();
 
+	// Save current scrollbar position.
+	typedef std::map<LLFlatListView*, LLRect> scroll_pos_map_t;
+	scroll_pos_map_t saved_scroll_pos;
+
+	saved_scroll_pos[mAttachments] = mAttachments->getVisibleContentRect();
+	saved_scroll_pos[mClothing] = mClothing->getVisibleContentRect();
+	saved_scroll_pos[mBodyParts] = mBodyParts->getVisibleContentRect();
+
+	// Save current selection.
 	typedef std::vector<LLSD> values_vector_t;
 	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
 
 	selection_map_t preserve_selection;
 
-	// Save current selection
 	mAttachments->getSelectedValues(preserve_selection[mAttachments]);
 	mClothing->getSelectedValues(preserve_selection[mClothing]);
 	mBodyParts->getSelectedValues(preserve_selection[mBodyParts]);
@@ -455,6 +463,15 @@ void LLCOFWearables::refresh()
 		}
 
 		list->setCommitOnSelectionChange(true);
+	}
+
+	// Restore previous scrollbar position.
+	for (scroll_pos_map_t::const_iterator it = saved_scroll_pos.begin(); it != saved_scroll_pos.end(); ++it)
+	{
+		LLFlatListView* list = it->first;
+		LLRect scroll_pos = it->second;
+
+		list->scrollToShowRect(scroll_pos);
 	}
 }
 
@@ -710,6 +727,27 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 			{
 				menu->show(ctrl, selected_uuids, x, y);
 			}
+		}
+	}
+}
+
+void LLCOFWearables::selectClothing(LLWearableType::EType clothing_type)
+{
+	std::vector<LLPanel*> clothing_items;
+
+	mClothing->getItems(clothing_items);
+
+	std::vector<LLPanel*>::iterator it;
+
+	for (it = clothing_items.begin(); it != clothing_items.end(); ++it )
+	{
+		LLPanelClothingListItem* clothing_item = dynamic_cast<LLPanelClothingListItem*>(*it);
+
+		if (clothing_item && clothing_item->getWearableType() == clothing_type)
+		{ // clothing item has specified LLWearableType::EType. Select it and exit.
+
+			mClothing->selectItem(clothing_item);
+			break;
 		}
 	}
 }

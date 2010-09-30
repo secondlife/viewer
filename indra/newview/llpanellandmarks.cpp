@@ -197,7 +197,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
+	buildFromFile( "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
@@ -965,12 +965,32 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			|| "expand"		== command_name
 			)
 	{
-		return canSelectedBeModified(command_name);
+		if (!root_folder_view) return false;
+
+		std::set<LLUUID> selected_uuids = root_folder_view->getSelectionList();
+
+		// Allow to execute the command only if it can be applied to all selected items.
+		for (std::set<LLUUID>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+		{
+			LLFolderViewItem* item = root_folder_view->getItemByID(*iter);
+
+			// If no item is found it might be a folder id.
+			if (!item)
+			{
+				item = root_folder_view->getFolderByID(*iter);
+			}
+			if (!item) return false;
+
+			if (!canItemBeModified(command_name, item)) return false;
+		}
+
+		return true;
 	}
 	else if (  "teleport"		== command_name
 			|| "more_info"		== command_name
 			|| "show_on_map"	== command_name
 			|| "copy_slurl"		== command_name
+			|| "rename"			== command_name
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
@@ -993,13 +1013,16 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 			// Disable "Show on Map" if landmark loading is in progress.
 			return !gLandmarkList.isAssetInLoadedCallbackMap(asset_uuid);
-		}
-
-		return true;
 	}
 	else if ("rename" == command_name)
 	{
-		return root_folder_view && root_folder_view->getSelectedCount() == 1 && canSelectedBeModified(command_name);
+			LLFolderViewItem* selected_item = getCurSelectedItem();
+			if (!selected_item) return false;
+
+			return canItemBeModified(command_name, selected_item);
+		}
+
+		return true;
 	}
 	else if("category" == command_name)
 	{
@@ -1065,12 +1088,11 @@ Rules:
  4. We can not paste folders from Clipboard (processed by LLFolderView::canPaste())
  5. Check LLFolderView/Inventory Bridges rules
  */
-bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) const
+bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFolderViewItem* item) const
 {
 	// validate own rules first
 
-	LLFolderViewItem* selected = getCurSelectedItem();
-	if (!selected) return false;
+	if (!item) return false;
 
 	// nothing can be modified in Library
 	if (mLibraryInventoryPanel == mCurrentSelectedList) return false;
@@ -1078,7 +1100,7 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 	bool can_be_modified = false;
 
 	// landmarks can be modified in any other accordion...
-	if (isLandmarkSelected())
+	if (item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		can_be_modified = true;
 
@@ -1107,16 +1129,16 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 	}
 	else if ("collapse" == command_name)
 	{
-		return selected->isOpen();
+		return item->isOpen();
 	}
 	else if ("expand" == command_name)
 	{
-		return !selected->isOpen();
+		return !item->isOpen();
 	}
 
 	if (can_be_modified)
 	{
-		LLFolderViewEventListener* listenerp = selected->getListener();
+		LLFolderViewEventListener* listenerp = item->getListener();
 
 		if ("cut" == command_name)
 		{

@@ -40,6 +40,7 @@
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
+#include "llbottomtray.h"
 
 
 class LLGestureComboList
@@ -49,7 +50,7 @@ class LLGestureComboList
 public:
 	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLButton::Params>			combo_button;
+		Optional<LLBottomtrayButton::Params>			combo_button;
 		Optional<LLScrollListCtrl::Params>	combo_list;
 		
 		Params();

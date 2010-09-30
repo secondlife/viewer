@@ -187,7 +187,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_login.xml");
+	buildFromFile( "panel_login.xml");
 	
 #if USE_VIEWER_AUTH
 	//leave room for the login menu bar
@@ -256,13 +256,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	
 	// Clear the browser's cache to avoid any potential for the cache messing up the login screen.
 	web_browser->clearCache();
-
-	// Need to handle login secondlife:///app/ URLs
-	web_browser->setTrusted( true );
-
-	// don't make it a tab stop until SL-27594 is fixed
-	web_browser->setTabStop(FALSE);
-	// web_browser->navigateToLocalPage( "loading", "loading.html" );
 
 	reshapeBrowser();
 
@@ -1104,9 +1097,10 @@ void LLPanelLogin::updateServerCombo()
 	{
 		if (!grid_choice->first.empty())
 		{
-			server_choice_combo->add(grid_choice->second, grid_choice->first, ADD_SORTED);
+			server_choice_combo->add(grid_choice->second, grid_choice->first);
 		}
 	}
+	server_choice_combo->sortByName();
 	
 	server_choice_combo->addSeparator(ADD_TOP);
 	

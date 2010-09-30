@@ -169,7 +169,9 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	virtual LLJoint*     	getRootJoint() { return &mRoot; }
-
+	
+	void					resetJointPositions( void );
+	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
 	virtual const LLUUID&   getID();
 	virtual LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
@@ -214,7 +216,6 @@ public:
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void 			idleUpdateRenderCost();
-	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
 
 	//--------------------------------------------------------------------

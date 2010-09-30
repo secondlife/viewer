@@ -288,6 +288,8 @@ public:
 	S32 getObjectCount(BOOL mesh_adjust = FALSE);
 	F32 getSelectedObjectCost();
 	F32 getSelectedLinksetCost();
+	F32 getSelectedObjectStreamingCost();
+	U32 getSelectedObjectTriangleCount();
 
 	S32 getTECount();
 	S32 getRootObjectCount();
@@ -357,6 +359,7 @@ public:
 	static LLColor4				sContextSilhouetteColor;
 
 	LLCachedControl<bool>					mHideSelectedObjects;
+	LLCachedControl<bool>					mRenderHighlightSelections;
 	LLCachedControl<bool>					mAllowSelectAvatar;
 	LLCachedControl<bool>					mDebugSelectMgr;
 

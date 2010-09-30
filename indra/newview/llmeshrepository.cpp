@@ -897,15 +897,24 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	{
 		std::string res_str((char*) data, data_size);
 
+		std::string deprecated_header("<? LLSD/Binary ?>");
+
+		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		{
+			res_str = res_str.substr(deprecated_header.size()+1, data_size);
+			header_size = deprecated_header.size()+1;
+		}
+		data_size = res_str.size();
+
 		std::istringstream stream(res_str);
 
-		if (!LLSDSerialize::deserialize(header, stream, data_size))
+		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
 			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
 			return false;
 		}
 
-		header_size = stream.tellg();
+		header_size += stream.tellg();
 	}
 	else
 	{
@@ -1016,6 +1025,23 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 			}
 		}
 
+		if (skin.has("alt_inverse_bind_matrix"))
+		{
+			for (U32 i = 0; i < skin["alt_inverse_bind_matrix"].size(); ++i)
+			{
+				LLMatrix4 mat;
+				for (U32 j = 0; j < 4; j++)
+				{
+					for (U32 k = 0; k < 4; k++)
+					{
+						mat.mMatrix[j][k] = skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
+					}
+				}
+				
+				info.mAlternateBindMatrix.push_back(mat);
+			}
+		}
+		
 		mSkinInfoQ.push(info);
 	}
 
@@ -1104,11 +1130,14 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	return true;
 }
 
-LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures)
+LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
+										bool upload_skin, bool upload_joints)
 : LLThread("mesh upload")
 {
 	mInstanceList = data;
 	mUploadTextures = upload_textures;
+	mUploadSkin = upload_skin;
+	mUploadJoints = upload_joints;
 	mMutex = new LLMutex(NULL);
 	mCurlRequest = NULL;
 	mPendingConfirmations = 0;
@@ -1257,6 +1286,12 @@ void LLMeshUploadThread::run()
 
 	// now upload the object asset
 	std::string url = mUploadObjectAssetCapability;
+
+	if (object_asset["objects"][0].has("permissions"))
+	{ //copy permissions from first available object to be used for coalesced object
+		object_asset["permissions"] = object_asset["objects"][0]["permissions"];
+	}
+
 	LLHTTPClient::post(url, object_asset, new LLHTTPClient::Responder());
 
 	mFinished = true;
@@ -2095,9 +2130,32 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 	return NULL;
 }
 
-void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures)
+const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
-	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures);
+	return mThread->getMeshHeader(mesh_id);
+}
+
+const LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
+{
+	static LLSD dummy_ret;
+	if (mesh_id.notNull())
+	{
+		LLMutexLock lock(mHeaderMutex);
+		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+		if (iter != mMeshHeader.end())
+		{
+			return iter->second;
+		}
+	}
+
+	return dummy_ret;
+}
+
+
+void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+									bool upload_skin, bool upload_joints)
+{
+	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints);
 	mUploads.push_back(thread);
 	thread->start();
 }
@@ -2142,6 +2200,8 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_LOW],
 		data.mModel[LLModel::LOD_IMPOSTOR], 
 		phys_shape,
+		mUploadSkin,
+		mUploadJoints,
 		true);
 
 	std::string desc = data.mBaseModel->mLabel;
@@ -2225,7 +2285,9 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 			data.mModel[LLModel::LOD_MEDIUM],
 			data.mModel[LLModel::LOD_LOW],
 			data.mModel[LLModel::LOD_IMPOSTOR], 
-			phys_shape);
+			phys_shape,
+			mUploadSkin,
+			mUploadJoints);
 
 		data.mAssetData = ostr.str();
 
@@ -2400,6 +2462,8 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 
 	object_params["permissions"] = ll_create_sd_from_permissions(perm);
 
+	object_params["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+
 	return object_params;
 }
 
@@ -2458,6 +2522,50 @@ void LLMeshRepository::uploadError(LLSD& args)
 {
 	LLMutexLock lock(mMeshMutex);
 	mUploadErrorQ.push(args);
+}
+
+//static
+F32 LLMeshRepository::getStreamingCost(const LLSD& header, F32 radius)
+{
+	F32 dlowest = llmin(radius/0.06f, 256.f);
+	F32 dlow = llmin(radius/0.24f, 256.f);
+	F32 dmid = llmin(radius/1.0f, 256.f);
+	F32 dhigh = 0.f;
+
+
+	F32 bytes_lowest = header["lowest_lod"]["size"].asReal()/1024.f;
+	F32 bytes_low = header["low_lod"]["size"].asReal()/1024.f;
+	F32 bytes_mid = header["medium_lod"]["size"].asReal()/1024.f;
+	F32 bytes_high = header["high_lod"]["size"].asReal()/1024.f;
+
+	if (bytes_high == 0.f)
+	{
+		return 0.f;
+	}
+
+	if (bytes_mid == 0.f)
+	{
+		bytes_mid = bytes_high;
+	}
+
+	if (bytes_low == 0.f)
+	{
+		bytes_low = bytes_mid;
+	}
+
+	if (bytes_lowest == 0.f)
+	{
+		bytes_lowest = bytes_low;
+	}
+
+	F32 cost = 0.f;
+	cost += llmax(256.f-dlowest, 1.f)/32.f*bytes_lowest;
+	cost += llmax(dlowest-dlow, 1.f)/32.f*bytes_low;
+	cost += llmax(dlow-dmid, 1.f)/32.f*bytes_mid;
+	cost += llmax(dmid-dhigh, 1.f)/32.f*bytes_high;
+
+	cost *= gSavedSettings.getF32("MeshStreamingCostScaler");
+	return cost;
 }
 
 

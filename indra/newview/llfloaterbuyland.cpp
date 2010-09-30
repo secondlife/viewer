@@ -294,7 +294,6 @@ LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 	
-// 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
 }
 
 LLFloaterBuyLandUI::~LLFloaterBuyLandUI()
@@ -758,6 +757,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	keywordArgs.appendString(
 		"secureSessionId",
 		gAgent.getSecureSessionID().asString());
+	keywordArgs.appendString("language", LLUI::getLanguage());
 	keywordArgs.appendString("levelId", newLevel);
 	keywordArgs.appendInt("billableArea",
 		mIsForGroup ? 0 : mParcelBillableArea);

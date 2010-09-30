@@ -104,7 +104,7 @@ namespace tut
 
 namespace
 {
-	tut::factory tf("LLTrustedMessageServiceData test");
+	tut::factory tf("LLTrustedMessageServiceData");
 }
 
 namespace tut

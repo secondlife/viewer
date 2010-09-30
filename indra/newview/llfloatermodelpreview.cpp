@@ -297,6 +297,14 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
 	
+	childSetCommitCallback("upload_skin", onUploadSkinCommit, this);
+	childSetCommitCallback("upload_joints", onUploadJointsCommit, this);
+
+	childSetCommitCallback("debug scale", onDebugScaleCommit, this);
+
+	childDisable("upload_skin");
+	childDisable("upload_joints");
+
 	const U32 width = 512;
 	const U32 height = 512;
 
@@ -318,6 +326,11 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
 
+	if ( mModelPreview->containsRiggedAsset() )
+	{
+		gAgentAvatarp->resetJointPositions();
+	}
+	
 	delete mModelPreview;
 	
 	if (mGLName)
@@ -343,6 +356,23 @@ void LLFloaterModelPreview::setLODMode(S32 lod, S32 mode)
 {
 	if (mode == 0)
 	{
+		if (lod != LLModel::LOD_PHYSICS)
+		{
+			for (S32 i = lod; i > 0; i--)
+			{
+				mModelPreview->clearModel(lod);
+			}
+		}
+		else
+		{
+			mModelPreview->clearModel(lod);
+		}
+
+		mModelPreview->refresh();
+		mModelPreview->calcResourceCost();
+	}
+	else if (mode == 1)
+	{
 		loadModel(lod);
 	}
 	else if (mode != mModelPreview->mLODMode[lod])
@@ -356,7 +386,7 @@ void LLFloaterModelPreview::setLODMode(S32 lod, S32 mode)
 	
 	LLSpinCtrl* lim = getChild<LLSpinCtrl>(limit_name[lod], TRUE);
 
-	if (mode == 1) //triangle count
+	if (mode == 2) //triangle count
 	{
 		U32 tri_count = 0;
 		for (LLModelLoader::model_list::iterator iter = mModelPreview->mBaseModel.begin();
@@ -384,6 +414,48 @@ void LLFloaterModelPreview::setLimit(S32 lod, S32 limit)
 	}
 }
 
+//static 
+void LLFloaterModelPreview::onDebugScaleCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->calcResourceCost();
+}
+
+//static 
+void LLFloaterModelPreview::onUploadJointsCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->refresh();
+}
+
+//static 
+void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
+{
+	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
+	
+	if (!fp->mModelPreview)
+	{
+		return;
+	}
+
+	fp->mModelPreview->refresh();
+	fp->mModelPreview->resetPreviewTarget();
+	fp->mModelPreview->clearBuffers();
+}
+	
+//static
 void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
@@ -1304,6 +1376,106 @@ void LLModelLoader::run()
 								model->mBindShapeMatrix = rotation;
 							}*/
 
+							//The joint transfom map that we'll populate below
+							std::map<std::string,LLMatrix4> jointTransforms;
+							jointTransforms.clear();
+							
+							//Some collada setup for accessing the skeleton
+							daeElement* pElement = 0;
+							dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
+							domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
+							if ( pSkeleton )
+							{       
+								//Get the root node of the skeleton
+								daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
+								if ( pSkeletonRootNode )
+								{       
+									//Once we have the root node - start acccessing it's joint components       
+									static const int jointCnt = mJointMap.size();
+									std::map<std::string, std::string> :: const_iterator jointIt = mJointMap.begin();
+									bool missingID = false;
+									//Loop over all the possible joints within the .dae - using the allowed joint list in the ctor.
+									for ( int i=0; i<jointCnt; ++i, ++jointIt )
+									{
+										//Build a joint for the resolver to work with
+										char str[64]={0};           
+										sprintf(str,"./%s",(*jointIt).second.c_str() );                   
+										//llwarns<<"Joint "<< str <<llendl;
+										
+										//Setup the resolver
+										daeSIDResolver resolver( pSkeletonRootNode, str );
+										
+										//Look for the joint
+										domNode* pJoint = daeSafeCast<domNode>(resolver.getElement());
+										if ( pJoint )
+										{               
+											//Pull out the translate id and store it in the jointTranslations map
+											daeSIDResolver jointResolver( pJoint, "./translate" );    						   
+											domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+											
+											LLMatrix4 workingTransform;
+											
+											//Translation
+											if ( pTranslate )
+											{               
+												domFloat3 jointTrans = pTranslate->getValue();
+												LLVector3 singleJointTranslation( jointTrans[0], jointTrans[1], jointTrans[2] );
+												workingTransform.setTranslation( singleJointTranslation );											
+											}
+											else
+											{
+												missingID = true;
+												llwarns<< "No translation sid!" << llendl;
+											}
+											//Store the joint transform w/respect to it's name. 
+											jointTransforms[(*jointIt).second.c_str()] = workingTransform; 
+											
+										}
+										else
+										{
+											missingID = true;
+											llwarns<< "Missing joint." << llendl;
+										}
+									}
+									
+									//If anything failed in regards to extracting the skeleton, joints or translation id,
+									//mention it
+									if ( missingID )
+									{
+										llwarns<< "Partial jointmap found in asset - did you mean to just have a partial map?" << llendl;
+									}
+									
+									//Set the joint translations on the avatar
+									//The joints are reset in the dtor
+									jointIt = mJointMap.begin();
+									for ( int i=0; i<jointCnt; ++i, ++jointIt )
+									{
+										std::string lookingForJoint = (*jointIt).first.c_str();
+										if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+										{											
+											LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+											LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
+											if ( pJoint )
+											{   
+												pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+											}
+											else
+											{
+												//Most likely an error in the asset.
+												llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
+											}
+										}
+									}  		 
+								}
+								else
+								{           
+									llwarns<<"No root node in this skeleton" << llendl;
+								}
+							}
+							else
+							{
+								llwarns<<"No skeleton in this asset" << llendl;
+							}
 							
 							domSkin::domJoints* joints = skin->getJoints();
 
@@ -1391,6 +1563,29 @@ void LLModelLoader::run()
 								}
 							}
 
+							//We need to construct the alternate bind matrix (which contains the new joint positions)
+							//in the same order as they were stored in the joint buffer. The joints associated
+							//with the skeleton are not stored in the same order as they are in the exported joint buffer.
+							//This remaps the skeletal joints to be in the same order as the joints stored in the model.
+							std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();							
+							static const int jointCnt = model->mJointList.size();
+							for ( int i=0; i<jointCnt; ++i, ++jointIt )
+							{
+								std::string lookingForJoint = (*jointIt).c_str();
+								//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
+								//and store it in the alternate bind matrix
+								if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+								{											
+									LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+									LLMatrix4 newInverse = model->mInvBindMatrix[i];
+									newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
+									model->mAlternateBindMatrix.push_back( newInverse );								
+								}
+								else
+								{
+									llwarns<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<llendl;
+								}
+							}   
 							
 							//grab raw position array
 							
@@ -1892,6 +2087,10 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 
+	F32 debug_scale = mFMP->childGetValue("debug scale").asReal();
+
+	F32 streaming_cost = 0.f;
+
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
@@ -1903,26 +2102,45 @@ U32 LLModelPreview::calcResourceCost()
 			LLModel::physics_shape& physics_shape = instance.mLOD[LLModel::LOD_PHYSICS] ? instance.mLOD[LLModel::LOD_PHYSICS]->mPhysicsShape : instance.mModel->mPhysicsShape;
 
 			LLSD ret = LLModel::writeModel("",  
-									instance.mLOD[4], 
+									instance.mLOD[4],
 									instance.mLOD[3], 
 									instance.mLOD[2], 
 									instance.mLOD[1], 
 									instance.mLOD[0],
 									physics_shape,
-									TRUE);
+									mFMP->childGetValue("upload_skin").asBoolean(),
+									mFMP->childGetValue("upload_joints").asBoolean(),
+									true);
 			cost += gMeshRepo.calcResourceCost(ret);
-
 			
 			num_hulls += physics_shape.size();
 			for (U32 i = 0; i < physics_shape.size(); ++i)
 			{
 				num_points += physics_shape[i].size();
 			}
+
+			//calculate streaming cost
+			LLMatrix4 transformation = instance.mTransform;
+
+			LLVector3 position = LLVector3(0, 0, 0) * transformation;
+
+			LLVector3 x_transformed = LLVector3(1, 0, 0) * transformation - position;
+			LLVector3 y_transformed = LLVector3(0, 1, 0) * transformation - position;
+			LLVector3 z_transformed = LLVector3(0, 0, 1) * transformation - position;
+			F32 x_length = x_transformed.normalize();
+			F32 y_length = y_transformed.normalize();
+			F32 z_length = z_transformed.normalize();
+			LLVector3 scale = LLVector3(x_length, y_length, z_length);
+
+			F32 radius = scale.length()*debug_scale;
+
+			streaming_cost += LLMeshRepository::getStreamingCost(ret, radius);
 		}
 	}
 
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
+	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
 
 	updateStatusMessages();
 	
@@ -1971,6 +2189,18 @@ void LLModelPreview::rebuildUploadData()
 }
 
 
+void LLModelPreview::clearModel(S32 lod)
+{
+	if (lod < 0 || lod > LLModel::LOD_PHYSICS)
+	{
+		return;
+	}
+
+	mVertexBuffer[lod].clear();
+	mModel[lod].clear();
+	mScene[lod].clear();
+}
+
 void LLModelPreview::loadModel(std::string filename, S32 lod)
 {
 	LLMutexLock lock(this);
@@ -1989,13 +2219,13 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	if (lod == 3 && !mGroup.empty())
 	{
-		for (std::map<LLModel*, U32>::iterator iter = mGroup.begin(); iter != mGroup.end(); ++iter)
+		for (std::map<LLPointer<LLModel>, U32>::iterator iter = mGroup.begin(); iter != mGroup.end(); ++iter)
 		{
 			glodDeleteGroup(iter->second);
 			stop_gloderror();
 		}
 
-		for (std::map<LLModel*, U32>::iterator iter = mObject.begin(); iter != mObject.end(); ++iter)
+		for (std::map<LLPointer<LLModel>, U32>::iterator iter = mObject.begin(); iter != mObject.end(); ++iter)
 		{
 			glodDeleteObject(iter->second);
 			stop_gloderror();
@@ -2055,6 +2285,11 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	mScene[lod] = mModelLoader->mScene;
 	mVertexBuffer[lod].clear();
 	
+	if (lod == LLModel::LOD_PHYSICS)
+	{
+		mPhysicsMesh.clear();
+	}
+
 	setPreviewLOD(lod);
 	
 	
@@ -2070,12 +2305,17 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mDirty = true;
 	
+	resetPreviewTarget();
+	
+	mFMP->mLoading = FALSE;
+	refresh();
+}
+
+void LLModelPreview::resetPreviewTarget()
+{
 	mPreviewTarget = (mModelLoader->mExtents[0] + mModelLoader->mExtents[1]) * 0.5f;
 	mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
 	setPreviewTarget(mPreviewScale.magVec()*2.f);
-
-	mFMP->mLoading = FALSE;
-	refresh();
 }
 
 void LLModelPreview::smoothNormals()
@@ -2331,11 +2571,31 @@ void LLModelPreview::scrubMaterials()
 	refresh();
 }
 
+bool LLModelPreview::containsRiggedAsset( void )
+{
+	//loop through the models and determine if any of them contained a rigged asset, and if so
+	//return true.
+	//This is used to cleanup the joint positions after a preview.
+	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
+	{
+		LLModel* pModel = *iter;
+		if ( pModel->mAlternateBindMatrix.size() > 0 )
+		{
+			return true;
+		}
+	}
+	return false;
+}
 void LLModelPreview::genLODs(S32 which_lod)
 {
 	if (mBaseModel.empty())
 	{
 		return;
+	}
+
+	if (which_lod == LLModel::LOD_PHYSICS)
+	{ //clear physics mesh map
+		mPhysicsMesh.clear();
 	}
 
 	LLVertexBuffer::unbind();
@@ -2364,6 +2624,14 @@ void LLModelPreview::genLODs(S32 which_lod)
 	U32 base_triangle_count = triangle_count;
 
 	U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
+
+	if (mGroup[mBaseModel[0]] == 0)
+	{ //clear LOD maps
+		mGroup.clear();
+		mObject.clear();
+		mPercentage.clear();
+		mPatch.clear();
+	}
 
 	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
 	{ //build GLOD objects for each model in base model list
@@ -2395,7 +2663,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			if (mVertexBuffer[5].empty())
 			{
-				genBuffers(5);
+				genBuffers(5, false);
 			}
 
 			U32 tri_count = 0;
@@ -2436,65 +2704,63 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 		}
 		
-		if (which_lod == -1 || mLODMode[which_lod] == 1)
-		{
-			//generating LODs for all entries, or this entry has a triangle budget
-			glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
-			stop_gloderror();		
-		}
-		else
-		{ 
-			//this entry uses error mode
-			glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_OBJECT_SPACE_ERROR);
-			stop_gloderror();
-		}
-
-		if (which_lod != -1 && mLODMode[which_lod] == 2)
-		{
-			glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, llmax(limit/100.f, 0.01f));
-			stop_gloderror();
-		}
-		else
-		{
-			glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
-			stop_gloderror();
-		}
+		//generating LODs for all entries, or this entry has a triangle budget
+		glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
+		stop_gloderror();		
+		
+		glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
+		stop_gloderror();
 	}
 
 
 	S32 start = LLModel::LOD_HIGH;
 	S32 end = 0;
 
-	BOOL error_mode = FALSE;
-
 	if (which_lod != -1)
 	{
 		start = end = which_lod;
-
-		if (mLODMode[which_lod] == 2)
-		{
-			error_mode = TRUE;
-		}
 	}
 	
 	
+	std::string combo_name[] = 
+	{
+		"lowest detail combo",
+		"low detail combo",
+		"medium detail combo",
+		"high detail combo",
+		"physics detail combo"
+	};
+
+	std::string limit_name[] =
+	{
+		"lowest limit",
+		"low limit",
+		"medium limit",
+		"high limit",
+		"physics limit"
+	};
+
 	for (S32 lod = start; lod >= end; --lod)
 	{
-		if (!error_mode)
+		if (which_lod == -1)
 		{
-			if (which_lod == -1)
+			if (lod < start)
 			{
-				if (lod < start)
-				{
-					triangle_count /= 3;
-				}
-			}
-			else
-			{
-				triangle_count = limit;
+				triangle_count /= 3;
 			}
 		}
+		else
+		{
+			triangle_count = limit;
+		}
 
+		LLComboBox* combo_box = mFMP->findChild<LLComboBox>(combo_name[lod]);
+		combo_box->setCurrentByIndex(2);
+	
+		LLSpinCtrl* lim = mFMP->getChild<LLSpinCtrl>(limit_name[lod], TRUE);
+		lim->setMaxValue(base_triangle_count);
+		lim->setVisible(true);
+					
 		mModel[lod].clear();
 		mModel[lod].resize(mBaseModel.size());
 		mVertexBuffer[lod].clear();
@@ -2509,22 +2775,14 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			U32 target_count = U32(mPercentage[base]*triangle_count);
 
-			if (error_mode)
-			{
-				target_count = base->getNumTriangles();
-			}
-
 			if (target_count < 4)
 			{ 
 				target_count = 4;
 			}
 
-			if (which_lod == -1 || mLODMode[which_lod] == 1)
-			{
-				glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
-				stop_gloderror();
-			}
-			
+			glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
+			stop_gloderror();
+						
 			glodAdaptGroup(mGroup[base]);
 			stop_gloderror();
 
@@ -2599,7 +2857,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 			target_model->mJointList = base->mJointList;
 			target_model->mInvBindMatrix = base->mInvBindMatrix;
 			target_model->mBindShapeMatrix = base->mBindShapeMatrix;
-
+			target_model->mAlternateBindMatrix = base->mAlternateBindMatrix;
 			//copy material list
 			target_model->mMaterialList = base->mMaterialList;
 
@@ -2774,7 +3032,15 @@ void LLModelPreview::setPreviewTarget(F32 distance)
 	mCameraOffset.clearVec();
 }
 
-void LLModelPreview::genBuffers(S32 lod)
+void LLModelPreview::clearBuffers()
+{
+	for (U32 i = 0; i < 6; i++)
+	{
+		mVertexBuffer[i].clear();
+	}
+}
+
+void LLModelPreview::genBuffers(S32 lod, bool avatar_preview)
 {
 	U32 tri_count = 0;
 	U32 vertex_count = 0;
@@ -2825,7 +3091,7 @@ void LLModelPreview::genBuffers(S32 lod)
 
 			LLVertexBuffer* vb = NULL;
 			
-			bool skinned = !mdl->mSkinWeights.empty();
+			bool skinned = avatar_preview && !mdl->mSkinWeights.empty();
 
 			U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 			
@@ -2860,13 +3126,12 @@ void LLModelPreview::genBuffers(S32 lod)
 
 			if (skinned)
 			{
-				// build vertices and normals
 				for (U32 i = 0; i < num_vertices; i++)
 				{
 					//find closest weight to vf.mVertices[i].mPosition
 					LLVector3 pos(vf.mPositions[i].getF32ptr());
 
-					LLModel::weight_list weight_list = base_mdl->getJointInfluences(pos);
+					const LLModel::weight_list& weight_list = base_mdl->getJointInfluences(pos);
 
 					LLVector4 w(0,0,0,0);
 					if (weight_list.size() > 4)
@@ -2897,16 +3162,6 @@ void LLModelPreview::genBuffers(S32 lod)
 			tri_count += num_indices/3;
 			++mesh_count;
 
-		}
-	}
-
-	if (lod == 4)
-	{
-		for (U32 i = 0; i < 4; i++)
-		{
-			LLSpinCtrl* lim = mFMP->getChild<LLSpinCtrl>(limit_name[i], TRUE);
-
-			lim->setMaxValue(tri_count);
 		}
 	}
 }
@@ -2951,6 +3206,9 @@ BOOL LLModelPreview::render()
 	gl_rect_2d_simple( width, height );
 
 	bool avatar_preview = false;
+	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
+	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
+
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 	{
 		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
@@ -2964,6 +3222,39 @@ BOOL LLModelPreview::render()
 		}
 	}
 
+	if (upload_skin && !avatar_preview)
+	{
+		mFMP->childSetValue("upload_skin", false);
+		upload_skin = false;
+	}
+
+	if (!upload_skin && upload_joints)
+	{
+		mFMP->childSetValue("upload_joints", false);
+		upload_joints = false;
+	}
+
+	if (!avatar_preview)
+	{
+		mFMP->childDisable("upload_skin");
+	}
+	else
+	{
+		mFMP->childEnable("upload_skin");
+	}
+
+	if (!upload_skin)
+	{
+		mFMP->childDisable("upload_joints");
+	}
+	else
+	{
+		mFMP->childEnable("upload_joints");
+	}
+
+	avatar_preview = avatar_preview && upload_skin;
+
+		
 	mFMP->childSetEnabled("consolidate", !avatar_preview);
 	
 	F32 explode = mFMP->mDecompFloater ? mFMP->mDecompFloater->childGetValue("explode").asReal() : 0.f;
@@ -3020,8 +3311,8 @@ BOOL LLModelPreview::render()
 
 	if (!mBaseModel.empty() && mVertexBuffer[5].empty())
 	{
-		genBuffers(-1);
-		genBuffers(3);
+		genBuffers(-1, avatar_preview);
+		//genBuffers(3);
 		//genLODs();
 	}
 
@@ -3043,7 +3334,7 @@ BOOL LLModelPreview::render()
 	{
 		if (mVertexBuffer[mPreviewLOD].empty())
 		{
-			genBuffers(mPreviewLOD);
+			genBuffers(mPreviewLOD, avatar_preview);
 		}
 
 		if (!avatar_preview)
@@ -3118,7 +3409,7 @@ BOOL LLModelPreview::render()
 						{
 							LLMutexLock(decomp->mMutex);
 												
-							std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > >::iterator iter = 
+							std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > >::iterator iter = 
 								mPhysicsMesh.find(model);
 							if (iter != mPhysicsMesh.end())
 							{
@@ -3376,7 +3667,8 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	mp->mModelPreview->rebuildUploadData();
 		
-	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale, mp->childGetValue("upload_textures").asBoolean());
+	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale, 
+		mp->childGetValue("upload_textures").asBoolean(), mp->childGetValue("upload_skin"), mp->childGetValue("upload_joints"));
 
 	mp->closeFloater(false);
 }
@@ -3406,7 +3698,7 @@ void LLFloaterModelPreview::onDecompose(void* user_data)
 void LLFloaterModelPreview::onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh)
 {
 	if (sInstance && sInstance->mModelPreview)
-	{
+	{ 
 		sInstance->mModelPreview->mPhysicsMesh[model] = physics_mesh;
 
 		sInstance->mModelPreview->mDirty = true;

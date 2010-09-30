@@ -83,8 +83,8 @@ LLWearableDictionary::LLWearableDictionary()
 	addEntry(LLWearableType::WT_SKIRT,        new WearableEntry("skirt",       "New Skirt",			LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA,        new WearableEntry("alpha",       "New Alpha",			LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_ALPHA));
 	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry("tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_TATTOO));
-	addEntry(LLWearableType::WT_INVALID,      new WearableEntry("invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE));
-	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry("none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE));
+	addEntry(LLWearableType::WT_INVALID,      new WearableEntry("invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_INVALID));
+	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry("none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_INVALID));
 }
 
 // static
@@ -100,6 +100,7 @@ const std::string& LLWearableType::getTypeName(LLWearableType::EType type)
 { 
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return getTypeName(WT_INVALID);
 	return entry->mName;
 }
 
@@ -108,6 +109,7 @@ const std::string& LLWearableType::getTypeDefaultNewName(LLWearableType::EType t
 { 
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return getTypeDefaultNewName(WT_INVALID);
 	return entry->mDefaultNewName;
 }
 
@@ -116,6 +118,7 @@ const std::string& LLWearableType::getTypeLabel(LLWearableType::EType type)
 { 
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return getTypeLabel(WT_INVALID);
 	return entry->mLabel;
 }
 
@@ -124,6 +127,7 @@ LLAssetType::EType LLWearableType::getAssetType(LLWearableType::EType type)
 {
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return getAssetType(WT_INVALID);
 	return entry->mAssetType;
 }
 
@@ -132,6 +136,7 @@ LLInventoryIcon::EIconName LLWearableType::getIconName(LLWearableType::EType typ
 {
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return getIconName(WT_INVALID);
 	return entry->mIconName;
-}
+} 
 

@@ -33,25 +33,47 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include "llmenugl.h"
-
 #include "llpanel.h"
 #include "llimview.h"
-#include "llcombobox.h"
+#include "llbutton.h"
 
 class LLChicletPanel;
-class LLLineEditor;
 class LLLayoutStack;
-class LLNotificationChiclet;
 class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 class LLBottomTrayLite;
+class LLLayoutPanel;
+class LLMenuGL;
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBOTTOMTRAY_CPP
 extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 #endif
+
+/**
+ * Class for buttons that should have drag'n'drop ability in bottomtray.
+ * These buttons pass mouse events handling to bottomtray.
+ */
+class LLBottomtrayButton : public LLButton
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLButton::Params>
+	{
+		Params(){}
+	};
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+protected:
+	LLBottomtrayButton(const Params& p)
+		:	LLButton(p)
+	{
+
+	}
+	friend class LLUICtrlFactory;
+};
 
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>
@@ -107,6 +129,20 @@ public:
 	 */
 	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
+	// Below are methods that were introduced or overriden in bottomtray to handle drag'n'drop
+
+	virtual void draw();
+
+	/**
+	 * These three methods handle drag'n'drop, they may be called directly from child buttons.
+	 * handleHover and other virtual handle* couldn't be used here, because we should call LLPanel::handle*,
+	 * but x and y here are often outside of bottomtray.
+	 */
+	void onDraggableButtonHover(S32 x, S32 y);
+	void onDraggableButtonMouseDown(LLUICtrl* button, S32 x, S32 y);
+	void onDraggableButtonMouseUp(LLUICtrl* button, S32 x, S32 y);
+
+
 private:
 	typedef enum e_resize_status_type
 	{
@@ -139,6 +175,29 @@ private:
 		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 									| RS_BUTTON_BUILD | RS_BUTTON_SEARCH | RS_BUTTON_WORLD_MAP | RS_BUTTON_MINI_MAP
 	}EResizeState;
+
+	// Below are three methods that were introduced to handle drag'n'drop
+
+	/**
+	 * finds a panel under the specified LOCAL point
+	 */
+	LLPanel* findChildPanelByLocalCoords(S32 x, S32 y);
+
+	/**
+	 * checks whether the cursor is over an area where the dragged button may be dropped
+	 */
+	bool isCursorOverDraggableArea(S32 x, S32 y);
+
+	/**
+	 * Updates process(shrink/show/hide) order of buttons and order in which they'll be stored for further save/load.
+	 * It is called when dragged button is dropped
+	 */
+	void updateButtonsOrdersAfterDnD();
+
+	// saves order of buttons to file on disk
+	void saveButtonsOrder();
+	// reads order of buttons from file on disk
+	void loadButtonsOrder();
 
 	/**
 	 * Updates child controls size and visibility when it is necessary to reduce total width.
@@ -366,6 +425,13 @@ private:
 	 * Contains order in which child buttons should be processed in show/hide, extend/shrink methods.
 	 */
 	resize_state_vec_t mButtonsProcessOrder;
+	/**
+	 * Contains order in which child buttons are shown.
+	 * It traces order of all bottomtray buttons that may change place via drag'n'drop and should
+	 * save and load it between sessions. mButtonsProcessOrder is not enough for it because it contains only
+	 * buttons that may be hidden.
+	 */
+	resize_state_vec_t mButtonsOrder;
 
 protected:
 
@@ -377,16 +443,53 @@ protected:
 	void onContextMenuItemClicked(const LLSD& userdata);
 	bool onContextMenuItemEnabled(const LLSD& userdata);
 
+	// Either default or saved after user's manual resize width of nearby chat.
+	// Nearby chat will not always have it, because sometimes it can be shrunk on resize,
+	// but when possible it will be restored back to this value.
+	S32					mDesiredNearbyChatWidth;
 	LLChicletPanel* 	mChicletPanel;
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
+	LLLayoutPanel*		mChatBarContainer;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLButton*			mCamButton;
 	LLButton*			mMovementButton;
 	LLBottomTrayLite*   mBottomTrayLite;
 	bool                mIsInLiteMode;
+
+	// Drag'n'Drop
+
+	/**
+	 * Is true if mouse down happened on draggable button.
+	 * Set false whether on drag start or on mouse up.
+	 */
+	bool mCheckForDrag;
+	/**
+	 * These two variables hold corrdinates of mouse down on draggable button.
+	 * They are used to compare with current coordinates of cursor and determine whether drag'n'drop should start.
+	 */
+	S32 mStartX;
+	S32 mStartY;
+	/**
+	 * True if drag'n'drop is happening.
+	 */
+	bool mDragStarted;
+
+	/**
+	 * Pointer to panel which is currently dragged (though it seems to user that button is dragged,
+	 * we are changing place of layout panel).
+	 */
+	LLPanel* mDraggedItem;
+	/**
+	 * Panel before which the dragged button will be inserted.
+	 */
+	LLPanel* mLandingTab;
+	/**
+	 * Image used to show position where dragged button will be dropped.
+	 */
+	LLUIImage* mImageDragIndication;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

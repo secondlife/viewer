@@ -185,7 +185,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 	}
 
-	return true;
+	return false;
 }
 
 //--------------------------------------------------------------------------

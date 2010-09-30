@@ -1354,6 +1354,9 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	LLVector4a min,max;
 
+	min.clear();
+	max.clear();
+
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
 //	bool rigged = false;
@@ -3204,6 +3207,45 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 }
 
+F32 LLVOVolume::getStreamingCost()
+{
+	std::string header_lod[] = 
+	{
+		"lowest_lod",
+		"low_lod",
+		"medium_lod",
+		"high_lod"
+	};
+
+
+	if (isMesh())
+	{	
+		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
+
+		F32 radius = getRadius();
+		
+		return LLMeshRepository::getStreamingCost(header, radius);
+	}
+		
+	
+	return 0.f;
+}
+
+U32 LLVOVolume::getTriangleCount()
+{
+	U32 count = 0;
+	LLVolume* volume = getVolume();
+	if (volume)
+	{
+		for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+		{
+			count += volume->getVolumeFace(i).mNumIndices/3;
+		}
+	}
+
+	return count;
+}
+
 //static
 void LLVOVolume::preUpdateGeom()
 {
@@ -4023,6 +4065,32 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				
 				//get drawpool of avatar with rigged face
 				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
+				
+				//Determine if we've received skininfo that contains an
+				//alternate bind matrix - if it does then apply the translational component
+				//to the joints of the avatar.
+				const LLVOAvatar* pAvatarVO = vobj->getAvatar();
+				if ( pAvatarVO )
+				{
+					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
+					if ( pSkinData )
+					{
+						const int bindCnt = pSkinData->mAlternateBindMatrix.size();
+						if ( bindCnt > 0 )
+						{					
+							const int jointCnt = pSkinData->mJointNames.size();
+							for ( int i=0; i<jointCnt; ++i )
+							{
+								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+								LLJoint* pJoint = vobj->getAvatar()->getJoint( lookingForJoint );
+								if ( pJoint )
+								{   
+									pJoint->storeCurrentXform( pSkinData->mAlternateBindMatrix[i].getTranslation() );												
+								}
+							}
+						}
+					}
+				}
 				
 				if (pool)
 				{

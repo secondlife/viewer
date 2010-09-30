@@ -47,6 +47,7 @@ class LLFilterEditor;
 class LLTabContainer;
 class LLFloaterInventoryFinder;
 class LLMenuGL;
+class LLFloater;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory

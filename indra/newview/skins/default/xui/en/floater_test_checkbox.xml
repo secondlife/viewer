@@ -41,7 +41,7 @@
      layout="topleft"
      left_delta="0"
      name="text_enabled_color_checkbox"
-     text_enabled_color="EmphasisColor"
+     label_text.text_color="EmphasisColor"
      top_pad="14"
      width="150" />
     <check_box
@@ -51,7 +51,7 @@
      layout="topleft"
      left_delta="0"
      name="text_disabled_color_checkbox"
-     text_disabled_color="EmphasisColor_35"
+     label_text.text_readonly_color="EmphasisColor_35"
      top_pad="14"
      width="150" />
     <check_box

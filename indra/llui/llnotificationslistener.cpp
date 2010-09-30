@@ -12,6 +12,7 @@
 #include "linden_common.h"
 #include "llnotificationslistener.h"
 #include "llnotifications.h"
+#include "llnotificationtemplate.h"
 #include "llsd.h"
 #include "llui.h"
 
@@ -165,7 +166,11 @@ void LLNotificationsListener::ignore(const LLSD& params) const
     if (params["name"].isDefined())
     {
         // ["name"] was passed: ignore just that notification
-        LLUI::sSettingGroups["ignores"]->setBOOL(params["name"], ignore);
+		LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"]);
+		if (templatep)
+		{
+			templatep->mForm->setIgnored(ignore);
+		}
     }
     else
     {

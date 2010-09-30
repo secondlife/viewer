@@ -13,7 +13,7 @@
 		<combo_box.item label="Italiano (Włoski) - Beta" name="Italian"/>
 		<combo_box.item label="Nederlands (Niderlandzki) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski - Beta" name="Polish"/>
-		<combo_box.item label="Portugués (Portugalski) - Beta" name="Portugese"/>
+		<combo_box.item label="Português (Portugalski) - Beta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japoński) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">

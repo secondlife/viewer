@@ -152,7 +152,7 @@ namespace tut
 namespace
 {
     // this is for naming our tests to make pretty output
-    tut::factory tf("MediaEntry Test");
+    tut::factory tf("LLMediaEntry");
 }
 
 namespace tut

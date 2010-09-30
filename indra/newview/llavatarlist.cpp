@@ -96,6 +96,20 @@ void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
 	}
 }
 
+void LLAvatarList::showPermissions(bool visible)
+{
+	// Save the value for new items to use.
+	mShowPermissions = visible;
+
+	// Enable or disable showing permissions icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for(std::vector<LLPanel*>::const_iterator it = items.begin(), end_it = items.end(); it != end_it; ++it)
+	{
+		static_cast<LLAvatarListItem*>(*it)->setShowPermissions(mShowPermissions);
+	}
+}
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
@@ -113,6 +127,7 @@ LLAvatarList::Params::Params()
 , show_info_btn("show_info_btn", true)
 , show_profile_btn("show_profile_btn", true)
 , show_speaking_indicator("show_speaking_indicator", true)
+, show_permissions_granted("show_permissions_granted", false)
 {
 }
 
@@ -127,6 +142,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowInfoBtn(p.show_info_btn)
 , mShowProfileBtn(p.show_profile_btn)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
+, mShowPermissions(p.show_permissions_granted)
 {
 	setCommitOnSelectionChange(true);
 
@@ -383,6 +399,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
+	item->setShowPermissions(mShowPermissions);
 
 	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
 
@@ -498,7 +515,7 @@ LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarList
 , mIsHideNumber(hide_number)
 {
 	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	buildFromFile( "panel_avatar_list_item.xml");
 }
 
 BOOL LLAvalineListItem::postBuild()

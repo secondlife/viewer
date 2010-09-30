@@ -39,6 +39,7 @@
 class LLCallFloater;
 class LLButton;
 class LLOutputMonitorCtrl;
+class LLBottomtrayButton;
 
 /*
  * Button displaying voice chat status. Displays voice chat options when
@@ -50,10 +51,8 @@ public:
 
 	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLButton::Params>
-			speak_button,
-			show_button;
-
+		Optional<LLButton::Params> speak_button;
+		Optional<LLBottomtrayButton::Params> show_button;
 		Optional<LLOutputMonitorCtrl::Params> monitor;
 
 		Params();
@@ -92,7 +91,7 @@ protected:
 
 private:
 	LLButton*	mSpeakBtn;
-	LLButton*	mShowBtn;
+	LLBottomtrayButton*	mShowBtn;
 	LLHandle<LLFloater> mPrivateCallPanel;
 	LLOutputMonitorCtrl* mOutputMonitor;
 };

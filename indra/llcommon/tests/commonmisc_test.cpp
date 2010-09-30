@@ -65,7 +65,7 @@ namespace tut
 	};
 	typedef test_group<sd_data> sd_test;
 	typedef sd_test::object sd_object;
-	tut::sd_test sd("llsd");
+	tut::sd_test sd("LLSD");
 
 	template<> template<>
 	void sd_object::test<1>()
@@ -456,7 +456,7 @@ namespace tut
 	};
 	typedef test_group<mem_data> mem_test;
 	typedef mem_test::object mem_object;
-	tut::mem_test mem_stream("memory_stream");
+	tut::mem_test mem_stream("LLMemoryStream");
 
 	template<> template<>
 	void mem_object::test<1>()
@@ -649,7 +649,7 @@ namespace tut
 	};
 	typedef test_group<hash_data> hash_test;
 	typedef hash_test::object hash_object;
-	tut::hash_test hash_tester("hash_test");
+	tut::hash_test hash_tester("LLHash");
 
 	template<> template<>
 	void hash_object::test<1>()

@@ -31,77 +31,122 @@
 			 height="545"
 			 width="330" />
 		<panel
+		     follows="bottom|left|right"
 			 height="25"
 			 layout="topleft"
 			 name="button_panel"
 			 left="9"
 			 top_pad="-2"
 			 width="313">
-			<button
-				 enabled="true"
-				 follows="bottom|left"
-				 height="23"
-				 label="Profile"
-				 layout="topleft"
-				 left="0"
-				 name="info_btn"
-				 tool_tip="Show object profile"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="true"
-				 follows="bottom|left"
-				 height="23"
-				 label="Share"
-				 layout="topleft"
-				 left="105"
-				 name="share_btn"
-				 tool_tip="Share an inventory item"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="true"
-				 follows="bottom|left"
-				 height="23"
-				 label="Shop"
-				 layout="topleft"
-				 left="210"
-				 name="shop_btn"
-				 tool_tip="Open Marketplace webpage"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="false"
-				 follows="bottom|left"
-				 height="23"
-				 label="Wear"
-				 layout="topleft"
-				 left="210"
-				 name="wear_btn"
-				 tool_tip="Wear seleceted outfit"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="false"
-				 follows="bottom|left"
-				 height="23"
-				 label="Play"
-				 layout="topleft"
-				 name="play_btn"
-				 left="210"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="false"
-				 follows="bottom|left"
-				 height="23"
-				 label="Teleport"
-				 layout="topleft"
-				 left="210"
-				 name="teleport_btn"
-				 tool_tip="Teleport to the selected area"
-				 top="0"
-				 width="102" />
+			<layout_stack
+     	         follows="bottom|left|right"
+		         height="23"
+		         layout="topleft"
+		         mouse_opaque="false"
+		         name="button_panel_ls"
+		         left="0"
+		         orientation="horizontal"
+		         top="0"
+		         width="313">	
+			    <layout_panel
+			         follows="bottom|left|right"
+			         height="23"
+                     layout="bottomleft"
+                     left="0"			
+                     mouse_opaque="false"
+                     name="info_btn_lp"
+                     user_resize="false" 
+                     auto_resize="true"
+                     width="103">
+                    <button
+                         enabled="true"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Profile"
+                         layout="topleft"
+                         left="1"
+                         name="info_btn"
+                         tool_tip="Show object profile"
+                         top="0"
+                         width="102" />
+			    </layout_panel>
+			    <layout_panel
+                     follows="bottom|left|right"
+                     height="23"
+                     layout="bottomleft"
+                     left_pad="3"			
+                     mouse_opaque="false"
+                     name="share_btn_lp"
+                     user_resize="false" 
+                     auto_resize="true"
+                     width="102">
+                    <button
+                         enabled="true"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Share"
+                         layout="topleft"
+                         left="0"
+                         name="share_btn"
+                         tool_tip="Share an inventory item"
+                         top="0"
+                         width="102" />
+			    </layout_panel>
+			    <layout_panel
+                     follows="bottom|left|right"
+                     height="23"
+                     layout="bottomleft"
+                     left_pad="3"			
+                     mouse_opaque="false"
+                     name="shop_btn_lp"
+                     user_resize="false" 
+                     auto_resize="true"
+                     width="102">
+                    <button
+                         enabled="true"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Shop"
+                         layout="topleft"
+                         left="0"
+                         name="shop_btn"
+                         tool_tip="Open Marketplace webpage"
+                         top="0"
+                         width="102" />
+                    <button
+                         enabled="false"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Wear"
+                         layout="topleft"
+                         left="0"
+                         name="wear_btn"
+                         tool_tip="Wear seleceted outfit"
+                         top="0"
+                         width="102" />
+                    <button
+                         enabled="false"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Play"
+                         layout="topleft"
+                         name="play_btn"
+                         left="0"
+                         top="0"
+                         width="102" />
+                    <button
+                         enabled="false"
+                         follows="bottom|left|right"
+                         height="23"
+                         label="Teleport"
+                         layout="topleft"
+                         left="0"
+                         name="teleport_btn"
+                         tool_tip="Teleport to the selected area"
+                         top="0"
+                         width="102" />
+			    </layout_panel>
+			</layout_stack>
 		</panel>
 	</panel>
 

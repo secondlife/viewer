@@ -1874,7 +1874,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if (cdp)
 		{
 			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
-			LLVector3 diff = getVelocity() * (0.5f*mTimeDilation*(gFrameDTClamped + ((F32)ping_delay)*0.001f)); 
+			LLVector3 diff = getVelocity() * ping_delay; 
 			new_pos_parent += diff;
 		}
 		else
@@ -2940,6 +2940,16 @@ F32 LLViewerObject::getObjectCost()
 	}
 	
 	return mObjectCost;
+}
+
+F32 LLViewerObject::getStreamingCost()
+{
+	return 0.f;
+}
+
+U32 LLViewerObject::getTriangleCount()
+{
+	return 0;
 }
 
 F32 LLViewerObject::getLinksetCost()
@@ -4546,6 +4556,13 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	{
 		gAudiop->cleanupAudioSource(mAudioSourcep);
 		mAudioSourcep = NULL;
+	}
+
+	if (mAudioSourcep && mAudioSourcep->isMuted() &&
+	    mAudioSourcep->getCurrentData() && mAudioSourcep->getCurrentData()->getID() == audio_uuid)
+	{
+		//llinfos << "Already having this sound as muted sound, ignoring" << llendl;
+		return;
 	}
 
 	getAudioSource(owner_id);

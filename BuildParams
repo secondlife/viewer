@@ -9,7 +9,7 @@ CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
 # Use Public Upload Locations
-public_build = false
+public_build = true
 
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = false
@@ -56,6 +56,7 @@ viewer-release.build_viewer_update_version_manager = true
 
 viewer-development-import.build_debug_release_separately = true
 viewer-development-fixes.build_debug_release_separately = true
+viewer-development-tweaks.build_debug_release_separately = true
 
 # =======================================
 # brad
@@ -88,23 +89,19 @@ viewer-mesh.build_hg_bundle = true
 viewer-mesh.build_viewer_update_version_manager = false
 viewer-mesh.build_Debug = false
 viewer-mesh.build_RelWithDebInfo = false
-viewer-mesh.viewer_channel = "Second Life Mesh Beta"
-viewer-mesh.login_channel = "Second Life Mesh Beta"
+viewer-mesh.viewer_channel = "Project Viewer - Mesh"
+viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
 
 # ========================================
-# moss
+# CG
 # ========================================
 
-mossbuild1.email = moss@lindenlab.com
-mossbuild1.build_server = false
-mossbuild1.build_server_tests = false
-
-mossbuild2.email = moss@lindenlab.com
-mossbuild2.build_server = false
-mossbuild2.build_server_tests = false
+cg_viewer-development_lenny.collect_metrics = true
+cg_viewer-development_lenny.show_changes_since = 4b140ce7839d
+cg_viewer-development_lenny.email = cg@lindenlab.com
 
 # ========================================
 # gooey
@@ -188,5 +185,20 @@ oz_viewer-review2_coverity.build_coverity = true
 oz_viewer-review2_coverity.build_CYGWIN_Debug = false
 oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
 oz_viewer-review2_coverity.build_CYGWIN_Release = false
+
+# ========================================
+# tofu
+# ========================================
+
+tofu_viewer-development-staging.email = tofu.linden@lindenlab.com
+
+# ========================================
+# enus
+# ========================================
+
+viewer-tut-teamcity.email = enus@lindenlab.com
+viewer-tut-teamcity.build_server = false
+viewer-tut-teamcity.build_server_tests = false
+
 
 # eof

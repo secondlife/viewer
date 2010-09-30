@@ -120,8 +120,8 @@ enum EObjectPropertiesExtraID
 enum EAddPosition
 {
 	ADD_TOP,
-	ADD_SORTED,
-	ADD_BOTTOM
+	ADD_BOTTOM,
+	ADD_DEFAULT
 };
 
 enum LLGroupChange

@@ -100,7 +100,8 @@ public:
 	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
-	static S32 getCacheVersion() ;
+	static U32 getTextureCacheVersion() ;
+	static U32 getObjectCacheVersion() ;
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	
@@ -313,6 +314,7 @@ extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;
 extern LLFrameTimer gForegroundTime;
+extern LLFrameTimer gLoggedInTime;
 
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;

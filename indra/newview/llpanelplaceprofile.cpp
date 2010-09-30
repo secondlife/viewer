@@ -236,6 +236,11 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 		break;
 	}
 
+	if (mAccordionCtrl != NULL)
+	{
+		mAccordionCtrl->expandDefaultTab();
+	}
+
 	LLPanelPlaceInfo::setInfoType(type);
 }
 
@@ -279,11 +284,6 @@ void LLPanelPlaceProfile::handleVisibilityChange(BOOL new_visibility)
 		{
 			parcel_mgr->deselectUnused();
 		}
-	}
-
-	if (mAccordionCtrl != NULL)
-	{
-		mAccordionCtrl->expandDefaultTab();
 	}
 }
 

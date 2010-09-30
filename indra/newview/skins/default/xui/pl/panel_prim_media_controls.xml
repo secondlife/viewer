@@ -13,9 +13,9 @@
 		50
 	</string>
 	<layout_stack name="progress_indicator_area">
-		<panel name="media_progress_indicator">
+		<layout_panel name="media_progress_indicator">
 			<progress_bar name="media_progress_bar" tool_tip="Wczytywanie mediów"/>
-		</panel>
+		</layout_panel>
 	</layout_stack>
 	<layout_stack name="media_controls">
 		<layout_panel name="back">

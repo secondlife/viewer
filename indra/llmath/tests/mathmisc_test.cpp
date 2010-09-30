@@ -51,7 +51,7 @@ namespace tut
 	};
 	typedef test_group<math_data> math_test;
 	typedef math_test::object math_object;
-	tut::math_test tm("basic_linden_math");
+	tut::math_test tm("BasicLindenMath");
 
 	template<> template<>
 	void math_object::test<1>()
@@ -184,7 +184,7 @@ namespace tut
 	};
 	typedef test_group<uuid_data> uuid_test;
 	typedef uuid_test::object uuid_object;
-	tut::uuid_test tu("uuid");
+	tut::uuid_test tu("LLUUID");
 
 	template<> template<>
 	void uuid_object::test<1>()
@@ -239,7 +239,7 @@ namespace tut
 	};
 	typedef test_group<crc_data> crc_test;
 	typedef crc_test::object crc_object;
-	tut::crc_test tc("crc");
+	tut::crc_test tc("LLCrc");
 
 	template<> template<>
 	void crc_object::test<1>()

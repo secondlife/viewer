@@ -120,7 +120,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_prim_media_controls.xml");
+	buildFromFile( "panel_prim_media_controls.xml");
 	mInactivityTimer.reset();
 	mFadeTimer.stop();
 	mCurrentZoom = ZOOM_NONE;
@@ -1181,7 +1181,7 @@ void LLPanelPrimMediaControls::setCurrentURL()
 //	if (media_address_combo && mCurrentURL != "about:blank")
 //	{
 //		media_address_combo->remove(mCurrentURL);
-//		media_address_combo->add(mCurrentURL, ADD_SORTED);
+//		media_address_combo->add(mCurrentURL);
 //		media_address_combo->selectByValue(mCurrentURL);
 //	}
 #else   // USE_COMBO_BOX_FOR_MEDIA_URL

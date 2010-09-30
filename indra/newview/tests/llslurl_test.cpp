@@ -101,7 +101,7 @@ namespace tut
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<slurlTest> slurlTestFactory;
 	typedef slurlTestFactory::object slurlTestObject;
-	tut::slurlTestFactory tut_test("llslurl");
+	tut::slurlTestFactory tut_test("LLSlurl");
 	
 	// ---------------------------------------------------------------------------------------
 	// Test functions 
