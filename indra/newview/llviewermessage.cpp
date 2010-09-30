@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
+#include "lllslconstants.h"
 #include "llregionhandle.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
@@ -6171,7 +6172,6 @@ const S32 SCRIPT_DIALOG_BUTTON_STR_SIZE = 24;
 const S32 SCRIPT_DIALOG_MAX_MESSAGE_SIZE = 512;
 const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 
-#include "lllslconstants.h"
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
