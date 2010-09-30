@@ -97,12 +97,10 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 
 		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
 		{
-			llwarns << "DUMB ROUTE" << llendl;
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 		}
 		else
 		{
-			llwarns << "SMART ROUTE" << llendl;
 			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
 			LLToast::Params p;
