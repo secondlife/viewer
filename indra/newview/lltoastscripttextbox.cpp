@@ -31,8 +31,6 @@
 #include "llfocusmgr.h"
 
 #include "llbutton.h"
-#include "lliconctrl.h"
-#include "llinventoryfunctions.h"
 #include "llnotifications.h"
 #include "llviewertexteditor.h"
 
@@ -44,59 +42,30 @@
 
 #include "llglheaders.h"
 #include "llagent.h"
-#include "llavatariconctrl.h"
-#include "llfloaterinventory.h"
-#include "llinventorytype.h"
 
-const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;
+const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT= 7;
 
 LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
-:	LLToastNotifyPanel(notification),
-	mInventoryOffer(NULL)
+:	LLToastNotifyPanel(notification)
 {
 	buildFromFile( "panel_notify_textbox.xml");
 
 	const LLSD& payload = notification->getPayload();
-	llwarns << "PAYLOAD " << payload << llendl;
-	llwarns << "TYPE " << notification->getType() << llendl;
-	llwarns << "MESSAGE " << notification->getMessage() << llendl;
-	llwarns << "LABEL " << notification->getLabel() << llendl;
-	llwarns << "URL " << notification->getURL() << llendl;
 
 	//message body
 	const std::string& message = payload["message"].asString();
-
-	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
-		+LLTrans::getString("UTCTimeDay")+"] ["
-		+LLTrans::getString("UTCTimeMth")+"] ["
-		+LLTrans::getString("UTCTimeYr")+"] ["
-		+LLTrans::getString("UTCTimeHr")+"]:["
-		+LLTrans::getString("UTCTimeMin")+"]:["
-		+LLTrans::getString("UTCTimeSec")+"] ["
-		+LLTrans::getString("UTCTimeTimezone")+"]";
-	const LLDate timeStamp = notification->getDate();
-	LLDate notice_date = timeStamp.notNull() ? timeStamp : LLDate::now();
-	LLSD substitution;
-	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
-	LLStringUtil::format(timeStr, substitution);
 
 	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
 	pMessageText->clear();
 
 	LLStyle::Params style;
-
-	LLFontGL* date_font = LLFontGL::getFontByName(getString("date_font"));
-	if (date_font)
-		style.font = date_font;
-	pMessageText->appendText(timeStr + "\n", TRUE, style);
-	
 	style.font = pMessageText->getDefaultFont();
 	pMessageText->appendText(message, TRUE, style);
 
-	//ok button
-	LLButton* pOkBtn = getChild<LLButton>("btn_ok");
-	pOkBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickOk, this)));
-	setDefaultBtn(pOkBtn);
+	//submit button
+	LLButton* pSubmitBtn = getChild<LLButton>("btn_submit");
+	pSubmitBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickSubmit, this)));
+	setDefaultBtn(pSubmitBtn);
 
 	S32 maxLinesCount;
 	std::istringstream ss( getString("message_max_lines_count") );
@@ -104,7 +73,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
 	{
 		maxLinesCount = DEFAULT_MESSAGE_MAX_LINE_COUNT;
 	}
-	snapToMessageHeight(pMessageText, maxLinesCount);
+	//snapToMessageHeight(pMessageText, maxLinesCount);
 }
 
 // virtual
@@ -118,14 +87,13 @@ void LLToastScriptTextbox::close()
 }
 
 #include "lllslconstants.h"
-void LLToastScriptTextbox::onClickOk()
+void LLToastScriptTextbox::onClickSubmit()
 {
 	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
 
 	if (pMessageText)
 	{
 		LLSD response = mNotification->getResponseTemplate();
-		//response["OH MY GOD WHAT A HACK"] = "woot";
 		response[TEXTBOX_MAGIC_TOKEN] = pMessageText->getText();
 		if (response[TEXTBOX_MAGIC_TOKEN].asString().empty())
 		{

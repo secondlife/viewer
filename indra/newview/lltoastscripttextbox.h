@@ -27,19 +27,13 @@
 #ifndef LL_LLTOASTSCRIPTTEXTBOX_H
 #define LL_LLTOASTSCRIPTTEXTBOX_H
 
-#include "llfontgl.h"
 #include "lltoastnotifypanel.h"
-#include "lldarray.h"
-#include "lltimer.h"
-#include "llviewermessage.h"
 #include "llnotificationptr.h"
 
 class LLButton;
 
 /**
- * Toast panel for group notification.
- *
- * Replaces class LLGroupNotifyBox.
+ * Toast panel for scripted llTextbox notifications.
  */
 class LLToastScriptTextbox
 :	public LLToastNotifyPanel
@@ -49,7 +43,6 @@ public:
 
 	static bool onNewNotification(const LLSD& notification);
 
-
 	// Non-transient messages.  You can specify non-default button
 	// layouts (like one for script dialogs) by passing various
 	// numbers in for "layout".
@@ -57,23 +50,9 @@ public:
 
 	/*virtual*/ ~LLToastScriptTextbox();
 protected:
-	void onClickOk();
-	void onClickAttachment();
+	void onClickSubmit();
 private:
-	static bool isAttachmentOpenable(LLAssetType::EType);
-
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
-
-	LLButton* mSaveInventoryBtn;
-
-	LLUUID mGroupID;
-	LLOfferInfo* mInventoryOffer;
 };
-
-// This view contains the stack of notification windows.
-//extern LLView* gGroupNotifyBoxView;
-
-const S32 GROUP_LAYOUT_DEFAULT = 0;
-const S32 GROUP_LAYOUT_SCRIPT_DIALOG = 1;
 
 #endif

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- height="90"
+ height="150"
  label="instant_message"
  layout="topleft"
  left="0"
@@ -11,17 +11,14 @@
     <string
      name="message_max_lines_count"
      value="7" />
-    <string
-     name="date_font"
-     value="SANSSERIF" />
     <text_editor
      parse_urls="true"
      enabled="true"
      follows="all"
-     height="0"
+     height="60"
      layout="topleft"
      left="25"
-     max_length="2147483647"
+     max_length="250"
      name="message"
      parse_highlights="true"
      read_only="false"
@@ -33,12 +30,12 @@
      word_wrap="true" >
     </text_editor>
     <button
-     bottom="85"
-     follows="bottom"
+     top="110"
+     follows="top|left"
      height="20"
-     label="OK"
+     label="Submit"
      layout="topleft"
-     right="-10"
-     name="btn_ok"
+     left="25"
+     name="btn_submit"
      width="70" />
 </panel>
