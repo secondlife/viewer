@@ -3288,7 +3288,7 @@ Please try again later.
    icon="alertmodal.tga"
  name="AgentDisplayNameSetOnlyPunctuation"
  type="alertmodal">
-    Your display name can't contain only punctuation.
+    Your display name must contain letters other than punctuation.
   </notification>
 
 
@@ -5490,7 +5490,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
    icon="notify.tga"
    name="OfferFriendship"
    type="offer">
-[NAME_SLURL] is offering friendship.
+[NAME] is offering friendship.
 
 [MESSAGE]
 
