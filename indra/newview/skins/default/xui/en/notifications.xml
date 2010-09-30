@@ -5046,6 +5046,7 @@ You can only claim public land in the Region you&apos;re in.
    name="RegionTPAccessBlocked"
    persist="true"
    type="notify">
+   <tag>fail</tag>
 You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
 
 Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
@@ -5056,6 +5057,7 @@ Please go to the Knowledge Base for details on accessing areas with this maturit
 	name="URBannedFromRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You are banned from the region.
   </notification>
 
@@ -5064,6 +5066,7 @@ You are banned from the region.
 	name="NoTeenGridAccess"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Your account cannot connect to this teen grid region.
   </notification>
 
@@ -5072,6 +5075,7 @@ Your account cannot connect to this teen grid region.
 	name="ImproperPaymentStatus"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You do not have proper payment status to enter this region.
   </notification>
 
@@ -5080,6 +5084,7 @@ You do not have proper payment status to enter this region.
 	name="MustGetAgeRgion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You must be age-verified to enter this region.
   </notification>
 
@@ -5088,6 +5093,7 @@ You must be age-verified to enter this region.
 	name="MustGetAgeParcel"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You must be age-verified to enter this parcel.
   </notification>
 
@@ -5096,6 +5102,7 @@ You must be age-verified to enter this parcel.
 	name="NoDestRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No destination region found.
   </notification>
 
@@ -5104,6 +5111,7 @@ No destination region found.
 	name="NotAllowedInDest"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You are not allowed into the destination.
   </notification>
 
@@ -5112,6 +5120,7 @@ You are not allowed into the destination.
 	name="RegionParcelBan"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Cannot region cross into banned parcel. Try another way.
   </notification>
 
@@ -5128,6 +5137,7 @@ You have been redirected to a telehub.
 	name="CouldntTPCloser"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Could not teleport closer to destination.
   </notification>
 
@@ -5144,6 +5154,7 @@ Teleport cancelled.
 	name="FullRegionTryAgain"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 The region you are attempting to enter is currently full.
 Please try again in a few moments.
   </notification>
@@ -5153,6 +5164,7 @@ Please try again in a few moments.
 	name="GeneralFailure"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 General failure.
   </notification>
 
@@ -5161,6 +5173,7 @@ General failure.
 	name="RoutedWrongRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Routed to wrong region. Please try again.
   </notification>
 
@@ -5169,6 +5182,7 @@ Routed to wrong region. Please try again.
 	name="NoValidAgentID"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid agent id.
   </notification>
 
@@ -5177,6 +5191,7 @@ No valid agent id.
 	name="NoValidSession"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid session id.
   </notification>
 
@@ -5185,6 +5200,7 @@ No valid session id.
 	name="NoValidCircuit"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid circuit code.
   </notification>
 
@@ -5193,6 +5209,7 @@ No valid circuit code.
 	name="NoValidTimestamp"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid timestamp.
   </notification>
 
@@ -5201,6 +5218,7 @@ No valid timestamp.
 	name="NoPendingConnection"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Unable to create pending connection.
   </notification>
 
@@ -5209,6 +5227,7 @@ Unable to create pending connection.
 	name="InternalUsherError"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Internal error attempting to connect agent usher.
   </notification>
 
@@ -5217,6 +5236,7 @@ Internal error attempting to connect agent usher.
 	name="NoGoodTPDestination"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Unable to find a good teleport destination in this region.
   </notification>
 
@@ -5225,6 +5245,7 @@ Unable to find a good teleport destination in this region.
 	name="InternalErrorRegionResolver"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Internal error attempting to activate region resolver.
   </notification>
 
@@ -5233,6 +5254,7 @@ Internal error attempting to activate region resolver.
 	name="NoValidLanding"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 A valid landing point could not be found.
   </notification>
 
@@ -5241,6 +5263,7 @@ A valid landing point could not be found.
 	name="NoValidParcel"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid parcel could be found.
   </notification>
 

@@ -437,6 +437,14 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		mUniqueContext.push_back(it->key);
 	}
 
+	for(LLInitParam::ParamIterator<LLNotificationTemplate::Tag>::const_iterator it = p.tags.begin(),
+			end_it = p.tags.end();
+		it != end_it;
+		++it)
+	{
+		mTags.push_back(it->value);
+	}
+
 	mForm = LLNotificationFormPtr(new LLNotificationForm(p.name, p.form_ref.form));
 }
 
@@ -716,6 +724,25 @@ bool LLNotification::hasUniquenessConstraints() const
 	return (mTemplatep ? mTemplatep->mUnique : false);
 }
 
+bool LLNotification::matchesTag(const std::string& tag)
+{
+	bool result = false;
+	
+	if(mTemplatep)
+	{
+		std::list<std::string>::iterator it;
+		for(it = mTemplatep->mTags.begin(); it != mTemplatep->mTags.end(); it++)
+		{
+			if((*it) == tag)
+			{
+				result = true;
+				break;
+			}
+		}
+	}
+	
+	return result;
+}
 
 void LLNotification::setIgnored(bool ignore)
 {
@@ -1653,7 +1680,12 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 		
 		if(!(*it)->mTag.empty())
 		{
-			// TODO: check this notification's tag(s) against it->mTag and continue if no match is found.
+			// check this notification's tag(s) against it->mTag and continue if no match is found.
+			if(!n->matchesTag((*it)->mTag))
+			{
+				// This rule's non-empty tag didn't match one of the notification's tags.  Skip this rule.
+				continue;
+			}
 		}
 		
 		// If we got here, the rule matches.  Don't evaluate subsequent rules.

@@ -580,6 +580,8 @@ public:
 	std::string summarize() const;
 
 	bool hasUniquenessConstraints() const;
+	
+	bool matchesTag(const std::string& tag);
 
 	virtual ~LLNotification() {}
 };
