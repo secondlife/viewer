@@ -6175,8 +6175,7 @@ const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
-	//std::string button = "booya";//LLNotification::getSelectedOptionName(response);
-	llwarns << "ok: " << response << llendl;
+
 	std::string rtn_text;
 	S32 button_idx;
 	button_idx = LLNotification::getSelectedOption(notification, response);
@@ -6191,7 +6190,7 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 	{
 		rtn_text = LLNotification::getSelectedOptionName(response);
 	}
-	llwarns << "rtn: " << rtn_text << " btnidx: " << button_idx << llendl;
+
 	// Didn't click "Ignore"
 	if (button_idx != -1)
 	{

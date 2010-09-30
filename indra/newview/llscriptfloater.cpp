@@ -592,7 +592,6 @@ bool LLScriptFloater::isScriptTextbox(LLNotificationPtr notification)
 		for (int i=0; i<num_options; ++i)
 		{
 			LLSD form_element = form->getElement(i);
-			llwarns << form_element << llendl;
 			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
 			{
 				return true;
