@@ -1087,7 +1087,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 
 		for (U32 i = 0; i < hulls.size(); ++i)
 		{
-			U8 count = hulls[i];
+			U16 count = (hulls[i] == 0) ? 256 : hulls[i];
 			
 			for (U32 j = 0; j < count; ++j)
 			{
