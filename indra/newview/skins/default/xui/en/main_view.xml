@@ -207,6 +207,12 @@
         mouse_opaque="false"
         follows="all"/>
   <panel top="0"
+       follows="all"
+       height="768"
+       mouse_opaque="true"
+       name="login_panel_holder"
+       width="1024"/>
+  <panel top="0"
          follows="all"
          height="768"
          mouse_opaque="true"
