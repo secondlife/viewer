@@ -196,6 +196,17 @@ bool emptyResponse(const LLSD& payload)
 	return false;
 }
 
+bool cancelNotification(const LLSD& payload)
+{
+	if (payload["sigtype"].asString() == "add")
+	{
+		// cancel this notification
+		LLNotifications::instance().cancel(LLNotifications::instance().find(payload["id"].asUUID()));
+	}
+	return false;
+}
+
+
 namespace LLNotificationFilters
 {
 	// a sample filter
@@ -1252,7 +1263,7 @@ void LLNotifications::createDefaultChannels()
 	LLNotifications::instance().getChannel("Ignore")->
 		connectFailedFilter(&handleIgnoredNotification);
 	LLNotifications::instance().getChannel("VisibilityRules")->
-		connectFailedFilter(&emptyResponse);
+		connectFailedFilter(&cancelNotification);
 }
 
 bool LLNotifications::addTemplate(const std::string &name, 
