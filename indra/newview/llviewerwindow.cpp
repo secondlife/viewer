@@ -1535,6 +1535,7 @@ void LLViewerWindow::initBase()
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
+	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
