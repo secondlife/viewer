@@ -55,10 +55,36 @@ typedef enum e_keyboard_mode
 
 void bind_keyboard_functions();
 
-
 class LLViewerKeyboard
 {
 public:
+	struct KeyBinding : public LLInitParam::Block<KeyBinding>
+	{
+		Mandatory<std::string>	key,
+								mask,
+								command;
+
+		KeyBinding();
+	};
+
+	struct KeyMode : public LLInitParam::Block<KeyMode>
+	{
+		Multiple<KeyBinding>		bindings;
+		EKeyboardMode				mode;
+		KeyMode(EKeyboardMode mode);
+	};
+
+	struct Keys : public LLInitParam::Block<Keys>
+	{
+		Optional<KeyMode>	first_person,
+							third_person,
+							edit,
+							sitting,
+							edit_avatar;
+
+		Keys();
+	};
+
 	LLViewerKeyboard();
 
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
@@ -66,13 +92,17 @@ public:
 	void			bindNamedFunction(const std::string& name, LLKeyFunc func);
 
 	S32				loadBindings(const std::string& filename);										// returns number bound, 0 on error
+	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode();
 
 	BOOL			modeFromString(const std::string& string, S32 *mode);			// False on failure
 
 	void			scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
-protected:
+
+private:
+	S32				loadBindingMode(const LLViewerKeyboard::KeyMode& keymode);
 	BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
+
 	S32				mNamedFunctionCount;
 	LLNamedFunction	mNamedFunctions[MAX_NAMED_FUNCTIONS];
 
