@@ -242,9 +242,11 @@ target_link_libraries(llui
     )
 
 # Add tests
-include(LLAddBuildTest)
-SET(llui_TEST_SOURCE_FILES
-    llurlmatch.cpp
-    llurlentry.cpp
-    )
-LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
+if (LL_TESTS)
+	include(LLAddBuildTest)
+	SET(llui_TEST_SOURCE_FILES
+		llurlmatch.cpp
+		llurlentry.cpp
+		)
+	LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
+endif (LL_TESTS)

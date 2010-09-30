@@ -58,8 +58,10 @@ list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
 add_library (llprimitive ${llprimitive_SOURCE_FILES})
 
 #add unit tests
-INCLUDE(LLAddBuildTest)
-SET(llprimitive_TEST_SOURCE_FILES
-  llmediaentry.cpp
-  )
-LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
+if (LL_TESTS)
+	INCLUDE(LLAddBuildTest)
+	SET(llprimitive_TEST_SOURCE_FILES
+	  llmediaentry.cpp
+	  )
+	LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
+endif (LL_TESTS)
