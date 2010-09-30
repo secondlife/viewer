@@ -3209,15 +3209,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 F32 LLVOVolume::getStreamingCost()
 {
-	std::string header_lod[] = 
-	{
-		"lowest_lod",
-		"low_lod",
-		"medium_lod",
-		"high_lod"
-	};
-
-
 	if (isMesh())
 	{	
 		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
@@ -3227,7 +3218,6 @@ F32 LLVOVolume::getStreamingCost()
 		return LLMeshRepository::getStreamingCost(header, radius);
 	}
 		
-	
 	return 0.f;
 }
 
