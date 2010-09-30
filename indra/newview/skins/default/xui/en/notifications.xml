@@ -3118,6 +3118,7 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="KickUser"
    type="alert">
+   <tag>win</tag>
 Kick this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3139,6 +3140,7 @@ An administrator has logged you off.
    icon="alert.tga"
    name="KickAllUsers"
    type="alert">
+   <tag>win</tag>
 Kick everyone currently on the grid with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3160,6 +3162,7 @@ An administrator has logged you off.
    icon="alert.tga"
    name="FreezeUser"
    type="alert">
+   <tag>win</tag>
 Freeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3181,6 +3184,7 @@ You have been frozen. You cannot move or chat. An administrator will contact you
    icon="alert.tga"
    name="UnFreezeUser"
    type="alert">
+   <tag>win</tag>
 Unfreeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -5640,6 +5644,7 @@ Grant this request?
    name="FirstBalanceIncrease"
    persist="true"
    type="notify">
+   <tag>win</tag>
 You just received L$[AMOUNT].
 Your L$ balance is shown in the upper-right.
   </notification>
@@ -6118,6 +6123,7 @@ The SLurl you clicked on is not supported.
    name="BlockedSLURL"
    priority="high"
    type="notifytip">
+   <tag>win</tag>
 A SLurl was received from an untrusted browser and has been blocked for your security.
   </notification>
 
