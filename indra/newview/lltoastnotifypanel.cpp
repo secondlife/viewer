@@ -55,7 +55,6 @@ LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal
 LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect, bool show_images) : 
 LLToastPanel(notification),
 mTextBox(NULL),
-mUserInputBox(NULL),
 mInfoPanel(NULL),
 mControlPanel(NULL),
 mNumOptions(0),
@@ -68,42 +67,14 @@ mCloseNotificationOnDestroy(true)
 	{
 		this->setShape(rect);
 	}		 
-	// get a form for the notification
-	LLNotificationFormPtr form(notification->getForm());
-	// get number of elements
-	mNumOptions = form->getNumElements();
-
 	mInfoPanel = getChild<LLPanel>("info_panel");
 	mControlPanel = getChild<LLPanel>("control_panel");
 	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
-
 	// customize panel's attributes
-
 	// is it intended for displaying a tip?
 	mIsTip = notification->getType() == "notifytip";
 	// is it a script dialog?
 	mIsScriptDialog = (notification->getName() == "ScriptDialog" || notification->getName() == "ScriptDialogGroup");
-	// is it a script dialog with llTextBox()?
-	mIsScriptTextBox = false;
-	if (mIsScriptDialog)
-	{
-		// if ANY of the buttons have the magic lltextbox string as name, then
-		// treat the whole dialog as a simple text entry box (i.e. mixed button
-		// and textbox forms are not supported)
-		for (int i=0; i<mNumOptions; ++i)
-		{
-			LLSD form_element = form->getElement(i);
-			llwarns << form_element << llendl;
-			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
-			{
-				mIsScriptTextBox = true;
-				break;
-			}
-		}
-	}
-	llwarns << "FORM ELEMS " << int(form->getNumElements()) << llendl;
-	llwarns << "isScriptDialog? " << int(mIsScriptDialog) << llendl;
-	llwarns << "isScriptTextBox? " << int(mIsScriptTextBox) << llendl;
 	// is it a caution?
 	//
 	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
@@ -124,6 +95,10 @@ mCloseNotificationOnDestroy(true)
 	setIsChrome(TRUE);
 	// initialize
 	setFocusRoot(!mIsTip);
+	// get a form for the notification
+	LLNotificationFormPtr form(notification->getForm());
+	// get number of elements
+	mNumOptions = form->getNumElements();
 
 	// customize panel's outfit
 	// preliminary adjust panel's layout
@@ -149,11 +124,6 @@ mCloseNotificationOnDestroy(true)
 	mTextBox->setPlainText(!show_images);
 	mTextBox->setValue(notification->getMessage());
 
-	mUserInputBox = getChild<LLTextEditor>("user_input_box"); 
-	mUserInputBox->setMaxTextLength(254);// FIXME
-	mUserInputBox->setVisible(FALSE);
-	mUserInputBox->setEnabled(FALSE);
-
 	// add buttons for a script notification
 	if (mIsTip)
 	{
@@ -176,11 +146,6 @@ mCloseNotificationOnDestroy(true)
 			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
 			{
 				// a textbox pretending to be a button.
-				// (re)enable the textbox for this panel, and continue.
-				mUserInputBox->setVisible(TRUE);
-				mUserInputBox->setEnabled(TRUE);
-				mUserInputBox->setFocus(TRUE);
-				mUserInputBox->insertText("FOOOOOO!!!!");
 				continue;
 			}
 			LLButton* new_button = createButton(form_element, TRUE);
@@ -295,7 +260,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 		p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 		p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 	}
-	// for the scriptdialog buttons we use fixed button size. This is a limit!
+	// for the scriptdialog buttons we use fixed button size. This  is a limit!
 	if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > BUTTON_WIDTH)
 	{
 		p.rect.width = 1;
@@ -527,7 +492,6 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		self->mNotification->setResponder(new_info);
 	}
 
-	llwarns << response << llendl;
 	self->mNotification->respond(response);
 
 	if(is_reusable)
