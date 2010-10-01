@@ -740,12 +740,17 @@ void LLPanelStandStopFlying::updatePosition()
 
 	LLButton* movement_btn = tray->findChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
+	S32 x = 0;
 	if (movement_btn)
 	{
 		// Align centers of the button and the panel.
-		S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
-		setOrigin(x, 0);
+		x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
 	}
+	else
+	{
+		x = tray->calcScreenRect().getCenterX() - getRect().getWidth()/2;
+	}
+	setOrigin(x, 0);
 }
 
 
