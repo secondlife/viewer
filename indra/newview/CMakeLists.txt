@@ -383,6 +383,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
     llpopupview.cpp
@@ -912,6 +913,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
     llpolymesh.h
@@ -1436,12 +1438,22 @@ if (WINDOWS)
         set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map")
     endif(MSVC71)
     
-    set_target_properties(${VIEWER_BINARY_NAME}
-        PROPERTIES
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ${release_flags}
-        )
+    if (INCREMENTAL_LINK)
+		set_target_properties(${VIEWER_BINARY_NAME}
+			PROPERTIES
+			LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCREMENTAL /INCLUDE:__tcmalloc"
+			LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
+			LINK_FLAGS_RELEASE ${release_flags}
+			)
+    else(INCREMENTAL_LINK)
+		set_target_properties(${VIEWER_BINARY_NAME}
+			PROPERTIES
+			LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCREMENTAL:NO /INCLUDE:__tcmalloc"
+			LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
+			LINK_FLAGS_RELEASE ${release_flags}
+			)
+	endif(INCREMENTAL_LINK)
+	
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
             ${VIEWER_BINARY_NAME}
