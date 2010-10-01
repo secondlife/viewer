@@ -7630,7 +7630,7 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else if(gSavedSettings.getBOOL("UseEnvironmentFromRegion"))
 		{
-			LLNotifications::instance().add("EnvLockedUsingRegion", LLSD());
+			LLNotifications::instance().add("EnvLockedUsingRegion", LLSD(), LLSD());
 		}
 		else
 		{

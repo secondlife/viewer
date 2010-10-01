@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
+#include "llfloaterreg.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
 #include "llfloaterenvsettings.h"
@@ -45,6 +46,7 @@
 #include "llfloaterregioninfo.h"
 #include "llwindlightscrubbers.h"
 #include "llwlhandlers.h"
+#include "llnotifications.h"
 
 extern LLControlGroup gSavedSettings;
 
@@ -78,7 +80,7 @@ void LLEnvManager::changedRegion(bool interp)
 	mInterpNextChangeMessage = interp;
 	mPendingOutgoingMessage = false;
 
-	LLFloaterEnvSettings::instance()->close();
+	LLFloaterEnvSettings::instance()->closeFloater();
 
 	resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 
@@ -144,7 +146,7 @@ void LLEnvManager::maybeClearEditingScope(bool user_initiated, bool was_commit)
 		}
 		else
 		{
-			LLNotifications::instance().add("EnvEditExternalCancel", LLSD());
+			LLNotifications::instance().add("EnvEditExternalCancel", LLSD(), LLSD());
 		}
 	}
 
@@ -160,7 +162,7 @@ void LLEnvManager::clearEditingScope(const LLSD& notification, const LLSD& respo
 	{
 		// *TODO: select terrain panel here
 		mIsEditing = false;
-		LLFloaterRegionInfo::showInstance();
+		LLFloaterReg::showTypedInstance<LLFloaterRegionInfo>("regioninfo");
 		return;
 	}
 

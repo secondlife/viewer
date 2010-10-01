@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llenvmanager.h"
+#include "llnotifications.h"
 
 /****
  * LLEnvironmentRequestResponder
@@ -108,7 +109,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 	{
 		LLSD args(LLSD::emptyMap());
 		args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
-		LLNotifications::instance().add("EnvUpdateRate", args);
+		LLNotifications::instance().add("EnvUpdateRate", LLSD(), args);
 		return false;
 	}
 
@@ -139,7 +140,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 		LL_WARNS("WindlightCaps") << "Region couldn't apply windlight settings!  Reason from sim: " << content["fail_reason"].asString() << LL_ENDL;
 		LLSD args(LLSD::emptyMap());
 		args["FAIL_REASON"] = content["fail_reason"].asString();
-		LLNotifications::instance().add("WLRegionApplyFail", args);
+		LLNotifications::instance().add("WLRegionApplyFail", LLSD(), args);
 	}
 
 	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
@@ -153,7 +154,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 
 	LLSD args(LLSD::emptyMap());
 	args["FAIL_REASON"] = msg.str();
-	LLNotifications::instance().add("WLRegionApplyFail", args);
+	LLNotifications::instance().add("WLRegionApplyFail", LLSD(), args);
 
 	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
 }

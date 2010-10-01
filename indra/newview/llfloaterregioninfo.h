@@ -73,6 +73,8 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
 
+	/*virtual*/void closeFloater(bool app_quitting);
+
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
 	// get and process region info if necessary.
@@ -236,7 +238,7 @@ public:
 	
 	static LLPanelRegionTerrainInfo* instance();
 	virtual BOOL postBuild();												// LLPanel
-	static void close(bool app_quitting);
+	static void closeFloater(bool app_quitting);
 	
 	F32 getSunHour();
 	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator

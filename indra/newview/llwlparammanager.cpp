@@ -433,9 +433,11 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+
 void LLWLParamManager::propagateParameters(void)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
 	
 	LLVector4 sunDir;
 	LLVector4 moonDir;
@@ -459,7 +461,7 @@ void LLWLParamManager::propagateParameters(void)
 	{
 		mLightDir = sunDir;
 	}
-	else if(sunDir.mV[1] < 0 && sunDir.mV[1] > NIGHTTIME_ELEVATION_COS)
+	else if(sunDir.mV[1] < 0 && sunDir.mV[1] > LLSky::NIGHTTIME_ELEVATION_COS)
 	{
 		// clamp v1 to 0 so sun never points up and causes weirdness on some machines
 		LLVector3 vec(sunDir.mV[0], sunDir.mV[1], sunDir.mV[2]);
@@ -506,7 +508,7 @@ void LLWLParamManager::propagateParameters(void)
 
 void LLWLParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
 	
 	// update clouds, sun, and general
 	mCurParams.updateCloudScrolling();

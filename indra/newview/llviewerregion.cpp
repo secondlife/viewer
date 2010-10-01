@@ -1495,8 +1495,3 @@ std::string LLViewerRegion::getDescription() const
 {
     return stringize(*this);
 }
-
-std::string LLViewerRegion::getDescription() const
-{
-    return stringize(*this);
-}

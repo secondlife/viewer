@@ -50,7 +50,7 @@ struct WLFloatControl;
 class LLFloaterWindLight : public LLFloater
 {
 public:
-	LLFloaterWindLight();
+	LLFloaterWindLight(const LLSD &key);
 	virtual ~LLFloaterWindLight();
 	
 	/// initialize all

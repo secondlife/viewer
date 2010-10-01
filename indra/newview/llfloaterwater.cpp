@@ -45,6 +45,7 @@
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
 #include "llmultisliderctrl.h"
+#include "llnotifications.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -104,6 +105,47 @@ BOOL LLFloaterWater::postBuild()
 	syncMenu();
 	return TRUE;
 }
+
+//static 
+LLFloaterWater* LLFloaterWater::instance()
+{
+	if (!sWater)
+	{
+		sWater = new LLFloaterWater(LLSD());
+	}
+	return sWater;
+}
+
+void LLFloaterWater::show(LLEnvKey::EScope scope)
+{
+	LLFloaterWater* water = instance();
+
+	if(scope != sScope && ((LLView*)water)->getVisible())
+	{
+		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD(), LLSD());
+		return;
+	}
+	sScope = scope;
+	std::string scope_str = "";
+	switch(sScope)
+	{
+		case LLEnvKey::SCOPE_LOCAL:
+			scope_str = LLTrans::getString("LocalSettings");
+			break;
+		case LLEnvKey::SCOPE_REGION:
+			scope_str = LLTrans::getString("RegionSettings");
+			break;
+	}
+	std::string title = sOriginalTitle + " (" + scope_str + ")";
+	water->setTitle(title);
+	water->syncMenu();
+
+	LLEnvManager::instance().startEditingScope(scope);
+
+	water->openFloater();
+
+}
+
 void LLFloaterWater::initCallbacks(void) {
 
 	LLWaterParamManager * param_mgr = LLWaterParamManager::getInstance();
@@ -620,7 +662,7 @@ void LLFloaterWater::onChangePresetName(LLUICtrl* ctrl)
 	std::string data = ctrl->getValue().asString();
 	if(!data.empty())
 	{
-		LLWaterParamManager::instance()->loadPreset(data);
+		LLWaterParamManager::instance().loadPreset(data);
 		syncMenu();
 	}
 }

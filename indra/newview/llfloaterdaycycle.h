@@ -59,7 +59,7 @@ public:
 class LLFloaterDayCycle : public LLFloater
 {
 public:
-	LLFloaterDayCycle();
+	LLFloaterDayCycle(const LLSD &key);
 	virtual ~LLFloaterDayCycle();
 
 	// map of sliders to parameters

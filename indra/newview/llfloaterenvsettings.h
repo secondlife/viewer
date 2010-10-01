@@ -45,7 +45,7 @@ class LLFloaterEnvSettings : public LLFloater
 {
 public:
 
-	LLFloaterEnvSettings();
+	LLFloaterEnvSettings(const LLSD &key);
 	virtual ~LLFloaterEnvSettings();
 	
 	/// initialize all the callbacks for the menu

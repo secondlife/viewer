@@ -48,6 +48,7 @@
 #include "lllineeditor.h"
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
+#include "llnotifications.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -68,9 +69,8 @@ std::string LLFloaterWindLight::sOriginalTitle;
 
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
-LLFloaterWindLight::LLFloaterWindLight() : LLFloater(std::string("windlight floater"))
+LLFloaterWindLight::LLFloaterWindLight(const LLSD &key) : LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_windlight_options.xml", NULL, FALSE);
 	sOriginalTitle = getTitle();
 	
 	// add the combo boxes
@@ -207,6 +207,8 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetCommitCallback("WLCloudDetailDensity", onColorControlBMoved, &param_mgr->mCloudDetail);
 
 	// Cloud extras
+	static std::string use_classic_clouds = "SkyUseClassicClouds";
+
 	childSetCommitCallback("WLCloudCoverage", onFloatControlMoved, &param_mgr->mCloudCoverage);
 	childSetCommitCallback("WLCloudScale", onFloatControlMoved, &param_mgr->mCloudScale);
 	childSetCommitCallback("WLCloudLockX", onCloudScrollXToggled, NULL);
@@ -214,7 +216,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetCommitCallback("WLCloudScrollX", onCloudScrollXMoved, NULL);
 	childSetCommitCallback("WLCloudScrollY", onCloudScrollYMoved, NULL);
 	childSetCommitCallback("WLDistanceMult", onFloatControlMoved, &param_mgr->mDistanceMult);
-	childSetCommitCallback("DrawClassicClouds", LLSavedSettingsGlue::setBOOL, (void*)"SkyUseClassicClouds");
+	//childSetCommitCallback("DrawClassicClouds", LLSavedSettingsGlue::setBOOL, (void*)&use_classic_clouds);
 
 	// WL Top
 	childSetAction("WLDayCycleMenuButton", onOpenDayCycle, NULL);
@@ -226,8 +228,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetAction("WLSavePreset", onSavePreset, comboBox);
 	childSetAction("WLDeletePreset", onDeletePreset, comboBox);
 
-	comboBox->setCommitCallback(onChangePresetName);
-
+	//childSetAction("WLPresetsCombo", onChangePresetName, comboBox);
 
 	// Dome
 	childSetCommitCallback("WLGamma", onFloatControlMoved, &param_mgr->mWLGamma);
@@ -236,10 +237,8 @@ void LLFloaterWindLight::initCallbacks(void) {
 
 void LLFloaterWindLight::onClickHelp(void* data)
 {
-	LLFloaterWindLight* self = LLFloaterWindLight::instance();
-
 	const std::string xml_alert = *(std::string*)data;
-	LLNotifications::instance().add(self->contextualNotification(xml_alert));
+	LLNotifications::instance().add(xml_alert, LLSD(), LLSD());
 }
 
 void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string& xml_alert)
@@ -304,7 +303,7 @@ bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD&
 		} 
 		else 
 		{
-			LLNotifications::instance().add("ExistsSkyPresetAlert");
+			LLNotifications::instance().add("ExistsSkyPresetAlert", LLSD(), LLSD());
 		}
 	}
 	return false;
@@ -448,16 +447,17 @@ LLFloaterWindLight* LLFloaterWindLight::instance()
 {
 	if (!sWindLight)
 	{
-		sWindLight = new LLFloaterWindLight();
+		sWindLight = new LLFloaterWindLight("WindLight floater");
 	}
 	return sWindLight;
 }
+
 void LLFloaterWindLight::show(LLEnvKey::EScope scope)
 {
 	LLFloaterWindLight* windLight = instance();
 	if(scope != sScope && ((LLView*)windLight)->getVisible())
 	{
-		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD());
+		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD(), LLSD());
 		return;
 	}
 	sScope = scope;
@@ -481,7 +481,7 @@ void LLFloaterWindLight::show(LLEnvKey::EScope scope)
 	//LLUICtrlFactory::getInstance()->buildFloater(windLight, "floater_windlight_options.xml");
 	//windLight->initCallbacks();
 
-	windLight->open();
+	windLight->openFloater();
 }
 
 bool LLFloaterWindLight::isOpen()
@@ -824,7 +824,7 @@ void LLFloaterWindLight::onSavePreset(void* userData)
 		LLWLParamKey(comboBox->getSelectedValue()));
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
 	{
-		LLNotifications::instance().add("WLNoEditDefault");
+		LLNotifications::instance().add("WLNoEditDefault", LLSD(), LLSD());
 		return;
 	}
 
@@ -896,7 +896,7 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 		std::set<LLWLParamKey>::iterator sIt = sDefaultPresets.find(key);
 		if(sIt != sDefaultPresets.end()) 
 		{
-			LLNotifications::instance().add("WLNoEditDefault");
+			LLNotifications::instance().add("WLNoEditDefault", LLSD(), LLSD());
 			return false;
 		}
 

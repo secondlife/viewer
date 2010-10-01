@@ -51,6 +51,7 @@
 #include "llcombobox.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
+#include "llfloaterdaycycle.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
@@ -1167,7 +1168,7 @@ LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::instance()
 }
 
 // virtual
-void LLPanelRegionTerrainInfo::close(bool app_quitting)
+void LLPanelRegionTerrainInfo::closeFloater(bool app_quitting)
 {
        if (sPanelRegionTerrainInfo)
        {
@@ -1407,7 +1408,7 @@ void LLPanelRegionTerrainInfo::onOpenAdvancedSky(void* userData)
 
 void LLPanelRegionTerrainInfo::onOpenAdvancedWater(void* userData)
 {
-	LLFloaterWater::show(LLEnvKey::SCOPE_REGION);
+	LLFloaterWater::instance()->show(LLEnvKey::SCOPE_REGION);
 }
 
 
@@ -1449,9 +1450,9 @@ void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
 
 void LLPanelRegionTerrainInfo::cancelChanges()
 {
-	LLFloaterWindLight::instance()->close();
-	LLFloaterWater::instance()->close();
-	LLFloaterDayCycle::instance()->close();
+	LLFloaterWindLight::instance()->closeFloater();
+	LLFloaterWater::instance()->closeFloater();
+	LLFloaterDayCycle::instance()->closeFloater();
 
 	// disable commmit and cancel
 	LLPanelRegionTerrainInfo::instance()->setCommitControls(false);
@@ -2130,14 +2131,14 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	return rv;
 }
 
-void LLFloaterRegionInfo::close(bool app_quitting)
+void LLFloaterRegionInfo::closeFloater(bool app_quitting)
 {
 	if(!app_quitting)
 	{
 		LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
-		LLPanelRegionTerrainInfo::close(app_quitting);
+		LLPanelRegionTerrainInfo::closeFloater(app_quitting);
 	}
-	LLFloater::close(app_quitting);
+	LLFloater::closeFloater(app_quitting);
 }
 
 void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)

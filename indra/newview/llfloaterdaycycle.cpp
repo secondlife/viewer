@@ -47,6 +47,7 @@
 #include "llcombobox.h"
 #include "lllineeditor.h"
 #include "llwlanimator.h"
+#include "llnotifications.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -59,6 +60,7 @@
 #include "llfloaterwindlight.h"
 #include "llwindlightscrubbers.h"
 #include "llenvmanager.h"
+#include "llfloaterreg.h"
 
 LLFloaterDayCycle* LLFloaterDayCycle::sDayCycle = NULL;
 const F32 LLFloaterDayCycle::sHoursPerDay = 24.0f;
@@ -67,13 +69,12 @@ LLEnvKey::EScope LLFloaterDayCycle::sScope;
 std::string LLFloaterDayCycle::sOriginalTitle;
 LLWLAnimator::ETime LLFloaterDayCycle::sPreviousTimeType = LLWLAnimator::TIME_LINDEN;
 
-LLFloaterDayCycle::LLFloaterDayCycle() : LLFloater(std::string("Day Cycle Floater"))
+LLFloaterDayCycle::LLFloaterDayCycle(const LLSD &key) : LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_day_cycle_options.xml", NULL, FALSE);
 	sOriginalTitle = getTitle();
 
-	llassert(MAX_LOCAL_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxSliderCount() &&
-		     MAX_REGION_KEYFRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxSliderCount());
+	llassert(LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue() &&
+		     LLWLPacketScrubber::MAX_REGION_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue());
 
 	// add the time slider
 	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLTimeSlider");
@@ -90,10 +91,8 @@ LLFloaterDayCycle::~LLFloaterDayCycle()
 
 void LLFloaterDayCycle::onClickHelp(void* data)
 {
-	LLFloaterDayCycle* self = LLFloaterDayCycle::instance();
-
 	std::string xml_alert = *(std::string *) data;
-	LLNotifications::instance().add(self->contextualNotification(xml_alert));
+	LLNotifications::instance().add(xml_alert, LLSD(), LLSD());
 }
 
 void LLFloaterDayCycle::initHelpBtn(const std::string& name, const std::string& xml_alert)
@@ -244,7 +243,7 @@ LLFloaterDayCycle* LLFloaterDayCycle::instance()
 {
 	if (!sDayCycle)
 	{
-		sDayCycle = new LLFloaterDayCycle();
+		sDayCycle = new LLFloaterDayCycle("Day Cycle Floater");
 		// sDayCycle->open();
 		// sDayCycle->setFocus(TRUE);
 	}
@@ -265,7 +264,7 @@ void LLFloaterDayCycle::show(LLEnvKey::EScope scope)
 	LLFloaterDayCycle* dayCycle = instance();
 	if(scope != sScope && ((LLView*)dayCycle)->getVisible())
 	{
-		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD());
+		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD(), LLSD());
 		return;
 	}
 	sScope = scope;
@@ -286,7 +285,7 @@ void LLFloaterDayCycle::show(LLEnvKey::EScope scope)
 	//LLUICtrlFactory::getInstance()->buildFloater(dayCycle, "floater_day_cycle_options.xml");
 	//dayCycle->initCallbacks();
 
-	dayCycle->open();
+	dayCycle->openFloater();
 }
 
 // virtual
@@ -537,16 +536,16 @@ void LLFloaterDayCycle::onAddKey(void* userData)
 			max_sliders = LLWLPacketScrubber::MAX_REGION_KEY_FRAMES;
 			break;
 		default:
-			max_sliders = kSldr->getMaxSliderCount();
+			max_sliders = (S32)kSldr->getMaxValue();
 			break;
 	}
 
-	if(kSldr->getSliderCount() >= max_sliders)
+	if(kSldr->getValue().asInteger() >= max_sliders)
 	{
 		LLSD args;
 		args["SCOPE"] = LLEnvManager::getScopeString(sScope);
 		args["MAX"] = max_sliders;
-		LLNotifications::instance().add("DayCycleTooManyKeyframes", args);
+		LLNotifications::instance().add("DayCycleTooManyKeyframes", LLSD(), args);
 		return;
 	}
 
@@ -608,7 +607,7 @@ void LLFloaterDayCycle::onDeleteKey(void* userData)
 	}
 	else if(sSliderToKey.size() == 1)
 	{
-		LLNotifications::instance().add("EnvCannotDeleteLastDayCycleKey", LLSD());
+		LLNotifications::instance().add("EnvCannotDeleteLastDayCycleKey", LLSD(), LLSD());
 		return;
 	}
 

@@ -1471,7 +1471,6 @@ bool LLAppViewer::cleanup()
 	LLViewerObject::cleanupVOClasses();
 
 	LLWaterParamManager::cleanupClass();
-	LLWLParamManager::cleanupClass();
 	LLPostProcess::cleanupClass();
 
 	LLTracker::cleanupInstance();

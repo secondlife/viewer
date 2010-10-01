@@ -78,6 +78,11 @@ LLWaterParamManager::~LLWaterParamManager()
 {
 }
 
+LLWaterParamManager::cleanupClass()
+{
+	// TODO: what needs to be cleaned up?
+}
+
 void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 {
 	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", ""));
@@ -254,11 +259,11 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WATERPARAM);
 	
 	// update the shaders and the menu
 	propagateParameters();

@@ -36,6 +36,7 @@
 #include "llsdserialize.h"
 #include "llwlparammanager.h"
 #include "llfloaterdaycycle.h"
+#include "llnotifications.h"
 
 #include "llviewerwindow.h"
 
@@ -84,7 +85,7 @@ void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope
 				// alert the user
 				LLSD args;
 				args["SKY"] = day_data[i][1].asString();
-				LLNotifications::instance().add("WLMissingSky", args);
+				LLNotifications::instance().add("WLMissingSky", LLSD(), args);
 				continue;
 			}
 		}

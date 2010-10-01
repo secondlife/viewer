@@ -43,6 +43,7 @@
 #include "llcombobox.h"
 #include "llcolorswatch.h"
 #include "llwlanimator.h"
+#include "llnotifications.h"
 
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
@@ -59,10 +60,8 @@
 
 LLFloaterEnvSettings* LLFloaterEnvSettings::sEnvSettings = NULL;
 
-LLFloaterEnvSettings::LLFloaterEnvSettings() : LLFloater(std::string("Environment Settings Floater"))
-{
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_env_settings.xml", NULL, FALSE);
-	
+LLFloaterEnvSettings::LLFloaterEnvSettings(const LLSD &key) : LLFloater(key)
+{	
 	// load it up
 	initCallbacks();
 }
@@ -73,8 +72,7 @@ LLFloaterEnvSettings::~LLFloaterEnvSettings()
 
 void LLFloaterEnvSettings::onClickHelp(void* data)
 {
-	LLFloaterEnvSettings* self = (LLFloaterEnvSettings*)data;
-	LLNotifications::instance().add(self->contextualNotification("EnvSettingsHelpButton"));
+	LLNotifications::instance().add("EnvSettingsHelpButton", LLSD(), LLSD());
 }
 
 void LLFloaterEnvSettings::onUseRegionEnvironment(LLUICtrl* ctrl, void* data)
@@ -212,7 +210,7 @@ LLFloaterEnvSettings* LLFloaterEnvSettings::instance()
 {
 	if (!sEnvSettings)
 	{
-		sEnvSettings = new LLFloaterEnvSettings();
+		sEnvSettings = new LLFloaterEnvSettings("Environment Editor Floater");
 		// sEnvSettings->open();
 		// sEnvSettings->setFocus(TRUE);
 	}
@@ -237,9 +235,9 @@ void LLFloaterEnvSettings::setControlsEnabled(bool enable)
 	else
 	{
 		// disable UI elements the user shouldn't be able to see to protect potentially proprietary WL region settings from being visible
-		LLFloaterWindLight::instance()->close();
-		LLFloaterWater::instance()->close();
-		LLFloaterDayCycle::instance()->close();
+		LLFloaterWindLight::instance()->closeFloater();
+		LLFloaterWater::instance()->closeFloater();
+		LLFloaterDayCycle::instance()->closeFloater();
 		childDisable("EnvAdvancedSkyButton");
 		childDisable("EnvAdvancedWaterButton");
 		childDisable("EnvUseEstateTimeButton");
@@ -267,9 +265,10 @@ void LLFloaterEnvSettings::show()
 
 	sEnvSettings->childSetVisible("RegionWLOptIn", LLEnvManager::getInstance()->regionCapable());
 	sEnvSettings->setOptIn(opt_in);		
-	sEnvSettings->getChildView("RegionWLOptIn")->setValue(LLSD::Boolean(opt_in));
+	LLCheckBoxCtrl* checkbox = (LLCheckBoxCtrl*)envSettings->getChildView("RegionWLOptIn");
+	checkbox->setValue(LLSD::Boolean(opt_in));
 	sEnvSettings->getChildView("RegionWLOptIn")->setToolTip(sEnvSettings->getString("region_environment_tooltip"));
-	envSettings->open();
+	envSettings->openFloater();
 }
 
 bool LLFloaterEnvSettings::isOpen()
@@ -361,7 +360,7 @@ void LLFloaterEnvSettings::onOpenAdvancedSky(void* userData)
 
 void LLFloaterEnvSettings::onOpenAdvancedWater(void* userData)
 {
-	LLFloaterWater::show();
+	LLFloaterWater::instance()->openFloater();
 }
 
 

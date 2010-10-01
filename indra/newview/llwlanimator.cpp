@@ -47,7 +47,7 @@ LLWLAnimator::LLWLAnimator() : mStartTime(0.f), mDayRate(1.f), mDayTime(0.f),
 
 void LLWLAnimator::update(LLWLParamSet& curParams)
 {
-	llassert(mUseLindenTime != mUseLocalTime);
+	//llassert(mUseLindenTime != mUseLocalTime);
 
 	F64 curTime;
 	curTime = getDayTime();
