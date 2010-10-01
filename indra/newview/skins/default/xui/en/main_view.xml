@@ -20,7 +20,7 @@
                   mouse_opaque="false"
                   name="nav_bar_container"
                   tab_stop="false"
-                  min_height="10" 
+                  min_height="1" 
                   width="1024"
                   user_resize="false" 
                   visible="false">
