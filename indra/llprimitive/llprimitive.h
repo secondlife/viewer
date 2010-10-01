@@ -450,6 +450,7 @@ protected:
 	U8					mNumTEs;			// # of faces on the primitve	
 	U32 				mMiscFlags;			// home for misc bools
 
+public:
 	static LLVolumeMgr* sVolumeManager;
 };
 
