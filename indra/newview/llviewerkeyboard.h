@@ -89,8 +89,6 @@ public:
 
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 
-	void			bindNamedFunction(const std::string& name, LLKeyFunc func);
-
 	S32				loadBindings(const std::string& filename);										// returns number bound, 0 on error
 	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode();
@@ -102,9 +100,6 @@ public:
 private:
 	S32				loadBindingMode(const LLViewerKeyboard::KeyMode& keymode);
 	BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
-
-	S32				mNamedFunctionCount;
-	LLNamedFunction	mNamedFunctions[MAX_NAMED_FUNCTIONS];
 
 	// Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here
 	S32				mBindingCount[MODE_COUNT];

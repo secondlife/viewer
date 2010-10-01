@@ -598,8 +598,7 @@ REGISTER_KEYBOARD_ACTION("stop_moving", stop_moving);
 REGISTER_KEYBOARD_ACTION("start_chat", start_chat);
 REGISTER_KEYBOARD_ACTION("start_gesture", start_gesture);
 
-LLViewerKeyboard::LLViewerKeyboard() :
-	mNamedFunctionCount(0)
+LLViewerKeyboard::LLViewerKeyboard()
 {
 	for (S32 i = 0; i < MODE_COUNT; i++)
 	{
@@ -616,16 +615,6 @@ LLViewerKeyboard::LLViewerKeyboard() :
 		mKeysSkippedByUI.insert(k);	
 	}
 }
-
-
-void LLViewerKeyboard::bindNamedFunction(const std::string& name, LLKeyFunc func)
-{
-	S32 i = mNamedFunctionCount;
-	mNamedFunctions[i].mName = name;
-	mNamedFunctions[i].mFunction = func;
-	mNamedFunctionCount++;
-}
-
 
 BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode)
 {
@@ -699,8 +688,9 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 
 BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
-	S32 i,index;
-	void (*function)(EKeystate keystate) = NULL;
+	S32 index;
+	typedef boost::function<void(EKeystate)> function_t;
+	function_t function = NULL;
 	std::string name;
 
 	// Allow remapping of F2-F12
@@ -723,13 +713,11 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	}
 
 	// Not remapped, look for a function
-	for (i = 0; i < mNamedFunctionCount; i++)
+	
+	function_t* result = LLKeyboardActionRegistry::getValue(function_name);
+	if (result)
 	{
-		if (function_name == mNamedFunctions[i].mName)
-		{
-			function = mNamedFunctions[i].mFunction;
-			name = mNamedFunctions[i].mName;
-		}
+		function = *result;
 	}
 
 	if (!function)
@@ -759,7 +747,6 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	mBindings[mode][index].mKey = key;
 	mBindings[mode][index].mMask = mask;
-// 	mBindings[mode][index].mName = name;
 	mBindings[mode][index].mFunction = function;
 
 	if (index == mBindingCount[mode])
@@ -971,18 +958,18 @@ void LLViewerKeyboard::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_lev
 				if (key_down && !repeat)
 				{
 					// ...key went down this frame, call function
-					(*binding[i].mFunction)( KEYSTATE_DOWN );
+					binding[i].mFunction( KEYSTATE_DOWN );
 				}
 				else if (key_up)
 				{
 					// ...key went down this frame, call function
-					(*binding[i].mFunction)( KEYSTATE_UP );
+					binding[i].mFunction( KEYSTATE_UP );
 				}
 				else if (key_level)
 				{
 					// ...key held down from previous frame
 					// Not windows, just call the function.
-					(*binding[i].mFunction)( KEYSTATE_LEVEL );
+					binding[i].mFunction( KEYSTATE_LEVEL );
 				}//if
 			}//if
 		}//for
