@@ -646,6 +646,8 @@ public:
 	const F32&  getSkew() const			{ return mPathParams.getSkew();			}
 	const LLUUID& getSculptID() const	{ return mSculptID;						}
 	const U8& getSculptType() const     { return mSculptType;                   }
+	bool isSculpt() const;
+	bool isMeshSculpt() const;
 	BOOL isConvex() const;
 
 	// 'begin' and 'end' should be in range [0, 1] (they will be clamped)
