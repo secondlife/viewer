@@ -175,7 +175,7 @@
   <text bottom_delta="20" left="15" follows="top|left" height="15" name="description_label" text_color="1 0.82 0.46 1">
 	  (No charge for upload during First Look)
 	</text>
-  <text bottom_delta="20" left="15" follows="top|left" height="15" name="upload_message">
+  <text bottom_delta="20" left="15" width="280" follows="top|left" height="15" name="upload_message">
     [MESSAGE]
   </text>
   <text bottom_delta="45" left="15" follows="top|left" height="15" name="debug section">

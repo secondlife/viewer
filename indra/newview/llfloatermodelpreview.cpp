@@ -2954,50 +2954,24 @@ void LLModelPreview::updateStatusMessages()
 
 		if (lod != lod_high)
 		{
-			if (total_submeshes[lod] == 0)
-			{ //no model loaded for this lod, see if one is required
-				for (U32 i = 0; i < verts[lod_high].size(); ++i)
-				{
-					const F32 ratio = 0.5f;
-					const S32 required_verts = 128;
-
-					F32 scaler = powf(ratio, lod_high-lod);
-					S32 max_verts = (S32)(verts[lod_high][i]*scaler);
-
-					if (max_verts > required_verts)
-					{ //some model in this slot might have more than 128 vertices
-					  	
-						//if any model higher up the chain has more than 128 vertices, 
-						// lod is required here
-						for (S32 j = lod+1; j <= LLModel::LOD_HIGH; ++j)
-						{
-							if (verts[j].size() > i && verts[j][i] > 128)
-							{
-								message = "required";
-								upload_message = "missing_lod";
-							}
-						}
-					}
-				}
-			}
-			else if (total_submeshes[lod] != total_submeshes[lod_high])
+			if (total_submeshes[lod] && total_submeshes[lod] != total_submeshes[lod_high])
 			{
 				message = "mesh_mismatch";
 				upload_message = "bad_lod";
 			}
-			else if (tris[lod].size() != tris[lod_high].size())
+			else if (!tris[lod].empty() && tris[lod].size() != tris[lod_high].size())
 			{
 				message = "model_mismatch";
 				upload_message = "bad_lod";
 			}
-			else
+			else if (!verts[lod].empty())
 			{
 				for (U32 i = 0; i < verts[lod].size(); ++i)
 				{
 					const F32 ratio = 0.5f;
 					
-					F32 scaler = powf(ratio, lod_high-lod);
-					S32 max_verts = (S32)(verts[lod_high][i]*scaler);
+					F32 scaler = 1.f;
+					S32 max_verts = (S32)(verts[lod+1][i]*scaler);
 
 					if (verts[lod][i] > max_verts)
 					{
