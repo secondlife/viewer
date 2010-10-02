@@ -2968,10 +2968,7 @@ void LLModelPreview::updateStatusMessages()
 			{
 				for (U32 i = 0; i < verts[lod].size(); ++i)
 				{
-					const F32 ratio = 0.5f;
-					
-					F32 scaler = 1.f;
-					S32 max_verts = (S32)(verts[lod+1][i]*scaler);
+					S32 max_verts = verts[lod+1][i];
 
 					if (verts[lod][i] > max_verts)
 					{
