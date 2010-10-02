@@ -182,28 +182,11 @@ bool defaultResponse(const LLSD& payload)
 	return false;
 }
 
-bool emptyResponse(const LLSD& payload)
+bool visibilityRuleMached(const LLSD& payload)
 {
-	if (payload["sigtype"].asString() == "add")
-	{
-		LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
-		if (pNotif) 
-		{
-			// supply empty response
-			pNotif->respond(pNotif->getResponseTemplate(LLNotification::WITHOUT_DEFAULT_BUTTON));
-		}
-	}
-	return false;
-}
-
-bool cancelNotification(const LLSD& payload)
-{
-	if (payload["sigtype"].asString() == "add")
-	{
-		// cancel this notification
-		LLNotifications::instance().cancel(LLNotifications::instance().find(payload["id"].asUUID()));
-	}
-	return false;
+	// This is needed because LLNotifications::isVisibleByRules may have cancelled the notification.
+	// Returning true here makes LLNotificationChannelBase::updateItem do an early out, which prevents things from happening in the wrong order.
+	return true;
 }
 
 
@@ -450,8 +433,10 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 
 LLNotificationVisibilityRule::LLNotificationVisibilityRule(const LLNotificationVisibilityRule::Params &p)
 :	mVisible(p.visible),
+	mResponse(p.response),
 	mType(p.type),
-	mTag(p.tag)
+	mTag(p.tag),
+	mName(p.name)
 {
 }
 
@@ -1290,7 +1275,7 @@ void LLNotifications::createDefaultChannels()
 	LLNotifications::instance().getChannel("Ignore")->
 		connectFailedFilter(&handleIgnoredNotification);
 	LLNotifications::instance().getChannel("VisibilityRules")->
-		connectFailedFilter(&cancelNotification);
+		connectFailedFilter(&visibilityRuleMached);
 }
 
 bool LLNotifications::addTemplate(const std::string &name, 
@@ -1663,6 +1648,12 @@ bool LLNotifications::getIgnoreAllNotifications()
 
 bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 {
+	if(n->isRespondedTo())
+	{
+		// This avoids infinite recursion in the case where the filter calls respond()
+		return true;
+	}
+	
 	VisibilityRuleList::iterator it;
 	
 	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
@@ -1687,15 +1678,56 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 				continue;
 			}
 		}
+
+		if(!(*it)->mName.empty())
+		{
+			lldebugs << "rule name = " << (*it)->mName << ", notification name = " << n->getName() << llendl;
+
+			// check this notification's name against the notification's name and continue if no match is found.
+			if((*it)->mName != n->getName())
+			{
+				// This rule's non-empty name didn't match the notification.  Skip this rule.
+				continue;
+			}
+		}
 		
 		// If we got here, the rule matches.  Don't evaluate subsequent rules.
-		return (*it)->mVisible;
+		if(!(*it)->mVisible)
+		{
+			// This notification is being hidden.
+			
+			if((*it)->mResponse.empty())
+			{
+				// Response property is empty.  Cancel this notification.
+				lldebugs << "cancelling notification " << n->getName() << llendl;
+
+				n->cancel();
+			}
+			else
+			{
+				// Response property is not empty.  Return the specified response.
+				LLSD response = n->getResponseTemplate(LLNotification::WITHOUT_DEFAULT_BUTTON);
+				// TODO: verify that the response template has an item with the correct name
+				response[(*it)->mResponse] = true;
+
+				lldebugs << "responding to notification " << n->getName() << " with response = " << response << llendl;
+				
+				n->respond(response);
+			}
+
+			return false;
+		}
+		
+		// If we got here, exit the loop and return true.
+		break;
 	}
 	
-	// Default for cases with no rules or incomplete rules is to show all notifications.
+	lldebugs << "allowing notification " << n->getName() << llendl;
+
 	return true;
 }
-													
+			
+
 // ---
 // END OF LLNotifications implementation
 // =========================================================

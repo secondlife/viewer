@@ -40,13 +40,17 @@ struct LLNotificationVisibilityRule
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<bool>	visible;
+		Optional<std::string> response;
 		Optional<std::string> type;
 		Optional<std::string> tag;
+		Optional<std::string> name;
 
 		Params()
 		:	visible("visible"),
+			response("response"),
 			type("type"),
-			tag("tag")
+			tag("tag"),
+			name("name")
 		{}
 	};
 
@@ -65,11 +69,18 @@ struct LLNotificationVisibilityRule
     // If true, this rule makes matching notifications visible.  Otherwise, it makes them invisible.
     bool mVisible;
 
+    // Which response to give when making a notification invisible.  An empty string means the notification should be cancelled instead of responded to.
+	std::string mResponse;
+
     // String to match against the notification's "type".  An empty string matches all notifications.
     std::string mType;
 	
     // String to match against the notification's tag(s).  An empty string matches all notifications.
 	std::string mTag;
+
+    // String to match against the notification's name.  An empty string matches all notifications.
+	std::string mName;
+	
 };
 
 #endif //LL_LLNOTIFICATION_VISIBILITY_RULE_H
