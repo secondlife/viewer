@@ -259,6 +259,12 @@ class WindowsManifest(ViewerManifest):
             except RuntimeError:
                 print "Skipping llkdu.dll"
 
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
+
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
@@ -314,12 +320,6 @@ class WindowsManifest(ViewerManifest):
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
-
-        try:
-            # FMOD for sound
-            self.path("fmod.dll")
-        except:
-            print "Skipping FMOD - not found"
 
         self.enable_no_crt_manifest_check()
         
