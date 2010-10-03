@@ -92,7 +92,7 @@ viewer-mesh.build_RelWithDebInfo = false
 viewer-mesh.viewer_channel = "Project Viewer - Mesh"
 viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
-viewer-mesh.email = mesh-beta@lists.lindenlab.com
+viewer-mesh.email = mesh-beta@lists.secondlife.com
 
 
 # ========================================
