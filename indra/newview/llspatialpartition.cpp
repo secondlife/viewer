@@ -2781,6 +2781,13 @@ void renderNormals(LLDrawable* drawablep)
 
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
+	U8 physics_type = volume->getPhysicsShapeType();
+
+	if (physics_type == LLViewerObject::PHYSICS_SHAPE_NONE)
+	{
+		return;
+	}
+
 	F32 threshold = gSavedSettings.getF32("ObjectCostHighThreshold");
 	F32 cost = volume->getObjectCost();
 
@@ -2804,7 +2811,9 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 	LLVolumeParams volume_params = volume->getVolume()->getParams();
 
-	LLPhysicsVolumeParams physics_params(volume->getVolume()->getParams(), false); //pass as true if type is convex hull
+	LLPhysicsVolumeParams physics_params(volume->getVolume()->getParams(), 
+		physics_type == LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL); 
+
 	LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification physics_spec;
 	LLPhysicsShapeBuilderUtil::determinePhysicsShape(physics_params, volume->getScale(), physics_spec);
 
