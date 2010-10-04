@@ -1828,6 +1828,10 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mSculptLevel = -2;
 	mIsTetrahedron = FALSE;
 	mLODScaleBias.setVec(1,1,1);
+	mHullPoints = NULL;
+	mHullIndices = NULL;
+	mNumHullPoints = 0;
+	mNumHullIndices = 0;
 
 	// set defaults
 	if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE)
@@ -1879,6 +1883,11 @@ LLVolume::~LLVolume()
 	mPathp = NULL;
 	mProfilep = NULL;
 	mVolumeFaces.clear();
+
+	free(mHullPoints);
+	mHullPoints = NULL;
+	free(mHullIndices);
+	mHullIndices = NULL;
 }
 
 BOOL LLVolume::generate()

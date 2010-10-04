@@ -2130,6 +2130,11 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 	return NULL;
 }
 
+void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
+{
+
+}
+
 const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
 	return mThread->getMeshHeader(mesh_id);

@@ -1068,10 +1068,16 @@ public:
 	LLPath *mPathp;
 	LLProfile *mProfilep;
 	std::vector<Point> mMesh;
-
+	
 	BOOL mGenerateSingleFace;
 	typedef std::vector<LLVolumeFace> face_list_t;
 	face_list_t mVolumeFaces;
+
+public:
+	LLVector4a* mHullPoints;
+	U16* mHullIndices;
+	S32 mNumHullPoints;
+	S32 mNumHullIndices;
 };
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);

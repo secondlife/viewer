@@ -2779,6 +2779,27 @@ void renderNormals(LLDrawable* drawablep)
 	}
 }
 
+S32 get_physics_detail(const LLVolumeParams& volume_params, const LLVector3& scale)
+{
+	const S32 DEFAULT_DETAIL = 1;
+	const F32 LARGE_THRESHOLD = 5.f;
+	const F32 MEGA_THRESHOLD = 25.f;
+
+	S32 detail = DEFAULT_DETAIL;
+	F32 avg_scale = (scale[0]+scale[1]+scale[2])/3.f;
+
+	if (avg_scale > LARGE_THRESHOLD)
+	{
+		detail += 1;
+		if (avg_scale > MEGA_THRESHOLD)
+		{
+			detail += 1;
+		}
+	}
+
+	return detail;
+}
+
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
 	U8 physics_type = volume->getPhysicsShapeType();
@@ -2904,23 +2925,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::PRIM_MESH)
 	{
 		LLVolumeParams volume_params = volume->getVolume()->getParams();
-
-		const S32 DEFAULT_DETAIL = 1;
-		const F32 LARGE_THRESHOLD = 5.f;
-		const F32 MEGA_THRESHOLD = 25.f;
-
-		S32 detail = DEFAULT_DETAIL;
-		LLVector3 scale = volume->getScale();
-		F32 avg_scale = (scale[0]+scale[1]+scale[2])/3.f;
-
-		if (avg_scale > LARGE_THRESHOLD)
-		{
-			detail += 1;
-			if (avg_scale > MEGA_THRESHOLD)
-			{
-				detail += 1;
-			}
-		}
+		S32 detail = get_physics_detail(volume_params, volume->getScale());
 
 		LLVolume* phys_volume = LLPrimitive::sVolumeManager->refVolume(volume_params, detail);
 		gGL.pushMatrix();
@@ -2936,7 +2941,36 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		gGL.popMatrix();
 		LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
 	}
-	
+	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::PRIM_CONVEX)
+	{
+		LLVolumeParams volume_params = volume->getVolume()->getParams();
+		S32 detail = get_physics_detail(volume_params, volume->getScale());
+
+		LLVolume* phys_volume = LLPrimitive::sVolumeManager->refVolume(volume_params, detail);
+
+		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
+		{
+			gGL.pushMatrix();
+			glMultMatrixf((GLfloat*) volume->getRelativeXform().mMatrix);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			
+			LLVertexBuffer::unbind();
+			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
+			glColor3fv(color.mV);
+			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+			
+			glColor4fv(color.mV);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);			
+			gGL.popMatrix();
+		}
+		else
+		{
+			gMeshRepo.buildHull(volume_params, detail);
+		}
+		LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
+	}
+
 	/*{ //analytical shape, just push visual rep.
 		glColor3fv(color.mV);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

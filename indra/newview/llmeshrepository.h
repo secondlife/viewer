@@ -407,6 +407,7 @@ public:
 	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
 	const LLMeshDecomposition* getDecomposition(const LLUUID& mesh_id);
+	void buildHull(const LLVolumeParams& params, S32 detail);
 	const LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
