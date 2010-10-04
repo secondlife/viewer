@@ -597,6 +597,7 @@ REGISTER_KEYBOARD_ACTION("edit_avatar_move_backward", edit_avatar_move_backward)
 REGISTER_KEYBOARD_ACTION("stop_moving", stop_moving);
 REGISTER_KEYBOARD_ACTION("start_chat", start_chat);
 REGISTER_KEYBOARD_ACTION("start_gesture", start_gesture);
+#undef REGISTER_KEYBOARD_ACTION
 
 LLViewerKeyboard::LLViewerKeyboard()
 {
