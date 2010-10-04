@@ -118,13 +118,4 @@
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
-    <text
-     follows="right|top"
-     halign="center"
-     height="12"
-     layout="topleft"
-     left_delta="0"
-     name="stat_btn"
-     top_delta="0"
-     width="20"/>
 </panel>

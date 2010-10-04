@@ -100,8 +100,8 @@ LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)
 
 void LLRadioGroup::initFromParams(const Params& p)
 {
-	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items().begin();
-		it != p.items().end();
+	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
+		it != p.items.end();
 		++it)
 	{
 		LLRadioGroup::ItemParams item_params(*it);

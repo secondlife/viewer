@@ -17,15 +17,18 @@
    left="10"
    name="stack"
    top_pad="10"
+   orientation="vertical" 
    width="313">
     <layout_panel
      height="550"
      layout="topleft"
      left_delta="0"
      name="browser_layout"
+     orientation="vertical" 
      top_delta="0"
      width="313">
       <web_browser
+        trusted_content="true"
        border_visible="false"
        follows="all"
        height="550"

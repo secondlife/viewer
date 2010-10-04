@@ -32,6 +32,8 @@
 #include "llappviewer.h"
 #include "llbottomtray.h"
 #include "llfloaterreg.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -111,7 +113,7 @@ public:
 	};
 protected:
 	LLSideTrayTab(const Params& params);
-
+	
 	void			dock();
 	void			undock(LLFloater* floater_tab);
 
@@ -132,7 +134,7 @@ public:
 	const std::string& getTabTitle() const { return mTabTitle;}
 	
 	void			onOpen		(const LLSD& key);
-
+	
 	void			toggleTabDocked();
 
 	LLPanel *getPanel();
@@ -568,7 +570,7 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 	{
 		LLButton* btn = it->second;
 		bool new_state = !btn->getToggleState();
-		btn->setToggleState(new_state);
+		btn->setToggleState(new_state); 
 		// Only highlight the tab if side tray is expanded (STORM-157).
 		btn->setImageOverlay( new_state && !getCollapsed() ? tab->mImageSelected : tab->mImage );
 	}
@@ -646,7 +648,7 @@ bool LLSideTray::selectTabByName(const std::string& name, bool keep_prev_visible
 	{
 		// Keep previously active tab visible if requested.
 		if (keep_prev_visible) tab_to_keep_visible = mActiveTab;
-		toggleTabButton(mActiveTab);
+	toggleTabButton(mActiveTab);
 	}
 
 	//select new tab
@@ -654,9 +656,9 @@ bool LLSideTray::selectTabByName(const std::string& name, bool keep_prev_visible
 
 	if (mActiveTab)
 	{
-		toggleTabButton(mActiveTab);
-		LLSD key;//empty
-		mActiveTab->onOpen(key);
+	toggleTabButton(mActiveTab);
+	LLSD key;//empty
+	mActiveTab->onOpen(key);
 	}
 
 	//arrange();
@@ -868,6 +870,7 @@ void	LLSideTray::createButtons	()
 		{
 			mCollapseButton = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
+			LLHints::registerHintTarget("side_panel_btn", mCollapseButton->getHandle());
 		}
 		else
 		{
@@ -876,6 +879,8 @@ void	LLSideTray::createButtons	()
 			mTabButtons[name] = button;
 		}
 	}
+	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
+	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()
@@ -914,6 +919,7 @@ void		LLSideTray::onTabButtonClick(string name)
 
 void		LLSideTray::onToggleCollapse()
 {
+	LLFirstUse::notUsingSidePanel(false);
 	if(mCollapsed)
 	{
 		expandSideBar();
@@ -1118,11 +1124,11 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	{
 		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
 		if (panel) return panel;
-	}
+			}
 
 	// Look up the tab in the list of attached tabs.
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
+			{
 		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
 		if (panel) return panel;
 	}

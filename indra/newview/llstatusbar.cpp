@@ -33,6 +33,7 @@
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
+#include "llfirstuse.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
@@ -41,6 +42,7 @@
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
+#include "llhints.h"
 #include "llhudicon.h"
 #include "llnavigationbar.h"
 #include "llkeyboard.h"
@@ -126,7 +128,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
 
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_status_bar.xml");
+	buildFromFile("panel_status_bar.xml");
 }
 
 LLStatusBar::~LLStatusBar()
@@ -174,6 +176,8 @@ BOOL LLStatusBar::postBuild()
 	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
 	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
+	LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
+
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
 	// Adding Net Stat Graph
@@ -212,8 +216,6 @@ BOOL LLStatusBar::postBuild()
 	mSGPacketLoss->setPrecision(1);
 	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
-
-	getChild<LLTextBox>("stat_btn")->setClickedCallback(onClickStatGraph);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
@@ -321,6 +323,11 @@ void LLStatusBar::creditBalance(S32 credit)
 
 void LLStatusBar::setBalance(S32 balance)
 {
+	if (balance > getBalance() && getBalance() != 0)
+	{
+		LLFirstUse::receiveLindens();
+	}
+
 	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
 	LLTextBox* balance_box = getChild<LLTextBox>("balance");
@@ -443,6 +450,7 @@ void LLStatusBar::onClickBuyCurrency()
 	// open a currency floater - actual one open depends on 
 	// value specified in settings.xml
 	LLBuyCurrencyHTML::openCurrencyFloater();
+	LLFirstUse::receiveLindens(false);
 }
 
 void LLStatusBar::onMouseEnterVolume()
@@ -504,12 +512,6 @@ void LLStatusBar::onClickMediaToggle(void* data)
 	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
 	bool enable = ! status_bar->mMediaToggle->getValue();
 	LLViewerMedia::setAllMediaEnabled(enable);
-}
-
-// static
-void LLStatusBar::onClickStatGraph(void* data)
-{
-	LLFloaterReg::showInstance("lagmeter");
 }
 
 BOOL can_afford_transaction(S32 cost)

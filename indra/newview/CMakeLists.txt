@@ -94,6 +94,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallfloater.cpp
@@ -216,7 +217,6 @@ set(viewer_SOURCE_FILES
     llfloatertos.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoicedevicesettings.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
@@ -234,6 +234,7 @@ set(viewer_SOURCE_FILES
     llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
+    llhints.cpp
     llhomelocationresponder.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -304,6 +305,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
+    llnotificationhinthandler.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -363,6 +365,7 @@ set(viewer_SOURCE_FILES
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
+    llpanelvoicedevicesettings.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llpanelwearing.cpp
@@ -744,7 +747,6 @@ set(viewer_HEADER_FILES
     llfloatertos.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoicedevicesettings.h
     llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
@@ -762,6 +764,7 @@ set(viewer_HEADER_FILES
     llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
+    llhints.h
     llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
@@ -884,6 +887,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoicedevicesettings.h
     llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h
@@ -1309,6 +1313,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/cmd_line.xml
     app_settings/grass.xml
     app_settings/high_graphics.xml
+    app_settings/ignorable_dialogs.xml
     app_settings/keys.ini
     app_settings/keywords.ini
     app_settings/logcontrol.xml
