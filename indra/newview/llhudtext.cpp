@@ -326,9 +326,6 @@ void LLHUDText::renderText(BOOL for_select)
 
 	mRadius = (width_vec + height_vec).magVec() * 0.5f;
 
-	LLCoordGL screen_pos;
-	LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
-
 	LLVector2 screen_offset;
 	if (!mUseBubble)
 	{
