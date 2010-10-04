@@ -2842,6 +2842,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableMouselook</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow first person perspective and mouse control of camera</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
