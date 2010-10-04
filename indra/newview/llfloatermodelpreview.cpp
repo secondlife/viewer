@@ -2211,9 +2211,16 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 		mModelLoader = NULL;
 	}
 
-	if (filename.empty() && mBaseModel.empty())
+	if (filename.empty())
 	{
-		mFMP->closeFloater(false);
+		if (mBaseModel.empty())
+		{
+			// this is the initial file picking. Close the whole floater
+			// if we don't have a base model to show for high LOD.
+			mFMP->closeFloater(false);
+		}
+
+		mFMP->mLoading = false;
 		return;
 	}
 
