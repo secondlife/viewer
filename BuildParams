@@ -185,5 +185,13 @@ viewer-tut-teamcity.email = enus@lindenlab.com
 viewer-tut-teamcity.build_server = false
 viewer-tut-teamcity.build_server_tests = false
 
+# =================================================================
+# asset delivery 2010 projects
+# =================================================================
+viewer-asset-delivery.viewer_channel = "Second Life Development"
+viewer-asset-delivery.login_channel = "Second Life Development"
+viewer-asset-delivery.build_viewer_update_version_manager = false
+viewer-asset-delivery.email = monty@lindenlab.com
+
 
 # eof
