@@ -42,6 +42,7 @@
      text_color="White"
      use_ellipses="true"
      word_wrap="true"
+    visible="false" 
      value="Grumpity ProductEngine with a long name"
      width="185" />
    <text
@@ -53,7 +54,6 @@
     top="10"
     text_color="White"
     use_ellipses="true"
-    visible="false" 
     value="Grumpity ProductEngine"
     width="190" />
    <text
@@ -61,10 +61,10 @@
      height="16"
      left="8"
      name="user_slid"
-     font="SansSerifSmall"
-     text_color="White"
-     value="James.pinden"
-     width="175"
+     font="SansSerifSmallBold"
+     text_color="EmphasisColor"
+     value="james.linden"
+     width="185"
      use_ellipses="true" />
     <text
      follows="top|left"
