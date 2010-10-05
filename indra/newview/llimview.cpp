@@ -2571,17 +2571,16 @@ void LLIMMgr::inviteToSession(
 
 	if (type == IM_SESSION_P2P_INVITE || ad_hoc_invite)
 	{
-		// is the inviter a friend?
-		if (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL)
+			
+		if	(	// if we're rejecting all incoming call requests
+				gSavedSettings.getBOOL("VoiceCallsRejectAll")	
+				// or we're rejecting non-friend voice calls and this isn't a friend	
+				|| (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
+			)
 		{
-			// if not, and we are ignoring voice invites from non-friends
-			// then silently decline
-			if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
-			{
-				// invite not from a friend, so decline
-				LLNotifications::instance().forceResponse(LLNotification::Params("VoiceInviteP2P").payload(payload), 1);
-				return;
-			}
+			// silently decline the call
+			LLNotifications::instance().forceResponse(LLNotification::Params("VoiceInviteP2P").payload(payload), 1);
+			return;
 		}
 	}
 
