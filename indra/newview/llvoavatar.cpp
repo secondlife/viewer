@@ -1631,7 +1631,8 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
 
-
+	joint->setDefaultFromCurrentXform();
+	
 	if (info->mIsJoint)
 	{
 		joint->setSkinOffset( info->mPivot );
@@ -4784,6 +4785,38 @@ void LLVOAvatar::resetJointPositions( void )
 		mSkeleton[i].restoreOldXform();
 	}
 }
+//-----------------------------------------------------------------------------
+// resetJointPositionsToDefault
+//-----------------------------------------------------------------------------
+void LLVOAvatar::resetJointPositionsToDefault( void )
+{
+	const LLVector3& avPos = getCharacterPosition();
+	
+	//Reposition the pelvis
+	LLJoint* pPelvis = mRoot.findJoint("mPelvis");
+	if ( pPelvis )
+	{
+		pPelvis->setPosition( avPos + pPelvis->getPosition() );
+	}
+	else 
+	{
+		llwarns<<"Can't get pelvis joint."<<llendl;	
+		return;
+	}
+
+	//Subsequent joints are relative to pelvis
+	for( S32 i = 0; i < (S32)mNumJoints; ++i )
+	{
+		LLJoint* pJoint = (LLJoint*)&mSkeleton[i];
+		//restore joints to default positions, however skip over the pelvis
+		if ( pJoint && pPelvis != pJoint )
+		{
+			pJoint->restoreToDefaultXform();
+		}
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // getCharacterPosition()
 //-----------------------------------------------------------------------------
