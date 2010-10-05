@@ -580,7 +580,7 @@ public:
 	std::string summarize() const;
 
 	bool hasUniquenessConstraints() const;
-	
+
 	bool matchesTag(const std::string& tag);
 
 	virtual ~LLNotification() {}
@@ -863,7 +863,7 @@ public:
 	// load notification descriptions from file; 
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
-
+	
 	// load visibility rules from file; 
 	// OK to call more than once because it will reload
 	bool loadVisibilityRules();  
@@ -929,7 +929,7 @@ public:
 
 	void setIgnoreAllNotifications(bool ignore);
 	bool getIgnoreAllNotifications();
-	
+
 	bool isVisibleByRules(LLNotificationPtr pNotification);
 	
 private:
@@ -950,7 +950,7 @@ private:
 	// put your template in
 	bool addTemplate(const std::string& name, LLNotificationTemplatePtr theTemplate);
 	TemplateMap mTemplates;
-	
+
 	VisibilityRuleList mVisibilityRules;
 
 	std::string mFileName;

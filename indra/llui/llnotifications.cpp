@@ -1404,7 +1404,7 @@ bool LLNotifications::loadTemplates()
 	LLNotificationTemplate::Notifications params;
 	LLXUIParser parser;
 	parser.readXUI(root, params, full_filename);
-	
+
 	if(!params.validateBlock())
 	{
 		llerrs << "Problem reading UI Notifications file: " << full_filename << llendl;
@@ -1645,7 +1645,7 @@ bool LLNotifications::getIgnoreAllNotifications()
 {
 	return mIgnoreAllNotifications; 
 }
-
+													
 bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 {
 	if(n->isRespondedTo())

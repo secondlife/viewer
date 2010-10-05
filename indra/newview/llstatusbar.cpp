@@ -217,8 +217,6 @@ BOOL LLStatusBar::postBuild()
 	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
 
-	getChild<LLTextBox>("stat_btn")->setClickedCallback(onClickStatGraph);
-
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
@@ -514,12 +512,6 @@ void LLStatusBar::onClickMediaToggle(void* data)
 	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
 	bool enable = ! status_bar->mMediaToggle->getValue();
 	LLViewerMedia::setAllMediaEnabled(enable);
-}
-
-// static
-void LLStatusBar::onClickStatGraph(void* data)
-{
-	LLFloaterReg::showInstance("lagmeter");
 }
 
 BOOL can_afford_transaction(S32 cost)

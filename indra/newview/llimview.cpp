@@ -495,6 +495,11 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 	return NULL;
 }
 
+bool LLIMModel::LLIMSession::isOutgoingAdHoc()
+{
+	return IM_SESSION_CONFERENCE_START == mType;
+}
+
 bool LLIMModel::LLIMSession::isAdHoc()
 {
 	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
@@ -1032,24 +1037,25 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
 			// Concrete participants will be added into this list once they sent message in chat.
 			if (IM_SESSION_INVITE == dialog) return;
-
 			// Add only online members to recent (EXT-8658)
-			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
-			LLSpeakerMgr::speaker_list_t speaker_list;
-			if(speaker_mgr != NULL)
-			{
-				speaker_mgr->getSpeakerList(&speaker_list, true);
-			}
-			for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
-			{
-				const LLPointer<LLSpeaker>& speakerp = *it;
-
-				LLRecentPeople::instance().add(speakerp->mID);
-			}
+			addSpeakersToRecent(im_session_id);			
 		}
 	}
+}
 
-	
+void LLIMModel::addSpeakersToRecent(const LLUUID& im_session_id)
+{
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+	LLSpeakerMgr::speaker_list_t speaker_list;
+	if(speaker_mgr != NULL)
+	{
+		speaker_mgr->getSpeakerList(&speaker_list, true);
+	}
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	{
+		const LLPointer<LLSpeaker>& speakerp = *it;
+		LLRecentPeople::instance().add(speakerp->mID);
+	}
 }
 
 void session_starter_helper(
@@ -2280,9 +2286,6 @@ void LLIMMgr::addMessage(
 	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
-		// When addidng messages further here, name of session is used instead of "name", because they may not be the
-		// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
-		fixed_session_name = LLIMModel::getInstance()->getName(new_session_id);
 
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
@@ -2302,13 +2305,13 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			LLIMModel::instance().addMessage(new_session_id, fixed_session_name, other_participant_id, bonus_info.str());
+			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	LLIMModel::instance().addMessage(new_session_id, fixed_session_name, other_participant_id, msg);
+	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)

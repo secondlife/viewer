@@ -290,20 +290,6 @@ public:
 		return TRUE;
 	}
 
-	void setVisible(BOOL b)
-	{
-		// Overflow menu shouldn't hide when it still has focus. See EXT-4217.
-		if (!b && hasFocus())
-			return;
-		LLToggleableMenu::setVisible(b);
-		setFocus(b);
-	}
-
-	void onFocusLost()
-	{
-		setVisible(FALSE);
-	}
-
 protected:
 	LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
 		LLToggleableMenu(p)
@@ -790,7 +776,6 @@ void LLFavoritesBarCtrl::updateButtons()
 		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mPopupMenuHandle.get());
 		if (overflow_menu && overflow_menu->getVisible())
 		{
-			overflow_menu->setFocus(FALSE);
 			overflow_menu->setVisible(FALSE);
 			if (mUpdateDropDownItems)
 				showDropDownMenu();
@@ -911,8 +896,6 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 	if (menu)
 	{
-		// Release focus to allow changing of visibility.
-		menu->setFocus(FALSE);
 		if (!menu->toggleVisibility())
 			return;
 
@@ -1092,6 +1075,14 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	else if (action == "delete")
 	{
 		gInventory.removeItem(mSelectedItemID);
+	}
+
+	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
+	// See EXT-4217 and STORM-207.
+	LLToggleableMenu* menu = (LLToggleableMenu*) mPopupMenuHandle.get();
+	if (menu && !menu->getVisible())
+	{
+		showDropDownMenu();
 	}
 }
 

@@ -670,6 +670,14 @@
 			<menu_item_call.on_enable
                function="Tools.EnableSaveToObjectInventory" />
           </menu_item_call>
+          <menu_item_call
+			 label="Return Object"
+			 name="Return Object back to Owner">
+			<menu_item_call.on_click
+               function="Object.Return" />
+			<menu_item_call.on_enable
+               function="Object.EnableReturn" />
+          </menu_item_call>
 		</menu>
         <menu
            create_jump_keys="true"
@@ -772,6 +780,16 @@
 
           <menu_item_separator/>
 
+                <menu_item_check
+                 label="Show Selection Outlines"
+                 name="Show Selection Outlines">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="RenderHighlightSelections" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="RenderHighlightSelections" />
+                </menu_item_check>
                 <menu_item_check
                  label="Show Hidden Selection"
                  name="Show Hidden Selection">

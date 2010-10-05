@@ -323,8 +323,9 @@ BOOL LLFloaterPreference::postBuild()
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
 
+	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-	getChild<LLUICtrl>("cache_location")->setValue(cache_location);
+	setCacheLocation(cache_location);
 
 	// if floater is opened before login set default localized busy message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -414,7 +415,7 @@ void LLFloaterPreference::apply()
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
 	
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-	getChild<LLUICtrl>("cache_location")->setValue(cache_location);		
+	setCacheLocation(cache_location);
 	
 	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
@@ -1310,6 +1311,12 @@ void LLFloaterPreference::getUIColor(LLUICtrl* ctrl, const LLSD& param)
 	color_swatch->setOriginal(LLUIColorTable::instance().getColor(param.asString()));
 }
 
+void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
+{
+	LLUICtrl* cache_location_editor = getChild<LLUICtrl>("cache_location");
+	cache_location_editor->setValue(location);
+	cache_location_editor->setToolTip(location);
+}
 
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");

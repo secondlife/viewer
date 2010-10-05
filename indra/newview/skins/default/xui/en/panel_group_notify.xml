@@ -85,6 +85,7 @@
      layout="topleft"
      left="45"
      name="attachment"
+     parse_urls="false"
      text_color="GroupNotifyTextColor"
      value="Attachment"
      use_ellipses="true"

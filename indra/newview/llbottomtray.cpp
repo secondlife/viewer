@@ -67,10 +67,10 @@ BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (mCanDrag)
 	{
-		S32 screenX, screenY;
-		localPointToScreen(x, y, &screenX, &screenY);
-		// pass hover to bottomtray
-		LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass hover to bottomtray
+	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
 		return TRUE;
 	}
 	else
@@ -83,10 +83,10 @@ BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (mCanDrag)
 	{
-		S32 screenX, screenY;
-		localPointToScreen(x, y, &screenX, &screenY);
-		// pass mouse up to bottomtray
-		LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass mouse up to bottomtray
+	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
 	}
 	return LLButton::handleMouseUp(x, y, mask);
 }
@@ -95,10 +95,10 @@ BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mCanDrag)
 	{
-		S32 screenX, screenY;
-		localPointToScreen(x, y, &screenX, &screenY);
-		// pass mouse up to bottomtray
-		LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+	// pass mouse up to bottomtray
+	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
 	}
 	return LLButton::handleMouseDown(x, y, mask);
 }
@@ -774,7 +774,7 @@ void LLBottomTray::loadButtonsOrder()
 	}
 	// Nearbychat is not stored in order settings file, but it must be the first of the panels, so moving it
 	// manually here
-	mToolbarStack->movePanel(mNearbyChatBar, NULL, true);
+	mToolbarStack->movePanel(mChatBarContainer, NULL, true);
 }
 
 void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y)
