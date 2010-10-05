@@ -55,6 +55,7 @@
 #include "llworld.h"
 #include "lluiconstants.h"
 
+#include "llviewercontrol.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -365,6 +366,17 @@ public:
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		user_name->setValue( LLSD(av_name.mDisplayName ) );
 		user_name->setToolTip( av_name.mUsername );
+
+		if (gSavedSettings.getBOOL("NameTagShowUsernames"))
+		{
+		LLStyle::Params style_params_name;
+		LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+		style_params_name.color(userNameColor);
+		style_params_name.font.name("SansSerifSmall");
+		style_params_name.font.style("NORMAL");
+		style_params_name.readonly_color(userNameColor);
+		user_name->appendText("  - " + av_name.mUsername, FALSE, style_params_name);
+		}
 		setToolTip( av_name.mUsername );
 		// name might have changed, update width
 		updateMinUserNameWidth();
