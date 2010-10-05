@@ -3460,8 +3460,10 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			else
 			{
 				//highlight first enabled one
-				pMenu->highlightNextItem(NULL);
-				handled = true;
+				if(pMenu->highlightNextItem(NULL))
+				{
+					handled = true;
+				}
 			}
 		}
 	}
