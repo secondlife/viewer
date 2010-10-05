@@ -643,7 +643,7 @@ void LLFloaterModelPreview::draw()
 		else
 		{
 			const std::string idle("Idle.");
-			mDecompFloater->childSetText("status", std::string("Idle."));
+			mDecompFloater->childSetText("status", idle);
 		}
 	}
 
@@ -789,12 +789,9 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 
 	if (sInstance)
 	{
-		LLCDResult ret = LLCD_OK;
 		LLCDParam* param = (LLCDParam*) data;
 		sInstance->mDecompParams[param->mName] = ctrl->getValue();
 	}
-
-	
 }
 
 //static

@@ -1728,3 +1728,25 @@ void LLModel::setPhysicsShape(const LLModel::physics_shape& shape)
 {
 	mPhysicsShape = shape;
 
+	mHullCenter.resize(mPhysicsShape.size());
+	mPhysicsPoints = 0;
+	mPhysicsCenter.clear();
+
+	for (U32 i = 0; i < shape.size(); ++i)
+	{
+		LLVector3 cur_center;
+
+		for (U32 j = 0; j < shape[i].size(); ++j)
+		{
+			cur_center += shape[i][j];
+		}
+		mPhysicsCenter += cur_center;
+		cur_center *= 1.f/shape[i].size();
+		mHullCenter[i] = cur_center;
+		mPhysicsPoints += shape[i].size();
+	}
+
+	mPhysicsCenter *= 1.f/mPhysicsPoints;
+}
+
+

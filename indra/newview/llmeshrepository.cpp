@@ -2696,6 +2696,11 @@ void LLPhysicsDecomp::run()
 
 				const LLCDParam* param = param_map[name];
 
+				if (param == NULL)
+				{ //couldn't find valid parameter
+					continue;
+				}
+
 				U32 ret = LLCD_OK;
 
 				if (param->mType == LLCDParam::LLCD_FLOAT)
@@ -2720,7 +2725,6 @@ void LLPhysicsDecomp::run()
 
 			mCurRequest->setStatusMessage("Executing.");
 
-			S32 keep_going = 1;
 			LLCDResult ret = LLCD_OK;
 			
 			if (LLConvexDecomposition::getInstance() != NULL)
@@ -2728,7 +2732,6 @@ void LLPhysicsDecomp::run()
 				ret = LLConvexDecomposition::getInstance()->executeStage(stage);
 			}
 
-			keep_going = 0;
 			if (ret)
 			{
 				llerrs << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
