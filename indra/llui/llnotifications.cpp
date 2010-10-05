@@ -431,13 +431,30 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	mForm = LLNotificationFormPtr(new LLNotificationForm(p.name, p.form_ref.form));
 }
 
-LLNotificationVisibilityRule::LLNotificationVisibilityRule(const LLNotificationVisibilityRule::Params &p)
-:	mVisible(p.visible),
-	mResponse(p.response),
-	mType(p.type),
-	mTag(p.tag),
-	mName(p.name)
+LLNotificationVisibilityRule::LLNotificationVisibilityRule(const LLNotificationVisibilityRule::Rule &p)
 {
+	if (p.show.isChosen())
+	{
+		mType = p.show.type;
+		mTag = p.show.tag;
+		mName = p.show.name;
+		mVisible = true;
+	}
+	else if (p.hide.isChosen())
+	{
+		mType = p.hide.type;
+		mTag = p.hide.tag;
+		mName = p.hide.name;
+		mVisible = false;
+	}
+	else if (p.respond.isChosen())
+	{
+		mType = p.respond.type;
+		mTag = p.respond.tag;
+		mName = p.respond.name;
+		mVisible = false;
+		mResponse = p.respond.response;
+	}
 }
 
 LLNotification::LLNotification(const LLNotification::Params& p) : 
@@ -1465,18 +1482,9 @@ bool LLNotifications::loadVisibilityRules()
 	const std::string xml_filename = "notification_visibility.xml";
 	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), xml_filename);
 
-	LLXMLNodePtr root;
-	BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
-	
-	if (!success || root.isNull() || !root->hasName( "notification_visibility" ))
-	{
-		llerrs << "Problem reading UI Notification Visibility Rules file: " << full_filename << llendl;
-		return false;
-	}
-
 	LLNotificationVisibilityRule::Rules params;
-	LLXUIParser parser;
-	parser.readXUI(root, params, full_filename);
+	LLSimpleXUIParser parser;
+	parser.readXUI(full_filename, params);
 
 	if(!params.validateBlock())
 	{
@@ -1486,7 +1494,8 @@ bool LLNotifications::loadVisibilityRules()
 
 	mVisibilityRules.clear();
 
-	for(LLInitParam::ParamIterator<LLNotificationVisibilityRule::Params>::iterator it = params.rules.begin(), end_it = params.rules.end();
+	for(LLInitParam::ParamIterator<LLNotificationVisibilityRule::Rule>::iterator it = params.rules.begin(), 
+			end_it = params.rules.end();
 		it != end_it;
 		++it)
 	{

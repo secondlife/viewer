@@ -37,34 +37,51 @@
 // from the appropriate local language directory).
 struct LLNotificationVisibilityRule
 {
-	struct Params : public LLInitParam::Block<Params>
+	struct Filter : public LLInitParam::Block<Filter>
 	{
-		Mandatory<bool>	visible;
-		Optional<std::string> response;
-		Optional<std::string> type;
-		Optional<std::string> tag;
-		Optional<std::string> name;
+		Optional<std::string>	type,
+								tag,
+								name;
 
-		Params()
-		:	visible("visible"),
-			response("response"),
-			type("type"),
+		Filter()
+		:	type("type"),
 			tag("tag"),
 			name("name")
 		{}
 	};
 
-
-	struct Rules : public LLInitParam::Block<Rules>
+	struct Respond : public LLInitParam::Block<Respond, Filter>
 	{
-		Multiple<Params>	rules;
+		Mandatory<std::string> response;
 
-		Rules()
-		:	rules("rule")
+		Respond()
+		:	response("response")
 		{}
 	};
 
-	LLNotificationVisibilityRule(const Params& p);
+	struct Rule : public LLInitParam::Choice<Rule>
+	{
+		Alternative<Filter>		show;
+		Alternative<Filter>		hide;
+		Alternative<Respond>	respond;
+
+		Rule()
+		:	show("show"),
+			hide("hide"),
+			respond("respond")
+		{}
+	};
+
+	struct Rules : public LLInitParam::Block<Rules>
+	{
+		Multiple<Rule>	rules;
+
+		Rules()
+		:	rules("")
+		{}
+	};
+
+	LLNotificationVisibilityRule(const Rule& p);
 	
     // If true, this rule makes matching notifications visible.  Otherwise, it makes them invisible.
     bool mVisible;
