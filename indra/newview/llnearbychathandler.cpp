@@ -336,10 +336,8 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 		return;
 
 	LLRect	toast_rect;	
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
-	LLRect cur_rect = getRect();
-	cur_rect.translate(0, channel_bottom - cur_rect.mBottom);
-	setRect(cur_rect);
+	updateBottom();
+	S32 channel_bottom = getRect().mBottom;
 
 	S32		bottom = channel_bottom;
 	S32		margin = gSavedSettings.getS32("ToastGap");
