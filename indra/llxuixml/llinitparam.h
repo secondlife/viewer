@@ -303,8 +303,8 @@ namespace LLInitParam
 	private:
 		friend class BaseBlock;
 
-		bool		mIsProvided;
 		U16			mEnclosingBlockOffset;
+		bool		mIsProvided;
 	};
 
 	// various callbacks and constraints associated with an individual param
