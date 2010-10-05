@@ -92,6 +92,11 @@ public:
 
 	scene mScene;
 
+	typedef std::queue<LLPointer<LLModel> > model_queue;
+
+	//queue of models that need a physics rep
+	model_queue mPhysicsQ;
+
 	LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview);
 
 	virtual void run();
@@ -189,6 +194,18 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 class LLFloaterModelPreview : public LLFloater
 {
 public:
+
+	class DecompRequest : public LLPhysicsDecomp::Request
+	{
+	public:
+		S32 mContinue;
+		LLPointer<LLModel> mModel;
+
+		DecompRequest(const std::string& stage, LLModel* mdl);
+		virtual S32 statusCallback(const char* status, S32 p1, S32 p2);
+		virtual void completed();
+
+	};
 	static LLFloaterModelPreview* sInstance;
 
 	LLFloaterModelPreview(const LLSD& key);
@@ -270,13 +287,18 @@ protected:
 	LLModelPreview*	mModelPreview;
 
 	LLFloater* mDecompFloater;
-	
+	LLPhysicsDecomp::decomp_params mDecompParams;
+
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	U32				mGLName;
 	BOOL			mLoading;
 	static S32		sUploadAmount;
+
+	LLPointer<DecompRequest> mCurRequest;
+	
+
 };
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H

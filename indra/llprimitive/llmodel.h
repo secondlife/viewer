@@ -160,6 +160,7 @@ public:
 
 	//physics shape
 	physics_shape mPhysicsShape;
+	void setPhysicsShape(const physics_shape& shape);
 
 	LLVector3 mPhysicsCenter;
 	std::vector<LLVector3> mHullCenter;

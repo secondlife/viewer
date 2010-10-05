@@ -151,37 +151,53 @@ public:
 class LLPhysicsDecomp : public LLThread
 {
 public:
+
+	typedef std::map<std::string, LLSD> decomp_params;
+
+	class Request : public LLRefCount
+	{
+	public:
+		//input params
+		std::string mStage;
+		std::vector<LLVector3> mPositions;
+		std::vector<U16> mIndices;
+		decomp_params mParams;
+				
+		//output state
+		std::string mStatusMessage;
+		std::vector<LLPointer<LLVertexBuffer> > mHullMesh;
+		LLModel::physics_shape mHull;
+		
+		virtual S32 statusCallback(const char* status, S32 p1, S32 p2) = 0;
+		virtual void completed() = 0;
+		virtual void setStatusMessage(const std::string& msg);
+	};
+
 	LLCondition* mSignal;
 	LLMutex* mMutex;
-	
-	LLCDMeshData mMesh;
 	
 	bool mInited;
 	bool mQuitting;
 	bool mDone;
-
-	S32 mContinue;
-	std::string mStatus;
-
-	std::vector<LLVector3> mPositions;
-	std::vector<U16> mIndices;
-
-	S32 mStage;
-
+	
 	LLPhysicsDecomp();
 	~LLPhysicsDecomp();
 
 	void shutdown();
-	void setStatusMessage(std::string msg);
-	
-	void execute(const char* stage, LLModel* mdl);
+		
+	void submitRequest(Request* request);
 	static S32 llcdCallback(const char*, S32, S32);
 	void cancel();
 
 	virtual void run();
 
 	std::map<std::string, S32> mStageID;
-	LLPointer<LLModel> mModel;
+
+	typedef std::queue<LLPointer<Request> > request_queue;
+	request_queue mRequestQ;
+
+	LLPointer<Request> mCurRequest;
+
 };
 
 class LLMeshRepoThread : public LLThread
