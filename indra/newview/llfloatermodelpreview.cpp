@@ -636,7 +636,15 @@ void LLFloaterModelPreview::draw()
 
 	if (mDecompFloater)
 	{
-		mDecompFloater->childSetText("status", gMeshRepo.mDecompThread->mStatus);
+		if (mCurRequest.notNull())
+		{
+			mDecompFloater->childSetText("status", mCurRequest->mStatusMessage);
+		}
+		else
+		{
+			const std::string idle("Idle.");
+			mDecompFloater->childSetText("status", std::string("Idle."));
+		}
 	}
 
 	U32 resource_cost = mModelPreview->mResourceCost*10;
@@ -773,34 +781,20 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //static
 void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 {
-	LLCDParam* param = (LLCDParam*) data;
-
-	LLCDResult ret = LLCD_OK;
-
 	if (LLConvexDecomposition::getInstance() == NULL)
 	{
 		llinfos << "convex decomposition tool is a stub on this platform. cannot get decomp." << llendl;
 		return;
 	}
 
-	if (param->mType == LLCDParam::LLCD_FLOAT)
+	if (sInstance)
 	{
-		ret = LLConvexDecomposition::getInstance()->setParam(param->mName, (F32) ctrl->getValue().asReal());
-	}
-	else if (param->mType == LLCDParam::LLCD_INTEGER ||
-		param->mType == LLCDParam::LLCD_ENUM)
-	{
-		ret = LLConvexDecomposition::getInstance()->setParam(param->mName, ctrl->getValue().asInteger());
-	}
-	else if (param->mType == LLCDParam::LLCD_BOOLEAN)
-	{
-		ret = LLConvexDecomposition::getInstance()->setParam(param->mName, ctrl->getValue().asBoolean());
+		LLCDResult ret = LLCD_OK;
+		LLCDParam* param = (LLCDParam*) data;
+		sInstance->mDecompParams[param->mName] = ctrl->getValue();
 	}
 
-	if (ret)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	
 }
 
 //static
@@ -812,6 +806,12 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 
 	if (sInstance)
 	{
+		if (sInstance->mCurRequest.notNull())
+		{
+			llinfos << "Decomposition request still pending." << llendl;
+			return;
+		}
+
 		if (sInstance->mModelPreview)
 		{
 			if (sInstance->mDecompFloater)
@@ -827,14 +827,18 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 	
 	if (mdl)
 	{
-		gMeshRepo.mDecompThread->execute(stage->mName, mdl);
+		sInstance->mCurRequest = new DecompRequest(stage->mName, mdl);
+		gMeshRepo.mDecompThread->submitRequest(sInstance->mCurRequest);
 	}
 }
 
 //static
 void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 {
-	gMeshRepo.mDecompThread->cancel();
+	if (sInstance && sInstance->mCurRequest.notNull())
+	{
+		sInstance->mCurRequest->mContinue = 0;
+	}
 }
 
 void LLFloaterModelPreview::showDecompFloater()
@@ -899,6 +903,8 @@ void LLFloaterModelPreview::showDecompFloater()
 			// protected against stub by stage_count being 0 for stub above
 			LLConvexDecomposition::getInstance()->registerCallback(j, LLPhysicsDecomp::llcdCallback);
 
+			llinfos << "Physics decomp stage " << j << " parameters:" << llendl;
+
 			for (S32 i = 0; i < param_count; ++i)
 			{
 				if (param[i].mStage != j)
@@ -909,8 +915,11 @@ void LLFloaterModelPreview::showDecompFloater()
 				std::string name(param[i].mName ? param[i].mName : "");
 				std::string description(param[i].mDescription ? param[i].mDescription : "");
 
+				llinfos << name << " - " << description << llendl;
+
 				if (param[i].mType == LLCDParam::LLCD_FLOAT)
 				{
+					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
 					LLSliderCtrl::Params p;
 					p.name(name);
 					p.label(name);
@@ -928,6 +937,7 @@ void LLFloaterModelPreview::showDecompFloater()
 				}
 				else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 				{
+					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
 					LLSliderCtrl::Params p;
 					p.name(name);
 					p.label(name);
@@ -944,6 +954,7 @@ void LLFloaterModelPreview::showDecompFloater()
 				}
 				else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
 				{
+					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mBool);
 					LLCheckBoxCtrl::Params p;
 					p.rect(LLRect(left, cur_y, right, cur_y-20));
 					p.name(name);
@@ -958,7 +969,7 @@ void LLFloaterModelPreview::showDecompFloater()
 				else if (param[i].mType == LLCDParam::LLCD_ENUM)
 				{
 					S32 cur_x = left;
-
+					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
 					{ //add label
 						LLTextBox::Params p;
 						const LLFontGL* font = (LLFontGL*) p.font();
@@ -2892,9 +2903,20 @@ void LLModelPreview::genLODs(S32 which_lod)
 				}
 			}
 		}
-		
-		mResourceCost = calcResourceCost();
 	}
+
+	mResourceCost = calcResourceCost();
+
+	/*if (which_lod == -1 && mScene[LLModel::LOD_PHYSICS].empty())
+	{ //build physics scene
+		mScene[LLModel::LOD_PHYSICS] = mScene[LLModel::LOD_LOW];
+		mModel[LLModel::LOD_PHYSICS] = mModel[LLModel::LOD_LOW];
+
+		for (U32 i = 1; i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
+		{
+			mPhysicsQ.push(mModel[LLModel::LOD_PHYSICS][i]);
+		}
+	}*/
 }
 
 void LLModelPreview::updateStatusMessages()
@@ -3665,18 +3687,6 @@ void LLFloaterModelPreview::onDecompose(void* user_data)
 	mp->showDecompFloater();
 }
 
-//static
-void LLFloaterModelPreview::onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh)
-{
-	if (sInstance && sInstance->mModelPreview)
-	{ 
-		sInstance->mModelPreview->mPhysicsMesh[model] = physics_mesh;
-
-		sInstance->mModelPreview->mDirty = true;
-	}
-}
-
-
 //static 
 void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
 {
@@ -3696,4 +3706,67 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
 }
+
+LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)
+{
+	mStage = stage;
+	mContinue = 1;
+	mModel = mdl;
+	mParams = sInstance->mDecompParams;
+
+	//copy out positions and indices
+	if (mdl)
+	{
+		U16 index_offset = 0;
+
+		mPositions.clear();
+		mIndices.clear();
+			
+		//queue up vertex positions and indices
+		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
+		{
+			const LLVolumeFace& face = mdl->getVolumeFace(i);
+			if (mPositions.size() + face.mNumVertices > 65535)
+			{
+				continue;
+			}
+
+			for (U32 j = 0; j < face.mNumVertices; ++j)
+			{
+				mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
+			}
+
+			for (U32 j = 0; j < face.mNumIndices; ++j)
+			{
+				mIndices.push_back(face.mIndices[j]+index_offset);
+			}
+
+			index_offset += face.mNumVertices;
+		}
+	}
+}
+
+S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
+{
+	setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
+	return mContinue;
+}
+
+void LLFloaterModelPreview::DecompRequest::completed()
+{
+	mModel->setPhysicsShape(mHull);
+	
+	if (sInstance) 
+	{ 
+		if (sInstance->mModelPreview)
+		{
+			sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
+			sInstance->mModelPreview->mDirty = true;
+			LLFloaterModelPreview::sInstance->mModelPreview->refresh();
+		}
+		
+		sInstance->mCurRequest = NULL;
+	}
+}
+
 

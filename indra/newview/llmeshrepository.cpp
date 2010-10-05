@@ -2132,7 +2132,18 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 
 void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 {
+	LLVolume* volume = LLPrimitive::sVolumeManager->refVolume(params, detail);
 
+	if (!volume->mHullPoints)
+	{
+		//all default params
+		//execute first stage
+		//set simplify mode to retain
+		//set retain percentage to zero
+		//run second stage
+	}
+
+	LLPrimitive::sVolumeManager->unrefVolume(volume);
 }
 
 const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
@@ -2580,13 +2591,9 @@ LLPhysicsDecomp::LLPhysicsDecomp()
 	mInited = false;
 	mQuitting = false;
 	mDone = false;
-	mStage = -1;
-	mContinue = 1;
 
 	mSignal = new LLCondition(NULL);
 	mMutex = new LLMutex(NULL);
-
-	setStatusMessage("Idle");
 }
 
 LLPhysicsDecomp::~LLPhysicsDecomp()
@@ -2599,7 +2606,6 @@ void LLPhysicsDecomp::shutdown()
 	if (mSignal)
 	{
 		mQuitting = true;
-		mContinue = 0;
 		mSignal->signal();
 
 		while (!mDone)
@@ -2609,74 +2615,24 @@ void LLPhysicsDecomp::shutdown()
 	}
 }
 
-void LLPhysicsDecomp::setStatusMessage(std::string msg)
+void LLPhysicsDecomp::submitRequest(LLPhysicsDecomp::Request* request)
 {
 	LLMutexLock lock(mMutex);
-	mStatus = msg;
-}
+	mRequestQ.push(request);
+	mSignal->signal();
 
-void LLPhysicsDecomp::execute(const char* stage, LLModel* mdl)
-{
-	LLMutexLock lock(mMutex);
-
-	if (mModel.notNull())
-	{
-		llwarns << "Not done processing previous model." << llendl;
-		return;
-	}
-
-	mModel = mdl;
-	//load model into LLCD
-	if (mdl)
-	{
-		mStage = mStageID[stage];
-				
-		U16 index_offset = 0;
-
-		if (mStage == 0)
-		{
-			mPositions.clear();
-			mIndices.clear();
-			
-			//queue up vertex positions and indices
-			for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
-			{
-				const LLVolumeFace& face = mdl->getVolumeFace(i);
-				if (mPositions.size() + face.mNumVertices > 65535)
-				{
-					continue;
-				}
-
-				for (U32 j = 0; j < face.mNumVertices; ++j)
-				{
-					mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
-				}
-
-				for (U32 j = 0; j < face.mNumIndices; ++j)
-				{
-					mIndices.push_back(face.mIndices[j]+index_offset);
-				}
-
-				index_offset += face.mNumVertices;
-			}
-		}
-
-		//signal decomposition thread
-		mSignal->signal();
-	}
+	
 }
 
 //static
 S32 LLPhysicsDecomp::llcdCallback(const char* status, S32 p1, S32 p2)
 {	
-	LLPhysicsDecomp* comp = gMeshRepo.mDecompThread;
-	comp->setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
-	return comp->mContinue;
-}
+	if (gMeshRepo.mDecompThread && gMeshRepo.mDecompThread->mCurRequest.notNull())
+	{
+		return gMeshRepo.mDecompThread->mCurRequest->statusCallback(status, p1, p2);
+	}
 
-void LLPhysicsDecomp::cancel()
-{
-	mContinue = 0;
+	return 1;
 }
 
 void LLPhysicsDecomp::run()
@@ -2687,25 +2643,31 @@ void LLPhysicsDecomp::run()
 	while (!mQuitting)
 	{
 		mSignal->wait();
-		if (!mQuitting)
+		while (!mQuitting && !mRequestQ.empty())
 		{
-			//load data intoLLCD
-			if (mStage == 0)
-			{
-				mMesh.mVertexBase = mPositions[0].mV;
-				mMesh.mVertexStrideBytes = 12;
-				mMesh.mNumVertices = mPositions.size();
+			mCurRequest = mRequestQ.front();
+			mRequestQ.pop();
 
-				mMesh.mIndexType = LLCDMeshData::INT_16;
-				mMesh.mIndexBase = &(mIndices[0]);
-				mMesh.mIndexStrideBytes = 6;
+			LLCDMeshData mesh;
+			S32 stage = mStageID[mCurRequest->mStage];
+
+			//load data intoLLCD
+			if (stage == 0)
+			{
+				mesh.mVertexBase = mCurRequest->mPositions[0].mV;
+				mesh.mVertexStrideBytes = 12;
+				mesh.mNumVertices = mCurRequest->mPositions.size();
+
+				mesh.mIndexType = LLCDMeshData::INT_16;
+				mesh.mIndexBase = &(mCurRequest->mIndices[0]);
+				mesh.mIndexStrideBytes = 6;
 				
-				mMesh.mNumTriangles = mIndices.size()/3;
+				mesh.mNumTriangles = mCurRequest->mIndices.size()/3;
 
 				LLCDResult ret = LLCD_OK;
 				if (LLConvexDecomposition::getInstance() != NULL)
 				{
-					ret  = LLConvexDecomposition::getInstance()->setMeshData(&mMesh);
+					ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh);
 				}
 
 				if (ret)
@@ -2714,44 +2676,78 @@ void LLPhysicsDecomp::run()
 				}
 			}
 
-			setStatusMessage("Executing.");
 
-			mContinue = 1;
+			//build parameter map
+			std::map<std::string, const LLCDParam*> param_map;
+
+			const LLCDParam* params;
+			S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+			
+			for (S32 i = 0; i < param_count; ++i)
+			{
+				param_map[params[i].mName] = params+i;
+			}
+
+			//set parameter values
+			for (decomp_params::iterator iter = mCurRequest->mParams.begin(); iter != mCurRequest->mParams.end(); ++iter)
+			{
+				const std::string& name = iter->first;
+				const LLSD& value = iter->second;
+
+				const LLCDParam* param = param_map[name];
+
+				U32 ret = LLCD_OK;
+
+				if (param->mType == LLCDParam::LLCD_FLOAT)
+				{
+					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, (F32) value.asReal());
+				}
+				else if (param->mType == LLCDParam::LLCD_INTEGER ||
+					param->mType == LLCDParam::LLCD_ENUM)
+				{
+					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asInteger());
+				}
+				else if (param->mType == LLCDParam::LLCD_BOOLEAN)
+				{
+					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asBoolean());
+				}
+
+				if (ret)
+				{
+					llerrs << "WTF?" << llendl;
+				}
+			}
+
+			mCurRequest->setStatusMessage("Executing.");
+
+			S32 keep_going = 1;
 			LLCDResult ret = LLCD_OK;
+			
 			if (LLConvexDecomposition::getInstance() != NULL)
 			{
-				ret = LLConvexDecomposition::getInstance()->executeStage(mStage);
+				ret = LLConvexDecomposition::getInstance()->executeStage(stage);
 			}
 
-			mContinue = 0;
+			keep_going = 0;
 			if (ret)
 			{
-				llerrs << "Convex Decomposition thread valid but could not execute stage " << mStage << llendl;
+				llerrs << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
 			}
 
-
-			setStatusMessage("Reading results");
+			mCurRequest->setStatusMessage("Reading results");
 
 			S32 num_hulls =0;
 			if (LLConvexDecomposition::getInstance() != NULL)
 			{
-				num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(mStage);
+				num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
 			}
 			
-			if (mModel.isNull())
-			{
-				llerrs << "mModel should never be null here!" << llendl;
-			}
-
 			mMutex->lock();
-			mModel->mPhysicsShape.clear();
-			mModel->mPhysicsShape.resize(num_hulls);
-			mModel->mHullCenter.clear();
-			mModel->mHullCenter.resize(num_hulls);
-			std::vector<LLPointer<LLVertexBuffer> > mesh_buffer;
-			mesh_buffer.resize(num_hulls);
-			mModel->mPhysicsCenter.clearVec();
-			mModel->mPhysicsPoints = 0;
+			mCurRequest->mHull.clear();
+			mCurRequest->mHull.resize(num_hulls);
+
+			mCurRequest->mHullMesh.clear();
+			mCurRequest->mHullMesh.resize(num_hulls);
 			mMutex->unlock();
 
 			for (S32 i = 0; i < num_hulls; ++i)
@@ -2759,49 +2755,36 @@ void LLPhysicsDecomp::run()
 				std::vector<LLVector3> p;
 				LLCDHull hull;
 				// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-				LLConvexDecomposition::getInstance()->getHullFromStage(mStage, i, &hull);
+				LLConvexDecomposition::getInstance()->getHullFromStage(stage, i, &hull);
 
 				const F32* v = hull.mVertexBase;
-
-				LLVector3 hull_center;
 
 				for (S32 j = 0; j < hull.mNumVertices; ++j)
 				{
 					LLVector3 vert(v[0], v[1], v[2]); 
 					p.push_back(vert);
-					hull_center += vert;
 					v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
 				}
-
 				
-				hull_center *= 1.f/hull.mNumVertices;
-
 				LLCDMeshData mesh;
 				// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-				LLConvexDecomposition::getInstance()->getMeshFromStage(mStage, i, &mesh);
+				LLConvexDecomposition::getInstance()->getMeshFromStage(stage, i, &mesh);
 
-				mesh_buffer[i] = get_vertex_buffer_from_mesh(mesh);
-
+				mCurRequest->mHullMesh[i] = get_vertex_buffer_from_mesh(mesh);
+				
 				mMutex->lock();
-				mModel->mPhysicsShape[i] = p;
-				mModel->mHullCenter[i] = hull_center;
-				mModel->mPhysicsPoints += hull.mNumVertices;
-				mModel->mPhysicsCenter += hull_center;
-
+				mCurRequest->mHull[i] = p;
 				mMutex->unlock();
 			}
 
 			{
 				LLMutexLock lock(mMutex);
-				mModel->mPhysicsCenter *= 1.f/mModel->mPhysicsPoints;
-			
-				LLFloaterModelPreview::onModelDecompositionComplete(mModel, mesh_buffer);
-				//done updating model
-				mModel = NULL;
+		
+				mCurRequest->setStatusMessage("Done.");
+				mCurRequest->completed();
+						
+				mCurRequest = NULL;
 			}
-
-			setStatusMessage("Done.");
-			LLFloaterModelPreview::sInstance->mModelPreview->refresh();
 		}
 	}
 
@@ -2814,4 +2797,8 @@ void LLPhysicsDecomp::run()
 	mDone = true;
 }
 
+void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
+{
+	mStatusMessage = msg;
+}
 

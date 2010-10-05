@@ -1724,4 +1724,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}					
 }
 
+void LLModel::setPhysicsShape(const LLModel::physics_shape& shape)
+{
+	mPhysicsShape = shape;
 
