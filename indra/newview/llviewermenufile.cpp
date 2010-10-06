@@ -1194,8 +1194,6 @@ void upload_new_resource(
 				body,
 				uuid,
 				asset_type));
-
-		LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, uuid, asset_type));
 	}
 	else
 	{
