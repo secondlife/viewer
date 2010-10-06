@@ -63,7 +63,9 @@ private:
 	LLSD* getSDWriteNode(const parser_t::name_stack_t& name_stack);
 
 	static bool writeU32Param(Parser& parser, const void* value_ptr, const parser_t::name_stack_t& name_stack);
+	static bool writeNoValue(Parser& parser, const void* value_ptr, const parser_t::name_stack_t& name_stack);
 
+	static bool readNoValue(Parser& parser, void* val_ptr);
 	static bool readS32(Parser& parser, void* val_ptr);
 	static bool readU32(Parser& parser, void* val_ptr);
 	static bool readF32(Parser& parser, void* val_ptr);

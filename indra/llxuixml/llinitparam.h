@@ -278,6 +278,9 @@ namespace LLInitParam
 		S32	mParseGeneration;
 	};
 
+	// used to indicate no matching value to a given name when parsing
+	struct NoValue{};
+
 	class BaseBlock;
 
 	class Param
