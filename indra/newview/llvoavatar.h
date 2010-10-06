@@ -171,6 +171,7 @@ public:
 	virtual LLJoint*     	getRootJoint() { return &mRoot; }
 	
 	void					resetJointPositions( void );
+	void					resetJointPositionsToDefault( void );
 	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
 	virtual const LLUUID&   getID();

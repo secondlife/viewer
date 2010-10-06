@@ -239,6 +239,17 @@ void LLJoint::setPosition( const LLVector3& pos )
 	}
 }
 
+
+//--------------------------------------------------------------------
+// setPosition()
+//--------------------------------------------------------------------
+void LLJoint::setDefaultFromCurrentXform( void )
+{
+	mDefaultXform = mXform;
+	touch(MATRIX_DIRTY | POSITION_DIRTY);
+	
+}
+
 //--------------------------------------------------------------------
 // storeCurrentXform()
 //--------------------------------------------------------------------
@@ -253,6 +264,14 @@ void LLJoint::storeCurrentXform( const LLVector3& pos )
 void LLJoint::restoreOldXform( void )
 {
 	mXform = mOldXform;
+}
+//--------------------------------------------------------------------
+// restoreOldXform()
+//--------------------------------------------------------------------
+void LLJoint::restoreToDefaultXform( void )
+{	
+	mXform = mDefaultXform;
+	setPosition( mXform.getPosition() );	
 }
 
 //--------------------------------------------------------------------
