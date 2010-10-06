@@ -1069,43 +1069,93 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 		LLMeshDecomposition* d = new LLMeshDecomposition();
 		d->mMeshID = mesh_id;
 
-		// updated for const-correctness. gcc is picky about this type of thing - Nyx
-		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
-		const LLSD::Binary& position = decomp["Position"].asBinary();
-
-		U16* p = (U16*) &position[0];
-
-		d->mHull.resize(hulls.size());
-
-		LLVector3 min;
-		LLVector3 max;
-		LLVector3 range;
-
-		min.setValue(decomp["Min"]);
-		max.setValue(decomp["Max"]);
-		range = max-min;
-
-		for (U32 i = 0; i < hulls.size(); ++i)
+		if (decomp.has("HullList"))
 		{
-			U16 count = (hulls[i] == 0) ? 256 : hulls[i];
+			// updated for const-correctness. gcc is picky about this type of thing - Nyx
+			const LLSD::Binary& hulls = decomp["HullList"].asBinary();
+			const LLSD::Binary& position = decomp["Position"].asBinary();
+
+			U16* p = (U16*) &position[0];
+
+			d->mHull.resize(hulls.size());
+
+			LLVector3 min;
+			LLVector3 max;
+			LLVector3 range;
+
+			min.setValue(decomp["Min"]);
+			max.setValue(decomp["Max"]);
+			range = max-min;
+
+			for (U32 i = 0; i < hulls.size(); ++i)
+			{
+				U16 count = (hulls[i] == 0) ? 256 : hulls[i];
+				
+				for (U32 j = 0; j < count; ++j)
+				{
+					d->mHull[i].push_back(LLVector3(
+						(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
+						(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
+						(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+					p += 3;
+				}		 
+
+			}
+				
+			//get mesh for decomposition
+			for (U32 i = 0; i < d->mHull.size(); ++i)
+			{
+				LLCDHull hull;
+				hull.mNumVertices = d->mHull[i].size();
+				hull.mVertexBase = d->mHull[i][0].mV;
+				hull.mVertexStrideBytes = 12;
+
+				LLCDMeshData mesh;
+				LLCDResult res = LLCD_OK;
+				if (LLConvexDecomposition::getInstance() != NULL)
+				{
+					res = LLConvexDecomposition::getInstance()->getMeshFromHull(&hull, &mesh);
+				}
+				if (res != LLCD_OK)
+				{
+					llwarns << "could not get mesh from hull from convex decomposition lib." << llendl;
+					return false;
+				}
+
+
+				d->mMesh.push_back(get_vertex_buffer_from_mesh(mesh));
+			}	
+		}
+
+		if (decomp.has("Hull"))
+		{
+			const LLSD::Binary& position = decomp["Hull"].asBinary();
+
+			U16* p = (U16*) &position[0];
+
+			LLVector3 min;
+			LLVector3 max;
+			LLVector3 range;
+
+			min.setValue(decomp["Min"]);
+			max.setValue(decomp["Max"]);
+			range = max-min;
+
+			U16 count = position.size()/6;
 			
 			for (U32 j = 0; j < count; ++j)
 			{
-				d->mHull[i].push_back(LLVector3(
+				d->mBaseHull.push_back(LLVector3(
 					(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
 					(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
 					(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
 				p += 3;
 			}		 
-
-		}
-			
-		//get mesh for decomposition
-		for (U32 i = 0; i < d->mHull.size(); ++i)
-		{
+				
+			//get mesh for decomposition
 			LLCDHull hull;
-			hull.mNumVertices = d->mHull[i].size();
-			hull.mVertexBase = d->mHull[i][0].mV;
+			hull.mNumVertices = d->mBaseHull.size();
+			hull.mVertexBase = d->mBaseHull[0].mV;
 			hull.mVertexStrideBytes = 12;
 
 			LLCDMeshData mesh;
@@ -1120,9 +1170,8 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 				return false;
 			}
 
-
-			d->mMesh.push_back(get_vertex_buffer_from_mesh(mesh));
-		}	
+			d->mBaseHullMesh = get_vertex_buffer_from_mesh(mesh);
+		}
 
 		mDecompositionQ.push(d);
 	}
@@ -1158,6 +1207,63 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 LLMeshUploadThread::~LLMeshUploadThread()
 {
 
+}
+
+LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread)
+{
+	mStage = "single_hull";
+	mModel = mdl;
+	mBaseModel = base_model;
+	mThread = thread;
+	
+	//copy out positions and indices
+	if (mdl)
+	{
+		U16 index_offset = 0;
+
+		mPositions.clear();
+		mIndices.clear();
+			
+		//queue up vertex positions and indices
+		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
+		{
+			const LLVolumeFace& face = mdl->getVolumeFace(i);
+			if (mPositions.size() + face.mNumVertices > 65535)
+			{
+				continue;
+			}
+
+			for (U32 j = 0; j < face.mNumVertices; ++j)
+			{
+				mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
+			}
+
+			for (U32 j = 0; j < face.mNumIndices; ++j)
+			{
+				mIndices.push_back(face.mIndices[j]+index_offset);
+			}
+
+			index_offset += face.mNumVertices;
+		}
+	}
+
+	mThread->mFinalDecomp = this;
+	mThread->mPhysicsComplete = false;
+}
+
+void LLMeshUploadThread::DecompRequest::completed()
+{
+	if (mThread->mFinalDecomp == this)
+	{
+		mThread->mPhysicsComplete = true;
+	}
+
+	if (mHull.size() != 1)
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
+	mThread->mHullMap[mBaseModel] = mHull[0];
 }
 
 void LLMeshUploadThread::run()
@@ -1202,8 +1308,31 @@ void LLMeshUploadThread::run()
 				}
 			}
 		}
-	}
 
+		//queue up models for hull generation
+		LLModel* physics = NULL;
+
+		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_PHYSICS];
+		}
+		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_MEDIUM];
+		}
+		else
+		{
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+
+		if (!physics)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+		gMeshRepo.mDecompThread->submitRequest(request);
+	}
 
 	//upload textures
 	bool done = false;
@@ -2209,6 +2338,8 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_PHYSICS]->mPhysicsShape : 
 		data.mBaseModel->mPhysicsShape;
 
+	LLModel::hull dummy_hull;
+
 	LLSD header = LLModel::writeModel(ostr,  
 		data.mModel[LLModel::LOD_PHYSICS],
 		data.mModel[LLModel::LOD_HIGH],
@@ -2216,6 +2347,7 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_LOW],
 		data.mModel[LLModel::LOD_IMPOSTOR], 
 		phys_shape,
+		dummy_hull,
 		mUploadSkin,
 		mUploadJoints,
 		true);
@@ -2295,6 +2427,8 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_PHYSICS]->mPhysicsShape : 
 		data.mBaseModel->mPhysicsShape;
 
+		
+
 		LLModel::writeModel(ostr,  
 			data.mModel[LLModel::LOD_PHYSICS],
 			data.mModel[LLModel::LOD_HIGH],
@@ -2302,6 +2436,7 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 			data.mModel[LLModel::LOD_LOW],
 			data.mModel[LLModel::LOD_IMPOSTOR], 
 			phys_shape,
+			mHullMap[data.mBaseModel],
 			mUploadSkin,
 			mUploadJoints);
 
@@ -2475,6 +2610,8 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	perm.setNextOwnerBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getNextOwnerPerms());
 	perm.setGroupBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getGroupPerms());
 	perm.setEveryoneBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getEveryonePerms());
+	perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
+	perm.setCreator(gAgent.getID());
 
 	object_params["permissions"] = ll_create_sd_from_permissions(perm);
 
@@ -2635,10 +2772,252 @@ S32 LLPhysicsDecomp::llcdCallback(const char* status, S32 p1, S32 p2)
 	return 1;
 }
 
+void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh)
+{
+	mesh.mVertexBase = mCurRequest->mPositions[0].mV;
+	mesh.mVertexStrideBytes = 12;
+	mesh.mNumVertices = mCurRequest->mPositions.size();
+
+	mesh.mIndexType = LLCDMeshData::INT_16;
+	mesh.mIndexBase = &(mCurRequest->mIndices[0]);
+	mesh.mIndexStrideBytes = 6;
+	
+	mesh.mNumTriangles = mCurRequest->mIndices.size()/3;
+
+	LLCDResult ret = LLCD_OK;
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh);
+	}
+
+	if (ret)
+	{
+		llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
+	}
+}
+
+void LLPhysicsDecomp::doDecomposition()
+{
+	LLCDMeshData mesh;
+	S32 stage = mStageID[mCurRequest->mStage];
+
+	//load data intoLLCD
+	if (stage == 0)
+	{
+		setMeshData(mesh);
+	}
+		
+	//build parameter map
+	std::map<std::string, const LLCDParam*> param_map;
+
+	const LLCDParam* params;
+	S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	
+	for (S32 i = 0; i < param_count; ++i)
+	{
+		param_map[params[i].mName] = params+i;
+	}
+
+	//set parameter values
+	for (decomp_params::iterator iter = mCurRequest->mParams.begin(); iter != mCurRequest->mParams.end(); ++iter)
+	{
+		const std::string& name = iter->first;
+		const LLSD& value = iter->second;
+
+		const LLCDParam* param = param_map[name];
+
+		if (param == NULL)
+		{ //couldn't find valid parameter
+			continue;
+		}
+
+		U32 ret = LLCD_OK;
+
+		if (param->mType == LLCDParam::LLCD_FLOAT)
+		{
+			ret = LLConvexDecomposition::getInstance()->setParam(param->mName, (F32) value.asReal());
+		}
+		else if (param->mType == LLCDParam::LLCD_INTEGER ||
+			param->mType == LLCDParam::LLCD_ENUM)
+		{
+			ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asInteger());
+		}
+		else if (param->mType == LLCDParam::LLCD_BOOLEAN)
+		{
+			ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asBoolean());
+		}
+
+		if (ret)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+	}
+
+	mCurRequest->setStatusMessage("Executing.");
+
+	LLCDResult ret = LLCD_OK;
+	
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		ret = LLConvexDecomposition::getInstance()->executeStage(stage);
+	}
+
+	if (ret)
+	{
+		llerrs << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
+	}
+
+	mCurRequest->setStatusMessage("Reading results");
+
+	S32 num_hulls =0;
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
+	}
+	
+	mMutex->lock();
+	mCurRequest->mHull.clear();
+	mCurRequest->mHull.resize(num_hulls);
+
+	mCurRequest->mHullMesh.clear();
+	mCurRequest->mHullMesh.resize(num_hulls);
+	mMutex->unlock();
+
+	for (S32 i = 0; i < num_hulls; ++i)
+	{
+		std::vector<LLVector3> p;
+		LLCDHull hull;
+		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+		LLConvexDecomposition::getInstance()->getHullFromStage(stage, i, &hull);
+
+		const F32* v = hull.mVertexBase;
+
+		for (S32 j = 0; j < hull.mNumVertices; ++j)
+		{
+			LLVector3 vert(v[0], v[1], v[2]); 
+			p.push_back(vert);
+			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+		}
+		
+		LLCDMeshData mesh;
+		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+		LLConvexDecomposition::getInstance()->getMeshFromStage(stage, i, &mesh);
+
+		mCurRequest->mHullMesh[i] = get_vertex_buffer_from_mesh(mesh);
+		
+		mMutex->lock();
+		mCurRequest->mHull[i] = p;
+		mMutex->unlock();
+	}
+
+	{
+		LLMutexLock lock(mMutex);
+
+		mCurRequest->setStatusMessage("Done.");
+		mCurRequest->completed();
+				
+		mCurRequest = NULL;
+	}
+}
+
+void LLPhysicsDecomp::doDecompositionSingleHull()
+{
+	LLCDMeshData mesh;
+	
+	setMeshData(mesh);
+			
+	
+	//set all parameters to default
+	std::map<std::string, const LLCDParam*> param_map;
+
+	const LLCDParam* params;
+	S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	
+	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
+
+	for (S32 i = 0; i < param_count; ++i)
+	{
+		decomp->setParam(params[i].mName, params[i].mDefault.mIntOrEnumValue);
+	}
+
+	const S32 STAGE_DECOMPOSE = mStageID["Decompose"];
+	const S32 STAGE_SIMPLIFY = mStageID["Simplify"];
+	const S32 DECOMP_PREVIEW = 0;
+	const S32 SIMPLIFY_RETAIN = 0;
+	
+	decomp->setParam("Decompose Quality", DECOMP_PREVIEW);
+	decomp->setParam("Simplify Method", SIMPLIFY_RETAIN);
+	decomp->setParam("Retain%", 0.f);
+
+	LLCDResult ret = LLCD_OK;
+	ret = decomp->executeStage(STAGE_DECOMPOSE);
+	
+	if (ret)
+	{
+		llerrs << "Could not execute decomposition stage when attempting to create single hull." << llendl;
+	}
+
+	ret = decomp->executeStage(STAGE_SIMPLIFY);
+
+	if (ret)
+	{
+		llerrs << "Could not execute simiplification stage when attempting to create single hull." << llendl;
+	}
+
+	S32 num_hulls =0;
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(STAGE_SIMPLIFY);
+	}
+	
+	mMutex->lock();
+	mCurRequest->mHull.clear();
+	mCurRequest->mHull.resize(num_hulls);
+	mCurRequest->mHullMesh.clear();
+	mMutex->unlock();
+
+	for (S32 i = 0; i < num_hulls; ++i)
+	{
+		std::vector<LLVector3> p;
+		LLCDHull hull;
+		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+		LLConvexDecomposition::getInstance()->getHullFromStage(STAGE_SIMPLIFY, i, &hull);
+
+		const F32* v = hull.mVertexBase;
+
+		for (S32 j = 0; j < hull.mNumVertices; ++j)
+		{
+			LLVector3 vert(v[0], v[1], v[2]); 
+			p.push_back(vert);
+			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+		}
+				
+		mMutex->lock();
+		mCurRequest->mHull[i] = p;
+		mMutex->unlock();
+	}
+
+	{
+		LLMutexLock lock(mMutex);
+		mCurRequest->completed();
+		mCurRequest = NULL;
+	}
+}
+
 void LLPhysicsDecomp::run()
 {
 	LLConvexDecomposition::initSystem();
 	mInited = true;
+
+	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
+
+	const LLCDStageData* stages;
+	S32 num_stages = decomp->getStages(&stages);
+
+	for (S32 i = 0; i < num_stages; i++)
+	{
+		mStageID[stages[i].mName] = i;
+	}
 
 	while (!mQuitting)
 	{
@@ -2648,146 +3027,14 @@ void LLPhysicsDecomp::run()
 			mCurRequest = mRequestQ.front();
 			mRequestQ.pop();
 
-			LLCDMeshData mesh;
-			S32 stage = mStageID[mCurRequest->mStage];
-
-			//load data intoLLCD
-			if (stage == 0)
+			if (mCurRequest->mStage == "single_hull")
 			{
-				mesh.mVertexBase = mCurRequest->mPositions[0].mV;
-				mesh.mVertexStrideBytes = 12;
-				mesh.mNumVertices = mCurRequest->mPositions.size();
-
-				mesh.mIndexType = LLCDMeshData::INT_16;
-				mesh.mIndexBase = &(mCurRequest->mIndices[0]);
-				mesh.mIndexStrideBytes = 6;
-				
-				mesh.mNumTriangles = mCurRequest->mIndices.size()/3;
-
-				LLCDResult ret = LLCD_OK;
-				if (LLConvexDecomposition::getInstance() != NULL)
-				{
-					ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh);
-				}
-
-				if (ret)
-				{
-					llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
-				}
+				doDecompositionSingleHull();
 			}
-
-
-			//build parameter map
-			std::map<std::string, const LLCDParam*> param_map;
-
-			const LLCDParam* params;
-			S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
-			
-			for (S32 i = 0; i < param_count; ++i)
+			else
 			{
-				param_map[params[i].mName] = params+i;
-			}
-
-			//set parameter values
-			for (decomp_params::iterator iter = mCurRequest->mParams.begin(); iter != mCurRequest->mParams.end(); ++iter)
-			{
-				const std::string& name = iter->first;
-				const LLSD& value = iter->second;
-
-				const LLCDParam* param = param_map[name];
-
-				if (param == NULL)
-				{ //couldn't find valid parameter
-					continue;
-				}
-
-				U32 ret = LLCD_OK;
-
-				if (param->mType == LLCDParam::LLCD_FLOAT)
-				{
-					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, (F32) value.asReal());
-				}
-				else if (param->mType == LLCDParam::LLCD_INTEGER ||
-					param->mType == LLCDParam::LLCD_ENUM)
-				{
-					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asInteger());
-				}
-				else if (param->mType == LLCDParam::LLCD_BOOLEAN)
-				{
-					ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asBoolean());
-				}
-
-				if (ret)
-				{
-					llerrs << "WTF?" << llendl;
-				}
-			}
-
-			mCurRequest->setStatusMessage("Executing.");
-
-			LLCDResult ret = LLCD_OK;
-			
-			if (LLConvexDecomposition::getInstance() != NULL)
-			{
-				ret = LLConvexDecomposition::getInstance()->executeStage(stage);
-			}
-
-			if (ret)
-			{
-				llerrs << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
-			}
-
-			mCurRequest->setStatusMessage("Reading results");
-
-			S32 num_hulls =0;
-			if (LLConvexDecomposition::getInstance() != NULL)
-			{
-				num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
-			}
-			
-			mMutex->lock();
-			mCurRequest->mHull.clear();
-			mCurRequest->mHull.resize(num_hulls);
-
-			mCurRequest->mHullMesh.clear();
-			mCurRequest->mHullMesh.resize(num_hulls);
-			mMutex->unlock();
-
-			for (S32 i = 0; i < num_hulls; ++i)
-			{
-				std::vector<LLVector3> p;
-				LLCDHull hull;
-				// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-				LLConvexDecomposition::getInstance()->getHullFromStage(stage, i, &hull);
-
-				const F32* v = hull.mVertexBase;
-
-				for (S32 j = 0; j < hull.mNumVertices; ++j)
-				{
-					LLVector3 vert(v[0], v[1], v[2]); 
-					p.push_back(vert);
-					v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
-				}
-				
-				LLCDMeshData mesh;
-				// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-				LLConvexDecomposition::getInstance()->getMeshFromStage(stage, i, &mesh);
-
-				mCurRequest->mHullMesh[i] = get_vertex_buffer_from_mesh(mesh);
-				
-				mMutex->lock();
-				mCurRequest->mHull[i] = p;
-				mMutex->unlock();
-			}
-
-			{
-				LLMutexLock lock(mMutex);
-		
-				mCurRequest->setStatusMessage("Done.");
-				mCurRequest->completed();
-						
-				mCurRequest = NULL;
-			}
+				doDecomposition();
+			}		
 		}
 	}
 

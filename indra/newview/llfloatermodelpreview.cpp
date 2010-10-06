@@ -900,7 +900,8 @@ void LLFloaterModelPreview::showDecompFloater()
 			// protected against stub by stage_count being 0 for stub above
 			LLConvexDecomposition::getInstance()->registerCallback(j, LLPhysicsDecomp::llcdCallback);
 
-			llinfos << "Physics decomp stage " << j << " parameters:" << llendl;
+			llinfos << "Physics decomp stage " << stage[j].mName << " (" << j << ") parameters:" << llendl;
+			llinfos << "------------------------------------" << llendl;
 
 			for (S32 i = 0; i < param_count; ++i)
 			{
@@ -912,11 +913,15 @@ void LLFloaterModelPreview::showDecompFloater()
 				std::string name(param[i].mName ? param[i].mName : "");
 				std::string description(param[i].mDescription ? param[i].mDescription : "");
 
+				std::string type = "unknown";
+
 				llinfos << name << " - " << description << llendl;
 
 				if (param[i].mType == LLCDParam::LLCD_FLOAT)
 				{
 					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
+					llinfos << "Type: float, Default: " << param[i].mDefault.mFloat << llendl;
+
 					LLSliderCtrl::Params p;
 					p.name(name);
 					p.label(name);
@@ -935,6 +940,7 @@ void LLFloaterModelPreview::showDecompFloater()
 				else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 				{
 					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
+					llinfos << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
 					LLSliderCtrl::Params p;
 					p.name(name);
 					p.label(name);
@@ -952,6 +958,8 @@ void LLFloaterModelPreview::showDecompFloater()
 				else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
 				{
 					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mBool);
+					llinfos << "Type: boolean, Default: " << (param[i].mDefault.mBool ? "True" : "False") << llendl;
+
 					LLCheckBoxCtrl::Params p;
 					p.rect(LLRect(left, cur_y, right, cur_y-20));
 					p.name(name);
@@ -967,6 +975,8 @@ void LLFloaterModelPreview::showDecompFloater()
 				{
 					S32 cur_x = left;
 					mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
+					llinfos << "Type: enum, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
+
 					{ //add label
 						LLTextBox::Params p;
 						const LLFontGL* font = (LLFontGL*) p.font();
@@ -987,9 +997,13 @@ void LLFloaterModelPreview::showDecompFloater()
 						p.label(name);
 						p.tool_tip(description);
 
+						llinfos << "Accepted values: " << llendl;
 						LLComboBox* combo_box = LLUICtrlFactory::create<LLComboBox>(p);
 						for (S32 k = 0; k < param[i].mDetails.mEnumValues.mNumEnums; ++k)
 						{
+							llinfos << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue 
+								<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << llendl;
+
 							combo_box->add(param[i].mDetails.mEnumValues.mEnumsArray[k].mName, 
 								LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
 						}
@@ -997,8 +1011,12 @@ void LLFloaterModelPreview::showDecompFloater()
 						combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 						mDecompFloater->addChild(combo_box);
 						cur_y += 30;
+
 					}
+
+					llinfos << "----" << llendl;
 				}
+				llinfos << "-----------------------------" << llendl;
 			}
 		}
 
