@@ -86,7 +86,7 @@ public:
 	virtual std::string getLocation(const std::string &url) const { return ""; }
 
 	/// is this a match for a URL that should not be hyperlinked?
-	bool isLinkDisabled() const { return mDisabledLink; }
+	bool isLinkDisabled() const;
 
 	/// Should this link text be underlined only when mouse is hovered over it?
 	virtual bool underlineOnHoverOnly(const std::string &string) const { return false; }
