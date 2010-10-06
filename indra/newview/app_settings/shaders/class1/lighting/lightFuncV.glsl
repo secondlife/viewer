@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 
 float calcDirectionalLight(vec3 n, vec3 l)

@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 // SKY ////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky

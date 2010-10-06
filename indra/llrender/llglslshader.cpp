@@ -704,6 +704,7 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
 GLint LLGLSLShader::getUniformLocation(const string& uniform)
 {
+	GLint ret = -1;
 	if (mProgramObject > 0)
 	{
 		std::map<string, GLint>::iterator iter = mUniformMap.find(uniform);
@@ -718,11 +719,19 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 				}
 				stop_glerror();
 			}
-			return iter->second;
+			ret = iter->second;
 		}
 	}
 
-	return -1;
+	if (gDebugGL)
+	{
+		if (ret == -1 && ret != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
+		{
+			llerrs << "Uniform map invalid." << llendl;
+		}
+	}
+
+	return ret;
 }
 
 GLint LLGLSLShader::getAttribLocation(U32 attrib)

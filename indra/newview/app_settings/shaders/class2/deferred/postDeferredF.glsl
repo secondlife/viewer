@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect localLightMap;

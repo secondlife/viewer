@@ -1506,11 +1506,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 					skin->mJointNames.size(),
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette[0]", 
-					skin->mJointNames.size(),
-					FALSE,
-					(GLfloat*) mat[0].mMatrix);
-
+				
 				stop_glerror();
 			}
 			else

@@ -6853,7 +6853,6 @@ void LLPipeline::renderDeferredLighting()
 
 				gDeferredBlurLightProgram.uniform2f("delta", 1.f, 0.f);
 				gDeferredBlurLightProgram.uniform1f("dist_factor", dist_factor);
-				gDeferredBlurLightProgram.uniform3fv("kern[0]", kern_length, gauss[0].mV);
 				gDeferredBlurLightProgram.uniform3fv("kern", kern_length, gauss[0].mV);
 				gDeferredBlurLightProgram.uniform1f("kern_scale", blur_size * (kern_length/2.f - 0.5f));
 			
@@ -7179,9 +7178,7 @@ void LLPipeline::renderDeferredLighting()
 					if (count == max_count || fullscreen_lights.empty())
 					{
 						gDeferredMultiLightProgram.uniform1i("light_count", count);
-						gDeferredMultiLightProgram.uniform4fv("light[0]", count, (GLfloat*) light);
 						gDeferredMultiLightProgram.uniform4fv("light", count, (GLfloat*) light);
-						gDeferredMultiLightProgram.uniform4fv("light_col[0]", count, (GLfloat*) col);
 						gDeferredMultiLightProgram.uniform4fv("light_col", count, (GLfloat*) col);
 						gDeferredMultiLightProgram.uniform1f("far_z", far_z);
 						far_z = 0.f;

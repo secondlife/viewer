@@ -4,6 +4,8 @@
  * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
+ 
+#version 120
 
 uniform sampler2D diffuseMap;
 uniform samplerCube environmentMap;

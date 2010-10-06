@@ -5,6 +5,8 @@
  * $/LicenseInfo$
  */
 
+#version 120
+
 uniform sampler2DRect diffuseMap;
 
 varying vec2 vary_fragcoord;

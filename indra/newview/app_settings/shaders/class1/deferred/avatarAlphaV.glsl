@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
@@ -21,6 +23,9 @@ varying vec3 vary_position;
 varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_normal;
+varying vec3 vary_fragcoord;
+
+uniform float near_clip;
 
 void main()
 {
@@ -40,7 +45,9 @@ void main()
 	norm.z = dot(trans[2].xyz, gl_Normal);
 	norm = normalize(norm);
 		
-	gl_Position = gl_ProjectionMatrix * pos;
+	vec4 frag_pos = gl_ProjectionMatrix * pos;
+	gl_Position = frag_pos;
+	
 	vary_position = pos.xyz;
 	vary_normal = norm;	
 	
@@ -71,7 +78,8 @@ void main()
 	gl_FrontColor = col;
 
 	gl_FogFragCoord = pos.z;
-
+	
+	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 }
 
 
