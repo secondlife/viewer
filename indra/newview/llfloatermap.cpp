@@ -125,7 +125,9 @@ BOOL LLFloaterMap::postBuild()
 
 BOOL LLFloaterMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	LLFloaterReg::showInstance("world_map");
+	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
+	std::string floater_to_show = this->isMinimized() ? "mini_map" : "world_map";
+	LLFloaterReg::showInstance(floater_to_show);
 	return TRUE;
 }
 
