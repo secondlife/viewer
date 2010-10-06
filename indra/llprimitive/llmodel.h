@@ -57,11 +57,13 @@ public:
 	
 	//physics shape is a vector of convex hulls
 	//each convex hull is a set of points
-	typedef  std::vector<std::vector<LLVector3> > physics_shape;
+	typedef std::vector<LLVector3> hull;
+	typedef  std::vector<hull> physics_shape;
 	
 	LLModel(LLVolumeParams& params, F32 detail);
 	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
-	static LLSD writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
+	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
+	static LLSD writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
 	static LLSD writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite = FALSE);
 	static LLModel* loadModelFromAsset(std::string filename, S32 lod);
 	static LLModel* loadModelFromDae(std::string filename);

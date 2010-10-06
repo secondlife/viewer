@@ -2800,6 +2800,38 @@ S32 get_physics_detail(const LLVolumeParams& volume_params, const LLVector3& sca
 	return detail;
 }
 
+void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color)
+{
+	LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
+	const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+
+	if (decomp)
+	{
+		gGL.pushMatrix();
+		glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+		
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+		LLVertexBuffer* buff = decomp->mBaseHullMesh;
+
+		buff->setBuffer(data_mask);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glColor3fv(color.mV);
+		buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		{
+			LLGLEnable blend(GL_BLEND);
+			gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+			glColor4fv(color.mV);
+			buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+		}
+		gGL.popMatrix();
+	}
+}
+
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
 	U8 physics_type = volume->getPhysicsShapeType();
@@ -2873,6 +2905,13 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			}
 
 			gGL.popMatrix();
+		}
+	}
+	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_CONVEX)
+	{
+		if (volume->isMesh())
+		{
+			renderMeshBaseHull(volume, data_mask, color);
 		}
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::BOX)
