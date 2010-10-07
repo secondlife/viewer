@@ -34,6 +34,8 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 #include "llsidetray.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
@@ -190,8 +192,20 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	set_name->setEnabled(use_display_names);
 	// force new avatar name fetch so we have latest update time
 	LLAvatarNameCache::fetch(gAgent.getID()); 
-
 	LLPanelMyProfile::onOpen(getAvatarId());
+	
+	LLAvatarName av_name;	
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		if (LLAvatarNameCache::get(gAgent.getID(), &av_name) && av_name.mIsDisplayNameDefault)  	
+		{
+			LLFirstUse::setDisplayName();
+		}
+		else
+		{
+			LLFirstUse::setDisplayName(false);
+		}
+	}
 }
 
 void LLPanelMyProfileEdit::processProperties(void* data, EAvatarProcessorType type)
@@ -257,6 +271,8 @@ BOOL LLPanelMyProfileEdit::postBuild()
 
 	getChild<LLUICtrl>("set_name")->setCommitCallback(
 		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
+
+	LLHints::registerHintTarget("set_display_name", getChild<LLUICtrl>("set_name")->getHandle());
 
 	return LLPanelAvatarProfile::postBuild();
 }
@@ -386,7 +402,9 @@ void LLPanelMyProfileEdit::onClickSetName()
 {	
 	LLAvatarNameCache::get(getAvatarId(), 
 			boost::bind(&LLPanelMyProfileEdit::onAvatarNameCache,
-				this, _1, _2));
+				this, _1, _2));	
+
+	LLFirstUse::setDisplayName(false);
 }
 
 void LLPanelMyProfileEdit::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)

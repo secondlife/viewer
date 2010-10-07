@@ -6538,6 +6538,14 @@ Mute everyone?
   </notification>
 
   <notification
+  name="HintDisplayName"
+  label="Display Name"
+  type="hint"
+  unique="true">
+    Set your customizable display name here. This is in addition to your unique username, which can't be changed.
+  </notification>
+
+  <notification
   name="HintInventory"
   label="Inventory"
   type="hint"
