@@ -538,9 +538,9 @@ public:
 	static void onReject(void* user_data);
 	static void onStartIM(void* user_data);
 
+	static void processCallResponse(S32 response, const LLSD& payload);
 private:
 	/*virtual*/ void onLifetimeExpired();
-	void processCallResponse(S32 response);
 };
 
 class LLOutgoingCallDialog : public LLCallDialog
