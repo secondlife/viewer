@@ -2907,12 +2907,109 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			gGL.popMatrix();
 		}
 	}
-	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_CONVEX)
+	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_CONVEX ||
+		type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::PRIM_CONVEX)
 	{
 		if (volume->isMesh())
 		{
 			renderMeshBaseHull(volume, data_mask, color);
 		}
+#if 0 && LL_WINDOWS 
+		else
+		{
+			LLVolumeParams volume_params = volume->getVolume()->getParams();
+			S32 detail = get_physics_detail(volume_params, volume->getScale());
+			LLVolume* phys_volume = LLPrimitive::sVolumeManager->refVolume(volume_params, detail);
+
+			if (!phys_volume->mHullPoints)
+			{ //build convex hull
+				std::vector<LLVector3> pos;
+				std::vector<U16> index;
+
+				S32 index_offset = 0;
+
+				for (S32 i = 0; i < phys_volume->getNumVolumeFaces(); ++i)
+				{
+					const LLVolumeFace& face = phys_volume->getVolumeFace(i);
+					if (index_offset + face.mNumVertices > 65535)
+					{
+						continue;
+					}
+
+					for (S32 j = 0; j < face.mNumVertices; ++j)
+					{
+						pos.push_back(LLVector3(face.mPositions[j].getF32ptr()));
+					}
+
+					for (S32 j = 0; j < face.mNumIndices; ++j)
+					{
+						index.push_back(face.mIndices[j]+index_offset);
+					}
+
+					index_offset += face.mNumVertices;
+				}
+
+				LLCDMeshData mesh;
+				mesh.mIndexBase = &index[0];
+				mesh.mVertexBase = pos[0].mV;
+				mesh.mNumVertices = pos.size();
+				mesh.mVertexStrideBytes = 12;
+				mesh.mIndexStrideBytes = 6;
+				mesh.mIndexType = LLCDMeshData::INT_16;
+
+				mesh.mNumTriangles = index.size()/3;
+				
+				LLCDMeshData res;
+
+				LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
+
+				//copy res into phys_volume
+				phys_volume->mHullPoints = (LLVector4a*) malloc(sizeof(LLVector4a)*res.mNumVertices);
+				phys_volume->mNumHullPoints = res.mNumVertices;
+
+				S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
+				phys_volume->mHullIndices = (U16*) malloc(idx_size);
+				phys_volume->mNumHullIndices = res.mNumTriangles*3;
+
+				const F32* v = mesh.mVertexBase;
+
+				for (S32 i = 0; i < res.mNumVertices; ++i)
+				{
+					F32* p = (F32*) ((U8*)v+i*mesh.mVertexStrideBytes);
+					phys_volume->mHullPoints[i].load3(p);
+				}
+
+				for (S32 i = 0; i < res.mNumTriangles; ++i)
+				{
+					U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+
+					phys_volume->mHullIndices[i*3+0] = idx[0];
+					phys_volume->mHullIndices[i*3+1] = idx[1];
+					phys_volume->mHullIndices[i*3+2] = idx[2];
+				}
+			}
+
+			if (phys_volume->mHullPoints)
+			{
+				//render hull
+				gGL.pushMatrix();
+				glMultMatrixf((GLfloat*) volume->getRelativeXform().mMatrix);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				
+				glColor3fv(color.mV);
+				LLVertexBuffer::unbind();
+				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+				
+				glColor4fv(color.mV);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+				gGL.popMatrix();
+			}
+
+			LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
+		}
+#endif //LL_WINDOWS			
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::BOX)
 	{
