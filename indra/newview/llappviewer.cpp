@@ -2951,6 +2951,14 @@ void LLAppViewer::earlyExit(const std::string& name, const LLSD& substitutions)
 	LLNotificationsUtil::add(name, substitutions, LLSD(), finish_early_exit);
 }
 
+// case where we need the viewer to exit without any need for notifications
+void LLAppViewer::earlyExitNoNotify()
+{
+   	llwarns << "app_early_exit with no notification: " << llendl;
+	gDoDisconnect = TRUE;
+	finish_early_exit( LLSD(), LLSD() );
+}
+
 void LLAppViewer::forceExit(S32 arg)
 {
     removeMarkerFile();

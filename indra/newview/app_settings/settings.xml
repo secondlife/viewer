@@ -6535,6 +6535,17 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+    <key>QuitOnLoginActivated</key>
+    <map>
+      <key>Comment</key>
+      <string>Quit if login page is activated (used when auto login is on and users must not be able to login manually)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RadioLandBrushAction</key>
     <map>
       <key>Comment</key>

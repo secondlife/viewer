@@ -706,7 +706,15 @@ bool idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
-		
+
+		// if auto login is on and setting to quit if the login page is activated
+		// is enabled, then go ahead and exit
+		if ( gSavedSettings.getBOOL("AutoLogin") && gSavedSettings.getBOOL("QuitOnLoginActivated") )
+		{
+			// no requirement for notification here - just exit
+			LLAppViewer::instance()->earlyExitNoNotify();
+		}
+
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
 		timeout_count = 0;
