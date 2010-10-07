@@ -288,6 +288,9 @@ public:
 	S32 getObjectCount(BOOL mesh_adjust = FALSE);
 	F32 getSelectedObjectCost();
 	F32 getSelectedLinksetCost();
+	F32 getSelectedPhysicsCost();
+	F32 getSelectedLinksetPhysicsCost();
+	
 	F32 getSelectedObjectStreamingCost();
 	U32 getSelectedObjectTriangleCount();
 

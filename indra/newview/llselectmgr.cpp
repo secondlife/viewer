@@ -6230,6 +6230,83 @@ F32 LLObjectSelection::getSelectedObjectCost()
 	return cost;
 }
 
+F32 LLObjectSelection::getSelectedLinksetCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	std::set<LLViewerObject*> me_roots;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
+			if (root)
+			{
+				if (me_roots.find(root) == me_roots.end())
+				{
+					me_roots.insert(root);
+					cost += root->getLinksetCost();
+				}
+			}
+		}
+	}
+
+	return cost;
+}
+
+F32 LLObjectSelection::getSelectedPhysicsCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			cost += object->getPhysicsCost();
+		}
+	}
+
+	return cost;
+}
+
+F32 LLObjectSelection::getSelectedLinksetPhysicsCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	std::set<LLViewerObject*> me_roots;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
+			if (root)
+			{
+				if (me_roots.find(root) == me_roots.end())
+				{
+					me_roots.insert(root);
+					cost += root->getLinksetPhysicsCost();
+				}
+			}
+		}
+	}
+
+	return cost;
+}
+
 F32 LLObjectSelection::getSelectedObjectStreamingCost()
 {
 	F32 cost = 0.f;
@@ -6264,34 +6341,6 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount()
 	return count;
 }
 
-F32 LLObjectSelection::getSelectedLinksetCost()
-{
-	cleanupNodes();
-	F32 cost = 0.f;
-
-	std::set<LLViewerObject*> me_roots;
-
-	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
-	{
-		LLSelectNode* node = *iter;
-		LLViewerObject* object = node->getObject();
-		
-		if (object)
-		{
-			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
-			if (root)
-			{
-				if (me_roots.find(root) == me_roots.end())
-				{
-					me_roots.insert(root);
-					cost += root->getLinksetCost();
-				}
-			}
-		}
-	}
-
-	return cost;
-}
 
 //-----------------------------------------------------------------------------
 // getTECount()

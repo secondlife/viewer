@@ -1,4 +1,4 @@
-version 23
+version 24
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -454,6 +454,7 @@ RenderAvatarCloth			0	0
 
 list ATI
 RenderUseStreamVBO			1	0
+RenderAvatarVP				1	0
 
 /// Tweaked NVIDIA
 

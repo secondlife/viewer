@@ -434,6 +434,10 @@ void LLFloaterTools::refresh()
 		LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
 	F32 link_cost =
 		LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
+	F32 obj_physics_cost =
+		LLSelectMgr::getInstance()->getSelection()->getSelectedPhysicsCost();
+	F32 link_physics_cost =
+		LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetPhysicsCost();
 
 	// Update the text for the counts
 	childSetTextArg(
@@ -443,11 +447,10 @@ void LLFloaterTools::refresh()
 	childSetTextArg("object_count", "[COUNT]", object_count_string);
 
 	// Update the text for the resource costs
-	childSetTextArg(
-		"linked_set_cost",
-		"[COST]",
-		llformat("%.1f", link_cost));
+	childSetTextArg("linked_set_cost","[COST]",llformat("%.1f", link_cost));
 	childSetTextArg("object_cost", "[COST]", llformat("%.1f", obj_cost));
+	childSetTextArg("linked_set_cost","[PHYSICS]",llformat("%.1f", link_physics_cost));
+	childSetTextArg("object_cost", "[PHYSICS]", llformat("%.1f", obj_physics_cost));
 
 	// Display rendering cost if needed
 	if (sShowObjectCost)

@@ -747,8 +747,9 @@
 	 top_delta="0"
      right="-10"
      name="linked_set_cost"
+     tool_tip="Cost of currently selected linked sets as [prims],[physics complexity]" 
      width="80">
-        Cost: [COST]
+        Cost: [COST] / [PHYSICS]
     </text>
     <text
     text_color="LtGray_50"
@@ -773,8 +774,9 @@
 	 top_delta="0"
      right="-10"
      name="object_cost"
+     tool_tip="Cost of currently selected objects as [prims] / [physics complexity]"
      width="80">
-        Cost: [COST]
+        Cost: [COST] / [PHYSICS]
     </text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->

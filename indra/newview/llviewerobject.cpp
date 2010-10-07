@@ -240,6 +240,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mClickAction(0),
 	mObjectCost(0.f),
 	mLinksetCost(0.f),
+	mPhysicsCost(0.f),
+	mLinksetPhysicsCost(0.f),
 	mCostStale(true),
 	mAttachmentItemID(LLUUID::null)
 {
@@ -2931,6 +2933,28 @@ void LLViewerObject::setLinksetCost(F32 cost)
 	}
 }
 
+void LLViewerObject::setPhysicsCost(F32 cost)
+{
+	mPhysicsCost = cost;
+	mCostStale = false;
+
+	if (isSelected())
+	{
+		gFloaterTools->dirty();
+	}
+}
+
+void LLViewerObject::setLinksetPhysicsCost(F32 cost)
+{
+	mLinksetPhysicsCost = cost;
+	mCostStale = false;
+	
+	if (isSelected())
+	{
+		gFloaterTools->dirty();
+	}
+}
+
 
 F32 LLViewerObject::getObjectCost()
 {
@@ -2940,16 +2964,6 @@ F32 LLViewerObject::getObjectCost()
 	}
 	
 	return mObjectCost;
-}
-
-F32 LLViewerObject::getStreamingCost()
-{
-	return 0.f;
-}
-
-U32 LLViewerObject::getTriangleCount()
-{
-	return 0;
 }
 
 F32 LLViewerObject::getLinksetCost()
@@ -2962,7 +2976,35 @@ F32 LLViewerObject::getLinksetCost()
 	return mLinksetCost;
 }
 
+F32 LLViewerObject::getPhysicsCost()
+{
+	if (mCostStale)
+	{
+		gObjectList.updateObjectCost(this);
+	}
+	
+	return mPhysicsCost;
+}
 
+F32 LLViewerObject::getLinksetPhysicsCost()
+{
+	if (mCostStale)
+	{
+		gObjectList.updateObjectCost(this);
+	}
+
+	return mLinksetPhysicsCost;
+}
+
+F32 LLViewerObject::getStreamingCost()
+{
+	return 0.f;
+}
+
+U32 LLViewerObject::getTriangleCount()
+{
+	return 0;
+}
 
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {

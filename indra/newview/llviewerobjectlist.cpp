@@ -728,7 +728,10 @@ public:
 				F32 object_cost =
 					content[iter->asString()]["resource_cost"].asReal();
 
-				gObjectList.updateObjectCost(object_id, object_cost, link_cost);
+				F32 physics_cost = content[iter->asString()]["physics_cost"].asReal();
+				F32 link_physics_cost = content[iter->asString()]["linked_set_physics_cost"].asReal();
+
+				gObjectList.updateObjectCost(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
 			}
 			else
 			{
@@ -1187,7 +1190,7 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 	mStaleObjectCost.insert(object->getID());
 }
 
-void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 object_cost, F32 link_cost)
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost)
 {
 	mPendingObjectCost.erase(object_id);
 
@@ -1196,6 +1199,8 @@ void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 object_cost, F32
 	{
 		object->setObjectCost(object_cost);
 		object->setLinksetCost(link_cost);
+		object->setPhysicsCost(physics_cost);
+		object->setLinksetPhysicsCost(link_physics_cost);
 	}
 }
 

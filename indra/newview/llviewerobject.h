@@ -334,14 +334,20 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
-	void setObjectCost(F32 cost);
-	F32 getObjectCost();
 	virtual F32 getStreamingCost();
 	virtual U32 getTriangleCount();
 
+	void setObjectCost(F32 cost);
+	F32 getObjectCost();
+	
 	void setLinksetCost(F32 cost);
 	F32 getLinksetCost();
 	
+	void setPhysicsCost(F32 cost);
+	F32 getPhysicsCost();
+	
+	void setLinksetPhysicsCost(F32 cost);
+	F32 getLinksetPhysicsCost();
 
 	void sendShapeUpdate();
 
@@ -699,6 +705,9 @@ protected:
 	U8 mClickAction;
 	F32 mObjectCost; //resource cost of this object or -1 if unknown
 	F32 mLinksetCost;
+	F32 mPhysicsCost;
+	F32 mLinksetPhysicsCost;
+
 	bool mCostStale;
 
 	static			U32			sNumZombieObjects;			// Objects which are dead, but not deleted
