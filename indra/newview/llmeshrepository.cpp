@@ -2864,61 +2864,99 @@ void LLPhysicsDecomp::doDecomposition()
 
 	if (ret)
 	{
-		llerrs << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
-	}
-
-	mCurRequest->setStatusMessage("Reading results");
-
-	S32 num_hulls =0;
-	if (LLConvexDecomposition::getInstance() != NULL)
-	{
-		num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
-	}
-	
-	mMutex->lock();
-	mCurRequest->mHull.clear();
-	mCurRequest->mHull.resize(num_hulls);
-
-	mCurRequest->mHullMesh.clear();
-	mCurRequest->mHullMesh.resize(num_hulls);
-	mMutex->unlock();
-
-	for (S32 i = 0; i < num_hulls; ++i)
-	{
-		std::vector<LLVector3> p;
-		LLCDHull hull;
-		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-		LLConvexDecomposition::getInstance()->getHullFromStage(stage, i, &hull);
-
-		const F32* v = hull.mVertexBase;
-
-		for (S32 j = 0; j < hull.mNumVertices; ++j)
-		{
-			LLVector3 vert(v[0], v[1], v[2]); 
-			p.push_back(vert);
-			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
-		}
-		
-		LLCDMeshData mesh;
-		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-		LLConvexDecomposition::getInstance()->getMeshFromStage(stage, i, &mesh);
-
-		mCurRequest->mHullMesh[i] = get_vertex_buffer_from_mesh(mesh);
-		
-		mMutex->lock();
-		mCurRequest->mHull[i] = p;
-		mMutex->unlock();
-	}
-
-	{
+		llwarns << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
 		LLMutexLock lock(mMutex);
 
-		mCurRequest->setStatusMessage("Done.");
+		mCurRequest->mHull.clear();
+		mCurRequest->mHullMesh.clear();
+
+		mCurRequest->setStatusMessage("FAIL");
 		mCurRequest->completed();
 				
 		mCurRequest = NULL;
 	}
+	else
+	{
+		mCurRequest->setStatusMessage("Reading results");
+
+		S32 num_hulls =0;
+		if (LLConvexDecomposition::getInstance() != NULL)
+		{
+			num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
+		}
+		
+		mMutex->lock();
+		mCurRequest->mHull.clear();
+		mCurRequest->mHull.resize(num_hulls);
+
+		mCurRequest->mHullMesh.clear();
+		mCurRequest->mHullMesh.resize(num_hulls);
+		mMutex->unlock();
+
+		for (S32 i = 0; i < num_hulls; ++i)
+		{
+			std::vector<LLVector3> p;
+			LLCDHull hull;
+			// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+			LLConvexDecomposition::getInstance()->getHullFromStage(stage, i, &hull);
+
+			const F32* v = hull.mVertexBase;
+
+			for (S32 j = 0; j < hull.mNumVertices; ++j)
+			{
+				LLVector3 vert(v[0], v[1], v[2]); 
+				p.push_back(vert);
+				v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+			}
+			
+			LLCDMeshData mesh;
+			// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+			LLConvexDecomposition::getInstance()->getMeshFromStage(stage, i, &mesh);
+
+			mCurRequest->mHullMesh[i] = get_vertex_buffer_from_mesh(mesh);
+			
+			mMutex->lock();
+			mCurRequest->mHull[i] = p;
+			mMutex->unlock();
+		}
+	
+		{
+			LLMutexLock lock(mMutex);
+
+			mCurRequest->setStatusMessage("FAIL");
+			mCurRequest->completed();
+					
+			mCurRequest = NULL;
+		}
+	}
 }
+
+void make_box(LLPhysicsDecomp::Request * request)
+{
+	LLVector3 min,max;
+	min = request->mPositions[0];
+	max = min;
+
+	for (U32 i = 0; i < request->mPositions.size(); ++i)
+	{
+		update_min_max(min, max, request->mPositions[i]);
+	}
+
+	request->mHull.clear();
+	
+	LLModel::hull box;
+	box.push_back(LLVector3(min[0],min[1],min[2]));
+	box.push_back(LLVector3(max[0],min[1],min[2]));
+	box.push_back(LLVector3(min[0],max[1],min[2]));
+	box.push_back(LLVector3(max[0],max[1],min[2]));
+	box.push_back(LLVector3(min[0],min[1],max[2]));
+	box.push_back(LLVector3(max[0],min[1],max[2]));
+	box.push_back(LLVector3(min[0],max[1],max[2]));
+	box.push_back(LLVector3(max[0],max[1],max[2]));
+
+	request->mHull.push_back(box);
+}
+
 
 void LLPhysicsDecomp::doDecompositionSingleHull()
 {
@@ -2954,48 +2992,55 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 	
 	if (ret)
 	{
-		llerrs << "Could not execute decomposition stage when attempting to create single hull." << llendl;
+		llwarns << "Could not execute decomposition stage when attempting to create single hull." << llendl;
+		make_box(mCurRequest);
 	}
-
-	ret = decomp->executeStage(STAGE_SIMPLIFY);
-
-	if (ret)
+	else
 	{
-		llerrs << "Could not execute simiplification stage when attempting to create single hull." << llendl;
-	}
+		ret = decomp->executeStage(STAGE_SIMPLIFY);
 
-	S32 num_hulls =0;
-	if (LLConvexDecomposition::getInstance() != NULL)
-	{
-		num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(STAGE_SIMPLIFY);
-	}
-	
-	mMutex->lock();
-	mCurRequest->mHull.clear();
-	mCurRequest->mHull.resize(num_hulls);
-	mCurRequest->mHullMesh.clear();
-	mMutex->unlock();
-
-	for (S32 i = 0; i < num_hulls; ++i)
-	{
-		std::vector<LLVector3> p;
-		LLCDHull hull;
-		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-		LLConvexDecomposition::getInstance()->getHullFromStage(STAGE_SIMPLIFY, i, &hull);
-
-		const F32* v = hull.mVertexBase;
-
-		for (S32 j = 0; j < hull.mNumVertices; ++j)
+		if (ret)
 		{
-			LLVector3 vert(v[0], v[1], v[2]); 
-			p.push_back(vert);
-			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+			llwarns << "Could not execute simiplification stage when attempting to create single hull." << llendl;
+			make_box(mCurRequest);
 		}
-				
-		mMutex->lock();
-		mCurRequest->mHull[i] = p;
-		mMutex->unlock();
+		else
+		{
+			S32 num_hulls =0;
+			if (LLConvexDecomposition::getInstance() != NULL)
+			{
+				num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(STAGE_SIMPLIFY);
+			}
+			
+			mMutex->lock();
+			mCurRequest->mHull.clear();
+			mCurRequest->mHull.resize(num_hulls);
+			mCurRequest->mHullMesh.clear();
+			mMutex->unlock();
+
+			for (S32 i = 0; i < num_hulls; ++i)
+			{
+				std::vector<LLVector3> p;
+				LLCDHull hull;
+				// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+				LLConvexDecomposition::getInstance()->getHullFromStage(STAGE_SIMPLIFY, i, &hull);
+
+				const F32* v = hull.mVertexBase;
+
+				for (S32 j = 0; j < hull.mNumVertices; ++j)
+				{
+					LLVector3 vert(v[0], v[1], v[2]); 
+					p.push_back(vert);
+					v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+				}
+						
+				mMutex->lock();
+				mCurRequest->mHull[i] = p;
+				mMutex->unlock();
+			}
+		}
 	}
+
 
 	{
 		LLMutexLock lock(mMutex);
