@@ -316,7 +316,8 @@ namespace LLInitParam
 		// verify by calling readValue with NoValue type, an inherently unparseable type
 		if (!names_left)
 		{
-			return p.readValue(NoValue());
+			NoValue no_value;
+			return p.readValue(no_value);
 		}
 
 		return false;
