@@ -356,7 +356,6 @@ private:
 	BOOL						mCommitOnReturn;
 	BOOL						mFadeWhenDisabled;
 	bool						mForcePressedState;
-	bool						mMouseOver;
 
 	LLFrameTimer				mFlashingTimer;
 };
