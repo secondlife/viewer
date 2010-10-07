@@ -199,7 +199,8 @@ struct LLNotificationTemplate
 			expire_option("expireOption", -1),
 			url("url"),
 			unique("unique"),
-			form_ref("")
+			form_ref(""),
+			tags("tag")
 		{}
 
 	};

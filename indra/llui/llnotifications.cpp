@@ -419,12 +419,15 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	{
 		mUniqueContext.push_back(it->key);
 	}
-
+	
+	lldebugs << "notification \"" << mName << "\": tag count is " << p.tags.size() << llendl;
+	
 	for(LLInitParam::ParamIterator<LLNotificationTemplate::Tag>::const_iterator it = p.tags.begin(),
 			end_it = p.tags.end();
 		it != end_it;
 		++it)
 	{
+		lldebugs << "    tag \"" << std::string(it->value) << "\"" << llendl;
 		mTags.push_back(it->value);
 	}
 
@@ -1667,7 +1670,15 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 	
 	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
 	{
-		// An empty type or tag string will match any notification, so only do the comparison when the string is non-empty in the rule.
+		// An empty type/tag/name string will match any notification, so only do the comparison when the string is non-empty in the rule.
+
+		lldebugs 
+			<< "notification \"" << n->getName() << "\" " 
+			<< "testing against " << ((*it)->mVisible?"show":"hide") << " rule, "
+			<< "name = \"" << (*it)->mName << "\" "
+			<< "tag = \"" << (*it)->mTag << "\" "
+			<< "type = \"" << (*it)->mType << "\" "
+			<< llendl;
 
 		if(!(*it)->mType.empty())
 		{
@@ -1690,8 +1701,6 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 
 		if(!(*it)->mName.empty())
 		{
-			lldebugs << "rule name = " << (*it)->mName << ", notification name = " << n->getName() << llendl;
-
 			// check this notification's name against the notification's name and continue if no match is found.
 			if((*it)->mName != n->getName())
 			{
