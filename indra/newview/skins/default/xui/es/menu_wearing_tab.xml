@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Wearing">
+	<menu_item_call label="Quitarme" name="take_off"/>
+	<menu_item_call label="Quitar" name="detach"/>
 	<menu_item_call label="Editar el vestuario" name="edit"/>
 </context_menu>

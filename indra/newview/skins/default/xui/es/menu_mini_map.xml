@@ -4,6 +4,7 @@
 	<menu_item_call label="Zoom medio" name="Zoom Medium"/>
 	<menu_item_call label="Zoom lejos" name="Zoom Far"/>
 	<menu_item_check label="Girar el mapa" name="Rotate Map"/>
+	<menu_item_check label="Centrar automáticamente" name="Auto Center"/>
 	<menu_item_call label="Parar la búsqueda" name="Stop Tracking"/>
 	<menu_item_call label="Mapa del mundo" name="World Map"/>
 </menu>

@@ -1267,6 +1267,9 @@
 	<string name="Right Pec">
 		Pecho derecho
 	</string>
+	<string name="Invalid Attachment">
+		Punto de colocación no válido
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] de edad
 	</string>
@@ -1644,9 +1647,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD: abajo der.
 	</string>
-	<string name="Bad attachment point">
-		Punto de colocación no válido
-	</string>
 	<string name="CursorPos">
 		Línea [LINE], Columna [COLUMN]
 	</string>
@@ -1661,12 +1661,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado. Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
-	</string>
-	<string name="NoOutfits">
-		Todavía no tienes vestuario. Intenta con [secondlife:///app/search/all/ Buscar]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		¿No encuentras lo que buscas? Intenta con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
 	</string>
 	<string name="MuteByName">
 		(Por el nombre)
@@ -1821,6 +1815,12 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	</string>
 	<string name="accel-win-shift">
 		Mayús+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Base
 	</string>
 	<string name="FileSaved">
 		Archivo guardado
@@ -3438,6 +3438,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderador)
 	</string>
+	<string name="Saved_message">
+		(Guardado [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Han respondido a tu llamada
 	</string>
@@ -3458,6 +3461,12 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Se colgó la llamada de voz
+	</string>
+	<string name="conference-title-incoming">
+		Conferencia con [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(La sesión de MI no existe)
 	</string>
 	<string name="only_user_message">
 		Usted es el único usuario en esta sesión.
@@ -3842,5 +3851,14 @@ Denuncia de infracción
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		¿Deseas eliminar los elementos seleccionados?
+	</string>
+	<string name="DeleteItem">
+		¿Deseas eliminar el elemento seleccionado?
+	</string>
+	<string name="EmptyOutfitText">
+		No hay elementos en este vestuario
 	</string>
 </strings>
