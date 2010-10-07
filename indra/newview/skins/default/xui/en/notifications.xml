@@ -6542,7 +6542,7 @@ Mute everyone?
   label="Display Name"
   type="hint"
   unique="true">
-    Set your customizable display name here. This is in addition to your unique username, which can't be changed.
+    Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
   </notification>
 
   <notification
