@@ -2806,29 +2806,32 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color)
 	const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 
 	if (decomp)
-	{
-		gGL.pushMatrix();
-		glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
-		
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
+	{		
 		LLVertexBuffer* buff = decomp->mBaseHullMesh;
 
-		buff->setBuffer(data_mask);
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glColor3fv(color.mV);
-		buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+		if (buff)
 		{
-			LLGLEnable blend(GL_BLEND);
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
-			LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-			glColor4fv(color.mV);
+			gGL.pushMatrix();
+			glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+			
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+			buff->setBuffer(data_mask);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glColor3fv(color.mV);
 			buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			{
+				LLGLEnable blend(GL_BLEND);
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
+				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+				glColor4fv(color.mV);
+				buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+			}
+			gGL.popMatrix();
 		}
-		gGL.popMatrix();
 	}
 }
 
