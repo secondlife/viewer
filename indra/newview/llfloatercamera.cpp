@@ -40,6 +40,8 @@
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 #include "llslider.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 
 static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item");
 
@@ -294,6 +296,8 @@ LLFloaterCamera* LLFloaterCamera::findInstance()
 
 void LLFloaterCamera::onOpen(const LLSD& key)
 {
+	LLFirstUse::viewPopup();
+
 	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("camera_btn");
 
 	setDockControl(new LLDockControl(
@@ -339,6 +343,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 
+	LLHints::registerHintTarget("view_popup", LLView::getHandle());
 }
 
 // virtual

@@ -6464,6 +6464,22 @@ Mute everyone?
   </notification>
 
   <notification
+  name="HintMoveArrows"
+  label="Move"
+  type="hint"
+  unique="true">
+    To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
+  </notification>
+  
+  <notification
+  name="HintView"
+  label="View"
+  type="hint"
+  unique="true">
+    To change your camera view, use the Orbit and Pan controls below. Reset your view by pressing Escape or walking.
+  </notification>
+
+  <notification
   name="HintInventory"
   label="Inventory"
   type="hint"

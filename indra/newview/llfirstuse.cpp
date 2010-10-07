@@ -100,7 +100,7 @@ void LLFirstUse::useSandbox()
 void LLFirstUse::notUsingDestinationGuide(bool enable)
 {
 	// not doing this yet
-	//firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
+	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "top"));
 }
 
 // static
@@ -113,7 +113,14 @@ void LLFirstUse::notUsingSidePanel(bool enable)
 // static
 void LLFirstUse::notMoving(bool enable)
 {
-	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
+	//firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
+	firstUseNotification("FirstNotMoving", enable, "HintMoveArrows", LLSD(), LLSD().with("hint_image", "arrow_keys.png"));
+}
+
+// static
+void LLFirstUse::viewPopup(bool enable)
+{
+	firstUseNotification("FirstViewPopup", enable, "HintView", LLSD(), LLSD().with("target", "view_popup").with("direction", "right"));
 }
 
 // static

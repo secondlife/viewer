@@ -44,7 +44,7 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llbuycurrencyhtml.h"
@@ -855,6 +855,7 @@ void LLDestinationGuideToggle()
 		}
 		else
 		{
+			LLFirstUse::notUsingDestinationGuide(false);
 			destination_guide->setVisible( true );
 		}
 	}

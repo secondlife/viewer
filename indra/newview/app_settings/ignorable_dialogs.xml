@@ -45,6 +45,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>FirstViewPopup</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when resident opens view popup</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>FirstReceiveLindens</key>
   <map>
     <key>Comment</key>
