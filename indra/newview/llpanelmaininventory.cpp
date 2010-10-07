@@ -192,6 +192,8 @@ BOOL LLPanelMainInventory::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterEdit, this, _2));
 	}
 
+	mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
+
 	initListCommandsHandlers();
 
 	// *TODO:Get the cost info from the server
@@ -900,9 +902,13 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 
 void LLPanelMainInventory::initListCommandsHandlers()
 {
-	childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
 	childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
 	childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
+
+	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
+	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
+	// of getChild<LLUICtrl>(...) for performance.
+	static_cast<LLUICtrl*>(mGearMenuButton)->setMouseDownCallback(boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
 
 	mTrashButton = getChild<LLDragAndDropButton>("trash_btn");
 	mTrashButton->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
@@ -914,6 +920,7 @@ void LLPanelMainInventory::initListCommandsHandlers()
 	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearMenuButton->setMenu(mMenuGearDefault);
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	// Update the trash button when selected item(s) get worn or taken off.
@@ -929,7 +936,9 @@ void LLPanelMainInventory::updateListCommands()
 
 void LLPanelMainInventory::onGearButtonClick()
 {
-	showActionMenu(mMenuGearDefault,"options_gear_btn");
+	mMenuGearDefault->buildDrawLabels();
+	mMenuGearDefault->updateParent(LLMenuGL::sMenuContainer);
+	mGearMenuButton->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
 }
 
 void LLPanelMainInventory::onAddButtonClick()

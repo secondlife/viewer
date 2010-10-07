@@ -375,7 +375,8 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mHistoryAccordion(NULL),
 		mAccordionTabMenu(NULL),
 		mLastSelectedFlatlList(NULL),
-		mLastSelectedItemIndex(-1)
+		mLastSelectedItemIndex(-1),
+		mMenuGearButton(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history.xml");
 }
@@ -439,8 +440,6 @@ BOOL LLTeleportHistoryPanel::postBuild()
 		}
 	}
 
-	getChild<LLPanel>("bottom_panel")->childSetAction("gear_btn",boost::bind(&LLTeleportHistoryPanel::onGearButtonClicked, this));
-
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 	registrar.add("TeleportHistory.ExpandAllFolders",  boost::bind(&LLTeleportHistoryPanel::onExpandAllFolders,  this));
@@ -448,9 +447,19 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	registrar.add("TeleportHistory.ClearTeleportHistory",  boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistory,  this));
 	mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
-	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuGearButton = getChild<LLMenuButton>("gear_btn");
+
+	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());;
 	if(gear_menu)
+	{
 		mGearMenuHandle  = gear_menu->getHandle();
+		mMenuGearButton->setMenu(gear_menu);
+	}
+
+	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
+	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
+	// of getChild<LLUICtrl>(...) for performance.
+	static_cast<LLUICtrl*>(mMenuGearButton)->setMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onGearButtonClicked, this));
 
 	return TRUE;
 }
@@ -991,19 +1000,12 @@ void LLTeleportHistoryPanel::onGearButtonClicked()
 	if (!menu)
 		return;
 
-	// Shows the menu at the top of the button bar.
-
-	// Calculate its coordinates.
-	LLPanel* bottom_panel = getChild<LLPanel>("bottom_panel");
 	menu->arrangeAndClear();
-	S32 menu_height = menu->getRect().getHeight();
-	S32 menu_x = -2; // *HACK: compensates HPAD in showPopup()
-	S32 menu_y = bottom_panel->getRect().mTop + menu_height;
-
-	// Actually show the menu.
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+
+	// Shows the menu at the top of the button bar.
+	mMenuGearButton->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
 }
 
 bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
