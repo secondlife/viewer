@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  width="205"
- height="200"
+ height="140"
  layout="topleft">
   <text name="hint_title"
         font="SansSerifMedium" 
@@ -23,7 +23,7 @@
         left="8"
         right="197"
         top_pad="5"
-        bottom="92"
+        bottom="120"
         follows="all" 
         text_color="Black"
         wrap="true"/>
