@@ -1290,9 +1290,16 @@ LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 //static 
 LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, bool upload_skin, bool upload_joints, bool nowrite)
 {
+	LLModel::hull dummy_hull;
+	return writeModel(filename, physics, high, medium, low, impostor, decomp, dummy_hull, upload_skin, upload_joints, nowrite);
+}
+
+//static 
+LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite)
+{
 	std::ofstream os(filename.c_str(), std::ofstream::out | std::ofstream::binary);
 
-	LLSD header = writeModel(os, physics, high, medium, low, impostor, decomp, upload_skin, upload_joints, nowrite);
+	LLSD header = writeModel(os, physics, high, medium, low, impostor, decomp, base_hull, upload_skin, upload_joints, nowrite);
 
 	os.close();
 
@@ -1300,7 +1307,7 @@ LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, 
 }
 
 //static
-LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, bool upload_skin, bool upload_joints, bool nowrite)
+LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite)
 {
 	LLSD mdl;
 
@@ -1359,15 +1366,27 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 		
 	}
 
-	if (!decomp.empty())
+	if (!decomp.empty() || !base_hull.empty())
 	{
 		//write decomposition block
 		// ["decomposition"]["HullList"] -- list of 8 bit integers, each entry represents a hull with specified number of points
 		// ["decomposition"]["PositionDomain"]["Min"/"Max"]
 		// ["decomposition"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
-	
+		// ["decomposition"]["Hull"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
+		
+		
 		//get minimum and maximum
-		LLVector3 min = decomp[0][0];
+		LLVector3 min;
+		
+		if (decomp.empty())
+		{
+			min = base_hull[0];
+		}
+		else
+		{
+			min = decomp[0][0];
+		}
+
 		LLVector3 max = min;
 
 		LLSD::Binary hulls(decomp.size());
@@ -1386,23 +1405,64 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 			}
 		}
 
+		for (U32 i = 0; i < base_hull.size(); ++i)
+		{
+			update_min_max(min, max, base_hull[i]);	
+		}
+
 		mdl["decomposition"]["Min"] = min.getValue();
 		mdl["decomposition"]["Max"] = max.getValue();
-		mdl["decomposition"]["HullList"] = hulls;
-		
-		LLSD::Binary p(total*3*2);
 
-		LLVector3 range = max-min;
-
-		U32 vert_idx = 0;
-		for (U32 i = 0; i < decomp.size(); ++i)
+		if (!hulls.empty())
 		{
-			for (U32 j = 0; j < decomp[i].size(); ++j)
+			mdl["decomposition"]["HullList"] = hulls;
+		}
+
+		if (total > 0)
+		{
+			LLSD::Binary p(total*3*2);
+
+			LLVector3 range = max-min;
+
+			U32 vert_idx = 0;
+			for (U32 i = 0; i < decomp.size(); ++i)
+			{
+				for (U32 j = 0; j < decomp[i].size(); ++j)
+				{
+					for (U32 k = 0; k < 3; k++)
+					{
+						//convert to 16-bit normalized across domain
+						U16 val = (U16) (((decomp[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
+
+						U8* buff = (U8*) &val;
+						//write to binary buffer
+						p[vert_idx++] = buff[0];
+						p[vert_idx++] = buff[1];
+
+						if (vert_idx > p.size())
+						{
+							llerrs << "WTF?" << llendl;
+						}
+					}
+				}
+			}
+
+			mdl["decomposition"]["Position"] = p;
+		}
+
+		if (!base_hull.empty())
+		{
+			LLSD::Binary p(base_hull.size()*3*2);
+
+			LLVector3 range = max-min;
+
+			U32 vert_idx = 0;
+			for (U32 j = 0; j < base_hull.size(); ++j)
 			{
 				for (U32 k = 0; k < 3; k++)
 				{
 					//convert to 16-bit normalized across domain
-					U16 val = (U16) (((decomp[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
+					U16 val = (U16) (((base_hull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
 
 					U8* buff = (U8*) &val;
 					//write to binary buffer
@@ -1415,9 +1475,9 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 					}
 				}
 			}
+			
+			mdl["decomposition"]["Hull"] = p;
 		}
-
-		mdl["decomposition"]["Position"] = p;
 	}
 
 	for (U32 idx = 0; idx < MODEL_NAMES_LENGTH; ++idx)

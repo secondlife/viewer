@@ -144,8 +144,10 @@ public:
 
 	LLUUID mMeshID;
 	LLModel::physics_shape mHull;
+	LLModel::hull mBaseHull;
 
 	std::vector<LLPointer<LLVertexBuffer> > mMesh;
+	LLPointer<LLVertexBuffer> mBaseHullMesh;
 };
 
 class LLPhysicsDecomp : public LLThread
@@ -188,6 +190,10 @@ public:
 	void submitRequest(Request* request);
 	static S32 llcdCallback(const char*, S32, S32);
 	void cancel();
+
+	void setMeshData(LLCDMeshData& mesh);
+	void doDecomposition();
+	void doDecompositionSingleHull();
 
 	virtual void run();
 
@@ -337,6 +343,26 @@ public:
 class LLMeshUploadThread : public LLThread 
 {
 public:
+	class DecompRequest : public LLPhysicsDecomp::Request
+	{
+	public:
+		LLPointer<LLModel> mModel;
+		LLPointer<LLModel> mBaseModel;
+
+		LLMeshUploadThread* mThread;
+
+		DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread);
+
+		S32 statusCallback(const char* status, S32 p1, S32 p2) { return 1; }
+		void completed();
+	};
+
+	LLPointer<DecompRequest> mFinalDecomp;
+	bool mPhysicsComplete;
+
+	typedef std::map<LLPointer<LLModel>, std::vector<LLVector3> > hull_map;
+	hull_map mHullMap;
+
 	typedef std::vector<LLModelInstance> instance_list;
 	instance_list mInstanceList;
 
