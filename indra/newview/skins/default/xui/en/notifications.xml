@@ -6476,7 +6476,7 @@ Mute everyone?
   label="View"
   type="hint"
   unique="true">
-    To change your camera view, use the Orbit and Pan controls below. Reset your view by pressing Escape or walking.
+    To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
   </notification>
 
   <notification
