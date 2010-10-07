@@ -517,6 +517,7 @@ void LLBottomTray::toggleCameraControls()
 
 BOOL LLBottomTray::postBuild()
 {
+	LLHints::registerHintTarget("bottom_tray", LLView::getHandle());
 	LLHints::registerHintTarget("dest_guide_btn", getChild<LLUICtrl>("destinations_btn")->getHandle());
 
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("NearbyChatBar.Action", boost::bind(&LLBottomTray::onContextMenuItemClicked, this, _2));
