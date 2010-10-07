@@ -170,6 +170,19 @@ LLSD LLControlVariable::getComparableValue(const LLSD& value)
 			storable_value = false;
 		}
 	}
+	else if (TYPE_LLSD == type() && value.isString())
+	{
+		LLPointer<LLSDNotationParser> parser = new LLSDNotationParser;
+		LLSD result;
+		if (parser->parse(std::stringstream(value.asString()), result, LLSDSerialize::SIZE_UNLIMITED) != LLSDParser::PARSE_FAILURE)
+		{
+			storable_value = result;
+		}
+		else
+		{
+			storable_value = value;
+		}
+	}
 	else
 	{
 		storable_value = value;
