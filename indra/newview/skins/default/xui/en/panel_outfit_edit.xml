@@ -132,6 +132,7 @@
                  height="18"
                  layout="topleft"
                  name="curr_outfit_name"
+                 parse_urls="false"
                  text_color="LtGray"
                  top_pad="2"
                  value="[Current Outfit]"
