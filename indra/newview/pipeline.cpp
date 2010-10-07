@@ -4814,7 +4814,7 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 void LLPipeline::disableLights()
 {
 	enableLights(0); // no lighting (full bright)
-	//glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
+	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
 }
 
 //============================================================================
