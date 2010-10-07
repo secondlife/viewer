@@ -174,7 +174,8 @@ LLSD LLControlVariable::getComparableValue(const LLSD& value)
 	{
 		LLPointer<LLSDNotationParser> parser = new LLSDNotationParser;
 		LLSD result;
-		if (parser->parse(std::stringstream(value.asString()), result, LLSDSerialize::SIZE_UNLIMITED) != LLSDParser::PARSE_FAILURE)
+		std::stringstream value_stream(value.asString());
+		if (parser->parse(value_stream, result, LLSDSerialize::SIZE_UNLIMITED) != LLSDParser::PARSE_FAILURE)
 		{
 			storable_value = result;
 		}
