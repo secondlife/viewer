@@ -4262,17 +4262,8 @@ void LLViewerWindow::setup3DRender()
 
 void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-	if (LLRenderTarget::getCurrentBoundTarget() != NULL)
-	{
-		// don't use translation component of mWorldViewRectRaw, as we are already in a properly sized render target
-		gGLViewport[0] = x_offset;
-		gGLViewport[1] = y_offset;
-	}
-	else
-	{
-		gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
-		gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
-	}
+	gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
+	gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
 	gGLViewport[2] = mWorldViewRectRaw.getWidth();
 	gGLViewport[3] = mWorldViewRectRaw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
