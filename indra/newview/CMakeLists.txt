@@ -169,6 +169,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdaycycle.cpp
+    llfloaterdisplayname.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
@@ -701,6 +702,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdaycycle.h
+    llfloaterdisplayname.h
     llfloaterenvsettings.h
     llfloaterevent.h
     llfloaterfonttest.h

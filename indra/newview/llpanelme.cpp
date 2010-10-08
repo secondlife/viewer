@@ -35,6 +35,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llfirstuse.h"
+#include "llfloaterreg.h"
 #include "llhints.h"
 #include "llsidetray.h"
 #include "llviewercontrol.h"
@@ -208,6 +209,14 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	}
 }
 
+void LLPanelMyProfileEdit::onClose(const LLSD& key)
+{
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		LLFirstUse::setDisplayName(false);
+	}	
+}
+
 void LLPanelMyProfileEdit::processProperties(void* data, EAvatarProcessorType type)
 {
 	if(APT_PROPERTIES == type)
@@ -262,6 +271,12 @@ void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarNam
 	}
 }
 
+void LLPanelMyProfileEdit::onAvatarNameChanged()
+{
+	LLAvatarNameCache::get(getAvatarId(),
+		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+}
+
 BOOL LLPanelMyProfileEdit::postBuild()
 {
 	initTexturePickerMouseEvents();
@@ -273,7 +288,7 @@ BOOL LLPanelMyProfileEdit::postBuild()
 		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
 
 	LLHints::registerHintTarget("set_display_name", getChild<LLUICtrl>("set_name")->getHandle());
-
+	LLViewerDisplayName::addNameChangedCallback(boost::bind(&LLPanelMyProfileEdit::onAvatarNameChanged, this));
 	return LLPanelAvatarProfile::postBuild();
 }
 /**
@@ -314,88 +329,6 @@ void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
 void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 {
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
-}
-
-void LLPanelMyProfileEdit::onCacheSetName(bool success,
-										  const std::string& reason,
-										  const LLSD& content)
-{
-	if (success)
-	{
-		// Inform the user that the change took place, but will take a while
-		// to percolate.
-		LLSD args;
-		args["DISPLAY_NAME"] = content["display_name"];
-		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
-
-		// Re-fetch my name, as it may have been sanitized by the service
-		LLAvatarNameCache::get(getAvatarId(),
-			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
-		return;
-	}
-
-	// Request failed, notify the user
-	std::string error_tag = content["error_tag"].asString();
-	llinfos << "set name failure error_tag " << error_tag << llendl;
-
-	// We might have a localized string for this message
-	// error_args will usually be empty from the server.
-	if (!error_tag.empty()
-		&& LLNotifications::getInstance()->templateExists(error_tag))
-	{
-		LLNotificationsUtil::add(error_tag);
-		return;
-	}
-
-	// The server error might have a localized message for us
-	std::string lang_code = LLUI::getLanguage();
-	LLSD error_desc = content["error_description"];
-	if (error_desc.has( lang_code ))
-	{
-		LLSD args;
-		args["MESSAGE"] = error_desc[lang_code].asString();
-		LLNotificationsUtil::add("GenericAlert", args);
-		return;
-	}
-
-	// No specific error, throw a generic one
-	LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
-}
-
-void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0 || option == 1)
-	{
-		LLUUID agent_id = notification["payload"]["agent_id"];
-		if (agent_id.isNull()) return;
-
-		std::string display_name_utf8;
-		if (option == 0)
-		{
-			// user gave us a name
-			display_name_utf8 = response["display_name"].asString();
-		}
-		else
-		{
-			// reset back to People API default
-			display_name_utf8 = "";
-		}
-
-		const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
-		LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
-		if (display_name_wstr.size() > DISPLAY_NAME_MAX_LENGTH)
-		{
-			LLSD args;
-			args["LENGTH"] = llformat("%d", DISPLAY_NAME_MAX_LENGTH);
-			LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
-			return;
-		}
-
-		LLViewerDisplayName::set(display_name_utf8,
-			boost::bind(&LLPanelMyProfileEdit::onCacheSetName, this,
-				_1, _2, _3));
-	}
 }
 
 void LLPanelMyProfileEdit::onClickSetName()
@@ -444,12 +377,7 @@ void LLPanelMyProfileEdit::onAvatarNameCache(const LLUUID& agent_id, const LLAva
 		return;
 	}
 	
-	LLSD args;
-	args["DISPLAY_NAME"] = av_name.mDisplayName;
-	LLSD payload;
-	payload["agent_id"] = agent_id;
-	LLNotificationsUtil::add("SetDisplayName", args, payload, 
-		boost::bind(&LLPanelMyProfileEdit::onDialogSetName, this, _1, _2));
+	LLFloaterReg::showInstance("display_name");
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)

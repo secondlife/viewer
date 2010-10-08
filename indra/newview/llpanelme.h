@@ -78,6 +78,9 @@ public:
 	/*virtual*/BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(const LLSD& key);
+
+	void onAvatarNameChanged();
 
 protected:	
 
@@ -91,8 +94,6 @@ private:
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 	void onClickSetName();
-	void onDialogSetName(const LLSD& notification, const LLSD& response);
-	void onCacheSetName(bool success, const std::string& reason, const LLSD& content);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
 	/**

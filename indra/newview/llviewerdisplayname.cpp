@@ -44,6 +44,15 @@ namespace LLViewerDisplayName
 {
 	// Fired when viewer receives server response to display name change
 	set_name_signal_t sSetDisplayNameSignal;
+
+	// Fired when there is a change in the agent's name
+	name_changed_signal_t sNameChangedSignal;
+
+	void addNameChangedCallback(const name_changed_signal_t::slot_type& cb) 
+	{ 
+		sNameChangedSignal.connect(cb); 
+	}
+
 }
 
 class LLSetDisplayNameResponder : public LLHTTPClient::Responder
@@ -183,6 +192,10 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		args["SLID"] = av_name.mUsername;
 		args["NEW_NAME"] = av_name.mDisplayName;
 		LLNotificationsUtil::add("DisplayNameUpdate", args);
+		if (agent_id == gAgent.getID())
+		{
+			LLViewerDisplayName::sNameChangedSignal();
+		}
 	}
 };
 

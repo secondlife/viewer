@@ -210,10 +210,15 @@ void LLHintPopup::draw()
 			}
 			else if (!targetp->isInVisibleChain()) 
 			{
+				setEnabled(false);
+				setMouseOpaque(false);
 				// if target is invisible, don't draw, but keep alive in case widget comes back
 			}
 			else
 			{
+				setEnabled(true);
+				setMouseOpaque(true);
+
 				LLRect target_rect;
 				targetp->localRectToOtherView(targetp->getLocalRect(), &target_rect, getParent());
 

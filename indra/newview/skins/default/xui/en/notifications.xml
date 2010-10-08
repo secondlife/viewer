@@ -3186,38 +3186,6 @@ You are no longer frozen.
 
   <notification
    icon="alertmodal.tga"
-   name="SetDisplayName"
-   type="alert">
-    The name above your avatar's head is called a [secondlife:///app/help/display_name display_name]. You can change it periodically.
-
-    During the evaluation period of this Project Viewer release, you are able to update your Display Name as frequently as you wish. When this feature goes officially live, you will able to update your Display Name only once a week.
-
-    Press reset to make it the same as your username.
-
-    Change your display name?
-    <form name="form">
-      <input name="display_name" max_length_chars="31" type="text">
-[DISPLAY_NAME]
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="Change"
-       text="Change"/>
-      <button
-       index="1"
-       name="Reset"
-       text="Reset"/>
-      <button
-       index="2"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-    <unique/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="SetDisplayNameSuccess"
    type="alert">
 Hi [DISPLAY_NAME]!
@@ -3256,7 +3224,14 @@ Please try a shorter name.
     Sorry, we could not set your display name.  Please try again later.
   </notification>
 
-<!-- *NOTE: This should never happen, users should see SetDisplayNameFailedLockout above -->
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameMismatch"
+   type="alertmodal">
+    The display names you entered do not match. Please re-enter.
+  </notification>
+
+  <!-- *NOTE: This should never happen, users should see SetDisplayNameFailedLockout above -->
   <notification
    icon="alertmodal.tga"
    name="AgentDisplayNameUpdateThresholdExceeded"

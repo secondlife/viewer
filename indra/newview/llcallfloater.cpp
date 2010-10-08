@@ -45,6 +45,7 @@
 #include "llspeakers.h"
 #include "lltextutil.h"
 #include "lltransientfloatermgr.h"
+#include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
@@ -117,6 +118,8 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 	// update the agent's name if display name setting change
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
+	LLViewerDisplayName::addNameChangedCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
+
 }
 
 LLCallFloater::~LLCallFloater()
