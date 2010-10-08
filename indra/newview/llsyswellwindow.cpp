@@ -249,7 +249,7 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 		S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId) :
 		LLPanel(LLPanel::Params()), mChiclet(NULL), mParent(parent)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_activeim_row.xml", NULL);
+	buildFromFile( "panel_activeim_row.xml", NULL);
 
 	// Choose which of the pre-created chiclets (IM/group) to use.
 	// The other one gets hidden.
@@ -346,7 +346,7 @@ LLIMWellWindow::ObjectRowPanel::ObjectRowPanel(const LLUUID& notification_id, bo
  : LLPanel()
  , mChiclet(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_active_object_row.xml", NULL);
+	buildFromFile( "panel_active_object_row.xml", NULL);
 
 	initChiclet(notification_id);
 

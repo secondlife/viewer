@@ -14,14 +14,6 @@
  tab_stop="false"
  width="1000">
     <panel.string
-     name="StatBarDaysOfWeek">
-        Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
-    </panel.string>
-    <panel.string
-     name="StatBarMonthsOfYear">
-        January:February:March:April:May:June:July:August:September:October:November:December
-    </panel.string>
-    <panel.string
      name="packet_loss_tooltip">
         Packet Loss
     </panel.string>
@@ -126,13 +118,4 @@
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
-    <text
-     follows="right|top"
-     halign="center"
-     height="12"
-     layout="topleft"
-     left_delta="0"
-     name="stat_btn"
-     top_delta="0"
-     width="20"/>
 </panel>

@@ -286,6 +286,8 @@ void LLSidepanelAppearance::showOutfitsInventoryPanel()
 
 void LLSidepanelAppearance::showOutfitEditPanel()
 {
+	if (mOutfitEdit && mOutfitEdit->getVisible()) return;
+
 	// Accordion's state must be reset in all cases except the one when user
 	// is returning back to the mOutfitEdit panel from the mEditWearable panel.
 	// The simplest way to control this is to check the visibility state of the mEditWearable

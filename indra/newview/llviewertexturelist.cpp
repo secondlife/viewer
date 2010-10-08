@@ -1544,7 +1544,8 @@ bool LLUIImageList::initFromFile()
 	}
 
 	UIImageDeclarations images;
-	LLXUIParser::instance().readXUI(root, images, base_file_path);
+	LLXUIParser parser;
+	parser.readXUI(root, images, base_file_path);
 
 	if (!images.validateBlock()) return false;
 
@@ -1557,8 +1558,8 @@ bool LLUIImageList::initFromFile()
 
 	for (S32 cur_pass = PASS_DECODE_NOW; cur_pass < NUM_PASSES; cur_pass++)
 	{
-		for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures().begin();
-			image_it != images.textures().end();
+		for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures.begin();
+			image_it != images.textures.end();
 			++image_it)
 		{
 			std::string file_name = image_it->file_name.isProvided() ? image_it->file_name() : image_it->name();

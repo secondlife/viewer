@@ -50,6 +50,7 @@
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
+#include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -932,6 +933,15 @@ protected:
 //one global instance to bind them
 LLOpenTaskOffer* gNewInventoryObserver=NULL;
 
+class LLNewInventoryHintObserver : public LLInventoryAddedObserver
+{
+protected:
+	/*virtual*/ void done()
+	{
+		LLFirstUse::newInventory();
+	}
+};
+
 void start_new_inventory_observer()
 {
 	if (!gNewInventoryObserver) //task offer observer 
@@ -947,6 +957,8 @@ void start_new_inventory_observer()
 		gInventoryMoveObserver = new LLViewerInventoryMoveFromWorldObserver;
 		gInventory.addObserver(gInventoryMoveObserver);
 	}
+
+	gInventory.addObserver(new LLNewInventoryHintObserver());
 }
 
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
@@ -1873,6 +1885,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
+
+	LLFirstUse::newInventory();
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
@@ -4213,13 +4227,11 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 
 	// Don't play sounds from a region with maturity above current agent maturity
 	LLVector3d pos_global = objectp->getPositionGlobal();
-	if( !gAgent.canAccessMaturityAtGlobal( pos_global ) )
+	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
-		return;
-	}
-	
 	// Add audioData starts a transfer internally.
 	sourcep->addAudioData(datap, FALSE);
+}
 }
 
 void process_attached_sound(LLMessageSystem *msg, void **user_data)
@@ -6441,7 +6453,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -6575,7 +6587,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

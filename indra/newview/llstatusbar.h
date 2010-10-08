@@ -85,16 +85,13 @@ public:
 	LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
 
 private:
-	// simple method to setup the part that holds the date
-	void setupDate();
-
+	
 	void onClickBuyCurrency();
 	void onVolumeChanged(const LLSD& newvalue);
 
 	void onMouseEnterVolume();
 	void onMouseEnterNearbyMedia();
 	void onClickScreen(S32 x, S32 y);
-	static void onClickStatGraph(void* data);
 
 	static void onClickMediaToggle(void* data);
 
@@ -117,9 +114,6 @@ private:
 	LLFrameTimer*	mHealthTimer;
 	LLPanelVolumePulldown* mPanelVolumePulldown;
 	LLPanelNearByMedia*	mPanelNearByMedia;
-	static std::vector<std::string> sDays;
-	static std::vector<std::string> sMonths;
-	static const U32 MAX_DATE_STRING_LENGTH;
 };
 
 // *HACK: Status bar owns your cached money balance. JC

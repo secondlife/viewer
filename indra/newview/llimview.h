@@ -84,6 +84,7 @@ public:
 		/** @deprecated */
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
+		bool isOutgoingAdHoc();
 		bool isAdHoc();
 		bool isP2P();
 		bool isOtherParticipantAvaline();
@@ -230,7 +231,7 @@ public:
 	 * For an incoming ad-hoc chat - is received from the server and is in a from of "<Avatar's name> Conference"
 	 *	It is updated in LLIMModel::LLIMSession's constructor to localize the "Conference".
 	 */
-	const std::string& getName(const LLUUID& session_id) const;
+	const std::string getName(const LLUUID& session_id) const;
 
 	/** 
 	 * Get number of unread messages in a session with session_id
@@ -272,6 +273,9 @@ public:
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
 								const LLUUID& other_participant_id, EInstantMessage dialog);
+
+	// Adds people from speakers list (people with whom you are currently speaking) to the Recent People List
+	static void addSpeakersToRecent(const LLUUID& im_session_id);
 
 	void testMessages();
 

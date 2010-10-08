@@ -78,7 +78,7 @@ void LLWidgetReg::initClass(bool register_widgets)
 		LLDefaultChildRegistry::Register<LLMultiSlider> multi_slider_bar("multi_slider_bar");
 		LLDefaultChildRegistry::Register<LLMultiSliderCtrl> multi_slider("multi_slider");
 		LLDefaultChildRegistry::Register<LLPanel> panel("panel", &LLPanel::fromXML);
-		LLDefaultChildRegistry::Register<LLLayoutStack> layout_stack("layout_stack", &LLLayoutStack::fromXML);
+		LLDefaultChildRegistry::Register<LLLayoutStack> layout_stack("layout_stack");
 		LLDefaultChildRegistry::Register<LLProgressBar> progress_bar("progress_bar");
 		LLDefaultChildRegistry::Register<LLRadioGroup> radio_group("radio_group");
 		LLDefaultChildRegistry::Register<LLSearchEditor> search_editor("search_editor");

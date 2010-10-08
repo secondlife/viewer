@@ -251,14 +251,14 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mControlPanel->setSessionId(mSessionID);
-	mControlPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
+	mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
-	slide_left->setVisible(mControlPanel->getVisible());
+	slide_left->setVisible(mControlPanel->getParent()->getVisible());
 	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
-	slide_right->setVisible(!mControlPanel->getVisible());
+	slide_right->setVisible(!mControlPanel->getParent()->getVisible());
 	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
@@ -357,12 +357,12 @@ void* LLIMFloater::createPanelAdHocControl(void* userdata)
 
 void LLIMFloater::onSlide()
 {
-	mControlPanel->setVisible(!mControlPanel->getVisible());
+	mControlPanel->getParent()->setVisible(!mControlPanel->getParent()->getVisible());
 
-	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getVisible());
+	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getParent()->getVisible());
 
-	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getVisible());
-	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getVisible());
+	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getParent()->getVisible());
+	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getParent()->getVisible());
 
 	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
 	if (stack) stack->setAnimate(true);

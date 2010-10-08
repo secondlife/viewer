@@ -221,60 +221,60 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Simulator primitive usage:">
 				Uso de primitivas:
 			</text>
-			<text left="204" name="objects_available" width="250">
+			<text  name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Prims que admite la parcela:
 			</text>
-			<text left="204" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims en la parcela:
 			</text>
-			<text left="204" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Del propietario de la parcela:
 			</text>
-			<text left="204" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOwner..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner"/>
+			<button label="Devolver" name="ReturnOwner..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Set to group:">
 				Del grupo:
 			</text>
-			<text left="204" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnGroup..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup"/>
+			<button label="Devolver" name="ReturnGroup..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Owned by others:">
 				Propiedad de otros:
 			</text>
-			<text left="204" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOther..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="193">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOther"/>
+			<button label="Devolver" name="ReturnOther..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Selected / sat upon:">
 				Seleccionados / con gente sentada:
 			</text>
-			<text left="204" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Devolución automát. de objetos de otros (en min., 0 la desactiva):
 			</text>
-			<line_editor name="clean other time" right="-20"/>
-			<text name="Object Owners:" width="150">
+			<line_editor name="clean other time"/>
+			<text name="Object Owners:">
 				Propietarios de los objetos:
 			</text>
-			<button label="Actualizar la lista" label_selected="Actualizar la lista" left="158" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Devolver los objetos" left="270" name="Return objects..." width="164"/>
+			<button label="Actualizar la lista" label_selected="Actualizar la lista" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Devolver los objetos" name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nombre" name="name"/>

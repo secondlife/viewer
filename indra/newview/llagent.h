@@ -264,6 +264,7 @@ public:
 private:
 	LLFrameTimer	mFidgetTimer;
 	LLFrameTimer	mFocusObjectFadeTimer;
+	LLFrameTimer	mMoveTimer;
 	F32				mNextFidgetTime;
 	S32				mCurrentFidget;
 
@@ -358,14 +359,6 @@ public:
 	BOOL			getBusy() const;
 private:
 	BOOL			mIsBusy;
-
-	//--------------------------------------------------------------------
-	// Jump
-	//--------------------------------------------------------------------
-public:
-	BOOL			getJump() const	{ return mbJump; }
-private:
-	BOOL 			mbJump;
 
 	//--------------------------------------------------------------------
 	// Grab

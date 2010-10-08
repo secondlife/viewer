@@ -47,6 +47,7 @@ LLNameBox::LLNameBox(const Params& p)
 {
 	mNameID = LLUUID::null;
 	mLink = p.link;
+	mParseHTML = mLink; // STORM-215
 	mInitialValue = p.initial_value().asString();
 	LLNameBox::sInstances.insert(this);
 	setText(LLStringUtil::null);
@@ -119,7 +120,7 @@ void LLNameBox::setName(const std::string& name, BOOL is_group)
 		std::string url;
 
 		if (is_group)
-			url = "[secondlife:///app/group/" + LLURI::escape(name) + "/about " + name + "]";
+			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
 		else
 			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
 
