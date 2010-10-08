@@ -709,7 +709,7 @@ bool idle_startup()
 
 		// if auto login is on and setting to quit if the login page is activated
 		// is enabled, then go ahead and exit
-		if ( gSavedSettings.getBOOL("AutoLogin") && gSavedSettings.getBOOL("QuitOnLoginActivated") )
+		if ( show_connect_box && gSavedSettings.getBOOL("AutoLogin") && gSavedSettings.getBOOL("QuitOnLoginActivated") )
 		{
 			// no requirement for notification here - just exit
 			LLAppViewer::instance()->earlyExitNoNotify();
