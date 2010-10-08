@@ -272,6 +272,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	{
 		if (lod == LLModel::LOD_PHYSICS)
 		{
+			childSetTextArg(info_name[lod], "[TRIANGLES]", std::string("0"));
 			childSetTextArg(info_name[lod], "[HULLS]", std::string("0"));
 			childSetTextArg(info_name[lod], "[POINTS]", std::string("0"));
 		}
@@ -2953,7 +2954,7 @@ void LLModelPreview::updateStatusMessages()
 	S32 total_verts[LLModel::NUM_LODS];
 	S32 total_submeshes[LLModel::NUM_LODS];
 
-	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
+	for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
 	{
 		//initialize total for this lod to 0
 		total_tris[lod] = total_verts[lod] = total_submeshes[lod] = 0;
@@ -2985,6 +2986,8 @@ void LLModelPreview::updateStatusMessages()
 	
 
 	std::string upload_message;
+
+	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[TRIANGLES]", llformat("%d", total_tris[LLModel::LOD_PHYSICS]));
 
 	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
 	{

@@ -1334,6 +1334,11 @@ void LLMeshUploadThread::run()
 		gMeshRepo.mDecompThread->submitRequest(request);
 	}
 
+	while (!mPhysicsComplete)
+	{
+		apr_sleep(100);
+	}
+
 	//upload textures
 	bool done = false;
 	do

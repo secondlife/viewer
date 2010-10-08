@@ -150,7 +150,7 @@
     [TRIANGLES] Triangles, [HULLS] Hulls, [POINTS] Points
   </text>
 
-  <text bottom_delta="25" follows="top|left" height="15" left="10" name="physics info" width="300">
+  <text bottom_delta="25" follows="top|left" height="15" left="10" name="include label" width="300">
     Include:
   </text>
 
