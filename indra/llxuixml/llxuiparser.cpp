@@ -382,7 +382,7 @@ LLXUIParser::LLXUIParser()
 {
 	if (sXUIReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoValue>(readNoValue, writeNoValue);
+		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue, writeNoValue);
 		registerParserFuncs<bool>(readBoolValue, writeBoolValue);
 		registerParserFuncs<std::string>(readStringValue, writeStringValue);
 		registerParserFuncs<U8>(readU8Value, writeU8Value);
@@ -1078,7 +1078,7 @@ LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t
 {
 	if (sSimpleXUIReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoValue>(readNoValue);
+		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue);
 		registerParserFuncs<bool>(readBoolValue);
 		registerParserFuncs<std::string>(readStringValue);
 		registerParserFuncs<U8>(readU8Value);

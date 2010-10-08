@@ -45,7 +45,7 @@ LLParamSDParser::LLParamSDParser()
 
 	if (sReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoValue>(readNoValue, &LLParamSDParser::writeNoValue);
+		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue, &LLParamSDParser::writeNoValue);
 		registerParserFuncs<S32>(readS32, &LLParamSDParser::writeTypedValue<S32>);
 		registerParserFuncs<U32>(readU32, &LLParamSDParser::writeU32Param);
 		registerParserFuncs<F32>(readF32, &LLParamSDParser::writeTypedValue<F32>);

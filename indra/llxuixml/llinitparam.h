@@ -279,7 +279,7 @@ namespace LLInitParam
 	};
 
 	// used to indicate no matching value to a given name when parsing
-	struct NoValue{};
+	struct NoParamValue{};
 
 	class BaseBlock;
 
