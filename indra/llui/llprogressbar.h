@@ -27,14 +27,14 @@
 #ifndef LL_LLPROGRESSBAR_H
 #define LL_LLPROGRESSBAR_H
 
-#include "llview.h"
+#include "lluictrl.h"
 #include "llframetimer.h"
 
 class LLProgressBar
-	: public LLView
+	: public LLUICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUIImage*>	image_bar,
 								image_fill;
@@ -47,7 +47,7 @@ public:
 	LLProgressBar(const Params&);
 	virtual ~LLProgressBar();
 
-	void setPercent(const F32 percent);
+	void setValue(const LLSD& value);
 
 	/*virtual*/ void draw();
 
