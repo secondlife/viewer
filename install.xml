@@ -56,9 +56,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>5e860b6a9bdadc2909d9228e252c7653</string>
+            <string>3a7263246813ecf9aff5a240892f9641</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20101007.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20101007a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
