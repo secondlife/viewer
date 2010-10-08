@@ -1417,7 +1417,7 @@ void LLModelLoader::run()
 								if ( pSkeletonRootNode )
 								{       
 									//Once we have the root node - start acccessing it's joint components       
-									static const int jointCnt = mJointMap.size();
+									const int jointCnt = mJointMap.size();
 									std::map<std::string, std::string> :: const_iterator jointIt = mJointMap.begin();
 									bool missingID = false;
 									//Loop over all the possible joints within the .dae - using the allowed joint list in the ctor.
@@ -1594,7 +1594,7 @@ void LLModelLoader::run()
 							//with the skeleton are not stored in the same order as they are in the exported joint buffer.
 							//This remaps the skeletal joints to be in the same order as the joints stored in the model.
 							std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();							
-							static const int jointCnt = model->mJointList.size();
+							const int jointCnt = model->mJointList.size();
 							for ( int i=0; i<jointCnt; ++i, ++jointIt )
 							{
 								std::string lookingForJoint = (*jointIt).c_str();
