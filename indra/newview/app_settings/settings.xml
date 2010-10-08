@@ -2699,6 +2699,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ClickActionBuyEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable click to buy actions in tool pie menu</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ClickActionPayEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable click to pay actions in tool pie menu</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DoubleClickAutoPilot</key>
     <map>
       <key>Comment</key>

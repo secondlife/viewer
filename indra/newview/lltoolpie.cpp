@@ -80,9 +80,11 @@ LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
 	mGrabMouseButtonDown( FALSE ),
 	mMouseOutsideSlop( FALSE ),
-	mClickAction(0)
-{ }
-
+	mClickAction(0),
+	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
+	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
+{
+}
 
 BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
 {
@@ -210,12 +212,28 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 				} // else nothing (fall through to touch)
 			}
 		case CLICK_ACTION_PAY:
-			if ((object && object->flagTakesMoney())
-				|| (parent && parent->flagTakesMoney()))
+			if ( mClickActionPayEnabled )
 			{
-				// pay event goes to object actually clicked on
-				mClickActionObject = object;
-				mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+				if ((object && object->flagTakesMoney())
+					|| (parent && parent->flagTakesMoney()))
+				{
+					// pay event goes to object actually clicked on
+					mClickActionObject = object;
+					mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+					if (LLSelectMgr::getInstance()->selectGetAllValid())
+					{
+						// call this right away, since we have all the info we need to continue the action
+						selectionPropertiesReceived();
+					}
+					return TRUE;
+				}
+			}
+			break;
+		case CLICK_ACTION_BUY:
+			if ( mClickActionBuyEnabled )
+			{
+				mClickActionObject = parent;
+				mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
 				if (LLSelectMgr::getInstance()->selectGetAllValid())
 				{
 					// call this right away, since we have all the info we need to continue the action
@@ -224,15 +242,6 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 				return TRUE;
 			}
 			break;
-		case CLICK_ACTION_BUY:
-			mClickActionObject = parent;
-			mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
-			if (LLSelectMgr::getInstance()->selectGetAllValid())
-			{
-				// call this right away, since we have all the info we need to continue the action
-				selectionPropertiesReceived();
-			}
-			return TRUE;
 		case CLICK_ACTION_OPEN:
 			if (parent && parent->allowOpen())
 			{
@@ -392,7 +401,7 @@ U8 final_click_action(LLViewerObject* obj)
 	return click_action;
 }
 
-ECursorType cursor_from_object(LLViewerObject* object)
+ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 {
 	LLViewerObject* parent = NULL;
 	if (object)
@@ -412,7 +421,10 @@ ECursorType cursor_from_object(LLViewerObject* object)
 		}
 		break;
 	case CLICK_ACTION_BUY:
-		cursor = UI_CURSOR_TOOLBUY;
+		if ( mClickActionBuyEnabled )
+		{
+			cursor = UI_CURSOR_TOOLBUY;
+		}
 		break;
 	case CLICK_ACTION_OPEN:
 		// Open always opens the parent.
@@ -422,10 +434,13 @@ ECursorType cursor_from_object(LLViewerObject* object)
 		}
 		break;
 	case CLICK_ACTION_PAY:	
-		if ((object && object->flagTakesMoney())
-			|| (parent && parent->flagTakesMoney()))
+		if ( mClickActionPayEnabled )
 		{
-			cursor = UI_CURSOR_TOOLBUY;
+			if ((object && object->flagTakesMoney())
+				|| (parent && parent->flagTakesMoney()))
+			{
+				cursor = UI_CURSOR_TOOLBUY;
+			}
 		}
 		break;
 	case CLICK_ACTION_ZOOM:
@@ -473,10 +488,16 @@ void LLToolPie::selectionPropertiesReceived()
 			switch (click_action)
 			{
 			case CLICK_ACTION_BUY:
-				handle_buy();
+				if ( LLToolPie::getInstance()->mClickActionBuyEnabled )
+				{
+					handle_buy();
+				}
 				break;
 			case CLICK_ACTION_PAY:
-				handle_give_money_dialog();
+				if ( LLToolPie::getInstance()->mClickActionPayEnabled )
+				{
+					handle_give_money_dialog();
+				}
 				break;
 			case CLICK_ACTION_OPEN:
 				LLFloaterReg::showInstance("openobject");
@@ -517,7 +538,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
 	{
 		show_highlight = true;
-		ECursorType cursor = cursor_from_object(click_action_object);
+		ECursorType cursor = cursorFromObject(click_action_object);
 		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
@@ -570,7 +591,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		switch(click_action)
 		{
+			// NOTE: mClickActionBuyEnabled flag enables/disables BUY action but setting cursor to default is okay
 		case CLICK_ACTION_BUY:
+			// NOTE: mClickActionPayEnabled flag enables/disables PAY action but setting cursor to default is okay
 		case CLICK_ACTION_PAY:
 		case CLICK_ACTION_OPEN:
 		case CLICK_ACTION_ZOOM:
