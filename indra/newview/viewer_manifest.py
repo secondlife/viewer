@@ -259,12 +259,6 @@ class WindowsManifest(ViewerManifest):
             except RuntimeError:
                 print "Skipping llkdu.dll"
 
-            # Get fmod dll, continue if missing
-            try:
-                self.path("fmod.dll")
-            except:
-                print "Skipping fmod.dll"
-
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
@@ -276,6 +270,12 @@ class WindowsManifest(ViewerManifest):
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             self.disable_manifest_check()
+
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
