@@ -210,12 +210,14 @@ void LLHintPopup::draw()
 			}
 			else if (!targetp->isInVisibleChain()) 
 			{
+				// if target is invisible, don't draw, but keep alive in case widget comes back
+				// but do make it so that it allows mouse events to pass through
 				setEnabled(false);
 				setMouseOpaque(false);
-				// if target is invisible, don't draw, but keep alive in case widget comes back
 			}
 			else
 			{
+				// revert back enabled and mouse opaque state in case we disabled it before
 				setEnabled(true);
 				setMouseOpaque(true);
 
