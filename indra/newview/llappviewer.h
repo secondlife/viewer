@@ -66,6 +66,7 @@ public:
 
 	// Application control
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+	void fastQuit(); // Shuts down the viewer immediately after sending a logout message
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
     void earlyExit(const std::string& name, 

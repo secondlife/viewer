@@ -207,7 +207,7 @@ void LLProgressView::setText(const std::string& text)
 
 void LLProgressView::setPercent(const F32 percent)
 {
-	mProgressBar->setPercent(percent);
+	mProgressBar->setValue(percent);
 }
 
 void LLProgressView::setMessage(const std::string& msg)

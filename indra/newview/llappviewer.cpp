@@ -2879,8 +2879,22 @@ void LLAppViewer::forceQuit()
 	LLApp::setQuitting(); 
 }
 
+void LLAppViewer::fastQuit()
+{
+	if (LLStartUp::getStartupState() >= STATE_STARTED)
+	{
+		sendLogoutRequest();
+	}
+	_exit(isError());	
+}
+
 void LLAppViewer::requestQuit()
 {
+	if (gSavedSettings.getBOOL("FastQuit"))
+	{
+		fastQuit();
+	}
+
 	llinfos << "requestQuit" << llendl;
 
 	LLViewerRegion* region = gAgent.getRegion();

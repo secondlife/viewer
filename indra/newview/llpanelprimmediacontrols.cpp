@@ -519,7 +519,7 @@ void LLPanelPrimMediaControls::updateShape()
 			if(LLPluginClassMediaOwner::MEDIA_LOADING == media_plugin->getStatus())
 			{	
 				mMediaProgressPanel->setVisible(true);
-				mMediaProgressBar->setPercent(media_plugin->getProgressPercent());
+				mMediaProgressBar->setValue(media_plugin->getProgressPercent());
 			}
 			else
 			{
