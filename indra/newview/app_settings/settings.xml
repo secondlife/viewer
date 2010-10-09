@@ -2963,6 +2963,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>FastQuit</key>
+      <map>
+        <key>Comment</key>
+        <string>Quits as quickly as possible, only sending logout request before forcefully terminating.  Use with care, as this might result in data corruption or loss.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
