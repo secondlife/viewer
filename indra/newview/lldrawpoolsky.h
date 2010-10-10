@@ -58,7 +58,6 @@ public:
 
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void renderForSelect();
 	/*virtual*/ void endRenderPass(S32 pass);
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
 

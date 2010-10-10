@@ -183,68 +183,6 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 }
 
 
-void LLDrawPoolTree::renderForSelect()
-{
-	if (mDrawFace.empty())
-	{
-		return;
-	}
-
-	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
-
-	LLGLSObjectSelectAlpha gls_alpha;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	gGL.setSceneBlendType(LLRender::BT_REPLACE);
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
-
-	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
-	{
-		renderTree(TRUE);
-	}
-	else
-	{
-		gGL.getTexUnit(sDiffTex)->bind(mTexturep);
-				
-		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
-		{
-			LLFace *face = *iter;
-			LLDrawable *drawablep = face->getDrawable();
-
-			if (drawablep->isDead() || face->mVertexBuffer.isNull())
-			{
-				continue;
-			}
-
-			// Render each of the trees
-			LLVOTree *treep = (LLVOTree *)drawablep->getVObj().get();
-
-			LLColor4U color(255,255,255,255);
-
-			if (treep->mGLName != 0)
-			{
-				S32 name = treep->mGLName;
-				color = LLColor4U((U8)(name >> 16), (U8)(name >> 8), (U8)name, 255);
-				
-				LLFacePool::LLOverrideFaceColor col(this, color);
-				
-				face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-				face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
-				gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices());
-			}
-		}
-	}
-
-	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-}
-
 void LLDrawPoolTree::renderTree(BOOL selecting)
 {
 	LLGLState normalize(GL_NORMALIZE, TRUE);

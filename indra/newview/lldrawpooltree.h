@@ -62,7 +62,6 @@ public:
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void renderForSelect();
 	/*virtual*/ BOOL verify() const;
 	/*virtual*/ LLViewerTexture *getTexture();
 	/*virtual*/ LLViewerTexture *getDebugTexture();

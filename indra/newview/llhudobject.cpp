@@ -284,27 +284,6 @@ void LLHUDObject::renderAll()
 }
 
 // static
-void LLHUDObject::renderAllForSelect()
-{
-	LLHUDObject *hud_objp;
-	
-	hud_object_list_t::iterator object_it;
-	for (object_it = sHUDObjects.begin(); object_it != sHUDObjects.end(); )
-	{
-		hud_object_list_t::iterator cur_it = object_it++;
-		hud_objp = (*cur_it);
-		if (hud_objp->getNumRefs() == 1)
-		{
-			sHUDObjects.erase(cur_it);
-		}
-		else if (hud_objp->isVisible())
-		{
-			hud_objp->renderForSelect();
-		}
-	}
-}
-
-// static
 void LLHUDObject::renderAllForTimer()
 {
 	LLHUDObject *hud_objp;

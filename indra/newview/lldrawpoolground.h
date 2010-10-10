@@ -47,7 +47,6 @@ public:
 
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void renderForSelect();
 };
 
 #endif // LL_LLDRAWPOOLGROUND_H

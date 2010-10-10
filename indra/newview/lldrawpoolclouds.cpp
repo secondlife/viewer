@@ -95,6 +95,3 @@ void LLDrawPoolClouds::render(S32 pass)
 }
 
 
-void LLDrawPoolClouds::renderForSelect()
-{
-}

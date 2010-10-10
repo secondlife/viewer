@@ -3986,29 +3986,18 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		{
 			gDisplaySwapBuffers = FALSE;
 			gDepthDirty = TRUE;
-			if (type == SNAPSHOT_TYPE_OBJECT_ID)
-			{
-				glClearColor(0.f, 0.f, 0.f, 0.f);
-				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-				LLViewerCamera::getInstance()->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));
-				setup3DRender();
-				gObjectList.renderPickList(gViewerWindow->getWindowRectScaled(), FALSE, FALSE);
+			const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+
+			if (LLPipeline::sRenderDeferred)
+			{
+				display(do_rebuild, scale_factor, subfield, FALSE);
 			}
 			else
 			{
-				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					display(do_rebuild, scale_factor, subfield, FALSE);
-				}
-				else
-				{
-					display(do_rebuild, scale_factor, subfield, TRUE);
-					// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-					render_ui(scale_factor, subfield);
-				}
+				display(do_rebuild, scale_factor, subfield, TRUE);
+				// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
+				render_ui(scale_factor, subfield);
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4031,7 +4020,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 				}
 				
-				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
+				if (type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,

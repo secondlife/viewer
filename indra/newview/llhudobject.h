@@ -100,7 +100,6 @@ protected:
 	~LLHUDObject();
 
 	virtual void render() = 0;
-	virtual void renderForSelect() {};
 	virtual void renderForTimer() {};
 	
 protected:

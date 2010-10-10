@@ -64,7 +64,6 @@ public:
 	/*virtual*/ void endRenderPass(S32 pass);
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void renderForSelect();
 
 	/*virtual*/ S32 getNumDeferredPasses();
 	/*virtual*/ void beginDeferredPass(S32 pass);

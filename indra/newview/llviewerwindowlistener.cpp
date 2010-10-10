@@ -54,7 +54,7 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 //  saveSnapshotArgs["type"] = LLSD::String();
     add("saveSnapshot",
         "Save screenshot: [\"filename\"], [\"width\"], [\"height\"], [\"showui\"], [\"rebuild\"], [\"type\"]\n"
-        "type: \"COLOR\", \"DEPTH\", \"OBJECT_ID\"\n"
+        "type: \"COLOR\", \"DEPTH\"\n"
         "Post on [\"reply\"] an event containing [\"ok\"]",
         &LLViewerWindowListener::saveSnapshot,
         saveSnapshotArgs);
@@ -71,7 +71,6 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 #define tp(name) types[#name] = LLViewerWindow::SNAPSHOT_TYPE_##name
     tp(COLOR);
     tp(DEPTH);
-    tp(OBJECT_ID);
 #undef  tp
     // Our add() call should ensure that the incoming LLSD does in fact
     // contain our required arguments. Deal with the optional ones.
