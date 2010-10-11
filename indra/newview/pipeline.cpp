@@ -870,6 +870,11 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
 }
 
+BOOL LLPipeline::canUseAntiAliasing() const
+{
+	return (gSavedSettings.getBOOL("RenderUseFBO"));
+}
+
 void LLPipeline::unloadShaders()
 {
 	LLMemType mt_us(LLMemType::MTYPE_PIPELINE_UNLOAD_SHADERS);
