@@ -9049,7 +9049,10 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 
 BOOL LLPipeline::hasRenderType(const U32 type) const
 {
-	return mRenderTypeEnabled[type];
+    // STORM-365 : LLViewerJointAttachment::setAttachmentVisibility() is setting type to 0 to actually mean "do not render"
+    // We then need to test that value here and return FALSE to prevent attachment to render (in mouselook for instance)
+    // TODO: reintroduce RENDER_TYPE_NONE in LLRenderTypeMask and initialize its mRenderTypeEnabled[RENDER_TYPE_NONE] to FALSE explicitely
+	return (type == 0 ? FALSE : mRenderTypeEnabled[type]);
 }
 
 void LLPipeline::setRenderTypeMask(U32 type, ...)
