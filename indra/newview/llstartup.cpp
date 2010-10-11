@@ -232,6 +232,8 @@ static LLHost gFirstSim;
 static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
+static bool mLoginStatePastUI = false;
+
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -707,9 +709,9 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
 
-		// if auto login is on and setting to quit if the login page is activated
-		// is enabled, then go ahead and exit
-		if ( show_connect_box && gSavedSettings.getBOOL("AutoLogin") && gSavedSettings.getBOOL("QuitOnLoginActivated") )
+		// if we've gone backwards in the login state machine, to this state where we show the UI
+		// AND the debug setting to exit in this case is true, then go ahead and bail quickly
+		if ( mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated") )
 		{
 			// no requirement for notification here - just exit
 			LLAppViewer::instance()->earlyExitNoNotify();
@@ -792,6 +794,11 @@ bool idle_startup()
 
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
+		// when we get to this state, we've already been past the login UI
+		// (possiblely automatically) - flag this so we can test in the 
+		// STATE_LOGIN_SHOW state if we've gone backwards
+		mLoginStatePastUI = true;
+
 		// Don't do anything.  Wait for the login view to call the login_callback,
 		// which will push us to the next state.
 
@@ -817,6 +824,11 @@ bool idle_startup()
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
 		}
+
+		// when we get to this state, we've already been past the login UI
+		// (possiblely automatically) - flag this so we can test in the 
+		// STATE_LOGIN_SHOW state if we've gone backwards
+		mLoginStatePastUI = true;
 
 		// save the credentials                                                                                        
 		std::string userid = "unknown";                                                                                
