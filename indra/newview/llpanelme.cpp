@@ -176,6 +176,8 @@ LLPanelMyProfileEdit::LLPanelMyProfileEdit()
 	buildFromFile( "panel_edit_profile.xml");
 
 	setAvatarId(gAgent.getID());
+
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLPanelMyProfileEdit::onAvatarNameChanged, this));
 }
 
 void LLPanelMyProfileEdit::onOpen(const LLSD& key)
@@ -186,11 +188,6 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	// is loaded.
 	enableEditing(false);
 
-	// Only allow changing name if this region/grid supports it
-	bool use_display_names = LLAvatarNameCache::useDisplayNames();
-	LLUICtrl* set_name = getChild<LLUICtrl>("set_name");
-	set_name->setVisible(use_display_names);
-	set_name->setEnabled(use_display_names);
 	// force new avatar name fetch so we have latest update time
 	LLAvatarNameCache::fetch(gAgent.getID()); 
 	LLPanelMyProfile::onOpen(getAvatarId());
@@ -206,6 +203,23 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 		{
 			LLFirstUse::setDisplayName(false);
 		}
+	}
+
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( true );
+		getChild<LLUICtrl>("user_slid")->setVisible( true );
+		getChild<LLUICtrl>("display_name_label")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setEnabled( true );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( false );
+		getChild<LLUICtrl>("user_slid")->setVisible( false );
+		getChild<LLUICtrl>("display_name_label")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setEnabled( false );
 	}
 }
 
@@ -267,9 +281,26 @@ void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarNam
 	{
 		getChild<LLUICtrl>("user_name_small")->setVisible( false );
 		getChild<LLUICtrl>("user_name")->setVisible( true );
+	}
 
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( true );
+		getChild<LLUICtrl>("user_slid")->setVisible( true );
+		getChild<LLUICtrl>("display_name_label")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setEnabled( true );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( false );
+		getChild<LLUICtrl>("user_slid")->setVisible( false );
+		getChild<LLUICtrl>("display_name_label")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setEnabled( false );
 	}
 }
+
 
 void LLPanelMyProfileEdit::onAvatarNameChanged()
 {
