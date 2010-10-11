@@ -71,7 +71,7 @@ public:
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
     void earlyExit(const std::string& name, 
 				   const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
-	void LLAppViewer::earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
+	void earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
     void forceExit(S32 arg); // exit() immediately (after some cleanup).
     void abortQuit();  // Called to abort a quit request.
 
