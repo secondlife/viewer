@@ -565,7 +565,10 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-			mLandType->setText(LLTrans::getString(regionp->getSimProductName()));
+
+			std::string land_type;
+			bool is_land_type_localized = LLTrans::findString(land_type, regionp->getSimProductName());
+			mLandType->setText(is_land_type_localized ? land_type : regionp->getSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel

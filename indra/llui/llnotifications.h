@@ -504,7 +504,7 @@ public:
 	std::string getLabel() const;
 	std::string getURL() const;
 	S32 getURLOption() const;
-    S32 getURLOpenExternally() const;
+	S32 getURLOpenExternally() const;
 	
 	const LLNotificationFormPtr getForm();
 
