@@ -850,7 +850,7 @@ LLParcel* LLViewerParcelMgr::getCollisionParcel() const
 
 void LLViewerParcelMgr::render()
 {
-	if (mSelected && mRenderSelection)
+	if (mSelected && mRenderSelection && gSavedSettings.getBOOL("RenderParcelSelection"))
 	{
 		// Rendering is done in agent-coordinates, so need to supply
 		// an appropriate offset to the render code.

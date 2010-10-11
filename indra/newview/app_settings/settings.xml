@@ -8505,6 +8505,17 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
+    <key>RenderParcelSelection</key>
+    <map>
+      <key>Comment</key>
+      <string>Display selected parcel outline</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RotateRight</key>
     <map>
       <key>Comment</key>
