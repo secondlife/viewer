@@ -102,7 +102,13 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("gamma")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-
+	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
+	/* Enable to reset fsaa value to disabled when feature is not available.
+	if (!gPipeline.canUseAntiAliasing())
+	{
+		getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer) 0);
+	}
+	*/
 }
 
 //============================================================================
