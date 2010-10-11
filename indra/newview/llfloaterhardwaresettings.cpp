@@ -56,7 +56,6 @@ LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
 	  mFogRatio(0.0),
 	  mProbeHardwareOnStartup(FALSE)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 }
 
 LLFloaterHardwareSettings::~LLFloaterHardwareSettings()

@@ -121,7 +121,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 
 				res = build_func(key);
 				
-				bool success = LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
+				bool success = res->buildFromFile(xui_file, NULL);
 				if (!success)
 				{
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
@@ -284,9 +284,9 @@ void LLFloaterReg::showInitialVisibleInstances()
 	{
 		const std::string& name = iter->first;
 		std::string controlname = getVisibilityControlName(name);
-		if (LLUI::sSettingGroups["floater"]->controlExists(controlname))
+		if (LLFloater::getControlGroup()->controlExists(controlname))
 		{
-			BOOL isvis = LLUI::sSettingGroups["floater"]->getBOOL(controlname);
+			BOOL isvis = LLFloater::getControlGroup()->getBOOL(controlname);
 			if (isvis)
 			{
 				showInstance(name, LLSD()); // keyed floaters shouldn't set save_vis to true
@@ -340,7 +340,7 @@ std::string LLFloaterReg::getRectControlName(const std::string& name)
 std::string LLFloaterReg::declareRectControl(const std::string& name)
 {
 	std::string controlname = getRectControlName(name);
-	LLUI::sSettingGroups["floater"]->declareRect(controlname, LLRect(),
+	LLFloater::getControlGroup()->declareRect(controlname, LLRect(),
 												 llformat("Window Position and Size for %s", name.c_str()),
 												 TRUE);
 	return controlname;
@@ -358,7 +358,7 @@ std::string LLFloaterReg::getVisibilityControlName(const std::string& name)
 std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 {
 	std::string controlname = getVisibilityControlName(name);
-	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, FALSE,
+	LLFloater::getControlGroup()->declareBOOL(controlname, FALSE,
 												 llformat("Window Visibility for %s", name.c_str()),
 												 TRUE);
 	return controlname;
@@ -368,7 +368,7 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 std::string LLFloaterReg::declareDockStateControl(const std::string& name)
 {
 	std::string controlname = getDockStateControlName(name);
-	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, TRUE,
+	LLFloater::getControlGroup()->declareBOOL(controlname, TRUE,
 												 llformat("Window Docking state for %s", name.c_str()),
 												 TRUE);
 	return controlname;
@@ -391,11 +391,11 @@ void LLFloaterReg::registerControlVariables()
 	for (build_map_t::iterator iter = sBuildMap.begin(); iter != sBuildMap.end(); ++iter)
 	{
 		const std::string& name = iter->first;
-		if (LLUI::sSettingGroups["floater"]->controlExists(getRectControlName(name)))
+		if (LLFloater::getControlGroup()->controlExists(getRectControlName(name)))
 		{
 			declareRectControl(name);
 		}
-		if (LLUI::sSettingGroups["floater"]->controlExists(getVisibilityControlName(name)))
+		if (LLFloater::getControlGroup()->controlExists(getVisibilityControlName(name)))
 		{
 			declareVisibilityControl(name);
 		}
@@ -419,7 +419,7 @@ void LLFloaterReg::initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LL
 	// Get the visibility control name for the floater
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
 	// Set the control value to the floater visibility control (Sets the value as well)
-	ctrl->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	ctrl->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 }
 
 // callback args may use "floatername.key" format

@@ -72,7 +72,6 @@ LLFloaterMap::LLFloaterMap(const LLSD& key)
 	  mTextBoxSouthWest(NULL),
 	  mMap(NULL)
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_map.xml", FALSE);
 }
 
 LLFloaterMap::~LLFloaterMap()
@@ -96,7 +95,7 @@ BOOL LLFloaterMap::postBuild()
 	mTextBoxNorthWest = getChild<LLTextBox> ("floater_map_northwest");
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
+	
 	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
 
@@ -125,7 +124,9 @@ BOOL LLFloaterMap::postBuild()
 
 BOOL LLFloaterMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	LLFloaterReg::showInstance("world_map");
+	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
+	std::string floater_to_show = this->isMinimized() ? "mini_map" : "world_map";
+	LLFloaterReg::showInstance(floater_to_show);
 	return TRUE;
 }
 
@@ -258,7 +259,7 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterMap::handleZoom(const LLSD& userdata)
 {
 	std::string level = userdata.asString();
-
+	
 	F32 scale = 0.0f;
 	if (level == std::string("close"))
 		scale = LLNetMap::MAP_SCALE_MAX;

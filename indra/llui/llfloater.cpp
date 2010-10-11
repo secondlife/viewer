@@ -36,6 +36,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -499,7 +500,7 @@ void LLFloater::storeRectControl()
 {
 	if( mRectControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setRect( mRectControl, getRect() );
+		getControlGroup()->setRect( mRectControl, getRect() );
 	}
 }
 
@@ -507,7 +508,7 @@ void LLFloater::storeVisibilityControl()
 {
 	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
+		getControlGroup()->setBOOL( mVisibilityControl, getVisible() );
 	}
 }
 
@@ -515,7 +516,7 @@ void LLFloater::storeDockStateControl()
 {
 	if( !sQuitting && mDocStateControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mDocStateControl, isDocked() );
+		getControlGroup()->setBOOL( mDocStateControl, isDocked() );
 	}
 }
 
@@ -525,7 +526,7 @@ LLRect LLFloater::getSavedRect() const
 
 	if (mRectControl.size() > 1)
 	{
-		rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		rect = getControlGroup()->getRect(mRectControl);
 	}
 
 	return rect;
@@ -548,6 +549,13 @@ std::string LLFloater::getControlName(const std::string& name, const LLSD& key)
 	}
 
 	return ctrl_name;
+}
+
+// static
+LLControlGroup*	LLFloater::getControlGroup()
+{
+	// Floater size, position, visibility, etc are saved in per-account settings.
+	return LLUI::sSettingGroups["account"];
 }
 
 void LLFloater::setVisible( BOOL visible )
@@ -805,7 +813,7 @@ void LLFloater::applyRectControl()
 	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		if (rect.getWidth() > 0 && rect.getHeight() > 0)
 		{
 			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
@@ -821,7 +829,7 @@ void LLFloater::applyDockState()
 {
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
+		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
 		setDocked(dockState);
 	}
 
@@ -2383,7 +2391,9 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 
 		// Attempt to close floater.  This will cause the "do you want to save"
 		// dialogs to appear.
-		if (floaterp->canClose() && !floaterp->isDead())
+		// Skip invisible floaters if we're not quitting (STORM-192).
+		if (floaterp->canClose() && !floaterp->isDead() &&
+			(app_quitting || floaterp->getVisible()))
 		{
 			floaterp->closeFloater(app_quitting);
 		}
@@ -2806,7 +2816,8 @@ LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
+	LLXUIParser parser;
+	parser.readXUI(node, params, filename); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2814,8 +2825,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		setupParamsForExport(output_params, parent);
         Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, &default_params);
 	}
 
 	// Default floater position to top-left corner of screen
@@ -2909,4 +2919,65 @@ bool LLFloater::isMinimized(const LLFloater* floater)
 bool LLFloater::isVisible(const LLFloater* floater)
 {
     return floater && floater->getVisible();
+}
+
+static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+
+bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_node)
+{
+	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LLXMLNodePtr root;
+
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+			return false;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	{
+		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		return false;
+	}
+	
+	// root must be called floater
+	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
+	{
+		llwarns << "Root node should be named floater in: " << filename << llendl;
+		return false;
+	}
+	
+	bool res = true;
+	
+	lldebugs << "Building floater " << filename << llendl;
+	LLUICtrlFactory::instance().pushFileName(filename);
+	{
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.push_front(&getFactoryMap());
+		}
+
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		getCommitCallbackRegistrar().pushScope();
+		getEnableCallbackRegistrar().pushScope();
+		
+		res = initFloaterXML(root, getParent(), filename, output_node);
+
+		setXMLFilename(filename);
+		
+		getCommitCallbackRegistrar().popScope();
+		getEnableCallbackRegistrar().popScope();
+		
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.pop_front();
+		}
+	}
+	LLUICtrlFactory::instance().popFileName();
+	
+	return res;
 }

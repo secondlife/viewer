@@ -161,7 +161,6 @@ LLUUID LLFloaterRegionInfo::sRequestInvoice;
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 	: LLFloater(seed)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", FALSE);
 }
 
 BOOL LLFloaterRegionInfo::postBuild()
@@ -174,32 +173,32 @@ BOOL LLFloaterRegionInfo::postBuild()
 	mInfoPanels.push_back(panel);
 	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
 	
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_general.xml");
+	panel->buildFromFile("panel_region_general.xml");
 	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
 	panel = new LLPanelRegionDebugInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
+	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTextureInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_texture.xml");
+	panel->buildFromFile("panel_region_texture.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_terrain.xml");
+	panel->buildFromFile("panel_region_terrain.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_estate.xml");
+	panel->buildFromFile("panel_region_estate.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateCovenant;
 	mInfoPanels.push_back(panel);
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_covenant.xml");
+	panel->buildFromFile("panel_region_covenant.xml");
 	mTab->addTabPanel(panel);
 
 	gMessageSystem->setHandlerFunc(

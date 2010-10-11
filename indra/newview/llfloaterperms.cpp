@@ -37,7 +37,6 @@
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_perm_prefs.xml");
 	mCommitCallbackRegistrar.add("Perms.Copy",	boost::bind(&LLFloaterPerms::onCommitCopy, this));
 	mCommitCallbackRegistrar.add("Perms.OK",	boost::bind(&LLFloaterPerms::onClickOK, this));
 	mCommitCallbackRegistrar.add("Perms.Cancel",	boost::bind(&LLFloaterPerms::onClickCancel, this));

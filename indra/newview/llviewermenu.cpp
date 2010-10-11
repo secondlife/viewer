@@ -62,6 +62,7 @@
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
+#include "llhints.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimview.h"
@@ -6573,6 +6574,16 @@ class LLToggleControl : public view_listener_t
 		std::string control_name = userdata.asString();
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
+
+        // Doubleclick actions - there can be only one
+        if ((control_name == "DoubleClickAutoPilot") && !checked)
+        {
+			gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
+        }
+        else if ((control_name == "DoubleClickTeleport") && !checked)
+        {
+			gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
+        }
 		return true;
 	}
 };
@@ -7262,7 +7273,7 @@ void handle_load_from_xml(void*)
 	{
 		std::string filename = picker.getFirstFile();
 		LLFloater* floater = new LLFloater(LLSD());
-		LLUICtrlFactory::getInstance()->buildFloater(floater, filename, NULL);
+		floater->buildFromFile(filename);
 	}
 }
 
@@ -7737,6 +7748,18 @@ public:
 	LLUploadCostCalculator()
 	{
 		calculateCost();
+	}
+};
+
+class LLToggleUIHints : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool ui_hints_enabled = gSavedSettings.getBOOL("EnableUIHints");
+		// toggle
+		ui_hints_enabled = !ui_hints_enabled;
+		gSavedSettings.setBOOL("EnableUIHints", ui_hints_enabled);
+		return true;
 	}
 };
 
@@ -8220,4 +8243,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
+	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 }

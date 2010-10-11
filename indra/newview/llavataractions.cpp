@@ -49,6 +49,7 @@
 #include "llfloaterpay.h"
 #include "llfloaterworldmap.h"
 #include "llgiveinventory.h"
+#include "llinventorybridge.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llinventorypanel.h"
 #include "llimview.h"			// for gIMMgr
@@ -443,16 +444,26 @@ namespace action_give_inventory
 	}
 
 	/**
-	 * Checks My Inventory visibility.
+	 * @return active inventory panel, or NULL if there's no such panel
 	 */
-	static bool is_give_inventory_acceptable()
+	static LLInventoryPanel* get_active_inventory_panel()
 	{
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 		if (!active_panel)
 		{
 			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return false;
 		}
+
+		return active_panel;
+	}
+
+	/**
+	 * Checks My Inventory visibility.
+	 */
+	static bool is_give_inventory_acceptable()
+	{
+		LLInventoryPanel* active_panel = get_active_inventory_panel();
+		if (!active_panel) return false;
 
 		// check selection in the panel
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
@@ -543,12 +554,8 @@ namespace action_give_inventory
 			return;
 		}
 
-		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
-		{
-			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return;
-		}
+		LLInventoryPanel* active_panel = get_active_inventory_panel();
+		if (!active_panel) return;
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
 		if (inventory_selected_uuids.empty())
@@ -632,12 +639,8 @@ namespace action_give_inventory
 		llassert(avatar_names.size() == avatar_uuids.size());
 
 
-		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
-		{
-			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return;
-		}
+		LLInventoryPanel* active_panel = get_active_inventory_panel();
+		if (!active_panel) return;
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
 		if (inventory_selected_uuids.empty())
@@ -670,6 +673,53 @@ void LLAvatarActions::shareWithAvatars()
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 	picker->openFriendsTab();
 	LLNotificationsUtil::add("ShareNotification");
+}
+
+
+// static
+bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NULL*/)
+{
+	using namespace action_give_inventory;
+
+	if (!inv_panel)
+	{
+		LLInventoryPanel* active_panel = get_active_inventory_panel();
+		if (!active_panel) return false;
+		inv_panel = active_panel;
+	}
+
+	// check selection in the panel
+	LLFolderView* root_folder = inv_panel->getRootFolder();
+	const uuid_set_t inventory_selected_uuids = root_folder->getSelectionList();
+	if (inventory_selected_uuids.empty()) return false; // nothing selected
+
+	bool can_share = true;
+	uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
+	const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+	for (; it != it_end; ++it)
+	{
+		LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+		// any category can be offered.
+		if (inv_cat)
+		{
+			continue;
+		}
+
+		// check if inventory item can be given
+		LLFolderViewItem* item = root_folder->getItemByID(*it);
+		if (!item) return false;
+		LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(item->getListener());
+		if (bridge && bridge->canShare())
+		{
+			continue;
+		}
+
+		// there are neither item nor category in inventory
+		can_share = false;
+		break;
+	}
+
+	return can_share;
 }
 
 // static

@@ -141,6 +141,7 @@ public:
 
 	// Don't export top/left for rect, only height/width
 	static void setupParamsForExport(Params& p, LLView* parent);
+	bool buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	void initFromParams(const LLFloater::Params& p);
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
@@ -206,7 +207,8 @@ public:
 	LLRect			getSavedRect() const;
 	bool			hasSavedRect() const;
 
-	static std::string	getControlName(const std::string& name, const LLSD& key);
+	static std::string		getControlName(const std::string& name, const LLSD& key);
+	static LLControlGroup*	getControlGroup();
 
 	bool			isMinimizeable() const{ return mCanMinimize; }
 	bool			isCloseable() const{ return mCanClose; }

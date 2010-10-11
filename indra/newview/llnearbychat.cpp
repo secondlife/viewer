@@ -115,7 +115,7 @@ void    LLNearbyChat::applySavedVariables()
 {
 	if (mRectControl.size() > 1)
 	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		const LLRect& rect = LLFloater::getControlGroup()->getRect(mRectControl);
 		if(!rect.isEmpty() && rect.isValid())
 		{
 			reshape(rect.getWidth(), rect.getHeight());
@@ -124,7 +124,7 @@ void    LLNearbyChat::applySavedVariables()
 	}
 
 
-	if(!LLUI::sSettingGroups["floater"]->controlExists(mDocStateControl))
+	if(!LLFloater::getControlGroup()->controlExists(mDocStateControl))
 	{
 		setDocked(true);
 	}
@@ -132,7 +132,7 @@ void    LLNearbyChat::applySavedVariables()
 	{
 		if (mDocStateControl.size() > 1)
 		{
-			bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
+			bool dockState = LLFloater::getControlGroup()->getBOOL(mDocStateControl);
 			setDocked(dockState);
 		}
 	}

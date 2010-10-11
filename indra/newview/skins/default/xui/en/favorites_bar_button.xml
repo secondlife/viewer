@@ -22,6 +22,6 @@
  pad_right="9"
  scale_image="true"
  tab_stop="false"
- top="0"
+ bottom="0"
  use_ellipses="true"
  width="140" />

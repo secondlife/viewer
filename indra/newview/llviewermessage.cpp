@@ -50,6 +50,7 @@
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
+#include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -82,6 +83,7 @@
 #include "lluri.h"
 #include "llviewergenericmessage.h"
 #include "llviewermenu.h"
+#include "llviewerjoystick.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
@@ -931,6 +933,15 @@ protected:
 //one global instance to bind them
 LLOpenTaskOffer* gNewInventoryObserver=NULL;
 
+class LLNewInventoryHintObserver : public LLInventoryAddedObserver
+{
+protected:
+	/*virtual*/ void done()
+	{
+		LLFirstUse::newInventory();
+	}
+};
+
 void start_new_inventory_observer()
 {
 	if (!gNewInventoryObserver) //task offer observer 
@@ -946,6 +957,8 @@ void start_new_inventory_observer()
 		gInventoryMoveObserver = new LLViewerInventoryMoveFromWorldObserver;
 		gInventory.addObserver(gInventoryMoveObserver);
 	}
+
+	gInventory.addObserver(new LLNewInventoryHintObserver());
 }
 
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
@@ -1872,6 +1885,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
+
+	LLFirstUse::newInventory();
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
@@ -3189,6 +3204,8 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 	U32 teleport_flags = 0x0;
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 
+	LL_DEBUGS("Messaging") << "Got TeleportStart with TeleportFlags=" << teleport_flags << ". gTeleportDisplay: " << gTeleportDisplay << ", gAgent.mTeleportState: " << gAgent.getTeleportState() << LL_ENDL;
+
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
@@ -3207,6 +3224,7 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 		make_ui_sound("UISndTeleportOut");
 		
+		LL_INFOS("Messaging") << "Teleport initiated by remote TeleportStart message with TeleportFlags: " <<  teleport_flags << LL_ENDL;
 		// Don't call LLFirstUse::useTeleport here because this could be
 		// due to being killed, which would send you home, not to a Telehub
 	}
@@ -3548,6 +3566,12 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if( is_teleport )
 	{
+		if (gAgent.getTeleportKeepsLookAt())
+		{
+			// *NOTE: the LookAt data we get from the sim here doesn't
+			// seem to be useful, so get it from the camera instead
+			look_at = LLViewerCamera::getInstance()->getAtAxis();
+		}
 		// Force the camera back onto the agent, don't animate.
 		gAgentCamera.setFocusOnAvatar(TRUE, FALSE);
 		gAgentCamera.slamLookAt(look_at);
@@ -3594,7 +3618,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			LLTracker::stopTracking(NULL);
 		}
-		else if ( is_teleport )
+		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() )
 		{
 			//look at the beacon
 			LLVector3 global_agent_pos = agent_pos;
@@ -4203,13 +4227,11 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 
 	// Don't play sounds from a region with maturity above current agent maturity
 	LLVector3d pos_global = objectp->getPositionGlobal();
-	if( !gAgent.canAccessMaturityAtGlobal( pos_global ) )
+	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
-		return;
-	}
-	
 	// Add audioData starts a transfer internally.
 	sourcep->addAudioData(datap, FALSE);
+}
 }
 
 void process_attached_sound(LLMessageSystem *msg, void **user_data)
@@ -5866,7 +5888,18 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
-		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+		if( gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL )
+		{
+			// To prevent TeleportStart messages re-activating the progress screen right
+			// after tp, keep the teleport state and let progress screen clear it after a short delay
+			// (progress screen is active but not visible)  *TODO: remove when SVC-5290 is fixed
+			gTeleportDisplayTimer.reset();
+			gTeleportDisplay = TRUE;
+		}
+		else
+		{
+			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+		}
 	}
 
 	// Sim tells us whether the new position is off the ground
@@ -5882,8 +5915,10 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	gAgent.setPositionAgent(pos);
 	gAgentCamera.slamLookAt(look_at);
 
-	// likewise make sure the camera is behind the avatar
-	gAgentCamera.resetView(TRUE, TRUE);
+	if ( !(gAgent.getTeleportKeepsLookAt() && LLViewerJoystick::getInstance()->getOverrideCamera()) )
+	{
+		gAgentCamera.resetView(TRUE, TRUE);
+	}
 
 	// send camera update to new region
 	gAgentCamera.updateCamera();
@@ -6418,7 +6453,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -6552,7 +6587,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

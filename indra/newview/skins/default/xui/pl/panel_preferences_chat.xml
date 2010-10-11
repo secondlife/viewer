@@ -71,7 +71,7 @@
 		<combo_box.item name="Hungarian" label="Magyar (Węgierski)" />
 		<combo_box.item name="Dutch" label="Nederlands (Niderlandzki)" />
 		<combo_box.item name="Polish" label="Polski" />
-		<combo_box.item name="Portugese" label="Portugués (Portugalski)" />
+		<combo_box.item name="Portugese" label="Português (Portugalski)" />
 		<combo_box.item name="Russian" label="Русский (Rosyjski)" />
 		<combo_box.item name="Turkish" label="Türkçe (Turecki)" />
 		<combo_box.item name="Ukrainian" label="Українська (Ukraiński)" />

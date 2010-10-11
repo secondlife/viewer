@@ -63,6 +63,39 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	return name1 < name2;
 }
 
+struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
+{
+	Mandatory<LLWearableItemsList::Params> wearable_list;
+
+	outfit_accordion_tab_params()
+	:	wearable_list("wearable_items_list")
+	{}
+};
+
+const outfit_accordion_tab_params& get_accordion_tab_params()
+{
+	static outfit_accordion_tab_params tab_params;
+	static bool initialized = false;
+	if (!initialized)
+	{
+		initialized = true;
+
+		LLXMLNodePtr xmlNode;
+		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
+		{
+			LLXUIParser parser;
+			parser.readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
+		}
+		else
+		{
+			llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
+		}
+	}
+
+	return tab_params;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 class LLOutfitListGearMenu
@@ -85,7 +118,7 @@ public:
 
 		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
 
-		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitsList::isActionEnabled, mOutfitList, _2));
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
 		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
@@ -155,29 +188,13 @@ private:
 
 	void onTakeOff()
 	{
-		// Take off selected items if there are any
-		if (mOutfitList->hasItemSelected())
-		{
-			uuid_vec_t selected_uuids;
-			mOutfitList->getSelectedItemsUUIDs(selected_uuids);
-
-			for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-			{
-				if (get_is_item_worn(*it))
-				{
-					LLAppearanceMgr::instance().removeItemFromAvatar(*it);
-				}
-			}
-		}
-		else // or take off the whole selected outfit if no items specified.
-		{
+		// Take off selected outfit.
 			const LLUUID& selected_outfit_id = getSelectedOutfitID();
 			if (selected_outfit_id.notNull())
 			{
 				LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
 			}
 		}
-	}
 
 	void onRename()
 	{
@@ -207,6 +224,20 @@ private:
 		}
 
 		LLAgentWearables::createWearable(type, true);
+	}
+
+	bool onEnable(LLSD::String param)
+	{
+		// Handle the "Wear - Replace Current Outfit" menu option specially
+		// because LLOutfitList::isActionEnabled() checks whether it's allowed
+		// to wear selected outfit OR selected items, while we're only
+		// interested in the outfit (STORM-183).
+		if ("wear" == param)
+		{
+			return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
+		}
+
+		return mOutfitList->isActionEnabled(param);
 	}
 
 	bool onVisible(LLSD::String param)
@@ -437,9 +468,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		std::string name = cat->getName();
 
-		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
-		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		outfit_accordion_tab_params tab_params(get_accordion_tab_params());
+		LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
 		if (!tab) continue;
+		LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
+		wearable_list->setShape(tab->getLocalRect());
+		tab->addChild(wearable_list);
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -456,7 +490,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			mAccordion->removeCollapsibleCtrl(tab);
 
 			// kill removed tab
-			tab->die();
+				tab->die();
 			continue;
 		}
 
@@ -729,19 +763,6 @@ bool LLOutfitsList::hasItemSelected()
 //////////////////////////////////////////////////////////////////////////
 // Private methods
 //////////////////////////////////////////////////////////////////////////
-LLXMLNodePtr LLOutfitsList::getAccordionTabXMLNode()
-{
-	LLXMLNodePtr xmlNode = NULL;
-	bool success = LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode);
-	if (!success)
-	{
-		llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
-		return NULL;
-	}
-
-	return xmlNode;
-}
-
 void LLOutfitsList::computeDifference(
 	const LLInventoryModel::cat_array_t& vcats, 
 	uuid_vec_t& vadded, 

@@ -56,7 +56,6 @@ LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
 	mPanelInventoryObject(NULL),
 	mDirty(TRUE)
 {
-//	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml");
 	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
 	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
 }

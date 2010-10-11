@@ -32,6 +32,8 @@
 #include "llappviewer.h"
 #include "llbottomtray.h"
 #include "llfloaterreg.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -56,6 +58,8 @@ using namespace LLNotificationsUI;
 
 static LLRootViewRegistry::Register<LLSideTray>	t1("side_tray");
 static LLDefaultChildRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
+
+static const S32 BOTTOM_BAR_PAD = 5;
 
 static const std::string COLLAPSED_NAME = "<<";
 static const std::string EXPANDED_NAME  = ">>";
@@ -111,7 +115,7 @@ public:
 	};
 protected:
 	LLSideTrayTab(const Params& params);
-
+	
 	void			dock();
 	void			undock(LLFloater* floater_tab);
 
@@ -132,7 +136,7 @@ public:
 	const std::string& getTabTitle() const { return mTabTitle;}
 	
 	void			onOpen		(const LLSD& key);
-
+	
 	void			toggleTabDocked();
 
 	LLPanel *getPanel();
@@ -314,6 +318,10 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 
 	floater_tab->addChild(this);
 	floater_tab->setTitle(mTabTitle);
+	floater_tab->setName(getName());
+
+	// Resize handles get obscured by added panel so move them to front.
+	floater_tab->moveResizeHandlesToFront();
 
 	// Reshape the floater if needed.
 	LLRect floater_rect;
@@ -326,13 +334,18 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	{
 		// Detaching for the first time. Reshape the floater.
 		floater_rect = side_tray->getLocalRect();
+
+		// Reduce detached floater height by small BOTTOM_BAR_PAD not to make it flush with the bottom bar.
+		floater_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight() + BOTTOM_BAR_PAD;
+		floater_rect.makeValid();
 		floater_tab->reshape(floater_rect.getWidth(), floater_rect.getHeight());
 	}
 
 	// Reshape the panel.
 	{
-		LLRect panel_rect = floater_rect;
+		LLRect panel_rect = floater_tab->getLocalRect();
 		panel_rect.mTop -= floater_tab->getHeaderHeight();
+		panel_rect.makeValid();
 		setRect(panel_rect);
 		reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	}
@@ -568,7 +581,8 @@ void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 		LLButton* btn = it->second;
 		bool new_state = !btn->getToggleState();
 		btn->setToggleState(new_state); 
-		btn->setImageOverlay( new_state ? tab->mImageSelected : tab->mImage );
+		// Only highlight the tab if side tray is expanded (STORM-157).
+		btn->setImageOverlay( new_state && !getCollapsed() ? tab->mImageSelected : tab->mImage );
 	}
 }
 
@@ -644,7 +658,7 @@ bool LLSideTray::selectTabByName(const std::string& name, bool keep_prev_visible
 	{
 		// Keep previously active tab visible if requested.
 		if (keep_prev_visible) tab_to_keep_visible = mActiveTab;
-		toggleTabButton(mActiveTab);
+	toggleTabButton(mActiveTab);
 	}
 
 	//select new tab
@@ -652,9 +666,9 @@ bool LLSideTray::selectTabByName(const std::string& name, bool keep_prev_visible
 
 	if (mActiveTab)
 	{
-		toggleTabButton(mActiveTab);
-		LLSD key;//empty
-		mActiveTab->onOpen(key);
+	toggleTabButton(mActiveTab);
+	LLSD key;//empty
+	mActiveTab->onOpen(key);
 	}
 
 	//arrange();
@@ -761,8 +775,15 @@ bool LLSideTray::removeTab(LLSideTrayTab* tab)
 	// Deselect the tab.
 	if (mActiveTab == tab)
 	{
-		child_vector_iter_t next_tab_it =
-				(tab_it < (mTabs.end() - 1)) ? tab_it + 1 : mTabs.begin();
+		// Select the next tab (or first one, if we're removing the last tab),
+		// skipping the fake open/close tab (STORM-155).
+		child_vector_iter_t next_tab_it = tab_it;
+		do
+		{
+			next_tab_it = (next_tab_it < (mTabs.end() - 1)) ? next_tab_it + 1 : mTabs.begin();
+		}
+		while ((*next_tab_it)->getName() == "sidebar_openclose");
+
 		selectTabByName((*next_tab_it)->getName(), true); // Don't hide the tab being removed.
 	}
 
@@ -859,6 +880,7 @@ void	LLSideTray::createButtons	()
 		{
 			mCollapseButton = createButton(name,sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
+			LLHints::registerHintTarget("side_panel_btn", mCollapseButton->getHandle());
 		}
 		else
 		{
@@ -867,6 +889,8 @@ void	LLSideTray::createButtons	()
 			mTabButtons[name] = button;
 		}
 	}
+	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
+	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()
@@ -905,6 +929,7 @@ void		LLSideTray::onTabButtonClick(string name)
 
 void		LLSideTray::onToggleCollapse()
 {
+	LLFirstUse::notUsingSidePanel(false);
 	if(mCollapsed)
 	{
 		expandSideBar();
@@ -998,9 +1023,9 @@ void LLSideTray::detachTabs()
 
 		std::string floater_ctrl_name = LLFloater::getControlName("side_bar_tab", LLSD(tab->getName()));
 		std::string vis_ctrl_name = LLFloaterReg::getVisibilityControlName(floater_ctrl_name);
-		if (!LLUI::sSettingGroups["floater"]->controlExists(vis_ctrl_name)) continue;
+		if (!LLFloater::getControlGroup()->controlExists(vis_ctrl_name)) continue;
 
-		bool is_visible = LLUI::sSettingGroups["floater"]->getBOOL(vis_ctrl_name);
+		bool is_visible = LLFloater::getControlGroup()->getBOOL(vis_ctrl_name);
 		if (!is_visible) continue;
 
 		llassert(isTabAttached(tab->getName()));
@@ -1109,11 +1134,11 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	{
 		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
 		if (panel) return panel;
-	}
+			}
 
 	// Look up the tab in the list of attached tabs.
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
+			{
 		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
 		if (panel) return panel;
 	}

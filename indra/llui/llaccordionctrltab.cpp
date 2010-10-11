@@ -141,6 +141,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
 	textboxParams.use_ellipses = true;
 	textboxParams.bg_visible = false;
 	textboxParams.mouse_opaque = false;
+	textboxParams.parse_urls = false;
 	mHeaderTextbox = LLUICtrlFactory::create<LLTextBox>(textboxParams);
 	addChild(mHeaderTextbox);
 }

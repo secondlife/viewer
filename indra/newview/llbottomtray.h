@@ -27,20 +27,18 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include "llmenugl.h"
-
 #include "llpanel.h"
 #include "llimview.h"
-#include "llcombobox.h"
+#include "llbutton.h"
 
 class LLChicletPanel;
-class LLLineEditor;
 class LLLayoutStack;
-class LLNotificationChiclet;
 class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 class LLBottomTrayLite;
+class LLLayoutPanel;
+class LLMenuGL;
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBOTTOMTRAY_CPP
@@ -131,10 +129,12 @@ public:
 
 	/**
 	 * These three methods handle drag'n'drop, they may be called directly from child buttons.
+	 * handleHover and other virtual handle* couldn't be used here, because we should call LLPanel::handle*,
+	 * but x and y here are often outside of bottomtray.
 	 */
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	void onDraggableButtonMouseDown(LLUICtrl* button, S32 x, S32 y, MASK mask);
-	void onDraggableButtonMouseUp(LLUICtrl* button, S32 x, S32 y, MASK mask);
+	void onDraggableButtonHover(S32 x, S32 y);
+	void onDraggableButtonMouseDown(LLUICtrl* button, S32 x, S32 y);
+	void onDraggableButtonMouseUp(LLUICtrl* button, S32 x, S32 y);
 
 
 private:
@@ -437,10 +437,15 @@ protected:
 	void onContextMenuItemClicked(const LLSD& userdata);
 	bool onContextMenuItemEnabled(const LLSD& userdata);
 
+	// Either default or saved after user's manual resize width of nearby chat.
+	// Nearby chat will not always have it, because sometimes it can be shrunk on resize,
+	// but when possible it will be restored back to this value.
+	S32					mDesiredNearbyChatWidth;
 	LLChicletPanel* 	mChicletPanel;
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
+	LLLayoutPanel*		mChatBarContainer;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLButton*			mCamButton;

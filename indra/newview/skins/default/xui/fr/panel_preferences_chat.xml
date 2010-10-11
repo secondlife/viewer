@@ -62,7 +62,7 @@
 	</text>
 	<combo_box name="translate_language_combobox">
 		<combo_box.item name="System Default Language" label="Choix par défaut" />
-		<combo_box.item name="English" label="English (Anglais" />
+		<combo_box.item name="English" label="English (Anglais)" />
 		<combo_box.item name="Danish" label="Dansk (Danois)" />
 		<combo_box.item name="German" label="Deutsch (Allemand)" />
 		<combo_box.item name="Spanish" label="Español (Espagnol)" />
@@ -71,7 +71,7 @@
 		<combo_box.item name="Hungarian" label="Magyar (Hongrois)" />
 		<combo_box.item name="Dutch" label="Nederlands (Néerlandais)" />
 		<combo_box.item name="Polish" label="Polski (Polonais)" />
-		<combo_box.item name="Portugese" label="Portugués (Portugais)" />
+		<combo_box.item name="Portugese" label="Português (Portugais)" />
 		<combo_box.item name="Russian" label="Русский (Russe)" />
 		<combo_box.item name="Turkish" label="Türkçe (Turc)" />
 		<combo_box.item name="Ukrainian" label="Українська (Ukrainien)" />
