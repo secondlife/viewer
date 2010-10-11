@@ -340,9 +340,6 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	registrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
-
 	LLHints::registerHintTarget("view_popup", LLView::getHandle());
 }
 

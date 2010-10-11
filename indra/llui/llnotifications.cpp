@@ -80,7 +80,8 @@ LLNotificationForm::FormButton::FormButton()
 
 LLNotificationForm::FormInput::FormInput()
 :	type("type"),
-	width("width", 0)
+	width("width", 0),
+	value("value")
 {}
 
 LLNotificationForm::FormElement::FormElement()
