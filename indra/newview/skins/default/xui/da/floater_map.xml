@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="">
-	<floater.string name="mini_map_north">
-		N
-	</floater.string>
-	<floater.string name="mini_map_east">
-		Ø
-	</floater.string>
-	<floater.string name="mini_map_west">
-		V
-	</floater.string>
-	<floater.string name="mini_map_south">
-		S
-	</floater.string>
-	<floater.string name="mini_map_southeast">
-		SØ
-	</floater.string>
-	<floater.string name="mini_map_northeast">
-		NØ
-	</floater.string>
-	<floater.string name="mini_map_southwest">
-		SV
-	</floater.string>
-	<floater.string name="mini_map_northwest">
-		NV
+	<floater.string name="ToolTipMsg">
+		[REGION](Dobbeltklik for at åbne kort, klik-og-træk for at panorere)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINIKORT

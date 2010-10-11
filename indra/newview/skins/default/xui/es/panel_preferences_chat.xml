@@ -62,10 +62,10 @@
 	</text>
 	<combo_box name="translate_language_combobox">
 		<combo_box.item label="Predeterminado del sistema" name="System Default Language"/>
-		<combo_box.item label="English" name="English"/>
+		<combo_box.item label="English (inglés)" name="English"/>
 		<combo_box.item label="Dansk (danés)" name="Danish"/>
 		<combo_box.item label="Deutsch (alemán)" name="German"/>
-		<combo_box.item label="Español (español)" name="Spanish"/>
+		<combo_box.item label="Español" name="Spanish"/>
 		<combo_box.item label="Français (francés)" name="French"/>
 		<combo_box.item label="Italiano (italiano)" name="Italian"/>
 		<combo_box.item label="Magyar (húngaro)" name="Hungarian"/>
