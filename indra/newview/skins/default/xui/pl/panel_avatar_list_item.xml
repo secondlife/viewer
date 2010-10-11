@@ -22,5 +22,9 @@
 		[COUNT]lat
 	</string>
 	<text name="avatar_name" value="Nieznane"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Możesz edytować obiekty tego Znajomego"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Ten Znajomy może edytować, kasować lub wziąć Twoje obiekty"/>
+	<icon name="permission_map_icon" tool_tip="Ten Znajomy może zlokalizować Ciebie na mapie"/>
+	<icon name="permission_online_icon" tool_tip="Ten Znajomy widzi Ciebie kiedy jesteś obecny/obecna w SL"/>
 	<button name="profile_btn" tool_tip="Zobacz profil"/>
 </panel>
