@@ -142,6 +142,8 @@ public:
 	// Don't export top/left for rect, only height/width
 	static void setupParamsForExport(Params& p, LLView* parent);
 
+	boost::signals2::connection setMinimizeCallback( const commit_signal_t::slot_type& cb );
+
 	void initFromParams(const LLFloater::Params& p);
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
@@ -346,6 +348,8 @@ public:
 	// Called when floater is closed, passes app_qitting as LLSD()
 	// Public so external views or floaters can watch for this floater closing
 	commit_signal_t mCloseSignal;		
+
+	commit_signal_t* mMinimizeSignal;
 
 protected:
 	std::string		mRectControl;
