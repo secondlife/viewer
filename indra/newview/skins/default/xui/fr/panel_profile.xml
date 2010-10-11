@@ -40,17 +40,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à un résident de devenir votre ami"/>
-			<button label="IM" name="im" tool_tip="Ouvrir une session IM"/>
-			<button label="Appeler" name="call" tool_tip="Appeler ce résident"/>
-			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
-			<button label="Téléporter" name="teleport" tool_tip="Proposer une téléportation"/>
-			<button label="▼" name="overflow_btn" tool_tip="Payer ou partager l&apos;inventaire avec le résident"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Devenir amis" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Ouvrir une session IM"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Appeler" name="call" tool_tip="Appeler ce résident"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="Téléporter" name="teleport" tool_tip="Proposer une téléportation"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<button label="▼" name="overflow_btn" tool_tip="Payer le résident ou partager l&apos;inventaire avec lui"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="Modifier le profil" name="edit_profile_btn" tool_tip="Modifier vos informations personnelles"/>
-			<button label="Changer d&apos;apparence" name="edit_appearance_btn" tool_tip="Créer/modifier votre apparence : données physiques, habits, etc."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

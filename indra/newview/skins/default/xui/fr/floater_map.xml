@@ -25,7 +25,7 @@
 		NO
 	</floater.string>
 	<floater.string name="ToolTipMsg">
-		[AGENT][REGION](Double-cliquez pour ouvrir la carte)
+		[REGION](Carte : double-clic ; Panoramique : Maj + faire glisser)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINI-CARTE
