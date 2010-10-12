@@ -550,4 +550,3 @@ list NVIDIA_GeForce_Go_7800
 RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_Go_7900
 RenderShaderLightingMaxLevel	1	2
-

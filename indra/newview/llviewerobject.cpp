@@ -4445,6 +4445,13 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		mAudioSourcep = NULL;
 	}
 
+	if (mAudioSourcep && mAudioSourcep->isMuted() &&
+	    mAudioSourcep->getCurrentData() && mAudioSourcep->getCurrentData()->getID() == audio_uuid)
+	{
+		//llinfos << "Already having this sound as muted sound, ignoring" << llendl;
+		return;
+	}
+
 	getAudioSource(owner_id);
 
 	if (mAudioSourcep)

@@ -86,6 +86,7 @@ brad-parabuild.build_server_tests = false
 
 cg_viewer-development_lenny.collect_metrics = true
 cg_viewer-development_lenny.show_changes_since = 4b140ce7839d
+cg_viewer-development_lenny.email = cg@lindenlab.com
 
 # ========================================
 # gooey

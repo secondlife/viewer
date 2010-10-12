@@ -66,7 +66,8 @@ bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& defa
 	}
 
 	StringTable string_table;
-	LLXUIParser::instance().readXUI(root, string_table, xml_filename);
+	LLXUIParser parser;
+	parser.readXUI(root, string_table, xml_filename);
 
 	if (!string_table.validateBlock())
 	{
@@ -77,8 +78,8 @@ bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& defa
 	sStringTemplates.clear();
 	sDefaultArgs.clear();
 	
-	for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings().begin();
-		it != string_table.strings().end();
+	for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings.begin();
+		it != string_table.strings.end();
 		++it)
 	{
 		LLTransTemplate xml_template(it->name, it->value);
@@ -109,7 +110,8 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 	}
 	
 	StringTable string_table;
-	LLXUIParser::instance().readXUI(root, string_table, xml_filename);
+	LLXUIParser parser;
+	parser.readXUI(root, string_table, xml_filename);
 	
 	if (!string_table.validateBlock())
 	{
@@ -117,8 +119,8 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 		return false;
 	}
 		
-	for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings().begin();
-		it != string_table.strings().end();
+	for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings.begin();
+		it != string_table.strings.end();
 		++it)
 	{
 		// share the same map with parseStrings() so we can search the strings using the same getString() function.- angela

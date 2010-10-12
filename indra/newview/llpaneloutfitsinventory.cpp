@@ -217,15 +217,6 @@ void LLPanelOutfitsInventory::onSave()
 	//payload["ids"].append(*it);
 	
 	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
-
-	//)
-	
-/*
-	LLOutfitSaveAsDialog* save_as_dialog = LLFloaterReg::showTypedInstance<LLOutfitSaveAsDialog>("outfit_save_as", LLSD(outfit_name), TRUE);
-	if (save_as_dialog)
-	{
-		save_as_dialog->setSaveAsCommit(boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1 ));
-	}*/
 }
 
 //static
@@ -302,10 +293,10 @@ bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 
 void LLPanelOutfitsInventory::initTabPanels()
 {
-	mCurrentOutfitPanel = getChild<LLPanelWearing>(COF_TAB_NAME);
+	mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
 	mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
-	mMyOutfitsPanel = getChild<LLOutfitsList>(OUTFITS_TAB_NAME);
+	mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
 	mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");

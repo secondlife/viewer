@@ -109,6 +109,22 @@ public:
     LLPanel*	getPanel		(const std::string& panel_name);
     LLPanel*	getActivePanel	();
     bool		isPanelActive	(const std::string& panel_name);
+
+	/*
+	 * get the panel of given type T (don't show it or do anything else with it)
+	 */
+	template <typename T>
+	T* getPanel(const std::string& panel_name)
+	{
+		T* panel = dynamic_cast<T*>(getPanel(panel_name));
+		if (!panel)
+		{
+			llwarns << "Child named \"" << panel_name << "\" of type " << typeid(T*).name() << " not found" << llendl;
+			return NULL;
+		}
+		return panel;
+	}
+
 	/*
 	 * get currently active tab
 	 */

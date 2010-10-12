@@ -122,8 +122,6 @@ LLSidepanelItemInfo::LLSidepanelItemInfo()
   , mObjectInventoryObserver(NULL)
 {
 	mPropertiesObserver = new LLItemPropertiesObserver(this);
-	
-	//LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
 }
 
 // Destroys the object

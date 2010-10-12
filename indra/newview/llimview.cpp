@@ -495,6 +495,11 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 	return NULL;
 }
 
+bool LLIMModel::LLIMSession::isOutgoingAdHoc()
+{
+	return IM_SESSION_CONFERENCE_START == mType;
+}
+
 bool LLIMModel::LLIMSession::isAdHoc()
 {
 	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
@@ -622,7 +627,10 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids, voice);
 	mId2SessionMap[session_id] = session;
 
-	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
+	// When notifying observer, name of session is used instead of "name", because they may not be the
+	// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
+	std::string session_name = LLIMModel::getInstance()->getName(session_id);
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id);
 
 	return true;
 
@@ -1029,24 +1037,25 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
 			// Concrete participants will be added into this list once they sent message in chat.
 			if (IM_SESSION_INVITE == dialog) return;
-
 			// Add only online members to recent (EXT-8658)
-			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
-			LLSpeakerMgr::speaker_list_t speaker_list;
-			if(speaker_mgr != NULL)
-			{
-				speaker_mgr->getSpeakerList(&speaker_list, true);
-			}
-			for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
-			{
-				const LLPointer<LLSpeaker>& speakerp = *it;
-
-				LLRecentPeople::instance().add(speakerp->mID);
-			}
+			addSpeakersToRecent(im_session_id);			
 		}
 	}
+}
 
-	
+void LLIMModel::addSpeakersToRecent(const LLUUID& im_session_id)
+{
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+	LLSpeakerMgr::speaker_list_t speaker_list;
+	if(speaker_mgr != NULL)
+	{
+		speaker_mgr->getSpeakerList(&speaker_list, true);
+	}
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	{
+		const LLPointer<LLSpeaker>& speakerp = *it;
+		LLRecentPeople::instance().add(speakerp->mID);
+	}
 }
 
 void session_starter_helper(
