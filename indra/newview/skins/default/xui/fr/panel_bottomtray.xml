@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
 	<string name="SpeakBtnToolTip" value="Active/Désactive le micro"/>
 	<string name="VoiceControlBtnToolTip" value="Affiche/Masque le panneau de contrôle de la voix"/>
 	<layout_stack name="toolbar_stack">
@@ -12,28 +13,25 @@
 			<gesture_combo_list label="Geste" name="Gesture" tool_tip="Affiche/Masque les gestes"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
-			<button label="Bouger" name="movement_btn" tool_tip="Affiche/Masque le contrôle des déplacements"/>
+			<bottomtray_button label="Bouger" name="movement_btn" tool_tip="Affiche/Masque le contrôle des déplacements"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<button label="Affichage" name="camera_btn" tool_tip="Affiche/Masque le contrôle de la caméra"/>
+			<bottomtray_button label="Affichage" name="camera_btn" tool_tip="Affiche/Masque le contrôle de la caméra"/>
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
-			<button label="" name="snapshots" tool_tip="Prendre une photo"/>
-		</layout_panel>
-		<layout_panel name="sidebar_btn_panel">
-			<button label="Panneau latéral" name="sidebar_btn" tool_tip="Affiche/Masque le panneau latéral"/>
+			<bottomtray_button label="" name="snapshots" tool_tip="Prendre une photo"/>
 		</layout_panel>
 		<layout_panel name="build_btn_panel">
-			<button label="Construire" name="build_btn" tool_tip="Affiche/Masque les outils pour la construction"/>
+			<bottomtray_button label="Construire" name="build_btn" tool_tip="Affiche/Masque les outils pour la construction"/>
 		</layout_panel>
 		<layout_panel name="search_btn_panel">
-			<button label="Rechercher" name="search_btn" tool_tip="Affiche/Masque la recherche"/>
+			<bottomtray_button label="Rechercher" name="search_btn" tool_tip="Affiche/Masque la recherche"/>
 		</layout_panel>
 		<layout_panel name="world_map_btn_panel">
-			<button label="Carte" name="world_map_btn" tool_tip="Affiche/Masque la carte du monde"/>
+			<bottomtray_button label="Carte" name="world_map_btn" tool_tip="Affiche/Masque la carte du monde"/>
 		</layout_panel>
 		<layout_panel name="mini_map_btn_panel">
-			<button label="Mini-carte" name="mini_map_btn" tool_tip="Affiche/Masque la mini-carte"/>
+			<bottomtray_button label="Mini-carte" name="mini_map_btn" tool_tip="Affiche/Masque la mini-carte"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

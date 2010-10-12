@@ -1064,12 +1064,12 @@ std::string LLNotificationChannel::summarize()
 // LLNotifications implementation
 // ---
 LLNotifications::LLNotifications() : LLNotificationChannelBase(LLNotificationFilters::includeEverything,
-															   LLNotificationComparators::orderByUUID()),
-									mIgnoreAllNotifications(false)
+							       LLNotificationComparators::orderByUUID()),
+				     mIgnoreAllNotifications(false)
 {
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
-
-    mListener.reset(new LLNotificationsListener(*this));
+	
+	mListener.reset(new LLNotificationsListener(*this));
 }
 
 

@@ -63,6 +63,7 @@ public:
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
+	void updateToVisibility( const LLSD& new_visibility );
 
 private:
 	void onFilterEdit(const std::string& search_string);

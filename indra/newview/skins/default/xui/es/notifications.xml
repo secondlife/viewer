@@ -1822,6 +1822,10 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Confirmar antes de eliminar elementos" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Usa esta herramienta para denunciar violaciones de las [http://secondlife.com/corporate/tos.php Condiciones del Servicio] o las [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
 
@@ -2749,9 +2753,13 @@ Comprueba la configuración de la red y del servidor de seguridad.
 		( [EXISTENCE] segundos vivo)
 El avatar &apos;[NAME]&apos; ya estaba totalmente cargado al salir.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( [EXISTENCE] segundos con vida )
-Has [ACTION] una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
+Has actualizado una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] segundos con vida )
+Has actualizado de manera local una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		¿Estás seguro de que deseas salir de esta multiconferencia?

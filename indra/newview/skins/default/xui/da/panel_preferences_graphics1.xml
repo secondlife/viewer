@@ -29,22 +29,16 @@
 		<check_box initial_value="true" label="Glatte flader og skin" name="BumpShiny"/>
 		<check_box initial_value="true" label="Basale flader" name="BasicShaders" tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher."/>
 		<check_box initial_value="true" label="Atmosfæriske flader" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Reflektioner i vand" name="Reflections"/>
-		<text name="ReflectionDetailText">
-			Spejlnings detaljer:
+		<text name="reflection_label">
+			Reflektioner i vand:
 		</text>
-		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Terræn og træer" name="0"/>
-			<radio_item label="Alle statiske objekter" name="1"/>
-			<radio_item label="Alle avatarer og objekter" name="2"/>
-			<radio_item label="Alt" name="3"/>
-		</radio_group>
-		<text name="AvatarRenderingText">
-			Avatar gengivelse
-		</text>
-		<check_box initial_value="true" label="Mini-figurer på lang afstand" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Avatar tøj" name="AvatarCloth"/>
+		<combo_box initial_value="true" label="Reflektioner i vand" name="Reflections">
+			<combo_box.item label="Minimum" name="0"/>
+			<combo_box.item label="Terræn og træer" name="1"/>
+			<combo_box.item label="Alle statiske objekter" name="2"/>
+			<combo_box.item label="Alle avatarer og objekter" name="3"/>
+			<combo_box.item label="Alt" name="4"/>
+		</combo_box>
 		<slider label="Maks. visnings-afstand:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -82,13 +76,12 @@
 		<text name="SkyMeshDetailText">
 			Lav
 		</text>
-		<text name="LightingDetailText">
-			Lys detaljer:
+		<text name="AvatarRenderingText">
+			Avatar gengivelse
 		</text>
-		<radio_group name="LightingDetailRadio">
-			<radio_item label="Kun sol og måne" name="SunMoon" value="0"/>
-			<radio_item label="Lys i nærheden" name="LocalLights" value="1"/>
-		</radio_group>
+		<check_box initial_value="true" label="Mini-figurer på lang afstand" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Avatar tøj" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			Terræn detaljer:
 		</text>
@@ -96,6 +89,7 @@
 			<radio_item label="Lav" name="0"/>
 			<radio_item label="Høj" name="2"/>
 		</radio_group>
+		--&gt;
 	</panel>
 	<button label="Benyt" label_selected="Benyt" name="Apply"/>
 	<button label="Nulstil" name="Defaults"/>

@@ -1811,6 +1811,10 @@ Déplacer les objets de l&apos;inventaire ?
 		Êtes-vous certain de vouloir quitter ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Confirmer avant de supprimer des articles" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php Conditions d’utilisation] et aux [http://secondlife.com/corporate/cs.php Règles communautaires].
 
@@ -2744,9 +2748,13 @@ Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
 		([EXISTENCE] secondes d&apos;existence)
 Départ de l&apos;avatar [NAME] entièrement chargé.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		([EXISTENCE] secondes d&apos;existence)
-Vous avez [ACTION] une texture figée de [RESOLUTION] pour [BODYREGION] au bout de [TIME] secondes.
+Texture figée de [RESOLUTION] chargée pour [BODYREGION] au bout de [TIME] secondes.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		([EXISTENCE] secondes d&apos;existence)
+Texture figée de [RESOLUTION] mise à jour localement pour [BODYREGION] au bout de [TIME] secondes.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Voulez-vous vraiment quitter cet appel ?

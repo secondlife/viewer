@@ -141,6 +141,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
 	textboxParams.use_ellipses = true;
 	textboxParams.bg_visible = false;
 	textboxParams.mouse_opaque = false;
+	textboxParams.parse_urls = false;
 	mHeaderTextbox = LLUICtrlFactory::create<LLTextBox>(textboxParams);
 	addChild(mHeaderTextbox);
 }
@@ -733,6 +734,12 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 			//	both should handle own scroll container's event.
 			//	So, if parent accordion "fit_parent" accordion tab should handle its scroll container events itself.
 
+			return 1;
+		}
+
+		if (!getDisplayChildren())
+		{
+			// Don't pass scrolling event further if our contents are invisible (STORM-298).
 			return 1;
 		}
 	}
