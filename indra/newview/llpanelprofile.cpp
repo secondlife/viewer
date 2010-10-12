@@ -33,9 +33,33 @@
 #include "llcommandhandler.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
+#include "llviewercontrol.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 static const std::string PANEL_PROFILE = "panel_profile";
+
+class LLProfileHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLProfileHandler() : LLCommandHandler("profile", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLMediaCtrl* web)
+	{
+		if (params.size() < 1) return false;
+		std::string agent_name = params[0];
+		llinfos << "Profile, agent_name " << agent_name << llendl;
+		std::string url = gSavedSettings.getString("WebProfileURL");
+		LLSD subs;
+		subs["AGENT_NAME"] = agent_name;
+		url = LLWeb::expandURLSubstitutions(url,subs);
+		LLWeb::loadURL(url);
+
+		return true;
+	}
+};
+LLProfileHandler gProfileHandler;
 
 class LLAgentHandler : public LLCommandHandler
 {
