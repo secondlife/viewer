@@ -38,6 +38,7 @@
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llmenubutton.h"
 #include "llwearableitemslist.h"
 
 class LLButton;
@@ -238,8 +239,8 @@ private:
 	LLMenuGL*			mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
-
-
+	LLMenuButton*		mWearablesGearMenuBtn;
+	LLMenuButton*		mGearMenuBtn;
 
 };
 

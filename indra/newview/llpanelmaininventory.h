@@ -31,6 +31,7 @@
 #include "llpanel.h"
 #include "llinventoryobserver.h"
 #include "lldndbutton.h"
+#include "llmenubutton.h"
 
 #include "llfolderview.h"
 
@@ -144,6 +145,7 @@ private:
 	LLDragAndDropButton*		mTrashButton;
 	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
+	LLMenuButton*				mGearMenuButton;
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

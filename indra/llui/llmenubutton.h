@@ -42,14 +42,22 @@ public:
 		Optional<std::string>	menu_filename;
 	
 		Params();
-	};	
+	};
+
+	enum EMenuPosition
+	{
+		ON_TOP_LEFT,
+		ON_BOTTOM_LEFT
+	};
 	
 	void toggleMenu();
+	void setMenuPosition(EMenuPosition position = ON_BOTTOM_LEFT);
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
 	void hideMenu();
 	LLMenuGL* getMenu() { return mMenu; }
+	void setMenu(LLMenuGL* menu) { mMenu = menu; }
 
 protected:
 	friend class LLUICtrlFactory;
@@ -58,6 +66,7 @@ protected:
 private:
 	LLMenuGL*	mMenu;
 	bool mMenuVisibleLastFrame;
+	S32 mX, mY;
 };
 
 

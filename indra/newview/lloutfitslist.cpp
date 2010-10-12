@@ -38,6 +38,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidetray.h"
@@ -99,10 +100,8 @@ public:
 
 		updateItemsVisibility();
 		mMenu->buildDrawLabels();
+		mMenu->arrangeAndClear();
 		mMenu->updateParent(LLMenuGL::sMenuContainer);
-		S32 menu_x = 0;
-		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
-		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
 	}
 
 	void updateItemsVisibility()
@@ -114,6 +113,8 @@ public:
 		mMenu->setItemVisible("sepatator2", have_selection);
 		mMenu->arrangeAndClear(); // update menu height
 	}
+
+	LLMenuGL* getMenu() { return mMenu; }
 
 private:
 	const LLUUID& getSelectedOutfitID()
@@ -352,6 +353,15 @@ BOOL LLOutfitsList::postBuild()
 {
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
 	mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
+
+	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
+
+	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
+	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
+	// of getChild<LLUICtrl>(...) for performance.
+	static_cast<LLUICtrl*>(menu_gear_btn)->setMouseDownCallback(boost::bind(&LLOutfitsList::showGearMenu, this, _1));
+
+	menu_gear_btn->setMenu(mGearMenu->getMenu());
 
 	return TRUE;
 }
@@ -695,7 +705,14 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 void LLOutfitsList::showGearMenu(LLView* spawning_view)
 {
 	if (!mGearMenu) return;
+
 	mGearMenu->show(spawning_view);
+
+	LLMenuButton* btn = dynamic_cast<LLMenuButton*>(spawning_view);
+	if (btn)
+	{
+		btn->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
+	}
 }
 
 void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
