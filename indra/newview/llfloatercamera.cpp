@@ -75,6 +75,8 @@ protected:
 	void	onZoomPlusHeldDown();
 	void	onZoomMinusHeldDown();
 	void	onSliderValueChanged();
+	void	onCameraTrack();
+	void	onCameraRotate();
 	F32		getOrbitRate(F32 time);
 
 private:
@@ -164,6 +166,8 @@ LLPanelCameraZoom::LLPanelCameraZoom()
 	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
 	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
 	mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
+	mCommitCallbackRegistrar.add("Camera.track", boost::bind(&LLPanelCameraZoom::onCameraTrack, this));
+	mCommitCallbackRegistrar.add("Camera.rotate", boost::bind(&LLPanelCameraZoom::onCameraRotate, this));
 }
 
 BOOL LLPanelCameraZoom::postBuild()
@@ -198,6 +202,18 @@ void LLPanelCameraZoom::onZoomMinusHeldDown()
 	F32 time = mMinusBtn->getHeldDownTime();
 	gAgentCamera.unlockView();
 	gAgentCamera.setOrbitOutKey(getOrbitRate(time));
+}
+
+void LLPanelCameraZoom::onCameraTrack()
+{
+	// EXP-202 when camera panning activated, remove the hint
+	LLFirstUse::viewPopup( false );
+}
+
+void LLPanelCameraZoom::onCameraRotate()
+{
+	// EXP-202 when camera rotation activated, remove the hint
+	LLFirstUse::viewPopup( false );
 }
 
 F32 LLPanelCameraZoom::getOrbitRate(F32 time)
