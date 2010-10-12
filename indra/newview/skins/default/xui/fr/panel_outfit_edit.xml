@@ -45,7 +45,13 @@
 		<button name="shop_btn_2" tool_tip="Visiter la Place du marché SL. Vous pouvez également sélectionner quelque chose que vous portez, puis cliquer ici pour consulter d&apos;autres articles similaires."/>
 	</panel>
 	<panel name="save_revert_button_bar">
-		<button label="Enregistrer" name="save_btn"/>
-		<button label="Annuler les modifications" name="revert_btn" tool_tip="Rétablir la dernière version enregistrée"/>
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Enregistrer" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annuler" name="revert_btn" tool_tip="Rétablir la dernière version enregistrée"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

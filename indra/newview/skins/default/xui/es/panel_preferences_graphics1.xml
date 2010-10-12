@@ -28,22 +28,16 @@
 		<check_box initial_value="true" label="Efecto de relieve y brillo" name="BumpShiny"/>
 		<check_box initial_value="true" label="Shaders básicos" name="BasicShaders" tool_tip="Desactivando esta opción puede prevenir fallos en algunos controladores de la tarjeta gráfica."/>
 		<check_box initial_value="true" label="Shaders de la atmósfera" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Reflejos en el agua" name="Reflections"/>
-		<text name="ReflectionDetailText">
-			Objetos reflejados:
+		<text name="reflection_label">
+			Reflejos en el agua:
 		</text>
-		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Terreno y árboles" name="0"/>
-			<radio_item label="Todos los objetos estáticos" name="1"/>
-			<radio_item label="Todos los avatares y objetos" name="2"/>
-			<radio_item label="Todo" name="3"/>
-		</radio_group>
-		<text name="AvatarRenderingText">
-			Renderización del avatar:
-		</text>
-		<check_box initial_value="true" label="Avatares simulados" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Renderizado por hardware" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Ropas del avatar" name="AvatarCloth"/>
+		<combo_box initial_value="true" label="Reflejos en el agua" name="Reflections">
+			<combo_box.item label="Mínimo" name="0"/>
+			<combo_box.item label="Terreno y árboles" name="1"/>
+			<combo_box.item label="Todos los objetos estáticos" name="2"/>
+			<combo_box.item label="Todos los avatares y objetos" name="3"/>
+			<combo_box.item label="Todo" name="4"/>
+		</combo_box>
 		<slider label="Distancia de dibujo:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -81,13 +75,12 @@
 		<text name="SkyMeshDetailText">
 			Bajo
 		</text>
-		<text name="LightingDetailText">
-			Detalles de iluminación:
+		<text name="AvatarRenderingText">
+			Renderización del avatar:
 		</text>
-		<radio_group name="LightingDetailRadio">
-			<radio_item label="Sólo el Sol y la Luna" name="SunMoon" value="0"/>
-			<radio_item label="Puntos de luz cercanos" name="LocalLights" value="1"/>
-		</radio_group>
+		<check_box initial_value="true" label="Avatares simulados" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Renderizado por hardware" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Ropas del avatar" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			Detalle del terreno:
 		</text>
@@ -95,6 +88,7 @@
 			<radio_item label="Bajo" name="0"/>
 			<radio_item label="Alto" name="2"/>
 		</radio_group>
+		--&gt;
 	</panel>
 	<button label="Aplicar" label_selected="Aplicar" name="Apply"/>
 	<button label="Por defecto" name="Defaults"/>

@@ -22,5 +22,9 @@
 		[COUNT]anos
 	</string>
 	<text name="avatar_name" value="Desconhecido"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Você pode editar os pertences deste amigo"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Este amigo pode editar, excluir ou pegar seus pertences"/>
+	<icon name="permission_map_icon" tool_tip="Este amigo pode localizar você no mapa"/>
+	<icon name="permission_online_icon" tool_tip="Este amigo pode saber quando você estiver online"/>
 	<button name="profile_btn" tool_tip="Ver perfil"/>
 </panel>

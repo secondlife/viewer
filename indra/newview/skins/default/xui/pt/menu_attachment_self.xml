@@ -3,6 +3,7 @@
 	<menu_item_call label="Tocar" name="Attachment Object Touch"/>
 	<menu_item_call label="Editar" name="Edit..."/>
 	<menu_item_call label="Tirar" name="Detach"/>
+	<menu_item_call label="Sentar" name="Sit Down Here"/>
 	<menu_item_call label="Ficar de pé" name="Stand Up"/>
 	<menu_item_call label="Trocar de look" name="Change Outfit"/>
 	<menu_item_call label="Editar meu look" name="Edit Outfit"/>
