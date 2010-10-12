@@ -34,7 +34,7 @@
    height="13"
    layout="topleft"
    left="45"
-   name="user_label"
+   name="display_name_label"
    text_color="LtGray"
    value="Display Name:"
    width="80" />

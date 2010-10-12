@@ -225,6 +225,22 @@ void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
 
 	}
 
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( true );
+		getChild<LLUICtrl>("user_slid")->setVisible( true );
+		getChild<LLUICtrl>("display_name_label")->setVisible( true );
+		getChild<LLUICtrl>("copy_to_clipboard")->setVisible( true );
+		getChild<LLUICtrl>("copy_to_clipboard")->setEnabled( true );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( false );
+		getChild<LLUICtrl>("user_slid")->setVisible( false );
+		getChild<LLUICtrl>("display_name_label")->setVisible( false );
+		getChild<LLUICtrl>("copy_to_clipboard")->setVisible( false );
+		getChild<LLUICtrl>("copy_to_clipboard")->setEnabled( false );
+	}
 }
 
 // EOF
