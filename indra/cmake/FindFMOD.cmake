@@ -11,8 +11,9 @@
 
 FIND_PATH(FMOD_INCLUDE_DIR fmod.h PATH_SUFFIXES fmod)
 
+SET(FMOD_NAMES ${FMOD_NAMES} fmod fmodvc fmod-3.75)
 FIND_LIBRARY(FMOD_LIBRARY
-  NAMES fmod fmodvc fmod-3.75
+  NAMES ${FMOD_NAMES}
   PATH_SUFFIXES fmod
   )
 
