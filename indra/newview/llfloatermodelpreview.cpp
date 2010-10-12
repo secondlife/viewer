@@ -2080,13 +2080,13 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp
 	mModelLoader = NULL;
 	mDirty = false;
 
-	mLODMode[0] = 0;
-
-	for (U32 i = 1; i < LLModel::NUM_LODS; i++)
+	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
 	{
 		mLODMode[i] = 1;
 		mLimit[i] = 0;
 	}
+
+	mLODMode[0] = 0;
 
 	mFMP = fmp;
 
