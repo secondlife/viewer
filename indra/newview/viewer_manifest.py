@@ -956,6 +956,13 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
+class Linux_x86_64Manifest(LinuxManifest):
+    def construct(self):
+        super(Linux_x86_64Manifest, self).construct()
+
+        # support file for valgrind debug tool
+        self.path("secondlife-i686.supp")
+
 ################################################################
 
 if __name__ == "__main__":
