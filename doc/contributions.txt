@@ -549,11 +549,13 @@ Ringo Tuxing
 Robin Cornelius
 	SNOW-108
 	SNOW-204
+	SNOW-287
 	SNOW-484
 	SNOW-504
 	SNOW-506
 	SNOW-507
 	SNOW-511
+	SNOW-512
 	SNOW-514
 	SNOW-520
 	SNOW-585
@@ -669,6 +671,7 @@ Techwolf Lupindo
 	SNOW-690
 	SNOW-746
 	VWR-12385
+	VWR-20893
 tenebrous pau
 	VWR-247
 Tharax Ferraris
