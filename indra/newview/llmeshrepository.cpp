@@ -2762,8 +2762,6 @@ void LLPhysicsDecomp::submitRequest(LLPhysicsDecomp::Request* request)
 	LLMutexLock lock(mMutex);
 	mRequestQ.push(request);
 	mSignal->signal();
-
-	
 }
 
 //static
@@ -3074,8 +3072,11 @@ void LLPhysicsDecomp::run()
 		mSignal->wait();
 		while (!mQuitting && !mRequestQ.empty())
 		{
-			mCurRequest = mRequestQ.front();
-			mRequestQ.pop();
+			{
+				LLMutexLock lock(mMutex);
+				mCurRequest = mRequestQ.front();
+				mRequestQ.pop();
+			}
 
 			if (mCurRequest->mStage == "single_hull")
 			{
