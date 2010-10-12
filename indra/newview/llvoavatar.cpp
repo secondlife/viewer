@@ -7727,6 +7727,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root)
 //virtual
 void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 {
+	LLViewerObject::updateRegion(regionp);
 }
 
 std::string LLVOAvatar::getFullname() const
