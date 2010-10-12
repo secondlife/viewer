@@ -11,7 +11,7 @@
 	<menu_item_check label="Se person ikoner" name="View Icons"/>
 	<menu_item_check label="Blokér stemme" name="Block/Unblock"/>
 	<menu_item_check label="Blokér tekst" name="MuteText"/>
-	<context_menu label="Moderator muligheder" name="Moderator Options">
+	<context_menu label="Moderator valg" name="Moderator Options">
 		<menu_item_check label="Tillad tekst chat" name="AllowTextChat"/>
 		<menu_item_call label="Sluk for denne deltager" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Fjern slukning for denne deltager" name="ModerateVoiceUnMuteSelected"/>

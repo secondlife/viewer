@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="Sentarte" name="Sit Down Here"/>
 	<menu_item_call label="Levantarme" name="Stand Up"/>
 	<context_menu label="Quitarme" name="Take Off &gt;">
 		<context_menu label="Ropas" name="Clothes &gt;">
@@ -17,7 +18,7 @@
 			<menu_item_call label="Toda la ropa" name="All Clothes"/>
 		</context_menu>
 		<context_menu label="HUD" name="Object Detach HUD"/>
-		<context_menu label="Desanexar" name="Object Detach"/>
+		<context_menu label="Quitar" name="Object Detach"/>
 		<menu_item_call label="Quitarse todo" name="Detach All"/>
 	</context_menu>
 	<menu_item_call label="Cambiar vestuario" name="Chenge Outfit"/>

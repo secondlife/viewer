@@ -1294,6 +1294,9 @@
 	<string name="Right Pec">
 		Pectoral droit
 	</string>
+	<string name="Invalid Attachment">
+		Point d&apos;attache non valide
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1671,9 +1674,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD en bas à droite
 	</string>
-	<string name="Bad attachment point">
-		Point d&apos;attache non valide
-	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
 	</string>
@@ -1694,12 +1694,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
-	</string>
-	<string name="NoOutfits">
-		Aucune tenue n&apos;est actuellement en votre possession. Essayez [secondlife:///app/search/all Rechercher].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="MuteByName">
 		(par nom)
@@ -1741,7 +1735,7 @@
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		L&apos;utilisateur n&apos;a ni favoris ni petites annonces
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
@@ -1863,6 +1857,12 @@
 	</string>
 	<string name="accel-win-shift">
 		Maj+
+	</string>
+	<string name="Esc">
+		Échap
+	</string>
+	<string name="Home">
+		Début
 	</string>
 	<string name="FileSaved">
 		Fichier enregistré
@@ -3528,6 +3528,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Modérateur)
 	</string>
+	<string name="Saved_message">
+		(Enregistrement : [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
@@ -3555,11 +3558,17 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="conference-title">
 		Conférence ad-hoc
 	</string>
+	<string name="conference-title-incoming">
+		Conférence avec [AGENT_NAME]
+	</string>
 	<string name="inventory_item_offered-im">
 		Objet de l&apos;inventaire offert
 	</string>
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
+	</string>
+	<string name="no_session_message">
+		(Session IM inexistante)
 	</string>
 	<string name="only_user_message">
 		Vous êtes le seul participant à cette session.
@@ -3944,5 +3953,14 @@ de l&apos;infraction signalée
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Supprimer les articles sélectionnés ?
+	</string>
+	<string name="DeleteItem">
+		Supprimer l&apos;article sélectionné ?
+	</string>
+	<string name="EmptyOutfitText">
+		Cette tenue ne contient aucun article.
 	</string>
 </strings>
