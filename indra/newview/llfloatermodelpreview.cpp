@@ -2168,6 +2168,10 @@ U32 LLModelPreview::calcResourceCost()
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
 	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
+	F32 scale = mFMP->childGetValue("debug scale").asReal();
+	mFMP->childSetTextArg("dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
+	mFMP->childSetTextArg("dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
+	mFMP->childSetTextArg("dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
 
 	updateStatusMessages();
 	
@@ -2181,11 +2185,19 @@ void LLModelPreview::rebuildUploadData()
 
 	//fill uploaddata instance vectors from scene data
 
+	F32 scale = mFMP->childGetValue("debug scale").asReal();
+
+	LLMatrix4 scale_mat;
+	scale_mat.initScale(LLVector3(scale, scale, scale));
+
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
+		LLMatrix4 mat = iter->first;
+		mat *= scale_mat;
+
 		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
 		{ //for each instance with said transform applied
-			LLModelInstance& instance = *model_iter;
+			LLModelInstance instance = *model_iter;
 
 			LLModel* base_model = instance.mModel;
 
@@ -2210,6 +2222,7 @@ void LLModelPreview::rebuildUploadData()
 				}
 			}
 
+			instance.mTransform = mat;
 			mUploadData.push_back(instance);
 		}
 	}

@@ -172,18 +172,17 @@
 	<button bottom_delta="25" follows="bottom|left" height="20" label="Upload"
 	     left="15" name="ok_btn" width="125" tool_tip="Upload to simulator"/>
 
-  <text bottom_delta="20" left="15" follows="top|left" height="15" name="description_label" text_color="1 0.82 0.46 1">
+  <text bottom_delta="20" left="15" width="280" follows="top|left" height="15" name="description_label" text_color="1 0.82 0.46 1">
 	  (No charge for upload during First Look)
 	</text>
   <text bottom_delta="20" left="15" width="280" follows="top|left" height="15" name="upload_message">
     [MESSAGE]
   </text>
-  <text bottom_delta="45" left="15" follows="top|left" height="15" name="debug section">
-    DEBUG:
+  <text bottom_delta="20" left="15" width="280"  follows="top|left" height="15" name="streaming cost">
+    Estimated Streaming Cost: [COST]
   </text>
-  <text bottom_delta="20" left="15" follows="top|left" height="15" name="streaming cost">
-    Streaming Cost: [COST]
+  <spinner bottom_delta="20" label="Scale" left="15" width="120"  name="debug scale" decimal_digits="3" increment="0.1" min_val="0" max_val="64" initial_value="1" tool_tip="Multiplier for incoming object scale.  If incoming dimensions are very small or very large, modify this value to get dimensions into an acceptable range."/>
+  <text bottom_delta="30" left="15" width="280" follows="top|left" height="15" name="dimensions">
+    Model Dimensions: [X]m x [Y]m x [Z]m
   </text>
-  <spinner bottom_delta="20" label="Scale" left="15" width="120"  name="debug scale" decimal_digits="3" increment="1" min_val="0" max_val="64" initial_value="1" tool_tip="Scale to base streaming cost on."/>  
-
 </floater>
