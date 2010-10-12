@@ -4,6 +4,7 @@
 	<menu_item_call label="Zoom Médio" name="Zoom Medium"/>
 	<menu_item_call label="Zoom Longe" name="Zoom Far"/>
 	<menu_item_check label="Girar mapa" name="Rotate Map"/>
+	<menu_item_check label="Auto Center" name="Auto Center"/>
 	<menu_item_call label="Parar Acompanhamento" name="Stop Tracking"/>
 	<menu_item_call label="Mapa-múndi" name="World Map"/>
 </menu>

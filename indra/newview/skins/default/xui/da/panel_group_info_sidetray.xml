@@ -13,7 +13,7 @@
 		Gratis
 	</panel.string>
 	<panel name="group_info_top">
-		<text name="group_name" value="(Henter...)"/>
+		<text_editor name="group_name" value="(Henter...)"/>
 		<line_editor label="Indtast nyt gruppenavn her" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
@@ -25,10 +25,16 @@
 				<accordion_tab name="group_land_tab" title="Land/Aktiver"/>
 			</accordion>
 		</layout_panel>
-		<layout_panel name="button_row">
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
 			<button label="Chat" name="btn_chat"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
 			<button label="Gruppeopkald" name="btn_call" tool_tip="Opkald til denne gruppe"/>
-			<button label="Gem" label_selected="Save" name="btn_apply"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
+			<button label="Gem" label_selected="Gem" name="btn_apply"/>
 			<button label="Opret gruppe" name="btn_create" tool_tip="Opret en ny gruppe"/>
 		</layout_panel>
 	</layout_stack>

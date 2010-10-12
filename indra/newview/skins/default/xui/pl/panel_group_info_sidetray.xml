@@ -13,7 +13,7 @@
 		Darmowe
 	</panel.string>
 	<panel name="group_info_top">
-		<text name="group_name" value="(Ładowanie...)"/>
+		<text_editor name="group_name" value="(Ładowanie...)"/>
 		<line_editor label="Wpisz nazwę swojej nowej grupy tutaj" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
@@ -25,11 +25,17 @@
 				<accordion_tab name="group_land_tab" title="Posiadlość/Majątek"/>
 			</accordion>
 		</layout_panel>
-		<layout_panel name="button_row">
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
 			<button label="Czat" name="btn_chat"/>
-			<button label="Konferencja głosowa" name="btn_call" tool_tip="Konferencja głosowa"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
+			<button label="Konferencja głosowa w grupie" name="btn_call" tool_tip="Rozpocznij konferencję głosową w tej grupie"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
 			<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
-			<button label="Stwórz nową grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
+			<button label="Stwórz grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

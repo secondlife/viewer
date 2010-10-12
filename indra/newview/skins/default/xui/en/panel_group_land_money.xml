@@ -67,19 +67,23 @@
         <scroll_list.columns
          label="Parcel"
          name="name"
-         width="78" />
+         width="47" />
         <scroll_list.columns
          label="Region"
          name="location"
-         width="78" />
+         width="47" />
         <scroll_list.columns
          label="Type"
          name="type"
-         width="70" />
+         width="47" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="50" />
+         width="47" />
+        <scroll_list.columns
+         label="Hidden"
+         name="hidden"
+         width="47" />
     </scroll_list>
     <text
      type="string"

@@ -56,27 +56,27 @@
 		<radio_item label="Plusieurs fenêtres" name="radio" value="0"/>
 		<radio_item label="Onglets" name="radio2" value="1"/>
 	</radio_group>
-		<check_box label="Traduire Chat" name="translate_chat_checkbox" />
+	<check_box label="Utiliser la traduction automatique lors des chats (fournie par Google)" name="translate_chat_checkbox"/>
 	<text name="translate_language_text">
-		Langue de chat :
+		Traduire le chat en :
 	</text>
 	<combo_box name="translate_language_combobox">
-		<combo_box.item name="System Default Language" label="Choix par défaut" />
-		<combo_box.item name="English" label="English (Anglais)" />
-		<combo_box.item name="Danish" label="Dansk (Danois)" />
-		<combo_box.item name="German" label="Deutsch (Allemand)" />
-		<combo_box.item name="Spanish" label="Español (Espagnol)" />
-		<combo_box.item name="French" label="Français" />
-		<combo_box.item name="Italian" label="Italiano (Italien)" />
-		<combo_box.item name="Hungarian" label="Magyar (Hongrois)" />
-		<combo_box.item name="Dutch" label="Nederlands (Néerlandais)" />
-		<combo_box.item name="Polish" label="Polski (Polonais)" />
-		<combo_box.item name="Portugese" label="Português (Portugais)" />
-		<combo_box.item name="Russian" label="Русский (Russe)" />
-		<combo_box.item name="Turkish" label="Türkçe (Turc)" />
-		<combo_box.item name="Ukrainian" label="Українська (Ukrainien)" />
-		<combo_box.item name="Chinese" label="中文 (简体) (Chinois)" />
-		<combo_box.item name="Japanese" label="日本語 (Japonais)" />
-		<combo_box.item name="Korean" label="한국어 (Coréen)" />
+		<combo_box.item label="Choix par défaut" name="System Default Language"/>
+		<combo_box.item label="English (Anglais)" name="English"/>
+		<combo_box.item label="Dansk (Danois)" name="Danish"/>
+		<combo_box.item label="Deutsch (Allemand)" name="German"/>
+		<combo_box.item label="Español (Espagnol)" name="Spanish"/>
+		<combo_box.item label="Français" name="French"/>
+		<combo_box.item label="Italiano (Italien)" name="Italian"/>
+		<combo_box.item label="Magyar (Hongrois)" name="Hungarian"/>
+		<combo_box.item label="Nederlands (Néerlandais)" name="Dutch"/>
+		<combo_box.item label="Polski (Polonais)" name="Polish"/>
+		<combo_box.item label="Português (Portugais)" name="Portugese"/>
+		<combo_box.item label="Русский (Russe)" name="Russian"/>
+		<combo_box.item label="Türkçe (Turc)" name="Turkish"/>
+		<combo_box.item label="Українська (Ukrainien)" name="Ukrainian"/>
+		<combo_box.item label="中文 (简体) (Chinois)" name="Chinese"/>
+		<combo_box.item label="日本語 (Japonais)" name="Japanese"/>
+		<combo_box.item label="한국어 (Coréen)" name="Korean"/>
 	</combo_box>
 </panel>

@@ -6,4 +6,5 @@
 	<menu_item_call label="Opkald" name="Call"/>
 	<menu_item_call label="Del" name="Share"/>
 	<menu_item_call label="Betal" name="Pay"/>
+	<menu_item_call label="tilbyd teleport" name="teleport"/>
 </context_menu>
