@@ -30,10 +30,15 @@
 #include "lluicolor.h"
 #include "lluictrlfactory.h"
 
+static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sInspectFuncs;
+
 //
 // LLRNGWriter - writes Relax NG schema files based on a param block
 //
 LLRNGWriter::LLRNGWriter()
+: Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
 {
 	// register various callbacks for inspecting the contents of a param block
 	registerInspectFunc<bool>(boost::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));

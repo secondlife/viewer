@@ -2,5 +2,4 @@
 <!-- Core parameters are in simple_text_editor.xml -->
 <text_editor
   parse_urls="false"
-  text_readonly_color="LabelDisabledColor"
   show_context_menu="true"/>

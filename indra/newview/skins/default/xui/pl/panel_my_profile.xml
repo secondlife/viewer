@@ -27,9 +27,8 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
-		<layout_panel name="profile_me_buttons_panel">
-			<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
-			<button label="Edytuj wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubrania itp."/>
-		</layout_panel>
 	</layout_stack>
+	<panel name="profile_me_buttons_panel">
+		<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj informacje o sobie"/>
+	</panel>
 </panel>

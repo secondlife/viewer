@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="HERRAMIENTAS DE CONSTRUCCIÓN" title="" width="288">
+<floater name="toolbox floater" short_title="HERRAMIENTAS DE CONSTRUCCIÓN" title="">
 	<floater.string name="status_rotate">
 		Arrastra las bandas de color para girar el objeto.
 	</floater.string>
@@ -182,10 +182,10 @@
 			<text name="Group:">
 				Grupo:
 			</text>
-			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<name_box initial_value="Cargando..." name="Group Name Proxy"/>
-			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
 			<text name="label click action" width="180">
 				Al tocarlo:
 			</text>
@@ -437,7 +437,8 @@
 				<combo_box.item label="succión" name="suction"/>
 				<combo_box.item label="tejido" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
+			<check_box initial_value="falso" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
+			<text name="rpt">
 				Repeticiones por cara
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>

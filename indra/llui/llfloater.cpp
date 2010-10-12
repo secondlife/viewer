@@ -36,6 +36,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -231,7 +232,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0)
+	mPreviousMinimizedLeft(0),
+	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
 	mHandle.bind(this);
@@ -493,6 +495,8 @@ LLFloater::~LLFloater()
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
+
+	delete mMinimizeSignal;
 }
 
 void LLFloater::storeRectControl()
@@ -996,6 +1000,11 @@ void LLFloater::setMinimized(BOOL minimize)
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
 
 	if (minimize == mMinimized) return;
+
+	if(mMinimizeSignal)
+	{
+		(*mMinimizeSignal)(this, LLSD(minimize));
+	}
 
 	if (minimize)
 	{
@@ -2390,7 +2399,9 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 
 		// Attempt to close floater.  This will cause the "do you want to save"
 		// dialogs to appear.
-		if (floaterp->canClose() && !floaterp->isDead())
+		// Skip invisible floaters if we're not quitting (STORM-192).
+		if (floaterp->canClose() && !floaterp->isDead() &&
+			(app_quitting || floaterp->getVisible()))
 		{
 			floaterp->closeFloater(app_quitting);
 		}
@@ -2808,12 +2819,19 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	}
 }
 
+boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
+	return mMinimizeSignal->connect(cb); 
+}
+
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
+	LLXUIParser parser;
+	parser.readXUI(node, params, filename); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2821,8 +2839,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		setupParamsForExport(output_params, parent);
         Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, &default_params);
 	}
 
 	// Default floater position to top-left corner of screen
@@ -2916,4 +2933,65 @@ bool LLFloater::isMinimized(const LLFloater* floater)
 bool LLFloater::isVisible(const LLFloater* floater)
 {
     return floater && floater->getVisible();
+}
+
+static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+
+bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_node)
+{
+	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LLXMLNodePtr root;
+
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+			return false;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	{
+		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		return false;
+	}
+	
+	// root must be called floater
+	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
+	{
+		llwarns << "Root node should be named floater in: " << filename << llendl;
+		return false;
+	}
+	
+	bool res = true;
+	
+	lldebugs << "Building floater " << filename << llendl;
+	LLUICtrlFactory::instance().pushFileName(filename);
+	{
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.push_front(&getFactoryMap());
+		}
+
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		getCommitCallbackRegistrar().pushScope();
+		getEnableCallbackRegistrar().pushScope();
+		
+		res = initFloaterXML(root, getParent(), filename, output_node);
+
+		setXMLFilename(filename);
+		
+		getCommitCallbackRegistrar().popScope();
+		getEnableCallbackRegistrar().popScope();
+		
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.pop_front();
+		}
+	}
+	LLUICtrlFactory::instance().popFileName();
+	
+	return res;
 }

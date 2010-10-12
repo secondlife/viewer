@@ -156,6 +156,8 @@ public:
 	void setLowPrioritySizeLimit(int size);
 	
 	F64 getCPUUsage();
+	
+	void sendPickFileResponse(const std::string &file);
 
 	// Valid after a MEDIA_EVENT_CURSOR_CHANGED event
 	std::string getCursorName() const { return mCursorName; };
@@ -176,7 +178,8 @@ public:
 	void	setLanguageCode(const std::string &language_code);
 	void	setPluginsEnabled(const bool enabled);
 	void	setJavascriptEnabled(const bool enabled);
-		
+	void	setTarget(const std::string &target);
+	
 	///////////////////////////////////
 	// media browser class functions
 	bool pluginSupportsMediaBrowser(void);
@@ -193,6 +196,8 @@ public:
 	void browse_back();
 	void set_status_redirect(int code, const std::string &url);
 	void setBrowserUserAgent(const std::string& user_agent);
+	void proxyWindowOpened(const std::string &target, const std::string &uuid);
+	void proxyWindowClosed(const std::string &uuid);
 	
 	// This is valid after MEDIA_EVENT_NAVIGATE_BEGIN or MEDIA_EVENT_NAVIGATE_COMPLETE
 	std::string	getNavigateURI() const { return mNavigateURI; };
@@ -218,16 +223,14 @@ public:
 	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
 	std::string getClickTarget() const { return mClickTarget; };
 
-	typedef enum 
-	{
-		TARGET_NONE,        // empty href target string
-		TARGET_BLANK,       // target to open link in user's preferred browser
-		TARGET_EXTERNAL,    // target to open link in external browser
-		TARGET_OTHER        // nonempty and unsupported target type
-	}ETargetType;
-
-	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
-	ETargetType getClickTargetType() const { return mClickTargetType; };
+	// This is valid during MEDIA_EVENT_CLICK_LINK_HREF and MEDIA_EVENT_GEOMETRY_CHANGE
+	std::string getClickUUID() const { return mClickUUID; };
+	
+	// These are valid during MEDIA_EVENT_GEOMETRY_CHANGE
+	S32 getGeometryX() const { return mGeometryX; };
+	S32 getGeometryY() const { return mGeometryY; };
+	S32 getGeometryWidth() const { return mGeometryWidth; };
+	S32 getGeometryHeight() const { return mGeometryHeight; };
 
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
@@ -347,6 +350,8 @@ protected:
 	
 	LLColor4		mBackgroundColor;
 	
+	std::string		mTarget;
+	
 	/////////////////////////////////////////
 	// media_browser class
 	std::string		mNavigateURI;
@@ -359,7 +364,11 @@ protected:
 	std::string		mLocation;
 	std::string		mClickURL;
 	std::string		mClickTarget;
-	ETargetType     mClickTargetType;
+	std::string		mClickUUID;
+	S32				mGeometryX;
+	S32				mGeometryY;
+	S32				mGeometryWidth;
+	S32				mGeometryHeight;
 	
 	/////////////////////////////////////////
 	// media_time class
