@@ -28,22 +28,16 @@
 		<check_box initial_value="true" label="Piccoli rilievi e scintillii" name="BumpShiny"/>
 		<check_box initial_value="true" label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
 		<check_box initial_value="true" label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Riflessi dell&apos;acqua" name="Reflections"/>
-		<text name="ReflectionDetailText">
-			Dettaglio dei riflessi
+		<text name="reflection_label">
+			Riflessi nell’acqua:
 		</text>
-		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Terreno e alberi" name="0"/>
-			<radio_item label="Tutti gli aggetti statici" name="1"/>
-			<radio_item label="Tutti gli avatar e gli oggetti" name="2"/>
-			<radio_item label="Tutto" name="3"/>
-		</radio_group>
-		<text name="AvatarRenderingText">
-			Rendering dell&apos;avatar:
-		</text>
-		<check_box initial_value="true" label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Abiti dell&apos;avatar" name="AvatarCloth"/>
+		<combo_box initial_value="true" label="Riflessi dell&apos;acqua" name="Reflections">
+			<combo_box.item label="Minimo" name="0"/>
+			<combo_box.item label="Terreno e alberi" name="1"/>
+			<combo_box.item label="Tutti gli oggetti statici" name="2"/>
+			<combo_box.item label="Tutti gli avatar e gli oggetti" name="3"/>
+			<combo_box.item label="Tutto" name="4"/>
+		</combo_box>
 		<slider label="Distanza di disegno:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -81,13 +75,12 @@
 		<text name="SkyMeshDetailText">
 			Basso
 		</text>
-		<text name="LightingDetailText">
-			Dettagli illuminazione:
+		<text name="AvatarRenderingText">
+			Rendering dell&apos;avatar:
 		</text>
-		<radio_group name="LightingDetailRadio">
-			<radio_item label="Solo il sole e la luna" name="SunMoon" value="0"/>
-			<radio_item label="Luci locali" name="LocalLights" value="1"/>
-		</radio_group>
+		<check_box initial_value="true" label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Abiti dell&apos;avatar" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			Dettagli terreno:
 		</text>
@@ -95,6 +88,7 @@
 			<radio_item label="Basso" name="0"/>
 			<radio_item label="Alto" name="2"/>
 		</radio_group>
+		--&gt;
 	</panel>
 	<button label="Applica" label_selected="Applica" name="Apply"/>
 	<button label="Reimposta" name="Defaults"/>

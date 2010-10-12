@@ -42,9 +42,8 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
-		<layout_panel name="profile_me_buttons_panel">
-			<button label="プロフィールの編集" name="edit_profile_btn" tool_tip="個人的な情報を編集します"/>
-			<button label="容姿の編集" name="edit_appearance_btn" tool_tip="見た目を作成・編集します： （身体的データ、衣類など）"/>
-		</layout_panel>
 	</layout_stack>
+	<panel name="profile_me_buttons_panel">
+		<button label="プロフィールの編集" name="edit_profile_btn" tool_tip="個人的な情報を編集します"/>
+	</panel>
 </panel>

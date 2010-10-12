@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Wearing">
+	<menu_item_call label="Ausziehen" name="take_off"/>
+	<menu_item_call label="Abnehmen" name="detach"/>
 	<menu_item_call label="Outfit bearbeiten" name="edit"/>
 </context_menu>
