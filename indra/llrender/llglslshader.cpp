@@ -723,13 +723,13 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 		}
 	}
 
-	if (gDebugGL)
+	/*if (gDebugGL)
 	{
 		if (ret == -1 && ret != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
 		{
 			llerrs << "Uniform map invalid." << llendl;
 		}
-	}
+	}*/
 
 	return ret;
 }
