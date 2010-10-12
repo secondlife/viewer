@@ -6,4 +6,5 @@
 	<menu_item_call label="Ligar" name="Call"/>
 	<menu_item_call label="Compartilhar" name="Share"/>
 	<menu_item_call label="Pagar" name="Pay"/>
+	<menu_item_call label="Teletransportar?" name="teleport"/>
 </context_menu>

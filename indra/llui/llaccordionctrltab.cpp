@@ -735,6 +735,12 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 
 			return 1;
 		}
+
+		if (!getDisplayChildren())
+		{
+			// Don't pass scrolling event further if our contents are invisible (STORM-298).
+			return 1;
+		}
 	}
 
 	return LLUICtrl::notifyParent(info);

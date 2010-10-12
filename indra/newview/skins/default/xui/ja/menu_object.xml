@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
 	<menu_item_call label="触る" name="Object Touch">
-		<on_enable parameter="触る" name="EnableTouch"/>
+		<menu_item_call.on_enable name="EnableTouch" parameter="触る"/>
 	</menu_item_call>
 	<menu_item_call label="編集" name="Edit..."/>
 	<menu_item_call label="制作" name="Build"/>
@@ -12,16 +12,16 @@
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<context_menu label="装着" name="Put On">
 		<menu_item_call label="装着" name="Wear"/>
+		<menu_item_call label="追加" name="Add"/>
 		<context_menu label="取り付ける" name="Object Attach"/>
 		<context_menu label="HUD を取り付ける" name="Object Attach HUD"/>
 	</context_menu>
-	<context_menu label="取り除く" name="Remove">
+	<context_menu label="取り外す" name="Remove">
 		<menu_item_call label="嫌がらせの報告" name="Report Abuse..."/>
 		<menu_item_call label="ブロック" name="Object Mute"/>
 		<menu_item_call label="返却" name="Return..."/>
 		<menu_item_call label="削除" name="Delete"/>
 	</context_menu>
-	<menu_item_call label="買う" name="Pie Object Bye"/>
 	<menu_item_call label="取る" name="Pie Object Take"/>
 	<menu_item_call label="コピーを取る" name="Take Copy"/>
 	<menu_item_call label="支払う" name="Pay..."/>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="座る" name="Sit Down Here"/>
 	<menu_item_call label="立ち上がる" name="Stand Up"/>
-	<context_menu label="脱ぐ" name="Take Off &gt;">
+	<context_menu label="取り外す" name="Take Off &gt;">
 		<context_menu label="衣類" name="Clothes &gt;">
 			<menu_item_call label="シャツ" name="Shirt"/>
 			<menu_item_call label="パンツ" name="Pants"/>
