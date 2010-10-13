@@ -39,6 +39,17 @@
    value="Display Name:"
    width="80" />
   <text
+   top_delta="0"
+   follows="top|left"
+   height="13"
+   layout="topleft"
+   left="45"
+   name="solo_username_label"
+   text_color="LtGray"
+   value="Username:"
+   visible="false" 
+   width="80" />
+  <text
    follows="top|right"
    halign="right"
    height="13"
@@ -108,7 +119,7 @@
    top_delta="-2"
    use_ellipses="true"
    value="jack.linden"
-   width="205" 
+   width="195" 
    wrap="true "/>
   <tab_container
    follows="all"

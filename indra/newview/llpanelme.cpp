@@ -212,6 +212,8 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 		getChild<LLUICtrl>("display_name_label")->setVisible( true );
 		getChild<LLUICtrl>("set_name")->setVisible( true );
 		getChild<LLUICtrl>("set_name")->setEnabled( true );
+		getChild<LLUICtrl>("solo_user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( false );
 	}
 	else
 	{
@@ -220,6 +222,8 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 		getChild<LLUICtrl>("display_name_label")->setVisible( false );
 		getChild<LLUICtrl>("set_name")->setVisible( false );
 		getChild<LLUICtrl>("set_name")->setEnabled( false );
+		getChild<LLUICtrl>("solo_user_name")->setVisible( true );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( true );
 	}
 }
 
@@ -270,18 +274,8 @@ void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarNam
 	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
 	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
 	getChild<LLUICtrl>("user_name_small")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("solo_user_name")->setValue( av_name.mDisplayName );
 
-	// show smaller display name if too long to display in regular size
-	if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
-	{
-		getChild<LLUICtrl>("user_name_small")->setVisible( true );
-		getChild<LLUICtrl>("user_name")->setVisible( false );
-	}
-	else
-	{
-		getChild<LLUICtrl>("user_name_small")->setVisible( false );
-		getChild<LLUICtrl>("user_name")->setVisible( true );
-	}
 
 	if (LLAvatarNameCache::useDisplayNames())
 	{
@@ -290,6 +284,21 @@ void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarNam
 		getChild<LLUICtrl>("display_name_label")->setVisible( true );
 		getChild<LLUICtrl>("set_name")->setVisible( true );
 		getChild<LLUICtrl>("set_name")->setEnabled( true );
+
+		getChild<LLUICtrl>("solo_user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( false );
+
+		// show smaller display name if too long to display in regular size
+		if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( true );
+			getChild<LLUICtrl>("user_name")->setVisible( false );
+		}
+		else
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( false );
+			getChild<LLUICtrl>("user_name")->setVisible( true );
+		}
 	}
 	else
 	{
@@ -298,6 +307,11 @@ void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarNam
 		getChild<LLUICtrl>("display_name_label")->setVisible( false );
 		getChild<LLUICtrl>("set_name")->setVisible( false );
 		getChild<LLUICtrl>("set_name")->setEnabled( false );
+		
+		getChild<LLUICtrl>("solo_user_name")->setVisible( true );
+		getChild<LLUICtrl>("user_name_small")->setVisible( false );
+		getChild<LLUICtrl>("user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( true );
 	}
 }
 
@@ -351,6 +365,8 @@ void LLPanelMyProfileEdit::resetData()
 	//childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
 	getChild<LLUICtrl>("user_name")->setValue( LLSD() );
 	getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
+	getChild<LLUICtrl>("solo_user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_name_small")->setValue( LLSD() );
 }
 
 void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)

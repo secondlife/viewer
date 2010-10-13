@@ -97,6 +97,17 @@
      text_color="LtGray"
      value="Display Name:"
      width="80" />
+      <text
+     top="5"
+     follows="top|left"
+     height="13"
+     layout="topleft"
+     left="10"
+     name="solo_username_label"
+     text_color="LtGray"
+     value="Username:"
+     visible="false" 
+     width="80" />
       <button
          name="set_name"
          layout="topleft"
@@ -112,13 +123,26 @@
        font="SansSerifBigBold"
        height="20"
        layout="topleft"
-       left_pad="10"
-       name="user_name"
+       left="10"
+       name="solo_user_name"
        text_color="white"
        top_delta="3"
        value="Hamilton Hitchings"
-       use_ellipses="true" 
-       visible="true" 
+       use_ellipses="true"
+       visible="false"
+       width="275" />
+      <text
+       follows="top|left"
+       font="SansSerifBigBold"
+       height="20"
+       layout="topleft"
+       left="43"
+       name="user_name"
+       text_color="white"
+       top_delta="0"
+       value="Hamilton Hitchings"
+       use_ellipses="true"
+       visible="true"
        width="250" />
       <text
        follows="top|left"
@@ -131,7 +155,7 @@
        top_delta="-4"
        value="Hamilton Hitchings"
        use_ellipses="true"
-       visible="false" 
+       visible="false"
        wrap="true"
        width="245" />
       <text
@@ -141,7 +165,7 @@
     left="10"
     name="user_label"
     text_color="LtGray"
-    top_pad="8" 
+    top_pad="8"
     value="Username:"
     width="70" />
       <text

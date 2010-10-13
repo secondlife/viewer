@@ -222,7 +222,6 @@ void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
 	{
 		getChild<LLUICtrl>("user_name_small")->setVisible( false );
 		getChild<LLUICtrl>("user_name")->setVisible( true );
-
 	}
 
 	if (LLAvatarNameCache::useDisplayNames())
@@ -232,6 +231,7 @@ void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
 		getChild<LLUICtrl>("display_name_label")->setVisible( true );
 		getChild<LLUICtrl>("copy_to_clipboard")->setVisible( true );
 		getChild<LLUICtrl>("copy_to_clipboard")->setEnabled( true );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( false );
 	}
 	else
 	{
@@ -240,6 +240,7 @@ void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
 		getChild<LLUICtrl>("display_name_label")->setVisible( false );
 		getChild<LLUICtrl>("copy_to_clipboard")->setVisible( false );
 		getChild<LLUICtrl>("copy_to_clipboard")->setEnabled( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( true );
 	}
 }
 
