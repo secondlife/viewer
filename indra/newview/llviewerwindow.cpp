@@ -2948,18 +2948,20 @@ void LLViewerWindow::updateKeyboardFocus()
 
 			LLUICtrl* parent = cur_focus->getParentUICtrl();
 			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			bool new_focus_found = false;
 			while(parent)
 			{
-				if (parent->isCtrl() && 
-					(parent->hasTabStop() || parent == focus_root) && 
-					!parent->getIsChrome() && 
-					parent->isInVisibleChain() && 
-					parent->isInEnabledChain())
+				if (parent->isCtrl() 
+					&& (parent->hasTabStop() || parent == focus_root) 
+					&& !parent->getIsChrome() 
+					&& parent->isInVisibleChain() 
+					&& parent->isInEnabledChain())
 				{
 					if (!parent->focusFirstItem())
 					{
 						parent->setFocus(TRUE);
 					}
+					new_focus_found = true;
 					break;
 				}
 				parent = parent->getParentUICtrl();
@@ -2968,7 +2970,7 @@ void LLViewerWindow::updateKeyboardFocus()
 			// if we didn't find a better place to put focus, just release it
 			// hasFocus() will return true if and only if we didn't touch focus since we
 			// are only moving focus higher in the hierarchy
-			if (cur_focus->hasFocus())
+			if (!new_focus_found)
 			{
 				cur_focus->setFocus(FALSE);
 			}
