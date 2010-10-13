@@ -5417,7 +5417,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
    name="OfferFriendshipNoMessage"
    persist="true"
    type="notify">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
