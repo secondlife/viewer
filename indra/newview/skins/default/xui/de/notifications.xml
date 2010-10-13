@@ -2195,8 +2195,7 @@ Wählen Sie eine kleinere Landfläche.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportieren"/>
-			<button name="Description" text="Beschreibung"/>
+			<button name="Details" text="Beschreibung"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>

@@ -140,7 +140,6 @@ set(viewer_SOURCE_FILES
     lldriverparam.cpp
     lldynamictexture.cpp
     llemote.cpp
-    lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
@@ -670,7 +669,6 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
-    lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
