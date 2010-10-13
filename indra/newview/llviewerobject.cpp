@@ -207,6 +207,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
+	mCircuitPacketCount(0),
 	mData(NULL),
 	mAudioSourcep(NULL),
 	mAudioGain(1.f),
@@ -1875,6 +1876,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	}
 
 	mLatestRecvPacketID = packet_id;
+	mCircuitPacketCount = 0;
 
 	// Set the change flags for scale
 	if (new_scale != getScale())
@@ -2190,8 +2192,7 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 			setChanged(MOVED | SILHOUETTE);
 		}
 	}
-	else if ((!accel.isExactlyZero() || !vel.isExactlyZero()) &&	// object is moving and
-		(time_since_last_update < sMaxUpdateInterpolationTime))		// we should interpolate motion
+	else if (!accel.isExactlyZero() || !vel.isExactlyZero())		// object is moving
 	{	// Object is moving, and hasn't been too long since we got an update from the server
 		
 		// Calculate predicted position and velocity
@@ -2199,25 +2200,48 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 		LLVector3 new_v = accel * dt;
 
 		if (time_since_last_update > sPhaseOutUpdateInterpolationTime)
-		{	// Start to reduce motion interpolation since we haven't seen a server update in a while
-			F64 time_since_last_interpolation = time - mLastInterpUpdateSecs;
-			F64 phase_out = 1.0;
-			if (mLastInterpUpdateSecs - mLastMessageUpdateSecs > sPhaseOutUpdateInterpolationTime)
-			{	// Last update was already phased out a bit
-				phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
-							(sMaxUpdateInterpolationTime - time_since_last_interpolation);
-				//llinfos << "Continuing motion phase out of " << (F32) phase_out << llendl;
-			}
-			else
-			{	// Phase out from full value
-				phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
-							(sMaxUpdateInterpolationTime - sPhaseOutUpdateInterpolationTime);
-				//llinfos << "Starting motion phase out of " << (F32) phase_out << llendl;
-			}
-			phase_out = llclamp(phase_out, 0.0, 1.0);
+		{	// Haven't seen a viewer update in a while, check to see if the ciruit is still active
+			if (mRegionp)
+			{	// The simulator will NOT send updates if the object continues normally on the path
+				// predicted by the velocity and the acceleration (often gravity) sent to the viewer
+				// So check to see if the circuit is blocked, which means the sim is likely in a long lag
+				LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit( mRegionp->getHost() );
+				if (cdp)
+				{
+					if (!cdp->isAlive() ||		// Circuit is dead or blocked
+						 cdp->isBlocked() ||	// or doesn't seem to be getting any packets
+						 (mCircuitPacketCount > 0 && mCircuitPacketCount == cdp->getPacketsIn()))
+					{
+						// Start to reduce motion interpolation since we haven't seen a server update in a while
+						F64 time_since_last_interpolation = time - mLastInterpUpdateSecs;
+						F64 phase_out = 1.0;
+						if (time_since_last_update > sMaxUpdateInterpolationTime)
+						{	// Past the time limit, so stop the object
+							phase_out = 0.0;
+							//llinfos << "Motion phase out to zero" << llendl;
+						}
+						else if (mLastInterpUpdateSecs - mLastMessageUpdateSecs > sPhaseOutUpdateInterpolationTime)
+						{	// Last update was already phased out a bit
+							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
+										(sMaxUpdateInterpolationTime - time_since_last_interpolation);
+							//llinfos << "Continuing motion phase out of " << (F32) phase_out << llendl;
+						}
+						else
+						{	// Phase out from full value
+							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
+										(sMaxUpdateInterpolationTime - sPhaseOutUpdateInterpolationTime);
+							//llinfos << "Starting motion phase out of " << (F32) phase_out << llendl;
+						}
+						phase_out = llclamp(phase_out, 0.0, 1.0);
 
-			new_pos = new_pos * ((F32) phase_out);
-			new_v = new_v * ((F32) phase_out);
+						new_pos = new_pos * ((F32) phase_out);
+						new_v = new_v * ((F32) phase_out);
+					}
+
+					// Save current circuit packet count to see if it changes 
+					mCircuitPacketCount = cdp->getPacketsIn();
+				}
+			}
 		}
 
 		new_pos = new_pos + getPositionRegion();
@@ -5058,6 +5082,7 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	}
 	
 	mLatestRecvPacketID = 0;
+	mCircuitPacketCount = 0;
 	mRegionp = regionp;
 
 	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
