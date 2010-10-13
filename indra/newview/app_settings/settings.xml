@@ -3590,72 +3590,6 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    <key>FontMonospace</key>
-    <map>
-      <key>Comment</key>
-      <string>Name of monospace font that definitely exists (Truetype file name)</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>DejaVuSansMono.ttf</string>
-    </map>
-    <key>FontSansSerif</key>
-    <map>
-      <key>Comment</key>
-      <string>Name of primary sans-serif font that definitely exists (Truetype file name)</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>MtBkLfRg.ttf</string>
-    </map>
-    <key>FontSansSerifBundledFallback</key>
-    <map>
-      <key>Comment</key>
-      <string>Name of secondary sans-serif font that definitely exists (Truetype file name)</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>DejaVuSansCondensed.ttf</string>
-    </map>
-    <key>FontSansSerifBold</key>
-    <map>
-      <key>Comment</key>
-      <string>Name of bold font (Truetype file name)</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>MtBdLfRg.ttf</string>
-    </map>
-    <key>FontSansSerifFallback</key>
-    <map>
-      <key>Comment</key>
-      <string>Name of sans-serif font (Truetype file name)</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string />
-    </map>
-    <key>FontSansSerifFallbackScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale of fallback font relative to huge font (fraction of huge font size)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>FontScreenDPI</key>
     <map>
       <key>Comment</key>
@@ -3666,61 +3600,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>96.0</real>
-    </map>
-    <key>FontSizeHuge</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of huge font (points, or 1/72 of an inch)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>16.0</real>
-    </map>
-    <key>FontSizeLarge</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of large font (points, or 1/72 of an inch)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>12.0</real>
-    </map>
-    <key>FontSizeMedium</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of medium font (points, or 1/72 of an inch)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>10.0</real>
-    </map>
-    <key>FontSizeMonospace</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of monospaced font (points, or 1/72 of an inch)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>8.1</real>
-    </map>
-    <key>FontSizeSmall</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of small font (points, or 1/72 of an inch)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>9.0</real>
     </map>
     <key>ForceAssetFail</key>
     <map>
@@ -5251,61 +5130,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>60.0</real>
-    </map>
-    <key>MeanCollisionBump</key>
-    <map>
-      <key>Comment</key>
-      <string>You have experienced an abuse of being bumped by an object or avatar</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MeanCollisionPhysical</key>
-    <map>
-      <key>Comment</key>
-      <string>You have experienced an abuse from a physical object</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MeanCollisionPushObject</key>
-    <map>
-      <key>Comment</key>
-      <string>You have experienced an abuse of being pushed by a scripted object</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MeanCollisionScripted</key>
-    <map>
-      <key>Comment</key>
-      <string>You have experienced an abuse from a scripted object</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MeanCollisionSelected</key>
-    <map>
-      <key>Comment</key>
-      <string>You have experienced an abuse of being pushed via a selected object</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
   <key>MediaControlFadeTime</key>
   <map>
@@ -7835,17 +7659,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>RenderFastUI</key>
-    <map>
-      <key>Comment</key>
-      <string>[NOT USED]</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>RenderFlexTimeFactor</key>
     <map>
