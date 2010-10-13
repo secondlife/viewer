@@ -114,11 +114,15 @@ then
   if [ -x "$top/../buildscripts/hg/bin/build.sh" ]
   then
     exec "$top/../buildscripts/hg/bin/build.sh" "$top"
+  elif [ -r "$top/README" ]
+  then
+    cat "$top/README"
+    exit 1
   else
     cat <<EOF
 This script, if called in a development environment, requires that the branch
 independent build script repository be checked out next to this repository.
-This repository is located at http://hg.lindenlab.com/parabuild/buildscripts
+This repository is located at http://hg.secondlife.com/buildscripts
 EOF
     exit 1
   fi

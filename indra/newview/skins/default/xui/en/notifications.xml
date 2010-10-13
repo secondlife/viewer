@@ -5266,7 +5266,7 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
+An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5510,7 +5510,7 @@ Load web page [URL]?
 
 [MESSAGE]
 
-From object: [OBJECTNAME], owner: [NAME]?
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
     <form name="form">
       <button
        index="0"
@@ -5552,7 +5552,7 @@ The item you are trying to wear uses a feature that your Viewer can&apos;t read.
    name="ScriptQuestion"
    persist="true"
    type="notify">
-&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, would like to:
 
 [QUESTIONS]
 Is this OK?
@@ -5578,7 +5578,7 @@ Is this OK?
    priority="high"
    persist="true"
    type="notify">
-An object named &apos;[OBJECTNAME]&apos;, owned by &apos;[NAME]&apos; would like to:
+An object named &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, owned by &apos;[NAME]&apos; would like to:
 
 [QUESTIONS]
 If you do not trust this object and its creator, you should deny the request.
@@ -5605,7 +5605,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[FIRST] [LAST]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5619,7 +5619,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialogGroup"
    type="notify">
-[GROUPNAME]&apos;s &apos;[TITLE]&apos;
+[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button

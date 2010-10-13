@@ -11,7 +11,13 @@
 		<panel label="EM USO" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
-		<button label="Salvar como" name="save_btn"/>
-		<button label="Vestir" name="wear_btn" tool_tip="Vestir look selecionado"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Salvar como" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="wear_btn_lp">
+				<button label="Vestir" name="wear_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

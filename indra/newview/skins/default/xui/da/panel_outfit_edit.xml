@@ -45,7 +45,13 @@
 		<button name="shop_btn_2" tool_tip="Besøg SL markedspladsen. Du kan også vælge noget du har på, og så klikke her for at se andre ting som dette"/>
 	</panel>
 	<panel name="save_revert_button_bar">
-		<button label="Gem" name="save_btn"/>
-		<button label="Annullér ændringer" name="revert_btn" tool_tip="Vend tilbage til sidst gemte version"/>
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Gem" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annullér ændringer" name="revert_btn" tool_tip="Vend tilbage til gemt version"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>
