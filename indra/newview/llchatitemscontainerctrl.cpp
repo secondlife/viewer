@@ -169,7 +169,9 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	{
 		std::string str_sender;
 
-		str_sender = fromName;
+		str_sender = "<nolink>"; // disable parsing URLs in object names (STORM-358)
+		str_sender += fromName;
+		str_sender += "</nolink>";
 
 		str_sender+=" ";
 
