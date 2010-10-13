@@ -39,7 +39,6 @@
 #include "lltracker.h"
 #include "llslurl.h"
 
-class LLEventInfo;
 class LLFriendObserver;
 class LLInventoryModel;
 class LLInventoryObserver;

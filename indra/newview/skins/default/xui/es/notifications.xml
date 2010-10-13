@@ -2186,8 +2186,7 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportar"/>
-			<button name="Description" text="Descripción"/>
+			<button name="Details" text="Detalles"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
