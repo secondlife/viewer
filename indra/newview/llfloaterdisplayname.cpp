@@ -67,6 +67,37 @@ void LLFloaterDisplayName::onOpen(const LLSD& key)
 {
 	getChild<LLUICtrl>("display_name_editor")->clear();
 	getChild<LLUICtrl>("display_name_confirm")->clear();
+
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(gAgent.getID(), &av_name);
+
+	F64 now_secs = LLDate::now().secondsSinceEpoch();
+
+	if (now_secs < av_name.mNextUpdate)
+	{
+		// ...can't update until some time in the future
+		F64 next_update_local_secs =
+			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
+		LLDate next_update_local(next_update_local_secs);
+		// display as "July 18 12:17 PM"
+		std::string next_update_string =
+		next_update_local.toHTTPDateString("%B %d %I:%M %p");
+		getChild<LLUICtrl>("lockout_text")->setTextArg("[TIME]", next_update_string);
+		getChild<LLUICtrl>("lockout_text")->setVisible(true);
+		getChild<LLUICtrl>("save_btn")->setEnabled(false);
+		getChild<LLUICtrl>("display_name_editor")->setEnabled(false);
+		getChild<LLUICtrl>("display_name_confirm")->setEnabled(false);
+		getChild<LLUICtrl>("cancel_btn")->setFocus(TRUE);
+		
+	}
+	else
+	{
+		getChild<LLUICtrl>("lockout_text")->setVisible(false);
+		getChild<LLUICtrl>("save_btn")->setEnabled(true);
+		getChild<LLUICtrl>("display_name_editor")->setEnabled(true);
+		getChild<LLUICtrl>("display_name_confirm")->setEnabled(true);
+
+	}
 }
 
 BOOL LLFloaterDisplayName::postBuild()
@@ -133,9 +164,16 @@ void LLFloaterDisplayName::onCancel()
 
 void LLFloaterDisplayName::onReset()
 {
-	LLViewerDisplayName::set("",
-		boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
-
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		LLViewerDisplayName::set("",
+			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+	}	
+	else
+	{
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+	}
+	
 	setVisible(false);
 }
 
@@ -160,9 +198,16 @@ void LLFloaterDisplayName::onSave()
 		LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
 		return;
 	}
-
-	LLViewerDisplayName::set(display_name_utf8,
-		boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
+	
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		LLViewerDisplayName::set(display_name_utf8,
+			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
+	}
+	else
+	{
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+	}
 
 	setVisible(false);
 }

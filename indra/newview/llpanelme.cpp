@@ -394,18 +394,6 @@ void LLPanelMyProfileEdit::onAvatarNameCache(const LLUUID& agent_id, const LLAva
 			LLNotificationsUtil::add("SetDisplayNameBlocked");
 			return;
 		}
-	
-		// ...can't update until some time in the future
-		F64 next_update_local_secs =
-			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
-		LLDate next_update_local(next_update_local_secs);
-		// display as "July 18 12:17 PM"
-		std::string next_update_string =
-		next_update_local.toHTTPDateString("%B %d %I:%M %p");
-		LLSD args;
-		args["TIME"] = next_update_string;
-		LLNotificationsUtil::add("SetDisplayNameFailedLockout", args);
-		return;
 	}
 	
 	LLFloaterReg::showInstance("display_name");

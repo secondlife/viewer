@@ -3194,14 +3194,6 @@ Just like in real life, it takes a while for everyone to learn about a new name.
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   name="SetDisplayNameFailedLockout"
-   type="alert">
-Sorry, you cannot [http://wiki.secondlife.com/wiki/Setting_your_display_name change your display name] until:
-[TIME]
-  </notification>
-
-  <notification
  icon="alertmodal.tga"
  name="SetDisplayNameBlocked"
  type="alert">
@@ -3231,7 +3223,7 @@ Please try a shorter name.
     The display names you entered do not match. Please re-enter.
   </notification>
 
-  <!-- *NOTE: This should never happen, users should see SetDisplayNameFailedLockout above -->
+  <!-- *NOTE: This should never happen -->
   <notification
    icon="alertmodal.tga"
    name="AgentDisplayNameUpdateThresholdExceeded"
