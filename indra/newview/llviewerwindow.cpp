@@ -1371,7 +1371,7 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
 				<< LL_ENDL;
 #endif
-        LLAppViewer::instance()->forceExit(1);
+        LLAppViewer::instance()->fastQuit(1);
 	}
 	
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why

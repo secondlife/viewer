@@ -1284,6 +1284,21 @@ bool LLAppViewer::mainLoop()
 	return true;
 }
 
+void LLAppViewer::flushVFSIO()
+{
+	while (1)
+	{
+		S32 pending = LLVFSThread::updateClass(0);
+		pending += LLLFSThread::updateClass(0);
+		if (!pending)
+		{
+			break;
+		}
+		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
+		ms_sleep(100);
+	}
+}
+
 bool LLAppViewer::cleanup()
 {
 	// workaround for DEV-35406 crash on shutdown
@@ -1419,17 +1434,7 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cache files removed" << llendflush;
 
 	// Wait for any pending VFS IO
-	while (1)
-	{
-		S32 pending = LLVFSThread::updateClass(0);
-		pending += LLLFSThread::updateClass(0);
-		if (!pending)
-		{
-			break;
-		}
-		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
-		ms_sleep(100);
-	}
+	flushVFSIO();
 	llinfos << "Shutting down Views" << llendflush;
 
 	// Destroy the UI
@@ -2879,13 +2884,20 @@ void LLAppViewer::forceQuit()
 	LLApp::setQuitting(); 
 }
 
-void LLAppViewer::fastQuit()
+void LLAppViewer::fastQuit(S32 error_code)
 {
-	if (LLStartUp::getStartupState() >= STATE_STARTED)
-	{
-		sendLogoutRequest();
-	}
-	_exit(isError());	
+	// finish pending transfers
+	flushVFSIO();
+	// let sim know we're logging out
+	sendLogoutRequest();
+	// flush network buffers by shutting down messaging system
+	end_messaging_system();
+	// figure out the error code
+	S32 final_error_code = error_code ? error_code : (S32)isError();
+	// this isn't a crash	
+	removeMarkerFile();
+	// get outta here
+	_exit(final_error_code);	
 }
 
 void LLAppViewer::requestQuit()
@@ -2971,14 +2983,6 @@ void LLAppViewer::earlyExitNoNotify()
    	llwarns << "app_early_exit with no notification: " << llendl;
 	gDoDisconnect = TRUE;
 	finish_early_exit( LLSD(), LLSD() );
-}
-
-void LLAppViewer::forceExit(S32 arg)
-{
-    removeMarkerFile();
-    
-    // *FIX:Mani - This kind of exit hardly seems appropriate.
-    exit(arg);
 }
 
 void LLAppViewer::abortQuit()
