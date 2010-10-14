@@ -2523,7 +2523,18 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-    <key>DisableCameraConstraints</key>
+    <key>DestinationGuideURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Destination guide contents</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://www.secondlife.com</string>
+    </map>
+  <key>DisableCameraConstraints</key>
     <map>
       <key>Comment</key>
       <string>Disable the normal bounds put on the camera by avatar position</string>
