@@ -175,12 +175,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		viewer_app_ptr->mainLoop();
 	}
 
-	if (gSavedSettings.getBOOL("FastQuit"))
-	{
-		viewer_app_ptr->fastQuit();
-	}
-
-
 	if (!LLApp::isError())
 	{
 		//
