@@ -24,6 +24,8 @@
 	<RenderTerrainLODFactor value="2"/>
 	<!--Default for now-->
 	<RenderTreeLODFactor value="0.5"/>
+	<!--Default for now-->
+	<RenderUseFBO value="1"/>
 	<!--Try Impostors-->
 	<RenderUseImpostors value="TRUE"/>
 	<!--Default for now-->

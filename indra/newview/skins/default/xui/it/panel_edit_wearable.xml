@@ -102,7 +102,13 @@
 		<icon name="female_icon" tool_tip="Femmina"/>
 	</panel>
 	<panel name="button_panel">
-		<button label="Salva con nome" name="save_as_button"/>
-		<button label="Annulla modifiche" name="revert_button"/>
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="Salva con nome" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annulla modifiche" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

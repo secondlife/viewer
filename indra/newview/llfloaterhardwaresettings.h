@@ -70,6 +70,7 @@ public:
 protected:
 	BOOL mUseVBO;
 	BOOL mUseAniso;
+	BOOL mUseFBO;
 	U32 mFSAASamples;
 	F32 mGamma;
 	S32 mVideoCardMem;

@@ -23,5 +23,9 @@
 	</string>
 	<text name="avatar_name" value="不明"/>
 	<text name="last_interaction" value="0 秒"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集することができます"/>
+	<icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトを編集・削除・取得することができます"/>
+	<icon name="permission_map_icon" tool_tip="このフレンドは地図上であなたの位置を表示できます"/>
+	<icon name="permission_online_icon" tool_tip="このフレンドはあなたがオンラインにいることを確認できます"/>
 	<button name="profile_btn" tool_tip="プロフィールの表示"/>
 </panel>
