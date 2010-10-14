@@ -32,7 +32,6 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
-#include "llmenubutton.h"
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
@@ -68,12 +67,12 @@ public:
 	{
 		if (!mMenu) return;
 
-		mMenu->arrangeAndClear();
 		mMenu->buildDrawLabels();
 		mMenu->updateParent(LLMenuGL::sMenuContainer);
+		S32 menu_x = 0;
+		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
+		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
 	}
-
-	LLMenuGL* getMenu() { return mMenu; }
 
 private:
 
@@ -190,16 +189,6 @@ BOOL LLPanelWearing::postBuild()
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
 	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
 
-	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
-	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
-	// of getChild<LLUICtrl>(...) for performance.
-	static_cast<LLUICtrl*>(menu_gear_btn)->setMouseDownCallback(boost::bind(&LLPanelWearing::showGearMenu, this, _1));
-
-	menu_gear_btn->setMenu(mGearMenu->getMenu());
-
-
 	return TRUE;
 }
 
@@ -268,14 +257,7 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 void LLPanelWearing::showGearMenu(LLView* spawning_view)
 {
 	if (!mGearMenu) return;
-
 	mGearMenu->show(spawning_view);
-
-	LLMenuButton* btn = dynamic_cast<LLMenuButton*>(spawning_view);
-	if (btn)
-	{
-		btn->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
-	}
 }
 
 boost::signals2::connection LLPanelWearing::setSelectionChangeCallback(commit_callback_t cb)

@@ -30,7 +30,6 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
-#include "llmenubutton.h"
 #include "llvoiceclient.h"
 
 class LLFilterEditor;
@@ -101,7 +100,10 @@ private:
 	void					onShareButtonClicked();
 	void					onMoreButtonClicked();
 	void					onActivateButtonClicked();
-	void					onViewSortButtonClicked();
+	void					onRecentViewSortButtonClicked();
+	void					onNearbyViewSortButtonClicked();
+	void					onFriendsViewSortButtonClicked();
+	void					onGroupsViewSortButtonClicked();
 	void					onAvatarListDoubleClicked(LLUICtrl* ctrl);
 	void					onAvatarListCommitted(LLAvatarList* list);
 	void					onGroupPlusButtonClicked();
@@ -154,11 +156,6 @@ private:
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
-
-	LLMenuButton*			mNearbyGearButton;
-	LLMenuButton*			mFriendsGearButton;
-	LLMenuButton*			mGroupsGearButton;
-	LLMenuButton*			mRecentGearButton;
 
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;
