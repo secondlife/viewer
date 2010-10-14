@@ -2163,7 +2163,7 @@ U32 LLModelPreview::calcResourceCost()
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
 	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
-	F32 scale = mFMP->childGetValue("debug scale").asReal();
+	F32 scale = mFMP->childGetValue("debug scale").asReal()*2.f;
 	mFMP->childSetTextArg("dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
 	mFMP->childSetTextArg("dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
 	mFMP->childSetTextArg("dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
@@ -2180,16 +2180,39 @@ void LLModelPreview::rebuildUploadData()
 
 	//fill uploaddata instance vectors from scene data
 
-	F32 scale = mFMP->childGetValue("debug scale").asReal();
+	LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("debug scale");
+
+	if (!scale_spinner)
+	{
+		llerrs << "floater_model_preview.xml MUST contain debug scale spinner." << llendl;
+	}
+
+	F32 scale = scale_spinner->getValue().asReal();
 
 	LLMatrix4 scale_mat;
 	scale_mat.initScale(LLVector3(scale, scale, scale));
 
+	F32 max_scale = 0.f;
+
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
 		LLMatrix4 mat = iter->first;
-		mat *= scale_mat;
 
+		// compute position
+		LLVector3 position = LLVector3(0, 0, 0) * mat;
+
+		// compute scale
+		LLVector3 x_transformed = LLVector3(1, 0, 0) * mat - position;
+		LLVector3 y_transformed = LLVector3(0, 1, 0) * mat - position;
+		LLVector3 z_transformed = LLVector3(0, 0, 1) * mat - position;
+		F32 x_length = x_transformed.normalize();
+		F32 y_length = y_transformed.normalize();
+		F32 z_length = z_transformed.normalize();
+		
+		max_scale = llmax(llmax(llmax(max_scale, x_length), y_length), z_length);
+		
+		mat *= scale_mat;
+	
 		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
 		{ //for each instance with said transform applied
 			LLModelInstance instance = *model_iter;
@@ -2220,6 +2243,15 @@ void LLModelPreview::rebuildUploadData()
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
 		}
+	}
+
+	F32 max_import_scale = DEFAULT_MAX_PRIM_SCALE/max_scale;
+
+	scale_spinner->setMaxValue(max_import_scale);
+
+	if (max_import_scale < scale)
+	{
+		scale_spinner->setValue(max_import_scale);
 	}
 }
 
