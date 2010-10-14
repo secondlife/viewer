@@ -463,11 +463,7 @@ LLPanelPeople::LLPanelPeople()
 		mAllFriendList(NULL),
 		mNearbyList(NULL),
 		mRecentList(NULL),
-		mGroupList(NULL),
-		mNearbyGearButton(NULL),
-		mFriendsGearButton(NULL),
-		mGroupsGearButton(NULL),
-		mRecentGearButton(NULL)
+		mGroupList(NULL)
 {
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
@@ -603,6 +599,11 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("teleport_btn",		boost::bind(&LLPanelPeople::onTeleportButtonClicked,	this));
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 
+	getChild<LLPanel>(NEARBY_TAB_NAME)->childSetAction("nearby_view_sort_btn",boost::bind(&LLPanelPeople::onNearbyViewSortButtonClicked,		this));
+	getChild<LLPanel>(RECENT_TAB_NAME)->childSetAction("recent_viewsort_btn",boost::bind(&LLPanelPeople::onRecentViewSortButtonClicked,			this));
+	getChild<LLPanel>(FRIENDS_TAB_NAME)->childSetAction("friends_viewsort_btn",boost::bind(&LLPanelPeople::onFriendsViewSortButtonClicked,		this));
+	getChild<LLPanel>(GROUP_TAB_NAME)->childSetAction("groups_viewsort_btn",boost::bind(&LLPanelPeople::onGroupsViewSortButtonClicked,		this));
+
 	// Must go after setting commit callback and initializing all pointers to children.
 	mTabContainer->selectTabByName(NEARBY_TAB_NAME);
 
@@ -622,49 +623,24 @@ BOOL LLPanelPeople::postBuild()
 	enable_registrar.add("People.Recent.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,	this, _2));
 	enable_registrar.add("People.Nearby.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,	this, _2));
 
-	mNearbyGearButton = getChild<LLMenuButton>("nearby_view_sort_btn");
-	mFriendsGearButton = getChild<LLMenuButton>("friends_viewsort_btn");
-	mGroupsGearButton = getChild<LLMenuButton>("groups_viewsort_btn");
-	mRecentGearButton = getChild<LLMenuButton>("recent_viewsort_btn");
-
-	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
-	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
-	// of getChild<LLUICtrl>(...) for performance.
-	static_cast<LLUICtrl*>(mNearbyGearButton)->setMouseDownCallback(boost::bind(&LLPanelPeople::onViewSortButtonClicked, this));
-	static_cast<LLUICtrl*>(mFriendsGearButton)->setMouseDownCallback(boost::bind(&LLPanelPeople::onViewSortButtonClicked, this));
-	static_cast<LLUICtrl*>(mGroupsGearButton)->setMouseDownCallback(boost::bind(&LLPanelPeople::onViewSortButtonClicked, this));
-	static_cast<LLUICtrl*>(mRecentGearButton)->setMouseDownCallback(boost::bind(&LLPanelPeople::onViewSortButtonClicked, this));
-
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
 
 	LLMenuGL* nearby_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_nearby_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(nearby_view_sort)
-	{
 		mNearbyViewSortMenuHandle  = nearby_view_sort->getHandle();
-		mNearbyGearButton->setMenu(nearby_view_sort);
-	}
 
 	LLMenuGL* friend_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_friends_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(friend_view_sort)
-	{
 		mFriendsViewSortMenuHandle  = friend_view_sort->getHandle();
-		mFriendsGearButton->setMenu(friend_view_sort);
-	}
 
 	LLMenuGL* group_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_groups_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(group_view_sort)
-	{
 		mGroupsViewSortMenuHandle  = group_view_sort->getHandle();
-		mGroupsGearButton->setMenu(group_view_sort);
-	}
 
 	LLMenuGL* recent_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_recent_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(recent_view_sort)
-	{
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
-		mRecentGearButton->setMenu(recent_view_sort);
-	}
 
 	LLVoiceClient::getInstance()->addObserver(this);
 
@@ -931,9 +907,20 @@ void LLPanelPeople::getCurrentItemIDs(uuid_vec_t& selected_uuids) const
 void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
 {
 	// Shows the menu at the top of the button bar.
+
+	// Calculate its coordinates.
+	// (assumes that groups panel is the current tab)
+	LLPanel* bottom_panel = mTabContainer->getCurrentPanel()->getChild<LLPanel>("bottom_panel"); 
+	LLPanel* parent_panel = mTabContainer->getCurrentPanel();
 	menu->arrangeAndClear();
+	S32 menu_height = menu->getRect().getHeight();
+	S32 menu_x = -2; // *HACK: compensates HPAD in showPopup()
+	S32 menu_y = bottom_panel->getRect().mTop + menu_height;
+
+	// Actually show the menu.
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(parent_panel, menu, menu_x, menu_y);
 }
 
 void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save)
@@ -1360,39 +1347,36 @@ void LLPanelPeople::onMoreButtonClicked()
 	// *TODO: not implemented yet
 }
 
-void LLPanelPeople::onViewSortButtonClicked()
+void LLPanelPeople::onFriendsViewSortButtonClicked()
 {
-	std::string current_panel = getActiveTabName();
+	LLMenuGL* menu = (LLMenuGL*)mFriendsViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
+}
 
-    LLMenuGL* menu = NULL;
-    LLMenuButton* btn = NULL;
+void LLPanelPeople::onGroupsViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mGroupsViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
+}
 
-    if (current_panel == NEARBY_TAB_NAME)
-    {
-        menu = dynamic_cast<LLMenuGL*>(mNearbyViewSortMenuHandle.get());
-        btn = mNearbyGearButton;
-    }
-    else if (current_panel == FRIENDS_TAB_NAME)
-    {
-        menu = dynamic_cast<LLMenuGL*>(mFriendsViewSortMenuHandle.get());
-        btn = mFriendsGearButton;
-    }
-    else if (current_panel == GROUP_TAB_NAME)
-    {
-        menu = dynamic_cast<LLMenuGL*>(mGroupsViewSortMenuHandle.get());
-        btn = mGroupsGearButton;
-    }
-    else if (current_panel == RECENT_TAB_NAME)
-    {
-        menu = dynamic_cast<LLMenuGL*>(mRecentViewSortMenuHandle.get());
-        btn = mRecentGearButton;
-    }
+void LLPanelPeople::onRecentViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mRecentViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
+}
 
-    if (menu && btn)
-    {
-    	showGroupMenu(menu);
-    	btn->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
-    }
+void LLPanelPeople::onNearbyViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mNearbyViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
 }
 
 void	LLPanelPeople::onOpen(const LLSD& key)

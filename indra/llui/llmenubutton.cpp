@@ -57,8 +57,6 @@ LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 			llwarns << "Error loading menu_button menu" << llendl;
 		}
 	}
-
-	setMenuPosition();
 }
 
 void LLMenuButton::toggleMenu()
@@ -72,34 +70,12 @@ void LLMenuButton::toggleMenu()
 	}
 	else
 	{
-	    //mMenu->needsArrange(); //so it recalculates the visible elements
-		LLMenuGL::showPopup(getParent(), mMenu, mX, mY);
+	    LLRect rect = getRect();
+		//mMenu->needsArrange(); //so it recalculates the visible elements
+		LLMenuGL::showPopup(getParent(), mMenu, rect.mLeft, rect.mBottom);
 	}
 }
 
-void LLMenuButton::setMenuPosition(EMenuPosition position /*ON_BOTTOM_LEFT*/)
-{
-	if (!mMenu)
-		return;
-
-	LLRect rect = getRect();
-
-	switch (position)
-	{
-		case ON_TOP_LEFT:
-		{
-			mX = rect.mLeft;
-			mY = rect.mTop + mMenu->getRect().getHeight();
-			break;
-		}
-		case ON_BOTTOM_LEFT:
-		{
-			mX = rect.mLeft;
-			mY = rect.mBottom;
-			break;
-		}
-	}
-}
 
 void LLMenuButton::hideMenu() 
 { 
@@ -132,8 +108,6 @@ BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-
-	LLUICtrl::handleMouseDown(x, y, mask);
 
 	toggleMenu();
 	

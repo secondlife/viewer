@@ -47,7 +47,6 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmarkactions.h"
-#include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
 #include "llsidetray.h"
@@ -708,8 +707,6 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::showActionMenu, this, mMenuAdd, ADD_BUTTON_NAME));
-
-	getChild<LLUICtrl>("options_gear_btn")->setMouseDownCallback(boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
 }
 
 
@@ -754,15 +751,6 @@ void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLView* spawning_view = getChild<LLView> (spawning_view_name);
-
-		LLMenuButton* btn = dynamic_cast <LLMenuButton*>(spawning_view);
-		if (btn)
-		{
-			btn->setMenu(menu);
-			btn->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
-			return;
-		}
-
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
 		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
