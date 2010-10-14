@@ -1130,7 +1130,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	// does not contain this image.
 	mIsMissingAsset = FALSE;
 
-	mLoadedCallbackDesiredDiscardLevel = 0;
+	mLoadedCallbackDesiredDiscardLevel = S8_MAX;
 	mPauseLoadedCallBacks = TRUE ;
 
 	mNeedsCreateTexture = FALSE;
@@ -1507,7 +1507,7 @@ void LLViewerFetchedTexture::processTextureStats()
 	}
 	else if(!mFullWidth || !mFullHeight)
 	{
-		mDesiredDiscardLevel = 	getMaxDiscardLevel() ;
+		mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel) ;
 	}
 	else
 	{	
