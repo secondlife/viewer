@@ -78,7 +78,6 @@ BOOL LLFloaterEvent::postBuild()
 	if (mBrowser)
 	{
 		mBrowser->addObserver(this);
-		mBrowser->setTrusted(true);
 	}
 
 	return TRUE;
