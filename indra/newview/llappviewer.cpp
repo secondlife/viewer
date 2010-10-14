@@ -2884,6 +2884,7 @@ void LLAppViewer::forceQuit()
 	LLApp::setQuitting(); 
 }
 
+//TODO: remove
 void LLAppViewer::fastQuit(S32 error_code)
 {
 	// finish pending transfers
@@ -2902,11 +2903,6 @@ void LLAppViewer::fastQuit(S32 error_code)
 
 void LLAppViewer::requestQuit()
 {
-	if (gSavedSettings.getBOOL("FastQuit"))
-	{
-		fastQuit();
-	}
-
 	llinfos << "requestQuit" << llendl;
 
 	LLViewerRegion* region = gAgent.getRegion();
