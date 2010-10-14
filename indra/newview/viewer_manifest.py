@@ -271,6 +271,12 @@ class WindowsManifest(ViewerManifest):
 
             self.disable_manifest_check()
 
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
+
             # For textures
             if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")
@@ -314,12 +320,6 @@ class WindowsManifest(ViewerManifest):
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
-
-        try:
-            # FMOD for sound
-            self.path("fmod.dll")
-        except:
-            print "Skipping FMOD - not found"
 
         self.enable_no_crt_manifest_check()
         
