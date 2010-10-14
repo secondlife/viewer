@@ -31,6 +31,8 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llviewermenu.h"
 
+class LLAvatarName;
+
 class LLAvatarIconIDCache: public LLSingleton<LLAvatarIconIDCache>
 {
 public:
@@ -84,22 +86,16 @@ public:
 	// LLAvatarPropertiesProcessor observer trigger
 	virtual void processProperties(void* data, EAvatarProcessorType type);
 
-	void nameUpdatedCallback(
-		const LLUUID& id,
-		const std::string& first,
-		const std::string& last,
-		BOOL is_group);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	const LLUUID&		getAvatarId() const	{ return mAvatarId; }
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName() const { return mLastName; }
+	const std::string&	getFullName() const { return mFullName; }
 
 	void setDrawTooltip(bool value) { mDrawTooltip = value;}
 
 protected:
 	LLUUID				mAvatarId;
-	std::string			mFirstName;
-	std::string			mLastName;
+	std::string			mFullName;
 	bool				mDrawTooltip;
 	std::string			mDefaultIconName;
 

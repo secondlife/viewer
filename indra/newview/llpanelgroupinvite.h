@@ -40,7 +40,7 @@ public:
 	/**
 	 * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
 	 */  
-	void addUserCallback(const LLUUID& id, const std::string& first_name, const std::string& last_name);
+	void addUserCallback(const LLUUID& id, const std::string& full_name);
 	void clear();
 	void update();
 
