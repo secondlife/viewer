@@ -280,9 +280,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>6c2267ba2735bb5bc6229bc4366fce86</string>
+            <string>b4adc36b1476c125f1ee5681a6bc5e1e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1.1-windows-20100129.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-windows-20101014a.tar.bz2</uri>
           </map>
         </map>
       </map>

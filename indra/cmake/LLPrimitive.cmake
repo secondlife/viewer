@@ -13,7 +13,12 @@ set(LLPRIMITIVE_INCLUDE_DIRS
 if (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES 
         llprimitive
-        libcollada14dom21
+        debug libcollada14dom21-d
+        debug libboost_filesystem-d
+        debug libboost_system-d
+        optimized libcollada14dom21
+        optimized libboost_filesystem
+        optimized libboost_system
         )
 else (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES 

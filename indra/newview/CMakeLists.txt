@@ -1498,6 +1498,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/glod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/glod.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/glod.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/libcollada14dom21.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libcollada14dom21.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/libcollada14dom21-d.dll
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll

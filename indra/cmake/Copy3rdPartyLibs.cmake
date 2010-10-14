@@ -38,7 +38,7 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        libcollada14dom21.dll
+        libcollada14dom21-d.dll
         glod.dll
         )
 
