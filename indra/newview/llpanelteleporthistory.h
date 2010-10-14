@@ -33,7 +33,6 @@
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
 #include "llmenugl.h"
-#include "llmenubutton.h"
 
 class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
@@ -119,7 +118,6 @@ private:
 	ContextMenu mContextMenu;
 	LLContextMenu*			mAccordionTabMenu;
 	LLHandle<LLView>		mGearMenuHandle;
-	LLMenuButton*			mMenuGearButton;
 };
 
 

@@ -403,9 +403,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mAddWearablesPanel(NULL),
 	mFolderViewFilterCmbBox(NULL),
 	mListViewFilterCmbBox(NULL),
-	mPlusBtn(NULL),
-	mWearablesGearMenuBtn(NULL),
-	mGearMenuBtn(NULL)
+	mPlusBtn(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -480,19 +478,12 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
+	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
+	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
 	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this, _2));
-
-	mWearablesGearMenuBtn = getChild<LLMenuButton>("wearables_gear_menu_btn");
-	mGearMenuBtn = getChild<LLMenuButton>("gear_menu_btn");
-
-	// LLMenuButton::handleMouseDownCallback calls signal LLUICtrl::mouse_signal_t, not LLButton::commit_signal_t.
-	// That's why to set signal LLUICtrl::mouse_signal_t we need to upcast to LLUICtrl. Using static_cast instead
-	// of getChild<LLUICtrl>(...) for performance.
-	static_cast<LLUICtrl*>(mWearablesGearMenuBtn)->setMouseDownCallback(boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1));
-	static_cast<LLUICtrl*>(mGearMenuBtn)->setMouseDownCallback(boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1));
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
@@ -1268,36 +1259,32 @@ void LLPanelOutfitEdit::resetAccordionState()
 void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
 {
 	LLMenuGL* menu = NULL;
-	LLMenuButton* btn = NULL;
 
 	if (mAddWearablesPanel->getVisible())
 	{
 		if (!mAddWearablesGearMenu)
 		{
 			mAddWearablesGearMenu = LLAddWearablesGearMenu::create(mWearableItemsList, mInventoryItemsPanel);
-			mWearablesGearMenuBtn->setMenu(mAddWearablesGearMenu);
 		}
 
 		menu = mAddWearablesGearMenu;
-		btn = mWearablesGearMenuBtn;
 	}
 	else
 	{
 		if (!mGearMenu)
 		{
 			mGearMenu = LLPanelOutfitEditGearMenu::create();
-			mGearMenuBtn->setMenu(mGearMenu);
 		}
 
 		menu = mGearMenu;
-		btn = mGearMenuBtn;
 	}
 
-	if (!menu || !btn) return;
+	if (!menu) return;
 
+	menu->arrangeAndClear(); // update menu height
+	S32 menu_y = menu->getRect().getHeight() + clicked_button->getRect().getHeight();
 	menu->buildDrawLabels();
-	menu->arrangeAndClear();
-	btn->setMenuPosition(LLMenuButton::ON_TOP_LEFT);
+	LLMenuGL::showPopup(clicked_button, menu, 0, menu_y);
 }
 
 void LLPanelOutfitEdit::onAddMoreButtonClicked()
