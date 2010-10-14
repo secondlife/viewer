@@ -1698,6 +1698,13 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setShape(buttons_panel_container->getLocalRect());
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
+
+	LLView* destination_guide = gViewerWindow->getRootView()->getChild<LLView>("destination_guide_container");
+	LLMediaCtrl* destinations = destination_guide->findChild<LLMediaCtrl>("destination_guide_contents");
+	if (destinations)
+	{
+		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"));
+	}
 }
 
 // Destroy the UI
