@@ -3213,7 +3213,7 @@ F32 LLVOVolume::getStreamingCost()
 	{	
 		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
 
-		F32 radius = getRadius();
+		F32 radius = getScale().length();
 		
 		return LLMeshRepository::getStreamingCost(header, radius);
 	}
