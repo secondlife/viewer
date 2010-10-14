@@ -635,6 +635,25 @@ U32 LLMemoryInfo::getPhysicalMemoryClamped() const
 	}
 }
 
+void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb) const
+{
+#if LL_WINDOWS
+	MEMORYSTATUSEX state;
+	state.dwLength = sizeof(state);
+	GlobalMemoryStatusEx(&state);
+
+	avail_physical_mem_kb = (U32)(state.ullAvailPhys/1024) ;
+	avail_virtual_mem_kb = (U32)(state.ullAvailVirtual/1024) ;
+
+#else
+	//do not know how to collect available memory info for other systems.
+	//leave it blank here for now.
+
+	avail_physical_mem_kb = -1 ;
+	avail_virtual_mem_kb = -1 ;
+#endif
+}
+
 void LLMemoryInfo::stream(std::ostream& s) const
 {
 #if LL_WINDOWS
