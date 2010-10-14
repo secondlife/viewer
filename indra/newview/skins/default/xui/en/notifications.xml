@@ -4857,14 +4857,10 @@ Event Notification:
     <form name="form">
       <button
        index="0"
-       name="Teleport"
-       text="Teleport"/>
+       name="Details"
+       text="Details"/>
       <button
        index="1"
-       name="Description"
-       text="Description"/>
-      <button
-       index="2"
        name="Cancel"
        text="Cancel"/>
     </form>

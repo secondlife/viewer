@@ -118,7 +118,6 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
@@ -1605,12 +1604,6 @@ bool idle_startup()
 			LLFloaterReg::showInstance("hud", LLSD(), FALSE);
 		}
 
-		LLSD event_categories = response["event_categories"];
-		if(event_categories.isDefined())
-		{
-			LLEventInfo::loadCategories(event_categories);
-		}
-
 		LLSD event_notifications = response["event_notifications"];
 		if(event_notifications.isDefined())
 		{
@@ -2322,8 +2315,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
-
-	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLEventNotifier::processEventInfoReply);
+	
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
