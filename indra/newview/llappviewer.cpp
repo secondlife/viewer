@@ -3569,6 +3569,18 @@ void LLAppViewer::idle()
 		}
 	}
 
+	// debug setting to quit after N seconds of being AFK - 0 to never do this
+	F32 qas_afk = gSavedSettings.getF32("QuitAfterSecondsOfAFK");
+	if (qas_afk > 0.f)
+	{
+		// idle time is more than setting
+		if ( gAwayTriggerTimer.getElapsedTimeF32() > qas_afk )
+		{
+			// go ahead and just quit
+			LLAppViewer::instance()->forceQuit();
+		}
+	}
+
 	// Must wait until both have avatar object and mute list, so poll
 	// here.
 	request_initial_instant_messages();
