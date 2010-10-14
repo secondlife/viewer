@@ -308,6 +308,7 @@ extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;
 extern LLFrameTimer gForegroundTime;
+extern LLFrameTimer gLoggedInTime;
 
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;

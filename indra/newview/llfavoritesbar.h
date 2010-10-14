@@ -71,8 +71,8 @@ public:
 
 protected:
 	void updateButtons();
-	LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, LLXMLNodePtr &root, S32 x_offset );
-	LLXMLNodePtr getButtonXMLNode();
+	LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, const LLButton::Params& button_params, S32 x_offset );
+	const LLButton::Params& getButtonParams();
 	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
 	void onButtonClick(LLUUID id);

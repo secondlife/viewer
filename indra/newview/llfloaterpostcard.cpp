@@ -76,7 +76,6 @@ LLFloaterPostcard::LLFloaterPostcard(const LLSD& key)
 	mViewerImage(NULL),
 	mHasFirstMsgFocus(false)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_postcard.xml");
 }
 
 // Destroys the object

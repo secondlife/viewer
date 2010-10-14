@@ -70,11 +70,12 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
-	mShowPermissions(false)
+	mShowPermissions(false),
+	mHovered(false)
 {
 	if (not_from_ui_factory)
 	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+		buildFromFile("panel_avatar_list_item.xml");
 	}
 	// *NOTE: mantipov: do not use any member here. They can be uninitialized here in case instance
 	// is created from the UICtrlFactory

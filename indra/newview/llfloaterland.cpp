@@ -248,8 +248,6 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
-
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
 }
@@ -567,7 +565,10 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-			mLandType->setText(LLTrans::getString(regionp->getSimProductName()));
+
+			std::string land_type;
+			bool is_land_type_localized = LLTrans::findString(land_type, regionp->getSimProductName());
+			mLandType->setText(is_land_type_localized ? land_type : regionp->getSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel
@@ -2434,7 +2435,7 @@ void LLPanelLandAccess::refresh()
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		
@@ -2475,7 +2476,7 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		

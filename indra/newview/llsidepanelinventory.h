@@ -65,6 +65,8 @@ protected:
 	void performActionOnSelection(const std::string &action);
 	void updateVerbs();
 
+	bool canWearSelected(); // check whether selected items can be worn
+
 	//
 	// UI Elements
 	//

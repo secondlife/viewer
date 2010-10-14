@@ -338,11 +338,10 @@ void LLPanelGroups::onGroupList(LLUICtrl* ctrl, void* userdata)
 	if(self) self->enableButtons();
 }
 
-void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 powers_mask)
+void init_group_list(LLScrollListCtrl* group_list, const LLUUID& highlight_id, U64 powers_mask)
 {
 	S32 count = gAgent.mGroups.count();
 	LLUUID id;
-	LLCtrlListInterface *group_list = ctrl->getListInterface();
 	if (!group_list) return;
 
 	group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
@@ -366,9 +365,11 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 			element["columns"][0]["font"]["name"] = "SANSSERIF";
 			element["columns"][0]["font"]["style"] = style;
 
-			group_list->addElement(element, ADD_SORTED);
+			group_list->addElement(element);
 		}
 	}
+
+	group_list->sortOnce(0, TRUE);
 
 	// add "none" to list at top
 	{

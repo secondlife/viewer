@@ -54,8 +54,6 @@ LLFloaterHUD::LLFloaterHUD(const LLSD& key)
 		return;
 	}
 	
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
-	
 	// Don't grab the focus as it will impede performing in-world actions
 	// while using the HUD
 	setIsChrome(TRUE);

@@ -23,7 +23,4 @@
   bg_writeable_color="TextBgWriteableColor"
   bg_selected_color="EmphasisColor"
   bg_focus_color="TextBgFocusColor">
-  <simple_text_editor.border
-    bevel_style="in"
-    follows="all" />
 </simple_text_editor>

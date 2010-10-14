@@ -321,6 +321,8 @@
 
 	<!-- For land type back from the simulator -->
 	<string name="Estate / Full Region">Estate / Full Region</string>
+	<string name="Estate / Homestead">Estate / Homestead</string>
+	<string name="Mainland / Homestead">Mainland / Homestead</string>
 	<string name="Mainland / Full Region">Mainland / Full Region</string>
 
 	<!-- File load/save dialogs -->
