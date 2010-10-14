@@ -177,7 +177,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	object_list->addElement(row);
 
 	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
-	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[NAME]", owner_name);
+	floater->getChild<LLUICtrl>("buy_name_text")->setTextArg("[NAME]", owner_name);
 
 	// Must do this after the floater is created, because
 	// sometimes the inventory is already there and 

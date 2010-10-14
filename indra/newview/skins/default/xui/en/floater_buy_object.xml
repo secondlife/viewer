@@ -84,7 +84,7 @@
      length="1"
      follows="left|right|bottom"
      font="SansSerif"
-     height="35"
+     height="15"
      layout="topleft"
      left_delta="0"
 	 line_spacing.pixels="7"
@@ -95,8 +95,23 @@
      width="260"
 	 word_wrap="true">
 Buy for L$[AMOUNT] from:
-[NAME]?
     </text>
+  <text
+     type="string"
+     length="1"
+     follows="left|right|bottom"
+     font="SansSerif"
+     height="15"
+     layout="topleft"
+     left_delta="0"
+	 line_spacing.pixels="7"
+     name="buy_name_text"
+     text_color="white"
+     top_pad="5"
+     use_ellipses="true"
+     width="260">
+    [NAME]?
+  </text>
     <button
      follows="right|bottom"
      height="23"
