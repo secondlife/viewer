@@ -42,22 +42,40 @@ public:
 		Optional<std::string>	menu_filename;
 	
 		Params();
-	};	
+	};
+
+	typedef enum e_menu_position
+	{
+		MP_TOP_LEFT,
+		MP_BOTTOM_LEFT
+	} EMenuPosition;
 	
-	void toggleMenu();
+	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
+
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
+
 	void hideMenu();
+
 	LLMenuGL* getMenu() { return mMenu; }
+	void setMenu(LLMenuGL* menu, EMenuPosition position = MP_TOP_LEFT);
+
+	void setMenuPosition(EMenuPosition position) { mMenuPosition = position; }
 
 protected:
 	friend class LLUICtrlFactory;
 	LLMenuButton(const Params&);
 
+	void toggleMenu();
+	void updateMenuOrigin();
+
 private:
-	LLMenuGL*	mMenu;
-	bool mMenuVisibleLastFrame;
+	LLMenuGL*		mMenu;
+	bool 			mMenuVisibleLastFrame;
+	EMenuPosition	mMenuPosition;
+	S32				mX;
+	S32				mY;
 };
 
 

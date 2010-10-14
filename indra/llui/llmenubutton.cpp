@@ -45,7 +45,8 @@ LLMenuButton::Params::Params()
 LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 :	LLButton(p),
 	mMenu(NULL),
-	mMenuVisibleLastFrame(false)
+	mMenuVisibleLastFrame(false),
+	mMenuPosition(MP_BOTTOM_LEFT)
 {
 	std::string menu_filename = p.menu_filename;
 
@@ -57,38 +58,51 @@ LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 			llwarns << "Error loading menu_button menu" << llendl;
 		}
 	}
+
+	updateMenuOrigin();
 }
 
-void LLMenuButton::toggleMenu()
+boost::signals2::connection LLMenuButton::setMouseDownCallback( const mouse_signal_t::slot_type& cb )
 {
-    if(!mMenu)
-		return;
-
-	if (mMenu->getVisible() || mMenuVisibleLastFrame)
-	{
-		mMenu->setVisible(FALSE);
-	}
-	else
-	{
-	    LLRect rect = getRect();
-		//mMenu->needsArrange(); //so it recalculates the visible elements
-		LLMenuGL::showPopup(getParent(), mMenu, rect.mLeft, rect.mBottom);
-	}
+	return LLUICtrl::setMouseDownCallback(cb);
 }
 
-
-void LLMenuButton::hideMenu() 
-{ 
-	if(!mMenu)
-		return;
-	mMenu->setVisible(FALSE); 
+void LLMenuButton::hideMenu()
+{
+	if(!mMenu) return;
+	mMenu->setVisible(FALSE);
 }
 
+void LLMenuButton::setMenu(LLMenuGL* menu, EMenuPosition position /*MP_TOP_LEFT*/)
+{
+	mMenu = menu;
+	mMenuPosition = position;
+}
+
+void LLMenuButton::draw()
+{
+	//we save this off so next frame when we try to close it by
+	//button click, and it hides menus before we get to it, we know
+	mMenuVisibleLastFrame = mMenu && mMenu->getVisible();
+
+	if (mMenuVisibleLastFrame)
+	{
+		setForcePressedState(true);
+	}
+
+	LLButton::draw();
+
+	setForcePressedState(false);
+}
 
 BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 {
 	if( KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 	{
+		// *HACK: We emit the mouse down signal to fire the callback bound to the
+		// menu emerging event before actually displaying the menu. See STORM-263.
+		LLUICtrl::handleMouseDown(-1, -1, MASK_NONE);
+
 		toggleMenu();
 		return TRUE;
 	}
@@ -104,34 +118,52 @@ BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 
 BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (hasTabStop() && !getIsChrome())
-	{
-		setFocus(TRUE);
-	}
-
+	LLButton::handleMouseDown(x, y, mask);
 	toggleMenu();
 	
-	if (getSoundFlags() & MOUSE_DOWN)
-	{
-		make_ui_sound("UISndClick");
-	}
-
 	return TRUE;
 }
 
-void LLMenuButton::draw()
+void LLMenuButton::toggleMenu()
 {
-	//we save this off so next frame when we try to close it by 
-	//button click, and it hides menus before we get to it, we know
-	mMenuVisibleLastFrame = mMenu && mMenu->getVisible();
-	
-	if (mMenuVisibleLastFrame)
+    if(!mMenu) return;
+
+	if (mMenu->getVisible() || mMenuVisibleLastFrame)
 	{
-		setForcePressedState(true);
+		mMenu->setVisible(FALSE);
 	}
+	else
+	{
+		mMenu->buildDrawLabels();
+		mMenu->arrangeAndClear();
+		mMenu->updateParent(LLMenuGL::sMenuContainer);
 
-	LLButton::draw();
+		updateMenuOrigin();
 
-	setForcePressedState(false);
+	    //mMenu->needsArrange(); //so it recalculates the visible elements
+		LLMenuGL::showPopup(getParent(), mMenu, mX, mY);
+	}
 }
 
+void LLMenuButton::updateMenuOrigin()
+{
+	if (!mMenu)	return;
+
+	LLRect rect = getRect();
+
+	switch (mMenuPosition)
+	{
+		case MP_TOP_LEFT:
+		{
+			mX = rect.mLeft;
+			mY = rect.mTop + mMenu->getRect().getHeight();
+			break;
+		}
+		case MP_BOTTOM_LEFT:
+		{
+			mX = rect.mLeft;
+			mY = rect.mBottom;
+			break;
+		}
+	}
+}
