@@ -322,6 +322,7 @@ LLScrollListCtrl::~LLScrollListCtrl()
 	delete mSortCallback;
 
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
+	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
 }
 
 
@@ -2370,10 +2371,10 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar )
 
 void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {
-	std::map<std::string, LLScrollListColumn>::iterator itor = mColumns.find(name);
+	column_map_t::iterator itor = mColumns.find(name);
 	if (itor != mColumns.end())
 	{
-		sortByColumnIndex((*itor).second.mIndex, ascending);
+		sortByColumnIndex((*itor).second->mIndex, ascending);
 	}
 }
 
@@ -2419,11 +2420,11 @@ void LLScrollListCtrl::dirtyColumns()
 	// just in case someone indexes into it immediately
 	mColumnsIndexed.resize(mColumns.size());
 
-	std::map<std::string, LLScrollListColumn>::iterator column_itor;
+	column_map_t::iterator column_itor;
 	for (column_itor = mColumns.begin(); column_itor != mColumns.end(); ++column_itor)
 	{
-		LLScrollListColumn *column = &column_itor->second;
-		mColumnsIndexed[column_itor->second.mIndex] = column;
+		LLScrollListColumn *column = column_itor->second;
+		mColumnsIndexed[column_itor->second->mIndex] = column;
 	}
 }
 
@@ -2581,8 +2582,8 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
 	if (mColumns.find(name) == mColumns.end())
 	{
 		// Add column
-		mColumns[name] = LLScrollListColumn(column_params, this);
-		LLScrollListColumn* new_column = &mColumns[name];
+		mColumns[name] = new LLScrollListColumn(column_params, this);
+		LLScrollListColumn* new_column = mColumns[name];
 		new_column->mIndex = mColumns.size()-1;
 
 		// Add button
@@ -2604,14 +2605,14 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
 			S32 top = mItemListRect.mTop;
 
 			S32 left = mItemListRect.mLeft;
-			for (std::map<std::string, LLScrollListColumn>::iterator itor = mColumns.begin(); 
+			for (column_map_t::iterator itor = mColumns.begin(); 
 				itor != mColumns.end(); 
 				++itor)
 			{
-				if (itor->second.mIndex < new_column->mIndex &&
-					itor->second.getWidth() > 0)
+				if (itor->second->mIndex < new_column->mIndex &&
+					itor->second->getWidth() > 0)
 				{
-					left += itor->second.getWidth() + mColumnPadding;
+					left += itor->second->getWidth() + mColumnPadding;
 				}
 			}
 
@@ -2667,8 +2668,8 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 	if (column->mSortingColumn != column->mName
 		&& parent->mColumns.find(column->mSortingColumn) != parent->mColumns.end())
 	{
-		LLScrollListColumn& info_redir = parent->mColumns[column->mSortingColumn];
-		column_index = info_redir.mIndex;
+		LLScrollListColumn* info_redir = parent->mColumns[column->mSortingColumn];
+		column_index = info_redir->mIndex;
 	}
 
 	// if this column is the primary sort key, reverse the direction
@@ -2701,16 +2702,17 @@ BOOL LLScrollListCtrl::hasSortOrder() const
 
 void LLScrollListCtrl::clearColumns()
 {
-	std::map<std::string, LLScrollListColumn>::iterator itor;
+	column_map_t::iterator itor;
 	for (itor = mColumns.begin(); itor != mColumns.end(); ++itor)
 	{
-		LLScrollColumnHeader *header = itor->second.mHeader;
+		LLScrollColumnHeader *header = itor->second->mHeader;
 		if (header)
 		{
 			removeChild(header);
 			delete header;
 		}
 	}
+	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
 	mColumns.clear();
 	mSortColumns.clear();
 	mTotalStaticColumnWidth = 0;
@@ -2744,7 +2746,7 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(const std::string& name)
 	column_map_t::iterator column_itor = mColumns.find(name);
 	if (column_itor != mColumns.end()) 
 	{
-		return &column_itor->second;
+		return column_itor->second;
 	}
 	return NULL;
 }
@@ -2805,7 +2807,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 				new_column.width.pixel_width = cell_p.width;
 			}
 			addColumn(new_column);
-			columnp = &mColumns[column];
+			columnp = mColumns[column];
 			new_item->setNumColumns(mColumns.size());
 		}
 
@@ -2842,7 +2844,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 		LLScrollListCell* cell = LLScrollListCell::create(LLScrollListCell::Params().value(item_p.value));
 		if (cell)
 		{
-			LLScrollListColumn* columnp = &(mColumns.begin()->second);
+			LLScrollListColumn* columnp = mColumns.begin()->second;
 
 			new_item->setColumn(0, cell);
 			if (columnp->mHeader 
@@ -2857,10 +2859,10 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 	// add dummy cells for missing columns
 	for (column_map_t::iterator column_it = mColumns.begin(); column_it != mColumns.end(); ++column_it)
 	{
-		S32 column_idx = column_it->second.mIndex;
+		S32 column_idx = column_it->second->mIndex;
 		if (new_item->getColumn(column_idx) == NULL)
 		{
-			LLScrollListColumn* column_ptr = &column_it->second;
+			LLScrollListColumn* column_ptr = column_it->second;
 			LLScrollListCell::Params cell_p;
 			cell_p.width = column_ptr->getWidth();
 			
