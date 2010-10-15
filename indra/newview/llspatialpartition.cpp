@@ -2833,7 +2833,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
 	U8 physics_type = volume->getPhysicsShapeType();
 
-	if (physics_type == LLViewerObject::PHYSICS_SHAPE_NONE)
+	if (physics_type == LLViewerObject::PHYSICS_SHAPE_NONE || volume->isFlexible())
 	{
 		return;
 	}
@@ -2958,6 +2958,8 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				
 				LLCDMeshData res;
 
+				LLConvexDecomposition::getInstance()->initThread();
+
 				LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
 
 				//copy res into phys_volume
@@ -2976,14 +2978,30 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 					phys_volume->mHullPoints[i].load3(p);
 				}
 
-				for (S32 i = 0; i < res.mNumTriangles; ++i)
+				if (res.mIndexType == LLCDMeshData::INT_16)
 				{
-					U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+					for (S32 i = 0; i < res.mNumTriangles; ++i)
+					{
+						U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
 
-					phys_volume->mHullIndices[i*3+0] = idx[0];
-					phys_volume->mHullIndices[i*3+1] = idx[1];
-					phys_volume->mHullIndices[i*3+2] = idx[2];
+						phys_volume->mHullIndices[i*3+0] = idx[0];
+						phys_volume->mHullIndices[i*3+1] = idx[1];
+						phys_volume->mHullIndices[i*3+2] = idx[2];
+					}
 				}
+				else
+				{
+					for (S32 i = 0; i < res.mNumTriangles; ++i)
+					{
+						U32* idx = (U32*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+
+						phys_volume->mHullIndices[i*3+0] = (U16) idx[0];
+						phys_volume->mHullIndices[i*3+1] = (U16) idx[1];
+						phys_volume->mHullIndices[i*3+2] = (U16) idx[2];
+					}
+				}
+
+				LLConvexDecomposition::getInstance()->quitThread();
 			}
 
 			if (phys_volume->mHullPoints)
@@ -2995,12 +3013,21 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				
 				glColor3fv(color.mV);
 				LLVertexBuffer::unbind();
-				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+
+				glPointSize(2.f);
+				gGL.begin(LLRender::POINTS);
+				gGL.color3fv(color.mV);
+				for (U32 i = 0; i < phys_volume->mNumHullPoints; i++)
+				{
+					gGL.vertex3fv(phys_volume->mHullPoints[i].getF32ptr());
+				}
+				gGL.end();
+				gGL.flush();				
+				//glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 				
-				glColor4fv(color.mV);
+				/*glColor4fv(color.mV);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);*/
 				gGL.popMatrix();
 			}
 
