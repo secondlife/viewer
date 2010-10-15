@@ -129,7 +129,7 @@ void LLUIString::updateResult() const
 	mResult = mOrig;
 	
 	// get the defailt args + local args
-	if (!mArgs || mArgs->empty())
+	if (!mArgs.get() || mArgs->empty())
 	{
 		LLStringUtil::format(mResult, LLTrans::getDefaultArgs());
 	}
@@ -150,7 +150,7 @@ void LLUIString::updateWResult() const
 
 LLStringUtil::format_map_t& LLUIString::getArgs()
 {
-	if (!mArgs)
+	if (!mArgs.get())
 	{
 		mArgs = new LLStringUtil::format_map_t;
 	}
