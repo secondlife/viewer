@@ -2897,6 +2897,17 @@
       <key>Value</key>
       <integer>175</integer>
     </map>
+    <key>EventURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Event website, displayed in the event floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://search.secondlife.com/viewer/embed/event/</string>
+    </map>
     <key>EveryoneCopy</key>
       <map>
         <key>Comment</key>

@@ -2235,8 +2235,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="テレポート"/>
-			<button name="Description" text="説明"/>
+			<button name="Details" text="説明"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
