@@ -526,7 +526,8 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 
 void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
-	mHistoryFileName = av_name.mUsername;
+	// if username is empty, display names isn't enabled, use the display name
+	mHistoryFileName = av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername;
 }
 
 void LLIMModel::LLIMSession::buildHistoryFileName()
