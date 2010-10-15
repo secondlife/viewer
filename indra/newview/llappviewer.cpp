@@ -1012,7 +1012,7 @@ bool LLAppViewer::mainLoop()
 				memCheckTimer.reset() ;
 
 				//update the availability of memory
-				gSysMemory.getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
 			}
 			llcallstacks << "Available physical mem(KB): " << mAvailPhysicalMemInKB << llcallstacksendl ;
 			llcallstacks << "Available virtual mem(KB): " << mAvailVirtualMemInKB << llcallstacksendl ;
@@ -1252,7 +1252,7 @@ bool LLAppViewer::mainLoop()
 				llinfos << "Availabe physical memory(KB) at the beginning of the frame: " << mAvailPhysicalMemInKB << llendl ;
 				llinfos << "Availabe virtual memory(KB) at the beginning of the frame: " << mAvailVirtualMemInKB << llendl ;
 
-				gSysMemory.getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
 
 				llinfos << "Current availabe physical memory(KB): " << mAvailPhysicalMemInKB << llendl ;
 				llinfos << "Current availabe virtual memory(KB): " << mAvailVirtualMemInKB << llendl ;

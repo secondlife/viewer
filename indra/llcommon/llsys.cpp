@@ -635,7 +635,8 @@ U32 LLMemoryInfo::getPhysicalMemoryClamped() const
 	}
 }
 
-void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb) const
+//static
+void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
