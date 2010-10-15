@@ -3,6 +3,7 @@
 	<menu_item_call label="Tocca" name="Attachment Object Touch"/>
 	<menu_item_call label="Modifica" name="Edit..."/>
 	<menu_item_call label="Stacca" name="Detach"/>
+	<menu_item_call label="Siedi" name="Sit Down Here"/>
 	<menu_item_call label="Alzati" name="Stand Up"/>
 	<menu_item_call label="Cambia vestiario" name="Change Outfit"/>
 	<menu_item_call label="Modifica il mio vestiario" name="Edit Outfit"/>

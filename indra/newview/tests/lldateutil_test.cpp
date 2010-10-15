@@ -183,4 +183,14 @@ namespace tut
 			LLDateUtil::ageFromDate("12/13/2009", now),
 			"3 weeks old" );
 	}
+
+	//template<> template<>
+	//void dateutil_object_t::test<6>()
+	//{
+	//	set_test_name("ISO dates");
+	//	LLDate now(std::string("2010-01-04T12:00:00Z"));
+	//	ensure_equals("days",
+	//		LLDateUtil::ageFromDateISO("2009-12-13", now),
+	//		"3 weeks old" );
+	//}
 }

@@ -493,7 +493,11 @@ protected:
 	// misc
 	void							updateRects();
 	void							needsScroll() { mScrollNeeded = TRUE; }
-	void							replaceUrlLabel(const std::string &url, const std::string &label);
+
+	struct URLLabelCallback;
+	// Replace a URL with a new icon and label, for example, when
+	// avatar names are looked up.
+	void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
 	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);

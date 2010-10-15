@@ -7,11 +7,23 @@
 		<accordion_tab name="tab_classifieds" title="クラシファイド広告"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
-		<button name="new_btn" tool_tip="現在地の新しいピック、またはクラシファイド広告を作成します"/>
+		<layout_stack name="edit_panel_ls">
+			<layout_panel name="gear_menu_btn">
+				<button name="new_btn" tool_tip="現在地の新しいピック、またはクラシファイド広告を作成します"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 	<panel name="buttons_cucks">
-		<button label="情報" name="info_btn" tool_tip="ピックの情報を表示します"/>
-		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします"/>
-		<button label="地図" name="show_on_map_btn" tool_tip="世界地図に該当するエリアを表示します"/>
+		<layout_stack name="buttons_cucks_ls">
+			<layout_panel name="info_btn_lp">
+				<button label="情報" name="info_btn" tool_tip="ピックの情報を表示"/>
+			</layout_panel>
+			<layout_panel name="teleport_btn_lp">
+				<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポート"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="地図" name="show_on_map_btn" tool_tip="世界地図に該当するエリアを表示"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>
