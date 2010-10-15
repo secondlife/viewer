@@ -47,7 +47,7 @@
 #include "lltooltip.h"
 #include "llworld.h"
 #include "llstring.h"
-#include "llhudtext.h"
+#include "llhudnametag.h"
 #include "lldrawable.h"
 #include "xform.h"
 #include "llsky.h"
@@ -1195,7 +1195,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			}
 		}
 
-		LLHUDText::addPickable(mSelectPickList);
+		LLHUDNameTag::addPickable(mSelectPickList);
 
 		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 			iter != LLCharacter::sInstances.end(); ++iter)

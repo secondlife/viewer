@@ -36,13 +36,19 @@
 				<icons_combo_box.item label="Contenu Modéré" name="mature_ci" value="Mature"/>
 				<icons_combo_box.item label="Contenu Général" name="pg_ci" value="PG"/>
 			</icons_combo_box>
+			<check_box label="Renouvellement auto toutes les semaines" name="auto_renew"/>
 			<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="50"/>
-			<check_box label="Renouvellement auto toutes les semaines" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="[LABEL]" name="save_changes_btn"/>
-		<button label="Annuler" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="[LABEL]" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Annuler" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

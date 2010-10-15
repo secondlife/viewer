@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="">
-	<floater.string name="mini_map_north">
-		N
-	</floater.string>
-	<floater.string name="mini_map_east">
-		L
-	</floater.string>
-	<floater.string name="mini_map_west">
-		O
-	</floater.string>
-	<floater.string name="mini_map_south">
-		S
-	</floater.string>
-	<floater.string name="mini_map_southeast">
-		SE
-	</floater.string>
-	<floater.string name="mini_map_northeast">
-		NE
-	</floater.string>
-	<floater.string name="mini_map_southwest">
-		SO
-	</floater.string>
-	<floater.string name="mini_map_northwest">
-		NO
+	<floater.string name="ToolTipMsg">
+		[REGION](Clique duas vezes para abrir o mapa, shift+arraste para a visão pan)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINIMAPA

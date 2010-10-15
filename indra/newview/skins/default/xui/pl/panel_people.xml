@@ -32,9 +32,17 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 				<accordion_tab name="tab_all" title="Wszyscy"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="Opcje"/>
-				<button name="add_btn" tool_tip="Zaproponuj znajomość"/>
-				<button name="del_btn" tool_tip="Usuń wybraną osobę ze swojej listy znajomych"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<button name="friends_viewsort_btn" tool_tip="Pokaż opcje dodatkowe"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Dodaj wybranego Rezydenta do znajomych"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="trash_btn" tool_tip="Usuń wybraną osobę ze swojej listy znajomych"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="GRUPY" name="groups_panel">
@@ -52,13 +60,33 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profil" name="view_profile_btn" tool_tip="Pokaż zdjęcie, grupy i inne informacje o Rezydencie" width="55"/>
-		<button label="IM" name="im_btn" tool_tip="Rozpocznij rozmowę prywatną (IM)" width="35"/>
-		<button label="Zadzwoń" name="call_btn" tool_tip="Zadzwoń do tego Rezydenta" width="62"/>
-		<button label="Podziel się" name="share_btn" tool_tip="Udostępnij obiekt z Szafy" width="72"/>
-		<button label="Teleportuj" name="teleport_btn" tool_tip="Zaproponuj teleportację" width="70"/>
-		<button label="Profil grupy" name="group_info_btn" tool_tip="Pokaż informacje o grupie" width="69"/>
-		<button label="Konferencja Grupowa" name="chat_btn" tool_tip="Rozpocznij konferencę" width="124"/>
-		<button label="Rozmowa Głosowa" name="group_call_btn" tool_tip="Rozmowa głosowa w tej grupie" width="108"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Profil" name="view_profile_btn" tool_tip="Pokaż zdjęcie, grupy i inne informacje o Rezydencie"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Otwórz wiadomości IM"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Dzwoń" name="call_btn" tool_tip="Zadzwoń do tego Rezydenta"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Udostępnij" name="share_btn" tool_tip="Udostępnij obiekt z Szafy"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teleportuj" name="teleport_btn" tool_tip="Zaproponuj teleport"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Profil grupy" name="group_info_btn" tool_tip="Pokaż informacje o grupie"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Czat grupy" name="chat_btn" tool_tip="Otwórz sesję czatu"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Rozmowa głosowa w grupie" name="group_call_btn" tool_tip="Rozmowa głosowa w tej grupie"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

@@ -36,7 +36,8 @@
 // class LLLineEditor;
 // class LLMessageSystem;
 // class LLUUID;
- class LLScrollListCtrl;
+class LLAvatarName;
+class LLScrollListCtrl;
 
 class LLPanelBlockedList
 	:	public LLPanel, public LLMuteListObserver
@@ -72,7 +73,7 @@ private:
 	void onPickBtnClick();
 	void onBlockByNameClick();
 
-	void callbackBlockPicked(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	static void callbackBlockByName(const std::string& text);
 
 private:

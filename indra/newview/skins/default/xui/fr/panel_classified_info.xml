@@ -52,8 +52,16 @@
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
-		<button label="Téléporter" name="teleport_btn"/>
-		<button label="Carte" name="show_on_map_btn"/>
-		<button label="Édition" name="edit_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Téléportation" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Carte" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Modifier" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

@@ -70,13 +70,13 @@ void LLSpeaker::lookupName()
 {
 	if (mDisplayName.empty())
 	{
-		gCacheName->get(mID, FALSE, boost::bind(&LLSpeaker::onAvatarNameLookup, this, _1, _2, _3, _4));
+		gCacheName->get(mID, false, boost::bind(&LLSpeaker::onNameCache, this, _1, _2, _3));
 	}
 }
 
-void LLSpeaker::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void LLSpeaker::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	mDisplayName = first + " " + last;
+	mDisplayName = full_name;
 }
 
 bool LLSpeaker::isInVoiceChannel()

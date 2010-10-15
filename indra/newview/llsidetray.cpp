@@ -51,6 +51,8 @@
 #include "llwindow.h"//for SetCursor
 #include "lltransientfloatermgr.h"
 
+#include "llsidepanelappearance.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -292,6 +294,13 @@ void LLSideTrayTab::dock()
 	}
 }
 
+static void on_minimize(LLSidepanelAppearance* panel, LLSD minimized)
+{
+	if (!panel) return;
+	bool visible = !minimized.asBoolean();
+	panel->updateToVisibility(LLSD(visible));	
+}
+
 void LLSideTrayTab::undock(LLFloater* floater_tab)
 {
 	LLSideTray* side_tray = getSideTray();
@@ -352,6 +361,17 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 
 	// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
 	setFollowsAll();
+
+	// Camera view may need to be changed for appearance panel(STORM-301) on minimize of floater,
+	// so setting callback here. 
+	if (getName() == "sidebar_appearance")
+	{
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel());
+		if(panel_appearance)
+		{
+			floater_tab->setMinimizeCallback(boost::bind(&on_minimize, panel_appearance, _2));
+		}
+	}
 
 	if (!side_tray->getCollapsed())
 	{

@@ -78,9 +78,8 @@ public:
 	// Callback for gCacheName to look up group name
 	// Faster than waiting for group properties to return
 	void nameUpdatedCallback(const LLUUID& id,
-							 const std::string& first,
-							 const std::string& last,
-							 BOOL is_group);
+							 const std::string& name,
+							 bool is_group);
 
 	// Button/menu callbacks
 	void onClickViewProfile();
@@ -219,21 +218,19 @@ void LLInspectGroup::requestUpdate()
 	mPropertiesRequest = new LLFetchGroupData(mGroupID, this);
 
 	// Name lookup will be faster out of cache, use that
-	gCacheName->get(mGroupID, TRUE,
+	gCacheName->getGroup(mGroupID,
 		boost::bind(&LLInspectGroup::nameUpdatedCallback,
-			this, _1, _2, _3, _4));
+			this, _1, _2, _3));
 }
 
 void LLInspectGroup::nameUpdatedCallback(
 	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+	const std::string& name,
+	bool is_group)
 {
 	if (id == mGroupID)
 	{
-		// group names are returned as a first name
-		getChild<LLUICtrl>("group_name")->setValue(LLSD(first) );
+		getChild<LLUICtrl>("group_name")->setValue( LLSD(name) );
 	}
 	
 	// Otherwise possibly a request for an older inspector, ignore it
