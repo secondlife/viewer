@@ -3572,8 +3572,8 @@ void LLAppViewer::idle()
 		// idle time is more than setting
 		if ( gAwayTriggerTimer.getElapsedTimeF32() > qas_afk )
 		{
-			// go ahead and just quit
-			LLAppViewer::instance()->forceQuit();
+			// go ahead and just quit gracefully
+			LLAppViewer::instance()->requestQuit();
 		}
 	}
 
