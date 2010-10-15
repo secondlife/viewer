@@ -266,16 +266,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>786de8bfebb5df3a3b51a7832119f8d8</string>
+            <string>05d294cf7e0339466ba20938baa037b4</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1.1-darwin-20090731.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101015.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>dde909f84fd2b7c56138f8fd193664c4</string>
+            <string>0ade2ec185318f08588b9a4a57fb24dc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1.1-linux-20091203.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-linux-20101015.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -1076,6 +1076,25 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100914.tar.bz2</uri>
           </map>          
+        </map>
+      </map>
+      <key>llconvexdecompositionstub</key>
+      <map>
+        <key>copyright</key>
+        <string>on file</string>
+        <key>description</key>
+        <string>stub version of Convex decomposition utility for mesh</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>dbf4b15e74ce9042e8500720dffc461a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-linux-20101015a.tar.bz2</uri>
+          </map>
         </map>
       </map>
       <key>llqtwebkit</key>
