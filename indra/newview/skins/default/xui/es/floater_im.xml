@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<multi_floater name="im_floater" title="Mensaje Instantáneo">
+	<string name="only_user_message">
+		Eres el único Residente en esta sesión.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] no está conectado.
+	</string>
+	<string name="invite_message">
+		Pulse el botón [BUTTON NAME] para aceptar/conectar este chat de voz.
+	</string>
+	<string name="muted_message">
+		Has ignorado a este Residente. Enviándole un mensaje, automáticamente dejarás de ignorarle.
+	</string>
+	<string name="generic_request_error">
+		Error al hacer lo solicitado; por favor, inténtelo más tarde.
+	</string>
+	<string name="insufficient_perms_error">
+		Usted no tiene permisos suficientes.
+	</string>
+	<string name="session_does_not_exist_error">
+		La sesión ya acabó
+	</string>
+	<string name="no_ability_error">
+		Usted no tiene esa capacidad.
+	</string>
+	<string name="not_a_mod_error">
+		Usted no es un moderador de la sesión.
+	</string>
+	<string name="muted_error">
+		Un moderador del grupo le ha desactivado el chat de texto.
+	</string>
+	<string name="add_session_event">
+		No es posible añadir Residentes a la sesión de chat con [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		No se ha podido enviar su mensaje a la sesión de chat con [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Ha sido eliminado del grupo.
+	</string>
+	<string name="close_on_no_ability">
+		Usted ya no tendrá más la capacidad de estar en la sesión de chat.
+	</string>
+</multi_floater>

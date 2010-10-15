@@ -164,10 +164,8 @@ public:
 	void returnObjects();
 
 private:
-
 	void onNameCache(const LLUUID& id,
-			 const std::string& first_name,
-			 const std::string& last_name);
+						 const std::string& name);
 
 	LLSD mContent;
 	LLUUID mParcelId;

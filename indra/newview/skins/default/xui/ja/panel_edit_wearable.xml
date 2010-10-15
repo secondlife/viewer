@@ -102,7 +102,13 @@
 		<icon name="female_icon" tool_tip="女性"/>
 	</panel>
 	<panel name="button_panel">
-		<button label="別名で保存" name="save_as_button"/>
-		<button label="変更を元に戻す" name="revert_button"/>
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="別名で保存" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="変更を元に戻す" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

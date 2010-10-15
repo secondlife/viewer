@@ -85,6 +85,7 @@ clicking on their names.
              right="-1"
              multi_select="true"
              name="member_list"
+             short_names="false" 
              top_pad="5">
                 <name_list.columns
                  label="Member"

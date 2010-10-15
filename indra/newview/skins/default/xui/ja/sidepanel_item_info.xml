@@ -23,56 +23,53 @@
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
 	<text name="origin" value="（持ち物）"/>
-	<panel label="" name="item_profile">
-		<text name="LabelItemNameTitle">
-			名前：
-		</text>
-		<text name="LabelItemDescTitle">
-			説明：
-		</text>
-		<text name="LabelCreatorTitle">
-			制作者：
-		</text>
-		<text name="LabelCreatorName"/>
-		<button label="プロフィール" name="BtnCreator"/>
-		<text name="LabelOwnerTitle">
-			所有者：
-		</text>
-		<text name="LabelOwnerName"/>
-		<button label="プロフィール" name="BtnOwner"/>
-		<text name="LabelAcquiredTitle">
-			取得：
-		</text>
-		<text name="LabelAcquiredDate"/>
-		<panel name="perms_inv">
-			<text name="perm_modify">
-				あなたができること：
+	<scroll_container name="item_profile_scroll">
+		<panel label="" name="item_profile">
+			<text name="LabelItemNameTitle">
+				名前：
 			</text>
-			<check_box label="修正" name="CheckOwnerModify"/>
-			<check_box label="コピー" name="CheckOwnerCopy"/>
-			<check_box label="再販・プレゼント" name="CheckOwnerTransfer"/>
-			<text name="AnyoneLabel">
-				全員：
+			<text name="LabelItemDescTitle">
+				説明：
 			</text>
-			<check_box label="コピー" name="CheckEveryoneCopy"/>
-			<text name="GroupLabel">
-				グループ：
+			<text name="LabelCreatorTitle">
+				制作者：
 			</text>
-			<check_box label="共有" name="CheckShareWithGroup" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。譲渡しない限り、役割制限を有効にはできません。"/>
-			<text name="NextOwnerLabel">
-				次の所有者：
+			<text name="LabelOwnerTitle">
+				所有者：
 			</text>
-			<check_box label="修正" name="CheckNextOwnerModify"/>
-			<check_box label="コピー" name="CheckNextOwnerCopy"/>
-			<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
+			<text name="LabelAcquiredTitle">
+				取得：
+			</text>
+			<panel name="perms_inv">
+				<text name="perm_modify">
+					あなたができること：
+				</text>
+				<check_box label="修正" name="CheckOwnerModify"/>
+				<check_box label="コピー" name="CheckOwnerCopy"/>
+				<check_box label="再販・プレゼント" name="CheckOwnerTransfer"/>
+				<text name="AnyoneLabel">
+					全員：
+				</text>
+				<check_box label="コピー" name="CheckEveryoneCopy"/>
+				<text name="GroupLabel">
+					グループ：
+				</text>
+				<check_box label="共有" name="CheckShareWithGroup" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
+				<text name="NextOwnerLabel">
+					次の所有者：
+				</text>
+				<check_box label="修正" name="CheckNextOwnerModify"/>
+				<check_box label="コピー" name="CheckNextOwnerCopy"/>
+				<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
+			</panel>
+			<check_box label="販売中" name="CheckPurchase"/>
+			<combo_box name="combobox sale copy">
+				<combo_box.item label="コピー" name="Copy"/>
+				<combo_box.item label="オリジナル" name="Original"/>
+			</combo_box>
+			<spinner label="価格： L$" name="Edit Cost"/>
 		</panel>
-		<check_box label="販売中" name="CheckPurchase"/>
-		<combo_box name="combobox sale copy">
-			<combo_box.item label="コピー" name="Copy"/>
-			<combo_box.item label="オリジナル" name="Original"/>
-		</combo_box>
-		<spinner label="価格：L$" name="Edit Cost"/>
-	</panel>
+	</scroll_container>
 	<panel name="button_panel">
 		<button label="キャンセル" name="cancel_btn"/>
 	</panel>

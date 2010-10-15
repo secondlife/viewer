@@ -23,5 +23,9 @@
 	</string>
 	<text name="avatar_name" value="Unbekannt"/>
 	<text name="last_interaction" value="0s"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Sie können die Objekte dieses Freunds bearbeiten"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Dieser Freund kann Ihre Objekte bearbeiten, löschen und an sich nehmen"/>
+	<icon name="permission_map_icon" tool_tip="Dieser Freund kann Sie auf der Karte finden"/>
+	<icon name="permission_online_icon" tool_tip="Dieser Freund kann sehen, wenn Sie online sind"/>
 	<button name="profile_btn" tool_tip="Profil anzeigen"/>
 </panel>

@@ -103,7 +103,7 @@
      mouse_opaque="false"
      name="target_avatar_name"
      top_delta="-2"
-     width="180">
+     width="270">
         (none)
     </line_editor>
     <button

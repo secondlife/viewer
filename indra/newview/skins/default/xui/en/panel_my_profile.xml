@@ -284,7 +284,7 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                initial_value="(retrieving)"
@@ -293,8 +293,8 @@
                link="true"
                name="partner_text"
                top="0"
-           width="300"
-               word_wrap="true" />
+               use_ellipses="true" 
+           width="300" />
             </panel>
             <text
              follows="left|top"
