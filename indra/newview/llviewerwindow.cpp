@@ -1669,7 +1669,7 @@ void LLViewerWindow::initWorldUI()
 	{
 		LLRect hud_rect = full_window;
 		hud_rect.mBottom += 50;
-		if (gMenuBarView)
+		if (gMenuBarView && gMenuBarView->isInVisibleChain())
 		{
 			hud_rect.mTop -= gMenuBarView->getRect().getHeight();
 		}
