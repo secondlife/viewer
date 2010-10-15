@@ -1477,6 +1477,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
@@ -1498,7 +1501,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
-      ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
