@@ -60,6 +60,8 @@ void LLNotificationManager::init()
 	LLNotificationChannel::buildChannel("AlertModal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
 	LLNotificationChannel::buildChannel("IM Notifications", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "notifytoast"));
 	LLNotificationChannel::buildChannel("Offer", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "offer"));
+	LLNotificationChannel::buildChannel("Hints", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "hint"));
+	LLNotificationChannel::buildChannel("Browser", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "browser"));
   
 	LLNotifications::instance().getChannel("Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("NotificationTips")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
@@ -68,6 +70,8 @@ void LLNotificationManager::init()
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("IM Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("Offer")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	LLNotifications::instance().getChannel("Hints")->connectChanged(boost::bind(&LLHintHandler::processNotification, LLHintHandler::getInstance(), _1));
+	LLNotifications::instance().getChannel("Browser")->connectChanged(boost::bind(&LLBrowserNotification::processNotification, LLBrowserNotification::getInstance(), _1));
 
 	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["notifytip"] =  boost::shared_ptr<LLEventHandler>(new LLTipHandler(NT_NOTIFY, LLSD()));

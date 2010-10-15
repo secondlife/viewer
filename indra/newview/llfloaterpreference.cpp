@@ -49,7 +49,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
-#include "llfloatervoicedevicesettings.h"
 #include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
@@ -57,7 +56,9 @@
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llnotificationtemplate.h"
 #include "llpanellogin.h"
+#include "llpanelvoicedevicesettings.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"
 #include "llsky.h"
@@ -76,6 +77,7 @@
 #include "llvosky.h"
 
 // linden library includes
+#include "llavatarnamecache.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -131,7 +133,6 @@ LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
   : LLModalDialog(key),
 	mParent(NULL)
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
 }
 
 //virtual
@@ -179,6 +180,8 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
+void handleNameTagOptionChanged(const LLSD& newvalue);	
+void handleDisplayNamesOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -213,6 +216,18 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	
 	return false;
 }
+
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::invalidateNameTags();
+}
+
+void handleDisplayNamesOptionChanged(const LLSD& newvalue)
+{
+	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLVOAvatar::invalidateNameTags();
+}
+
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
@@ -307,6 +322,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
+	
+	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -323,8 +342,9 @@ BOOL LLFloaterPreference::postBuild()
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
 
+	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-	getChild<LLUICtrl>("cache_location")->setValue(cache_location);
+	setCacheLocation(cache_location);
 
 	// if floater is opened before login set default localized busy message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -407,12 +427,6 @@ void LLFloaterPreference::apply()
 		hardware_settings->apply();
 	}
 	
-	LLFloaterVoiceDeviceSettings* voice_device_settings = LLFloaterReg::findTypedInstance<LLFloaterVoiceDeviceSettings>("pref_voicedevicesettings");
-	if(voice_device_settings)
-	{
-		voice_device_settings->apply();
-	}
-	
 	gViewerWindow->requestResolutionUpdate(); // for UIScaleFactor
 
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
@@ -420,7 +434,7 @@ void LLFloaterPreference::apply()
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
 	
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-	getChild<LLUICtrl>("cache_location")->setValue(cache_location);		
+	setCacheLocation(cache_location);
 	
 	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
@@ -487,15 +501,6 @@ void LLFloaterPreference::cancel()
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
-	
-	LLFloaterVoiceDeviceSettings* voice_device_settings = LLFloaterReg::findTypedInstance<LLFloaterVoiceDeviceSettings>("pref_voicedevicesettings");
-	if (voice_device_settings)
-	{
-		voice_device_settings ->cancel();
-	}
-	
-	LLFloaterReg::hideInstance("pref_voicedevicesettings");
-	
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -798,7 +803,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = LLUI::sSettingGroups["ignores"]->getBOOL(templatep->mName);
+		bool show_popup = formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -820,13 +825,11 @@ void LLFloaterPreference::buildPopupLists()
 				row["columns"][1]["font"] = "SANSSERIF_SMALL";
 				row["columns"][1]["width"] = 360;
 			}
-			item = disabled_popups.addElement(row,
-											  ADD_SORTED);
+			item = disabled_popups.addElement(row);
 		}
 		else
 		{
-			item = enabled_popups.addElement(row,
-											 ADD_SORTED);
+			item = enabled_popups.addElement(row);
 		}
 		
 		if (item)
@@ -1152,9 +1155,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		//gSavedSettings.setWarning(templatep->mName, TRUE);
-		std::string notification_name = templatep->mName;
-		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
+		templatep->mForm->setIgnored(false);
 	}
 	
 	buildPopupLists();
@@ -1168,7 +1169,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, TRUE);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
@@ -1181,7 +1182,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			LLUI::sSettingGroups["ignores"]->setBOOL(iter->first, FALSE);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }
@@ -1329,6 +1330,12 @@ void LLFloaterPreference::getUIColor(LLUICtrl* ctrl, const LLSD& param)
 	color_swatch->setOriginal(LLUIColorTable::instance().getColor(param.asString()));
 }
 
+void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
+{
+	LLUICtrl* cache_location_editor = getChild<LLUICtrl>("cache_location");
+	cache_location_editor->setValue(location);
+	cache_location_editor->setToolTip(location);
+}
 
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");

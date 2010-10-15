@@ -28,6 +28,7 @@
 #include "llviewermenu.h" 
 
 // linden library includes
+#include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
 #include "llcombobox.h"
 #include "llinventorypanel.h"
@@ -62,6 +63,7 @@
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
+#include "llhints.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimview.h"
@@ -2800,9 +2802,8 @@ class LLObjectMute : public view_listener_t
 			LLNameValue *lastname = avatar->getNVPair("LastName");
 			if (firstname && lastname)
 			{
-				name = firstname->getString();
-				name += " ";
-				name += lastname->getString();
+				name = LLCacheName::buildFullName(
+					firstname->getString(), lastname->getString());
 			}
 			
 			type = LLMute::AGENT;
@@ -3147,58 +3148,6 @@ bool enable_freeze_eject(const LLSD& avatar_id)
 	}
 	return new_value;
 }
-
-class LLAvatarGiveCard : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		llinfos << "handle_give_card()" << llendl;
-		LLViewerObject* dest = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if(dest && dest->isAvatar())
-		{
-			bool found_name = false;
-			LLSD args;
-			LLSD old_args;
-			LLNameValue* nvfirst = dest->getNVPair("FirstName");
-			LLNameValue* nvlast = dest->getNVPair("LastName");
-			if(nvfirst && nvlast)
-			{
-				args["FIRST"] = nvfirst->getString();
-				args["LAST"] = nvlast->getString();
-				old_args["FIRST"] = nvfirst->getString();
-				old_args["LAST"] = nvlast->getString();
-				found_name = true;
-			}
-			LLViewerRegion* region = dest->getRegion();
-			LLHost dest_host;
-			if(region)
-			{
-				dest_host = region->getHost();
-			}
-			if(found_name && dest_host.isOk())
-			{
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("OfferCallingCard");
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-				msg->nextBlockFast(_PREHASH_AgentBlock);
-				msg->addUUIDFast(_PREHASH_DestID, dest->getID());
-				LLUUID transaction_id;
-				transaction_id.generate();
-				msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
-				msg->sendReliable(dest_host);
-				LLNotificationsUtil::add("OfferedCard", args);
-			}
-			else
-			{
-				LLNotificationsUtil::add("CantOfferCallingCard", old_args);
-			}
-		}
-		return true;
-	}
-};
-
 
 
 void login_done(S32 which, void *user)
@@ -3622,21 +3571,17 @@ void request_friendship(const LLUUID& dest_id)
 	LLViewerObject* dest = gObjectList.findObject(dest_id);
 	if(dest && dest->isAvatar())
 	{
-		std::string fullname;
-		LLSD args;
+		std::string full_name;
 		LLNameValue* nvfirst = dest->getNVPair("FirstName");
 		LLNameValue* nvlast = dest->getNVPair("LastName");
 		if(nvfirst && nvlast)
 		{
-			args["FIRST"] = nvfirst->getString();
-			args["LAST"] = nvlast->getString();
-			fullname = nvfirst->getString();
-			fullname += " ";
-			fullname += nvlast->getString();
+			full_name = LLCacheName::buildFullName(
+				nvfirst->getString(), nvlast->getString());
 		}
-		if (!fullname.empty())
+		if (!full_name.empty())
 		{
-			LLAvatarActions::requestFriendshipDialog(dest_id, fullname);
+			LLAvatarActions::requestFriendshipDialog(dest_id, full_name);
 		}
 		else
 		{
@@ -7272,7 +7217,7 @@ void handle_load_from_xml(void*)
 	{
 		std::string filename = picker.getFirstFile();
 		LLFloater* floater = new LLFloater(LLSD());
-		LLUICtrlFactory::getInstance()->buildFloater(floater, filename, NULL);
+		floater->buildFromFile(filename);
 	}
 }
 
@@ -7729,6 +7674,16 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
+void handle_flush_name_caches()
+{
+	// Toggle display names on and off to flush
+	bool use_display_names = LLAvatarNameCache::useDisplayNames();
+	LLAvatarNameCache::setUseDisplayNames(!use_display_names);
+	LLAvatarNameCache::setUseDisplayNames(use_display_names);
+
+	if (gCacheName) gCacheName->clear();
+}
+
 class LLUploadCostCalculator : public view_listener_t
 {
 	std::string mCostStr;
@@ -7747,6 +7702,18 @@ public:
 	LLUploadCostCalculator()
 	{
 		calculateCost();
+	}
+};
+
+class LLToggleUIHints : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool ui_hints_enabled = gSavedSettings.getBOOL("EnableUIHints");
+		// toggle
+		ui_hints_enabled = !ui_hints_enabled;
+		gSavedSettings.setBOOL("EnableUIHints", ui_hints_enabled);
+		return true;
 	}
 };
 
@@ -7960,6 +7927,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
 	view_listener_t::addMenu(new LLAdvancedCheckConsole(), "Advanced.CheckConsole");
 	view_listener_t::addMenu(new LLAdvancedDumpInfoToConsole(), "Advanced.DumpInfoToConsole");
+	
 	// Advanced > HUD Info
 	view_listener_t::addMenu(new LLAdvancedToggleHUDInfo(), "Advanced.ToggleHUDInfo");
 	view_listener_t::addMenu(new LLAdvancedCheckHUDInfo(), "Advanced.CheckHUDInfo");
@@ -8043,6 +8011,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
+	commit.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
 
 	// Advanced > Character > Grab Baked Texture
 	view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -8143,7 +8112,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
-	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
@@ -8230,4 +8198,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
+	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 }

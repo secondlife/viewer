@@ -956,6 +956,23 @@ mediaPanel*  LLMediaPluginTest::findMediaPanel( LLPluginClassMedia* source )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+mediaPanel* LLMediaPluginTest::findMediaPanel( const std::string &target_name )
+{
+	mediaPanel *result = NULL;
+
+	for( int panel = 0; panel < (int)mMediaPanels.size(); ++panel )
+	{
+		if ( mMediaPanels[ panel ]->mTarget == target_name )
+		{
+			result = mMediaPanels[ panel ];
+		}
+	}
+
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void LLMediaPluginTest::navigateToNewURI( std::string uri )
 {
 	if ( uri.length() )
@@ -1566,7 +1583,7 @@ std::string LLMediaPluginTest::pluginNameFromMimeType( std::string& mime_type )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaPluginTest::addMediaPanel( std::string url )
+mediaPanel* LLMediaPluginTest::addMediaPanel( std::string url )
 {
 	// Get the plugin filename using the URL
 	std::string mime_type = mimeTypeFromUrl( url );
@@ -1598,7 +1615,7 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
 	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 	{
 		std::cerr << "Couldn't get cwd - probably too long - failing to init." << std::endl;
-		return;
+		return NULL;
 	}
 	std::string user_data_path = std::string( cwd ) + "/";
 #endif
@@ -1668,6 +1685,8 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
 
 		std::cout << "Adding new media panel for " << url << "(" << media_width << "x" << media_height << ") with index " << panel->mId << " - total panels = " << mMediaPanels.size() << std::endl;
 	}
+	
+	return panel;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1773,15 +1792,15 @@ void LLMediaPluginTest::updateMediaPanel( mediaPanel* panel )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
+mediaPanel* LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
 {
 	// no media panels so we can't change anything - have to add
 	if ( mMediaPanels.size() == 0 )
-		return;
+		return NULL;
 
 	// sanity check
 	if ( ! panel )
-		return;
+		return NULL;
 
 	int index;
 	for(index = 0; index < (int)mMediaPanels.size(); index++)
@@ -1793,7 +1812,7 @@ void LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
 	if(index >= (int)mMediaPanels.size())
 	{
 		// panel isn't in mMediaPanels
-		return;
+		return NULL;
 	}
 
 	std::cout << "Replacing media panel with index " << panel->mId << std::endl;
@@ -1835,7 +1854,7 @@ void LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
 	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 	{
 		std::cerr << "Couldn't get cwd - probably too long - failing to init." << std::endl;
-		return;
+		return NULL;
 	}
 	std::string user_data_path = std::string( cwd ) + "/";
 #endif
@@ -1875,6 +1894,8 @@ void LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
 	// load and start the URL
 	panel->mMediaSource->loadURI( url );
 	panel->mMediaSource->start();
+	
+	return panel;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2134,7 +2155,39 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		break;
 
 		case MEDIA_EVENT_CLICK_LINK_HREF:
-			std::cerr <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, uri is " << self->getClickURL() << std::endl;
+		{
+			std::cerr <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, uri is " << self->getClickURL() << ", target is " << self->getClickTarget() << std::endl;
+			// retrieve the event parameters
+			std::string url = self->getClickURL();
+			std::string target = self->getClickTarget();
+			
+			if(target == "_external")
+			{
+				// this should open in an external browser, but since this is a test app we don't care.
+			}
+			else if(target == "_blank")
+			{
+				// Create a new panel with the specified URL.
+				addMediaPanel(url);
+			}
+			else // other named target
+			{
+				mediaPanel *target_panel = findMediaPanel(target);
+				if(target_panel)
+				{
+					target_panel = replaceMediaPanel(target_panel, url);
+				}
+				else
+				{
+					target_panel = addMediaPanel(url);
+				}
+
+				if(target_panel)
+				{
+					target_panel->mTarget = target;
+				}
+			}
+		}
 		break;
 
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
@@ -2147,6 +2200,25 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << std::endl;
+		break;
+
+		case MEDIA_EVENT_CLOSE_REQUEST:
+			std::cerr <<  "Media event:  MEDIA_EVENT_CLOSE_REQUEST" << std::endl;
+		break;
+		
+		case MEDIA_EVENT_PICK_FILE_REQUEST:
+			std::cerr <<  "Media event:  MEDIA_EVENT_PICK_FILE_REQUEST" << std::endl;
+			// TODO: display an actual file picker
+			self->sendPickFileResponse("cake");
+		break;
+
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+			std::cerr <<  "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() 
+				<< ", x = " << self->getGeometryX() 
+				<< ", y = " << self->getGeometryY() 
+				<< ", width = " << self->getGeometryWidth() 
+				<< ", height = " << self->getGeometryHeight() 
+				<< std::endl;
 		break;
 	}
 }

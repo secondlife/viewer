@@ -28,30 +28,28 @@
      orientation="horizontal"
      top="0"
      width="1000">
-        <icon
+        <layout_panel
          auto_resize="false"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
+         user_resize="false" 
          min_width="2"
-         left="0"
-         top="0"
          width="2" />
         <layout_panel
          mouse_opaque="false"
          auto_resize="true"
-         follows="left|right"
          height="28"
          layout="topleft"
-         left="0"
-         min_height="23"
          width="310"
-         top="4"
          min_width="188"
-         name="chat_bar"
-         user_resize="false"
-         filename="panel_nearby_chat_bar.xml" />
+         user_resize="false">
+          <panel
+            left="0"
+            filename="panel_nearby_chat_bar.xml"
+            follows="left|right"
+            top="4"
+            width="310"
+            name="chat_bar"
+            mouse_opaque="false"/>
+        </layout_panel>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -79,17 +77,11 @@
                  use_ellipses="true" />
             </gesture_combo_list>
         </layout_panel>
-        <icon
+        <layout_panel
          auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
+         user_resize="false" 
          min_width="3"
          name="after_gesture_panel"
-         top="0"
          width="3"/>
     </layout_stack>
 </panel>

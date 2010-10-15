@@ -106,7 +106,7 @@
      height="15"
      layout="topleft"
      left="30"
-     top_pad="15"
+     top_pad="14"
      name="maturity_desired_prompt"
      width="200">
         I want to access content rated:
@@ -216,7 +216,7 @@
     layout="topleft"
     left="30"
     name="name_tags_textbox"
-    top_pad="15"
+    top_pad="14"
     width="400">
        Name tags:
    </text>
@@ -225,25 +225,33 @@
      height="20"
      layout="topleft"
      left="50"
+     top_pad="5" 
      name="Name_Tag_Preference">
         <radio_item
          label="Off"
-         layout="topleft"
          name="radio"
+         top_delta="20" 
+         layout="topleft"
+         height="16" 
+         left="0" 
          value="0"
          width="75" />
         <radio_item
          label="On"
+         left_pad="0"
          layout="topleft"
-         left_pad="12"
+         top_delta="0" 
+         height="16" 
          name="radio2"
          value="1"
          width="75" />
         <radio_item
          label="Show briefly"
-         layout="topleft"
-         left_pad="12"
+         left_pad="0"
          name="radio3"
+         height="16"
+         layout="topleft"
+         top_delta="0"
          value="2"
          width="160" />
     </radio_group>
@@ -251,20 +259,45 @@
 	 enabled_control="AvatarNameTagMode"
      control_name="RenderNameShowSelf"
      height="16"
-     label="Show my name"
+     label="My name"
      layout="topleft"
-     left="50"
+     left="70"
      name="show_my_name_checkbox1"
-     width="300" />
+	 top_pad="0"
+     width="100" />
    <check_box
+     control_name="NameTagShowUsernames"
 	 enabled_control="AvatarNameTagMode"
-     control_name="RenderShowGroupTitleAll"
      height="16"
-     label="Show group titles"
+     label="Usernames"
      layout="topleft"
-     left_delta="175"
+     left_pad="70"
+     name="show_slids"
+     tool_tip="Show username, like bobsmith123"
+     top_delta="0" />
+    <check_box
+     control_name="NameTagShowGroupTitles"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+     label="Group titles"
+     layout="topleft"
+     left="70"
+     width="100" 
      name="show_all_title_checkbox1"
-     width="200" />
+	 tool_tip="Show group titles, like Officer or Member"
+     top_pad="5" />
+
+   <check_box
+    control_name="NameTagShowFriends"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+    label="Highlight friends"
+     layout="topleft"
+    left_pad="70"
+    name="show_friends"
+    tool_tip="Highlight the name tags of your friends"
+    top_delta="0" />
+
     <text
      type="string"
      length="1"
@@ -273,7 +306,7 @@
      layout="topleft"
      left="30"
      name="effects_color_textbox"
-     top_pad="15"
+     top_pad="9"
      width="200">
         My effects:
     </text>
@@ -285,6 +318,7 @@
       layout="topleft"
       left_pad="5"
       name="title_afk_text"
+      top_delta="0" 
       width="190">
     Away timeout:
     </text>
@@ -334,6 +368,17 @@
      name="item4"
      value="0" />
   </combo_box>
+  <check_box
+control_name="UseDisplayNames"
+follows="top|left"
+height="14"
+label="View Display Names"
+layout="topleft"
+left="30"
+name="display_names_check"
+width="237"
+tool_tip="Check to use display names in chat, IM, name tags, etc."
+top_pad="20"/>
     <text
      type="string"
      length="1"
@@ -343,7 +388,7 @@
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="15"
+     top_pad="10"
      width="240">
        Busy mode response:
     </text>
@@ -353,8 +398,8 @@
       bg_writeable_color="LtGray"
       use_ellipses="false"
      commit_on_focus_lost = "true"
-     follows="left|top|right"
-     height="60"
+     follows="left|top"
+     height="42"
      layout="topleft"
      left="50"
      name="busy_response"

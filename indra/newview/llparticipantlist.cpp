@@ -331,11 +331,18 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 			if ( item )
 			{
 				std::string name = item->getAvatarName();
+				std::string tooltip = item->getAvatarToolTip();
 				size_t found = name.find(moderator_indicator);
 				if (found != std::string::npos)
 				{
 					name.erase(found, moderator_indicator_len);
-					item->setName(name);
+					item->setAvatarName(name);
+				}
+				found = tooltip.find(moderator_indicator);
+				if (found != tooltip.npos)
+				{
+					tooltip.erase(found, moderator_indicator_len);
+					item->setAvatarToolTip(tooltip);
 				}
 			}
 		}
@@ -351,12 +358,20 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 			if ( item )
 			{
 				std::string name = item->getAvatarName();
+				std::string tooltip = item->getAvatarToolTip();
 				size_t found = name.find(moderator_indicator);
 				if (found == std::string::npos)
 				{
 					name += " ";
 					name += moderator_indicator;
-					item->setName(name);
+					item->setAvatarName(name);
+				}
+				found = tooltip.find(moderator_indicator);
+				if (found == std::string::npos)
+				{
+					tooltip += " ";
+					tooltip += moderator_indicator;
+					item->setAvatarToolTip(tooltip);
 				}
 			}
 		}

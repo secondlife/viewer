@@ -1,10 +1,10 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
-    <key>FirstAppearance</key>
+    <key>FirstInventoryOffer</key>
     <map>
       <key>Comment</key>
-      <string>Enables FirstAppearance warning dialog</string>
+      <string>Shows hint when a person or object offers resident an inventory item</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12,120 +12,65 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstAttach</key>
+  <key>FirstNotUseDestinationGuide</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when resident doesn't activate destination guide</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstNotUseSidePanel</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when resident doesn't activate side panel</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstNotMoving</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when resident doesn't move</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstDisplayName</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when edits profile for the first time</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstReceiveLindens</key>
+  <map>
+    <key>Comment</key>
+    <string>Shows hint when resident receives linden dollars</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstOtherChatBeforeUser</key>
     <map>
       <key>Comment</key>
-      <string>Enables FirstAttach warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstBalanceDecrease</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBalanceDecrease warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstBalanceIncrease</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBalanceIncrease warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstBuild</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBuild warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstDebugMenus</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstDebugMenus warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstFlexible</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstFlexible warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstGoTo</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstGoTo warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstInventory</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstInventory warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstLeftClickNoHit</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstLeftClickNoHit warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstMap</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstMap warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstMedia</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstMedia warning dialog</string>
+      <string>Shows hint when someone else chats first</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -155,43 +100,11 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstSculptedPrim</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstSculptedPrim warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
+
     <key>FirstSit</key>
     <map>
       <key>Comment</key>
-      <string>Enables FirstSit warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstTeleport</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstTeleport warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstVoice</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstVoice warning dialog</string>
+      <string>Shows hint when someone sits for the first time</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

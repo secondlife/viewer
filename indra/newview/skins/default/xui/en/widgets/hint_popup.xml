@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<hint_popup
+ name="hint"
+ background_opaque="true"
+ background_visible="true"
+ chrome="true" 
+ layout="topleft"
+ bg_opaque_image="hint_background"
+ distance="24"
+ left_arrow="hint_arrow_left"
+ up_arrow="hint_arrow_up" 
+ right_arrow="hint_arrow_right"
+ down_arrow="hint_arrow_down"
+ lower_left_arrow="hint_arrow_lower_left"
+ left_arrow_offset="3"
+ up_arrow_offset="-2"
+ right_arrow_offset="-3"
+ down_arrow_offset="5"
+ fade_in_time="0.2"
+ fade_out_time="0.3">
+</hint_popup>

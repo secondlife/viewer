@@ -28,6 +28,7 @@
 
 #include "llfloatergodtools.h"
 
+#include "llavatarnamecache.h"
 #include "llcoord.h"
 #include "llfontgl.h"
 #include "llframetimer.h"
@@ -121,8 +122,6 @@ LLFloaterGodTools::LLFloaterGodTools(const LLSD& key)
 	mFactoryMap["region"] = LLCallbackMap(createPanelRegion, this);
 	mFactoryMap["objects"] = LLCallbackMap(createPanelObjects, this);
 	mFactoryMap["request"] = LLCallbackMap(createPanelRequest, this);
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_god_tools.xml");
-
 }
 
 BOOL LLFloaterGodTools::postBuild()
@@ -1145,11 +1144,11 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	panelp->getChild<LLUICtrl>("target_avatar_name")->setValue(name);
 }
 
-void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelObjectTools::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];
-	getChild<LLUICtrl>("target_avatar_name")->setValue(names[0]);
+	getChild<LLUICtrl>("target_avatar_name")->setValue(names[0].getCompleteName());
 	refresh();
 }
 

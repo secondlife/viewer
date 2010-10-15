@@ -469,9 +469,9 @@ void LLFastTimer::NamedTimer::accumulateTimings()
 			int hidx = cur_frame % HISTORY_NUM;
 
 			timerp->mCountHistory[hidx] = timerp->mTotalTimeCounter;
-			timerp->mCountAverage = (timerp->mCountAverage * cur_frame + timerp->mTotalTimeCounter) / (cur_frame+1);
+			timerp->mCountAverage = ((U64)timerp->mCountAverage * cur_frame + timerp->mTotalTimeCounter) / (cur_frame+1);
 			timerp->mCallHistory[hidx] = timerp->getFrameState().mCalls;
-			timerp->mCallAverage = (timerp->mCallAverage * cur_frame + timerp->getFrameState().mCalls) / (cur_frame+1);
+			timerp->mCallAverage = ((U64)timerp->mCallAverage * cur_frame + timerp->getFrameState().mCalls) / (cur_frame+1);
 		}
 	}
 }

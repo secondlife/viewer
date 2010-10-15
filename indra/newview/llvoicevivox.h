@@ -45,7 +45,7 @@ class LLVivoxProtocolParser;
 #endif
 #include "llvoiceclient.h"
 
-
+class LLAvatarName;
 class LLVivoxVoiceAccountProvisionResponder;
 class LLVivoxVoiceClientMuteListObserver;
 class LLVivoxVoiceClientFriendsObserver;	
@@ -649,7 +649,7 @@ protected:
 	void leaveAudioSession();
 	
 	void lookupName(const LLUUID &id);
-	static void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
 
 	/////////////////////////////
