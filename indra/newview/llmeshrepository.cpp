@@ -460,7 +460,7 @@ LLMeshRepoThread::~LLMeshRepoThread()
 void LLMeshRepoThread::run()
 {
 	mCurlRequest = new LLCurlRequest();
-	LLCDResult res =	LLConvexDecomposition::initThread();
+	LLCDResult res = LLConvexDecomposition::initThread();
 	if (res != LLCD_OK)
 	{
 		llwarns << "convex decomposition unable to be loaded" << llendl;
@@ -1835,6 +1835,8 @@ void LLMeshRepository::init()
 {
 	mMeshMutex = new LLMutex(NULL);
 	
+	LLConvexDecomposition::getInstance()->initSystem();
+
 	mDecompThread = new LLPhysicsDecomp();
 	mDecompThread->start();
 
@@ -1843,6 +1845,8 @@ void LLMeshRepository::init()
 		apr_sleep(100);
 	}
 
+	
+	
 	mThread = new LLMeshRepoThread();
 	mThread->start();
 }
@@ -1870,6 +1874,8 @@ void LLMeshRepository::shutdown()
 		delete mDecompThread;
 		mDecompThread = NULL;
 	}
+
+	LLConvexDecomposition::quitSystem();
 }
 
 
@@ -2807,8 +2813,12 @@ void LLPhysicsDecomp::doDecomposition()
 	//build parameter map
 	std::map<std::string, const LLCDParam*> param_map;
 
-	const LLCDParam* params;
-	S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	static const LLCDParam* params = NULL;
+	static S32 param_count = 0;
+	if (!params)
+	{
+		param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	}
 	
 	for (S32 i = 0; i < param_count; ++i)
 	{
@@ -2965,8 +2975,13 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 	//set all parameters to default
 	std::map<std::string, const LLCDParam*> param_map;
 
-	const LLCDParam* params;
-	S32 param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	static const LLCDParam* params = NULL;
+	static S32 param_count = 0;
+
+	if (!params)
+	{
+		param_count = LLConvexDecomposition::getInstance()->getParameters(&params);
+	}
 	
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
 
@@ -3048,13 +3063,18 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 
 void LLPhysicsDecomp::run()
 {
-	LLConvexDecomposition::initSystem();
+	LLConvexDecomposition::getInstance()->initThread();
 	mInited = true;
 
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
 
-	const LLCDStageData* stages;
-	S32 num_stages = decomp->getStages(&stages);
+	static const LLCDStageData* stages = NULL;
+	static S32 num_stages = 0;
+	
+	if (!stages)
+	{
+		num_stages = decomp->getStages(&stages);
+	}
 
 	for (S32 i = 0; i < num_stages; i++)
 	{
@@ -3083,8 +3103,8 @@ void LLPhysicsDecomp::run()
 		}
 	}
 
-	LLConvexDecomposition::quitSystem();
-
+	LLConvexDecomposition::getInstance()->quitThread();
+	
 	//delete mSignal;
 	delete mMutex;
 	mSignal = NULL;

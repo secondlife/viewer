@@ -868,16 +868,17 @@ void LLFloaterModelPreview::showDecompFloater()
 		cur_y += 30;
 
 
-		const LLCDStageData* stage;
-		S32 stage_count = 0;
-		if (LLConvexDecomposition::getInstance() != NULL)
+		static const LLCDStageData* stage = NULL;
+		static S32 stage_count = 0;
+
+		if (!stage && LLConvexDecomposition::getInstance() != NULL)
 		{
 			stage_count = LLConvexDecomposition::getInstance()->getStages(&stage);
 		}
 
-		const LLCDParam* param;
-		S32 param_count = 0;
-		if (LLConvexDecomposition::getInstance() != NULL)
+		static const LLCDParam* param = NULL;
+		static S32 param_count = 0;
+		if (!param && LLConvexDecomposition::getInstance() != NULL)
 		{
 			param_count = LLConvexDecomposition::getInstance()->getParameters(&param);
 		}

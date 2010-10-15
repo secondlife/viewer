@@ -2911,7 +2911,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		{
 			renderMeshBaseHull(volume, data_mask, color);
 		}
-#if 0 && LL_WINDOWS 
+#if LL_WINDOWS 
 		else
 		{
 			LLVolumeParams volume_params = volume->getVolume()->getParams();
@@ -2958,8 +2958,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				
 				LLCDMeshData res;
 
-				LLConvexDecomposition::getInstance()->initThread();
-
 				LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
 
 				//copy res into phys_volume
@@ -2970,11 +2968,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				phys_volume->mHullIndices = (U16*) malloc(idx_size);
 				phys_volume->mNumHullIndices = res.mNumTriangles*3;
 
-				const F32* v = mesh.mVertexBase;
+				const F32* v = res.mVertexBase;
 
 				for (S32 i = 0; i < res.mNumVertices; ++i)
 				{
-					F32* p = (F32*) ((U8*)v+i*mesh.mVertexStrideBytes);
+					F32* p = (F32*) ((U8*)v+i*res.mVertexStrideBytes);
 					phys_volume->mHullPoints[i].load3(p);
 				}
 
@@ -3000,8 +2998,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 						phys_volume->mHullIndices[i*3+2] = (U16) idx[2];
 					}
 				}
-
-				LLConvexDecomposition::getInstance()->quitThread();
 			}
 
 			if (phys_volume->mHullPoints)
@@ -3014,20 +3010,12 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				glColor3fv(color.mV);
 				LLVertexBuffer::unbind();
 
-				glPointSize(2.f);
-				gGL.begin(LLRender::POINTS);
-				gGL.color3fv(color.mV);
-				for (U32 i = 0; i < phys_volume->mNumHullPoints; i++)
-				{
-					gGL.vertex3fv(phys_volume->mHullPoints[i].getF32ptr());
-				}
-				gGL.end();
-				gGL.flush();				
-				//glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 				
-				/*glColor4fv(color.mV);
+				glColor4fv(color.mV);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);*/
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 				gGL.popMatrix();
 			}
 
