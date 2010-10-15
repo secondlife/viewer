@@ -61,6 +61,7 @@ public:
         LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
 	LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
 	LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
+	~LLUIString() { delete mArgs; }
 
 	void assign(const std::string& instring);
 	LLUIString& operator=(const std::string& s) { assign(s); return *this; }
@@ -80,7 +81,7 @@ public:
 	S32 length() const { return getUpdatedWResult().size(); }
 
 	void clear();
-	void clearArgs() { if (mArgs.get()) mArgs->clear(); }
+	void clearArgs() { if (mArgs) mArgs->clear(); }
 	
 	// These utility functions are included for text editing.
 	// They do not affect mOrig and do not perform argument substitution
@@ -104,7 +105,7 @@ private:
 	std::string mOrig;
 	mutable std::string mResult;
 	mutable LLWString mWResult; // for displaying
-	std::auto_ptr<LLStringUtil::format_map_t> mArgs;
+	LLStringUtil::format_map_t* mArgs;
 
 	// controls lazy evaluation
 	mutable bool	mNeedsResult;
