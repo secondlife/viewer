@@ -41,7 +41,6 @@ public:
 		LOCATION_FORMAT_FULL,			// Parcel, Region (x, y, z) - Maturity
 	};
 
-	static void buildName(std::string& name);
 	static void buildFullname(std::string &name);
 
 	static void buildSLURL(LLSLURL& slurl, const bool escaped = true);

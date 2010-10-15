@@ -101,16 +101,16 @@ void LLPanelMediaSettingsPermissions::draw()
 		if(mPermsGroupName)
 		{
 			mPermsGroupName->setNameID(group_id, true);
-		};
+		}
 	}
 	else
 	{
 		if(mPermsGroupName)
 		{
 			mPermsGroupName->setNameID(LLUUID::null, TRUE);
-			mPermsGroupName->refresh(LLUUID::null, LLStringUtil::null, LLStringUtil::null, true);
-		};
-	};
+			mPermsGroupName->refresh(LLUUID::null, std::string(), true);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
             data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
         };
     };
-	
+
 	// *NOTE: If any of a particular flavor is tentative, we have to disable 
 	// them all because of an architectural issue: namely that we represent 
 	// these as a bit field, and we can't selectively apply only one bit to all selected

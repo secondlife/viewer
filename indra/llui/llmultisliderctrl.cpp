@@ -130,7 +130,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 			params.name("MultiSliderCtrl Editor");
 			params.rect(text_rect);
 			params.font(p.font);
-			params.max_length_bytes(MAX_STRING_LENGTH);
+			params.max_length.bytes(MAX_STRING_LENGTH);
 			params.commit_callback.function(LLMultiSliderCtrl::onEditorCommit);
 			params.prevalidate_callback(&LLTextValidate::validateFloat);
 			params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);

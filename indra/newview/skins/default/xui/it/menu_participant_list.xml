@@ -11,7 +11,7 @@
 	<menu_item_check label="Icone persone" name="View Icons"/>
 	<menu_item_check label="Blocca voce" name="Block/Unblock"/>
 	<menu_item_check label="Blocca testo" name="MuteText"/>
-	<context_menu label="Opzioni moderatore " name="Moderator Options">
+	<context_menu label="Opzioni moderatore" name="Moderator Options">
 		<menu_item_check label="Consenti chat di testo" name="AllowTextChat"/>
 		<menu_item_call label="Disattiva audio di questo participante" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Riattiva audio di questo participante" name="ModerateVoiceUnMuteSelected"/>

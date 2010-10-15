@@ -25,7 +25,7 @@
 		NW
 	</floater.string>
 	<floater.string name="ToolTipMsg">
-		[AGENT][REGION](Karte mit Doppelklick öffnen)
+		[REGION](Doppelklicken, um Karte zu öffnen; Umschalt-Taste gedrückt halten und ziehen, um zu schwenken)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINI-KARTE

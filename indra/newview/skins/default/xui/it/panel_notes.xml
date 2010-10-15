@@ -13,11 +13,23 @@
 			</scroll_container>
 		</layout_panel>
 		<layout_panel name="notes_buttons_panel">
-			<button label="Aggiungi amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
-			<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
-			<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
-			<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
-			<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Aggiungi come amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
+				</layout_panel>
+				<layout_panel name="show_on_map_btn_lp">
+					<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
+				</layout_panel>
+				<layout_panel name="teleport_btn_lp">
+					<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 	</layout_stack>
 </panel>

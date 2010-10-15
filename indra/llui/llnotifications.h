@@ -98,8 +98,8 @@
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
 #include "llnotificationptr.h"
-#include "llcachename.h"
 
+class LLAvatarName;
 typedef enum e_notification_priority
 {
 	NOTIFICATION_PRIORITY_UNSPECIFIED,
@@ -194,7 +194,9 @@ public:
 	{
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
+		Optional<S32>			max_length_chars;
 
+		Optional<std::string>	value;
 		FormInput();
 	};
 
@@ -973,17 +975,20 @@ public:
 	{
 		// upcast T to the base type to restrict T derivation from LLPostponedNotification
 		LLPostponedNotification* thiz = new T();
-
 		thiz->mParams = params;
 
-		gCacheName->get(id, is_group, boost::bind(
-				&LLPostponedNotification::onCachedNameReceived, thiz, _1, _2,
-				_3, _4));
+		// Avoid header file dependency on llcachename.h
+		lookupName(thiz, id, is_group);
 	}
 
 private:
-	void onCachedNameReceived(const LLUUID& id, const std::string& first,
-			const std::string& last, bool is_group);
+	static void lookupName(LLPostponedNotification* thiz, const LLUUID& id, bool is_group);
+	// only used for groups
+	void onGroupNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	// only used for avatars
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+	// used for both group and avatar names
+	void finalizeName(const std::string& name);
 
 	void cleanup()
 	{

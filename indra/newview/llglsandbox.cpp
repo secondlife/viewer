@@ -48,6 +48,7 @@
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
 #include "llhudmanager.h"
+#include "llhudtext.h"
 #include "llrendersphere.h"
 #include "llviewerobjectlist.h"
 #include "lltoolselectrect.h"
@@ -888,7 +889,7 @@ void LLViewerObjectList::renderObjectBeacons()
 			color = debug_beacon.mTextColor;
 			color.mV[3] *= 1.f;
 
-			hud_textp->setString(utf8str_to_wstring(debug_beacon.mString));
+			hud_textp->setString(debug_beacon.mString);
 			hud_textp->setColor(color);
 			hud_textp->setPositionAgent(debug_beacon.mPositionAgent);
 			debug_beacon.mHUDObject = hud_textp;

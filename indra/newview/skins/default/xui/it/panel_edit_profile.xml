@@ -45,7 +45,13 @@
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Salva modifiche" name="save_btn"/>
-		<button label="Annulla" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Salva modifiche" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Annulla" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

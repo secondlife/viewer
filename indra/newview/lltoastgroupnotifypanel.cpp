@@ -36,6 +36,7 @@
 #include "llnotifications.h"
 #include "llviewertexteditor.h"
 
+#include "llavatarnamecache.h"
 #include "lluiconstants.h"
 #include "llui.h"
 #include "llviewercontrol.h"
@@ -67,7 +68,11 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	pGroupIcon->setValue(groupData.mInsigniaID);
 
 	//header title
-	const std::string& from_name = payload["sender_name"].asString();
+	std::string from_name = payload["sender_name"].asString();
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		from_name = LLCacheName::buildUsername(from_name);
+	}
 	std::stringstream from;
 	from << from_name << "/" << groupData.mName;
 	LLTextBox* pTitleText = getChild<LLTextBox>("title");
