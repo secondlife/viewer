@@ -354,9 +354,9 @@ void LLFloaterModelPreview::setLODMode(S32 lod, S32 mode)
 	{
 		if (lod != LLModel::LOD_PHYSICS)
 		{
-			for (S32 i = lod; i > 0; i--)
+			for (S32 i = lod; i >= 0; i--)
 			{
-				mModelPreview->clearModel(lod);
+				mModelPreview->clearModel(i);
 			}
 		}
 		else
