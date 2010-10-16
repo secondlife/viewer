@@ -459,6 +459,7 @@ public:
 	virtual LLSpatialBridge* asBridge() { return NULL; }
 	virtual BOOL isBridge() { return asBridge() != NULL; }
 
+	void renderPhysicsShapes();
 	void renderDebug();
 	void renderIntersectingBBoxes(LLCamera* camera);
 	void restoreGL();

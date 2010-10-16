@@ -136,12 +136,15 @@ class LLMeshDecomposition
 public:
 	LLMeshDecomposition() { }
 
+	void merge(const LLMeshDecomposition* rhs);
+
 	LLUUID mMeshID;
 	LLModel::physics_shape mHull;
 	LLModel::hull mBaseHull;
 
 	std::vector<LLPointer<LLVertexBuffer> > mMesh;
 	LLPointer<LLVertexBuffer> mBaseHullMesh;
+	LLPointer<LLVertexBuffer> mPhysicsShapeMesh;
 };
 
 class LLPhysicsDecomp : public LLThread
@@ -282,7 +285,10 @@ public:
 
 	//set of requested decompositions
 	std::set<LLUUID> mDecompositionRequests;
-	
+
+	//set of requested physics shapes
+	std::set<LLUUID> mPhysicsShapeRequests;
+
 	//queue of completed Decomposition info requests
 	std::queue<LLMeshDecomposition*> mDecompositionQ;
 
@@ -316,6 +322,7 @@ public:
 	bool lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
+	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	const LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
@@ -324,6 +331,7 @@ public:
 
 	void loadMeshSkinInfo(const LLUUID& mesh_id);
 	void loadMeshDecomposition(const LLUUID& mesh_id);
+	void loadMeshPhysicsShape(const LLUUID& mesh_id);
 
 	//send request for skin info, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
@@ -332,6 +340,12 @@ public:
 	//send request for decomposition, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
 	bool fetchMeshDecomposition(const LLUUID& mesh_id);
+
+	//send request for PhysicsShape, returns true if header info exists 
+	//  (should hold onto mesh_id and try again later if header info does not exist)
+	bool fetchMeshPhysicsShape(const LLUUID& mesh_id);
+
+
 };
 
 class LLMeshUploadThread : public LLThread 
@@ -443,6 +457,8 @@ public:
 	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
 	const LLMeshDecomposition* getDecomposition(const LLUUID& mesh_id);
+	void fetchPhysicsShape(const LLUUID& mesh_id);
+
 	void buildHull(const LLVolumeParams& params, S32 detail);
 	const LLSD& getMeshHeader(const LLUUID& mesh_id);
 
@@ -475,6 +491,12 @@ public:
 
 	//list of mesh ids that need to send decomposition fetch requests
 	std::queue<LLUUID> mPendingDecompositionRequests;
+	
+	//list of mesh ids awaiting physics shapes
+	std::set<LLUUID> mLoadingPhysicsShapes;
+
+	//list of mesh ids that need to send physics shape fetch requests
+	std::queue<LLUUID> mPendingPhysicsShapeRequests;
 	
 	U32 mMeshThreadCount;
 

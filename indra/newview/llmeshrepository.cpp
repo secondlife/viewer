@@ -125,7 +125,7 @@ LLVertexBuffer* get_vertex_buffer_from_mesh(LLCDMeshData& mesh, F32 scale = 1.f)
 
 	LLStrider<LLVector3> pos;
 	LLStrider<LLVector3> norm;
-
+	
 	buff->getVertexStrider(pos);
 	buff->getNormalStrider(norm);
 
@@ -442,6 +442,24 @@ public:
 
 };
 
+class LLMeshPhysicsShapeResponder : public LLCurl::Responder
+{
+public:
+	LLUUID mMeshID;
+	U32 mRequestedBytes;
+	U32 mOffset;
+
+	LLMeshPhysicsShapeResponder(const LLUUID& id, U32 offset, U32 size)
+		: mMeshID(id), mRequestedBytes(size), mOffset(offset)
+	{
+	}
+
+	virtual void completedRaw(U32 status, const std::string& reason,
+							  const LLChannelDescriptors& channels,
+							  const LLIOPipe::buffer_ptr_t& buffer);
+
+};
+
 
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo", NULL) 
@@ -538,6 +556,19 @@ void LLMeshRepoThread::run()
 				mDecompositionRequests = incomplete;
 			}
 
+			{
+				std::set<LLUUID> incomplete;
+				for (std::set<LLUUID>::iterator iter = mPhysicsShapeRequests.begin(); iter != mPhysicsShapeRequests.end(); ++iter)
+				{
+					LLUUID mesh_id = *iter;
+					if (!fetchMeshPhysicsShape(mesh_id))
+					{
+						incomplete.insert(mesh_id);
+					}
+				}
+				mPhysicsShapeRequests = incomplete;
+			}
+
 
 		}
 
@@ -563,7 +594,13 @@ void LLMeshRepoThread::loadMeshDecomposition(const LLUUID& mesh_id)
 { //protected by mSignal, no locking needed here
 	mDecompositionRequests.insert(mesh_id);
 }
-	
+
+void LLMeshRepoThread::loadMeshPhysicsShape(const LLUUID& mesh_id)
+{ //protected by mSignal, no locking needed here
+	mPhysicsShapeRequests.insert(mesh_id);
+}
+
+
 void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 { //protected by mSignal, no locking needed here
 
@@ -752,6 +789,82 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				mCurlRequest->getByteRange(constructUrl(mesh_id), headers, offset, size,
 										   new LLMeshDecompositionResponder(mesh_id, offset, size));
 			}
+		}
+	}
+	else
+	{	
+		mHeaderMutex->unlock();
+	}
+
+	//early out was not hit, effectively fetched
+	return true;
+}
+
+bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
+{ //protected by mMutex
+	mHeaderMutex->lock();
+
+	if (mMeshHeader.find(mesh_id) == mMeshHeader.end())
+	{ //we have no header info for this mesh, do nothing
+		mHeaderMutex->unlock();
+		return false;
+	}
+
+	U32 header_size = mMeshHeaderSize[mesh_id];
+
+	if (header_size > 0)
+	{
+		S32 offset = header_size + mMeshHeader[mesh_id]["physics_shape"]["offset"].asInteger();
+		S32 size = mMeshHeader[mesh_id]["physics_shape"]["size"].asInteger();
+
+		mHeaderMutex->unlock();
+
+		if (offset >= 0 && size > 0)
+		{
+			//check VFS for mesh physics shape info
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
+			if (file.getSize() >= offset+size)
+			{
+				LLMeshRepository::sCacheBytesRead += size;
+				file.seek(offset);
+				U8* buffer = new U8[size];
+				file.read(buffer, size);
+
+				//make sure buffer isn't all 0's (reserved block but not written)
+				bool zero = true;
+				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
+				{
+					zero = buffer[i] > 0 ? false : true;
+				}
+
+				if (!zero)
+				{ //attempt to parse
+					if (physicsShapeReceived(mesh_id, buffer, size))
+					{
+						delete[] buffer;
+						return true;
+					}
+				}
+
+				delete[] buffer;
+			}
+
+			//reading from VFS failed for whatever reason, fetch from sim
+			std::vector<std::string> headers;
+			headers.push_back("Accept: application/octet-stream");
+
+			std::string http_url = constructUrl(mesh_id);
+			if (!http_url.empty())
+			{
+				++sActiveLODRequests;
+				LLMeshRepository::sHTTPRequestCount++;
+				mCurlRequest->getByteRange(constructUrl(mesh_id), headers, offset, size,
+										   new LLMeshPhysicsShapeResponder(mesh_id, offset, size));
+			}
+		}
+		else
+		{ //no physics shape whatsoever, report back NULL
+			physicsShapeReceived(mesh_id, NULL, 0);
 		}
 	}
 	else
@@ -1166,10 +1279,84 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 
 			d->mBaseHullMesh = get_vertex_buffer_from_mesh(mesh);
 		}
+		else
+		{
+			//empty vertex buffer to indicate decomposition has been fetched
+			//but contains no base hull
+			d->mBaseHullMesh = new LLVertexBuffer(0, 0);
+		}
 
 		mDecompositionQ.push(d);
 	}
 
+	return true;
+}
+
+bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
+{
+	LLSD physics_shape;
+
+	LLMeshDecomposition* d = new LLMeshDecomposition();
+	d->mMeshID = mesh_id;
+
+	if (data == NULL)
+	{ //no data, no physics shape exists
+		d->mPhysicsShapeMesh = new LLVertexBuffer(0,0);
+	}
+	else
+	{
+		LLVolumeParams volume_params;
+		volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+		volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
+		LLPointer<LLVolume> volume = new LLVolume(volume_params,0);
+		std::string mesh_string((char*) data, data_size);
+		std::istringstream stream(mesh_string);
+
+		if (volume->unpackVolumeFaces(stream, data_size))
+		{
+			//load volume faces into decomposition buffer
+			S32 vertex_count = 0;
+			S32 index_count = 0;
+
+			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				vertex_count += face.mNumVertices;
+				index_count += face.mNumIndices;
+			}
+
+			d->mPhysicsShapeMesh = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 0);
+
+			d->mPhysicsShapeMesh->allocateBuffer(vertex_count, index_count, true);
+
+			LLStrider<LLVector3> pos;
+			LLStrider<U16> idx;
+
+			d->mPhysicsShapeMesh->getVertexStrider(pos);
+			d->mPhysicsShapeMesh->getIndexStrider(idx);
+
+			S32 idx_offset = 0;
+			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				if (idx_offset + face.mNumIndices > 65535)
+				{ //avoid 16-bit index overflow
+					continue;
+				}
+
+				LLVector4a::memcpyNonAliased16(pos[idx_offset].mV, face.mPositions[0].getF32ptr(), face.mNumVertices*sizeof(LLVector4a));
+			
+				for (S32 i = 0; i < face.mNumIndices; ++i)
+				{
+					*idx++ = face.mIndices[i] + idx_offset;
+				}
+
+				idx_offset += face.mNumVertices;
+			}
+		}
+	}
+
+	mDecompositionQ.push(d);
 	return true;
 }
 
@@ -1729,6 +1916,60 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 	delete [] data;
 }
 
+void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& reason,
+							  const LLChannelDescriptors& channels,
+							  const LLIOPipe::buffer_ptr_t& buffer)
+{
+	S32 data_size = buffer->countAfter(channels.in(), NULL);
+
+	if (status < 200 || status > 400)
+	{
+		llwarns << status << ": " << reason << llendl;
+	}
+
+	if (data_size < mRequestedBytes)
+	{
+		if (status == 499 || status == 503)
+		{ //timeout or service unavailable, try again
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
+		}
+		else
+		{
+			llwarns << "Unhandled status " << status << llendl;
+		}
+		return;
+	}
+
+	LLMeshRepository::sBytesReceived += mRequestedBytes;
+
+	U8* data = NULL;
+
+	if (data_size > 0)
+	{
+		data = new U8[data_size];
+		buffer->readAfter(channels.in(), NULL, data, data_size);
+	}
+
+	if (gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
+	{
+		//good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+
+		S32 offset = mOffset;
+		S32 size = mRequestedBytes;
+
+		if (file.getSize() >= offset+size)
+		{
+			LLMeshRepository::sCacheBytesWritten += size;
+			file.seek(offset);
+			file.write(data, size);
+		}
+	}
+
+	delete [] data;
+}
+
 void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
@@ -2096,6 +2337,13 @@ void LLMeshRepository::notifyLoadedMeshes()
 		mPendingDecompositionRequests.pop();
 	}
 	
+	//send physics shapes decomposition requests
+	while (!mPendingPhysicsShapeRequests.empty())
+	{
+		mThread->loadMeshPhysicsShape(mPendingPhysicsShapeRequests.front());
+		mPendingPhysicsShapeRequests.pop();
+	}
+	
 	mThread->notifyLoadedMeshes();
 
 	mThread->mMutex->unlock();
@@ -2110,9 +2358,45 @@ void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
 	mLoadingSkins.erase(info.mMeshID);
 }
 
+void LLMeshDecomposition::merge(const LLMeshDecomposition* rhs)
+{
+	if (!rhs)
+	{
+		return;
+	}
+
+	if (mMeshID != rhs->mMeshID)
+	{
+		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+	}
+
+	if (mBaseHull.empty())
+	{ //take base hull and decomposition from rhs
+		mHull = rhs->mHull;
+		mBaseHull = rhs->mBaseHull;
+		mMesh = rhs->mMesh;
+		mBaseHullMesh = rhs->mBaseHullMesh;
+	}
+
+	if (mPhysicsShapeMesh.isNull())
+	{ //take physics shape mesh from rhs
+		mPhysicsShapeMesh = rhs->mPhysicsShapeMesh;
+	}
+}
+
 void LLMeshRepository::notifyDecompositionReceived(LLMeshDecomposition* decomp)
 {
-	mDecompositionMap[decomp->mMeshID] = decomp;
+	decomposition_map::iterator iter = mDecompositionMap.find(decomp->mMeshID);
+	if (iter == mDecompositionMap.end())
+	{ //just insert decomp into map
+		mDecompositionMap[decomp->mMeshID] = decomp;
+	}
+	else
+	{ //merge decomp with existing entry
+		iter->second->merge(decomp);
+		delete decomp;
+	}
+
 	mLoadingDecompositions.erase(decomp->mMeshID);
 }
 
@@ -2238,17 +2522,47 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id)
 	return NULL;
 }
 
+void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
+{
+	if (mesh_id.notNull())
+	{
+		LLMeshDecomposition* decomp = NULL;
+		decomposition_map::iterator iter = mDecompositionMap.find(mesh_id);
+		if (iter != mDecompositionMap.end())
+		{
+			decomp = iter->second;
+		}
+		
+		//decomposition block hasn't been fetched yet
+		if (!decomp || decomp->mPhysicsShapeMesh.isNull())
+		{
+			LLMutexLock lock(mMeshMutex);
+			//add volume to list of loading meshes
+			std::set<LLUUID>::iterator iter = mLoadingPhysicsShapes.find(mesh_id);
+			if (iter == mLoadingPhysicsShapes.end())
+			{ //no request pending for this skin info
+				mLoadingPhysicsShapes.insert(mesh_id);
+				mPendingPhysicsShapeRequests.push(mesh_id);
+			}
+		}
+	}
+
+}
+
 const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id)
 {
+	LLMeshDecomposition* ret = NULL;
+
 	if (mesh_id.notNull())
 	{
 		decomposition_map::iterator iter = mDecompositionMap.find(mesh_id);
 		if (iter != mDecompositionMap.end())
 		{
-			return iter->second;
+			ret = iter->second;
 		}
 		
-		//no skin info known about given mesh, try to fetch it
+		//decomposition block hasn't been fetched yet
+		if (!ret || ret->mBaseHullMesh.isNull())
 		{
 			LLMutexLock lock(mMeshMutex);
 			//add volume to list of loading meshes
@@ -2261,7 +2575,7 @@ const LLMeshDecomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh
 		}
 	}
 
-	return NULL;
+	return ret;
 }
 
 void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)

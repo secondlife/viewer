@@ -537,6 +537,22 @@ void LLPipeline::resizeScreenTexture()
 	}
 }
 
+void LLPipeline::allocatePhysicsBuffer()
+{
+	GLuint resX = gViewerWindow->getWorldViewWidthRaw();
+	GLuint resY = gViewerWindow->getWorldViewHeightRaw();
+
+	if (mPhysicsDisplay.getWidth() != resX || mPhysicsDisplay.getHeight() != resY)
+	{
+		mPhysicsDisplay.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (mSampleBuffer.getWidth() == mPhysicsDisplay.getWidth() && 
+			mSampleBuffer.getHeight() == mPhysicsDisplay.getHeight())
+		{
+			mPhysicsDisplay.setSampleBuffer(&mSampleBuffer);
+		}
+	}
+}
+
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	// remember these dimensions
@@ -677,6 +693,7 @@ void LLPipeline::releaseGLBuffers()
 	mWaterRef.release();
 	mWaterDis.release();
 	mScreen.release();
+	mPhysicsDisplay.release();
 	mUIScreen.release();
 	mSampleBuffer.releaseSampleBuffer();
 	mDeferredScreen.release();
@@ -3786,6 +3803,59 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 	}
 }
 
+void LLPipeline::renderPhysicsDisplay()
+{
+	if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+	{
+		return;
+	}
+
+	allocatePhysicsBuffer();
+
+	gGL.flush();
+	mPhysicsDisplay.bindTarget();
+	glClearColor(0,0,0,1);
+	gGL.setColorMask(true, true);
+	mPhysicsDisplay.clear();
+	glClearColor(0,0,0,0);
+
+	gGL.setColorMask(true, false);
+
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+		{
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
+			{
+				if (hasRenderType(part->mDrawableType))
+				{
+					part->renderPhysicsShapes();
+				}
+			}
+		}
+	}
+
+	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+	{
+		LLSpatialBridge* bridge = *i;
+		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
+		{
+			glPushMatrix();
+			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+			bridge->renderPhysicsShapes();
+			glPopMatrix();
+		}
+	}
+
+
+	gGL.flush();
+	mPhysicsDisplay.flush();
+}
+
+
 void LLPipeline::renderDebug()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
@@ -3813,6 +3883,18 @@ void LLPipeline::renderDebug()
 					part->renderDebug();
 				}
 			}
+		}
+	}
+
+	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+	{
+		LLSpatialBridge* bridge = *i;
+		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
+		{
+			glPushMatrix();
+			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+			bridge->renderDebug();
+			glPopMatrix();
 		}
 	}
 
@@ -3871,18 +3953,6 @@ void LLPipeline::renderDebug()
 		}
 
 		gPipeline.mDebugMeshUploadCost = mesh_cost;
-	}
-
-	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
-	{
-		LLSpatialBridge* bridge = *i;
-		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-		{
-			glPushMatrix();
-			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-			bridge->renderDebug();
-			glPopMatrix();
-		}
 	}
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
@@ -4098,6 +4168,8 @@ void LLPipeline::renderDebug()
 	}
 
 	gGL.flush();
+
+	gPipeline.renderPhysicsDisplay();
 }
 
 void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect)
@@ -6125,7 +6197,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	}
 	else
 	{
-
 		if (res_mod > 1)
 		{
 			tc2 /= (F32) res_mod;
@@ -6191,8 +6262,33 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		}
 	}
 	
-
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+	{
+		LLVector2 tc1(0,0);
+		LLVector2 tc2((F32) gViewerWindow->getWorldViewWidthRaw()*2,
+				  (F32) gViewerWindow->getWorldViewHeightRaw()*2);
+
+		LLGLEnable blend(GL_BLEND);
+		gGL.color4f(1,1,1,0.75f);
+
+		gGL.getTexUnit(0)->bind(&mPhysicsDisplay);
+
+		gGL.begin(LLRender::TRIANGLE_STRIP);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
+		
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,3);
+		
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(3,-1);
+		
+		gGL.end();
+		gGL.flush();
+	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

@@ -114,8 +114,10 @@ public:
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void createGLBuffers();
-	void allocateScreenBuffer(U32 resX, U32 resY);
 
+	void allocateScreenBuffer(U32 resX, U32 resY);
+	void allocatePhysicsBuffer();
+	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void setUseVBO(BOOL use_vbo);
 	void generateImpostor(LLVOAvatar* avatar);
@@ -259,6 +261,7 @@ public:
 	void generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<LLVector3>& vpc);
 	void renderHighlights();
 	void renderDebug();
+	void renderPhysicsDisplay();
 
 	void renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect);
 	void rebuildPools(); // Rebuild pools
@@ -519,6 +522,7 @@ public:
 	LLRenderTarget			mGIMapPost[2];
 	LLRenderTarget			mLuminanceMap;
 	LLRenderTarget			mHighlight;
+	LLRenderTarget			mPhysicsDisplay;
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
