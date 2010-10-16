@@ -1,5 +1,7 @@
 # -*- cmake -*-
-include(Prebuilt)
+if (INSTALL_PROPRIETARY)
+  include(Prebuilt)
+endif (INSTALL_PROPRIETARY)
 
 set(FMOD_FIND_QUIETLY OFF)
 set(FMOD_FIND_REQUIRED OFF)
@@ -7,7 +9,9 @@ set(FMOD_FIND_REQUIRED OFF)
 if (STANDALONE)
   include(FindFMOD)
 else (STANDALONE)
-  use_prebuilt_binary(fmod)
+  if (INSTALL_PROPRIETARY)
+    use_prebuilt_binary(fmod)
+  endif (INSTALL_PROPRIETARY)
   
   if (WINDOWS)
     set(FMOD_LIBRARY fmod)
