@@ -38,6 +38,16 @@
 static const std::string PANEL_PICKS = "panel_picks";
 static const std::string PANEL_PROFILE = "panel_profile";
 
+std::string getProfileURL(const std::string& agent_name)
+{
+	std::string url = gSavedSettings.getString("WebProfileURL");
+	LLSD subs;
+	subs["AGENT_NAME"] = agent_name;
+	url = LLWeb::expandURLSubstitutions(url,subs);
+	LLStringUtil::toLower(url);
+	return url;
+}
+
 class LLProfileHandler : public LLCommandHandler
 {
 public:
@@ -50,10 +60,7 @@ public:
 		if (params.size() < 1) return false;
 		std::string agent_name = params[0];
 		llinfos << "Profile, agent_name " << agent_name << llendl;
-		std::string url = gSavedSettings.getString("WebProfileURL");
-		LLSD subs;
-		subs["AGENT_NAME"] = agent_name;
-		url = LLWeb::expandURLSubstitutions(url,subs);
+		std::string url = getProfileURL(agent_name);
 		LLWeb::loadURL(url);
 
 		return true;
