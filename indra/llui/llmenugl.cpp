@@ -1462,7 +1462,7 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	BOOL branch_visible = getBranch()->getVisible();
 	BOOL handled = getBranch()->handleAcceleratorKey(key, mask);
-	if (handled && !branch_visible && getVisible())
+	if (handled && !branch_visible && isInVisibleChain())
 	{
 		// flash this menu entry because we triggered an invisible menu item
 		LLMenuHolderGL::setActivatedItem(this);
