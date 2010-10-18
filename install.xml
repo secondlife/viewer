@@ -273,9 +273,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>6da2327ba6a4aaf3be43dedf8ad963f6</string>
+            <string>a8240dcad81a4f8b2994aa44f145ace1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-linux-20101018a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-linux-20101018b.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
