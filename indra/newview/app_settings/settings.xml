@@ -2906,7 +2906,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search.secondlife.com/viewer/embed/event/</string>
+      <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
     <key>EveryoneCopy</key>
       <map>
