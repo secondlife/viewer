@@ -507,9 +507,10 @@ void LLMeshRepoThread::run()
 			while (!mLODReqQ.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && sActiveLODRequests < sMaxConcurrentRequests)
 			{
 				{
-					LLMutexLock lock(mMutex);
+					mMutex->lock();
 					LODRequest req = mLODReqQ.front();
 					mLODReqQ.pop();
+					mMutex->unlock();
 					if (fetchMeshLOD(req.mMeshParams, req.mLOD))
 					{
 						count++;
@@ -520,9 +521,10 @@ void LLMeshRepoThread::run()
 			while (!mHeaderReqQ.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && sActiveHeaderRequests < sMaxConcurrentRequests)
 			{
 				{
-					LLMutexLock lock(mMutex);
+					mMutex->lock();
 					HeaderRequest req = mHeaderReqQ.front();
 					mHeaderReqQ.pop();
+					mMutex->unlock();
 					if (fetchMeshHeader(req.mMeshParams))
 					{
 						count++;
@@ -530,7 +532,7 @@ void LLMeshRepoThread::run()
 				}
 			}
 
-			{
+			{ //mSkinRequests is protected by mSignal
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mSkinRequests.begin(); iter != mSkinRequests.end(); ++iter)
 				{
@@ -543,7 +545,7 @@ void LLMeshRepoThread::run()
 				mSkinRequests = incomplete;
 			}
 
-			{
+			{ //mDecompositionRequests is protected by mSignal
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mDecompositionRequests.begin(); iter != mDecompositionRequests.end(); ++iter)
 				{
@@ -556,7 +558,7 @@ void LLMeshRepoThread::run()
 				mDecompositionRequests = incomplete;
 			}
 
-			{
+			{ //mPhysicsShapeRequests is protected by mSignal
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mPhysicsShapeRequests.begin(); iter != mPhysicsShapeRequests.end(); ++iter)
 				{
@@ -608,7 +610,10 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 	if (iter != mMeshHeader.end())
 	{ //if we have the header, request LOD byte range
 		LODRequest req(mesh_params, lod);
-		mLODReqQ.push(req);
+		{
+			LLMutexLock lock(mMutex);
+			mLODReqQ.push(req);
+		}
 	}
 	else
 	{ 
@@ -626,6 +631,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 		}
 		else
 		{ //if no header request is pending, fetch header
+			LLMutexLock lock(mMutex);
 			mHeaderReqQ.push(req);
 			mPendingLOD[mesh_params].push_back(lod);
 		}
@@ -1043,6 +1049,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 		pending_lod_map::iterator iter = mPendingLOD.find(mesh_params);
 		if (iter != mPendingLOD.end())
 		{
+			LLMutexLock lock(mMutex);
 			for (U32 i = 0; i < iter->second.size(); ++i)
 			{
 				LODRequest req(mesh_params, iter->second[i]);
@@ -1999,6 +2006,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		{ //retry
 			LLMeshRepository::sHTTPRetryCount++;
 			LLMeshRepoThread::HeaderRequest req(mMeshParams);
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
 			gMeshRepo.mThread->mHeaderReqQ.push(req);
 		}
 	}
@@ -2401,7 +2409,7 @@ void LLMeshRepository::notifyDecompositionReceived(LLMeshDecomposition* decomp)
 }
 
 void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume)
-{
+{ //called from main thread
 	S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
 
 	//get list of objects waiting to be notified this mesh is loaded
@@ -2444,7 +2452,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 }
 
 void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod)
-{
+{ //called from main thread
 	//get list of objects waiting to be notified this mesh is loaded
 	mesh_load_map::iterator obj_iter = mLoadingMeshes[lod].find(mesh_params);
 
@@ -2926,12 +2934,16 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	object_params["extra_parameters"].append(extra_parameter);
 
 	LLPermissions perm;
-	perm.setNextOwnerBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getNextOwnerPerms());
-	perm.setGroupBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getGroupPerms());
-	perm.setEveryoneBits(gAgent.getID(), LLUUID::null, TRUE, LLFloaterPerms::getEveryonePerms());
 	perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
 	perm.setCreator(gAgent.getID());
 
+	perm.initMasks(PERM_ITEM_UNRESTRICTED, //base
+				   PERM_ITEM_UNRESTRICTED, //owner
+				   LLFloaterPerms::getEveryonePerms(),
+				   LLFloaterPerms::getGroupPerms(),
+				   LLFloaterPerms::getNextOwnerPerms());				    	   
+	
+	
 	object_params["permissions"] = ll_create_sd_from_permissions(perm);
 
 	object_params["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
