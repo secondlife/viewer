@@ -1622,7 +1622,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	style_params.fillFrom(getDefaultStyleParams());
 
 	S32 part = (S32)LLTextParser::WHOLE;
-	if(mParseHTML)
+	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
 		S32 start=0,end=0;
 		LLUrlMatch match;
