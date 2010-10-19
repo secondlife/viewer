@@ -3794,7 +3794,7 @@
       <key>Comment</key>
       <string>URL pattern for help page; arguments will be encoded; see llviewerhelp.cpp:buildHelpURL for arguments</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
