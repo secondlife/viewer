@@ -41,7 +41,7 @@
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
-S32 LLAvatarListItem::sRightNamePadding = 0;
+S32 LLAvatarListItem::sNameRightPadding = 0;
 S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterAvatarListItemParams(&typeid(LLAvatarListItem::Params), "avatar_list_item");
@@ -52,7 +52,8 @@ LLAvatarListItem::Params::Params()
 	voice_call_joined_style("voice_call_joined_style"),
 	voice_call_left_style("voice_call_left_style"),
 	online_style("online_style"),
-	offline_style("offline_style")
+	offline_style("offline_style"),
+	name_right_pad("name_right_pad", 0)
 {};
 
 
@@ -118,6 +119,9 @@ BOOL  LLAvatarListItem::postBuild()
 		// Remember children widths including their padding from the next sibling,
 		// so that we can hide and show them again later.
 		initChildrenWidths(this);
+
+		// Right padding between avatar name text box and nearest visible child.
+		sNameRightPadding = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>().name_right_pad;
 
 		sStaticInitialized = true;
 	}
@@ -486,7 +490,6 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
 
 	sLeftPadding = avatar_item->mAvatarIcon->getRect().mLeft;
-	sRightNamePadding = avatar_item->mLastInteractionTime->getRect().mLeft - avatar_item->mAvatarName->getRect().mRight;
 
 	S32 index = ALIC_COUNT;
 	sChildrenWidths[--index] = icon_width;
@@ -565,7 +568,7 @@ void LLAvatarListItem::updateChildren()
 
 	// apply paddings
 	name_new_width -= sLeftPadding;
-	name_new_width -= sRightNamePadding;
+	name_new_width -= sNameRightPadding;
 
 	name_view_rect.setLeftTopAndSize(
 		name_new_left,
