@@ -2937,13 +2937,12 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
 	perm.setCreator(gAgent.getID());
 
-	perm.initMasks(PERM_ITEM_UNRESTRICTED, //base
-				   PERM_ITEM_UNRESTRICTED, //owner
+	perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
+				   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
 				   LLFloaterPerms::getEveryonePerms(),
 				   LLFloaterPerms::getGroupPerms(),
-				   LLFloaterPerms::getNextOwnerPerms());				    	   
-	
-	
+				   LLFloaterPerms::getNextOwnerPerms());
+		
 	object_params["permissions"] = ll_create_sd_from_permissions(perm);
 
 	object_params["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
