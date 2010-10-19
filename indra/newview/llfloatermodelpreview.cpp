@@ -3398,22 +3398,30 @@ BOOL LLModelPreview::render()
 
 		if (!avatar_preview)
 		{
-			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
+			//for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
+			for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
 			{
+				LLModelInstance& instance = *iter;
+
 				gGL.pushMatrix();
-				LLMatrix4 mat = iter->first;
+				LLMatrix4 mat = instance.mTransform;
 
 				glMultMatrixf((GLfloat*) mat.mMatrix);				
 				
-				for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
+				//for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
 				{
-					LLModelInstance& instance = *model_iter;
-					LLModel* model = instance.mModel;
+					//LLModelInstance& instance = *model_iter;
+					LLModel* model = instance.mLOD[mPreviewLOD];
 
-					if (instance.mTransform != mat)
+					if (!model)
 					{
-						llerrs << "WTF?" << llendl;
+						continue;
 					}
+
+					//if (instance.mTransform != mat)
+					//{
+					//	llerrs << "WTF?" << llendl;
+					//}
 
 					if (render_mesh)
 					{
