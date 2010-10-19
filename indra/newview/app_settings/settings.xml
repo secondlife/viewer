@@ -8155,9 +8155,9 @@
       <real>1.0</real>
     </map>
     <key>RenderTrackerBeacon</key>
-      <map>
+    <map>
       <key>Comment</key>
-      <string>Display tracking arrow and beacon to target avatar/teleport destination</string>
+      <string>Display tracking arrow and beacon to target avatar, teleport destination</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
