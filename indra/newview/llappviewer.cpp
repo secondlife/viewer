@@ -2909,6 +2909,13 @@ void LLAppViewer::requestQuit()
 	
 	if( (LLStartUp::getStartupState() < STATE_STARTED) || !region )
 	{
+		// If we have a region, make some attempt to send a logout request first.
+		// This prevents the halfway-logged-in avatar from hanging around inworld for a couple minutes.
+		if(region)
+		{
+			sendLogoutRequest();
+		}
+		
 		// Quit immediately
 		forceQuit();
 		return;
@@ -4012,7 +4019,10 @@ void LLAppViewer::sendLogoutRequest()
 		gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 		mLogoutRequestSent = TRUE;
 		
-		LLVoiceClient::getInstance()->leaveChannel();
+		if(LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->leaveChannel();
+		}
 
 		//Set internal status variables and marker files
 		gLogoutInProgress = TRUE;
