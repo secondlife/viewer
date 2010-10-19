@@ -30,7 +30,7 @@
 
 // library includes
 #include "indra_constants.h"
-#include "llnotificationsutil.h"
+#include "llnotifications.h"
 
 // viewer includes
 #include "llagent.h"	// for gAgent.inPrelude()
@@ -39,7 +39,7 @@
 #include "llappviewer.h"
 #include "lltracker.h"
 
-/*
+
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
 
@@ -70,211 +70,115 @@ void LLFirstUse::resetFirstUse()
 		gWarningSettings.setBOOL(*iter, TRUE);
 	}
 }
-*/
-/*
-
-// Called whenever the viewer detects that your balance went up
-void LLFirstUse::useBalanceIncrease(S32 delta)
-{
-	if (gWarningSettings.getBOOL("FirstBalanceIncrease"))
-	{
-		gWarningSettings.setBOOL("FirstBalanceIncrease", FALSE);
-
-		LLSD args;
-		args["AMOUNT"] = llformat("%d",delta);
-		LLNotificationsUtil::add("FirstBalanceIncrease", args);
-	}
-}
-
-
-// Called whenever the viewer detects your balance went down
-void LLFirstUse::useBalanceDecrease(S32 delta)
-{
-	if (gWarningSettings.getBOOL("FirstBalanceDecrease"))
-	{
-		gWarningSettings.setBOOL("FirstBalanceDecrease", FALSE);
-
-		LLSD args;
-		args["AMOUNT"] = llformat("%d",-delta);
-		LLNotificationsUtil::add("FirstBalanceDecrease", args);
-	}
-}
-
 
 // static
-void LLFirstUse::useSit()
+void LLFirstUse::otherAvatarChatFirst(bool enable)
 {
-	// Our orientation island uses sitting to teach vehicle driving
-	// so just never show this message. JC
-	//if (gWarningSettings.getBOOL("FirstSit"))
-	//{
-	//	gWarningSettings.setBOOL("FirstSit", FALSE);
-        //
-	//	LLNotificationsUtil::add("FirstSit");
-	//}
+	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "chat_bar").with("direction", "top_right").with("distance", 24));
 }
 
 // static
-void LLFirstUse::useMap()
+void LLFirstUse::sit(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstMap"))
-	{
-		gWarningSettings.setBOOL("FirstMap", FALSE);
-
-		LLNotificationsUtil::add("FirstMap");
-	}
+	firstUseNotification("FirstSit", enable, "HintSit", LLSD(), LLSD().with("target", "stand_btn").with("direction", "top"));
 }
 
 // static
-void LLFirstUse::useGoTo()
+void LLFirstUse::newInventory(bool enable)
 {
-	// nothing for now JC
+	// turning this off until bug EXP-62 can be fixed (inventory hint appears for new users when their initial inventory is acquired)
+	// firstUseNotification("FirstInventoryOffer", enable, "HintInventory", LLSD(), LLSD().with("target", "inventory_btn").with("direction", "left"));
 }
-
-// static
-void LLFirstUse::useBuild()
-{
-	if (gWarningSettings.getBOOL("FirstBuild"))
-	{
-		gWarningSettings.setBOOL("FirstBuild", FALSE);
-
-		LLNotificationsUtil::add("FirstBuild");
-	}
-}
- 
- */
-/*
-// static
-void LLFirstUse::useLeftClickNoHit()
-{ 
-	if (gWarningSettings.getBOOL("FirstLeftClickNoHit"))
-	{
-		gWarningSettings.setBOOL("FirstLeftClickNoHit", FALSE);
-
-		LLNotificationsUtil::add("FirstLeftClickNoHit");
-	}
-}
-*/
-/*
-// static
-void LLFirstUse::useTeleport()
-{
-	if (gWarningSettings.getBOOL("FirstTeleport"))
-	{
-		LLVector3d teleportDestination = LLTracker::getTrackedPositionGlobal();
-		if(teleportDestination != LLVector3d::zero)
-		{
-			gWarningSettings.setBOOL("FirstTeleport", FALSE);
-
-		        LLNotificationsUtil::add("FirstTeleport");
-		}
-	}
-}
-*/
-// static
-void LLFirstUse::useOverrideKeys()
-{
-	// Our orientation island uses key overrides to teach vehicle driving
-	// so don't show this message until you get off OI. JC
-	if (!gAgent.inPrelude())
-	{
-		if (gWarningSettings.getBOOL("FirstOverrideKeys"))
-		{
-			gWarningSettings.setBOOL("FirstOverrideKeys", FALSE);
-
-			LLNotificationsUtil::add("FirstOverrideKeys");
-		}
-	}
-}
-/*
-// static
-void LLFirstUse::useAttach()
-{
-	// nothing for now
-}
-
-// static
-void LLFirstUse::useAppearance()
-{
-	if (gWarningSettings.getBOOL("FirstAppearance"))
-	{
-		gWarningSettings.setBOOL("FirstAppearance", FALSE);
-
-		LLNotificationsUtil::add("FirstAppearance");
-	}
-}
-
-// static
-void LLFirstUse::useInventory()
-{
-	if (gWarningSettings.getBOOL("FirstInventory"))
-	{
-		gWarningSettings.setBOOL("FirstInventory", FALSE);
-
-		LLNotificationsUtil::add("FirstInventory");
-	}
-}
-
-*/
 
 // static
 void LLFirstUse::useSandbox()
 {
-	if (gWarningSettings.getBOOL("FirstSandbox"))
-	{
-		gWarningSettings.setBOOL("FirstSandbox", FALSE);
-
-		LLSD args;
-		args["HOURS"] = llformat("%d",SANDBOX_CLEAN_FREQ);
-		args["TIME"] = llformat("%d",SANDBOX_FIRST_CLEAN_HOUR);
-		LLNotificationsUtil::add("FirstSandbox", args);
-	}
-}
-/*
-// static
-void LLFirstUse::useFlexible()
-{
-	if (gWarningSettings.getBOOL("FirstFlexible"))
-	{
-		gWarningSettings.setBOOL("FirstFlexible", FALSE);
-
-		LLNotificationsUtil::add("FirstFlexible");
-	}
+	firstUseNotification("FirstSandbox", true, "FirstSandbox", LLSD().with("HOURS", SANDBOX_CLEAN_FREQ).with("TIME", SANDBOX_FIRST_CLEAN_HOUR));
 }
 
 // static
-void LLFirstUse::useDebugMenus()
+void LLFirstUse::notUsingDestinationGuide(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstDebugMenus"))
-	{
-		gWarningSettings.setBOOL("FirstDebugMenus", FALSE);
-
-		LLNotificationsUtil::add("FirstDebugMenus");
-	}
+	// not doing this yet
+	//firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
 }
 
 // static
-void LLFirstUse::useSculptedPrim()
+void LLFirstUse::notUsingSidePanel(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstSculptedPrim"))
-	{
-		gWarningSettings.setBOOL("FirstSculptedPrim", FALSE);
-
-		LLNotificationsUtil::add("FirstSculptedPrim");
-		
-	}
+	// not doing this yet
+	//firstUseNotification("FirstNotUseSidePanel", enable, "HintSidePanel", LLSD(), LLSD().with("target", "side_panel_btn").with("direction", "left"));
 }
 
-// static 
-void LLFirstUse::useMedia()
+// static
+void LLFirstUse::notMoving(bool enable)
 {
-	if (gWarningSettings.getBOOL("FirstMedia"))
-	{
-		gWarningSettings.setBOOL("FirstMedia", FALSE);
-
-		// Popup removed as a short-term fix for EXT-1643.
-		// Ultimately, the plan is to kill all First Use dialogs
-		//LLNotificationsUtil::add("FirstMedia");
-	}
+	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
 }
-*/
+
+// static
+void LLFirstUse::setDisplayName(bool enable)
+{
+	firstUseNotification("FirstDisplayName", enable, "HintDisplayName", LLSD(), LLSD().with("target", "set_display_name").with("direction", "left"));
+}
+
+// static
+void LLFirstUse::receiveLindens(bool enable)
+{
+	firstUseNotification("FirstReceiveLindens", enable, "HintLindenDollar", LLSD(), LLSD().with("target", "linden_balance").with("direction", "bottom"));
+}
+
+
+//static 
+void LLFirstUse::firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args, LLSD payload)
+{
+	init();
+
+	if (enable)
+	{
+		if (gSavedSettings.getBOOL("EnableUIHints"))
+		{
+			LL_DEBUGS("LLFirstUse") << "Trigger first use notification " << notification_name << LL_ENDL;
+
+			// if notification doesn't already exist and this notification hasn't been disabled...
+			if (gWarningSettings.getBOOL(control_var))
+			{ // create new notification
+				LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload.with("control_var", control_var)));
+			}
+		}
+	}	
+	else
+	{
+		LL_DEBUGS("LLFirstUse") << "Disabling first use notification " << notification_name << LL_ENDL;
+		LLNotifications::instance().cancelByName(notification_name);
+		// redundantly clear settings var here, in case there are no notifications to cancel
+		gWarningSettings.setBOOL(control_var, FALSE);
+	}
+
+}
+
+// static
+void LLFirstUse::init()
+{
+	static bool initialized = false;
+	if (!initialized)
+	{
+		LLNotifications::instance().getChannel("Hints")->connectChanged(&processNotification);
+	}
+	initialized = true;
+}
+
+//static 
+bool LLFirstUse::processNotification(const LLSD& notify)
+{
+	if (notify["sigtype"].asString() == "delete")
+	{
+		LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+		if (notification)
+		{
+			// disable any future notifications
+			gWarningSettings.setBOOL(notification->getPayload()["control_var"], FALSE);
+		}
+	}
+	return false;
+}

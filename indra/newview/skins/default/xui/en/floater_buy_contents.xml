@@ -56,7 +56,7 @@
     <text
      type="string"
      length="1"
-     follows="left|bottom"
+     follows="left|right|bottom"
      font="SansSerif"
      height="16"
      layout="topleft"
@@ -64,6 +64,7 @@
      name="buy_text"
      text_color="white"
      top="220"
+     use_ellipses="true" 
      width="260">
         Buy for L$[AMOUNT] from [NAME]?
     </text>

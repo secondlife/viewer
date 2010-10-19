@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "lldatapacker.h"
 #include "lldlinked.h"
+#include "lldir.h"
 
 
 //---------------------------------------------------------------------------

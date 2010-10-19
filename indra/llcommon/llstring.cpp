@@ -731,14 +731,17 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 
 	nowT = time (NULL);
 
-	tmpT = localtime (&nowT);
-	localT = mktime (tmpT);
-
 	tmpT = gmtime (&nowT);
 	gmtT = mktime (tmpT);
 
+	tmpT = localtime (&nowT);
+	localT = mktime (tmpT);
+	
 	sLocalTimeOffset = (long) (gmtT - localT);
-
+	if (tmpT->tm_isdst)
+	{
+		sLocalTimeOffset -= 60 * 60;	// 1 hour
+	}
 
 	sPacificDaylightTime = daylight;
 	sPacificTimeOffset = (sPacificDaylightTime? 7 : 8 ) * 60 * 60;

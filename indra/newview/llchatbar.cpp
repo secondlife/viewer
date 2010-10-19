@@ -565,6 +565,10 @@ void LLChatBar::sendChatFromViewer(const std::string &utf8text, EChatType type, 
 
 void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
 {
+	// as soon as we say something, we no longer care about teaching the user
+	// how to chat
+	gWarningSettings.setBOOL("FirstOtherChatBeforeUser", FALSE);
+	
 	// Look for "/20 foo" channel chats.
 	S32 channel = 0;
 	LLWString out_text = stripChannelNumber(wtext, &channel);
@@ -685,14 +689,14 @@ public:
 		}
 		else
 		{
-			S32 channel = tokens[0].asInteger();
+		S32 channel = tokens[0].asInteger();
 			// VWR-19499 Restrict function to chat channels greater than 0.
 			if ((channel > 0) && (channel < 2147483647))
 			{
 				retval = true;
 				// Say mesg on channel
-				std::string mesg = tokens[1].asString();
-				send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
+		std::string mesg = tokens[1].asString();
+		send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
 			}
 			else
 			{

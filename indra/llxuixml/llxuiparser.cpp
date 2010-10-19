@@ -29,17 +29,34 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
+
+#ifdef LL_STANDALONE
+#include <expat.h>
+#else
+#include "expat/expat.h"
+#endif
+
 #include <fstream>
 #include <boost/tokenizer.hpp>
+//#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
 
+using namespace BOOST_SPIRIT_CLASSIC_NS;
+
 const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
+
+static 	LLInitParam::Parser::parser_read_func_map_t sXSDReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sXSDWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sXSDInspectFuncs;
+
 
 //
 // LLXSDWriter
 //
 LLXSDWriter::LLXSDWriter()
+: Parser(sXSDReadFuncs, sXSDWriteFuncs, sXSDInspectFuncs)
 {
 	registerInspectFunc<bool>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:boolean", _1, _2, _3, _4));
 	registerInspectFunc<std::string>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
@@ -357,41 +374,35 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
 	fclose(xsd_file);
 }
 
+static 	LLInitParam::Parser::parser_read_func_map_t sXUIReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sXUIWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sXUIInspectFuncs;
+
 //
 // LLXUIParser
 //
 LLXUIParser::LLXUIParser()
-:	mLastWriteGeneration(-1),
+:	Parser(sXUIReadFuncs, sXUIWriteFuncs, sXUIInspectFuncs),
+	mLastWriteGeneration(-1),
 	mCurReadDepth(0)
 {
-	registerParserFuncs<bool>(boost::bind(&LLXUIParser::readBoolValue, this, _1),
-								boost::bind(&LLXUIParser::writeBoolValue, this, _1, _2));
-	registerParserFuncs<std::string>(boost::bind(&LLXUIParser::readStringValue, this, _1),
-								boost::bind(&LLXUIParser::writeStringValue, this, _1, _2));
-	registerParserFuncs<U8>(boost::bind(&LLXUIParser::readU8Value, this, _1),
-								boost::bind(&LLXUIParser::writeU8Value, this, _1, _2));
-	registerParserFuncs<S8>(boost::bind(&LLXUIParser::readS8Value, this, _1),
-								boost::bind(&LLXUIParser::writeS8Value, this, _1, _2));
-	registerParserFuncs<U16>(boost::bind(&LLXUIParser::readU16Value, this, _1),
-								boost::bind(&LLXUIParser::writeU16Value, this, _1, _2));
-	registerParserFuncs<S16>(boost::bind(&LLXUIParser::readS16Value, this, _1),
-								boost::bind(&LLXUIParser::writeS16Value, this, _1, _2));
-	registerParserFuncs<U32>(boost::bind(&LLXUIParser::readU32Value, this, _1),
-								boost::bind(&LLXUIParser::writeU32Value, this, _1, _2));
-	registerParserFuncs<S32>(boost::bind(&LLXUIParser::readS32Value, this, _1),
-								boost::bind(&LLXUIParser::writeS32Value, this, _1, _2));
-	registerParserFuncs<F32>(boost::bind(&LLXUIParser::readF32Value, this, _1),
-								boost::bind(&LLXUIParser::writeF32Value, this, _1, _2));
-	registerParserFuncs<F64>(boost::bind(&LLXUIParser::readF64Value, this, _1),
-								boost::bind(&LLXUIParser::writeF64Value, this, _1, _2));
-	registerParserFuncs<LLColor4>(boost::bind(&LLXUIParser::readColor4Value, this, _1),
-								boost::bind(&LLXUIParser::writeColor4Value, this, _1, _2));
-	registerParserFuncs<LLUIColor>(boost::bind(&LLXUIParser::readUIColorValue, this, _1),
-								boost::bind(&LLXUIParser::writeUIColorValue, this, _1, _2));
-	registerParserFuncs<LLUUID>(boost::bind(&LLXUIParser::readUUIDValue, this, _1),
-								boost::bind(&LLXUIParser::writeUUIDValue, this, _1, _2));
-	registerParserFuncs<LLSD>(boost::bind(&LLXUIParser::readSDValue, this, _1),
-								boost::bind(&LLXUIParser::writeSDValue, this, _1, _2));
+	if (sXUIReadFuncs.empty())
+	{
+		registerParserFuncs<bool>(readBoolValue, writeBoolValue);
+		registerParserFuncs<std::string>(readStringValue, writeStringValue);
+		registerParserFuncs<U8>(readU8Value, writeU8Value);
+		registerParserFuncs<S8>(readS8Value, writeS8Value);
+		registerParserFuncs<U16>(readU16Value, writeU16Value);
+		registerParserFuncs<S16>(readS16Value, writeS16Value);
+		registerParserFuncs<U32>(readU32Value, writeU32Value);
+		registerParserFuncs<S32>(readS32Value, writeS32Value);
+		registerParserFuncs<F32>(readF32Value, writeF32Value);
+		registerParserFuncs<F64>(readF64Value, writeF64Value);
+		registerParserFuncs<LLColor4>(readColor4Value, writeColor4Value);
+		registerParserFuncs<LLUIColor>(readUIColorValue, writeUIColorValue);
+		registerParserFuncs<LLUUID>(readUUIDValue, writeUUIDValue);
+		registerParserFuncs<LLSD>(readSDValue, writeSDValue);
+	}
 }
 
 static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
@@ -400,6 +411,7 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, cons
 {
 	LLFastTimer timer(FTM_PARSE_XUI);
 	mNameStack.clear();
+	mRootNodeName = node->getName()->mString;
 	mCurFileName = filename;
 	mCurReadDepth = 0;
 	setParseSilently(silent);
@@ -410,11 +422,11 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, cons
 	}
 	else
 	{
-		readXUIImpl(node, std::string(node->getName()->mString), block);
+		readXUIImpl(node, block);
 	}
 }
 
-bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLInitParam::BaseBlock& block)
+bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(".");
@@ -481,7 +493,15 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 			}
 
 			// check for proper nesting
-			if(!scope.empty() && *name_token_it != scope)
+			if (mNameStack.empty())
+			{
+				if (*name_token_it != mRootNodeName)
+				{
+					childp = childp->getNextSibling();
+					continue;
+				}
+			}
+			else if(mNameStack.back().first != *name_token_it)
 			{
 				childp = childp->getNextSibling();
 				continue;
@@ -499,7 +519,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 		}
 
 		// recurse and visit children XML nodes
-		if(readXUIImpl(childp, mNameStack.empty() ? scope : mNameStack.back().first, block))
+		if(readXUIImpl(childp, block))
 		{
 			// child node successfully parsed, remove from DOM
 
@@ -615,17 +635,19 @@ LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
 }
 
 
-bool LLXUIParser::readBoolValue(void* val_ptr)
+bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
 	S32 value;
-	bool success = mCurReadNode->getBoolValue(1, &value);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	bool success = self.mCurReadNode->getBoolValue(1, &value);
 	*((bool*)val_ptr) = (value != FALSE);
 	return success;
 }
 
-bool LLXUIParser::writeBoolValue(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeBoolValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setBoolValue(*((bool*)val_ptr));
@@ -634,15 +656,17 @@ bool LLXUIParser::writeBoolValue(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readStringValue(void* val_ptr)
+bool LLXUIParser::readStringValue(Parser& parser, void* val_ptr)
 {
-	*((std::string*)val_ptr) = mCurReadNode->getSanitizedValue();
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	*((std::string*)val_ptr) = self.mCurReadNode->getSanitizedValue();
 	return true;
 }
 
-bool LLXUIParser::writeStringValue(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeStringValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		const std::string* string_val = reinterpret_cast<const std::string*>(val_ptr);
@@ -671,14 +695,16 @@ bool LLXUIParser::writeStringValue(const void* val_ptr, const name_stack_t& stac
 	return false;
 }
 
-bool LLXUIParser::readU8Value(void* val_ptr)
+bool LLXUIParser::readU8Value(Parser& parser, void* val_ptr)
 {
-	return mCurReadNode->getByteValue(1, (U8*)val_ptr);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode->getByteValue(1, (U8*)val_ptr);
 }
 
-bool LLXUIParser::writeU8Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeU8Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setUnsignedValue(*((U8*)val_ptr));
@@ -687,10 +713,11 @@ bool LLXUIParser::writeU8Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readS8Value(void* val_ptr)
+bool LLXUIParser::readS8Value(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	S32 value;
-	if(mCurReadNode->getIntValue(1, &value))
+	if(self.mCurReadNode->getIntValue(1, &value))
 	{
 		*((S8*)val_ptr) = value;
 		return true;
@@ -698,9 +725,10 @@ bool LLXUIParser::readS8Value(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeS8Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeS8Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setIntValue(*((S8*)val_ptr));
@@ -709,10 +737,11 @@ bool LLXUIParser::writeS8Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readU16Value(void* val_ptr)
+bool LLXUIParser::readU16Value(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	U32 value;
-	if(mCurReadNode->getUnsignedValue(1, &value))
+	if(self.mCurReadNode->getUnsignedValue(1, &value))
 	{
 		*((U16*)val_ptr) = value;
 		return true;
@@ -720,9 +749,10 @@ bool LLXUIParser::readU16Value(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeU16Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeU16Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setUnsignedValue(*((U16*)val_ptr));
@@ -731,10 +761,11 @@ bool LLXUIParser::writeU16Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readS16Value(void* val_ptr)
+bool LLXUIParser::readS16Value(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	S32 value;
-	if(mCurReadNode->getIntValue(1, &value))
+	if(self.mCurReadNode->getIntValue(1, &value))
 	{
 		*((S16*)val_ptr) = value;
 		return true;
@@ -742,9 +773,10 @@ bool LLXUIParser::readS16Value(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeS16Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeS16Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setIntValue(*((S16*)val_ptr));
@@ -753,14 +785,16 @@ bool LLXUIParser::writeS16Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readU32Value(void* val_ptr)
+bool LLXUIParser::readU32Value(Parser& parser, void* val_ptr)
 {
-	return mCurReadNode->getUnsignedValue(1, (U32*)val_ptr);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode->getUnsignedValue(1, (U32*)val_ptr);
 }
 
-bool LLXUIParser::writeU32Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeU32Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setUnsignedValue(*((U32*)val_ptr));
@@ -769,14 +803,16 @@ bool LLXUIParser::writeU32Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readS32Value(void* val_ptr)
+bool LLXUIParser::readS32Value(Parser& parser, void* val_ptr)
 {
-	return mCurReadNode->getIntValue(1, (S32*)val_ptr);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode->getIntValue(1, (S32*)val_ptr);
 }
 
-bool LLXUIParser::writeS32Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeS32Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setIntValue(*((S32*)val_ptr));
@@ -785,14 +821,16 @@ bool LLXUIParser::writeS32Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readF32Value(void* val_ptr)
+bool LLXUIParser::readF32Value(Parser& parser, void* val_ptr)
 {
-	return mCurReadNode->getFloatValue(1, (F32*)val_ptr);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode->getFloatValue(1, (F32*)val_ptr);
 }
 
-bool LLXUIParser::writeF32Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeF32Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setFloatValue(*((F32*)val_ptr));
@@ -801,14 +839,16 @@ bool LLXUIParser::writeF32Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readF64Value(void* val_ptr)
+bool LLXUIParser::readF64Value(Parser& parser, void* val_ptr)
 {
-	return mCurReadNode->getDoubleValue(1, (F64*)val_ptr);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode->getDoubleValue(1, (F64*)val_ptr);
 }
 
-bool LLXUIParser::writeF64Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeF64Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setDoubleValue(*((F64*)val_ptr));
@@ -817,10 +857,11 @@ bool LLXUIParser::writeF64Value(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readColor4Value(void* val_ptr)
+bool LLXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	LLColor4* colorp = (LLColor4*)val_ptr;
-	if(mCurReadNode->getFloatValue(4, colorp->mV) >= 3)
+	if(self.mCurReadNode->getFloatValue(4, colorp->mV) >= 3)
 	{
 		return true;
 	}
@@ -828,9 +869,10 @@ bool LLXUIParser::readColor4Value(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeColor4Value(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeColor4Value(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		LLColor4 color = *((LLColor4*)val_ptr);
@@ -840,11 +882,12 @@ bool LLXUIParser::writeColor4Value(const void* val_ptr, const name_stack_t& stac
 	return false;
 }
 
-bool LLXUIParser::readUIColorValue(void* val_ptr)
+bool LLXUIParser::readUIColorValue(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	LLUIColor* param = (LLUIColor*)val_ptr;
 	LLColor4 color;
-	bool success =  mCurReadNode->getFloatValue(4, color.mV) >= 3;
+	bool success =  self.mCurReadNode->getFloatValue(4, color.mV) >= 3;
 	if (success)
 	{
 		param->set(color);
@@ -853,9 +896,10 @@ bool LLXUIParser::readUIColorValue(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeUIColorValue(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeUIColorValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		LLUIColor color = *((LLUIColor*)val_ptr);
@@ -868,11 +912,12 @@ bool LLXUIParser::writeUIColorValue(const void* val_ptr, const name_stack_t& sta
 	return false;
 }
 
-bool LLXUIParser::readUUIDValue(void* val_ptr)
+bool LLXUIParser::readUUIDValue(Parser& parser, void* val_ptr)
 {
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	LLUUID temp_id;
 	// LLUUID::set is destructive, so use temporary value
-	if (temp_id.set(mCurReadNode->getSanitizedValue()))
+	if (temp_id.set(self.mCurReadNode->getSanitizedValue()))
 	{
 		*(LLUUID*)(val_ptr) = temp_id;
 		return true;
@@ -880,9 +925,10 @@ bool LLXUIParser::readUUIDValue(void* val_ptr)
 	return false;
 }
 
-bool LLXUIParser::writeUUIDValue(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeUUIDValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		node->setStringValue(((LLUUID*)val_ptr)->asString());
@@ -891,15 +937,18 @@ bool LLXUIParser::writeUUIDValue(const void* val_ptr, const name_stack_t& stack)
 	return false;
 }
 
-bool LLXUIParser::readSDValue(void* val_ptr)
+bool LLXUIParser::readSDValue(Parser& parser, void* val_ptr)
 {
-	*((LLSD*)val_ptr) = LLSD(mCurReadNode->getSanitizedValue());
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	*((LLSD*)val_ptr) = LLSD(self.mCurReadNode->getSanitizedValue());
 	return true;
 }
 
-bool LLXUIParser::writeSDValue(const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
-	LLXMLNodePtr node = getNode(stack);
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+
+	LLXMLNodePtr node = self.getNode(stack);
 	if (node.notNull())
 	{
 		std::string string_val = ((LLSD*)val_ptr)->asString();
@@ -961,4 +1010,439 @@ void LLXUIParser::parserError(const std::string& message)
 #else
 	Parser::parserError(message);
 #endif
+}
+
+
+//
+// LLSimpleXUIParser
+//
+
+struct ScopedFile
+{
+	ScopedFile( const std::string& filename, const char* accessmode )
+	{
+		mFile = LLFile::fopen(filename, accessmode);
+	}
+
+	~ScopedFile()
+	{
+		fclose(mFile);
+		mFile = NULL;
+	}
+
+	S32 getRemainingBytes()
+	{
+		if (!isOpen()) return 0;
+
+		S32 cur_pos = ftell(mFile);
+		fseek(mFile, 0L, SEEK_END);
+		S32 file_size = ftell(mFile);
+		fseek(mFile, cur_pos, SEEK_SET);
+		return file_size - cur_pos;
+	}
+
+	bool isOpen() { return mFile != NULL; }
+
+	LLFILE* mFile;
+};
+static 	LLInitParam::Parser::parser_read_func_map_t sSimpleXUIReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sSimpleXUIWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sSimpleXUIInspectFuncs;
+
+LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t element_cb)
+:	Parser(sSimpleXUIReadFuncs, sSimpleXUIWriteFuncs, sSimpleXUIInspectFuncs),
+	mLastWriteGeneration(-1),
+	mCurReadDepth(0),
+	mElementCB(element_cb)
+{
+	if (sSimpleXUIReadFuncs.empty())
+	{
+		registerParserFuncs<bool>(readBoolValue);
+		registerParserFuncs<std::string>(readStringValue);
+		registerParserFuncs<U8>(readU8Value);
+		registerParserFuncs<S8>(readS8Value);
+		registerParserFuncs<U16>(readU16Value);
+		registerParserFuncs<S16>(readS16Value);
+		registerParserFuncs<U32>(readU32Value);
+		registerParserFuncs<S32>(readS32Value);
+		registerParserFuncs<F32>(readF32Value);
+		registerParserFuncs<F64>(readF64Value);
+		registerParserFuncs<LLColor4>(readColor4Value);
+		registerParserFuncs<LLUIColor>(readUIColorValue);
+		registerParserFuncs<LLUUID>(readUUIDValue);
+		registerParserFuncs<LLSD>(readSDValue);
+	}
+}
+
+LLSimpleXUIParser::~LLSimpleXUIParser()
+{
+}
+
+
+bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent)
+{
+	LLFastTimer timer(FTM_PARSE_XUI);
+
+	mParser = XML_ParserCreate(NULL);
+	XML_SetUserData(mParser, this);
+	XML_SetElementHandler(			mParser,	startElementHandler, endElementHandler);
+	XML_SetCharacterDataHandler(	mParser,	characterDataHandler);
+
+	mOutputStack.push_back(std::make_pair(&block, 0));
+	mNameStack.clear();
+	mCurFileName = filename;
+	mCurReadDepth = 0;
+	setParseSilently(silent);
+
+	ScopedFile file(filename, "rb");
+	if( !file.isOpen() )
+	{
+		LL_WARNS("ReadXUI") << "Unable to open file " << filename << LL_ENDL;
+		return false;
+	}
+
+	S32 bytes_read = 0;
+	
+	S32 buffer_size = file.getRemainingBytes();
+	void* buffer = XML_GetBuffer(mParser, buffer_size);
+	if( !buffer ) 
+	{
+		LL_WARNS("ReadXUI") << "Unable to allocate XML buffer while reading file " << filename << LL_ENDL;
+		XML_ParserFree( mParser );
+		return false;
+	}
+
+	bytes_read = (S32)fread(buffer, 1, buffer_size, file.mFile);
+	if( bytes_read <= 0 )
+	{
+		LL_WARNS("ReadXUI") << "Error while reading file  " << filename << LL_ENDL;
+		XML_ParserFree( mParser );
+		return false;
+	}
+	
+	if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
+	{
+		LL_WARNS("ReadXUI") << "Error while parsing file  " << filename << LL_ENDL;
+		XML_ParserFree( mParser );
+		return false;
+	}
+
+	XML_ParserFree( mParser );
+	return true;
+}
+
+void LLSimpleXUIParser::startElementHandler(void *userData, const char *name, const char **atts)
+{
+	LLSimpleXUIParser* self = reinterpret_cast<LLSimpleXUIParser*>(userData);
+	self->startElement(name, atts);
+}
+
+void LLSimpleXUIParser::endElementHandler(void *userData, const char *name)
+{
+	LLSimpleXUIParser* self = reinterpret_cast<LLSimpleXUIParser*>(userData);
+	self->endElement(name);
+}
+
+void LLSimpleXUIParser::characterDataHandler(void *userData, const char *s, int len)
+{
+	LLSimpleXUIParser* self = reinterpret_cast<LLSimpleXUIParser*>(userData);
+	self->characterData(s, len);
+}
+
+void LLSimpleXUIParser::startElement(const char *name, const char **atts)
+{
+	processText();
+
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep(".");
+
+	if (mElementCB) 
+	{
+		LLInitParam::BaseBlock* blockp = mElementCB(*this, name);
+		if (blockp)
+		{
+			mOutputStack.push_back(std::make_pair(blockp, 0));
+		}
+	}
+
+	mOutputStack.back().second++;
+	S32 num_tokens_pushed = 0;
+	std::string child_name(name);
+
+	if (mOutputStack.back().second == 1)
+	{	// root node for this block
+		mScope.push_back(child_name);
+	}
+	else
+	{	// compound attribute
+		if (child_name.find(".") == std::string::npos) 
+		{
+			mNameStack.push_back(std::make_pair(child_name, newParseGeneration()));
+			num_tokens_pushed++;
+			mScope.push_back(child_name);
+		}
+		else
+		{
+			// parse out "dotted" name into individual tokens
+			tokenizer name_tokens(child_name, sep);
+
+			tokenizer::iterator name_token_it = name_tokens.begin();
+			if(name_token_it == name_tokens.end()) 
+			{
+				return;
+			}
+
+			// check for proper nesting
+			if(!mScope.empty() && *name_token_it != mScope.back())
+			{
+				return;
+			}
+
+			// now ignore first token
+			++name_token_it; 
+
+			// copy remaining tokens on to our running token list
+			for(tokenizer::iterator token_to_push = name_token_it; token_to_push != name_tokens.end(); ++token_to_push)
+			{
+				mNameStack.push_back(std::make_pair(*token_to_push, newParseGeneration()));
+				num_tokens_pushed++;
+			}
+			mScope.push_back(mNameStack.back().first);
+		}
+	}
+
+	mTokenSizeStack.push_back(num_tokens_pushed);
+	readAttributes(atts);
+}
+
+bool LLSimpleXUIParser::readAttributes(const char **atts)
+{
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep(".");
+
+	bool any_parsed = false;
+	for(S32 i = 0; atts[i] && atts[i+1]; i += 2 )
+	{
+		std::string attribute_name(atts[i]);
+		mCurAttributeValueBegin = atts[i+1];
+		
+		S32 num_tokens_pushed = 0;
+		tokenizer name_tokens(attribute_name, sep);
+		// copy remaining tokens on to our running token list
+		for(tokenizer::iterator token_to_push = name_tokens.begin(); token_to_push != name_tokens.end(); ++token_to_push)
+		{
+			mNameStack.push_back(std::make_pair(*token_to_push, newParseGeneration()));
+			num_tokens_pushed++;
+		}
+
+		// child nodes are not necessarily valid attributes, so don't complain once we've recursed
+		any_parsed |= mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
+		
+		while(num_tokens_pushed-- > 0)
+		{
+			mNameStack.pop_back();
+		}
+	}
+	return any_parsed;
+}
+
+void LLSimpleXUIParser::processText()
+{
+	if (!mTextContents.empty())
+	{
+		LLStringUtil::trim(mTextContents);
+		if (!mTextContents.empty())
+		{
+			mNameStack.push_back(std::make_pair(std::string("value"), newParseGeneration()));
+			mCurAttributeValueBegin = mTextContents.c_str();
+			mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
+			mNameStack.pop_back();
+		}
+		mTextContents.clear();
+	}
+}
+
+void LLSimpleXUIParser::endElement(const char *name)
+{
+	processText();
+
+	if (--mOutputStack.back().second == 0)
+	{
+		if (mOutputStack.empty())
+		{
+			LL_ERRS("ReadXUI") << "Parameter block output stack popped while empty." << LL_ENDL;
+		}
+		mOutputStack.pop_back();
+	}
+
+	S32 num_tokens_to_pop = mTokenSizeStack.back();
+	mTokenSizeStack.pop_back();
+	while(num_tokens_to_pop-- > 0)
+	{
+		mNameStack.pop_back();
+	}
+	mScope.pop_back();
+}
+
+void LLSimpleXUIParser::characterData(const char *s, int len)
+{
+	mTextContents += std::string(s, len);
+}
+
+
+/*virtual*/ std::string LLSimpleXUIParser::getCurrentElementName()
+{
+	std::string full_name;
+	for (name_stack_t::iterator it = mNameStack.begin();	
+		it != mNameStack.end();
+		++it)
+	{
+		full_name += it->first + "."; // build up dotted names: "button.param.nestedparam."
+	}
+
+	return full_name;
+}
+
+const S32 LINE_NUMBER_HERE = 0;
+
+void LLSimpleXUIParser::parserWarning(const std::string& message)
+{
+#ifdef LL_WINDOWS
+	// use Visual Studo friendly formatting of output message for easy access to originating xml
+	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
+	utf16str += '\n';
+	OutputDebugString(utf16str.c_str());
+#else
+	Parser::parserWarning(message);
+#endif
+}
+
+void LLSimpleXUIParser::parserError(const std::string& message)
+{
+#ifdef LL_WINDOWS
+	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
+	utf16str += '\n';
+	OutputDebugString(utf16str.c_str());
+#else
+	Parser::parserError(message);
+#endif
+}
+
+bool LLSimpleXUIParser::readBoolValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	if (!strcmp(self.mCurAttributeValueBegin, "true")) 
+	{
+		*((bool*)val_ptr) = true;
+		return true;
+	}
+	else if (!strcmp(self.mCurAttributeValueBegin, "false"))
+	{
+		*((bool*)val_ptr) = false;
+		return true;
+	}
+
+	return false;
+}
+
+bool LLSimpleXUIParser::readStringValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	*((std::string*)val_ptr) = self.mCurAttributeValueBegin;
+	return true;
+}
+
+bool LLSimpleXUIParser::readU8Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U8*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readS8Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S8*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readU16Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U16*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readS16Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S16*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readU32Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U32*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readS32Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S32*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readF32Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, real_p[assign_a(*(F32*)val_ptr)]).full;
+}
+
+bool LLSimpleXUIParser::readF64Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return parse(self.mCurAttributeValueBegin, real_p[assign_a(*(F64*)val_ptr)]).full;
+}
+	
+bool LLSimpleXUIParser::readColor4Value(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	LLColor4 value;
+
+	if (parse(self.mCurAttributeValueBegin, real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
+	{
+		*(LLColor4*)(val_ptr) = value;
+		return true;
+	}
+	return false;
+}
+
+bool LLSimpleXUIParser::readUIColorValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	LLColor4 value;
+	LLUIColor* colorp = (LLUIColor*)val_ptr;
+
+	if (parse(self.mCurAttributeValueBegin, real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
+	{
+		colorp->set(value);
+		return true;
+	}
+	return false;
+}
+
+bool LLSimpleXUIParser::readUUIDValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	LLUUID temp_id;
+	// LLUUID::set is destructive, so use temporary value
+	if (temp_id.set(std::string(self.mCurAttributeValueBegin)))
+	{
+		*(LLUUID*)(val_ptr) = temp_id;
+		return true;
+	}
+	return false;
+}
+
+bool LLSimpleXUIParser::readSDValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	*((LLSD*)val_ptr) = LLSD(self.mCurAttributeValueBegin);
+	return true;
 }

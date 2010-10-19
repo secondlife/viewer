@@ -86,13 +86,14 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
+	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
 	void			createObjectImage();
 
-private:
 	static bool		outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y, S32 slop);
 
+private:
 	bool			mUpdateNow;
 
 	LLUIColor		mBackgroundColor;

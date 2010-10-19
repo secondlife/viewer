@@ -41,6 +41,7 @@
 #include "llagentcamera.h"
 #include "llchiclet.h"
 #include "llfloatercamera.h"
+#include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
 #include "llspeakbutton.h"
@@ -104,10 +105,6 @@ template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 namespace
 {
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
-	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
-	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
-	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
-	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
 
 	S32 get_panel_min_width(LLLayoutStack* stack, LLView* panel)
 	{
@@ -115,7 +112,7 @@ namespace
 		llassert(stack);
 		if ( stack && panel && panel->getVisible() )
 		{
-			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
+			stack->getPanelMinSize(panel->getName(), &minimal_width);
 		}
 		return minimal_width;
 	}
@@ -126,7 +123,7 @@ namespace
 		llassert(stack);
 		if ( stack && panel && panel->getVisible() )
 		{
-			stack->getPanelMaxSize(panel->getName(), &max_width, NULL);
+			stack->getPanelMaxSize(panel->getName(), &max_width);
 		}
 		return max_width;
 	}
@@ -148,26 +145,30 @@ class LLBottomTrayLite
 public:
 	LLBottomTrayLite()
 		: mNearbyChatBar(NULL),
+		mChatBarContainer(NULL),
 		  mGesturePanel(NULL)
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_bottomtray_lite.xml");
+		buildFromFile("panel_bottomtray_lite.xml");
 		// Necessary for focus movement among child controls
 		setFocusRoot(TRUE);
 	}
 
 	BOOL postBuild()
 	{
-		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+		mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
+		mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
 
 		// Hide "show_nearby_chat" button 
-		LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
-		LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
-		S32 delta_width = show_btn->getRect().getWidth();
-		show_btn->setVisible(FALSE);
-		chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
-
+		if (mNearbyChatBar)
+		{
+			LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
+			LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
+			S32 delta_width = show_btn->getRect().getWidth();
+			show_btn->setVisible(FALSE);
+			chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
+		}
 		return TRUE;
 	}
 
@@ -180,6 +181,7 @@ public:
 	}
 
 	LLNearbyChatBar*	mNearbyChatBar;
+	LLLayoutPanel*		mChatBarContainer;
 	LLPanel*			mGesturePanel;
 };
 
@@ -188,17 +190,18 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mSpeakPanel(NULL),
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
-	mToolbarStack(NULL)
-,	mMovementButton(NULL)
-,	mResizeState(RS_NORESIZE)
-,	mBottomTrayContextMenu(NULL)
-,	mCamButton(NULL)
-,	mBottomTrayLite(NULL)
-,	mIsInLiteMode(false)
-,	mDragStarted(false)
-,	mDraggedItem(NULL)
-,	mLandingTab(NULL)
-,	mCheckForDrag(false)
+	mChatBarContainer(NULL),
+	mToolbarStack(NULL),
+	mMovementButton(NULL),
+	mResizeState(RS_NORESIZE),
+	mBottomTrayContextMenu(NULL),
+	mCamButton(NULL),
+	mBottomTrayLite(NULL),
+	mIsInLiteMode(false),
+	mDragStarted(false),
+	mDraggedItem(NULL),
+	mLandingTab(NULL),
+	mCheckForDrag(false)
 {
 	// Firstly add ourself to IMSession observers, so we catch session events
 	// before chiclets do that.
@@ -206,7 +209,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
+	buildFromFile("panel_bottomtray.xml");
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 
@@ -225,6 +228,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	}
 
 	mImageDragIndication = LLUI::getUIImage(getString("DragIndicationImageName"));
+	mDesiredNearbyChatWidth = mNearbyChatBar ? mNearbyChatBar->getRect().getWidth() : 0;
 }
 
 LLBottomTray::~LLBottomTray()
@@ -237,7 +241,7 @@ LLBottomTray::~LLBottomTray()
 	if (mNearbyChatBar)
 	{
 		// store custom width of chatbar panel.
-		S32 custom_width = mNearbyChatBar->getRect().getWidth();
+		S32 custom_width = mChatBarContainer->getRect().getWidth();
 		gSavedSettings.setS32("ChatBarCustomWidth", custom_width);
 	}
 
@@ -432,7 +436,7 @@ S32 LLBottomTray::notifyParent(const LLSD& info)
 		const std::string& name = info["view_name"];
 
 		// expected only resize of nearby chatbar
-		if (mNearbyChatBar->getName() != name) return LLPanel::notifyParent(info);
+		if (mChatBarContainer->getName() != name) return LLPanel::notifyParent(info);
 
 		const S32 new_width = info["new_width"];
 
@@ -462,8 +466,8 @@ void LLBottomTray::updateContextMenu(S32 x, S32 y, MASK mask)
 {
 	LLUICtrl* edit_box = mNearbyChatBar->getChild<LLUICtrl>("chat_box");
 
-	S32 local_x = x - mNearbyChatBar->getRect().mLeft - edit_box->getRect().mLeft;
-	S32 local_y = y - mNearbyChatBar->getRect().mBottom - edit_box->getRect().mBottom;
+	S32 local_x = x - mChatBarContainer->getRect().mLeft - edit_box->getRect().mLeft;
+	S32 local_y = y - mChatBarContainer->getRect().mBottom - edit_box->getRect().mBottom;
 
 	bool in_edit_box = edit_box->pointInView(local_x, local_y);
 
@@ -516,10 +520,14 @@ BOOL LLBottomTray::postBuild()
 	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuHolder->addChild(mBottomTrayContextMenu);
 
+	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
+	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
 
-	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
+
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mMovementButton = getChild<LLButton>("movement_btn");
+	LLHints::registerHintTarget("move_btn", mMovementButton->getHandle());
 	mCamButton = getChild<LLButton>("camera_btn");
 	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
 
@@ -762,7 +770,7 @@ void LLBottomTray::loadButtonsOrder()
 	}
 	// Nearbychat is not stored in order settings file, but it must be the first of the panels, so moving it
 	// manually here
-	mToolbarStack->movePanel(mNearbyChatBar, NULL, true);
+	mToolbarStack->movePanel(mChatBarContainer, NULL, true);
 }
 
 void LLBottomTray::onDraggableButtonMouseUp(LLUICtrl* ctrl, S32 x, S32 y)
@@ -961,14 +969,15 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 	// we can not to do this from postBuild because reshape is called from parent view on startup
 	// creation after it and reset width according to resize logic.
 	static bool needs_restore_custom_state = true;
-	if (mNearbyChatBar && needs_restore_custom_state)
+	if (mChatBarContainer && needs_restore_custom_state)
 	{
 		// restore custom width of chatbar panel.
 		S32 new_width = gSavedSettings.getS32("ChatBarCustomWidth");
 		if (new_width > 0)
 		{
+			mDesiredNearbyChatWidth = new_width;
 			processChatbarCustomization(new_width);
-			mNearbyChatBar->reshape(new_width, mNearbyChatBar->getRect().getHeight());
+			mChatBarContainer->reshape(new_width, mChatBarContainer->getRect().getHeight());
 		}
 		needs_restore_custom_state = false;
 	}
@@ -982,6 +991,9 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
 	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
+	// There are four steps of processing width decrease. If in one of them required width was reached,
+	// further are not needed.
+	// 1. Decreasing width of chiclet panel.
 	if (chiclet_panel_width > chiclet_panel_min_width)
 	{
 		// we have some space to decrease chiclet panel
@@ -1007,8 +1019,15 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 			<< llendl;
 	}
 
-	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
+	S32 buttons_freed_width = 0;
+	// 2. Decreasing width of buttons.
+	if (still_should_be_processed)
+	{
+		processShrinkButtons(delta_width, buttons_freed_width);
+	}
+	// 3. Decreasing width of nearby chat.
+	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mChatBarContainer);
+	const S32 chatbar_panel_width = mChatBarContainer->getRect().getWidth();
 	if (still_should_be_processed && chatbar_panel_width > chatbar_panel_min_width)
 	{
 		// we have some space to decrease chatbar panel
@@ -1021,7 +1040,11 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		still_should_be_processed = delta_width < 0;
 
-		mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mNearbyChatBar->getRect().getHeight());
+		// chatbar should only be shrunk here, not stretched
+		if(delta_panel > 0)
+		{
+			mChatBarContainer->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mChatBarContainer->getRect().getHeight());
+		}
 
 		log(mNearbyChatBar, "after processing panel decreasing via nearby chatbar panel");
 
@@ -1032,11 +1055,9 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	}
 
 	S32 extra_shrink_width = 0;
-	S32 buttons_freed_width = 0;
+	// 4. Hiding buttons if needed.
 	if (still_should_be_processed)
 	{
-		processShrinkButtons(delta_width, buttons_freed_width);
-
 		processHideButtons(delta_width, buttons_freed_width);
 
 		if (delta_width < 0)
@@ -1048,10 +1069,15 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		if (buttons_freed_width > 0)
 		{
-			log(mNearbyChatBar, "before applying compensative width");
-			mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() + buttons_freed_width, mNearbyChatBar->getRect().getHeight() );
-			log(mNearbyChatBar, "after applying compensative width");
-			lldebugs << buttons_freed_width << llendl;
+			S32 nearby_needed_width = mDesiredNearbyChatWidth - mNearbyChatBar->getRect().getWidth();
+			if (nearby_needed_width > 0)
+			{
+				S32 compensative_width = nearby_needed_width > buttons_freed_width ? buttons_freed_width : nearby_needed_width; 
+				log(mNearbyChatBar, "before applying compensative width");
+				mChatBarContainer->reshape(mChatBarContainer->getRect().getWidth() + compensative_width, mChatBarContainer->getRect().getHeight() );
+				log(mNearbyChatBar, "after applying compensative width");
+				lldebugs << buttons_freed_width << llendl;
+			}
 		}
 	}
 
@@ -1065,18 +1091,12 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
 	static const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
-	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	static const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
-	static const S32 chatbar_panel_max_width = get_panel_max_width(mToolbarStack, mNearbyChatBar);
-
-	const S32 chatbar_available_shrink_width = chatbar_panel_width - chatbar_panel_min_width;
 	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
 
 	// how many room we have to show hidden buttons
-	S32 total_available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
+	S32 total_available_width = delta_width + available_width_chiclet;
 
 	lldebugs << "Processing extending, available width:"
-		<< ", chatbar - " << chatbar_available_shrink_width
 		<< ", chiclets - " << available_width_chiclet
 		<< ", total - " << total_available_width
 		<< llendl;
@@ -1084,8 +1104,6 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	S32 available_width = total_available_width;
 
 	processShowButtons(available_width);
-
-	processExtendButtons(available_width);
 
 	// if we have to show/extend some buttons but resized delta width is not enough...
 	S32 processed_width = total_available_width - available_width;
@@ -1097,21 +1115,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		// 1. use delta width of resizing
 		required_to_process_width -= delta_width;
 
-		// 2. use width available via decreasing of nearby chat panel
-		S32 chatbar_shrink_width = required_to_process_width;
-		if (chatbar_available_shrink_width < chatbar_shrink_width)
-		{
-			chatbar_shrink_width = chatbar_available_shrink_width;
-		}
-
-		log(mNearbyChatBar, "increase width: before applying compensative width");
-		mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() - chatbar_shrink_width, mNearbyChatBar->getRect().getHeight() );
-		if (mNearbyChatBar)			log(mNearbyChatBar, "after applying compensative width");
-		lldebugs << chatbar_shrink_width << llendl;
-
-		// 3. use width available via decreasing of chiclet panel
-		required_to_process_width -= chatbar_shrink_width;
-
+		// 2. use width available via decreasing of chiclet panel
 		if (required_to_process_width > 0)
 		{
 			mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_to_process_width, mChicletPanel->getParent()->getRect().getHeight());
@@ -1126,10 +1130,10 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 
 	// how many space can nearby chatbar take?
-	S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
-	if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
+	S32 chatbar_panel_width_ = mChatBarContainer->getRect().getWidth();
+	if (delta_width > 0 && chatbar_panel_width_ < mDesiredNearbyChatWidth)
 	{
-		S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
+		S32 delta_panel_max = mDesiredNearbyChatWidth - chatbar_panel_width_;
 		S32 delta_panel = llmin(delta_width, delta_panel_max);
 		lldebugs << "Unprocesed delta width: " << delta_width
 			<< ", can be applied to chatbar: " << delta_panel_max
@@ -1137,8 +1141,12 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 			<< llendl;
 
 		delta_width -= delta_panel_max;
-		mNearbyChatBar->reshape(chatbar_panel_width_ + delta_panel, mNearbyChatBar->getRect().getHeight());
+		mChatBarContainer->reshape(chatbar_panel_width_ + delta_panel, mChatBarContainer->getRect().getHeight());
 		log(mNearbyChatBar, "applied unprocessed delta width");
+	}
+	if (delta_width > 0)
+	{
+		processExtendButtons(delta_width);
 	}
 }
 
@@ -1259,7 +1267,7 @@ void LLBottomTray::processShrinkButtons(S32& required_width, S32& buttons_freed_
 
 		S32 panel_min_width = 0;
 		std::string panel_name = mSpeakPanel->getName();
-		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
+		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width);
 		if (!success)
 		{
 			lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
@@ -1305,7 +1313,7 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32& 
 		S32 panel_width = panel->getRect().getWidth();
 		S32 panel_min_width = 0;
 		std::string panel_name = panel->getName();
-		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
+		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width);
 		S32 possible_shrink_width = panel_width - panel_min_width;
 
 		if (!success)
@@ -1597,7 +1605,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		{
 			// Calculate the possible shrunk width as difference between current and minimal widths
 			const S32 chatbar_shrunk_width =
-				mNearbyChatBar->getRect().getWidth() - get_panel_min_width(mToolbarStack, mNearbyChatBar);
+				mChatBarContainer->getRect().getWidth() - get_panel_min_width(mToolbarStack, mChatBarContainer);
 
 			S32 sum_of_min_widths = get_panel_min_width(mToolbarStack, mSpeakPanel);
 			S32 sum_of_curr_widths = get_curr_width(mSpeakPanel);
@@ -1617,7 +1625,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 
 			// Minimal width of current panel
 			S32 minimal_width = 0;
-			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width, NULL);
+			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width);
 
 			if ( (available_width + possible_shrunk_width) >= minimal_width)
 			{
@@ -1694,9 +1702,11 @@ void LLBottomTray::processChatbarCustomization(S32 new_width)
 {
 	if (NULL == mNearbyChatBar) return;
 
-	const S32 delta_width = mNearbyChatBar->getRect().getWidth() - new_width;
+	const S32 delta_width = mChatBarContainer->getRect().getWidth() - new_width;
 
 	if (delta_width == 0) return;
+
+	mDesiredNearbyChatWidth = new_width;
 
 	LLView * chiclet_layout_panel = mChicletPanel->getParent();
 	const S32 chiclet_min_width = get_panel_min_width(mToolbarStack, chiclet_layout_panel);

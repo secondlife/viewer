@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloateravatartextures.h"
 
+// library headers
+#include "llavatarnamecache.h"
+
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "lltexturectrl.h"
@@ -40,7 +43,6 @@ LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
   : LLFloater(id),
 	mID(id.asUUID())
 {
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
@@ -132,10 +134,10 @@ void LLFloaterAvatarTextures::refresh()
 		LLVOAvatar *avatarp = find_avatar(mID);
 		if (avatarp)
 		{
-			std::string fullname;
-			if (gCacheName->getFullName(avatarp->getID(), fullname))
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(avatarp->getID(), &av_name))
 			{
-				setTitle(mTitle + ": " + fullname);
+				setTitle(mTitle + ": " + av_name.getCompleteName());
 			}
 			for (U32 i=0; i < TEX_NUM_INDICES; i++)
 			{

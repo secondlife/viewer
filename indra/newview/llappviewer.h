@@ -204,6 +204,8 @@ private:
     
     void idle(); 
     void idleShutdown();
+	// update avatar SLID and display name caches
+	void idleNameCache();
     void idleNetwork();
 
     void sendLogoutRequest();
@@ -308,6 +310,7 @@ extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;
 extern LLFrameTimer gForegroundTime;
+extern LLFrameTimer gLoggedInTime;
 
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;

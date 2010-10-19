@@ -41,6 +41,7 @@
 #include "lllineeditor.h"
 #include "llmutelist.h"
 #include "llfloaterreporter.h"
+#include "llslurl.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -96,10 +97,6 @@ private:
 	static void onGive(void* data);
 	void give(S32 amount);
 	static void processPayPriceReply(LLMessageSystem* msg, void **userdata);
-	void onCacheOwnerName(const LLUUID& owner_id,
-						  const std::string& firstname,
-						  const std::string& lastname,
-						  BOOL is_group);
 	void finishPayUI(const LLUUID& target_id, BOOL is_group);
 
 protected:
@@ -152,7 +149,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 1",&LLFloaterPay::onGive,info);
-	getChildView("fastpay 1")->setVisible( FALSE);
+	getChildView("fastpay 1")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 1");
 	mQuickPayInfo[i] = info;
@@ -162,7 +159,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 5",&LLFloaterPay::onGive,info);
-	getChildView("fastpay 5")->setVisible( FALSE);
+	getChildView("fastpay 5")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 5");
 	mQuickPayInfo[i] = info;
@@ -172,7 +169,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 10",&LLFloaterPay::onGive,info);
-	getChildView("fastpay 10")->setVisible( FALSE);
+	getChildView("fastpay 10")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 10");
 	mQuickPayInfo[i] = info;
@@ -182,14 +179,14 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 20",&LLFloaterPay::onGive,info);
-	getChildView("fastpay 20")->setVisible( FALSE);
+	getChildView("fastpay 20")->setVisible(FALSE);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 20");
 	mQuickPayInfo[i] = info;
 	++i;
 
 
-	getChildView("amount text")->setVisible( FALSE);	
+	getChildView("amount text")->setVisible(FALSE);	
 
 	std::string last_amount;
 	if(sLastAmount > 0)
@@ -197,7 +194,7 @@ BOOL LLFloaterPay::postBuild()
 		last_amount = llformat("%d", sLastAmount);
 	}
 
-	getChildView("amount")->setVisible( FALSE);
+	getChildView("amount")->setVisible(FALSE);
 
 	getChild<LLLineEditor>("amount")->setKeystrokeCallback(&LLFloaterPay::onKeystroke, this);
 	getChild<LLUICtrl>("amount")->setValue(last_amount);
@@ -208,7 +205,7 @@ BOOL LLFloaterPay::postBuild()
 
 	childSetAction("pay btn",&LLFloaterPay::onGive,info);
 	setDefaultBtn("pay btn");
-	getChildView("pay btn")->setVisible( FALSE);
+	getChildView("pay btn")->setVisible(FALSE);
 	getChildView("pay btn")->setEnabled((sLastAmount > 0));
 
 	childSetAction("cancel btn",&LLFloaterPay::onCancel,this);
@@ -243,25 +240,25 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 		
 		if (PAY_PRICE_HIDE == price)
 		{
-			self->getChildView("amount")->setVisible( FALSE);
-			self->getChildView("pay btn")->setVisible( FALSE);
-			self->getChildView("amount text")->setVisible( FALSE);
+			self->getChildView("amount")->setVisible(FALSE);
+			self->getChildView("pay btn")->setVisible(FALSE);
+			self->getChildView("amount text")->setVisible(FALSE);
 		}
 		else if (PAY_PRICE_DEFAULT == price)
 		{			
-			self->getChildView("amount")->setVisible( TRUE);
-			self->getChildView("pay btn")->setVisible( TRUE);
-			self->getChildView("amount text")->setVisible( TRUE);
+			self->getChildView("amount")->setVisible(TRUE);
+			self->getChildView("pay btn")->setVisible(TRUE);
+			self->getChildView("amount text")->setVisible(TRUE);
 		}
 		else
 		{
 			// PAY_PRICE_HIDE and PAY_PRICE_DEFAULT are negative values
 			// So we take the absolute value here after we have checked for those cases
 			
-			self->getChildView("amount")->setVisible( TRUE);
-			self->getChildView("pay btn")->setVisible( TRUE);
+			self->getChildView("amount")->setVisible(TRUE);
+			self->getChildView("pay btn")->setVisible(TRUE);
 			self->getChildView("pay btn")->setEnabled(TRUE);
-			self->getChildView("amount text")->setVisible( TRUE);
+			self->getChildView("amount text")->setVisible(TRUE);
 
 			self->getChild<LLUICtrl>("amount")->setValue(llformat("%d", llabs(price)));
 		}
@@ -409,9 +406,9 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	floater->setCallback(callback);
 	floater->mObjectSelection = NULL;
 	
-	floater->getChildView("amount")->setVisible( TRUE);
-	floater->getChildView("pay btn")->setVisible( TRUE);
-	floater->getChildView("amount text")->setVisible( TRUE);
+	floater->getChildView("amount")->setVisible(TRUE);
+	floater->getChildView("pay btn")->setVisible(TRUE);
+	floater->getChildView("amount text")->setVisible(TRUE);
 
 	floater->getChildView("fastpay text")->setVisible(TRUE);
 	for(S32 i=0;i<MAX_PAY_BUTTONS;++i)
@@ -424,33 +421,26 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	
 void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
 {
-	gCacheName->get(target_id, is_group, boost::bind(&LLFloaterPay::onCacheOwnerName, this, _1, _2, _3, _4));
-
-	// Make sure the amount field has focus
-
-	getChild<LLUICtrl>("amount")->setFocus( TRUE);
-	
-	LLLineEditor* amount = getChild<LLLineEditor>("amount");
-	amount->selectAll();
-	mTargetIsGroup = is_group;
-}
-
-void LLFloaterPay::onCacheOwnerName(const LLUUID& owner_id,
-									const std::string& firstname,
-									const std::string& lastname,
-									BOOL is_group)
-{
+	std::string slurl;
 	if (is_group)
 	{
 		setTitle(getString("payee_group"));
+		slurl = LLSLURL("group", target_id, "inspect").getSLURLString();
 	}
 	else
 	{
 		setTitle(getString("payee_resident"));
+		slurl = LLSLURL("agent", target_id, "inspect").getSLURLString();
 	}
+	getChild<LLTextBox>("payee_name")->setText(slurl);
 	
-	getChild<LLUICtrl>("payee_name")->setTextArg("[FIRST]", firstname);
-	getChild<LLUICtrl>("payee_name")->setTextArg("[LAST]", lastname);
+	// Make sure the amount field has focus
+
+	LLLineEditor* amount = getChild<LLLineEditor>("amount");
+	amount->setFocus(TRUE);
+	amount->selectAll();
+
+	mTargetIsGroup = is_group;
 }
 
 // static

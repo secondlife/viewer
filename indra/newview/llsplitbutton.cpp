@@ -220,7 +220,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 	addChild(mItemsPanel);
 
 
-	LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items().begin();
+	LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
 
 	//processing shown item button
 	mShownItem = prepareItemButton(*it);
@@ -231,7 +231,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 
 	//processing hidden item buttons
 	S32 item_top = mItemsPanel->getRect().getHeight();
-	for (++it; it != p.items().end(); ++it)
+	for (++it; it != p.items.end(); ++it)
 	{
 		LLButton* hidden_button = prepareItemButton(*it);
 		hidden_button->setRect(LLRect(btn_left, item_top, btn_right, item_top - rc.getHeight()));

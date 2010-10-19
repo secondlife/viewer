@@ -63,7 +63,6 @@ std::set<std::string> LLFloaterWater::sDefaultPresets;
 LLFloaterWater::LLFloaterWater(const LLSD& key)
   : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_water.xml");
 }
 
 LLFloaterWater::~LLFloaterWater()

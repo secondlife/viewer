@@ -110,7 +110,8 @@ with the same filename but different name
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpOff" file_name="widgets/ComboButton_UpOff.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="Container" file_name="containers/Container.png" preload="false" />
-
+  <texture name="Copy" file_name="icons/Copy.png" preload="false" />
+  
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
@@ -359,6 +360,8 @@ with the same filename but different name
   <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />
   <texture name="Pause_Press" file_name="icons/Pause_Press.png" preload="false" />
+  <texture name="Person_Check" file_name="icons/Person_Check.png" preload="false" />
+  <texture name="Person_Star" file_name="icons/Person_Star.png" preload="false" />
 
   <texture name="Permission_Visible_Online" file_name="icons/see_me_online.png" preload="false" />
   <texture name="Permission_Visible_Map" file_name="icons/see_on_map.png" preload="false" />
@@ -393,6 +396,7 @@ with the same filename but different name
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
+  <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="24" scale.right="58" scale.bottom="6" />
   <texture name="Rounded_Square"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
   <texture name="Row_Selection" file_name="navbar/Row_Selection.png" preload="false" />
 
@@ -658,4 +662,13 @@ with the same filename but different name
   <texture name="buy_over" file_name="widgets/buy_over.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
   <texture name="buy_press" file_name="widgets/buy_press.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
   
+  <texture name="hint_background" file_name="windows/hint_background.png" preload="false" scale.left="8" scale.top="70" scale.right="195" scale.bottom="11"/>
+  <texture name="hint_arrow_left" file_name="windows/hint_arrow_left.png" preload="false"/>
+  <texture name="hint_arrow_right" file_name="windows/hint_arrow_right.png" preload="false"/>
+  <texture name="hint_arrow_up" file_name="windows/hint_arrow_up.png" preload="false"/>
+  <texture name="hint_arrow_down" file_name="windows/hint_arrow_down.png" preload="false"/>
+  <texture name="hint_arrow_lower_left" file_name="windows/hint_arrow_lower_left.png" preload="false"/>
+
+  <texture name="Yellow_Gradient" file_name="windows/yellow_gradient.png"/>
+  <texture name="Popup_Caution" file_name="icons/pop_up_caution.png"/>
 </textures>

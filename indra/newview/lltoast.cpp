@@ -77,7 +77,7 @@ LLToast::LLToast(const LLToast::Params& p)
 {
 	mTimer.reset(new LLToastLifeTimer(this, p.lifetime_secs));
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
+	buildFromFile("panel_toast.xml", NULL);
 
 	setCanDrag(FALSE);
 
@@ -102,6 +102,7 @@ LLToast::LLToast(const LLToast::Params& p)
 	if(!p.on_delete_toast().empty())
 		mOnDeleteToastSignal.connect(p.on_delete_toast());
 
+	// *TODO: This signal doesn't seem to be used at all.
 	if(!p.on_mouse_enter().empty())
 		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }

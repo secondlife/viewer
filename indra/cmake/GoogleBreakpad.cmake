@@ -2,8 +2,8 @@
 include(Prebuilt)
 
 if (STANDALONE)
-  MESSAGE(FATAL_ERROR "*TODO standalone support for google breakad is unimplemented")
-  # *TODO - implement this include(FindGoogleBreakpad)
+  set(BREAKPAD_EXCEPTION_HANDLER_FIND_REQUIRED ON)
+  include(FindGoogleBreakpad)
 else (STANDALONE)
   use_prebuilt_binary(google_breakpad)
   if (DARWIN)

@@ -31,6 +31,7 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
@@ -50,7 +51,7 @@ LLSidepanelInventory::LLSidepanelInventory()
 		mPanelMainInventory(NULL)
 {
 
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()
@@ -84,7 +85,7 @@ BOOL LLSidepanelInventory::postBuild()
 		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
 		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 		
-		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		mPanelMainInventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 		LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
 		tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
@@ -102,7 +103,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// UI elements from item panel
 	{
-		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
+		mItemPanel = findChild<LLSidepanelItemInfo>("sidepanel__item_panel");
 		
 		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
 		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
@@ -110,7 +111,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// UI elements from task panel
 	{
-		mTaskPanel = getChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
+		mTaskPanel = findChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
 		if (mTaskPanel)
 		{
 			LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
@@ -123,6 +124,8 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
+	LLFirstUse::newInventory(false);
+
 	if(key.size() == 0)
 		return;
 
@@ -168,7 +171,7 @@ void LLSidepanelInventory::onShopButtonClicked()
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -179,8 +182,26 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 
 void LLSidepanelInventory::onWearButtonClicked()
 {
-	performActionOnSelection("wear");
-	performActionOnSelection("attach");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+	if (!panel_main_inventory)
+	{
+		llassert(panel_main_inventory != NULL);
+		return;
+	}
+
+	// Get selected items set.
+	const std::set<LLUUID> selected_uuids_set = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
+	if (selected_uuids_set.empty()) return; // nothing selected
+
+	// Convert the set to a vector.
+	uuid_vec_t selected_uuids_vec;
+	for (std::set<LLUUID>::const_iterator it = selected_uuids_set.begin(); it != selected_uuids_set.end(); ++it)
+	{
+		selected_uuids_vec.push_back(*it);
+	}
+
+	// Wear all selected items.
+	wear_multiple(selected_uuids_vec, true);
 }
 
 void LLSidepanelInventory::onPlayButtonClicked()
@@ -283,7 +304,7 @@ void LLSidepanelInventory::updateVerbs()
 		case LLInventoryType::IT_OBJECT:
 		case LLInventoryType::IT_ATTACHMENT:
 			mWearBtn->setVisible(TRUE);
-			mWearBtn->setEnabled(get_can_item_be_worn(item->getLinkedUUID()));
+			mWearBtn->setEnabled(canWearSelected());
 		 	mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_SOUND:
@@ -306,25 +327,46 @@ void LLSidepanelInventory::updateVerbs()
 bool LLSidepanelInventory::canShare()
 {
 	LLPanelMainInventory* panel_main_inventory =
-		mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
-	LLFolderView* root_folder =
-		panel_main_inventory->getActivePanel()->getRootFolder();
+	if (!panel_main_inventory)
+	{
+		llwarns << "Failed to get the main inventory panel" << llendl;
+		return false;
+	}
 
-	LLFolderViewItem* current_item = root_folder->hasVisibleChildren()
-		? root_folder->getCurSelectedItem()
-		: NULL;
+	LLInventoryPanel* active_panel = panel_main_inventory->getActivePanel();
+	// Avoid flicker in the Recent tab while inventory is being loaded.
+	if (!active_panel->getRootFolder()->hasVisibleChildren()) return false;
 
-	LLInvFVBridge* bridge = current_item
-		? dynamic_cast <LLInvFVBridge*> (current_item->getListener())
-		: NULL;
+	return LLAvatarActions::canShareSelectedItems(active_panel);
+}
 
-	return bridge ? bridge->canShare() : false;
+bool LLSidepanelInventory::canWearSelected()
+{
+	LLPanelMainInventory* panel_main_inventory =
+		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+
+	if (!panel_main_inventory)
+	{
+		llassert(panel_main_inventory != NULL);
+		return false;
+	}
+
+	std::set<LLUUID> selected_uuids = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
+	for (std::set<LLUUID>::const_iterator it = selected_uuids.begin();
+		it != selected_uuids.end();
+		++it)
+	{
+		if (!get_can_item_be_worn(*it)) return false;
+	}
+
+	return true;
 }
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -337,7 +379,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 
 U32 LLSidepanelInventory::getSelectedCount()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	return selection_list.size();
 }

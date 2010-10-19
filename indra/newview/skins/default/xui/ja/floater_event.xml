@@ -1,69 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="イベント" name="Event" title="イベント詳細">
-	<floater.string name="none">
-		なし
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ follows="all"
+ height="400"
+ can_resize="true"
+ help_topic="event_details"
+ label="Event"
+ layout="topleft"
+ name="Event"
+ save_rect="true"
+ save_visibility="false"
+ title="EVENT DETAILS" 
+ width="600">
+	<floater.string
+		name="loading_text">
+		ローディング...
 	</floater.string>
-	<floater.string name="notify">
-		知らせる
-	</floater.string>
-	<floater.string name="dont_notify">
-		知らせない
-	</floater.string>
-	<floater.string name="moderate">
-		Moderate
-	</floater.string>
-	<floater.string name="adult">
-		Adult
-	</floater.string>
-	<floater.string name="general">
-		General
-	</floater.string>
-	<floater.string name="unknown">
-		不明
-	</floater.string>
-	<layout_stack name="layout">
-		<layout_panel name="profile_stack">
-			<text name="event_name">
-				Nameless Event...of Doom! De doom! Doom doom.
-			</text>
-			<text name="event_category">
-				（カテゴリなし）
-			</text>
-			<text name="event_runby_label">
-				主催者：
-			</text>
-			<text initial_value="（取得中）" name="event_runby"/>
-			<text name="event_date_label">
-				日付：
-			</text>
-			<text name="event_date">
-				10/10/2010
-			</text>
-			<text name="event_duration_label">
-				期間：
-			</text>
-			<text name="event_duration">
-				1 時間
-			</text>
-			<text name="event_covercharge_label">
-				カバーチャージ：
-			</text>
-			<text name="event_cover">
-				無料
-			</text>
-			<text name="event_location_label">
-				場所：
-			</text>
-			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
-			<text name="rating_label" value="レーティング区分："/>
-			<text name="rating_value" value="不明"/>
-		</layout_panel>
-		<layout_panel name="button_panel">
-			<button name="create_event_btn" tool_tip="イベント作成"/>
-			<button name="god_delete_event_btn" tool_tip="イベント削除"/>
-			<button label="知らせる" name="notify_btn"/>
-			<button label="テレポート" name="teleport_btn"/>
-			<button label="地図" name="map_btn"/>
-		</layout_panel>
-	</layout_stack>
+    <floater.string
+     name="done_text">
+        Done
+    </floater.string>
+  <web_browser
+     trusted_content="true" 
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="10"
+     name="browser"
+     height="365"
+     width="580"
+     top="0"/>
+	<text
+	 follows="bottom|left"
+	 height="16"
+	 layout="topleft"
+	 left_delta="0"
+	 name="status_text"
+	 top_pad="10"
+	 width="150" />	 
 </floater>
+

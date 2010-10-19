@@ -28,16 +28,18 @@
 
 #include "llavatariconctrl.h"
 
+// viewer includes
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
-
-#include "llcachename.h"
 #include "llagentdata.h"
 #include "llimfloater.h"
+
+// library includes
+#include "llavatarnamecache.h"
 
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
@@ -227,6 +229,9 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 			// Check if cache already contains image_id for that avatar
 			if (!updateFromCache())
 			{
+				// *TODO: Consider getting avatar icon/badge directly from 
+				// People API, rather than sending AvatarPropertyRequest
+				// messages.  People API already hits the user table.
 				LLIconCtrl::setValue(mDefaultIconName);
 				app->addObserver(mAvatarId, this);
 				app->sendAvatarPropertiesRequest(mAvatarId);
@@ -238,10 +243,9 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		LLIconCtrl::setValue(value);
 	}
 
-	if  (gCacheName)
-	{
-		gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
-	}
+	LLAvatarNameCache::get(mAvatarId,
+		boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, 
+			this, _1, _2));
 }
 
 bool LLAvatarIconCtrl::updateFromCache()
@@ -284,24 +288,21 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 	}
 }
 
-void LLAvatarIconCtrl::nameUpdatedCallback(
-	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	if (id == mAvatarId)
+	if (agent_id == mAvatarId)
 	{
-		mFirstName = first;
-		mLastName = last;
+		// Most avatar icon controls are next to a UI element that shows
+		// a display name, so only show username.
+		mFullName = av_name.mUsername;
 
 		if (mDrawTooltip)
 		{
-			setToolTip(mFirstName + " " + mLastName);
+			setToolTip(mFullName);
 		}
 		else
 		{
-			setToolTip(std::string(""));
+			setToolTip(std::string());
 		}
 	}
 }
