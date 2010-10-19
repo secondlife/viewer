@@ -2567,6 +2567,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DisableGroupToast</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable Incoming Group Toasts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DisableIMToast</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable Incoming IM Toasts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisplayAvatarAgentTarget</key>
     <map>
       <key>Comment</key>

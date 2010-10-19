@@ -131,6 +131,20 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
+	// *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				msg["session_id"]);
+	if (gSavedSettings.getBOOL("DisableGroupToast")
+			&& session->isGroupSessionType())
+	{
+		return;
+	}
+	if (gSavedSettings.getBOOL("DisableIMToast")
+			&& !session->isGroupSessionType())
+	{
+		return;
+	}
+
 	// Skip toasting if we have open window of IM with this session id
 	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
 	if (open_im_floater && open_im_floater->getVisible())
