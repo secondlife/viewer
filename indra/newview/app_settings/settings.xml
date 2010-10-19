@@ -8154,6 +8154,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>RenderTrackerBeacon</key>
+      <map>
+      <key>Comment</key>
+      <string>Display tracking arrow and beacon to target avatar/teleport destination</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderTreeLODFactor</key>
     <map>
       <key>Comment</key>

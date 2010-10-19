@@ -155,7 +155,7 @@ void LLTracker::drawHUDArrow()
 // static 
 void LLTracker::render3D()
 {
-	if (!gFloaterWorldMap)
+	if (!gFloaterWorldMap || !gSavedSettings.getBOOL("RenderTrackerBeacon"))
 	{
 		return;
 	}
