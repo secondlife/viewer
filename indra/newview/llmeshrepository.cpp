@@ -1031,6 +1031,8 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	}
 	else
 	{
+		llinfos
+			<< "Marking header as non-existent, will not retry." << llendl;
 		header["404"] = 1;
 	}
 
@@ -1984,7 +1986,25 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 	LLMeshRepoThread::sActiveHeaderRequests--;
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns
+			<< "Header responder failed with status: "
+			<< status << ": " << reason << llendl;
+
+		// 503 (service unavailable) or 499 (timeout)
+		// can be due to server load and can be retried
+
+		// TODO*: Add maximum retry logic, exponential backoff
+		// and (somewhat more optional than the others) retries
+		// again after some set period of time
+		if (status == 503 || status == 499)
+		{ //retry
+			LLMeshRepository::sHTTPRetryCount++;
+			LLMeshRepoThread::HeaderRequest req(mMeshParams);
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			gMeshRepo.mThread->mHeaderReqQ.push(req);
+
+			return;
+		}
 	}
 
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
@@ -2001,14 +2021,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (!gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size))
 	{
-		llwarns << "Header responder failed with status: " << status << ": " << reason << llendl;
-		if (status == 503 || status == 499)
-		{ //retry
-			LLMeshRepository::sHTTPRetryCount++;
-			LLMeshRepoThread::HeaderRequest req(mMeshParams);
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-			gMeshRepo.mThread->mHeaderReqQ.push(req);
-		}
+		llwarns
+			<< "Unable to parse mesh header: "
+			<< status << ": " << reason << llendl;
 	}
 	else if (data && data_size > 0)
 	{
@@ -2660,20 +2675,22 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 {
 	//write model file to memory buffer
 	std::stringstream ostr;
-	
-	LLModel::physics_shape& phys_shape = data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-		data.mModel[LLModel::LOD_PHYSICS]->mPhysicsShape : 
-		data.mBaseModel->mPhysicsShape;
+
+	LLModel::convex_hull_decomposition& decomp =
+		data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
+		data.mModel[LLModel::LOD_PHYSICS]->mConvexHullDecomp : 
+		data.mBaseModel->mConvexHullDecomp;
 
 	LLModel::hull dummy_hull;
 
-	LLSD header = LLModel::writeModel(ostr,  
+	LLSD header = LLModel::writeModel(
+		ostr,
 		data.mModel[LLModel::LOD_PHYSICS],
 		data.mModel[LLModel::LOD_HIGH],
 		data.mModel[LLModel::LOD_MEDIUM],
 		data.mModel[LLModel::LOD_LOW],
 		data.mModel[LLModel::LOD_IMPOSTOR], 
-		phys_shape,
+		decomp,
 		dummy_hull,
 		mUploadSkin,
 		mUploadJoints,
@@ -2750,19 +2767,19 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 	{
 		std::stringstream ostr;
 
-		LLModel::physics_shape& phys_shape = data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-		data.mModel[LLModel::LOD_PHYSICS]->mPhysicsShape : 
-		data.mBaseModel->mPhysicsShape;
+		LLModel::convex_hull_decomposition& decomp =
+			data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
+			data.mModel[LLModel::LOD_PHYSICS]->mConvexHullDecomp : 
+			data.mBaseModel->mConvexHullDecomp;
 
-		
-
-		LLModel::writeModel(ostr,  
+		LLModel::writeModel(
+			ostr,  
 			data.mModel[LLModel::LOD_PHYSICS],
 			data.mModel[LLModel::LOD_HIGH],
 			data.mModel[LLModel::LOD_MEDIUM],
 			data.mModel[LLModel::LOD_LOW],
 			data.mModel[LLModel::LOD_IMPOSTOR], 
-			phys_shape,
+			decomp,
 			mHullMap[data.mBaseModel],
 			mUploadSkin,
 			mUploadJoints);

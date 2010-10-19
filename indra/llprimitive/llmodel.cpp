@@ -950,13 +950,14 @@ void LLModel::setNumVolumeFaces(S32 count)
 	mVolumeFaces.resize(count);
 }
 
-void LLModel::setVolumeFaceData(S32 f, 
-								LLStrider<LLVector3> pos, 
-								LLStrider<LLVector3> norm, 
-								LLStrider<LLVector2> tc, 
-								LLStrider<U16> ind, 
-								U32 num_verts, 
-								U32 num_indices)
+void LLModel::setVolumeFaceData(
+	S32 f, 
+	LLStrider<LLVector3> pos, 
+	LLStrider<LLVector3> norm, 
+	LLStrider<LLVector2> tc, 
+	LLStrider<U16> ind, 
+	U32 num_verts, 
+	U32 num_indices)
 {
 	LLVolumeFace& face = mVolumeFaces[f];
 
@@ -1283,18 +1284,63 @@ LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 }
 
 //static 
-LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, bool upload_skin, bool upload_joints, bool nowrite)
+LLSD LLModel::writeModel(
+	std::string filename,
+	LLModel* physics,
+	LLModel* high,
+	LLModel* medium,
+	LLModel* low,
+	LLModel* impostor,
+	const convex_hull_decomposition& decomp,
+	BOOL upload_skin,
+	BOOL upload_joints,
+	BOOL nowrite)
 {
 	LLModel::hull dummy_hull;
-	return writeModel(filename, physics, high, medium, low, impostor, decomp, dummy_hull, upload_skin, upload_joints, nowrite);
+	return writeModel(
+		filename,
+		physics,
+		high,
+		medium,
+		low,
+		impostor,
+		decomp,
+		dummy_hull,
+		upload_skin,
+		upload_joints,
+		nowrite);
 }
 
 //static 
-LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite)
+LLSD LLModel::writeModel(
+	std::string filename,
+	LLModel* physics,
+	LLModel* high,
+	LLModel* medium,
+	LLModel* low,
+	LLModel* impostor,
+	const convex_hull_decomposition& decomp,
+	const hull& base_hull,
+	BOOL upload_skin,
+	BOOL upload_joints,
+	BOOL nowrite)
 {
-	std::ofstream os(filename.c_str(), std::ofstream::out | std::ofstream::binary);
+	std::ofstream os(
+		filename.c_str(),
+		std::ofstream::out | std::ofstream::binary);
 
-	LLSD header = writeModel(os, physics, high, medium, low, impostor, decomp, base_hull, upload_skin, upload_joints, nowrite);
+	LLSD header = writeModel(
+		os,
+		physics,
+		high,
+		medium,
+		low,
+		impostor,
+		decomp,
+		base_hull,
+		upload_skin,
+		upload_joints,
+		nowrite);
 
 	os.close();
 
@@ -1302,7 +1348,18 @@ LLSD LLModel::writeModel(std::string filename, LLModel* physics, LLModel* high, 
 }
 
 //static
-LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* impostor, LLModel::physics_shape& decomp, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite)
+LLSD LLModel::writeModel(
+	std::ostream& ostr,
+	LLModel* physics,
+	LLModel* high,
+	LLModel* medium,
+	LLModel* low,
+	LLModel* impostor,
+	const convex_hull_decomposition& decomp,
+	const hull& base_hull,
+	BOOL upload_skin,
+	BOOL upload_joints,
+	BOOL nowrite)
 {
 	LLSD mdl;
 
@@ -1392,12 +1449,15 @@ LLSD LLModel::writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LL
 		{
 			U32 size = decomp[i].size();
 			total += size;
-			hulls[i] = (U8) size;
+			// The valid range of sizes is actually 3-256 verts. We need this to fit into a U8,
+			// So we just subtract 1
+			hulls[i] = (U8) (size - 1);
 
 			for (U32 j = 0; j < decomp[i].size(); ++j)
 			{
 				update_min_max(min, max, decomp[i][j]);
 			}
+
 		}
 
 		for (U32 i = 0; i < base_hull.size(); ++i)
@@ -1779,29 +1839,30 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}					
 }
 
-void LLModel::setPhysicsShape(const LLModel::physics_shape& shape)
+void LLModel::setConvexHullDecomposition(
+	const LLModel::convex_hull_decomposition& decomp)
 {
-	mPhysicsShape = shape;
+	mConvexHullDecomp = decomp;
 
-	mHullCenter.resize(mPhysicsShape.size());
-	mPhysicsPoints = 0;
-	mPhysicsCenter.clear();
+	mHullCenter.resize(mConvexHullDecomp.size());
+	mHullPoints = 0;
+	mCenterOfHullCenters.clear();
 
-	for (U32 i = 0; i < shape.size(); ++i)
+	for (U32 i = 0; i < decomp.size(); ++i)
 	{
 		LLVector3 cur_center;
 
-		for (U32 j = 0; j < shape[i].size(); ++j)
+		for (U32 j = 0; j < decomp[i].size(); ++j)
 		{
-			cur_center += shape[i][j];
+			cur_center += decomp[i][j];
 		}
-		mPhysicsCenter += cur_center;
-		cur_center *= 1.f/shape[i].size();
+		mCenterOfHullCenters += cur_center;
+		cur_center *= 1.f/decomp[i].size();
 		mHullCenter[i] = cur_center;
-		mPhysicsPoints += shape[i].size();
+		mHullPoints += decomp[i].size();
 	}
 
-	mPhysicsCenter *= 1.f/mPhysicsPoints;
+	mCenterOfHullCenters *= 1.f / mHullPoints;
 }
 
 

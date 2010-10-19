@@ -481,13 +481,14 @@ BOOL LLImportColladaAssetCache::uploadMeshAsset(domMesh* mesh)
     // write model to temp file
 
 	std::string filename = gDirUtilp->getTempFilename();
-	LLModel::writeModel(filename,
-						lods[4],
-						lods[0],
-						lods[1],
-						lods[2],
-		                lods[3],
-						lods[4]->mPhysicsShape);
+	LLModel::writeModel(
+		filename,
+		lods[4],
+		lods[0],
+		lods[1],
+		lods[2],
+		lods[3],
+		lods[4]->mConvexHullDecomp);
 
 
 	// copy file to VFS

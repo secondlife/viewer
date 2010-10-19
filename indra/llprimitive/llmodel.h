@@ -50,16 +50,52 @@ public:
 		NUM_LODS
 	};
 	
-	//physics shape is a vector of convex hulls
+	//convex_hull_decomposition is a vector of convex hulls
 	//each convex hull is a set of points
+	typedef  std::vector<std::vector<LLVector3> > convex_hull_decomposition;
 	typedef std::vector<LLVector3> hull;
-	typedef  std::vector<hull> physics_shape;
 	
 	LLModel(LLVolumeParams& params, F32 detail);
-	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
-	static LLSD writeModel(std::string filename, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
-	static LLSD writeModel(std::ostream& ostr, LLModel* physics, LLModel* high, LLModel* medium, LLModel* low, LLModel* imposotr, LLModel::physics_shape& physics_shape, LLModel::hull& base_hull, bool upload_skin, bool upload_joints, bool nowrite = FALSE);
-	static LLSD writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite = FALSE);
+	static LLSD writeModel(
+		std::string filename,
+		LLModel* physics,
+		LLModel* high,
+		LLModel* medium,
+		LLModel* low,
+		LLModel* imposotr,
+		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
+		const LLModel::hull& base_hull,
+		BOOL upload_skin,
+		BOOL upload_joints,
+		BOOL nowrite = FALSE);
+	static LLSD writeModel(
+		std::string filename,
+		LLModel* physics,
+		LLModel* high,
+		LLModel* medium,
+		LLModel* low,
+		LLModel* imposotr,
+		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
+		BOOL upload_skin,
+		BOOL upload_joints,
+		BOOL nowrite = FALSE);
+	static LLSD writeModel(
+		std::ostream& ostr,
+		LLModel* physics,
+		LLModel* high,
+		LLModel* medium,
+		LLModel* low,
+		LLModel* imposotr,
+		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
+		const LLModel::hull& base_hull,
+		BOOL upload_skin,
+		BOOL upload_joints,
+		BOOL nowrite = FALSE);
+	static LLSD writeModelToStream(
+		std::ostream& ostr,
+		LLSD& mdl,
+		BOOL nowrite = FALSE);
+
 	static LLModel* loadModelFromAsset(std::string filename, S32 lod);
 	static LLModel* loadModelFromDae(std::string filename);
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
@@ -69,13 +105,14 @@ public:
 	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
 
 	void setNumVolumeFaces(S32 count);
-	void setVolumeFaceData(S32 f, 
-						LLStrider<LLVector3> pos, 
-						LLStrider<LLVector3> norm, 
-						LLStrider<LLVector2> tc, 
-						LLStrider<U16> ind, 
-						U32 num_verts, 
-						U32 num_indices);
+	void setVolumeFaceData(
+		S32 f, 
+		LLStrider<LLVector3> pos, 
+		LLStrider<LLVector3> norm, 
+		LLStrider<LLVector2> tc, 
+		LLStrider<U16> ind, 
+		U32 num_verts, 
+		U32 num_indices);
 
 	void smoothNormals(F32 angle_cutoff);
 
@@ -84,8 +121,6 @@ public:
 	void normalizeVolumeFaces();
 	void optimizeVolumeFaces();
 
-
-	U32 getResourceCost();
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
 	std::vector<std::string> mMaterialList;
 
@@ -155,13 +190,14 @@ public:
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
 
-	//physics shape
-	physics_shape mPhysicsShape;
-	void setPhysicsShape(const physics_shape& shape);
+	// convex hull decomposition
+	convex_hull_decomposition mConvexHullDecomp;
+	void setConvexHullDecomposition(
+		const convex_hull_decomposition& decomp);
 
-	LLVector3 mPhysicsCenter;
+	LLVector3 mCenterOfHullCenters;
 	std::vector<LLVector3> mHullCenter;
-	U32 mPhysicsPoints;
+	U32 mHullPoints;
 
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);

@@ -139,7 +139,7 @@ public:
 	void merge(const LLMeshDecomposition* rhs);
 
 	LLUUID mMeshID;
-	LLModel::physics_shape mHull;
+	LLModel::convex_hull_decomposition mHull;
 	LLModel::hull mBaseHull;
 
 	std::vector<LLPointer<LLVertexBuffer> > mMesh;
@@ -165,7 +165,7 @@ public:
 		//output state
 		std::string mStatusMessage;
 		std::vector<LLPointer<LLVertexBuffer> > mHullMesh;
-		LLModel::physics_shape mHull;
+		LLModel::convex_hull_decomposition mHull;
 		
 		virtual S32 statusCallback(const char* status, S32 p1, S32 p2) = 0;
 		virtual void completed() = 0;

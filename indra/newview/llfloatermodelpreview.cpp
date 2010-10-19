@@ -2122,24 +2122,28 @@ U32 LLModelPreview::calcResourceCost()
 		{
 			accounted.insert(instance.mModel);
 
-			LLModel::physics_shape& physics_shape = instance.mLOD[LLModel::LOD_PHYSICS] ? instance.mLOD[LLModel::LOD_PHYSICS]->mPhysicsShape : instance.mModel->mPhysicsShape;
+			LLModel::convex_hull_decomposition& decomp =
+				instance.mLOD[LLModel::LOD_PHYSICS] ?
+				instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp :
+				instance.mModel->mConvexHullDecomp;
 
-			LLSD ret = LLModel::writeModel("",  
-									instance.mLOD[4],
-									instance.mLOD[3], 
-									instance.mLOD[2], 
-									instance.mLOD[1], 
-									instance.mLOD[0],
-									physics_shape,
-									mFMP->childGetValue("upload_skin").asBoolean(),
-									mFMP->childGetValue("upload_joints").asBoolean(),
-									true);
+			LLSD ret = LLModel::writeModel(
+				"",
+				instance.mLOD[4],
+				instance.mLOD[3], 
+				instance.mLOD[2], 
+				instance.mLOD[1], 
+				instance.mLOD[0],
+				decomp,
+				mFMP->childGetValue("upload_skin").asBoolean(),
+				mFMP->childGetValue("upload_joints").asBoolean(),
+				TRUE);
 			cost += gMeshRepo.calcResourceCost(ret);
 			
-			num_hulls += physics_shape.size();
-			for (U32 i = 0; i < physics_shape.size(); ++i)
+			num_hulls += decomp.size();
+			for (U32 i = 0; i < decomp.size(); ++i)
 			{
-				num_points += physics_shape[i].size();
+				num_points += decomp[i].size();
 			}
 
 			//calculate streaming cost
@@ -2771,7 +2775,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 				if (which_lod == -1)
 				{
-						mModel[LLModel::LOD_HIGH] = mBaseModel;
+					mModel[LLModel::LOD_HIGH] = mBaseModel;
 				}
 
 				return;
@@ -3478,7 +3482,7 @@ BOOL LLModelPreview::render()
 									{
 										gGL.pushMatrix();
 
-										LLVector3 offset = model->mHullCenter[i]-model->mPhysicsCenter;
+										LLVector3 offset = model->mHullCenter[i]-model->mCenterOfHullCenters;
 										offset *= explode;
 
 										gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
@@ -3820,7 +3824,7 @@ S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32
 
 void LLFloaterModelPreview::DecompRequest::completed()
 {
-	mModel->setPhysicsShape(mHull);
+	mModel->setConvexHullDecomposition(mHull);
 	
 	if (sInstance) 
 	{ 
