@@ -529,6 +529,7 @@ Pf Shan
 	CT-230
 	CT-231
 	CT-321
+	SNOW-422
 princess niven
 	VWR-5733
 	CT-85
@@ -643,6 +644,7 @@ Strife Onizuka
 	VWR-183
 	VWR-2265
 	VWR-4111
+	SNOW-691
 Tayra Dagostino
 	SNOW-517
 	SNOW-543
