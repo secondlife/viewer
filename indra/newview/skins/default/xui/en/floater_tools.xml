@@ -1541,7 +1541,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              min_val="-1"
-             max_val="10"
+             max_val="28"
              name="Physics Gravity"
              top_pad="10"
              width="128" />
@@ -1580,8 +1580,8 @@ even though the user gets a free copy.
              label_width="70"
              layout="topleft"
              left_delta="0"
-             max_val="10"
-             min_val="0"
+             max_val="22587"
+             min_val="1"
              name="Physics Density"
              top_pad="4"
              width="128" />
