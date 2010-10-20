@@ -3195,6 +3195,31 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 				renderPhysicsShape(drawable, volume);
 			}
 		}
+		else
+		{
+			LLViewerObject* object = drawable->getVObj();
+			if (object && object->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
+			{
+				//push face vertices for terrain
+				for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+				{
+					LLFace* face = drawable->getFace(i);
+					LLVertexBuffer* buff = face->mVertexBuffer;
+					if (buff)
+					{
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+						buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						glColor3f(0.2f, 0.5f, 0.3f);
+						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
+									
+						glColor3f(0.2f, 1.f, 0.3f);
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
+					}
+				}
+			}
+		}
 	}
 }
 

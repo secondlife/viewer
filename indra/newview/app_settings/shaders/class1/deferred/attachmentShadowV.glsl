@@ -1,5 +1,5 @@
 /** 
- * @file diffuseSkinnedV.glsl
+ * @file attachmentShadowV.glsl
  *
  * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
  * $License$
@@ -21,5 +21,7 @@ void main()
 	
 	gl_FrontColor = gl_Color;
 	
-	gl_Position = gl_ProjectionMatrix*vec4(pos, 1.0);
+	vec4 p = gl_ProjectionMatrix * vec4(pos, 1.0);
+	p.z = max(p.z, -p.w+0.01);
+	gl_Position = p;
 }
