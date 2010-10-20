@@ -237,6 +237,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mPhysicsCost(0.f),
 	mLinksetPhysicsCost(0.f),
 	mCostStale(true),
+	mPhysicsShapeUnknown(true),
 	mAttachmentItemID(LLUUID::null)
 {
 	if (!is_global)
@@ -5185,6 +5186,7 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 
 void LLViewerObject::setPhysicsShapeType(U8 type)
 {
+	mPhysicsShapeUnknown = false;
 	mPhysicsShapeType = type;
 }
 
@@ -5206,6 +5208,17 @@ void LLViewerObject::setPhysicsDensity(F32 density)
 void LLViewerObject::setPhysicsRestitution(F32 restitution)
 {
 	mPhysicsRestitution = restitution;
+}
+
+U8 LLViewerObject::getPhysicsShapeType() const
+{ 
+	if (mPhysicsShapeUnknown)
+	{
+		mPhysicsShapeUnknown = false;
+		gObjectList.updatePhysicsFlags(this);
+	}
+
+	return mPhysicsShapeType; 
 }
 
 void LLViewerObject::applyAngularVelocity(F32 dt)

@@ -470,7 +470,7 @@ public:
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
-	inline U8       getPhysicsShapeType() const     { return mPhysicsShapeType; }
+	U8       getPhysicsShapeType() const;
 	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
 	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
 	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
@@ -703,6 +703,7 @@ protected:
 	F32 mLinksetPhysicsCost;
 
 	bool mCostStale;
+	mutable bool mPhysicsShapeUnknown;
 
 	static			U32			sNumZombieObjects;			// Objects which are dead, but not deleted
 
