@@ -946,7 +946,7 @@ S32 LLPipeline::setLightingDetail(S32 level)
 
 	if (level < 0)
 	{
-		if (gSavedSettings.getBOOL("VertexShaderEnable"))
+		if (gSavedSettings.getBOOL("RenderLocalLights"))
 		{
 			level = 1;
 		}
@@ -956,15 +956,8 @@ S32 LLPipeline::setLightingDetail(S32 level)
 		}
 	}
 	level = llclamp(level, 0, getMaxLightingDetail());
-	if (level != mLightingDetail)
-	{
-		mLightingDetail = level;
-
-		if (mVertexShadersLoaded == 1)
-		{
-			LLViewerShaderMgr::instance()->setShaders();
-		}
-	}
+	mLightingDetail = level;
+	
 	return mLightingDetail;
 }
 
@@ -7054,10 +7047,8 @@ void LLPipeline::renderDeferredLighting()
 			gPipeline.popRenderTypeMask();
 		}
 
-		BOOL render_local = gSavedSettings.getBOOL("RenderDeferredLocalLights");
-		BOOL render_fullscreen = gSavedSettings.getBOOL("RenderDeferredFullscreenLights");
-		
-
+		BOOL render_local = gSavedSettings.getBOOL("RenderLocalLights");
+				
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
 		{
 			mDeferredLight[1].flush();
@@ -7065,7 +7056,7 @@ void LLPipeline::renderDeferredLighting()
 			mDeferredLight[2].clear(GL_COLOR_BUFFER_BIT);
 		}
 
-		if (render_local || render_fullscreen)
+		if (render_local)
 		{
 			gGL.setSceneBlendType(LLRender::BT_ADD);
 			std::list<LLVector4> fullscreen_lights;
@@ -7081,8 +7072,7 @@ void LLPipeline::renderDeferredLighting()
 
 			F32 v[24];
 			glVertexPointer(3, GL_FLOAT, 0, v);
-			BOOL render_local = gSavedSettings.getBOOL("RenderDeferredLocalLights");
-
+			
 			{
 				bindDeferredShader(gDeferredLightProgram);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -7173,7 +7163,7 @@ void LLPipeline::renderDeferredLighting()
 							stop_glerror();
 						}
 					}
-					else if (render_fullscreen)
+					else
 					{	
 						if (volume->isLightSpotlight())
 						{

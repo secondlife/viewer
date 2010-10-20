@@ -6816,17 +6816,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-      <key>RenderLightingDetail</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
+   
+  <key>RenderLocalLights</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to render local lights.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
 
   <key>RenderShadowNearDist</key>
   <map>
@@ -7622,30 +7623,6 @@
   <map>
     <key>Comment</key>
     <string>Execute shadow softening shader in deferred renderer.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-
-  <key>RenderDeferredLocalLights</key>
-  <map>
-    <key>Comment</key>
-    <string>Execute local lighting shader in deferred renderer.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-
-  <key>RenderDeferredFullscreenLights</key>
-  <map>
-    <key>Comment</key>
-    <string>Execute local lighting shader in deferred renderer.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

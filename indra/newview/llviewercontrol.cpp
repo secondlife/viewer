@@ -121,6 +121,13 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleLightingDetailChanged(const LLSD& newvalue)
+{
+	gPipeline.setLightingDetail(-1);
+	return true;
+}
+
+
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 {
 	bool status = !newvalue.asBoolean();
@@ -533,6 +540,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderBakeSunlight")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderNoAlpha")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderShaderLightingMaxLevel")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("RenderLocalLights")->getSignal()->connect(boost::bind(&handleLightingDetailChanged, _2));
 	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
