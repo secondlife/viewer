@@ -70,6 +70,39 @@ static const std::string CLASSIFIED_NAME("classified_name");
 
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
+class LLPickHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLPickHandler() : LLCommandHandler("pick", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLMediaCtrl* web)
+	{
+		if (params.size() < 1) return false;
+		const std::string verb = params[0];
+
+		if (verb == "create")
+		{
+			// Open "create pick" in side tab.
+		}
+		else if (verb == "edit")
+		{
+			// How to identify the pick?
+			llwarns << "how to identify pick?" << llendl;
+		}
+		else
+		{
+			llwarns << "unknown verb " << verb << llendl;
+			return false;
+		}
+			
+		return true;
+	}
+};
+
+LLPickHandler gPickHandler;
+
 class LLClassifiedHandler :
 	public LLCommandHandler,
 	public LLAvatarPropertiesObserver
@@ -80,6 +113,8 @@ public:
 
 	std::set<LLUUID> mClassifiedIds;
 
+	std::string mRequestVerb;
+	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
 		// handle app/classified/create urls first
@@ -107,6 +142,15 @@ public:
 		const std::string verb = params[1].asString();
 		if (verb == "about")
 		{
+			mRequestVerb = verb;
+			mClassifiedIds.insert(classified_id);
+			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+			LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
+			return true;
+		}
+		else if (verb == "edit")
+		{
+			mRequestVerb = verb;
 			mClassifiedIds.insert(classified_id);
 			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
 			LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
@@ -128,18 +172,25 @@ public:
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
 	{
-		// open the classified info panel on the Me > Picks sidetray
-		LLSD params;
-		params["id"] = c_info->creator_id;
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "classified_details";
-		params["classified_id"] = c_info->classified_id;
-		params["classified_creator_id"] = c_info->creator_id;
-		params["classified_snapshot_id"] = c_info->snapshot_id;
-		params["classified_name"] = c_info->name;
-		params["classified_desc"] = c_info->description;
-		params["from_search"] = true;
-		LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+		if (mRequestVerb == "about")
+		{
+			// open the classified info panel on the Me > Picks sidetray
+			LLSD params;
+			params["id"] = c_info->creator_id;
+			params["open_tab_name"] = "panel_picks";
+			params["show_tab_panel"] = "classified_details";
+			params["classified_id"] = c_info->classified_id;
+			params["classified_creator_id"] = c_info->creator_id;
+			params["classified_snapshot_id"] = c_info->snapshot_id;
+			params["classified_name"] = c_info->name;
+			params["classified_desc"] = c_info->description;
+			params["from_search"] = true;
+			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+		}
+		else if (mRequestVerb == "edit")
+		{
+			llwarns << "edit in progress" << llendl;
+		}
 	}
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
