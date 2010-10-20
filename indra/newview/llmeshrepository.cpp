@@ -645,7 +645,7 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 	
 	if (gAgent.getRegion())
 	{
-		http_url = gAgent.getRegion()->getCapability("GetMesh");
+		http_url = gMeshRepo.mGetMeshCapability; 
 		scrub_host_name(http_url, gAgent.getRegionHost());
 	}
 
@@ -2273,6 +2273,12 @@ void LLMeshRepository::notifyLoadedMeshes()
 	if (!mThread->mWaiting)
 	{ //curl thread is churning, wait for it to go idle
 		return;
+	}
+
+	if (gAgent.getRegion())
+	{ //update capability url 
+		//TODO: only do this when region changes
+		mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
 	}
 
 	LLFastTimer t(FTM_MESH_UPDATE);

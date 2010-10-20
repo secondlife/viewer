@@ -526,6 +526,8 @@ public:
 	void uploadError(LLSD& args);
 	void updateInventory(inventory_data data);
 
+	std::string mGetMeshCapability;
+
 };
 
 extern LLMeshRepository gMeshRepo;
