@@ -64,6 +64,8 @@
 #include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
+#include "llhudnametag.h"
+#include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmeshrepository.h"
 #include "llresmgr.h"
@@ -898,6 +900,11 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 {
 	return (canUseWindLightShaders() 
 		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
+}
+
+BOOL LLPipeline::canUseAntiAliasing() const
+{
+	return (gSavedSettings.getBOOL("RenderUseFBO"));
 }
 
 void LLPipeline::unloadShaders()
@@ -2360,6 +2367,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	}
 
 	LLHUDText::shiftAll(offset);
+	LLHUDNameTag::shiftAll(offset);
 	display_update_camera();
 }
 
@@ -5180,7 +5188,7 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 void LLPipeline::disableLights()
 {
 	enableLights(0); // no lighting (full bright)
-	//glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
+	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
 }
 
 //============================================================================
@@ -5705,7 +5713,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 		++iter)
 	{
 		LLVOAvatar* av = (LLVOAvatar*) *iter;
-		if (av->mNameText.notNull() && av->mNameText->lineSegmentIntersect(start, local_end, position))
+		if (av->mNameText.notNull()
+			&& av->mNameText->lineSegmentIntersect(start, local_end, position))
 		{
 			drawable = av->mDrawable;
 			local_end = position;
@@ -9468,7 +9477,10 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 
 BOOL LLPipeline::hasRenderType(const U32 type) const
 {
-	return mRenderTypeEnabled[type];
+    // STORM-365 : LLViewerJointAttachment::setAttachmentVisibility() is setting type to 0 to actually mean "do not render"
+    // We then need to test that value here and return FALSE to prevent attachment to render (in mouselook for instance)
+    // TODO: reintroduce RENDER_TYPE_NONE in LLRenderTypeMask and initialize its mRenderTypeEnabled[RENDER_TYPE_NONE] to FALSE explicitely
+	return (type == 0 ? FALSE : mRenderTypeEnabled[type]);
 }
 
 void LLPipeline::setRenderTypeMask(U32 type, ...)

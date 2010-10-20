@@ -1267,6 +1267,9 @@
 	<string name="Right Pec">
 		Peitoral D
 	</string>
+	<string name="Invalid Attachment">
+		Ponto de encaixe inválido
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] de idade
 	</string>
@@ -1388,10 +1391,10 @@
 		Script não encontrado no servidor.
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Problema no download
+		Problema no  download
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Permissões insuficientes para fazer o download do script.
+		Permissões insuficientes para  fazer o download do script.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
 		Permissões insuficientes para
@@ -1644,9 +1647,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD direito inferior
 	</string>
-	<string name="Bad attachment point">
-		Ponto de encaixe inválido
-	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
 	</string>
@@ -1661,12 +1661,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
-	</string>
-	<string name="NoOutfits">
-		Você ainda não tem nenhum look. Tente encontrar um na [secondlife:///app/search/groups Busca].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Não encontrou o que procura? Tente fazer uma [secondlife:///app/search/people/[SEARCH_TERM] Busca].
 	</string>
 	<string name="MuteByName">
 		(por nome)
@@ -1705,7 +1699,7 @@
 		(vai atualizar depois de publicado)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Você não criou nenhum Destaque ou Anúncio. Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
+		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		O usuário não tem nenhum destaque ou anúncio
@@ -1821,6 +1815,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Início
 	</string>
 	<string name="FileSaved">
 		Arquivo salvo
@@ -3437,6 +3437,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderador)
 	</string>
+	<string name="Saved_message">
+		(Salvo em [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Ligação atendida
 	</string>
@@ -3457,6 +3460,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Saiu da ligação de voz
+	</string>
+	<string name="conference-title-incoming">
+		Conversa com [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(Sessão de MI inexistente)
 	</string>
 	<string name="only_user_message">
 		Você é o único usuário desta sessão.
@@ -3841,5 +3850,14 @@ Denunciar abuso
 	</string>
 	<string name="Chat">
 		Bate-papo
+	</string>
+	<string name="DeleteItems">
+		Excluir itens selecionados?
+	</string>
+	<string name="DeleteItem">
+		Excluir item selecionado?
+	</string>
+	<string name="EmptyOutfitText">
+		Este look não possui nenhuma peça
 	</string>
 </strings>

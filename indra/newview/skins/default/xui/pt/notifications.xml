@@ -1801,6 +1801,10 @@ Mover para o inventário o(s) item(s)?
 		Tem certeza que deseja sair?
 		<usetemplate ignoretext="Confirmar antes de sair" name="okcancelignore" notext="Não sair" yestext="Sair"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Confirmar antes de excluir" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Use esta ferramenta para denunciar infrações dos [http://secondlife.com/corporate/tos.php Termos do Serviço] e das [http://secondlife.com/corporate/cs.php Normas da Comunidade].
 
@@ -2165,8 +2169,7 @@ Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do p
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teletransporte"/>
-			<button name="Description" text="Descrição"/>
+			<button name="Details" text="Descrição"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -2727,9 +2730,13 @@ Verifique a configuração da sua rede e firewall.
 		( [EXISTENCE] segundos de vida )
 Avatar &apos;[NAME]&apos; saiu totalmente carregado.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( [EXISTENCE] segundos de vida )
-[ACTION] de textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
+Você carregou uma textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] segundos de vida )
+Você carregou uma textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Tem certeza de que quer sair desta ligação?

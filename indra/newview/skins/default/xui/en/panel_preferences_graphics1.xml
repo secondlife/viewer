@@ -155,7 +155,7 @@
 	 visiblity_control="ShowAdvancedGraphicsSettings"
      border="false"
 	 follows="top|left"
-     height="283"
+     height="300"
      label="CustomGraphics"
      layout="topleft"
      left="5"

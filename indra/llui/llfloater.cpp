@@ -232,7 +232,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0)
+	mPreviousMinimizedLeft(0),
+	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
 	mHandle.bind(this);
@@ -494,6 +495,8 @@ LLFloater::~LLFloater()
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
+
+	delete mMinimizeSignal;
 }
 
 void LLFloater::storeRectControl()
@@ -997,6 +1000,11 @@ void LLFloater::setMinimized(BOOL minimize)
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
 
 	if (minimize == mMinimized) return;
+
+	if(mMinimizeSignal)
+	{
+		(*mMinimizeSignal)(this, LLSD(minimize));
+	}
 
 	if (minimize)
 	{
@@ -2809,6 +2817,12 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	{
 		mCloseSignal.connect(initCommitCallback(p.close_callback));
 	}
+}
+
+boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
+	return mMinimizeSignal->connect(cb); 
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");

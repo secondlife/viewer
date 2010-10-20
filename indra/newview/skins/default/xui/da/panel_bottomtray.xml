@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
 	<string name="SpeakBtnToolTip" value="Slå mikrofon til/fra"/>
 	<string name="VoiceControlBtnToolTip" value="Vis/skjul stemme kontrolpanel"/>
 	<layout_stack name="toolbar_stack">
@@ -12,28 +13,25 @@
 			<gesture_combo_list label="Bevægelse" name="Gesture" tool_tip="Skjuler/viser bevægelser"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
-			<button label="Flyt" name="movement_btn" tool_tip="Vis/skjul bevægelseskontroller"/>
+			<bottomtray_button label="Flyt" name="movement_btn" tool_tip="Vis/skjul bevægelseskontroller"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<button label="Vis" name="camera_btn" tool_tip="Vis/Skjul kamerakontroller"/>
+			<bottomtray_button label="Vis" name="camera_btn" tool_tip="Vis/Skjul kamerakontroller"/>
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
-			<button label="" name="snapshots" tool_tip="Tag foto"/>
-		</layout_panel>
-		<layout_panel name="sidebar_btn_panel">
-			<button label="Sidepanel" name="sidebar_btn" tool_tip="Vis/skjul sidepanel"/>
+			<bottomtray_button label="" name="snapshots" tool_tip="Tag foto"/>
 		</layout_panel>
 		<layout_panel name="build_btn_panel">
-			<button label="Byg" name="build_btn" tool_tip="Vis/skjul byggeværktøjer"/>
+			<bottomtray_button label="Byg" name="build_btn" tool_tip="Vis/skjul byggeværktøjer"/>
 		</layout_panel>
 		<layout_panel name="search_btn_panel">
-			<button label="Søg" name="search_btn" tool_tip="Vis/skjul søgning"/>
+			<bottomtray_button label="Søg" name="search_btn" tool_tip="Vis/skjul søgning"/>
 		</layout_panel>
 		<layout_panel name="world_map_btn_panel">
-			<button label="Kort" name="world_map_btn" tool_tip="Vis/skjul verdenskort"/>
+			<bottomtray_button label="Kort" name="world_map_btn" tool_tip="Vis/skjul verdenskort"/>
 		</layout_panel>
 		<layout_panel name="mini_map_btn_panel">
-			<button label="Mini-kort" name="mini_map_btn" tool_tip="Vis/skjul Mini-kort"/>
+			<bottomtray_button label="Mini-kort" name="mini_map_btn" tool_tip="Vis/skjul Mini-kort"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

@@ -67,7 +67,7 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
-	<notification name="BadInstallation">		
+	<notification name="BadInstallation">
 		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com pobierz najnowsza wersję] aby ściągnąć ostatnią wersję klienta.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -1786,6 +1786,10 @@ Przenieść obiekty szafy?
 		Na pewno chcesz skończyć?
 		<usetemplate ignoretext="Na pewno chcesz skończyć?" name="okcancelignore" notext="Nie kończ" yestext="Wyłącz"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Potwierdź, że na pewno chcesz skasować obiekty" name="okcancelignore" notext="Cofnij" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Używaj tej opcji do zgłaszania nadużyć [http://secondlife.com/corporate/tos.php Warunków Umowy (Terms of Service)] i [http://secondlife.com/corporate/cs.php Standardów Społeczeństwa (Community Standards)].
 
@@ -2153,8 +2157,7 @@ Spróbuj wybrać mniejszy obszar.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportuj"/>
-			<button name="Description" text="Opis"/>
+			<button name="Details" text="Opis"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
@@ -2719,9 +2722,13 @@ Proszę sprawdź swoją sieć i ustawienia firewall.
 		( [EXISTENCE] sekund w Second Life)
 Awatar &apos;[NAME]&apos; pozostał w pełni załadowany.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( [EXISTENCE] sekund w Second Life )
-You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
+Zbakowane tekstury [RESOLUTION] dla &apos;[BODYREGION]&apos; zostały załadowane po[TIME] sekundach.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] sekund w Second Life )
+Zbakowane tekstury zostały lokalnie zaktualizowane [RESOLUTION] dla &apos;[BODYREGION]&apos; po [TIME] sekundach.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Czy jestes pewien/pewna, że chcesz zakończyć rozmowę?

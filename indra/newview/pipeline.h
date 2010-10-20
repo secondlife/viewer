@@ -197,6 +197,7 @@ public:
 	BOOL		canUseVertexShaders();
 	BOOL		canUseWindLightShaders() const;
 	BOOL		canUseWindLightShadersOnObjects() const;
+	BOOL		canUseAntiAliasing() const;
 
 	// phases
 	void resetFrameStats();

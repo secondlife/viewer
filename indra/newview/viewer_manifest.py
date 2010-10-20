@@ -284,6 +284,13 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
 
+
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
+
             # For textures
             if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")
@@ -328,9 +335,6 @@ class WindowsManifest(ViewerManifest):
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
 
-        # For using FMOD for sound... DJS
-        self.path("fmod.dll")
-       
         self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
@@ -967,10 +971,12 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
-        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -w -N hk* " % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
-            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+class Linux_x86_64Manifest(LinuxManifest):
+    def construct(self):
+        super(Linux_x86_64Manifest, self).construct()
+
+        # support file for valgrind debug tool
+        self.path("secondlife-i686.supp")
 
 ################################################################
 

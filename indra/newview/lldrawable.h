@@ -48,6 +48,7 @@ class LLCamera;
 class LLDrawPool;
 class LLDrawable;
 class LLFace;
+class LLFacePool;
 class LLSpatialGroup;
 class LLSpatialBridge;
 class LLSpatialPartition;

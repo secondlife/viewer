@@ -1264,6 +1264,9 @@
 	<string name="Right Pec">
 		Prawy Pec
 	</string>
+	<string name="Invalid Attachment">
+		Nieważny punkt załącznika
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1641,9 +1644,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD prawa dolna strona
 	</string>
-	<string name="Bad attachment point">
-		Nieprawidłowy punkt załączenia
-	</string>
 	<string name="CursorPos">
 		Linia [LINE], Kolumna [COLUMN]
 	</string>
@@ -1658,12 +1658,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przejrzenia poźniej.
-	</string>
-	<string name="NoOutfits">
-		Nie posiadasz jeszcze żadnych strojów. Spróbuj [secondlife:///app/search/all/ Szukaj]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Szukaj].
 	</string>
 	<string name="MuteByName">
 		(Nazwa)
@@ -1705,7 +1699,7 @@
 		Nie dodałeś nic do Ulubionych i Reklam. Kliknij na poniższy przycisk Dodaj aby dodać miejsce do Ulubionych lub Reklamy.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Użytkownik nie posiada Ulubionych lub Reklam
+		Brak ulubionych miejsc/reklam
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Ładowanie...
@@ -1818,6 +1812,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Miejsce Startu
 	</string>
 	<string name="FileSaved">
 		Zapisane pliki
@@ -3435,6 +3435,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="Saved_message">
+		(Zapisano [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Twoja rozmowa głosowa została odebrana
 	</string>
@@ -3455,6 +3458,12 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Rozmowa głosowa zakończona
+	</string>
+	<string name="conference-title-incoming">
+		Konferencja z  [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(Sesja IM wygasła)
 	</string>
 	<string name="only_user_message">
 		Jesteś jedyną osobą w tej konferencji.
@@ -3839,5 +3848,14 @@ Raport o Nadużyciu
 	</string>
 	<string name="Chat">
 		Czat
+	</string>
+	<string name="DeleteItems">
+		Usuń wybrane obiekty?
+	</string>
+	<string name="DeleteItem">
+		Usuń wybrane obiekty?
+	</string>
+	<string name="EmptyOutfitText">
+		W tym stroju nie ma elementów
 	</string>
 </strings>

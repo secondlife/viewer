@@ -7,11 +7,23 @@
 		<accordion_tab name="tab_classifieds" title="Anzeigen"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
-		<button name="new_btn" tool_tip="An aktuellem Standort neue Auswahl oder Anzeige erstellen"/>
+		<layout_stack name="edit_panel_ls">
+			<layout_panel name="gear_menu_btn">
+				<button name="new_btn" tool_tip="An aktuellem Standort neue Auswahl oder Anzeige erstellen"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 	<panel name="buttons_cucks">
-		<button label="Info" name="info_btn" tool_tip="Auswahl-Information anzeigen"/>
-		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu entsprechendem Standort teleportieren" width="100"/>
-		<button label="Karte" name="show_on_map_btn" tool_tip="Den entsprechenden Standort auf der Karte anzeigen"/>
+		<layout_stack name="buttons_cucks_ls">
+			<layout_panel name="info_btn_lp">
+				<button label="Info" name="info_btn" tool_tip="Informationen zur Auswahl anzeigen"/>
+			</layout_panel>
+			<layout_panel name="teleport_btn_lp">
+				<button label="Teleportieren" name="teleport_btn" tool_tip="Zu entsprechendem Standort teleportieren"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Karte" name="show_on_map_btn" tool_tip="Den entsprechenden Standort auf der Karte anzeigen"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

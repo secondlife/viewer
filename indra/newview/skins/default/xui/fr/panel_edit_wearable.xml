@@ -102,7 +102,13 @@
 		<icon name="female_icon" tool_tip="Femme"/>
 	</panel>
 	<panel name="button_panel">
-		<button label="Enregistrer sous" name="save_as_button"/>
-		<button label="Annuler" name="revert_button" width="130"/>
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="Enregistrer sous" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annuler" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

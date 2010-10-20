@@ -55,7 +55,7 @@ public:
 	
 	LLMeanCollisionData(LLMeanCollisionData *mcd)
 		: mVictim(mcd->mVictim), mPerp(mcd->mPerp), mTime(mcd->mTime), mType(mcd->mType), mMag(mcd->mMag),
-		  mFirstName(mcd->mFirstName), mLastName(mcd->mLastName)
+		  mFullName(mcd->mFullName)
 	{
 	}		
 	
@@ -89,8 +89,7 @@ public:
 	time_t mTime;
 	EMeanCollisionType mType;
 	F32	   mMag;
-	std::string mFirstName;
-	std::string mLastName;
+	std::string mFullName;
 };
 
 

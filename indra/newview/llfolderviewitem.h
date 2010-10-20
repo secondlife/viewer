@@ -51,7 +51,7 @@ enum EInventorySortGroup
 	SG_ITEM 
 };
 
-// JAMESDEBUG *TODO: do we really need one sort object per folder?
+// *TODO: do we really need one sort object per folder?
 // can we just have one of these per LLFolderView ?
 class LLInventorySort
 {

@@ -6,4 +6,5 @@
 	<menu_item_call label="Chiama" name="Call"/>
 	<menu_item_call label="Condividi" name="Share"/>
 	<menu_item_call label="Paga" name="Pay"/>
+	<menu_item_call label="Offri Teleport" name="teleport"/>
 </context_menu>
