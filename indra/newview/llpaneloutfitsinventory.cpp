@@ -232,9 +232,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-	mMyOutfitsPanel->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 	mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-	mCurrentOutfitPanel->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -256,14 +254,6 @@ void LLPanelOutfitsInventory::updateListCommands()
 	{
 		mListCommands->childSetToolTip("wear_btn", getString("wear_outfit_tooltip"));
 	}
-}
-
-void LLPanelOutfitsInventory::showGearMenu()
-{
-	if (!mActivePanel) return;
-
-	LLView* spawning_view = getChild<LLView>("options_gear_btn");
-	mActivePanel->showGearMenu(spawning_view);
 }
 
 void LLPanelOutfitsInventory::onTrashButtonClick()

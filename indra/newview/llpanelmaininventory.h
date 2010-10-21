@@ -40,6 +40,7 @@ class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
 class LLFloaterInventoryFinder;
+class LLMenuButton;
 class LLMenuGL;
 class LLFloater;
 
@@ -129,7 +130,6 @@ private:
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
-	void onGearButtonClick();
 	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick();
@@ -145,6 +145,7 @@ private:
 	LLDragAndDropButton*		mTrashButton;
 	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
+	LLMenuButton*				mGearMenuButton;
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //
