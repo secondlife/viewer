@@ -1085,7 +1085,7 @@ anguage Infrstructure (CLI) international standard</string>
         <key>description</key>
         <string>stub version of Convex decomposition utility for mesh</string>
         <key>license</key>
-        <string>LGPL</string>
+        <string>lgpl</string>
         <key>packages</key>
         <map>
           <key>darwin</key>
