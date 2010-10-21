@@ -29,7 +29,7 @@
      name="bottom_panel"
      top_pad="0"
      width="312">
-        <button
+        <menu_button
          follows="bottom|left"
          height="25"
          image_hover_unselected="Toolbar_Left_Over"

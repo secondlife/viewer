@@ -47,6 +47,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmarkactions.h"
+#include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
 #include "llsidetray.h"
@@ -191,6 +192,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mLibraryInventoryPanel(NULL)
 	,	mCurrentSelectedList(NULL)
 	,	mListCommands(NULL)
+	,	mGearButton(NULL)
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
 {
@@ -685,7 +687,9 @@ void LLLandmarksPanel::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
 
-	mListCommands->childSetAction(OPTIONS_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
+	mGearButton = getChild<LLMenuButton>(OPTIONS_BUTTON_NAME);
+	mGearButton->setMouseDownCallback(boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
+
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
@@ -741,7 +745,7 @@ void LLLandmarksPanel::onActionsButtonClick()
 		}
 	}
 
-	showActionMenu(menu,OPTIONS_BUTTON_NAME);
+	mGearButton->setMenu(menu);
 }
 
 void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -750,7 +754,10 @@ void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_
 	{
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLView* spawning_view = getChild<LLView> (spawning_view_name);
+		menu->arrangeAndClear();
+
+		LLView* spawning_view = getChild<LLView>(spawning_view_name);
+
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
 		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
