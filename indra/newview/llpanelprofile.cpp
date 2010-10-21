@@ -205,6 +205,17 @@ void LLPanelProfile::onOpen(const LLSD& key)
 				picks->openClassifiedInfo(params);
 			}
 		}
+		else if (panel == "edit_classified")
+		{
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				LLSD params = key;
+				params.erase("show_tab_panel");
+				params.erase("open_tab_name");
+				picks->openClassifiedEdit(params);
+			}
+		}
 	}
 }
 

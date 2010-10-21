@@ -190,6 +190,13 @@ public:
 		else if (mRequestVerb == "edit")
 		{
 			llwarns << "edit in progress" << llendl;
+			// open the new classified panel on the Me > Picks sidetray
+			LLSD params;
+			params["id"] = gAgent.getID();
+			params["open_tab_name"] = "panel_picks";
+			params["show_tab_panel"] = "edit_classified";
+			params["classified_id"] = c_info->classified_id;
+			LLSideTray::getInstance()->showPanel("panel_me", params);
 		}
 	}
 
@@ -822,6 +829,13 @@ void LLPanelPicks::openClassifiedInfo(const LLSD &params)
 	getProfilePanel()->openPanel(mPanelClassifiedInfo, params);
 }
 
+void LLPanelPicks::openClassifiedEdit(const LLSD& params)
+{
+	LLUUID classified_id = params["classified_id"].asUUID();;
+	llinfos << "opening classified " << classified_id << " for edit" << llendl;
+	editClassified(classified_id);
+}
+
 void LLPanelPicks::showAccordion(const std::string& name, bool show)
 {
 	LLAccordionCtrlTab* tab = getChild<LLAccordionCtrlTab>(name);
@@ -1022,6 +1036,29 @@ void LLPanelPicks::onPanelClassifiedEdit()
 	llassert(c_item);
 	if (!c_item)
 	{
+		return;
+	}
+	editClassified(c_item->getClassifiedId());
+}
+
+void LLPanelPicks::editClassified(const LLUUID&  classified_id)
+{
+	// HACK - find item by classified id.  Should be a better way.
+	std::vector<LLPanel*> items;
+	mClassifiedsList->getItems(items);
+	LLClassifiedItem* c_item = NULL;
+	for(std::vector<LLPanel*>::iterator it = items.begin(); it != items.end(); ++it)
+	{
+		LLClassifiedItem *test_item = dynamic_cast<LLClassifiedItem*>(*it);
+		if (test_item && test_item->getClassifiedId() == classified_id)
+		{
+			c_item = test_item;
+			break;
+		}
+	}
+	if (!c_item)
+	{
+		llwarns << "item not found for classified_id " << classified_id << llendl;
 		return;
 	}
 

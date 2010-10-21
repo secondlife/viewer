@@ -108,6 +108,7 @@ private:
 	void onPanelClassifiedClose(LLPanelClassifiedInfo* panel);
 	void onPanelPickEdit();
 	void onPanelClassifiedEdit();
+	void editClassified(const LLUUID&  classified_id);
 	void onClickMenuEdit();
 
 	bool onEnableMenuItem(const LLSD& user_data);
@@ -118,6 +119,7 @@ private:
 	void openPickInfo();
 	void openClassifiedInfo();
 	void openClassifiedInfo(const LLSD& params);
+	void openClassifiedEdit(const LLSD& params);
 	friend class LLPanelProfile;
 
 	void showAccordion(const std::string& name, bool show);
