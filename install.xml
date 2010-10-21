@@ -1088,6 +1088,13 @@ anguage Infrstructure (CLI) international standard</string>
         <string>lgpl</string>
         <key>packages</key>
         <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>bba9a4dd04fda1b263f34448a044783b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-windows-20101015.tar.bz2</uri>
+          </map>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
