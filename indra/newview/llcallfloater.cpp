@@ -45,6 +45,7 @@
 #include "llspeakers.h"
 #include "lltextutil.h"
 #include "lltransientfloatermgr.h"
+#include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
