@@ -30,7 +30,7 @@
 
 class LLVoiceCallAvatarHandler : public LLCommandHandler
 {
-public:
+public: 
 	// requires trusted browser to trigger
 	LLVoiceCallAvatarHandler() : LLCommandHandler("voicecallavatar", UNTRUSTED_THROTTLE) 
 	{ 

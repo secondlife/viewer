@@ -108,6 +108,7 @@ public:
 	void			teleport();
 	void			onChangeMaturity();
 	
+	
 	//Slapp instigated avatar tracking
 	void			avatarTrackFromSlapp( const LLUUID& id );
 

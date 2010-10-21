@@ -155,7 +155,7 @@ public:
 			return false;
 		}
 		
-		LLFloaterWorldMap::getInstance()->avatarTrackFromSlapp( id  );
+		LLFloaterWorldMap::getInstance()->avatarTrackFromSlapp( id  ); 
 		LLFloaterReg::showInstance( "world_map", "center" );
 		
 		return true;

@@ -1,6 +1,6 @@
 /** 
  * @file llshareavatarhandler.cpp
- * @brief slapp to handle avatar to avatar voice call.
+ * @brief slapp to handle sharing with an avatar
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,12 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llcommandhandler.h"
 #include "llavataractions.h"
 
 class LLShareWithAvatarHandler : public LLCommandHandler
 {
-public:
+public: 
 	// requires trusted browser to trigger
 	LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
 	{ 
