@@ -32,8 +32,8 @@
 		Luogo di partenza:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_box.item label="Ultimo luogo visitato" name="MyLastLocation" tool_tip="Vai automaticamente all&apos;ultimo luogo visitato quando effettui l'accesso."/>
-		<combo_box.item label="Casa mia" name="MyHome" tool_tip="Vai automaticamente a casa quando effettui l'accesso"/>
+		<combo_box.item label="Ultimo luogo visitato" name="MyLastLocation" tool_tip="Vai automaticamente all&apos;ultimo luogo visitato quando effettui l&apos;accesso."/>
+		<combo_box.item label="Casa mia" name="MyHome" tool_tip="Vai automaticamente a casa quando effettui l&apos;accesso"/>
 	</combo_box>
 	<check_box initial_value="true" label="Mostra con il login" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">

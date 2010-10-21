@@ -54,6 +54,7 @@ class LLScrollListCtrl;
 class LLToggleableMenu;
 class LLFilterEditor;
 class LLFilteredWearableListManager;
+class LLMenuButton;
 class LLMenuGL;
 class LLFindNonLinksByMask;
 class LLFindWearablesOfType;
@@ -186,8 +187,6 @@ public:
 									  std::string& tooltip_msg);
 
 private:
-
-	void onGearButtonClick(LLUICtrl* clicked_button);
 	void onAddMoreButtonClicked();
 	void showFilteredWearablesListView(LLWearableType::EType type);
 	void onOutfitChanging(bool started);
@@ -238,8 +237,8 @@ private:
 	LLMenuGL*			mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
-
-
+	LLMenuButton*		mWearablesGearMenuBtn;
+	LLMenuButton*		mGearMenuBtn;
 
 };
 

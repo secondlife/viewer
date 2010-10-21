@@ -37,6 +37,7 @@
 
 #include "boost/shared_ptr.hpp"
 
+class LLAvatarName;
 class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
@@ -202,6 +203,7 @@ private:
 
 	private:
 		static const S32 CHICLET_HPAD = 10;
+		void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 		void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
 		void onClosePanel();
 	public:

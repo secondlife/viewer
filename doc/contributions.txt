@@ -62,6 +62,7 @@ Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
 	SNOW-522
+	SNOW-626
 	SNOW-756
 	SNOW-764
 	VWR-10001
@@ -202,6 +203,8 @@ Catherine Pfeffer
 Celierra Darling
 	VWR-1274
 	VWR-6975
+Cypren Christenson
+	STORM-417
 Dale Glass
 	VWR-120
 	VWR-560
@@ -381,6 +384,8 @@ Malwina Dollinger
 	CT-138
 march Korda
 	SVC-1020
+Marine Kelley
+    STORM-281
 Matthew Dowd
 	VWR-1344
 	VWR-1651
@@ -529,6 +534,7 @@ Pf Shan
 	CT-230
 	CT-231
 	CT-321
+	SNOW-422
 princess niven
 	VWR-5733
 	CT-85
@@ -643,6 +649,7 @@ Strife Onizuka
 	VWR-183
 	VWR-2265
 	VWR-4111
+	SNOW-691
 Tayra Dagostino
 	SNOW-517
 	SNOW-543

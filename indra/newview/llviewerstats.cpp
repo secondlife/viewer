@@ -847,6 +847,9 @@ void send_stats()
 
 	llinfos << "Misc Stats: int_1: " << misc["int_1"] << " int_2: " << misc["int_2"] << llendl;
 	llinfos << "Misc Stats: string_1: " << misc["string_1"] << " string_2: " << misc["string_2"] << llendl;
+
+	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
+	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
 	
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());

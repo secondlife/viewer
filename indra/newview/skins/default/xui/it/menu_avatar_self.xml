@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="Siedi" name="Sit Down Here"/>
 	<menu_item_call label="Alzati" name="Stand Up"/>
 	<context_menu label="Togli" name="Take Off &gt;">
 		<context_menu label="Abiti" name="Clothes &gt;">

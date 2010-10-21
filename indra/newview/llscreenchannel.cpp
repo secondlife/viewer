@@ -253,8 +253,8 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
-		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToasts, this));
-		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToasts, this));
+		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToast, this, new_toast_elem.toast));
+		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToast, this, new_toast_elem.toast));
 	}
 	
 	if(show_toast)
@@ -339,7 +339,6 @@ void LLScreenChannel::deleteToast(LLToast* toast)
 	if(mHoveredToast == toast)
 	{
 		mHoveredToast  = NULL;
-		startFadingToasts();
 	}
 
 	// close the toast
@@ -698,38 +697,23 @@ void LLScreenChannel::closeStartUpToast()
 	}
 }
 
-void LLNotificationsUI::LLScreenChannel::stopFadingToasts()
+void LLNotificationsUI::LLScreenChannel::stopFadingToast(LLToast* toast)
 {
-	if (!mToastList.size()) return;
+	if (!toast || toast != mHoveredToast) return;
 
-	if (!mHoveredToast) return;
-
-	std::vector<ToastElem>::iterator it = mToastList.begin();
-	while (it != mToastList.end())
-	{
-		ToastElem& elem = *it;
-		elem.toast->stopFading();
-		++it;
-	}
+	// Pause fade timer of the hovered toast.
+	toast->stopFading();
 }
 
-void LLNotificationsUI::LLScreenChannel::startFadingToasts()
+void LLNotificationsUI::LLScreenChannel::startFadingToast(LLToast* toast)
 {
-	if (!mToastList.size()) return;
-
-	//because onMouseLeave is processed after onMouseEnter
-	if (isHovering()) return;
-
-	std::vector<ToastElem>::iterator it = mToastList.begin();
-	while (it != mToastList.end())
+	if (!toast || toast == mHoveredToast)
 	{
-		ToastElem& elem = *it;
-		if (elem.toast->getVisible())
-		{
-			elem.toast->startFading();
-		}
-		++it;
+		return;
 	}
+
+	// Reset its fade timer.
+	toast->startFading();
 }
 
 //--------------------------------------------------------------------------
