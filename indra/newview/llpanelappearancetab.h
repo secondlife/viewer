@@ -39,8 +39,6 @@ public:
 
 	virtual bool isActionEnabled(const LLSD& userdata) = 0;
 
-	virtual void showGearMenu(LLView* spawning_view) = 0;
-
 	virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
 
 	static const std::string& getFilterSubString() { return sFilterSubString; }
