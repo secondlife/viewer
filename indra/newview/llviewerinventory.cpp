@@ -212,36 +212,6 @@ public:
 };
 LLInventoryHandler gInventoryHandler;
 
-//prep# share
-class LLShareWithAvatarHandler : public LLCommandHandler
-{
-public:
-	// requires trusted browser to trigger
-	LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
-	{ 
-	}
-	
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		//Make sure we have some parameters
-		if (params.size() == 0)
-		{
-			return false;
-		}
-		
-		//Get the ID
-		LLUUID id;
-		if (!id.set( params[0], FALSE ))
-		{
-			return false;
-		}
-		
-		//instigate share with this avatar
-		LLAvatarActions::share( id );		
-		return true;
-	}
-};
-LLShareWithAvatarHandler gShareWithAvatar;
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem

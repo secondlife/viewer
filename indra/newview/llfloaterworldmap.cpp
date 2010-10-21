@@ -72,8 +72,6 @@
 #include "llweb.h"
 #include "llslider.h"
 #include "message.h"
-#include "llviewerobjectlist.h"
-#include "llvoicechannel.h"
 #include "llwindow.h"			// copyTextToClipboard()
 
 //---------------------------------------------------------------------------
@@ -133,7 +131,6 @@ public:
 };
 LLWorldMapHandler gWorldMapHandler;
 
-//prep#
 // SocialMap handler secondlife:///app/maptrackavatar/id
 class LLMapTrackAvatarHandler : public LLCommandHandler
 {
@@ -167,38 +164,6 @@ public:
 LLMapTrackAvatarHandler gMapTrackAvatar;
 
 LLFloaterWorldMap* gFloaterWorldMap = NULL;
-
-//prep# call
-class LLSocialCallHandler : public LLCommandHandler
-{
-public:
-	// requires trusted browser to trigger
-	LLSocialCallHandler() : LLCommandHandler("socialcallhandler", UNTRUSTED_THROTTLE) 
-	{ 
-	}
-	
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		//Make sure we have some parameters
-		if (params.size() == 0)
-		{
-			return false;
-		}
-		
-		//Get the ID
-		LLUUID id;
-		if (!id.set( params[0], FALSE ))
-		{
-			return false;
-		}
-		
-		//instigate call with this avatar
-		LLVoiceClient::getInstance()->callUser( id );
-		
-		return true;
-	}
-};
-LLSocialCallHandler gSocialCallHandler;
 
 class LLMapInventoryObserver : public LLInventoryObserver
 {
@@ -1188,7 +1153,7 @@ void LLFloaterWorldMap::onAvatarComboCommit()
 		mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 	}
 }
-//prep#
+
 void LLFloaterWorldMap::avatarTrackFromSlapp( const LLUUID& id )
 {
 	trackAvatar( id, "av" );		
