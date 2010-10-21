@@ -1154,7 +1154,7 @@ void LLFloaterWorldMap::onAvatarComboCommit()
 	}
 }
 
-void LLFloaterWorldMap::avatarTrackFromSlapp( const LLUUID& id )
+void LLFloaterWorldMap::avatarTrackFromSlapp( const LLUUID& id ) 
 {
 	trackAvatar( id, "av" );		
 	onShowTargetBtn();

@@ -25,6 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+#include "llcommandhandler.h"
 #include "llavataractions.h"
 
 class LLShareWithAvatarHandler : public LLCommandHandler

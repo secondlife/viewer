@@ -110,7 +110,7 @@ public:
 	
 	
 	//Slapp instigated avatar tracking
-	void			avatarTrackFromSlapp( const LLUUID& id );
+	void			avatarTrackFromSlapp( const LLUUID& id ); 
 
 protected:	
 	void			onGoHome();

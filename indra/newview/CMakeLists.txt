@@ -405,7 +405,7 @@ set(viewer_SOURCE_FILES
     llsidepanelinventorysubpanel.cpp
     llsidepaneliteminfo.cpp
     llsidepaneltaskinfo.cpp
-    llsidetray.cpp 
+    llsidetray.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
