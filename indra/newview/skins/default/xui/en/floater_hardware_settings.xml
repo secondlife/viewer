@@ -22,7 +22,7 @@
     <check_box
      control_name="RenderAnisotropic"
      height="16"
-     label="Anisotropic Filtering (slower when enabled, requires viewer restart)"
+     label="Anisotropic Filtering (slower when enabled)"
      layout="topleft"
      left_pad="10"
      name="ani"
