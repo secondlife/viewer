@@ -46,8 +46,16 @@
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
-		<button label="Teletransportar" name="teleport_btn"/>
-		<button label="Mapa" name="show_on_map_btn"/>
-		<button label="Editar" name="edit_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Teletransportar" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Mapa" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Editar" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

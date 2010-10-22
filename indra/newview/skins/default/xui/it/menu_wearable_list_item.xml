@@ -9,6 +9,6 @@
 	<context_menu label="Attacca a HUD" name="wearable_attach_to_hud"/>
 	<menu_item_call label="Togli" name="take_off"/>
 	<menu_item_call label="Modifica" name="edit"/>
-	<menu_item_call label="Profilo dell&apos;oggetto" name="object_profile"/>
+	<menu_item_call label="Profilo articolo" name="object_profile"/>
 	<menu_item_call label="Mostra originale" name="show_original"/>
 </context_menu>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <inspector name="inspector"
+           max_width="300"
            bg_opaque_color="DkGray_66"
            background_visible="true"
            bg_opaque_image="Inspector_Hover"

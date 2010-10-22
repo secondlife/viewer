@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu name="Gear Menu">
+	<menu_item_call label="Usiądź tutaj" name="sit_down_here"/>
 	<menu_item_call label="Wstań" name="stand_up"/>
 	<menu_item_call label="Zmień strój" name="change_outfit"/>
 	<menu_item_call label="Mój profil" name="my_profile"/>

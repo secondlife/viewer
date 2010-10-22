@@ -108,6 +108,9 @@
 		<action description="Allow &apos;Set Home to Here&apos; on group land"
 		     longdescription="Members in a Role with this Ability can use World menu &gt; Landmarks &gt; Set Home to Here on a parcel deeded to this group."
 		     name="land allow set home" value="28" />
+		<action description="Allow &apos;Event Hosting&apos; on group land"
+		     longdescription="Members in a Role with this Ability can select group owned parcels as venus when hosting an event."
+		     name="land allow host event" value="41" />			 
 	</action_set>
 	<action_set
 	     description="These Abilities include powers to allow or restrict access to group-owned parcels, including freezing and ejecting Residents."

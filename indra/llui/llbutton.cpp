@@ -499,7 +499,7 @@ void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
 
 	if (isInEnabledChain())
 		mNeedsHighlight = TRUE;
-	}
+}
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {

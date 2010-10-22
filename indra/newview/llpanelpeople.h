@@ -32,10 +32,11 @@
 #include "llcallingcard.h" // for avatar tracker
 #include "llvoiceclient.h"
 
-class LLFilterEditor;
-class LLTabContainer;
 class LLAvatarList;
+class LLAvatarName;
+class LLFilterEditor;
 class LLGroupList;
+class LLTabContainer;
 
 class LLPanelPeople 
 	: public LLPanel
@@ -122,9 +123,7 @@ private:
 	bool					onNearbyViewSortMenuItemCheck(const LLSD& userdata);
 
 	// misc callbacks
-	static void				onAvatarPicked(
-								const std::vector<std::string>& names,
-								const uuid_vec_t& ids);
+	static void				onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 
 	void					onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 

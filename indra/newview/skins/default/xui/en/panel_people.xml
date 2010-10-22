@@ -81,7 +81,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      width="317">
      	<panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -155,7 +155,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -372,7 +372,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -457,7 +457,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"

@@ -808,6 +808,10 @@ For at få adgang til voksen regioner, skal beboere være alders-checket, enten 
 	<notification name="ConfirmQuit">
 		<usetemplate ignoretext="Bekræft før jeg afslutter" name="okcancelignore" notext="Afslut ikke" yestext="Quit"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Bekræft før sletning af genstande" name="okcancelignore" notext="Annullér" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Benyt dette værktøj til at rapportere krænkninger af [http://secondlife.com/corporate/tos.php Terms of Service] og [http://secondlife.com/corporate/cs.php Community Standards].
 
@@ -1081,8 +1085,7 @@ Prøv at vælge mindre stykker land.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportér"/>
-			<button name="Description" text="Beskrivelse"/>
+			<button name="Details" text="Beskrivelse"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
@@ -1634,9 +1637,13 @@ Check venligst din netværks- og firewall setup.
 		( [EXISTENCE] sekunder i live )
 Avatar &apos;[NAME]&apos; forsvandt helt &quot;uploaded&quot;.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( [EXISTENCE] sekunder i live )
-You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
+Du uploadede en [RESOLUTION] &quot;bagt&quot; tekstur til &apos;[BODYREGION]&apos; efter [TIME] sekunder.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] sekunder i live )
+Du opdaterede en [RESOLUTION] &quot;bagt&quot; tekstur for &apos;[BODYREGION]&apos; efter [TIME] sekunder.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Er du sikker på at du vil forlade dette opkald?

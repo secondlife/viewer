@@ -4,6 +4,7 @@
 	<menu_item_call label="Zoom mellem" name="Zoom Medium"/>
 	<menu_item_call label="Zoom langt" name="Zoom Far"/>
 	<menu_item_check label="Rotér kort" name="Rotate Map"/>
+	<menu_item_check label="Auto centrér" name="Auto Center"/>
 	<menu_item_call label="Fjern ref." name="Stop Tracking"/>
 	<menu_item_call label="Verdenskort" name="World Map"/>
 </menu>

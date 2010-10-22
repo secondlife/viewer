@@ -36,7 +36,7 @@
 #include "v4color.h"
 #include "v3math.h"
 #include "v3dmath.h"
-#include "lldrawpool.h"
+#include "lldrawpool.h"		// TODO: eliminate, unused below
 #include <list>
 
 class LLViewerCamera;
@@ -71,6 +71,9 @@ public:
 	static void renderAllForSelect();
 	static void renderAllForTimer();
 
+	// Some objects may need to update when window shape changes
+	static void reshapeAll();
+
 	static void cleanupHUDObjects();
 
 	enum
@@ -91,7 +94,8 @@ public:
 		LL_HUD_EFFECT_EDIT,
 		LL_HUD_EFFECT_LOOKAT,
 		LL_HUD_EFFECT_POINTAT,
-		LL_HUD_EFFECT_VOICE_VISUALIZER	// Ventrella
+		LL_HUD_EFFECT_VOICE_VISUALIZER,	// Ventrella
+		LL_HUD_NAME_TAG
 	};
 protected:
 	static void sortObjects();
@@ -108,7 +112,6 @@ protected:
 	BOOL			mDead;
 	BOOL			mVisible;
 	LLVector3d		mPositionGlobal;
-	BOOL			mOnHUDAttachment;
 	LLPointer<LLViewerObject> mSourceObject;
 	LLPointer<LLViewerObject> mTargetObject;
 

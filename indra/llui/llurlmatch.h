@@ -28,11 +28,11 @@
 #ifndef LL_LLURLMATCH_H
 #define LL_LLURLMATCH_H
 
-#include "linden_common.h"
+//#include "linden_common.h"
 
 #include <string>
 #include <vector>
-#include "lluicolor.h"
+#include "llstyle.h"
 
 ///
 /// LLUrlMatch describes a single Url that was matched within a string by 
@@ -69,7 +69,7 @@ public:
 	std::string getIcon() const { return mIcon; }
 
 	/// Return the color to render the displayed text
-	LLUIColor getColor() const { return mColor; }
+	LLStyle::Params getStyle() const { return mStyle; }
 
 	/// Return the name of a XUI file containing the context menu items
 	std::string getMenuName() const { return mMenuName; }
@@ -77,21 +77,17 @@ public:
 	/// return the SL location that this Url describes, or "" if none.
 	std::string getLocation() const { return mLocation; }
 
-	/// is this a match for a URL that should not be hyperlinked?
-	bool isLinkDisabled() const { return mDisabledLink; }
-
 	/// Should this link text be underlined only when mouse is hovered over it?
 	bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
 
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
-				   const LLUIColor& color, const std::string &menu, 
-				   const std::string &location, bool disabled_link
-				   , const LLUUID& id, bool underline_on_hover_only  = false );
+				   const LLStyle::Params& style, const std::string &menu, 
+				   const std::string &location, const LLUUID& id,
+				   bool underline_on_hover_only = false );
 
-	const LLUUID& getID() const { return mID;}
-
+	const LLUUID& getID() const { return mID; }
 private:
 	U32         mStart;
 	U32         mEnd;
@@ -101,10 +97,8 @@ private:
 	std::string mIcon;
 	std::string mMenuName;
 	std::string mLocation;
-
 	LLUUID		mID;
-	LLUIColor	mColor;
-	bool        mDisabledLink;
+	LLStyle::Params mStyle;
 	bool		mUnderlineOnHoverOnly;
 };
 

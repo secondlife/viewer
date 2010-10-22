@@ -32,9 +32,17 @@
 				<accordion_tab name="tab_all" title="Todos"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="Opciones"/>
-				<button name="add_btn" tool_tip="Ofrecer amistad a un Residente"/>
-				<button name="del_btn" tool_tip="Quitar a la persona seleccionada de tu lista de amigos"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<button name="friends_viewsort_btn" tool_tip="Ver más opciones"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Ofrecer amistad a un Residente"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="trash_btn" tool_tip="Quitar a la persona seleccionada de tu lista de amigos"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="MIS GRUPOS" name="groups_panel">
@@ -52,13 +60,33 @@
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Perfil" name="view_profile_btn" tool_tip="Mostrar imágenes, grupos y otra información del Residente"/>
-		<button label="MI" name="im_btn" tool_tip="Abrir un mensaje instantáneo"/>
-		<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
-		<button label="Compartir" name="share_btn" tool_tip="Compartir un objeto del inventario"/>
-		<button label="Teleportar" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
-		<button label="Perfil del grupo" name="group_info_btn" tool_tip="Ver la información del grupo"/>
-		<button label="Chat de grupo" name="chat_btn" tool_tip="Abrir el chat"/>
-		<button label="Multiconferencia" name="group_call_btn" tool_tip="Llamar a este grupo"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Perfil" name="view_profile_btn" tool_tip="Mostrar imágenes, grupos y otra información del Residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="MI" name="im_btn" tool_tip="Abrir una sesión de mensajes instantáneos"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Compartir" name="share_btn" tool_tip="Compartir un objeto del inventario"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teleporte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Perfil del grupo" name="group_info_btn" tool_tip="Ver la información del grupo"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Chat de grupo" name="chat_btn" tool_tip="Abrir el chat"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Llamar al grupo" name="group_call_btn" tool_tip="Llama a este grupo"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

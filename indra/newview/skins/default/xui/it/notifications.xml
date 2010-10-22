@@ -1818,6 +1818,10 @@ Trasferisci gli elementi nell&apos;inventario?
 		Confermi di voler uscire?
 		<usetemplate ignoretext="Conferma prima di uscire" name="okcancelignore" notext="Non uscire" yestext="Esci"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Conferma prima di cancellare gli elementi" name="okcancelignore" notext="Annulla" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Usa questo strumento per segnalare violazioni a [http://secondlife.com/corporate/tos.php Terms of Service] e [http://secondlife.com/corporate/cs.php Community Standards].
 
@@ -2183,8 +2187,7 @@ Prova a selezionare una parte di terreno più piccola.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleport"/>
-			<button name="Description" text="Descrizione"/>
+			<button name="Details" text="Descrizione"/>
 			<button name="Cancel" text="Cancella"/>
 		</form>
 	</notification>
@@ -2747,9 +2750,13 @@ Ti consigliamo di controllare le tue impostazioni di rete e della firewall.
 		( presente da [EXISTENCE] secondi )
 Avatar &apos;[NAME]&apos; è partito completamente caricato.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		( in esistenza da [EXISTENCE] secondi )
-Effettuata l&apos;azione: [ACTION] di una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
+		( In esistenza da [EXISTENCE] secondi)
+Hai caricato una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( In esistenza da [EXISTENCE] secondi)
+Hai aggiornato localmente una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Sei sicuro di volere uscire dalla chiamata?
