@@ -4160,6 +4160,12 @@ class LLObjectEnableReturn : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+		if (!node)
+		{
+			// Do not enable if nothing selected
+			return false;
+		}
 #ifdef HACKED_GODLIKE_VIEWER
 		bool new_value = true;
 #else
