@@ -64,6 +64,7 @@ public:
 	// Save off / restore GL textures
 	static void destroyGL(BOOL save_state = TRUE);
 	static void restoreGL();
+	static void dirtyTexOptions();
 
 	// Sometimes called externally for textures not using LLImageGL (should go away...)	
 	static S32 updateBoundTexMem(const S32 mem, const S32 ncomponents, S32 category) ;
