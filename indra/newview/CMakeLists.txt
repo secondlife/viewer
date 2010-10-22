@@ -399,6 +399,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llshareavatarhandler.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
     llsidepanelinventorysubpanel.cpp
@@ -537,6 +538,7 @@ set(viewer_SOURCE_FILES
     llvoclouds.cpp
     llvograss.cpp
     llvoground.cpp
+    llvoicecallhandler.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp

@@ -59,6 +59,7 @@
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
 #include "llsidepanelappearance.h"
+#include "llavataractions.h"
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
@@ -210,6 +211,7 @@ public:
 	}
 };
 LLInventoryHandler gInventoryHandler;
+
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem
