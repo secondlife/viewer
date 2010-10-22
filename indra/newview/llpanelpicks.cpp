@@ -70,34 +70,99 @@ static const std::string CLASSIFIED_NAME("classified_name");
 
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
-class LLPickHandler : public LLCommandHandler
+class LLPickHandler : public LLCommandHandler,
+					  public LLAvatarPropertiesObserver
 {
 public:
+
+	std::set<LLUUID> mPickIds;
+	
 	// requires trusted browser to trigger
 	LLPickHandler() : LLCommandHandler("pick", UNTRUSTED_THROTTLE) { }
 
 	bool handle(const LLSD& params, const LLSD& query_map,
 		LLMediaCtrl* web)
 	{
-		if (params.size() < 1) return false;
-		const std::string verb = params[0];
-
-		if (verb == "create")
+		// handle app/classified/create urls first
+		if (params.size() == 1 && params[0].asString() == "create")
 		{
-			// Open "create pick" in side tab.
+			createPick();
+			return true;
 		}
-		else if (verb == "edit")
+
+		// then handle the general app/pick/{UUID}/{CMD} urls
+		if (params.size() < 2)
 		{
-			// How to identify the pick?
-			llwarns << "how to identify pick?" << llendl;
+			return false;
+		}
+
+		// get the ID for the pick_id
+		LLUUID pick_id;
+		if (!pick_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		// edit the pick in the side tray.
+		// need to ask the server for more info first though...
+		const std::string verb = params[1].asString();
+		if (verb == "edit")
+		{		
+			mPickIds.insert(pick_id);
+			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+			LLAvatarPropertiesProcessor::getInstance()->sendPickInfoRequest(gAgent.getID(),pick_id);
+			return true;
 		}
 		else
 		{
 			llwarns << "unknown verb " << verb << llendl;
 			return false;
 		}
-			
-		return true;
+	}
+
+	void createPick()
+	{
+		LLSD params;
+		params["id"] = gAgent.getID();
+		params["open_tab_name"] = "panel_picks";
+		params["show_tab_panel"] = "create_pick";
+		LLSideTray::getInstance()->showPanel("panel_me", params);
+	}
+
+	void editPick(LLPickData* pick_info)
+	{
+		LLSD params;
+		params["open_tab_name"] = "panel_picks";
+		params["show_tab_panel"] = "edit_pick";
+		params["pick_id"] = pick_info->pick_id;
+		params["avatar_id"] = pick_info->creator_id;
+		params["snapshot_id"] = pick_info->snapshot_id;
+		params["pick_name"] = pick_info->name;
+		params["pick_desc"] = pick_info->desc;
+		
+		LLSideTray::getInstance()->showPanel("panel_me", params);
+	}
+	
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
+	{
+		if (APT_PICK_INFO != type)
+		{
+			return;
+		}
+
+		// is this the pick that we asked for?
+		LLPickData* pick_info = static_cast<LLPickData*>(data);
+		if (!pick_info || mPickIds.find(pick_info->pick_id) == mPickIds.end())
+		{
+			return;
+		}
+
+		// open the edit side tray for this pick
+		editPick(pick_info);
+
+		// remove our observer now that we're done
+		mPickIds.erase(pick_info->pick_id);
+		LLAvatarPropertiesProcessor::getInstance()->removeObserver(LLUUID(), this);
 	}
 };
 
@@ -356,7 +421,10 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				pick_value.insert(CLASSIFIED_ID, c_data.classified_id);
 				pick_value.insert(CLASSIFIED_NAME, c_data.name);
 
-				mClassifiedsList->addItem(c_item, pick_value);
+				if (!findClassifiedById(c_data.classified_id))
+				{
+					mClassifiedsList->addItem(c_item, pick_value);
+				}
 
 				c_item->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickClassifiedItem, this, _1));
 				c_item->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
@@ -1005,6 +1073,12 @@ void LLPanelPicks::createPickEditPanel()
 // 	getProfilePanel()->openPanel(mPanelPickInfo, params);
 // }
 
+void LLPanelPicks::openPickEdit(const LLSD& params)
+{
+	createPickEditPanel();
+	getProfilePanel()->openPanel(mPanelPickEdit, params);
+}
+
 void LLPanelPicks::onPanelPickEdit()
 {
 	LLSD selected_value = mPicksList->getSelectedValue();
@@ -1041,7 +1115,7 @@ void LLPanelPicks::onPanelClassifiedEdit()
 	editClassified(c_item->getClassifiedId());
 }
 
-void LLPanelPicks::editClassified(const LLUUID&  classified_id)
+LLClassifiedItem *LLPanelPicks::findClassifiedById(const LLUUID& classified_id)
 {
 	// HACK - find item by classified id.  Should be a better way.
 	std::vector<LLPanel*> items;
@@ -1056,6 +1130,12 @@ void LLPanelPicks::editClassified(const LLUUID&  classified_id)
 			break;
 		}
 	}
+	return c_item;
+}
+
+void LLPanelPicks::editClassified(const LLUUID&  classified_id)
+{
+	LLClassifiedItem* c_item = findClassifiedById(classified_id);
 	if (!c_item)
 	{
 		llwarns << "item not found for classified_id " << classified_id << llendl;

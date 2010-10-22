@@ -76,6 +76,7 @@ public:
 	// returns the selected pick item
 	LLPickItem* getSelectedPickItem();
 	LLClassifiedItem* getSelectedClassifiedItem();
+	LLClassifiedItem* findClassifiedById(const LLUUID& classified_id);
 
 	//*NOTE top down approch when panel toggling is done only by 
 	// parent panels failed to work (picks related code was in my profile panel)
@@ -106,6 +107,7 @@ private:
 	void onPanelPickSave(LLPanel* panel);
 	void onPanelClassifiedSave(LLPanelClassifiedEdit* panel);
 	void onPanelClassifiedClose(LLPanelClassifiedInfo* panel);
+	void openPickEdit(const LLSD& params);
 	void onPanelPickEdit();
 	void onPanelClassifiedEdit();
 	void editClassified(const LLUUID&  classified_id);
