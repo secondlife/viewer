@@ -874,7 +874,7 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	return (gSavedSettings.getBOOL("RenderUseFBO"));
+	return TRUE; //(gSavedSettings.getBOOL("RenderUseFBO"));
 }
 
 void LLPipeline::unloadShaders()

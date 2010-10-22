@@ -104,6 +104,8 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
+	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderUseFBO"));
+
 	/* Enable to reset fsaa value to disabled when feature is not available.
 	if (!gPipeline.canUseAntiAliasing())
 	{
@@ -130,7 +132,8 @@ BOOL LLFloaterHardwareSettings::postBuild()
 void LLFloaterHardwareSettings::apply()
 {
 	// Anisotropic rendering
-	BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
+	//Do nothing here -- this code is unreliable, and UI now tells users to restart for changes to take affect
+	/*BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
 	LLImageGL::sGlobalUseAnisotropic = getChild<LLUICtrl>("ani")->getValue();
 
 	U32 fsaa = (U32) getChild<LLUICtrl>("fsaa")->getValue().asInteger();
@@ -151,7 +154,7 @@ void LLFloaterHardwareSettings::apply()
 	else if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
 	{
 		gViewerWindow->restartDisplay(logged_in);
-	}
+	}*/
 
 	refresh();
 }
