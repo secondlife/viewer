@@ -847,23 +847,36 @@ class LLAdvancedCheckFeature : public view_listener_t
 void LLDestinationGuideToggle()
 {
 	LLView* destination_guide = gViewerWindow->getRootView()->getChildView("destination_guide_container");
-	if ( destination_guide )
+	LLView* avatar_picker = gViewerWindow->getRootView()->getChildView("avatar_picker_container");
+
+	if ( destination_guide->getVisible() )
 	{
-		if ( destination_guide->getVisible() )
-		{
-			destination_guide->setVisible( FALSE );
-		}
-		else
-		{
-			LLFirstUse::notUsingDestinationGuide(false);
-			destination_guide->setVisible( true );
-		}
+		destination_guide->setVisible( FALSE );
 	}
 	else
 	{
-		llwarns << "ERROR: unable to find destination guide container" << llendl;
+		LLFirstUse::notUsingDestinationGuide(false);
+		destination_guide->setVisible( true );
+		avatar_picker->setVisible( false );
 	}
 };
+
+void LLAvatarPickerToggle()
+{
+	LLView* avatar_picker = gViewerWindow->getRootView()->getChildView("avatar_picker_container");
+	LLView* destination_guide = gViewerWindow->getRootView()->getChildView("destination_guide_container");
+	if ( avatar_picker->getVisible() )
+	{
+		avatar_picker->setVisible( false );
+	}
+	else
+	{
+		LLFirstUse::notUsingAvatarPicker(false);
+		avatar_picker->setVisible( true );
+		destination_guide->setVisible( false );
+	}
+};
+
 
 //////////////////
 // INFO DISPLAY //
@@ -8297,4 +8310,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
 	commit.add("DestinationGuide.toggle", boost::bind(&LLDestinationGuideToggle));
+	commit.add("AvatarPicker.toggle", boost::bind(&LLAvatarPickerToggle));
 }
