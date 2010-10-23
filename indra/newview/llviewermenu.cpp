@@ -844,36 +844,30 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
-void LLDestinationGuideToggle()
+void LLDestinationAndAvatarShow(const LLSD& value)
 {
-	LLView* destination_guide = gViewerWindow->getRootView()->getChildView("destination_guide_container");
-	LLView* avatar_picker = gViewerWindow->getRootView()->getChildView("avatar_picker_container");
+	S32 panel_idx = value.isDefined() ? value.asInteger() : -1;
+	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
 
-	if ( destination_guide->getVisible() )
+	switch(panel_idx)
 	{
-		destination_guide->setVisible( FALSE );
-	}
-	else
-	{
-		LLFirstUse::notUsingDestinationGuide(false);
-		destination_guide->setVisible( true );
-		avatar_picker->setVisible( false );
-	}
-};
-
-void LLAvatarPickerToggle()
-{
-	LLView* avatar_picker = gViewerWindow->getRootView()->getChildView("avatar_picker_container");
-	LLView* destination_guide = gViewerWindow->getRootView()->getChildView("destination_guide_container");
-	if ( avatar_picker->getVisible() )
-	{
-		avatar_picker->setVisible( false );
-	}
-	else
-	{
-		LLFirstUse::notUsingAvatarPicker(false);
-		avatar_picker->setVisible( true );
-		destination_guide->setVisible( false );
+	case 0:
+		container->setVisible(true);
+		destinations->setVisible(true);
+		avatar_picker->setVisible(false);
+		break;
+	case 1:
+		container->setVisible(true);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(true);
+		break;
+	default:
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		break;
 	}
 };
 
@@ -8309,6 +8303,5 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
-	commit.add("DestinationGuide.toggle", boost::bind(&LLDestinationGuideToggle));
-	commit.add("AvatarPicker.toggle", boost::bind(&LLAvatarPickerToggle));
+	commit.add("DestinationAndAvatar.show", boost::bind(&LLDestinationAndAvatarShow, _2));
 }

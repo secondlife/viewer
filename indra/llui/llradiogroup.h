@@ -49,7 +49,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<bool>						has_border;
+		Optional<bool>						allow_deselect;
 		Multiple<ItemParams, AtLeast<1> >	items;
 		Params();
 	};
@@ -73,7 +73,6 @@ public:
 	void setIndexEnabled(S32 index, BOOL enabled);
 	// return the index value of the selected item
 	S32 getSelectedIndex() const { return mSelectedIndex; }
-	
 	// set the index value programatically
 	BOOL setSelectedIndex(S32 index, BOOL from_event = FALSE);
 
@@ -103,12 +102,13 @@ public:
 	/*virtual*/ BOOL	operateOnAll(EOperation op);
 
 private:
-	const LLFontGL* mFont;
-	S32 mSelectedIndex;
-	typedef std::vector<class LLRadioCtrl*> button_list_t;
-	button_list_t mRadioButtons;
+	const LLFontGL*		mFont;
+	S32					mSelectedIndex;
 
-	BOOL mHasBorder;
+	typedef std::vector<class LLRadioCtrl*> button_list_t;
+	button_list_t		mRadioButtons;
+
+	bool				mAllowDeselect;	// user can click on an already selected option to deselect it
 };
 
 #endif
