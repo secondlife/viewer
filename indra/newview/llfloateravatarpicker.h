@@ -31,6 +31,7 @@
 
 #include <vector>
 
+class LLAvatarName;
 class LLScrollListCtrl;
 
 class LLFloaterAvatarPicker : public LLFloater
@@ -40,7 +41,7 @@ public:
 	typedef validate_signal_t::slot_type validate_callback_t;
 
 	// The callback function will be called with an avatar name and UUID.
-	typedef boost::function<void (const std::vector<std::string>&, const uuid_vec_t&)> select_callback_t;
+	typedef boost::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
 	// Call this to select an avatar.	
 	static LLFloaterAvatarPicker* show(select_callback_t callback, 
 									   BOOL allow_multiple = FALSE,
@@ -54,6 +55,7 @@ public:
 	void setOkBtnEnableCb(validate_callback_t cb);
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
+	void processResponse(const LLUUID& query_id, const LLSD& content);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,

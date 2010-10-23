@@ -32,6 +32,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llmenubutton.h"
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
@@ -63,16 +64,7 @@ public:
 		llassert(mMenu);
 	}
 
-	void show(LLView* spawning_view)
-	{
-		if (!mMenu) return;
-
-		mMenu->buildDrawLabels();
-		mMenu->updateParent(LLMenuGL::sMenuContainer);
-		S32 menu_x = 0;
-		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
-		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
-	}
+	LLMenuGL* getMenu() { return mMenu; }
 
 private:
 
@@ -189,6 +181,10 @@ BOOL LLPanelWearing::postBuild()
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
 	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
 
+	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
+
+	menu_gear_btn->setMenu(mGearMenu->getMenu());
+
 	return TRUE;
 }
 
@@ -251,13 +247,6 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 	}
 
 	return false;
-}
-
-// virtual
-void LLPanelWearing::showGearMenu(LLView* spawning_view)
-{
-	if (!mGearMenu) return;
-	mGearMenu->show(spawning_view);
 }
 
 boost::signals2::connection LLPanelWearing::setSelectionChangeCallback(commit_callback_t cb)

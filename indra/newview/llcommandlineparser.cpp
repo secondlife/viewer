@@ -267,7 +267,11 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
     {
         clp.options(gOptionsDesc);
         clp.positional(gPositionalOptions);
-        clp.style(po::command_line_style::default_style 
+		// SNOW-626: Boost 1.42 erroneously added allow_guessing to the default style
+		// (see http://groups.google.com/group/boost-list/browse_thread/thread/545d7bf98ff9bb16?fwc=2&pli=1)
+		// Remove allow_guessing from the default style, because that is not allowed
+		// when we have options that are a prefix of other options (aka, --help and --helperuri).
+        clp.style((po::command_line_style::default_style & ~po::command_line_style::allow_guessing)
                   | po::command_line_style::allow_long_disguise);
 		if(mExtraParser)
 		{

@@ -167,7 +167,8 @@
      left_pad="0"
              name="Creator Name"
 		     top_delta="0"
-		     width="140">
+         use_ellipses="true" 
+		     width="225">
 	        Erica Linden
 	     </text>
 	    <text
@@ -191,7 +192,8 @@
 			    left_pad="0"
 			    name="Owner Name"
 			    top_delta="0"
-			    width="140">
+          use_ellipses="true" 
+			    width="225">
 			    Erica Linden
 	     </text>
 	    	    <text

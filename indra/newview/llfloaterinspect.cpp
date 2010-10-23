@@ -31,7 +31,7 @@
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llavataractions.h"
-#include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llselectmgr.h"
@@ -205,8 +205,12 @@ void LLFloaterInspect::refresh()
 		substitution["datetime"] = (S32) timestamp;
 		LLStringUtil::format (timeStr, substitution);
 
-		gCacheName->getFullName(obj->mPermissions->getOwner(), owner_name);
-		gCacheName->getFullName(obj->mPermissions->getCreator(), creator_name);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(obj->mPermissions->getOwner(), &av_name);
+		owner_name = av_name.getCompleteName();
+		LLAvatarNameCache::get(obj->mPermissions->getCreator(), &av_name);
+		creator_name = av_name.getCompleteName();
+		
 		row["id"] = obj->getObject()->getID();
 		row["columns"][0]["column"] = "object_name";
 		row["columns"][0]["type"] = "text";

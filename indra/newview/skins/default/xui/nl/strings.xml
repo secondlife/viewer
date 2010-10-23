@@ -665,7 +665,7 @@
 	<string name="xml_file">
 		XML bestand
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW bestand
 	</string>
 	<string name="compressed_image_files">

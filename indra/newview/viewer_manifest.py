@@ -271,6 +271,12 @@ class WindowsManifest(ViewerManifest):
 
             self.disable_manifest_check()
 
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
+
             # For textures
             if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")
@@ -314,12 +320,6 @@ class WindowsManifest(ViewerManifest):
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
-
-        try:
-            # FMOD for sound
-            self.path("fmod.dll")
-        except:
-            print "Skipping FMOD - not found"
 
         self.enable_no_crt_manifest_check()
         
@@ -955,6 +955,13 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
+
+class Linux_x86_64Manifest(LinuxManifest):
+    def construct(self):
+        super(Linux_x86_64Manifest, self).construct()
+
+        # support file for valgrind debug tool
+        self.path("secondlife-i686.supp")
 
 ################################################################
 

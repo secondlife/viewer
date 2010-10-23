@@ -28,6 +28,7 @@
 
 #include "llfloatergodtools.h"
 
+#include "llavatarnamecache.h"
 #include "llcoord.h"
 #include "llfontgl.h"
 #include "llframetimer.h"
@@ -1143,11 +1144,11 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	panelp->getChild<LLUICtrl>("target_avatar_name")->setValue(name);
 }
 
-void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelObjectTools::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];
-	getChild<LLUICtrl>("target_avatar_name")->setValue(names[0]);
+	getChild<LLUICtrl>("target_avatar_name")->setValue(names[0].getCompleteName());
 	refresh();
 }
 

@@ -46,6 +46,7 @@
 #endif
 
 #include "llares.h"
+#include "llavatarnamecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -118,7 +119,6 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
@@ -261,11 +261,10 @@ void apply_udp_blacklist(const std::string& csv);
 bool process_login_success_response();
 void transition_back_to_login_panel(const std::string& emsg);
 
-void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group)
+void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	LLNameListCtrl::refreshAll(id, firstname, lastname, is_group);
-	LLNameBox::refreshAll(id, firstname, lastname, is_group);
-	LLNameEditor::refreshAll(id, firstname, lastname, is_group);
+	LLNameBox::refreshAll(id, full_name, is_group);
+	LLNameEditor::refreshAll(id, full_name, is_group);
 	
 	// TODO: Actually be intelligent about the refresh.
 	// For now, just brute force refresh the dialogs.
@@ -1272,16 +1271,7 @@ bool idle_startup()
 
 		gXferManager->registerCallbacks(gMessageSystem);
 
-		if ( gCacheName == NULL )
-		{
-			gCacheName = new LLCacheName(gMessageSystem);
-			gCacheName->addObserver(&callback_cache_name);
-			gCacheName->LocalizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
-			gCacheName->LocalizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
-			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
-			// Load stored cache if possible
-            LLAppViewer::instance()->loadNameCache();
-		}
+		LLStartUp::initNameCache();
 
 		// update the voice settings *after* gCacheName initialization
 		// so that we can construct voice UI that relies on the name cache
@@ -1605,12 +1595,6 @@ bool idle_startup()
 			LLFloaterReg::showInstance("hud", LLSD(), FALSE);
 		}
 
-		LLSD event_categories = response["event_categories"];
-		if(event_categories.isDefined())
-		{
-			LLEventInfo::loadCategories(event_categories);
-		}
-
 		LLSD event_notifications = response["event_notifications"];
 		if(event_notifications.isDefined())
 		{
@@ -1622,7 +1606,6 @@ bool idle_startup()
 		{
 			LLClassifiedInfo::loadCategories(classified_categories);
 		}
-
 
 		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
@@ -2322,8 +2305,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
-
-	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLEventNotifier::processEventInfoReply);
+	
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2666,6 +2649,33 @@ void LLStartUp::fontInit()
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();
+}
+
+void LLStartUp::initNameCache()
+{
+	// Can be called multiple times
+	if ( gCacheName ) return;
+
+	gCacheName = new LLCacheName(gMessageSystem);
+	gCacheName->addObserver(&callback_cache_name);
+	gCacheName->localizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
+	gCacheName->localizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
+	gCacheName->localizeCacheName("none", LLTrans::getString("GroupNameNone"));
+	// Load stored cache if possible
+	LLAppViewer::instance()->loadNameCache();
+
+	// Start cache in not-running state until we figure out if we have
+	// capabilities for display name lookup
+	LLAvatarNameCache::initClass(false);
+	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
+}
+
+void LLStartUp::cleanupNameCache()
+{
+	LLAvatarNameCache::cleanupClass();
+
+	delete gCacheName;
+	gCacheName = NULL;
 }
 
 bool LLStartUp::dispatchURL()

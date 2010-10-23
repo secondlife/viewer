@@ -33,6 +33,7 @@ set(llcommon_SOURCE_FILES
     llapp.cpp
     llapr.cpp
     llassettype.cpp
+    llavatarname.cpp
     llbase32.cpp
     llbase64.cpp
     llcommon.cpp
@@ -116,6 +117,7 @@ set(llcommon_HEADER_FILES
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h
+    llavatarname.h
     llapp.h
     llapr.h
     llassettype.h
@@ -254,8 +256,15 @@ set_source_files_properties(${llcommon_HEADER_FILES}
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 if(LLCOMMON_LINK_SHARED)
-    add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
-    ll_stage_sharedlib(llcommon)
+  add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
+  if(NOT WORD_SIZE EQUAL 32)
+    if(WINDOWS)
+      add_definitions(/FIXED:NO)
+    else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+      add_definitions(-fPIC)
+    endif(WINDOWS)
+  endif(NOT WORD_SIZE EQUAL 32)
+  ll_stage_sharedlib(llcommon)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
