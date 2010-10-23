@@ -2,9 +2,17 @@
 <check_box font="SansSerifSmall"
            follows="left|top">
   <check_box.label_text name="checkbox label"
+                        left="20"
+                        bottom="3" 
+                        width="0"
+                        height="0"
                         text_color="LabelTextColor"
                         text_readonly_color="LabelDisabledColor"/>
   <check_box.check_button name="CheckboxCtrl Button"
+                          left="2"
+                          bottom="2"
+                          width="13"
+                          height="13" 
                           commit_on_return="false"
                           label=""
                           is_toggle="true"

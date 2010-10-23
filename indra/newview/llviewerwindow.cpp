@@ -1699,12 +1699,19 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
 
-	LLView* destination_guide = gViewerWindow->getRootView()->getChild<LLView>("destination_guide_container");
-	LLMediaCtrl* destinations = destination_guide->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (destinations)
 	{
-		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"));
+		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
 	}
+
+	if (avatar_picker)
+	{
+		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
+	}
+
 }
 
 // Destroy the UI
