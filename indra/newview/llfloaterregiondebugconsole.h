@@ -34,6 +34,8 @@
 #ifndef LL_LLFLOATERREGIONDEBUGCONSOLE_H
 #define LL_LLFLOATERREGIONDEBUGCONSOLE_H
 
+#include <boost/signals2.hpp>
+
 #include "llfloater.h"
 #include "llhttpclient.h"
 
@@ -43,6 +45,7 @@ class LLFloaterRegionDebugConsole : public LLFloater, public LLHTTPClient::Respo
 {
 public:
 	LLFloaterRegionDebugConsole(LLSD const & key);
+	virtual ~LLFloaterRegionDebugConsole();
 
 	// virtual
 	BOOL postBuild();
@@ -50,6 +53,11 @@ public:
 	void onInput(LLUICtrl* ctrl, const LLSD& param);
 
 	LLTextEditor * mOutput;
+
+ private:
+	void onReplyReceived(const std::string& output);
+
+	boost::signals2::connection mReplySignalConnection;
 };
 
 #endif // LL_LLFLOATERREGIONDEBUGCONSOLE_H
