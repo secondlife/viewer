@@ -47,7 +47,12 @@
 #include "llvolume.h"
 #include "llstl.h"
 #include "llsdserialize.h"
-#include "zlib/zlib.h"
+
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"
+#endif
 
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
