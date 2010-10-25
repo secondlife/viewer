@@ -13,7 +13,7 @@
  width="600">
 	<floater.string
 		name="loading_text">
-		Chargement...
+		Laden...
 	</floater.string>
     <floater.string
      name="done_text">

@@ -430,8 +430,9 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		}
 		else
 		{
-			// Legacy chat logs only wrote the legacy name, not the agent_id
-			gCacheName->getUUID(from, from_id);
+			// convert it to a legacy name if we have a complete name
+			std::string legacy_name = gCacheName->buildLegacyName(from);
+ 			gCacheName->getUUID(legacy_name, from_id);
 		}
 
 		std::string timestamp = msg[IM_TIME];
@@ -526,7 +527,16 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 
 void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
-	mHistoryFileName = av_name.mUsername;
+	if (av_name.mLegacyFirstName.empty())
+	{
+		// if mLegacyFirstName is empty it means display names is off and the 
+		// data came from the gCacheName, mDisplayName will be the legacy name
+		mHistoryFileName = LLCacheName::cleanFullName(av_name.mDisplayName);
+	}
+	else
+	{  
+		mHistoryFileName = LLCacheName::cleanFullName(av_name.getLegacyName());
+	}
 }
 
 void LLIMModel::LLIMSession::buildHistoryFileName()
@@ -736,8 +746,18 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-	{
-		LLLogChat::saveHistory(file_name, from, from_id, utf8_text);
+	{	
+		std::string from_name = from;
+
+		LLAvatarName av_name;
+		if (!from_id.isNull() && 
+			LLAvatarNameCache::get(from_id, &av_name) &&
+			!av_name.mIsDisplayNameDefault)
+		{	
+			from_name = av_name.getCompleteName();
+		}
+
+		LLLogChat::saveHistory(file_name, from_name, from_id, utf8_text);
 		return true;
 	}
 	else
@@ -1048,17 +1068,27 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		if( session == 0)//??? shouldn't really happen
 		{
 			LLRecentPeople::instance().add(other_participant_id);
+			return;
 		}
-		else
+		// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
+		//		(it can be also Group chat but it is checked above)
+		// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
+		// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
+		// Concrete participants will be added into this list once they sent message in chat.
+		if (IM_SESSION_INVITE == dialog) return;
+			
+		if (IM_SESSION_CONFERENCE_START == dialog) // outgoing ad-hoc session
 		{
-			// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
-			//		(it can be also Group chat but it is checked above)
-			// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
-			// Concrete participants will be added into this list once they sent message in chat.
-			if (IM_SESSION_INVITE == dialog) return;
-			// Add only online members to recent (EXT-8658)
-			addSpeakersToRecent(im_session_id);			
+			// Add only online members of conference to recent list (EXT-8658)
+			addSpeakersToRecent(im_session_id);
+		}
+		else // outgoing P2P session
+		{
+			// Add the recepient of the session.
+			if (!session->mInitialTargetIDs.empty())
+			{
+				LLRecentPeople::instance().add(*(session->mInitialTargetIDs.begin()));
+			}
 		}
 	}
 }

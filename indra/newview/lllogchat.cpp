@@ -26,18 +26,13 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lllogchat.h"
-
-// viewer includes
 #include "llagent.h"
 #include "llagentui.h"
+#include "lllogchat.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 
-// library includes
-#include "llchat.h"
 #include "llinstantmessage.h"
-#include "llsdserialize.h"
 #include "llsingleton.h" // for LLSingleton
 
 #include <boost/algorithm/string/trim.hpp>
@@ -65,7 +60,6 @@ const std::string IM_TIME("time");
 const std::string IM_TEXT("message");
 const std::string IM_FROM("from");
 const std::string IM_FROM_ID("from_id");
-const std::string IM_SOURCE_TYPE("source_type");
 
 const static std::string IM_SEPARATOR(": ");
 const static std::string NEW_LINE("\n");
@@ -93,7 +87,7 @@ const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+
  *  Regular expression suitable to match names like
  *  "You", "Second Life", "Igor ProductEngine", "Object", "Mega House"
  */
-const static boost::regex NAME_AND_TEXT("(You:|Second Life:|[^\\s:]+\\s*[:]{1}|\\S+\\s+[^\\s:]+[:]{1})?(\\s*)(.*)");
+const static boost::regex NAME_AND_TEXT("([^:]+[:]{1})?(\\s*)(.*)");
 
 //is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
 const static std::string NAME_TEXT_DIVIDER(": ");
@@ -190,8 +184,7 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 {
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
-	// new files are llsd notation format
-	filename += ".llsd";
+	filename += ".txt";
 	return filename;
 }
 
@@ -241,18 +234,6 @@ void LLLogChat::saveHistory(const std::string& filename,
 			    const LLUUID& from_id,
 			    const std::string& line)
 {
-	LLChat chat;
-	chat.mText = line;
-	chat.mFromName = from;
-	chat.mFromID = from_id;
-	// default to being from an agent
-	chat.mSourceType = CHAT_SOURCE_AGENT;
-	saveHistory(filename, chat);
-}
-
-//static
-void LLLogChat::saveHistory(const std::string& filename, const LLChat& chat)
-{
 	std::string tmp_filename = filename;
 	LLStringUtil::trim(tmp_filename);
 	if (tmp_filename.empty())
@@ -273,25 +254,87 @@ void LLLogChat::saveHistory(const std::string& filename, const LLChat& chat)
 	LLSD item;
 
 	if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-		 item[IM_TIME] = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
+		 item["time"] = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
 
-	item[IM_FROM_ID] = chat.mFromID;
-	item[IM_TEXT] = chat.mText;
-	item[IM_SOURCE_TYPE] = chat.mSourceType;
+	item["from_id"]	= from_id;
+	item["message"]	= line;
 
 	//adding "Second Life:" for all system messages to make chat log history parsing more reliable
-	if (chat.mFromName.empty() && chat.mFromID.isNull())
+	if (from.empty() && from_id.isNull())
 	{
-		item[IM_FROM] = SYSTEM_FROM; 
+		item["from"] = SYSTEM_FROM; 
 	}
 	else
 	{
-		item[IM_FROM] = chat.mFromName;
+		item["from"] = from;
 	}
 
-	file << LLSDOStreamer<LLSDNotationFormatter>(item) << std::endl;
+	file << LLChatLogFormatter(item) << std::endl;
 
 	file.close();
+}
+
+void LLLogChat::loadHistory(const std::string& filename, void (*callback)(ELogLineType, const LLSD&, void*), void* userdata)
+{
+	if(!filename.size())
+	{
+		llwarns << "Filename is Empty!" << llendl;
+		return ;
+	}
+        
+	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/
+	if (!fptr)
+	{
+		callback(LOG_EMPTY, LLSD(), userdata);
+		return;			//No previous conversation with this name.
+	}
+	else
+	{
+		char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
+		char *bptr;
+		S32 len;
+		bool firstline=TRUE;
+
+		if ( fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END) )		
+		{	//File is smaller than recall size.  Get it all.
+			firstline = FALSE;
+			if ( fseek(fptr, 0, SEEK_SET) )
+			{
+				fclose(fptr);
+				return;
+			}
+		}
+
+		while ( fgets(buffer, LOG_RECALL_SIZE, fptr)  && !feof(fptr) ) 
+		{
+			len = strlen(buffer) - 1;		/*Flawfinder: ignore*/
+			for ( bptr = (buffer + len); (*bptr == '\n' || *bptr == '\r') && bptr>buffer; bptr--)	*bptr='\0';
+			
+			if (!firstline)
+			{
+				LLSD item;
+				std::string line(buffer);
+				std::istringstream iss(line);
+				
+				if (!LLChatLogParser::parse(line, item))
+				{
+					item["message"]	= line;
+					callback(LOG_LINE, item, userdata);
+				}
+				else
+				{
+					callback(LOG_LLSD, item, userdata);
+				}
+			}
+			else
+			{
+				firstline = FALSE;
+			}
+		}
+		callback(LOG_END, LLSD(), userdata);
+		
+		fclose(fptr);
+	}
 }
 
 void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
@@ -367,24 +410,52 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 	fclose(fptr);
 }
 
-// static
-bool LLChatLogParser::parse(const std::string& raw, LLSD& im)
+//*TODO mark object's names in a special way so that they will be distinguishable form avatar name 
+//which are more strict by its nature (only firstname and secondname)
+//Example, an object's name can be writen like "Object <actual_object's_name>"
+void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
+{
+	if (!im.isMap())
+	{
+		llwarning("invalid LLSD type of an instant message", 0);
+		return;
+	}
+
+	if (im[IM_TIME].isDefined())
+{
+		std::string timestamp = im[IM_TIME].asString();
+		boost::trim(timestamp);
+		ostr << '[' << timestamp << ']' << TWO_SPACES;
+	}
+	
+	//*TODO mark object's names in a special way so that they will be distinguishable form avatar name 
+	//which are more strict by its nature (only firstname and secondname)
+	//Example, an object's name can be writen like "Object <actual_object's_name>"
+	if (im[IM_FROM].isDefined())
+	{
+		std::string from = im[IM_FROM].asString();
+		boost::trim(from);
+		if (from.size())
+		{
+			ostr << from << IM_SEPARATOR;
+		}
+	}
+
+	if (im[IM_TEXT].isDefined())
+	{
+		std::string im_text = im[IM_TEXT].asString();
+
+		//multilined text will be saved with prepended spaces
+		boost::replace_all(im_text, NEW_LINE, NEW_LINE_SPACE_PREFIX);
+		ostr << im_text;
+	}
+	}
+
+bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 {
 	if (!raw.length()) return false;
 	
 	im = LLSD::emptyMap();
-
-	// In Viewer 2.1 we added UUID to chat/IM logging so we can look up
-	// display names
-	if (raw[0] == '{')
-	{
-		// ...this is a viewer 2.1, new-style LLSD notation format log
-		std::istringstream raw_stream(raw);
-		LLPointer<LLSDParser> parser = new LLSDNotationParser();
-		S32 count = parser->parse(raw_stream, im, raw.length());
-		// expect several map items per parsed line
-		return (count != LLSDParser::PARSE_FAILURE);
-	}
 
 	//matching a timestamp
 	boost::match_results<std::string::const_iterator> matches;
