@@ -394,27 +394,27 @@
      left="280" 
      height="10"
      width="180">
-      Disable incoming notifications:
+      Enable Incoming Messages:
       </text>
     <check_box
-     control_name="DisableGroupToast"
-     name="DisableGroupToast"
+     control_name="EnableGroupToast"
+     name="EnableGroupToast"
      label="Group chats" 
      layout="topleft"
      top_delta="18" 
      left="295" 
      height="20"
-     tool_tip="Checking this will turn off Group Toasts poping up"
+     tool_tip="Checking this will turn on Group Messages popping up"
      width="400" />
     <check_box
-     control_name="DisableIMToast"
-     name="DisableIMToast"
+     control_name="EnableIMToast"
+     name="EnableIMToast"
      label="Im chats" 
      layout="topleft"
      top_delta="22" 
      left="295" 
      height="20"
-     tool_tip="Checking this will turn off IM Chat Toasts poping up"
+     tool_tip="Checking this will turn on IM Chat Messages popping up"
      width="400" />
     <check_box
      control_name="TranslateChat"
