@@ -4160,8 +4160,7 @@ class LLObjectEnableReturn : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-		if (!node)
+		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
 		{
 			// Do not enable if nothing selected
 			return false;
