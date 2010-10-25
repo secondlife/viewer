@@ -99,15 +99,22 @@ namespace
 		/*virtual*/
 		void error(U32 status, const std::string& reason)
 		{
-			mOutput->appendText(
-				UNABLE_TO_SEND_COMMAND + PROMPT,
-				false);
+			if (mOutput)
+			{
+				mOutput->appendText(
+					UNABLE_TO_SEND_COMMAND + PROMPT,
+					false);
+			}
 		}
 
 		/*virtual*/
 		void result(const LLSD& content)
 		{
-			mOutput->appendText(content.asString() + PROMPT, false);
+			if (mOutput)
+			{
+				mOutput->appendText(
+					content.asString() + PROMPT, false);
+			}
 		}
 
 		LLTextEditor * mOutput;
