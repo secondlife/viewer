@@ -215,6 +215,12 @@ bool LLUIColorTable::loadFromSettings()
 		result |= loadFromFilename(current_filename, mLoadedColors);
 	}
 
+	current_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors.xml");
+	if(current_filename != default_filename)
+	{
+		result |= loadFromFilename(current_filename, mLoadedColors);
+	}
+
 	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
 	loadFromFilename(user_filename, mUserSetColors);
 

@@ -206,14 +206,6 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SKIN,""));
-	if (res == -1)
-	{
-		if (errno != EEXIST)
-		{
-			llwarns << "Couldn't create LL_PATH_SKINS dir " << getExpandedFilename(LL_PATH_USER_SKIN,"") << llendl;
-		}
-	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 
