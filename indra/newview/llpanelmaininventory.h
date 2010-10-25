@@ -42,6 +42,7 @@ class LLTabContainer;
 class LLFloaterInventoryFinder;
 class LLMenuButton;
 class LLMenuGL;
+class LLToggleableMenu;
 class LLFloater;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,7 +144,7 @@ protected:
 	void setUploadCostIfNeeded();
 private:
 	LLDragAndDropButton*		mTrashButton;
-	LLMenuGL*					mMenuGearDefault;
+	LLToggleableMenu*			mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
 	LLMenuButton*				mGearMenuButton;
 

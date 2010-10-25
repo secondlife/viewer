@@ -28,6 +28,8 @@
 
 #include "llpanelwearing.h"
 
+#include "lltoggleablemenu.h"
+
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -59,12 +61,12 @@ public:
 
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
 
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_wearing_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(mMenu);
 	}
 
-	LLMenuGL* getMenu() { return mMenu; }
+	LLToggleableMenu* getMenu() { return mMenu; }
 
 private:
 
@@ -79,8 +81,8 @@ private:
 		}
 	}
 
-	LLMenuGL*		mMenu;
-	LLPanelWearing* mPanelWearing;
+	LLToggleableMenu*		mMenu;
+	LLPanelWearing* 		mPanelWearing;
 };
 
 //////////////////////////////////////////////////////////////////////////
