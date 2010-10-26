@@ -591,7 +591,7 @@
         max_val="4096"
         min_val="0"
         name="teleport_coordinate_z"
-        width="56" >
+        width="55" >
         <spinner.commit_callback
           function="WMap.Coordinates" />
       </spinner>
