@@ -857,11 +857,13 @@ void LLDestinationAndAvatarShow(const LLSD& value)
 		container->setVisible(true);
 		destinations->setVisible(true);
 		avatar_picker->setVisible(false);
+		LLFirstUse::notUsingDestinationGuide(false);
 		break;
 	case 1:
 		container->setVisible(true);
 		destinations->setVisible(false);
 		avatar_picker->setVisible(true);
+		LLFirstUse::notUsingAvatarPicker(false);
 		break;
 	default:
 		container->setVisible(false);
