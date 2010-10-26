@@ -28,6 +28,12 @@
 
 class LLUpdaterService
 {
+public:
+	class UsageError: public std::runtime_error
+	{
+		UsageError(const std::string& msg) : std::runtime_error(msg) {}
+	};
+
 	LLUpdaterService();
 	~LLUpdaterService();
 
@@ -37,10 +43,10 @@ class LLUpdaterService
 	void setChannel(const std::string& channel);
 	void setVersion(const std::string& version);
 	
-	void setUpdateCheckFrequency(unsigned int seconds);
+	void setUpdateCheckPeriod(unsigned int seconds);
 	
 	void startChecking();
 	void stopChecking();
-}
+};
 
 #endif LL_UPDATERSERVICE_H

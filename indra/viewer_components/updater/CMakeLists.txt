@@ -7,9 +7,13 @@ if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
 include(LLCommon)
+include(LLMessage)
+include(LLPlugin)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLMESSAGE_INCLUDE_DIRS}
+    ${LLPLUGIN_INCLUDE_DIRS}
     )
 
 set(updater_service_SOURCE_FILES
@@ -34,6 +38,8 @@ add_library(llupdaterservice
 
 target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLPLUGIN_LIBRARIES}
     )
 
 if(LL_TESTS)

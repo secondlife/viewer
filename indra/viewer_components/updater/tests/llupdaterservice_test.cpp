@@ -33,6 +33,28 @@
 //#define DEBUG_ON
 #include "../../../test/debug.h"
 
+#include "llevents.h"
+#include "llpluginprocessparent.h"
+
+/*****************************************************************************
+*   MOCK'd
+*****************************************************************************/
+LLPluginProcessParentOwner::~LLPluginProcessParentOwner() {}
+LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
+: mOwner(owner),
+  mIncomingQueueMutex(NULL)
+{
+}
+
+LLPluginProcessParent::~LLPluginProcessParent() {}
+LLPluginMessagePipeOwner::LLPluginMessagePipeOwner(){}
+LLPluginMessagePipeOwner::~LLPluginMessagePipeOwner(){}
+void LLPluginProcessParent::receiveMessageRaw(const std::string &message) {}
+int LLPluginMessagePipeOwner::socketError(int) { return 0; }
+void LLPluginProcessParent::setMessagePipe(LLPluginMessagePipe *message_pipe) {}
+void LLPluginMessagePipeOwner::setMessagePipe(class LLPluginMessagePipe *) {}
+LLPluginMessage::~LLPluginMessage() {}
+
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -47,13 +69,13 @@ namespace tut
 	};
 
     typedef test_group<llupdaterservice_data> llupdaterservice_group;
-    typedef llviewerlogin_group::object llupdaterservice_object;
+    typedef llupdaterservice_group::object llupdaterservice_object;
     llupdaterservice_group llupdaterservicegrp("LLUpdaterService");
 
     template<> template<>
-    void llupdateservice_object::test<1>()
+    void llupdaterservice_object::test<1>()
     {
         DEBUG;
-		ensure_equals("Dummy", "true", "true");
+		ensure_equals("Dummy", 0, 0);
 	}
 }
