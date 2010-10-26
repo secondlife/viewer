@@ -634,6 +634,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		{
 			addDeferredAttachments(mSampleBuffer);
 			mDeferredScreen.setSampleBuffer(&mSampleBuffer);
+			mEdgeMap.setSampleBuffer(&mSampleBuffer);
 		}
 
 		mScreen.setSampleBuffer(&mSampleBuffer);

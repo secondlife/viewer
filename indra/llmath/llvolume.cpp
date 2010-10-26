@@ -6139,6 +6139,14 @@ void LLVolumeFace::createBinormals()
 		LLVector2* tc = (LLVector2*) mTexCoords;
 		LLVector4a* binorm = (LLVector4a*) mBinormals;
 
+		LLVector4a* end = mBinormals+mNumVertices;
+		while (binorm < end)
+		{
+			(*binorm++).clear();
+		}
+
+		binorm = mBinormals;
+
 		for (U32 i = 0; i < mNumIndices/3; i++) 
 		{	//for each triangle
 			const U16& i0 = mIndices[i*3+0];
