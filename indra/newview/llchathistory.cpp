@@ -54,6 +54,7 @@
 #include "llviewertexteditor.h"
 #include "llworld.h"
 #include "lluiconstants.h"
+#include "llstring.h"
 
 #include "llviewercontrol.h"
 
@@ -260,7 +261,7 @@ public:
 		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull())
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
-		}
+		}  
 
 		mUserNameFont = style_params.font();
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
@@ -268,14 +269,14 @@ public:
 		user_name->setColor(style_params.color());
 
 		if (chat.mFromName.empty()
-			|| mSourceType == CHAT_SOURCE_SYSTEM
-			|| mAvatarID.isNull())
+			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
 		else if (mSourceType == CHAT_SOURCE_AGENT
+				 && !mAvatarID.isNull()
 				 && chat.mChatStyle != CHAT_STYLE_HISTORY)
 		{
 			// ...from a normal user, lookup the name and fill in later.
@@ -288,7 +289,41 @@ public:
 			LLAvatarNameCache::get(mAvatarID,
 				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
 		}
-		else {
+		else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
+				 mSourceType == CHAT_SOURCE_AGENT)
+		{
+			//if it's an avatar name with a username add formatting
+			S32 username_start = chat.mFromName.rfind(" (");
+			S32 username_end = chat.mFromName.rfind(')');
+			
+			if (username_start != std::string::npos &&
+				username_end == (chat.mFromName.length() - 1))
+			{
+				mFrom = chat.mFromName.substr(0, username_start);
+				user_name->setValue(mFrom);
+
+				if (gSavedSettings.getBOOL("NameTagShowUsernames"))
+				{
+					std::string username = chat.mFromName.substr(username_start + 2);
+					username = username.substr(0, username.length() - 1);
+					LLStyle::Params style_params_name;
+					LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+					style_params_name.color(userNameColor);
+					style_params_name.font.name("SansSerifSmall");
+					style_params_name.font.style("NORMAL");
+					style_params_name.readonly_color(userNameColor);
+					user_name->appendText("  - " + username, FALSE, style_params_name);
+				}
+			}
+			else
+			{
+				mFrom = chat.mFromName;
+				user_name->setValue(mFrom);
+				updateMinUserNameWidth();
+			}
+		}
+		else
+		{
 			// ...from an object, just use name as given
 			mFrom = chat.mFromName;
 			user_name->setValue(mFrom);
@@ -367,7 +402,9 @@ public:
 		user_name->setValue( LLSD(av_name.mDisplayName ) );
 		user_name->setToolTip( av_name.mUsername );
 
-		if (gSavedSettings.getBOOL("NameTagShowUsernames") && LLAvatarNameCache::useDisplayNames())
+		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
+			LLAvatarNameCache::useDisplayNames() &&
+			!av_name.mIsDisplayNameDefault)
 		{
 			LLStyle::Params style_params_name;
 			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");

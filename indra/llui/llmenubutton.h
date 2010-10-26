@@ -29,7 +29,7 @@
 
 #include "llbutton.h"
 
-class LLMenuGL;
+class LLToggleableMenu;
 
 class LLMenuButton
 : public LLButton
@@ -52,14 +52,13 @@ public:
 	
 	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
 
-	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
 
 	void hideMenu();
 
-	LLMenuGL* getMenu() { return mMenu; }
-	void setMenu(LLMenuGL* menu, EMenuPosition position = MP_TOP_LEFT);
+	LLToggleableMenu* getMenu();
+	void setMenu(LLToggleableMenu* menu, EMenuPosition position = MP_TOP_LEFT);
 
 	void setMenuPosition(EMenuPosition position) { mMenuPosition = position; }
 
@@ -70,12 +69,14 @@ protected:
 	void toggleMenu();
 	void updateMenuOrigin();
 
+	void onMenuVisibilityChange(const LLSD& param);
+
 private:
-	LLMenuGL*		mMenu;
-	bool 			mMenuVisibleLastFrame;
-	EMenuPosition	mMenuPosition;
-	S32				mX;
-	S32				mY;
+	LLHandle<LLView>		mMenuHandle;
+	bool					mIsMenuShown;
+	EMenuPosition			mMenuPosition;
+	S32						mX;
+	S32						mY;
 };
 
 

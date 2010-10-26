@@ -41,6 +41,10 @@ protected:
 	LLToggleableMenu(const Params&);
 	friend class LLUICtrlFactory;
 public:
+	~LLToggleableMenu();
+
+	boost::signals2::connection setVisibilityChangeCallback( const commit_signal_t::slot_type& cb );
+
 	virtual void handleVisibilityChange (BOOL curVisibilityIn);
 
 	const LLRect& getButtonRect() const { return mButtonRect; }
@@ -57,6 +61,7 @@ public:
 protected:
 	bool mClosedByButtonClick;
 	LLRect mButtonRect;
+	commit_signal_t*	mVisibilityChangeSignal;
 };
 
 #endif // LL_LLTOGGLEABLEMENU_H
