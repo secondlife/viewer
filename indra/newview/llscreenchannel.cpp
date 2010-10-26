@@ -369,7 +369,7 @@ void LLScreenChannel::loadStoredToastsToChannel()
 	for(it = mStoredToastList.begin(); it != mStoredToastList.end(); ++it)
 	{
 		(*it).toast->setIsHidden(false);
-		(*it).toast->resetTimer();
+		(*it).toast->startFading();
 		mToastList.push_back((*it));
 	}
 
@@ -394,7 +394,7 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	}
 
 	toast->setIsHidden(false);
-	toast->resetTimer();
+	toast->startFading();
 	mToastList.push_back((*it));
 
 	redrawToasts();
@@ -477,7 +477,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		toast->removeChild(old_panel);
 		delete old_panel;
 		toast->insertPanel(panel);
-		toast->resetTimer();
+		toast->startFading();
 		redrawToasts();
 	}
 }
@@ -588,7 +588,7 @@ void LLScreenChannel::showToastsBottom()
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
-			(*it).toast->stopTimer();
+			(*it).toast->stopFading();
 			(*it).toast->setVisible(FALSE);
 			mHiddenToastsNum++;
 		}
