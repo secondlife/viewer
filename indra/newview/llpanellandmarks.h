@@ -41,6 +41,7 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuButton;
 class LLMenuGL;
+class LLToggleableMenu;
 class LLInventoryPanel;
 class LLPlacesInventoryPanel;
 
@@ -157,8 +158,8 @@ private:
 	LLPlacesInventoryPanel*		mMyInventoryPanel;
 	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
 	LLMenuButton*				mGearButton;
-	LLMenuGL*					mGearLandmarkMenu;
-	LLMenuGL*					mGearFolderMenu;
+	LLToggleableMenu*			mGearLandmarkMenu;
+	LLToggleableMenu*			mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;

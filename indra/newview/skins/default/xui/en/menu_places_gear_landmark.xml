@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  bottom="806"
  layout="topleft"
  left="0"
@@ -174,4 +174,4 @@
          function="Places.LandmarksGear.Enable"
          parameter="create_pick" />
     </menu_item_call>
-</menu>
+</toggleable_menu>

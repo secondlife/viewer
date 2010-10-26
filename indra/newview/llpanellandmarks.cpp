@@ -51,6 +51,7 @@
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
 #include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
 
@@ -706,8 +707,8 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
-	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::showActionMenu, this, mMenuAdd, ADD_BUTTON_NAME));
@@ -726,7 +727,7 @@ void LLLandmarksPanel::updateListCommands()
 
 void LLLandmarksPanel::onActionsButtonClick()
 {
-	LLMenuGL* menu = mGearFolderMenu;
+	LLToggleableMenu* menu = mGearFolderMenu;
 
 	LLFolderViewItem* cur_item = NULL;
 	if(mCurrentSelectedList)
