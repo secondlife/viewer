@@ -5280,16 +5280,6 @@ void process_alert_core(const std::string& message, BOOL modal)
 mean_collision_list_t				gMeanCollisionList;
 time_t								gLastDisplayedTime = 0;
 
-void handle_show_mean_events(void *)
-{
-	if (gNoRender)
-	{
-		return;
-	}
-	LLFloaterReg::showInstance("bumps");
-	//LLFloaterBump::showInstance();
-}
-
 void mean_name_callback(const LLUUID &id, const std::string& first, const std::string& last, BOOL always_false)
 {
 	if (gNoRender)
@@ -6411,6 +6401,8 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
+	if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
+
 	std::string object_name;
 	std::string sim_name;
 	LLVector3 pos;
