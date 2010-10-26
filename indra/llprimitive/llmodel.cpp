@@ -1449,9 +1449,7 @@ LLSD LLModel::writeModel(
 		{
 			U32 size = decomp[i].size();
 			total += size;
-			// The valid range of sizes is actually 3-256 verts. We need this to fit into a U8,
-			// So we just subtract 1
-			hulls[i] = (U8) (size - 1);
+			hulls[i] = (U8) (size);
 
 			for (U32 j = 0; j < decomp[i].size(); ++j)
 			{
