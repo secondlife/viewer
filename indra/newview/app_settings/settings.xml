@@ -3855,6 +3855,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>	
+    <key>HostID</key>
+    <map>
+      <key>Comment</key>
+      <string>Machine identifier for hosted Second Life instances</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>HtmlHelpLastPage</key>
     <map>
       <key>Comment</key>
@@ -11983,6 +11994,7 @@
       <key>Comment</key>
       <string>Maximum texture width for user uploaded textures</string>
       <key>Persist</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
