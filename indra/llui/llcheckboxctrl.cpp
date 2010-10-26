@@ -177,8 +177,8 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 	btn_rect.setOriginAndSize(
 		btn_rect.mLeft,
 		btn_rect.mBottom,
-		llmax(btn_rect.mRight, label_rect.mRight - btn_rect.mLeft),
-		llmax( label_rect.getHeight(), btn_rect.mTop));
+		llmax(btn_rect.getWidth(), label_rect.mRight - btn_rect.mLeft),
+		llmax(label_rect.mTop - btn_rect.mBottom, btn_rect.getHeight()));
 	mButton->setShape(btn_rect);
 }
 
