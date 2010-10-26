@@ -409,7 +409,7 @@
     <check_box
      control_name="EnableIMToast"
      name="EnableIMToast"
-     label="Im chats" 
+     label="IM chats" 
      layout="topleft"
      top_delta="22" 
      left="295" 
