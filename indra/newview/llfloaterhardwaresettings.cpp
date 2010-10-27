@@ -104,6 +104,8 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
+	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderUseFBO"));
+
 	/* Enable to reset fsaa value to disabled when feature is not available.
 	if (!gPipeline.canUseAntiAliasing())
 	{
@@ -129,30 +131,6 @@ BOOL LLFloaterHardwareSettings::postBuild()
 
 void LLFloaterHardwareSettings::apply()
 {
-	// Anisotropic rendering
-	BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
-	LLImageGL::sGlobalUseAnisotropic = getChild<LLUICtrl>("ani")->getValue();
-
-	U32 fsaa = (U32) getChild<LLUICtrl>("fsaa")->getValue().asInteger();
-	U32 old_fsaa = gSavedSettings.getU32("RenderFSAASamples");
-
-	BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
-
-	if (old_fsaa != fsaa)
-	{
-		gSavedSettings.setU32("RenderFSAASamples", fsaa);
-		LLWindow* window = gViewerWindow->getWindow();
-		LLCoordScreen size;
-		window->getSize(&size);
-		gViewerWindow->changeDisplaySettings(size,
-											gSavedSettings.getBOOL("DisableVerticalSync"),
-											logged_in);
-	}
-	else if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
-	{
-		gViewerWindow->restartDisplay(logged_in);
-	}
-
 	refresh();
 }
 

@@ -158,6 +158,7 @@ void rotate_quat(LLQuaternion& rotation);
 
 void flush_glerror(); // Flush GL errors when we know we're handling them correctly.
 
+void log_glerror();
 void assert_glerror();
 
 void clear_glerror();

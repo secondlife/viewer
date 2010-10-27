@@ -1055,6 +1055,33 @@ void flush_glerror()
 	glGetError();
 }
 
+//this function outputs gl error to the log file, does not crash the code.
+void log_glerror()
+{
+	if (LL_UNLIKELY(!gGLManager.mInited))
+	{
+		return ;
+	}
+	//  Create or update texture to be used with this data 
+	GLenum error;
+	error = glGetError();
+	while (LL_UNLIKELY(error))
+	{
+		GLubyte const * gl_error_msg = gluErrorString(error);
+		if (NULL != gl_error_msg)
+		{
+			llwarns << "GL Error: " << error << " GL Error String: " << gl_error_msg << llendl ;			
+		}
+		else
+		{
+			// gluErrorString returns NULL for some extensions' error codes.
+			// you'll probably have to grep for the number in glext.h.
+			llwarns << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << llendl;
+		}
+		error = glGetError();
+	}
+}
+
 void do_assert_glerror()
 {
 	if (LL_UNLIKELY(!gGLManager.mInited))

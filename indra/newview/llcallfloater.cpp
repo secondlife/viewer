@@ -45,6 +45,7 @@
 #include "llspeakers.h"
 #include "lltextutil.h"
 #include "lltransientfloatermgr.h"
+#include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
@@ -335,8 +336,9 @@ void LLCallFloater::refreshParticipantList()
 	{
 		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
-		mParticipants->setSortOrder(LLParticipantList::E_SORT_BY_RECENT_SPEAKERS);
-
+		const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
+		mParticipants->setSortOrder(LLParticipantList::EParticipantSortOrder(speaker_sort_order));
+		
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
