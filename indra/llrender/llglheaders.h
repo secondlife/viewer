@@ -829,5 +829,15 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 
 #endif // LL_MESA / LL_WINDOWS / LL_DARWIN
 
+// Even when GL_ARB_depth_clamp is available in the driver, the (correct)
+// headers, and therefore GL_DEPTH_CLAMP might not be defined.
+// In that case GL_DEPTH_CLAMP_NV should be defined, but why not just
+// use the known numeric.
+//
+// To avoid #ifdef's in the code. Just define this here.
+#ifndef GL_DEPTH_CLAMP
+// Probably (still) called GL_DEPTH_CLAMP_NV.
+#define GL_DEPTH_CLAMP 0x864F
+#endif
 
 #endif // LL_LLGLHEADERS_H
