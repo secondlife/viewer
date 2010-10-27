@@ -774,7 +774,7 @@
 	<string name="xml_file">
 		Plik XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Plik RAW
 	</string>
 	<string name="compressed_image_files">
