@@ -1246,7 +1246,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("log_path_string")->setEnabled(FALSE);// LineEditor becomes readonly in this case.
 	getChildView("log_path_button")->setEnabled(TRUE);
-	
+	childEnable("logfile_name_datestamp");	
 	std::string display_email(email);
 	getChild<LLUICtrl>("email_address")->setValue(display_email);
 

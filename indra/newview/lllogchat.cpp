@@ -182,9 +182,25 @@ private:
 //static
 std::string LLLogChat::makeLogFileName(std::string filename)
 {
+    if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
+	{
+		time_t now;
+		time(&now);
+		char dbuffer[20];		/* Flawfinder: ignore */
+		if (filename == "chat")
+		{
+			strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&now));
+		}
+		else
+		{
+			strftime(dbuffer, 20, "-%Y-%m", localtime(&now));
+		}
+		filename += dbuffer;
+	}
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
 	filename += ".txt";
+	LL_INFOS("") << "Current:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	return filename;
 }
 
@@ -355,9 +371,21 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 		return ;
 	}
 
-	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");		/*Flawfinder: ignore*/
-	if (!fptr) return;	//No previous conversation with this name.
-
+	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
+	// LL_INFOS("") << "Current:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	if (!fptr)
+    {
+		fptr = LLFile::fopen(oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+        //LL_INFOS("") << "Old    :" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+        if (!fptr)
+        {
+			fptr =LLFile::fopen(ndsLogFileName(file_name), "r");/*Flawfinder:ignore*/
+            //LL_INFOS("") << "Orginal:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+            if (!fptr) return;      //No previous conversation with this name.
+        }
+	}
+ 
+    LL_INFOS("") << "Reading:" << file_name << LL_ENDL;
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 	char *bptr;
 	S32 len;
@@ -543,4 +571,32 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 
 	im[IM_TEXT] = name_and_text[IDX_TEXT];
 	return true;  //parsed name and message text, maybe have a timestamp too
+}
+std::string LLLogChat::oldLogFileName(std::string filename)
+{
+	time_t now;
+    time_t yesterday = time(&now) - 86400;
+	char dbuffer[20];		/* Flawfinder: ignore */
+	if (filename == "chat")
+	{
+		strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&yesterday));
+	}
+	else
+	{
+		strftime(dbuffer, 20, "-%Y-%m", localtime(&yesterday));
+	}
+	filename += dbuffer;
+	filename = cleanFileName(filename);
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
+	filename += ".txt";
+    //LL_INFOS("") << "Old    :" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	return filename;
+}
+std::string LLLogChat::ndsLogFileName(std::string filename)
+{
+    filename = cleanFileName(filename);
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
+	filename += ".txt";
+    //LL_INFOS("") << "Original:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	return filename;
 }
