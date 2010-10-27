@@ -209,13 +209,6 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	llassert(msg);
 	if (!msg) return;
 
-	LLHost host = msg->getSender();
-	if (host != gAgent.getRegionHost())
-	{
-		// update is for a different region than the one we're in
-		return;
-	}
-
 	//const S32 SIM_NAME_BUF = 256;
 	U32 region_flags;
 	U8 sim_access;
@@ -233,6 +226,8 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	S32 redirect_grid_y;
 	LLUUID cache_id;
 
+	LLHost host = msg->getSender();
+
 	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, sim_name);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, estate_id);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, parent_estate_id);
@@ -242,6 +237,15 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_ObjectBonusFactor, object_bonus_factor);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_BillableFactor, billable_factor);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_WaterHeight, water_height);
+
+	if (host != gAgent.getRegionHost())
+	{
+		// Update is for a different region than the one we're in.
+		// Just check for a waterheight change.
+		LLWorld::getInstance()->waterHeightRegionInfo(sim_name, water_height);
+		return;
+	}
+
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainRaiseLimit, terrain_raise_limit);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainLowerLimit, terrain_lower_limit);
 	msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_PricePerMeter, price_per_meter);

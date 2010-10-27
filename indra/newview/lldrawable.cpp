@@ -358,6 +358,7 @@ void LLDrawable::makeActive()
 	{
 		U32 pcode = mVObjp->getPCode();
 		if (pcode == LLViewerObject::LL_VO_WATER ||
+			pcode == LLViewerObject::LL_VO_VOID_WATER ||
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_HUD_PART_GROUP ||
