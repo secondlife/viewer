@@ -394,12 +394,12 @@
      left="280" 
      height="10"
      width="180">
-      Enable Incoming Messages:
+      Enable Incoming Chat popups:
       </text>
     <check_box
-     control_name="EnableGroupToast"
-     name="EnableGroupToast"
-     label="Group chats" 
+     control_name="EnableGroupChatPopups"
+     name="EnableGroupChatPopups"
+     label="Group Chats" 
      layout="topleft"
      top_delta="18" 
      left="295" 
@@ -407,9 +407,9 @@
      tool_tip="Checking this will turn on Group Messages popping up"
      width="400" />
     <check_box
-     control_name="EnableIMToast"
-     name="EnableIMToast"
-     label="IM chats" 
+     control_name="EnableIMChatPopups"
+     name="EnableIMChatPopups"
+     label="IM Chats" 
      layout="topleft"
      top_delta="22" 
      left="295" 

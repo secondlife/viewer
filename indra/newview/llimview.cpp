@@ -134,12 +134,12 @@ void toast_callback(const LLSD& msg){
 	// *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
 				msg["session_id"]);
-	if (!gSavedSettings.getBOOL("EnableGroupToast")
+	if (!gSavedSettings.getBOOL("EnableGroupChatPopups")
 			&& session->isGroupSessionType())
 	{
 		return;
 	}
-	if (!gSavedSettings.getBOOL("EnableIMToast")
+	if (!gSavedSettings.getBOOL("EnableIMChatPopups")
 			&& !session->isGroupSessionType())
 	{
 		return;

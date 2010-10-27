@@ -2567,10 +2567,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableGroupToast</key>
+    <key>EnableGroupChatPopups</key>
     <map>
       <key>Comment</key>
-      <string>Enable Incoming Group Toasts</string>
+      <string>Enable Incoming Group Chat Popups</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2578,10 +2578,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableIMToast</key>
+    <key>EnableIMChatPopups</key>
     <map>
       <key>Comment</key>
-      <string>Enable Incoming IM Toasts</string>
+      <string>Enable Incoming IM Chat Popups</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
