@@ -205,24 +205,6 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLFolderView::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLPlacesFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-										   EDragAndDropType cargo_type,
-										   void* cargo_data,
-										   EAcceptance* accept,
-										   std::string& tooltip_msg)
-{
-	// Don't accept anything except landmarks and folders to be dropped
-	// in places folder view. See STORM-296.
-	if (cargo_type != DAD_LANDMARK && cargo_type != DAD_CATEGORY)
-	{
-		*accept = ACCEPT_NO;
-		return FALSE;
-	}
-
-	return LLFolderView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
-										   accept, tooltip_msg);
-}
-
 void LLPlacesFolderView::setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle)
 {
 	mMenuHandlesByInventoryType[asset_type] = menu_handle;
