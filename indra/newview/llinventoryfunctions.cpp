@@ -487,12 +487,9 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
 			return false;
 			break;
 		case LLAssetType::AT_OBJECT:
-			if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
-				return true;
-			break;
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_CLOTHING:
-			if(!gAgentWearables.isWearingItem(item->getUUID()))
+			if (!get_is_item_worn(item->getUUID()))
 				return true;
 			break;
 		default:

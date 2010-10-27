@@ -38,6 +38,7 @@ const S32 LLVORBISENC_MULTICHANNEL_ERR             = 7; // can't do stereo
 const S32 LLVORBISENC_UNSUPPORTED_SAMPLE_RATE      = 8; // unsupported sample rate
 const S32 LLVORBISENC_UNSUPPORTED_WORD_SIZE        = 9; // unsupported word size
 const S32 LLVORBISENC_CLIP_TOO_LONG                = 10; // source file is too long
+const S32 LLVORBISENC_CHUNK_SIZE_ERR               = 11; // chunk size is wrong
 
 const F32 LLVORBIS_CLIP_MAX_TIME                               = 10.0f;
 const U8  LLVORBIS_CLIP_MAX_CHANNELS                   = 2;
