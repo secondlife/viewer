@@ -26,11 +26,16 @@
 #ifndef LL_UPDATERSERVICE_H
 #define LL_UPDATERSERVICE_H
 
+#include <boost/shared_ptr.hpp>
+
+class LLUpdaterServiceImpl;
+
 class LLUpdaterService
 {
 public:
 	class UsageError: public std::runtime_error
 	{
+	public:
 		UsageError(const std::string& msg) : std::runtime_error(msg) {}
 	};
 
@@ -39,14 +44,18 @@ public:
 
 	// The base URL.
 	// *NOTE:Mani The grid, if any, would be embedded in the base URL.
-	void setURL(const std::string& url);
-	void setChannel(const std::string& channel);
-	void setVersion(const std::string& version);
-	
-	void setUpdateCheckPeriod(unsigned int seconds);
+	void setParams(const std::string& url, 
+				   const std::string& channel,
+				   const std::string& version);
+
+	void setCheckPeriod(unsigned int seconds);
 	
 	void startChecking();
 	void stopChecking();
+	bool isChecking();
+
+private:
+	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;
 };
 
 #endif LL_UPDATERSERVICE_H

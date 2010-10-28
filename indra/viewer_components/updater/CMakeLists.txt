@@ -55,3 +55,13 @@ if(LL_TESTS)
 
   LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
 endif(LL_TESTS)
+
+set(UPDATER_INCLUDE_DIRS 
+  ${LIBS_OPEN_DIR}/viewer_components/updater 
+  CACHE INTERNAL ""
+)
+
+set(UPDATER_LIBRARIES 
+  llupdaterservice
+  CACHE INTERNAL ""
+)

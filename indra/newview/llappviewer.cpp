@@ -83,6 +83,7 @@
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
+#include "llupdaterservice.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -581,7 +582,8 @@ LLAppViewer::LLAppViewer() :
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
-	mFastTimerLogThread(NULL)
+	mFastTimerLogThread(NULL),
+	mUpdater(new LLUpdaterService())
 {
 	if(NULL != sInstance)
 	{
@@ -629,6 +631,9 @@ bool LLAppViewer::init()
 	
 	if (!initConfiguration())
 		return false;
+
+	// Initialize updater service
+	initUpdater();
 
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
@@ -2324,6 +2329,24 @@ bool LLAppViewer::initConfiguration()
 	return true; // Config was successful.
 }
 
+void LLAppViewer::initUpdater()
+{
+	// Initialize the updater service.
+	// Generate URL to the udpater service
+	// Get Channel
+	// Get Version
+	std::string url = gSavedSettings.getString("UpdaterServiceURL");
+	std::string channel = gSavedSettings.getString("VersionChannelName");
+	std::string version = LLVersionInfo::getVersion();
+	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
+
+	mUpdater->setParams(url, channel, version);
+	mUpdater->setCheckPeriod(check_period);
+	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
+	{
+		mUpdater->startChecking();
+	}
+}
 
 void LLAppViewer::checkForCrash(void)
 {

@@ -42,7 +42,7 @@
 LLPluginProcessParentOwner::~LLPluginProcessParentOwner() {}
 LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 : mOwner(owner),
-  mIncomingQueueMutex(NULL)
+  mIncomingQueueMutex(gAPRPoolp)
 {
 }
 
@@ -63,9 +63,15 @@ namespace tut
     struct llupdaterservice_data
     {
 		llupdaterservice_data() :
-            pumps(LLEventPumps::instance())
+            pumps(LLEventPumps::instance()),
+			test_url("dummy_url"),
+			test_channel("dummy_channel"),
+			test_version("dummy_version")
 		{}
 		LLEventPumps& pumps;
+		std::string test_url;
+		std::string test_channel;
+		std::string test_version;
 	};
 
     typedef test_group<llupdaterservice_data> llupdaterservice_group;
@@ -76,6 +82,47 @@ namespace tut
     void llupdaterservice_object::test<1>()
     {
         DEBUG;
-		ensure_equals("Dummy", 0, 0);
+		LLUpdaterService updater;
+		bool got_usage_error = false;
+		try
+		{
+			updater.startChecking();
+		}
+		catch(LLUpdaterService::UsageError)
+		{
+			got_usage_error = true;
+		}
+		ensure("Caught start before params", got_usage_error);
+	}
+
+    template<> template<>
+    void llupdaterservice_object::test<2>()
+    {
+        DEBUG;
+		LLUpdaterService updater;
+		bool got_usage_error = false;
+		try
+		{
+			updater.setParams(test_url, test_channel, test_version);
+			updater.startChecking();
+			updater.setParams("other_url", test_channel, test_version);
+		}
+		catch(LLUpdaterService::UsageError)
+		{
+			got_usage_error = true;
+		}
+		ensure("Caught params while running", got_usage_error);
+	}
+
+    template<> template<>
+    void llupdaterservice_object::test<3>()
+    {
+        DEBUG;
+		LLUpdaterService updater;
+		updater.setParams(test_url, test_channel, test_version);
+		updater.startChecking();
+		ensure(updater.isChecking());
+		updater.stopChecking();
+		ensure(!updater.isChecking());
 	}
 }

@@ -27,18 +27,19 @@
 
 #include "llupdaterservice.h"
 
-#include "llsingleton.h"
 #include "llpluginprocessparent.h"
 #include <boost/scoped_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
-class LLUpdaterServiceImpl : public LLPluginProcessParentOwner, 
-							 public LLSingleton<LLUpdaterServiceImpl>
+boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
+
+class LLUpdaterServiceImpl : public LLPluginProcessParentOwner
 {
 	std::string mUrl;
 	std::string mChannel;
 	std::string mVersion;
 	
-	unsigned int mUpdateCheckPeriod;
+	unsigned int mCheckPeriod;
 	bool mIsChecking;
 	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
 
@@ -52,17 +53,20 @@ public:
 	virtual void pluginLaunchFailed();
 	virtual void pluginDied();
 
-	void setURL(const std::string& url);
-	void setChannel(const std::string& channel);
-	void setVersion(const std::string& version);
-	void setUpdateCheckPeriod(unsigned int seconds);
+	void setParams(const std::string& url,
+				   const std::string& channel,
+				   const std::string& version);
+
+	void setCheckPeriod(unsigned int seconds);
+
 	void startChecking();
 	void stopChecking();
+	bool isChecking();
 };
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
-	mUpdateCheckPeriod(0),
+	mCheckPeriod(0),
 	mPlugin(0)
 {
 	// Create the plugin parent, this is the owner.
@@ -87,42 +91,35 @@ void LLUpdaterServiceImpl::pluginDied()
 {
 };
 
-void LLUpdaterServiceImpl::setURL(const std::string& url)
+void LLUpdaterServiceImpl::setParams(const std::string& url,
+									 const std::string& channel,
+									 const std::string& version)
 {
-	if(mUrl != url)
+	if(mIsChecking)
 	{
-		mUrl = url;
+		throw LLUpdaterService::UsageError("Call LLUpdaterService::stopCheck()"
+			" before setting params.");
 	}
+		
+	mUrl = url;
+	mChannel = channel;
+	mVersion = version;
 }
 
-void LLUpdaterServiceImpl::setChannel(const std::string& channel)
+void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 {
-	if(mChannel != channel)
-	{
-		mChannel = channel;
-	}
-}
-
-void LLUpdaterServiceImpl::setVersion(const std::string& version)
-{
-	if(mVersion != version)
-	{
-		mVersion = version;
-	}
-}
-
-void LLUpdaterServiceImpl::setUpdateCheckPeriod(unsigned int seconds)
-{
-	if(mUpdateCheckPeriod != seconds)
-	{
-		mUpdateCheckPeriod = seconds;
-	}
+	mCheckPeriod = seconds;
 }
 
 void LLUpdaterServiceImpl::startChecking()
 {
 	if(!mIsChecking)
 	{
+		if(mUrl.empty() || mChannel.empty() || mVersion.empty())
+		{
+			throw LLUpdaterService::UsageError("Set params before call to "
+				"LLUpdaterService::startCheck().");
+		}
 		mIsChecking = true;
 	}
 }
@@ -135,42 +132,54 @@ void LLUpdaterServiceImpl::stopChecking()
 	}
 }
 
+bool LLUpdaterServiceImpl::isChecking()
+{
+	return mIsChecking;
+}
+
 //-----------------------------------------------------------------------
 // Facade interface
 LLUpdaterService::LLUpdaterService()
 {
+	if(gUpdater.expired())
+	{
+		mImpl = 
+			boost::shared_ptr<LLUpdaterServiceImpl>(new LLUpdaterServiceImpl());
+		gUpdater = mImpl;
+	}
+	else
+	{
+		mImpl = gUpdater.lock();
+	}
 }
 
 LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::setURL(const std::string& url)
+void LLUpdaterService::setParams(const std::string& url,
+								 const std::string& chan,
+								 const std::string& vers)
 {
-	LLUpdaterServiceImpl::getInstance()->setURL(url);
+	mImpl->setParams(url, chan, vers);
 }
 
-void LLUpdaterService::setChannel(const std::string& channel)
+void LLUpdaterService::setCheckPeriod(unsigned int seconds)
 {
-	LLUpdaterServiceImpl::getInstance()->setChannel(channel);
-}
-
-void LLUpdaterService::setVersion(const std::string& version)
-{
-	LLUpdaterServiceImpl::getInstance()->setVersion(version);
-}
-	
-void LLUpdaterService::setUpdateCheckPeriod(unsigned int seconds)
-{
-	LLUpdaterServiceImpl::getInstance()->setUpdateCheckPeriod(seconds);
+	mImpl->setCheckPeriod(seconds);
 }
 	
 void LLUpdaterService::startChecking()
 {
-	LLUpdaterServiceImpl::getInstance()->startChecking();
+	mImpl->startChecking();
 }
 
 void LLUpdaterService::stopChecking()
 {
-	LLUpdaterServiceImpl::getInstance()->stopChecking();
+	mImpl->stopChecking();
+}
+
+bool LLUpdaterService::isChecking()
+{
+	return mImpl->isChecking();
 }
