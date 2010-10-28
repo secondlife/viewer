@@ -74,7 +74,23 @@ class LLDir
 
 // pure virtual functions
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
-	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) = 0;
+
+    /// Walk the files in a directory, with file pattern matching
+	virtual BOOL getNextFileInDir(const std::string &dirname, ///< directory path - must end in trailing slash!
+                                  const std::string &mask,    ///< file pattern string (use "*" for all)
+                                  std::string &fname,         ///< found file name
+                                  BOOL wrap                   ///< DEPRECATED - set to FALSE
+                                  ) = 0;
+    /**<
+     * @returns true if a file was found, false if the entire directory has been scanned.
+     *
+     * @note that this function is NOT thread safe
+     *
+     * This function may not be used to scan part of a directory, then start a new search of a different
+     * directory, and then restart the first search where it left off.
+     *
+     * @todo this really should be rewritten as an iterator object.
+     */
 	virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) = 0;
 	virtual std::string getCurPath() = 0;
 	virtual BOOL fileExists(const std::string &filename) const = 0;
