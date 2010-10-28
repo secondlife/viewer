@@ -1487,6 +1487,14 @@ void LLModelLoader::run()
 												//Most likely an error in the asset.
 												llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
 											}
+											//Reposition the avatars pelvis (avPos+offset)
+											//if ( !strcmp( (*jointIt).first.c_str(),"mPelvis" ) )
+											if ( lookingForJoint == "mPelvis" )
+											{												
+												const LLVector3& pos = gAgentAvatarp->getCharacterPosition();
+												gAgentAvatarp->setPelvisOffset( true, jointTransform.getTranslation() );
+												gAgentAvatarp->setPosition( pos + jointTransform.getTranslation() );											
+											}
 										}
 									}  		 
 								}
