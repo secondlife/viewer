@@ -78,8 +78,7 @@ class LLDir
     /// Walk the files in a directory, with file pattern matching
 	virtual BOOL getNextFileInDir(const std::string &dirname, ///< directory path - must end in trailing slash!
                                   const std::string &mask,    ///< file pattern string (use "*" for all)
-                                  std::string &fname,         ///< found file name
-                                  BOOL wrap                   ///< DEPRECATED - set to FALSE
+                                  std::string &fname          ///< found file name
                                   ) = 0;
     /**<
      * @returns true if a file was found, false if the entire directory has been scanned.

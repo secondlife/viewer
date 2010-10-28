@@ -1083,7 +1083,7 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// the hard part: iterate over all user directories and delete the cookie file from each one
-	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename, false))
+	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename))
 	{
 		target = base_dir;
 		target += filename;

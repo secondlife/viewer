@@ -311,7 +311,7 @@ namespace tut
       int   found1 = 0;
       bool  filesFound1[5] = { false, false, false, false, false };
       // std::cerr << "searching '"+dir1+"' for *\n";
-      while ( found1 <= 5 && gDirUtilp->getNextFileInDir(dir1, "*", scan1result, false) )
+      while ( found1 <= 5 && gDirUtilp->getNextFileInDir(dir1, "*", scan1result) )
       {
          found1++;
          // std::cerr << "  found '"+scan1result+"'\n";
@@ -338,7 +338,7 @@ namespace tut
       bool  filesFound2[5] = { false, false, false, false, false };
       // std::cerr << "searching '"+dir2+"' for *.xyz\n";
 
-      while ( found2 <= 5 && gDirUtilp->getNextFileInDir(dir2, "*.xyz", scan2result, false) )
+      while ( found2 <= 5 && gDirUtilp->getNextFileInDir(dir2, "*.xyz", scan2result) )
       {
          found2++;
          // std::cerr << "  found '"+scan2result+"'\n";
@@ -367,7 +367,7 @@ namespace tut
       bool  filesFound3[5] = { false, false, false, false, false };
       // std::cerr << "searching '"+dir2+"' for *.mno\n";
 
-      while ( found3 <= 5 && gDirUtilp->getNextFileInDir(dir2, "*.mno", scan3result, false) )
+      while ( found3 <= 5 && gDirUtilp->getNextFileInDir(dir2, "*.mno", scan3result) )
       {
          found3++;
          // std::cerr << "  found '"+scan3result+"'\n";
@@ -396,7 +396,7 @@ namespace tut
       bool  filesFound4[5] = { false, false, false, false, false };
       // std::cerr << "searching '"+dir1+"' for *.foo\n";
 
-      while ( found4 <= 5 && gDirUtilp->getNextFileInDir(dir1, "*.foo", scan4result, false) )
+      while ( found4 <= 5 && gDirUtilp->getNextFileInDir(dir1, "*.foo", scan4result) )
       {
          found4++;
          // std::cerr << "  found '"+scan4result+"'\n";

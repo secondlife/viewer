@@ -243,8 +243,7 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
 }
 
 // get the next file in the directory
-// automatically wrap if we've hit the end
-BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	glob_t g;
 	BOOL result = FALSE;
@@ -276,11 +275,6 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 	
 			mCurrentDirIndex++;
 	
-			if((mCurrentDirIndex >= (int)g.gl_pathc) && wrap)
-			{
-				mCurrentDirIndex = 0;
-			}
-			
 			if(mCurrentDirIndex < (int)g.gl_pathc)
 			{
 //				llinfos << "getNextFileInDir: returning number " << mCurrentDirIndex << ", path is " << g.gl_pathv[mCurrentDirIndex] << llendl;
@@ -309,7 +303,6 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 
 
 // get a random file in the directory
-// automatically wrap if we've hit the end
 void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	S32 num_files;

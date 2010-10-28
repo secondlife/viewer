@@ -89,7 +89,7 @@ void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 	while(found) 
 	{
 		std::string name;
-		found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name, false);
+		found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name);
 		if(found)
 		{
 
@@ -115,7 +115,7 @@ void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 	while(found) 
 	{
 		std::string name;
-		found = gDirUtilp->getNextFileInDir(path_name2, "*.xml", name, false);
+		found = gDirUtilp->getNextFileInDir(path_name2, "*.xml", name);
 		if(found)
 		{
 			name=name.erase(name.length()-4);

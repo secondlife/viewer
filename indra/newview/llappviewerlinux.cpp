@@ -504,8 +504,7 @@ std::string LLAppViewerLinux::generateSerialNumber()
 
 	// trawl /dev/disk/by-uuid looking for a good-looking UUID to grab
 	std::string this_name;
-	BOOL wrap = FALSE;
-	while (gDirUtilp->getNextFileInDir(uuiddir, "*", this_name, wrap))
+	while (gDirUtilp->getNextFileInDir(uuiddir, "*", this_name))
 	{
 		if (this_name.length() > best.length() ||
 		    (this_name.length() == best.length() &&

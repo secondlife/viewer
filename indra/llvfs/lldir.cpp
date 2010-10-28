@@ -83,7 +83,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string filename; 
 	std::string fullpath;
 	S32 result;
-	while (getNextFileInDir(dirname, mask, filename, FALSE))
+	while (getNextFileInDir(dirname, mask, filename))
 	{
 		fullpath = dirname;
 		fullpath += getDirDelimiter();

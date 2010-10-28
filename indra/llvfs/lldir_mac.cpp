@@ -259,8 +259,7 @@ U32 LLDir_Mac::countFilesInDir(const std::string &dirname, const std::string &ma
 }
 
 // get the next file in the directory
-// automatically wrap if we've hit the end
-BOOL LLDir_Mac::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Mac::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	glob_t g;
 	BOOL result = FALSE;
@@ -292,11 +291,6 @@ BOOL LLDir_Mac::getNextFileInDir(const std::string &dirname, const std::string &
 	
 			mCurrentDirIndex++;
 	
-			if((mCurrentDirIndex >= g.gl_pathc) && wrap)
-			{
-				mCurrentDirIndex = 0;
-			}
-			
 			if(mCurrentDirIndex < g.gl_pathc)
 			{
 //				llinfos << "getNextFileInDir: returning number " << mCurrentDirIndex << ", path is " << g.gl_pathv[mCurrentDirIndex] << llendl;

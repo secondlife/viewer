@@ -247,14 +247,14 @@ U32 LLDir_Win32::countFilesInDir(const std::string &dirname, const std::string &
 
 // get the next file in the directory
 // automatically wrap if we've hit the end
-BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	llutf16string dirnamew = utf8str_to_utf16str(dirname);
-	return getNextFileInDir(dirnamew, mask, fname, wrap);
+	return getNextFileInDir(dirnamew, mask, fname);
 
 }
 
-BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname)
 {
 	WIN32_FIND_DATAW FileData;
 
@@ -290,15 +290,8 @@ BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::stri
 				FindClose(mDirSearch_h);
 				mCurrentDir[0] = NULL;
 
-				if (wrap)
-				{
-					return(getNextFileInDir(pathname,"",fname,TRUE));
-				}
-				else
-				{
-					fname[0] = 0;
-					return(FALSE);
-				}
+                fname[0] = 0;
+                return(FALSE);
 			}
 			else
 			{
@@ -318,7 +311,6 @@ BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::stri
 
 
 // get a random file in the directory
-// automatically wrap if we've hit the end
 void LLDir_Win32::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	S32 num_files;
