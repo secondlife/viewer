@@ -18,10 +18,12 @@ include_directories(
 
 set(updater_service_SOURCE_FILES
     llupdaterservice.cpp
+    llupdatechecker.cpp
     )
 
 set(updater_service_HEADER_FILES
     llupdaterservice.h
+    llupdatechecker.h
     )
 
 set_source_files_properties(${updater_service_HEADER_FILES}

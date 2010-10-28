@@ -26,6 +26,7 @@
 #include "linden_common.h"
 
 #include "llupdaterservice.h"
+#include "llupdatechecker.h"
 
 #include "llpluginprocessparent.h"
 #include <boost/scoped_ptr.hpp>
@@ -33,7 +34,9 @@
 
 boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
-class LLUpdaterServiceImpl : public LLPluginProcessParentOwner
+class LLUpdaterServiceImpl : 
+	public LLPluginProcessParentOwner,
+	public LLUpdateChecker::Client
 {
 	std::string mUrl;
 	std::string mChannel;
@@ -42,7 +45,9 @@ class LLUpdaterServiceImpl : public LLPluginProcessParentOwner
 	unsigned int mCheckPeriod;
 	bool mIsChecking;
 	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
-
+	
+	LLUpdateChecker mUpdateChecker;
+	
 public:
 	LLUpdaterServiceImpl();
 	virtual ~LLUpdaterServiceImpl() {}
@@ -62,12 +67,21 @@ public:
 	void startChecking();
 	void stopChecking();
 	bool isChecking();
+	
+	// LLUpdateChecker::Client:
+	virtual void error(std::string const & message);
+	virtual void optionalUpdate(std::string const & newVersion);
+	virtual void requiredUpdate(std::string const & newVersion);
+	virtual void upToDate(void);
+	
 };
+
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
 	mCheckPeriod(0),
-	mPlugin(0)
+	mPlugin(0),
+	mUpdateChecker(*this)
 {
 	// Create the plugin parent, this is the owner.
 	mPlugin.reset(new LLPluginProcessParent(this));
@@ -121,6 +135,8 @@ void LLUpdaterServiceImpl::startChecking()
 				"LLUpdaterService::startCheck().");
 		}
 		mIsChecking = true;
+		
+		mUpdateChecker.check(mUrl, mChannel, mVersion);
 	}
 }
 
@@ -136,6 +152,15 @@ bool LLUpdaterServiceImpl::isChecking()
 {
 	return mIsChecking;
 }
+
+void LLUpdaterServiceImpl::error(std::string const & message) {}
+
+void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion) {}
+
+void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion) {}
+
+void LLUpdaterServiceImpl::upToDate(void) {}
+
 
 //-----------------------------------------------------------------------
 // Facade interface
