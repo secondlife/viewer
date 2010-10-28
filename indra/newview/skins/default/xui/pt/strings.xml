@@ -777,7 +777,7 @@
 	<string name="xml_file">
 		Arquivo XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Arquivo RAW
 	</string>
 	<string name="compressed_image_files">

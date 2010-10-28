@@ -131,7 +131,7 @@ public:
 
 	typedef const child_list_t const_child_list_t;
 
-	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp, BOOL is_global = FALSE);
+	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
 	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
@@ -546,14 +546,14 @@ public:
 	{
 		LL_VO_CLOUDS =				LL_PCODE_APP | 0x20,
 		LL_VO_SURFACE_PATCH =		LL_PCODE_APP | 0x30,
-		//LL_VO_STARS =				LL_PCODE_APP | 0x40,
+		LL_VO_WL_SKY =				LL_PCODE_APP | 0x40,
 		LL_VO_SQUARE_TORUS =		LL_PCODE_APP | 0x50,
 		LL_VO_SKY =					LL_PCODE_APP | 0x60,
-		LL_VO_WATER =				LL_PCODE_APP | 0x70,
-		LL_VO_GROUND =				LL_PCODE_APP | 0x80,
-		LL_VO_PART_GROUP =			LL_PCODE_APP | 0x90,
-		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xa0,
-		LL_VO_WL_SKY =				LL_PCODE_APP | 0xb0, // should this be moved to 0x40?
+		LL_VO_VOID_WATER =			LL_PCODE_APP | 0x70,
+		LL_VO_WATER =				LL_PCODE_APP | 0x80,
+		LL_VO_GROUND =				LL_PCODE_APP | 0x90,
+		LL_VO_PART_GROUP =			LL_PCODE_APP | 0xa0,
+		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xb0,
 		LL_VO_HUD_PART_GROUP =		LL_PCODE_APP | 0xc0,
 	} EVOType;
 
@@ -767,8 +767,8 @@ public:
 class LLAlphaObject : public LLViewerObject
 {
 public:
-	LLAlphaObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp)
-	: LLViewerObject(id,type,regionp) 
+	LLAlphaObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
+	: LLViewerObject(id,pcode,regionp) 
 	{ mDepth = 0.f; }
 
 	virtual F32 getPartSize(S32 idx);
@@ -785,8 +785,8 @@ public:
 class LLStaticViewerObject : public LLViewerObject
 {
 public:
-	LLStaticViewerObject(const LLUUID& id, const LLPCode type, LLViewerRegion* regionp, BOOL is_global = FALSE)
-		: LLViewerObject(id,type,regionp, is_global)
+	LLStaticViewerObject(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp, BOOL is_global = FALSE)
+		: LLViewerObject(id,pcode,regionp, is_global)
 	{ }
 
 	virtual void updateDrawable(BOOL force_damped);

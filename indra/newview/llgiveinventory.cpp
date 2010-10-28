@@ -128,7 +128,7 @@ bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		if (gAgentAvatarp->isWearingAttachment(item->getUUID()))
+		if (get_is_item_worn(item->getUUID()))
 		{
 			acceptable = false;
 		}
@@ -139,7 +139,7 @@ bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 			BOOL copyable = false;
 			if (item->getPermissions().allowCopyBy(gAgentID)) copyable = true;
 
-			if (!copyable && gAgentWearables.isWearingItem(item->getUUID()))
+			if (!copyable && get_is_item_worn(item->getUUID()))
 			{
 				acceptable = false;
 			}

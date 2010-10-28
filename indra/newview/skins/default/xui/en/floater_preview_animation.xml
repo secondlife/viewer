@@ -32,7 +32,7 @@
      height="19"
      layout="topleft"
      left_delta="95"
-     max_length="127"
+     max_length_bytes="127"
      name="desc"
      top="19"
      width="170" />

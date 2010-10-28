@@ -218,6 +218,16 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLMemType mt_render(LLMemType::MTYPE_RENDER);
 	LLFastTimer t(FTM_RENDER);
 
+	if (gResizeScreenTexture)
+	{ //skip render on frames where screen texture is resizing
+		gGL.flush();
+		glClear(GL_COLOR_BUFFER_BIT);
+		gViewerWindow->mWindow->swapBuffers();
+		gResizeScreenTexture = FALSE;
+		gPipeline.resizeScreenTexture();
+		return;
+	}
+
 	if (LLPipeline::sRenderFrameTest)
 	{
 		send_agent_pause();
@@ -531,6 +541,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
+	
 	if (!gDisconnected)
 	{
 		LLMemType mt_du(LLMemType::MTYPE_DISPLAY_UPDATE);
@@ -573,7 +584,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
-			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+			 (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER) || 
+			  gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER)))
 		{
 			if (LLViewerCamera::getInstance()->cameraUnderWater())
 			{
@@ -641,11 +653,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLVertexBuffer::clientCopy(0.016);
 			}
 
-			if (gResizeScreenTexture)
-			{
-				gResizeScreenTexture = FALSE;
-				gPipeline.resizeScreenTexture();
-			}
+			//if (gResizeScreenTexture)
+			//{
+			//	gResizeScreenTexture = FALSE;
+			//	gPipeline.resizeScreenTexture();
+			//}
 
 			gGL.setColorMask(true, true);
 			glClearColor(0,0,0,0);

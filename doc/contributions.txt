@@ -69,9 +69,11 @@ Aleric Inglewood
 	VWR-10759
 	VWR-10837
 	VWR-12691
+	VWR-12984
 	VWR-13996
 	VWR-14426
 	SNOW-84
+	SNOW-477
 	SNOW-766
 	STORM-163
 Ales Beaumont
@@ -174,6 +176,7 @@ Boroondas Gupte
 	VWR-233
 	VWR-20583
 	VWR-20891
+	VWR-23455
 	WEB-262
 Bulli Schumann
 	CT-218

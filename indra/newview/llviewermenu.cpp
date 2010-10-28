@@ -220,8 +220,6 @@ BOOL check_show_xui_names(void *);
 // Debug UI
 
 void handle_buy_currency_test(void*);
-void handle_save_to_xml(void*);
-void handle_load_from_xml(void*);
 
 void handle_god_mode(void*);
 
@@ -1390,37 +1388,6 @@ class LLAdvancedCheckDebugWindowProc : public view_listener_t
 };
 
 // ------------------------------XUI MENU ---------------------------
-
-//////////////////////
-// LOAD UI FROM XML //
-//////////////////////
-
-
-class LLAdvancedLoadUIFromXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_load_from_xml(NULL);
-		return true;
-}
-};
-
-
-
-////////////////////
-// SAVE UI TO XML //
-////////////////////
-
-
-class LLAdvancedSaveUIToXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_save_to_xml(NULL);
-		return true;
-}
-};
-
 
 class LLAdvancedSendTestIms : public view_listener_t
 {
@@ -4167,6 +4134,11 @@ class LLObjectEnableReturn : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		{
+			// Do not enable if nothing selected
+			return false;
+		}
 #ifdef HACKED_GODLIKE_VIEWER
 		bool new_value = true;
 #else
@@ -7190,44 +7162,6 @@ const LLRect LLViewerMenuHolderGL::getMenuRect() const
 	return LLRect(0, getRect().getHeight() - MENU_BAR_HEIGHT, getRect().getWidth(), STATUS_BAR_HEIGHT);
 }
 
-void handle_save_to_xml(void*)
-{
-	LLFloater* frontmost = gFloaterView->getFrontmost();
-	if (!frontmost)
-	{
-        LLNotificationsUtil::add("NoFrontmostFloater");
-		return;
-	}
-
-	std::string default_name = "floater_";
-	default_name += frontmost->getTitle();
-	default_name += ".xml";
-
-	LLStringUtil::toLower(default_name);
-	LLStringUtil::replaceChar(default_name, ' ', '_');
-	LLStringUtil::replaceChar(default_name, '/', '_');
-	LLStringUtil::replaceChar(default_name, ':', '_');
-	LLStringUtil::replaceChar(default_name, '"', '_');
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getSaveFile(LLFilePicker::FFSAVE_XML, default_name))
-	{
-		std::string filename = picker.getFirstFile();
-		LLUICtrlFactory::getInstance()->saveToXML(frontmost, filename);
-	}
-}
-
-void handle_load_from_xml(void*)
-{
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-	{
-		std::string filename = picker.getFirstFile();
-		LLFloater* floater = new LLFloater(LLSD());
-		floater->buildFromFile(filename);
-	}
-}
-
 void handle_web_browser_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -8013,8 +7947,6 @@ void initialize_menus()
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
-	view_listener_t::addMenu(new LLAdvancedLoadUIFromXML(), "Advanced.LoadUIFromXML");
-	view_listener_t::addMenu(new LLAdvancedSaveUIToXML(), "Advanced.SaveUIToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
