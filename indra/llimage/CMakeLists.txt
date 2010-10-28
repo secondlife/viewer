@@ -57,7 +57,6 @@ add_library (llimage ${llimage_SOURCE_FILES})
 # Sort by high-level to low-level
 target_link_libraries(llimage
     llcommon
-    llimagej2coj        # *HACK: In theory a noop for KDU builds?
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
