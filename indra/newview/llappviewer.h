@@ -167,7 +167,7 @@ public:
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
 	virtual bool getMasterSystemAudioMute();
-	
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -251,7 +251,9 @@ private:
 
 	LLWatchdogTimeout* mMainloopTimeout;
 
+	// For performance and metric gathering
 	LLThread*	mFastTimerLogThread;
+	
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;

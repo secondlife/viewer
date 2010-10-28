@@ -72,6 +72,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap ;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL ;
+const std::string sTesterName("TextureTester");
 
 S32 LLViewerTexture::sImageCount = 0;
 S32 LLViewerTexture::sRawCount = 0;
@@ -341,7 +342,7 @@ void LLViewerTextureManager::init()
 
 	LLViewerTexture::initClass() ;
 
-	if(LLFastTimer::sMetricLog)
+	if (LLFastTimer::sMetricLog && !LLViewerTextureManager::sTesterp && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
 	{
 		LLViewerTextureManager::sTesterp = new LLTexturePipelineTester() ;
         if (!LLViewerTextureManager::sTesterp->isValid())
@@ -3583,8 +3584,7 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 //----------------------------------------------------------------------------------------------
 //start of LLTexturePipelineTester
 //----------------------------------------------------------------------------------------------
-LLTexturePipelineTester::LLTexturePipelineTester() :
-	LLMetricPerformanceTesterWithSession("TextureTester") 
+LLTexturePipelineTester::LLTexturePipelineTester() : LLMetricPerformanceTesterWithSession(sTesterName) 
 {
 	addMetric("TotalBytesLoaded") ;
 	addMetric("TotalBytesLoadedFromCache") ;

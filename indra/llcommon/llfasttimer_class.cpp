@@ -56,6 +56,7 @@ bool LLFastTimer::sPauseHistory = 0;
 bool LLFastTimer::sResetHistory = 0;
 LLFastTimer::CurTimerData LLFastTimer::sCurTimerData;
 BOOL LLFastTimer::sLog = FALSE;
+std::string LLFastTimer::sLogName = "";
 BOOL LLFastTimer::sMetricLog = FALSE;
 LLMutex* LLFastTimer::sLogLock = NULL;
 std::queue<LLSD> LLFastTimer::sLogQueue;
