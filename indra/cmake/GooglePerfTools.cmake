@@ -15,8 +15,7 @@ else (STANDALONE)
   if (LINUX)
     use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
-	debug tcmalloc_minimal_debug
-	optimized tcmalloc_minimal)
+	tcmalloc_minimal)
     set(STACKTRACE_LIBRARIES stacktrace)
     set(PROFILER_LIBRARIES profiler)
     set(GOOGLE_PERFTOOLS_INCLUDE_DIR
