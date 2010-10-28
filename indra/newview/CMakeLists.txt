@@ -476,6 +476,7 @@ set(viewer_SOURCE_FILES
     llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
+    llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
     llviewerattachmenu.cpp
@@ -1004,6 +1005,7 @@ set(viewer_HEADER_FILES
     llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
+    llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
     llviewerattachmenu.h
@@ -1927,6 +1929,11 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llsimplestat
 	""
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewerassetstats
+	llviewerassetstats.cpp
     "${test_libs}"
     )
 
