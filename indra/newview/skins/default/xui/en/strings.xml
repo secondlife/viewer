@@ -2242,8 +2242,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvOfferOwnedBy">owned by</string>
 	<string name="InvOfferOwnedByUnknownUser">owned by an unknown user</string>
 	<string name="InvOfferGaveYou">gave you</string>
-	<string name="InvOfferYouDecline">You decline</string>
-	<string name="InvOfferFrom">from</string>
+	<string name="InvOfferDecline">You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.</string>
 
 	<!-- group money -->
 	<string name="GroupMoneyTotal">Total</string>
