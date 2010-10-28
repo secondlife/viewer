@@ -805,7 +805,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 			else
 			{
-				mEditor->appendText(chat.mFromName + delimiter, false, style_params);
+				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter, false, style_params);
 			}
 		}
 	}
