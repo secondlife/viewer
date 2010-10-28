@@ -790,8 +790,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
 				link_params.color.control = "HTMLLinkColor";
+				link_params.is_link = true;
 				link_params.link_href = url;
-				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
+				mEditor->appendText(chat.mFromName + delimiter,
 									false, link_params);
 			}
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
@@ -804,7 +805,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 			else
 			{
-				mEditor->appendText(chat.mFromName + delimiter, false, style_params);
+				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter, false, style_params);
 			}
 		}
 	}
