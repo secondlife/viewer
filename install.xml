@@ -266,9 +266,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>0e0eea64684830eed5803b3d17adabc0</string>
+            <string>e6350edd8132d5a3f3eaa25a65fbaaf1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101028.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101028a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -1411,9 +1411,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0886d0b1cdf104b6341df1832a8a7e09</string>
+            <string>9d71b7a6f94ab57e658f09012c1d2d92</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-linux-20090804.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-linux-20101028.tar.bz2</uri>
           </map>
         </map>
       </map>
