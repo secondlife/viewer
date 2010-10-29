@@ -87,7 +87,10 @@ class LLDir
      *
      * This function may not be used to scan part of a directory, then start a new search of a different
      * directory, and then restart the first search where it left off.
-     *
+     * @bug: this is known to fail at least on MacOS with patterns that have both:
+     *       a wildcard left of the . and more than one sequential ? right of the .
+     *       the pattern foo.??x appears to work
+     *       but *.??x or foo?.??x do not
      * @todo this really should be rewritten as an iterator object.
      */
 
