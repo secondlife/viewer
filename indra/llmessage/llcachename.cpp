@@ -575,7 +575,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 	LLStringUtil::toUpper(cap_letter);
 	legacy_name = cap_letter + legacy_name.substr(1);
 
-	if (name_results[4].matched)
+	if (name_results[3].matched)
 	{
 		std::string last_name = name_results[3];
 		std::string cap_letter = last_name.substr(1, 1);
