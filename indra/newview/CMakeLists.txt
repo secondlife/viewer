@@ -1270,7 +1270,6 @@ if (WINDOWS)
         ${DINPUT_LIBRARY}
         ${DXGUID_LIBRARY}
         kernel32
-        libboost_system
         odbc32
         odbccp32
         ole32
