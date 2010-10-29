@@ -1665,6 +1665,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		LLVector4a* dst = (LLVector4a*) colors.get();
 		S32 num_vecs = num_vertices/4;
+		if (num_vertices%4 > 0)
+		{
+			++num_vecs;
+		}
+
 		for (S32 i = 0; i < num_vecs; i++)
 		{	
 			dst[i] = src;

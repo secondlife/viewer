@@ -92,11 +92,13 @@ extern BOOL gDebugGL;
 
 void assert_aligned(void* ptr, U32 alignment)
 {
+#if 0
 	U32 t = (U32) ptr;
 	if (t%alignment != 0)
 	{
 		llerrs << "WTF?" << llendl;
 	}
+#endif
 }
 
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
@@ -6598,6 +6600,12 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 			}
 		}
+	}
+
+	//clear normals
+	for (U32 i = 0; i < mNumVertices; i++)
+	{
+		mNormals[i].clear();
 	}
 
 	//generate normals 
