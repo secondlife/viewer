@@ -4014,6 +4014,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
+
+		if (vobj->getVolume() && vobj->getVolume()->isTetrahedron())
+		{
+			continue;
+		}
+
 		llassert_always(vobj);
 		vobj->updateTextureVirtualSize();
 		vobj->preRebuild();
