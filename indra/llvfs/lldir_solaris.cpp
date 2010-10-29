@@ -320,46 +320,7 @@ BOOL LLDir_Solaris::getNextFileInDir(const std::string &dirname, const std::stri
 }
 
 
-// get a random file in the directory
-void LLDir_Solaris::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-	S32 num_files;
-	S32 which_file;
-	DIR *dirp;
-	dirent *entryp = NULL;
 
-	fname = "";
-
-	num_files = countFilesInDir(dirname,mask);
-	if (!num_files)
-	{
-		return;
-	}
-
-	which_file = ll_rand(num_files);
-
-//	llinfos << "Random select file #" << which_file << llendl;
-
-    // which_file now indicates the (zero-based) index to which file to play
-	
-	if (!((dirp = opendir(dirname.c_str()))))
-	{
-		while (which_file--)
-		{
-			if (!((entryp = readdir(dirp))))
-			{
-				return;
-			}
-		}		   
-
-		if ((!which_file) && entryp)
-		{
-			fname = entryp->d_name;
-		}
-		
-		closedir(dirp);
-	}
-}
 
 std::string LLDir_Solaris::getCurPath()
 {

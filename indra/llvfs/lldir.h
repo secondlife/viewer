@@ -90,7 +90,7 @@ class LLDir
      *
      * @todo this really should be rewritten as an iterator object.
      */
-	virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) = 0;
+
 	virtual std::string getCurPath() = 0;
 	virtual BOOL fileExists(const std::string &filename) const = 0;
 

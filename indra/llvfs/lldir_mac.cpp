@@ -317,41 +317,7 @@ BOOL LLDir_Mac::getNextFileInDir(const std::string &dirname, const std::string &
 	return(result);
 }
 
-// get a random file in the directory
-void LLDir_Mac::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-	S32 which_file;
-	glob_t g;
-	fname = "";
-	
-	std::string tmp_str;
-	tmp_str = dirname;
-	tmp_str += mask;
-	
-	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
-	{
-		if(g.gl_pathc > 0)
-		{
-			
-			which_file = ll_rand(g.gl_pathc);
-	
-//			llinfos << "getRandomFileInDir: returning number " << which_file << ", path is " << g.gl_pathv[which_file] << llendl;
-			// The API wants just the filename, not the full path.
-			//fname = g.gl_pathv[which_file];
 
-			char *s = strrchr(g.gl_pathv[which_file], '/');
-			
-			if(s == NULL)
-				s = g.gl_pathv[which_file];
-			else if(s[0] == '/')
-				s++;
-				
-			fname = s;
-		}
-		
-		globfree(&g);
-	}
-}
 
 S32 LLDir_Mac::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 {

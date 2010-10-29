@@ -310,47 +310,6 @@ BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::stri
 }
 
 
-// get a random file in the directory
-void LLDir_Win32::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-	S32 num_files;
-	S32 which_file;
-	HANDLE random_search_h;
-
-	fname = "";
-
-	llutf16string pathname = utf8str_to_utf16str(dirname);
-	pathname += utf8str_to_utf16str(mask);
-
-	WIN32_FIND_DATA FileData;
-	fname[0] = NULL;
-
-	num_files = countFilesInDir(dirname,mask);
-	if (!num_files)
-	{
-		return;
-	}
-
-	which_file = ll_rand(num_files);
-
-//	llinfos << "Random select mp3 #" << which_file << llendl;
-
-    // which_file now indicates the (zero-based) index to which file to play
-
-	if ((random_search_h = FindFirstFile(pathname.c_str(), &FileData)) != INVALID_HANDLE_VALUE)   
-	{
-		while (which_file--)
-		{
-			if (!FindNextFile(random_search_h, &FileData))
-			{
-				return;
-			}
-		}		   
-		FindClose(random_search_h);
-
-		fname = utf16str_to_utf8str(llutf16string(FileData.cFileName));
-	}
-}
 
 std::string LLDir_Win32::getCurPath()
 {
