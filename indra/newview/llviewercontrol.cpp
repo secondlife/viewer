@@ -123,7 +123,10 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 
 static bool handleLightingDetailChanged(const LLSD& newvalue)
 {
-	gPipeline.setLightingDetail(-1);
+	if (gPipeline.isInit())
+	{
+		gPipeline.setLightingDetail(-1);
+	}
 	return true;
 }
 
