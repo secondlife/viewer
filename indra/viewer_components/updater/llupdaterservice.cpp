@@ -25,6 +25,8 @@
 
 #include "linden_common.h"
 
+#include "llevents.h"
+#include "lltimer.h"
 #include "llupdaterservice.h"
 #include "llupdatechecker.h"
 
@@ -38,6 +40,8 @@ class LLUpdaterServiceImpl :
 	public LLPluginProcessParentOwner,
 	public LLUpdateChecker::Client
 {
+	static const std::string ListenerName;
+	
 	std::string mUrl;
 	std::string mChannel;
 	std::string mVersion;
@@ -47,10 +51,15 @@ class LLUpdaterServiceImpl :
 	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
 	
 	LLUpdateChecker mUpdateChecker;
+	LLTimer mTimer;
+
+	void retry(void);
+	
+	LOG_CLASS(LLUpdaterServiceImpl);
 	
 public:
 	LLUpdaterServiceImpl();
-	virtual ~LLUpdaterServiceImpl() {}
+	virtual ~LLUpdaterServiceImpl();
 
 	// LLPluginProcessParentOwner interfaces
 	virtual void receivePluginMessage(const LLPluginMessage &message);
@@ -74,8 +83,10 @@ public:
 	virtual void requiredUpdate(std::string const & newVersion);
 	virtual void upToDate(void);
 	
+	bool onMainLoop(LLSD const & event);	
 };
 
+const std::string LLUpdaterServiceImpl::ListenerName = "LLUpdaterServiceImpl";
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
@@ -85,6 +96,12 @@ LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 {
 	// Create the plugin parent, this is the owner.
 	mPlugin.reset(new LLPluginProcessParent(this));
+}
+
+LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
+{
+	LL_INFOS("UpdaterService") << "shutting down updater service" << LL_ENDL;
+	LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
 }
 
 // LLPluginProcessParentOwner interfaces
@@ -153,13 +170,49 @@ bool LLUpdaterServiceImpl::isChecking()
 	return mIsChecking;
 }
 
-void LLUpdaterServiceImpl::error(std::string const & message) {}
+void LLUpdaterServiceImpl::error(std::string const & message)
+{
+	retry();
+}
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion) {}
+void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion)
+{
+	retry();
+}
 
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion) {}
+void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion)
+{
+	retry();
+}
 
-void LLUpdaterServiceImpl::upToDate(void) {}
+void LLUpdaterServiceImpl::upToDate(void)
+{
+	retry();
+}
+
+void LLUpdaterServiceImpl::retry(void)
+{
+	LL_INFOS("UpdaterService") << "will check for update again in " << 
+	mCheckPeriod << " seconds" << LL_ENDL; 
+	mTimer.start();
+	mTimer.setTimerExpirySec(mCheckPeriod);
+	LLEventPumps::instance().obtain("mainloop").listen(
+		ListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
+}
+
+bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
+{
+	if(mTimer.hasExpired())
+	{
+		mTimer.stop();
+		LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
+		mUpdateChecker.check(mUrl, mChannel, mVersion);
+	} else {
+		// Keep on waiting...
+	}
+	
+	return false;
+}
 
 
 //-----------------------------------------------------------------------

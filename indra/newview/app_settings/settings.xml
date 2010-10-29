@@ -11011,7 +11011,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>3600</integer>
+      <integer>10</integer>
     </map>
     <key>UpdaterServiceURL</key>
     <map>
@@ -11022,7 +11022,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://secondlife.com/app/update</string>
+      <string>http://localhost/agni</string>
     </map>
     <key>UploadBakedTexOld</key>
     <map>

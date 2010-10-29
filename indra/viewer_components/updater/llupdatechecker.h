@@ -42,6 +42,7 @@ public:
 	
 	// Check status of current app on the given host for the channel and version provided.
 	void check(std::string const & hostUrl, std::string channel, std::string version);
+	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
 };
@@ -52,6 +53,7 @@ private:
 //
 class LLUpdateChecker::Client
 {
+public:
 	// An error occurred while checking for an update.
 	virtual void error(std::string const & message) = 0;
 	
