@@ -2320,12 +2320,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range = max_tc - min_tc;
 
-			LLVector4a& min = face.mExtents[0];
-			LLVector4a& max = face.mExtents[1];
-
-			min.clear();
-			max.clear();
-			
 			LLVector4a* pos_out = face.mPositions;
 			LLVector4a* norm_out = face.mNormals;
 			LLVector2* tc_out = face.mTexCoords;
@@ -2338,17 +2332,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				pos_out->div(65535.f);
 				pos_out->mul(pos_range);
 				pos_out->add(min_pos);
-
-				if (j == 0)
-				{
-					min = *pos_out;
-					max = min;
-				}
-				else
-				{
-					min.setMin(min, *pos_out);
-					max.setMax(max, *pos_out);
-				}
 
 				pos_out++;
 
@@ -2426,6 +2409,19 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 			}
 
+			//calculate bounding box
+			LLVector4a& min = face.mExtents[0];
+			LLVector4a& max = face.mExtents[1];
+
+			min.clear();
+			max.clear();
+			min = max = face.mPositions[0];
+
+			for (S32 i = 1; i < face.mNumVertices; ++i)
+			{
+				min.setMin(min, face.mPositions[i]);
+				max.setMax(max, face.mPositions[i]);
+			}
 		}
 	}
 
