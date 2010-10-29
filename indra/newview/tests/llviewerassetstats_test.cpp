@@ -42,19 +42,25 @@
 static const char * all_keys[] = 
 {
 	"get_other",
-	"get_texture",
-	"get_wearable",
-	"get_sound",
-	"get_gesture"
+	"get_texture_temp_http",
+	"get_texture_temp_udp",
+	"get_texture_non_temp_http",
+	"get_texture_non_temp_udp",
+	"get_wearable_udp",
+	"get_sound_udp",
+	"get_gesture_udp"
 };
 
 static const char * resp_keys[] = 
 {
 	"get_other",
-	"get_texture",
-	"get_wearable",
-	"get_sound",
-	"get_gesture"
+	"get_texture_temp_http",
+	"get_texture_temp_udp",
+	"get_texture_non_temp_http",
+	"get_texture_non_temp_udp",
+	"get_wearable_udp",
+	"get_sound_udp",
+	"get_gesture_udp"
 };
 
 static const char * sub_keys[] =
@@ -82,11 +88,11 @@ namespace tut
 		// Check that helpers aren't bothered by missing global stats
 		ensure("Global gViewerAssetStats should be NULL", (NULL == gViewerAssetStats));
 
-		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_GESTURE, 12.3);
+		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_GESTURE, false, false, 12.3);
 	}
 
 	// Create a non-global instance and check the structure
@@ -131,8 +137,8 @@ namespace tut
 		delete it;
 
 		// Check a few points on the tree for content
-		ensure("sd[get_texture][dequeued] is 0", (0 == sd["get_texture"]["dequeued"].asInteger()));
-		ensure("sd[get_sound][resp_min] is 0", (0.0 == sd["get_sound"]["resp_min"].asReal()));
+		ensure("sd[get_texture_temp_http][dequeued] is 0", (0 == sd["get_texture_temp_http"]["dequeued"].asInteger()));
+		ensure("sd[get_sound_udp][resp_min] is 0", (0.0 == sd["get_sound_udp"]["resp_min"].asReal()));
 	}
 
 	// Create a global instance and verify free functions do something useful
@@ -141,17 +147,20 @@ namespace tut
 	{
 		gViewerAssetStats = new LLViewerAssetStats();
 
-		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE);
-		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART);
-		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStats->asLLSD();
 		
 		// Check a few points on the tree for content
-		ensure("sd[get_texture][enqueued] is 1", (1 == sd["get_texture"]["enqueued"].asInteger()));
-		ensure("sd[get_gesture][dequeued] is 0", (0 == sd["get_gesture"]["dequeued"].asInteger()));
+		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
+		ensure("sd[get_texture_temp_udp][enqueued] is 0", (0 == sd["get_texture_temp_udp"]["enqueued"].asInteger()));
+		ensure("sd[get_texture_non_temp_http][enqueued] is 0", (0 == sd["get_texture_non_temp_http"]["enqueued"].asInteger()));
+		ensure("sd[get_texture_temp_http][enqueued] is 0", (0 == sd["get_texture_temp_http"]["enqueued"].asInteger()));
+		ensure("sd[get_gesture_udp][dequeued] is 0", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 
 		// Reset and check zeros...
 		gViewerAssetStats->reset();
@@ -160,8 +169,8 @@ namespace tut
 		delete gViewerAssetStats;
 		gViewerAssetStats = NULL;
 
-		ensure("sd[get_texture][enqueued] is reset", (0 == sd["get_texture"]["enqueued"].asInteger()));
-		ensure("sd[get_gesture][dequeued] is reset", (0 == sd["get_gesture"]["dequeued"].asInteger()));
+		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
+		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 	}
 
 }

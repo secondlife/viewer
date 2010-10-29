@@ -65,7 +65,7 @@ namespace
 {
 
 static LLViewerAssetStats::EViewerAssetCategories
-asset_type_to_category(const LLViewerAssetType::EType at);
+asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
 }
 
@@ -90,25 +90,25 @@ LLViewerAssetStats::reset()
 }
 
 void
-LLViewerAssetStats::recordGetEnqueued(LLViewerAssetType::EType at)
+LLViewerAssetStats::recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at));
+	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 	
 	++mRequests[int(eac)].mEnqueued;
 }
 	
 void
-LLViewerAssetStats::recordGetDequeued(LLViewerAssetType::EType at)
+LLViewerAssetStats::recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at));
+	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	++mRequests[int(eac)].mDequeued;
 }
 
 void
-LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, F64 duration)
+LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at));
+	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	mRequests[int(eac)].mResponse.record(duration);
 }
@@ -119,10 +119,13 @@ LLViewerAssetStats::asLLSD() const
 	// Top-level tags
 	static const LLSD::String tags[EVACCount] = 
 		{
-			LLSD::String("get_texture"),
-			LLSD::String("get_wearable"),
-			LLSD::String("get_sound"),
-			LLSD::String("get_gesture"),
+			LLSD::String("get_texture_temp_http"),
+			LLSD::String("get_texture_temp_udp"),
+			LLSD::String("get_texture_non_temp_http"),
+			LLSD::String("get_texture_non_temp_udp"),
+			LLSD::String("get_wearable_udp"),
+			LLSD::String("get_sound_udp"),
+			LLSD::String("get_gesture_udp"),
 			LLSD::String("get_other")
 		};
 
@@ -159,30 +162,30 @@ namespace LLViewerAssetStatsFF
 {
 
 void
-record_enqueue(LLViewerAssetType::EType at)
+record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	if (! gViewerAssetStats)
 		return;
 
-	gViewerAssetStats->recordGetEnqueued(at);
+	gViewerAssetStats->recordGetEnqueued(at, with_http, is_temp);
 }
 
 void
-record_dequeue(LLViewerAssetType::EType at)
+record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	if (! gViewerAssetStats)
 		return;
 
-	gViewerAssetStats->recordGetDequeued(at);
+	gViewerAssetStats->recordGetDequeued(at, with_http, is_temp);
 }
 
 void
-record_response(LLViewerAssetType::EType at, F64 duration)
+record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
 {
 	if (! gViewerAssetStats)
 		return;
 
-	gViewerAssetStats->recordGetServiced(at, duration);
+	gViewerAssetStats->recordGetServiced(at, with_http, is_temp, duration);
 }
 
 } // namespace LLViewerAssetStatsFF
@@ -196,7 +199,7 @@ namespace
 {
 
 LLViewerAssetStats::EViewerAssetCategories
-asset_type_to_category(const LLViewerAssetType::EType at)
+asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	// For statistical purposes, we divide GETs into several
 	// populations of asset fetches:
@@ -213,57 +216,57 @@ asset_type_to_category(const LLViewerAssetType::EType at)
 	// maintenance and attention.
 	static const LLViewerAssetStats::EViewerAssetCategories asset_to_bin_map[LLViewerAssetType::AT_COUNT] =
 		{
-			LLViewerAssetStats::EVACTextureGet,				// (0) AT_TEXTURE
-			LLViewerAssetStats::EVACSoundGet,				// AT_SOUND
-			LLViewerAssetStats::EVACOtherGet,				// AT_CALLINGCARD
-			LLViewerAssetStats::EVACOtherGet,				// AT_LANDMARK
-			LLViewerAssetStats::EVACOtherGet,				// AT_SCRIPT
-			LLViewerAssetStats::EVACWearableGet,			// AT_CLOTHING
-			LLViewerAssetStats::EVACOtherGet,				// AT_OBJECT
-			LLViewerAssetStats::EVACOtherGet,				// AT_NOTECARD
-			LLViewerAssetStats::EVACOtherGet,				// AT_CATEGORY
-			LLViewerAssetStats::EVACOtherGet,				// AT_ROOT_CATEGORY
-			LLViewerAssetStats::EVACOtherGet,				// (10) AT_LSL_TEXT
-			LLViewerAssetStats::EVACOtherGet,				// AT_LSL_BYTECODE
-			LLViewerAssetStats::EVACOtherGet,				// AT_TEXTURE_TGA
-			LLViewerAssetStats::EVACWearableGet,			// AT_BODYPART
-			LLViewerAssetStats::EVACOtherGet,				// AT_TRASH
-			LLViewerAssetStats::EVACOtherGet,				// AT_SNAPSHOT_CATEGORY
-			LLViewerAssetStats::EVACOtherGet,				// AT_LOST_AND_FOUND
-			LLViewerAssetStats::EVACSoundGet,				// AT_SOUND_WAV
-			LLViewerAssetStats::EVACOtherGet,				// AT_IMAGE_TGA
-			LLViewerAssetStats::EVACOtherGet,				// AT_IMAGE_JPEG
-			LLViewerAssetStats::EVACGestureGet,				// (20) AT_ANIMATION
-			LLViewerAssetStats::EVACGestureGet,				// AT_GESTURE
-			LLViewerAssetStats::EVACOtherGet,				// AT_SIMSTATE
-			LLViewerAssetStats::EVACOtherGet,				// AT_FAVORITE
-			LLViewerAssetStats::EVACOtherGet,				// AT_LINK
-			LLViewerAssetStats::EVACOtherGet,				// AT_LINK_FOLDER
+			LLViewerAssetStats::EVACTextureTempHTTPGet,			// (0) AT_TEXTURE
+			LLViewerAssetStats::EVACSoundUDPGet,				// AT_SOUND
+			LLViewerAssetStats::EVACOtherGet,					// AT_CALLINGCARD
+			LLViewerAssetStats::EVACOtherGet,					// AT_LANDMARK
+			LLViewerAssetStats::EVACOtherGet,					// AT_SCRIPT
+			LLViewerAssetStats::EVACWearableUDPGet,				// AT_CLOTHING
+			LLViewerAssetStats::EVACOtherGet,					// AT_OBJECT
+			LLViewerAssetStats::EVACOtherGet,					// AT_NOTECARD
+			LLViewerAssetStats::EVACOtherGet,					// AT_CATEGORY
+			LLViewerAssetStats::EVACOtherGet,					// AT_ROOT_CATEGORY
+			LLViewerAssetStats::EVACOtherGet,					// (10) AT_LSL_TEXT
+			LLViewerAssetStats::EVACOtherGet,					// AT_LSL_BYTECODE
+			LLViewerAssetStats::EVACOtherGet,					// AT_TEXTURE_TGA
+			LLViewerAssetStats::EVACWearableUDPGet,				// AT_BODYPART
+			LLViewerAssetStats::EVACOtherGet,					// AT_TRASH
+			LLViewerAssetStats::EVACOtherGet,					// AT_SNAPSHOT_CATEGORY
+			LLViewerAssetStats::EVACOtherGet,					// AT_LOST_AND_FOUND
+			LLViewerAssetStats::EVACSoundUDPGet,				// AT_SOUND_WAV
+			LLViewerAssetStats::EVACOtherGet,					// AT_IMAGE_TGA
+			LLViewerAssetStats::EVACOtherGet,					// AT_IMAGE_JPEG
+			LLViewerAssetStats::EVACGestureUDPGet,				// (20) AT_ANIMATION
+			LLViewerAssetStats::EVACGestureUDPGet,				// AT_GESTURE
+			LLViewerAssetStats::EVACOtherGet,					// AT_SIMSTATE
+			LLViewerAssetStats::EVACOtherGet,					// AT_FAVORITE
+			LLViewerAssetStats::EVACOtherGet,					// AT_LINK
+			LLViewerAssetStats::EVACOtherGet,					// AT_LINK_FOLDER
 #if 0
 			// When LLViewerAssetType::AT_COUNT == 49
-			LLViewerAssetStats::EVACOtherGet,				// AT_FOLDER_ENSEMBLE_START
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// (30)
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// (40)
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// 
-			LLViewerAssetStats::EVACOtherGet,				// AT_FOLDER_ENSEMBLE_END
-			LLViewerAssetStats::EVACOtherGet,				// AT_CURRENT_OUTFIT
-			LLViewerAssetStats::EVACOtherGet,				// AT_OUTFIT
-			LLViewerAssetStats::EVACOtherGet				// AT_MY_OUTFITS
+			LLViewerAssetStats::EVACOtherGet,					// AT_FOLDER_ENSEMBLE_START
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// (30)
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// (40)
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// AT_FOLDER_ENSEMBLE_END
+			LLViewerAssetStats::EVACOtherGet,					// AT_CURRENT_OUTFIT
+			LLViewerAssetStats::EVACOtherGet,					// AT_OUTFIT
+			LLViewerAssetStats::EVACOtherGet					// AT_MY_OUTFITS
 #endif
 		};
 	
@@ -271,7 +274,25 @@ asset_type_to_category(const LLViewerAssetType::EType at)
 	{
 		return LLViewerAssetStats::EVACOtherGet;
 	}
-	return asset_to_bin_map[at];
+	LLViewerAssetStats::EViewerAssetCategories ret(asset_to_bin_map[at]);
+	if (LLViewerAssetStats::EVACTextureTempHTTPGet == ret)
+	{
+		// Indexed with [is_temp][with_http]
+		static const LLViewerAssetStats::EViewerAssetCategories texture_bin_map[2][2] =
+			{
+				{
+					LLViewerAssetStats::EVACTextureNonTempUDPGet,
+					LLViewerAssetStats::EVACTextureNonTempHTTPGet,
+				},
+				{
+					LLViewerAssetStats::EVACTextureTempUDPGet,
+					LLViewerAssetStats::EVACTextureTempHTTPGet,
+				}
+			};
+
+		ret = texture_bin_map[is_temp][with_http];
+	}
+	return ret;
 }
 
 } // anonymous namespace

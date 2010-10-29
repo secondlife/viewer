@@ -89,21 +89,24 @@ public:
 	
 	enum EViewerAssetCategories
 	{
-		EVACTextureGet,			//< Texture GETs
-		EVACWearableGet,		//< Wearable GETs
-		EVACSoundGet,			//< Sound GETs
-		EVACGestureGet,			//< Gesture GETs
-		EVACOtherGet,			//< Other GETs
+		EVACTextureTempHTTPGet,			//< Texture GETs
+		EVACTextureTempUDPGet,			//< Texture GETs
+		EVACTextureNonTempHTTPGet,		//< Texture GETs
+		EVACTextureNonTempUDPGet,		//< Texture GETs
+		EVACWearableUDPGet,				//< Wearable GETs
+		EVACSoundUDPGet,				//< Sound GETs
+		EVACGestureUDPGet,				//< Gesture GETs
+		EVACOtherGet,					//< Other GETs
 		
-		EVACCount				// Must be last
+		EVACCount						// Must be last
 	};
 	
 	void reset();
 
 	// Non-Cached GET Requests
-	void recordGetEnqueued(LLViewerAssetType::EType at);
-	void recordGetDequeued(LLViewerAssetType::EType at);
-	void recordGetServiced(LLViewerAssetType::EType at, F64 duration);
+	void recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
 
 	// Report Generation
 	const LLSD asLLSD() const;
@@ -131,11 +134,11 @@ extern LLViewerAssetStats * gViewerAssetStats;
 namespace LLViewerAssetStatsFF
 {
 
-void record_enqueue(LLViewerAssetType::EType at);
+void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
-void record_dequeue(LLViewerAssetType::EType at);
+void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
-void record_response(LLViewerAssetType::EType at, F64 duration);
+void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
 
 } // namespace LLViewerAssetStatsFF
 
