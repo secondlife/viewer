@@ -594,6 +594,8 @@ Salahzar Stenvaag
 	CT-321
 Sammy Frederix
 	VWR-6186
+Satomi Ahn
+	STORM-501
 Scrippy Scofield
 	VWR-3748
 Seg Baphomet
