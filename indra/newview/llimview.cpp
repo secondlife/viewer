@@ -257,21 +257,17 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// history files have consistent (English) names in different locales.
 	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
 	{
-		// Name here has a form of "<Avatar's name> Conference"
-		// Lets update it to localize the "Conference" word. See EXT-8429.
-		S32 separator_index = mName.rfind(" ");
-		std::string name = mName.substr(0, separator_index);
-		++separator_index;
-		std::string conference_word = mName.substr(separator_index, mName.length());
-
-		// additional check that session name is what we expected
-		if ("Conference" == conference_word)
-		{
-			LLStringUtil::format_map_t args;
-			args["[AGENT_NAME]"] = name;
-			LLTrans::findString(mName, "conference-title-incoming", args);
-		}
+		LLAvatarNameCache::get(mOtherParticipantID, 
+							   boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache, 
+							   this, _2));
 	}
+}
+
+void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
+{
+			LLStringUtil::format_map_t args;
+	args["[AGENT_NAME]"] = av_name.getCompleteName();
+			LLTrans::findString(mName, "conference-title-incoming", args);
 }
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
