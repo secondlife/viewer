@@ -11011,7 +11011,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>3600</integer>
     </map>
     <key>UpdaterServiceURL</key>
     <map>
