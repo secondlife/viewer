@@ -26,7 +26,9 @@
 #include "linden_common.h"
 #include <boost/format.hpp>
 #include "llhttpclient.h"
+#include "llsd.h"
 #include "llupdatechecker.h"
+#include "lluri.h"
 
 
 class LLUpdateChecker::Implementation:
@@ -137,8 +139,10 @@ void LLUpdateChecker::Implementation::error(U32 status, const std::string & reas
 
 std::string LLUpdateChecker::Implementation::buildUrl(std::string const & host, std::string channel, std::string version)
 {	
-	static boost::format urlFormat("%s/version/%s/%s");
-	urlFormat % host % channel % version;
-	return urlFormat.str();
+	LLSD path;
+	path.append("version");
+	path.append(channel);
+	path.append(version);
+	return LLURI::buildHTTP(host, path).asString();
 }
 
