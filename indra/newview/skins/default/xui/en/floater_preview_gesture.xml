@@ -80,7 +80,7 @@
      height="20"
      layout="topleft"
      left_delta="89"
-     max_length="31"
+     max_length_bytes="31"
      name="trigger_editor"
      top_delta="-4"
      width="175" />
@@ -104,7 +104,7 @@
      height="20"
      layout="topleft"
      left_delta="99"
-     max_length="31"
+     max_length_bytes="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
      top_delta="-4"
@@ -263,7 +263,7 @@
      height="20"
      layout="topleft"
      left_delta="0"
-     max_length="127"
+     max_length_bytes="127"
      name="chat_editor"
      top="330"
      width="100" />
@@ -316,7 +316,7 @@
      height="20"
      layout="topleft"
      left_pad="10"
-     max_length="15"
+     max_length_bytes="15"
      name="wait_time_editor"
      top_delta="1"
      width="50" />

@@ -573,7 +573,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
-			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+			 (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER) || 
+			  gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER)))
 		{
 			if (LLViewerCamera::getInstance()->cameraUnderWater())
 			{

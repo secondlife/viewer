@@ -26,7 +26,7 @@
              default_image_name="Default"
              follows="left|top"
              height="80"
-             label="Fabric"
+             label="Texture"
              layout="topleft"
              left="10"
              name="Fabric"

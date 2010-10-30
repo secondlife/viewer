@@ -110,6 +110,8 @@ public:
 
 private:
 
+	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
+
 	/**
 	 * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference
 	 */

@@ -335,8 +335,8 @@ void LLViewerShaderMgr::setShaders()
 	}
 	else
 	{
-			LLPipeline::sRenderGlow = 
-			LLPipeline::sWaterReflections = FALSE;
+		LLPipeline::sRenderGlow = FALSE;
+		LLPipeline::sWaterReflections = FALSE;
 	}
 	
 	//hack to reset buffers that change behavior with shaders

@@ -416,7 +416,7 @@
      height="23"
      layout="topleft"
      left="10"
-     max_length="256"
+     max_length_bytes="256"
      name="abuse_location_edit"
      top_pad="0"
      width="313" />
@@ -441,7 +441,7 @@
      height="23"
      layout="topleft"
      left_delta="0"
-     max_length="64"
+     max_length_bytes="64"
      name="summary_edit"
      top_pad="0"
      width="313" />

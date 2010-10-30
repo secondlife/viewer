@@ -69,6 +69,7 @@ Aleric Inglewood
 	VWR-10759
 	VWR-10837
 	VWR-12691
+	VWR-12984
 	VWR-13996
 	VWR-14426
 	SNOW-84
@@ -593,6 +594,8 @@ Salahzar Stenvaag
 	CT-321
 Sammy Frederix
 	VWR-6186
+Satomi Ahn
+	STORM-501
 Scrippy Scofield
 	VWR-3748
 Seg Baphomet

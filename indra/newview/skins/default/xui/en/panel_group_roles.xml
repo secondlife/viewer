@@ -390,7 +390,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          follows="left|top|right"
          right="-1"
-         max_length="20"
+         max_length_bytes="20"
          name="role_name"
          top_pad="0"
          width="300">
@@ -413,7 +413,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          follows="left|top|right"
          right="-1"
-         max_length="20"
+         max_length_bytes="20"
          name="role_title"
          top_pad="0"
          width="300">
