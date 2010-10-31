@@ -290,7 +290,10 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		const LLUUID& item_id = (*items_iter);
 		const LLInventoryObject* model_item = model->getObject(item_id);
 		LLFolderViewItem* view_item = mFolderRoot->getItemByID(item_id);
-		LLFolderViewFolder* view_folder = mFolderRoot->getFolderByID(item_id);
+
+		// LLFolderViewFolder is derived from LLFolderViewItem so dynamic_cast from item
+		// to folder is the fast way to get a folder without searching through folders tree.
+		LLFolderViewFolder* view_folder = dynamic_cast<LLFolderViewFolder*>(view_item);
 
 		//////////////////////////////
 		// LABEL Operation
