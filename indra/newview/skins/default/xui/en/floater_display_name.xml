@@ -63,7 +63,7 @@
        width="300"
        height="20"
       font="SansSerif"
-    name="set_name_label">
+    name="name_confirm_label">
       Type your new name again to confirm:
     </text>
     <line_editor
