@@ -6452,7 +6452,7 @@ Mute everyone?
   label="Change your Look"
   type="hint"
   unique="true">
-    Would you like to try a new look?  Click the button below to see more Avatars.
+    Would you like to try a new look? Click the button below to see more Avatars.
   </notification>
 
   <notification
