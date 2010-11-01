@@ -28,6 +28,7 @@
 #include "linden_common.h"
 // associated header
 #include "../llupdaterservice.h"
+#include "../llupdatechecker.h"
 
 #include "../../../test/lltut.h"
 //#define DEBUG_ON
@@ -54,6 +55,11 @@ int LLPluginMessagePipeOwner::socketError(int) { return 0; }
 void LLPluginProcessParent::setMessagePipe(LLPluginMessagePipe *message_pipe) {}
 void LLPluginMessagePipeOwner::setMessagePipe(class LLPluginMessagePipe *) {}
 LLPluginMessage::~LLPluginMessage() {}
+LLPluginMessage::LLPluginMessage(LLPluginMessage const&) {}
+
+LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
+{}
+void LLUpdateChecker::check(std::string const & host, std::string channel, std::string version){}
 
 /*****************************************************************************
 *   TUT

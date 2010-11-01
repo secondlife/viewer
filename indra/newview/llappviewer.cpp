@@ -632,9 +632,6 @@ bool LLAppViewer::init()
 	if (!initConfiguration())
 		return false;
 
-	// Initialize updater service
-	initUpdater();
-
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	logdir += gDirUtilp->getDirDelimiter();
@@ -976,7 +973,10 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
-
+	
+	// Initialize updater service (now that we have an io pump)
+	initUpdater();
+	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
