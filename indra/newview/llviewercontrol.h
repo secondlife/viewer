@@ -57,7 +57,5 @@ extern LLControlGroup gCrashSettings;
 
 // Set after settings loaded
 extern std::string gLastRunVersion;
-extern std::string gCurrentVersion;
-
 
 #endif // LL_LLVIEWERCONTROL_H

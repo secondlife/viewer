@@ -1858,6 +1858,7 @@ if (LL_TESTS)
     llmediadataclient.cpp
     lllogininstance.cpp
     llviewerhelputil.cpp
+    llversioninfo.cpp
   )
 
   ##################################################
