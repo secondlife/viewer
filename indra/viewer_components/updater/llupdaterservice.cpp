@@ -40,7 +40,7 @@ class LLUpdaterServiceImpl :
 	public LLPluginProcessParentOwner,
 	public LLUpdateChecker::Client
 {
-	static const std::string ListenerName;
+	static const std::string sListenerName;
 	
 	std::string mUrl;
 	std::string mChannel;
@@ -86,7 +86,7 @@ public:
 	bool onMainLoop(LLSD const & event);	
 };
 
-const std::string LLUpdaterServiceImpl::ListenerName = "LLUpdaterServiceImpl";
+const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
@@ -101,7 +101,7 @@ LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 {
 	LL_INFOS("UpdaterService") << "shutting down updater service" << LL_ENDL;
-	LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
+	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
 
 // LLPluginProcessParentOwner interfaces
@@ -197,7 +197,7 @@ void LLUpdaterServiceImpl::retry(void)
 	mTimer.start();
 	mTimer.setTimerExpirySec(mCheckPeriod);
 	LLEventPumps::instance().obtain("mainloop").listen(
-		ListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
+		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }
 
 bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
@@ -205,7 +205,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 	if(mTimer.hasExpired())
 	{
 		mTimer.stop();
-		LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
+		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 		mUpdateChecker.check(mUrl, mChannel, mVersion);
 	} else {
 		// Keep on waiting...

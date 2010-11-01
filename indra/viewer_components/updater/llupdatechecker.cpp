@@ -52,7 +52,7 @@ private:
 	Client & mClient;
 	LLHTTPClient mHttpClient;
 	bool mInProgress;
-	LLHTTPClient::ResponderPtr mMe;
+	LLHTTPClient::ResponderPtr mMe; 
 	std::string mVersion;
 	
 	LOG_CLASS(LLUpdateChecker::Implementation);
@@ -105,6 +105,11 @@ void LLUpdateChecker::Implementation::check(std::string const & host, std::strin
 	mVersion = version;
 	std::string checkUrl = buildUrl(host, channel, version);
 	LL_INFOS("UpdateCheck") << "checking for updates at " << checkUrl << llendl;
+	
+	// The HTTP client will wrap a raw pointer in a boost::intrusive_ptr causing the
+	// passed object to be silently and automatically deleted.  We pass a self-
+	// referential intrusive pointer stored as an attribute of this class to keep
+	// the client from deletig the update checker implementation instance.
 	mHttpClient.get(checkUrl, mMe);
 }
 
