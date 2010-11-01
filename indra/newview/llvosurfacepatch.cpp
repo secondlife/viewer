@@ -80,7 +80,7 @@ public:
 //============================================================================
 
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-	:	LLStaticViewerObject(id, LL_VO_SURFACE_PATCH, regionp),
+	:	LLStaticViewerObject(id, pcode, regionp),
 		mDirtiedPatch(FALSE),
 		mPool(NULL),
 		mBaseComp(0),

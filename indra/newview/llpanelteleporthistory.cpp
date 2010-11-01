@@ -41,6 +41,7 @@
 #include "llflatlistview.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
+#include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
@@ -450,7 +451,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 
 	mMenuGearButton = getChild<LLMenuButton>("gear_btn");
 
-	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());;
+	LLToggleableMenu* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());;
 	if(gear_menu)
 	{
 		mGearMenuHandle  = gear_menu->getHandle();

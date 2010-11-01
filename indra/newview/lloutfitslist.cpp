@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
 #include "llvoavatar.h"
@@ -114,7 +115,7 @@ public:
 		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
 		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
 		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
-		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
+		registrar.add("Gear.Delete", boost::bind(&LLOutfitsList::removeSelected, mOutfitList));
 		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
 
 		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
@@ -122,7 +123,7 @@ public:
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(mMenu);
 	}
@@ -137,7 +138,7 @@ public:
 		mMenu->arrangeAndClear(); // update menu height
 	}
 
-	LLMenuGL* getMenu() { return mMenu; }
+	LLToggleableMenu* getMenu() { return mMenu; }
 
 private:
 	const LLUUID& getSelectedOutfitID()
@@ -196,15 +197,6 @@ private:
 		}
 	}
 
-	void onDelete()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			remove_category(&gInventory, selected_outfit_id);
-		}
-	}
-
 	void onCreate(const LLSD& data)
 	{
 		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
@@ -251,14 +243,20 @@ private:
 		return true;
 	}
 
-	LLOutfitsList*	mOutfitList;
-	LLMenuGL*		mMenu;
+	LLOutfitsList*			mOutfitList;
+	LLToggleableMenu*		mMenu;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 class LLOutfitContextMenu : public LLListContextMenu
 {
+public:
+
+	LLOutfitContextMenu(LLOutfitsList* outfit_list)
+	:		LLListContextMenu(),
+	 		mOutfitList(outfit_list)
+	{}
 protected:
 	/* virtual */ LLContextMenu* createMenu()
 	{
@@ -274,7 +272,7 @@ protected:
 				boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
 		registrar.add("Outfit.Edit", boost::bind(editOutfit));
 		registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-		registrar.add("Outfit.Delete", boost::bind(deleteOutfit, selected_id));
+		registrar.add("Outfit.Delete", boost::bind(&LLOutfitsList::removeSelected, mOutfitList));
 
 		enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
 		enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
@@ -337,10 +335,8 @@ protected:
 		LLAppearanceMgr::instance().renameOutfit(outfit_cat_id);
 	}
 
-	static void deleteOutfit(const LLUUID& outfit_cat_id)
-	{
-		remove_category(&gInventory, outfit_cat_id);
-	}
+private:
+	LLOutfitsList*	mOutfitList;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -357,7 +353,7 @@ LLOutfitsList::LLOutfitsList()
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 
 	mGearMenu = new LLOutfitListGearMenu(this);
-	mOutfitMenu = new LLOutfitContextMenu();
+	mOutfitMenu = new LLOutfitContextMenu(this);
 }
 
 LLOutfitsList::~LLOutfitsList()
@@ -634,6 +630,14 @@ void LLOutfitsList::performAction(std::string action)
 
 void LLOutfitsList::removeSelected()
 {
+	LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitsList::onOutfitsRemovalConfirmation, this, _1, _2));
+}
+
+void LLOutfitsList::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
 	if (mSelectedOutfitUUID.notNull())
 	{
 		remove_category(&gInventory, mSelectedOutfitUUID);

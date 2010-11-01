@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
+<toggleable_menu
          create_jump_keys="true"
          layout="topleft"
          mouse_opaque="false"
@@ -63,4 +63,4 @@
     <menu_item_call.on_visible
      function="IsGodCustomerService"/>
   </menu_item_call>
-</menu>
+</toggleable_menu>

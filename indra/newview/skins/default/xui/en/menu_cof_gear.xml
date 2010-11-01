@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  layout="topleft"
  name="Gear COF">
     <menu
@@ -10,4 +10,4 @@
      label="New Body Parts"
      layout="topleft"
      name="COF.Geear.New_Body_Parts" />
-</menu>
+</toggleable_menu>
