@@ -30,6 +30,9 @@
 #include "llupdatechecker.h"
 #include "lluri.h"
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
 
 class LLUpdateChecker::Implementation:
 	public LLHTTPClient::Responder
