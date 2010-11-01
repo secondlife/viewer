@@ -145,7 +145,7 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 void	LLScreenChannelBase::updateBottom()
 {
 	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_bottom = gSavedSettings.getS32("ChannelBottomPanelMargin");
 	S32 channel_left = getRect().mLeft;
 	S32 channel_right = getRect().mRight;
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
