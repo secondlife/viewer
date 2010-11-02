@@ -7,7 +7,7 @@
  name="floaterbulkperms"
  help_topic="floaterbulkperms"
  title="EDIT CONTENT PERMISSIONS"
- width="300">
+ width="410">
     <floater.string
      name="nothing_to_modify_text">
         Selection contains no editable contents.
@@ -71,7 +71,7 @@
      control_name="BulkChangeIncludeGestures"
      height="16"
      name="check_gesture"
-     left="65"
+     left="95"
      width="16"
      top="25" />
     <icon
@@ -87,7 +87,7 @@
      height="16"
      layout="topleft"
      name="check_notecard"
-     left="65"
+     left="95"
      width="16"
      top_pad="5" />
     <icon
@@ -102,7 +102,7 @@
      control_name="BulkChangeIncludeObjects"
      height="16"
      name="check_object"
-     left="65"
+     left="95"
      top_pad="5"
      width="16" />
    <icon
@@ -117,7 +117,7 @@
      height="16"
      name="check_script"
      top="25"
-     left="120"
+     left="180"
      width="16"
      />
     <icon
@@ -133,7 +133,7 @@
      height="16"
      name="check_sound"
      top_pad="5"
-     left="120"
+     left="180"
      width="16" />
     <icon
      height="16"
@@ -147,7 +147,7 @@
      height="16"
      name="check_texture"
      top_pad="5"
-     left="120"
+     left="180"
      width="16" />
     <icon
      height="16"
@@ -162,7 +162,7 @@
     layout="topleft"
    name="check_all"
      label="√ All"
-     left="180"
+     left="290"
      top="26"
      width="115">
       <button.commit_callback
@@ -221,7 +221,7 @@
      height="28"
      layout="topleft"
      name="AnyoneLabel"
-     left="104"
+     left="124"
      top="110"
      width="92"
      word_wrap="true">
@@ -243,7 +243,7 @@
      layout="topleft"
      name="NextOwnerLabel"
      top="110"
-     left="189"
+     left="275"
      width="92"
      word_wrap="true">
         Next owner:
@@ -292,7 +292,7 @@
      height="23"
      label="OK"
      layout="topleft"
-     left="95"
+     left="205"
      name="apply"
      top_pad="10"
      width="90">
