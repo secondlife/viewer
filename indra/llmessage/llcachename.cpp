@@ -556,23 +556,36 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 //static 
 std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 {
-	boost::regex complete_name_regex("(.+)( \\()([A-Za-z]+)(.[A-Za-z]+)*(\\))");
-	boost::match_results<std::string::const_iterator> name_results;
-	if (!boost::regex_match(complete_name, name_results, complete_name_regex)) return complete_name;
+	// regexp doesn't play nice with unicode, chop off the display name
+	S32 open_paren = complete_name.rfind(" (");
 
-	std::string legacy_name = name_results[3];
+	if (open_paren == std::string::npos)
+	{
+		return complete_name;
+	}
+
+	std::string username = complete_name.substr(open_paren);
+	boost::regex complete_name_regex("( \\()([a-z0-9]+)(.[a-z]+)*(\\))");
+	boost::match_results<std::string::const_iterator> name_results;
+	if (!boost::regex_match(username, name_results, complete_name_regex)) return complete_name;
+
+	std::string legacy_name = name_results[2];
 	// capitalize the first letter
 	std::string cap_letter = legacy_name.substr(0, 1);
 	LLStringUtil::toUpper(cap_letter);
 	legacy_name = cap_letter + legacy_name.substr(1);
 
-	if (name_results[4].matched)
+	if (name_results[3].matched)
 	{
-		std::string last_name = name_results[4];
+		std::string last_name = name_results[3];
 		std::string cap_letter = last_name.substr(1, 1);
 		LLStringUtil::toUpper(cap_letter);
 		last_name = cap_letter + last_name.substr(2);
 		legacy_name = legacy_name + " " + last_name;
+	}
+	else
+	{
+		legacy_name = legacy_name + " Resident";
 	}
 
 	return legacy_name;
