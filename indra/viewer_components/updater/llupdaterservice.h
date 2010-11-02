@@ -58,4 +58,4 @@ private:
 	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;
 };
 
-#endif LL_UPDATERSERVICE_H
+#endif // LL_UPDATERSERVICE_H

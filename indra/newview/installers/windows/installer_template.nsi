@@ -52,7 +52,7 @@ LangString LanguageCode ${LANG_JAPANESE} "ja"
 LangString LanguageCode ${LANG_ITALIAN}  "it"
 LangString LanguageCode ${LANG_KOREAN}   "ko"
 LangString LanguageCode ${LANG_DUTCH}    "nl"
-LangString LanguageCode ${LANG_POLISH}   "da"
+LangString LanguageCode ${LANG_POLISH}   "pl"
 LangString LanguageCode ${LANG_PORTUGUESEBR} "pt"
 LangString LanguageCode ${LANG_SIMPCHINESE}  "zh"
 

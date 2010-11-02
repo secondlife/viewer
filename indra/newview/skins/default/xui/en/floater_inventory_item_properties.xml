@@ -58,7 +58,7 @@
      height="16"
      layout="topleft"
      left_delta="78"
-     max_length="63"
+     max_length_bytes="63"
      name="LabelItemName"
      top_delta="0"
      width="252" />
@@ -81,7 +81,7 @@
      height="16"
      layout="topleft"
      left_delta="78"
-     max_length="127"
+     max_length_bytes="127"
      name="LabelItemDesc"
      top_delta="0"
      width="252" />
@@ -348,7 +348,7 @@
      height="16"
      layout="topleft"
      left_pad="5"
-     max_length="25"
+     max_length_bytes="25"
      name="EditPrice"
      top_delta="0"
      width="242" /-->

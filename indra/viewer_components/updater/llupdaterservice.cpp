@@ -34,6 +34,10 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 class LLUpdaterServiceImpl : 

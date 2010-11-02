@@ -41,19 +41,46 @@ public:
 	};
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
-
-	// Log a single line item to the appropriate chat file
-	static void saveHistory(const std::string& filename, const LLChat& chat);
-
-	// Prefer the above version - it saves more metadata about the item
 	static void saveHistory(const std::string& filename,
 				const std::string& from,
 				const LLUUID& from_id,
 				const std::string& line);
 
+	/** @deprecated @see loadAllHistory() */
+	static void loadHistory(const std::string& filename, 
+		                    void (*callback)(ELogLineType, const LLSD&, void*), 
+							void* userdata);
+
 	static void loadAllHistory(const std::string& file_name, std::list<LLSD>& messages);
 private:
 	static std::string cleanFileName(std::string filename);
+};
+
+/**
+ * Formatter for the plain text chat log files
+ */
+class LLChatLogFormatter
+{
+public:
+	LLChatLogFormatter(const LLSD& im) : mIM(im) {}
+	virtual ~LLChatLogFormatter() {};
+
+	friend std::ostream& operator<<(std::ostream& str, const LLChatLogFormatter& formatter)
+	{
+		formatter.format(formatter.mIM, str);
+		return str;
+	}
+
+protected:
+
+	/**
+	 * Format an instant message to a stream
+	 * Timestamps and sender names are required
+	 * New lines of multilined messages are prepended with a space
+	 */
+	void format(const LLSD& im, std::ostream& ostr) const;
+
+	LLSD mIM;
 };
 
 /**
@@ -74,7 +101,7 @@ public:
 	 *
 	 * @return false if failed to parse mandatory data - message text
 	 */
-	static bool parse(const std::string& raw, LLSD& im);
+	static bool parse(std::string& raw, LLSD& im);
 
 protected:
 	LLChatLogParser();
@@ -86,6 +113,5 @@ extern const std::string IM_TIME; //("time");
 extern const std::string IM_TEXT; //("message");
 extern const std::string IM_FROM; //("from");
 extern const std::string IM_FROM_ID; //("from_id");
-extern const std::string IM_SOURCE_TYPE; //("source_type");
 
 #endif

@@ -38,6 +38,8 @@
 #include "message.h"
 #include "llmemtype.h"
 
+#include <boost/regex.hpp>
+
 // llsd serialization constants
 static const std::string AGENTS("agents");
 static const std::string GROUPS("groups");
@@ -549,6 +551,31 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 
 	// if the input wasn't a correctly formatted legacy name just return it unchanged
 	return full_name;
+}
+
+//static 
+std::string LLCacheName::buildLegacyName(const std::string& complete_name)
+{
+	boost::regex complete_name_regex("(.+)( \\()([A-Za-z]+)(.[A-Za-z]+)*(\\))");
+	boost::match_results<std::string::const_iterator> name_results;
+	if (!boost::regex_match(complete_name, name_results, complete_name_regex)) return complete_name;
+
+	std::string legacy_name = name_results[3];
+	// capitalize the first letter
+	std::string cap_letter = legacy_name.substr(0, 1);
+	LLStringUtil::toUpper(cap_letter);
+	legacy_name = cap_letter + legacy_name.substr(1);
+
+	if (name_results[4].matched)
+	{
+		std::string last_name = name_results[4];
+		std::string cap_letter = last_name.substr(1, 1);
+		LLStringUtil::toUpper(cap_letter);
+		last_name = cap_letter + last_name.substr(2);
+		legacy_name = legacy_name + " " + last_name;
+	}
+
+	return legacy_name;
 }
 
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.

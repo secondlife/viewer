@@ -57,6 +57,7 @@ public:
 		POOL_BUMP,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
+		POOL_VOIDWATER,
 		POOL_WATER,
 		POOL_GLOW,
 		POOL_ALPHA,

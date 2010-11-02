@@ -258,17 +258,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 void LLPanelOutfitsInventory::onTrashButtonClick()
 {
-	LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLPanelOutfitsInventory::onOutfitsRemovalConfirmation, this, _1, _2));
-}
-
-void LLPanelOutfitsInventory::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option != 0) return; // canceled
-
 	mMyOutfitsPanel->removeSelected();
-	updateListCommands();
-	updateVerbs();
 }
 
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
