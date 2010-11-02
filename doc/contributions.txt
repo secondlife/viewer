@@ -79,6 +79,8 @@ Aleric Inglewood
 Ales Beaumont
 	VWR-9352
 	SNOW-240
+Alexandrea Fride
+    STORM-255
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -754,6 +756,9 @@ Wilton Lundquist
 	VWR-7682
 Zai Lynch
 	VWR-19505
+Wolfpup Lowenhar
+	STORM-255
+	STORM-256
 Zarkonnen Decosta
 	VWR-253
 Zi Ree
