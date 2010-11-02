@@ -882,8 +882,7 @@ void LLModel::optimizeVolumeFaces()
 // and offset by mNormalizedTranslation
 // to be the "original" extents and position.
 // Also, the positions will fit
-// within the unit cube and the extents
-// to be corners of the unit cube.
+// within the unit cube.
 void LLModel::normalizeVolumeFaces()
 {
 
@@ -936,25 +935,24 @@ void LLModel::normalizeVolumeFaces()
 		LLVector4a size;
 		size.setSub(max, min);
 
-		// To make the model's total size
-		// be the size of the unit cube, compute
-		// a scale factor that can be applied
-		// to do that.
-		LLVector4a scale = LLVector4a(1, 1, 1);
-		scale.setDiv(scale, size);
+		// To make the model fit within
+		// the unit cube with only the largest
+		// dimensions fitting on the surface of the cube,
+		// calculate the largest extent on any axis
+		F32 scale = 1.f/llmax(llmax(size[0], size[1]), size[2]);
 
 		for (U32 i = 0; i < mVolumeFaces.size(); ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
 
 			// We shrink the extents so
-			// that they fall on the corners
-			// of the unit cube.
+			// that they fall within
+			// the unit cube.
 			face.mExtents[0].add(trans);
-			face.mExtents[0].setMul(face.mExtents[0], scale);
+			face.mExtents[0].mul(scale);
 
 			face.mExtents[1].add(trans);
-			face.mExtents[1].setMul(face.mExtents[1], scale);
+			face.mExtents[1].mul(scale);
 
 			// For all the positions, we scale
 			// the positions to fit within the unit cube.
@@ -962,7 +960,7 @@ void LLModel::normalizeVolumeFaces()
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
 			 	pos[j].add(trans);
-				pos[j].setMul(pos[j], scale);
+				pos[j].mul(scale);
 			}
 		}
 
@@ -970,7 +968,7 @@ void LLModel::normalizeVolumeFaces()
 		// we would need to multiply the model
 		// by to get the original size of the
 		// model instead of the normalized size.
-		mNormalizedScale.set(size.getF32ptr());
+		mNormalizedScale = LLVector3(1,1,1) / scale;
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
 	}
