@@ -126,6 +126,13 @@ BOOL LLFloaterMap::postBuild()
 
 BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
+	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
+	if (isMinimized())
+	{
+		setMinimized(FALSE);
+		return TRUE;
+	}
+
 	LLVector3d pos_global = mMap->viewPosToGlobal(x, y);
 	
 	// If we're not tracking a beacon already, double-click will set one 
@@ -145,9 +152,7 @@ BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 	}
 	else 
 	{
-		// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
-		std::string floater_to_show = this->isMinimized() ? "mini_map" : "world_map";
-		LLFloaterReg::showInstance(floater_to_show);
+		LLFloaterReg::showInstance("world_map");
 	}
 	return TRUE;
 }
