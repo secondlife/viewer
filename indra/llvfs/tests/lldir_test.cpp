@@ -289,7 +289,7 @@ namespace tut
 
    static const char* DirScanFilename[5] = { "file1.abc", "file2.abc", "file1.xyz", "file2.xyz", "file1.mno" };
    
-   void scanTest(const std::string directory, const std::string pattern, bool correctResult[5])
+   void scanTest(const std::string& directory, const std::string& pattern, bool correctResult[5])
    {
 
       // Scan directory and see if any file1.* files are found
@@ -314,7 +314,7 @@ namespace tut
          }
          else // check is 5 - should not happen
          {
-            ensure( "found unknown file '"+(std::string)DirScanFilename[check]+"'", false);
+            fail( "found unknown file '"+scanResult+"'");
          }
       }
       for (int i=0; i<5; i++)
@@ -380,7 +380,6 @@ namespace tut
       // Scan dir2 and see if any file?.??c files are found - THESE FAIL AND SO ARE COMMENTED OUT FOR NOW
       //      bool  expected8[5] = { true, true, false, false, false };
       //      scanTest(dir2, "file?.??c", expected8);
-      //      bool  expected8[5] = { true, true, false, false, false };
       //      scanTest(dir2, "*.??c", expected8);
 
       // Scan dir1 and see if any *.?n? files are found
