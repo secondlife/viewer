@@ -636,12 +636,15 @@ public:
 			}
 		}
 
-		S32 pending = (S32) gMeshRepo.mPendingRequests.size();
-		S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
-		S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
-
-		if (pending + header + lod + LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests != 0)
+		if (!gMeshRepo.mPendingRequests.empty() ||
+			!gMeshRepo.mThread->mHeaderReqQ.empty() ||
+			!gMeshRepo.mThread->mLODReqQ.empty())
 		{
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			S32 pending = (S32) gMeshRepo.mPendingRequests.size();
+			S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
+			S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
+
 			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
 												pending,
 												LLMeshRepoThread::sActiveHeaderRequests, header,
