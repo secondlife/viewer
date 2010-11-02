@@ -406,6 +406,10 @@ LLCondition::~LLCondition()
 
 void LLCondition::wait()
 {
+	if (!isLocked())
+	{ //mAPRMutexp MUST be locked before calling apr_thread_cond_wait
+		apr_thread_mutex_lock(mAPRMutexp);
+	}
 	apr_thread_cond_wait(mAPRCondp, mAPRMutexp);
 }
 
