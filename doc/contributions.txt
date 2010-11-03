@@ -129,6 +129,7 @@ Alissa Sabre
 	VWR-12617
 	VWR-12620
 	VWR-12789
+	SNOW-322
 Angus Boyd
 	VWR-592
 Ann Congrejo
@@ -145,6 +146,7 @@ Asuka Neely
 Balp Allen
 	VWR-4157
 Be Holder
+	SNOW-322
 	SNOW-397
 Benja Kepler
 	VWR-746
