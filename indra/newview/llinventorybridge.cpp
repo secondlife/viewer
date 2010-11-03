@@ -2908,6 +2908,7 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 {
 	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
+		(inv_item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
 	{
 		return FALSE;
