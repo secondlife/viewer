@@ -743,6 +743,11 @@ class DarwinManifest(ViewerManifest):
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
+            if devfile != '/dev/disk1':
+                # adding more debugging info based upon nat's hunches to the
+                # logs to help track down 'SetFile -a V' failures -brad
+                print "WARNING: 'SetFile -a V' command below is probably gonna fail"
+
             # Copy everything in to the mounted .dmg
 
             if self.default_channel() and not self.default_grid():
