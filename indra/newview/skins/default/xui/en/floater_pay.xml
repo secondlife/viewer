@@ -84,7 +84,7 @@
      top_pad="0"
      layout="topleft"
      left="130"
-     max_length="9"
+     max_length_bytes="9"
      name="amount"
      width="80" />
     <button

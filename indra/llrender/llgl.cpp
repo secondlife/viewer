@@ -610,41 +610,46 @@ void LLGLManager::shutdownGL()
 void LLGLManager::initExtensions()
 {
 #if LL_MESA_HEADLESS
-# if GL_ARB_multitexture
+# ifdef GL_ARB_multitexture
 	mHasMultitexture = TRUE;
 # else
 	mHasMultitexture = FALSE;
 # endif
-# if GL_ARB_texture_env_combine
+# ifdef GL_ARB_texture_env_combine
 	mHasARBEnvCombine = TRUE;	
 # else
 	mHasARBEnvCombine = FALSE;
 # endif
-# if GL_ARB_texture_compression
+# ifdef GL_ARB_texture_compression
 	mHasCompressedTextures = TRUE;
 # else
 	mHasCompressedTextures = FALSE;
 # endif
-# if GL_ARB_vertex_buffer_object
+# ifdef GL_ARB_vertex_buffer_object
 	mHasVertexBufferObject = TRUE;
 # else
 	mHasVertexBufferObject = FALSE;
 # endif
-# if GL_EXT_framebuffer_object
+# ifdef GL_EXT_framebuffer_object
 	mHasFramebufferObject = TRUE;
 # else
 	mHasFramebufferObject = FALSE;
 # endif
-# if GL_EXT_framebuffer_multisample
+# ifdef GL_EXT_framebuffer_multisample
 	mHasFramebufferMultisample = TRUE;
 # else
 	mHasFramebufferMultisample = FALSE;
 # endif
-# if GL_ARB_draw_buffers
+# ifdef GL_ARB_draw_buffers
 	mHasDrawBuffers = TRUE;
 #else
 	mHasDrawBuffers = FALSE;
 # endif
+# if defined(GL_NV_depth_clamp) || defined(GL_ARB_depth_clamp)
+	mHasDepthClamp = TRUE;
+#else
+	mHasDepthClamp = FALSE;
+#endif
 # if GL_EXT_blend_func_separate
 	mHasBlendFuncSeparate = TRUE;
 #else
@@ -671,6 +676,7 @@ void LLGLManager::initExtensions()
 	mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
 	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 	mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts)
 		&& ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
@@ -694,6 +700,7 @@ void LLGLManager::initExtensions()
 	if (getenv("LL_GL_NOEXT"))
 	{
 		//mHasMultitexture = FALSE; // NEEDED!
+		mHasDepthClamp = FALSE;
 		mHasARBEnvCombine = FALSE;
 		mHasCompressedTextures = FALSE;
 		mHasVertexBufferObject = FALSE;
@@ -755,6 +762,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'s')) mHasFramebufferMultisample = FALSE;
 		if (strchr(blacklist,'t')) mHasTextureRectangle = FALSE;
 		if (strchr(blacklist,'u')) mHasBlendFuncSeparate = FALSE;//S
+		if (strchr(blacklist,'v')) mHasDepthClamp = FALSE;
 		
 	}
 #endif // LL_LINUX || LL_SOLARIS
@@ -2037,7 +2045,7 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLClampToFarClip::LLGLClampToFarClip(glh::matrix4f P)
+LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P)
 {
 	for (U32 i = 0; i < 4; i++)
 	{
@@ -2050,7 +2058,7 @@ LLGLClampToFarClip::LLGLClampToFarClip(glh::matrix4f P)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-LLGLClampToFarClip::~LLGLClampToFarClip()
+LLGLSquashToFarClip::~LLGLSquashToFarClip()
 {
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

@@ -69,14 +69,18 @@ Aleric Inglewood
 	VWR-10759
 	VWR-10837
 	VWR-12691
+	VWR-12984
 	VWR-13996
 	VWR-14426
 	SNOW-84
+	SNOW-477
 	SNOW-766
 	STORM-163
 Ales Beaumont
 	VWR-9352
 	SNOW-240
+Alexandrea Fride
+    STORM-255
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -125,6 +129,7 @@ Alissa Sabre
 	VWR-12617
 	VWR-12620
 	VWR-12789
+	SNOW-322
 Angus Boyd
 	VWR-592
 Ann Congrejo
@@ -141,6 +146,7 @@ Asuka Neely
 Balp Allen
 	VWR-4157
 Be Holder
+	SNOW-322
 	SNOW-397
 Benja Kepler
 	VWR-746
@@ -174,6 +180,7 @@ Boroondas Gupte
 	VWR-233
 	VWR-20583
 	VWR-20891
+	VWR-23455
 	WEB-262
 Bulli Schumann
 	CT-218
@@ -591,6 +598,8 @@ Salahzar Stenvaag
 	CT-321
 Sammy Frederix
 	VWR-6186
+Satomi Ahn
+	STORM-501
 Scrippy Scofield
 	VWR-3748
 Seg Baphomet
@@ -749,6 +758,9 @@ Wilton Lundquist
 	VWR-7682
 Zai Lynch
 	VWR-19505
+Wolfpup Lowenhar
+	STORM-255
+	STORM-256
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

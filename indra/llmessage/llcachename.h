@@ -90,6 +90,12 @@ public:
 	// "Random Linden" -> "random.linden"
 	static std::string buildUsername(const std::string& name);
 	
+	// Converts a complete display name to a legacy name
+	// if possible, otherwise returns the input
+	// "Alias (random.linden)" -> "Random Linden"
+	// "Something random" -> "Something random"
+	static std::string buildLegacyName(const std::string& name);
+	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this

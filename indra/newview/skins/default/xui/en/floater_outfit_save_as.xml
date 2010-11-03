@@ -50,7 +50,7 @@ as a new Outfit:
      left_delta="0"
      show_text_as_tentative="false"
      top_pad="0"
-     max_length="63"
+     max_length_bytes="63"
      name="name ed"
      width="200">
         [DESC] (new)

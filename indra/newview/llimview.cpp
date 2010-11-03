@@ -131,6 +131,20 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
+	// *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				msg["session_id"]);
+	if (!gSavedSettings.getBOOL("EnableGroupChatPopups")
+			&& session->isGroupSessionType())
+	{
+		return;
+	}
+	if (!gSavedSettings.getBOOL("EnableIMChatPopups")
+			&& !session->isGroupSessionType())
+	{
+		return;
+	}
+
 	// Skip toasting if we have open window of IM with this session id
 	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
 	if (open_im_floater && open_im_floater->getVisible())
@@ -257,21 +271,17 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// history files have consistent (English) names in different locales.
 	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
 	{
-		// Name here has a form of "<Avatar's name> Conference"
-		// Lets update it to localize the "Conference" word. See EXT-8429.
-		S32 separator_index = mName.rfind(" ");
-		std::string name = mName.substr(0, separator_index);
-		++separator_index;
-		std::string conference_word = mName.substr(separator_index, mName.length());
-
-		// additional check that session name is what we expected
-		if ("Conference" == conference_word)
-		{
-			LLStringUtil::format_map_t args;
-			args["[AGENT_NAME]"] = name;
-			LLTrans::findString(mName, "conference-title-incoming", args);
-		}
+		LLAvatarNameCache::get(mOtherParticipantID, 
+							   boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache, 
+							   this, _2));
 	}
+}
+
+void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
+{
+			LLStringUtil::format_map_t args;
+	args["[AGENT_NAME]"] = av_name.getCompleteName();
+			LLTrans::findString(mName, "conference-title-incoming", args);
 }
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
@@ -430,8 +440,9 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		}
 		else
 		{
-			// Legacy chat logs only wrote the legacy name, not the agent_id
-			gCacheName->getUUID(from, from_id);
+			// convert it to a legacy name if we have a complete name
+			std::string legacy_name = gCacheName->buildLegacyName(from);
+ 			gCacheName->getUUID(legacy_name, from_id);
 		}
 
 		std::string timestamp = msg[IM_TIME];
@@ -526,8 +537,16 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 
 void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
-	// if username is empty, display names isn't enabled, use the display name
-	mHistoryFileName = av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername;
+	if (av_name.mLegacyFirstName.empty())
+	{
+		// if mLegacyFirstName is empty it means display names is off and the 
+		// data came from the gCacheName, mDisplayName will be the legacy name
+		mHistoryFileName = LLCacheName::cleanFullName(av_name.mDisplayName);
+	}
+	else
+	{  
+		mHistoryFileName = LLCacheName::cleanFullName(av_name.getLegacyName());
+	}
 }
 
 void LLIMModel::LLIMSession::buildHistoryFileName()
@@ -737,8 +756,18 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-	{
-		LLLogChat::saveHistory(file_name, from, from_id, utf8_text);
+	{	
+		std::string from_name = from;
+
+		LLAvatarName av_name;
+		if (!from_id.isNull() && 
+			LLAvatarNameCache::get(from_id, &av_name) &&
+			!av_name.mIsDisplayNameDefault)
+		{	
+			from_name = av_name.getCompleteName();
+		}
+
+		LLLogChat::saveHistory(file_name, from_name, from_id, utf8_text);
 		return true;
 	}
 	else

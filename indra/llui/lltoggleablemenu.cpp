@@ -35,8 +35,20 @@ static LLDefaultChildRegistry::Register<LLToggleableMenu> r("toggleable_menu");
 LLToggleableMenu::LLToggleableMenu(const LLToggleableMenu::Params& p)
 :	LLMenuGL(p),
 	mButtonRect(),
+	mVisibilityChangeSignal(NULL),
 	mClosedByButtonClick(false)
 {
+}
+
+LLToggleableMenu::~LLToggleableMenu()
+{
+	delete mVisibilityChangeSignal;
+}
+
+boost::signals2::connection LLToggleableMenu::setVisibilityChangeCallback(const commit_signal_t::slot_type& cb)
+{
+	if (!mVisibilityChangeSignal) mVisibilityChangeSignal = new commit_signal_t();
+	return mVisibilityChangeSignal->connect(cb);
 }
 
 // virtual
@@ -48,6 +60,12 @@ void LLToggleableMenu::handleVisibilityChange (BOOL curVisibilityIn)
 	if (!curVisibilityIn && mButtonRect.pointInRect(x, y))
 	{
 		mClosedByButtonClick = true;
+	}
+
+	if (mVisibilityChangeSignal)
+	{
+		(*mVisibilityChangeSignal)(this,
+				LLSD().with("visibility", curVisibilityIn).with("closed_by_button_click", mClosedByButtonClick));
 	}
 }
 

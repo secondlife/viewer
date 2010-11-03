@@ -62,6 +62,7 @@
 #include "llsaveoutfitcombobtn.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
+#include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llsdutil.h"
@@ -152,13 +153,13 @@ std::string LLShopURLDispatcher::resolveURL(LLAssetType::EType asset_type, ESex 
 class LLPanelOutfitEditGearMenu
 {
 public:
-	static LLMenuGL* create()
+	static LLToggleableMenu* create()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 		registrar.add("Wearable.Create", boost::bind(onCreate, _2));
 
-		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(menu);
 		if (menu)
@@ -219,7 +220,7 @@ private:
 class LLAddWearablesGearMenu : public LLInitClass<LLAddWearablesGearMenu>
 {
 public:
-	static LLMenuGL* create(LLWearableItemsList* flat_list, LLInventoryPanel* inventory_panel)
+	static LLToggleableMenu* create(LLWearableItemsList* flat_list, LLInventoryPanel* inventory_panel)
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
@@ -234,7 +235,7 @@ public:
 		enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
 		enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel_handle, _2));
 
-		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_add_wearable_gear.xml",
 			LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -404,6 +405,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mAddWearablesPanel(NULL),
 	mFolderViewFilterCmbBox(NULL),
 	mListViewFilterCmbBox(NULL),
+	mWearableListManager(NULL),
 	mPlusBtn(NULL),
 	mWearablesGearMenuBtn(NULL),
 	mGearMenuBtn(NULL)
@@ -431,6 +433,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 
 LLPanelOutfitEdit::~LLPanelOutfitEdit()
 {
+	delete mWearableListManager;
 	delete mSavedFolderState;
 
 	delete mCOFDragAndDropObserver;
