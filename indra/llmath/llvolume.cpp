@@ -2593,7 +2593,7 @@ S32	LLVolume::getNumFaces() const
 
 	if (sculpt_type == LL_SCULPT_TYPE_MESH)
 	{
-		return LL_SCULPT_MESH_MAX_FACES;
+		return llmax((S32)mVolumeFaces.size(), 1);
 	}
 
 	return (S32)mProfilep->mFaces.size();
