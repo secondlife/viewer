@@ -2429,6 +2429,7 @@ S32	LLFolderView::notify(const LLSD& info)
 		{
 			setFocus(true);
 			selectFirstItem();
+			scrollToShowSelection();
 			return 1;
 
 		}
@@ -2436,6 +2437,7 @@ S32	LLFolderView::notify(const LLSD& info)
 		{
 			setFocus(true);
 			selectLastItem();
+			scrollToShowSelection();
 			return 1;
 		}
 	}

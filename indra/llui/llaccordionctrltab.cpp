@@ -837,8 +837,13 @@ void LLAccordionCtrlTab::showAndFocusHeader()
 	LLRect screen_rc;
 	LLRect selected_rc = header->getRect();
 	localRectToScreen(selected_rc, &screen_rc);
-	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 
+	// This call to notifyParent() is intended to deliver "scrollToShowRect" command
+	// to the parent LLAccordionCtrl so by calling it from the direct parent of this
+	// accordion tab (assuming that the parent is an LLAccordionCtrl) the calls chain
+	// is shortened and messages from inside the collapsed tabs are avoided.
+	// See STORM-536.
+	getParent()->notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 void    LLAccordionCtrlTab::storeOpenCloseState()
 {
