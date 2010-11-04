@@ -143,7 +143,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	1
+RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -170,7 +170,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	1
+RenderUseFBO				1	0
 
 //
 // Class Unknown Hardware (unknown)
