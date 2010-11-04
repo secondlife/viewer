@@ -25,6 +25,7 @@
 
 #include "linden_common.h"
 
+#include "llupdatedownloader.h"
 #include "llevents.h"
 #include "lltimer.h"
 #include "llupdaterservice.h"
@@ -42,11 +43,14 @@ boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 class LLUpdaterServiceImpl : 
 	public LLPluginProcessParentOwner,
-	public LLUpdateChecker::Client
+	public LLUpdateChecker::Client,
+	public LLUpdateDownloader::Client
 {
-	static const std::string ListenerName;
+	static const std::string sListenerName;
 	
+	std::string mProtocolVersion;
 	std::string mUrl;
+	std::string mPath;
 	std::string mChannel;
 	std::string mVersion;
 	
@@ -55,6 +59,7 @@ class LLUpdaterServiceImpl :
 	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
 	
 	LLUpdateChecker mUpdateChecker;
+	LLUpdateDownloader mUpdateDownloader;
 	LLTimer mTimer;
 
 	void retry(void);
@@ -71,10 +76,12 @@ public:
 	virtual void pluginLaunchFailed();
 	virtual void pluginDied();
 
-	void setParams(const std::string& url,
+	void setParams(const std::string& protocol_version,
+				   const std::string& url, 
+				   const std::string& path,
 				   const std::string& channel,
 				   const std::string& version);
-
+	
 	void setCheckPeriod(unsigned int seconds);
 
 	void startChecking();
@@ -83,20 +90,25 @@ public:
 	
 	// LLUpdateChecker::Client:
 	virtual void error(std::string const & message);
-	virtual void optionalUpdate(std::string const & newVersion);
-	virtual void requiredUpdate(std::string const & newVersion);
+	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri);
+	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri);
 	virtual void upToDate(void);
 	
+	// LLUpdateDownloader::Client
+	void downloadComplete(void) { retry(); }
+	void downloadError(std::string const & message) { retry(); }	
+
 	bool onMainLoop(LLSD const & event);	
 };
 
-const std::string LLUpdaterServiceImpl::ListenerName = "LLUpdaterServiceImpl";
+const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
 	mCheckPeriod(0),
 	mPlugin(0),
-	mUpdateChecker(*this)
+	mUpdateChecker(*this),
+	mUpdateDownloader(*this)
 {
 	// Create the plugin parent, this is the owner.
 	mPlugin.reset(new LLPluginProcessParent(this));
@@ -105,7 +117,7 @@ LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 {
 	LL_INFOS("UpdaterService") << "shutting down updater service" << LL_ENDL;
-	LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
+	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
 
 // LLPluginProcessParentOwner interfaces
@@ -126,7 +138,9 @@ void LLUpdaterServiceImpl::pluginDied()
 {
 };
 
-void LLUpdaterServiceImpl::setParams(const std::string& url,
+void LLUpdaterServiceImpl::setParams(const std::string& protocol_version,
+									 const std::string& url, 
+									 const std::string& path,
 									 const std::string& channel,
 									 const std::string& version)
 {
@@ -136,7 +150,9 @@ void LLUpdaterServiceImpl::setParams(const std::string& url,
 			" before setting params.");
 	}
 		
+	mProtocolVersion = protocol_version;
 	mUrl = url;
+	mPath = path;
 	mChannel = channel;
 	mVersion = version;
 }
@@ -157,7 +173,7 @@ void LLUpdaterServiceImpl::startChecking()
 		}
 		mIsChecking = true;
 		
-		mUpdateChecker.check(mUrl, mChannel, mVersion);
+		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
 	}
 }
 
@@ -179,14 +195,14 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 	retry();
 }
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion)
+void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion, LLURI const & uri)
 {
-	retry();
+	mUpdateDownloader.download(uri);
 }
 
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion)
+void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion, LLURI const & uri)
 {
-	retry();
+	mUpdateDownloader.download(uri);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)
@@ -201,7 +217,7 @@ void LLUpdaterServiceImpl::retry(void)
 	mTimer.start();
 	mTimer.setTimerExpirySec(mCheckPeriod);
 	LLEventPumps::instance().obtain("mainloop").listen(
-		ListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
+		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }
 
 bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
@@ -209,8 +225,8 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 	if(mTimer.hasExpired())
 	{
 		mTimer.stop();
-		LLEventPumps::instance().obtain("mainloop").stopListening(ListenerName);
-		mUpdateChecker.check(mUrl, mChannel, mVersion);
+		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
+		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
 	} else {
 		// Keep on waiting...
 	}
@@ -239,11 +255,13 @@ LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::setParams(const std::string& url,
-								 const std::string& chan,
-								 const std::string& vers)
+void LLUpdaterService::setParams(const std::string& protocol_version,
+								 const std::string& url, 
+								 const std::string& path,
+								 const std::string& channel,
+								 const std::string& version)
 {
-	mImpl->setParams(url, chan, vers);
+	mImpl->setParams(protocol_version, url, path, channel, version);
 }
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)

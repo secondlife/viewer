@@ -6,24 +6,30 @@ include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
+include(CURL)
 include(LLCommon)
 include(LLMessage)
 include(LLPlugin)
+include(LLVFS)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
+	${LLVFS_INCLUDE_DIRS}
+	${CURL_INCLUDE_DIRS}
     )
 
 set(updater_service_SOURCE_FILES
     llupdaterservice.cpp
     llupdatechecker.cpp
+    llupdatedownloader.cpp
     )
 
 set(updater_service_HEADER_FILES
     llupdaterservice.h
     llupdatechecker.h
+    llupdatedownloader.h
     )
 
 set_source_files_properties(${updater_service_HEADER_FILES}
@@ -42,6 +48,8 @@ target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
+	${LLVFS_LIBRARIES}
+	${CURL_LIBRARIES}
     )
 
 if(LL_TESTS)

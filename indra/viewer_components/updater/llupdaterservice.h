@@ -42,9 +42,9 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	// The base URL.
-	// *NOTE:Mani The grid, if any, would be embedded in the base URL.
-	void setParams(const std::string& url, 
+	void setParams(const std::string& version,
+				   const std::string& url, 
+				   const std::string& path,
 				   const std::string& channel,
 				   const std::string& version);
 

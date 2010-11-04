@@ -1,5 +1,5 @@
 /** 
- * @file llupdatechecker.h
+ * @file llupdatedownloader.h
  *
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,52 +23,56 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_UPDATERCHECKER_H
-#define LL_UPDATERCHECKER_H
+#ifndef LL_UPDATE_DOWNLOADER_H
+#define LL_UPDATE_DOWNLOADER_H
 
 
+#include <stdexcept>
+#include <string>
 #include <boost/shared_ptr.hpp>
+#include "lluri.h"
 
 
 //
-// Implements asynchronous checking for updates.
+// An asynchronous download service for fetching updates.
 //
-class LLUpdateChecker {
+class LLUpdateDownloader
+{
 public:
+	class BusyError;
 	class Client;
 	class Implementation;
 	
-	LLUpdateChecker(Client & client);
+	LLUpdateDownloader(Client & client);
 	
-	// Check status of current app on the given host for the channel and version provided.
-	void check(std::string const & protocolVersion, std::string const & hostUrl, 
-			   std::string const & servicePath, std::string channel, std::string version);
+	// Cancel any in progress download; a no op if none is in progress.
+	void cancel(void);
+	
+	// Start a new download.
+	//
+	// This method will throw a BusyException instance if a download is already
+	// in progress.
+	void download(LLURI const & uri);
+	
+	// Returns true if a download is in progress.
+	bool isDownloading(void);
 	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
 };
 
 
-class LLURI; // From lluri.h
-
-
 //
-// The client interface implemented by a requestor checking for an update.
+// An interface to be implemented by clients initiating a update download.
 //
-class LLUpdateChecker::Client
-{
+class LLUpdateDownloader::Client {
 public:
-	// An error occurred while checking for an update.
-	virtual void error(std::string const & message) = 0;
 	
-	// A newer version is available, but the current version may still be used.
-	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri) = 0;
+	// The download has completed successfully.
+	virtual void downloadComplete(void) = 0;
 	
-	// A newer version is available, and the current version is no longer valid. 
-	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri) = 0;
-	
-	// The checked version is up to date; no newer version exists.
-	virtual void upToDate(void) = 0;
+	// The download failed.
+	virtual void downloadError(std::string const & message) = 0;
 };
 
 
