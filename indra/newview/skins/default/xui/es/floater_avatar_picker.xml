@@ -24,6 +24,10 @@
 				Escribe parte del nombre de la persona:
 			</text>
 			<button label="Ir" label_selected="Ir" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Nombre" name="name"/>
+				<columns label="Nombre de usuario" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="Amigos" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -39,7 +43,10 @@
 				Metros
 			</text>
 			<button font="SansSerifSmall" label="Actualizar la lista" label_selected="Actualizar la lista" left_delta="1" name="Refresh" width="115"/>
-			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
+			<scroll_list bottom_delta="-169" height="159" name="NearMe">
+				<columns label="Nombre" name="name"/>
+				<columns label="Nombre de usuario" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

@@ -194,6 +194,9 @@
 	<string name="TooltipAgentUrl">
 		Pulsa para ver el perfil del Residente
 	</string>
+	<string name="TooltipAgentInspect">
+		Obtén más información acerca de este residente.
+	</string>
 	<string name="TooltipAgentMute">
 		Pulsa para silenciar a este Residente
 	</string>
@@ -740,6 +743,12 @@
 	</string>
 	<string name="Estate / Full Region">
 		Estado /Región completa
+	</string>
+	<string name="Estate / Homestead">
+		Estado / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continente / Homestead
 	</string>
 	<string name="Mainland / Full Region">
 		Continente / Región completa
@@ -3472,7 +3481,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Usted es el único usuario en esta sesión.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] no está conectado.
+		[NAME] está desconectado.
 	</string>
 	<string name="invite_message">
 		Pulse el botón [BUTTON NAME] para aceptar/conectar este chat de voz.
@@ -3541,7 +3550,10 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] te ha pagado [AMOUNT] L$
+		[NAME] te ha pagado [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] te ha pagado [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
@@ -3554,6 +3566,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Has pagado [AMOUNT] L$ por [REASON].
+	</string>
+	<string name="for item">
+		para [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		para una parcela de terreno
@@ -3572,6 +3587,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		to upload
+	</string>
+	<string name="to publish a classified ad">
+		para publicar un anuncio clasificado
 	</string>
 	<string name="giving">
 		Dando [AMOUNT] L$
