@@ -89,7 +89,7 @@ void check_curl_code(CURLcode code)
 {
 	if (code != CURLE_OK)
 	{
-		llerrs << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
 	}
 }
 
@@ -97,7 +97,7 @@ void check_curl_multi_code(CURLMcode code)
 {
 	if (code != CURLM_OK)
 	{
-		llerrs << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
 	}
 }
 
