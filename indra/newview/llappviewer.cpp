@@ -2337,9 +2337,11 @@ void LLAppViewer::initUpdater()
 	std::string url = gSavedSettings.getString("UpdaterServiceURL");
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = LLVersionInfo::getVersion();
+	std::string protocol_version = gSavedSettings.getString("UpdaterServiceProtocolVersion");
+	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 
-	mUpdater->setParams(url, channel, version);
+	mUpdater->setParams(protocol_version, url, service_path, channel, version);
 	mUpdater->setCheckPeriod(check_period);
 	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
 	{

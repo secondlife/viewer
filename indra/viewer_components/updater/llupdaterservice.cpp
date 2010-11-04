@@ -48,7 +48,9 @@ class LLUpdaterServiceImpl :
 {
 	static const std::string sListenerName;
 	
+	std::string mProtocolVersion;
 	std::string mUrl;
+	std::string mPath;
 	std::string mChannel;
 	std::string mVersion;
 	
@@ -74,10 +76,12 @@ public:
 	virtual void pluginLaunchFailed();
 	virtual void pluginDied();
 
-	void setParams(const std::string& url,
+	void setParams(const std::string& protocol_version,
+				   const std::string& url, 
+				   const std::string& path,
 				   const std::string& channel,
 				   const std::string& version);
-
+	
 	void setCheckPeriod(unsigned int seconds);
 
 	void startChecking();
@@ -134,7 +138,9 @@ void LLUpdaterServiceImpl::pluginDied()
 {
 };
 
-void LLUpdaterServiceImpl::setParams(const std::string& url,
+void LLUpdaterServiceImpl::setParams(const std::string& protocol_version,
+									 const std::string& url, 
+									 const std::string& path,
 									 const std::string& channel,
 									 const std::string& version)
 {
@@ -144,7 +150,9 @@ void LLUpdaterServiceImpl::setParams(const std::string& url,
 			" before setting params.");
 	}
 		
+	mProtocolVersion = protocol_version;
 	mUrl = url;
+	mPath = path;
 	mChannel = channel;
 	mVersion = version;
 }
@@ -165,7 +173,7 @@ void LLUpdaterServiceImpl::startChecking()
 		}
 		mIsChecking = true;
 		
-		mUpdateChecker.check(mUrl, mChannel, mVersion);
+		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
 	}
 }
 
@@ -218,7 +226,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 	{
 		mTimer.stop();
 		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
-		mUpdateChecker.check(mUrl, mChannel, mVersion);
+		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
 	} else {
 		// Keep on waiting...
 	}
@@ -247,11 +255,13 @@ LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::setParams(const std::string& url,
-								 const std::string& chan,
-								 const std::string& vers)
+void LLUpdaterService::setParams(const std::string& protocol_version,
+								 const std::string& url, 
+								 const std::string& path,
+								 const std::string& channel,
+								 const std::string& version)
 {
-	mImpl->setParams(url, chan, vers);
+	mImpl->setParams(protocol_version, url, path, channel, version);
 }
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)

@@ -41,7 +41,8 @@ public:
 	
 	Implementation(Client & client);
 	~Implementation();
-	void check(std::string const & host, std::string channel, std::string version);
+	void check(std::string const & protocolVersion, std::string const & hostUrl, 
+			   std::string const & servicePath, std::string channel, std::string version);
 	
 	// Responder:
 	virtual void completed(U32 status,
@@ -50,7 +51,8 @@ public:
 	virtual void error(U32 status, const std::string & reason);
 	
 private:
-	std::string buildUrl(std::string const & host, std::string channel, std::string version);
+	std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
+						 std::string const & servicePath, std::string channel, std::string version);
 	
 	Client & mClient;
 	LLHTTPClient mHttpClient;
@@ -74,9 +76,10 @@ LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
 }
 
 
-void LLUpdateChecker::check(std::string const & host, std::string channel, std::string version)
+void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
+							std::string const & servicePath, std::string channel, std::string version)
 {
-	mImplementation->check(host, channel, version);
+	mImplementation->check(protocolVersion, hostUrl, servicePath, channel, version);
 }
 
 
@@ -100,13 +103,14 @@ LLUpdateChecker::Implementation::~Implementation()
 }
 
 
-void LLUpdateChecker::Implementation::check(std::string const & host, std::string channel, std::string version)
+void LLUpdateChecker::Implementation::check(std::string const & protocolVersion, std::string const & hostUrl, 
+											std::string const & servicePath, std::string channel, std::string version)
 {
 	// llassert(!mInProgress);
 		
 	mInProgress = true;
 	mVersion = version;
-	std::string checkUrl = buildUrl(host, channel, version);
+	std::string checkUrl = buildUrl(protocolVersion, hostUrl, servicePath, channel, version);
 	LL_INFOS("UpdateCheck") << "checking for updates at " << checkUrl << llendl;
 	
 	// The HTTP client will wrap a raw pointer in a boost::intrusive_ptr causing the
@@ -125,17 +129,17 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 	if(status != 200) {
 		LL_WARNS("UpdateCheck") << "html error " << status << " (" << reason << ")" << llendl;
 		mClient.error(reason);
-	} else if(!content["valid"].asBoolean()) {
-		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
-		LLURI uri(content["download_url"].asString());
-		mClient.requiredUpdate(content["latest_version"].asString(), uri);
-	} else if(content["latest_version"].asString() != mVersion) {
-		LL_INFOS("UpdateCheck") << "newer version " << content["latest_version"].asString() << " available" << llendl;
-		LLURI uri(content["download_url"].asString());
-		mClient.optionalUpdate(content["latest_version"].asString(), uri);
-	} else {
+	} else if(!content.asBoolean()) {
 		LL_INFOS("UpdateCheck") << "up to date" << llendl;
 		mClient.upToDate();
+	} else if(content["required"].asBoolean()) {
+		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
+		LLURI uri(content["url"].asString());
+		mClient.requiredUpdate(content["version"].asString(), uri);
+	} else {
+		LL_INFOS("UpdateCheck") << "newer version " << content["version"].asString() << " available" << llendl;
+		LLURI uri(content["url"].asString());
+		mClient.optionalUpdate(content["version"].asString(), uri);
 	}
 }
 
@@ -144,14 +148,26 @@ void LLUpdateChecker::Implementation::error(U32 status, const std::string & reas
 {
 	mInProgress = false;
 	LL_WARNS("UpdateCheck") << "update check failed; " << reason << llendl;
+	mClient.error(reason);
 }
 
 
-std::string LLUpdateChecker::Implementation::buildUrl(std::string const & host, std::string channel, std::string version)
+std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
+													  std::string const & servicePath, std::string channel, std::string version)
 {	
+#ifdef LL_WINDOWS
+	static const char * platform = "win";
+#elif LL_DARWIN
+	static const char * platform = "mac";
+#else
+	static const char * platform = "lnx";
+#endif
+	
 	LLSD path;
-	path.append("version");
+	path.append(servicePath);
+	path.append(protocolVersion);
 	path.append(channel);
 	path.append(version);
-	return LLURI::buildHTTP(host, path).asString();
+	path.append(platform);
+	return LLURI::buildHTTP(hostUrl, path).asString();
 }

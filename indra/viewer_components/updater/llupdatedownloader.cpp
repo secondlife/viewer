@@ -222,6 +222,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	
 	CURLcode code;
 	code = curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true);
+	code = curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true);
 	code = curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function);
 	code = curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this);
 	code = curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function);

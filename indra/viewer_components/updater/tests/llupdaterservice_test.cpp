@@ -60,9 +60,10 @@ LLPluginMessage::LLPluginMessage(LLPluginMessage const&) {}
 
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::check(std::string const & host, std::string channel, std::string version){}
-LLUpdateDownloader::LLUpdateDownloader(LLUpdateDownloader::Client & client)
+void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
+								  std::string const & servicePath, std::string channel, std::string version)
 {}
+LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
 void LLUpdateDownloader::download(LLURI const & ){}
 
 /*****************************************************************************
@@ -113,9 +114,9 @@ namespace tut
 		bool got_usage_error = false;
 		try
 		{
-			updater.setParams(test_url, test_channel, test_version);
+			updater.setParams("1.0",test_url, "update" ,test_channel, test_version);
 			updater.startChecking();
-			updater.setParams("other_url", test_channel, test_version);
+			updater.setParams("1.0", "other_url", "update", test_channel, test_version);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -129,7 +130,7 @@ namespace tut
     {
         DEBUG;
 		LLUpdaterService updater;
-		updater.setParams(test_url, test_channel, test_version);
+		updater.setParams("1.0", test_url, "update", test_channel, test_version);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();
