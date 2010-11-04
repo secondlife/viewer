@@ -22,7 +22,7 @@
     <check_box
      control_name="RenderAnisotropic"
      height="16"
-     label="Anisotropic Filtering (slower when enabled)"
+     label="Anisotropic Filtering (slower when enabled, requires viewer restart)"
      layout="topleft"
      left_pad="10"
      name="ani"
@@ -71,6 +71,18 @@
          name="16x"
          value="16" />
     </combo_box>
+   <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left_pad="10"
+     name="antialiasing restart"
+     top_delta="0"
+     width="188">
+      (requires viewer restart)
+    </text>
     <spinner
      control_name="RenderGamma"
      decimal_digits="2"
