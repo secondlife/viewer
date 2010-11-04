@@ -129,6 +129,7 @@ private:
 	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
 	
 private:
+	BOOL                 mEnabled;
 	BOOL                 mInitialized ;
 	BOOL                 mReadOnly ;
 	HeaderMetaInfo       mMetaInfo;
@@ -143,7 +144,7 @@ private:
 	static LLVOCache* sInstance ;
 public:
 	static LLVOCache* getInstance() ;
-	static BOOL       hasInstance() ;
+	static BOOL       hasInstance() ;	
 	static void       destroyClass() ;
 };
 

@@ -24,6 +24,17 @@
       <key>Value</key>
       <real>300</real>
     </map>
+    <key>AdminMenu</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the debug admin menu from the main menu.  Note: This will just allow the menu to be shown; this does not grant admin privileges.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AdvanceSnapshot</key>
     <map>
       <key>Comment</key>
@@ -2567,6 +2578,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGroupChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming Group Chat Popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableIMChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming IM Chat Popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DisplayAvatarAgentTarget</key>
     <map>
       <key>Comment</key>
@@ -4581,6 +4614,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LogTextureNetworkTraffic</key>
+    <map>
+      <key>Comment</key>
+      <string>Log network traffic for textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LoginAsGod</key>
     <map>
       <key>Comment</key>
@@ -5892,6 +5936,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>ObjectCacheEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the object cache.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>OpenDebugStatAdvanced</key>
     <map>
@@ -8283,7 +8338,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderUIBuffer</key>
     <map>
@@ -11142,6 +11197,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>SpeakerParticipantDefaultOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Order for displaying speakers in voice controls.  0 = alphabetical. 1 = recent.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>

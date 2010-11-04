@@ -241,7 +241,7 @@
          height="23"
          layout="topleft"
          left="10"
-         max_length="63"
+         max_length_bytes="63"
          name="description"
          prevalidate_callback="ascii"
          select_on_focus="true"

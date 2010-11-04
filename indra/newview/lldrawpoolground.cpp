@@ -68,7 +68,7 @@ void LLDrawPoolGround::render(S32 pass)
 
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	LLGLClampToFarClip far_clip(glh_get_current_projection());
+	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
 	F32 water_height = gAgent.getRegion()->getWaterHeight();
 	glPushMatrix();

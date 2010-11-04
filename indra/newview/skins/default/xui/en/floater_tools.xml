@@ -831,7 +831,7 @@
              follows="left|top|right"
              height="19"
              left_pad="0"
-             max_length="63"
+             max_length_bytes="63"
              name="Object Name"
              select_on_focus="true"
              top_delta="0"
@@ -849,7 +849,7 @@
              follows="left|top|right"
              height="19"
              left_pad="0"
-             max_length="127"
+             max_length_bytes="127"
              name="Object Description"
              select_on_focus="true"
              top_delta="0"
@@ -965,7 +965,7 @@
              top_pad="10"
              left="10"
              name="label click action"
-             width="98">
+             width="118">
                 Click to:
             </text>
             <combo_box
@@ -973,7 +973,7 @@
              height="23"
              layout="topleft"
              name="clickaction"
-             width="168"
+             width="148"
              left_pad="0">
                 <combo_box.item
                  label="Touch  (default)"
@@ -2554,7 +2554,7 @@ even though the user gets a free copy.
              height="16"
              layout="topleft"
              left="10"
-             max_length="63"
+             max_length_bytes="63"
              name="Home Url"
              select_on_focus="true"
              top="134"

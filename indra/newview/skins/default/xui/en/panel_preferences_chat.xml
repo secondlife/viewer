@@ -308,6 +308,38 @@
      width="95">
         URLs
     </text>
+    <spinner
+     control_name="NearbyToastLifeTime"
+     decimal_digits="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="23"
+     label="Nearby chat toasts life time:"
+     label_width="190"
+     layout="topleft"
+     left="290"
+     max_val="60"
+     min_val="1"
+     name="nearby_toasts_lifetime"
+     top_pad="33"
+     width="210" />
+    <spinner
+     control_name="NearbyToastFadingTime"
+     decimal_digits="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="3"
+     label="Nearby chat toasts fading time:"
+     label_width="190"
+     layout="topleft"
+     left_delta="00"
+     max_val="60"
+     min_val="0"
+     name="nearby_toasts_fadingtime"
+     top_pad="15"
+     width="210" />
     <check_box
      control_name="PlayTypingAnim"
      height="16"
@@ -316,7 +348,7 @@
      layout="topleft"
      left="30"
      name="play_typing_animation"
-     top_pad="32"
+     top="205"
      width="400" />
     <check_box
      enabled="false"
@@ -343,7 +375,7 @@
      left="30"
      height="20"
      width="170"
-     top_pad="14">
+     top_pad="7">
      Show IMs in:
     </text>
     <text
@@ -359,14 +391,14 @@
       (requires restart)
       </text>
     <radio_group
+     follows="left|top"
      height="30"
-     layout="topleft"
      left="40"
      control_name="ChatWindow"
      name="chat_window"
      top_pad="0"
      tool_tip="Show your Instant Messages in separate floaters, or in one floater with many tabs (Requires restart)"
-     width="331">
+     width="150">
      <radio_item
       height="16"
       label="Separate windows"
@@ -386,6 +418,36 @@
       top_pad="5"
       width="150" />
     </radio_group>
+    <text
+     name="disable_toast_label"
+     follows="left|top"
+     layout="topleft"
+     top_delta="-22" 
+     left="280" 
+     height="10"
+     width="180">
+      Enable Incoming Chat popups:
+      </text>
+    <check_box
+     control_name="EnableGroupChatPopups"
+     name="EnableGroupChatPopups"
+     label="Group Chats" 
+     layout="topleft"
+     top_delta="18" 
+     left="295" 
+     height="20"
+     tool_tip="Check to see popups when a Group Chat message arrives"
+     width="400" />
+    <check_box
+     control_name="EnableIMChatPopups"
+     name="EnableIMChatPopups"
+     label="IM Chats" 
+     layout="topleft"
+     top_delta="22" 
+     left="295" 
+     height="20"
+     tool_tip="Check to see popups when an instant message arrives"
+     width="400" />
     <check_box
      control_name="TranslateChat"
      enabled="true"

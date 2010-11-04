@@ -533,7 +533,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
+	//never use more than 4 samples for render targets
+	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 4);
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -554,8 +555,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		addDeferredAttachments(mDeferredScreen);
 	
-		// always set viewport to desired size, since allocate resets the viewport
-
 		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 
@@ -598,7 +597,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	}
 	
 
-	if (gGLManager.mHasFramebufferMultisample && samples > 1)
+	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
@@ -630,14 +629,14 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 //static
 void LLPipeline::updateRenderDeferred()
 {
-	BOOL deferred = (gSavedSettings.getBOOL("RenderDeferred") && 
-		LLRenderTarget::sUseFBO &&
-			 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		gSavedSettings.getBOOL("VertexShaderEnable") && 
-		gSavedSettings.getBOOL("RenderAvatarVP") &&
-			 (gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
-		!gUseWireframe;
-	
+	BOOL deferred = ((gSavedSettings.getBOOL("RenderDeferred") && 
+					 LLRenderTarget::sUseFBO &&
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+					 gSavedSettings.getBOOL("VertexShaderEnable") && 
+					 gSavedSettings.getBOOL("RenderAvatarVP") &&
+					 gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
+					!gUseWireframe;
+
 	sRenderDeferred = deferred;			
 }
 
@@ -874,7 +873,7 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	return (gSavedSettings.getBOOL("RenderUseFBO"));
+	return TRUE; //(gSavedSettings.getBOOL("RenderUseFBO"));
 }
 
 void LLPipeline::unloadShaders()
@@ -1639,20 +1638,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	camera.disableUserClipPlane();
 
-	if (gSky.mVOSkyp.notNull() && gSky.mVOSkyp->mDrawable.notNull())
+	if (hasRenderType(LLPipeline::RENDER_TYPE_SKY) && 
+		gSky.mVOSkyp.notNull() && 
+		gSky.mVOSkyp->mDrawable.notNull())
 	{
-		// Hack for sky - always visible.
-		if (hasRenderType(LLPipeline::RENDER_TYPE_SKY)) 
-		{
-			gSky.mVOSkyp->mDrawable->setVisible(camera);
-			sCull->pushDrawable(gSky.mVOSkyp->mDrawable);
-			gSky.updateCull();
-			stop_glerror();
-		}
-	}
-	else
-	{
-		llinfos << "No sky drawable!" << llendl;
+		gSky.mVOSkyp->mDrawable->setVisible(camera);
+		sCull->pushDrawable(gSky.mVOSkyp->mDrawable);
+		gSky.updateCull();
+		stop_glerror();
 	}
 
 	if (hasRenderType(LLPipeline::RENDER_TYPE_GROUND) && 
@@ -2222,6 +2215,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 					  LLPipeline::RENDER_TYPE_TERRAIN,
 					  LLPipeline::RENDER_TYPE_TREE,
 					  LLPipeline::RENDER_TYPE_SKY,
+					  LLPipeline::RENDER_TYPE_VOIDWATER,
 					  LLPipeline::RENDER_TYPE_WATER,
 					  LLPipeline::END_RENDER_TYPES))
 	{
@@ -5013,6 +5007,10 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 void LLPipeline::toggleRenderType(U32 type)
 {
 	gPipeline.mRenderTypeEnabled[type] = !gPipeline.mRenderTypeEnabled[type];
+	if (type == LLPipeline::RENDER_TYPE_WATER)
+	{
+		gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER] = !gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER];
+	}
 }
 
 //static
@@ -7340,6 +7338,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gPipeline.pushRenderTypeMask();
 
 				clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+									LLPipeline::RENDER_TYPE_VOIDWATER,
 									LLPipeline::RENDER_TYPE_GROUND,
 									LLPipeline::RENDER_TYPE_SKY,
 									LLPipeline::RENDER_TYPE_CLOUDS,
@@ -7392,6 +7391,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		{
 			camera.setFar(camera_in.getFar());
 			clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+								LLPipeline::RENDER_TYPE_VOIDWATER,
 								LLPipeline::RENDER_TYPE_GROUND,
 								END_RENDER_TYPES);	
 			stop_glerror();
@@ -7908,6 +7908,7 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 								 LLPipeline::RENDER_TYPE_TREE, 
 								 LLPipeline::RENDER_TYPE_TERRAIN,
 								 LLPipeline::RENDER_TYPE_WATER,
+								 LLPipeline::RENDER_TYPE_VOIDWATER,
 								 LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
 								 LLPipeline::RENDER_TYPE_AVATAR,
 								 LLPipeline::RENDER_TYPE_PASS_SIMPLE,
@@ -8091,6 +8092,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					LLPipeline::RENDER_TYPE_TREE, 
 					LLPipeline::RENDER_TYPE_TERRAIN,
 					LLPipeline::RENDER_TYPE_WATER,
+					LLPipeline::RENDER_TYPE_VOIDWATER,
 					LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
 					LLPipeline::RENDER_TYPE_PASS_SIMPLE,
 					LLPipeline::RENDER_TYPE_PASS_BUMP,
