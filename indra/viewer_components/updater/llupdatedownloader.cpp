@@ -24,6 +24,7 @@
  */
 
 #include "linden_common.h"
+#include <stdexcept>
 #include <boost/lexical_cast.hpp>
 #include <curl/curl.h>
 #include "lldir.h"
@@ -41,31 +42,54 @@ public:
 	Implementation(LLUpdateDownloader::Client & client);
 	~Implementation();
 	void cancel(void);
-	void download(LLURI const & uri);
+	void download(LLURI const & uri, std::string const & hash);
 	bool isDownloading(void);
 	void onHeader(void * header, size_t size);
 	void onBody(void * header, size_t size);
 private:
-	static const char * sSecondLifeUpdateRecord;
-	
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
+	LLSD mDownloadData;
 	llofstream mDownloadStream;
 	std::string mDownloadRecordPath;
 	
 	void initializeCurlGet(std::string const & url);
 	void resumeDownloading(LLSD const & downloadData);
 	void run(void);
-	bool shouldResumeOngoingDownload(LLURI const & uri, LLSD & downloadData);
-	void startDownloading(LLURI const & uri);
+	void startDownloading(LLURI const & uri, std::string const & hash);
+	void throwOnCurlError(CURLcode code);
 
 	LOG_CLASS(LLUpdateDownloader::Implementation);
+};
+
+
+namespace {
+	class DownloadError:
+		public std::runtime_error
+	{
+	public:
+		DownloadError(const char * message):
+			std::runtime_error(message)
+		{
+			; // No op.
+		}
+	};
+
+		
+	const char * gSecondLifeUpdateRecord = "SecondLifeUpdateDownload.xml";
 };
 
 
 
 // LLUpdateDownloader
 //-----------------------------------------------------------------------------
+
+
+
+std::string LLUpdateDownloader::downloadMarkerPath(void)
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, gSecondLifeUpdateRecord);
+}
 
 
 LLUpdateDownloader::LLUpdateDownloader(Client & client):
@@ -81,9 +105,9 @@ void LLUpdateDownloader::cancel(void)
 }
 
 
-void LLUpdateDownloader::download(LLURI const & uri)
+void LLUpdateDownloader::download(LLURI const & uri, std::string const & hash)
 {
-	mImplementation->download(uri);
+	mImplementation->download(uri, hash);
 }
 
 
@@ -115,15 +139,11 @@ namespace {
 }
 
 
-const char * LLUpdateDownloader::Implementation::sSecondLifeUpdateRecord =
-	"SecondLifeUpdateDownload.xml";
-
-
 LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & client):
 	LLThread("LLUpdateDownloader"),
 	mClient(client),
 	mCurl(0),
-	mDownloadRecordPath(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, sSecondLifeUpdateRecord))
+	mDownloadRecordPath(LLUpdateDownloader::downloadMarkerPath())
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
 	llassert(code = CURLE_OK); // TODO: real error handling here. 
@@ -142,13 +162,15 @@ void LLUpdateDownloader::Implementation::cancel(void)
 }
 	
 
-void LLUpdateDownloader::Implementation::download(LLURI const & uri)
+void LLUpdateDownloader::Implementation::download(LLURI const & uri, std::string const & hash)
 {
-	LLSD downloadData;
-	if(shouldResumeOngoingDownload(uri, downloadData)){
-		startDownloading(uri); // TODO: Implement resume.
-	} else {
-		startDownloading(uri);
+	if(isDownloading()) mClient.downloadError("download in progress");
+	
+	mDownloadData = LLSD();
+	try {
+		startDownloading(uri, hash);
+	} catch(DownloadError const & e) {
+		mClient.downloadError(e.what());
 	}
 }
 
@@ -173,14 +195,10 @@ void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			size_t size = boost::lexical_cast<size_t>(contentLength);
 			LL_INFOS("UpdateDownload") << "download size is " << size << LL_ENDL;
 			
-			LLSD downloadData;
-			llifstream idataStream(mDownloadRecordPath);
-			LLSDSerialize parser;
-			parser.fromXMLDocument(downloadData, idataStream);
-			idataStream.close();
-			downloadData["size"] = LLSD(LLSD::Integer(size));
+			mDownloadData["size"] = LLSD(LLSD::Integer(size));
 			llofstream odataStream(mDownloadRecordPath);
-			parser.toPrettyXML(downloadData, odataStream);
+			LLSDSerialize parser;
+			parser.toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
 			LL_WARNS("UpdateDownload") << "unable to read content length (" 
 				<< e.what() << ")" << LL_ENDL;
@@ -218,17 +236,16 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 		curl_easy_reset(mCurl);
 	}
 	
-	llassert(mCurl != 0); // TODO: real error handling here.
+	if(mCurl == 0) throw DownloadError("failed to initialize curl");
 	
-	CURLcode code;
-	code = curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true);
-	code = curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true);
-	code = curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function);
-	code = curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this);
-	code = curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function);
-	code = curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this);
-	code = curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true);
-	code = curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str());
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str()));
 }
 
 
@@ -236,7 +253,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(LLSD const & download
 {
 }
 
-
+/*
 bool LLUpdateDownloader::Implementation::shouldResumeOngoingDownload(LLURI const & uri, LLSD & downloadData)
 {
 	if(!LLFile::isfile(mDownloadRecordPath)) return false;
@@ -259,23 +276,42 @@ bool LLUpdateDownloader::Implementation::shouldResumeOngoingDownload(LLURI const
 
 	return true;
 }
+ */
 
 
-void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri)
+void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std::string const & hash)
 {
-	LLSD downloadData;
-	downloadData["url"] = uri.asString();
+	mDownloadData["url"] = uri.asString();
+	mDownloadData["hash"] = hash;
 	LLSD path = uri.pathArray();
+	if(path.size() == 0) throw DownloadError("no file path");
 	std::string fileName = path[path.size() - 1].asString();
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
-	LL_INFOS("UpdateDownload") << "downloading " << filePath << LL_ENDL;
-	LL_INFOS("UpdateDownload") << "from " << uri.asString() << LL_ENDL;
-	downloadData["path"] = filePath;
+	mDownloadData["path"] = filePath;
+
+	LL_INFOS("UpdateDownload") << "downloading " << filePath << "\n"
+		<< "from " << uri.asString() << LL_ENDL;
+		
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize parser;
-	parser.toPrettyXML(downloadData, dataStream);
+	parser.toPrettyXML(mDownloadData, dataStream);
 	
 	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
 	initializeCurlGet(uri.asString());
 	start();
+}
+
+
+void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
+{
+	if(code != CURLE_OK) {
+		const char * errorString = curl_easy_strerror(code);
+		if(errorString != 0) {
+			throw DownloadError(curl_easy_strerror(code));
+		} else {
+			throw DownloadError("unknown curl error");
+		}
+	} else {
+		; // No op.
+	}
 }

@@ -64,7 +64,7 @@ void LLUpdateChecker::check(std::string const & protocolVersion, std::string con
 								  std::string const & servicePath, std::string channel, std::string version)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & ){}
+void LLUpdateDownloader::download(LLURI const & , std::string const &){}
 
 /*****************************************************************************
 *   TUT

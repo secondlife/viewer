@@ -24,21 +24,35 @@
  */
 
 #include "linden_common.h"
+#include <stdexcept>
 #include <boost/format.hpp>
 #include "llhttpclient.h"
 #include "llsd.h"
 #include "llupdatechecker.h"
 #include "lluri.h"
 
+
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
+
+
+class LLUpdateChecker::CheckError:
+	public std::runtime_error
+{
+public:
+	CheckError(const char * message):
+		std::runtime_error(message)
+	{
+		; // No op.
+	}
+};
+
 
 class LLUpdateChecker::Implementation:
 	public LLHTTPClient::Responder
 {
 public:
-	
 	Implementation(Client & client);
 	~Implementation();
 	void check(std::string const & protocolVersion, std::string const & hostUrl, 
@@ -50,9 +64,8 @@ public:
 						   const LLSD& content);
 	virtual void error(U32 status, const std::string & reason);
 	
-private:
-	std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
-						 std::string const & servicePath, std::string channel, std::string version);
+private:	
+	static const char * sProtocolVersion;
 	
 	Client & mClient;
 	LLHTTPClient mHttpClient;
@@ -60,6 +73,9 @@ private:
 	LLHTTPClient::ResponderPtr mMe; 
 	std::string mVersion;
 	
+	std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
+						 std::string const & servicePath, std::string channel, std::string version);
+
 	LOG_CLASS(LLUpdateChecker::Implementation);
 };
 
@@ -88,6 +104,9 @@ void LLUpdateChecker::check(std::string const & protocolVersion, std::string con
 //-----------------------------------------------------------------------------
 
 
+const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.0";
+
+
 LLUpdateChecker::Implementation::Implementation(LLUpdateChecker::Client & client):
 	mClient(client),
 	mInProgress(false),
@@ -106,7 +125,9 @@ LLUpdateChecker::Implementation::~Implementation()
 void LLUpdateChecker::Implementation::check(std::string const & protocolVersion, std::string const & hostUrl, 
 											std::string const & servicePath, std::string channel, std::string version)
 {
-	// llassert(!mInProgress);
+	llassert(!mInProgress);
+	
+	if(protocolVersion != sProtocolVersion) throw CheckError("unsupported protocol");
 		
 	mInProgress = true;
 	mVersion = version;
@@ -135,11 +156,11 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 	} else if(content["required"].asBoolean()) {
 		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
 		LLURI uri(content["url"].asString());
-		mClient.requiredUpdate(content["version"].asString(), uri);
+		mClient.requiredUpdate(content["version"].asString(), uri, content["hash"].asString());
 	} else {
 		LL_INFOS("UpdateCheck") << "newer version " << content["version"].asString() << " available" << llendl;
 		LLURI uri(content["url"].asString());
-		mClient.optionalUpdate(content["version"].asString(), uri);
+		mClient.optionalUpdate(content["version"].asString(), uri, content["hash"].asString());
 	}
 }
 
