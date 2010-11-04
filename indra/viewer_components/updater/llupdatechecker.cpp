@@ -120,17 +120,19 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 							  const std::string & reason,
 							  const LLSD & content)
 {
-	mInProgress = false;
+	mInProgress = false;	
 	
 	if(status != 200) {
 		LL_WARNS("UpdateCheck") << "html error " << status << " (" << reason << ")" << llendl;
 		mClient.error(reason);
 	} else if(!content["valid"].asBoolean()) {
 		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
-		mClient.requiredUpdate(content["latest_version"].asString());
+		LLURI uri(content["download_url"].asString());
+		mClient.requiredUpdate(content["latest_version"].asString(), uri);
 	} else if(content["latest_version"].asString() != mVersion) {
 		LL_INFOS("UpdateCheck") << "newer version " << content["latest_version"].asString() << " available" << llendl;
-		mClient.optionalUpdate(content["latest_version"].asString());
+		LLURI uri(content["download_url"].asString());
+		mClient.optionalUpdate(content["latest_version"].asString(), uri);
 	} else {
 		LL_INFOS("UpdateCheck") << "up to date" << llendl;
 		mClient.upToDate();
@@ -153,4 +155,3 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & host, 
 	path.append(version);
 	return LLURI::buildHTTP(host, path).asString();
 }
-

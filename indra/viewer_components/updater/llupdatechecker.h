@@ -48,6 +48,9 @@ private:
 };
 
 
+class LLURI; // From lluri.h
+
+
 //
 // The client interface implemented by a requestor checking for an update.
 //
@@ -58,10 +61,10 @@ public:
 	virtual void error(std::string const & message) = 0;
 	
 	// A newer version is available, but the current version may still be used.
-	virtual void optionalUpdate(std::string const & newVersion) = 0;
+	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri) = 0;
 	
 	// A newer version is available, and the current version is no longer valid. 
-	virtual void requiredUpdate(std::string const & newVersion) = 0;
+	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri) = 0;
 	
 	// The checked version is up to date; no newer version exists.
 	virtual void upToDate(void) = 0;

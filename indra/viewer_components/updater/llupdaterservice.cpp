@@ -25,6 +25,7 @@
 
 #include "linden_common.h"
 
+#include "llupdatedownloader.h"
 #include "llevents.h"
 #include "lltimer.h"
 #include "llupdaterservice.h"
@@ -42,7 +43,8 @@ boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 class LLUpdaterServiceImpl : 
 	public LLPluginProcessParentOwner,
-	public LLUpdateChecker::Client
+	public LLUpdateChecker::Client,
+	public LLUpdateDownloader::Client
 {
 	static const std::string sListenerName;
 	
@@ -55,6 +57,7 @@ class LLUpdaterServiceImpl :
 	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
 	
 	LLUpdateChecker mUpdateChecker;
+	LLUpdateDownloader mUpdateDownloader;
 	LLTimer mTimer;
 
 	void retry(void);
@@ -83,10 +86,14 @@ public:
 	
 	// LLUpdateChecker::Client:
 	virtual void error(std::string const & message);
-	virtual void optionalUpdate(std::string const & newVersion);
-	virtual void requiredUpdate(std::string const & newVersion);
+	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri);
+	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri);
 	virtual void upToDate(void);
 	
+	// LLUpdateDownloader::Client
+	void downloadComplete(void) { retry(); }
+	void downloadError(std::string const & message) { retry(); }	
+
 	bool onMainLoop(LLSD const & event);	
 };
 
@@ -96,7 +103,8 @@ LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
 	mCheckPeriod(0),
 	mPlugin(0),
-	mUpdateChecker(*this)
+	mUpdateChecker(*this),
+	mUpdateDownloader(*this)
 {
 	// Create the plugin parent, this is the owner.
 	mPlugin.reset(new LLPluginProcessParent(this));
@@ -179,14 +187,14 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 	retry();
 }
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion)
+void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion, LLURI const & uri)
 {
-	retry();
+	mUpdateDownloader.download(uri);
 }
 
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion)
+void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion, LLURI const & uri)
 {
-	retry();
+	mUpdateDownloader.download(uri);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)

@@ -29,6 +29,7 @@
 // associated header
 #include "../llupdaterservice.h"
 #include "../llupdatechecker.h"
+#include "../llupdatedownloader.h"
 
 #include "../../../test/lltut.h"
 //#define DEBUG_ON
@@ -60,6 +61,9 @@ LLPluginMessage::LLPluginMessage(LLPluginMessage const&) {}
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
 void LLUpdateChecker::check(std::string const & host, std::string channel, std::string version){}
+LLUpdateDownloader::LLUpdateDownloader(LLUpdateDownloader::Client & client)
+{}
+void LLUpdateDownloader::download(LLURI const & ){}
 
 /*****************************************************************************
 *   TUT

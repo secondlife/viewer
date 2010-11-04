@@ -27,6 +27,7 @@
 #define LL_UPDATE_DOWNLOADER_H
 
 
+#include <stdexcept>
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "lluri.h"
@@ -38,15 +39,19 @@
 class LLUpdateDownloader
 {
 public:
+	class BusyError;
 	class Client;
 	class Implementation;
 	
 	LLUpdateDownloader(Client & client);
 	
-	// Cancel any in progress download.
+	// Cancel any in progress download; a no op if none is in progress.
 	void cancel(void);
 	
 	// Start a new download.
+	//
+	// This method will throw a BusyException instance if a download is already
+	// in progress.
 	void download(LLURI const & uri);
 	
 	// Returns true if a download is in progress.
@@ -61,12 +66,13 @@ private:
 // An interface to be implemented by clients initiating a update download.
 //
 class LLUpdateDownloader::Client {
+public:
 	
 	// The download has completed successfully.
-	void downloadComplete(void);
+	virtual void downloadComplete(void) = 0;
 	
 	// The download failed.
-	void downloadError(std::string const & message);
+	virtual void downloadError(std::string const & message) = 0;
 };
 
 

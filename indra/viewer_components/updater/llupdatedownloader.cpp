@@ -24,6 +24,8 @@
  */
 
 #include "linden_common.h"
+#include <boost/lexical_cast.hpp>
+#include <curl/curl.h>
 #include "lldir.h"
 #include "llfile.h"
 #include "llsd.h"
@@ -37,20 +39,27 @@ class LLUpdateDownloader::Implementation:
 {
 public:
 	Implementation(LLUpdateDownloader::Client & client);
+	~Implementation();
 	void cancel(void);
 	void download(LLURI const & uri);
 	bool isDownloading(void);
-
+	void onHeader(void * header, size_t size);
+	void onBody(void * header, size_t size);
 private:
 	static const char * sSecondLifeUpdateRecord;
 	
 	LLUpdateDownloader::Client & mClient;
+	CURL * mCurl;
+	llofstream mDownloadStream;
 	std::string mDownloadRecordPath;
 	
+	void initializeCurlGet(std::string const & url);
 	void resumeDownloading(LLSD const & downloadData);
 	void run(void);
 	bool shouldResumeOngoingDownload(LLURI const & uri, LLSD & downloadData);
 	void startDownloading(LLURI const & uri);
+
+	LOG_CLASS(LLUpdateDownloader::Implementation);
 };
 
 
@@ -89,6 +98,23 @@ bool LLUpdateDownloader::isDownloading(void)
 //-----------------------------------------------------------------------------
 
 
+namespace {
+	size_t write_function(void * data, size_t blockSize, size_t blocks, void * downloader)
+	{
+		size_t bytes = blockSize * blocks;
+		reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onBody(data, bytes);
+		return bytes;
+	}
+
+	size_t header_function(void * data, size_t blockSize, size_t blocks, void * downloader)
+	{
+		size_t bytes = blockSize * blocks;
+		reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onHeader(data, bytes);
+		return bytes;
+	}
+}
+
+
 const char * LLUpdateDownloader::Implementation::sSecondLifeUpdateRecord =
 	"SecondLifeUpdateDownload.xml";
 
@@ -96,35 +122,116 @@ const char * LLUpdateDownloader::Implementation::sSecondLifeUpdateRecord =
 LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & client):
 	LLThread("LLUpdateDownloader"),
 	mClient(client),
+	mCurl(0),
 	mDownloadRecordPath(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, sSecondLifeUpdateRecord))
 {
-	; // No op.
+	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
+	llassert(code = CURLE_OK); // TODO: real error handling here. 
+}
+
+
+LLUpdateDownloader::Implementation::~Implementation()
+{
+	if(mCurl) curl_easy_cleanup(mCurl);
 }
 
 
 void LLUpdateDownloader::Implementation::cancel(void)
 {
+	llassert(!"not implemented");
 }
-
+	
 
 void LLUpdateDownloader::Implementation::download(LLURI const & uri)
 {
 	LLSD downloadData;
 	if(shouldResumeOngoingDownload(uri, downloadData)){
-		
+		startDownloading(uri); // TODO: Implement resume.
 	} else {
-					
+		startDownloading(uri);
 	}
 }
 
 
 bool LLUpdateDownloader::Implementation::isDownloading(void)
 {
-	return false;
+	return !isStopped();
+}
+
+void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
+{
+	char const * headerPtr = reinterpret_cast<const char *> (buffer);
+	std::string header(headerPtr, headerPtr + size);
+	size_t colonPosition = header.find(':');
+	if(colonPosition == std::string::npos) return; // HTML response; ignore.
+	
+	if(header.substr(0, colonPosition) == "Content-Length") {
+		try {
+			size_t firstDigitPos = header.find_first_of("0123456789", colonPosition);
+			size_t lastDigitPos = header.find_last_of("0123456789");
+			std::string contentLength = header.substr(firstDigitPos, lastDigitPos - firstDigitPos + 1);
+			size_t size = boost::lexical_cast<size_t>(contentLength);
+			LL_INFOS("UpdateDownload") << "download size is " << size << LL_ENDL;
+			
+			LLSD downloadData;
+			llifstream idataStream(mDownloadRecordPath);
+			LLSDSerialize parser;
+			parser.fromXMLDocument(downloadData, idataStream);
+			idataStream.close();
+			downloadData["size"] = LLSD(LLSD::Integer(size));
+			llofstream odataStream(mDownloadRecordPath);
+			parser.toPrettyXML(downloadData, odataStream);
+		} catch (std::exception const & e) {
+			LL_WARNS("UpdateDownload") << "unable to read content length (" 
+				<< e.what() << ")" << LL_ENDL;
+		}
+	} else {
+		; // No op.
+	}
 }
 
 
-void resumeDownloading(LLSD const & downloadData)
+void LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
+{
+	mDownloadStream.write(reinterpret_cast<const char *>(buffer), size);
+}
+
+
+void LLUpdateDownloader::Implementation::run(void)
+{
+	CURLcode code = curl_easy_perform(mCurl);
+	if(code == CURLE_OK) {
+		LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
+		mClient.downloadComplete();
+	} else {
+		LL_WARNS("UpdateDownload") << "download failed with error " << code << LL_ENDL;
+		mClient.downloadError("curl error");
+	}
+}
+
+
+void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url)
+{
+	if(mCurl == 0) {
+		mCurl = curl_easy_init();
+	} else {
+		curl_easy_reset(mCurl);
+	}
+	
+	llassert(mCurl != 0); // TODO: real error handling here.
+	
+	CURLcode code;
+	code = curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true);
+	code = curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function);
+	code = curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this);
+	code = curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function);
+	code = curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this);
+	code = curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true);
+	code = curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str());
+}
+
+
+void LLUpdateDownloader::Implementation::resumeDownloading(LLSD const & downloadData)
 {
 }
 
@@ -160,9 +267,14 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri)
 	LLSD path = uri.pathArray();
 	std::string fileName = path[path.size() - 1].asString();
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
+	LL_INFOS("UpdateDownload") << "downloading " << filePath << LL_ENDL;
+	LL_INFOS("UpdateDownload") << "from " << uri.asString() << LL_ENDL;
+	downloadData["path"] = filePath;
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize parser;
 	parser.toPrettyXML(downloadData, dataStream);
 	
-	llofstream downloadStream(filePath);
+	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
+	initializeCurlGet(uri.asString());
+	start();
 }
