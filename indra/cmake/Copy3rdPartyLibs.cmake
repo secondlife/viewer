@@ -174,6 +174,7 @@ elseif(DARWIN)
 	libllqtwebkit.dylib
         libndofdev.dylib
         libexception_handler.dylib
+	libcollada14dom.dylib
        )
 
     # fmod is statically linked on darwin
