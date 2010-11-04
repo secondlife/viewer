@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Cliquez pour afficher le profil de ce résident
 	</string>
+	<string name="TooltipAgentInspect">
+		En savoir plus sur ce résident
+	</string>
 	<string name="TooltipAgentMute">
 		Cliquer pour ignorer ce résident
 	</string>
@@ -761,6 +764,12 @@
 	</string>
 	<string name="Estate / Full Region">
 		Domaine / Région entière
+	</string>
+	<string name="Estate / Homestead">
+		Domaine / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continent / Homestead
 	</string>
 	<string name="Mainland / Full Region">
 		Continent / Région entière
@@ -3574,7 +3583,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vous êtes le seul participant à cette session.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] est déconnecté(e).
+		[NAME] est hors ligne.
 	</string>
 	<string name="invite_message">
 		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
@@ -3643,7 +3652,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] vous a payé [AMOUNT] L$
+		[NAME] vous a payé [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
@@ -3656,6 +3668,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for item">
+		pour l&apos;article suivant : [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		pour une parcelle de terrain
@@ -3674,6 +3689,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		pour charger
+	</string>
+	<string name="to publish a classified ad">
+		pour publier une petite annonce
 	</string>
 	<string name="giving">
 		Donner [AMOUNT] L$
