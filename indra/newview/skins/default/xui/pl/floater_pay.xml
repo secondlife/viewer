@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Osoba"/>
 	<text name="payee_name">
-		[FIRST] [LAST]
+		Przetestuj nazwę, która jest bardzo długa aby sprawdzić skracanie.
 	</text>
 	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
 	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
