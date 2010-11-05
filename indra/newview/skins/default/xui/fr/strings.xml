@@ -249,7 +249,7 @@
 		Cliquez pour voir cet emplacement sur la carte
 	</string>
 	<string name="TooltipSLAPP">
-		Cliquez pour exécuter la commande secondlife:// command
+		Cliquez pour exécuter la commande secondlife://
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
@@ -1036,10 +1036,10 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
