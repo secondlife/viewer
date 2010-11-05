@@ -1,8 +1,7 @@
 /** 
- * @file lleventinfo.h
- * @brief LLEventInfo class definition
+ * @file llfloaterdisplayname.h
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,51 +23,16 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEVENTINFO_H
-#define LL_LLEVENTINFO_H
+#ifndef LLFLOATERDISPLAYNAME_H
+#define LLFLOATERDISPLAYNAME_H
 
-#include <map>
 
-#include "v3dmath.h"
-#include "lluuid.h"
-
-class LLMessageSystem;
-
-class LLEventInfo
+namespace LLFloaterDisplayNameUtil
 {
-public:
-        LLEventInfo() :
-	mID(0),
-	mDuration(0),
-	mUnixTime(0),
-	mHasCover(FALSE),
-	mCover(0),
-	mEventFlags(0),
-	mSelected(FALSE)
-	{}
+	// Register with LLFloaterReg
+	void registerFloater();
+}
 
-	void unpack(LLMessageSystem *msg);
 
-	static void loadCategories(const LLSD& options);
 
-public:
-	std::string mName;
-	U32			mID;
-	std::string mDesc;
-	std::string mCategoryStr;
-	U32			mDuration;
-	std::string	mTimeStr;
-	LLUUID		mRunByID;
-	std::string	mSimName;
-	LLVector3d	mPosGlobal;
-	time_t		mUnixTime; // seconds from 1970
-	BOOL		mHasCover;
-	U32			mCover;
-	U32			mEventFlags;
-	BOOL		mSelected;
-
-	typedef std::map<U32, std::string> cat_map;
-	static	cat_map sCategories;
-};
-
-#endif // LL_LLEVENTINFO_H
+#endif

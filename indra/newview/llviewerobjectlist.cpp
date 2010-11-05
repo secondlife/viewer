@@ -47,7 +47,7 @@
 #include "lltooltip.h"
 #include "llworld.h"
 #include "llstring.h"
-#include "llhudtext.h"
+#include "llhudnametag.h"
 #include "lldrawable.h"
 #include "xform.h"
 #include "llsky.h"
@@ -165,6 +165,11 @@ BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 	{
 		U32 local_id = object.mLocalID;
 		LLHost region_host = object.getRegion()->getHost();
+		if(!region_host.isOk())
+		{
+			return FALSE ;
+		}
+
 		U32 ip = region_host.getAddress();
 		U32 port = region_host.getPort();
 		U64 ipport = (((U64)ip) << 32) | (U64)port;
@@ -1210,7 +1215,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			}
 		}
 
-		LLHUDText::addPickable(mSelectPickList);
+		LLHUDNameTag::addPickable(mSelectPickList);
 
 		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 			iter != LLCharacter::sInstances.end(); ++iter)

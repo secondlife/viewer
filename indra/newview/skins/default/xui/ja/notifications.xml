@@ -1861,6 +1861,10 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 		終了しようとしています。続けますか？
 		<usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
 
@@ -2231,8 +2235,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="テレポート"/>
-			<button name="Description" text="説明"/>
+			<button name="Details" text="説明"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
@@ -2799,9 +2802,13 @@ M キーを押して変更します。
 		（ [EXISTENCE] 秒）
 アバター「 NAME 」が完全に読み込まれました。
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( 作成後[EXISTENCE]秒経過）
-&apos;[BODYREGION]&apos; の[RESOLUTION]のベークドテクスチャは[TIME]秒後に[ACTION]されました。
+&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にアップロードされました。
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( 作成後[EXISTENCE]秒経過）
+&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にローカルに更新されました。
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		このコールから抜けますか？

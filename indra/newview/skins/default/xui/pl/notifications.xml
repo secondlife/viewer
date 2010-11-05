@@ -2157,8 +2157,7 @@ Spróbuj wybrać mniejszy obszar.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportuj"/>
-			<button name="Description" text="Opis"/>
+			<button name="Details" text="Opis"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>

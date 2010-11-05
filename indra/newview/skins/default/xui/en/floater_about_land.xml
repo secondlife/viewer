@@ -128,7 +128,7 @@
              height="23"
              layout="topleft"
              left_pad="2"
-             max_length="63"
+             max_length_bytes="63"
              name="Name"
              top_delta="0"
              width="365" />
@@ -220,7 +220,8 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
-             width="240">
+             use_ellipses="true" 
+             width="360">
                 Leyla Linden
             </text>
              <button
@@ -254,7 +255,6 @@
             </text>
    <!--TODO: HOOK UP GROUP ICON-->
             <text
-             enabled="false"
              follows="left|top"
              height="16"
              left_pad="2"
@@ -374,7 +374,8 @@ Leyla Linden               </text>
              left_delta="-199"
              name="For sale to"
              top_delta="20"
-             width="186">
+             use_ellipses="true" 
+             width="340">
                 For sale to: [BUYER]
             </text>
             <text
@@ -410,7 +411,7 @@ Leyla Linden               </text>
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-25"
+             top_pad="-15"
              width="180" />
             <text
              type="string"
@@ -541,7 +542,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-61"
+             top_delta="-50"
              width="180" />
             <button
              enabled="false"
@@ -1079,7 +1080,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="23"
              layout="topleft"
-             max_length="6"
+             max_length_bytes="6"
              name="clean other time"
              left_pad="0"
              width="46"
@@ -1623,7 +1624,7 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              left_pad="0"
-             max_length="255"
+             max_length_bytes="255"
              name="media_url"
              select_on_focus="true"
              width="300"
@@ -1664,7 +1665,7 @@ Only large parcels can be listed in search.
              height="20"
              layout="topleft"
              left="110"
-             max_length="255"
+             max_length_bytes="255"
              name="url_description"
              select_on_focus="true"
              tool_tip="Text displayed next to play/load button"
@@ -1819,7 +1820,7 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              left="100"
-             max_length="255"
+             max_length_bytes="255"
              name="music_url"
              top_delta="0"
              right="-15"

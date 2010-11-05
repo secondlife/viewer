@@ -24,9 +24,10 @@
  * $/LicenseInfo$
  */
 
-
 #ifndef LL_LLLOGCHAT_H
 #define LL_LLLOGCHAT_H
+
+class LLChat;
 
 class LLLogChat
 {
@@ -106,5 +107,11 @@ protected:
 	LLChatLogParser();
 	virtual ~LLChatLogParser() {};
 };
+
+// LLSD map lookup constants
+extern const std::string IM_TIME; //("time");
+extern const std::string IM_TEXT; //("message");
+extern const std::string IM_FROM; //("from");
+extern const std::string IM_FROM_ID; //("from_id");
 
 #endif

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="classified_preview" title="INFORMAÇÕES CLASSIFICADAS">
+	<floater.string name="Title">
+		Classificados: [NAME]
+	</floater.string>
+</floater>

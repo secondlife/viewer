@@ -118,7 +118,7 @@
 		     height="20"
 		     layout="topleft"
 	    	 left_delta="78"
-		     max_length="63"
+		     max_length_bytes="63"
              name="Object Name"
 	    	 top_delta="0"
 		     width="225" />
@@ -143,7 +143,7 @@
              name="Object Description"
              select_on_focus="true"
     		 left_delta="78"
-		     max_length="127"
+		     max_length_bytes="127"
 	    	 top_delta="-5"
 	    	 width="225"/>
 	    <text
@@ -167,7 +167,8 @@
      left_pad="0"
              name="Creator Name"
 		     top_delta="0"
-		     width="140">
+         use_ellipses="true" 
+		     width="225">
 	        Erica Linden
 	     </text>
 	    <text
@@ -191,7 +192,8 @@
 			    left_pad="0"
 			    name="Owner Name"
 			    top_delta="0"
-			    width="140">
+          use_ellipses="true" 
+			    width="225">
 			    Erica Linden
 	     </text>
 	    	    <text

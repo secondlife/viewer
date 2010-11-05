@@ -2169,8 +2169,7 @@ Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do p
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teletransporte"/>
-			<button name="Description" text="Descrição"/>
+			<button name="Details" text="Descrição"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>

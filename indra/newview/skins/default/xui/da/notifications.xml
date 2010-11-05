@@ -1085,8 +1085,7 @@ Prøv at vælge mindre stykker land.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportér"/>
-			<button name="Description" text="Beskrivelse"/>
+			<button name="Details" text="Beskrivelse"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>

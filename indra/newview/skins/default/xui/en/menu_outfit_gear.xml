@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  layout="topleft"
  visible="false"
  name="Gear Outfit">
@@ -212,4 +212,4 @@
          function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
-</menu>
+</toggleable_menu>

@@ -29,7 +29,13 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
+
+#ifdef LL_STANDALONE
+#include <expat.h>
+#else
 #include "expat/expat.h"
+#endif
+
 #include <fstream>
 #include <boost/tokenizer.hpp>
 //#include <boost/spirit/include/qi.hpp>

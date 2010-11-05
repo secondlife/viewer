@@ -32,9 +32,17 @@
 				<accordion_tab name="tab_all" title="全員"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="オプション"/>
-				<button name="add_btn" tool_tip="フレンド登録を申し出ます"/>
-				<button name="del_btn" tool_tip="選択した人をフレンドリストから削除します"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<button name="friends_viewsort_btn" tool_tip="オプションを表示します"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="フレンド登録を申し出る"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="trash_btn" tool_tip="選択した人をフレンドリストから削除"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="マイ グループ" name="groups_panel">
@@ -52,13 +60,33 @@
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="プロフィール" name="view_profile_btn" tool_tip="写真、グループ、その他住人情報を表示します"/>
-		<button label="IM" name="im_btn" tool_tip="インスタントメッセージを開きます"/>
-		<button label="コール" name="call_btn" tool_tip="この住人にコールします"/>
-		<button label="共有" name="share_btn" tool_tip="持ち物アイテムを共有"/>
-		<button label="テレポート" name="teleport_btn" tool_tip="テレポートを送ります"/>
-		<button label="グループ情報" name="group_info_btn" tool_tip="グループ情報を表示します"/>
-		<button label="グループチャット" name="chat_btn" tool_tip="チャットを開始します"/>
-		<button label="グループコール" name="group_call_btn" tool_tip="このグループにコールします"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="プロフィール" name="view_profile_btn" tool_tip="写真、グループ、その他住人情報を表示"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="インスタントメッセージを開きます"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="コール" name="call_btn" tool_tip="この住人にコールする"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="テレポート" name="teleport_btn" tool_tip="テレポートを送ります"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="グループ情報" name="group_info_btn" tool_tip="グループ情報を表示します"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="グループチャット" name="chat_btn" tool_tip="チャットを開始します"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="グループコール" name="group_call_btn" tool_tip="このグループにコールする"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>
