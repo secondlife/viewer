@@ -42,7 +42,7 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void setParams(const std::string& version,
+	void setParams(const std::string& protocol_version,
 				   const std::string& url, 
 				   const std::string& path,
 				   const std::string& channel,
