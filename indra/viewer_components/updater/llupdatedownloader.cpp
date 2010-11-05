@@ -25,6 +25,7 @@
 
 #include "linden_common.h"
 #include <stdexcept>
+#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <curl/curl.h>
 #include "lldir.h"
@@ -47,6 +48,8 @@ public:
 	bool isDownloading(void);
 	void onHeader(void * header, size_t size);
 	void onBody(void * header, size_t size);
+	void resume(void);
+	
 private:
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
@@ -54,8 +57,8 @@ private:
 	llofstream mDownloadStream;
 	std::string mDownloadRecordPath;
 	
-	void initializeCurlGet(std::string const & url);
-	void resumeDownloading(LLSD const & downloadData);
+	void initializeCurlGet(std::string const & url, bool processHeader);
+	void resumeDownloading(size_t startByte);
 	void run(void);
 	void startDownloading(LLURI const & uri, std::string const & hash);
 	void throwOnCurlError(CURLcode code);
@@ -116,6 +119,12 @@ void LLUpdateDownloader::download(LLURI const & uri, std::string const & hash)
 bool LLUpdateDownloader::isDownloading(void)
 {
 	return mImplementation->isDownloading();
+}
+
+
+void LLUpdateDownloader::resume(void)
+{
+	mImplementation->resume();
 }
 
 
@@ -183,6 +192,45 @@ bool LLUpdateDownloader::Implementation::isDownloading(void)
 	return !isStopped();
 }
 
+
+void LLUpdateDownloader::Implementation::resume(void)
+{
+	llifstream dataStream(mDownloadRecordPath);
+	if(!dataStream) {
+		mClient.downloadError("no download marker");
+		return;
+	}
+	
+	LLSDSerialize parser;
+	parser.fromXMLDocument(mDownloadData, dataStream);
+	
+	if(!mDownloadData.asBoolean()) {
+		mClient.downloadError("no download information in marker");
+		return;
+	}
+	
+	std::string filePath = mDownloadData["path"].asString();
+	try {
+		if(LLFile::isfile(filePath)) {		
+			llstat fileStatus;
+			LLFile::stat(filePath, &fileStatus);
+			if(fileStatus.st_size != mDownloadData["size"].asInteger()) {
+				resumeDownloading(fileStatus.st_size);
+			} else if(!validateDownload()) {
+				LLFile::remove(filePath);
+				download(LLURI(mDownloadData["url"].asString()), mDownloadData["hash"].asString());
+			} else {
+				mClient.downloadComplete(mDownloadData);
+			}
+		} else {
+			download(LLURI(mDownloadData["url"].asString()), mDownloadData["hash"].asString());
+		}
+	} catch(DownloadError & e) {
+		mClient.downloadError(e.what());
+	}
+}
+
+
 void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 {
 	char const * headerPtr = reinterpret_cast<const char *> (buffer);
@@ -221,10 +269,11 @@ void LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
+	LLFile::remove(mDownloadRecordPath);
 	if(code == CURLE_OK) {
 		if(validateDownload()) {
 			LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
-			mClient.downloadComplete();
+			mClient.downloadComplete(mDownloadData);
 		} else {
 			LL_INFOS("UpdateDownload") << "download failed hash check" << LL_ENDL;
 			std::string filePath = mDownloadData["path"].asString();
@@ -239,7 +288,7 @@ void LLUpdateDownloader::Implementation::run(void)
 }
 
 
-void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url)
+void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url, bool processHeader)
 {
 	if(mCurl == 0) {
 		mCurl = curl_easy_init();
@@ -253,42 +302,33 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this));
+	if(processHeader) {
+	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function));
+	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this));
+	}
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str()));
 }
 
 
-void LLUpdateDownloader::Implementation::resumeDownloading(LLSD const & downloadData)
+void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 {
+	initializeCurlGet(mDownloadData["url"].asString(), false);
+	
+	// The header 'Range: bytes n-' will request the bytes remaining in the
+	// source begining with byte n and ending with the last byte.
+	boost::format rangeHeaderFormat("Range: bytes=%u-");
+	rangeHeaderFormat % startByte;
+	curl_slist * headerList = 0;
+	headerList = curl_slist_append(headerList, rangeHeaderFormat.str().c_str());
+	if(headerList == 0) throw DownloadError("cannot add Range header");
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, headerList));
+	curl_slist_free_all(headerList);
+	
+	mDownloadStream.open(mDownloadData["path"].asString(),
+						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);
+	start();
 }
-
-
-/*
-bool LLUpdateDownloader::Implementation::shouldResumeOngoingDownload(LLURI const & uri, LLSD & downloadData)
-{
-	if(!LLFile::isfile(mDownloadRecordPath)) return false;
-	
-	llifstream dataStream(mDownloadRecordPath);
-	LLSDSerialize parser;
-	parser.fromXMLDocument(downloadData, dataStream);
-	
-	if(downloadData["url"].asString() != uri.asString()) return false;
-	
-	std::string downloadedFilePath = downloadData["path"].asString();
-	if(LLFile::isfile(downloadedFilePath)) {
-		llstat fileStatus;
-		LLFile::stat(downloadedFilePath, &fileStatus);
-		downloadData["bytes_downloaded"] = LLSD(LLSD::Integer(fileStatus.st_size)); 
-		return true;
-	} else {
-		return false;
-	}
-
-	return true;
-}
- */
 
 
 void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std::string const & hash)
@@ -310,7 +350,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	parser.toPrettyXML(mDownloadData, dataStream);
 	
 	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
-	initializeCurlGet(uri.asString());
+	initializeCurlGet(uri.asString(), true);
 	start();
 }
 

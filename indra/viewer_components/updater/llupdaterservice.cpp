@@ -99,7 +99,7 @@ public:
 	virtual void upToDate(void);
 	
 	// LLUpdateDownloader::Client
-	void downloadComplete(void) { retry(); }
+	void downloadComplete(LLSD const & data) { retry(); }
 	void downloadError(std::string const & message) { retry(); }	
 
 	bool onMainLoop(LLSD const & event);	

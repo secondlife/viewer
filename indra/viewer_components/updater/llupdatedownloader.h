@@ -56,6 +56,9 @@ public:
 	// Returns true if a download is in progress.
 	bool isDownloading(void);
 	
+	// Resume a partial download.
+	void resume(void);
+	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
 };
@@ -68,7 +71,7 @@ class LLUpdateDownloader::Client {
 public:
 	
 	// The download has completed successfully.
-	virtual void downloadComplete(void) = 0;
+	virtual void downloadComplete(LLSD const & data) = 0;
 	
 	// The download failed.
 	virtual void downloadError(std::string const & message) = 0;
