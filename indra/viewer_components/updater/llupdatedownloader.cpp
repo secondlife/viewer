@@ -158,7 +158,7 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	mDownloadRecordPath(LLUpdateDownloader::downloadMarkerPath())
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
-	llassert(code = CURLE_OK); // TODO: real error handling here. 
+	llverify(code == CURLE_OK); // TODO: real error handling here. 
 }
 
 
