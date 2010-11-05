@@ -38,6 +38,9 @@ public:
 	class Client;
 	class Implementation;
 	
+	// An exception that may be raised on check errors.
+	class CheckError;
+	
 	LLUpdateChecker(Client & client);
 	
 	// Check status of current app on the given host for the channel and version provided.
@@ -62,10 +65,14 @@ public:
 	virtual void error(std::string const & message) = 0;
 	
 	// A newer version is available, but the current version may still be used.
-	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri) = 0;
+	virtual void optionalUpdate(std::string const & newVersion,
+								LLURI const & uri,
+								std::string const & hash) = 0;
 	
 	// A newer version is available, and the current version is no longer valid. 
-	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri) = 0;
+	virtual void requiredUpdate(std::string const & newVersion,
+								LLURI const & uri,
+								std::string const & hash) = 0;
 	
 	// The checked version is up to date; no newer version exists.
 	virtual void upToDate(void) = 0;

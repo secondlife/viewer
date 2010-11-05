@@ -90,12 +90,16 @@ public:
 	
 	// LLUpdateChecker::Client:
 	virtual void error(std::string const & message);
-	virtual void optionalUpdate(std::string const & newVersion, LLURI const & uri);
-	virtual void requiredUpdate(std::string const & newVersion, LLURI const & uri);
+	virtual void optionalUpdate(std::string const & newVersion,
+								LLURI const & uri,
+								std::string const & hash);
+	virtual void requiredUpdate(std::string const & newVersion,
+								LLURI const & uri,
+								std::string const & hash);
 	virtual void upToDate(void);
 	
 	// LLUpdateDownloader::Client
-	void downloadComplete(void) { retry(); }
+	void downloadComplete(LLSD const & data) { retry(); }
 	void downloadError(std::string const & message) { retry(); }	
 
 	bool onMainLoop(LLSD const & event);	
@@ -195,14 +199,18 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 	retry();
 }
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion, LLURI const & uri)
+void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
+										  LLURI const & uri,
+										  std::string const & hash)
 {
-	mUpdateDownloader.download(uri);
+	mUpdateDownloader.download(uri, hash);
 }
 
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion, LLURI const & uri)
+void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
+										  LLURI const & uri,
+										  std::string const & hash)
 {
-	mUpdateDownloader.download(uri);
+	mUpdateDownloader.download(uri, hash);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)

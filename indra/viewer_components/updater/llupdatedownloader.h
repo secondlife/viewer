@@ -27,7 +27,6 @@
 #define LL_UPDATE_DOWNLOADER_H
 
 
-#include <stdexcept>
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "lluri.h"
@@ -39,9 +38,12 @@
 class LLUpdateDownloader
 {
 public:
-	class BusyError;
 	class Client;
 	class Implementation;
+	
+	// Returns the path to the download marker file containing details of the
+	// latest download.
+	static std::string downloadMarkerPath(void);
 	
 	LLUpdateDownloader(Client & client);
 	
@@ -49,13 +51,13 @@ public:
 	void cancel(void);
 	
 	// Start a new download.
-	//
-	// This method will throw a BusyException instance if a download is already
-	// in progress.
-	void download(LLURI const & uri);
+	void download(LLURI const & uri, std::string const & hash);
 	
 	// Returns true if a download is in progress.
 	bool isDownloading(void);
+	
+	// Resume a partial download.
+	void resume(void);
 	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
@@ -69,7 +71,7 @@ class LLUpdateDownloader::Client {
 public:
 	
 	// The download has completed successfully.
-	virtual void downloadComplete(void) = 0;
+	virtual void downloadComplete(LLSD const & data) = 0;
 	
 	// The download failed.
 	virtual void downloadError(std::string const & message) = 0;
