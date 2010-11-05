@@ -432,13 +432,15 @@ BOOL LLMediaCtrl::postBuild ()
 //
 BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
-	if (LLPanel::handleKeyHere(key, mask)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
 	{
 		result = mMediaSource->handleKeyHere(key, mask);
 	}
+	
+	if ( ! result )
+		result = LLPanel::handleKeyHere(key, mask);
 		
 	return result;
 }
@@ -458,13 +460,15 @@ void LLMediaCtrl::handleVisibilityChange ( BOOL new_visibility )
 //
 BOOL LLMediaCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
-	if (LLPanel::handleUnicodeCharHere(uni_char)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
 	{
 		result = mMediaSource->handleUnicodeCharHere(uni_char);
 	}
+
+	if ( ! result )
+		result = LLPanel::handleUnicodeCharHere(uni_char);
 
 	return result;
 }
