@@ -266,9 +266,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>5d4fd9fa2a4a3828c0a2311c51b782e1</string>
+            <string>2e1002b3d3d42dbeedb5634521498ebe</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101104a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101105.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
