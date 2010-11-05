@@ -299,6 +299,7 @@ public:
 	{
 		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog");
 		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator");
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
 		if (log_to_viewer_log || log_to_sim)
 		{
@@ -332,6 +333,16 @@ public:
 			}
 			
 			S32 data_size = worker->callbackHttpGet(channels, buffer, partial, success);
+			
+			if(log_texture_traffic && data_size > 0)
+			{
+				LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID) ;
+				if(tex)
+				{
+					gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
+				}
+			}
+
 			mFetcher->removeFromHTTPQueue(mID, data_size);
 		}
 		else

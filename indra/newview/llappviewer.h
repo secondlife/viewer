@@ -260,6 +260,9 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
+	U32 mAvailPhysicalMemInKB ;
+	U32 mAvailVirtualMemInKB ;
+	
 	boost::scoped_ptr<LLUpdaterService> mUpdater;
 
 	//---------------------------------------------

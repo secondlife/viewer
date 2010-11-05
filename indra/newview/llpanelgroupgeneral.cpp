@@ -692,7 +692,8 @@ void LLPanelGroupGeneral::updateMembers()
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!mListVisibleMembers || !gdatap 
-		|| !gdatap->isMemberDataComplete())
+		|| !gdatap->isMemberDataComplete()
+		|| gdatap->mMembers.empty())
 	{
 		return;
 	}

@@ -144,7 +144,7 @@
 			<text name="label click action">
 				Wanneer links-geklikt:
 			</text>
-			<combo_box name="clickaction" width="178">
+			<combo_box name="clickaction">
 				<combo_box.item name="Touch/grab(default)" label="Aanraken/pakken (standaard)"
 				/>
 				<combo_box.item name="Sitonobject" label="Zit op object"

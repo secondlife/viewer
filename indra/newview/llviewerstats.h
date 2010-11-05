@@ -264,4 +264,6 @@ void send_stats();
 extern std::map<S32,LLFrameTimer> gDebugTimers;
 extern std::map<S32,std::string> gDebugTimerLabel;
 extern U32	gTotalTextureBytes;
+extern U32  gTotalObjectBytes;
+extern U32  gTotalTextureBytesPerBoostLevel[] ;
 #endif // LL_LLVIEWERSTATS_H
