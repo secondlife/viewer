@@ -29,6 +29,7 @@
 #include <curl/curl.h>
 #include "lldir.h"
 #include "llfile.h"
+#include "llmd5.h"
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llthread.h"
@@ -58,6 +59,7 @@ private:
 	void run(void);
 	void startDownloading(LLURI const & uri, std::string const & hash);
 	void throwOnCurlError(CURLcode code);
+	bool validateDownload(void);
 
 	LOG_CLASS(LLUpdateDownloader::Implementation);
 };
@@ -129,6 +131,7 @@ namespace {
 		reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onBody(data, bytes);
 		return bytes;
 	}
+
 
 	size_t header_function(void * data, size_t blockSize, size_t blocks, void * downloader)
 	{
@@ -219,10 +222,18 @@ void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
 	if(code == CURLE_OK) {
-		LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
-		mClient.downloadComplete();
+		if(validateDownload()) {
+			LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
+			mClient.downloadComplete();
+		} else {
+			LL_INFOS("UpdateDownload") << "download failed hash check" << LL_ENDL;
+			std::string filePath = mDownloadData["path"].asString();
+			if(filePath.size() != 0) LLFile::remove(filePath);
+			mClient.downloadError("failed hash check");
+		}
 	} else {
-		LL_WARNS("UpdateDownload") << "download failed with error " << code << LL_ENDL;
+		LL_WARNS("UpdateDownload") << "download failed with error '" << 
+			curl_easy_strerror(code) << "'" << LL_ENDL;
 		mClient.downloadError("curl error");
 	}
 }
@@ -252,6 +263,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 void LLUpdateDownloader::Implementation::resumeDownloading(LLSD const & downloadData)
 {
 }
+
 
 /*
 bool LLUpdateDownloader::Implementation::shouldResumeOngoingDownload(LLURI const & uri, LLSD & downloadData)
@@ -289,8 +301,9 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
 	mDownloadData["path"] = filePath;
 
-	LL_INFOS("UpdateDownload") << "downloading " << filePath << "\n"
-		<< "from " << uri.asString() << LL_ENDL;
+	LL_INFOS("UpdateDownload") << "downloading " << filePath
+		<< " from " << uri.asString() << LL_ENDL;
+	LL_INFOS("UpdateDownload") << "hash of file is " << hash << LL_ENDL;
 		
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize parser;
@@ -313,5 +326,23 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 		}
 	} else {
 		; // No op.
+	}
+}
+
+
+bool LLUpdateDownloader::Implementation::validateDownload(void)
+{
+	std::string filePath = mDownloadData["path"].asString();
+	llifstream fileStream(filePath);
+	if(!fileStream) return false;
+
+	std::string hash = mDownloadData["hash"].asString();
+	if(hash.size() != 0) {
+		LL_INFOS("UpdateDownload") << "checking hash..." << LL_ENDL;
+		char digest[33];
+		LLMD5(fileStream).hex_digest(digest);
+		return hash == digest;
+	} else {
+		return true; // No hash check provided.
 	}
 }
