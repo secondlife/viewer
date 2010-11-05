@@ -39,6 +39,7 @@ class LLDrawPoolWater: public LLFacePool
 protected:
 	LLPointer<LLViewerTexture> mHBTex[2];
 	LLPointer<LLViewerTexture> mWaterImagep;
+	LLPointer<LLViewerTexture> mOpaqueWaterImagep;
 	LLPointer<LLViewerTexture> mWaterNormp;
 
 public:
@@ -81,6 +82,9 @@ public:
 
 	void renderReflection(LLFace* face);
 	void shade();
+
+protected:
+	void renderOpaqueLegacyWater();
 };
 
 void cgErrorCallback();

@@ -175,6 +175,16 @@
 			Shaders:
 		</text>
 		<check_box
+		 control_name="RenderTransparentWater"
+		 height="16"
+		 initial_value="true"
+		 label="Transparent Water"
+		 layout="topleft"
+		 left_delta="0"
+		 name="BumpShiny"
+		 top_pad="7"
+		 width="256" />
+		<check_box
 		 control_name="RenderObjectBump"
 		 height="16"
 		 initial_value="true"
@@ -182,7 +192,7 @@
 		 layout="topleft"
 		 left_delta="0"
 		 name="BumpShiny"
-		 top_pad="7"
+		 top_pad="1"
 		 width="256" />
 		<check_box
 		 control_name="VertexShaderEnable"
@@ -279,7 +289,7 @@
          length="1"
          top_pad="8"
          follows="top|left"
-         height="23"
+         height="12"
          width="110"
          word_wrap="true"
          layout="topleft"
@@ -289,10 +299,10 @@
         </text>
         <combo_box
          control_name="RenderReflectionDetail"
-         height="23"
+         height="18"
          layout="topleft"
          left_delta="10"
-         top_pad ="0"
+         top_pad ="3"
          name="Reflections"
          width="150">
             <combo_box.item
