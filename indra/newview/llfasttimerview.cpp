@@ -51,6 +51,8 @@
 #include "llfasttimer.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
+#include "llviewerstats.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 static const S32 MAX_VISIBLE_HISTORY = 10;
@@ -1390,6 +1392,10 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
 	LLSD::Real total_time = 0.0;
 	LLSD::Integer total_frames = 0;
 
+	typedef std::map<std::string,LLViewerStats::StatsAccumulator> stats_map_t;
+	stats_map_t time_stats;
+	stats_map_t sample_stats;
+
 	while (!is.eof() && LLSDSerialize::fromXML(cur, is))
 	{
 		for (LLSD::map_iterator iter = cur.beginMap(); iter != cur.endMap(); ++iter)
@@ -1406,34 +1412,30 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
 
 			if (time > 0.0)
 			{
-				ret[label]["TotalTime"] = ret[label]["TotalTime"].asReal() + time;
-				ret[label]["MaxTime"] = llmax(time, ret[label]["MaxTime"].asReal());
-
-				if (ret[label]["MinTime"].asReal() == 0)
-				{
-					ret[label]["MinTime"] = time;
-				}
-				else
-				{
-					ret[label]["MinTime"] = llmin(ret[label]["MinTime"].asReal(), time);
-				}
-				
 				LLSD::Integer samples = iter->second["Calls"].asInteger();
 
-				ret[label]["Samples"] = ret[label]["Samples"].asInteger() + samples;
-				ret[label]["MaxSamples"] = llmax(ret[label]["MaxSamples"].asInteger(), samples);
-
-				if (ret[label]["MinSamples"].asInteger() == 0)
-				{
-					ret[label]["MinSamples"] = samples;
-				}
-				else
-				{
-					ret[label]["MinSamples"] = llmin(ret[label]["MinSamples"].asInteger(), samples);
-				}
+				time_stats[label].push(time);
+				sample_stats[label].push(samples);
 			}
 		}
 		total_frames++;
+	}
+
+	for(stats_map_t::iterator it = time_stats.begin(); it != time_stats.end(); ++it)
+	{
+		std::string label = it->first;
+		ret[label]["TotalTime"] = time_stats[label].mSum;
+		ret[label]["MeanTime"] = time_stats[label].getMean();
+		ret[label]["MaxTime"] = time_stats[label].getMaxValue();
+		ret[label]["MinTime"] = time_stats[label].getMinValue();
+		ret[label]["StdDevTime"] = time_stats[label].getStdDev();
+		
+		ret[label]["Samples"] = sample_stats[label].mSum;
+		ret[label]["MaxSamples"] = sample_stats[label].getMaxValue();
+		ret[label]["MinSamples"] = sample_stats[label].getMinValue();
+		ret[label]["StdDevSamples"] = sample_stats[label].getStdDev();
+
+		ret[label]["Frames"] = (LLSD::Integer)time_stats[label].getCount();
 	}
 		
 	ret["SessionTime"] = total_time;
@@ -1461,8 +1463,28 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 	std::ofstream os(output.c_str());
 
 	LLSD::Real session_time = current["SessionTime"].asReal();
-	
-	os << "Label, % Change, % of Session, Cur Min, Cur Max, Cur Mean, Cur Total, Cur Samples, Base Min, Base Max, Base Mean, Base Total, Base Samples\n"; 
+	LLSD::Real frame_count = current["FrameCount"].asReal();
+	os <<
+		"Label, "
+		"% Change, "
+		"% of Session, "
+		"Cur Min, "
+		"Cur Max, "
+		"Cur Mean/sample, "
+		"Cur Mean/frame, "
+		"Cur StdDev/frame, "
+		"Cur Total, "
+		"Cur Frames, "
+		"Cur Samples, "
+		"Base Min, "
+		"Base Max, "
+		"Base Mean/sample, "
+		"Base Mean/frame, "
+		"Base StdDev/frame, "
+		"Base Total, "
+		"Base Frames, "
+		"Base Samples\n"; 
+
 	for (LLSD::map_iterator iter = base.beginMap();  iter != base.endMap(); ++iter)
 	{
 		LLSD::String label = iter->first;
@@ -1474,25 +1496,32 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 			continue;
 		}	
 		LLSD::Real a = base[label]["TotalTime"].asReal() / base[label]["Samples"].asReal();
-		LLSD::Real b = current[label]["TotalTime"].asReal() / base[label]["Samples"].asReal();
+		LLSD::Real b = current[label]["TotalTime"].asReal() / current[label]["Samples"].asReal();
 			
 		LLSD::Real diff = b-a;
 
 		LLSD::Real perc = diff/a * 100;
 
-		os << llformat("%s, %.2f, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %.4f, %.4f, %.4f, %.4f, %d\n",
+		os << llformat("%s, %.2f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d\n",
 			label.c_str(), 
 			(F32) perc, 
 			(F32) (current[label]["TotalTime"].asReal()/session_time * 100.0), 
+
 			(F32) current[label]["MinTime"].asReal(), 
 			(F32) current[label]["MaxTime"].asReal(), 
 			(F32) b, 
+			(F32) current[label]["MeanTime"].asReal(), 
+			(F32) current[label]["StdDevTime"].asReal(),
 			(F32) current[label]["TotalTime"].asReal(), 
+			current[label]["Frames"].asInteger(),
 			current[label]["Samples"].asInteger(),
 			(F32) base[label]["MinTime"].asReal(), 
 			(F32) base[label]["MaxTime"].asReal(), 
 			(F32) a, 
+			(F32) base[label]["MeanTime"].asReal(), 
+			(F32) base[label]["StdDevTime"].asReal(),
 			(F32) base[label]["TotalTime"].asReal(), 
+			base[label]["Frames"].asInteger(),
 			base[label]["Samples"].asInteger());			
 	}
 

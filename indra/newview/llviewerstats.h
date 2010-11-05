@@ -196,7 +196,14 @@ public:
 		S32 mCount;
 		F32 mSum;
 		F32 mSumOfSquares;
+		F32 mMinValue;
+		F32 mMaxValue;
 		U32 mCountOfNextUpdatesToIgnore;
+
+		inline StatsAccumulator()
+		{
+			reset();
+		}
 
 		inline void push( F32 val )
 		{
@@ -209,13 +216,31 @@ public:
 			mCount++;
 			mSum += val;
 			mSumOfSquares += val * val;
+			if (mCount == 1 || val > mMaxValue)
+			{
+				mMaxValue = val;
+			}
+			if (mCount == 1 || val < mMinValue)
+			{
+				mMinValue = val;
+			}
 		}
 		
 		inline F32 getMean() const
 		{
 			return (mCount == 0) ? 0.f : ((F32)mSum)/mCount;
 		}
-		
+
+		inline F32 getMinValue() const
+		{
+			return mMinValue;
+		}
+
+		inline F32 getMaxValue() const
+		{
+			return mMaxValue;
+		}
+
 		inline F32 getStdDev() const
 		{
 			const F32 mean = getMean();
@@ -231,6 +256,8 @@ public:
 		{
 			mCount = 0;
 			mSum = mSumOfSquares = 0.f;
+			mMinValue = 0.0f;
+			mMaxValue = 0.0f;
 			mCountOfNextUpdatesToIgnore = 0;
 		}
 		
@@ -240,6 +267,8 @@ public:
 			data["mean"] = getMean();
 			data["std_dev"] = getStdDev();
 			data["count"] = (S32)mCount;
+			data["min"] = getMinValue();
+			data["max"] = getMaxValue();
 			return data;
 		}
 	};
