@@ -201,8 +201,7 @@ void LLUpdateDownloader::Implementation::resume(void)
 		return;
 	}
 	
-	LLSDSerialize parser;
-	parser.fromXMLDocument(mDownloadData, dataStream);
+	LLSDSerialize::fromXMLDocument(mDownloadData, dataStream);
 	
 	if(!mDownloadData.asBoolean()) {
 		mClient.downloadError("no download information in marker");
@@ -248,8 +247,7 @@ void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
 			llofstream odataStream(mDownloadRecordPath);
-			LLSDSerialize parser;
-			parser.toPrettyXML(mDownloadData, odataStream);
+			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
 			LL_WARNS("UpdateDownload") << "unable to read content length (" 
 				<< e.what() << ")" << LL_ENDL;
@@ -346,8 +344,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	LL_INFOS("UpdateDownload") << "hash of file is " << hash << LL_ENDL;
 		
 	llofstream dataStream(mDownloadRecordPath);
-	LLSDSerialize parser;
-	parser.toPrettyXML(mDownloadData, dataStream);
+	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
 	
 	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
 	initializeCurlGet(uri.asString(), true);
