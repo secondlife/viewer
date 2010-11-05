@@ -38,6 +38,7 @@ class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
 class LLFlatListView;
+class LLMenuButton;
 
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
@@ -94,7 +95,6 @@ private:
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
-	void onGearButtonClicked();
 	bool isActionEnabled(const LLSD& userdata) const;
 
 	void setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
@@ -118,6 +118,7 @@ private:
 	ContextMenu mContextMenu;
 	LLContextMenu*			mAccordionTabMenu;
 	LLHandle<LLView>		mGearMenuHandle;
+	LLMenuButton*			mMenuGearButton;
 };
 
 

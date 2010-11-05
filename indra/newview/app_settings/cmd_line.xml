@@ -118,6 +118,8 @@
     <map>
       <key>desc</key>
       <string>Log metrics for benchmarking</string>
+      <key>count</key>
+      <integer>1</integer>
       <key>map-to</key>
       <string>LogMetrics</string>
     </map>

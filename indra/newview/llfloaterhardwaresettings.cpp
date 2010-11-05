@@ -50,6 +50,7 @@ LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
 	  // but init them anyway
 	  mUseVBO(0),
 	  mUseAniso(0),
+	  mUseFBO(0),
 	  mFSAASamples(0),
 	  mGamma(0.0),
 	  mVideoCardMem(0),
@@ -74,6 +75,7 @@ void LLFloaterHardwareSettings::refresh()
 
 	mUseVBO = gSavedSettings.getBOOL("RenderVBOEnable");
 	mUseAniso = gSavedSettings.getBOOL("RenderAnisotropic");
+	mUseFBO = gSavedSettings.getBOOL("RenderUseFBO");
 	mFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	mGamma = gSavedSettings.getF32("RenderGamma");
 	mVideoCardMem = gSavedSettings.getS32("TextureMemory");
@@ -159,6 +161,7 @@ void LLFloaterHardwareSettings::cancel()
 {
 	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
 	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
+	gSavedSettings.setBOOL("RenderUseFBO", mUseFBO);
 	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
 	gSavedSettings.setF32("RenderGamma", mGamma);
 	gSavedSettings.setS32("TextureMemory", mVideoCardMem);

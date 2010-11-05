@@ -115,6 +115,7 @@
 #include "llglheaders.h"
 #include "lltooltip.h"
 #include "llhudmanager.h"
+#include "llhudobject.h"
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
@@ -1174,12 +1175,8 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		//SetBKColor(hdc, RGB(255, 255, 255));
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
-		std::string name_str;
-		LLAgentUI::buildName(name_str);
-
 		std::string temp_str;
-		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				name_str.c_str(),
+		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
 				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
 				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
@@ -1874,7 +1871,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		// clear font width caches
 		if (display_scale_changed)
 		{
-			LLHUDText::reshape();
+			LLHUDObject::reshapeAll();
 		}
 
 		sendShapeToSim();
@@ -3964,7 +3961,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_pause();
 		//rescale fonts
 		initFonts(scale_factor);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	S32 output_buffer_offset_y = 0;
@@ -4093,7 +4090,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	if (high_res)
 	{
 		initFonts(1.f);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)

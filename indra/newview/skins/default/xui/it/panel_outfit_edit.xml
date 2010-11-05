@@ -45,7 +45,13 @@
 		<button name="shop_btn_2" tool_tip="Visita Marketplace di SL. In alternativa puoi scegliere un capo che stai indossando, poi fare clic qui per vedere altri capi simili"/>
 	</panel>
 	<panel name="save_revert_button_bar">
-		<button label="Salva" name="save_btn"/>
-		<button label="Annulla modifiche" name="revert_btn" tool_tip="Ripristina l&apos;ultima versione salvata"/>
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Salva" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annulla modifiche" name="revert_btn" tool_tip="Ripristina l&apos;ultima versione salvata"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

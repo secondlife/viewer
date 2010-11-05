@@ -1086,14 +1086,22 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
 //static
 void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target, std::string output)
 {
+	// Open baseline and current target, exit if one is inexistent
+	std::ifstream base_is(baseline.c_str());
+	std::ifstream target_is(target.c_str());
+	if (!base_is.is_open() || !target_is.is_open())
+	{
+		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		base_is.close();
+		target_is.close();
+		return;
+	}
 
 	//analyze baseline
-	std::ifstream base_is(baseline.c_str());
 	LLSD base = analyzePerformanceLogDefault(base_is);
 	base_is.close();
 
 	//analyze current
-	std::ifstream target_is(target.c_str());
 	LLSD current = analyzePerformanceLogDefault(target_is);
 	target_is.close();
 
@@ -1193,13 +1201,22 @@ void LLFastTimerView::doAnalysisMetrics(std::string baseline, std::string target
 		return ;
 	}
 
-	//analyze baseline
+	// Open baseline and current target, exit if one is inexistent
 	std::ifstream base_is(baseline.c_str());
+	std::ifstream target_is(target.c_str());
+	if (!base_is.is_open() || !target_is.is_open())
+	{
+		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		base_is.close();
+		target_is.close();
+		return;
+	}
+
+	//analyze baseline
 	LLSD base = analyzeMetricPerformanceLog(base_is);
 	base_is.close();
 
 	//analyze current
-	std::ifstream target_is(target.c_str());
 	LLSD current = analyzeMetricPerformanceLog(target_is);
 	target_is.close();
 

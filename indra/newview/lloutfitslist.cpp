@@ -38,9 +38,11 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
 #include "llvoavatar.h"
@@ -121,21 +123,9 @@ public:
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(mMenu);
-	}
-
-	void show(LLView* spawning_view)
-	{
-		if (!mMenu) return;
-
-		updateItemsVisibility();
-		mMenu->buildDrawLabels();
-		mMenu->updateParent(LLMenuGL::sMenuContainer);
-		S32 menu_x = 0;
-		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
-		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
 	}
 
 	void updateItemsVisibility()
@@ -147,6 +137,8 @@ public:
 		mMenu->setItemVisible("sepatator2", have_selection);
 		mMenu->arrangeAndClear(); // update menu height
 	}
+
+	LLToggleableMenu* getMenu() { return mMenu; }
 
 private:
 	const LLUUID& getSelectedOutfitID()
@@ -260,8 +252,8 @@ private:
 		return true;
 	}
 
-	LLOutfitsList*	mOutfitList;
-	LLMenuGL*		mMenu;
+	LLOutfitsList*			mOutfitList;
+	LLToggleableMenu*		mMenu;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -385,6 +377,11 @@ BOOL LLOutfitsList::postBuild()
 {
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
 	mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
+
+	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
+
+	menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenu::updateItemsVisibility, mGearMenu));
+	menu_gear_btn->setMenu(mGearMenu->getMenu());
 
 	return TRUE;
 }
@@ -725,13 +722,6 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 	}
 
 	return false;
-}
-
-// virtual
-void LLOutfitsList::showGearMenu(LLView* spawning_view)
-{
-	if (!mGearMenu) return;
-	mGearMenu->show(spawning_view);
 }
 
 void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const

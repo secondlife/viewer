@@ -125,7 +125,7 @@ protected:
 //
 // This class is used for performance data gathering only.
 // Tracks the image compression / decompression data,
-// records and outputs them to metric.slp log files.
+// records and outputs them to the log file.
 //
 class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
 {
@@ -149,6 +149,8 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
         U32 mTotalBytesInCompression;       // Total bytes fed to compressor
         U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
+		U32 mRunBytesInDecompression;		// Bytes fed to decompressor in this run
+		U32 mRunBytesInCompression;			// Bytes fed to compressor in this run
         //
         // Time
         //

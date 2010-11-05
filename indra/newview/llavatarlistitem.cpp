@@ -35,6 +35,7 @@
 #include "lltextutil.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 
@@ -186,9 +187,14 @@ void LLAvatarListItem::setOnline(bool online)
 	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
-void LLAvatarListItem::setName(const std::string& name)
+void LLAvatarListItem::setAvatarName(const std::string& name)
 {
 	setNameInternal(name, mHighlihtSubstring);
+}
+
+void LLAvatarListItem::setAvatarToolTip(const std::string& tooltip)
+{
+	mAvatarName->setToolTip(tooltip);
 }
 
 void LLAvatarListItem::setHighlight(const std::string& highlight)
@@ -249,7 +255,8 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+		LLAvatarNameCache::get(id,
+			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
 	}
 }
 
@@ -335,23 +342,33 @@ const LLUUID& LLAvatarListItem::getAvatarId() const
 	return mAvatarId;
 }
 
-const std::string LLAvatarListItem::getAvatarName() const
+std::string LLAvatarListItem::getAvatarName() const
 {
 	return mAvatarName->getValue();
 }
 
-//== PRIVATE SECTION ==========================================================
+std::string LLAvatarListItem::getAvatarToolTip() const
+{
+	return mAvatarName->getToolTip();
+}
+
+void LLAvatarListItem::updateAvatarName()
+{
+	LLAvatarNameCache::get(getAvatarId(),
+			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+}
+
+//== PRIVATE SECITON ==========================================================
 
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
 {
 	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
-	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
+void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	std::string name = first_name + " " + last_name;
-	setName(name);
+	setAvatarName(av_name.mDisplayName);
+	setAvatarToolTip(av_name.mUsername);
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

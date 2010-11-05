@@ -57,6 +57,7 @@
     <string
      name="replace_body_part"
      value="Click to replace your existing shape"/>
+  
 
     <button
      follows="top|left"
@@ -199,19 +200,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  user_resize="false"
                  visible="true">
 
-                    <!-- List containing items from the COF and Base outfit -->
-                    <panel
-                     background_visible="false"
-                     class="cof_wearables"
-                     filename="panel_cof_wearables.xml"
+            <!-- List containing items from the COF and Base outfit -->
+            <panel
+             background_visible="false"
+             class="cof_wearables"
+             filename="panel_cof_wearables.xml"
                      follows="all" 
                      height="129"
-                     layout="topleft"
-                     left="1"
-                     name="cof_wearables_list"
-                     top="0"
-                     width="311" />
-                    
+             layout="topleft"
+             left="1"
+             name="cof_wearables_list"
+             top="0"
+             width="311" />
+
                     <button
                      follows="left|bottom" 
                      height="22"
@@ -230,7 +231,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     <combo_box
                      follows="left|right|bottom"
                      height="22"
-                     layout="topleft"
+             layout="topleft"
                      left_pad="5"
                      name="list_view_filter_combobox"
                      top_delta="0"
@@ -246,20 +247,20 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      visible="false"
                      width="152"/>
                     
-                    <button
+            <button
                      follows="bottom|right"
                      height="22"
-                     image_overlay="Search_Icon"
+             image_overlay="Search_Icon"
                      image_pressed="PushButton_Press"
                      image_pressed_selected="PushButton_Selected_Press"
                      image_selected="PushButton_Selected_Press"
-                     is_toggle="true"
-                     layout="topleft"
-                     name="filter_button"
+             is_toggle="true"
+             layout="topleft"
+             name="filter_button"
                      right="-5"
-                     top_delta="0"
+             top_delta="0"
                      visible="false"
-                     width="20" />
+             width="20" />
                 </layout_panel>
 
                 <layout_panel
@@ -288,13 +289,13 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     
                 </layout_panel>
             </layout_stack>
-        </layout_panel>
+                </layout_panel>
 
 
-        <layout_panel
+                <layout_panel
          background_visible="false"
          bg_alpha_color="DkGray2"
-         auto_resize="true"
+                 auto_resize="true"
          default_tab_group="3"
          height="450"
          min_height="80"
@@ -314,44 +315,44 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              top_pad="-9"
              width="313" />
 
-            <inventory_panel
-             allow_multi_select="true"
-             background_visible="false"
-             border="false"
-             follows="left|top|right|bottom"
+                    <inventory_panel
+		             allow_multi_select="true"
+		             background_visible="false"
+		             border="false"
+		             follows="left|top|right|bottom"
              height="418"
-             layout="topleft"
-             left="0"
-             mouse_opaque="false"
+		             layout="topleft"
+		             left="0"
+		             mouse_opaque="false"
              name="folder_view"
              top_pad="0"
              width="313"
-             visible="false"/>
-            <panel
-             name="filtered_wearables_panel"
-             background_opaque="true"
-             background_visible="false"
-             layout="topleft"
-             follows="left|top|right|bottom"
-             border="false"
+		             visible="false"/>
+		            <panel
+		             name="filtered_wearables_panel"
+		             background_opaque="true"
+		             background_visible="false"
+		             layout="topleft"
+		             follows="left|top|right|bottom"
+		             border="false"
              height="418"
-             left="0"
-             mouse_opaque="false"
+		             left="0"
+		             mouse_opaque="false"
              width="310"
-             top_delta="0"
-             visible="true">
-                <wearable_items_list
-                 color="0.107 0.107 0.107 1"
+		             top_delta="0"
+		             visible="true">
+		             <wearable_items_list
+		              color="0.107 0.107 0.107 1"
                  name="list_view"
-                 allow_select="true"
-                 layout="topleft"
-                 follows="all"
-                 multi_select="true"
+		              allow_select="true"
+		              layout="topleft"
+		              follows="all"
+		              multi_select="true"
                  width="313"
                  height="418"
-                 left="0"
-                 top="0"/>
-            </panel>
+		              left="0"
+		              top="0"/>
+		            </panel>
             <button
 	         follows="bottom|left"
 	         height="22"
@@ -362,7 +363,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 	         top_pad="5"
 	         width="130" />
 
-        </layout_panel>
+       </layout_panel>
     </layout_stack>
 
 
@@ -377,7 +378,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      name="no_add_wearables_button_bar"
      top_pad="0"
      width="313">
-        <button
+        <menu_button
          follows="bottom|left"
          height="25"
          image_hover_unselected="Toolbar_Left_Over"
@@ -425,7 +426,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      top_delta="0"
      visible="false"
      width="313">
-        <button
+        <menu_button
          follows="bottom|left"
          height="25"
          image_hover_unselected="Toolbar_Left_Over"
@@ -463,15 +464,15 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          name="list_view_btn"
          top="1"
          width="31" />
-        <icon
-         follows="bottom|left|right"
-         height="25"
+       <icon
+        follows="bottom|left|right"
+        height="25"
          image_name="Toolbar_Middle_Off"
-         layout="topleft"
-         left_pad="1"
+        layout="topleft"
+        left_pad="1"
          name="dummy_right_icon"
          width="186" >
-        </icon>
+       </icon>
         <button
          follows="bottom|right"
          height="25"
@@ -486,7 +487,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"
          width="31" />
     </panel>
-    
+
     <!-- SAVE AND REVERT BUTTONS -->
     <panel
      follows="left|right|bottom"

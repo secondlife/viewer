@@ -318,7 +318,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
 	LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
-	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("RenderShowGroupTitleAll") && gSavedSettings.getS32("AvatarNameTagMode"));
+	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("NameTagShowGroupTitles") && gSavedSettings.getS32("AvatarNameTagMode"));
 	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;

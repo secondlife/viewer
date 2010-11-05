@@ -89,6 +89,7 @@
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+  <string name="TooltipAgentInspect">Learn more about this Resident</string>
 	<string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
@@ -337,7 +338,7 @@
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
-	<string name="dot_raw_file">RAW File</string>
+	<string name="raw_file">RAW File</string>
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
@@ -3048,7 +3049,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     You are the only user in this session.
   </string>
   <string name="offline_message">
-    [FIRST] [LAST] is offline.
+    [NAME] is offline.
   </string>
   <string name="invite_message">
     Click the [BUTTON NAME] button to accept/connect to this voice chat.
@@ -3134,17 +3135,20 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
 
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="for item">for [ITEM]</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
   <string name="for deeding land">for deeding land</string>
   <string name="to create a group">to create a group</string>
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
+  <string name="to publish a classified ad">to publish a classified ad</string>
   
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>

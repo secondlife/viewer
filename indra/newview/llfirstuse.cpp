@@ -117,6 +117,12 @@ void LLFirstUse::notMoving(bool enable)
 }
 
 // static
+void LLFirstUse::setDisplayName(bool enable)
+{
+	firstUseNotification("FirstDisplayName", enable, "HintDisplayName", LLSD(), LLSD().with("target", "set_display_name").with("direction", "left"));
+}
+
+// static
 void LLFirstUse::receiveLindens(bool enable)
 {
 	firstUseNotification("FirstReceiveLindens", enable, "HintLindenDollar", LLSD(), LLSD().with("target", "linden_balance").with("direction", "bottom"));

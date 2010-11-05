@@ -44,6 +44,7 @@
 // Renders a 2D icon billboard floating at the location specified.
 class LLDrawable;
 class LLViewerObject;
+class LLViewerTexture;
 
 class LLHUDIcon : public LLHUDObject
 {

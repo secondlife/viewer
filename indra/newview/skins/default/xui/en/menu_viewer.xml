@@ -2788,6 +2788,12 @@
             <menu_item_call.on_click
              function="Advanced.SendTestIMs" />
           </menu_item_call>
+          <menu_item_call
+           label="Flush Names Caches"
+           name="Flush Names Caches">
+            <menu_item_call.on_click
+             function="Advanced.FlushNameCaches" />
+          </menu_item_call>
         </menu>
         <menu
          create_jump_keys="true"

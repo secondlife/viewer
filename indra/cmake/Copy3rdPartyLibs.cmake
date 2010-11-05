@@ -55,9 +55,10 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_GOOGLE_PERFTOOLS)
 
-    if (FMOD_SDK_DIR)
-        set(fmod_files fmod.dll)
-    endif (FMOD_SDK_DIR)
+    if (FMOD)
+      set(debug_files ${debug_files} fmod.dll)
+      set(release_files ${release_files} fmod.dll)
+    endif (FMOD)
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -206,9 +207,9 @@ elseif(LINUX)
         libssl.so.0.9.7
        )
 
-    if (FMOD_SDK_DIR)
-        set(fmod_files "libfmod-3.75.so")
-    endif (FMOD_SDK_DIR)
+    if (FMOD)
+      set(release_files ${release_files} "libfmod-3.75.so")
+    endif (FMOD)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")

@@ -59,6 +59,7 @@ pre_build()
     -t $variant \
     -G "$cmake_generator" \
    configure \
+	-DGRID:STRING="$viewer_grid" \
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \

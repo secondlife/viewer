@@ -220,7 +220,8 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
-             width="240">
+             use_ellipses="true" 
+             width="360">
                 Leyla Linden
             </text>
              <button
@@ -374,7 +375,8 @@ Leyla Linden               </text>
              left_delta="-199"
              name="For sale to"
              top_delta="20"
-             width="186">
+             use_ellipses="true" 
+             width="340">
                 For sale to: [BUYER]
             </text>
             <text
@@ -410,7 +412,7 @@ Leyla Linden               </text>
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-25"
+             top_pad="-15"
              width="180" />
             <text
              type="string"
@@ -541,7 +543,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-61"
+             top_delta="-50"
              width="180" />
             <button
              enabled="false"

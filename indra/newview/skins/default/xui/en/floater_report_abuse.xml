@@ -373,7 +373,6 @@
      height="23"
      layout="topleft"
      left_delta="0"
-     max_length="32"
      name="abuser_name_edit"
      top_pad="0"
      width="195" />

@@ -125,6 +125,7 @@ Automatic position for:
      left_pad="30"
      name="first_person_avatar_visible"
      width="256" />
+   
     <check_box
      control_name="ArrowKeysAlwaysMove"
      follows="left|top"
@@ -206,7 +207,7 @@ Automatic position for:
    left="80"
    name="UI Size:"
    top_pad="25"
-   width="160">
+   width="300">
     UI size
   </text>
   <slider
@@ -302,6 +303,7 @@ Automatic position for:
      halign="center"
      height="23"
      image_overlay="Refresh_Off"
+   layout="topleft" 
      tool_tip="Reset to Middle Mouse Button"
      mouse_opaque="true"
      name="set_voice_middlemouse_button"
@@ -315,7 +317,7 @@ Automatic position for:
  label="Other Devices"
  left="30"
  name="joystick_setup_button"
- top="27"
+ top_pad="27"
  width="155">
     <button.commit_callback
      function="Floater.Show"

@@ -2897,6 +2897,17 @@
       <key>Value</key>
       <integer>175</integer>
     </map>
+    <key>EventURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Event website, displayed in the event floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://events.secondlife.com/viewer/embed/event/</string>
+    </map>
     <key>EveryoneCopy</key>
       <map>
         <key>Comment</key>
@@ -3852,7 +3863,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -5772,13 +5783,13 @@
     <key>ToastGap</key>
     <map>
       <key>Comment</key>
-      <string>Gap between toasts on a screen</string>
+      <string>Gap between toasts on a screen (min. value is 5)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <integer>7</integer>
     </map>
     <key>ToastButtonWidth</key>
     <map>
@@ -7965,10 +7976,43 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderShowGroupTitleAll</key>
+    <key>NameTagShowGroupTitles</key>
     <map>
       <key>Comment</key>
       <string>Show group titles in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowDisplayNames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show display names in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NameTagShowFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Highlight the name tags of your friends</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowUsernames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show usernames in avatar name tags</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8272,7 +8316,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>RenderUseTriStrips</key>
   <map>
@@ -11035,6 +11079,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>UseDisplayNames</key>
+  <map>
+    <key>Comment</key>
+    <string>Use new, changeable, unicode names</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>
@@ -12089,6 +12144,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>300.0</real>
+    </map>
+    <key>GroupMembersSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>The order by which group members will be sorted (name|donated|online)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>name</string>
     </map>
 </map>
 </llsd>

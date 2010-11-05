@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu name="menu_group_plus"
+<toggleable_menu 
+     name="menu_group_plus"
      left="0" bottom="0" visible="false"
      mouse_opaque="false">
   <menu_item_check
@@ -22,4 +23,4 @@
       <menu_item_call.on_enable
        function="People.Group.Minus.Enable"/>
   </menu_item_call>
-</menu>
+</toggleable_menu>

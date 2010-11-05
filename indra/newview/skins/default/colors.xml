@@ -121,9 +121,6 @@
      name="AlertTextColor"
      value="0.58 0.66 0.84 1" />
     <color
-     name="AvatarNameColor"
-     reference="White" />
-    <color
      name="AvatarListItemIconDefaultColor"
      reference="White" />
     <color
@@ -534,6 +531,29 @@
     <color
      name="MultiSliderTriangleColor"
      reference="Unused?" />
+  <!--
+    <color
+      name="NameTagBackground"
+      value="0.85 0.85 0.85 0.80" />
+      -->
+    <color
+      name="NameTagBackground"
+      value="0 0 0 1" />
+    <color
+     name="NameTagChat"
+     reference="White" />
+    <color
+     name="NameTagFriend"
+     value="0.447 0.784 0.663 1" />
+    <color
+     name="NameTagLegacy"
+     reference="White" />
+    <color
+     name="NameTagMatch"
+     reference="White" />
+    <color
+     name="NameTagMismatch"
+     reference="White" />
     <color
      name="NetMapBackgroundColor"
      value="0 0 0 1" />
@@ -567,6 +587,9 @@
     <color
      name="NotifyTextColor"
      reference="White" />
+    <color
+     name="ObjectBubbleColor"
+     reference="DkGray_66" />
     <color
      name="ObjectChatColor"
      reference="EmphasisColor" />

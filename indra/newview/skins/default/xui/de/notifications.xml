@@ -1831,6 +1831,10 @@ Inventarobjekt(e) verschieben?
 		Wirklich beenden?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Vor dem Löschen von Objekten bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] und [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
@@ -2195,8 +2199,7 @@ Wählen Sie eine kleinere Landfläche.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportieren"/>
-			<button name="Description" text="Beschreibung"/>
+			<button name="Details" text="Beschreibung"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
@@ -2763,9 +2766,13 @@ Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
 		(Seit [EXISTENCE] Sekunden inworld )
 Avatar &apos;[NAME]&apos; hat als vollständig gerezzter Avatar die Welt verlassen.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden [ACTION].
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
+		( [EXISTENCE] Sekunden am Leben)
+Sie haben eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME] Sekunden hochgeladen.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] Sekunden am Leben)
+Sie haben lokal eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME] Sekunden aktualisiert.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Möchten Sie dieses Gespräch wirklich verlassen ?

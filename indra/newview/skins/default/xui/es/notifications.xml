@@ -1419,7 +1419,7 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 	</notification>
 	<notification name="BusyModeSet">
 		Pasar al modo ocupado.
-Se ocultará el chat y los mensajes instantáneos (éstos recibirán tu Respuesta en el modo ocupado). Se rehusarán todos los ofrecimientos de teleporte. Todas las ofertas de inventario irán a tu Papelera.
+Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respuesta en el modo ocupado). Se rehusarán todos los ofrecimientos de teleporte. Todas las ofertas de inventario irán a tu Papelera.
 		<usetemplate ignoretext="Cambio mi estado al modo ocupado" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
@@ -1890,7 +1890,7 @@ Linden Lab
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
-		La carpeta &apos;[FOLDERNAME]&apos; pertenece al sistema, y borrar carpetas del sistema puede provocar inestabilidad.  ¿Estás seguro de que quieres borrarla?
+		La carpeta &apos;[FOLDERNAME]&apos; pertenece al sistema,   y borrar carpetas del sistema puede provocar inestabilidad.  ¿Estás seguro de que quieres borrarla?
 		<usetemplate ignoretext="Confirmar antes de borrar una carpeta del sistema" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
@@ -2190,8 +2190,7 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportar"/>
-			<button name="Description" text="Descripción"/>
+			<button name="Details" text="Detalles"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -2449,7 +2448,7 @@ Esto añadirá un marcador en tu inventario para que puedas enviarle rápidament
 Si permaneces en esta región serás desconectado.
 	</notification>
 	<notification name="RegionRestartSeconds">
-		Esta región se reiniciará en [SECONDS] segundos.
+		Esta región se reiniciará en  [SECONDS] segundos.
 Si permaneces en esta región serás desconectado.
 	</notification>
 	<notification name="LoadWebPage">
@@ -2513,7 +2512,7 @@ Si no confias en este objeto y en su creador, deberías rehusar esta petición.
 	<notification name="BuyLindenDollarSuccess">
 		¡Gracias por tu pago!
 
-Tu saldo de L$ se actualizará cuando se complete el proceso. Si el proceso tarda más de 20 minutos, se cancelará tu transacción, y la cantidad se cargará en tu saldo de US$.
+Tu saldo de L$ se actualizará cuando se complete el proceso. Si el proceso tarda más de 20 minutos, se cancelará tu transacción,    y la cantidad se cargará en tu saldo de US$.
 
 Puedes revisar el estado de tu pago en el Historial de transacciones de tu [http://secondlife.com/account/ Panel de Control]
 	</notification>

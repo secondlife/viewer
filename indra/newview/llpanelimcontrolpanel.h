@@ -83,6 +83,9 @@ public:
 	// LLFriendObserver trigger
 	virtual void changed(U32 mask);
 
+protected:
+	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+
 private:
 	void onViewProfileButtonClicked();
 	void onAddFriendButtonClicked();

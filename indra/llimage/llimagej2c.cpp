@@ -28,6 +28,7 @@
 #include "llimagej2c.h"
 #include "llmemtype.h"
 #include "lltimer.h"
+#include "llmath.h"
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
@@ -43,6 +44,7 @@ const char* fallbackEngineInfoLLImageJ2CImpl();
 
 // Test data gathering handle
 LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
+const std::string sTesterName("ImageCompressionTester");
 
 //static
 std::string LLImageJ2C::getEngineInfo()
@@ -65,7 +67,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 		mDataSizes[i] = 0;
 	}
 
-	if (LLFastTimer::sMetricLog && !LLImageJ2C::sTesterp)
+	if (LLFastTimer::sMetricLog && !LLImageJ2C::sTesterp && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
 	{
 		LLImageJ2C::sTesterp = new LLImageCompressionTester() ;
         if (!LLImageJ2C::sTesterp->isValid())
@@ -442,16 +444,23 @@ LLImageJ2CImpl::~LLImageJ2CImpl()
 //----------------------------------------------------------------------------------------------
 // Start of LLImageCompressionTester
 //----------------------------------------------------------------------------------------------
-LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTesterBasic("ImageCompressionTester") 
+LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTesterBasic(sTesterName) 
 {
+	addMetric("TotalTimeDecompression");
 	addMetric("TotalBytesInDecompression");
 	addMetric("TotalBytesOutDecompression");
+	addMetric("RateDecompression");
+	addMetric("PerfDecompression");
+
+	addMetric("TotalTimeCompression");
 	addMetric("TotalBytesInCompression");
 	addMetric("TotalBytesOutCompression");
-    
-	addMetric("TimeTimeDecompression");
-	addMetric("TimeTimeCompression");
-	
+	addMetric("RateCompression");
+	addMetric("PerfCompression");
+
+	mRunBytesInDecompression = 0;
+    mRunBytesInCompression = 0;
+
     mTotalBytesInDecompression = 0;
     mTotalBytesOutDecompression = 0;
     mTotalBytesInCompression = 0;
@@ -470,13 +479,40 @@ LLImageCompressionTester::~LLImageCompressionTester()
 void LLImageCompressionTester::outputTestRecord(LLSD *sd) 
 {	
     std::string currentLabel = getCurrentLabelName();
-	(*sd)[currentLabel]["TotalBytesInDecompression"]   = (LLSD::Integer)mTotalBytesInDecompression;
-	(*sd)[currentLabel]["TotalBytesOutDecompression"]  = (LLSD::Integer)mTotalBytesOutDecompression;
-	(*sd)[currentLabel]["TotalBytesInCompression"]     = (LLSD::Integer)mTotalBytesInCompression;
-	(*sd)[currentLabel]["TotalBytesOutCompression"]    = (LLSD::Integer)mTotalBytesOutCompression;
-    
-	(*sd)[currentLabel]["TimeTimeDecompression"]       = (LLSD::Real)mTotalTimeDecompression;
-	(*sd)[currentLabel]["TimeTimeCompression"]         = (LLSD::Real)mTotalTimeCompression;
+	
+	F32 decompressionPerf = 0.0f;
+	F32 compressionPerf = 0.0f;
+	F32 decompressionRate = 0.0f;
+	F32 compressionRate = 0.0f;
+	
+	if (!is_approx_zero(mTotalTimeDecompression))
+	{
+		decompressionPerf = (F32)(mTotalBytesInDecompression) / mTotalTimeDecompression;
+	}
+	if (mTotalBytesOutDecompression > 0)
+	{
+		decompressionRate = (F32)(mTotalBytesInDecompression) / (F32)(mTotalBytesOutDecompression);
+	}
+	if (!is_approx_zero(mTotalTimeCompression))
+	{
+		compressionPerf = (F32)(mTotalBytesInCompression) / mTotalTimeCompression;
+	}
+	if (mTotalBytesOutCompression > 0)
+	{
+		compressionRate = (F32)(mTotalBytesInCompression) / (F32)(mTotalBytesOutCompression);
+	}
+	
+	(*sd)[currentLabel]["TotalTimeDecompression"]		= (LLSD::Real)mTotalTimeDecompression;
+	(*sd)[currentLabel]["TotalBytesInDecompression"]	= (LLSD::Integer)mTotalBytesInDecompression;
+	(*sd)[currentLabel]["TotalBytesOutDecompression"]	= (LLSD::Integer)mTotalBytesOutDecompression;
+	(*sd)[currentLabel]["RateDecompression"]			= (LLSD::Real)decompressionRate;
+	(*sd)[currentLabel]["PerfDecompression"]			= (LLSD::Real)decompressionPerf;
+	
+	(*sd)[currentLabel]["TotalTimeCompression"]			= (LLSD::Real)mTotalTimeCompression;
+	(*sd)[currentLabel]["TotalBytesInCompression"]		= (LLSD::Integer)mTotalBytesInCompression;
+	(*sd)[currentLabel]["TotalBytesOutCompression"]		= (LLSD::Integer)mTotalBytesOutCompression;
+    (*sd)[currentLabel]["RateCompression"]				= (LLSD::Real)compressionRate;
+	(*sd)[currentLabel]["PerfCompression"]				= (LLSD::Real)compressionPerf;
 }
 
 void LLImageCompressionTester::updateCompressionStats(const F32 deltaTime) 
@@ -487,15 +523,14 @@ void LLImageCompressionTester::updateCompressionStats(const F32 deltaTime)
 void LLImageCompressionTester::updateCompressionStats(const S32 bytesCompress, const S32 bytesRaw) 
 {
     mTotalBytesInCompression += bytesRaw;
+    mRunBytesInCompression += bytesRaw;
     mTotalBytesOutCompression += bytesCompress;
-    if (mTotalBytesInCompression > (1000000))
+    if (mRunBytesInCompression > (1000000))
     {
         // Output everything
         outputTestResults();
-        // Reset only the compression data
-        mTotalBytesInCompression = 0;
-        mTotalBytesOutCompression = 0;
-        mTotalTimeCompression = 0.0f;
+        // Reset the compression data of the run
+        mRunBytesInCompression = 0;
     }
 }
 
@@ -507,15 +542,14 @@ void LLImageCompressionTester::updateDecompressionStats(const F32 deltaTime)
 void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const S32 bytesOut) 
 {
     mTotalBytesInDecompression += bytesIn;
+    mRunBytesInDecompression += bytesIn;
     mTotalBytesOutDecompression += bytesOut;
-    if (mTotalBytesInDecompression > (5*1000000))
+    if (mRunBytesInDecompression > (1000000))
     {
         // Output everything
         outputTestResults();
-        // Reset only the decompression data
-        mTotalBytesInDecompression = 0;
-        mTotalBytesOutDecompression = 0;
-        mTotalTimeDecompression = 0.0f;
+        // Reset the decompression data of the run
+        mRunBytesInDecompression = 0;
     }
 }
 
