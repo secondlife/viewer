@@ -1367,6 +1367,14 @@ Could not find &apos;data&apos; chunk in WAV header:
 
   <notification
    icon="alertmodal.tga"
+   name="SoundFileInvalidChunkSize"
+   type="alertmodal">
+Wrong chunk size in WAV file:
+[FILE]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
 Audio file is too long (10 second maximum):
@@ -6330,7 +6338,6 @@ You finished baking your outfit after [TIME] seconds.
 You sent out an update of your appearance after [TIME] seconds.
 [STATUS]
   </notification>
-
 
   <notification
    icon="notifytip.tga"

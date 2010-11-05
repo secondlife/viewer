@@ -118,7 +118,7 @@
                  height="20"
                  layout="topleft"
                  left_delta="78"
-                 max_length="63"
+                 max_length_bytes="63"
                  name="LabelItemName"
                  top_delta="0"
                  width="210" />
@@ -141,7 +141,7 @@
                  height="23"
                  layout="topleft"
                  left_delta="78"
-                 max_length="127"
+                 max_length_bytes="127"
                  name="LabelItemDesc"
                  top_delta="-5"
                  width="210" />

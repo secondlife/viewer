@@ -446,17 +446,17 @@ LLImageJ2CImpl::~LLImageJ2CImpl()
 //----------------------------------------------------------------------------------------------
 LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTesterBasic(sTesterName) 
 {
-	addMetric("TotalTimeDecompression");
-	addMetric("TotalBytesInDecompression");
-	addMetric("TotalBytesOutDecompression");
-	addMetric("RateDecompression");
-	addMetric("PerfDecompression");
+	addMetric("Time Decompression (s)");
+	addMetric("Volume In Decompression (kB)");
+	addMetric("Volume Out Decompression (kB)");
+	addMetric("Decompression Ratio (x:1)");
+	addMetric("Perf Decompression (kB/s)");
 
-	addMetric("TotalTimeCompression");
-	addMetric("TotalBytesInCompression");
-	addMetric("TotalBytesOutCompression");
-	addMetric("RateCompression");
-	addMetric("PerfCompression");
+	addMetric("Time Compression (s)");
+	addMetric("Volume In Compression (kB)");
+	addMetric("Volume Out Compression (kB)");
+	addMetric("Compression Ratio (x:1)");
+	addMetric("Perf Compression (kB/s)");
 
 	mRunBytesInDecompression = 0;
     mRunBytesInCompression = 0;
@@ -481,38 +481,43 @@ void LLImageCompressionTester::outputTestRecord(LLSD *sd)
     std::string currentLabel = getCurrentLabelName();
 	
 	F32 decompressionPerf = 0.0f;
-	F32 compressionPerf = 0.0f;
+	F32 compressionPerf   = 0.0f;
 	F32 decompressionRate = 0.0f;
-	F32 compressionRate = 0.0f;
+	F32 compressionRate   = 0.0f;
+	
+	F32 totalkBInDecompression  = (F32)(mTotalBytesInDecompression)  / 1000.0;
+	F32 totalkBOutDecompression = (F32)(mTotalBytesOutDecompression) / 1000.0;
+	F32 totalkBInCompression    = (F32)(mTotalBytesInCompression)    / 1000.0;
+	F32 totalkBOutCompression   = (F32)(mTotalBytesOutCompression)   / 1000.0;
 	
 	if (!is_approx_zero(mTotalTimeDecompression))
 	{
-		decompressionPerf = (F32)(mTotalBytesInDecompression) / mTotalTimeDecompression;
+		decompressionPerf = totalkBInDecompression / mTotalTimeDecompression;
 	}
-	if (mTotalBytesOutDecompression > 0)
+	if (!is_approx_zero(totalkBInDecompression))
 	{
-		decompressionRate = (F32)(mTotalBytesInDecompression) / (F32)(mTotalBytesOutDecompression);
+		decompressionRate = totalkBOutDecompression / totalkBInDecompression;
 	}
 	if (!is_approx_zero(mTotalTimeCompression))
 	{
-		compressionPerf = (F32)(mTotalBytesInCompression) / mTotalTimeCompression;
+		compressionPerf = totalkBInCompression / mTotalTimeCompression;
 	}
-	if (mTotalBytesOutCompression > 0)
+	if (!is_approx_zero(totalkBOutCompression))
 	{
-		compressionRate = (F32)(mTotalBytesInCompression) / (F32)(mTotalBytesOutCompression);
+		compressionRate = totalkBInCompression / totalkBOutCompression;
 	}
 	
-	(*sd)[currentLabel]["TotalTimeDecompression"]		= (LLSD::Real)mTotalTimeDecompression;
-	(*sd)[currentLabel]["TotalBytesInDecompression"]	= (LLSD::Integer)mTotalBytesInDecompression;
-	(*sd)[currentLabel]["TotalBytesOutDecompression"]	= (LLSD::Integer)mTotalBytesOutDecompression;
-	(*sd)[currentLabel]["RateDecompression"]			= (LLSD::Real)decompressionRate;
-	(*sd)[currentLabel]["PerfDecompression"]			= (LLSD::Real)decompressionPerf;
+	(*sd)[currentLabel]["Time Decompression (s)"]		= (LLSD::Real)mTotalTimeDecompression;
+	(*sd)[currentLabel]["Volume In Decompression (kB)"]	= (LLSD::Real)totalkBInDecompression;
+	(*sd)[currentLabel]["Volume Out Decompression (kB)"]= (LLSD::Real)totalkBOutDecompression;
+	(*sd)[currentLabel]["Decompression Ratio (x:1)"]	= (LLSD::Real)decompressionRate;
+	(*sd)[currentLabel]["Perf Decompression (kB/s)"]	= (LLSD::Real)decompressionPerf;
 	
-	(*sd)[currentLabel]["TotalTimeCompression"]			= (LLSD::Real)mTotalTimeCompression;
-	(*sd)[currentLabel]["TotalBytesInCompression"]		= (LLSD::Integer)mTotalBytesInCompression;
-	(*sd)[currentLabel]["TotalBytesOutCompression"]		= (LLSD::Integer)mTotalBytesOutCompression;
-    (*sd)[currentLabel]["RateCompression"]				= (LLSD::Real)compressionRate;
-	(*sd)[currentLabel]["PerfCompression"]				= (LLSD::Real)compressionPerf;
+	(*sd)[currentLabel]["Time Compression (s)"]			= (LLSD::Real)mTotalTimeCompression;
+	(*sd)[currentLabel]["Volume In Compression (kB)"]	= (LLSD::Real)totalkBInCompression;
+	(*sd)[currentLabel]["Volume Out Compression (kB)"]	= (LLSD::Real)totalkBOutCompression;
+    (*sd)[currentLabel]["Compression Ratio (x:1)"]		= (LLSD::Real)compressionRate;
+	(*sd)[currentLabel]["Perf Compression (kB/s)"]		= (LLSD::Real)compressionPerf;
 }
 
 void LLImageCompressionTester::updateCompressionStats(const F32 deltaTime) 

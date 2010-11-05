@@ -2761,18 +2761,6 @@
                  function="Floater.Show"
                  parameter="font_test" />
             </menu_item_call>
-            <menu_item_call
-             label="Load from XML"
-             name="Load from XML">
-                <menu_item_call.on_click
-                 function="Advanced.LoadUIFromXML" />
-            </menu_item_call>
-            <menu_item_call
-             label="Save to XML"
-             name="Save to XML">
-                <menu_item_call.on_click
-                 function="Advanced.SaveUIToXML" />
-            </menu_item_call>
             <menu_item_check
              label="Show XUI Names"
              name="Show XUI Names">
@@ -3070,15 +3058,6 @@
 
         <menu_item_separator/>
 
-        <menu_item_check
-         label="Show Admin Menu"
-         name="View Admin Options">
-            <menu_item_check.on_check
-             function="Advanced.CheckViewAdminOptions"
-             parameter="ViewAdminOptions" />
-            <menu_item_check.on_click
-             function="Advanced.ToggleViewAdminOptions" />
-        </menu_item_check>
         <menu_item_call
          label="Request Admin Status"
          name="Request Admin Options"
@@ -3093,6 +3072,17 @@
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
         </menu_item_call>
+        <menu_item_check
+         label="Show Admin Menu"
+         name="View Admin Options">
+            <menu_item_check.on_enable
+             function="Advanced.EnableViewAdminOptions" />
+            <menu_item_check.on_check
+             function="Advanced.CheckViewAdminOptions"
+             parameter="ViewAdminOptions" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleViewAdminOptions" />
+        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"

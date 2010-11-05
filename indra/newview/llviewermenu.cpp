@@ -221,8 +221,6 @@ BOOL check_show_xui_names(void *);
 // Debug UI
 
 void handle_buy_currency_test(void*);
-void handle_save_to_xml(void*);
-void handle_load_from_xml(void*);
 
 void handle_god_mode(void*);
 
@@ -1384,37 +1382,6 @@ class LLAdvancedCheckDebugWindowProc : public view_listener_t
 
 // ------------------------------XUI MENU ---------------------------
 
-//////////////////////
-// LOAD UI FROM XML //
-//////////////////////
-
-
-class LLAdvancedLoadUIFromXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_load_from_xml(NULL);
-		return true;
-}
-};
-
-
-
-////////////////////
-// SAVE UI TO XML //
-////////////////////
-
-
-class LLAdvancedSaveUIToXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_save_to_xml(NULL);
-		return true;
-}
-};
-
-
 class LLAdvancedSendTestIms : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -1994,6 +1961,16 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 // VIEW ADMIN OPTIONS //
 ////////////////////////
 
+class LLAdvancedEnableViewAdminOptions : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		// Don't enable in god mode since the admin menu is shown anyway.
+		// Only enable if the user has set the appropriate debug setting.
+		bool new_value = !gAgent.getAgentAccess().isGodlikeWithoutAdminMenuFakery() && gSavedSettings.getBOOL("AdminMenu");
+		return new_value;
+	}
+};
 
 class LLAdvancedToggleViewAdminOptions : public view_listener_t
 {
@@ -2008,7 +1985,7 @@ class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = check_admin_override(NULL);
+		bool new_value = check_admin_override(NULL) || gAgent.isGodlike();
 		return new_value;
 	}
 };
@@ -7188,44 +7165,6 @@ const LLRect LLViewerMenuHolderGL::getMenuRect() const
 	return LLRect(0, getRect().getHeight() - MENU_BAR_HEIGHT, getRect().getWidth(), STATUS_BAR_HEIGHT);
 }
 
-void handle_save_to_xml(void*)
-{
-	LLFloater* frontmost = gFloaterView->getFrontmost();
-	if (!frontmost)
-	{
-        LLNotificationsUtil::add("NoFrontmostFloater");
-		return;
-	}
-
-	std::string default_name = "floater_";
-	default_name += frontmost->getTitle();
-	default_name += ".xml";
-
-	LLStringUtil::toLower(default_name);
-	LLStringUtil::replaceChar(default_name, ' ', '_');
-	LLStringUtil::replaceChar(default_name, '/', '_');
-	LLStringUtil::replaceChar(default_name, ':', '_');
-	LLStringUtil::replaceChar(default_name, '"', '_');
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getSaveFile(LLFilePicker::FFSAVE_XML, default_name))
-	{
-		std::string filename = picker.getFirstFile();
-		LLUICtrlFactory::getInstance()->saveToXML(frontmost, filename);
-	}
-}
-
-void handle_load_from_xml(void*)
-{
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-	{
-		std::string filename = picker.getFirstFile();
-		LLFloater* floater = new LLFloater(LLSD());
-		floater->buildFromFile(filename);
-	}
-}
-
 void handle_web_browser_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -8011,8 +7950,6 @@ void initialize_menus()
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
-	view_listener_t::addMenu(new LLAdvancedLoadUIFromXML(), "Advanced.LoadUIFromXML");
-	view_listener_t::addMenu(new LLAdvancedSaveUIToXML(), "Advanced.SaveUIToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
@@ -8073,6 +8010,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
 	view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
+	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");

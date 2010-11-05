@@ -1576,6 +1576,7 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 
 void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* data)
 {
+	if (!data) return;
 	LLUIString donated = getString("donation_area");
 	donated.setArg("[AREA]", llformat("%d", data->getContribution()));
 
@@ -1616,9 +1617,12 @@ void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, const LLUUI
 	
 	std::string fullname;
 	gCacheName->getFullName(id, fullname);
-	if (matchesSearchFilter(fullname))
+
+	LLGroupMemberData* data;
+	// trying to avoid unnecessary hash lookups
+	if (matchesSearchFilter(fullname) && ((data = gdatap->mMembers[id]) != NULL))
 	{
-		addMemberToList(id, gdatap->mMembers[id]);
+		addMemberToList(id, data);
 		if(!mMembersList->getEnabled())
 		{
 			mMembersList->setEnabled(TRUE);

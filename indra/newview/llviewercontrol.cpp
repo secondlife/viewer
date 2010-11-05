@@ -131,6 +131,13 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleAnisotropicChanged(const LLSD& newvalue)
+{
+	LLImageGL::sGlobalUseAnisotropic = newvalue.asBoolean();
+	LLImageGL::dirtyTexOptions();
+	return true;
+}
+
 static bool handleVolumeLODChanged(const LLSD& newvalue)
 {
 	LLVOVolume::sLODFactor = (F32) newvalue.asReal();
@@ -498,6 +505,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
 	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));

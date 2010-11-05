@@ -184,7 +184,7 @@
      height="19"
      layout="topleft"
      left_pad="5"
-     max_length="10"
+     max_length_bytes="10"
      name="your_contribution_line_editor"
      top_delta="0"
      width="80" />

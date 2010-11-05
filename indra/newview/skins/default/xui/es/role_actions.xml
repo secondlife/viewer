@@ -39,6 +39,7 @@
 		<action description="Permitir siempre &apos;Crear objetos&apos;" longdescription="Quien tenga un rol con esta capacidad puede crear objetos en una parcela perteneciente al grupo aunque eso esté desactivado en Acerca del terreno &gt; pestaña Opciones." name="land allow create" value="25"/>
 		<action description="Permitir siempre &apos;Crear hitos&apos;" longdescription="Quien tenga un rol con esta capacidad puede crear un hito en una parcela perteneciente al grupo aunque eso esté desactivado en Acerca del terreno &gt; pestaña Opciones." name="land allow landmark" value="26"/>
 		<action description="Permitir &apos;Fijar mi Base aquí&apos; en el terreno del grupo" longdescription="Los miembros que tengan un rol con esta capacidad pueden usar el menú Mundo &gt; Hitos &gt; Fijar aquí mi Base en una parcela transferida al grupo." name="land allow set home" value="28"/>
+		<action description="Permitir &quot;Organización de eventos&quot; en un terreno de grupo" longdescription="Los miembros con un rol que tenga esta capacidad pueden seleccionar parcelas propiedad de un grupo como sede de la organización de eventos." name="land allow host event" value="41"/>
 	</action_set>
 	<action_set description="Estas capacidades incluyen poderes para permitir o restringir el acceso a parcelas pertenecientes al grupo, incluyendo el congelar y expulsar a residentes." name="Parcel Access">
 		<action description="Administrar las listas de acceso a la parcela" longdescription="Administre las listas de acceso a la parcela en Acerca del terreno &gt; pestaña Acceso." name="land manage allowed" value="29"/>
@@ -63,10 +64,6 @@
 	<action_set description="Estas habilidades incluyen poderes para enviar, recibir y ver avisos de grupo." name="Notices">
 		<action description="Enviar aviso" longdescription="Los miembros con un rol que tenga esta capacidad pueden enviar avisos a través de la sección Grupo &gt; Avisos." name="notices send" value="42"/>
 		<action description="Recibir avisos nuevos y ver los anteriores" longdescription="Los miembros con un rol que tenga esta capacidad pueden recibir Avisos y ver los ya enviados en la sección Grupo &gt; Avisos." name="notices receive" value="43"/>
-	</action_set>
-	<action_set description="Estas habilidades incluyen poderes para permitir a los miembros crear propuestas, votarlas, y ver el historial de votaciones." name="Proposals">
-		<action description="Hacer una propuesta" longdescription="Quien tenga un rol con esta capacidad puede crear propuestas para que sean votadas en Información del grupo &gt; pestaña Propuestas." name="proposal start" value="44"/>
-		<action description="Votar en propuestas" longdescription="Quien tenga un rol con esta capacidad puede votar las propuestas en Información del grupo &gt; pestaña Propuestas." name="proposal vote" value="45"/>
 	</action_set>
 	<action_set description="Estas capacidades incluyen poderes para permitir o no el aceso a las sesiones de chat del grupo y al chat de voz del mismo." name="Chat">
 		<action description="Abrir chat de grupo" longdescription="Quien tenga un rol con esta capacidad puede abrir sesiones de chat del grupo, tanto de texto como de voz." name="join group chat" value="16"/>
