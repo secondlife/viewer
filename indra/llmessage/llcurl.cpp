@@ -89,15 +89,29 @@ void check_curl_code(CURLcode code)
 {
 	if (code != CURLE_OK)
 	{
-		llerrs << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies). Making curl errors non-asserts
+		// for non-windows platforms for now. - Nyx
+		#if LL_WINDOWS
+			llerrs << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		#else
+			llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		#endif
 	}
 }
 
-void check_curl_multi_code(CURLMcode code)
+void check_curl_multi_code(CURLMcode code) 
 {
 	if (code != CURLM_OK)
 	{
-		llerrs << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies). Making curl errors non-asserts
+		// for non-windows platforms for now. - Nyx
+		#if LL_WINDOWS
+			llerrs << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		#else 
+			llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		#endif
 	}
 }
 
@@ -1160,7 +1174,9 @@ void LLCurl::initClass()
 	// Do not change this "unless you are familiar with and mean to control 
 	// internal operations of libcurl"
 	// - http://curl.haxx.se/libcurl/c/curl_global_init.html
-	curl_global_init(CURL_GLOBAL_ALL);
+	CURLcode code = curl_global_init(CURL_GLOBAL_ALL);
+
+	check_curl_code(code);
 	
 	Easy::sHandleMutex = new LLMutex(NULL);
 
