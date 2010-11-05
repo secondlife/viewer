@@ -316,11 +316,13 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		return FALSE; // (we are not initialized or updated)
 	}
 
-	if (force_update)
+	bool visible = mVO->mDrawable->isVisible();
+
+	if (force_update && visible)
 	{
 		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
 	}
-	else if	(mVO->mDrawable->isVisible() &&
+	else if	(visible &&
 		!mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1) &&
 		mVO->getPixelArea() > 256.f)
 	{
@@ -364,7 +366,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLFastTimer ftm(FTM_DO_FLEXIBLE_UPDATE);
 	LLVolume* volume = mVO->getVolume();
 	LLPath *path = &volume->getPath();
-	if (mSimulateRes == 0)
+	if (mSimulateRes == 0 && mVO->mDrawable->isVisible())
 	{
 		mVO->markForUpdate(TRUE);
 		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))

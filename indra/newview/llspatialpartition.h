@@ -597,6 +597,13 @@ public:
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count) { }
 };
 
+//spatial partition for hole and edge water (implemented in LLVOWater.cpp)
+class LLVoidWaterPartition : public LLWaterPartition
+{
+public:
+	LLVoidWaterPartition();
+};
+
 //spatial partition for terrain (impelmented in LLVOSurfacePatch.cpp)
 class LLTerrainPartition : public LLSpatialPartition
 {

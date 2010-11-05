@@ -1564,7 +1564,9 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 {
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
-		if (earlyFail(camera, this))
+		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
+		if ((mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER && !gGLManager.mHasDepthClamp) ||
+			earlyFail(camera, this))
 		{
 			setOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			assert_states_valid(this);
@@ -1585,7 +1587,18 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 				{
 					buildOcclusion();
 				}
-
+				
+				// Depth clamp all water to avoid it being culled as a result of being
+				// behind the far clip plane, and in the case of edge water to avoid
+				// it being culled while still visible.
+				bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
+											(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
+											mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
+				if (use_depth_clamp)
+				{
+					glEnable(GL_DEPTH_CLAMP);
+				}
+				
 				glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
 				glVertexPointer(3, GL_FLOAT, 16, mOcclusionVerts);
 				if (camera->getOrigin().isExactlyZero())
@@ -1601,6 +1614,11 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 								GL_UNSIGNED_BYTE, get_box_fan_indices(camera, mBounds[0]));
 				}
 				glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+				
+				if (use_depth_clamp)
+				{
+					glDisable(GL_DEPTH_CLAMP);
+				}
 			}
 
 			setOcclusionState(LLSpatialGroup::QUERY_PENDING);
@@ -2660,9 +2678,10 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						gGL.color4f(0.5f,0.5f,0.5f,1.0f);
 						break;
 				case LLViewerObject::LL_VO_PART_GROUP:
-			case LLViewerObject::LL_VO_HUD_PART_GROUP:
+				case LLViewerObject::LL_VO_HUD_PART_GROUP:
 						gGL.color4f(0,0,1,1);
 						break;
+				case LLViewerObject::LL_VO_VOID_WATER:
 				case LLViewerObject::LL_VO_WATER:
 						gGL.color4f(0,0.5f,1,1);
 						break;

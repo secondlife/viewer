@@ -233,8 +233,8 @@ private:
 	std::vector<LLFilterItem*> mListViewItemTypes;
 
 	LLCOFWearables*		mCOFWearables;
-	LLMenuGL*			mGearMenu;
-	LLMenuGL*			mAddWearablesGearMenu;
+	LLToggleableMenu*	mGearMenu;
+	LLToggleableMenu*	mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 	LLMenuButton*		mWearablesGearMenuBtn;

@@ -972,7 +972,7 @@ std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
 //
 LLUrlEntryNoLink::LLUrlEntryNoLink()
 {
-	mPattern = boost::regex("<nolink>[^<]*</nolink>",
+	mPattern = boost::regex("<nolink>.*</nolink>",
 							boost::regex::perl|boost::regex::icase);
 }
 

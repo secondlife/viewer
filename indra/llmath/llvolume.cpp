@@ -92,11 +92,13 @@ extern BOOL gDebugGL;
 
 void assert_aligned(void* ptr, U32 alignment)
 {
+#if 0
 	U32 t = (U32) ptr;
 	if (t%alignment != 0)
 	{
 		llerrs << "WTF?" << llendl;
 	}
+#endif
 }
 
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
@@ -2318,12 +2320,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range = max_tc - min_tc;
 
-			LLVector4a& min = face.mExtents[0];
-			LLVector4a& max = face.mExtents[1];
-
-			min.clear();
-			max.clear();
-			
 			LLVector4a* pos_out = face.mPositions;
 			LLVector4a* norm_out = face.mNormals;
 			LLVector2* tc_out = face.mTexCoords;
@@ -2336,17 +2332,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				pos_out->div(65535.f);
 				pos_out->mul(pos_range);
 				pos_out->add(min_pos);
-
-				if (j == 0)
-				{
-					min = *pos_out;
-					max = min;
-				}
-				else
-				{
-					min.setMin(min, *pos_out);
-					max.setMax(max, *pos_out);
-				}
 
 				pos_out++;
 
@@ -2424,6 +2409,19 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 			}
 
+			//calculate bounding box
+			LLVector4a& min = face.mExtents[0];
+			LLVector4a& max = face.mExtents[1];
+
+			min.clear();
+			max.clear();
+			min = max = face.mPositions[0];
+
+			for (S32 i = 1; i < face.mNumVertices; ++i)
+			{
+				min.setMin(min, face.mPositions[i]);
+				max.setMax(max, face.mPositions[i]);
+			}
 		}
 	}
 
@@ -6139,6 +6137,14 @@ void LLVolumeFace::createBinormals()
 		LLVector2* tc = (LLVector2*) mTexCoords;
 		LLVector4a* binorm = (LLVector4a*) mBinormals;
 
+		LLVector4a* end = mBinormals+mNumVertices;
+		while (binorm < end)
+		{
+			(*binorm++).clear();
+		}
+
+		binorm = mBinormals;
+
 		for (U32 i = 0; i < mNumIndices/3; i++) 
 		{	//for each triangle
 			const U16& i0 = mIndices[i*3+0];
@@ -6590,6 +6596,12 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 			}
 		}
+	}
+
+	//clear normals
+	for (U32 i = 0; i < mNumVertices; i++)
+	{
+		mNormals[i].clear();
 	}
 
 	//generate normals 

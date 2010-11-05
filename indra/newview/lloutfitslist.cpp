@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
 #include "llvoavatar.h"
@@ -122,7 +123,7 @@ public:
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(mMenu);
 	}
@@ -137,7 +138,7 @@ public:
 		mMenu->arrangeAndClear(); // update menu height
 	}
 
-	LLMenuGL* getMenu() { return mMenu; }
+	LLToggleableMenu* getMenu() { return mMenu; }
 
 private:
 	const LLUUID& getSelectedOutfitID()
@@ -251,8 +252,8 @@ private:
 		return true;
 	}
 
-	LLOutfitsList*	mOutfitList;
-	LLMenuGL*		mMenu;
+	LLOutfitsList*			mOutfitList;
+	LLToggleableMenu*		mMenu;
 };
 
 //////////////////////////////////////////////////////////////////////////

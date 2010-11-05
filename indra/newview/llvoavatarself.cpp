@@ -1130,7 +1130,11 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 				const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
 				if ( pSkinData )
 				{
-					resetJointPositions();
+					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
+					if ( bindCnt > 0 )
+					{
+						resetJointPositions();
+					}
 				}				
 			}
 		}

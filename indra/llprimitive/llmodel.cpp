@@ -875,6 +875,14 @@ void LLModel::optimizeVolumeFaces()
 #endif
 }
 
+// Shrink the model to fit
+// on a 1x1x1 cube centered at the origin.
+// The positions and extents
+// multiplied by  mNormalizedScale
+// and offset by mNormalizedTranslation
+// to be the "original" extents and position.
+// Also, the positions will fit
+// within the unit cube.
 void LLModel::normalizeVolumeFaces()
 {
 
@@ -891,6 +899,10 @@ void LLModel::normalizeVolumeFaces()
 			llerrs << "WTF?" << llendl;
 		}
 
+		// For all of the volume faces
+		// in the model, loop over
+		// them and see what the extents
+		// of the volume along each axis.
 		min = mVolumeFaces[0].mExtents[0];
 		max = mVolumeFaces[0].mExtents[1];
 
@@ -907,32 +919,55 @@ void LLModel::normalizeVolumeFaces()
 			update_min_max(min, max, face.mExtents[1]);
 		}
 
+		// Now that we have the extents of the model
+		// we can compute the offset needed to center
+		// the model at the origin.
+
+		// Compute center of the model
+		// and make it negative to get translation
+		// needed to center at origin.
 		LLVector4a trans;
 		trans.setAdd(min, max);
 		trans.mul(-0.5f);
+
+		// Compute the total size along all
+		// axes of the model.
 		LLVector4a size;
 		size.setSub(max, min);
 
+		// To make the model fit within
+		// the unit cube with only the largest
+		// dimensions fitting on the surface of the cube,
+		// calculate the largest extent on any axis
 		F32 scale = 1.f/llmax(llmax(size[0], size[1]), size[2]);
 
 		for (U32 i = 0; i < mVolumeFaces.size(); ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
-				
+
+			// We shrink the extents so
+			// that they fall within
+			// the unit cube.
 			face.mExtents[0].add(trans);
 			face.mExtents[0].mul(scale);
 
 			face.mExtents[1].add(trans);
 			face.mExtents[1].mul(scale);
 
+			// For all the positions, we scale
+			// the positions to fit within the unit cube.
 			LLVector4a* pos = (LLVector4a*) face.mPositions;
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
-				pos[j].add(trans);
+			 	pos[j].add(trans);
 				pos[j].mul(scale);
 			}
 		}
 
+		// mNormalizedScale is the scale at which
+		// we would need to multiply the model
+		// by to get the original size of the
+		// model instead of the normalized size.
 		mNormalizedScale = LLVector3(1,1,1) / scale;
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
@@ -1449,9 +1484,7 @@ LLSD LLModel::writeModel(
 		{
 			U32 size = decomp[i].size();
 			total += size;
-			// The valid range of sizes is actually 3-256 verts. We need this to fit into a U8,
-			// So we just subtract 1
-			hulls[i] = (U8) (size - 1);
+			hulls[i] = (U8) (size);
 
 			for (U32 j = 0; j < decomp[i].size(); ++j)
 			{

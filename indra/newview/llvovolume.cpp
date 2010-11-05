@@ -74,7 +74,6 @@
 #include "llviewermediafocus.h"
 #include "llvoavatar.h"
 
-
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -4015,6 +4014,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
+
+		if (vobj->getVolume() && vobj->getVolume()->isTetrahedron())
+		{
+			continue;
+		}
+
 		llassert_always(vobj);
 		vobj->updateTextureVirtualSize();
 		vobj->preRebuild();
@@ -4053,23 +4058,38 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//Determine if we've received skininfo that contains an
 				//alternate bind matrix - if it does then apply the translational component
 				//to the joints of the avatar.
-				const LLVOAvatar* pAvatarVO = vobj->getAvatar();
+				LLVOAvatar* pAvatarVO = vobj->getAvatar();
 				if ( pAvatarVO )
 				{
 					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
+				
 					if ( pSkinData )
 					{
-						const int bindCnt = pSkinData->mAlternateBindMatrix.size();
+						const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
 							for ( int i=0; i<jointCnt; ++i )
 							{
 								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-								LLJoint* pJoint = vobj->getAvatar()->getJoint( lookingForJoint );
+								LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
 								if ( pJoint )
 								{   
-									pJoint->storeCurrentXform( pSkinData->mAlternateBindMatrix[i].getTranslation() );												
+									const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();
+									pJoint->storeCurrentXform( jointPos );																					
+									//If joint is a pelvis then handle by setting avPos+offset
+									//if ( !strcmp( lookingForJoint.c_str(),"mPelvis" ) )
+									if ( lookingForJoint == "mPelvis" )
+									{	
+										//Apply av pos + offset 
+										if ( !pAvatarVO->hasPelvisOffset() )
+										{										
+											pAvatarVO->setPelvisOffset( true, jointPos );
+											pAvatarVO->setPosition( pAvatarVO->getCharacterPosition() + jointPos );											
+										}									
+									}
+									
+									
 								}
 							}
 						}

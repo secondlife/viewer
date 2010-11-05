@@ -2831,18 +2831,6 @@
                  function="Floater.Show"
                  parameter="font_test" />
             </menu_item_call>
-            <menu_item_call
-             label="Load from XML"
-             name="Load from XML">
-                <menu_item_call.on_click
-                 function="Advanced.LoadUIFromXML" />
-            </menu_item_call>
-            <menu_item_call
-             label="Save to XML"
-             name="Save to XML">
-                <menu_item_call.on_click
-                 function="Advanced.SaveUIToXML" />
-            </menu_item_call>
             <menu_item_check
              label="Show XUI Names"
              name="Show XUI Names">

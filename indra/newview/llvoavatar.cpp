@@ -682,7 +682,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
 	mSupportsAlphaLayers(FALSE),
-	mLoadedCallbacksPaused(FALSE)
+	mLoadedCallbacksPaused(FALSE),
+	mHasPelvisOffset( FALSE )
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -758,6 +759,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
+	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 }
 
 //------------------------------------------------------------------------
@@ -3450,7 +3452,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		if (isSelf())
 		{
-			gAgent.setPositionAgent(getRenderPosition());
+			if ( !mHasPelvisOffset )
+			{
+				gAgent.setPositionAgent(getRenderPosition());
+			}
+			else 
+			{
+				gAgent.setPositionAgent( getRenderPosition() + mPelvisOffset );
+			}
 		}
 
 		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
@@ -3475,8 +3484,16 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		if (newPosition != mRoot.getXform()->getWorldPosition())
 		{		
-			mRoot.touch();
-			mRoot.setWorldPosition(newPosition ); // regular update
+			if ( !mHasPelvisOffset )
+			{
+				mRoot.touch();
+				mRoot.setWorldPosition( newPosition ); // regular update				
+			}
+			else 
+			{
+				mRoot.touch();
+				mRoot.setWorldPosition( newPosition + mPelvisOffset ); 
+			}
 		}
 
 
@@ -3775,6 +3792,17 @@ void LLVOAvatar::updateHeadOffset()
 	{
 		F32 u = llmax(0.f, HEAD_MOVEMENT_AVG_TIME - (1.f / gFPSClamped));
 		mHeadOffset = lerp(midEyePt, mHeadOffset,  u);
+	}
+}
+//------------------------------------------------------------------------
+// setPelvisOffset
+//------------------------------------------------------------------------
+void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount ) 
+{
+	mHasPelvisOffset = hasOffset;
+	if ( mHasPelvisOffset )
+	{
+		mPelvisOffset = offsetAmount;
 	}
 }
 
@@ -4915,6 +4943,7 @@ void LLVOAvatar::resetJointPositions( void )
 	{
 		mSkeleton[i].restoreOldXform();
 	}
+	mHasPelvisOffset = false;
 }
 //-----------------------------------------------------------------------------
 // resetJointPositionsToDefault
@@ -4945,6 +4974,8 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 			pJoint->restoreToDefaultXform();
 		}
 	}
+	//make sure we don't apply the joint offset
+	mHasPelvisOffset = false;
 }
 
 
