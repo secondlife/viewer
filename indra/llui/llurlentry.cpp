@@ -209,7 +209,13 @@ LLUrlEntryHTTPLabel::LLUrlEntryHTTPLabel()
 
 std::string LLUrlEntryHTTPLabel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	return getLabelFromWikiLink(url);
+	std::string label = getLabelFromWikiLink(url);
+	return (!LLUrlRegistry::instance().hasUrl(label)) ? label : getUrl(url);
+}
+
+std::string LLUrlEntryHTTPLabel::getTooltip(const std::string &string) const
+{
+	return getUrl(string);
 }
 
 std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
