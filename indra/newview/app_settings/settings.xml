@@ -1150,13 +1150,13 @@
     <key>CacheNumberOfRegionsForObjects</key>
     <map>
       <key>Comment</key>
-      <string>Controls number of regions to be cached for objects, ranges from 16 to 128.</string>
+      <string>Controls number of regions to be cached for objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>128</integer>
+      <integer>20000</integer>
     </map>
     <key>CacheSize</key>
     <map>
