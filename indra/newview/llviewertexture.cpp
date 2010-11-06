@@ -288,6 +288,12 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const s
 	return gTextureList.getImageFromUrl(url, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
+//static
+bool LLViewerTextureManager::perfStatsEnabled() 
+{
+	return (sTesterp != NULL);
+}
+
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const LLUUID& image_id, LLHost host) 
 {
 	return gTextureList.getImageFromHost(image_id, host) ;
@@ -342,14 +348,14 @@ void LLViewerTextureManager::init()
 
 	LLViewerTexture::initClass() ;
 
-	if (LLFastTimer::sMetricLog && !LLViewerTextureManager::sTesterp && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
+	if (LLFastTimer::sMetricLog && !perfStatsEnabled() && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
 	{
-		LLViewerTextureManager::sTesterp = new LLTexturePipelineTester() ;
-        if (!LLViewerTextureManager::sTesterp->isValid())
-        {
-            delete LLViewerTextureManager::sTesterp;
-            LLViewerTextureManager::sTesterp = NULL;
-        }
+		sTesterp = new LLTexturePipelineTester() ;
+		if (!sTesterp->isValid())
+		{
+			delete sTesterp;
+			sTesterp = NULL;
+		}
 	}
 }
 
@@ -414,7 +420,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 {
 	sCurrentTime = gFrameTimeSeconds ;
 
-	if(LLViewerTextureManager::sTesterp)
+	if (LLViewerTextureManager::perfStatsEnabled())
 	{
 		LLViewerTextureManager::sTesterp->update() ;
 	}
@@ -609,7 +615,7 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	//check if there is cached raw image and switch to it if possible
 	switchToCachedImage() ;
 
-	if(LLViewerTextureManager::sTesterp)
+	if (LLViewerTextureManager::perfStatsEnabled())
 	{
 		LLViewerTextureManager::sTesterp->updateGrayTextureBinding() ;
 	}
@@ -1072,7 +1078,7 @@ BOOL LLViewerTexture::isLargeImage()
 //virtual 
 void LLViewerTexture::updateBindStatsForTester()
 {
-	if(LLViewerTextureManager::sTesterp)
+	if (LLViewerTextureManager::perfStatsEnabled())
 	{
 		LLViewerTextureManager::sTesterp->updateTextureBindingStats(this) ;
 	}
@@ -1855,7 +1861,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		// We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
 		if (mRawImage.notNull())
 		{
-			if(LLViewerTextureManager::sTesterp)
+			if (LLViewerTextureManager::perfStatsEnabled())
 			{
 				mIsFetched = TRUE ;
 				LLViewerTextureManager::sTesterp->updateTextureLoadingStats(this, mRawImage, LLAppViewer::getTextureFetch()->isFromLocalCache(mID)) ;
@@ -3082,7 +3088,7 @@ void LLViewerLODTexture::scaleDown()
 	{		
 		switchToCachedImage() ;	
 
-		if(LLViewerTextureManager::sTesterp)
+		if (LLViewerTextureManager::perfStatsEnabled())
 		{
 			LLViewerTextureManager::sTesterp->setStablizingTime() ;
 		}
@@ -3621,7 +3627,7 @@ LLTexturePipelineTester::LLTexturePipelineTester() : LLMetricPerformanceTesterWi
 
 LLTexturePipelineTester::~LLTexturePipelineTester()
 {
-	LLViewerTextureManager::sTesterp = NULL ;
+	LLViewerTextureManager::sTesterp = NULL;
 }
 
 void LLTexturePipelineTester::update()
@@ -3687,7 +3693,7 @@ void LLTexturePipelineTester::reset()
 //virtual 
 void LLTexturePipelineTester::outputTestRecord(LLSD *sd) 
 {	
-    std::string currentLabel = getCurrentLabelName();
+	std::string currentLabel = getCurrentLabelName();
 	(*sd)[currentLabel]["TotalBytesLoaded"]              = (LLSD::Integer)mTotalBytesLoaded ;
 	(*sd)[currentLabel]["TotalBytesLoadedFromCache"]     = (LLSD::Integer)mTotalBytesLoadedFromCache ;
 	(*sd)[currentLabel]["TotalBytesLoadedForLargeImage"] = (LLSD::Integer)mTotalBytesLoadedForLargeImage ;
@@ -3874,7 +3880,7 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 	sessionp->mInstantPerformanceList[sessionp->mInstantPerformanceListCounter].mTime = 0.f ;
 	
 	//load a session
-    std::string currentLabel = getCurrentLabelName();
+	std::string currentLabel = getCurrentLabelName();
 	BOOL in_log = (*log).has(currentLabel) ;
 	while (in_log)
 	{
@@ -3945,9 +3951,9 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 			sessionp->mInstantPerformanceList[sessionp->mInstantPerformanceListCounter].mAveragePercentageBytesUsedPerSecond = 0.f ;
 			sessionp->mInstantPerformanceList[sessionp->mInstantPerformanceListCounter].mTime = 0.f ;
 		}
-        // Next label
+		// Next label
 		incrementCurrentCount() ;
-        currentLabel = getCurrentLabelName();
+		currentLabel = getCurrentLabelName();
 		in_log = (*log).has(currentLabel) ;
 	}
 
