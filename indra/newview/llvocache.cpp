@@ -479,7 +479,7 @@ void LLVOCache::writeCacheHeader()
 	if(mNumEntries < mCacheSize)
 	{
 		HeaderEntryInfo* entry = new HeaderEntryInfo() ;
-		for(S32 i = mNumEntries ; i < mCacheSize; i++)
+		for(U32 i = mNumEntries ; i < mCacheSize; i++)
 		{
 			//fill the cache with the default entry.
 			if(!checkWrite(apr_file, entry, sizeof(HeaderEntryInfo)))
