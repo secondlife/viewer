@@ -49,7 +49,6 @@ target_link_libraries(llupdaterservice
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
 	${LLVFS_LIBRARIES}
-	${CURL_LIBRARIES}
     )
 
 if(LL_TESTS)
