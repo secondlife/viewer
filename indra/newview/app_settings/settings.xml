@@ -663,6 +663,17 @@
       <key>Value</key>
       <string>http://www.secondlife.com</string>
     </map>
+    <key>BrowserIgnoreSSLCertErrors</key>
+    <map>
+      <key>Comment</key>
+      <string>FOR TESTING ONLY: Tell the built-in web browser to ignore SSL cert errors.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>

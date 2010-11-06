@@ -1192,6 +1192,13 @@ void LLPluginClassMedia::proxyWindowClosed(const std::string &uuid)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::ignore_ssl_cert_errors(bool ignore)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "ignore_ssl_cert_errors");
+	message.setValueBoolean("ignore", ignore);
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::crashPlugin()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "crash");
