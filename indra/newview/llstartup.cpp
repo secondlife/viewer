@@ -198,6 +198,7 @@
 // exported globals
 //
 bool gAgentMovementCompleted = false;
+S32  gMaxAgentGroups;
 
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
@@ -2944,7 +2945,7 @@ bool process_login_success_response()
 	text = response["circuit_code"].asString();
 	if(!text.empty())
 	{
-		gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
+		gMessageSystem->mOurCircuitCode = strtoult(ext.c_str(), NULL, 10);
 	}
 	std::string sim_ip_str = response["sim_ip"];
 	std::string sim_port_str = response["sim_port"];
@@ -3148,6 +3149,9 @@ bool process_login_success_response()
 		LLViewerMedia::openIDSetup(openid_url, openid_token);
 	}
 
+	std::string max_agent_groups(response["max-agent-groups"]);
+	gMaxAgentGroups = atoi(max_agent_groups.c_str());
+	
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.

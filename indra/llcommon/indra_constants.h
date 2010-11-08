@@ -245,9 +245,6 @@ const U8 SIM_ACCESS_ADULT	= 42;		// Seriously Adult Only
 const U8 SIM_ACCESS_DOWN	= 254;
 const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_ADULT;
 
-// group constants
-const S32 MAX_AGENT_GROUPS = 25;
-
 // attachment constants
 const S32 MAX_AGENT_ATTACHMENTS = 38;
 const U8  ATTACHMENT_ADD = 0x80;

@@ -41,6 +41,7 @@
 #include "llbutton.h"
 #include "llgroupactions.h"
 #include "llscrolllistctrl.h"
+#include "llstartup.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
@@ -171,7 +172,7 @@ void LLPanelGroups::reset()
 		group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
 	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.count()));
-	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",MAX_AGENT_GROUPS));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",gMaxAgentGroups));
 
 	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
 	enableButtons();
@@ -182,7 +183,7 @@ BOOL LLPanelGroups::postBuild()
 	childSetCommitCallback("group list", onGroupList, this);
 
 	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.count()));
-	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",MAX_AGENT_GROUPS));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",gMaxAgentGroups));
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("group list");
 	if (list)
