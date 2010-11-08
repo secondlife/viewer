@@ -131,6 +131,20 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
+	// *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				msg["session_id"]);
+	if (!gSavedSettings.getBOOL("EnableGroupChatPopups")
+			&& session->isGroupSessionType())
+	{
+		return;
+	}
+	if (!gSavedSettings.getBOOL("EnableIMChatPopups")
+			&& !session->isGroupSessionType())
+	{
+		return;
+	}
+
 	// Skip toasting if we have open window of IM with this session id
 	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
 	if (open_im_floater && open_im_floater->getVisible())
@@ -1064,17 +1078,27 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		if( session == 0)//??? shouldn't really happen
 		{
 			LLRecentPeople::instance().add(other_participant_id);
+			return;
 		}
-		else
+		// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
+		//		(it can be also Group chat but it is checked above)
+		// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
+		// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
+		// Concrete participants will be added into this list once they sent message in chat.
+		if (IM_SESSION_INVITE == dialog) return;
+			
+		if (IM_SESSION_CONFERENCE_START == dialog) // outgoing ad-hoc session
 		{
-			// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
-			//		(it can be also Group chat but it is checked above)
-			// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
-			// Concrete participants will be added into this list once they sent message in chat.
-			if (IM_SESSION_INVITE == dialog) return;
-			// Add only online members to recent (EXT-8658)
-			addSpeakersToRecent(im_session_id);			
+			// Add only online members of conference to recent list (EXT-8658)
+			addSpeakersToRecent(im_session_id);
+		}
+		else // outgoing P2P session
+		{
+			// Add the recepient of the session.
+			if (!session->mInitialTargetIDs.empty())
+			{
+				LLRecentPeople::instance().add(*(session->mInitialTargetIDs.begin()));
+			}
 		}
 	}
 }

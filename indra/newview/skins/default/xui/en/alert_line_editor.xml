@@ -4,7 +4,7 @@
   revert_on_esc="true"
   commit_on_focus_lost="true"
   ignore_tab="true"
-  max_length="254"
+  max_length_bytes="254"
   text_pad_right="0"
   text_pad_left="2"
   mouse_opaque="true"/>

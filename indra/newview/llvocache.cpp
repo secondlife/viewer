@@ -28,6 +28,7 @@
 #include "llvocache.h"
 #include "llerror.h"
 #include "llregionhandle.h"
+#include "llviewercontrol.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -231,11 +232,11 @@ LLVOCache* LLVOCache::sInstance = NULL;
 
 //static 
 LLVOCache* LLVOCache::getInstance() 
-{
+{	
 	if(!sInstance)
 	{
 		sInstance = new LLVOCache() ;
-}
+	}
 	return sInstance ;
 }
 
@@ -261,13 +262,17 @@ LLVOCache::LLVOCache():
 	mNumEntries(0),
 	mCacheSize(1)
 {
+	mEnabled = gSavedSettings.getBOOL("ObjectCacheEnabled");
 	mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
 }
 
 LLVOCache::~LLVOCache()
 {
-	writeCacheHeader();
-	clearCacheInMemory();
+	if(mEnabled)
+	{
+		writeCacheHeader();
+		clearCacheInMemory();
+	}
 	delete mLocalAPRFilePoolp;
 }
 
@@ -281,7 +286,7 @@ void LLVOCache::setDirNames(ELLPath location)
 
 void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 {
-	if(mInitialized)
+	if(mInitialized || !mEnabled)
 	{
 		return ;
 	}
@@ -408,6 +413,11 @@ BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes)
 
 void LLVOCache::readCacheHeader()
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
+
 	//clear stale info.
 	clearCacheInMemory();	
 
@@ -452,7 +462,7 @@ void LLVOCache::readCacheHeader()
 
 void LLVOCache::writeCacheHeader()
 {
-	if(mReadOnly)
+	if(mReadOnly || !mEnabled)
 	{
 		return ;
 	}	
@@ -503,6 +513,10 @@ BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 
 void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) 
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
 	llassert_always(mInitialized);
 
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
@@ -572,6 +586,10 @@ void LLVOCache::purgeEntries()
 
 void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) 
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
 	llassert_always(mInitialized);
 
 	if(mReadOnly)

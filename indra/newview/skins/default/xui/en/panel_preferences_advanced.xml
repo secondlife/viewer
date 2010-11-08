@@ -280,7 +280,7 @@ Automatic position for:
      enabled_control="EnableVoiceChat"
      height="23"
      left="80"
-     max_length="200"
+     max_length_bytes="200"
      name="modifier_combo"
      label="Push-to-Speak trigger"
      top_pad="5"

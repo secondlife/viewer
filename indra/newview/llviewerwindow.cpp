@@ -306,6 +306,8 @@ public:
 
 	void update()
 	{
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 		std::string wind_vel_text;
 		std::string wind_vector_text;
 		std::string rwind_vel_text;
@@ -579,6 +581,23 @@ public:
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+		}
+		if(log_texture_traffic)
+		{	
+			U32 old_y = ypos ;
+			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
+			{
+				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				{
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					ypos += y_inc;
+				}
+			}
+			if(ypos != old_y)
+			{
+				addText(xpos, ypos, "Network traffic for textures:");
 				ypos += y_inc;
 			}
 		}
@@ -1404,6 +1423,11 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 
+	if (!gGLManager.mHasDepthClamp)
+	{
+		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
+	}
+	
 	// If we crashed while initializng GL stuff last time, disable certain features
 	if (gSavedSettings.getBOOL("RenderInitError"))
 	{

@@ -53,6 +53,7 @@
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "lltextbox.h"
+#include "lltoggleablemenu.h"
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 #include "lluictrl.h"
@@ -402,8 +403,8 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 // if neither the gear menu or self gear menu are open
 void LLInspectAvatar::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
-	LLMenuGL* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
+	LLToggleableMenu* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
+	LLToggleableMenu* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
 	if ( gear_menu && gear_menu->getVisible() &&
 		 gear_menu_self && gear_menu_self->getVisible() )
 	{
