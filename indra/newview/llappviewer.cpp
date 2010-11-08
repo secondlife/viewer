@@ -2048,6 +2048,15 @@ bool LLAppViewer::initConfiguration()
 	// - apply command line settings 
 	clp.notify(); 
 
+	// Register the core crash option as soon as we can
+	// if we want gdb post-mortem on cores we need to be up and running
+	// ASAP or we might miss init issue etc.
+	if(clp.hasOption("disablecrashlogger"))
+	{
+		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << llendl;
+		LLAppViewer::instance()->disableCrashlogger();
+	}
+
 	// Handle initialization from settings.
 	// Start up the debugging console before handling other options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
@@ -2621,6 +2630,11 @@ void LLAppViewer::handleViewerCrash()
 	if (pApp->beingDebugged())
 	{
 		// This will drop us into the debugger.
+		abort();
+	}
+
+	if (LLApp::isCrashloggerDisabled())
+	{
 		abort();
 	}
 
