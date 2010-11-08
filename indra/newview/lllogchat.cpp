@@ -200,7 +200,7 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
 	filename += ".txt";
-	LL_INFOS("") << "Current:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	//LL_INFOS("") << "Current:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	return filename;
 }
 
@@ -370,22 +370,19 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 		llwarns << "Session name is Empty!" << llendl;
 		return ;
 	}
-
+	LL_INFOS("") << "Loading:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	LL_INFOS("") << "Current:" << makeLogFileName(file_name) << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
-	// LL_INFOS("") << "Current:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	if (!fptr)
     {
 		fptr = LLFile::fopen(oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
-        //LL_INFOS("") << "Old    :" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
         if (!fptr)
         {
-			fptr =LLFile::fopen(ndsLogFileName(file_name), "r");/*Flawfinder:ignore*/
-            //LL_INFOS("") << "Orginal:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
-            if (!fptr) return;      //No previous conversation with this name.
+			if (!fptr) return;      //No previous conversation with this name.
         }
 	}
  
-    LL_INFOS("") << "Reading:" << file_name << LL_ENDL;
+    //LL_INFOS("") << "Reading:" << file_name << LL_ENDL;
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 	char *bptr;
 	S32 len;
@@ -574,29 +571,29 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 }
 std::string LLLogChat::oldLogFileName(std::string filename)
 {
-	time_t now;
-    time_t yesterday = time(&now) - 86400;
-	char dbuffer[20];		/* Flawfinder: ignore */
-	if (filename == "chat")
-	{
-		strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&yesterday));
-	}
-	else
-	{
-		strftime(dbuffer, 20, "-%Y-%m", localtime(&yesterday));
-	}
-	filename += dbuffer;
-	filename = cleanFileName(filename);
-	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
-	filename += ".txt";
-    //LL_INFOS("") << "Old    :" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
-	return filename;
-}
-std::string LLLogChat::ndsLogFileName(std::string filename)
-{
-    filename = cleanFileName(filename);
-	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
-	filename += ".txt";
-    //LL_INFOS("") << "Original:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
-	return filename;
+    std::string scanResult;
+	std::string directory = gDirUtilp->getPerAccountChatLogsDir();/* get Users log directory */
+	directory += gDirUtilp->getDirDelimiter();/* add final OS dependent delimiter */
+	std::string pattern = (cleanFileName(filename)+(( filename == "chat" ) ? "-???\?-?\?-??.txt" : "-???\?-??.txt"));/* create search pattern*/
+	LL_INFOS("") << "Checking:" << directory << " for " << pattern << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	std::vector<std::string> allfiles;
+
+    while (gDirUtilp->getNextFileInDir(directory, pattern, scanResult))
+    {
+		//LL_INFOS("") << "Found   :" << scanResult << LL_ENDL;
+        allfiles.push_back(scanResult);
+    }
+
+    if (allfiles.size() == 0)  // if no result from date search, return generic filename
+    {
+        scanResult = directory + filename + ".txt";
+    }
+    else 
+    {
+        std::sort(allfiles.begin(), allfiles.end());
+        scanResult = directory + allfiles.back();
+        // thisfile is now the most recent version of the file.
+    }
+	LL_INFOS("") << "Reading:" << scanResult << LL_ENDL;
+    return scanResult;
 }

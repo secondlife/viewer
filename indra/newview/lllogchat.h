@@ -45,7 +45,6 @@ public:
 	*Add functions to get old and non date stamped file names when needed
 	*/
 	static std::string oldLogFileName(std::string(filename));
-	static std::string ndsLogFileName(std::string(filename));
 	static void saveHistory(const std::string& filename,
 				const std::string& from,
 				const LLUUID& from_id,
