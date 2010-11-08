@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Person"/>
 	<text left="130" name="payee_name">
-		[FIRST] [LAST]
+		Extrem langen Namen testen, um zu prüfen, ob er abgeschnitten wird
 	</text>
 	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
 	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>
