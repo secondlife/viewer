@@ -25,6 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llviewerwindow.h"
 
 #if LL_WINDOWS
@@ -40,7 +41,6 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfloaterreg.h"
-#include "llmeshrepository.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
@@ -227,8 +227,6 @@ LLVector2       gDebugRaycastTexCoord;
 LLVector3       gDebugRaycastNormal;
 LLVector3       gDebugRaycastBinormal;
 S32				gDebugRaycastFaceHit;
-LLVector3		gDebugRaycastStart;
-LLVector3		gDebugRaycastEnd;
 
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
@@ -321,7 +319,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		U32 xpos = mWindow->getWorldViewWidthScaled() - 350;
+		U32 xpos = mWindow->getWindowWidthScaled() - 350;
 		U32 ypos = 64;
 		const U32 y_inc = 20;
 
@@ -506,27 +504,6 @@ public:
 			
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.3f MB Mesh Data Received", LLMeshRepository::sBytesReceived/(1024.f*1024.f)));
-			
-			ypos += y_inc;
-			
-			addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
-				LLMeshRepository::sHTTPRetryCount));
-			
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
-
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("Selection Streaming Cost: %.3f ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost()));
-
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("Selection Triangle Count: %.3f Ktris ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount()/1000.f));
-
-			ypos += y_inc;
-
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
 				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
@@ -607,50 +584,22 @@ public:
 				ypos += y_inc;
 			}
 		}
-
-
-		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
-		{
-			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, "Upload Cost: ");
-						
-			ypos += y_inc;
-		}
-
-		//temporary hack to give feedback on mesh upload progress
-		if (!gMeshRepo.mUploads.empty())
-		{
-			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
-				iter != gMeshRepo.mUploads.end(); ++iter)
+		if(log_texture_traffic)
+		{	
+			U32 old_y = ypos ;
+			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
 			{
-				LLMeshUploadThread* thread = *iter;
-
-				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
-								thread->mPendingConfirmations, thread->mUploadQ.size()+thread->mTextureQ.size(),
-								thread->mPendingUploads, thread->mConfirmedQ.size()+thread->mConfirmedTextureQ.size(),
-								thread->mInstanceQ.size()));
+				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				{
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					ypos += y_inc;
+				}
+			}
+			if(ypos != old_y)
+			{
+				addText(xpos, ypos, "Network traffic for textures:");
 				ypos += y_inc;
 			}
-		}
-
-		S32 pending = (S32) gMeshRepo.mPendingRequests.size();
-		S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
-		S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
-
-		if (pending + header + lod + LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests != 0)
-		{
-			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
-												pending,
-												LLMeshRepoThread::sActiveHeaderRequests, header,
-												LLMeshRepoThread::sActiveLODRequests, lod));
-
-			ypos += y_inc;
-		}
 		}
 	}
 
@@ -2549,9 +2498,7 @@ void LLViewerWindow::updateUI()
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
 											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal,
-											  &gDebugRaycastStart,
-											  &gDebugRaycastEnd);
+											  &gDebugRaycastBinormal);
 	}
 
 	updateMouseDelta();
@@ -3496,9 +3443,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												LLVector3 *intersection,
 												LLVector2 *uv,
 												LLVector3 *normal,
-												LLVector3 *binormal,
-												LLVector3* start,
-												LLVector3* end)
+												LLVector3 *binormal)
 {
 	S32 x = mouse_x;
 	S32 y = mouse_y;
@@ -3530,16 +3475,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	if (start)
-	{
-		*start = mouse_world_start;
-	}
-
-	if (end)
-	{
-		*end = mouse_world_end;
-	}
-
+	
 	LLViewerObject* found = NULL;
 
 	if (this_object)  // check only this object
@@ -4579,7 +4515,6 @@ BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsyn
 	//BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 
 	//gResizeScreenTexture = TRUE;
-
 
 	//U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
 	//U32 old_fsaa = mWindow->getFSAASamples();
