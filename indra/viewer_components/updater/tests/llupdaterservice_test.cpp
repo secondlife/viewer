@@ -36,28 +36,10 @@
 #include "../../../test/debug.h"
 
 #include "llevents.h"
-#include "llpluginprocessparent.h"
 
 /*****************************************************************************
 *   MOCK'd
 *****************************************************************************/
-LLPluginProcessParentOwner::~LLPluginProcessParentOwner() {}
-LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
-: mOwner(owner),
-  mIncomingQueueMutex(gAPRPoolp)
-{
-}
-
-LLPluginProcessParent::~LLPluginProcessParent() {}
-LLPluginMessagePipeOwner::LLPluginMessagePipeOwner(){}
-LLPluginMessagePipeOwner::~LLPluginMessagePipeOwner(){}
-void LLPluginProcessParent::receiveMessageRaw(const std::string &message) {}
-int LLPluginMessagePipeOwner::socketError(int) { return 0; }
-void LLPluginProcessParent::setMessagePipe(LLPluginMessagePipe *message_pipe) {}
-void LLPluginMessagePipeOwner::setMessagePipe(class LLPluginMessagePipe *) {}
-LLPluginMessage::~LLPluginMessage() {}
-LLPluginMessage::LLPluginMessage(LLPluginMessage const&) {}
-
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
 void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 

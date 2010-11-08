@@ -31,7 +31,6 @@
 #include "llupdaterservice.h"
 #include "llupdatechecker.h"
 
-#include "llpluginprocessparent.h"
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -42,7 +41,6 @@
 boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 class LLUpdaterServiceImpl : 
-	public LLPluginProcessParentOwner,
 	public LLUpdateChecker::Client,
 	public LLUpdateDownloader::Client
 {
@@ -56,7 +54,6 @@ class LLUpdaterServiceImpl :
 	
 	unsigned int mCheckPeriod;
 	bool mIsChecking;
-	boost::scoped_ptr<LLPluginProcessParent> mPlugin;
 	
 	LLUpdateChecker mUpdateChecker;
 	LLUpdateDownloader mUpdateDownloader;
@@ -69,12 +66,6 @@ class LLUpdaterServiceImpl :
 public:
 	LLUpdaterServiceImpl();
 	virtual ~LLUpdaterServiceImpl();
-
-	// LLPluginProcessParentOwner interfaces
-	virtual void receivePluginMessage(const LLPluginMessage &message);
-	virtual bool receivePluginMessageEarly(const LLPluginMessage &message);
-	virtual void pluginLaunchFailed();
-	virtual void pluginDied();
 
 	void setParams(const std::string& protocol_version,
 				   const std::string& url, 
@@ -110,12 +101,9 @@ const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
 	mCheckPeriod(0),
-	mPlugin(0),
 	mUpdateChecker(*this),
 	mUpdateDownloader(*this)
 {
-	// Create the plugin parent, this is the owner.
-	mPlugin.reset(new LLPluginProcessParent(this));
 }
 
 LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
@@ -123,24 +111,6 @@ LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 	LL_INFOS("UpdaterService") << "shutting down updater service" << LL_ENDL;
 	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
-
-// LLPluginProcessParentOwner interfaces
-void LLUpdaterServiceImpl::receivePluginMessage(const LLPluginMessage &message)
-{
-}
-
-bool LLUpdaterServiceImpl::receivePluginMessageEarly(const LLPluginMessage &message) 
-{
-	return false;
-};
-
-void LLUpdaterServiceImpl::pluginLaunchFailed() 
-{
-};
-
-void LLUpdaterServiceImpl::pluginDied() 
-{
-};
 
 void LLUpdaterServiceImpl::setParams(const std::string& protocol_version,
 									 const std::string& url, 
