@@ -3128,15 +3128,6 @@
 
         <menu_item_separator/>
 
-        <menu_item_check
-         label="Show Admin Menu"
-         name="View Admin Options">
-            <menu_item_check.on_check
-             function="Advanced.CheckViewAdminOptions"
-             parameter="ViewAdminOptions" />
-            <menu_item_check.on_click
-             function="Advanced.ToggleViewAdminOptions" />
-        </menu_item_check>
         <menu_item_call
          label="Request Admin Status"
          name="Request Admin Options"
@@ -3161,6 +3152,17 @@
           <menu_item_call.on_enable
              function="File.EnableUploadModel" />
         </menu_item_call>
+        <menu_item_check
+         label="Show Admin Menu"
+         name="View Admin Options">
+            <menu_item_check.on_enable
+             function="Advanced.EnableViewAdminOptions" />
+            <menu_item_check.on_check
+             function="Advanced.CheckViewAdminOptions"
+             parameter="ViewAdminOptions" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleViewAdminOptions" />
+        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"

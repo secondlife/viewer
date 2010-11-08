@@ -28,7 +28,7 @@
 #include "llmemory.h"
 
 #include <boost/static_assert.hpp>
-
+#include "llsys.h"
 #include "llvertexbuffer.h"
 // #include "llrender.h"
 #include "llglheaders.h"
@@ -909,6 +909,14 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 
 		if (!mMappedData)
 		{
+			log_glerror();
+
+			//check the availability of memory
+			U32 avail_phy_mem, avail_vir_mem;
+			LLMemoryInfo::getAvailableMemoryKB(avail_phy_mem, avail_vir_mem) ;
+			llinfos << "Available physical mwmory(KB): " << avail_phy_mem << llendl ; 
+			llinfos << "Available virtual memory(KB): " << avail_vir_mem << llendl;
+
 			//--------------------
 			//print out more debug info before crash
 			llinfos << "vertex buffer size: (num verts : num indices) = " << getNumVerts() << " : " << getNumIndices() << llendl ;
@@ -930,6 +938,8 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 
 		if (!mMappedIndexData)
 		{
+			log_glerror();
+
 			GLint buff;
 			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
 			if ((GLuint)buff != mGLIndices)

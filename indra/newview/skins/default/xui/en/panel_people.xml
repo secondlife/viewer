@@ -307,7 +307,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				           image_unselected="Toolbar_Right_Off"
 				           left="0"
 				           layout="topleft"
-				           name="trash_btn"
+				           name="del_btn"
 				           tool_tip="Remove selected person from your Friends list"
 				           top="0"
 				           width="31"/>

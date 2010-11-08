@@ -70,12 +70,6 @@ public:
 	 */
 	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-									   EDragAndDropType cargo_type,
-									   void* cargo_data,
-									   EAcceptance* accept,
-									   std::string& tooltip_msg);
-
 	void setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle);
 
 	void setParentLandmarksPanel(LLLandmarksPanel* panel)

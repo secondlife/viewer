@@ -85,6 +85,7 @@
 			<menu_item_call label="Coger una copia" name="Take Copy"/>
 			<menu_item_call label="Guardar una copia en mi inventario" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Guardar una copia del objeto en los contenidos de donde salió" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Recompilar los scripts (Mono)" name="Mono"/>
@@ -98,6 +99,7 @@
 			<menu_item_check label="Seleccionar sólo mis objetos" name="Select Only My Objects"/>
 			<menu_item_check label="Seleccionar sólo los objetos movibles" name="Select Only Movable Objects"/>
 			<menu_item_check label="Seleccionar marcando los alrededores" name="Select By Surrounding"/>
+			<menu_item_check label="Mostrar detalles de la selección" name="Show Selection Outlines"/>
 			<menu_item_check label="Al seleccionar, mostrar lo oculto" name="Show Hidden Selection"/>
 			<menu_item_check label="Al seleccionar, mostrar el radio de la luz" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Mostrar el rayo indicador" name="Show Selection Beam"/>
@@ -118,6 +120,7 @@
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse"/>
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
 		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Permitir consejos" name="Enable Hints"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
 		<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
@@ -264,7 +267,7 @@
 			<menu_item_call label="Web Browser Test" name="Web Browser Test"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Memory Stats" name="Memory Stats"/>
-			<menu_item_check label="Double-Click Auto-Pilot" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="Haz doble clic en Piloto automático" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="Teleportar mediante doble clic" name="DoubleClick Teleport"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
@@ -276,6 +279,7 @@
 			<menu_item_call label="Save to XML" name="Save to XML"/>
 			<menu_item_check label="Show XUI Names" name="Show XUI Names"/>
 			<menu_item_call label="Send Test IMs" name="Send Test IMs"/>
+			<menu_item_call label="Eliminar registros de nombres en caché" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">

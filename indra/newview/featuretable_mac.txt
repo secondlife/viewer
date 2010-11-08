@@ -140,7 +140,7 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
-RenderUseFBO				1	1
+RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -166,7 +166,7 @@ RenderWaterReflections		1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderUseFBO				1	1
+RenderUseFBO				1	0
 
 //
 // Class Unknown Hardware (unknown)

@@ -221,11 +221,24 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (gResizeScreenTexture)
 	{ //skip render on frames where screen texture is resizing
 		gGL.flush();
-		glClear(GL_COLOR_BUFFER_BIT);
-		gViewerWindow->mWindow->swapBuffers();
+		if (!for_snapshot)
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+			gViewerWindow->mWindow->swapBuffers();
+		}
+	
 		gResizeScreenTexture = FALSE;
 		gPipeline.resizeScreenTexture();
-		return;
+
+		if (!for_snapshot)
+		{
+			return;
+		}
+	}
+
+	if (LLPipeline::sRenderDeferred)
+	{ //hack to make sky show up in deferred snapshots
+		for_snapshot = FALSE;
 	}
 
 	if (LLPipeline::sRenderFrameTest)
@@ -718,7 +731,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		// Doing this here gives hardware occlusion queries extra time to complete
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
-		LLError::LLCallStacks::clear() ;
 		
 		{
 			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);

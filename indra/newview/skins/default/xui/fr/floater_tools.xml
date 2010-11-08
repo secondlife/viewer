@@ -189,7 +189,7 @@
 			<text name="label click action">
 				Cliquer pour :
 			</text>
-			<combo_box name="clickaction" width="178">
+			<combo_box name="clickaction">
 				<combo_box.item label="Toucher (par défaut)" name="Touch/grab(default)"/>
 				<combo_box.item label="S&apos;asseoir sur l&apos;objet" name="Sitonobject"/>
 				<combo_box.item label="Acheter l&apos;objet" name="Buyobject"/>
