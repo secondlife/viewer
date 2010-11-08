@@ -668,7 +668,6 @@ public:
 
 			ypos += y_inc;
 		}
-		}
 	}
 
 	void draw()
