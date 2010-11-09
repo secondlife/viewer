@@ -154,8 +154,7 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	LLThread("LLUpdateDownloader"),
 	mCancelled(false),
 	mClient(client),
-	mCurl(0),
-	mDownloadRecordPath(LLUpdateDownloader::downloadMarkerPath())
+	mCurl(0)
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
 	llverify(code == CURLE_OK); // TODO: real error handling here. 
@@ -164,6 +163,12 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 
 LLUpdateDownloader::Implementation::~Implementation()
 {
+	if(isDownloading()) {
+		cancel();
+		shutdown();
+	} else {
+		; // No op.
+	}
 	if(mCurl) curl_easy_cleanup(mCurl);
 }
 
@@ -177,7 +182,8 @@ void LLUpdateDownloader::Implementation::cancel(void)
 void LLUpdateDownloader::Implementation::download(LLURI const & uri, std::string const & hash)
 {
 	if(isDownloading()) mClient.downloadError("download in progress");
-	
+
+	mDownloadRecordPath = downloadMarkerPath();
 	mDownloadData = LLSD();
 	try {
 		startDownloading(uri, hash);
@@ -195,6 +201,9 @@ bool LLUpdateDownloader::Implementation::isDownloading(void)
 
 void LLUpdateDownloader::Implementation::resume(void)
 {
+	if(isDownloading()) mClient.downloadError("download in progress");
+
+	mDownloadRecordPath = downloadMarkerPath();
 	llifstream dataStream(mDownloadRecordPath);
 	if(!dataStream) {
 		mClient.downloadError("no download marker");
