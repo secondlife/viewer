@@ -1837,13 +1837,13 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
-  if(CMAKE_CONFIGURATION_TYPES)
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
+      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
       # set LLBUILD_CONFIG to be a shell variable evaluated at build time
       # reflecting the configuration we are currently building.
       set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-  else(CMAKE_CONFIGURATION_TYPES)
-      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-  endif(CMAKE_CONFIGURATION_TYPES)
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS
