@@ -6,6 +6,7 @@ include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
+include(CMakeCopyIfDifferent)
 include(CURL)
 include(LLCommon)
 include(LLMessage)
@@ -24,12 +25,14 @@ set(updater_service_SOURCE_FILES
     llupdaterservice.cpp
     llupdatechecker.cpp
     llupdatedownloader.cpp
+    llupdateinstaller.cpp
     )
 
 set(updater_service_HEADER_FILES
     llupdaterservice.h
     llupdatechecker.h
     llupdatedownloader.h
+    llupdateinstaller.h
     )
 
 set_source_files_properties(${updater_service_HEADER_FILES}
@@ -56,12 +59,6 @@ if(LL_TESTS)
       llupdaterservice.cpp
       )
 
-#  set_source_files_properties(
-#    llupdaterservice.cpp
-#    PROPERTIES
-#      LL_TEST_ADDITIONAL_LIBRARIES "${PTH_LIBRARIES}"
-#    )
-
   LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
 endif(LL_TESTS)
 
@@ -74,3 +71,17 @@ set(UPDATER_LIBRARIES
   llupdaterservice
   CACHE INTERNAL ""
 )
+
+# Copy install script.
+if(DARWIN)
+	copy_if_different(
+		"${CMAKE_CURRENT_SOURCE_DIR}/scripts/darwin"
+		"${CMAKE_CURRENT_BINARY_DIR}"
+		update_installer_targets
+		"update_install"
+		)
+endif()
+add_custom_target(copy_update_install ALL DEPENDS ${update_installer_targets})
+
+
+ 
