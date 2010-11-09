@@ -2945,7 +2945,7 @@ bool process_login_success_response()
 	text = response["circuit_code"].asString();
 	if(!text.empty())
 	{
-		gMessageSystem->mOurCircuitCode = strtoult(ext.c_str(), NULL, 10);
+		gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
 	}
 	std::string sim_ip_str = response["sim_ip"];
 	std::string sim_port_str = response["sim_port"];
