@@ -1,0 +1,6 @@
+#! /bin/bash
+
+hdiutil attach -nobrowse $1
+cp -R  /Volumes/Second\ Life\ Installer/Second\ Life\ Viewer\ 2.app  /Applications
+hdiutil detach /Volumes/Second\ Life\ Installer
+open /Applications/Second\ Life\ Viewer\ 2.app
