@@ -2222,6 +2222,10 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 						{	// Past the time limit, so stop the object
 							phase_out = 0.0;
 							//llinfos << "Motion phase out to zero" << llendl;
+
+							// Kill angular motion as well.  Note - not adding this due to paranoia
+							// about stopping rotation for llTargetOmega objects and not having it restart
+							// setAngularVelocity(LLVector3::zero);
 						}
 						else if (mLastInterpUpdateSecs - mLastMessageUpdateSecs > sPhaseOutUpdateInterpolationTime)
 						{	// Last update was already phased out a bit
@@ -2253,7 +2257,18 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 
 		// Clamp interpolated position to minimum underground and maximum region height
 		LLVector3d new_pos_global = mRegionp->getPosGlobalFromRegion(new_pos);
-		F32 min_height = LLWorld::getInstance()->getMinAllowedZ(this, new_pos_global);
+		F32 min_height;
+		if (isAvatar())
+		{	// Make a better guess about AVs not going underground
+			min_height = LLWorld::getInstance()->resolveLandHeightGlobal(new_pos_global);
+			min_height += (0.5f * getScale().mV[VZ]);
+		}
+		else
+		{	// This will put the object underground, but we can't tell if it will stop 
+			// at ground level or not
+			min_height = LLWorld::getInstance()->getMinAllowedZ(this, new_pos_global);
+		}
+
 		new_pos.mV[VZ] = llmax(min_height, new_pos.mV[VZ]);
 		new_pos.mV[VZ] = llmin(LLWorld::getInstance()->getRegionMaxHeight(), new_pos.mV[VZ]);
 
