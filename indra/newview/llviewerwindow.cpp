@@ -1863,6 +1863,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			return;
 		}
 
+		gWindowResized = TRUE;
+
 		// update our window rectangle
 		mWindowRectRaw.mRight = mWindowRectRaw.mLeft + width;
 		mWindowRectRaw.mTop = mWindowRectRaw.mBottom + height;
@@ -4439,6 +4441,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
+		gWindowResized = TRUE;
 
 		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
 		{
