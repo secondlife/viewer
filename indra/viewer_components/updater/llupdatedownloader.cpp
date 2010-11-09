@@ -272,6 +272,7 @@ size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
+	mDownloadStream.close();
 	if(code == CURLE_OK) {
 		LLFile::remove(mDownloadRecordPath);
 		if(validateDownload()) {
@@ -379,7 +380,7 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 bool LLUpdateDownloader::Implementation::validateDownload(void)
 {
 	std::string filePath = mDownloadData["path"].asString();
-	llifstream fileStream(filePath);
+	llifstream fileStream(filePath, std::ios_base::in | std::ios_base::binary);
 	if(!fileStream) return false;
 
 	std::string hash = mDownloadData["hash"].asString();
