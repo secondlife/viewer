@@ -153,10 +153,12 @@ void LLThread::shutdown()
 	}
 
 	delete mRunCondition;
+	mRunCondition = 0;
 	
-	if (mIsLocalPool)
+	if (mIsLocalPool && mAPRPoolp)
 	{
 		apr_pool_destroy(mAPRPoolp);
+		mAPRPoolp = 0;
 	}
 }
 
