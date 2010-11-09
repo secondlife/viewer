@@ -85,6 +85,7 @@
 			<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
 			<menu_item_call label="Salvar no meu inventário" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Recompilar scripts (LSL)" name="Mono"/>
@@ -98,6 +99,7 @@
 			<menu_item_check label="Só selecionar meus objetos" name="Select Only My Objects"/>
 			<menu_item_check label="Só selecionar objetos móveis" name="Select Only Movable Objects"/>
 			<menu_item_check label="Selecionar contornando" name="Select By Surrounding"/>
+			<menu_item_check label="Mostrar contornos da seleção" name="Show Selection Outlines"/>
 			<menu_item_check label="Mostrar seleção oculta" name="Show Hidden Selection"/>
 			<menu_item_check label="Mostrar alcance de luz da seleção" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Mostrar raio de seleção" name="Show Selection Beam"/>
@@ -118,6 +120,7 @@
 		<menu_item_call label="Denunciar abuso" name="Report Abuse"/>
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Ativar dicas" name="Enable Hints"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
 		<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
@@ -264,7 +267,7 @@
 			<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Dados de memória" name="Memory Stats"/>
-			<menu_item_check label="Trajeto c/ dois cliques" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="Trajeto c/ dois cliques" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="Teletransportar c/ dois cliques" name="DoubleClick Teleport"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
@@ -276,6 +279,7 @@
 			<menu_item_call label="Salvar para XML" name="Save to XML"/>
 			<menu_item_check label="Mostrar nomes XUI" name="Show XUI Names"/>
 			<menu_item_call label="Enviar MIs de teste" name="Send Test IMs"/>
+			<menu_item_call label="Limpar cache de nomes" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">

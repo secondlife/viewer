@@ -133,6 +133,7 @@ class LLUrlEntryHTTPLabel : public LLUrlEntryBase
 public:
 	LLUrlEntryHTTPLabel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getTooltip(const std::string &string) const;
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 

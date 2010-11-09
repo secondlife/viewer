@@ -4,19 +4,19 @@
 		Nicht erkannt
 	</floater.string>
 	<floater.string name="bump">
-		[TIME]  [FIRST] [LAST] hat Sie gestoßen
+		[TIME]  [NAME] hat Sie gestoßen
 	</floater.string>
 	<floater.string name="llpushobject">
-		[TIME]  [FIRST] [LAST] hat Sie mit einem Skript gestoßen
+		[TIME]  [NAME] hat Sie mit einem Skript gestoßen
 	</floater.string>
 	<floater.string name="selected_object_collide">
-		[TIME]  [FIRST] [LAST] hat Sie mit einem Objekt getroffen
+		[TIME]  [NAME] hat Sie mit einem Objekt getroffen
 	</floater.string>
 	<floater.string name="scripted_object_collide">
-		[TIME]  [FIRST] [LAST] hat Sie mit einem Skript-Objekt getroffen
+		[TIME]  [NAME] hat Sie mit einem Skript-Objekt getroffen
 	</floater.string>
 	<floater.string name="physical_object_collide">
-		[TIME]  [FIRST] [LAST] hat Sie mit einem physischen Objekt getroffen
+		[TIME]  [NAME] hat Sie mit einem physischen Objekt getroffen
 	</floater.string>
 	<floater.string name="timeStr">
 		[[hour,datetime,slt]:[min,datetime,slt]]

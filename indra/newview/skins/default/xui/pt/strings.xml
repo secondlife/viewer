@@ -194,6 +194,9 @@
 	<string name="TooltipAgentUrl">
 		Clique para ver o perfil deste residente
 	</string>
+	<string name="TooltipAgentInspect">
+		Saiba mais sobre este residente
+	</string>
 	<string name="TooltipAgentMute">
 		Clique para silenciar este residente
 	</string>
@@ -740,6 +743,12 @@
 	</string>
 	<string name="Estate / Full Region">
 		Propriedadade / Região inteira:
+	</string>
+	<string name="Estate / Homestead">
+		Imóvel / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continente / Homestead
 	</string>
 	<string name="Mainland / Full Region">
 		Continente / Região inteira:
@@ -3471,7 +3480,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Você é o único usuário desta sessão.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] está offline.
+		[NAME] está offline.
 	</string>
 	<string name="invite_message">
 		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
@@ -3540,6 +3549,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
+		[NAME] lhe pagou L$ [AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
@@ -3553,6 +3565,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		You pagou L$[AMOUNT] por [REASON].
+	</string>
+	<string name="for item">
+		por [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		por uma parcela
@@ -3571,6 +3586,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		para carregar
+	</string>
+	<string name="to publish a classified ad">
+		para publicar um anúncio
 	</string>
 	<string name="giving">
 		Dando L$ [AMOUNT]
