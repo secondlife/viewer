@@ -219,7 +219,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		}
 		else
 		{
-			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Ignore notification with this name", TRUE);
+			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", TRUE);
 			mIgnoreSetting = LLUI::sSettingGroups["ignores"]->getControl(name);
 		}
 	}
@@ -357,15 +357,15 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 
 bool LLNotificationForm::getIgnored()
 {
-	bool ignored = false;
+	bool show = false;
 	if (mIgnore != LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
-		ignored = mIgnoreSetting->getValue().asBoolean();
-		if (mInvertSetting) ignored = !ignored;
+		show = mIgnoreSetting->getValue().asBoolean();
+		if (mInvertSetting) show = !show;
 	}
 
-	return ignored;
+	return !show;
 }
 
 void LLNotificationForm::setIgnored(bool ignored)
@@ -373,7 +373,7 @@ void LLNotificationForm::setIgnored(bool ignored)
 	if (mIgnoreSetting)
 	{
 		if (mInvertSetting) ignored = !ignored;
-		mIgnoreSetting->setValue(ignored);
+		mIgnoreSetting->setValue(!ignored);
 	}
 }
 

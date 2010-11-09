@@ -803,7 +803,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = formp->getIgnored();
+		bool show_popup = !formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -1155,7 +1155,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		templatep->mForm->setIgnored(false);
+		templatep->mForm->setIgnored(true);
 	}
 	
 	buildPopupLists();
@@ -1169,7 +1169,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(true);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }
@@ -1182,7 +1182,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(false);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
