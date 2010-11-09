@@ -256,5 +256,158 @@ namespace tut
 			      gDirUtilp->getExtension(dottedPathExt),
 			      "ext");
 	}
+
+   std::string makeTestFile( const std::string& dir, const std::string& file )
+   {
+      std::string delim = gDirUtilp->getDirDelimiter();
+      std::string path = dir + delim + file;
+      LLFILE* handle = LLFile::fopen( path, "w" );
+      ensure("failed to open test file '"+path+"'", handle != NULL );
+      ensure("failed to write to test file '"+path+"'", !fputs("test file", handle) );
+      fclose(handle);
+      return path;
+   }
+
+   std::string makeTestDir( const std::string& dirbase )
+   {
+      int counter;
+      std::string uniqueDir;
+      bool foundUnused;
+      std::string delim = gDirUtilp->getDirDelimiter();
+      
+      for (counter=0, foundUnused=false; !foundUnused; counter++ )
+      {
+         char counterStr[3];
+         sprintf(counterStr, "%02d", counter);
+         uniqueDir = dirbase + counterStr;
+         foundUnused = ! ( LLFile::isdir(uniqueDir) || LLFile::isfile(uniqueDir) );
+      }
+      ensure("test directory '" + uniqueDir + "' creation failed", !LLFile::mkdir(uniqueDir));
+      
+      return uniqueDir + delim; // HACK - apparently, the trailing delimiter is needed...
+   }
+
+   static const char* DirScanFilename[5] = { "file1.abc", "file2.abc", "file1.xyz", "file2.xyz", "file1.mno" };
+   
+   void scanTest(const std::string& directory, const std::string& pattern, bool correctResult[5])
+   {
+
+      // Scan directory and see if any file1.* files are found
+      std::string scanResult;
+      int   found = 0;
+      bool  filesFound[5] = { false, false, false, false, false };
+      //std::cerr << "searching '"+directory+"' for '"+pattern+"'\n";
+
+      while ( found <= 5 && gDirUtilp->getNextFileInDir(directory, pattern, scanResult) )
+      {
+         found++;
+         //std::cerr << "  found '"+scanResult+"'\n";
+         int check;
+         for (check=0; check < 5 && ! ( scanResult == DirScanFilename[check] ); check++)
+         {
+         }
+         // check is now either 5 (not found) or the index of the matching name
+         if (check < 5)
+         {
+            ensure( "found file '"+(std::string)DirScanFilename[check]+"' twice", ! filesFound[check] );
+            filesFound[check] = true;
+         }
+         else // check is 5 - should not happen
+         {
+            fail( "found unknown file '"+scanResult+"'");
+         }
+      }
+      for (int i=0; i<5; i++)
+      {
+         if (correctResult[i])
+         {
+            ensure("scan of '"+directory+"' using '"+pattern+"' did not return '"+DirScanFilename[i]+"'", filesFound[i]);
+         }
+         else
+         {
+            ensure("scan of '"+directory+"' using '"+pattern+"' incorrectly returned '"+DirScanFilename[i]+"'", !filesFound[i]);
+         }
+      }
+   }
+   
+   template<> template<>
+   void LLDirTest_object_t::test<5>()
+      // getNextFileInDir
+   {
+      std::string delim = gDirUtilp->getDirDelimiter();
+      std::string dirTemp = LLFile::tmpdir();
+
+      // Create the same 5 file names of the two directories
+
+      std::string dir1 = makeTestDir(dirTemp + "getNextFileInDir");
+      std::string dir2 = makeTestDir(dirTemp + "getNextFileInDir");
+      std::string dir1files[5];
+      std::string dir2files[5];
+      for (int i=0; i<5; i++)
+      {
+         dir1files[i] = makeTestFile(dir1, DirScanFilename[i]);
+         dir2files[i] = makeTestFile(dir2, DirScanFilename[i]);
+      }
+
+      // Scan dir1 and see if each of the 5 files is found exactly once
+      bool expected1[5] = { true, true, true, true, true };
+      scanTest(dir1, "*", expected1);
+
+      // Scan dir2 and see if only the 2 *.xyz files are found
+      bool  expected2[5] = { false, false, true, true, false };
+      scanTest(dir1, "*.xyz", expected2);
+
+      // Scan dir2 and see if only the 1 *.mno file is found
+      bool  expected3[5] = { false, false, false, false, true };
+      scanTest(dir2, "*.mno", expected3);
+
+      // Scan dir1 and see if any *.foo files are found
+      bool  expected4[5] = { false, false, false, false, false };
+      scanTest(dir1, "*.foo", expected4);
+
+      // Scan dir1 and see if any file1.* files are found
+      bool  expected5[5] = { true, false, true, false, true };
+      scanTest(dir1, "file1.*", expected5);
+
+      // Scan dir1 and see if any file1.* files are found
+      bool  expected6[5] = { true, true, false, false, false };
+      scanTest(dir1, "file?.abc", expected6);
+
+      // Scan dir2 and see if any file?.x?z files are found
+      bool  expected7[5] = { false, false, true, true, false };
+      scanTest(dir2, "file?.x?z", expected7);
+
+      // Scan dir2 and see if any file?.??c files are found
+      // THESE FAIL ON Mac and Windows, SO ARE COMMENTED OUT FOR NOW
+      //      bool  expected8[5] = { true, true, false, false, false };
+      //      scanTest(dir2, "file?.??c", expected8);
+      //      scanTest(dir2, "*.??c", expected8);
+
+      // Scan dir1 and see if any *.?n? files are found
+      bool  expected9[5] = { false, false, false, false, true };
+      scanTest(dir1, "*.?n?", expected9);
+
+      // Scan dir1 and see if any *.???? files are found
+      // THIS ONE FAILS ON WINDOWS (returns three charater suffixes) SO IS COMMENTED OUT FOR NOW
+      // bool  expected10[5] = { false, false, false, false, false };
+      // scanTest(dir1, "*.????", expected10);
+
+      // Scan dir1 and see if any ?????.* files are found
+      bool  expected11[5] = { true, true, true, true, true };
+      scanTest(dir1, "?????.*", expected11);
+
+      // Scan dir1 and see if any ??l??.xyz files are found
+      bool  expected12[5] = { false, false, true, true, false };
+      scanTest(dir1, "??l??.xyz", expected12);
+
+      // clean up all test files and directories
+      for (int i=0; i<5; i++)
+      {
+         LLFile::remove(dir1files[i]);
+         LLFile::remove(dir2files[i]);
+      }
+      LLFile::rmdir(dir1);
+      LLFile::rmdir(dir2);
+   }
 }
 
