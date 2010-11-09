@@ -197,6 +197,8 @@
 #include "llsecapi.h"
 #include "llmachineid.h"
 
+#include "llmainlooprepeater.h"
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -800,6 +802,9 @@ bool LLAppViewer::init()
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
 		return 1;
 	}
+	
+	// Initialize the repeater service.
+	LLMainLoopRepeater::getInstance()->start();
 	
 	//
 	// Initialize the window

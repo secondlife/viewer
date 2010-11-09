@@ -283,6 +283,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -815,6 +816,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
