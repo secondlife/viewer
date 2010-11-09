@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="LIGAÇÃO DE DESCONHECIDO">
+<floater name="incoming call" title="Ligação para você">
 	<floater.string name="lifetime">
 		5
 	</floater.string>

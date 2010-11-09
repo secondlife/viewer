@@ -171,13 +171,13 @@
 				Creador:
 			</text>
 			<text name="Creator Name">
-				Thrax Linden
+				Dª Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Propietario:
 			</text>
 			<text name="Owner Name">
-				Thrax Linden
+				Dª Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupo:
@@ -186,10 +186,10 @@
 			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
-			<text name="label click action" width="180">
+			<text name="label click action">
 				Al tocarlo:
 			</text>
-			<combo_box name="clickaction" width="192">
+			<combo_box name="clickaction">
 				<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentarse en el objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar el objeto" name="Buyobject"/>

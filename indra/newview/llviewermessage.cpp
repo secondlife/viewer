@@ -1199,7 +1199,6 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!(asset_type == LLAssetType::AT_CALLINGCARD) && // don't open if it's a calling card
-			!(item && (item->getInventoryType() == LLInventoryType::IT_ATTACHMENT)) && // don't open if it's an item that's an attachment
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
@@ -1511,7 +1510,12 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		// MUTE falls through to decline
 	case IOR_DECLINE:
 		{
-			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			{
+				LLStringUtil::format_map_t log_message_args;
+				log_message_args["DESC"] = mDesc;
+				log_message_args["NAME"] = mFromName;
+				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
+			}
 			chat.mText = log_message;
 			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
 			{
@@ -1710,8 +1714,12 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
 			// send the message
 			msg->sendReliable(mHost);
-			
-			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			{
+				LLStringUtil::format_map_t log_message_args;
+				log_message_args["DESC"] = mDesc;
+				log_message_args["NAME"] = mFromName;
+				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
+			}
 			LLSD args;
 			args["MESSAGE"] = log_message;
 			LLNotificationsUtil::add("SystemMessage", args);

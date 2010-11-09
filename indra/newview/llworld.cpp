@@ -126,7 +126,10 @@ void LLWorld::destroyClass()
 		LLViewerRegion* region_to_delete = *region_it++;
 		removeRegion(region_to_delete->getHost());
 	}
-	LLVOCache::getInstance()->destroyClass() ;
+	if(LLVOCache::hasInstance())
+	{
+		LLVOCache::getInstance()->destroyClass() ;
+	}
 	LLViewerPartSim::getInstance()->destroyClass();
 }
 

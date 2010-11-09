@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Configurar" name="Input panel">
-	<button bottom_delta="-40" label="Otros dispositivos" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Vista subjetiva:
 	</text>
@@ -37,10 +36,11 @@
 		<radio_item label="Usar mi navegador (IE, Firefox, Safari)" name="external" tool_tip="Usa tu navegador por defecto para ayuda, enlaces web, etc. No es aconsejable si estás a pantalla completa." value="1"/>
 		<radio_item label="Usar el navegador incorporado" name="internal" tool_tip="Usa el navegador incorporado para ayuda, enlaces web, etc. Este navegador se abre en una nueva ventana dentro de [APP_NAME]." value=""/>
 	</radio_group>
-	<check_box label="Activar plugins" name="browser_plugins_enabled"/>
-	<check_box label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
-	<check_box label="Activar Javascript" name="browser_javascript_enabled"/>
-	<check_box label="Activar web proxy" name="web_proxy_enabled"/>
+	<check_box initial_value="true" label="Activar plugins" name="browser_plugins_enabled"/>
+	<check_box initial_value="true" label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
+	<check_box initial_value="true" label="Activar Javascript" name="browser_javascript_enabled"/>
+	<check_box initial_value="falso" label="Permitir ventanas emergentes de navegadores de medios" name="media_popup_enabled"/>
+	<check_box initial_value="false" label="Activar web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Localización del proxy:
 	</text>

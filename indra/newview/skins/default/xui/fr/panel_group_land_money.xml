@@ -24,6 +24,7 @@
 			<scroll_list.columns label="Région" name="location"/>
 			<scroll_list.columns label="Type" name="type"/>
 			<scroll_list.columns label="Surf." name="area"/>
+			<scroll_list.columns label="Masquage" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			Total des contributions :

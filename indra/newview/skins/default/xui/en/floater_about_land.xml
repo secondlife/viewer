@@ -255,7 +255,6 @@
             </text>
    <!--TODO: HOOK UP GROUP ICON-->
             <text
-             enabled="false"
              follows="left|top"
              height="16"
              left_pad="2"
