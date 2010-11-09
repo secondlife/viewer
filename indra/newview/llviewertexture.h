@@ -676,7 +676,6 @@ private:
 public:
     //texture pipeline tester
 	static LLTexturePipelineTester* sTesterp ;
-	static bool perfStatsEnabled();
 
 	//returns NULL if tex is not a LLViewerFetchedTexture nor derived from LLViewerFetchedTexture.
 	static LLViewerFetchedTexture*    staticCastToFetchedTexture(LLTexture* tex, BOOL report_error = FALSE) ;

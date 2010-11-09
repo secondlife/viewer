@@ -27,6 +27,8 @@
 #ifndef LL_METRICPERFORMANCETESTER_H 
 #define LL_METRICPERFORMANCETESTER_H 
 
+const std::string DEFAULT_METRIC_NAME("metric");
+
 /**
  * @class LLMetricPerformanceTesterBasic
  * @brief Performance Metric Base Class
@@ -131,6 +133,13 @@ public:
 	 * @param[in] name - Name of the tester instance queried.
 	 */
 	static LLMetricPerformanceTesterBasic* getTester(std::string name) ;
+	
+	/**
+	 * @return Returns TRUE if that metric *or* the default catch all metric has been requested to be logged
+	 * @param[in] name - Name of the tester queried.
+	 */
+	static BOOL isMetricLogRequested(std::string name);
+	
 	/**
 	 * @return Returns TRUE if there's a tester defined, FALSE otherwise.
 	 */

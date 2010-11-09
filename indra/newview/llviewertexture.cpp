@@ -288,12 +288,6 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const s
 	return gTextureList.getImageFromUrl(url, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
-//static
-bool LLViewerTextureManager::perfStatsEnabled() 
-{
-	return (sTesterp != NULL);
-}
-
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const LLUUID& image_id, LLHost host) 
 {
 	return gTextureList.getImageFromHost(image_id, host) ;
@@ -348,7 +342,7 @@ void LLViewerTextureManager::init()
 
 	LLViewerTexture::initClass() ;
 
-	if (LLFastTimer::sMetricLog && !perfStatsEnabled() && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
+	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
 	{
 		sTesterp = new LLTexturePipelineTester() ;
 		if (!sTesterp->isValid())
@@ -420,9 +414,10 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 {
 	sCurrentTime = gFrameTimeSeconds ;
 
-	if (LLViewerTextureManager::perfStatsEnabled())
+	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
 	{
-		LLViewerTextureManager::sTesterp->update() ;
+		tester->update() ;
 	}
 	LLViewerMediaTexture::updateClass() ;
 
@@ -615,9 +610,10 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	//check if there is cached raw image and switch to it if possible
 	switchToCachedImage() ;
 
-	if (LLViewerTextureManager::perfStatsEnabled())
+	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
 	{
-		LLViewerTextureManager::sTesterp->updateGrayTextureBinding() ;
+		tester->updateGrayTextureBinding() ;
 	}
 	return res;
 }
@@ -1078,9 +1074,10 @@ BOOL LLViewerTexture::isLargeImage()
 //virtual 
 void LLViewerTexture::updateBindStatsForTester()
 {
-	if (LLViewerTextureManager::perfStatsEnabled())
+	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
 	{
-		LLViewerTextureManager::sTesterp->updateTextureBindingStats(this) ;
+		tester->updateTextureBindingStats(this) ;
 	}
 }
 
@@ -1861,10 +1858,11 @@ bool LLViewerFetchedTexture::updateFetch()
 		// We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
 		if (mRawImage.notNull())
 		{
-			if (LLViewerTextureManager::perfStatsEnabled())
+			LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+			if (tester)
 			{
 				mIsFetched = TRUE ;
-				LLViewerTextureManager::sTesterp->updateTextureLoadingStats(this, mRawImage, LLAppViewer::getTextureFetch()->isFromLocalCache(mID)) ;
+				tester->updateTextureLoadingStats(this, mRawImage, LLAppViewer::getTextureFetch()->isFromLocalCache(mID)) ;
 			}
 			mRawDiscardLevel = fetch_discard;
 			if ((mRawImage->getDataSize() > 0 && mRawDiscardLevel >= 0) &&
@@ -3088,9 +3086,10 @@ void LLViewerLODTexture::scaleDown()
 	{		
 		switchToCachedImage() ;	
 
-		if (LLViewerTextureManager::perfStatsEnabled())
+		LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+		if (tester)
 		{
-			LLViewerTextureManager::sTesterp->setStablizingTime() ;
+			tester->setStablizingTime() ;
 		}
 	}
 }

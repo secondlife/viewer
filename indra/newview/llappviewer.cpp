@@ -1638,14 +1638,14 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		std::string baselineName = LLFastTimer::sLogName + "_baseline.slp";
-		std::string currentName  = LLFastTimer::sLogName + ".slp"; 
-		std::string reportName   = LLFastTimer::sLogName + "_report.csv";
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baselineName),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, currentName),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, reportName));
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}
 	LLMetricPerformanceTesterBasic::cleanClass() ;
 
@@ -2117,8 +2117,8 @@ bool LLAppViewer::initConfiguration()
 		llinfos << "'--logmetrics' argument : " << test_name << llendl;
 		if (test_name == "")
 		{
-			llwarns << "No '--logmetrics' argument given, will output all metrics." << llendl;
-			LLFastTimer::sLogName = std::string("metric");
+			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
+			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
 		}
 		else
 		{

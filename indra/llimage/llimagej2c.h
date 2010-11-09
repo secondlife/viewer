@@ -97,7 +97,6 @@ protected:
 
     // Image compression/decompression tester
 	static LLImageCompressionTester* sTesterp;
-	static bool perfStatsEnabled();
 };
 
 // Derive from this class to implement JPEG2000 decoding

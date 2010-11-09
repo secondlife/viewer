@@ -67,6 +67,7 @@ BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* t
 /*static*/ 
 LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::string name) 
 {
+	// Check for the requested metric name
 	name_tester_map_t::iterator found_it = sTesterMap.find(name) ;
 	if (found_it != sTesterMap.end())
 	{
@@ -74,6 +75,14 @@ LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::s
 	}
 	return NULL ;
 }
+
+/*static*/ 
+// Return TRUE if this metric is requested or if the general default "catch all" metric is requested
+BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
+{
+	return (LLFastTimer::sMetricLog && ((LLFastTimer::sLogName == name) || (LLFastTimer::sLogName == DEFAULT_METRIC_NAME)));
+}
+
 	
 //----------------------------------------------------------------------------------------------
 // LLMetricPerformanceTesterBasic : Tester instance methods
@@ -126,13 +135,13 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(std::ofstream* os, LLSD*
 {
 	resetCurrentCount() ;
 
-	std::string currentLabel = getCurrentLabelName();
-	BOOL in_base = (*base).has(currentLabel) ;
-	BOOL in_current = (*current).has(currentLabel) ;
+	std::string current_label = getCurrentLabelName();
+	BOOL in_base = (*base).has(current_label) ;
+	BOOL in_current = (*current).has(current_label) ;
 
 	while(in_base || in_current)
 	{
-		LLSD::String label = currentLabel ;		
+		LLSD::String label = current_label ;		
 
 		if(in_base && in_current)
 		{				
@@ -157,9 +166,9 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(std::ofstream* os, LLSD*
 		}
 
 		incrementCurrentCount();
-		currentLabel = getCurrentLabelName();
-		in_base = (*base).has(currentLabel) ;
-		in_current = (*current).has(currentLabel) ;
+		current_label = getCurrentLabelName();
+		in_base = (*base).has(current_label) ;
+		in_current = (*current).has(current_label) ;
 	}
 }
 

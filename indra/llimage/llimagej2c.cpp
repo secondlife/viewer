@@ -174,12 +174,6 @@ std::string LLImageJ2C::getEngineInfo()
 	return j2cimpl_engineinfo_func();
 }
 
-//static
-bool LLImageJ2C::perfStatsEnabled() 
-{
-	return (sTesterp != NULL);
-}
-
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
@@ -208,7 +202,8 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 		mDataSizes[i] = 0;
 	}
 
-	if (LLFastTimer::sMetricLog && !perfStatsEnabled() && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
+	// If that test log has ben requested but not yet created, create it
+	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
 	{
 		sTesterp = new LLImageCompressionTester() ;
 		if (!sTesterp->isValid())
@@ -341,17 +336,18 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		LLImage::setLastError(mLastError);
 	}
 	
-	if (perfStatsEnabled())
+	LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
 	{
 		// Decompression stat gathering
 		// Note that we *do not* take into account the decompression failures data so we might overestimate the time spent processing
 
 		// Always add the decompression time to the stat
-		sTesterp->updateDecompressionStats(elapsed.getElapsedTimeF32()) ;
+		tester->updateDecompressionStats(elapsed.getElapsedTimeF32()) ;
 		if (res)
 		{
 			// The whole data stream is finally decompressed when res is returned as TRUE
-			sTesterp->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
+			tester->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
 		}
 	}
 
@@ -376,17 +372,18 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 		LLImage::setLastError(mLastError);
 	}
 
-	if (perfStatsEnabled())
+	LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
 	{
 		// Compression stat gathering
 		// Note that we *do not* take into account the compression failures cases so we night overestimate the time spent processing
 
 		// Always add the compression time to the stat
-		sTesterp->updateCompressionStats(elapsed.getElapsedTimeF32()) ;
+		tester->updateCompressionStats(elapsed.getElapsedTimeF32()) ;
 		if (res)
 		{
 			// The whole data stream is finally compressed when res is returned as TRUE
-			sTesterp->updateCompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
+			tester->updateCompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
 		}
 	}
 
