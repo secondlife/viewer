@@ -61,6 +61,9 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+// static
+F32 LLFloater::sActiveFloaterTransparency = 0.0f;
+F32 LLFloater::sInactiveFloaterTransparency = 0.0f;
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
@@ -200,6 +203,21 @@ void LLFloater::initClass()
 	{
 		sButtonToolTips[i] = LLTrans::getString( sButtonToolTipsIndex[i] );
 	}
+
+	LLControlVariable* ctrl = LLUI::sSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
+		sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+	}
+
+	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
+		sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+	}
+
 }
 
 // defaults for floater param block pulled from widgets/floater.xml
@@ -345,6 +363,18 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setShape(rect);
 	updateTitleButtons();
+}
+
+// static
+void LLFloater::updateActiveFloaterTransparency()
+{
+	sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+}
+
+// static
+void LLFloater::updateInactiveFloaterTransparency()
+{
+	sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -1622,7 +1652,8 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	mCurrentTransparency = hasFocus() ? sActiveFloaterTransparency : sInactiveFloaterTransparency;
+
 	// draw background
 	if( isBackgroundVisible() )
 	{
@@ -1653,12 +1684,12 @@ void LLFloater::draw()
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), overlay_color % alpha);
+			image->draw(getLocalRect(), overlay_color % mCurrentTransparency);
 		}
 		else
 		{
 			// We're not using images, use old-school flat colors
-			gl_rect_2d( left, top, right, bottom, color % alpha );
+			gl_rect_2d( left, top, right, bottom, color % mCurrentTransparency );
 
 			// draw highlight on title bar to indicate focus.  RDW
 			if(hasFocus() 
@@ -1670,7 +1701,7 @@ void LLFloater::draw()
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
 				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
-					titlebar_focus_color % alpha, 0, TRUE);
+					titlebar_focus_color % mCurrentTransparency, 0, TRUE);
 			}
 		}
 	}
@@ -1720,7 +1751,6 @@ void LLFloater::draw()
 
 void	LLFloater::drawShadow(LLPanel* panel)
 {
-	F32 alpha = panel->getDrawContext().mAlpha;
 	S32 left = LLPANEL_BORDER_WIDTH;
 	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
@@ -1737,7 +1767,7 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % alpha, 
+		shadow_color % mCurrentTransparency,
 		llround(shadow_offset));
 }
 
