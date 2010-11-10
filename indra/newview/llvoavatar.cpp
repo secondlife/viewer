@@ -3477,15 +3477,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
-		if ( !mHasPelvisOffset )
-		{
-				root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		}
-		else
-		{			
-				root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		}
-		
+		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
 
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
