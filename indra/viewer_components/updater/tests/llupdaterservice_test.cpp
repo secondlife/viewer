@@ -36,6 +36,7 @@
 #include "../../../test/debug.h"
 
 #include "llevents.h"
+#include "lldir.h"
 
 /*****************************************************************************
 *   MOCK'd
@@ -47,6 +48,70 @@ void LLUpdateChecker::check(std::string const & protocolVersion, std::string con
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
 void LLUpdateDownloader::download(LLURI const & , std::string const &){}
+
+class LLDir_Mock : public LLDir
+{
+	void initAppDirs(const std::string &app_name, 
+		   			 const std::string& app_read_only_data_dir = "") {}
+	U32 countFilesInDir(const std::string &dirname, const std::string &mask) 
+	{
+		return 0;
+	}
+
+	BOOL getNextFileInDir(const std::string &dirname, 
+						  const std::string &mask, 
+						  std::string &fname, BOOL wrap) 
+	{
+		return false;
+	}
+	void getRandomFileInDir(const std::string &dirname, 
+							const std::string &mask, 
+							std::string &fname) {}
+	std::string getCurPath() { return ""; }
+	BOOL fileExists(const std::string &filename) const { return false; }
+	std::string getLLPluginLauncher() { return ""; }
+	std::string getLLPluginFilename(std::string base_name) { return ""; }
+
+} gDirUtil;
+LLDir* gDirUtilp = &gDirUtil;
+LLDir::LLDir() {}
+LLDir::~LLDir() {}
+S32 LLDir::deleteFilesInDir(const std::string &dirname, 
+							const std::string &mask)
+{ return 0; }
+
+void LLDir::setChatLogsDir(const std::string &path){}		
+void LLDir::setPerAccountChatLogsDir(const std::string &username){}
+void LLDir::setLindenUserDir(const std::string &username){}		
+void LLDir::setSkinFolder(const std::string &skin_folder){}
+bool LLDir::setCacheDir(const std::string &path){ return true; }
+void LLDir::dumpCurrentDirectories() {}
+
+std::string LLDir::getExpandedFilename(ELLPath location, 
+									   const std::string &filename) const 
+{
+	return "";
+}
+
+std::string LLUpdateDownloader::downloadMarkerPath(void)
+{
+	return "";
+}
+
+void LLUpdateDownloader::resume(void) {}
+
+/*
+#pragma warning(disable: 4273)
+llus_mock_llifstream::llus_mock_llifstream(const std::string& _Filename,
+										   ios_base::openmode _Mode,
+										   int _Prot) :
+	std::basic_istream<char,std::char_traits< char > >(NULL,true)
+{}
+
+llus_mock_llifstream::~llus_mock_llifstream() {}
+bool llus_mock_llifstream::is_open() const {return true;}
+void llus_mock_llifstream::close() {}
+*/
 
 /*****************************************************************************
 *   TUT
@@ -96,9 +161,9 @@ namespace tut
 		bool got_usage_error = false;
 		try
 		{
-			updater.setParams("1.0",test_url, "update" ,test_channel, test_version);
+			updater.initialize("1.0",test_url, "update" ,test_channel, test_version);
 			updater.startChecking();
-			updater.setParams("1.0", "other_url", "update", test_channel, test_version);
+			updater.initialize("1.0", "other_url", "update", test_channel, test_version);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -112,7 +177,7 @@ namespace tut
     {
         DEBUG;
 		LLUpdaterService updater;
-		updater.setParams("1.0", test_url, "update", test_channel, test_version);
+		updater.initialize("1.0", test_url, "update", test_channel, test_version);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();

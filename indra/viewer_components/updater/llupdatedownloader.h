@@ -71,6 +71,11 @@ class LLUpdateDownloader::Client {
 public:
 	
 	// The download has completed successfully.
+	// data is a map containing the following items:
+	// url - source (remote) location
+	// hash - the md5 sum that should match the installer file.
+	// path - destination (local) location
+	// size - the size of the installer in bytes
 	virtual void downloadComplete(LLSD const & data) = 0;
 	
 	// The download failed.

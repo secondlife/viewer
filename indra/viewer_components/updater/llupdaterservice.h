@@ -27,6 +27,7 @@
 #define LL_UPDATERSERVICE_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 class LLUpdaterServiceImpl;
 
@@ -42,11 +43,11 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void setParams(const std::string& protocol_version,
-				   const std::string& url, 
-				   const std::string& path,
-				   const std::string& channel,
-				   const std::string& version);
+	void initialize(const std::string& protocol_version,
+				    const std::string& url, 
+				    const std::string& path,
+				    const std::string& channel,
+				    const std::string& version);
 
 	void setCheckPeriod(unsigned int seconds);
 	
@@ -54,8 +55,17 @@ public:
 	void stopChecking();
 	bool isChecking();
 
+	typedef boost::function<void (void)> app_exit_callback_t;
+	template <typename F>
+	void setAppExitCallback(F const &callable) 
+	{ 
+		app_exit_callback_t aecb = callable;
+		setImplAppExitCallback(aecb);
+	}
+
 private:
 	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;
+	void setImplAppExitCallback(app_exit_callback_t aecb);
 };
 
 #endif // LL_UPDATERSERVICE_H
