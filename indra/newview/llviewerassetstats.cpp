@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
+
 #include "llviewerassetstats.h"
 
 #include "stdtypes.h"
