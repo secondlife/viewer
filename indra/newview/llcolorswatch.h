@@ -61,6 +61,7 @@ public:
 		Optional<commit_callback_t> 	select_callback;
 		Optional<LLUIColor>				border_color;
 		Optional<S32>					label_width;
+		Optional<S32>					label_height;
 		
 		Optional<LLTextBox::Params>		caption_text;
 		Optional<LLViewBorder::Params>	border;
@@ -112,6 +113,7 @@ protected:
 	commit_callback_t mOnCancelCallback;
 	commit_callback_t mOnSelectCallback;
 	S32             mLabelWidth;
+	S32             mLabelHeight;
 
 	LLPointer<LLUIImage> mAlphaGradientImage;
 	std::string		mFallbackImageName;
