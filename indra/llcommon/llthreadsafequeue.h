@@ -39,7 +39,7 @@ class LLThreadSafeQueueImplementation; // See below.
 //
 // A general queue exception.
 //
-class LLThreadSafeQueueError:
+class LL_COMMON_API LLThreadSafeQueueError:
 public std::runtime_error
 {
 public:
@@ -54,7 +54,7 @@ public:
 //
 // An exception raised when blocking operations are interrupted.
 //
-class LLThreadSafeQueueInterrupt:
+class LL_COMMON_API LLThreadSafeQueueInterrupt:
 	public LLThreadSafeQueueError
 {
 public:
@@ -72,7 +72,7 @@ struct apr_queue_t; // From apr_queue.h
 //
 // Implementation details. 
 //
-class LLThreadSafeQueueImplementation
+class LL_COMMON_API LLThreadSafeQueueImplementation
 {
 public:
 	LLThreadSafeQueueImplementation(apr_pool_t * pool, unsigned int capacity);
