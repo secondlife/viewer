@@ -2509,15 +2509,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				invite_bucket = (struct invite_bucket_t*) &binary_bucket[0];
 				S32 membership_fee = ntohl(invite_bucket->membership_fee);
 
-				// IDEVO Clean up legacy name "Resident" in message constructed in
-				// lldatagroups.cpp
-				U32 pos = message.find(" has invited you to join a group.\n");
-				if (pos != std::string::npos)
-				{
-					// use cleaned-up name from above
-					message = name + message.substr(pos);
-				}
-
 				LLSD payload;
 				payload["transaction_id"] = session_id;
 				payload["group_id"] = from_id;
