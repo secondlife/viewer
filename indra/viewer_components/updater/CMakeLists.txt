@@ -82,6 +82,7 @@ if(DARWIN)
 		)
 endif()
 add_custom_target(copy_update_install ALL DEPENDS ${update_installer_targets})
+add_dependencies(llupdaterservice copy_update_install)
 
 
  
