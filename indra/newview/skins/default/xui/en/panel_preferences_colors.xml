@@ -287,12 +287,25 @@
 		 parameter="HTMLLinkColor" />
   </color_swatch>
   <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="5"
+   mouse_opaque="false"
+   name="text_box9"
+   top_delta="5"
+   width="95">
+    URLs
+  </text>
+  <text
    follows="left|top"
    layout="topleft"
    left="30"
    height="12"
    name="bubble_chat"
-   top_pad="20"
+   top_pad="28"
    width="120"
    >
     Bubble chat:
