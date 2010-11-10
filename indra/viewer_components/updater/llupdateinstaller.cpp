@@ -24,15 +24,53 @@
  */
 
 #include "linden_common.h"
+#include <apr_file_io.h>
+#include "llapr.h"
 #include "llprocesslauncher.h"
 #include "llupdateinstaller.h"
+#include "lldir.h"
 
 
-void ll_install_update(std::string const & script, std::string const & updatePath)
+namespace {
+	class RelocateError {};
+	
+	
+	std::string copy_to_temp(std::string const & path)
+	{
+		std::string scriptFile = gDirUtilp->getBaseFileName(path);
+		std::string newPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, scriptFile);
+		apr_status_t status = apr_file_copy(path.c_str(), newPath.c_str(), APR_FILE_SOURCE_PERMS, gAPRPoolp);
+		if(status != APR_SUCCESS) throw RelocateError();
+		
+		return newPath;
+	}
+}
+
+
+int ll_install_update(std::string const & script, std::string const & updatePath, LLInstallScriptMode mode)
 {
+	std::string finalPath;
+	switch(mode) {
+		case LL_COPY_INSTALL_SCRIPT_TO_TEMP:
+			try {
+				finalPath = copy_to_temp(updatePath);
+			}
+			catch (RelocateError &) {
+				return -1;
+			}
+			break;
+		case LL_RUN_INSTALL_SCRIPT_IN_PLACE:
+			finalPath = updatePath;
+			break;
+		default:
+			llassert(!"unpossible copy mode");
+	}
+	
 	LLProcessLauncher launcher;
 	launcher.setExecutable(script);
-	launcher.addArgument(updatePath);
-	launcher.launch();
+	launcher.addArgument(finalPath);
+	int result = launcher.launch();
 	launcher.orphan();
+	
+	return result;
 }

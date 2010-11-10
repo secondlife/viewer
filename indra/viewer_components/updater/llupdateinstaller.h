@@ -30,13 +30,21 @@
 #include <string>
 
 
+enum LLInstallScriptMode {
+	LL_RUN_INSTALL_SCRIPT_IN_PLACE,
+	LL_COPY_INSTALL_SCRIPT_TO_TEMP
+};
+
 //
 // Launch the installation script.
 // 
 // The updater will overwrite the current installation, so it is highly recommended
 // that the current application terminate once this function is called.
 //
-void ll_install_update(std::string const & script, std::string const & updatePath);
+int ll_install_update(
+					   std::string const & script, // Script to execute.
+					   std::string const & updatePath, // Path to update file.
+					   LLInstallScriptMode mode=LL_COPY_INSTALL_SCRIPT_TO_TEMP); // Run in place or copy to temp?
 
 
 #endif
