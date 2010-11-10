@@ -357,7 +357,7 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 
 bool LLNotificationForm::getIgnored()
 {
-	bool show = false;
+	bool show = true;
 	if (mIgnore != LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
