@@ -137,9 +137,9 @@ LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 
 void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
 									  const std::string& url, 
-									 const std::string& path,
-									 const std::string& channel,
-									 const std::string& version)
+									  const std::string& path,
+									  const std::string& channel,
+									  const std::string& version)
 {
 	if(mIsChecking)
 	{
@@ -226,6 +226,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 	llstat stat_info;
 	if(0 == LLFile::stat(mUpdateDownloader.downloadMarkerPath(), &stat_info))
 	{
+		mIsChecking = true;
 		mUpdateDownloader.resume();
 		result = true;
 	}
