@@ -57,6 +57,7 @@ private:
 	LLSD mDownloadData;
 	llofstream mDownloadStream;
 	std::string mDownloadRecordPath;
+	curl_slist * mHeaderList;
 	
 	void initializeCurlGet(std::string const & url, bool processHeader);
 	void resumeDownloading(size_t startByte);
@@ -154,7 +155,8 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	LLThread("LLUpdateDownloader"),
 	mCancelled(false),
 	mClient(client),
-	mCurl(0)
+	mCurl(0),
+	mHeaderList(0)
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
 	llverify(code == CURLE_OK); // TODO: real error handling here. 
@@ -302,6 +304,11 @@ void LLUpdateDownloader::Implementation::run(void)
 		LLFile::remove(mDownloadRecordPath);
 		mClient.downloadError("curl error");
 	}
+	
+	if(mHeaderList) {
+		curl_slist_free_all(mHeaderList);
+		mHeaderList = 0;
+	}
 }
 
 
@@ -330,17 +337,18 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 
 void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 {
+	LL_INFOS("UpdateDownload") << "resuming download from " << mDownloadData["url"].asString()
+		<< " at byte " << startByte << LL_ENDL;
+
 	initializeCurlGet(mDownloadData["url"].asString(), false);
 	
 	// The header 'Range: bytes n-' will request the bytes remaining in the
 	// source begining with byte n and ending with the last byte.
 	boost::format rangeHeaderFormat("Range: bytes=%u-");
 	rangeHeaderFormat % startByte;
-	curl_slist * headerList = 0;
-	headerList = curl_slist_append(headerList, rangeHeaderFormat.str().c_str());
-	if(headerList == 0) throw DownloadError("cannot add Range header");
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, headerList));
-	curl_slist_free_all(headerList);
+	mHeaderList = curl_slist_append(mHeaderList, rangeHeaderFormat.str().c_str());
+	if(mHeaderList == 0) throw DownloadError("cannot add Range header");
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
 	
 	mDownloadStream.open(mDownloadData["path"].asString(),
 						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);
