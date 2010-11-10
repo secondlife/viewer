@@ -712,6 +712,8 @@ Thraxis Epsilon
 	VWR-383
 tiamat bingyi
 	CT-246
+Tofu Buzzard
+	STORM-546
 TraductoresAnonimos Alter
 	CT-324
 Tue Torok
