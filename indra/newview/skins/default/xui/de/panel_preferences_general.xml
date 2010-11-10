@@ -44,9 +44,10 @@
 		<radio_item label="An" name="radio2" value="1"/>
 		<radio_item label="Kurz anzeigen" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Meinen Namen anzeigen" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Kleine Avatarnamen" name="small_avatar_names_checkbox"/>
-	<check_box label="Gruppentitel anzeigen" name="show_all_title_checkbox1"/>
+	<check_box label="Mein Name" name="show_my_name_checkbox1"/>
+	<check_box label="Benutzernamen" name="show_slids" tool_tip="Benutzernamen wie berndschmidt123 anzeigen"/>
+	<check_box label="Gruppentitel" name="show_all_title_checkbox1" tool_tip="Gruppentitel wie „Vorstand“ oder „Mitglied“"/>
+	<check_box label="Freunde hervorheben" name="show_friends" tool_tip="Avatarnamen Ihrer Freunde hervorheben"/>
 	<text name="effects_color_textbox">
 		Meine Effekte:
 	</text>
@@ -61,6 +62,7 @@
 		<combo_box.item label="30 Minuten" name="item3"/>
 		<combo_box.item label="nie" name="item4"/>
 	</combo_box>
+	<check_box label="Anzeigenamen anzeigen" name="display_names_check" tool_tip="Aktivieren Sie diese Option, um Anzeigenamen in Chat, IM, Avatarnamen usw. zu verwenden."/>
 	<text name="text_box3">
 		Antwort, wenn im „Beschäftigt“-Modus:
 	</text>

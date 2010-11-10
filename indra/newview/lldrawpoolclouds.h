@@ -49,7 +49,6 @@ public:
 	/*virtual*/ void enqueue(LLFace *face);
 	/*virtual*/ void beginRenderPass(S32 pass);
 	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void renderForSelect();
 };
 
 #endif // LL_LLDRAWPOOLSKY_H

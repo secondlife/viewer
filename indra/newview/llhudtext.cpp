@@ -113,36 +113,21 @@ void LLHUDText::render()
 	if (!mOnHUDAttachment && sDisplayText)
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-		renderText(FALSE);
+		renderText();
 	}
 }
 
-void LLHUDText::renderForSelect()
-{
-	if (!mOnHUDAttachment)
-	{
-		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-		renderText(TRUE);
-	}
-}
-
-void LLHUDText::renderText(BOOL for_select)
+void LLHUDText::renderText()
 {
 	if (!mVisible || mHidden)
 	{
 		return;
 	}
 
-	// don't pick text
-	if (for_select)
-	{
-		return;
-	}
-	
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
-	LLGLState gls_blend(GL_BLEND, for_select ? FALSE : TRUE);
-	LLGLState gls_alpha(GL_ALPHA_TEST, for_select ? FALSE : TRUE);
+	LLGLState gls_blend(GL_BLEND, TRUE);
+	LLGLState gls_alpha(GL_ALPHA_TEST, TRUE);
 	
 	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
 	F32 alpha_factor = 1.f;
@@ -594,7 +579,7 @@ void LLHUDText::renderAllHUD()
 
 		for (text_it = sVisibleHUDTextObjects.begin(); text_it != sVisibleHUDTextObjects.end(); ++text_it)
 		{
-			(*text_it)->renderText(FALSE);
+			(*text_it)->renderText();
 		}
 	}
 	

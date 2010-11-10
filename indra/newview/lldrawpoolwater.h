@@ -74,7 +74,6 @@ public:
 	/*virtual*/ S32 getNumPasses();
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
-	/*virtual*/ void renderForSelect();
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display

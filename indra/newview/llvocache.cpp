@@ -224,7 +224,6 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 // Format string used to construct filename for the object cache
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
-const U32 MAX_NUM_OBJECT_ENTRIES = 128 ;
 const U32 NUM_ENTRIES_TO_PURGE = 16 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
@@ -296,9 +295,9 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	if (!mReadOnly)
 	{
 		LLFile::mkdir(mObjectCacheDirName);
-	}	
-	mCacheSize = llclamp(size,
-			     MAX_NUM_OBJECT_ENTRIES, NUM_ENTRIES_TO_PURGE);
+	}
+
+	mCacheSize = size;
 
 	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();
@@ -434,7 +433,7 @@ void LLVOCache::readCacheHeader()
 
 		HeaderEntryInfo* entry ;
 		mNumEntries = 0 ;
-		while(mNumEntries < MAX_NUM_OBJECT_ENTRIES)
+		while(mNumEntries < mCacheSize)
 		{
 			entry = new HeaderEntryInfo() ;
 			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo)))
@@ -487,10 +486,10 @@ void LLVOCache::writeCacheHeader()
 	}
 
 	mNumEntries = mHeaderEntryQueue.size() ;
-	if(mNumEntries < MAX_NUM_OBJECT_ENTRIES)
+	if(mNumEntries < mCacheSize)
 	{
 		HeaderEntryInfo* entry = new HeaderEntryInfo() ;
-		for(S32 i = mNumEntries ; i < MAX_NUM_OBJECT_ENTRIES ; i++)
+		for(U32 i = mNumEntries ; i < mCacheSize; i++)
 		{
 			//fill the cache with the default entry.
 			if(!checkWrite(apr_file, entry, sizeof(HeaderEntryInfo)))

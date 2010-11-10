@@ -427,7 +427,17 @@ los media:
 			<check_box label="Media en bucle" name="media_loop" tool_tip="Ejecuta el media en bucle: cuando acaba su ejecución, vuelve a empezar."/>
 		</panel>
 		<panel label="SONIDO" name="land_audio_panel">
+			<text name="MusicURL:">
+				URL de música:
+			</text>
 			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Al marcar esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
+			<text name="Sound:">
+				Sonido:
+			</text>
+			<check_box label="Restringir sonidos de objetos y gestos a esta parcela" name="check sound local"/>
+			<text name="Voice settings:">
+				Voz:
+			</text>
 			<check_box label="Activar la voz" name="parcel_enable_voice_channel"/>
 			<check_box label="Autorizar la voz (establecido por el Estado)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limitar la voz a esta parcela" name="parcel_enable_voice_channel_local"/>
@@ -460,7 +470,20 @@ los media:
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
+				<text label="Always Allow" name="AllowedText">
+					Residentes autorizados
+				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
+				<button label="Añadir" name="add_allowed"/>
+				<button label="Quitar" label_selected="Quitar" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="Ban" name="BanCheck">
+					Residentes con el acceso prohibido
+				</text>
+				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
+				<button label="Añadir" name="add_banned"/>
+				<button label="Quitar" label_selected="Quitar" name="remove_banned"/>
 			</panel>
 		</panel>
 	</tab_container>

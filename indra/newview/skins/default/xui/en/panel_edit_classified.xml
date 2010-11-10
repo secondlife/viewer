@@ -147,7 +147,7 @@
          layout="topleft"
          left="10"
          top_pad="2"
-         max_length="64"
+         max_length="256"
          name="classified_desc"
          text_color="black"
          word_wrap="true" />

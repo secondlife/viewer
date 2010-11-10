@@ -663,35 +663,27 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 				x2 = x1 + PARCEL_GRID_STEP_METERS;
 				y2 = y1;
 
-				if (gRenderForSelect)
-				{
-					LLColor4U color((U8)(GL_NAME_PARCEL_WALL >> 16), (U8)(GL_NAME_PARCEL_WALL >> 8), (U8)GL_NAME_PARCEL_WALL);
-					gGL.color4ubv(color.mV);
-				}
+				dy = (pos_y - y1) + DIST_OFFSET;
+					
+				if (pos_x < x1)
+					dx = pos_x - x1;
+				else if (pos_x > x2)
+					dx = pos_x - x2;
+				else 
+					dx = 0;
+				
+				dist = dx*dx+dy*dy;
+				
+				if (dist < MIN_DIST_SQ)
+					alpha = MAX_ALPHA;
+				else if (dist > MAX_DIST_SQ)
+					alpha = 0.0f;
 				else
-				{
-					dy = (pos_y - y1) + DIST_OFFSET;
-					
-					if (pos_x < x1)
-						dx = pos_x - x1;
-					else if (pos_x > x2)
-						dx = pos_x - x2;
-					else 
-						dx = 0;
-					
-					dist = dx*dx+dy*dy;
-
-					if (dist < MIN_DIST_SQ)
-						alpha = MAX_ALPHA;
-					else if (dist > MAX_DIST_SQ)
-						alpha = 0.0f;
-					else
-						alpha = 30/dist;
-
-					alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
-
-					gGL.color4f(1.f, 1.f, 1.f, alpha);
-				}
+					alpha = 30/dist;
+				
+				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
+				
+				gGL.color4f(1.f, 1.f, 1.f, alpha);
 
 				if ((pos_y - y1) < 0) direction = SOUTH_MASK;
 				else 		direction = NORTH_MASK;
@@ -709,35 +701,27 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 				x2 = x1;
 				y2 = y1 + PARCEL_GRID_STEP_METERS;
 
-				if (gRenderForSelect)
-				{
-					LLColor4U color((U8)(GL_NAME_PARCEL_WALL >> 16), (U8)(GL_NAME_PARCEL_WALL >> 8), (U8)GL_NAME_PARCEL_WALL);
-					gGL.color4ubv(color.mV);
-				}
+				dx = (pos_x - x1) + DIST_OFFSET;
+				
+				if (pos_y < y1) 
+					dy = pos_y - y1;
+				else if (pos_y > y2)
+					dy = pos_y - y2;
+				else 
+					dy = 0;
+				
+				dist = dx*dx+dy*dy;
+				
+				if (dist < MIN_DIST_SQ) 
+					alpha = MAX_ALPHA;
+				else if (dist > MAX_DIST_SQ)
+					alpha = 0.0f;
 				else
-				{					
-					dx = (pos_x - x1) + DIST_OFFSET;
-		
-					if (pos_y < y1) 
-						dy = pos_y - y1;
-					else if (pos_y > y2)
-						dy = pos_y - y2;
-					else 
-						dy = 0;
+					alpha = 30/dist;
+				
+				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
 
-					dist = dx*dx+dy*dy;
-					
-					if (dist < MIN_DIST_SQ) 
-						alpha = MAX_ALPHA;
-					else if (dist > MAX_DIST_SQ)
-						alpha = 0.0f;
-					else
-						alpha = 30/dist;
-
-					alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
-
-					gGL.color4f(1.f, 1.f, 1.f, alpha);
-				}
+				gGL.color4f(1.f, 1.f, 1.f, alpha);
 
 				if ((pos_x - x1) > 0) direction = WEST_MASK;
 				else 		direction = EAST_MASK;
