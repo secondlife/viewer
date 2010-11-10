@@ -31,6 +31,7 @@ import fnmatch
 import itertools
 import operator
 import os
+import re
 import sys
 import shlex
 import subprocess
@@ -48,7 +49,7 @@ class MissingModuleError(Exception):
 def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
     print "generate_breakpad_symbols run with args: %s" % str((configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
 
-    if configuration != "Release":
+    if not re.match("release", configuration, re.IGNORECASE):
         print "skipping breakpad symbol generation for non-release build."
         return 0
 

@@ -46,11 +46,12 @@ public:
 	void cancel(void);
 	void download(LLURI const & uri, std::string const & hash);
 	bool isDownloading(void);
-	void onHeader(void * header, size_t size);
-	void onBody(void * header, size_t size);
+	size_t onHeader(void * header, size_t size);
+	size_t onBody(void * header, size_t size);
 	void resume(void);
 	
 private:
+	bool mCancelled;
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
 	LLSD mDownloadData;
@@ -137,25 +138,23 @@ namespace {
 	size_t write_function(void * data, size_t blockSize, size_t blocks, void * downloader)
 	{
 		size_t bytes = blockSize * blocks;
-		reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onBody(data, bytes);
-		return bytes;
+		return reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onBody(data, bytes);
 	}
 
 
 	size_t header_function(void * data, size_t blockSize, size_t blocks, void * downloader)
 	{
 		size_t bytes = blockSize * blocks;
-		reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onHeader(data, bytes);
-		return bytes;
+		return reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onHeader(data, bytes);
 	}
 }
 
 
 LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & client):
 	LLThread("LLUpdateDownloader"),
+	mCancelled(false),
 	mClient(client),
-	mCurl(0),
-	mDownloadRecordPath(LLUpdateDownloader::downloadMarkerPath())
+	mCurl(0)
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
 	llverify(code == CURLE_OK); // TODO: real error handling here. 
@@ -164,20 +163,27 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 
 LLUpdateDownloader::Implementation::~Implementation()
 {
+	if(isDownloading()) {
+		cancel();
+		shutdown();
+	} else {
+		; // No op.
+	}
 	if(mCurl) curl_easy_cleanup(mCurl);
 }
 
 
 void LLUpdateDownloader::Implementation::cancel(void)
 {
-	llassert(!"not implemented");
+	mCancelled = true;
 }
 	
 
 void LLUpdateDownloader::Implementation::download(LLURI const & uri, std::string const & hash)
 {
 	if(isDownloading()) mClient.downloadError("download in progress");
-	
+
+	mDownloadRecordPath = downloadMarkerPath();
 	mDownloadData = LLSD();
 	try {
 		startDownloading(uri, hash);
@@ -195,6 +201,9 @@ bool LLUpdateDownloader::Implementation::isDownloading(void)
 
 void LLUpdateDownloader::Implementation::resume(void)
 {
+	if(isDownloading()) mClient.downloadError("download in progress");
+
+	mDownloadRecordPath = downloadMarkerPath();
 	llifstream dataStream(mDownloadRecordPath);
 	if(!dataStream) {
 		mClient.downloadError("no download marker");
@@ -230,12 +239,12 @@ void LLUpdateDownloader::Implementation::resume(void)
 }
 
 
-void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
+size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 {
 	char const * headerPtr = reinterpret_cast<const char *> (buffer);
 	std::string header(headerPtr, headerPtr + size);
 	size_t colonPosition = header.find(':');
-	if(colonPosition == std::string::npos) return; // HTML response; ignore.
+	if(colonPosition == std::string::npos) return size; // HTML response; ignore.
 	
 	if(header.substr(0, colonPosition) == "Content-Length") {
 		try {
@@ -255,20 +264,26 @@ void LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 	} else {
 		; // No op.
 	}
+	
+	return size;
 }
 
 
-void LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
+size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 {
+	if(mCancelled) return 0; // Forces a write error which will halt curl thread.
+	
 	mDownloadStream.write(reinterpret_cast<const char *>(buffer), size);
+	return size;
 }
 
 
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
-	LLFile::remove(mDownloadRecordPath);
+	mDownloadStream.close();
 	if(code == CURLE_OK) {
+		LLFile::remove(mDownloadRecordPath);
 		if(validateDownload()) {
 			LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
 			mClient.downloadComplete(mDownloadData);
@@ -278,9 +293,13 @@ void LLUpdateDownloader::Implementation::run(void)
 			if(filePath.size() != 0) LLFile::remove(filePath);
 			mClient.downloadError("failed hash check");
 		}
+	} else if(mCancelled && (code == CURLE_WRITE_ERROR)) {
+		LL_INFOS("UpdateDownload") << "download canceled by user" << LL_ENDL;
+		// Do not call back client.
 	} else {
 		LL_WARNS("UpdateDownload") << "download failed with error '" << 
 			curl_easy_strerror(code) << "'" << LL_ENDL;
+		LLFile::remove(mDownloadRecordPath);
 		mClient.downloadError("curl error");
 	}
 }
@@ -370,7 +389,7 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 bool LLUpdateDownloader::Implementation::validateDownload(void)
 {
 	std::string filePath = mDownloadData["path"].asString();
-	llifstream fileStream(filePath);
+	llifstream fileStream(filePath, std::ios_base::in | std::ios_base::binary);
 	if(!fileStream) return false;
 
 	std::string hash = mDownloadData["hash"].asString();
@@ -378,6 +397,10 @@ bool LLUpdateDownloader::Implementation::validateDownload(void)
 		LL_INFOS("UpdateDownload") << "checking hash..." << LL_ENDL;
 		char digest[33];
 		LLMD5(fileStream).hex_digest(digest);
+		if(hash != digest) {
+			LL_WARNS("UpdateDownload") << "download hash mismatch; expeted " << hash <<
+				" but download is " << digest << LL_ENDL;
+		}
 		return hash == digest;
 	} else {
 		return true; // No hash check provided.

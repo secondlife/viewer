@@ -92,6 +92,7 @@ set(llcommon_SOURCE_FILES
     llstringtable.cpp
     llsys.cpp
     llthread.cpp
+    llthreadsafequeue.cpp
     lltimer.cpp
     lluri.cpp
     lluuid.cpp
@@ -223,6 +224,7 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadsafequeue.h
     lltimer.h
     lltreeiterators.h
     lluri.h

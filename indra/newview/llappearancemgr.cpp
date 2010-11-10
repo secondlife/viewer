@@ -2204,12 +2204,11 @@ void LLAppearanceMgr::updateIsDirty()
 		base_outfit = catp->getUUID();
 	}
 
-	if(base_outfit.isNull())
-	{
-		// no outfit link found, display "unsaved outfit"
-		mOutfitIsDirty = true;
-	}
-	else
+	// Set dirty to "false" if no base outfit found to disable "Save"
+	// and leave only "Save As" enabled in My Outfits.
+	mOutfitIsDirty = false;
+
+	if (base_outfit.notNull())
 	{
 		LLIsOfAssetType collector = LLIsOfAssetType(LLAssetType::AT_LINK);
 
@@ -2248,8 +2247,6 @@ void LLAppearanceMgr::updateIsDirty()
 				return;
 			}
 		}
-
-		mOutfitIsDirty = false;
 	}
 }
 
@@ -2635,6 +2632,7 @@ void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false),
+	mOutfitLocked(false),
 	mIsInUpdateAppearanceFromCOF(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();

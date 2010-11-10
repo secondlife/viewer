@@ -47,7 +47,8 @@ public:
 	
 	LLUpdateDownloader(Client & client);
 	
-	// Cancel any in progress download; a no op if none is in progress.
+	// Cancel any in progress download; a no op if none is in progress.  The
+	// client will not receive a complete or error callback.
 	void cancel(void);
 	
 	// Start a new download.

@@ -283,6 +283,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -815,6 +816,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -1643,7 +1645,14 @@ if (WINDOWS)
     endif (PACKAGE)
 endif (WINDOWS)
 
+# *NOTE - this list is very sensitive to ordering, test carefully on all
+# platforms if you change the releative order of the entries here.
+# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# appears to sometimes de-duplicate redundantly listed dependencies improperly.
+# To work around this, higher level modules should be listed before the modules
+# that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${UPDATER_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
@@ -1680,7 +1689,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
-    ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
@@ -1831,13 +1839,13 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
-  if(CMAKE_CONFIGURATION_TYPES)
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
+      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
       # set LLBUILD_CONFIG to be a shell variable evaluated at build time
       # reflecting the configuration we are currently building.
       set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-  else(CMAKE_CONFIGURATION_TYPES)
-      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-  endif(CMAKE_CONFIGURATION_TYPES)
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS

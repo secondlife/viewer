@@ -575,6 +575,10 @@ class DarwinManifest(ViewerManifest):
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
                 super(DarwinManifest, self).construct()
+		
+                if self.prefix(src="../viewer_components/updater", dst=""):
+                    self.path("update_install")
+                    self.end_prefix()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
