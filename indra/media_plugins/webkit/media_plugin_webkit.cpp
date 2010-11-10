@@ -341,7 +341,7 @@ private:
 		url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundB * 255.0f);
 		url << "%22%3E%3C/body%3E%3C/html%3E";
 		
-		lldebugs << "data url is: " << url.str() << llendl;
+		//lldebugs << "data url is: " << url.str() << llendl;
 					
 		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, url.str() );
 //		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
