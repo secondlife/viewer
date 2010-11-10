@@ -288,6 +288,7 @@ public:
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
 	void				setPelvisOffset( bool hasOffset, const LLVector3& translation ) ;
 	bool				hasPelvisOffset( void ) { return mHasPelvisOffset; }
+	void				postPelvisSetRecalc( void );
 
 	bool				mHasPelvisOffset;
 	LLVector3			mPelvisOffset;
