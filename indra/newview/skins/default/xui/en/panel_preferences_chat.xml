@@ -449,6 +449,16 @@
      tool_tip="Check to see popups when an instant message arrives"
      width="400" />
     <check_box
+     control_name="UseChatBubbles"
+     follows="left|top"
+     height="16"
+     label="Bubble Chat"
+     layout="topleft"
+     left="30"
+     top_pad="4"
+     name="bubble_text_chat"
+     width="150" />
+    <check_box
      control_name="TranslateChat"
      enabled="true"
      height="16"
@@ -456,7 +466,7 @@
      layout="topleft"
      left="30"
      name="translate_chat_checkbox"
-     bottom_delta="40"
+     bottom_delta="20"
      width="400" />
     <text
      bottom_delta="30"
