@@ -36,6 +36,8 @@
 
 #include "linden_common.h"
 
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llviewerassettype.h"
 #include "llviewerassetstorage.h"
 #include "llsimplestat.h"
@@ -43,50 +45,42 @@
 
 /**
  * @class LLViewerAssetStats
- * @brief Records events and performance of asset put/get operations.
+ * @brief Records performance aspects of asset access operations.
  *
- * The asset system is a combination of common code and server-
- * and viewer-overridden derivations.  The common code is presented
- * in here as the 'front-end' and deriviations (really the server)
- * are presented as 'back-end'.  The distinction isn't perfect as
- * there are legacy asset transfer systems which mostly appear
- * as front-end stats.
+ * This facility is derived from a very similar simulator-based
+ * one, LLSimAssetStats.  It's function is to count asset access
+ * operations and characterize response times.  Collected data
+ * are binned in several dimensions:
  *
- * Statistics collected are fairly basic:
+ *  - Asset types collapsed into a few aggregated categories
+ *  - By simulator UUID
+ *  - By transport mechanism (HTTP vs MessageSystem)
+ *  - By persistence (temp vs non-temp)
+ *
+ * Statistics collected are fairly basic at this point:
+ *
  *  - Counts of enqueue and dequeue operations
- *  - Counts of duplicated request fetches
  *  - Min/Max/Mean of asset transfer operations
  *
- * While the stats collection interfaces appear to be fairly
- * orthogonal across methods (GET, PUT) and asset types (texture,
- * bodypart, etc.), the actual internal collection granularity
- * varies greatly.  GET's operations found in the cache are
- * treated as a single group as are duplicate requests.  Non-
- * cached items are broken down into three groups:  textures,
- * wearables (bodyparts, clothing) and the rest.  PUT operations
- * are broken down into two categories:  temporary assets and
- * non-temp.  Back-end operations do not distinguish asset types,
- * only GET, PUT (temp) and PUT (non-temp).
- * 
- * No coverage for Estate Assets or Inventory Item Assets which use
- * some different interface conventions.  It could be expanded to cover
- * them.
+ * This collector differs from the simulator-based on in a
+ * number of ways:
+ *
+ *  - The front-end/back-end distinction doesn't exist in viewer
+ *    code
+ *  - Multiple threads must be safely accomodated in the viewer
  *
  * Access to results is by conversion to an LLSD with some standardized
- * key names.  The intent of this structure is to be emitted as
+ * key names.  The intent of this structure is that it be emitted as
  * standard syslog-based metrics formatting where it can be picked
  * up by interested parties.
  *
- * For convenience, a set of free functions in namespace LLAssetStatsFF
- * are provided which operate on various counters in a way that
- * is highly-compatible with the simulator code.
+ * For convenience, a set of free functions in namespace
+ * LLViewerAssetStatsFF is provided for conditional test-and-call
+ * operations.
  */
 class LLViewerAssetStats
 {
 public:
-	LLViewerAssetStats();
-	// Default destructor and assignment operator are correct.
-	
 	enum EViewerAssetCategories
 	{
 		EVACTextureTempHTTPGet,			//< Texture GETs
@@ -100,45 +94,109 @@ public:
 		
 		EVACCount						// Must be last
 	};
-	
+
+	/**
+	 * Collected data for a single region visited by the avatar.
+	 */
+	class PerRegionStats : public LLRefCount
+	{
+	public:
+		PerRegionStats(const LLUUID & region_id)
+			: LLRefCount(),
+			  mRegionID(region_id)
+			{
+				reset();
+			}
+		
+		void reset();
+
+	public:
+		LLUUID mRegionID;
+		struct
+		{
+			LLSimpleStatCounter		mEnqueued;
+			LLSimpleStatCounter		mDequeued;
+			LLSimpleStatMMM<>		mResponse;
+		} mRequests [EVACCount];
+	};
+
+public:
+	LLViewerAssetStats();
+	// Default destructor is correct.
+	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
+
+	// Clear all metrics data.  This leaves the currently-active region
+	// in place but with zero'd data for all metrics.  All other regions
+	// are removed from the collection map.
 	void reset();
+
+	// Set hidden region argument and establish context for subsequent
+	// collection calls.
+	void setRegionID(const LLUUID & region_id);
 
 	// Non-Cached GET Requests
 	void recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
 
-	// Report Generation
+	// Retrieve current metrics for all visited regions.
 	const LLSD asLLSD() const;
 	
 protected:
+	typedef std::map<LLUUID, LLPointer<PerRegionStats> > PerRegionContainer;
 
-	struct 
-	{
-		LLSimpleStatCounter		mEnqueued;
-		LLSimpleStatCounter		mDequeued;
-		LLSimpleStatMMM<>		mResponse;
-	} mRequests [EVACCount];
+	// Region of the currently-active region.  Always valid but may
+	// be a NULL UUID after construction or when explicitly set.  Unchanged
+	// by a reset() call.
+	LLUUID mRegionID;
+
+	// Pointer to metrics collection for currently-active region.  Always
+	// valid and unchanged after reset() though contents will be changed.
+	// Always points to a collection contained in mRegionStats.
+	LLPointer<PerRegionStats> mCurRegionStats;
+
+	// Metrics data for all regions during one collection cycle
+	PerRegionContainer mRegionStats;
 };
 
 
 /**
- * Expectation is that the simulator and other asset-handling
- * code will create a single instance of the stats class and
- * make it available here.  The free functions examine this
- * for non-zero and perform their functions conditionally.  The
- * instance methods themselves make no assumption about this.
+ * Global stats collectors one for each independent thread where
+ * assets and other statistics are gathered.  The globals are
+ * expected to be created at startup time and then picked up by
+ * their respective threads afterwards.  A set of free functions
+ * are provided to access methods behind the globals while both
+ * minimally disrupting visual flow and supplying a description
+ * of intent.
+ *
+ * Expected thread assignments:
+ *
+ *  - Main:  main() program execution thread
+ *  - Thread1:  TextureFetch worker thread
  */
-extern LLViewerAssetStats * gViewerAssetStats;
+extern LLViewerAssetStats * gViewerAssetStatsMain;
+
+extern LLViewerAssetStats * gViewerAssetStatsThread1;
 
 namespace LLViewerAssetStatsFF
 {
 
-void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+void set_region_main(const LLUUID & region_id);
 
-void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+void record_enqueue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
-void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
+void record_dequeue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+
+void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
+
+
+void set_region_thread1(const LLUUID & region_id);
+
+void record_enqueue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+
+void record_dequeue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp);
+
+void record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
 
 } // namespace LLViewerAssetStatsFF
 

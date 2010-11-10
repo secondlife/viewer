@@ -47,7 +47,7 @@
  *   <TBD>
  *
  * Unit Tests:
- *   <TBD>
+ *   indra/newview/tests/llviewerassetstats_test.cpp
  *
  */
 
@@ -55,7 +55,8 @@
 // ------------------------------------------------------
 // Global data definitions
 // ------------------------------------------------------
-LLViewerAssetStats * gViewerAssetStats = NULL;
+LLViewerAssetStats * gViewerAssetStatsMain(0);
+LLViewerAssetStats * gViewerAssetStatsThread1(0);
 
 
 // ------------------------------------------------------
@@ -70,6 +71,21 @@ asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool i
 }
 
 // ------------------------------------------------------
+// LLViewerAssetStats::PerRegionStats struct definition
+// ------------------------------------------------------
+void
+LLViewerAssetStats::PerRegionStats::reset()
+{
+	for (int i(0); i < LL_ARRAY_SIZE(mRequests); ++i)
+	{
+		mRequests[i].mEnqueued.reset();
+		mRequests[i].mDequeued.reset();
+		mRequests[i].mResponse.reset();
+	}
+}
+
+
+// ------------------------------------------------------
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
 LLViewerAssetStats::LLViewerAssetStats()
@@ -81,20 +97,55 @@ LLViewerAssetStats::LLViewerAssetStats()
 void
 LLViewerAssetStats::reset()
 {
-	for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
+	// Empty the map of all region stats
+	mRegionStats.clear();
+
+	// If we have a current stats, reset it, otherwise, as at construction,
+	// create a new one.
+	if (mCurRegionStats)
 	{
-		mRequests[i].mEnqueued.reset();
-		mRequests[i].mDequeued.reset();
-		mRequests[i].mResponse.reset();
+		mCurRegionStats->reset();
 	}
+	else
+	{
+		mCurRegionStats = new PerRegionStats(mRegionID);
+	}
+
+	// And add reference to map
+	mRegionStats[mRegionID] = mCurRegionStats;
 }
+
+
+void
+LLViewerAssetStats::setRegionID(const LLUUID & region_id)
+{
+	if (region_id == mRegionID)
+	{
+		// Already active, ignore.
+		return;
+	}
+	
+	PerRegionContainer::iterator new_stats = mRegionStats.find(region_id);
+	if (mRegionStats.end() == new_stats)
+	{
+		// Haven't seen this region_id before, create a new block make it current.
+		mCurRegionStats = new PerRegionStats(region_id);
+		mRegionStats[region_id] = mCurRegionStats;
+	}
+	else
+	{
+		mCurRegionStats = new_stats->second;
+	}
+	mRegionID = region_id;
+}
+
 
 void
 LLViewerAssetStats::recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 	
-	++mRequests[int(eac)].mEnqueued;
+	++(mCurRegionStats->mRequests[int(eac)].mEnqueued);
 }
 	
 void
@@ -102,7 +153,7 @@ LLViewerAssetStats::recordGetDequeued(LLViewerAssetType::EType at, bool with_htt
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	++mRequests[int(eac)].mDequeued;
+	++(mCurRegionStats->mRequests[int(eac)].mDequeued);
 }
 
 void
@@ -110,7 +161,7 @@ LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_htt
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	mRequests[int(eac)].mResponse.record(duration);
+	mCurRegionStats->mRequests[int(eac)].mResponse.record(duration);
 }
 
 const LLSD
@@ -139,16 +190,33 @@ LLViewerAssetStats::asLLSD() const
 	
 	LLSD ret = LLSD::emptyMap();
 
-	for (int i = 0; i < EVACCount; ++i)
+	for (PerRegionContainer::const_iterator it = mRegionStats.begin();
+		 mRegionStats.end() != it;
+		 ++it)
 	{
-		LLSD & slot = ret[tags[i]];
-		slot = LLSD::emptyMap();
-		slot[enq_tag] = LLSD(S32(mRequests[i].mEnqueued.getCount()));
-		slot[deq_tag] = LLSD(S32(mRequests[i].mDequeued.getCount()));
-		slot[rcnt_tag] = LLSD(S32(mRequests[i].mResponse.getCount()));
-		slot[rmin_tag] = LLSD(mRequests[i].mResponse.getMin());
-		slot[rmax_tag] = LLSD(mRequests[i].mResponse.getMax());
-		slot[rmean_tag] = LLSD(mRequests[i].mResponse.getMean());
+		if (it->first.isNull())
+		{
+			// Never emit NULL UUID in results.
+			continue;
+		}
+
+		const PerRegionStats & stats = *it->second;
+		
+		LLSD reg_stat = LLSD::emptyMap();
+		
+		for (int i = 0; i < EVACCount; ++i)
+		{
+			LLSD & slot = reg_stat[tags[i]];
+			slot = LLSD::emptyMap();
+			slot[enq_tag] = LLSD(S32(stats.mRequests[i].mEnqueued.getCount()));
+			slot[deq_tag] = LLSD(S32(stats.mRequests[i].mDequeued.getCount()));
+			slot[rcnt_tag] = LLSD(S32(stats.mRequests[i].mResponse.getCount()));
+			slot[rmin_tag] = LLSD(stats.mRequests[i].mResponse.getMin());
+			slot[rmax_tag] = LLSD(stats.mRequests[i].mResponse.getMax());
+			slot[rmean_tag] = LLSD(stats.mRequests[i].mResponse.getMean());
+		}
+
+		ret[it->first.asString()] = reg_stat;
 	}
 
 	return ret;
@@ -161,31 +229,81 @@ LLViewerAssetStats::asLLSD() const
 namespace LLViewerAssetStatsFF
 {
 
+// Target thread is elaborated in the function name.  This could
+// have been something 'templatey' like specializations iterated
+// over a set of constants but with so few, this is clearer I think.
+
 void
-record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+set_region_main(const LLUUID & region_id)
 {
-	if (! gViewerAssetStats)
+	if (! gViewerAssetStatsMain)
 		return;
 
-	gViewerAssetStats->recordGetEnqueued(at, with_http, is_temp);
+	gViewerAssetStatsMain->setRegionID(region_id);
 }
 
 void
-record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+record_enqueue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	if (! gViewerAssetStats)
+	if (! gViewerAssetStatsMain)
 		return;
 
-	gViewerAssetStats->recordGetDequeued(at, with_http, is_temp);
+	gViewerAssetStatsMain->recordGetEnqueued(at, with_http, is_temp);
 }
 
 void
-record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+record_dequeue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	if (! gViewerAssetStats)
+	if (! gViewerAssetStatsMain)
 		return;
 
-	gViewerAssetStats->recordGetServiced(at, with_http, is_temp, duration);
+	gViewerAssetStatsMain->recordGetDequeued(at, with_http, is_temp);
+}
+
+void
+record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	gViewerAssetStatsMain->recordGetServiced(at, with_http, is_temp, duration);
+}
+
+
+void
+set_region_thread1(const LLUUID & region_id)
+{
+	if (! gViewerAssetStatsThread1)
+		return;
+
+	gViewerAssetStatsThread1->setRegionID(region_id);
+}
+
+void
+record_enqueue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+{
+	if (! gViewerAssetStatsThread1)
+		return;
+
+	gViewerAssetStatsThread1->recordGetEnqueued(at, with_http, is_temp);
+}
+
+void
+record_dequeue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+{
+	if (! gViewerAssetStatsThread1)
+		return;
+
+	gViewerAssetStatsThread1->recordGetDequeued(at, with_http, is_temp);
+}
+
+void
+record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+{
+	if (! gViewerAssetStatsThread1)
+		return;
+
+	gViewerAssetStatsThread1->recordGetServiced(at, with_http, is_temp, duration);
 }
 
 } // namespace LLViewerAssetStatsFF
