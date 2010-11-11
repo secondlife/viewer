@@ -71,6 +71,8 @@ endif (DARWIN)
 target_link_libraries(llui_libtest
     llui
     llmessage
+    ${LLIMAGE_LIBRARIES}
+    ${LLIMAGEJ2COJ_LIBRARIES}
     ${OS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
