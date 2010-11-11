@@ -52,7 +52,6 @@ friend class LLHUDObject;
 
 public:
 	/*virtual*/ void render();
-	/*virtual*/ void renderForSelect();
 	/*virtual*/ void markDead();
 	/*virtual*/ F32 getDistance() const { return mDistance; }
 

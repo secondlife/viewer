@@ -44,9 +44,10 @@
 		<radio_item label="Ligar" name="radio2" value="1"/>
 		<radio_item label="Brevemente" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Mostrar meu nome" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Nome curto" name="small_avatar_names_checkbox"/>
-	<check_box label="Mostrar cargo" name="show_all_title_checkbox1"/>
+	<check_box label="Meu nome" name="show_my_name_checkbox1"/>
+	<check_box label="Nomes de usuário" name="show_slids" tool_tip="Mostrar nome de usuário, como zecazc123"/>
+	<check_box label="Cargos do grupo" name="show_all_title_checkbox1" tool_tip="Mostrar os títulos de cargos, como membro ou diretor"/>
+	<check_box label="Realçar amigos" name="show_friends" tool_tip="Realçar nomes de tela de amigos"/>
 	<text name="effects_color_textbox">
 		Meus efeitos:
 	</text>
@@ -61,6 +62,7 @@
 		<combo_box.item label="30 minutos" name="item3"/>
 		<combo_box.item label="(nunca)" name="item4"/>
 	</combo_box>
+	<check_box label="Ver nomes de tela" name="display_names_check" tool_tip="Usar nome de tela no bate-papo, MI, etc."/>
 	<text name="text_box3">
 		Mensagem do modo ocupado:
 	</text>
