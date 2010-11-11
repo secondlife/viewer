@@ -17,6 +17,42 @@
      name="middle_mouse">
         Middle Mouse
     </panel.string>
+    <slider
+     can_edit_text="false"
+     control_name="ActiveFloaterTransparency"
+     decimal_digits="2"
+     follows="left|top"
+     height="16"
+     increment="0.01"
+     initial_value="0.8"
+     layout="topleft"
+     label_width="120"
+     label="Active floater opacity:"
+     left="240"
+     max_val="1.00"
+     min_val="0.00"
+     name="active"
+     show_text="true"
+     top="75"
+     width="290" />
+    <slider
+     can_edit_text="false"
+     control_name="InactiveFloaterTransparency"
+     decimal_digits="2"
+     follows="left|top"
+     height="16"
+     increment="0.01"
+     initial_value="0.5"
+     layout="topleft"
+     label_width="120"
+     label="Inctive floater opacity:"
+     left="240"
+     max_val="1.00"
+     min_val="0.00"
+     name="active"
+     show_text="true"
+     top_pad="15"
+     width="290" />
          <icon
 	 follows="left|top"
 	 height="18"
@@ -70,7 +106,7 @@
      height="10"
      left="80"
      name="heading2"
-     width="270"
+     width="240"
      top_pad="5">
 Automatic position for:
 	</text>
@@ -207,7 +243,7 @@ Automatic position for:
    left="80"
    name="UI Size:"
    top_pad="25"
-   width="300">
+   width="160">
     UI size
   </text>
   <slider

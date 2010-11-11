@@ -26,7 +26,10 @@ Person ein:
 			</text>
 			<line_editor bottom_delta="-76" name="Edit" top_pad="16"/>
 			<button label="Los" label_selected="Los" name="Find" top="70"/>
-			<scroll_list top="80" height="54" name="SearchResults"/>
+			<scroll_list height="54" name="SearchResults" top="80">
+				<columns label="Name" name="name"/>
+				<columns label="Benutzername" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="Freunde" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -41,24 +44,11 @@ Person ein:
 			<text name="meters">
 				Meter
 			</text>
-            <button
-             follows="top|left"
-             layout="topleft"
-             left_pad="0"
-             height="28"
-             width="28"
-             name="Refresh"
-             image_overlay="Refresh_Off" />
-            <scroll_list
-             follows="all"
-             height="100"
-             border="false"
-             layout="topleft"
-             left="0"
-             name="NearMe"
-             sort_column="0"
-             top="50"
-             width="132" />
+			<button follows="top|left" height="28" image_overlay="Refresh_Off" layout="topleft" left_pad="0" name="Refresh" width="28"/>
+			<scroll_list border="false" follows="all" height="100" layout="topleft" left="0" name="NearMe" sort_column="0" top="50" width="132">
+				<columns label="Name" name="name"/>
+				<columns label="Benutzername" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

@@ -591,12 +591,6 @@ void LLDrawPoolWater::shade()
 
 }
 
-void LLDrawPoolWater::renderForSelect()
-{
-	// Can't select water!
-	return;
-}
-
 LLViewerTexture *LLDrawPoolWater::getDebugTexture()
 {
 	return LLViewerFetchedTexture::sSmokeImagep;

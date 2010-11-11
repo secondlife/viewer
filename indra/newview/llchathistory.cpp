@@ -335,7 +335,7 @@ public:
 		
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
-		if(mSourceType != CHAT_SOURCE_AGENT)
+		if(mSourceType != CHAT_SOURCE_AGENT ||	mAvatarID.isNull())
 			icon->setDrawTooltip(false);
 
 		switch (mSourceType)
