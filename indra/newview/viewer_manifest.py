@@ -571,14 +571,16 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+			
+					
+            if self.prefix(src="../viewer_components/updater", dst="MacOS"):
+                self.path("update_install")
+                self.end_prefix()
+
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
                 super(DarwinManifest, self).construct()
-		
-                if self.prefix(src="../viewer_components/updater", dst=""):
-                    self.path("update_install")
-                    self.end_prefix()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")

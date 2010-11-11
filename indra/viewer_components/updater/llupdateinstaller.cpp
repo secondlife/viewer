@@ -49,26 +49,29 @@ namespace {
 
 int ll_install_update(std::string const & script, std::string const & updatePath, LLInstallScriptMode mode)
 {
-	std::string finalPath;
+	std::string actualScriptPath;
 	switch(mode) {
 		case LL_COPY_INSTALL_SCRIPT_TO_TEMP:
 			try {
-				finalPath = copy_to_temp(updatePath);
+				actualScriptPath = copy_to_temp(script);
 			}
 			catch (RelocateError &) {
 				return -1;
 			}
 			break;
 		case LL_RUN_INSTALL_SCRIPT_IN_PLACE:
-			finalPath = updatePath;
+			actualScriptPath = script;
 			break;
 		default:
 			llassert(!"unpossible copy mode");
 	}
 	
+	llinfos << "UpdateInstaller: installing " << updatePath << " using " <<
+		actualScriptPath << LL_ENDL;
+	
 	LLProcessLauncher launcher;
-	launcher.setExecutable(script);
-	launcher.addArgument(finalPath);
+	launcher.setExecutable(actualScriptPath);
+	launcher.addArgument(updatePath);
 	int result = launcher.launch();
 	launcher.orphan();
 	

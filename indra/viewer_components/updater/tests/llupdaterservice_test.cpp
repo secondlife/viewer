@@ -30,6 +30,7 @@
 #include "../llupdaterservice.h"
 #include "../llupdatechecker.h"
 #include "../llupdatedownloader.h"
+#include "../llupdateinstaller.h"
 
 #include "../../../test/lltut.h"
 //#define DEBUG_ON
@@ -99,6 +100,11 @@ std::string LLUpdateDownloader::downloadMarkerPath(void)
 }
 
 void LLUpdateDownloader::resume(void) {}
+
+int ll_install_update(std::string const &, std::string const &, LLInstallScriptMode)
+{
+	return 0;
+}
 
 /*
 #pragma warning(disable: 4273)

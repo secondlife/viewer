@@ -30,6 +30,7 @@
 #include "lltimer.h"
 #include "llupdaterservice.h"
 #include "llupdatechecker.h"
+#include "llupdateinstaller.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -52,6 +53,26 @@ namespace
 		return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, 
 											  UPDATE_MARKER_FILENAME);
 	}
+	
+	std::string install_script_path(void)
+	{
+#ifdef LL_WINDOWS
+		std::string scriptFile = "update_install.bat";
+#else
+		std::string scriptFile = "update_install";
+#endif
+		return gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, scriptFile);
+	}
+	
+	LLInstallScriptMode install_script_mode(void) 
+	{
+#ifdef LL_WINDOWS
+		return LL_COPY_INSTALL_SCRIPT_TO_TEMP;
+#else
+		return LL_RUN_INSTALL_SCRIPT_IN_PLACE;
+#endif
+	};
+	
 }
 
 class LLUpdaterServiceImpl : 
@@ -218,11 +239,17 @@ bool LLUpdaterServiceImpl::checkForInstall()
 		LLSD path = update_info.get("path");
 		if(path.isDefined() && !path.asString().empty())
 		{
-			// install!
-
-			if(mAppExitCallback)
+			int result = ll_install_update(install_script_path(),
+										   update_info["path"].asString(),
+										   install_script_mode());	
+			
+			if((result == 0) && mAppExitCallback)
 			{
 				mAppExitCallback();
+			} else if(result != 0) {
+				llwarns << "failed to run update install script" << LL_ENDL;
+			} else {
+				; // No op.
 			}
 		}
 
