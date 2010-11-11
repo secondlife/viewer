@@ -55,7 +55,7 @@ public:
 private:
 	LLTempBoundListener mMainLoopConnection;
 	LLTempBoundListener mRepeaterConnection;
-	LLThreadSafeQueue<LLSD> mQueue;
+	LLThreadSafeQueue<LLSD> * mQueue;
 	
 	bool onMainLoop(LLSD const &);
 	bool onMessage(LLSD const & event);

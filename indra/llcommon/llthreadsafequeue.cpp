@@ -53,13 +53,13 @@ LLThreadSafeQueueImplementation::LLThreadSafeQueueImplementation(apr_pool_t * po
 
 LLThreadSafeQueueImplementation::~LLThreadSafeQueueImplementation()
 {
-	if(mOwnsPool && (mPool != 0)) apr_pool_destroy(mPool);
 	if(mQueue != 0) {
 		if(apr_queue_size(mQueue) != 0) llwarns << 
-			"terminating queue which still contains elements;" << 
-			"memory will be leaked" << LL_ENDL;
+			"terminating queue which still contains " << apr_queue_size(mQueue) <<
+			" elements;" << "memory will be leaked" << LL_ENDL;
 		apr_queue_term(mQueue);
 	}
+	if(mOwnsPool && (mPool != 0)) apr_pool_destroy(mPool);
 }
 
 

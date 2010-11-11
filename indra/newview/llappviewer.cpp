@@ -812,7 +812,7 @@ bool LLAppViewer::init()
 	}
 	
 	// Initialize the repeater service.
-	LLMainLoopRepeater::getInstance()->start();
+	LLMainLoopRepeater::instance().start();
 	
 	//
 	// Initialize the window
@@ -1736,6 +1736,8 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
+
+	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
 

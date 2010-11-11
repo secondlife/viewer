@@ -36,7 +36,7 @@
 
 
 LLMainLoopRepeater::LLMainLoopRepeater(void):
-	mQueue(gAPRPoolp, 1024)
+	mQueue(0)
 {
 	; // No op.
 }
@@ -44,6 +44,9 @@ LLMainLoopRepeater::LLMainLoopRepeater(void):
 
 void LLMainLoopRepeater::start(void)
 {
+	if(mQueue != 0) return;
+
+	mQueue = new LLThreadSafeQueue<LLSD>(gAPRPoolp, 1024);
 	mMainLoopConnection = LLEventPumps::instance().
 		obtain("mainloop").listen("stupid name here", boost::bind(&LLMainLoopRepeater::onMainLoop, this, _1));
 	mRepeaterConnection = LLEventPumps::instance().
@@ -55,13 +58,16 @@ void LLMainLoopRepeater::stop(void)
 {
 	mMainLoopConnection.release();
 	mRepeaterConnection.release();
+
+	delete mQueue;
+	mQueue = 0;
 }
 
 
 bool LLMainLoopRepeater::onMainLoop(LLSD const &)
 {
 	LLSD message;
-	while(mQueue.tryPopBack(message)) {
+	while(mQueue->tryPopBack(message)) {
 		std::string pump = message["pump"].asString();
 		if(pump.length() == 0 ) continue; // No pump.
 		LLEventPumps::instance().obtain(pump).post(message["payload"]);
@@ -73,7 +79,7 @@ bool LLMainLoopRepeater::onMainLoop(LLSD const &)
 bool LLMainLoopRepeater::onMessage(LLSD const & event)
 {
 	try {
-		mQueue.pushFront(event);
+		mQueue->pushFront(event);
 	} catch(LLThreadSafeQueueError & e) {
 		llwarns << "could not repeat message (" << e.what() << ")" << 
 			event.asString() << LL_ENDL;
