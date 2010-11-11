@@ -251,6 +251,10 @@ class WindowsManifest(ViewerManifest):
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
+            if self.prefix(src="../../viewer_components/updater", dst=""):
+                self.path("update_install.bat")
+                self.end_prefix()
+
             self.enable_crt_manifest_check()
 
             # Get kdu dll, continue if missing.

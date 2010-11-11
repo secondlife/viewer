@@ -1,0 +1,1 @@
+start /WAIT %1
