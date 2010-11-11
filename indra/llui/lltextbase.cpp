@@ -2912,11 +2912,18 @@ bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width
 S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
 	LLUIImagePtr image = mStyle->getImage();
+	
+	if (image.isNull())
+	{
+		return 1;
+	}
+
 	S32 image_width = image->getWidth();
 	if(line_offset == 0 || num_pixels>image_width + IMAGE_HPAD)
 	{
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -2926,18 +2933,21 @@ F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 select
 	{
 		LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
 		LLUIImagePtr image = mStyle->getImage();
-		S32 style_image_height = image->getHeight();
-		S32 style_image_width = image->getWidth();
-		// Text is drawn from the top of the draw_rect downward
-		
-		S32 text_center = draw_rect.mTop - (draw_rect.getHeight() / 2);
-		// Align image to center of draw rect
-		S32 image_bottom = text_center - (style_image_height / 2);
-		image->draw(draw_rect.mLeft, image_bottom, 
-			style_image_width, style_image_height, color);
-		
-		const S32 IMAGE_HPAD = 3;
-		return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
+		if (image.notNull())
+		{
+			S32 style_image_height = image->getHeight();
+			S32 style_image_width = image->getWidth();
+			// Text is drawn from the top of the draw_rect downward
+			
+			S32 text_center = draw_rect.mTop - (draw_rect.getHeight() / 2);
+			// Align image to center of draw rect
+			S32 image_bottom = text_center - (style_image_height / 2);
+			image->draw(draw_rect.mLeft, image_bottom, 
+				style_image_width, style_image_height, color);
+			
+			const S32 IMAGE_HPAD = 3;
+			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
+		}
 	}
 	return 0.0;
 }
