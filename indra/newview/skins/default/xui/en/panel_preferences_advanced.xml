@@ -103,7 +103,7 @@
     <check_box
      follows="top|left"
      height="15"
-     label="Show Advanced Manu"
+     label="Show Advanced Menu"
      layout="topleft"
      left="30"
      name="push_to_talk_toggle_check"
@@ -118,4 +118,66 @@
      name="push_to_talk_toggle_check"
      top_pad="5"
      width="237"/>
+     
+    <check_box
+     control_name="LipSyncEnabled"
+     follows="left|top"
+     height="20"
+     label="Move avatar lips when speaking"
+     layout="topleft"
+     left_delta="0"
+     name="enable_lip_sync"
+     width="237"
+     top_pad="130" />
+     
+     <check_box
+     follows="top|left"
+     enabled_control="EnableVoiceChat"
+     control_name="PushToTalkToggle"
+     height="15"
+     label="Toggle speak on/off when I press:"
+     layout="topleft"
+     left="30"
+     name="push_to_talk_toggle_check"
+     width="237"
+     tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
+    <line_editor
+     follows="top|left"
+     control_name="PushToTalkButton"
+     enabled="false"
+     enabled_control="EnableVoiceChat"
+     height="23"
+     left="80"
+     max_length_bytes="200"
+     name="modifier_combo"
+     label="Push-to-Speak trigger"
+     top_pad="5"
+     width="200" />
+    <button
+     layout="topleft" 
+     follows="top|left"
+     enabled_control="EnableVoiceChat"
+     height="23"
+     label="Set Key"
+     left_pad="5"
+     name="set_voice_hotkey_button"
+     width="100">
+          <button.commit_callback
+          function="Pref.VoiceSetKey" />
+    </button>
+  <button
+     enabled_control="EnableVoiceChat"
+     follows="top|left"
+     halign="center"
+     height="23"
+     image_overlay="Refresh_Off"
+     layout="topleft" 
+     tool_tip="Reset to Middle Mouse Button"
+     mouse_opaque="true"
+     name="set_voice_middlemouse_button"
+     left_pad="5"
+     width="25">
+          <button.commit_callback
+          function="Pref.VoiceSetMiddleMouse" />
+    </button>
 </panel>
