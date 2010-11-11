@@ -1620,7 +1620,10 @@ void LLUI::initClass(const settings_map_t& settings,
 
 void LLUI::cleanupClass()
 {
-	sImageProvider->cleanUp();
+	if(sImageProvider)
+	{
+		sImageProvider->cleanUp();
+	}
 }
 
 void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)

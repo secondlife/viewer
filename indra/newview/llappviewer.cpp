@@ -661,6 +661,14 @@ bool LLAppViewer::init()
     initThreads();
     writeSystemInfo();
 
+	// Initialize updater service (now that we have an io pump)
+	initUpdater();
+	if(isQuitting())
+	{
+		// Early out here because updater set the quitting flag.
+		return true;
+	}
+
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -978,9 +986,6 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
-	
-	// Initialize updater service (now that we have an io pump)
-	initUpdater();
 	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
@@ -1364,11 +1369,14 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning Up" << llendflush;
 
 	// Must clean up texture references before viewer window is destroyed.
-	LLHUDManager::getInstance()->updateEffects();
-	LLHUDObject::updateAll();
-	LLHUDManager::getInstance()->cleanupEffects();
-	LLHUDObject::cleanupHUDObjects();
-	llinfos << "HUD Objects cleaned up" << llendflush;
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->updateEffects();
+		LLHUDObject::updateAll();
+		LLHUDManager::getInstance()->cleanupEffects();
+		LLHUDObject::cleanupHUDObjects();
+		llinfos << "HUD Objects cleaned up" << llendflush;
+	}
 
 	LLKeyframeDataCache::clear();
 	
@@ -1380,8 +1388,10 @@ bool LLAppViewer::cleanup()
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
-	LLHUDManager::getInstance()->shutdownClass();
-	
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->shutdownClass();
+	}
 
 	delete gAssetStorage;
 	gAssetStorage = NULL;
@@ -1683,7 +1693,10 @@ bool LLAppViewer::cleanup()
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Auditing VFS" << llendl;
-	gVFS->audit();
+	if(gVFS)
+	{
+		gVFS->audit();
+	}
 #endif
 
 	llinfos << "Misc Cleanup" << llendflush;
@@ -2383,8 +2396,13 @@ void LLAppViewer::initUpdater()
 	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 
-	mUpdater->initialize(protocol_version, url, service_path, channel, version);
-	mUpdater->setCheckPeriod(check_period);
+	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
+	mUpdater->initialize(protocol_version, 
+						 url, 
+						 service_path, 
+						 channel, 
+						 version);
+ 	mUpdater->setCheckPeriod(check_period);
 	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
 	{
 		mUpdater->startChecking();
@@ -2550,15 +2568,18 @@ void LLAppViewer::cleanupSavedSettings()
 
 	// save window position if not maximized
 	// as we don't track it in callbacks
-	BOOL maximized = gViewerWindow->mWindow->getMaximized();
-	if (!maximized)
+	if(NULL != gViewerWindow)
 	{
-		LLCoordScreen window_pos;
-
-		if (gViewerWindow->mWindow->getPosition(&window_pos))
+		BOOL maximized = gViewerWindow->mWindow->getMaximized();
+		if (!maximized)
 		{
-			gSavedSettings.setS32("WindowX", window_pos.mX);
-			gSavedSettings.setS32("WindowY", window_pos.mY);
+			LLCoordScreen window_pos;
+
+			if (gViewerWindow->mWindow->getPosition(&window_pos))
+			{
+				gSavedSettings.setS32("WindowX", window_pos.mX);
+				gSavedSettings.setS32("WindowY", window_pos.mY);
+			}
 		}
 	}
 
@@ -4297,7 +4318,10 @@ void LLAppViewer::disconnectViewer()
 
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.
-	LLWorld::getInstance()->destroyClass();
+	if(LLWorld::instanceExists())
+	{
+		LLWorld::getInstance()->destroyClass();
+	}
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();

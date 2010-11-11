@@ -68,6 +68,7 @@ class LLUpdaterServiceImpl :
 	
 	unsigned int mCheckPeriod;
 	bool mIsChecking;
+	bool mIsDownloading;
 	
 	LLUpdateChecker mUpdateChecker;
 	LLUpdateDownloader mUpdateDownloader;
@@ -115,14 +116,14 @@ public:
 	bool onMainLoop(LLSD const & event);	
 
 private:
-	void retry(void);
-
+	void restartTimer(unsigned int seconds);
 };
 
 const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
 
 LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsChecking(false),
+	mIsDownloading(false),
 	mCheckPeriod(0),
 	mUpdateChecker(*this),
 	mUpdateDownloader(*this)
@@ -141,10 +142,10 @@ void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
 									  const std::string& channel,
 									  const std::string& version)
 {
-	if(mIsChecking)
+	if(mIsChecking || mIsDownloading)
 	{
-		throw LLUpdaterService::UsageError("Call LLUpdaterService::stopCheck()"
-			" before setting params.");
+		throw LLUpdaterService::UsageError("LLUpdaterService::initialize call "
+										   "while updater is running.");
 	}
 		
 	mProtocolVersion = protocol_version;
@@ -167,16 +168,20 @@ void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 
 void LLUpdaterServiceImpl::startChecking()
 {
-	if(!mIsChecking)
+	if(mUrl.empty() || mChannel.empty() || mVersion.empty())
 	{
-		if(mUrl.empty() || mChannel.empty() || mVersion.empty())
-		{
-			throw LLUpdaterService::UsageError("Set params before call to "
-				"LLUpdaterService::startCheck().");
-		}
-		mIsChecking = true;
-	
-		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
+		throw LLUpdaterService::UsageError("Set params before call to "
+			"LLUpdaterService::startCheck().");
+	}
+
+	mIsChecking = true;
+
+	if(!mIsDownloading)
+	{
+		// Checking can only occur during the mainloop.
+		// reset the timer to 0 so that the next mainloop event 
+		// triggers a check;
+		restartTimer(0); 
 	}
 }
 
@@ -185,6 +190,7 @@ void LLUpdaterServiceImpl::stopChecking()
 	if(mIsChecking)
 	{
 		mIsChecking = false;
+		mTimer.stop();
 	}
 }
 
@@ -205,16 +211,21 @@ bool LLUpdaterServiceImpl::checkForInstall()
 		// Found an update info - now lets see if its valid.
 		LLSD update_info;
 		LLSDSerialize::fromXMLDocument(update_info, update_marker);
+		update_marker.close();
+		LLFile::remove(update_marker_path());
 
 		// Get the path to the installer file.
 		LLSD path = update_info.get("path");
 		if(path.isDefined() && !path.asString().empty())
 		{
 			// install!
+
+			if(mAppExitCallback)
+			{
+				mAppExitCallback();
+			}
 		}
 
-		update_marker.close();
-		LLFile::remove(update_marker_path());
 		result = true;
 	}
 	return result;
@@ -226,7 +237,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 	llstat stat_info;
 	if(0 == LLFile::stat(mUpdateDownloader.downloadMarkerPath(), &stat_info))
 	{
-		mIsChecking = true;
+		mIsDownloading = true;
 		mUpdateDownloader.resume();
 		result = true;
 	}
@@ -235,13 +246,18 @@ bool LLUpdaterServiceImpl::checkForResume()
 
 void LLUpdaterServiceImpl::error(std::string const & message)
 {
-	retry();
+	if(mIsChecking)
+	{
+		restartTimer(mCheckPeriod);
+	}
 }
 
 void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 										  LLURI const & uri,
 										  std::string const & hash)
 {
+	mTimer.stop();
+	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash);
 }
 
@@ -249,50 +265,60 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 										  LLURI const & uri,
 										  std::string const & hash)
 {
+	mTimer.stop();
+	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)
 {
-	retry();
+	if(mIsChecking)
+	{
+		restartTimer(mCheckPeriod);
+	}
 }
 
 void LLUpdaterServiceImpl::downloadComplete(LLSD const & data) 
 { 
+	mIsDownloading = false;
+
 	// Save out the download data to the SecondLifeUpdateReady
-	// marker file.
+	// marker file. 
 	llofstream update_marker(update_marker_path());
 	LLSDSerialize::toPrettyXML(data, update_marker);
-
-	// Stop checking.
-	stopChecking();
-
-	// Wait for restart...?
 }
 
 void LLUpdaterServiceImpl::downloadError(std::string const & message) 
 { 
-	retry(); 
+	mIsDownloading = false;
+
+	// Restart the 
+	if(mIsChecking)
+	{
+		restartTimer(mCheckPeriod); 
+	}
 }
 
-void LLUpdaterServiceImpl::retry(void)
+void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 {
 	LL_INFOS("UpdaterService") << "will check for update again in " << 
 	mCheckPeriod << " seconds" << LL_ENDL; 
 	mTimer.start();
-	mTimer.setTimerExpirySec(mCheckPeriod);
+	mTimer.setTimerExpirySec(seconds);
 	LLEventPumps::instance().obtain("mainloop").listen(
 		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }
 
 bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 {
-	if(mTimer.hasExpired())
+	if(mTimer.getStarted() && mTimer.hasExpired())
 	{
 		mTimer.stop();
 		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
-	} else {
+	} 
+	else 
+	{
 		// Keep on waiting...
 	}
 	
