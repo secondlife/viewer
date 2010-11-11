@@ -414,6 +414,9 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	*accept = ACCEPT_NO;
 
+	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
+	if (LLToolDragAndDrop::SOURCE_AGENT != source && LLToolDragAndDrop::SOURCE_LIBRARY != source) return FALSE;
+
 	switch (cargo_type)
 	{
 

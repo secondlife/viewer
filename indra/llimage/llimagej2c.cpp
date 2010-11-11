@@ -67,14 +67,15 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 		mDataSizes[i] = 0;
 	}
 
-	if (LLFastTimer::sMetricLog && !LLImageJ2C::sTesterp && ((LLFastTimer::sLogName == sTesterName) || (LLFastTimer::sLogName == "metric")))
+	// If that test log has ben requested but not yet created, create it
+	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
 	{
-		LLImageJ2C::sTesterp = new LLImageCompressionTester() ;
-        if (!LLImageJ2C::sTesterp->isValid())
-        {
-            delete LLImageJ2C::sTesterp;
-            LLImageJ2C::sTesterp = NULL;
-        }
+		sTesterp = new LLImageCompressionTester() ;
+		if (!sTesterp->isValid())
+		{
+			delete sTesterp;
+			sTesterp = NULL;
+		}
 	}
 }
 
@@ -148,7 +149,7 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 // Returns TRUE to mean done, whether successful or not.
 BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
-    LLTimer elapsed;
+	LLTimer elapsed;
 	LLMemType mt1(mMemType);
 
 	BOOL res = TRUE;
@@ -187,19 +188,20 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		LLImage::setLastError(mLastError);
 	}
 	
-    if (LLImageJ2C::sTesterp)
-    {
-        // Decompression stat gathering
-        // Note that we *do not* take into account the decompression failures data so we night overestimate the time spent processing
-        
-        // Always add the decompression time to the stat
-        LLImageJ2C::sTesterp->updateDecompressionStats(elapsed.getElapsedTimeF32()) ;
-        if (res)
-        {
-            // The whole data stream is finally decompressed when res is returned as TRUE
-            LLImageJ2C::sTesterp->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
-        }
-    }
+	LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
+	{
+		// Decompression stat gathering
+		// Note that we *do not* take into account the decompression failures data so we might overestimate the time spent processing
+
+		// Always add the decompression time to the stat
+		tester->updateDecompressionStats(elapsed.getElapsedTimeF32()) ;
+		if (res)
+		{
+			// The whole data stream is finally decompressed when res is returned as TRUE
+			tester->updateDecompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
+		}
+	}
 
 	return res;
 }
@@ -213,7 +215,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
 
 BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time)
 {
-    LLTimer elapsed;
+	LLTimer elapsed;
 	LLMemType mt1(mMemType);
 	resetLastError();
 	BOOL res = mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time, mReversible);
@@ -222,21 +224,21 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 		LLImage::setLastError(mLastError);
 	}
 
-    if (LLImageJ2C::sTesterp)
-    {
-        // Compression stat gathering
-        // Note that we *do not* take into account the compression failures cases so we night overestimate the time spent processing
-        
-        // Always add the compression time to the stat
-        LLImageJ2C::sTesterp->updateCompressionStats(elapsed.getElapsedTimeF32()) ;
-        if (res)
-        {
-            // The whole data stream is finally compressed when res is returned as TRUE
-            LLImageJ2C::sTesterp->updateCompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
-        }
-    }
-    
-    
+	LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+	if (tester)
+	{
+		// Compression stat gathering
+		// Note that we *do not* take into account the compression failures cases so we night overestimate the time spent processing
+
+		// Always add the compression time to the stat
+		tester->updateCompressionStats(elapsed.getElapsedTimeF32()) ;
+		if (res)
+		{
+			// The whole data stream is finally compressed when res is returned as TRUE
+			tester->updateCompressionStats(this->getDataSize(), raw_imagep->getDataSize()) ;
+		}
+	}
+
 	return res;
 }
 
@@ -459,15 +461,15 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 	addMetric("Perf Compression (kB/s)");
 
 	mRunBytesInDecompression = 0;
-    mRunBytesInCompression = 0;
+	mRunBytesInCompression = 0;
 
-    mTotalBytesInDecompression = 0;
-    mTotalBytesOutDecompression = 0;
-    mTotalBytesInCompression = 0;
-    mTotalBytesOutCompression = 0;
+	mTotalBytesInDecompression = 0;
+	mTotalBytesOutDecompression = 0;
+	mTotalBytesInCompression = 0;
+	mTotalBytesOutCompression = 0;
 
-    mTotalTimeDecompression = 0.0f;
-    mTotalTimeCompression = 0.0f;
+	mTotalTimeDecompression = 0.0f;
+	mTotalTimeCompression = 0.0f;
 }
 
 LLImageCompressionTester::~LLImageCompressionTester()
@@ -478,13 +480,13 @@ LLImageCompressionTester::~LLImageCompressionTester()
 //virtual 
 void LLImageCompressionTester::outputTestRecord(LLSD *sd) 
 {	
-    std::string currentLabel = getCurrentLabelName();
-	
+	std::string currentLabel = getCurrentLabelName();
+
 	F32 decompressionPerf = 0.0f;
 	F32 compressionPerf   = 0.0f;
 	F32 decompressionRate = 0.0f;
 	F32 compressionRate   = 0.0f;
-	
+
 	F32 totalkBInDecompression  = (F32)(mTotalBytesInDecompression)  / 1000.0;
 	F32 totalkBOutDecompression = (F32)(mTotalBytesOutDecompression) / 1000.0;
 	F32 totalkBInCompression    = (F32)(mTotalBytesInCompression)    / 1000.0;
@@ -506,56 +508,56 @@ void LLImageCompressionTester::outputTestRecord(LLSD *sd)
 	{
 		compressionRate = totalkBInCompression / totalkBOutCompression;
 	}
-	
+
 	(*sd)[currentLabel]["Time Decompression (s)"]		= (LLSD::Real)mTotalTimeDecompression;
 	(*sd)[currentLabel]["Volume In Decompression (kB)"]	= (LLSD::Real)totalkBInDecompression;
 	(*sd)[currentLabel]["Volume Out Decompression (kB)"]= (LLSD::Real)totalkBOutDecompression;
 	(*sd)[currentLabel]["Decompression Ratio (x:1)"]	= (LLSD::Real)decompressionRate;
 	(*sd)[currentLabel]["Perf Decompression (kB/s)"]	= (LLSD::Real)decompressionPerf;
-	
+
 	(*sd)[currentLabel]["Time Compression (s)"]			= (LLSD::Real)mTotalTimeCompression;
 	(*sd)[currentLabel]["Volume In Compression (kB)"]	= (LLSD::Real)totalkBInCompression;
 	(*sd)[currentLabel]["Volume Out Compression (kB)"]	= (LLSD::Real)totalkBOutCompression;
-    (*sd)[currentLabel]["Compression Ratio (x:1)"]		= (LLSD::Real)compressionRate;
+	(*sd)[currentLabel]["Compression Ratio (x:1)"]		= (LLSD::Real)compressionRate;
 	(*sd)[currentLabel]["Perf Compression (kB/s)"]		= (LLSD::Real)compressionPerf;
 }
 
 void LLImageCompressionTester::updateCompressionStats(const F32 deltaTime) 
 {
-    mTotalTimeCompression += deltaTime;
+	mTotalTimeCompression += deltaTime;
 }
 
 void LLImageCompressionTester::updateCompressionStats(const S32 bytesCompress, const S32 bytesRaw) 
 {
-    mTotalBytesInCompression += bytesRaw;
-    mRunBytesInCompression += bytesRaw;
-    mTotalBytesOutCompression += bytesCompress;
-    if (mRunBytesInCompression > (1000000))
-    {
-        // Output everything
-        outputTestResults();
-        // Reset the compression data of the run
-        mRunBytesInCompression = 0;
-    }
+	mTotalBytesInCompression += bytesRaw;
+	mRunBytesInCompression += bytesRaw;
+	mTotalBytesOutCompression += bytesCompress;
+	if (mRunBytesInCompression > (1000000))
+	{
+		// Output everything
+		outputTestResults();
+		// Reset the compression data of the run
+		mRunBytesInCompression = 0;
+	}
 }
 
 void LLImageCompressionTester::updateDecompressionStats(const F32 deltaTime) 
 {
-    mTotalTimeDecompression += deltaTime;
+	mTotalTimeDecompression += deltaTime;
 }
 
 void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const S32 bytesOut) 
 {
-    mTotalBytesInDecompression += bytesIn;
-    mRunBytesInDecompression += bytesIn;
-    mTotalBytesOutDecompression += bytesOut;
-    if (mRunBytesInDecompression > (1000000))
-    {
-        // Output everything
-        outputTestResults();
-        // Reset the decompression data of the run
-        mRunBytesInDecompression = 0;
-    }
+	mTotalBytesInDecompression += bytesIn;
+	mRunBytesInDecompression += bytesIn;
+	mTotalBytesOutDecompression += bytesOut;
+	if (mRunBytesInDecompression > (1000000))
+	{
+		// Output everything
+		outputTestResults();
+		// Reset the decompression data of the run
+		mRunBytesInDecompression = 0;
+	}
 }
 
 //----------------------------------------------------------------------------------------------

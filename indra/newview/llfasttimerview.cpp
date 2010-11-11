@@ -1184,12 +1184,12 @@ void LLFastTimerView::outputAllMetrics()
 {
 	if (LLMetricPerformanceTesterBasic::hasMetricPerformanceTesters())
 	{
-        for (LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin(); 
-            iter != LLMetricPerformanceTesterBasic::sTesterMap.end(); ++iter)
-        {
-            LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second);	
-            tester->outputTestResults();
-        }
+		for (LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin(); 
+			iter != LLMetricPerformanceTesterBasic::sTesterMap.end(); ++iter)
+		{
+			LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second);	
+			tester->outputTestResults();
+		}
 	}
 }
 

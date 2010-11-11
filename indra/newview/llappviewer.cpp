@@ -510,10 +510,10 @@ class LLFastTimerLogThread : public LLThread
 public:
 	std::string mFile;
 
-	LLFastTimerLogThread(std::string& testName) : LLThread("fast timer log")
+	LLFastTimerLogThread(std::string& test_name) : LLThread("fast timer log")
 	{
-		std::string fileName = testName + std::string(".slp");
-		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, fileName);
+		std::string file_name = test_name + std::string(".slp");
+		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name);
 	}
 
 	void run()
@@ -1303,7 +1303,7 @@ bool LLAppViewer::cleanup()
 {
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
-    
+
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
@@ -1638,14 +1638,14 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		std::string baselineName = LLFastTimer::sLogName + "_baseline.slp";
-		std::string currentName  = LLFastTimer::sLogName + ".slp"; 
-		std::string reportName   = LLFastTimer::sLogName + "_report.csv";
-		
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+
 		LLFastTimerView::doAnalysis(
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baselineName),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, currentName),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, reportName));
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}
 	LLMetricPerformanceTesterBasic::cleanClass() ;
 
@@ -2113,16 +2113,16 @@ bool LLAppViewer::initConfiguration()
 		LLFastTimer::sMetricLog = TRUE ;
 		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
-        std::string testName = clp.getOption("logmetrics")[0];
-		llinfos << "'--logmetrics' argument : " << testName << llendl;
-        if (testName == "")
-        {
-            llwarns << "No '--logmetrics' argument given, will output all metrics." << llendl;
-			LLFastTimer::sLogName = std::string("metric");
-        }
-        else
-        {
-			LLFastTimer::sLogName = testName;
+		std::string test_name = clp.getOption("logmetrics")[0];
+		llinfos << "'--logmetrics' argument : " << test_name << llendl;
+		if (test_name == "")
+		{
+			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
+			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
+		}
+		else
+		{
+			LLFastTimer::sLogName = test_name;
 		}
 	}
 
@@ -2164,7 +2164,7 @@ bool LLAppViewer::initConfiguration()
 	{
 		LLFastTimerView::sAnalyzePerformance = TRUE;
 	}
-    
+
 	if (clp.hasOption("replaysession"))
 	{
 		LLAgentPilot::sReplaySession = TRUE;

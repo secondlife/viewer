@@ -74,13 +74,11 @@ public:
 
 	static std::string getEngineInfo();
 
-    // Image compression/decompression tester
-	static LLImageCompressionTester* sTesterp ;
-	
 protected:
 	friend class LLImageJ2CImpl;
 	friend class LLImageJ2COJ;
 	friend class LLImageJ2CKDU;
+	friend class LLImageCompressionTester;
 	void decodeFailed();
 	void updateRawDiscardLevel();
 
@@ -94,6 +92,9 @@ protected:
 	BOOL mReversible;
 	LLImageJ2CImpl *mImpl;
 	std::string mLastError;
+
+    // Image compression/decompression tester
+	static LLImageCompressionTester* sTesterp;
 };
 
 // Derive from this class to implement JPEG2000 decoding

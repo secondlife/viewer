@@ -55,7 +55,6 @@ set(llcommon_SOURCE_FILES
     llevents.cpp
     lleventtimer.cpp
     llfasttimer_class.cpp
-    llmetricperformancetester.cpp
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
@@ -71,6 +70,7 @@ set(llcommon_SOURCE_FILES
     llmemorystream.cpp
     llmemtype.cpp
     llmetrics.cpp
+    llmetricperformancetester.cpp
     llmortician.cpp
     lloptioninterface.cpp
     llptrto.cpp 
@@ -161,7 +161,6 @@ set(llcommon_HEADER_FILES
     llextendedstatus.h
     llfasttimer.h
     llfasttimer_class.h
-    llmetricperformancetester.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h
@@ -188,6 +187,7 @@ set(llcommon_HEADER_FILES
     llmemorystream.h
     llmemtype.h
     llmetrics.h
+    llmetricperformancetester.h
     llmortician.h
     llnametable.h
     lloptioninterface.h

@@ -6539,7 +6539,7 @@ Mute everyone?
     <form name="form">
       <ignore name="ignore"
               control="MediaEnablePopups"
-              invert_control="false"
+              invert_control="true"
               text="Enable all pop-ups"/>
       <button default="true"
               index="0"

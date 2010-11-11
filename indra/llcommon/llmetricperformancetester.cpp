@@ -52,7 +52,7 @@ void LLMetricPerformanceTesterBasic::cleanClass()
 /*static*/ 
 BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* tester) 
 {
-    llassert_always(tester != NULL);	
+	llassert_always(tester != NULL);	
 	std::string name = tester->getTesterName() ;
 	if (getTester(name))
 	{
@@ -67,6 +67,7 @@ BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* t
 /*static*/ 
 LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::string name) 
 {
+	// Check for the requested metric name
 	name_tester_map_t::iterator found_it = sTesterMap.find(name) ;
 	if (found_it != sTesterMap.end())
 	{
@@ -74,13 +75,21 @@ LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::s
 	}
 	return NULL ;
 }
+
+/*static*/ 
+// Return TRUE if this metric is requested or if the general default "catch all" metric is requested
+BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
+{
+	return (LLFastTimer::sMetricLog && ((LLFastTimer::sLogName == name) || (LLFastTimer::sLogName == DEFAULT_METRIC_NAME)));
+}
+
 	
 //----------------------------------------------------------------------------------------------
 // LLMetricPerformanceTesterBasic : Tester instance methods
 //----------------------------------------------------------------------------------------------
 
 LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name) : 
-    mName(name),
+	mName(name),
 	mCount(0)
 {
 	if (mName == std::string())
@@ -110,7 +119,7 @@ void LLMetricPerformanceTesterBasic::postOutputTestResults(LLSD* sd)
 void LLMetricPerformanceTesterBasic::outputTestResults() 
 {
 	LLSD sd;
-    
+
 	preOutputTestResults(&sd) ; 
 	outputTestRecord(&sd) ;
 	postOutputTestResults(&sd) ;
@@ -124,43 +133,43 @@ void LLMetricPerformanceTesterBasic::addMetric(std::string str)
 /*virtual*/ 
 void LLMetricPerformanceTesterBasic::analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) 
 {
-    resetCurrentCount() ;
+	resetCurrentCount() ;
 
-    std::string currentLabel = getCurrentLabelName();
-    BOOL in_base = (*base).has(currentLabel) ;
-    BOOL in_current = (*current).has(currentLabel) ;
+	std::string current_label = getCurrentLabelName();
+	BOOL in_base = (*base).has(current_label) ;
+	BOOL in_current = (*current).has(current_label) ;
 
-    while(in_base || in_current)
-    {
-        LLSD::String label = currentLabel ;		
-        
-        if(in_base && in_current)
-        {				
-            *os << llformat("%s\n", label.c_str()) ;
+	while(in_base || in_current)
+	{
+		LLSD::String label = current_label ;		
 
-            for(U32 index = 0 ; index < mMetricStrings.size() ; index++)
-            {
-                switch((*current)[label][ mMetricStrings[index] ].type())
-                {
-                case LLSD::TypeInteger:
-                    compareTestResults(os, mMetricStrings[index], 
-                        (S32)((*base)[label][ mMetricStrings[index] ].asInteger()), (S32)((*current)[label][ mMetricStrings[index] ].asInteger())) ;
-                    break ;
-                case LLSD::TypeReal:
-                    compareTestResults(os, mMetricStrings[index], 
-                        (F32)((*base)[label][ mMetricStrings[index] ].asReal()), (F32)((*current)[label][ mMetricStrings[index] ].asReal())) ;
-                    break;
-                default:
-                    llerrs << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << llendl ;
-                }
-            }	
-        }
+		if(in_base && in_current)
+		{				
+			*os << llformat("%s\n", label.c_str()) ;
 
-        incrementCurrentCount();
-        currentLabel = getCurrentLabelName();
-        in_base = (*base).has(currentLabel) ;
-        in_current = (*current).has(currentLabel) ;
-    }
+			for(U32 index = 0 ; index < mMetricStrings.size() ; index++)
+			{
+				switch((*current)[label][ mMetricStrings[index] ].type())
+				{
+				case LLSD::TypeInteger:
+					compareTestResults(os, mMetricStrings[index], 
+						(S32)((*base)[label][ mMetricStrings[index] ].asInteger()), (S32)((*current)[label][ mMetricStrings[index] ].asInteger())) ;
+					break ;
+				case LLSD::TypeReal:
+					compareTestResults(os, mMetricStrings[index], 
+						(F32)((*base)[label][ mMetricStrings[index] ].asReal()), (F32)((*current)[label][ mMetricStrings[index] ].asReal())) ;
+					break;
+				default:
+					llerrs << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << llendl ;
+				}
+			}	
+		}
+
+		incrementCurrentCount();
+		current_label = getCurrentLabelName();
+		in_base = (*base).has(current_label) ;
+		in_current = (*current).has(current_label) ;
+	}
 }
 
 /*virtual*/ 
@@ -182,12 +191,12 @@ void LLMetricPerformanceTesterBasic::compareTestResults(std::ofstream* os, std::
 //----------------------------------------------------------------------------------------------
 
 LLMetricPerformanceTesterWithSession::LLMetricPerformanceTesterWithSession(std::string name) : 
-    LLMetricPerformanceTesterBasic(name),
-    mBaseSessionp(NULL),
-    mCurrentSessionp(NULL)
+	LLMetricPerformanceTesterBasic(name),
+	mBaseSessionp(NULL),
+	mCurrentSessionp(NULL)
 {
 }
-    
+
 LLMetricPerformanceTesterWithSession::~LLMetricPerformanceTesterWithSession()
 {
 	if (mBaseSessionp)
@@ -205,33 +214,33 @@ LLMetricPerformanceTesterWithSession::~LLMetricPerformanceTesterWithSession()
 /*virtual*/ 
 void LLMetricPerformanceTesterWithSession::analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) 
 {
-    // Load the base session
-    resetCurrentCount() ;
-    mBaseSessionp = loadTestSession(base) ;
-    
-    // Load the current session
-    resetCurrentCount() ;
-    mCurrentSessionp = loadTestSession(current) ;
-    
-    if (!mBaseSessionp || !mCurrentSessionp)
-    {
-        llerrs << "Error loading test sessions." << llendl ;
-    }
-    
-    // Compare
-    compareTestSessions(os) ;
-    
-    // Release memory
-    if (mBaseSessionp)
-    {
-        delete mBaseSessionp ;
-        mBaseSessionp = NULL ;
-    }
-    if (mCurrentSessionp)
-    {
-        delete mCurrentSessionp ;
-        mCurrentSessionp = NULL ;
-    }
+	// Load the base session
+	resetCurrentCount() ;
+	mBaseSessionp = loadTestSession(base) ;
+
+	// Load the current session
+	resetCurrentCount() ;
+	mCurrentSessionp = loadTestSession(current) ;
+
+	if (!mBaseSessionp || !mCurrentSessionp)
+	{
+		llerrs << "Error loading test sessions." << llendl ;
+	}
+
+	// Compare
+	compareTestSessions(os) ;
+
+	// Release memory
+	if (mBaseSessionp)
+	{
+		delete mBaseSessionp ;
+		mBaseSessionp = NULL ;
+	}
+	if (mCurrentSessionp)
+	{
+		delete mCurrentSessionp ;
+		mCurrentSessionp = NULL ;
+	}
 }
 
 
