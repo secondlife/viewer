@@ -106,7 +106,7 @@
      height="15"
      layout="topleft"
      left="30"
-     top_pad="10"
+     top_pad="8"
      name="maturity_desired_prompt"
      width="200">
         I want to access content rated:
@@ -177,7 +177,7 @@
      layout="topleft"
      left="30"
      name="start_location_textbox"
-     top_pad="10"
+     top_pad="8"
      width="394">
         Start location:
     </text>
@@ -263,7 +263,7 @@
      layout="topleft"
      left="35"
      name="show_my_name_checkbox1"
-	 top_pad="10"
+	 top_pad="2"
      width="100" />
    <check_box
      control_name="NameTagShowUsernames"
@@ -313,10 +313,49 @@
 	 height="16"
 	 label="Enable Viewer UI Hints"
 	 layout="topleft"
-	 left="30"
+	 left="27"
 	 name="viewer_hints_check"
-	 top_pad="7"
+	 top_pad="5"
 	 width="237"/>
+	 
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="15"
+	 layout="topleft"
+	 left="30"
+	 name="inworld_typing_rg_label"
+	 top_pad="6"
+	 width="400">
+       Pressing letter keys:
+   </text>
+   <radio_group
+     height="20"
+     layout="topleft"
+     left="35"
+     top_pad="0" 
+     name="inworld_typing_preference">
+        <radio_item
+         label="Starts local chat"
+         name="radio_button1"
+         top_delta="20" 
+         layout="topleft"
+         height="16" 
+         left="0" 
+         value="0"
+         width="150" />
+        <radio_item
+         label="Affects movement (i.e. WASD)"
+         left_pad="0"
+         layout="topleft"
+         top_delta="0" 
+         height="16" 
+         name="radio_button2"
+         value="1"
+         width="75" />
+    </radio_group>
+    
     <text
      type="string"
      length="1"
@@ -325,7 +364,7 @@
      layout="topleft"
      left="30"
      name="title_afk_text"
-     top_pad="10" 
+     top_pad="4" 
      width="190">
     	Away timeout:
     </text>
@@ -335,7 +374,7 @@
      control_name="AFKTimeout"
      left="30"
      label="Away timeout:"
-     top_pad="0"
+     top_pad="2"
      name="afk"
      width="130">
     <combo_box.item
@@ -368,7 +407,7 @@
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="10"
+     top_pad="5"
      width="240">
        Busy mode response:
     </text>
@@ -379,11 +418,11 @@
       use_ellipses="false"
      commit_on_focus_lost = "true"
      follows="left|top"
-     height="42"
+     height="29"
      layout="topleft"
      left="50"
      name="busy_response"
-     width="450"
+     width="470"
      word_wrap="true">
        log_in_to_change
     </text_editor>
