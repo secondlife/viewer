@@ -51,6 +51,8 @@
 #include "llviewerstats.h"
 #include "llworld.h"
 
+std::string scrub_host_name(std::string http_url);
+
 //////////////////////////////////////////////////////////////////////////////
 class LLTextureFetchWorker : public LLWorkerClass
 {
@@ -901,7 +903,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
-				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
+				res = mFetcher->mCurlGetRequest->getByteRange(scrub_host_name(mUrl), headers, offset, mRequestedSize,
 															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
 			}
 			if (!res)
