@@ -1,6 +1,3 @@
 #! /bin/bash
 
-hdiutil attach -nobrowse $1
-cp -R  /Volumes/Second\ Life\ Installer/Second\ Life\ Viewer\ 2.app  /Applications
-hdiutil detach /Volumes/Second\ Life\ Installer
-open /Applications/Second\ Life\ Viewer\ 2.app
+open ../Resources/mac-updater.app --args -dmg "$1" -name "Second Life Viewer 2"
