@@ -657,6 +657,7 @@ class DarwinManifest(ViewerManifest):
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
                                     "libGLOD.dylib",
+                                    "libcollada14dom.dylib"
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 

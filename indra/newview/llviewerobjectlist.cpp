@@ -166,6 +166,11 @@ BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 	{
 		U32 local_id = object.mLocalID;
 		LLHost region_host = object.getRegion()->getHost();
+		if(!region_host.isOk())
+		{
+			return FALSE ;
+		}
+
 		U32 ip = region_host.getAddress();
 		U32 port = region_host.getPort();
 		U64 ipport = (((U64)ip) << 32) | (U64)port;

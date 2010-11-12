@@ -561,7 +561,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
+	//never use more than 4 samples for render targets
+	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 4);
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -587,8 +588,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		addDeferredAttachments(mDeferredScreen);
 	
-		// always set viewport to desired size, since allocate resets the viewport
-
 		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 
@@ -694,7 +693,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	}
 	
 
-	if (gGLManager.mHasFramebufferMultisample && samples > 1)
+	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
@@ -979,7 +978,7 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	return (gSavedSettings.getBOOL("RenderUseFBO"));
+	return TRUE; //(gSavedSettings.getBOOL("RenderUseFBO"));
 }
 
 void LLPipeline::unloadShaders()

@@ -51,6 +51,8 @@
 #include "llviewerstats.h"
 #include "llworld.h"
 
+std::string scrub_host_name(std::string http_url);
+
 //////////////////////////////////////////////////////////////////////////////
 class LLTextureFetchWorker : public LLWorkerClass
 {
@@ -299,6 +301,7 @@ public:
 	{
 		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog");
 		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator");
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
 		if (log_to_viewer_log || log_to_sim)
 		{
@@ -332,6 +335,16 @@ public:
 			}
 			
 			S32 data_size = worker->callbackHttpGet(channels, buffer, partial, success);
+			
+			if(log_texture_traffic && data_size > 0)
+			{
+				LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID) ;
+				if(tex)
+				{
+					gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
+				}
+			}
+
 			mFetcher->removeFromHTTPQueue(mID, data_size);
 		}
 		else
@@ -901,7 +914,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
-				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
+				res = mFetcher->mCurlGetRequest->getByteRange(scrub_host_name(mUrl), headers, offset, mRequestedSize,
 															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
 			}
 			if (!res)

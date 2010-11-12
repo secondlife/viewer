@@ -441,6 +441,7 @@ public:
 
 	LLImageRaw* reloadRawImage(S8 discard_level) ;
 	void destroyRawImage();
+	bool needsToSaveRawImage();
 
 	const std::string& getUrl() const {return mUrl;}
 	//---------------
@@ -532,6 +533,7 @@ protected:
 	S8              mLoadedCallbackDesiredDiscardLevel;
 	BOOL            mPauseLoadedCallBacks;
 	callback_list_t mLoadedCallbackList;
+	F32             mLastCallBackActiveTime;
 
 	LLPointer<LLImageRaw> mRawImage;
 	S32 mRawDiscardLevel;
@@ -543,6 +545,7 @@ protected:
 	//keep a copy of mRawImage for some special purposes
 	//when mForceToSaveRawImage is set.
 	BOOL mForceToSaveRawImage ;
+	BOOL mSaveRawImage;
 	LLPointer<LLImageRaw> mSavedRawImage;
 	S32 mSavedRawDiscardLevel;
 	S32 mDesiredSavedRawDiscardLevel;

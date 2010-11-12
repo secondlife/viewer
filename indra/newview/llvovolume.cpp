@@ -4059,6 +4059,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//alternate bind matrix - if it does then apply the translational component
 				//to the joints of the avatar.
 				LLVOAvatar* pAvatarVO = vobj->getAvatar();
+				bool pelvisGotSet = false;
+
 				if ( pAvatarVO )
 				{
 					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
@@ -4074,28 +4076,37 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
 								LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
 								if ( pJoint )
-								{   
-									const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();
-									pJoint->storeCurrentXform( jointPos );																					
-									//If joint is a pelvis then handle by setting avPos+offset
-									//if ( !strcmp( lookingForJoint.c_str(),"mPelvis" ) )
+								{   									
+									const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+									//If joint is a pelvis then handle by setting avPos+offset								
 									if ( lookingForJoint == "mPelvis" )
 									{	
 										//Apply av pos + offset 
 										if ( !pAvatarVO->hasPelvisOffset() )
 										{										
 											pAvatarVO->setPelvisOffset( true, jointPos );
-											pAvatarVO->setPosition( pAvatarVO->getCharacterPosition() + jointPos );											
-										}									
+											//Trigger to rebuild viewer AV
+											pelvisGotSet = true;
+											//pAvatarVO->setPosition( pAvatarVO->getCharacterPosition() + jointPos );											
+										}										
 									}
-									
-									
+									else
+									{
+										//Straight set for ALL joints except pelvis
+										pJoint->storeCurrentXform( jointPos );																					
+									}									
 								}
 							}
 						}
 					}
 				}
-				
+				//If we've set the pelvis to a new position we need to also rebuild some information that the
+				//viewer does at launch (e.g. body size etc.)
+				if ( pelvisGotSet )
+				{
+					pAvatarVO->postPelvisSetRecalc();
+				}
+
 				if (pool)
 				{
 					const LLTextureEntry* te = facep->getTextureEntry();

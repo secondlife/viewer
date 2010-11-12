@@ -104,6 +104,8 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
+	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderUseFBO"));
+
 	/* Enable to reset fsaa value to disabled when feature is not available.
 	if (!gPipeline.canUseAntiAliasing())
 	{

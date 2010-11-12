@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/signals2.hpp>
+
 #include "imageids.h"			// IMG_INVISIBLE
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
@@ -71,7 +73,8 @@ class LLVOAvatarSkeletonInfo;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLVOAvatar :
 	public LLViewerObject,
-	public LLCharacter
+	public LLCharacter,
+	public boost::signals2::trackable
 {
 public:
 	friend class LLVOAvatarSelf;
@@ -285,6 +288,7 @@ public:
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
 	void				setPelvisOffset( bool hasOffset, const LLVector3& translation ) ;
 	bool				hasPelvisOffset( void ) { return mHasPelvisOffset; }
+	void				postPelvisSetRecalc( void );
 
 	bool				mHasPelvisOffset;
 	LLVector3			mPelvisOffset;

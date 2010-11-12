@@ -1021,7 +1021,7 @@
              top_pad="10"
              left="10"
              name="label click action"
-             width="98">
+             width="118">
                 Click to:
             </text>
             <combo_box
@@ -1029,7 +1029,7 @@
              height="23"
              layout="topleft"
              name="clickaction"
-             width="168"
+             width="148"
              left_pad="0">
                 <combo_box.item
                  label="Touch  (default)"

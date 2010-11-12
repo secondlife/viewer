@@ -904,7 +904,7 @@ LLPanel *LLPanel::childGetVisiblePanelWithHelp()
 		child = *it;
 		// do we have a panel with a help topic?
 		LLPanel *panel = dynamic_cast<LLPanel *>(child);
-		if (panel && panel->getVisible() && !panel->getHelpTopic().empty())
+		if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
 		{
 			return panel;
 		}
