@@ -68,4 +68,7 @@ private:
 	void setImplAppExitCallback(app_exit_callback_t aecb);
 };
 
+// Returns the full version as a string.
+std::string const & ll_get_version(void);
+
 #endif // LL_UPDATERSERVICE_H

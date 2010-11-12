@@ -31,6 +31,7 @@
 #include "llupdaterservice.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
+#include "llversionviewer.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -237,7 +238,23 @@ bool LLUpdaterServiceImpl::checkForInstall()
 
 		// Get the path to the installer file.
 		LLSD path = update_info.get("path");
-		if(path.isDefined() && !path.asString().empty())
+		if(update_info["current_version"].asString() != ll_get_version())
+		{
+			// This viewer is not the same version as the one that downloaded
+			// the update.  Do not install this update.
+			if(!path.asString().empty())
+			{
+				llinfos << "ignoring update dowloaded by different client version" << llendl;
+				LLFile::remove(path.asString());
+			}
+			else
+			{
+				; // Nothing to clean up.
+			}
+			
+			result = false;
+		} 
+		else if(path.isDefined() && !path.asString().empty())
 		{
 			int result = ll_install_update(install_script_path(),
 										   update_info["path"].asString(),
@@ -251,9 +268,9 @@ bool LLUpdaterServiceImpl::checkForInstall()
 			} else {
 				; // No op.
 			}
+			
+			result = true;
 		}
-
-		result = true;
 	}
 	return result;
 }
@@ -261,14 +278,33 @@ bool LLUpdaterServiceImpl::checkForInstall()
 bool LLUpdaterServiceImpl::checkForResume()
 {
 	bool result = false;
-	llstat stat_info;
-	if(0 == LLFile::stat(mUpdateDownloader.downloadMarkerPath(), &stat_info))
+	std::string download_marker_path = mUpdateDownloader.downloadMarkerPath();
+	if(LLFile::isfile(download_marker_path))
 	{
-		mIsDownloading = true;
-		mUpdateDownloader.resume();
-		result = true;
+		llifstream download_marker_stream(download_marker_path, 
+								 std::ios::in | std::ios::binary);
+		if(download_marker_stream.is_open())
+		{
+			LLSD download_info;
+			LLSDSerialize::fromXMLDocument(download_info, download_marker_stream);
+			download_marker_stream.close();
+			if(download_info["current_version"].asString() == ll_get_version())
+			{
+				mIsDownloading = true;
+				mUpdateDownloader.resume();
+				result = true;
+			}
+			else 
+			{
+				// The viewer that started this download is not the same as this viewer; ignore.
+				llinfos << "ignoring partial download from different viewer version" << llendl;
+				std::string path = download_info["path"].asString();
+				if(!path.empty()) LLFile::remove(path);
+				LLFile::remove(download_marker_path);
+			}
+		} 
 	}
-	return false;
+	return result;
 }
 
 void LLUpdaterServiceImpl::error(std::string const & message)
@@ -406,3 +442,20 @@ void LLUpdaterService::setImplAppExitCallback(LLUpdaterService::app_exit_callbac
 {
 	return mImpl->setAppExitCallback(aecb);
 }
+
+
+std::string const & ll_get_version(void) {
+	static std::string version("");
+	
+	if (version.empty()) {
+		std::ostringstream stream;
+		stream << LL_VERSION_MAJOR << "."
+		<< LL_VERSION_MINOR << "."
+		<< LL_VERSION_PATCH << "."
+		<< LL_VERSION_BUILD;
+		version = stream.str();
+	}
+	
+	return version;
+}
+

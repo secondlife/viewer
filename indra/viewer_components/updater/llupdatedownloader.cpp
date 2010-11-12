@@ -35,6 +35,7 @@
 #include "llsdserialize.h"
 #include "llthread.h"
 #include "llupdatedownloader.h"
+#include "llupdaterservice.h"
 
 
 class LLUpdateDownloader::Implementation:
@@ -360,6 +361,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 {
 	mDownloadData["url"] = uri.asString();
 	mDownloadData["hash"] = hash;
+	mDownloadData["current_version"] = ll_get_version();
 	LLSD path = uri.pathArray();
 	if(path.size() == 0) throw DownloadError("no file path");
 	std::string fileName = path[path.size() - 1].asString();
