@@ -537,7 +537,8 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 
 void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
-	if (av_name.mLegacyFirstName.empty())
+	mHistoryFileName = av_name.mUsername;
+	/*if (av_name.mLegacyFirstName.empty())
 	{
 		// if mLegacyFirstName is empty it means display names is off and the 
 		// data came from the gCacheName, mDisplayName will be the legacy name
@@ -546,7 +547,7 @@ void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LL
 	else
 	{  
 		mHistoryFileName = LLCacheName::cleanFullName(av_name.getLegacyName());
-	}
+	}*/
 }
 
 void LLIMModel::LLIMSession::buildHistoryFileName()

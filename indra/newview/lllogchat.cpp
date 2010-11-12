@@ -206,7 +206,7 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 
 std::string LLLogChat::cleanFileName(std::string filename)
 {
-	std::string invalidChars = "\"\'\\/?*:<>|";
+	std::string invalidChars = "\"\'\\/?*:.<>|";
 	std::string::size_type position = filename.find_first_of(invalidChars);
 	while (position != filename.npos)
 	{
@@ -370,8 +370,8 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 		llwarns << "Session name is Empty!" << llendl;
 		return ;
 	}
-	LL_INFOS("") << "Loading:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
-	LL_INFOS("") << "Current:" << makeLogFileName(file_name) << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	//LL_INFOS("") << "Loading:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	//LL_INFOS("") << "Current:" << makeLogFileName(file_name) << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
 	if (!fptr)
     {
@@ -574,8 +574,9 @@ std::string LLLogChat::oldLogFileName(std::string filename)
     std::string scanResult;
 	std::string directory = gDirUtilp->getPerAccountChatLogsDir();/* get Users log directory */
 	directory += gDirUtilp->getDirDelimiter();/* add final OS dependent delimiter */
-	std::string pattern = (cleanFileName(filename)+(( filename == "chat" ) ? "-???\?-?\?-??.txt" : "-???\?-??.txt"));/* create search pattern*/
-	LL_INFOS("") << "Checking:" << directory << " for " << pattern << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	filename=cleanFileName(filename);/* lest make shure the file name has no invalad charecters befor making the pattern */
+	std::string pattern = (filename+(( filename == "chat" ) ? "-???\?-?\?-??.txt" : "-???\?-??.txt"));/* create search pattern*/
+	//LL_INFOS("") << "Checking:" << directory << " for " << pattern << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	std::vector<std::string> allfiles;
 
     while (gDirUtilp->getNextFileInDir(directory, pattern, scanResult))
@@ -594,6 +595,6 @@ std::string LLLogChat::oldLogFileName(std::string filename)
         scanResult = directory + allfiles.back();
         // thisfile is now the most recent version of the file.
     }
-	LL_INFOS("") << "Reading:" << scanResult << LL_ENDL;
+	//LL_INFOS("") << "Reading:" << scanResult << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
     return scanResult;
 }
