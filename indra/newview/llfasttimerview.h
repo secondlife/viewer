@@ -37,6 +37,7 @@ public:
 	
 	static BOOL sAnalyzePerformance;
 
+	static void outputAllMetrics();
 	static void doAnalysis(std::string baseline, std::string target, std::string output);
 
 private:

@@ -341,6 +341,9 @@ private:
 	void 			addDragHandle();
 	void			layoutDragHandle();		// repair layout
 
+	static void		updateActiveFloaterTransparency();
+	static void		updateInactiveFloaterTransparency();
+
 public:
 	// Called when floater is opened, passes mKey
 	// Public so external views or floaters can watch for this floater opening
@@ -407,6 +410,11 @@ private:
 	bool            mCanDock;
 	bool            mDocked;
 	bool            mTornOff;
+
+	F32				mCurrentTransparency;
+
+	static F32		sActiveFloaterTransparency;
+	static F32		sInactiveFloaterTransparency;
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sQuitting;

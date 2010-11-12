@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ustawienia" name="Input panel">
-	<button label="Ustawienia joysticka" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Widok panoramiczny:
 	</text>
@@ -38,10 +37,11 @@
 		<radio_item label="Użyj zewnętrznej przeglądarki (IE, Firefox, Safari)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="1"/>
 		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value=""/>
 	</radio_group>
-	<check_box label="Zezwalaj na wtyczki" name="browser_plugins_enabled"/>
-	<check_box label="Akceptuj ciasteczka z Internetu" name="cookies_enabled"/>
-	<check_box label="Zezwalaj na Javascript" name="browser_javascript_enabled"/>
-	<check_box label="Używaj serwera proxy" name="web_proxy_enabled"/>
+	<check_box initial_value="true" label="Zezwalaj na wtyczki" name="browser_plugins_enabled"/>
+	<check_box initial_value="true" label="Akceptuj ciasteczka z Internetu" name="cookies_enabled"/>
+	<check_box initial_value="true" label="Zezwalaj na Javascript" name="browser_javascript_enabled"/>
+	<check_box initial_value="nieprawda" label="Zezwól na wyskakujące okienka przeglądarki mediów" name="media_popup_enabled"/>
+	<check_box initial_value="false" label="Używaj serwera proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Lokalizacja proxy:
 	</text>

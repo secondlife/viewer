@@ -583,10 +583,6 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 		last_name = cap_letter + last_name.substr(2);
 		legacy_name = legacy_name + " " + last_name;
 	}
-	else
-	{
-		legacy_name = legacy_name + " Resident";
-	}
 
 	return legacy_name;
 }

@@ -470,7 +470,20 @@ Mídia:
 			<spinner label="Preço em L$:" name="PriceSpin"/>
 			<spinner label="Horas de acesso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
+				<text label="Always Allow" name="AllowedText">
+					Residentes permitidos
+				</text>
 				<name_list name="AccessList" tool_tip="(Total [LISTED], máx de [MAX])"/>
+				<button label="Adicionar" name="add_allowed"/>
+				<button label="Tirar" label_selected="Tirar" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="Ban" name="BanCheck">
+					Residentes banidos
+				</text>
+				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])"/>
+				<button label="Adicionar" name="add_banned"/>
+				<button label="Tirar" label_selected="Tirar" name="remove_banned"/>
 			</panel>
 		</panel>
 	</tab_container>

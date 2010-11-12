@@ -510,16 +510,10 @@ class LLFastTimerLogThread : public LLThread
 public:
 	std::string mFile;
 
-	LLFastTimerLogThread() : LLThread("fast timer log")
+	LLFastTimerLogThread(std::string& test_name) : LLThread("fast timer log")
 	{
-		if(LLFastTimer::sLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp");
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp");
-		}
+		std::string file_name = test_name + std::string(".slp");
+		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name);
 	}
 
 	void run()
@@ -535,6 +529,7 @@ public:
 
 		os.close();
 	}
+
 };
 
 //virtual
@@ -1643,22 +1638,16 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		if(LLFastTimer::sLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_report.csv"));
-		}
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+
+		LLFastTimerView::doAnalysis(
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}
-	LLMetricPerformanceTester::cleanClass() ;
+	LLMetricPerformanceTesterBasic::cleanClass() ;
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -1765,7 +1754,7 @@ bool LLAppViewer::initThreads()
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
 		LLFastTimer::sLogLock = new LLMutex(NULL);
-		mFastTimerLogThread = new LLFastTimerLogThread();
+		mFastTimerLogThread = new LLFastTimerLogThread(LLFastTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2116,11 +2105,25 @@ bool LLAppViewer::initConfiguration()
 	if (clp.hasOption("logperformance"))
 	{
 		LLFastTimer::sLog = TRUE;
+		LLFastTimer::sLogName = std::string("performance");
 	}
 	
-	if(clp.hasOption("logmetrics"))
+	if (clp.hasOption("logmetrics"))
 	{
 		LLFastTimer::sMetricLog = TRUE ;
+		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
+		std::string test_name = clp.getOption("logmetrics")[0];
+		llinfos << "'--logmetrics' argument : " << test_name << llendl;
+		if (test_name == "")
+		{
+			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
+			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
+		}
+		else
+		{
+			LLFastTimer::sLogName = test_name;
+		}
 	}
 
 	if (clp.hasOption("graphicslevel"))
