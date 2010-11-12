@@ -35,6 +35,7 @@
 #include "lliconctrl.h"
 #include "llframetimer.h"
 
+class LLLiveLSLFile;
 class LLMessageSystem;
 class LLTextEditor;
 class LLButton;
@@ -62,6 +63,7 @@ public:
 		const LLHandle<LLFloater>& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
+		void (*edit_callback)(void*),
 		void (*search_replace_callback)(void* userdata),
 		void* userdata,
 		S32 bottom_pad = 0);	// pad below bottom row of buttons
@@ -79,6 +81,8 @@ public:
 
 	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
+
+	void			onEditButtonClick();
 
 	static void		onCheckLock(LLUICtrl*, void*);
 	static void		onHelpComboCommit(LLUICtrl* ctrl, void* userdata);
@@ -114,6 +118,7 @@ private:
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
+	void			(*mEditCallback)(void* userdata);
 	void			(*mSearchReplaceCallback) (void* userdata);
 	void*			mUserdata;
 	LLComboBox		*mFunctions;
@@ -179,6 +184,7 @@ protected:
 // Used to view and edit an LSL that is attached to an object.
 class LLLiveLSLEditor : public LLPreview
 {
+	friend class LLLiveLSLFile;
 public: 
 	LLLiveLSLEditor(const LLSD& key);
 	~LLLiveLSLEditor();
@@ -202,7 +208,10 @@ private:
 
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
-	void saveIfNeeded();
+	void saveIfNeeded(bool sync = true);
+	void openExternalEditor();
+	std::string getTmpFileName();
+	bool writeToFile(const std::string& filename);
 	void uploadAssetViaCaps(const std::string& url,
 							const std::string& filename, 
 							const LLUUID& task_id,
@@ -218,6 +227,7 @@ private:
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
+	static void onEdit(void* userdata);
 
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
@@ -227,7 +237,7 @@ private:
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
-// 	void loadScriptText(const std::string& filename); // unused
+ 	bool loadScriptText(const std::string& filename);
 	void loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
@@ -253,6 +263,7 @@ private:
 	
 	LLCheckBoxCtrl*	mMonoCheckbox;
 	BOOL mIsModifiable;
+	LLLiveLSLFile*		mLiveFile;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H
