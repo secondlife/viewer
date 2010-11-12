@@ -13,10 +13,6 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-    <panel.string
-     name="middle_mouse">
-        Middle Mouse
-    </panel.string>
   <text
    type="string"
    length="1"
