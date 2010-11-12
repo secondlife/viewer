@@ -211,6 +211,7 @@ public:
 	static std::queue<LLSD> sLogQueue;
 	static BOOL				sLog;
 	static BOOL				sMetricLog;
+	static std::string		sLogName;
 	static bool 			sPauseHistory;
 	static bool 			sResetHistory;
 	static U64				sTimerCycles;
