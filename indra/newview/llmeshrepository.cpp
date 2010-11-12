@@ -59,6 +59,9 @@
 #include "material_codes.h"
 #include "pipeline.h"
 
+#ifndef LL_WINDOWS
+#include "netdb.h"
+#endif
 
 #include <queue>
 
