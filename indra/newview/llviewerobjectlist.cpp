@@ -659,9 +659,24 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
+
 	// Update globals
-	gVelocityInterpolate = gSavedSettings.getBOOL("VelocityInterpolate");
-	gPingInterpolate = gSavedSettings.getBOOL("PingInterpolate");
+	LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
+	LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
+	
+	F32 interp_time = gSavedSettings.getF32("InterpolationTime");
+	F32 phase_out_time = gSavedSettings.getF32("InterpolationPhaseOut");
+	if (interp_time < 0.0 || 
+		phase_out_time < 0.0 ||
+		phase_out_time > interp_time)
+	{
+		llwarns << "Invalid values for InterpolationTime or InterpolationPhaseOut, resetting to defaults" << llendl;
+		interp_time = 3.0f;
+		phase_out_time = 1.0f;
+	}
+	LLViewerObject::setPhaseOutUpdateInterpolationTime( interp_time );
+	LLViewerObject::setMaxUpdateInterpolationTime( phase_out_time );
+
 	gAnimateTextures = gSavedSettings.getBOOL("AnimateTextures");
 
 	// update global timer
