@@ -25,26 +25,12 @@ include_directories(
     )
 
 set(llkdu_SOURCE_FILES
-    kdc_flow_control.cpp
-    kde_flow_control.cpp
-    kdu_image.cpp
-    llblockdata.cpp
-    llblockdecoder.cpp
-    llblockencoder.cpp
     llimagej2ckdu.cpp
     llkdumem.cpp
     )
 
 set(llkdu_HEADER_FILES
     CMakeLists.txt
-
-    kdc_flow_control.h
-    kde_flow_control.h
-    kdu_image.h
-    kdu_image_local.h
-    llblockdata.h
-    llblockdecoder.h
-    llblockencoder.h
     llimagej2ckdu.h
     llkdumem.h
     )
@@ -71,15 +57,11 @@ if (WINDOWS)
 endif (WINDOWS)
 
 if (LLKDU_LIBRARY)
-  add_library (${LLKDU_STATIC_LIBRARY} ${llkdu_SOURCE_FILES})
+  add_library (${LLKDU_LIBRARY} ${llkdu_SOURCE_FILES})
   
   target_link_libraries(
-        ${LLKDU_STATIC_LIBRARY}
-#        ${LLIMAGE_LIBRARIES}
-#        ${LLVFS_LIBRARIES}
+        ${LLKDU_LIBRARY}
         ${LLMATH_LIBRARIES}
-#        ${LLCOMMON_LIBRARIES}
         ${KDU_LIBRARY}
-#        ${WINDOWS_LIBRARIES}
         )
 endif (LLKDU_LIBRARY)

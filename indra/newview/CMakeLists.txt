@@ -1675,7 +1675,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 
 if (LLKDU_LIBRARY)
     target_link_libraries(${VIEWER_BINARY_NAME}
-        ${LLKDU_STATIC_LIBRARIES}
+        ${LLKDU_LIBRARIES}
         ${KDU_LIBRARY}
         )
 else (LLKDU_LIBRARY)

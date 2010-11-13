@@ -27,14 +27,9 @@
 #include "linden_common.h"
 #include "llimagej2ckdu.h"
 
-// KDU utility functions.
-#include "kde_flow_control.h"
-#include "kdc_flow_control.h"
-
 #include "lltimer.h"
 #include "llpointer.h"
 #include "llkdumem.h"
-
 
 //
 // Kakadu specific implementation
@@ -113,7 +108,8 @@ void ll_kdu_error( void )
 class LLKDUMessageWarning : public kdu_message
 {
 public:
-	/*virtual*/ void put_text(const char *string);
+	/*virtual*/ void put_text(const char *s);
+	/*virtual*/ void put_text(const kdu_uint16 *s);
 
 	static LLKDUMessageWarning sDefaultMessage;
 };
@@ -121,7 +117,8 @@ public:
 class LLKDUMessageError : public kdu_message
 {
 public:
-	/*virtual*/ void put_text(const char *string);
+	/*virtual*/ void put_text(const char *s);
+	/*virtual*/ void put_text(const kdu_uint16 *s);
 	/*virtual*/ void flush(bool end_of_message=false);
 	static LLKDUMessageError sDefaultMessage;
 };
@@ -131,7 +128,17 @@ void LLKDUMessageWarning::put_text(const char *s)
 	llinfos << "KDU Warning: " << s << llendl;
 }
 
+void LLKDUMessageWarning::put_text(const kdu_uint16 *s)
+{
+	llinfos << "KDU Warning: " << s << llendl;
+}
+
 void LLKDUMessageError::put_text(const char *s)
+{
+	llinfos << "KDU Error: " << s << llendl;
+}
+
+void LLKDUMessageError::put_text(const kdu_uint16 *s)
 {
 	llinfos << "KDU Error: " << s << llendl;
 }
@@ -467,7 +474,7 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, BOOL reversible)
 {
 	// Collect simple arguments.
-
+/*
 	bool transpose, vflip, hflip;
 	bool allow_rate_prediction, allow_shorts, mem, quiet, no_weights;
 	int cpu_iterations;
@@ -685,6 +692,9 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 	}
 
 	return TRUE;
+ */
+	// Compression not implemented yet
+	return FALSE;
 }
 
 BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)

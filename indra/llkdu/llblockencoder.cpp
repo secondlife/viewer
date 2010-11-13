@@ -29,14 +29,11 @@
 #include "llblockencoder.h"
 
 // KDU core header files
-#include "kdu/kdu_elementary.h"
-#include "kdu/kdu_messaging.h"
-#include "kdu/kdu_params.h"
-#include "kdu/kdu_compressed.h"
-#include "kdu/kdu_sample_processing.h"
-
-// KDU utility functions.
-#include "kdc_flow_control.h"
+#include "kdu_elementary.h"
+#include "kdu_messaging.h"
+#include "kdu_params.h"
+#include "kdu_compressed.h"
+#include "kdu_sample_processing.h"
 
 #include "llkdumem.h"
 

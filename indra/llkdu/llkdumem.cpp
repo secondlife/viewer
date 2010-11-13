@@ -199,7 +199,7 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
 }
 
 
-
+/*
 LLKDUMemOut::LLKDUMemOut(U8 *data, siz_params *siz, U8 in_num_components)
 {
 	int is_signed = 0;
@@ -390,3 +390,4 @@ void LLKDUMemOut::put(int comp_idx, kdu_line_buf &line, int x_tnum)
 		free_lines = scan;
     }
 }
+*/

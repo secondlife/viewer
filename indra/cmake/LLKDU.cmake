@@ -15,10 +15,8 @@ if (USE_KDU)
     set(KDU_LIBRARY kdu)
   endif (WINDOWS)
 
-  set(KDU_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include)
+  set(KDU_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/kdu)
 
   set(LLKDU_LIBRARY llkdu)
-  set(LLKDU_STATIC_LIBRARY llkdu_static)
   set(LLKDU_LIBRARIES ${LLKDU_LIBRARY})
-  set(LLKDU_STATIC_LIBRARIES ${LLKDU_STATIC_LIBRARY})
 endif (USE_KDU)

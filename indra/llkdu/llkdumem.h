@@ -30,11 +30,11 @@
 // Support classes for reading and writing from memory buffers
 // for KDU
 #include "kdu_image.h"
-#include "kdu/kdu_elementary.h"
-#include "kdu/kdu_messaging.h"
-#include "kdu/kdu_params.h"
-#include "kdu/kdu_compressed.h"
-#include "kdu/kdu_sample_processing.h"
+#include "kdu_elementary.h"
+#include "kdu_messaging.h"
+#include "kdu_params.h"
+#include "kdu_compressed.h"
+#include "kdu_sample_processing.h"
 #include "kdu_image_local.h"
 #include "stdtypes.h"
 
@@ -142,6 +142,7 @@ private: // Data
 	U32 mDataSize;
 };
 
+/*
 class LLKDUMemOut : public kdu_image_out_base
 {
 public: // Member functions
@@ -163,5 +164,5 @@ private: // Data
 	U32 mCurPos;
 	U32 mDataSize;
 };
-
+*/
 #endif
