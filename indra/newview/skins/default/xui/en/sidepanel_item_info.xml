@@ -176,7 +176,7 @@
                  name="LabelCreatorName"
        top_delta="6"
        use_ellipses="true"
-       width="180">
+       width="165">
           </text>
           <button
           follows="top|right"
@@ -219,7 +219,7 @@
           name="LabelOwnerName"
           top_delta="6"
        use_ellipses="true"
-			 width="180">
+			 width="165">
           </text>
              <button
                  follows="top|right"
