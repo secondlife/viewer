@@ -94,6 +94,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallfloater.cpp
@@ -139,7 +140,6 @@ set(viewer_SOURCE_FILES
     lldriverparam.cpp
     lldynamictexture.cpp
     llemote.cpp
-    lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
@@ -168,6 +168,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdaycycle.cpp
+    llfloaterdisplayname.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
@@ -216,7 +217,6 @@ set(viewer_SOURCE_FILES
     llfloatertos.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoicedevicesettings.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
@@ -234,6 +234,7 @@ set(viewer_SOURCE_FILES
     llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
+    llhints.cpp
     llhomelocationresponder.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -242,6 +243,7 @@ set(viewer_SOURCE_FILES
     llhudeffecttrail.cpp
     llhudicon.cpp
     llhudmanager.cpp
+    llhudnametag.cpp
     llhudobject.cpp
     llhudrender.cpp
     llhudtext.cpp
@@ -304,6 +306,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
+    llnotificationhinthandler.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -363,6 +366,7 @@ set(viewer_SOURCE_FILES
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
+    llpanelvoicedevicesettings.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llpanelwearing.cpp
@@ -482,6 +486,7 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
+    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -667,7 +672,6 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
-    lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
@@ -696,6 +700,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdaycycle.h
+    llfloaterdisplayname.h
     llfloaterenvsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
@@ -744,7 +749,6 @@ set(viewer_HEADER_FILES
     llfloatertos.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoicedevicesettings.h
     llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
@@ -762,6 +766,7 @@ set(viewer_HEADER_FILES
     llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
+    llhints.h
     llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
@@ -770,6 +775,7 @@ set(viewer_HEADER_FILES
     llhudeffecttrail.h
     llhudicon.h
     llhudmanager.h
+    llhudnametag.h
     llhudobject.h
     llhudrender.h
     llhudtext.h
@@ -884,6 +890,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoicedevicesettings.h
     llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h
@@ -1009,6 +1016,7 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
+    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -1309,6 +1317,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/cmd_line.xml
     app_settings/grass.xml
     app_settings/high_graphics.xml
+    app_settings/ignorable_dialogs.xml
     app_settings/keys.ini
     app_settings/keywords.ini
     app_settings/logcontrol.xml
@@ -1466,6 +1475,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
@@ -1487,7 +1499,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
-      ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll

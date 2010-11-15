@@ -96,6 +96,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
+#include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
@@ -114,6 +115,7 @@
 #include "llglheaders.h"
 #include "lltooltip.h"
 #include "llhudmanager.h"
+#include "llhudobject.h"
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
@@ -1173,12 +1175,8 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		//SetBKColor(hdc, RGB(255, 255, 255));
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
-		std::string name_str;
-		LLAgentUI::buildName(name_str);
-
 		std::string temp_str;
-		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				name_str.c_str(),
+		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
 				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
 				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
@@ -1343,7 +1341,7 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
 		ignore_pixel_depth,
-		0); //gSavedSettings.getU32("RenderFSAASamples"));
+		gSavedSettings.getBOOL("RenderUseFBO") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
@@ -1515,7 +1513,7 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	LLUICtrlFactory::instance().buildPanel(main_view, "main_view.xml");
+	main_view->buildFromFile("main_view.xml");
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
@@ -1523,7 +1521,8 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
-	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
+	mPopupView = main_view->findChild<LLPopupView>("popup_holder");
+	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -1561,7 +1560,7 @@ void LLViewerWindow::initBase()
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLFloaterPreference::initBusyResponse));
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
+	mProgressView = getRootView()->findChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 
@@ -1840,6 +1839,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			return;
 		}
 
+		gWindowResized = TRUE;
+
 		// update our window rectangle
 		mWindowRectRaw.mRight = mWindowRectRaw.mLeft + width;
 		mWindowRectRaw.mTop = mWindowRectRaw.mBottom + height;
@@ -1872,7 +1873,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		// clear font width caches
 		if (display_scale_changed)
 		{
-			LLHUDText::reshape();
+			LLHUDObject::reshapeAll();
 		}
 
 		sendShapeToSim();
@@ -2400,7 +2401,7 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 {
 	if (viewp) 
 	{
-		if (!params.styled_message().empty())
+		if (!params.styled_message.empty())
 		{
 			params.styled_message.add().text("\n---------\n"); 
 		}
@@ -2434,6 +2435,18 @@ void LLViewerWindow::updateUI()
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
+
+	if (gLoggedInTime.getStarted())
+	{
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
+		{
+			LLFirstUse::notUsingDestinationGuide();
+		}
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
+		{
+			LLFirstUse::notUsingSidePanel();
+		}
+	}
 
 	LLConsole::updateClass();
 
@@ -3849,7 +3862,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
-	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+
+	show_ui = show_ui ? TRUE : FALSE;
 
 	if ( prev_draw_ui != show_ui)
 	{
@@ -3933,7 +3948,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	if(image_buffer_x > 0 && image_buffer_y > 0)
 	{
-		raw->resize(image_buffer_x, image_buffer_y, 3);
+	raw->resize(image_buffer_x, image_buffer_y, 3);
 	}
 	else
 	{
@@ -3950,7 +3965,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_pause();
 		//rescale fonts
 		initFonts(scale_factor);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	S32 output_buffer_offset_y = 0;
@@ -3987,12 +4002,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 				if (LLPipeline::sRenderDeferred)
 				{
-					display(do_rebuild, scale_factor, subfield, FALSE);
+					display(do_rebuild, scale_factor, subfield, TRUE);
 				}
 				else
 				{
 					display(do_rebuild, scale_factor, subfield, TRUE);
-					// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
+					// Required for showing the GUI in snapshots and performing bloom composite overlay
+					// Call even if show_ui is FALSE
 					render_ui(scale_factor, subfield);
 				}
 			}
@@ -4079,7 +4095,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	if (high_res)
 	{
 		initFonts(1.f);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
@@ -4267,14 +4283,6 @@ BOOL LLViewerWindow::getShowProgress() const
 	return (mProgressView && mProgressView->getVisible());
 }
 
-void LLViewerWindow::moveProgressViewToFront()
-{
-	if( mProgressView && mRootView )
-	{
-		mRootView->sendChildToFront(mProgressView);
-	}
-}
-
 void LLViewerWindow::setProgressString(const std::string& string)
 {
 	if (mProgressView)
@@ -4409,6 +4417,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
+		gWindowResized = TRUE;
 
 		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
 		{

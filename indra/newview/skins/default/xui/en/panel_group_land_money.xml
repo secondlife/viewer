@@ -60,6 +60,8 @@
      left="0"
      right="-1"
      top="0"
+     sort_column="0"
+     sort_ascending="true"
      name="group_parcel_list"
      width="313">
         <scroll_list.columns

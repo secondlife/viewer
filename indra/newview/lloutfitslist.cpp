@@ -63,6 +63,39 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	return name1 < name2;
 }
 
+struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
+{
+	Mandatory<LLWearableItemsList::Params> wearable_list;
+
+	outfit_accordion_tab_params()
+	:	wearable_list("wearable_items_list")
+	{}
+};
+
+const outfit_accordion_tab_params& get_accordion_tab_params()
+{
+	static outfit_accordion_tab_params tab_params;
+	static bool initialized = false;
+	if (!initialized)
+	{
+		initialized = true;
+
+		LLXMLNodePtr xmlNode;
+		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
+		{
+			LLXUIParser parser;
+			parser.readXUI(xmlNode, tab_params, "outfit_accordion_tab.xml");
+		}
+		else
+		{
+			llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
+		}
+	}
+
+	return tab_params;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 class LLOutfitListGearMenu
@@ -156,12 +189,12 @@ private:
 	void onTakeOff()
 	{
 		// Take off selected outfit.
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+			const LLUUID& selected_outfit_id = getSelectedOutfitID();
+			if (selected_outfit_id.notNull())
+			{
+				LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+			}
 		}
-	}
 
 	void onRename()
 	{
@@ -435,9 +468,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		std::string name = cat->getName();
 
-		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
-		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		outfit_accordion_tab_params tab_params(get_accordion_tab_params());
+		LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
 		if (!tab) continue;
+		LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
+		wearable_list->setShape(tab->getLocalRect());
+		tab->addChild(wearable_list);
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -454,7 +490,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			mAccordion->removeCollapsibleCtrl(tab);
 
 			// kill removed tab
-			tab->die();
+				tab->die();
 			continue;
 		}
 
@@ -727,19 +763,6 @@ bool LLOutfitsList::hasItemSelected()
 //////////////////////////////////////////////////////////////////////////
 // Private methods
 //////////////////////////////////////////////////////////////////////////
-LLXMLNodePtr LLOutfitsList::getAccordionTabXMLNode()
-{
-	LLXMLNodePtr xmlNode = NULL;
-	bool success = LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode);
-	if (!success)
-	{
-		llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
-		return NULL;
-	}
-
-	return xmlNode;
-}
-
 void LLOutfitsList::computeDifference(
 	const LLInventoryModel::cat_array_t& vcats, 
 	uuid_vec_t& vadded, 

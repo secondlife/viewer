@@ -116,10 +116,6 @@ LLDir_Win32::LLDir_Win32()
 	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
 #endif
 
-	mAppRODataDir = ".";	
-
-	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
-
 	if (mExecutableDir.find("indra") == std::string::npos)
 	{
 		// Running from installed directory.  Make sure current
@@ -129,7 +125,11 @@ LLDir_Win32::LLDir_Win32()
 		GetCurrentDirectory(MAX_PATH, w_str);
 		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 	}
+	mAppRODataDir = mWorkingDir;	
+
 	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
+
+	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 
 	// Build the default cache directory
 	mDefaultCacheDir = buildSLOSCacheDir();

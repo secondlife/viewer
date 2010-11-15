@@ -85,10 +85,10 @@ public:
 
 		Optional<bool>			selection_enabled;
 
-		Optional<S32>			padding_left;
-		Optional<S32>			padding_right;
-		Optional<S32>			padding_top;
-		Optional<S32>			padding_bottom;
+		Optional<S32>			padding_left,
+								padding_right,
+								padding_top,
+								padding_bottom;
 
 		Params();
 	};
@@ -170,7 +170,7 @@ public:
 	virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
 
 
-	virtual bool addChild(LLView* child, S32 tab_group);
+	virtual bool addChild(LLView* child, S32 tab_group = 0 );
 
 	bool isExpanded() const { return mDisplayChildren; }
 

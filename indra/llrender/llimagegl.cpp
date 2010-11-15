@@ -368,6 +368,18 @@ void LLImageGL::restoreGL()
 	}
 }
 
+//static 
+void LLImageGL::dirtyTexOptions()
+{
+	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
+		 iter != sImageList.end(); iter++)
+	{
+		LLImageGL* glimage = *iter;
+		glimage->mTexOptionsDirty = true;
+		stop_glerror();
+	}
+	
+}
 //----------------------------------------------------------------------------
 
 //for server side use only.

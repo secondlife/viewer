@@ -33,7 +33,7 @@ Hover your mouse over the options for more help.
      height="110"
      label=""
      layout="topleft"
-     left="10"
+     left="5"
      name="insignia"
      no_commit_on_selection="true"
      tool_tip="Click to choose a picture"
@@ -49,22 +49,20 @@ Hover your mouse over the options for more help.
      type="string"
      height="16"
      length="1"
-     left_pad="10"
+     left_pad="8"
      name="prepend_founded_by"
      top_delta="0">
       Founder:
     </text>
-    <name_box
-     follows="left|top"
+     <text
+      follows="left|top"
      height="16"
-     initial_value="(retrieving)"
      layout="topleft"
-     left_delta="0"
-     link="true"
+     left_delta="-2"
      name="founder_name"
      top_pad="2"
      use_ellipses="true"
-     width="190" />
+     width="168" />
     <text
     font="SansSerifMedium"
     text_color="EmphasisColor"
@@ -92,13 +90,13 @@ Hover your mouse over the options for more help.
     <text_editor
      type="string"
      follows="left|top|right"
-     left="5"
+     left="3"
      height="80"
      layout="topleft"
      max_length="511"
      name="charter"
      top="105"
-     right="-1"
+     right="-4"
     bg_readonly_color="DkGray2"
     text_readonly_color="White"
      word_wrap="true">
@@ -113,6 +111,7 @@ Hover your mouse over the options for more help.
      layout="topleft"
      left="0"
      name="visible_members"
+     short_names="false" 
      top_pad="2">
         <name_list.columns
          label="Member"

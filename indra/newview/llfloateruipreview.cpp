@@ -394,7 +394,6 @@ LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
 	mLastDisplayedX(0),
 	mLastDisplayedY(0)
 {
-	// called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
 }
 
 // Destructor
@@ -832,7 +831,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{
 			LLXMLNodePtr floater_write = new LLXMLNode();			
-			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, floater_write);	// just build it
+			(*floaterp)->buildFromFile(path, floater_write);	// just build it
 
 			if (!floater_write->isNull())
 			{
@@ -846,7 +845,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		}
 		else
 		{
-			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, NULL);	// just build it
+			(*floaterp)->buildFromFile(path);	// just build it
 			(*floaterp)->openFloater((*floaterp)->getKey());
 			(*floaterp)->setCanResize((*floaterp)->isResizable());
 		}
@@ -885,7 +884,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{
 			LLXMLNodePtr panel_write = new LLXMLNode();
-			LLUICtrlFactory::getInstance()->buildPanel(panel, path, panel_write);		// build it
+			panel->buildFromFile(path, panel_write);		// build it
 			
 			if (!panel_write->isNull())
 			{
@@ -899,7 +898,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		}
 		else
 		{
-			LLUICtrlFactory::getInstance()->buildPanel(panel, path);		// build it
+			panel->buildFromFile(path);										// build it
 			LLRect new_size = panel->getRect();								// get its rectangle
 			panel->setOrigin(0,0);											// reset its origin point so it's not offset by -left or other XUI attributes
 			(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute

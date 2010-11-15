@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 // libs
+#include "llavatarname.h"
 #include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
@@ -1150,12 +1151,10 @@ void LLPanelPeople::onActivateButtonClicked()
 }
 
 // static
-void LLPanelPeople::onAvatarPicked(
-		const std::vector<std::string>& names,
-		const uuid_vec_t& ids)
+void LLPanelPeople::onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (!names.empty() && !ids.empty())
-		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
+		LLAvatarActions::requestFriendshipDialog(ids[0], names[0].getCompleteName());
 }
 
 void LLPanelPeople::onGroupPlusButtonClicked()

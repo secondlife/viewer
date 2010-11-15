@@ -34,6 +34,8 @@
 #include <string>
 #include <vector>
 
+class LLInventoryPanel;
+
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
  */
@@ -183,8 +185,16 @@ public:
 	 */
 	static bool canOfferTeleport(const uuid_vec_t& ids);
 
+	/**
+	 * Checks whether all items selected in the given inventory panel can be shared
+	 *
+	 * @param inv_panel Inventory panel to get selection from. If NULL, the active inventory panel is used.
+	 *
+	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
+	 */
+	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+
 private:
-	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);

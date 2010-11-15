@@ -93,7 +93,7 @@ LLDir_Linux::LLDir_Linux()
 #else
 	mAppRODataDir = tmp_str;
 #endif
-    U32 indra_pos = mExecutableDir.find("/indra");
+    std::string::size_type indra_pos = mExecutableDir.find("/indra");
     if (indra_pos != std::string::npos)
     {
 		// ...we're in a dev checkout

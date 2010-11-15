@@ -283,7 +283,7 @@ mGroupNameBox(NULL),
 mInfoBtn(NULL),
 mGroupID(LLUUID::null)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_list_item.xml");
+	buildFromFile( "panel_group_list_item.xml");
 
 	// Remember group icon width including its padding from the name text box,
 	// so that we can hide and show the icon again later.

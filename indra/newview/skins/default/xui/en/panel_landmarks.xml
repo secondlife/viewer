@@ -3,7 +3,7 @@
    name="Landmarks"
    top="0"
    height="400"
-   layout="topleft"
+   layout="topleft" 
    left="0"
    width="313"
    help_topic="panel_landmarks"
@@ -88,7 +88,7 @@
         </accordion_tab>
     </accordion>
     <panel
-     background_visible="true"
+       background_visible="true"
      bevel_style="none"
      bottom="0"
      follows="left|right|bottom"

@@ -31,7 +31,6 @@
 
 #include "llassetstorage.h"
 #include "lldarrayptr.h"
-#include "llhudtext.h"
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
@@ -54,6 +53,7 @@ class LLColor4;
 class LLFrameTimer;
 class LLDrawable;
 class LLHost;
+class LLHUDText;
 class LLWorld;
 class LLNameValue;
 class LLNetMap;

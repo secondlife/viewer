@@ -463,9 +463,10 @@
                  height="23"
                  label="Undo Changes"
                  layout="topleft"
-                 left_pad="7"
+                 left="1"
                  name="revert_button"
-                 width="152" />
+                 top="0"
+                 width="148" />
             </layout_panel>
         </layout_stack>
     </panel>

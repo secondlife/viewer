@@ -32,6 +32,7 @@
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
+#include "llfirstuse.h"
 #include "llnearbychatbar.h"
 #include "llbottomtray.h"
 #include "llagent.h"
@@ -391,8 +392,7 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 
-	: LLPanel()
-	, mChatBox(NULL)
+:	mChatBox(NULL)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -484,6 +484,7 @@ BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::strin
 
 void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 {
+	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLNearbyChatBar* self = (LLNearbyChatBar *)userdata;
 
@@ -873,14 +874,14 @@ public:
 		}
 		else
 		{
-			S32 channel = tokens[0].asInteger();
+		S32 channel = tokens[0].asInteger();
 			// VWR-19499 Restrict function to chat channels greater than 0.
 			if ((channel > 0) && (channel < 2147483647))
 			{
 				retval = true;
-				// Send unescaped message, see EXT-6353.
-				std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
-				send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
+		// Send unescaped message, see EXT-6353.
+		std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
+		send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
 			}
 			else
 			{

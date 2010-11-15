@@ -20,7 +20,7 @@ Ctrl キーを押しながらメンバー名をクリックすると
 			<name_list name="member_list">
 				<name_list.columns label="メンバー" name="name"/>
 				<name_list.columns label="寄付" name="donated"/>
-				<name_list.columns label="ログイン" name="online"/>
+				<name_list.columns label="ステータス" name="online"/>
 			</name_list>
 			<button label="招待" name="member_invite"/>
 			<button label="追放" name="member_eject"/>
@@ -47,7 +47,7 @@ Ctrl キーを押しながらメンバー名をクリックすると
 			<filter_editor label="役割を選別" name="filter_input"/>
 			<scroll_list name="role_list">
 				<scroll_list.columns label="役割" name="name"/>
-				<scroll_list.columns label="タイトル" name="title"/>
+				<scroll_list.columns label="肩書き" name="title"/>
 				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="新しい役割" name="role_create"/>

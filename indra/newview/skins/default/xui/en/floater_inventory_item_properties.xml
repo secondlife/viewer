@@ -106,6 +106,7 @@
      left_delta="78"
      name="LabelCreatorName"
      top_delta="0"
+     use_ellipses="true" 
      width="170">
         Nicole Linden
     </text>
@@ -139,8 +140,9 @@
      left_delta="78"
      name="LabelOwnerName"
      top_delta="0"
+     use_ellipses="true"
      width="170">
-        Thrax Linden
+      Thrax Linden
     </text>
     <button
      follows="top|right"

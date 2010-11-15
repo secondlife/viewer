@@ -32,6 +32,14 @@ include_directories(
 
 ### media_plugin_webkit
 
+if(NOT WORD_SIZE EQUAL 32)
+  if(WINDOWS)
+    add_definitions(/FIXED:NO)
+  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+    add_definitions(-fPIC)
+  endif(WINDOWS)
+endif(NOT WORD_SIZE EQUAL 32)
+
 set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )
@@ -51,9 +59,11 @@ set(media_plugin_webkit_LINK_LIBRARIES
 
 # Select which VolumeCatcher implementation to use
 if (LINUX)
-  if (PULSEAUDIO)
+  if (PULSEAUDIO_FOUND)
     list(APPEND media_plugin_webkit_SOURCE_FILES linux_volume_catcher.cpp)
-  endif (PULSEAUDIO)
+  else (PULSEAUDIO_FOUND)
+    list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
+  endif (PULSEAUDIO_FOUND)
   list(APPEND media_plugin_webkit_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
        )
@@ -67,9 +77,6 @@ elseif (DARWIN)
        )
 elseif (WINDOWS)
   list(APPEND media_plugin_webkit_SOURCE_FILES windows_volume_catcher.cpp)
-else (LINUX)
-  # All other platforms use the dummy volume catcher for now.
-  list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
 endif (LINUX)
 
 set_source_files_properties(${media_plugin_webkit_HEADER_FILES}

@@ -38,6 +38,7 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
+#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -194,8 +195,6 @@ LLAgent::LLAgent() :
 	mbFlagsDirty(FALSE),
 	mbFlagsNeedReset(FALSE),
 
-	mbJump(FALSE),
-
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
 	mAutoPilotTargetGlobal(),
@@ -227,8 +226,9 @@ LLAgent::LLAgent() :
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
-
 	mListener.reset(new LLAgentListener(*this));
+
+	mMoveTimer.stop();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -237,6 +237,8 @@ LLAgent::LLAgent() :
 //-----------------------------------------------------------------------------
 void LLAgent::init()
 {
+	mMoveTimer.start();
+
 	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
@@ -301,6 +303,9 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -326,6 +331,9 @@ void LLAgent::moveAt(S32 direction, bool reset)
 //-----------------------------------------------------------------------------
 void LLAgent::moveAtNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -348,6 +356,9 @@ void LLAgent::moveAtNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeft(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -370,6 +381,9 @@ void LLAgent::moveLeft(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeftNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -392,6 +406,9 @@ void LLAgent::moveLeftNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveUp(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -536,6 +553,9 @@ void LLAgent::setFlying(BOOL fly)
 void LLAgent::toggleFlying()
 {
 	BOOL fly = !gAgent.getFlying();
+
+	gAgent.mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
 
 	gAgent.setFlying( fly );
 	gAgentCamera.resetView();
@@ -1534,6 +1554,11 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+	{
+		LLFirstUse::notMoving();
+	}
+
 	propagate(dt);
 
 	// static S32 cameraUpdateCount = 0;
@@ -2962,12 +2987,6 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 					total_count++;
 				}
 			}
-		
-			// Any control taken?  If so, might be first time.
-			//if (total_count > 0)
-			//{
-				//LLFirstUse::useOverrideKeys();
-			//}
 		}
 		else
 		{
@@ -3431,16 +3450,16 @@ void LLAgent::setTeleportState(ETeleportState state)
 			break;
 
 		case TELEPORT_MOVING:
-			// We're outa here. Save "back" slurl.
-			LLAgentUI::buildSLURL(mTeleportSourceSLURL);
+		// We're outa here. Save "back" slurl.
+		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
 			break;
 
 		case TELEPORT_ARRIVING:
-			// First two position updates after a teleport tend to be weird
-			LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
-			
-			// Let the interested parties know we've teleported.
-			LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
+		// First two position updates after a teleport tend to be weird
+		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+
+		// Let the interested parties know we've teleported.
+		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
 			break;
 
 		default:

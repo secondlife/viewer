@@ -66,7 +66,6 @@ static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 LLFloaterWindLight::LLFloaterWindLight(const LLSD& key)
   : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_windlight_options.xml");
 }
 
 LLFloaterWindLight::~LLFloaterWindLight()

@@ -57,6 +57,8 @@
      left="10"
      multi_select="true"
      name="enabled_popups"
+     sort_column="0"
+     sort_ascending="true" 
      width="495" />
 	 <button
 	 enabled_control="FirstSelectedDisabledPopups"
@@ -103,6 +105,8 @@
      height="140"
      layout="topleft"
      left="10"
+     sort_column="0"
+     sort_ascending="true"
      multi_select="true"
      name="disabled_popups"
      width="495" />

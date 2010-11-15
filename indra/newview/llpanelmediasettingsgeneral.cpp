@@ -74,7 +74,7 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 	mMediaEditable(false)
 {
 	// build dialog from XML
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_general.xml");
+	buildFromFile( "panel_media_settings_general.xml");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

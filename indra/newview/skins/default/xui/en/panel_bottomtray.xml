@@ -32,31 +32,32 @@
      orientation="horizontal"
      top="0"
      width="1310">
-        <icon
+        <layout_panel
          auto_resize="false"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
+         user_resize="false" 
          min_width="2"
-         top="0"
          width="2" />
         <layout_panel
          auto_resize="false"
-         filename="panel_nearby_chat_bar.xml"
-         follows="left|right"
-         height="28"
          layout="topleft"
-         left="0"
          max_width="320"
-         min_height="23"
          min_width="214"
+         height="28" 
          mouse_opaque="false"
-         name="chat_bar"
-         top="4"
+		 name="chat_bar_layout_panel"
          user_resize="true"
-         width="308" />
+         width="308" >
+          <panel
+         name="chat_bar"
+            filename="panel_nearby_chat_bar.xml"
+            left="0"
+            height="28"
+            width="308"
+            top="0"
+            mouse_opaque="false"
+            follows="left|right"
+          />
+        </layout_panel>
         <!--
         There is resize bar between chatbar and Speak button. It has 2px width (is is set as 2*UIResizeBarOverlap)
         -->
@@ -404,18 +405,10 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  width="7" />
             </chiclet_panel>
         </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         min_width="4"
-         name="DUMMY"
-         top="0"
-         width="4" />
+        <layout_panel auto_resize="false"
+                      user_resize="false" 
+                      width="4"
+                      min_width="4"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -507,17 +500,11 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                 </button>
             </chiclet_notification>
         </layout_panel>
-      <icon
+      <layout_panel
          auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
+         user_resize="false" 
          min_width="4"
          name="DUMMY2"
-         top="0"
          width="8" />
     </layout_stack>
 </panel>

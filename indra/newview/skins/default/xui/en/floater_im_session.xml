@@ -30,12 +30,19 @@
   top="20"
   left="0">
     <layout_panel
-      name="panel_im_control_panel"
-      layout="topleft"
-      follows="left"
-      min_width="115" 
+      name="im_control_panel_holder"
+      min_width="115"
+      width="150" 
+      height="320" 
       auto_resize="false"
-      user_resize="true" />
+      user_resize="false">
+      <panel
+        name="panel_im_control_panel"
+        layout="topleft"
+        height="320"
+        width="150" 
+        follows="all"/>
+      </layout_panel>
     <layout_panel
        default_tab_group="3"
        left="0"

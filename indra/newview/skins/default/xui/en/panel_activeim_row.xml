@@ -71,7 +71,7 @@
 		top="10"
 		left_pad="10"
 		height="14"
-		width="255"
+		width="250"
 		length="1"
 		follows="right|left"
 		use_ellipses="true"

@@ -127,11 +127,11 @@ BOOL LLPanelProfile::postBuild()
 
 	getTabCtrl()->setCommitCallback(boost::bind(&LLPanelProfile::onTabSelected, this, _2));
 
-	LLPanelPicks* panel_picks = getChild<LLPanelPicks>(PANEL_PICKS);
+	LLPanelPicks* panel_picks = findChild<LLPanelPicks>(PANEL_PICKS);
 	panel_picks->setProfilePanel(this);
 
 	getTabContainer()[PANEL_PICKS] = panel_picks;
-	getTabContainer()[PANEL_PROFILE] = getChild<LLPanelAvatarProfile>(PANEL_PROFILE);
+	getTabContainer()[PANEL_PROFILE] = findChild<LLPanelAvatarProfile>(PANEL_PROFILE);
 
 	return TRUE;
 }

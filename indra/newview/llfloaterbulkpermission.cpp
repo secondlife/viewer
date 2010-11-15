@@ -57,7 +57,6 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 	mDone(FALSE)
 {
 	mID.generate();
-//	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_bulk_perms.xml");
 	mCommitCallbackRegistrar.add("BulkPermission.Apply",	boost::bind(&LLFloaterBulkPermission::onApplyBtn, this));
 	mCommitCallbackRegistrar.add("BulkPermission.Close",	boost::bind(&LLFloaterBulkPermission::onCloseBtn, this));
 	mCommitCallbackRegistrar.add("BulkPermission.CheckAll",	boost::bind(&LLFloaterBulkPermission::onCheckAll, this));

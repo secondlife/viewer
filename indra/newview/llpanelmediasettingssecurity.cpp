@@ -53,7 +53,7 @@ LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 	mCommitCallbackRegistrar.add("Media.whitelistDelete",	boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));	
 
 	// build dialog from XML
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
+	buildFromFile( "panel_media_settings_security.xml");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

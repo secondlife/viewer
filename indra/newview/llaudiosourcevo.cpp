@@ -35,11 +35,8 @@
 
 LLAudioSourceVO::LLAudioSourceVO(const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain, LLViewerObject *objectp)
 	:	LLAudioSource(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX), 
-	mObjectp(objectp), 
-	mActualGain(gain)
+	mObjectp(objectp)
 {
-	setAmbient(FALSE);
-	updateGain();
 	update();
 }
 
@@ -54,18 +51,18 @@ LLAudioSourceVO::~LLAudioSourceVO()
 
 void LLAudioSourceVO::setGain(const F32 gain)
 {
-	mActualGain = llclamp(gain, 0.f, 1.f);
-	updateGain();
+	mGain = llclamp(gain, 0.f, 1.f);
 }
 
-void LLAudioSourceVO::updateGain()
+void LLAudioSourceVO::updateMute()
 {
-	if (!mObjectp)
+	if (!mObjectp || mObjectp->isDead())
 	{
+	  	mSourceMuted = true;
 		return;
 	}
 
-	BOOL mute = FALSE;
+	bool mute = false;
 	LLVector3d pos_global;
 
 	if (mObjectp->isAttachment())
@@ -84,21 +81,21 @@ void LLAudioSourceVO::updateGain()
 	{
 		pos_global = mObjectp->getPositionGlobal();
 	}
-	
+
 	if (!LLViewerParcelMgr::getInstance()->canHearSound(pos_global))
 	{
-		mute = TRUE;
+		mute = true;
 	}
 
 	if (!mute)
 	{
 		if (LLMuteList::getInstance()->isMuted(mObjectp->getID()))
 		{
-			mute = TRUE;
+			mute = true;
 		}
 		else if (LLMuteList::getInstance()->isMuted(mOwnerID, LLMute::flagObjectSounds))
 		{
-			mute = TRUE;
+			mute = true;
 		}
 		else if (mObjectp->isAttachment())
 		{
@@ -110,24 +107,38 @@ void LLAudioSourceVO::updateGain()
 			if (parent 
 				&& LLMuteList::getInstance()->isMuted(parent->getID()))
 			{
-				mute = TRUE;
+				mute = true;
 			}
 		}
 	}
 
-	if (!mute)
+	if (mute != mSourceMuted)
 	{
-		mGain = mActualGain;
-	}
-	else
-	{
-		mGain = 0.f;
+		mSourceMuted = mute;
+		if (mSourceMuted)
+		{
+		  	// Stop the sound.
+			this->play(LLUUID::null);
+		}
+		else
+		{
+		  	// Muted sounds keep there data at all times, because
+			// it's the place where the audio UUID is stored.
+			// However, it's possible that mCurrentDatap is
+			// NULL when this source did only preload sounds.
+			if (mCurrentDatap)
+			{
+		  		// Restart the sound.
+				this->play(mCurrentDatap->getID());
+			}
+		}
 	}
 }
 
-
 void LLAudioSourceVO::update()
 {
+	updateMute();
+
 	if (!mObjectp)
 	{
 		return;
@@ -139,7 +150,11 @@ void LLAudioSourceVO::update()
 		return;
 	}
 
-	updateGain();
+	if (mSourceMuted)
+	{
+	  	return;
+	}
+
 	if (mObjectp->isHUDAttachment())
 	{
 		mPositionGlobal = gAgentCamera.getCameraPositionGlobal();

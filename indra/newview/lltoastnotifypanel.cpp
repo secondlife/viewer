@@ -61,7 +61,7 @@ mNumButtons(0),
 mAddedDefaultBtn(false),
 mCloseNotificationOnDestroy(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
+	buildFromFile( "panel_notification.xml");
 	if(rect != LLRect::null)
 	{
 		this->setShape(rect);

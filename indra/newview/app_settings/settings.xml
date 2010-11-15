@@ -1150,13 +1150,13 @@
     <key>CacheNumberOfRegionsForObjects</key>
     <map>
       <key>Comment</key>
-      <string>Controls number of regions to be cached for objects, ranges from 16 to 128.</string>
+      <string>Controls number of regions to be cached for objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>128</integer>
+      <integer>20000</integer>
     </map>
     <key>CacheSize</key>
     <map>
@@ -2842,6 +2842,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableUIHints</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggles UI hint popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableVoiceChat</key>
     <map>
       <key>Comment</key>
@@ -2885,6 +2896,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>175</integer>
+    </map>
+    <key>EventURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Event website, displayed in the event floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
     <key>EveryoneCopy</key>
       <map>
@@ -3826,7 +3848,7 @@
       <key>Comment</key>
       <string>URL for the web page to display in the Home side panel</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
@@ -3841,7 +3863,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -5219,6 +5241,17 @@
     <key>Value</key>
     <real>3.0</real>
   </map>
+  <key>MediaEnablePopups</key>
+  <map>
+    <key>Comment</key>
+    <string>If true, enable targeted links and javascript in media to open new media browser windows without a prompt.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaOnAPrimUI</key>
   <map>
     <key>Comment</key>
@@ -5750,13 +5783,13 @@
     <key>ToastGap</key>
     <map>
       <key>Comment</key>
-      <string>Gap between toasts on a screen</string>
+      <string>Gap between toasts on a screen (min. value is 5)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <integer>7</integer>
     </map>
     <key>ToastButtonWidth</key>
     <map>
@@ -6480,6 +6513,17 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
+    <key>MediaBrowserWindowLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of media brower windows that can be open at once (0 for no limit)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
   <key>MediaRollOffRate</key>
   <map>
     <key>Comment</key>
@@ -7899,6 +7943,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderHighlightSelections</key>
+    <map>
+      <key>Comment</key>
+      <string>Show selection outlines on objects</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderHiddenSelections</key>
     <map>
       <key>Comment</key>
@@ -7921,10 +7976,43 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderShowGroupTitleAll</key>
+    <key>NameTagShowGroupTitles</key>
     <map>
       <key>Comment</key>
       <string>Show group titles in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowDisplayNames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show display names in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NameTagShowFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Highlight the name tags of your friends</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowUsernames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show usernames in avatar name tags</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8195,7 +8283,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderUIBuffer</key>
     <map>
@@ -8888,7 +8976,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>GroupListShowIcons</key>
     <map>
@@ -10991,6 +11079,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>UseDisplayNames</key>
+  <map>
+    <key>Comment</key>
+    <string>Use new, changeable, unicode names</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>
@@ -12012,6 +12111,39 @@
       <string>S32</string>
       <key>Value</key>
       <integer>10</integer>
+    </map>
+    <key>NotMovingHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait for resident to move before displaying move hint.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>120.0</real>
+    </map>
+    <key>DestinationGuideHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait before telling resident about destination guide.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>600.0</real>
+    </map>
+    <key>SidePanelHintTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds to wait before telling resident about side panel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>300.0</real>
     </map>
 </map>
 </llsd>

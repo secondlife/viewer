@@ -199,7 +199,6 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	
 	mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, NULL);
 	
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_world_map.xml", FALSE);
 	mCommitCallbackRegistrar.add("WMap.Coordinates",	boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Location",		boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
 	mCommitCallbackRegistrar.add("WMap.AvatarCombo",	boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));

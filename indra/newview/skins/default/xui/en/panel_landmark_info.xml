@@ -184,7 +184,8 @@
                  left="70"
                  name="owner"
                  top_delta="0"
-                 width="200" />
+                 use_ellipses="true" 
+                 width="215" />
                 <text
                  follows="left|top"
                  height="15"
@@ -200,7 +201,8 @@
                  left="70"
                  name="creator"
                  top_delta="0"
-                 width="200" />
+                 use_ellipses="true" 
+                 width="215" />
                 <text
                  follows="left|top"
                  height="15"

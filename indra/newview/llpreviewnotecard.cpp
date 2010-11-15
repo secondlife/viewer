@@ -71,7 +71,6 @@ LLPreviewNotecard::LLPreviewNotecard(const LLSD& key) //const LLUUID& item_id,
 	{
 		mAssetID = item->getAssetUUID();
 	}	
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard.xml", FALSE);
 }
 
 LLPreviewNotecard::~LLPreviewNotecard()

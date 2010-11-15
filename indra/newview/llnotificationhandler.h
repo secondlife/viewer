@@ -263,6 +263,29 @@ protected:
 	void onRejectToast(LLUUID& id);
 };
 
+/**
+ * Handler for UI hints.
+ */
+class LLHintHandler : public LLSingleton<LLHintHandler>
+{
+public:
+	LLHintHandler();
+	virtual ~LLHintHandler();
+
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
+};
+
+/**
+ * Handler for browser notifications
+ */
+class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
+{
+public:
+	virtual bool processNotification(const LLSD& notify);
+	
+};
+
 class LLHandlerUtil
 {
 public:

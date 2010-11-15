@@ -34,6 +34,7 @@
              height="768"
              layout="topleft"
              left="0"
+             orientation="vertical" 
              name="stack2"
              top="0"
              width="640">

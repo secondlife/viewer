@@ -228,6 +228,11 @@ public:
 	void setCapability(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
+
+	// has region received its final (not seed) capability list?
+	bool capabilitiesReceived() const;
+	void setCapabilitiesReceived(bool received);
+
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
@@ -407,6 +412,7 @@ private:
 
 private:
 	bool	mAlive;					// can become false if circuit disconnects
+	bool	mCapabilitiesReceived;
 
 	//spatial partitions for objects in this region
 	std::vector<LLSpatialPartition*> mObjectPartition;

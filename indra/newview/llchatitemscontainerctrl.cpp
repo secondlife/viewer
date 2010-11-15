@@ -51,7 +51,7 @@ static const S32 msg_height_pad = 5;
 LLNearbyChatToastPanel* LLNearbyChatToastPanel::createInstance()
 {
 	LLNearbyChatToastPanel* item = new LLNearbyChatToastPanel();
-	LLUICtrlFactory::getInstance()->buildPanel(item, "panel_chat_item.xml");
+	item->buildFromFile("panel_chat_item.xml");
 	item->setFollows(FOLLOWS_NONE);
 	return item;
 }
@@ -169,7 +169,9 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	{
 		std::string str_sender;
 
-		str_sender = fromName;
+		str_sender = "<nolink>"; // disable parsing URLs in object names (STORM-358)
+		str_sender += fromName;
+		str_sender += "</nolink>";
 
 		str_sender+=" ";
 

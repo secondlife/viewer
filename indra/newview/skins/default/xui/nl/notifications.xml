@@ -2550,8 +2550,7 @@ Probeer een kleiner stuk land te selecteren.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleport"/>
-			<button name="Description" text="Omschrijving"/>
+			<button name="Details" text="Omschrijving"/>
 			<button name="Cancel" text="Annuleren"/>
 		</form>
 	</notification>

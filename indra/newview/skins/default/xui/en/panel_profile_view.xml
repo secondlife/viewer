@@ -8,85 +8,152 @@
  name="panel_target_profile"
  left="0"
  width="333">
-    <string
-     name="status_online">
-        Online
-    </string>
-    <string
-     name="status_offline">
-        Offline
-    </string>
-    <button
-     follows="top|left"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
-     layout="topleft"
-     name="back"
-     left="10"
-     tab_stop="false"
-     top="2"
-     width="30" />
-    <text_editor
-    	h_pad="0"
-    	v_pad="0"
-      allow_scroll="false"
-      bg_visible="false"
-      read_only = "true"
-      follows="top|left|right"
-      font="SansSerifHugeBold"
-      height="26"
-      layout="topleft"
-      left_pad="5"
-      name="user_name"
-      text_color="LtGray"
-      top="2"
-      value="(Loading...)"
-      use_ellipses="true"
-      width="275" />
-    <text
-     follows="top|left"
-     height="13"
-     layout="topleft"
-     left="45"
-     name="status"
-     text_color="LtGray_50"
-     value="Online"
-     width="150" />
-    <tab_container
-     follows="all"
-     height="515"
-     halign="center"
-     layout="topleft"
-     left="5"
-     min_width="333"
-     name="tabs"
-     tab_min_width="80"
-     tab_height="30"
-     tab_position="top"
-     top_pad="5"
-     width="317">
-        <panel
-         class="panel_profile"
-         filename="panel_profile.xml"
-         label="PROFILE"
+  <string
+   name="status_online">
+    Online
+  </string>
+  <string
+   name="status_offline">
+    Offline
+  </string>
+  <button
+   follows="top|left"
+   height="24"
+   image_hover_unselected="BackButton_Over"
+   image_pressed="BackButton_Press"
+   image_unselected="BackButton_Off"
+   layout="topleft"
+   name="back"
+   left="10"
+   tab_stop="false"
+   top="2"
+   width="30" />
+  <text
+   top="10"
+   follows="top|left"
+   height="13"
+   layout="topleft"
+   left="45"
+   name="display_name_label"
+   text_color="LtGray"
+   value="Display Name:"
+   width="80" />
+  <text
+   top_delta="0"
+   follows="top|left"
+   height="13"
+   layout="topleft"
+   left="45"
+   name="solo_username_label"
+   text_color="LtGray"
+   value="Username:"
+   visible="false" 
+   width="80" />
+  <text
+   follows="top|right"
+   halign="right"
+   height="13"
+   layout="topleft"
+   right="-15"
+   name="status"
+   text_color="LtGray_50"
+   top_delta="0"
+   value="Online"
+   width="150" />
+  <text
+   follows="top|left|right"
+   font="SansSerifBigBold"
+   height="29"
+   layout="topleft"
+   left="45"
+   name="user_name_small"
+   text_color="LtGray"
+   top="22"
+   value="Jack oh look at me this is a super duper long name"
+   use_ellipses="true"
+   word_wrap="true"
+   visible="false"
+   width="255" />
+  <text
+   follows="top|left|right"
+   font="SansSerifHugeBold"
+   height="27"
+   layout="topleft"
+   left="45"
+   name="user_name"
+   text_color="LtGray"
+   top="25"
+   value="Jack Linden"
+   visible="true"
+   use_ellipses="true"
+   width="258" /> 
+  <button
+         name="copy_to_clipboard"
          layout="topleft"
-         help_topic="profile_profile_tab"
-         name="panel_profile" />
-        <panel
-         class="panel_picks"
-         filename="panel_picks.xml"
-         label="PICKS"
-         layout="topleft"
-         help_topic="profile_picks_tab"
-         name="panel_picks" />
-        <panel
-         class="panel_notes"
-         filename="panel_notes.xml"
-         label="NOTES &amp; PRIVACY"
-         layout="topleft"
-         help_topic="profile_notes_tab"
-         name="panel_notes" />
-    </tab_container>
+         follows="top|right"
+         image_overlay="Copy"
+         top_delta="0"
+         right="-15"
+         height="21"
+         width="21"
+         tab_stop="false" 
+         tool_tip="Copy to Clipboard"/>
+  <text
+   follows="top|left"
+   height="13"
+   layout="topleft"
+   left="45"
+   name="user_label"
+   text_color="LtGray"
+   top_pad="10" 
+   value="Username:"
+   width="70" />
+  <text
+   follows="top|left"
+   height="20"
+   layout="topleft"
+   left_pad="0"
+   name="user_slid"
+   text_color="EmphasisColor"
+   font="SansSerifBold"
+   top_delta="-2"
+   use_ellipses="true"
+   value="jack.linden"
+   width="195" 
+   wrap="true "/>
+  <tab_container
+   follows="all"
+   height="489"
+   halign="center"
+   layout="topleft"
+   left="5"
+   min_width="333"
+   name="tabs"
+   tab_min_width="80"
+   tab_height="30"
+   tab_position="top"
+   top_pad="5"
+   width="317">
+    <panel
+     class="panel_profile"
+     filename="panel_profile.xml"
+     label="PROFILE"
+     layout="topleft"
+     help_topic="profile_profile_tab"
+     name="panel_profile" />
+    <panel
+     class="panel_picks"
+     filename="panel_picks.xml"
+     label="PICKS"
+     layout="topleft"
+     help_topic="profile_picks_tab"
+     name="panel_picks" />
+    <panel
+     class="panel_notes"
+     filename="panel_notes.xml"
+     label="NOTES &amp; PRIVACY"
+     layout="topleft"
+     help_topic="profile_notes_tab"
+     name="panel_notes" />
+  </tab_container>
 </panel>

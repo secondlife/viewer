@@ -141,6 +141,7 @@ public:
 
 	// Don't export top/left for rect, only height/width
 	static void setupParamsForExport(Params& p, LLView* parent);
+	bool buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	boost::signals2::connection setMinimizeCallback( const commit_signal_t::slot_type& cb );
 

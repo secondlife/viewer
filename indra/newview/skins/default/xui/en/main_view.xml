@@ -65,25 +65,24 @@
                         mouse_opaque="false"
                         name="world_stack"
                         orientation="vertical">
-            <panel auto_resize="true"
-                   follows="all"
-                   height="500"
-                   layout="topleft"
-                   tab_stop="false"
-                   mouse_opaque="false"
-                name="hud container"
-                   width="500">
-            <panel auto_resize="false"
-                   follows="left|top"
-                   height="19"
-                   left="0"
-                   mouse_opaque="false"
-                   name="topinfo_bar_container"
-                   tab_stop="false"
-                   top="0"
-                   user_resize="false"
-                   visible="false"
-                   width="1024"/>
+            <layout_panel auto_resize="true"
+                          follows="all"
+                          height="500"
+                          layout="topleft"
+                          tab_stop="false"
+                          mouse_opaque="false"
+                          user_resize="false" 
+                          name="hud container"
+                          width="500">
+              <panel follows="left|top"
+                     height="19"
+                     left="0"
+                     mouse_opaque="false"
+                     name="topinfo_bar_container"
+                     tab_stop="false"
+                     top="0"
+                     visible="false"
+                     width="1024"/>
               <panel follows="right|top|bottom"
                      height="500"
                      mouse_opaque="false"
@@ -101,10 +100,10 @@
                      name="stand_stop_flying_container"
                      visible="false"
                      width="500"/>
-            </panel>
+            </layout_panel>
             <layout_panel auto_resize="false"
-                   follows="all"
                    min_height="33"
+                   height="33" 
                    mouse_opaque="false"
                    name="bottom_tray_container"
                    visible="false"/>
@@ -112,7 +111,7 @@
         </layout_panel>
         <!-- side tray -->
         <layout_panel auto_resize="false"
-                      follows="all"
+                      follows="top|bottom"
                       height="500"
                       min_width="333"
                       mouse_opaque="false"
@@ -187,15 +186,6 @@
   <panel top="0"
          follows="all"
          height="768"
-         mouse_opaque="true"
-         name="progress_view"
-         filename="panel_progress.xml"
-         class="progress_view"
-         width="1024"
-         visible="false"/>
-  <panel top="0"
-         follows="all"
-         height="768"
          mouse_opaque="false"
          name="popup_holder"
          class="popup_holder"
@@ -208,6 +198,22 @@
           bottom="-1"
           height="11" />
   </panel>
+  <view top="0"
+        left="0"
+        width="1024"
+        height="768"
+        name="hint_holder"
+        mouse_opaque="false"
+        follows="all"/>
+  <panel top="0"
+         follows="all"
+         height="768"
+         mouse_opaque="true"
+         name="progress_view"
+         filename="panel_progress.xml"
+         class="progress_view"
+         width="1024"
+         visible="false"/>
   <menu_holder top="0"
                follows="all"
                height="768"

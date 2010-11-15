@@ -83,7 +83,7 @@ LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
 
 	mSingleExpansion = false;
 	mFitParent = false;
-	LLUICtrlFactory::getInstance()->buildPanel(this, "accordion_parent.xml");	
+	buildFromFile( "accordion_parent.xml");	
 }
 
 //---------------------------------------------------------------------------------

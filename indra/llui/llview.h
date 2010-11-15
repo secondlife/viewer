@@ -128,26 +128,22 @@ public:
 
 		Optional<std::string>		layout;
 		Optional<LLRect>			rect;
+
 		// Historical bottom-left layout used bottom_delta and left_delta
 		// for relative positioning.  New layout "topleft" prefers specifying
 		// based on top edge.
-		Optional<S32>				bottom_delta,	// deprecated
-									top_pad,	// from last bottom to my top
-									top_delta,	// from last top to my top
-									left_pad,	// from last right to my left
-									left_delta;	// from last left to my left
-								
-		// these are nested attributes for LLLayoutPanel
+		Optional<S32>				bottom_delta,	// from last bottom to my bottom
+									top_pad,		// from last bottom to my top
+									top_delta,		// from last top to my top
+									left_pad,		// from last right to my left
+									left_delta;		// from last left to my left
+
 		//FIXME: get parent context involved in parsing traversal
-		Ignored						user_resize,
-									auto_resize,
-									needs_translate,
-									min_width,
-									max_width,
-									xmlns,
-									xmlns_xsi,
-									xsi_schemaLocation,
-									xsi_type;
+		Ignored						needs_translate,	// cue for translation tools
+									xmlns,				// xml namespace
+									xmlns_xsi,			// xml namespace
+									xsi_schemaLocation,	// xml schema
+									xsi_type;			// xml schema type
 
 		Params();
 	};
@@ -238,7 +234,7 @@ public:
 	void        setSoundFlags(U8 flags)			{ mSoundFlags = flags; }
 	void		setName(std::string name)			{ mName = name; }
 	void		setUseBoundingRect( BOOL use_bounding_rect );
-	BOOL		getUseBoundingRect();
+	BOOL		getUseBoundingRect() const;
 
 	ECursorType	getHoverCursor() { return mHoverCursor; }
 

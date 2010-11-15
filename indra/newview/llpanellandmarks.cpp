@@ -197,7 +197,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
+	buildFromFile( "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
@@ -1013,9 +1013,9 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 			// Disable "Show on Map" if landmark loading is in progress.
 			return !gLandmarkList.isAssetInLoadedCallbackMap(asset_uuid);
-		}
-		else if ("rename" == command_name)
-		{
+	}
+	else if ("rename" == command_name)
+	{
 			LLFolderViewItem* selected_item = getCurSelectedItem();
 			if (!selected_item) return false;
 
@@ -1245,7 +1245,12 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 	landmark->getGlobalPos(landmark_global_pos);
 
 	// let's toggle pick panel into  panel places
-	LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
+	LLPanel* panel_places =  LLSideTray::getInstance()->getPanel("panel_places");//-> sidebar_places
+	if (!panel_places)
+	{
+		llassert(NULL != panel_places);
+		return;
+	}
 	panel_places->addChild(panel_pick);
 	LLRect paren_rect(panel_places->getRect());
 	panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);

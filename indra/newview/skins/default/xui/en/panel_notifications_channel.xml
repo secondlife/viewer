@@ -14,6 +14,9 @@
      orientation="horizontal"
      top="20"
      width="100">
+      <layout_panel name="notifications_list_panel" 
+                    width="100"
+                    user_resize="true">
         <scroll_list
          draw_heading="true"
          follows="left|right|top|bottom"
@@ -24,7 +27,6 @@
          sort_ascending="false"
          sort_column="2"
          top="0"
-         user_resize="true"
          width="100">
             <scroll_list.columns
              label="Name"
@@ -39,6 +41,10 @@
              name="date"
              width="150" />
         </scroll_list>
+      </layout_panel>
+      <layout_panel name="rejects_list_panel"
+                    width="100"
+                    user_resize="true">
         <scroll_list
          draw_heading="true"
          follows="left|right|top|bottom"
@@ -49,7 +55,6 @@
          sort_ascending="false"
          sort_column="2"
          top="0"
-         user_resize="true"
          width="100">
             <scroll_list.columns
              label="Name"
@@ -64,6 +69,7 @@
              name="date"
              width="150" />
         </scroll_list>
+      </layout_panel>
     </layout_stack>
     <button
      follows="left|right|top"

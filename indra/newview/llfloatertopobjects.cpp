@@ -28,7 +28,9 @@
 
 #include "llfloatertopobjects.h"
 
+// library includes
 #include "message.h"
+#include "llavatarnamecache.h"
 #include "llfontgl.h"
 
 #include "llagent.h"
@@ -64,7 +66,6 @@ void LLFloaterTopObjects::show()
 	}
 
 	sInstance = new LLFloaterTopObjects();
-//	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_top_objects.xml");
 	sInstance->center();
 }
 */
@@ -146,6 +147,17 @@ void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 
 }
 
+void LLFloaterTopObjects::onAvatarNameCache(const LLUUID& agent_id,
+									   const LLAvatarName& av_name,
+									   LLSD element)
+{	
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("objects_list");
+
+	element["columns"][2]["value"] = av_name.getCompleteName();
+
+	list->addElement(element);
+}
+
 void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 {
 	U32 request_flags;
@@ -170,6 +182,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		F32 mono_score = 0.f;
 		bool have_extended_data = false;
 		S32 public_urls = 0;
+		LLUUID owner_id;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -185,44 +198,70 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
 			msg->getF32("DataExtended", "MonoScore", mono_score, block);
 			msg->getS32(_PREHASH_ReportData,"PublicURLs",public_urls,block);
+			msg->getUUID("DataExtended","OwnerID",owner_id,block);
 		}
+
 
 		LLSD element;
 
 		element["id"] = task_id;
-		element["object_name"] = name_buf;
-		element["owner_name"] = owner_buf;
-		element["columns"][0]["column"] = "score";
-		element["columns"][0]["value"] = llformat("%0.3f", score);
-		element["columns"][0]["font"] = "SANSSERIF";
+
+		LLSD columns;
+		columns[0]["column"] = "score";
+		columns[0]["value"] = llformat("%0.3f", score);
+		columns[0]["font"] = "SANSSERIF";
 		
-		element["columns"][1]["column"] = "name";
-		element["columns"][1]["value"] = name_buf;
-		element["columns"][1]["font"] = "SANSSERIF";
-		element["columns"][2]["column"] = "owner";
-		element["columns"][2]["value"] = owner_buf;
-		element["columns"][2]["font"] = "SANSSERIF";
-		element["columns"][3]["column"] = "location";
-		element["columns"][3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
-		element["columns"][3]["font"] = "SANSSERIF";
-		element["columns"][4]["column"] = "time";
-		element["columns"][4]["value"] = formatted_time((time_t)time_stamp);
-		element["columns"][4]["font"] = "SANSSERIF";
+		columns[1]["column"] = "name";
+		columns[1]["value"] = name_buf;
+		columns[1]["font"] = "SANSSERIF";
+		
+		// Owner names can have trailing spaces sent from server
+		LLStringUtil::trim(owner_buf);
+		
+		if (LLAvatarNameCache::useDisplayNames())
+		{
+			// ...convert hard-coded name from server to a username
+			// *TODO: Send owner_id from server and look up display name
+			owner_buf = LLCacheName::buildUsername(owner_buf);
+		}
+		else
+		{
+			// ...just strip out legacy "Resident" name
+			owner_buf = LLCacheName::cleanFullName(owner_buf);
+		}
+		columns[2]["column"] = "owner";
+		columns[2]["value"] = owner_buf;
+		columns[2]["font"] = "SANSSERIF";
+
+		columns[3]["column"] = "location";
+		columns[3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
+		columns[3]["font"] = "SANSSERIF";
+		columns[4]["column"] = "time";
+		columns[4]["value"] = formatted_time((time_t)time_stamp);
+		columns[4]["font"] = "SANSSERIF";
 
 		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
 			&& have_extended_data)
 		{
-			element["columns"][5]["column"] = "mono_time";
-			element["columns"][5]["value"] = llformat("%0.3f", mono_score);
-			element["columns"][5]["font"] = "SANSSERIF";
+			columns[5]["column"] = "mono_time";
+			columns[5]["value"] = llformat("%0.3f", mono_score);
+			columns[5]["font"] = "SANSSERIF";
 
-			element["columns"][6]["column"] = "URLs";
-			element["columns"][6]["value"] = llformat("%d", public_urls);
-			element["columns"][6]["font"] = "SANSSERIF";
+			columns[6]["column"] = "URLs";
+			columns[6]["value"] = llformat("%d", public_urls);
+			columns[6]["font"] = "SANSSERIF";
 		}
+		element["columns"] = columns;
 		
-		list->addElement(element);
-		
+		if (!owner_id.isNull())
+		{
+			LLAvatarNameCache::get(owner_id, boost::bind(&LLFloaterTopObjects::onAvatarNameCache, this, _1, _2, element));
+		}
+		else
+		{
+			list->addElement(element);
+		}
+
 		mObjectListData.append(element);
 		mObjectListIDs.push_back(task_id);
 
