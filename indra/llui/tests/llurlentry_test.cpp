@@ -27,12 +27,21 @@
 
 #include "linden_common.h"
 #include "../llurlentry.h"
+#include "../lluictrl.h"
 #include "llurlentry_stub.cpp"
 #include "lltut.h"
 #include "../lluicolortable.h"
 #include "../lluiimage.h"
 
 #include <boost/regex.hpp>
+
+typedef std::map<std::string, LLControlGroup*> settings_map_t;
+settings_map_t LLUI::sSettingGroups;
+
+BOOL LLControlGroup::getBOOL(const std::string& name)
+{
+	return false;
+}
 
 LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
 {

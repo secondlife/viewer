@@ -53,7 +53,8 @@ public:
 								ignore_ui_scale,
 								hide_loading,
 								decouple_texture_size,
-								trusted_content;
+								trusted_content,
+								focus_on_click;
 								
 		Optional<S32>			texture_width,
 								texture_height;

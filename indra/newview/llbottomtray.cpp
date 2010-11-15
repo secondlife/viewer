@@ -65,31 +65,42 @@ LLDefaultChildRegistry::Register<LLBottomtrayButton> bottomtray_button("bottomtr
 // virtual
 BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass hover to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
-	return FALSE;
+		return TRUE;
+	}
+	else
+	{
+		return LLButton::handleHover(x, y, mask);
+	}
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
-	LLButton::handleMouseUp(x, y, mask);
-	return FALSE;
+	}
+	return LLButton::handleMouseUp(x, y, mask);
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
-	LLButton::handleMouseDown(x, y, mask);
-	return FALSE;
+	}
+	return LLButton::handleMouseDown(x, y, mask);
 }
 
 static void update_build_button_enable_state()
@@ -150,8 +161,6 @@ public:
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 		buildFromFile("panel_bottomtray_lite.xml");
-		// Necessary for focus movement among child controls
-		setFocusRoot(TRUE);
 	}
 
 	BOOL postBuild()
@@ -217,9 +226,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
 	//destroyed LLBottomTray requires some subsystems that are long gone
 	//LLUI::getRootView()->addChild(this);
-
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 
 	{
 		mBottomTrayLite = new LLBottomTrayLite();
@@ -513,6 +519,9 @@ void LLBottomTray::toggleCameraControls()
 
 BOOL LLBottomTray::postBuild()
 {
+	LLHints::registerHintTarget("bottom_tray", LLView::getHandle());
+	LLHints::registerHintTarget("dest_guide_btn", getChild<LLUICtrl>("destination_btn")->getHandle());
+	LLHints::registerHintTarget("avatar_picker_btn", getChild<LLUICtrl>("avatar_btn")->getHandle());
 
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("NearbyChatBar.Action", boost::bind(&LLBottomTray::onContextMenuItemClicked, this, _2));
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("NearbyChatBar.EnableMenuItem", boost::bind(&LLBottomTray::onContextMenuItemEnabled, this, _2));

@@ -678,9 +678,12 @@ public:
 
 			BOOL	appendContextSubMenu(LLContextMenu *menu);
 
+			LLHandle<LLContextMenu> getHandle() { mHandle.bind(this); return mHandle; }
+
 protected:
-	BOOL			mHoveredAnyItem;
-	LLMenuItemGL*	mHoverItem;
+	BOOL						mHoveredAnyItem;
+	LLMenuItemGL*				mHoverItem;
+	LLRootHandle<LLContextMenu>	mHandle;
 };
 
 

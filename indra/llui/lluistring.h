@@ -61,6 +61,7 @@ public:
 	LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
 	LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
 	LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
+	~LLUIString() { delete mArgs; }
 
 	~LLUIString() { delete mArgs; }
 

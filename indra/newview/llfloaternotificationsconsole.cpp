@@ -174,6 +174,7 @@ BOOL LLFloaterNotificationConsole::postBuild()
 	// these are in the order of processing
 	addChannel("Unexpired");
 	addChannel("Ignore");
+	addChannel("VisibilityRules");
 	addChannel("Visible", true);
 	// all the ones below attach to the Visible channel
 	addChannel("Persistent");

@@ -1462,7 +1462,7 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	BOOL branch_visible = getBranch()->getVisible();
 	BOOL handled = getBranch()->handleAcceleratorKey(key, mask);
-	if (handled && !branch_visible && getVisible())
+	if (handled && !branch_visible && isInVisibleChain())
 	{
 		// flash this menu entry because we triggered an invisible menu item
 		LLMenuHolderGL::setActivatedItem(this);
@@ -2611,6 +2611,7 @@ LLMenuItemGL* LLMenuGL::getHighlightedItem()
 
 LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
 {
+	if (mItems.empty()) return NULL;
 	// highlighting first item on a torn off menu is the
 	// same as giving focus to it
 	if (!cur_item && getTornOff())
@@ -2711,6 +2712,8 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 
 LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
 {
+	if (mItems.empty()) return NULL;
+
 	// highlighting first item on a torn off menu is the
 	// same as giving focus to it
 	if (!cur_item && getTornOff())
@@ -3045,6 +3048,11 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
 
+	if(menu->getChildList()->empty())
+	{
+		return;
+	}
+
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
@@ -3125,7 +3133,10 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		mAltKeyTrigger = FALSE;
 	}
 
-	if(!result && (key == KEY_F10 && mask == MASK_CONTROL) && !gKeyboard->getKeyRepeated(key))
+	if(!result 
+		&& (key == KEY_F10 && mask == MASK_CONTROL) 
+		&& !gKeyboard->getKeyRepeated(key)
+		&& isInVisibleChain())
 	{
 		if (getHighlightedItem())
 		{
@@ -3508,8 +3519,10 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			else
 			{
 				//highlight first enabled one
-				pMenu->highlightNextItem(NULL);
-				handled = true;
+				if(pMenu->highlightNextItem(NULL))
+				{
+					handled = true;
+				}
 			}
 		}
 	}
@@ -3742,9 +3755,7 @@ public:
 	LLContextMenuBranch(const Params&);
 
 	virtual ~LLContextMenuBranch()
-	{
-		delete mBranch;
-	}
+	{}
 
 	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );
@@ -3752,21 +3763,21 @@ public:
 	// onCommit() - do the primary funcationality of the menu item.
 	virtual void	onCommit( void );
 
-	LLContextMenu*	getBranch() { return mBranch; }
+	LLContextMenu*	getBranch() { return mBranch.get(); }
 	void			setHighlight( BOOL highlight );
 
 protected:
 	void	showSubMenu();
 
-	LLContextMenu* mBranch;
+	LLHandle<LLContextMenu> mBranch;
 };
 
 LLContextMenuBranch::LLContextMenuBranch(const LLContextMenuBranch::Params& p) 
 :	LLMenuItemGL(p),
-	mBranch( p.branch )
+	mBranch( p.branch()->getHandle() )
 {
-	mBranch->hide();
-	mBranch->setParentMenuItem(this);
+	mBranch.get()->hide();
+	mBranch.get()->setParentMenuItem(this);
 }
 
 // called to rebuild the draw label
@@ -3775,12 +3786,12 @@ void LLContextMenuBranch::buildDrawLabel( void )
 	{
 		// default enablement is this -- if any of the subitems are
 		// enabled, this item is enabled. JC
-		U32 sub_count = mBranch->getItemCount();
+		U32 sub_count = mBranch.get()->getItemCount();
 		U32 i;
 		BOOL any_enabled = FALSE;
 		for (i = 0; i < sub_count; i++)
 		{
-			LLMenuItemGL* item = mBranch->getItem(i);
+			LLMenuItemGL* item = mBranch.get()->getItem(i);
 			item->buildDrawLabel();
 			if (item->getEnabled() && !item->getDrawTextDisabled() )
 			{
@@ -3802,13 +3813,13 @@ void LLContextMenuBranch::buildDrawLabel( void )
 
 void	LLContextMenuBranch::showSubMenu()
 {
-	LLMenuItemGL* menu_item = mBranch->getParentMenuItem();
+	LLMenuItemGL* menu_item = mBranch.get()->getParentMenuItem();
 	if (menu_item != NULL && menu_item->getVisible())
 	{
 		S32 center_x;
 		S32 center_y;
 		localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-		mBranch->show(center_x, center_y);
+		mBranch.get()->show(center_x, center_y);
 	}
 }
 
@@ -3828,7 +3839,7 @@ void LLContextMenuBranch::setHighlight( BOOL highlight )
 	}
 	else
 	{
-		mBranch->hide();
+		mBranch.get()->hide();
 	}
 }
 
@@ -3859,6 +3870,11 @@ void LLContextMenu::setVisible(BOOL visible)
 // Takes cursor position in screen space?
 void LLContextMenu::show(S32 x, S32 y)
 {
+	if (getChildList()->empty())
+	{
+		// nothing to show, so abort
+		return;
+	}
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
