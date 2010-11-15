@@ -1424,41 +1424,49 @@ void LLModelLoader::run()
 										char str[64]={0};           
 										sprintf(str,"./%s",(*jointIt).second.c_str() );                   
 										//llwarns<<"Joint "<< str <<llendl;
-										
+
 										//Setup the resolver
-										daeSIDResolver resolver( pSkeletonRootNode, str );
+                                        daeSIDResolver resolver( pSkeletonRootNode, str );
+                                        
+                                        //Look for the joint
+                                        domNode* pJoint = daeSafeCast<domNode>( resolver.getElement() );
+                                        if ( pJoint )
+                                        {                                            
+                                             //Pull out the translate id and store it in the jointTranslations map
+                                             daeSIDResolver jointResolver( pJoint, "./translate" );                               
+                                             domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+                                            
+                                             LLMatrix4 workingTransform;
+                                            
+                                             //Translation via SID
+                                             if ( pTranslate )
+                                             {               
+                                                 domFloat3 jointTrans = pTranslate->getValue();
+                                                 LLVector3 singleJointTranslation( jointTrans[0], jointTrans[1], jointTrans[2] );
+                                                 workingTransform.setTranslation( singleJointTranslation );                                            
+                                             }
+                                             else
+                                             {
+                                                 //Translation via child from element
+                                                 daeElement* pTranslateElement = getChildFromElement( pJoint, "translate" );
+                                                 if ( pTranslateElement && pTranslateElement->typeID() != domTranslate::ID() )
+                                                 {
+                                                     llwarns<< "The found element is not a translate node" <<llendl;
+                                                     missingID = true;
+                                                 }
+                                                 else
+                                                 {
+                                                     domTranslate* pTranslateChild = dynamic_cast<domTranslate*>( pTranslateElement );
+                                                     domFloat3 translateChild = pTranslateChild->getValue();
+                                                     LLVector3 singleJointTranslation( translateChild[0], translateChild[1], translateChild[2] );
+                                                     workingTransform.setTranslation( singleJointTranslation );                                                    
+                                                 }
+                                              }
+                                             //Store the joint transform w/respect to it's name.
+                                             jointTransforms[(*jointIt).second.c_str()] = workingTransform;                                                                                                                             
+                                        }
 										
-										//Look for the joint
-										domNode* pJoint = daeSafeCast<domNode>(resolver.getElement());
-										if ( pJoint )
-										{               
-											//Pull out the translate id and store it in the jointTranslations map
-											daeSIDResolver jointResolver( pJoint, "./translate" );    						   
-											domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
-											
-											LLMatrix4 workingTransform;
-											
-											//Translation
-											if ( pTranslate )
-											{               
-												domFloat3 jointTrans = pTranslate->getValue();
-												LLVector3 singleJointTranslation( jointTrans[0], jointTrans[1], jointTrans[2] );
-												workingTransform.setTranslation( singleJointTranslation );											
-											}
-											else
-											{
-												missingID = true;
-												llwarns<< "No translation sid!" << llendl;
-											}
-											//Store the joint transform w/respect to it's name. 
-											jointTransforms[(*jointIt).second.c_str()] = workingTransform; 
-											
-										}
-										else
-										{
-											missingID = true;
-											llwarns<< "Missing joint." << llendl;
-										}
+										
 									}
 									
 									//If anything failed in regards to extracting the skeleton, joints or translation id,
@@ -1758,6 +1766,17 @@ void LLModelLoader::run()
 
 		mPreview->loadModelCallback(mLod);
 	}
+}
+
+daeElement* LLModelLoader::getChildFromElement( daeElement* pElement, std::string const & name )
+{    
+    daeElement* pChildOfElement = pElement->getChild( name.c_str() );
+	if ( pChildOfElement )
+	{
+		return pChildOfElement;
+	}    
+	llwarns<< "Could not find a child [" << name << "] for the element: \"" << pElement->getAttribute("id") << "\"" << llendl;
+    return NULL;    
 }
 
 void LLModelLoader::processElement(daeElement* element)
