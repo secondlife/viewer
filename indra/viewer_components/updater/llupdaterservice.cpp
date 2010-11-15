@@ -378,7 +378,19 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 	{
 		mTimer.stop();
 		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
-		mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
+
+		// Check for failed install.
+		if(LLFile::isfile(ll_install_failed_marker_path()))
+		{
+			// TODO: notify the user.
+			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
+			llinfos << "last install attempt failed" << llendl;
+			LLFile::remove(ll_install_failed_marker_path());
+		}
+		else
+		{
+			mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
+		}
 	} 
 	else 
 	{

@@ -47,4 +47,11 @@ int ll_install_update(
 					   LLInstallScriptMode mode=LL_COPY_INSTALL_SCRIPT_TO_TEMP); // Run in place or copy to temp?
 
 
+//
+// Returns the path which points to the failed install marker file, should it
+// exist.
+//
+std::string const & ll_install_failed_marker_path(void);
+
+
 #endif
