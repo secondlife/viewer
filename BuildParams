@@ -52,6 +52,7 @@ viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
 
+
 # ========================================
 # aimee
 # ========================================

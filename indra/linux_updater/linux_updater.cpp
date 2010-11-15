@@ -216,7 +216,7 @@ gboolean rotate_image_cb(gpointer data)
 std::string next_image_filename(std::string& image_path)
 {
 	std::string image_filename;
-	gDirUtilp->getNextFileInDir(image_path, "/*.jpg", image_filename, true);
+	gDirUtilp->getNextFileInDir(image_path, "/*.jpg", image_filename);
 	return image_path + "/" + image_filename;
 }
 
