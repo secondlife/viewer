@@ -11388,6 +11388,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>InterpolationTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How long to extrapolate object motion after last packet received</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>3.0</integer>
+    </map>
+    <key>InterpolationPhaseOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds to phase out interpolated motion</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
+    </map>
     <key>VerboseLogs</key>
     <map>
       <key>Comment</key>

@@ -114,16 +114,17 @@
      name="show_timestamps_check_im"
      top_pad="10"
      width="237" />
-    <check_box
-	 enabled="false"
+	<check_box
+     control_name="LogFileNamewithDate"
+     enabled="false"
      height="16"
-     label="Add datestamp to log file name"
+     label="Add datestamp to log file name."
      layout="topleft"
-     left_delta="0"
-     name="show_datestamps_check_im"
+     left_detla="5"
+     name="logfile_name_datestamp"
      top_pad="10"
-     width="237" />
-    <text
+     width="350"/>
+	<text
      type="string"
      length="1"
      follows="left|top"

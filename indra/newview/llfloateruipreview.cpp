@@ -483,7 +483,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	mLanguageSelection->removeall();																				// clear out anything temporarily in list from XML
 	while(found)																									// for every directory
 	{
-		if((found = gDirUtilp->getNextFileInDir(xui_dir, "*", language_directory, FALSE)))							// get next directory
+		if((found = gDirUtilp->getNextFileInDir(xui_dir, "*", language_directory)))							// get next directory
 		{
 			std::string full_path = xui_dir + language_directory;
 			if(LLFile::isfile(full_path.c_str()))																	// if it's not a directory, skip it
@@ -637,7 +637,7 @@ void LLFloaterUIPreview::refreshList()
 	BOOL found = TRUE;
 	while(found)				// for every floater file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "floater_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "floater_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -645,7 +645,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every inspector file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "inspect_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "inspect_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -653,7 +653,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every menu file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -661,7 +661,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every panel file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "panel_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "panel_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -670,7 +670,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every sidepanel file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "sidepanel_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "sidepanel_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}

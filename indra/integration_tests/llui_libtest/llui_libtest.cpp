@@ -174,7 +174,7 @@ void export_test_floaters()
 	std::string delim = gDirUtilp->getDirDelimiter();
 	std::string xui_dir = get_xui_dir() + "en" + delim;
 	std::string filename;
-	while (gDirUtilp->getNextFileInDir(xui_dir, "floater_test_*.xml", filename, false))
+	while (gDirUtilp->getNextFileInDir(xui_dir, "floater_test_*.xml", filename))
 	{
 		if (filename.find("_new.xml") != std::string::npos)
 		{
