@@ -4081,12 +4081,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 									//If joint is a pelvis then handle by setting avPos+offset								
 									if ( lookingForJoint == "mPelvis" )
 									{	
-										//Apply av pelvis offset
+										//Apply av pos + offset 
 										if ( !pAvatarVO->hasPelvisOffset() )
 										{										
 											pAvatarVO->setPelvisOffset( true, jointPos );
 											//Trigger to rebuild viewer AV
-											pelvisGotSet = true;											
+											pelvisGotSet = true;
+											//pAvatarVO->setPosition( pAvatarVO->getCharacterPosition() + jointPos );											
 										}										
 									}
 									else
