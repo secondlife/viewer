@@ -70,6 +70,7 @@ set(llcommon_SOURCE_FILES
     llmemorystream.cpp
     llmemtype.cpp
     llmetrics.cpp
+    llmetricperformancetester.cpp
     llmortician.cpp
     lloptioninterface.cpp
     llptrto.cpp 
@@ -186,6 +187,7 @@ set(llcommon_HEADER_FILES
     llmemorystream.h
     llmemtype.h
     llmetrics.h
+    llmetricperformancetester.h
     llmortician.h
     llnametable.h
     lloptioninterface.h

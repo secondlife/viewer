@@ -286,18 +286,8 @@ public:
 		}
 
 		// No information in header, make a guess
-		if (status == 503)
-		{
-			// ...service unavailable, retry soon
-			const F64 SERVICE_UNAVAILABLE_DELAY = 600.0; // 10 min
-			return now + SERVICE_UNAVAILABLE_DELAY;
-		}
-		else
-		{
-			// ...other unexpected error
-			const F64 DEFAULT_DELAY = 3600.0; // 1 hour
-			return now + DEFAULT_DELAY;
-		}
+		const F64 DEFAULT_DELAY = 120.0; // 2 mintues
+		return now + DEFAULT_DELAY;
 	}
 };
 

@@ -1199,7 +1199,6 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!(asset_type == LLAssetType::AT_CALLINGCARD) && // don't open if it's a calling card
-			!(item && (item->getInventoryType() == LLInventoryType::IT_ATTACHMENT)) && // don't open if it's an item that's an attachment
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
@@ -2509,15 +2508,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				invite_bucket = (struct invite_bucket_t*) &binary_bucket[0];
 				S32 membership_fee = ntohl(invite_bucket->membership_fee);
-
-				// IDEVO Clean up legacy name "Resident" in message constructed in
-				// lldatagroups.cpp
-				U32 pos = message.find(" has invited you to join a group.\n");
-				if (pos != std::string::npos)
-				{
-					// use cleaned-up name from above
-					message = name + message.substr(pos);
-				}
 
 				LLSD payload;
 				payload["transaction_id"] = session_id;
@@ -3876,6 +3866,7 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 		return;
 	}
 	LL_INFOS("Messaging") << "process_crossed_region()" << LL_ENDL;
+	gAgentAvatarp->resetRegionCrossingTimer();
 
 	U32 sim_ip;
 	msg->getIPAddrFast(_PREHASH_RegionData, _PREHASH_SimIP, sim_ip);

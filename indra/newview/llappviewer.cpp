@@ -510,16 +510,10 @@ class LLFastTimerLogThread : public LLThread
 public:
 	std::string mFile;
 
-	LLFastTimerLogThread() : LLThread("fast timer log")
+	LLFastTimerLogThread(std::string& test_name) : LLThread("fast timer log")
 	{
-		if(LLFastTimer::sLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp");
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp");
-		}
+		std::string file_name = test_name + std::string(".slp");
+		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name);
 	}
 
 	void run()
@@ -535,6 +529,7 @@ public:
 
 		os.close();
 	}
+
 };
 
 //virtual
@@ -982,6 +977,7 @@ bool LLAppViewer::mainLoop()
 	LLVoiceClient::getInstance()->init(gServicePump);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
+	LLFrameTimer memCheckTimer;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	joystick->setNeedsReset(true);
 
@@ -992,10 +988,28 @@ bool LLAppViewer::mainLoop()
     // point of posting.
     LLSD newFrame;
 
+	const F32 memory_check_interval = 1.0f ; //second
+
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+
+		//clear call stack records
+		llclearcallstacks;
+
+		//check memory availability information
+		{
+			if(memory_check_interval < memCheckTimer.getElapsedTimeF32())
+			{
+				memCheckTimer.reset() ;
+
+				//update the availability of memory
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+			}
+			llcallstacks << "Available physical mem(KB): " << mAvailPhysicalMemInKB << llcallstacksendl ;
+			llcallstacks << "Available virtual mem(KB): " << mAvailVirtualMemInKB << llcallstacksendl ;
+		}
 
 		try
 		{
@@ -1223,11 +1237,20 @@ bool LLAppViewer::mainLoop()
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
-			}
-						
+			}			
 		}
 		catch(std::bad_alloc)
 		{			
+			{
+				llinfos << "Availabe physical memory(KB) at the beginning of the frame: " << mAvailPhysicalMemInKB << llendl ;
+				llinfos << "Availabe virtual memory(KB) at the beginning of the frame: " << mAvailVirtualMemInKB << llendl ;
+
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+
+				llinfos << "Current availabe physical memory(KB): " << mAvailPhysicalMemInKB << llendl ;
+				llinfos << "Current availabe virtual memory(KB): " << mAvailVirtualMemInKB << llendl ;
+			}
+
 			//stop memory leaking simulation
 			LLFloaterMemLeak* mem_leak_instance =
 				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1615,22 +1638,16 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		if(LLFastTimer::sLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_report.csv"));
-		}
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+
+		LLFastTimerView::doAnalysis(
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}
-	LLMetricPerformanceTester::cleanClass() ;
+	LLMetricPerformanceTesterBasic::cleanClass() ;
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -1737,7 +1754,7 @@ bool LLAppViewer::initThreads()
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
 		LLFastTimer::sLogLock = new LLMutex(NULL);
-		mFastTimerLogThread = new LLFastTimerLogThread();
+		mFastTimerLogThread = new LLFastTimerLogThread(LLFastTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2020,6 +2037,15 @@ bool LLAppViewer::initConfiguration()
 	// - apply command line settings 
 	clp.notify(); 
 
+	// Register the core crash option as soon as we can
+	// if we want gdb post-mortem on cores we need to be up and running
+	// ASAP or we might miss init issue etc.
+	if(clp.hasOption("disablecrashlogger"))
+	{
+		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << llendl;
+		LLAppViewer::instance()->disableCrashlogger();
+	}
+
 	// Handle initialization from settings.
 	// Start up the debugging console before handling other options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
@@ -2079,11 +2105,25 @@ bool LLAppViewer::initConfiguration()
 	if (clp.hasOption("logperformance"))
 	{
 		LLFastTimer::sLog = TRUE;
+		LLFastTimer::sLogName = std::string("performance");
 	}
 	
-	if(clp.hasOption("logmetrics"))
+	if (clp.hasOption("logmetrics"))
 	{
 		LLFastTimer::sMetricLog = TRUE ;
+		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
+		std::string test_name = clp.getOption("logmetrics")[0];
+		llinfos << "'--logmetrics' argument : " << test_name << llendl;
+		if (test_name == "")
+		{
+			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
+			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
+		}
+		else
+		{
+			LLFastTimer::sLogName = test_name;
+		}
 	}
 
 	if (clp.hasOption("graphicslevel"))
@@ -2596,6 +2636,11 @@ void LLAppViewer::handleViewerCrash()
 		abort();
 	}
 
+	if (LLApp::isCrashloggerDisabled())
+	{
+		abort();
+	}
+
 	// Returns whether a dialog was shown.
 	// Only do the logic in here once
 	if (pApp->mReportedCrash)
@@ -2991,7 +3036,7 @@ void LLAppViewer::migrateCacheDirectory()
 			S32 file_count = 0;
 			std::string file_name;
 			std::string mask = delimiter + "*.*";
-			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name, false))
+			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name))
 			{
 				if (file_name == "." || file_name == "..") continue;
 				std::string source_path = old_cache_dir + delimiter + file_name;
@@ -3210,7 +3255,7 @@ bool LLAppViewer::initCache()
 		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
 
 		std::string found_file;
-		if (gDirUtilp->getNextFileInDir(dir, mask, found_file, false))
+		if (gDirUtilp->getNextFileInDir(dir, mask, found_file))
 		{
 			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
 

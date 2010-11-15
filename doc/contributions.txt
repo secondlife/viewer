@@ -79,6 +79,8 @@ Aleric Inglewood
 Ales Beaumont
 	VWR-9352
 	SNOW-240
+Alexandrea Fride
+    STORM-255
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -127,6 +129,7 @@ Alissa Sabre
 	VWR-12617
 	VWR-12620
 	VWR-12789
+	SNOW-322
 Angus Boyd
 	VWR-592
 Ann Congrejo
@@ -143,6 +146,7 @@ Asuka Neely
 Balp Allen
 	VWR-4157
 Be Holder
+	SNOW-322
 	SNOW-397
 Benja Kepler
 	VWR-746
@@ -410,6 +414,7 @@ McCabe Maxsted
 	VWR-8689
 	VWR-9007
 Michelle2 Zenovka
+    STORM-477
 	VWR-2652
 	VWR-2662
 	VWR-2834
@@ -571,6 +576,7 @@ Robin Cornelius
 	SNOW-585
 	SNOW-599
 	SNOW-747
+	STORM-422
 	VWR-2488
 	VWR-9557
 	VWR-11128
@@ -707,6 +713,8 @@ Thraxis Epsilon
 	VWR-383
 tiamat bingyi
 	CT-246
+Tofu Buzzard
+	STORM-546
 TraductoresAnonimos Alter
 	CT-324
 Tue Torok
@@ -752,8 +760,19 @@ Whoops Babii
 	VWR-8298
 Wilton Lundquist
 	VWR-7682
+WolfPup Lowenhar
+	SNOW-622
+	SNOW-772
+	STORM-102
+	STORM-103
+	STORM-143
+	VWR-20741
+	VWR-20933
 Zai Lynch
 	VWR-19505
+Wolfpup Lowenhar
+	STORM-255
+	STORM-256
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

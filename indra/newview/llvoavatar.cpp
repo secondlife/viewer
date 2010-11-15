@@ -3992,7 +3992,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	// *NOTE: this is disabled (there is no UI for enabling sShowFootPlane) due
 	// to DEV-14477.  the code is left here to aid in tracking down the cause
 	// of the crash in the future. -brad
-	if (!gRenderForSelect && sShowFootPlane && mDrawable.notNull())
+	if (sShowFootPlane && mDrawable.notNull())
 	{
 		LLVector3 slaved_pos = mDrawable->getPositionAgent();
 		LLVector3 foot_plane_normal(mFootPlane.mV[VX], mFootPlane.mV[VY], mFootPlane.mV[VZ]);
@@ -7864,6 +7864,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root)
 //virtual
 void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 {
+	LLViewerObject::updateRegion(regionp);
 }
 
 std::string LLVOAvatar::getFullname() const

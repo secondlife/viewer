@@ -767,9 +767,6 @@
      name="SysWellItemSelected"
      value="0.3 0.3 0.3 1.0" />
     <color
-     name="ChatToastAgentNameColor"
-     reference="EmphasisColor" />
-    <color
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
     <color

@@ -306,6 +306,8 @@ public:
 
 	void update()
 	{
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 		std::string wind_vel_text;
 		std::string wind_vector_text;
 		std::string rwind_vel_text;
@@ -579,6 +581,23 @@ public:
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+		}
+		if(log_texture_traffic)
+		{	
+			U32 old_y = ypos ;
+			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
+			{
+				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				{
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					ypos += y_inc;
+				}
+			}
+			if(ypos != old_y)
+			{
+				addText(xpos, ypos, "Network traffic for textures:");
 				ypos += y_inc;
 			}
 		}
@@ -1341,7 +1360,7 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
 		ignore_pixel_depth,
-		0); //gSavedSettings.getU32("RenderFSAASamples"));
+		gSavedSettings.getBOOL("RenderUseFBO") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
@@ -1843,6 +1862,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		{
 			return;
 		}
+
+		gWindowResized = TRUE;
 
 		// update our window rectangle
 		mWindowRectRaw.mRight = mWindowRectRaw.mLeft + width;
@@ -3865,7 +3886,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
-	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+
+	show_ui = show_ui ? TRUE : FALSE;
 
 	if ( prev_draw_ui != show_ui)
 	{
@@ -3988,29 +4011,19 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		{
 			gDisplaySwapBuffers = FALSE;
 			gDepthDirty = TRUE;
-			if (type == SNAPSHOT_TYPE_OBJECT_ID)
-			{
-				glClearColor(0.f, 0.f, 0.f, 0.f);
-				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-				LLViewerCamera::getInstance()->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));
-				setup3DRender();
-				gObjectList.renderPickList(gViewerWindow->getWindowRectScaled(), FALSE, FALSE);
+			const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+
+			if (LLPipeline::sRenderDeferred)
+			{
+					display(do_rebuild, scale_factor, subfield, TRUE);
 			}
 			else
 			{
-				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					display(do_rebuild, scale_factor, subfield, FALSE);
-				}
-				else
-				{
-					display(do_rebuild, scale_factor, subfield, TRUE);
-					// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-					render_ui(scale_factor, subfield);
-				}
+				display(do_rebuild, scale_factor, subfield, TRUE);
+					// Required for showing the GUI in snapshots and performing bloom composite overlay
+					// Call even if show_ui is FALSE
+				render_ui(scale_factor, subfield);
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4033,7 +4046,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 				}
 				
-				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
+				if (type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,
@@ -4417,6 +4430,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
+		gWindowResized = TRUE;
 
 		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
 		{

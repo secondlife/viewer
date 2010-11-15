@@ -62,7 +62,7 @@ class LLIMModel :  public LLSingleton<LLIMModel>
 {
 public:
 
-	struct LLIMSession
+	struct LLIMSession : public boost::signals2::trackable
 	{
 		typedef enum e_session_type
 		{   // for now we have 4 predefined types for a session
@@ -99,6 +99,8 @@ public:
 		void buildHistoryFileName();
 
 		void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
+
+		void onAdHocNameCache(const LLAvatarName& av_name);
 
 		//*TODO make private
 		static std::string generateHash(const std::set<LLUUID>& sorted_uuids);

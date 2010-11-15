@@ -1643,17 +1643,18 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	const BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
+	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+
 	BOOL accept = FALSE;
 	if (is_agent_inventory)
 	{
 		const LLUUID &cat_id = inv_cat->getUUID();
 		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
-		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 		
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
-		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 
 		//--------------------------------------------------------------------------------
@@ -1794,6 +1795,17 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		LLUUID category_id = mUUID;
 		accept = move_inv_category_world_to_agent(object_id, category_id, drop);
 	}
+	else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
+	{
+		// Accept folders that contain complete outfits.
+		accept = move_is_into_current_outfit && LLAppearanceMgr::instance().getCanMakeFolderIntoOutfit(inv_cat->getUUID());
+
+		if (accept && drop)
+		{
+			LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, true, false);
+		}
+	}
+
 	return accept;
 }
 
@@ -2896,6 +2908,7 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 {
 	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
+		(inv_item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
 	{
 		return FALSE;

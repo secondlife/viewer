@@ -95,6 +95,7 @@ BOOL gForceRenderLandFence = FALSE;
 BOOL gDisplaySwapBuffers = FALSE;
 BOOL gDepthDirty = FALSE;
 BOOL gResizeScreenTexture = FALSE;
+BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
 
 U32 gRecentFrameCount = 0; // number of 'recent' frames
@@ -217,6 +218,22 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
 	LLMemType mt_render(LLMemType::MTYPE_RENDER);
 	LLFastTimer t(FTM_RENDER);
+
+	if (gWindowResized)
+	{ //skip render on frames where window has been resized
+		gGL.flush();
+		glClear(GL_COLOR_BUFFER_BIT);
+		gViewerWindow->mWindow->swapBuffers();
+		gPipeline.resizeScreenTexture();
+		gResizeScreenTexture = FALSE;
+		gWindowResized = FALSE;
+		return;
+	}
+
+	if (LLPipeline::sRenderDeferred)
+	{ //hack to make sky show up in deferred snapshots
+		for_snapshot = FALSE;
+	}
 
 	if (LLPipeline::sRenderFrameTest)
 	{
@@ -531,6 +548,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
+	
 	if (!gDisconnected)
 	{
 		LLMemType mt_du(LLMemType::MTYPE_DISPLAY_UPDATE);
@@ -707,7 +725,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		// Doing this here gives hardware occlusion queries extra time to complete
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
-		LLError::LLCallStacks::clear() ;
 		
 		{
 			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
