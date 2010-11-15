@@ -72,8 +72,19 @@ int ll_install_update(std::string const & script, std::string const & updatePath
 	LLProcessLauncher launcher;
 	launcher.setExecutable(actualScriptPath);
 	launcher.addArgument(updatePath);
+	launcher.addArgument(ll_install_failed_marker_path().c_str());
 	int result = launcher.launch();
 	launcher.orphan();
 	
 	return result;
+}
+
+
+std::string const & ll_install_failed_marker_path(void)
+{
+	static std::string path;
+	if(path.empty()) {
+		path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLifeInstallFailed.marker");
+	}
+	return path;
 }

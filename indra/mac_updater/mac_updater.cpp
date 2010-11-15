@@ -66,6 +66,7 @@ const char *gUpdateURL;
 const char *gProductName;
 const char *gBundleID;
 const char *gDmgFile;
+const char *gMarkerPath;
 
 void *updatethreadproc(void*);
 
@@ -342,6 +343,10 @@ int parse_args(int argc, char **argv)
 		{
 			gDmgFile = argv[j];
 		}
+		else if ((!strcmp(argv[j], "-marker")) && (++j < argc)) 
+		{
+			gMarkerPath = argv[j];;
+		}
 	}
 
 	return 0;
@@ -370,6 +375,7 @@ int main(int argc, char **argv)
 	gProductName = NULL;
 	gBundleID = NULL;
 	gDmgFile = NULL;
+	gMarkerPath = NULL;
 	parse_args(argc, argv);
 	if ((gUpdateURL == NULL) && (gDmgFile == NULL))
 	{
@@ -497,11 +503,18 @@ int main(int argc, char **argv)
 					NULL,
 					&retval_mac);
 		}
-
+		
+		if(gMarkerPath != 0)
+		{
+			// Create a install fail marker that can be used by the viewer to
+			// detect install problems.
+			std::ofstream stream(gMarkerPath);
+			if(stream) stream << -1;
+		}
+		exit(-1);
+	} else {
+		exit(0);
 	}
-	
-	// Don't dispose of things, just exit.  This keeps the update thread from potentially getting hosed.
-	exit(0);
 
 	if(gWindow != NULL)
 	{
@@ -713,6 +726,7 @@ static OSErr findAppBundleOnDiskImage(FSRef *parent, FSRef *app)
 							// This is the one.  Return it.
 							*app = ref;
 							found = true;
+							break;
 						} else {
 							llinfos << name << " is not the bundle we are looking for; move along" << llendl;
 						}
@@ -721,9 +735,13 @@ static OSErr findAppBundleOnDiskImage(FSRef *parent, FSRef *app)
 				}
 			}
 		}
-		while(!err && !found);
+		while(!err);
+		
+		llinfos << "closing the iterator" << llendl;
 		
 		FSCloseIterator(iterator);
+		
+		llinfos << "closed" << llendl;
 	}
 	
 	if(!err && !found)
@@ -1084,12 +1102,19 @@ void *updatethreadproc(void*)
 			throw 0;
 		}
 
+		sendProgress(0, 0, CFSTR("Searching for the app bundle..."));
 		err = findAppBundleOnDiskImage(&mountRef, &sourceRef);
 		if(err != noErr)
 		{
 			llinfos << "Couldn't find application bundle on mounted disk image." << llendl;
 			throw 0;
 		}
+		else
+		{
+			llinfos << "found the bundle." << llendl;
+		}
+
+		sendProgress(0, 0, CFSTR("Preparing to copy files..."));
 		
 		FSRef asideRef;
 		char aside[MAX_PATH];		/* Flawfinder: ignore */

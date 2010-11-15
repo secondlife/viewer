@@ -106,6 +106,12 @@ int ll_install_update(std::string const &, std::string const &, LLInstallScriptM
 	return 0;
 }
 
+std::string const & ll_install_failed_marker_path()
+{
+	static std::string wubba;
+	return wubba;
+}
+
 /*
 #pragma warning(disable: 4273)
 llus_mock_llifstream::llus_mock_llifstream(const std::string& _Filename,
