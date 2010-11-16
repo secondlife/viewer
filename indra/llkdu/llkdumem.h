@@ -35,7 +35,7 @@
 #include "kdu_params.h"
 #include "kdu_compressed.h"
 #include "kdu_sample_processing.h"
-#include "kdu_image_local.h"
+#include "image_local.h"
 #include "stdtypes.h"
 
 class LLKDUMemSource: public kdu_compressed_source
