@@ -19,6 +19,7 @@
   font="SansSerif">
   <more_chat_text
     mouse_opaque="true" 
+    parse_urls="false"
     word_wrap="true"
     />
 </chat_history>

@@ -315,7 +315,8 @@
              name="owner_value"
              top_delta="0"
              value="Alex Superduperlongenamenton"
-             width="205" />
+             use_ellipses="true" 
+             width="200" />
             <icon
              follows="top|left"
              height="16"
@@ -649,7 +650,8 @@
                          left_pad="0"
                          name="region_owner"
                          top_delta="0"
-                         value="moose Van Moose"
+                         value="moose Van Moose extra long name moose"
+                         use_ellipses="true" 
                          width="187" />
                         <text
                          follows="left|top"
@@ -710,7 +712,7 @@
                          name="estate_name_label"
                          top_pad="5"
                          value="Estate:"
-                         width="90" />
+                         width="80" />
                         <text
                          follows="left|top|right"
                          height="15"
@@ -727,7 +729,7 @@
                          name="estate_rating_label"
                          top_pad="5"
                          value="Rating:"
-                         width="90" />
+                         width="80" />
                         <text
                          follows="left|top|right"
                          height="15"
@@ -744,15 +746,17 @@
                          name="estate_owner_label"
                          top_pad="5"
                          value="Owner:"
-                         width="90" />
+                         width="80" />
                         <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
                          left_pad="0"
                          name="estate_owner"
+                         value="Testing owner name length with long name" 
                          top_delta="0"
-                         width="187" />
+                         use_ellipses="true" 
+                         width="190" />
                         <text
                          follows="left|top"
                          height="15"

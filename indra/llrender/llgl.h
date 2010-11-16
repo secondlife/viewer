@@ -92,6 +92,7 @@ public:
 	BOOL mHasOcclusionQuery;
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
+	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
 
 	// Other extensions.
@@ -157,6 +158,7 @@ void rotate_quat(LLQuaternion& rotation);
 
 void flush_glerror(); // Flush GL errors when we know we're handling them correctly.
 
+void log_glerror();
 void assert_glerror();
 
 void clear_glerror();
@@ -315,11 +317,11 @@ private:
   leaves this class.
   Does not stack.
 */
-class LLGLClampToFarClip
+class LLGLSquashToFarClip
 {
 public:
-	LLGLClampToFarClip(glh::matrix4f projection);
-	~LLGLClampToFarClip();
+	LLGLSquashToFarClip(glh::matrix4f projection);
+	~LLGLSquashToFarClip();
 };
 
 /*

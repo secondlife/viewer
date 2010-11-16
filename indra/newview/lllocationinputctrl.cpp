@@ -224,7 +224,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	LLLineEditor::Params params = p.combo_editor;
 	params.rect(text_entry_rect);
 	params.default_text(LLStringUtil::null);
-	params.max_length_bytes(p.max_chars);
+	params.max_length.bytes(p.max_chars);
 	params.keystroke_callback(boost::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);

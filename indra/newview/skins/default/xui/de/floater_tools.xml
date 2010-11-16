@@ -171,21 +171,21 @@
 				Ersteller:
 			</text>
 			<text name="Creator Name">
-				Esbee Linden
+				Frau Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Eigentümer:
 			</text>
 			<text name="Owner Name">
-				Erica Linden
+				Frau Erica &quot;Elch&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Gruppe:
 			</text>
-			<button label="Festlegen..." label_selected="Festlegen..." name="button set group" tool_tip="Eine Gruppe auswählen, um die Berechtigungen des Objekts zu teilen."/>
 			<name_box initial_value="Wird geladen..." name="Group Name Proxy"/>
-			<button label="Übertragung" label_selected="Übertragung" name="button deed" tool_tip="Eine Übertragung bedeutet, dass das Objekt mit den Berechtigungen „Nächster Eigentümer“ weitergegeben wird. Mit der Gruppe geteilte Objekte können von einem Gruppen-Officer übertragen werden."/>
+			<button label="Festlegen..." label_selected="Festlegen..." name="button set group" tool_tip="Eine Gruppe auswählen, um die Berechtigungen des Objekts zu teilen."/>
 			<check_box label="Teilen" name="checkbox share with group" tool_tip="Mit allen Mitgliedern der zugeordneten Gruppe, Ihre Berechtigungen dieses Objekt zu ändern teilen. Sie müssen Übereignen, um Rollenbeschränkungen zu aktivieren."/>
+			<button label="Übertragung" label_selected="Übertragung" name="button deed" tool_tip="Eine Übertragung bedeutet, dass das Objekt mit den Berechtigungen „Nächster Eigentümer“ weitergegeben wird. Mit der Gruppe geteilte Objekte können von einem Gruppen-Officer übertragen werden."/>
 			<text name="label click action">
 				Bei Linksklick:
 			</text>
@@ -440,8 +440,9 @@
 				<combo_box.item label="Saugen" name="suction"/>
 				<combo_box.item label="gewoben" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
-				Wiederholungen / Fläche
+			<check_box initial_value="falsch" label="Flache Oberflächen ausrichten" name="checkbox planar align" tool_tip="Texturen auf allen ausgewählten Oberflächen an der zuletzt ausgewählten Oberfläche ausrichten. Planar Texture Mapping erforderlich."/>
+			<text name="rpt">
+				Wiederholungen / Oberfläche
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Umkehren" name="checkbox flip s"/>

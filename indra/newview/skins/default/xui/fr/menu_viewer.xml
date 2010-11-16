@@ -85,6 +85,7 @@
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
 			<menu_item_call label="Enregistrer dans mon inventaire" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Enregistrer dans le contenu des objets" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Renvoi de l&apos;objet" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Recompiler les scripts (Mono)" name="Mono"/>
@@ -94,11 +95,11 @@
 			<menu_item_call label="Définir les scripts sur Pas d&apos;exécution" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Options" name="Options">
-			<menu_item_call label="Définir les droits de chargement par défaut" name="perm prefs"/>
 			<menu_item_check label="Afficher les droits avancés" name="DebugPermissions"/>
 			<menu_item_check label="Sélectionner mes objets uniquement" name="Select Only My Objects"/>
 			<menu_item_check label="Sélectionner les objets déplaçables uniquement" name="Select Only Movable Objects"/>
 			<menu_item_check label="Sélectionner en entourant" name="Select By Surrounding"/>
+			<menu_item_check label="Afficher les contours de la sélection" name="Show Selection Outlines"/>
 			<menu_item_check label="Afficher la sélection masquée" name="Show Hidden Selection"/>
 			<menu_item_check label="Afficher le rayon lumineux pour la sélection" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Afficher le faisceau de sélection lumineux" name="Show Selection Beam"/>
@@ -119,9 +120,9 @@
 		<menu_item_call label="Signaler une infraction" name="Report Abuse"/>
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Activer les astuces" name="Enable Hints"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
-		<menu_item_check label="Afficher le menu Avancé" name="Show Advanced Menu"/>
 		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
@@ -168,7 +169,6 @@
 			<menu_item_check label="Tester FRInfo" name="Test FRInfo"/>
 			<menu_item_check label="Objets flexibles" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Exécuter plusieurs threads" name="Run Multiple Threads"/>
 		<menu_item_check label="Utiliser le thread de lecture de plug-in" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Effacer le cache du groupe" name="ClearGroupCache"/>
 		<menu_item_check label="Effet de lissage de la souris" name="Mouse Smoothing"/>
@@ -177,7 +177,6 @@
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
-			<menu_item_check label="Afficher le menu Avancé - raccourci existant" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Toujours courir" name="Always Run"/>
 			<menu_item_check label="Voler" name="Fly"/>
 			<menu_item_call label="Fermer la fenêtre" name="Close Window"/>
@@ -197,6 +196,7 @@
 			<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 			<menu_item_call label="Zoom par défaut" name="Zoom Default"/>
 			<menu_item_call label="Zoomer en arrière" name="Zoom Out"/>
+			<menu_item_check label="Afficher le menu Avancé" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Afficher les paramètres de débogage" name="Debug Settings"/>
 		<menu_item_check label="Afficher le menu Développeurs" name="Debug Mode"/>
@@ -262,16 +262,19 @@
 			<menu_item_check label="Filaire" name="Wireframe"/>
 			<menu_item_check label="Occlusion objet-objet" name="Object-Object Occlusion"/>
 			<menu_item_check label="Objets de mémoire vidéo" name="Framebuffer Objects"/>
-			<menu_item_check label="Rendu différé" name="Deferred Rendering"/>
-			<menu_item_check label="Illumination globale" name="Global Illumination"/>
+			<menu_item_check label="Éclairage et ombres" name="Lighting and Shadows"/>
+			<menu_item_check label="Ombres du soleil/de la lune/des projecteurs" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="SSAO et lissage des ombres" name="SSAO and Shadow Smoothing"/>
+			<menu_item_check label="Illumination globale (expérimental)" name="Global Illumination"/>
 			<menu_item_check label="Débogage GL" name="Debug GL"/>
 			<menu_item_check label="Débogage pipeline" name="Debug Pipeline"/>
-			<menu_item_check label="Alpha rapide" name="Fast Alpha"/>
+			<menu_item_check label="Masques alpha automatiques (différés)" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="Masques alpha automatiques (non différés)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Textures d&apos;animation" name="Animation Textures"/>
 			<menu_item_check label="Désactiver les textures" name="Disable Textures"/>
 			<menu_item_check label="Textures pleine résolution" name="Rull Res Textures"/>
 			<menu_item_check label="Audit Textures" name="Audit Textures"/>
-			<menu_item_check label="Atlas des textures" name="Texture Atlas"/>
+			<menu_item_check label="Atlas des textures (expérimental)" name="Texture Atlas"/>
 			<menu_item_check label="Rendu des lumières jointes" name="Render Attached Lights"/>
 			<menu_item_check label="Rendu des particules jointes" name="Render Attached Particles"/>
 			<menu_item_check label="Objets en surbrillance avec le pointeur" name="Hover Glow Objects"/>
@@ -308,7 +311,8 @@
 			<menu_item_call label="Imprimer les infos sur l&apos;objet sélectionné" name="Print Selected Object Info"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;avatar" name="Print Agent Info"/>
 			<menu_item_call label="Statistiques de mémoire" name="Memory Stats"/>
-			<menu_item_check label="Double-ClickAuto-Pilot" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Pilotage auto par double-clic" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Téléportation par double-clic" name="DoubleClick Teleport"/>
 			<menu_item_check label="Débogage SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Débogage clics" name="Debug Clicks"/>
 			<menu_item_check label="Débogage des vues" name="Debug Views"/>
@@ -324,6 +328,7 @@
 			<menu_item_call label="Enregistrer en XML" name="Save to XML"/>
 			<menu_item_check label="Afficher les noms XUI" name="Show XUI Names"/>
 			<menu_item_call label="Envoyer des IM tests" name="Send Test IMs"/>
+			<menu_item_call label="Vider les caches de noms" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Récupérer la texture fixée" name="Grab Baked Texture">

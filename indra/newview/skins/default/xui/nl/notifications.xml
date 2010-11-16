@@ -2409,10 +2409,10 @@ Wilt u de [SECOND_LIFE] website bezoeken om dit in te stellen?
 		Onderwerp: [SUBJECT], Bericht: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] is Online
+		[NAME] is Online
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] is Offline
+		[NAME] is Offline
 	</notification>
 	<notification name="AddSelfFriend">
 		U kunt uzelf niet als vriend toevoegen.
@@ -2550,8 +2550,7 @@ Probeer een kleiner stuk land te selecteren.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleport"/>
-			<button name="Description" text="Omschrijving"/>
+			<button name="Details" text="Omschrijving"/>
 			<button name="Cancel" text="Annuleren"/>
 		</form>
 	</notification>
@@ -2575,7 +2574,7 @@ Indien u streaming media wilt zien op percelen die dit ondersteunen, dient u naa
 		De objecten die uw eigendom zijn op het geselecteerde perceel zijn geretourneerd naar uw inventaris.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		De objecten op het geselecteerde perceel dat het eigendom is van [FIRST] [LAST], zijn geretourneerd naar zijn of haar inventaris.
+		De objecten op het geselecteerde perceel dat het eigendom is van [NAME], zijn geretourneerd naar zijn of haar inventaris.
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		De objecten op het geselecteerde perceel dat het eigendom is van inwoner &apos;[NAME]&apos;, zijn geretourneerd naar hun eigenaar.
@@ -2702,7 +2701,7 @@ Probeer het alstublieft opnieuw over enkele ogenblikken.
 		Geen geldig perceel kon gevonden worden.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Een object genaamd [OBJECTFROMNAME], eigendom van [FIRST] [LAST], heeft u een [OBJECTTYPE] genaamd [OBJECTNAME] gegeven.
+		Een object genaamd &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, eigendom van [NAME_SLURL], heeft u een [OBJECTTYPE] genaamd [ITEM_SLURL] gegeven.
 		<form name="form">
 			<button name="Keep" text="Behouden"/>
 			<button name="Discard" text="Afwijzen"/>
@@ -2841,7 +2840,7 @@ Dit verzoek inwilligen?
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+		[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Negeren"/>
@@ -2942,13 +2941,13 @@ Klik Accepteren om deel te nemen aan dit gesprek of Afwijzen om de uitnodiging a
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		Er is een instant message naar [FIRST] [LAST] gestuurd, waardoor deze automatisch van de negeerlijst is gehaald.
+		Er is een instant message naar [NAME] gestuurd, waardoor deze automatisch van de negeerlijst is gehaald.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		Er is geld gegeven aan [FIRST] [LAST], waardoor deze automatisch van de negeerlijst is gehaald.
+		Er is geld gegeven aan [NAME], waardoor deze automatisch van de negeerlijst is gehaald.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		Er is inventaris aangeboden aan [FIRST] [LAST], waardoor deze automatisch van de negeerlijst is gehaald.
+		Er is inventaris aangeboden aan [NAME], waardoor deze automatisch van de negeerlijst is gehaald.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] doet nu mee met een Voice chat gesprek binnen de groep [GROUP].

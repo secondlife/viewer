@@ -3,14 +3,22 @@
 	<text name="title" value="Favorit info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="pick_name" value="[name]"/>
-			<text name="pick_location" value="[loading...]"/>
-			<text name="pick_desc" value="[description]"/>
+			<text_editor name="pick_name" value="[name]"/>
+			<text_editor name="pick_location" value="[loading...]"/>
+			<text_editor name="pick_desc" value="[description]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
-		<button label="Teleportér" name="teleport_btn"/>
-		<button label="Kort" name="show_on_map_btn"/>
-		<button label="Redigér" name="edit_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Teleport" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Kort" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Rediger" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

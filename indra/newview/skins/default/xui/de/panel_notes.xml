@@ -13,11 +13,23 @@
 			</scroll_container>
 		</layout_panel>
 		<layout_panel name="notes_buttons_panel">
-			<button label="Freund hinzufügen" name="add_friend" tool_tip="Bieten Sie dem Einwohner die Freundschaft an" width="109"/>
-			<button label="IM" name="im" tool_tip="Instant Messenger öffnen" width="24"/>
-			<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
-			<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen" width="40"/>
-			<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Freund hinzufügen" name="add_friend" tool_tip="Dem Einwohner die Freundschaft anbieten"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Instant Messenger öffnen"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
+				</layout_panel>
+				<layout_panel name="show_on_map_btn_lp">
+					<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen"/>
+				</layout_panel>
+				<layout_panel name="teleport_btn_lp">
+					<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 	</layout_stack>
 </panel>

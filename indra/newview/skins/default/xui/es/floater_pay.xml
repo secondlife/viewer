@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Persona"/>
 	<text left="115" name="payee_name">
-		[FIRST] [LAST]
+		Nombre de prueba demasiado largo para comprobar la función de recorte
 	</text>
 	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
 	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>

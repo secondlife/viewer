@@ -43,6 +43,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavatarname.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
@@ -599,13 +600,13 @@ void LLPanelRegionGeneralInfo::onClickKick()
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1,_2), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE);
 	parent_floater->addDependentFloater(child_floater);
 }
 
-void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelRegionGeneralInfo::onKickCommit(const uuid_vec_t& ids)
 {
-	if (names.empty() || ids.empty()) return;
+	if (ids.empty()) return;
 	if(ids[0].notNull())
 	{
 		strings_t strings;
@@ -841,11 +842,11 @@ void LLPanelRegionDebugInfo::onClickChooseAvatar()
 }
 
 
-void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelRegionDebugInfo::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];
-	getChild<LLUICtrl>("target_avatar_name")->setValue(LLSD(names[0]));
+	getChild<LLUICtrl>("target_avatar_name")->setValue(LLSD(names[0].getCompleteName()));
 	refreshFromRegion( gAgent.getRegion() );
 }
 
@@ -1512,24 +1513,17 @@ void LLPanelEstateInfo::onClickKickUser()
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1, _2), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE);
 	parent_floater->addDependentFloater(child_floater);
 }
 
-void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelEstateInfo::onKickUserCommit(const uuid_vec_t& ids)
 {
-	if (names.empty() || ids.empty()) return;
+	if (ids.empty()) return;
 	
-	//check to make sure there is one valid user and id
-	if( (ids[0].isNull()) ||
-		(names[0].length() == 0) )
-	{
-		return;
-	}
-
 	//Bring up a confirmation dialog
 	LLSD args;
-	args["EVIL_USER"] = names[0];
+	args["EVIL_USER"] = LLSLURL("agent", ids[0], "completename").getSLURLString();
 	LLSD payload;
 	payload["agent_id"] = ids[0];
 	LLNotificationsUtil::add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, this, _1, _2));
@@ -1695,12 +1689,12 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
 
 	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
 	// avatar picker yes multi-select, yes close-on-select
-	LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, _2, (void*)change_info), TRUE, TRUE);
+	LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), TRUE, TRUE);
 	return false;
 }
 
 // static
-void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, const uuid_vec_t& ids, void* data)
+void LLPanelEstateInfo::accessAddCore3(const uuid_vec_t& ids, void* data)
 {
 	LLEstateAccessChangeInfo* change_info = (LLEstateAccessChangeInfo*)data;
 	if (!change_info) return;
@@ -1956,8 +1950,15 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	getChildView("remove_allowed_avatar_btn")->setEnabled(god || owner || manager);
 	getChildView("add_allowed_group_btn")->setEnabled(god || owner || manager);
 	getChildView("remove_allowed_group_btn")->setEnabled(god || owner || manager);
-	getChildView("add_banned_avatar_btn")->setEnabled(god || owner || manager);
-	getChildView("remove_banned_avatar_btn")->setEnabled(god || owner || manager);
+
+	// Can't ban people from mainland, orientation islands, etc. because this
+	// creates much network traffic and server load.
+	// Disable their accounts in CSR tool instead.
+	bool linden_estate = (getEstateID() <= ESTATE_LAST_LINDEN);
+	bool enable_ban = (god || owner || manager) && !linden_estate;
+	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
+	getChildView("remove_banned_avatar_btn")->setEnabled(enable_ban);
+
 	getChildView("message_estate_btn")->setEnabled(god || owner || manager);
 	getChildView("kick_user_from_estate_btn")->setEnabled(god || owner || manager);
 

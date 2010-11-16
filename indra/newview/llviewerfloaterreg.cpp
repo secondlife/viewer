@@ -49,6 +49,7 @@
 #include "llfloaterbump.h"
 #include "llfloatercamera.h"
 #include "llfloaterdaycycle.h"
+#include "llfloaterdisplayname.h"
 #include "llfloaterevent.h"
 #include "llfloatersearch.h"
 #include "llfloaterenvsettings.h"
@@ -177,6 +178,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLInspectObjectUtil::registerFloater();
 	LLInspectRemoteObjectUtil::registerFloater();
 	LLNotificationsUI::registerFloater();
+	LLFloaterDisplayNameUtil::registerFloater();
 	
 	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);

@@ -456,8 +456,7 @@ BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		if(y >= (getRect().getHeight() - HEADER_HEIGHT) )
 		{
-			LLAccordionCtrlTabHeader* header = getChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-			header->setFocus(true);
+			mHeader->setFocus(true);
 			changeOpenClose(getDisplayChildren());
 
 			//reset stored state
@@ -509,10 +508,9 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 
 std::string LLAccordionCtrlTab::getTitle() const
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		return header->getTitle();
+		return mHeader->getTitle();
 	}
 	else
 	{
@@ -522,57 +520,51 @@ std::string LLAccordionCtrlTab::getTitle() const
 
 void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& hl)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		header->setTitle(title, hl);
+		mHeader->setTitle(title, hl);
 	}
 }
 
 void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		header->setTitleFontStyle(style);
+		mHeader->setTitleFontStyle(style);
 	}
 }
 
 void LLAccordionCtrlTab::setTitleColor(LLUIColor color)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		header->setTitleColor(color);
+		mHeader->setTitleColor(color);
 	}
 }
 
 boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const focus_signal_t::slot_type& cb)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		return header->setFocusReceivedCallback(cb);
+		return mHeader->setFocusReceivedCallback(cb);
 	}
 	return boost::signals2::connection();
 }
 
 boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus_signal_t::slot_type& cb)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		return header->setFocusLostCallback(cb);
+		return mHeader->setFocusLostCallback(cb);
 	}
 	return boost::signals2::connection();
 }
 
 void LLAccordionCtrlTab::setSelected(bool is_selected)
 {
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
+	if (mHeader)
 	{
-		header->setSelected(is_selected);
+		mHeader->setSelected(is_selected);
 	}
 }
 
@@ -736,6 +728,12 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 
 			return 1;
 		}
+
+		if (!getDisplayChildren())
+		{
+			// Don't pass scrolling event further if our contents are invisible (STORM-298).
+			return 1;
+		}
 	}
 
 	return LLUICtrl::notifyParent(info);
@@ -770,8 +768,7 @@ S32 LLAccordionCtrlTab::notify(const LLSD& info)
 
 BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	LLAccordionCtrlTabHeader* header = getChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);	
-	if( !header->hasFocus() )
+	if( !mHeader->hasFocus() )
 		return LLUICtrl::handleKey(key, mask, called_from_parent);
 
 	if ( (key == KEY_RETURN )&& mask == MASK_NONE)
@@ -824,15 +821,19 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 
 void LLAccordionCtrlTab::showAndFocusHeader()
 {
-	LLAccordionCtrlTabHeader* header = getChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);	
-	header->setFocus(true);
-	header->setSelected(mSelectionEnabled);
+	mHeader->setFocus(true);
+	mHeader->setSelected(mSelectionEnabled);
 
 	LLRect screen_rc;
-	LLRect selected_rc = header->getRect();
+	LLRect selected_rc = mHeader->getRect();
 	localRectToScreen(selected_rc, &screen_rc);
-	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 
+	// This call to notifyParent() is intended to deliver "scrollToShowRect" command
+	// to the parent LLAccordionCtrl so by calling it from the direct parent of this
+	// accordion tab (assuming that the parent is an LLAccordionCtrl) the calls chain
+	// is shortened and messages from inside the collapsed tabs are avoided.
+	// See STORM-536.
+	getParent()->notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 void    LLAccordionCtrlTab::storeOpenCloseState()
 {

@@ -4,13 +4,45 @@
 	<string name="teleport_history_tab_title" value="TELETRANSPORTES"/>
 	<filter_editor label="Filtrar meus lugares" name="Filter"/>
 	<panel name="button_panel">
-		<button label="Teletransportar" name="teleport_btn" tool_tip="Teletransportar para a área selecionada"/>
-		<button label="Mapa" name="map_btn" tool_tip="Mostrar a área no Mapa Múndi"/>
-		<button label="Editar" name="edit_btn" tool_tip="Editar dados do marco"/>
-		<button label="▼" name="overflow_btn" tool_tip="Mostrar opções adicionais"/>
-		<button label="Salvar" name="save_btn"/>
-		<button label="Cancelar" name="cancel_btn"/>
-		<button label="Fechar" name="close_btn"/>
-		<button label="Perfil" name="profile_btn" tool_tip="Mostrar perfil do lugar"/>
+		<layout_stack name="bottom_bar_ls0">
+			<layout_panel name="lp1">
+				<layout_stack name="bottom_bar_ls1">
+					<layout_panel name="teleport_btn_lp">
+						<button label="Teletransportar" name="teleport_btn" tool_tip="Teletransportar para a área selecionada"/>
+					</layout_panel>
+					<layout_panel name="chat_btn_lp">
+						<button label="Mapa" name="map_btn" tool_tip="Exibir a área correspondente no Mapa Mundi"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="lp2">
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="edit_btn_lp">
+						<button label="Editar" name="edit_btn" tool_tip="Editar dados do marco"/>
+					</layout_panel>
+					<layout_panel name="overflow_btn_lp">
+						<button label="▼" name="overflow_btn" tool_tip="Mostrar opções adicionais"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="profile_btn_lp">
+						<button label="Perfil" name="profile_btn" tool_tip="Mostrar perfil do lugar"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_close_ls3">
+					<layout_panel name="close_btn_lp">
+						<button label="Fechar" name="close_btn"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls2">
+			<layout_panel name="save_btn_lp">
+				<button label="Salvar" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="cancel_btn_lp">
+				<button label="Cancelar" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

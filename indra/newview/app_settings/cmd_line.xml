@@ -118,6 +118,8 @@
     <map>
       <key>desc</key>
       <string>Log metrics for benchmarking</string>
+      <key>count</key>
+      <integer>1</integer>
       <key>map-to</key>
       <string>LogMetrics</string>
     </map>
@@ -389,6 +391,14 @@
       <string>Crashes on startup. For QA use.</string>
       <key>map-to</key>
       <string>CrashOnStartup</string>
+    </map>
+
+    <key>disablecrashlogger</key>
+    <map>
+      <key>desc</key>
+      <string>Disables the crash logger and lets the OS handle crashes</string>
+      <key>map-to</key>
+      <string>DisableCrashLogger</string>
     </map>
 
   </map>

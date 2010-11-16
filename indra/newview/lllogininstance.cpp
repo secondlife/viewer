@@ -139,6 +139,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 	requested_options.append("initial-outfit");
 	requested_options.append("gestures");
+	requested_options.append("display_names");
 	requested_options.append("event_categories");
 	requested_options.append("event_notifications");
 	requested_options.append("classified_categories");

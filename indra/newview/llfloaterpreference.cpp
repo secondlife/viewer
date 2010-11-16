@@ -77,6 +77,7 @@
 #include "llvosky.h"
 
 // linden library includes
+#include "llavatarnamecache.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -179,6 +180,8 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
+void handleNameTagOptionChanged(const LLSD& newvalue);	
+void handleDisplayNamesOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -213,6 +216,18 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	
 	return false;
 }
+
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::invalidateNameTags();
+}
+
+void handleDisplayNamesOptionChanged(const LLSD& newvalue)
+{
+	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLVOAvatar::invalidateNameTags();
+}
+
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
@@ -307,6 +322,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
+	
+	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -784,7 +803,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = formp->getIgnored();
+		bool show_popup = !formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -1136,7 +1155,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		templatep->mForm->setIgnored(false);
+		templatep->mForm->setIgnored(true);
 	}
 	
 	buildPopupLists();
@@ -1150,7 +1169,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(true);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }
@@ -1163,7 +1182,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(false);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
@@ -1227,7 +1246,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("log_path_string")->setEnabled(FALSE);// LineEditor becomes readonly in this case.
 	getChildView("log_path_button")->setEnabled(TRUE);
-	
+	childEnable("logfile_name_datestamp");	
 	std::string display_email(email);
 	getChild<LLUICtrl>("email_address")->setValue(display_email);
 

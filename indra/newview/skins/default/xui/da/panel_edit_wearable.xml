@@ -102,7 +102,13 @@
 		<icon name="female_icon" tool_tip="Kvindelig"/>
 	</panel>
 	<panel name="button_panel">
-		<button label="Gem som" name="save_as_button"/>
-		<button label="Annullér ændringer" name="revert_button"/>
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="Gem som" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Annullér ændringer" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

@@ -13,7 +13,7 @@
 		<combo_box.item label="Italiano - Beta" name="Italian"/>
 		<combo_box.item label="Nederlands (Neerlandés) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polaco) - Beta" name="Polish"/>
-		<combo_box.item label="Português (Portugués) - Beta" name="Portugese"/>
+		<combo_box.item label="Português (portugués) - Beta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japonés) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
@@ -44,9 +44,10 @@
 		<radio_item label="On" name="radio2" value="1"/>
 		<radio_item label="Mostrar brevemente" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Ver yo mi nombre" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Etiquetas de los avatares en pequeño" name="small_avatar_names_checkbox"/>
-	<check_box label="Mostrar las etiquetas de grupo" name="show_all_title_checkbox1"/>
+	<check_box label="Mi nombre" name="show_my_name_checkbox1"/>
+	<check_box label="Nombre de usuario" name="show_slids" tool_tip="Mostrar el nombre de usuario, como bobsmith123"/>
+	<check_box label="Títulos de grupos" name="show_all_title_checkbox1" tool_tip="Mostrar títulos de grupos, como Jefe o Miembro"/>
+	<check_box label="Realzar amigos" name="show_friends" tool_tip="Realzar las etiquetas de los nombres de tus amigos"/>
 	<text name="effects_color_textbox">
 		Mis efectos:
 	</text>
@@ -61,6 +62,7 @@
 		<combo_box.item label="30 minutos" name="item3"/>
 		<combo_box.item label="nunca" name="item4"/>
 	</combo_box>
+	<check_box label="Ver nombres mostrados" name="display_names_check" tool_tip="Comprobar para utilizar nombres mostrados en chat, MI, etiquetas de nombres, etc."/>
 	<text name="text_box3">
 		Respuesta cuando estoy en modo ocupado:
 	</text>

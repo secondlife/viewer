@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="left|top|right|bottom"
+ height="408"
+ label="Move"
+ layout="topleft"
+ left="102"
+ name="move_panel"
+ top="1"
+ width="517">
+  <icon
+     follows="left|top"
+     height="18"
+     image_name="Cam_FreeCam_Off"
+     layout="topleft"
+     name="camera_icon"
+     mouse_opaque="false"
+     visible="true"
+     width="18"
+     left="30"
+     top="10"/>
+  <slider
+   can_edit_text="true"
+   control_name="CameraAngle"
+   decimal_digits="2"
+   follows="left|top"
+   height="16"
+   increment="0.025"
+   initial_value="1.57"
+   layout="topleft"
+   label_width="100"
+   label="View angle"
+   left_pad="30"
+   max_val="2.97"
+   min_val="0.17"
+   name="camera_fov"
+   show_text="false"
+   width="240" />
+  <slider
+   can_edit_text="true"
+   control_name="CameraOffsetScale"
+   decimal_digits="2"
+   follows="left|top"
+   height="16"
+   increment="0.025"
+   initial_value="1"
+   layout="topleft"
+   label="Distance"
+   left_delta="0"
+   label_width="100"
+   max_val="3"
+   min_val="0.5"
+   name="camera_offset_scale"
+   show_text="false"
+   width="240"
+   top_pad="5"/>
+  <text
+  follows="left|top"
+  type="string"
+  length="1"
+  height="10"
+  left="80"
+  name="heading2"
+  width="270"
+  top_pad="5">
+    Automatic position for:
+  </text>
+  <check_box
+     control_name="EditCameraMovement"
+     height="20"
+     follows="left|top"
+     label="Build/Edit"
+     layout="topleft"
+     left_delta="30"
+     name="edit_camera_movement"
+     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
+     width="280"
+     top_pad="5" />
+  <check_box
+   control_name="AppearanceCameraMovement"
+   follows="left|top"
+   height="16"
+   label="Appearance"
+   layout="topleft"
+   name="appearance_camera_movement"
+   tool_tip="Use automatic camera positioning while in edit mode"
+   width="242" />
+  <check_box
+   control_name="SidebarCameraMovement"
+   follows="left|top"
+   height="16"
+   initial_value="true"
+   label="Sidebar"
+   layout="topleft"
+   name="appearance_sidebar_positioning"
+   tool_tip="Use automatic camera positioning for sidebar"
+   width="242" />
+  <icon
+	 follows="left|top"
+	 height="18"
+	 image_name="Move_Walk_Off"
+   layout="topleft"
+	 name="avatar_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18"
+   top_pad="2"
+   left="30" />
+  <check_box
+   control_name="FirstPersonAvatarVisible"
+   follows="left|top"
+   height="20"
+   label="Show me in Mouselook"
+   layout="topleft"
+   left_pad="30"
+   name="first_person_avatar_visible"
+   width="256" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_delta="3"
+   name=" Mouse Sensitivity"
+   top_pad="10"
+   width="160">
+    Mouselook mouse sensitivity:
+  </text>
+  <slider
+   control_name="MouseSensitivity"
+   follows="left|top"
+   height="15"
+   initial_value="2"
+   layout="topleft"
+   show_text="false"
+   left_pad="5"
+   max_val="15"
+   name="mouse_sensitivity"
+   top_delta="-1"
+   width="145" />
+  <check_box
+   control_name="InvertMouse"
+   height="16"
+   label="Invert"
+   layout="topleft"
+   left_pad="2"
+   name="invert_mouse"
+   top_delta="0"
+   width="128" />
+  <check_box
+   control_name="ArrowKeysAlwaysMove"
+   follows="left|top"
+   height="20"
+   label="Arrow keys always move me"
+   layout="topleft"
+   left="78"
+   name="arrow_keys_move_avatar_check"
+   width="237"
+   top_pad="1"/>
+  <check_box
+   control_name="AllowTapTapHoldRun"
+   follows="left|top"
+   height="20"
+   label="Tap-tap-hold to run"
+   layout="topleft"
+   left_delta="0"
+   name="tap_tap_hold_to_run"
+   width="237"
+   top_pad="0"/>
+  <check_box
+   follows="left|top"
+   height="20"
+   label="Double-Click to:"
+   layout="topleft"
+   left_delta="0"
+   name="double_click_chkbox"
+   width="237"
+   top_pad="0"/>
+  <radio_group
+     height="20"
+     layout="topleft"
+     left_delta="17"
+     top_pad="2"
+     name="double_click_action">
+    <radio_item
+     height="16"
+     label="Teleport"
+     layout="topleft"
+     left="0"
+     name="radio_teleport"
+     top_delta="20"
+     value="0"
+     width="100" />
+    <radio_item
+     height="16"
+     label="Auto-pilot"
+     left_pad="0"
+     layout="topleft"
+     name="radio_autopilot"
+     top_delta="0"
+     value="1"
+     width="75" />
+  </radio_group>
+</panel>

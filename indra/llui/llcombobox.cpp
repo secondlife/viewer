@@ -52,8 +52,6 @@
 #include "lltooltip.h"
 
 // Globals
-S32 LLCOMBOBOX_HEIGHT = 0;
-S32 LLCOMBOBOX_WIDTH = 0;
 S32 MAX_COMBO_WIDTH = 500;
 
 static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_box");
@@ -486,7 +484,7 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		LLLineEditor::Params params = p.combo_editor;
 		params.rect(text_entry_rect);
 		params.default_text(LLStringUtil::null);
-		params.max_length_bytes(mMaxChars);
+		params.max_length.bytes(mMaxChars);
 		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
 		params.commit_on_focus_lost(false);
@@ -705,10 +703,10 @@ void LLComboBox::onItemSelected(const LLSD& data)
 		setLabel(getSelectedItemLabel());
 
 		if (mAllowTextEntry)
-		{
-			gFocusMgr.setKeyboardFocus(mTextEntry);
-			mTextEntry->selectAll();
-		}
+	{
+		gFocusMgr.setKeyboardFocus(mTextEntry);
+		mTextEntry->selectAll();
+	}
 	}
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	hideList();

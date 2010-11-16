@@ -40,7 +40,8 @@ LLStyle::Params::Params()
 	selected_color("selected_color", LLColor4::black),
 	font("font", LLFontGL::getFontMonospace()),
 	image("image"),
-	link_href("href")
+	link_href("href"),
+	is_link("is_link")
 {}
 
 
@@ -51,6 +52,7 @@ LLStyle::LLStyle(const LLStyle::Params& p)
 	mSelectedColor(p.selected_color),
 	mFont(p.font()),
 	mLink(p.link_href),
+	mIsLink(p.is_link.isProvided() ? p.is_link : !p.link_href().empty()),
 	mDropShadow(p.drop_shadow),
 	mImagep(p.image())
 {}
@@ -73,7 +75,7 @@ void LLStyle::setLinkHREF(const std::string& href)
 
 BOOL LLStyle::isLink() const
 {
-	return mLink.size();
+	return mIsLink;
 }
 
 BOOL LLStyle::isVisible() const

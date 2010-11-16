@@ -1,72 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Evento" name="Event" title="DETALLES DEL EVENTO">
-	<floater.string name="none">
-		ninguno
+<floater can_resize="true" follows="all" height="400" help_topic="event_details" label="Event" layout="topleft" name="Event" save_rect="true" save_visibility="false" title="EVENT DETAILS" width="600">
+	<floater.string name="loading_text">
+		Cargando...
 	</floater.string>
-	<floater.string name="notify">
-		Notificar
+	<floater.string name="done_text">
+		Hecho
 	</floater.string>
-	<floater.string name="dont_notify">
-		No notificar
-	</floater.string>
-	<floater.string name="moderate">
-		Moderado
-	</floater.string>
-	<floater.string name="adult">
-		Adulto
-	</floater.string>
-	<floater.string name="general">
-		General
-	</floater.string>
-	<floater.string name="unknown">
-		desconocida
-	</floater.string>
-	<layout_stack name="layout">
-		<layout_panel name="profile_stack">
-			<text name="event_name">
-				Evento sin nombre...
-			</text>
-			<text name="event_category">
-				(sin categoría)
-			</text>
-			<text name="event_runby_label">
-				Organizado por:
-			</text>
-			<text initial_value="(obteniendo)" name="event_runby"/>
-			<text name="event_date_label">
-				Fecha:
-			</text>
-			<text name="event_date">
-				10/10/2010
-			</text>
-			<text name="event_duration_label">
-				Duración:
-			</text>
-			<text name="event_duration">
-				1 hora
-			</text>
-			<text name="event_covercharge_label">
-				Entrada:
-			</text>
-			<text name="event_cover">
-				Gratis
-			</text>
-			<text name="event_location_label">
-				Localización:
-			</text>
-			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
-			<text name="rating_label" value="Calificación:"/>
-			<text name="rating_value" value="desconocida"/>
-			<expandable_text name="event_desc">
-				Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-			</expandable_text>
-		</layout_panel>
-		<layout_panel name="button_panel">
-			<button name="create_event_btn" tool_tip="Crear el evento"/>
-			<button name="god_delete_event_btn" tool_tip="Borrar el evento"/>
-			<button label="Notificarme" name="notify_btn"/>
-			<button label="Teleportar" name="teleport_btn"/>
-			<button label="Mapa" name="map_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<web_browser follows="left|right|top|bottom" height="365" layout="topleft" left="10" name="browser" top="0" trusted_content="true" width="580"/>
+	<text follows="bottom|left" height="16" layout="topleft" left_delta="0" name="status_text" top_pad="10" width="150"/>
 </floater>

@@ -4,13 +4,45 @@
 	<string name="teleport_history_tab_title" value="HISTORIQUE DES TÉLÉP."/>
 	<filter_editor label="Filtrer les endroits" name="Filter"/>
 	<panel name="button_panel">
-		<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
-		<button label="Carte" name="map_btn" tool_tip="Afficher la zone correspondante sur la carte du monde"/>
-		<button label="Modifier" name="edit_btn" tool_tip="Modifier les informations du repère"/>
-		<button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
-		<button label="Enregistrer" name="save_btn"/>
-		<button label="Annuler" name="cancel_btn"/>
-		<button label="Fermer" name="close_btn"/>
-		<button label="Profil" name="profile_btn" tool_tip="Afficher le profil de l&apos;endroit"/>
+		<layout_stack name="bottom_bar_ls0">
+			<layout_panel name="lp1">
+				<layout_stack name="bottom_bar_ls1">
+					<layout_panel name="teleport_btn_lp">
+						<button label="Téléportation" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
+					</layout_panel>
+					<layout_panel name="chat_btn_lp">
+						<button label="Carte" name="map_btn" tool_tip="Afficher la zone correspondante sur la carte du monde"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="lp2">
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="edit_btn_lp">
+						<button label="Modifier" name="edit_btn" tool_tip="Modifier les informations du repère"/>
+					</layout_panel>
+					<layout_panel name="overflow_btn_lp">
+						<button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="profile_btn_lp">
+						<button label="Profil" name="profile_btn" tool_tip="Afficher le profil de l&apos;endroit"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_close_ls3">
+					<layout_panel name="close_btn_lp">
+						<button label="Fermer" name="close_btn"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls2">
+			<layout_panel name="save_btn_lp">
+				<button label="Enregistrer" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="cancel_btn_lp">
+				<button label="Annuler" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

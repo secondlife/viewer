@@ -204,6 +204,8 @@ private:
     
     void idle(); 
     void idleShutdown();
+	// update avatar SLID and display name caches
+	void idleNameCache();
     void idleNetwork();
 
     void sendLogoutRequest();
@@ -249,7 +251,9 @@ private:
 
 	LLWatchdogTimeout* mMainloopTimeout;
 
+	// For performance and metric gathering
 	LLThread*	mFastTimerLogThread;
+
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
@@ -258,6 +262,8 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
+	U32 mAvailPhysicalMemInKB ;
+	U32 mAvailVirtualMemInKB ;
 public:
 	//some information for updater
 	typedef struct

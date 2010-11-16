@@ -79,4 +79,6 @@ if (DARWIN)
   )
 endif (DARWIN)
 
-ll_deploy_sharedlibs_command(SLPlugin)
+if (LL_TESTS)
+  ll_deploy_sharedlibs_command(SLPlugin)
+endif (LL_TESTS)

@@ -183,6 +183,11 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 
 void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 {
+	updateToVisibility(new_visibility);
+}
+
+void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
+{
 	if (new_visibility.asBoolean())
 	{
 		bool is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();

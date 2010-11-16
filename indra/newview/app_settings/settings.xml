@@ -24,6 +24,28 @@
       <key>Value</key>
       <real>300</real>
     </map>
+    <key>AdminMenu</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the debug admin menu from the main menu.  Note: This will just allow the menu to be shown; this does not grant admin privileges.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ActiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of active floaters (floaters that have focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.95</real>
+    </map>
     <key>AdvanceSnapshot</key>
     <map>
       <key>Comment</key>
@@ -1150,13 +1172,13 @@
     <key>CacheNumberOfRegionsForObjects</key>
     <map>
       <key>Comment</key>
-      <string>Controls number of regions to be cached for objects, ranges from 16 to 128.</string>
+      <string>Controls number of regions to be cached for objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>128</integer>
+      <integer>20000</integer>
     </map>
     <key>CacheSize</key>
     <map>
@@ -2567,6 +2589,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGroupChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming Group Chat Popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableIMChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming IM Chat Popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DisplayAvatarAgentTarget</key>
     <map>
       <key>Comment</key>
@@ -2896,6 +2940,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>175</integer>
+    </map>
+    <key>EventURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Event website, displayed in the event floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
     <key>EveryoneCopy</key>
       <map>
@@ -3852,7 +3907,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -3941,6 +3996,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>InactiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of inactive floaters (floaters that have no focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>InBandwidth</key>
     <map>
@@ -4563,6 +4629,17 @@
     <map>
       <key>Comment</key>
       <string>Log network traffic</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LogTextureNetworkTraffic</key>
+    <map>
+      <key>Comment</key>
+      <string>Log network traffic for textures</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5772,13 +5849,13 @@
     <key>ToastGap</key>
     <map>
       <key>Comment</key>
-      <string>Gap between toasts on a screen</string>
+      <string>Gap between toasts on a screen (min. value is 5)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <integer>7</integer>
     </map>
     <key>ToastButtonWidth</key>
     <map>
@@ -5881,6 +5958,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>ObjectCacheEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the object cache.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>OpenDebugStatAdvanced</key>
     <map>
@@ -7965,10 +8053,43 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderShowGroupTitleAll</key>
+    <key>NameTagShowGroupTitles</key>
     <map>
       <key>Comment</key>
       <string>Show group titles in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowDisplayNames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show display names in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NameTagShowFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Highlight the name tags of your friends</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NameTagShowUsernames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show usernames in avatar name tags</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8239,7 +8360,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderUIBuffer</key>
     <map>
@@ -8272,7 +8393,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>RenderUseTriStrips</key>
   <map>
@@ -11035,6 +11156,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>UseDisplayNames</key>
+  <map>
+    <key>Comment</key>
+    <string>Use new, changeable, unicode names</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>
@@ -11087,6 +11219,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>SpeakerParticipantDefaultOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Order for displaying speakers in voice controls.  0 = alphabetical. 1 = recent.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -11244,6 +11387,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>InterpolationTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How long to extrapolate object motion after last packet received</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>3.0</integer>
+    </map>
+    <key>InterpolationPhaseOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds to phase out interpolated motion</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
     </map>
     <key>VerboseLogs</key>
     <map>
@@ -11740,10 +11905,10 @@
       <key>Value</key>
       <real>150000.0</real>
     </map>
-    <key>XUIEditor</key>
+    <key>ExternalEditor</key>
     <map>
       <key>Comment</key>
-      <string>Path to program used to edit XUI files</string>
+      <string>Path to program used to edit LSL scripts and XUI files, e.g.: /usr/bin/gedit --new-window "%s"</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12089,6 +12254,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>300.0</real>
+    </map>
+    <key>GroupMembersSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>The order by which group members will be sorted (name|donated|online)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>name</string>
     </map>
 </map>
 </llsd>

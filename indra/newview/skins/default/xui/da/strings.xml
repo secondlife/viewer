@@ -774,7 +774,7 @@
 	<string name="xml_file">
 		XML Fil
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW Fil
 	</string>
 	<string name="compressed_image_files">
@@ -1264,6 +1264,9 @@
 	<string name="Right Pec">
 		Højre bryst
 	</string>
+	<string name="Invalid Attachment">
+		Ugyldig vedhæftningspunktt
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] gammel
 	</string>
@@ -1641,9 +1644,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD Nederst til højre
 	</string>
-	<string name="Bad attachment point">
-		Ugyldig fæste-punkt
-	</string>
 	<string name="CursorPos">
 		Linie [LINE], Kolonne [COLUMN]
 	</string>
@@ -1658,12 +1658,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
-	</string>
-	<string name="NoOutfits">
-		You don&apos;t have any outfits yet. Try [secondlife:///app/search/all/ Search]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(Efter navn)
@@ -1818,6 +1812,12 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Hjem
 	</string>
 	<string name="FileSaved">
 		Fil gemt
@@ -3435,6 +3435,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="Saved_message">
+		(Gemt [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Dit opkald er blevet besvaret
 	</string>
@@ -3455,6 +3458,12 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Forladt stemme opkald
+	</string>
+	<string name="conference-title-incoming">
+		Konference med [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(IM session eksisterer ikke)
 	</string>
 	<string name="only_user_message">
 		Du er den eneste deltager i denne samtale
@@ -3839,5 +3848,14 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Slet valgte genstande?
+	</string>
+	<string name="DeleteItem">
+		Slet valgte genstand?
+	</string>
+	<string name="EmptyOutfitText">
+		Der er ingen genstande i dette sæt
 	</string>
 </strings>

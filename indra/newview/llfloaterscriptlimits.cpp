@@ -28,6 +28,8 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterscriptlimits.h"
 
+// library includes
+#include "llavatarnamecache.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "message.h"
@@ -289,7 +291,7 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
 		if(tab)
 		{
-			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+		LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
 			if(panel_memory)
 			{
 				panel_memory->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
@@ -300,9 +302,9 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 					btn->setEnabled(true);
 				}
 				
-				panel_memory->setRegionSummary(content);
-			}
-		}
+		panel_memory->setRegionSummary(content);
+	}
+}
 	}
 }
 
@@ -592,17 +594,24 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(U32 status, const std::stri
 // callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
-						 const std::string& first_name,
-						 const std::string& last_name)
+						 const std::string& full_name)
 {
-	std::string name = first_name + " " + last_name;
-
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");	
 	if(!list)
 	{
 		return;
 	}
 	
+	std::string name;
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		name = LLCacheName::buildUsername(full_name);
+	}
+	else
+	{
+		name = full_name;
+	}
+
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
 	{
@@ -668,6 +677,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			std::string name_buf = content["parcels"][i]["objects"][j]["name"].asString();
 			LLUUID task_id = content["parcels"][i]["objects"][j]["id"].asUUID();
 			LLUUID owner_id = content["parcels"][i]["objects"][j]["owner_id"].asUUID();
+			// This field may not be sent by all server versions, but it's OK if
+			// it uses the LLSD default of false
+			bool is_group_owned = content["parcels"][i]["objects"][j]["is_group_owned"].asBoolean();
 
 			F32 location_x = 0.0f;
 			F32 location_y = 0.0f;
@@ -693,15 +705,27 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			// ...and if not use the slightly more painful method of disovery:
 			else
 			{
-				BOOL name_is_cached = gCacheName->getFullName(owner_id, owner_buf);
+				BOOL name_is_cached;
+				if (is_group_owned)
+				{
+					name_is_cached = gCacheName->getGroupName(owner_id, owner_buf);
+				}
+				else
+				{
+					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
+					if (LLAvatarNameCache::useDisplayNames())
+					{
+						owner_buf = LLCacheName::buildUsername(owner_buf);
+					}
+				}
 				if(!name_is_cached)
 				{
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-						gCacheName->get(owner_id, TRUE,
-						boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
-							this, _1, _2, _3));
+						gCacheName->get(owner_id, is_group_owned,  // username
+							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+							    this, _1, _2));
 					}
 				}
 			}
@@ -1309,7 +1333,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 
 // static
 void LLPanelScriptLimitsAttachment::onClickRefresh(void* userdata)
-{	
+{
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{

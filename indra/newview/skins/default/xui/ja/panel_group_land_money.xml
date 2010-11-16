@@ -48,7 +48,7 @@
 			あなたの貢献：
 		</text>
 		<text name="your_contribution_units">
-			m²
+			平方メートル
 		</text>
 		<text name="your_contribution_max_value">
 			（最大 [AMOUNT]）

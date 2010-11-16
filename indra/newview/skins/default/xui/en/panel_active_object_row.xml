@@ -53,6 +53,7 @@
     top="10"
     left_pad="20"
     height="14"
+    parse_urls="false"
     width="245"
     length="1"
     follows="right|left"

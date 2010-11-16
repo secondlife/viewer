@@ -25,17 +25,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="Tilføj ven" name="add_friend" tool_tip="Tilbyd venskab til beboeren"/>
-			<button label="IM" name="im" tool_tip="Åben session med personlige beskeder (IM)"/>
-			<button label="Opkald" name="call" tool_tip="Opkald til denne beboer"/>
-			<button label="Kort" name="show_on_map_btn" tool_tip="Vis beboeren på kortet"/>
-			<button label="Teleport" name="teleport" tool_tip="Tilbyd teleport"/>
-			<button label="▼" name="overflow_btn" tool_tip="Betal penge til eller del beholdning med beboeren"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Tilføj ven" name="add_friend" tool_tip="Tilbyd venskab til beboeren"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="Personlig besked" name="im" tool_tip="Åben session med personlig besked"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Opkald" name="call" tool_tip="Opkald til denne beboer"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="Teleportér" name="teleport" tool_tip="Tilbyd teleport"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<button label="▼" name="overflow_btn" tool_tip="Betal eller del beholdning med denne beboer"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="Redigér profil" name="edit_profile_btn" tool_tip="Redigér din personlige information"/>
-			<button label="Redigér udseende" name="edit_appearance_btn" tool_tip="Opret/redigér dit udseende: fysiske data, tøj m.v."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

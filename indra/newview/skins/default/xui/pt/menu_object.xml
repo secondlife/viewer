@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
 	<menu_item_call label="Tocar" name="Object Touch">
-		<on_enable parameter="Tocar" name="EnableTouch"/>
+		<menu_item_call.on_enable name="EnableTouch" parameter="Tocar"/>
 	</menu_item_call>
 	<menu_item_call label="Editar" name="Edit..."/>
 	<menu_item_call label="Construir" name="Build"/>
@@ -12,6 +12,7 @@
 	<menu_item_call label="Mais zoom" name="Zoom In"/>
 	<context_menu label="Colocar no(a)" name="Put On">
 		<menu_item_call label="Vestir" name="Wear"/>
+		<menu_item_call label="Adicionar" name="Add"/>
 		<context_menu label="Anexar" name="Object Attach"/>
 		<context_menu label="Anexar o HUD" name="Object Attach HUD"/>
 	</context_menu>
@@ -21,7 +22,6 @@
 		<menu_item_call label="Devolver" name="Return..."/>
 		<menu_item_call label="Excluir" name="Delete"/>
 	</context_menu>
-	<menu_item_call label="Comprar" name="Pie Object Bye"/>
 	<menu_item_call label="Pegar" name="Pie Object Take"/>
 	<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
 	<menu_item_call label="Pagar" name="Pay..."/>

@@ -40,7 +40,6 @@
 #include "llavataractions.h"
 #include "llgroupactions.h"
 #include "lllineeditor.h"
-#include "llnamebox.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
@@ -206,7 +205,7 @@ void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 	{
 		mInsignia->setCommitCallback(onCommitAny, this);
 	}
-	mFounderName = getChild<LLNameBox>("founder_name");
+	mFounderName = getChild<LLTextBox>("founder_name");
 
 
 	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
@@ -638,7 +637,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
 	
 	if (mGroupNameEditor) mGroupNameEditor->setVisible(FALSE);
-	if (mFounderName) mFounderName->setNameID(gdatap->mFounderID,FALSE);
+	if (mFounderName) mFounderName->setText(LLSLURL("agent", gdatap->mFounderID, "inspect").getSLURLString());
 	if (mInsignia)
 	{
 		if (gdatap->mInsigniaID.notNull())
@@ -693,7 +692,8 @@ void LLPanelGroupGeneral::updateMembers()
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!mListVisibleMembers || !gdatap 
-		|| !gdatap->isMemberDataComplete())
+		|| !gdatap->isMemberDataComplete()
+		|| gdatap->mMembers.empty())
 	{
 		return;
 	}

@@ -431,6 +431,9 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 			if (gGL.mMaxAnisotropy < 1.f)
 			{
 				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &gGL.mMaxAnisotropy);
+
+				llinfos << "gGL.mMaxAnisotropy: " << gGL.mMaxAnisotropy << llendl ;
+				gGL.mMaxAnisotropy = llmax(1.f, gGL.mMaxAnisotropy) ;
 			}
 			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, gGL.mMaxAnisotropy);
 		}

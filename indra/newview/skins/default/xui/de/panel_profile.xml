@@ -40,17 +40,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="Freund hinzufügen" name="add_friend" tool_tip="Bieten Sie dem Einwohner die Freundschaft an"/>
-			<button label="IM" name="im" tool_tip="Instant Messenger öffnen"/>
-			<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
-			<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen"/>
-			<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
-			<button label="▼" name="overflow_btn" tool_tip="Dem Einwohner Geld geben oder Inventar an den Einwohner schicken"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Freund hinzufügen" name="add_friend" tool_tip="Dem Einwohner die Freundschaft anbieten"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Instant Messenger öffnen"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<button label="▼" name="overflow_btn" tool_tip="Dem Einwohner Geld geben oder Inventar an den Einwohner schicken"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="Profil bearbeiten" name="edit_profile_btn" tool_tip="Ihre persönlichen Informationen bearbeiten"/>
-			<button label="Aussehen bearbeiten" name="edit_appearance_btn" tool_tip="Ihr Aussehen bearbeiten: Körpermaße, Bekleidung, usw."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

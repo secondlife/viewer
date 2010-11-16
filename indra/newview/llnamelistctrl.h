@@ -31,6 +31,7 @@
 
 #include "llscrolllistctrl.h"
 
+class LLAvatarName;
 
 class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
@@ -74,6 +75,7 @@ public:
 	{
 		Optional<NameColumn>	name_column;
 		Optional<bool>	allow_calling_card_drop;
+		Optional<bool>			short_names;
 		Params();
 	};
 
@@ -99,11 +101,6 @@ public:
 
 	void removeNameItem(const LLUUID& agent_id);
 
-	void refresh(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
-
-	static void refreshAll(const LLUUID& id, const std::string& firstname,
-						   const std::string& lastname, BOOL is_group);
-
 	// LLView interface
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
@@ -118,11 +115,13 @@ public:
 	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
+	bool			mShortNames;  // display name only, no SLID
 };
 
 /**

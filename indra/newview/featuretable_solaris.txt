@@ -38,6 +38,7 @@ RenderTextureMemoryMultiple		1	1.0
 UseOcclusion		1       1
 RenderCubeMap		1       1
 WatchdogDisabled				1	1
+RenderUseFBO				1	1
 
 
 //
@@ -52,6 +53,7 @@ RenderAvatarMode	1	0
 RenderLighting		1	0
 RenderObjectBump	1	0
 RenderRippleWater	1	0
+RenderUseFBO		1	0
 
 //
 // Class 1 Hardware
@@ -65,6 +67,7 @@ RenderAvatarMode	1	0
 RenderLighting		1	0
 RenderObjectBump	1	0
 RenderRippleWater	1	0
+RenderUseFBO		1	0
 
 //
 // Class 2 Hardware (make it purty)
@@ -76,6 +79,7 @@ RenderAvatarMode	1	1
 RenderLighting		1	1
 RenderObjectBump	1	1
 RenderRippleWater	1	1
+RenderUseFBO		1	1
 
 //
 // Class 3 Hardware (make it purty)
@@ -87,6 +91,7 @@ RenderAvatarMode	1	1
 RenderLighting		1	1
 RenderObjectBump	1	1
 RenderRippleWater	1	1
+RenderUseFBO		1	1
 
 //
 // No Pixel Shaders available
@@ -114,6 +119,7 @@ RenderParticleCount	1	1024
 RenderTerrainDetail 1	0
 RenderCubeMap		0	0
 UseOcclusion		0	0
+RenderUseFBO		1	0
 
 
 list low

@@ -140,10 +140,10 @@ set(viewer_SOURCE_FILES
     lldriverparam.cpp
     lldynamictexture.cpp
     llemote.cpp
-    lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
+    llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
@@ -169,6 +169,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdaycycle.cpp
+    llfloaterdisplayname.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
@@ -244,6 +245,7 @@ set(viewer_SOURCE_FILES
     llhudeffecttrail.cpp
     llhudicon.cpp
     llhudmanager.cpp
+    llhudnametag.cpp
     llhudobject.cpp
     llhudrender.cpp
     llhudtext.cpp
@@ -290,7 +292,6 @@ set(viewer_SOURCE_FILES
     llmediadataclient.cpp
     llmemoryview.cpp
     llmenucommands.cpp
-    llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -486,6 +487,7 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
+    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -671,10 +673,10 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
-    lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
+    llexternaleditor.h
     llface.h
     llfasttimerview.h
     llfavoritesbar.h
@@ -700,6 +702,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdaycycle.h
+    llfloaterdisplayname.h
     llfloaterenvsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
@@ -775,6 +778,7 @@ set(viewer_HEADER_FILES
     llhudeffecttrail.h
     llhudicon.h
     llhudmanager.h
+    llhudnametag.h
     llhudobject.h
     llhudrender.h
     llhudtext.h
@@ -821,7 +825,6 @@ set(viewer_HEADER_FILES
     llmediadataclient.h
     llmemoryview.h
     llmenucommands.h
-    llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
@@ -1015,6 +1018,7 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
+    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -1473,6 +1477,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
@@ -1494,7 +1501,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
-      ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll

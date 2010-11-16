@@ -38,6 +38,8 @@
 #include "message.h"
 #include "llmemtype.h"
 
+#include <boost/regex.hpp>
+
 // llsd serialization constants
 static const std::string AGENTS("agents");
 static const std::string GROUPS("groups");
@@ -69,6 +71,8 @@ public:
 public:
 	bool mIsGroup;
 	U32 mCreateTime;	// unix time_t
+	// IDEVO TODO collapse names to one field, which will eliminate
+	// many string compares on "Resident"
 	std::string mFirstName;
 	std::string mLastName;
 	std::string mGroupName;
@@ -214,7 +218,9 @@ public:
 
 	Impl(LLMessageSystem* msg);
 	~Impl();
-	
+
+	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
+
 	boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
 	void addPending(const LLUUID& id, const LLHost& host);
 	
@@ -300,89 +306,10 @@ boost::signals2::connection LLCacheName::addObserver(const LLCacheNameCallback& 
 	return impl.mSignal.connect(callback);
 }
 
-void LLCacheName::importFile(LLFILE* fp)
-{
-	S32 count = 0;
-
-	const S32 BUFFER_SIZE = 1024;
-	char buffer[BUFFER_SIZE];	/*Flawfinder: ignore*/
-
-	// *NOTE: These buffer sizes are hardcoded into sscanf() below
-	char id_string[MAX_STRING]; /*Flawfinder: ignore*/
-	char firstname[MAX_STRING]; /*Flawfinder: ignore*/
-	char lastname[MAX_STRING]; /*Flawfinder: ignore*/
-	U32 create_time;
-
-	// This is OK if the first line is actually a name.  We just don't load it.
-	char* valid = fgets(buffer, BUFFER_SIZE, fp);
-	if (!valid) return;
-
-	// *NOTE: This buffer size is hardcoded into sscanf() below
-	char version_string[BUFFER_SIZE]; /*Flawfinder: ignore*/
-	S32 version = 0;
-	S32 match = sscanf(	/* Flawfinder: ignore */
-		buffer,
-		"%1023s %d",
-		version_string, &version);
-	if (   match != 2
-		|| strcmp(version_string, "version")
-		|| version != CN_FILE_VERSION)
-	{
-		llwarns << "Ignoring old cache name file format" << llendl;
-		return;
-	}
-
-	// We'll expire entries more than a week old
-	U32 now = (U32)time(NULL);
-	const U32 SECS_PER_DAY = 60 * 60 * 24;
-	U32 delete_before_time = now - (7 * SECS_PER_DAY);
-
-	while(!feof(fp))
-	{
-		valid = fgets(buffer, BUFFER_SIZE, fp);
-		if (!valid) break;
-
-		match = sscanf(	/* Flawfinder: ignore */
-			buffer,
-			"%254s %u %254s %254s",
-			id_string, 
-			&create_time,
-			firstname, 
-			lastname);
-		if (4 != match) continue;
-
-		LLUUID id(id_string);
-		if (id.isNull()) continue;
-
-		// undo trivial XOR
-		S32 i;
-		for (i = 0; i < UUID_BYTES; i++)
-		{
-			id.mData[i] ^= 0x33;
-		}
-
-		// Don't load entries that are more than a week old
-		if (create_time < delete_before_time) continue;
-
-		LLCacheNameEntry* entry = new LLCacheNameEntry();
-		entry->mIsGroup = false;
-		entry->mCreateTime = create_time;
-		entry->mFirstName = firstname;
-		entry->mLastName = lastname;
-		impl.mCache[id] = entry;
-		std::string fullname = entry->mFirstName + " " + entry->mLastName;
-		impl.mReverseCache[fullname] = id;
-		
-		count++;
-	}
-
-	llinfos << "LLCacheName loaded " << count << " names" << llendl;
-}
-
 bool LLCacheName::importFile(std::istream& istr)
 {
 	LLSD data;
-	if(LLSDSerialize::fromXML(data, istr) < 1)
+	if(LLSDSerialize::fromXMLDocument(data, istr) < 1)
 		return false;
 
 	// We'll expire entries more than a week old
@@ -408,7 +335,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		entry->mFirstName = agent[FIRST].asString();
 		entry->mLastName = agent[LAST].asString();
 		impl.mCache[id] = entry;
-		std::string fullname = entry->mFirstName + " " + entry->mLastName;
+		std::string fullname = buildFullName(entry->mFirstName, entry->mLastName);
 		impl.mReverseCache[fullname] = id;
 
 		++count;
@@ -457,6 +384,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// store it
 		LLUUID id = iter->first;
 		std::string id_str = id.asString();
+		// IDEVO TODO: Should we store SLIDs with last name "Resident" or not?
 		if(!entry->mFirstName.empty() && !entry->mLastName.empty())
 		{
 			data[AGENTS][id_str][FIRST] = entry->mFirstName;
@@ -474,7 +402,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
-BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& last)
+BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last)
 {
 	if(id.isNull())
 	{
@@ -483,7 +411,7 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 		return TRUE;
 	}
 
-	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
+	LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
 	if (entry)
 	{
 		first = entry->mFirstName;
@@ -494,16 +422,17 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 	{
 		first = sCacheName["waiting"];
 		last.clear();
-		if (!impl.isRequestPending(id))
+		if (!isRequestPending(id))
 		{
-			impl.mAskNameQueue.insert(id);
+			mAskNameQueue.insert(id);
 		}	
 		return FALSE;
 	}
 
 }
+
 // static
-void LLCacheName::LocalizeCacheName(std::string key, std::string value)
+void LLCacheName::localizeCacheName(std::string key, std::string value)
 {
 	if (key!="" && value!= "" )
 		sCacheName[key]=value;
@@ -514,10 +443,12 @@ void LLCacheName::LocalizeCacheName(std::string key, std::string value)
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
 	std::string first_name, last_name;
-	BOOL res = getName(id, first_name, last_name);
-	fullname = first_name + " " + last_name;
+	BOOL res = impl.getName(id, first_name, last_name);
+	fullname = buildFullName(first_name, last_name);
 	return res;
 }
+
+
 
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
@@ -555,13 +486,13 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
 {
-	std::string fullname = first + " " + last;
-	return getUUID(fullname, id);
+	std::string full_name = buildFullName(first, last);
+	return getUUID(full_name, id);
 }
 
-BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
+BOOL LLCacheName::getUUID(const std::string& full_name, LLUUID& id)
 {
-	ReverseCache::iterator iter = impl.mReverseCache.find(fullname);
+	ReverseCache::iterator iter = impl.mReverseCache.find(full_name);
 	if (iter != impl.mReverseCache.end())
 	{
 		id = iter->second;
@@ -573,6 +504,89 @@ BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
 	}
 }
 
+//static
+std::string LLCacheName::buildFullName(const std::string& first, const std::string& last)
+{
+	std::string fullname = first;
+	if (!last.empty()
+		&& last != "Resident")
+	{
+		fullname += ' ';
+		fullname += last;
+	}
+	return fullname;
+}
+
+//static
+std::string LLCacheName::cleanFullName(const std::string& full_name)
+{
+	return full_name.substr(0, full_name.find(" Resident"));
+}
+
+//static 
+std::string LLCacheName::buildUsername(const std::string& full_name)
+{
+	// rare, but handle hard-coded error names returned from server
+	if (full_name == "(\?\?\?) (\?\?\?)")
+	{
+		return "(\?\?\?)";
+	}
+	
+	std::string::size_type index = full_name.find(' ');
+
+	if (index != std::string::npos)
+	{
+		std::string username;
+		username = full_name.substr(0, index);
+		std::string lastname = full_name.substr(index+1);
+
+		if (lastname != "Resident")
+		{
+			username = username + "." + lastname;
+		}
+		
+		LLStringUtil::toLower(username);
+		return username;
+	}
+
+	// if the input wasn't a correctly formatted legacy name just return it unchanged
+	return full_name;
+}
+
+//static 
+std::string LLCacheName::buildLegacyName(const std::string& complete_name)
+{
+	// regexp doesn't play nice with unicode, chop off the display name
+	S32 open_paren = complete_name.rfind(" (");
+
+	if (open_paren == std::string::npos)
+	{
+		return complete_name;
+	}
+
+	std::string username = complete_name.substr(open_paren);
+	boost::regex complete_name_regex("( \\()([a-z0-9]+)(.[a-z]+)*(\\))");
+	boost::match_results<std::string::const_iterator> name_results;
+	if (!boost::regex_match(username, name_results, complete_name_regex)) return complete_name;
+
+	std::string legacy_name = name_results[2];
+	// capitalize the first letter
+	std::string cap_letter = legacy_name.substr(0, 1);
+	LLStringUtil::toUpper(cap_letter);
+	legacy_name = cap_letter + legacy_name.substr(1);
+
+	if (name_results[3].matched)
+	{
+		std::string last_name = name_results[3];
+		std::string cap_letter = last_name.substr(1, 1);
+		LLStringUtil::toUpper(cap_letter);
+		last_name = cap_letter + last_name.substr(2);
+		legacy_name = legacy_name + " " + last_name;
+	}
+
+	return legacy_name;
+}
+
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
 //  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior
@@ -580,7 +594,7 @@ BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
 //  we call it immediately. -Steve
 // NOTE: Even though passing first and last name is a bit of extra overhead, it eliminates the
 //  potential need for any parsing should any code need to handle first and last name independently.
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)
 {
 	boost::signals2::connection res;
 	
@@ -588,7 +602,7 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 	{
 		LLCacheNameSignal signal;
 		signal.connect(callback);
-		signal(id, sCacheName["nobody"], "", is_group);
+		signal(id, sCacheName["nobody"], is_group);
 		return res;
 	}
 
@@ -600,11 +614,13 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 		// id found in map therefore we can call the callback immediately.
 		if (entry->mIsGroup)
 		{
-			signal(id, entry->mGroupName, "", entry->mIsGroup);
+			signal(id, entry->mGroupName, entry->mIsGroup);
 		}
 		else
 		{
-			signal(id, entry->mFirstName, entry->mLastName, entry->mIsGroup);
+			std::string fullname =
+				buildFullName(entry->mFirstName, entry->mLastName);
+			signal(id, fullname, entry->mIsGroup);
 		}
 	}
 	else
@@ -626,9 +642,15 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 	return res;
 }
 
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data)
+boost::signals2::connection LLCacheName::getGroup(const LLUUID& group_id,
+												  const LLCacheNameCallback& callback)
 {
-	return get(id, is_group, boost::bind(callback, _1, _2, _3, _4, user_data));
+	return get(group_id, true, callback);
+}
+
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data)
+{
+	return get(id, is_group, boost::bind(callback, _1, _2, _3, user_data));
 }
 
 void LLCacheName::processPending()
@@ -700,7 +722,7 @@ void LLCacheName::dump()
 		{
 			llinfos
 				<< iter->first << " = "
-				<< entry->mFirstName << " " << entry->mLastName
+				<< buildFullName(entry->mFirstName, entry->mLastName)
 				<< " @ " << entry->mCreateTime
 				<< llendl;
 		}
@@ -719,10 +741,22 @@ void LLCacheName::dumpStats()
 			<< llendl;
 }
 
+void LLCacheName::clear()
+{
+	for_each(impl.mCache.begin(), impl.mCache.end(), DeletePairedPointer());
+	impl.mCache.clear();
+}
+
 //static 
 std::string LLCacheName::getDefaultName()
 {
 	return sCacheName["waiting"];
+}
+
+//static 
+std::string LLCacheName::getDefaultLastName()
+{
+	return "Resident";
 }
 
 void LLCacheName::Impl::processPendingAsks()
@@ -746,11 +780,13 @@ void LLCacheName::Impl::processPendingReplies()
 
 		if (!entry->mIsGroup)
 		{
-			(reply->mSignal)(reply->mID, entry->mFirstName, entry->mLastName, FALSE);
+			std::string fullname =
+				LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+			(reply->mSignal)(reply->mID, fullname, false);
 		}
 		else
 		{
-			(reply->mSignal)(reply->mID, entry->mGroupName, "", TRUE);
+			(reply->mSignal)(reply->mID, entry->mGroupName, true);
 		}
 	}
 
@@ -921,13 +957,27 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 		if (!isGroup)
 		{
-			mSignal(id, entry->mFirstName, entry->mLastName, FALSE);
-			std::string fullname = entry->mFirstName + " " + entry->mLastName;
-			mReverseCache[fullname] = id;
+			// NOTE: Very occasionally the server sends down a full name
+			// in the first name field with an empty last name, for example,
+			// first = "Ladanie1 Resident", last = "".
+			// I cannot reproduce this, nor can I find a bug in the server code.
+			// Ensure "Resident" does not appear via cleanFullName, because
+			// buildFullName only checks last name. JC
+			std::string full_name;
+			if (entry->mLastName.empty())
+			{
+				full_name = cleanFullName(entry->mFirstName);
+			}
+			else
+			{
+				full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+			}
+			mSignal(id, full_name, false);
+			mReverseCache[full_name] = id;
 		}
 		else
 		{
-			mSignal(id, entry->mGroupName, "", TRUE);
+			mSignal(id, entry->mGroupName, true);
 			mReverseCache[entry->mGroupName] = id;
 		}
 	}
@@ -956,4 +1006,3 @@ void LLCacheName::Impl::handleUUIDGroupNameReply(LLMessageSystem* msg, void** us
 {
 	((LLCacheName::Impl*)userData)->processUUIDReply(msg, true);
 }
-

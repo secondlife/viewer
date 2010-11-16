@@ -45,7 +45,13 @@
 		<button name="shop_btn_2" tool_tip="Odwiedź stronę SL Marketplace. Możesz również zaznaczyć rzecz, którą masz na sobie a następnie kliknąć tutaj aby zobaczyć więcej rzeczy tego rodzaju."/>
 	</panel>
 	<panel name="save_revert_button_bar">
-		<button label="Zapisz" name="save_btn"/>
-		<button label="Cofnij zmiany" name="revert_btn" tool_tip="Cofnij do ostatniej zapisanej wersji"/>
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Zapisz" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Cofnij zmiany" name="revert_btn" tool_tip="Przywróć ostatnią zapisaną wersję"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

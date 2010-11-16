@@ -39,6 +39,7 @@
 		<action description="Toujours autoriser à créer des objets" longdescription="Vous pouvez créer des objets sur une parcelle du groupe, même si l&apos;option est désactivée à partir du menu À propos du terrain &gt; Options." name="land allow create" value="25"/>
 		<action description="Toujours autoriser à créer des repères" longdescription="Vous pouvez créer un repère sur une parcelle du groupe, même si l&apos;option est désactivée à partir du menu À propos du terrain &gt; Options." name="land allow landmark" value="26"/>
 		<action description="Autoriser à définir un domicile sur le terrain du groupe" longdescription="Un membre dans un rôle avec ce pouvoir peut utiliser le menu Monde &gt; Repères &gt; Définir le domicile ici sur une parcelle cédée à ce groupe." name="land allow set home" value="28"/>
+		<action description="Autoriser la réception d&apos;événements sur les terrains du groupe" longdescription="Les membres dont le rôle possède ce pouvoir peuvent sélectionner les parcelles détenues par le groupe comme lieu de réception lors d&apos;un événement." name="land allow host event" value="41"/>
 	</action_set>
 	<action_set description="Ces pouvoirs permettent d&apos;autoriser ou d&apos;interdire l&apos;accès à des parcelles du groupe et de figer ou d&apos;expulser des résidents." name="Parcel Access">
 		<action description="Gérer la liste d&apos;accès à la parcelle" longdescription="Gérez la liste des résidents autorisés sur la parcelle à partir du menu À propos du terrain &gt; Accès." name="land manage allowed" value="29"/>
@@ -64,13 +65,9 @@
 		<action description="Envoyer des notices" longdescription="Les membres dans un rôle avec ce pouvoir peuvent envoyer des notices par le biais de la section Groupe &gt; Notices." name="notices send" value="42"/>
 		<action description="Recevoir et consulter les notices" longdescription="Les membres dans un rôle avec ce pouvoir peuvent recevoir des notices et consulter les anciennes notices par le biais de la section Groupe &gt; Notices." name="notices receive" value="43"/>
 	</action_set>
-	<action_set description="Ces pouvoirs permettent de créer de nouvelles propositions, de voter et de consulter l&apos;historique des votes." name="Proposals">
-		<action description="Créer des propositions" longdescription="Ces pouvoirs permettent de créer des propositions et de les soumettre au vote, à partir du menu Profil du groupe &gt; Propositions." name="proposal start" value="44"/>
-		<action description="Voter les propositions" longdescription="Votez les propositions à partir du menu Profil du groupe &gt; Propositions." name="proposal vote" value="45"/>
-	</action_set>
 	<action_set description="Ces pouvoirs vous permettent de gérer l&apos;accès aux sessions de chat écrit ou vocal du groupe." name="Chat">
-		<action description="Participer aux chats" longdescription="Participez aux chats du groupe." name="join group chat"/>
-		<action description="Participer au chat vocal" longdescription="Participez au chat vocal du groupe. Remarque : vous devez au préalable avoir le pouvoir de participer aux chats." name="join voice chat"/>
-		<action description="Modérer les chats" longdescription="Contrôlez l&apos;accès et la participation aux chats de groupe écrits et vocaux." name="moderate group chat"/>
+		<action description="Participer aux chats" longdescription="Participez aux chats du groupe." name="join group chat" value="16"/>
+		<action description="Participer au chat vocal" longdescription="Participez au chat vocal du groupe. Remarque : vous devez au préalable avoir le pouvoir de participer aux chats." name="join voice chat" value="27"/>
+		<action description="Modérer les chats" longdescription="Contrôlez l&apos;accès et la participation aux chats de groupe écrits et vocaux." name="moderate group chat" value="37"/>
 	</action_set>
 </role_actions>

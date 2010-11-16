@@ -52,6 +52,7 @@ viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
 
+
 # ========================================
 # aimee
 # ========================================
@@ -101,6 +102,26 @@ gooey.viewer_channel = "Second Life Alpha"
 gooey.login_channel = "Second Life Alpha"
 gooey.viewer_grid = agni
 gooey.build_viewer_update_version_manager = false
+
+# ========================================
+# Display Names project
+# ========================================
+
+#viewer-identity-evolution.email = leyla@lindenlab.com
+viewer-identity.build_Debug = false
+viewer-identity.build_RelWithDebInfo = false
+viewer-identity.build_viewer = true
+viewer-identity.build_server = false
+viewer-identity.build_server_tests = false
+viewer-identity.build_Linux = true
+viewer-identity.build_hg_bundle = true
+viewer-identity.bulld_docs = true
+viewer-identity.viewer_channel = "Second Life Project Viewer"
+viewer-identity.login_channel = "Second Life Project Viewer"
+viewer-identity.viewer_grid = aditi
+viewer-identity.build_viewer_update_version_manager = false
+
+
 
 # ========================================
 # palange

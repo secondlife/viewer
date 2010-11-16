@@ -58,8 +58,6 @@ public:
 
 	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
 
-	/*virtual*/ void showGearMenu(LLView* spawning_view);
-
 	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
 	boost::signals2::connection setSelectionChangeCallback(commit_callback_t cb);

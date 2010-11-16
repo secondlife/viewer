@@ -25,17 +25,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="Poznaj" name="add_friend" tool_tip="Zaoferuj znajomość Rezydentowi"/>
-			<button label="IM" name="im" tool_tip="Rozpocznij sesję czatu (IM)"/>
-			<button label="Dzwoń" name="call" tool_tip="Zadzwoń"/>
-			<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż Rezydenta na mapie"/>
-			<button label="Teleportuj" name="teleport" tool_tip="Teleportuj"/>
-			<button label="▼" name="overflow_btn" tool_tip="Zapłać lub udostępnij obiekty Rezydentowi"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Poznaj" name="add_friend" tool_tip="Zaproponuj znajomość Rezydentowi"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Otwórz wiadomości IM"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Dzwoń" name="call" tool_tip="Zadzwoń do tego Rezydenta"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="Teleportuj" name="teleport" tool_tip="Teleportuj"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<button label="▼" name="overflow_btn" tool_tip="Zapłać lub udostępnij obiekt Rezydentowi"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
-			<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
-			<button label="Edytuj wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubranie..."/>
+			<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj informacje o sobie"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

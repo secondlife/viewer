@@ -57,6 +57,7 @@ public:
 		POOL_BUMP,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
+		POOL_VOIDWATER,
 		POOL_WATER,
 		POOL_GLOW,
 		POOL_ALPHA,
@@ -167,7 +168,6 @@ public:
 	LLFacePool(const U32 type);
 	virtual ~LLFacePool();
 	
-	virtual void renderForSelect() = 0;
 	BOOL isDead() { return mReferences.empty(); }
 	
 	virtual LLViewerTexture *getTexture();

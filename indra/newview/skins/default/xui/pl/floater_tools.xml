@@ -174,21 +174,21 @@
 				Twórca:
 			</text>
 			<text name="Creator Name">
-				Thrax Linden
+				Pani Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Właściciel:
 			</text>
 			<text name="Owner Name">
-				Thrax Linden
+				Pani Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupa:
 			</text>
-			<button label="Ustaw..." label_selected="Ustaw..." name="button set group" tool_tip="Wybierz grupę, która uzyska dostęp do praw obiektu"/>
 			<name_box initial_value="Ładowanie..." name="Group Name Proxy"/>
-			<button label="Przypisz" label_selected="Przypisz" name="button deed" tool_tip="Przypisanie oddaje prawa następnemu właścicielowi. Obiekty posiadane przez grupę mogą zostać przypisane przez oficera grupy."/>
+			<button label="Ustaw..." label_selected="Ustaw..." name="button set group" tool_tip="Wybierz grupę, która uzyska dostęp do praw obiektu"/>
 			<check_box label="Udostępnij" name="checkbox share with group" tool_tip="Pozwól członkom grupy na dzielenie praw do modyfikacji tego obiektu. Musisz przypisać obiekt aby uaktywnić ograniczenia dla ról."/>
+			<button label="Przypisz" label_selected="Przypisz" name="button deed" tool_tip="Przypisanie oddaje prawa następnemu właścicielowi. Obiekty posiadane przez grupę mogą zostać przypisane przez oficera grupy."/>
 			<text name="label click action">
 				Kliknij:
 			</text>
@@ -446,8 +446,9 @@
 				<combo_box.item label="Suction" name="suction"/>
 				<combo_box.item label="Fali" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
-				Powtórzenia
+			<check_box initial_value="nieprawda" label="Połącz powierzchnie planarne" name="checkbox planar align" tool_tip="Połącz tekstury na wszystkich wybranych powierzchniach z powierzchnią wybraną jako ostatnia. Wymaga planarnego mapowania tekstury."/>
+			<text name="rpt">
+				Powtórzenia / Powierzchnia
 			</text>
 			<spinner label="Poziomo (U)" name="TexScaleU"/>
 			<check_box label="Odwróć" name="checkbox flip s"/>

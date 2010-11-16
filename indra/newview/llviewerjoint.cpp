@@ -257,7 +257,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 		// if object is transparent, defer it, otherwise
 		// give the joint subclass a chance to draw itself
 		//----------------------------------------------------------------
-		if ( gRenderForSelect || is_dummy )
+		if ( is_dummy )
 		{
 			triangle_count += drawShape( pixelArea, first_pass, is_dummy );
 		}
