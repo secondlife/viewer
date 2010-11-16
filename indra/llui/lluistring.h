@@ -63,8 +63,6 @@ public:
 	LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
 	~LLUIString() { delete mArgs; }
 
-	~LLUIString() { delete mArgs; }
-
 	void assign(const std::string& instring);
 	LLUIString& operator=(const std::string& s) { assign(s); return *this; }
 

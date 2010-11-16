@@ -174,7 +174,7 @@ bool LLUrlEntryBase::isLinkDisabled() const
 	// this allows us to have a global setting to turn off text hyperlink highlighting/action
 	bool globally_disabled = LLUI::sSettingGroups["config"]->getBOOL("DisableTextHyperlinkActions");
 
-	return mDisabledLink || globally_disabled;
+	return globally_disabled;
 }
 
 static std::string getStringAfterToken(const std::string str, const std::string token)
