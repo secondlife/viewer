@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
+#include "lllslconstants.h"
 #include "llregionhandle.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
@@ -6435,8 +6436,22 @@ const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
-	std::string button = LLNotification::getSelectedOptionName(response);
-	S32 button_idx = LLNotification::getSelectedOption(notification, response);
+
+	std::string rtn_text;
+	S32 button_idx;
+	button_idx = LLNotification::getSelectedOption(notification, response);
+	if (response[TEXTBOX_MAGIC_TOKEN].isDefined())
+	{
+		if (response[TEXTBOX_MAGIC_TOKEN].isString())
+			rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
+		else
+			rtn_text.clear(); // bool marks empty string
+	}
+	else
+	{
+		rtn_text = LLNotification::getSelectedOptionName(response);
+	}
+
 	// Didn't click "Ignore"
 	if (button_idx != -1)
 	{
@@ -6449,7 +6464,7 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addUUID("ObjectID", notification["payload"]["object_id"].asUUID());
 		msg->addS32("ChatChannel", notification["payload"]["chat_channel"].asInteger());
 		msg->addS32("ButtonIndex", button_idx);
-		msg->addString("ButtonLabel", button);
+		msg->addString("ButtonLabel", rtn_text);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
 	}
 
