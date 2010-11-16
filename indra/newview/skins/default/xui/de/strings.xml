@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Anklicken, um das Profil dieses Einwohners anzuzeigen
 	</string>
+	<string name="TooltipAgentInspect">
+		Mehr über diesen Einwohner
+	</string>
 	<string name="TooltipAgentMute">
 		Klicken, um diesen Einwohner stummzuschalten
 	</string>
@@ -761,6 +764,12 @@
 	</string>
 	<string name="Estate / Full Region">
 		Grundstück / Vollständige Region
+	</string>
+	<string name="Estate / Homestead">
+		Grundbesitz/Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland/Homestead
 	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Vollständige Region
@@ -3574,7 +3583,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Sie sind der einzige Benutzer in dieser Sitzung.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] ist offline.
+		[NAME] ist offline.
 	</string>
 	<string name="invite_message">
 		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
@@ -3643,7 +3652,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
+		[NAME] hat Ihnen [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
@@ -3656,6 +3668,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Sie haben [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="for item">
+		für [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		für eine Landparzelle
@@ -3674,6 +3689,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="to upload">
 		fürs Hochladen
+	</string>
+	<string name="to publish a classified ad">
+		um eine Anzeige aufzugeben
 	</string>
 	<string name="giving">
 		[AMOUNT] L$ werden bezahlt

@@ -335,7 +335,7 @@ public:
 		
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
-		if(mSourceType != CHAT_SOURCE_AGENT)
+		if(mSourceType != CHAT_SOURCE_AGENT ||	mAvatarID.isNull())
 			icon->setDrawTooltip(false);
 
 		switch (mSourceType)
@@ -798,9 +798,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
-				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+
+				// Setting is_link = true for agent SLURL to avoid applying default style to it.
+				// See LLTextBase::appendTextImpl().
+				link_params.is_link = true;
+				link_params.link_href = LLSLURL("agent", chat.mFromID, "inspect").getSLURLString();
+
 				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(link_params.link_href, false, style_params);
+				mEditor->appendText(chat.mFromName, false, link_params);
 				mEditor->appendText(delimiter, false, style_params);
 			}
 			else

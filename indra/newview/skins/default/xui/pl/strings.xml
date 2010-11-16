@@ -191,6 +191,9 @@
 	<string name="TooltipAgentUrl">
 		Kliknij aby zobaczyc profil Rezydenta
 	</string>
+	<string name="TooltipAgentInspect">
+		Dowiedz się więcej o tym Rezydencie
+	</string>
 	<string name="TooltipAgentMute">
 		Kliknij aby wyciszyc tego Rezydenta
 	</string>
@@ -737,6 +740,12 @@
 	</string>
 	<string name="Estate / Full Region">
 		Majątek / Region
+	</string>
+	<string name="Estate / Homestead">
+		Estate / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland / Homestead
 	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Region
@@ -3469,7 +3478,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Jesteś jedyną osobą w tej konferencji.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] - ta osoba jest obecnie niedostępna.
+		[NAME] opuszcza Second Life.
 	</string>
 	<string name="invite_message">
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
@@ -3538,7 +3547,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] zapłacił Ci L$[AMOUNT]
+		[NAME] zapłaciła/zapłacił Tobie [AMOUNT]L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] zapłacił/zapłaciła Tobie L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Zapłacono [NAME] [AMOUNT]L$ [REASON].
@@ -3551,6 +3563,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Zapłacono [AMOUNT]L$ [REASON].
+	</string>
+	<string name="for item">
+		dla [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		za Posiadłość
@@ -3569,6 +3584,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		aby pobrać
+	</string>
+	<string name="to publish a classified ad">
+		publikacja reklamy
 	</string>
 	<string name="giving">
 		Dajesz L$ [AMOUNT]

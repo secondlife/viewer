@@ -10,10 +10,12 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
+	<text name="user_name_small" value="Grumpity ProductEngine with a long name"/>
 	<text name="user_name" value="Grumpity ProductEngine"/>
+	<text name="user_slid" value="james.linden"/>
 	<text name="user_subtitle" value="11 mois, 3 jours"/>
 	<text name="user_details">
-		C&apos;est ma description second life et je la trouve vraiment géniale.
+		This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
 	</text>
 	<slider name="volume_slider" tool_tip="Volume de la voix" value="0.5"/>
 	<button label="Devenir amis" name="add_friend_btn"/>
