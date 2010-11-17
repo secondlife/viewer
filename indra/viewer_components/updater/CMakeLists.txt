@@ -80,25 +80,3 @@ set(UPDATER_LIBRARIES
   llupdaterservice
   CACHE INTERNAL ""
 )
-
-# Copy install script.
-if(DARWIN)
-	copy_if_different(
-		"${CMAKE_CURRENT_SOURCE_DIR}/scripts/darwin"
-		"${CMAKE_CURRENT_BINARY_DIR}"
-		update_installer_targets
-		"update_install"
-		)
-elseif(WINDOWS)
-	copy_if_different(
-		"${CMAKE_CURRENT_SOURCE_DIR}/scripts/windows"
-		"${CMAKE_CURRENT_BINARY_DIR}"
-		update_installer_targets
-		"update_install.bat"
-		)
-endif()
-add_custom_target(copy_update_install ALL DEPENDS ${update_installer_targets})
-add_dependencies(llupdaterservice copy_update_install)
-
-
- 
