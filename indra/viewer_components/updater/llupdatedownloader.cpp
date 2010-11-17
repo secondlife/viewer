@@ -308,6 +308,7 @@ void LLUpdateDownloader::Implementation::run(void)
 		LL_WARNS("UpdateDownload") << "download failed with error '" << 
 			curl_easy_strerror(code) << "'" << LL_ENDL;
 		LLFile::remove(mDownloadRecordPath);
+		if(mDownloadData.has("path")) LLFile::remove(mDownloadData["path"].asString());
 		mClient.downloadError("curl error");
 	}
 	
