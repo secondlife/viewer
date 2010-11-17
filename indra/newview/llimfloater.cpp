@@ -680,8 +680,6 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
-
 		LLSD chat_args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
 
