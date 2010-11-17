@@ -88,6 +88,7 @@
      top_pad="20"
      width="237"/>
     <check_box
+     control_name="ForceShowGrid"
      follows="top|left"
      height="15"
      label="Show Grid Selection at login"
