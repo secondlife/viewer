@@ -403,15 +403,6 @@ gpointer worker_thread_cb(gpointer data)
 		app_state->failure = TRUE;
 	}
 
-	// FIXME: delete package file also if delete-event is raised on window
-	if(!app_state->url.empty() && !app_state->file.empty())
-	{
-		if (gDirUtilp->fileExists(app_state->file))
-		{
-			LLFile::remove(app_state->file);
-		}
-	}
-
 	gdk_threads_enter();
 	updater_app_quit(app_state);
 	gdk_threads_leave();
@@ -823,6 +814,15 @@ int main(int argc, char **argv)
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
+
+	// Delete the file only if created from url download.
+	if(!app_state->url.empty() && !app_state->file.empty())
+	{
+		if (gDirUtilp->fileExists(app_state->file))
+		{
+			LLFile::remove(app_state->file);
+		}
+	}
 
 	bool success = app_state->failure != FALSE;
 	delete app_state;

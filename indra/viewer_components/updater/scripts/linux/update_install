@@ -6,3 +6,5 @@ bin/linux-updater.bin --file "$1" --dest "$INSTALL_DIR" --name "Second Life View
 if [ $? -ne 0 ]
    then touch $2
 fi
+
+rm -f $1
