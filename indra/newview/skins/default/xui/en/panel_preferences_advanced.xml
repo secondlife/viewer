@@ -98,6 +98,7 @@
      top_pad="5"
      width="237"/>
     <check_box
+     control_name="UseDebugMenus"
      follows="top|left"
      height="15"
      label="Show Advanced Menu"
@@ -107,6 +108,7 @@
      top_pad="5"
      width="237"/>
     <check_box
+     control_name="QAMode"
      follows="top|left"
      height="15"
      label="Show Developer Menu"

@@ -1304,7 +1304,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 
 	// handle ctrl-uparrow if we have a history enabled line editor.
 	case KEY_UP:
-		if( mHaveHistory && ( MASK_CONTROL == mask ) )
+		if( mHaveHistory && ((mIgnoreArrowKeys == false) || ( MASK_CONTROL == mask )) )
 		{
 			if( mCurrentHistoryLine > mLineHistory.begin() )
 			{
@@ -1319,9 +1319,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		}
 		break;
 
-	// handle ctrl-downarrow if we have a history enabled line editor
+	// handle [ctrl]-downarrow if we have a history enabled line editor
 	case KEY_DOWN:
-		if( mHaveHistory  && ( MASK_CONTROL == mask ) )
+		if( mHaveHistory  && ((mIgnoreArrowKeys == false) || ( MASK_CONTROL == mask )) )
 		{
 			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.end() - 1 )
 			{
