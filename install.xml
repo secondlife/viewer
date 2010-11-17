@@ -1408,7 +1408,7 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>vivox</key>
+      <key>slvoice</key>
       <map>
         <key>copyright</key>
         <string> </string>
@@ -1433,9 +1433,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e8fdd46cb026c2ec72c4489eb3bf39c1</string>
+            <string>f8ad27499ac29f0b9343f36c46f5a709</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20101117.tar.bz2</uri>
           </map>
         </map>
       </map>
