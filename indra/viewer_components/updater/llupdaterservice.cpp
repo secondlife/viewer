@@ -353,9 +353,11 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 
 void LLUpdaterServiceImpl::downloadError(std::string const & message) 
 { 
+	LL_INFOS("UpdaterService") << "Error downloading: " << message << LL_ENDL;
+
 	mIsDownloading = false;
 
-	// Restart the 
+	// Restart the timer on error
 	if(mIsChecking)
 	{
 		restartTimer(mCheckPeriod); 
@@ -365,7 +367,7 @@ void LLUpdaterServiceImpl::downloadError(std::string const & message)
 void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 {
 	LL_INFOS("UpdaterService") << "will check for update again in " << 
-	mCheckPeriod << " seconds" << LL_ENDL; 
+	seconds << " seconds" << LL_ENDL; 
 	mTimer.start();
 	mTimer.setTimerExpirySec(seconds);
 	LLEventPumps::instance().obtain("mainloop").listen(

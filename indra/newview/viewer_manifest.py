@@ -247,13 +247,12 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
+        self.path("../viewer_components/updater/scripts/windows/update_install.bat")
+
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            if self.prefix(src="../../viewer_components/updater", dst=""):
-                self.path("update_install.bat")
-                self.end_prefix()
 
             self.enable_crt_manifest_check()
 
@@ -575,12 +574,8 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
-			
-					
-            if self.prefix(src="../viewer_components/updater", dst="MacOS"):
-                self.path("update_install")
-                self.end_prefix()
 
+            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -856,6 +851,8 @@ class LinuxManifest(ViewerManifest):
             self.path("*")
             # recurse
             self.end_prefix("res-sdl")
+
+        self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
 
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
