@@ -1426,9 +1426,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>98f7945755f3ee8e52f685a3eff4d7be</string>
+            <string>e425d218ea043ec00a28127168d2c90c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-linux-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20101117.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
