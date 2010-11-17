@@ -203,4 +203,15 @@
      value="1"
      width="75" />
   </radio_group>
+  <button
+   height="23"
+   label="Other Devices"
+   left="30"
+   name="joystick_setup_button"
+   top="30"
+   width="155">
+    <button.commit_callback
+     function="Floater.Show"
+     parameter="pref_joystick" />
+  </button>
 </panel>
