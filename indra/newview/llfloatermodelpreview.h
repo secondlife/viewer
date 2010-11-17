@@ -46,6 +46,8 @@ class LLFloaterModelPreview;
 class daeElement;
 class domProfile_COMMON;
 class domInstance_geometry;
+class domNode;
+class domTranslate;
 
 class LLPhysicsDecompFloater : public LLFloater
 {
@@ -101,6 +103,13 @@ public:
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
 	LLColor4 getDaeColor(daeElement* element);
+	
+	daeElement* getChildFromElement( daeElement* pElement, std::string const & name );
+	bool isNodeAJoint( domNode* pNode );
+	void processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms );
+	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
+	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
+	
 
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
