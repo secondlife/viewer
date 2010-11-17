@@ -79,6 +79,7 @@
     </radio_group>
 
     <check_box
+     control_name="AllowMultipleViewers"
      follows="top|left"
      height="15"
      label="Allow Multiple Viewer"
