@@ -79,6 +79,7 @@
     </radio_group>
 
     <check_box
+     control_name="AllowMultipleViewers"
      follows="top|left"
      height="15"
      label="Allow Multiple Viewer"
@@ -88,6 +89,7 @@
      top_pad="20"
      width="237"/>
     <check_box
+     control_name="ForceShowGrid"
      follows="top|left"
      height="15"
      label="Show Grid Selection at login"
@@ -97,6 +99,7 @@
      top_pad="5"
      width="237"/>
     <check_box
+     control_name="UseDebugMenus"
      follows="top|left"
      height="15"
      label="Show Advanced Menu"
@@ -106,6 +109,7 @@
      top_pad="5"
      width="237"/>
     <check_box
+     control_name="QAMode"
      follows="top|left"
      height="15"
      label="Show Developer Menu"

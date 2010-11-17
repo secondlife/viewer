@@ -35,7 +35,7 @@
       </panel>
         <text name="title_partner_text" value="Partner:"/>
         <panel name="partner_data_panel">
-            <text name="partner_text" value="[FIRST] [LAST]"/>
+            <text name="partner_text"/>
          </panel>
       <text name="text_box3">
 	Antwoord bij Niet Storen:
