@@ -569,6 +569,43 @@ private:
 		return blockingPickFile();
 	}
 	
+	std::string mAuthUsername;
+	std::string mAuthPassword;
+	bool mAuthOK;
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	bool onAuthRequest(const std::string &in_url, const std::string &in_realm, std::string &out_username, std::string &out_password)
+	{
+		mAuthOK = false;
+
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "auth_request");
+		message.setValue("url", in_url);
+		message.setValue("realm", in_realm);
+		message.setValueBoolean("blocking_request", true);
+				
+		// The "blocking_request" key in the message means this sendMessage call will block until a response is received.
+		sendMessage(message);
+		
+		if(mAuthOK)
+		{
+			out_username = mAuthUsername;
+			out_password = mAuthPassword;
+		}
+		
+		return mAuthOK;
+	}
+	
+	void authResponse(LLPluginMessage &message)
+	{
+		mAuthOK = message.getValueBoolean("ok");
+		if(mAuthOK)
+		{
+			mAuthUsername = message.getValue("username");
+			mAuthPassword = message.getValue("password");
+		}
+	}
+	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
 		int result = 0;
@@ -1095,6 +1132,10 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			if(message_name == "pick_file_response")
 			{
 				onPickFileResponse(message_in.getValue("file"));
+			}
+			if(message_name == "auth_response")
+			{
+				authResponse(message_in);
 			}
 			else
 			{

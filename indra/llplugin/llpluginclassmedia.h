@@ -159,6 +159,8 @@ public:
 	
 	void sendPickFileResponse(const std::string &file);
 
+	void sendAuthResponse(bool ok, const std::string &username, const std::string &password);
+
 	// Valid after a MEDIA_EVENT_CURSOR_CHANGED event
 	std::string getCursorName() const { return mCursorName; };
 
@@ -232,6 +234,10 @@ public:
 	S32 getGeometryY() const { return mGeometryY; };
 	S32 getGeometryWidth() const { return mGeometryWidth; };
 	S32 getGeometryHeight() const { return mGeometryHeight; };
+	
+	// These are valid during MEDIA_EVENT_AUTH_REQUEST
+	std::string	getAuthURL() const { return mAuthURL; };
+	std::string	getAuthRealm() const { return mAuthRealm; };
 
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
@@ -370,6 +376,8 @@ protected:
 	S32				mGeometryY;
 	S32				mGeometryWidth;
 	S32				mGeometryHeight;
+	std::string		mAuthURL;
+	std::string		mAuthRealm;
 	
 	/////////////////////////////////////////
 	// media_time class

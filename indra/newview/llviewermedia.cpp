@@ -3008,6 +3008,14 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			plugin->sendPickFileResponse(response);
 		}
 		break;
+
+		case LLViewerMediaObserver::MEDIA_EVENT_AUTH_REQUEST:
+		{
+			llinfos <<  "MEDIA_EVENT_AUTH_REQUEST, url " << plugin->getAuthURL() << ", realm " << plugin->getAuthRealm() << LL_ENDL;
+			
+			// TODO: open an auth dialog that will call this when complete
+			plugin->sendAuthResponse(false, "", "");
+		}
 		
 		case LLViewerMediaObserver::MEDIA_EVENT_CLOSE_REQUEST:
 		{

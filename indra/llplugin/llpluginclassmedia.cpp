@@ -682,6 +682,20 @@ void LLPluginClassMedia::sendPickFileResponse(const std::string &file)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::sendAuthResponse(bool ok, const std::string &username, const std::string &password)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "auth_response");
+	message.setValueBoolean("ok", ok);
+	message.setValue("username", username);
+	message.setValue("password", password);
+	if(mPlugin->isBlocked())
+	{
+		// If the plugin sent a blocking pick-file request, the response should unblock it.
+		message.setValueBoolean("blocking_response", true);
+	}
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::cut()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_cut");
@@ -946,6 +960,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		else if(message_name == "pick_file")
 		{
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PICK_FILE_REQUEST);
+		}
+		else if(message_name == "auth_request")
+		{
+			mAuthURL = message.getValue("url");
+			mAuthRealm = message.getValue("realm");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_AUTH_REQUEST);
 		}
 		else
 		{

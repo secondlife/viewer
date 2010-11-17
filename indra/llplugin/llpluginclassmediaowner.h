@@ -59,7 +59,9 @@ public:
 		MEDIA_EVENT_GEOMETRY_CHANGE,		// The plugin requested its window geometry be changed (per the javascript window interface)
 		
 		MEDIA_EVENT_PLUGIN_FAILED_LAUNCH,	// The plugin failed to launch 
-		MEDIA_EVENT_PLUGIN_FAILED			// The plugin died unexpectedly
+		MEDIA_EVENT_PLUGIN_FAILED,			// The plugin died unexpectedly
+
+		MEDIA_EVENT_AUTH_REQUEST			// The plugin wants to display an auth dialog
 		
 	} EMediaEvent;
 	
