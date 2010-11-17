@@ -275,9 +275,14 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 {
 	if(mCancelled) return 0; // Forces a write error which will halt curl thread.
+	if((size == 0) || (buffer == 0)) return 0; 
 	
 	mDownloadStream.write(reinterpret_cast<const char *>(buffer), size);
-	return size;
+	if(mDownloadStream.bad()) {
+		return 0;
+	} else {
+		return size;
+	}
 }
 
 
