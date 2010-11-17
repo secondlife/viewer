@@ -114,7 +114,7 @@ BOOL install_package(std::string package_file, std::string destination);
 BOOL spawn_viewer(UpdaterAppState *app_state);
 
 extern "C" {
-	void on_window_closed(GtkWidget *sender, gpointer state);
+	void on_window_closed(GtkWidget *sender, GdkEvent *event, gpointer state);
 	gpointer worker_thread_cb(gpointer *data);
 	int download_progress_cb(gpointer data, double t, double d, double utotal, double ulnow);
 	gboolean rotate_image_cb(gpointer data);
@@ -221,7 +221,7 @@ std::string next_image_filename(std::string& image_path)
 	return image_path + "/" + image_filename;
 }
 
-void on_window_closed(GtkWidget *sender, gpointer data)
+void on_window_closed(GtkWidget *sender, GdkEvent* event, gpointer data)
 {
 	UpdaterAppState *app_state;
 
@@ -786,10 +786,10 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 
 int main(int argc, char **argv)
 {
-	UpdaterAppState app_state;
+	UpdaterAppState* app_state = new UpdaterAppState;
 	GThread *worker_thread;
 
-	parse_args_and_init(argc, argv, &app_state);
+	parse_args_and_init(argc, argv, app_state);
 
 	// Initialize logger, and rename old log file
 	gDirUtilp->initAppDirs("SecondLife");
@@ -812,17 +812,20 @@ int main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 
 	// create UI
-	updater_app_ui_init(&app_state);
+	updater_app_ui_init(app_state);
 
 	//llinfos << "SAMPLE TRANSLATION IS: " << LLTrans::getString("LoginInProgress") << llendl;
 
 	// create download thread
 	worker_thread = g_thread_create
-		(GThreadFunc(worker_thread_cb), &app_state, FALSE, NULL);
+		(GThreadFunc(worker_thread_cb), app_state, FALSE, NULL);
 
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
 
-	return (app_state.failure == FALSE) ? 0 : 1;
+	bool success = app_state->failure != FALSE;
+	delete app_state;
+	return success ? 0 : 1;
 }
+
