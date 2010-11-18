@@ -135,7 +135,7 @@ public:
 	void downloadComplete(LLSD const & data);
 	void downloadError(std::string const & message);
 
-	bool onMainLoop(LLSD const & event);	
+	bool onMainLoop(LLSD const & event);
 
 private:
 	void restartTimer(unsigned int seconds);
@@ -349,6 +349,13 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	// marker file. 
 	llofstream update_marker(update_marker_path());
 	LLSDSerialize::toPrettyXML(data, update_marker);
+	
+	LLSD event;
+	event["pump"] = LLUpdaterService::pumpName();
+	LLSD payload;
+	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_COMPLETE);
+	event["payload"] = payload;
+	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 }
 
 void LLUpdaterServiceImpl::downloadError(std::string const & message) 
@@ -362,6 +369,14 @@ void LLUpdaterServiceImpl::downloadError(std::string const & message)
 	{
 		restartTimer(mCheckPeriod); 
 	}
+
+	LLSD event;
+	event["pump"] = LLUpdaterService::pumpName();
+	LLSD payload;
+	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_ERROR);
+	payload["message"] = message;
+	event["payload"] = payload;
+	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 }
 
 void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
@@ -405,6 +420,13 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 
 //-----------------------------------------------------------------------
 // Facade interface
+
+std::string const & LLUpdaterService::pumpName(void)
+{
+	static std::string name("updater_service");
+	return name;
+}
+
 LLUpdaterService::LLUpdaterService()
 {
 	if(gUpdater.expired())

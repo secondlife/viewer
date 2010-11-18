@@ -39,6 +39,16 @@ public:
 	public:
 		UsageError(const std::string& msg) : std::runtime_error(msg) {}
 	};
+	
+	// Name of the event pump through which update events will be delivered.
+	static std::string const & pumpName(void);
+	
+	// Type codes for events posted by this service.  Stored the event's 'type' element.
+	enum UpdateEvent {
+		INVALID,
+		DOWNLOAD_COMPLETE,
+		DOWNLOAD_ERROR
+	};
 
 	LLUpdaterService();
 	~LLUpdaterService();
