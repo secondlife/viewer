@@ -516,20 +516,12 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 
 // This method returns true if the object is over land owned by the
 // agent.
-BOOL LLViewerObject::isOverAgentOwnedLand() const
+bool LLViewerObject::isReturnable()
 {
-	return mRegionp
-		&& mRegionp->getParcelOverlay()
-		&& mRegionp->getParcelOverlay()->isOwnedSelf(getPositionRegion());
-}
-
-// This method returns true if the object is over land owned by the
-// agent.
-BOOL LLViewerObject::isOverGroupOwnedLand() const
-{
-	return mRegionp 
-		&& mRegionp->getParcelOverlay()
-		&& mRegionp->getParcelOverlay()->isOwnedGroup(getPositionRegion());
+	LLBBox(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f);
+	return !isAttachment()
+		&& mRegionp
+		&& mRegionp->objectIsReturnable(getPositionRegion(), getBoundingBoxRegion());
 }
 
 BOOL LLViewerObject::setParent(LLViewerObject* parent)

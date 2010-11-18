@@ -89,6 +89,20 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
 	}
 }
 
+LLBBox LLBBox::getAxisAligned() const
+{
+	// no rotiation = axis aligned rotation
+	LLBBox aligned(mPosAgent, LLQuaternion(), LLVector3(), LLVector3());
+
+	// add the center point so that it's not empty
+	aligned.addPointAgent(mPosAgent);
+
+	// add our BBox
+	aligned.addBBoxAgent(*this);
+
+	return aligned;
+}
+
 
 void LLBBox::expand( F32 delta )
 {
@@ -147,6 +161,15 @@ BOOL LLBBox::containsPointAgent(const LLVector3& p) const
 	return containsPointLocal(point_local);
 }
 
+LLVector3 LLBBox::getMinAgent() const
+{
+	return localToAgent(mMinLocal);
+}
+
+LLVector3 LLBBox::getMaxAgent() const
+{
+	return localToAgent(mMaxLocal);
+}
 
 /*
 LLBBox operator*(const LLBBox &a, const LLMatrix4 &b)

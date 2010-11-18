@@ -145,6 +145,30 @@ BOOL LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
 	return (PARCEL_OWNED == overlay || PARCEL_FOR_SALE == overlay);
 }
 
+bool LLViewerParcelOverlay::encroachesOwned(const LLBBox& bbox) const
+{
+	LLBBox bbox_aligned = bbox.getAxisAligned();
+
+	LLVector3 min = bbox_aligned.getMinAgent();
+	LLVector3 max = bbox_aligned.getMaxAgent();
+	
+	S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+	S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+	S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+	S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+
+	for (S32 row = top; row <= bottom; row++)
+		for (S32 column = left; column <= right; column++)
+		{
+			U8 type = ownership(row, column);
+			if (PARCEL_SELF == type
+				|| PARCEL_GROUP == type )
+				return true;
+		}
+
+	return false;
+}
+
 BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);

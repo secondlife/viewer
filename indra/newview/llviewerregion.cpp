@@ -1495,6 +1495,19 @@ LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 	return NULL;
 }
 
+// the viewer can not yet distinquish between normal- and estate-owned objects
+// so we collapse these two bits and enable the UI if either are set
+const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
+											| REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
+
+bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const LLBBox& bbox)
+{
+	return mParcelOverlay
+		&& ( mParcelOverlay->isOwned(pos)
+			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
+				&& mParcelOverlay->encroachesOwned(bbox)) );
+}
+
 void LLViewerRegion::showReleaseNotes()
 {
 	std::string url = this->getCapability("ServerReleaseNotes");

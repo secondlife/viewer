@@ -30,6 +30,7 @@
 // The ownership data for land parcels.
 // One of these structures per region.
 
+#include "llbbox.h"
 #include "lldarray.h"
 #include "llframetimer.h"
 #include "lluuid.h"
@@ -54,6 +55,12 @@ public:
 	BOOL			isOwnedSelf(const LLVector3& pos) const;
 	BOOL			isOwnedGroup(const LLVector3& pos) const;
 	BOOL			isOwnedOther(const LLVector3& pos) const;
+
+	// "encroaches" means the prim hangs over the parcel, but its center
+	// might be in another parcel. for now, we simply test bounding boxes
+	// which isn't perfect, but is close
+	bool 			encroachesOwned(const LLBBox& bbox) const;
+	
 	BOOL			isSoundLocal(const LLVector3& pos) const;
 
 	BOOL			isBuildCameraAllowed(const LLVector3& pos) const;

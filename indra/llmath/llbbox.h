@@ -51,9 +51,11 @@ public:
 	const LLVector3&	getPositionAgent() const			{ return mPosAgent; }
 	const LLQuaternion&	getRotation() const					{ return mRotation; }
 
+	LLVector3           getMinAgent() const;
 	const LLVector3&	getMinLocal() const					{ return mMinLocal; }
 	void				setMinLocal( const LLVector3& min )	{ mMinLocal = min; }
 
+	LLVector3           getMaxAgent() const;
 	const LLVector3&	getMaxLocal() const					{ return mMaxLocal; }
 	void				setMaxLocal( const LLVector3& max )	{ mMaxLocal = max; }
 
@@ -79,6 +81,9 @@ public:
 	// Changes rotation but not position
 	LLVector3			localToAgentBasis(const LLVector3& v) const;
 	LLVector3			agentToLocalBasis(const LLVector3& v) const;
+
+	// Get the smallest possible axis aligned bbox that contains this bbox
+	LLBBox               getAxisAligned() const;
 
 
 //	friend LLBBox operator*(const LLBBox& a, const LLMatrix4& b);
