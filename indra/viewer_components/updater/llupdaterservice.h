@@ -44,10 +44,11 @@ public:
 	static std::string const & pumpName(void);
 	
 	// Type codes for events posted by this service.  Stored the event's 'type' element.
-	enum UpdateEvent {
+	enum eUpdateEvent {
 		INVALID,
 		DOWNLOAD_COMPLETE,
-		DOWNLOAD_ERROR
+		DOWNLOAD_ERROR,
+		INSTALL_ERROR
 	};
 
 	LLUpdaterService();

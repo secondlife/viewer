@@ -2390,8 +2390,20 @@ namespace {
     // do we need a file llupdaterui.cpp or something? -brad
     bool notify_update(LLSD const & evt)
     {
-        LLNotificationsUtil::add("DownloadBackground");
-        // let others also handle this event by default
+		switch (evt["type"].asInteger())
+		{
+			case LLUpdaterService::DOWNLOAD_COMPLETE:
+				LLNotificationsUtil::add("DownloadBackground");
+				break;
+			case LLUpdaterService::INSTALL_ERROR:
+				LLNotificationsUtil::add("FailedUpdateInstall");
+				break;
+			default:
+				llinfos << "unhandled update event " << evt << llendl;
+				break;
+		}
+
+		// let others also handle this event by default
         return false;
     }
 };

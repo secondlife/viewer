@@ -2870,6 +2870,16 @@ Download to your Applications folder?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="FailedUpdateInstall"
+   type="alertmodal">
+Gadzooks, I failed to install the latest update.
+Get thee to the interwebs and install it thyself.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  <notification
    icon="notifytip.tga"
    name="DownloadBackground"
    type="notifytip">
