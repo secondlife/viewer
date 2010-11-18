@@ -2422,7 +2422,7 @@ void LLAppViewer::initUpdater()
 	}
 
     LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());
-    updater_pump.listen("notify_update", notify_update);
+    updater_pump.listen("notify_update", &notify_update);
 }
 
 void LLAppViewer::checkForCrash(void)
