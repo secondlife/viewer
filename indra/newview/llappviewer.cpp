@@ -2385,6 +2385,17 @@ bool LLAppViewer::initConfiguration()
 	return true; // Config was successful.
 }
 
+namespace {
+    // *TODO - decide if there's a better place for this function.
+    // do we need a file llupdaterui.cpp or something? -brad
+    bool notify_update(LLSD const & evt)
+    {
+        LLNotificationsUtil::add("DownloadBackground");
+        // let others also handle this event by default
+        return false;
+    }
+};
+
 void LLAppViewer::initUpdater()
 {
 	// Initialize the updater service.
@@ -2409,6 +2420,9 @@ void LLAppViewer::initUpdater()
 	{
 		mUpdater->startChecking();
 	}
+
+    LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());
+    updater_pump.listen("notify_update", notify_update);
 }
 
 void LLAppViewer::checkForCrash(void)
