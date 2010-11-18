@@ -824,7 +824,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	bool success = app_state->failure != FALSE;
+	bool success = !app_state->failure;
 	delete app_state;
 	return success ? 0 : 1;
 }
