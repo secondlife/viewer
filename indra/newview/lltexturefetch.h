@@ -40,6 +40,7 @@ class HTTPGetResponder;
 class LLTextureCache;
 class LLImageDecodeThread;
 class LLHost;
+namespace { class TFRequest; }
 
 // Interface class
 class LLTextureFetch : public LLWorkerThread
@@ -83,6 +84,13 @@ public:
 	LLTextureFetchWorker* getWorkerAfterLock(const LLUUID& id);
 
 	LLTextureInfo* getTextureInfo() { return &mTextureInfo; }
+
+	// Commands available to other threads.
+	void commandSetRegion(const LLUUID & region_id);
+	void commandSendMetrics(const std::string & caps_url, LLSD * report_main);
+	void commandDataBreak();
+
+	LLCurlRequest & getCurlRequest() { return *mCurlGetRequest; }
 	
 protected:
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
@@ -91,7 +99,10 @@ protected:
 	void removeFromHTTPQueue(const LLUUID& id, S32 received_size = 0);
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
 	// Called from worker thread (during doWork)
-	void processCurlRequests();	
+	void processCurlRequests();
+
+	// Overrides from the LLThread tree
+	bool runCondition();
 
 private:
 	void sendRequestListToSimulators();
@@ -99,6 +110,11 @@ private:
 	/*virtual*/ void endThread(void);
 	/*virtual*/ void threadedUpdate(void);
 
+	// command helpers
+	void cmdEnqueue(TFRequest *);
+	TFRequest * cmdDequeue();
+	void cmdDoWork(LLTextureFetchWorker* worker);
+	
 public:
 	LLUUID mDebugID;
 	S32 mDebugCount;
@@ -107,7 +123,7 @@ public:
 	S32 mBadPacketCount;
 	
 private:
-	LLMutex mQueueMutex;        //to protect mRequestMap only
+	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
 	LLTextureCache* mTextureCache;
@@ -129,6 +145,19 @@ private:
 	LLTextureInfo mTextureInfo;
 
 	U32 mHTTPTextureBits;
+
+	// Special cross-thread command queue.  This command queue
+	// is logically tied to LLQueuedThread's list of
+	// QueuedRequest instances and so must be covered by the
+	// same locks.
+	typedef std::vector<TFRequest *> command_queue_t;
+	command_queue_t mCommands;
+
+public:
+	// A probabilistically-correct indicator that the current
+	// attempt to log metrics follows a break in the metrics stream
+	// reporting due to either startup or a problem POSTing data.
+	static volatile bool svMetricsDataBreak;
 };
 
 #endif // LL_LLTEXTUREFETCH_H

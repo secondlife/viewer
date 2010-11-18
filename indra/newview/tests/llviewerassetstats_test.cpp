@@ -114,7 +114,7 @@ namespace tut
 
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_response_main(LLViewerAssetType::AT_GESTURE, false, false, 12.3);
+		LLViewerAssetStatsFF::record_response_main(LLViewerAssetType::AT_GESTURE, false, false, 12300000ULL);
 	}
 
 	// Create a non-global instance and check the structure

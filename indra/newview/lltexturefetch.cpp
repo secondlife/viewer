@@ -49,6 +49,7 @@
 #include "llviewertexture.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerassetstats.h"
 #include "llworld.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -143,7 +144,7 @@ public:
 	/*virtual*/ bool deleteOK(); // called from update() (WORK THREAD)
 
 	~LLTextureFetchWorker();
-	void relese() { --mActiveCount; }
+	// void relese() { --mActiveCount; }
 
 	S32 callbackHttpGet(const LLChannelDescriptors& channels,
 						 const LLIOPipe::buffer_ptr_t& buffer,
@@ -161,9 +162,11 @@ public:
 		mGetReason = reason;
 	}
 
-	void setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
-	bool getCanUseHTTP()const {return mCanUseHTTP ;}
+	void setCanUseHTTP(bool can_use_http) { mCanUseHTTP = can_use_http; }
+	bool getCanUseHTTP() const { return mCanUseHTTP; }
 
+	LLTextureFetch & getFetcher() { return *mFetcher; }
+	
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, const std::string& url, const LLUUID& id, const LLHost& host,
 						 F32 priority, S32 discard, S32 size);
@@ -277,6 +280,8 @@ private:
 	S32 mLastPacket;
 	U16 mTotalPackets;
 	U8 mImageCodec;
+
+	LLViewerAssetStats::duration_t mMetricsStartTime;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -333,6 +338,18 @@ public:
 			
 			S32 data_size = worker->callbackHttpGet(channels, buffer, partial, success);
 			mFetcher->removeFromHTTPQueue(mID, data_size);
+
+			if (worker->mMetricsStartTime)
+			{
+				LLViewerAssetStatsFF::record_response_thread1(LLViewerAssetType::AT_TEXTURE,
+															  true,
+															  LLImageBase::TYPE_AVATAR_BAKE == worker->mType,
+															  LLViewerAssetStatsFF::get_timestamp() - worker->mMetricsStartTime);
+				worker->mMetricsStartTime = 0;
+			}
+			LLViewerAssetStatsFF::record_dequeue_thread1(LLViewerAssetType::AT_TEXTURE,
+														 true,
+														 LLImageBase::TYPE_AVATAR_BAKE == worker->mType);
 		}
 		else
 		{
@@ -357,6 +374,201 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
+// Cross-thread messaging for asset metrics.
+
+namespace
+{
+
+/**
+ * @brief Base class for cross-thread requests made of the fetcher
+ *
+ * I believe the intent of the LLQueuedThread class was to
+ * have these operations derived from LLQueuedThread::QueuedRequest
+ * but the texture fetcher has elected to manage the queue
+ * in its own manner.  So these are free-standing objects which are
+ * managed in simple FIFO order on the mCommands queue of the
+ * LLTextureFetch object.
+ *
+ * What each represents is a simple command sent from an
+ * outside thread into the TextureFetch thread to be processed
+ * in order and in a timely fashion (though not an absolute
+ * higher priority than other operations of the thread).
+ * Each operation derives a new class from the base customizing
+ * members, constructors and the doWork() method to effect
+ * the command.
+ *
+ * The flow is one-directional.  There are two global instances
+ * of the LLViewerAssetStats collector, one for the main program's
+ * thread pointed to by gViewerAssetStatsMain and one for the
+ * TextureFetch thread pointed to by gViewerAssetStatsThread1.
+ * Common operations has each thread recording metrics events
+ * into the respective collector unconcerned with locking and
+ * the state of any other thread.  But when the agent moves into
+ * a different region or the metrics timer expires and a report
+ * needs to be sent back to the grid, messaging across grids
+ * is required to distribute data and perform global actions.
+ * In pseudo-UML, it looks like:
+ *
+ *                       Main                 Thread1
+ *                        .                      .
+ *                        .                      .
+ *                     +-----+                   .
+ *                     | AM  |                   .
+ *                     +--+--+                   .
+ *      +-------+         |                      .
+ *      | Main  |      +--+--+                   .
+ *      |       |      | SRE |---.               .
+ *      | Stats |      +-----+    \              .
+ *      |       |         |        \  (uuid)  +-----+
+ *      | Coll. |      +--+--+      `-------->| SR  |
+ *      +-------+      | MSC |                +--+--+
+ *         | ^         +-----+                   |
+ *         | |  (uuid)  / .                   +-----+ (uuid)
+ *         |  `--------'  .                   | MSC |---------.
+ *         |              .                   +-----+         |
+ *         |           +-----+                   .            v
+ *         |           | TE  |                   .        +-------+
+ *         |           +--+--+                   .        | Thd1  |
+ *         |              |                      .        |       |
+ *         |  (llsd)   +-----+                   .        | Stats |
+ *          `--------->| RSC |                   .        |       |
+ *                     +--+--+                   .        | Coll. |
+ *                        |                      .        +-------+
+ *                     +--+--+                   .            |
+ *                     | SME |---.               .            |
+ *                     +-----+    \              .            |
+ *                        .        \ (llsd)   +-----+         |
+ *                        .         `-------->| SM  |         |
+ *                        .                   +--+--+         |
+ *                        .                      |            |
+ *                        .                   +-----+  (llsd) |
+ *                        .                   | RSC |<--------'
+ *                        .                   +-----+
+ *                        .                      |
+ *                        .                   +-----+
+ *                        .                   | CP  |--> HTTP PUT
+ *                        .                   +-----+
+ *                        .                      .
+ *                        .                      .
+ *
+ *
+ * Key:
+ *
+ * SRE - Set Region Enqueued.  Enqueue a 'Set Region' command in
+ *       the other thread providing the new UUID of the region.
+ *       TFReqSetRegion carries the data.
+ * SR  - Set Region.  New region UUID is sent to the thread-local
+ *       collector.
+ * SME - Send Metrics Enqueued.  Enqueue a 'Send Metrics' command
+ *       including an ownership transfer of an LLSD.
+ *       TFReqSendMetrics carries the data.
+ * SM  - Send Metrics.  Global metrics reporting operation.  Takes
+ *       the remote LLSD from the command, merges it with and LLSD
+ *       from the local collector and sends it to the grid.
+ * AM  - Agent Moved.  Agent has completed some sort of move to a
+ *       new region.
+ * TE  - Timer Expired.  Metrics timer has expired (on the order
+ *       of 10 minutes).
+ * CP  - CURL Put
+ * MSC - Modify Stats Collector.  State change in the thread-local
+ *       collector.  Typically a region change which affects the
+ *       global pointers used to find the 'current stats'.
+ * RSC - Read Stats Collector.  Extract collector data in LLSD form.
+ *
+ */
+class TFRequest // : public LLQueuedThread::QueuedRequest
+{
+public:
+	// Default ctors and assignment operator are correct.
+
+	virtual ~TFRequest()
+		{}
+
+	virtual bool doWork(LLTextureFetchWorker * worker) = 0;
+};
+
+
+/**
+ * @brief Implements a 'Set Region' cross-thread command.
+ *
+ * When an agent moves to a new region, subsequent metrics need
+ * to be binned into a new or existing stats collection in 1:1
+ * relationship with the region.  We communicate this region
+ * change across the threads involved in the communication with
+ * this message.
+ *
+ * Corresponds to LLTextureFetch::commandSetRegion()
+ */
+class TFReqSetRegion : public TFRequest
+{
+public:
+	TFReqSetRegion(const LLUUID & region_id)
+		: TFRequest(),
+		  mRegionID(region_id)
+		{}
+	TFReqSetRegion & operator=(const TFReqSetRegion &);	// Not defined
+
+	virtual ~TFReqSetRegion()
+		{}
+
+	virtual bool doWork(LLTextureFetchWorker * worker);
+		
+public:
+	const LLUUID mRegionID;
+};
+
+
+/**
+ * @brief Implements a 'Send Metrics' cross-thread command.
+ *
+ * This is the big operation.  The main thread gathers metrics
+ * for a period of minutes into LLViewerAssetStats and other
+ * objects then builds an LLSD to represent the data.  It uses
+ * this command to transfer the LLSD, content *and* ownership,
+ * to the TextureFetch thread which adds its own metrics and
+ * kicks of an HTTP POST of the resulting data to the currently
+ * active metrics collector.
+ *
+ * Corresponds to LLTextureFetch::commandSendMetrics()
+ */
+class TFReqSendMetrics : public TFRequest
+{
+public:
+    /**
+	 * Construct the 'Send Metrics' command to have the TextureFetch
+	 * thread add and log metrics data.
+	 *
+	 * @param	caps_url		URL of a "ViewerMetrics" Caps target
+	 *							to receive the data.  Does not have to
+	 *							be associated with a particular region.
+	 *
+	 * @param	report_main		Pointer to LLSD containing main
+	 *							thread metrics.  Ownership transfers
+	 *							to the new thread using very carefully
+	 *							constructed code.
+	 */
+	TFReqSendMetrics(const std::string & caps_url,
+					 LLSD * report_main)
+		: TFRequest(),
+		  mCapsURL(caps_url),
+		  mReportMain(report_main)
+		{}
+	TFReqSendMetrics & operator=(const TFReqSendMetrics &);	// Not defined
+
+	virtual ~TFReqSendMetrics();
+
+	virtual bool doWork(LLTextureFetchWorker * worker);
+		
+public:
+	const std::string mCapsURL;
+	LLSD * mReportMain;
+};
+
+} // end of anonymous namespace
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 //static
 const char* LLTextureFetchWorker::sStateDescs[] = {
 	"INVALID",
@@ -373,6 +585,9 @@ const char* LLTextureFetchWorker::sStateDescs[] = {
 	"WAIT_ON_WRITE",
 	"DONE",
 };
+
+// static
+volatile bool LLTextureFetch::svMetricsDataBreak(true);	// Start with a data break
 
 // called from MAIN THREAD
 
@@ -423,7 +638,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mFirstPacket(0),
 	  mLastPacket(-1),
 	  mTotalPackets(0),
-	  mImageCodec(IMG_CODEC_INVALID)
+	  mImageCodec(IMG_CODEC_INVALID),
+	  mMetricsStartTime(0)
 {
 	mCanUseNET = mUrl.empty() ;
 
@@ -591,6 +807,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			return true; // abort
 		}
 	}
+
+	// Run a cross-thread command, if any.
+	mFetcher->cmdDoWork(this);
+	
 	if(mImagePriority < F_ALMOST_ZERO)
 	{
 		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
@@ -800,7 +1020,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mRequestedDiscard = mDesiredDiscard;
 			mSentRequest = QUEUED;
 			mFetcher->addToNetworkQueue(this);
+			if (! mMetricsStartTime)
+			{
+				mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+			}
+			LLViewerAssetStatsFF::record_enqueue_thread1(LLViewerAssetType::AT_TEXTURE,
+														 false,
+														 LLImageBase::TYPE_AVATAR_BAKE == mType);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			
 			return false;
 		}
 		else
@@ -809,6 +1037,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//llassert_always(mFetcher->mNetworkQueue.find(mID) != mFetcher->mNetworkQueue.end());
 			// Make certain this is in the network queue
 			//mFetcher->addToNetworkQueue(this);
+			//if (! mMetricsStartTime)
+			//{
+			//   mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+			//}
+			//LLViewerAssetStatsFF::record_enqueue_thread1(LLViewerAssetType::AT_TEXTURE, false,
+			//                                             LLImageBase::TYPE_AVATAR_BAKE == mType);
 			//setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}
@@ -832,11 +1066,30 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			mState = DECODE_IMAGE;
-			mWriteToCacheState = SHOULD_WRITE ;
+			mWriteToCacheState = SHOULD_WRITE;
+
+			if (mMetricsStartTime)
+			{
+				LLViewerAssetStatsFF::record_response_thread1(LLViewerAssetType::AT_TEXTURE,
+															  false,
+															  LLImageBase::TYPE_AVATAR_BAKE == mType,
+															  LLViewerAssetStatsFF::get_timestamp() - mMetricsStartTime);
+				mMetricsStartTime = 0;
+			}
+			LLViewerAssetStatsFF::record_dequeue_thread1(LLViewerAssetType::AT_TEXTURE,
+														 false,
+														 LLImageBase::TYPE_AVATAR_BAKE == mType);
 		}
 		else
 		{
 			mFetcher->addToNetworkQueue(this); // failsafe
+			if (! mMetricsStartTime)
+			{
+				mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+			}
+			LLViewerAssetStatsFF::record_enqueue_thread1(LLViewerAssetType::AT_TEXTURE,
+														 false,
+														 LLImageBase::TYPE_AVATAR_BAKE == mType);
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		}
 		return false;
@@ -898,6 +1151,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mState = WAIT_HTTP_REQ;	
 
 				mFetcher->addToHTTPQueue(mID);
+				if (! mMetricsStartTime)
+				{
+					mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+				}
+				LLViewerAssetStatsFF::record_enqueue_thread1(LLViewerAssetType::AT_TEXTURE,
+															 true,
+															 LLImageBase::TYPE_AVATAR_BAKE == mType);
+
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
@@ -1534,6 +1795,12 @@ LLTextureFetch::~LLTextureFetch()
 {
 	clearDeleteList() ;
 
+	while (! mCommands.empty())
+	{
+		delete mCommands.front();
+		mCommands.erase(mCommands.begin());
+	}
+	
 	// ~LLQueuedThread() called here
 }
 
@@ -1813,6 +2080,25 @@ bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 		res = true;
 	}
 	return res;
+}
+
+// virtual
+bool LLTextureFetch::runCondition()
+{
+	// Caller is holding the lock on LLThread's condition variable.
+	
+	// LLQueuedThread, unlike its base class LLThread, makes this a
+	// private method which is unfortunate.  I want to use it directly
+	// but I'm going to have to re-implement the logic here (or change
+	// declarations, which I don't want to do right now).
+
+	bool have_no_commands(false);
+	{
+		LLMutexLock lock(&mQueueMutex);
+		
+		have_no_commands = mCommands.empty();
+	}
+	return ! (have_no_commands && mRequestQueue.empty() && mIdleThread);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2356,4 +2642,196 @@ void LLTextureFetch::dump()
 				<< llendl;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+// cross-thread command methods
+
+void LLTextureFetch::commandSetRegion(const LLUUID & region_id)
+{
+	TFReqSetRegion * req = new TFReqSetRegion(region_id);
+
+	cmdEnqueue(req);
+}
+
+void LLTextureFetch::commandSendMetrics(const std::string & caps_url,
+										LLSD * report_main)
+{
+	TFReqSendMetrics * req = new TFReqSendMetrics(caps_url, report_main);
+
+	cmdEnqueue(req);
+}
+
+void LLTextureFetch::commandDataBreak()
+{
+	// The pedantically correct way to implement this is to create a command
+	// request object in the above fashion and enqueue it.  However, this is
+	// simple data of an advisorial not operational nature and this case
+	// of shared-write access is tolerable.
+
+	LLTextureFetch::svMetricsDataBreak = true;
+}
+
+void LLTextureFetch::cmdEnqueue(TFRequest * req)
+{
+	lockQueue();
+	mCommands.push_back(req);
+	wake();
+	unlockQueue();
+}
+
+TFRequest * LLTextureFetch::cmdDequeue()
+{
+	TFRequest * ret = 0;
+	
+	lockQueue();
+	if (! mCommands.empty())
+	{
+		ret = mCommands.front();
+		mCommands.erase(mCommands.begin());
+	}
+	unlockQueue();
+
+	return ret;
+}
+
+void LLTextureFetch::cmdDoWork(LLTextureFetchWorker * worker)
+{
+	// Queue is expected to be locked here.
+
+	if (mDebugPause)
+	{
+		return;  // debug: don't do any work
+	}
+
+	TFRequest * req = cmdDequeue();
+	if (req)
+	{
+		// One request per pass should really be enough for this.
+		req->doWork(worker);
+		delete req;
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Private (anonymous) class methods implementing the command scheme.
+
+namespace
+{
+
+/**
+ * Implements the 'Set Region' command.
+ *
+ * Thread:  Thread1 (TextureFetch)
+ */
+bool
+TFReqSetRegion::doWork(LLTextureFetchWorker *)
+{
+	LLViewerAssetStatsFF::set_region_thread1(mRegionID);
+
+	return true;
+}
+
+
+TFReqSendMetrics::~TFReqSendMetrics()
+{
+	delete mReportMain;
+	mReportMain = 0;
+}
+
+
+/**
+ * Implements the 'Send Metrics' command.  Takes over
+ * ownership of the passed LLSD pointer.
+ *
+ * Thread:  Thread1 (TextureFetch)
+ */
+bool
+TFReqSendMetrics::doWork(LLTextureFetchWorker * fetch_worker)
+{
+	/*
+	 * HTTP POST responder.  Doesn't do much but tries to
+	 * detect simple breaks in recording the metrics stream.
+	 *
+	 * The 'volatile' modifiers don't indicate signals,
+	 * mmap'd memory or threads, really.  They indicate that
+	 * the referenced data is part of a pseudo-closure for
+	 * this responder rather than being required for correct
+	 * operation.
+	 */
+	class lcl_responder : public LLCurl::Responder
+	{
+	public:
+		lcl_responder(volatile bool & post_failed,
+					  volatile bool & post_succeeded)
+			: LLHTTPClient::Responder(),
+			  mPostFailedStatus(post_failed),
+			  mPostSucceededStatus(post_succeeded)
+			{}
+
+		// virtual
+		void error(U32 status_num, const std::string & reason)
+			{
+				mPostFailedStatus = true;
+			}
+
+		// virtual
+		void result(const LLSD & content)
+			{
+				mPostSucceededStatus = true;
+			}
+
+	private:
+		volatile bool & mPostFailedStatus;
+		volatile bool & mPostSucceededStatus;
+	};
+	
+	if (! gViewerAssetStatsThread1)
+		return true;
+
+	if (! mCapsURL.empty())
+	{
+		static volatile bool not_initial_report(false);
+		static S32 report_sequence(0);
+
+		// We've already taken over ownership of the LLSD at this point
+		// and can do normal LLSD sharing operations at this point.  But
+		// still being careful, regardless.
+		LLSD & envelope = *mReportMain;
+		{
+			envelope["sequence"] = report_sequence;
+			envelope["regions_alt"] = gViewerAssetStatsThread1->asLLSD();
+			envelope["initial"] = ! not_initial_report;					// Initial data from viewer
+			envelope["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
+
+			// *FIXME:  Need to merge the two metrics streams here....
+		}
+
+		// Update sequence number and other metadata for next attempt.
+		if (S32_MAX == ++report_sequence)
+			report_sequence = 0;
+		LLTextureFetch::svMetricsDataBreak = false;
+
+		LLCurlRequest::headers_t headers;
+		fetch_worker->getFetcher().getCurlRequest().post(mCapsURL,
+														 headers,
+														 envelope,
+														 new lcl_responder(LLTextureFetch::svMetricsDataBreak,
+																		   not_initial_report));
+	}
+	else
+	{
+		LLTextureFetch::svMetricsDataBreak = true;
+	}
+
+	gViewerAssetStatsThread1->reset();
+
+	return true;
+}
+
+} // end of anonymous namespace
+
+
 

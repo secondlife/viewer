@@ -637,6 +637,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
 		}
+
+		// Pass new region along to metrics components that care about this level of detail.
+		LLAppViewer::metricsUpdateRegion(regionp->getRegionID());
 	}
 	mRegionp = regionp;
 

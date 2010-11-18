@@ -96,6 +96,13 @@ public:
 	};
 
 	/**
+	 * Type for duration and other time values in the metrics.  Selected
+	 * for compatibility with the pre-existing timestamp on the texture
+	 * fetcher class, LLTextureFetch.
+	 */
+	typedef U64 duration_t;
+	
+	/**
 	 * Collected data for a single region visited by the avatar.
 	 */
 	class PerRegionStats : public LLRefCount
@@ -107,6 +114,7 @@ public:
 			{
 				reset();
 			}
+		// Default assignment and destructor are correct.
 		
 		void reset();
 
@@ -114,9 +122,9 @@ public:
 		LLUUID mRegionID;
 		struct
 		{
-			LLSimpleStatCounter		mEnqueued;
-			LLSimpleStatCounter		mDequeued;
-			LLSimpleStatMMM<>		mResponse;
+			LLSimpleStatCounter			mEnqueued;
+			LLSimpleStatCounter			mDequeued;
+			LLSimpleStatMMM<duration_t>	mResponse;
 		} mRequests [EVACCount];
 	};
 
@@ -137,7 +145,7 @@ public:
 	// Non-Cached GET Requests
 	void recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
-	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
+	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration);
 
 	// Retrieve current metrics for all visited regions.
 	const LLSD asLLSD() const;
@@ -180,23 +188,51 @@ extern LLViewerAssetStats * gViewerAssetStatsThread1;
 
 namespace LLViewerAssetStatsFF
 {
+/**
+ * We have many timers, clocks etc. in the runtime.  This is the
+ * canonical timestamp for these metrics which is compatible with
+ * the pre-existing timestamping in the texture fetcher.
+ */
+inline LLViewerAssetStats::duration_t get_timestamp()
+{
+	return LLTimer::getTotalTime();
+}
 
+/**
+ * Region context, event and duration loggers for the Main thread.
+ */
 void set_region_main(const LLUUID & region_id);
 
 void record_enqueue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
 void record_dequeue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
-void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
+void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp,
+						  LLViewerAssetStats::duration_t duration);
 
 
+/**
+ * Region context, event and duration loggers for Thread 1.
+ */
 void set_region_thread1(const LLUUID & region_id);
 
 void record_enqueue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
 void record_dequeue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
-void record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration);
+void record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp,
+						  LLViewerAssetStats::duration_t duration);
+
+/**
+ * @brief Allocation and deallocation of globals.
+ *
+ * init() should be called before threads are started that will access it though
+ * you'll likely get away with calling it afterwards.  cleanup() should only be
+ * called after threads are shutdown to prevent races on the global pointers.
+ */
+void init();
+
+void cleanup();
 
 } // namespace LLViewerAssetStatsFF
 

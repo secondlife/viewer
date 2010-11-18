@@ -37,6 +37,35 @@
 #include "stdtypes.h"
 
 /*
+ * Classes and utility functions for per-thread and per-region
+ * asset and experiential metrics to be aggregated grid-wide.
+ *
+ * The basic metrics grouping is LLViewerAssetStats::PerRegionStats.
+ * This provides various counters and simple statistics for asset
+ * fetches binned into a few categories.  One of these is maintained
+ * for each region encountered and the 'current' region is available
+ * as a simple reference.  Each thread (presently two) interested
+ * in participating in these stats gets an instance of the
+ * LLViewerAssetStats class so that threads are completely
+ * independent.
+ *
+ * The idea of a current region is used for simplicity and speed
+ * of categorization.  Each metrics event could have taken a
+ * region uuid argument resulting in a suitable lookup.  Arguments
+ * against this design include:
+ *
+ *  -  Region uuid not trivially available to caller.
+ *  -  Cost (cpu, disruption in real work flow) too high.
+ *  -  Additional precision not really meaningful.
+ *
+ * By itself, the LLViewerAssetStats class is thread- and
+ * viewer-agnostic and can be used anywhere without assumptions
+ * of global pointers and other context.  For the viewer,
+ * a set of free functions are provided in the namespace
+ * LLViewerAssetStatsFF which *do* implement viewer-native
+ * policies about per-thread globals and will do correct
+ * defensive tests of same.
+ *
  * References
  *
  * Project:
@@ -103,7 +132,7 @@ LLViewerAssetStats::reset()
 	mRegionStats.clear();
 
 	// If we have a current stats, reset it, otherwise, as at construction,
-	// create a new one.
+	// create a new one as we must always have a current stats block.
 	if (mCurRegionStats)
 	{
 		mCurRegionStats->reset();
@@ -130,7 +159,7 @@ LLViewerAssetStats::setRegionID(const LLUUID & region_id)
 	PerRegionContainer::iterator new_stats = mRegionStats.find(region_id);
 	if (mRegionStats.end() == new_stats)
 	{
-		// Haven't seen this region_id before, create a new block make it current.
+		// Haven't seen this region_id before, create a new block and make it current.
 		mCurRegionStats = new PerRegionStats(region_id);
 		mRegionStats[region_id] = mCurRegionStats;
 	}
@@ -159,7 +188,7 @@ LLViewerAssetStats::recordGetDequeued(LLViewerAssetType::EType at, bool with_htt
 }
 
 void
-LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
@@ -213,9 +242,9 @@ LLViewerAssetStats::asLLSD() const
 			slot[enq_tag] = LLSD(S32(stats.mRequests[i].mEnqueued.getCount()));
 			slot[deq_tag] = LLSD(S32(stats.mRequests[i].mDequeued.getCount()));
 			slot[rcnt_tag] = LLSD(S32(stats.mRequests[i].mResponse.getCount()));
-			slot[rmin_tag] = LLSD(stats.mRequests[i].mResponse.getMin());
-			slot[rmax_tag] = LLSD(stats.mRequests[i].mResponse.getMax());
-			slot[rmean_tag] = LLSD(stats.mRequests[i].mResponse.getMean());
+			slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin()));
+			slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax()));
+			slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean()));
 		}
 
 		ret[it->first.asString()] = reg_stat;
@@ -231,9 +260,24 @@ LLViewerAssetStats::asLLSD() const
 namespace LLViewerAssetStatsFF
 {
 
+//
 // Target thread is elaborated in the function name.  This could
 // have been something 'templatey' like specializations iterated
 // over a set of constants but with so few, this is clearer I think.
+//
+// As for the threads themselves... rather than do fine-grained
+// locking as we gather statistics, this code creates a collector
+// for each thread, allocated and run independently.  Logging
+// happens at relatively infrequent intervals and at that time
+// the data is sent to a single thread to be aggregated into
+// a single entity with locks, thread safety and other niceties.
+//
+// A particularly fussy implementation would distribute the
+// per-thread pointers across separate cache lines.  But that should
+// be beyond current requirements.
+//
+
+// 'main' thread - initial program thread
 
 void
 set_region_main(const LLUUID & region_id)
@@ -263,7 +307,7 @@ record_dequeue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 }
 
 void
-record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
 {
 	if (! gViewerAssetStatsMain)
 		return;
@@ -271,6 +315,8 @@ record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 	gViewerAssetStatsMain->recordGetServiced(at, with_http, is_temp, duration);
 }
 
+
+// 'thread1' - should be for TextureFetch thread
 
 void
 set_region_thread1(const LLUUID & region_id)
@@ -300,13 +346,38 @@ record_dequeue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp
 }
 
 void
-record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp, F64 duration)
+record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
 {
 	if (! gViewerAssetStatsThread1)
 		return;
 
 	gViewerAssetStatsThread1->recordGetServiced(at, with_http, is_temp, duration);
 }
+
+
+void
+init()
+{
+	if (! gViewerAssetStatsMain)
+	{
+		gViewerAssetStatsMain = new LLViewerAssetStats;
+	}
+	if (! gViewerAssetStatsThread1)
+	{
+		gViewerAssetStatsThread1 = new LLViewerAssetStats;
+	}
+}
+
+void
+cleanup()
+{
+	delete gViewerAssetStatsMain;
+	gViewerAssetStatsMain = 0;
+
+	delete gViewerAssetStatsThread1;
+	gViewerAssetStatsThread1 = 0;
+}
+	
 
 } // namespace LLViewerAssetStatsFF
 

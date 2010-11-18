@@ -190,6 +190,7 @@
 #include "llparcel.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
+#include "llviewerassetstats.h"
 
 // Include for security api initialization
 #include "llsecapi.h"
@@ -331,6 +332,14 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 static std::string gWindowTitle;
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
+
+//----------------------------------------------------------------------------
+// Metrics logging control constants
+//----------------------------------------------------------------------------
+static const F32 METRICS_INTERVAL_MIN = 300.0;
+static const F32 METRICS_INTERVAL_MAX = 3600.0;
+static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
+
 
 void idle_afk_check()
 {
@@ -655,6 +664,8 @@ bool LLAppViewer::init()
     // Called before threads are created.
     LLCurl::initClass();
     LLMachineID::init();
+
+	LLViewerAssetStatsFF::init();
 
     initThreads();
     writeSystemInfo();
@@ -1670,6 +1681,8 @@ bool LLAppViewer::cleanup()
 
 	LLWatchdog::getInstance()->cleanup();
 
+	LLViewerAssetStatsFF::cleanup();
+	
 	llinfos << "Shutting down message system" << llendflush;
 	end_messaging_system();
 
@@ -3683,6 +3696,18 @@ void LLAppViewer::idle()
 		gInventory.idleNotifyObservers();
 	}
 	
+	// Metrics logging (LLViewerAssetStats, etc.)
+	{
+		static LLTimer report_interval;
+
+		// *TODO:  Add configuration controls for this
+		if (report_interval.getElapsedTimeF32() >= METRICS_INTERVAL_DEFAULT)
+		{
+			metricsIdle(! gDisconnected);
+			report_interval.reset();
+		}
+	}
+
 	if (gDisconnected)
     {
 		return;
@@ -4525,3 +4550,92 @@ bool LLAppViewer::getMasterSystemAudioMute()
 {
 	return gSavedSettings.getBOOL("MuteAudio");
 }
+
+//----------------------------------------------------------------------------
+// Metrics-related methods (static and otherwise)
+//----------------------------------------------------------------------------
+
+/**
+ * LLViewerAssetStats collects data on a per-region (as defined by the agent's
+ * location) so we need to tell it about region changes which become a kind of
+ * hidden variable/global state in the collectors.  For collectors not running
+ * on the main thread, we need to send a message to move the data over safely
+ * and cheaply (amortized over a run).
+ */
+void LLAppViewer::metricsUpdateRegion(const LLUUID & region_id)
+{
+	if (! region_id.isNull())
+	{
+		LLViewerAssetStatsFF::set_region_main(region_id);
+		if (LLAppViewer::sTextureFetch)
+		{
+			// Send a region update message into 'thread1' to get the new region.
+			LLAppViewer::sTextureFetch->commandSetRegion(region_id);
+		}
+		else
+		{
+			// No 'thread1', a.k.a. TextureFetch, so update directly
+			LLViewerAssetStatsFF::set_region_thread1(region_id);
+		}
+	}
+}
+
+
+/**
+ * Attempts to start a multi-threaded metrics report to be sent back to
+ * the grid for consumption.
+ */
+void LLAppViewer::metricsIdle(bool enable_reporting)
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	std::string caps_url;
+	LLViewerRegion * regionp = gAgent.getRegion();
+	if (regionp)
+	{
+		caps_url = regionp->getCapability("ViewerMetrics");
+		caps_url = "http://localhost:80/putz/";
+	}
+	
+	if (enable_reporting && regionp && ! caps_url.empty())
+	{
+		// *NOTE:  Pay attention here.  LLSD's are not safe for thread sharing
+		// and their ownership is difficult to transfer across threads.  We do
+		// it here by having only one reference (the new'd pointer) to the LLSD
+		// or any subtree of it.  This pointer is then transfered to the other
+		// thread using correct thread logic.
+		
+		LLSD * envelope = new LLSD(LLSD::emptyMap());
+		{
+			(*envelope)["session_id"] = gAgentSessionID;
+			(*envelope)["agent_id"] = gAgentID;
+			(*envelope)["regions"] = gViewerAssetStatsMain->asLLSD();
+		}
+		
+		if (LLAppViewer::sTextureFetch)
+		{
+			// Send a report request into 'thread1' to get the rest of the data
+			// and have it sent to the stats collector.  LLSD ownership transfers
+			// with this call.
+			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url, envelope);
+			envelope = 0;			// transfer noted
+		}
+		else
+		{
+			// No 'thread1' so transfer doesn't happen and we need to clean up
+			delete envelope;
+			envelope = 0;
+		}
+	}
+	else
+	{
+		LLAppViewer::sTextureFetch->commandDataBreak();
+	}
+
+	// Reset even if we can't report.  Rather than gather up a huge chunk of
+	// data, we'll keep to our sampling interval and retain the data
+	// resolution in time.
+	gViewerAssetStatsMain->reset();
+}
+
