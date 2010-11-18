@@ -830,16 +830,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>3b40e7170dea82c1443e8d90cd44a13d</string>
+            <string>14b1d25d7c59e42ed545f7c9f180496a</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-darwin-20080926.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20101117.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a6d2f0995c25d7f53bd12b8ec0d6b462</string>
+            <string>ea0862a349ca56324348913fe7ef365b</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-linux-20080930.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101118.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -851,9 +851,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>1b9f61140f8b599cdae5e00d21dbb177</string>
+            <string>d4c4ddb68f20f1712335c209ca0d66dd</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-windows-20080926.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20101117.tar.bz2</uri>
           </map>
         </map>
       </map>
