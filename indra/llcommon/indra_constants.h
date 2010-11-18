@@ -297,6 +297,14 @@ const U32 START_LOCATION_ID_COUNT 		= 6;
 // group constants
 const U32 GROUP_MIN_SIZE = 2;
 
+// gMaxAgentGroups is now sent by login.cgi, which
+// looks it up from globals.xml.
+//
+// For now we need an old default value however,
+// so the viewer can be deployed ahead of login.cgi.
+//
+const S32 DEFAULT_MAX_AGENT_GROUPS = 25;
+
 // radius within which a chat message is fully audible
 const F32 CHAT_WHISPER_RADIUS = 10.f;
 const F32 CHAT_NORMAL_RADIUS = 20.f;

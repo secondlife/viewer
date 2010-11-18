@@ -3149,9 +3149,18 @@ bool process_login_success_response()
 		LLViewerMedia::openIDSetup(openid_url, openid_token);
 	}
 
-	std::string max_agent_groups(response["max-agent-groups"]);
-	gMaxAgentGroups = atoi(max_agent_groups.c_str());
-	
+	if(response.has("max-agent-grid")) {		
+		std::string max_agent_groups(response["max-agent-groups"]);
+		gMaxAgentGroups = atoi(max_agent_groups.c_str());
+		LL_INFOS("LLStartup") << "gMaxAgentGroups read from login.cgi: "
+							  << gMaxAgentGroups << LL_ENDL;
+	}
+	else {
+		gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
+		LL_INFOS("LLStartup") << "using gMaxAgentGroups default: "
+							  << gMaxAgentGroups << LL_ENDL;
+	}
+		
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.
