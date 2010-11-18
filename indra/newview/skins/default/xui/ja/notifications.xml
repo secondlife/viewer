@@ -2082,10 +2082,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] はオンラインです
+		[NAME] はオンラインです
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] はオフラインです
+		[NAME] はオフラインです
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2152,9 +2152,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
 		保護されたカテゴリは削除できません。
-	</notification>
-	<notification name="OfferedCard">
-		[FIRST] [LAST] にコーリングカードを送りました。
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		オブジェクトデータのダウンロード中は購入できません。
@@ -2273,7 +2270,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="OtherObjectsReturned">
 		選択した土地の区画上にあった
- [FIRST] [LAST]
+ [NAME]
  が所有するオブジェクトは、すべて所有者の「持ち物」に返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned2">
@@ -2488,7 +2485,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		フレンドの登録依頼が拒否されました。
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] がコーリングカードを渡そうとしています。
+		[NAME] がコーリングカードを渡そうとしています。
 あなたの「持ち物」にブックマークが追加され、この住人に素早く IM を送ることができます。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
@@ -2548,7 +2545,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST] の「 [TITLE] 」
+		[NAME] の「 &lt;nolink&gt;[TITLE]&lt;/nolink&gt; 」
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="無視する"/>
@@ -2592,13 +2589,13 @@ M キーを押して変更します。
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] はインスタントメッセージを受け取り、自動的にブロックが解除されました。
+		[NAME] はインスタントメッセージを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] はお金を受け取り、自動的にブロックが解除されました。
+		[NAME] はお金を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] はアイテムを受け取り、自動的にブロックが解除されました。
+		[NAME] はアイテムを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] は [GROUP] のボイスチャットコールに参加しました。

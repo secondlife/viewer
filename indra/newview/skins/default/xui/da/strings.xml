@@ -3469,7 +3469,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Du er den eneste deltager i denne samtale
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] er ikke logget på.
+		[NAME] er ikke logget på.
 	</string>
 	<string name="invite_message">
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
