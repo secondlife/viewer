@@ -2448,7 +2448,7 @@ Cada um pode ver o status do outro (definição padrão).
 		Oferta de amizada aceita.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] estão te oferecendo um cartão de visita.
+		[NAME] estão te oferecendo um cartão de visita.
 Ele colocará um item de inventário, para você possa contatá-lo facilmente.
 		<form name="form">
 			<button name="Accept" text="Aceitar"/>
@@ -2552,13 +2552,13 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] recebeu uma MI e foi desbloqueado(a) automaticamente.
+		[NAME] recebeu uma MI e foi desbloqueado(a) automaticamente.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] recebeu dinheiro e foi desbloqueado(a) automaticamente.
+		[NAME] recebeu dinheiro e foi desbloqueado(a) automaticamente.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] recebeu dinheiro e foi desbloqueado(a) automaticamente.
+		[NAME] recebeu dinheiro e foi desbloqueado(a) automaticamente.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] atendeu uma ligação de bate-papo de voz com o grupo [GROUP].  
