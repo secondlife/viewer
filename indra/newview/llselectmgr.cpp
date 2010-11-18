@@ -6353,7 +6353,6 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
                {
                        // add the cost of each individual texture in the linkset
                        cost += iter->second;
-                       llinfos << "adding texture cost of: " << iter->second << llendl;
                }
                textures.clear();
        }

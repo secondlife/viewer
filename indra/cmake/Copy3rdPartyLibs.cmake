@@ -241,7 +241,8 @@ elseif(LINUX)
         libstacktrace.so
         libtcmalloc_minimal.so
 	libtcmalloc_minimal.so.0
-        libssl.so.0.9.7
+        libuuid.so.1
+	libssl.so.0.9.7
        )
 
     if (FMOD)

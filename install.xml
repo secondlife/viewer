@@ -1004,6 +1004,25 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
+      <key>libuuid</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
+        <key>description</key>
+        <string>Generates UUIDs under Linux. Originally a part of the ext2fs filesystem. Also see lluuid.cpp for all platforms. Part of the e2fsprogs package.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>91b194aed4b38bc23493b198009a8c6a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20090417.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>libxml</key>
       <map>
         <key>license</key>
