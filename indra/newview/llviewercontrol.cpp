@@ -70,6 +70,7 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llupdaterservice.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -488,6 +489,18 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
+void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
+{
+    if(new_value.asBoolean())
+    {
+        LLUpdaterService().startChecking();
+    }
+    else
+    {
+        LLUpdaterService().stopChecking();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -635,6 +648,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
+	gSavedSettings.getControl("UpdaterServiceActive")->getSignal()->connect(&toggle_updater_service_active);
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 }
 

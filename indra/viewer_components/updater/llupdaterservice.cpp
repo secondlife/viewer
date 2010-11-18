@@ -175,12 +175,6 @@ void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
 	mPath = path;
 	mChannel = channel;
 	mVersion = version;
-
-	// Check to see if an install is ready.
-	if(!checkForInstall())
-	{
-		checkForResume();
-	}	
 }
 
 void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
@@ -198,6 +192,12 @@ void LLUpdaterServiceImpl::startChecking()
 
 	mIsChecking = true;
 
+    // Check to see if an install is ready.
+	if(!checkForInstall())
+	{
+		checkForResume();
+	}
+
 	if(!mIsDownloading)
 	{
 		// Checking can only occur during the mainloop.
@@ -214,6 +214,11 @@ void LLUpdaterServiceImpl::stopChecking()
 		mIsChecking = false;
 		mTimer.stop();
 	}
+
+    if(mIsDownloading)
+    {
+        this->mUpdateDownloader.cancel();
+    }
 }
 
 bool LLUpdaterServiceImpl::isChecking()
