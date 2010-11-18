@@ -6500,16 +6500,6 @@ class LLToggleControl : public view_listener_t
 		std::string control_name = userdata.asString();
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
-
-        // Doubleclick actions - there can be only one
-        if ((control_name == "DoubleClickAutoPilot") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
-        }
-        else if ((control_name == "DoubleClickTeleport") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
-        }
 		return true;
 	}
 };
