@@ -41,6 +41,15 @@
        (Locations, images, web, search history)
     </text>
     <check_box
+     height="16"
+     enabled="true"
+     label="Show me in Search results"
+     layout="topleft"
+     left="30"
+     name="online_searchresults"
+     top_pad="20"
+     width="350" />
+    <check_box
 	 height="16"
 	 enabled="false"
      label="Only friends and groups know I'm online"

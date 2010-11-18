@@ -307,7 +307,43 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
+	//prep
+	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest( gAgent.getID() );
 }
+
+
+//prep
+void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
+{
+	if ( APT_PROPERTIES == type )
+	{
+		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
+		storeAvatarProperties( pAvatarData );
+		processProfileProperties( pAvatarData );
+	}	
+}
+void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData )
+{
+	mAvatarProperties.avatar_id		= gAgent.getID();
+	mAvatarProperties.image_id		= pAvatarData->image_id;
+	mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
+	mAvatarProperties.about_text	= pAvatarData->about_text;
+	mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
+	mAvatarProperties.profile_url   = pAvatarData->profile_url;
+	mAvatarProperties.allow_publish	= pAvatarData->allow_publish;
+}
+void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarData )
+{
+	getChild<LLUICtrl>("online_searchresults")->setValue( pAvatarData->allow_publish );	
+}
+
+void LLFloaterPreference::saveAvatarProperties( void )
+{
+	mAvatarProperties.allow_publish = getChild<LLUICtrl>("online_searchresults")->getValue();
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
+}
+
 
 BOOL LLFloaterPreference::postBuild()
 {
@@ -456,6 +492,9 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
+	
+	//prep
+	saveAvatarProperties();
 }
 
 void LLFloaterPreference::cancel()
