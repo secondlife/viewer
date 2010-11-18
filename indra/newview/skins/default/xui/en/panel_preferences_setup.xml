@@ -29,7 +29,7 @@
    layout="topleft"
    left_delta="50"
    name=" Mouse Sensitivity"
-   top_pad="10"
+   top_pad="5"
    width="150">
     Mouse sensitivity
   </text>
@@ -76,7 +76,7 @@
    left_delta="50"
    name="Maximum bandwidth"
    mouse_opaque="false"
-   top_pad="10"
+   top_pad="5"
    width="200">
     Maximum bandwidth
   </text>
@@ -115,7 +115,7 @@
    layout="topleft"
    left="77"
    name="connection_port_enabled"
-   top_pad="20"
+   top_pad="10"
    width="256">
     <check_box.commit_callback
      function="Notification.Show"
@@ -147,7 +147,7 @@
    left="80"
    mouse_opaque="false"
    name="cache_size_label_l"
-   top_pad="20"
+   top_pad="10"
    width="200">
     Cache size
   </text>
@@ -239,7 +239,7 @@
          layout="topleft"
          left="30"
          name="Web:"
-         top_pad="5"
+         top_pad="10"
          width="300">
     Web:
   </text>
@@ -386,4 +386,20 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
+
+  <check_box
+    top_delta="2"
+    enabled="true"
+    follows="left|top"
+    height="18"
+    initial_value="true"
+    control_name="UpdaterServiceActive"
+    label="Automatically download and install [APP_NAME] updates"
+    left="30"
+    mouse_opaque="true"
+    name="updater_service_active"
+    radio_style="false"
+    width="400"
+    top_pad="10"/>
+
 </panel>
