@@ -408,6 +408,10 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
 			llinfos << "last install attempt failed" << llendl;
 			LLFile::remove(ll_install_failed_marker_path());
+			
+			LLSD event;
+			event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
+			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(event);
 		}
 		else
 		{

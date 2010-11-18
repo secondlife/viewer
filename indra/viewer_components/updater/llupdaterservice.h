@@ -47,7 +47,8 @@ public:
 	enum UpdateEvent {
 		INVALID,
 		DOWNLOAD_COMPLETE,
-		DOWNLOAD_ERROR
+		DOWNLOAD_ERROR,
+		INSTALL_ERROR
 	};
 
 	LLUpdaterService();
