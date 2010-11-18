@@ -81,6 +81,15 @@ brad-parabuild.build_server = false
 brad-parabuild.build_server_tests = false
 
 # ========================================
+# mesh-development
+# ========================================
+mesh-development.viewer_channel = "Project Viewer - Mesh"
+mesh-development.login_channel = "Project Viewer - Mesh"
+mesh-development.viewer_grid = aditi
+mesh-development.build_debug_release_separately = true
+mesh-development.build_viewer_update_version_manager = false
+
+# ========================================
 # viewer-mesh
 # ========================================
 
