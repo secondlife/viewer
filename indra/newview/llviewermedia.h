@@ -155,6 +155,9 @@ public:
 	static void proxyWindowOpened(const std::string &target, const std::string &uuid);
 	static void proxyWindowClosed(const std::string &uuid);
 	
+	static void createSpareBrowserMediaSource();
+	static LLPluginClassMedia* getSpareBrowserMediaSource();
+	
 private:
 	static void setOpenIDCookie();
 	static void onTeleportFinished();
@@ -162,6 +165,7 @@ private:
 	static LLPluginCookieStore *sCookieStore;
 	static LLURL sOpenIDURL;
 	static std::string sOpenIDCookie;
+	static LLPluginClassMedia* sSpareBrowserMediaSource;
 };
 
 // Implementation functions not exported into header file

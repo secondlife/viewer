@@ -85,6 +85,8 @@ public:
 	
 	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
 	
+	void setOwner(LLPluginClassMediaOwner *owner) { mOwner = owner; };
+	
 	// Returns true if all of the texture parameters (depth, format, size, and texture size) are set up and consistent.
 	// This will initially be false, and will also be false for some time after setSize while the resize is processed.
 	// Note that if this returns true, it is safe to use all the get() functions above without checking for invalid return values
