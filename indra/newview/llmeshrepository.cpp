@@ -1415,8 +1415,8 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadObjectAssetCapability = gAgent.getRegion()->getCapability("UploadObjectAsset");
 	mNewInventoryCapability = gAgent.getRegion()->getCapability("NewFileAgentInventoryVariablePrice");
 
-	mUploadObjectAssetCapability = scrub_host_name(mUploadObjectAssetCapability);
-	mNewInventoryCapability = scrub_host_name(mNewInventoryCapability);
+	//mUploadObjectAssetCapability = scrub_host_name(mUploadObjectAssetCapability);
+	//mNewInventoryCapability = scrub_host_name(mNewInventoryCapability);
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
 }
