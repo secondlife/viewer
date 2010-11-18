@@ -307,13 +307,13 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
-	//prep
+	
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest( gAgent.getID() );
 }
 
 
-//prep
+
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
 {
 	if ( APT_PROPERTIES == type )
@@ -493,7 +493,6 @@ void LLFloaterPreference::apply()
 		}
 	}
 	
-	//prep
 	saveAvatarProperties();
 }
 
