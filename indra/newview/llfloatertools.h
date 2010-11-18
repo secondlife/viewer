@@ -114,7 +114,6 @@ private:
 	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 	static void setObjectType( LLPCode pcode );
 	void onClickGridOptions();
-	S32 calcRenderCost();
 
 public:
 	LLButton		*mBtnFocus;

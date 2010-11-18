@@ -2940,14 +2940,17 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 flexi = 0;
 	U32 animtex = 0;
 	U32 particles = 0;
-	U32 scale = 0;
 	U32 bump = 0;
 	U32 planar = 0;
 	U32 cuts = 0;
 	U32 hollow = 0;
-	U32 twist = 0; 
 	U32 circular_profile = 0;
 	U32 circular_path = 0;
+
+	// these multipliers are variable and can be floating point
+	F32 scale = 0.f;
+	F32 twist = 0.f; 
+
 
 	const LLDrawable* drawablep = mDrawable;
 
@@ -2992,7 +2995,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
 				if (texture)
 				{
-					S32 texture_cost = ARC_TEXTURE_COST * (texture->getFullHeight() / 128 + texture->getFullWidth() / 128 + 1);
+					S32 texture_cost = (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f + 1));
 					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
 				}
 			}
@@ -3009,11 +3012,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	}
 
 	const LLVector3& sc = getScale();
-	scale += (U32) sc.mV[0] + (U32) sc.mV[1] + (U32) sc.mV[2];
-	if (scale > 4)
+	scale += sc.mV[0] + sc.mV[1] + sc.mV[2];
+	if (scale > 4.f)
 	{
 		// scale is a multiplier, cap it at 4.
-		scale = 4;
+		scale = 4.f;
 	}
 
 	// add points for cut prims
@@ -3033,19 +3036,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		hollow = 1;
 	}
 
-	// twist - scale by twist extent / 90
-	if (volume_params.getTwistBegin() != 0.f)
+	F32 twist_mag = path_params.getTwistBegin() - path_params.getTwistEnd();
+	if (twist_mag < 0)
 	{
-		U32 scale = abs((S32)(volume_params.getTwistBegin() / 90.f) + 1);
-		twist += scale;
+		twist_mag *= -1.f;
 	}
 
-	// twist - scale by twist extent / 90
-	if (volume_params.getTwist() != 0.f)
-	{
-		U32 scale = abs((S32)(volume_params.getTwist() / 90.f) + 1);
-		twist += scale;
-	}
+	// note magnitude of twist is [-1.f, 1.f]. which translates to [-180, 180] degrees.
+	// scale to degrees / 90 by multiplying by 2.
+	twist = twist_mag * 2.f;
 
 	// double cost for circular profiles / sculpties
 	if (profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE ||
@@ -3079,7 +3078,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			if (textures.find(img->getID()) == textures.end())
 			{
-				S32 texture_cost = ARC_TEXTURE_COST * (img->getFullHeight() / 128 + img->getFullWidth() / 128 + 1);
+				S32 texture_cost = (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f + 1));
 				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
 			}
 		}
@@ -3136,9 +3135,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame *= hollow * ARC_HOLLOW_MULT;
 	}
 
-	if (twist)
+	if (twist > 1.f)
 	{
-		shame *= twist;
+		shame = (U32)(shame * twist);
 	}
 
 	if (circular_profile)
@@ -3171,33 +3170,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame *= shiny * ARC_SHINY_MULT;
 	}
 
-	if (scale)
+	if (scale > 1.f)
 	{
-		shame *= scale;
+		shame = (U32)(shame *scale);
 	}
 
 	// add additional costs
 	shame += particles * ARC_PARTICLE_COST;
 
-	LLViewerObject::const_child_list_t& child_list = getChildren();
-	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); 
-		 ++iter)
-	{
-		const LLViewerObject* child_objectp = *iter;
-		const LLDrawable* child_drawablep = child_objectp->mDrawable;
-		if (child_drawablep)
-		{
-			const LLVOVolume* child_volumep = child_drawablep->getVOVolume();
-			if (child_volumep)
-			{
-				shame += child_volumep->getRenderCost(textures);
-			}
-		}
-	}
-
 	return shame;
-
 }
 
 F32 LLVOVolume::getStreamingCost()

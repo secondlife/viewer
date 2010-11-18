@@ -284,6 +284,7 @@ public:
 	F32 getSelectedLinksetCost();
 	F32 getSelectedPhysicsCost();
 	F32 getSelectedLinksetPhysicsCost();
+	S32 getSelectedObjectRenderCost();
 	
 	F32 getSelectedObjectStreamingCost();
 	U32 getSelectedObjectTriangleCount();
