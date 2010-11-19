@@ -1837,7 +1837,7 @@ void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMat
 	{
 		//Translation via child from element
 		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
-		if ( pTranslateElement && pTranslateElement->typeID() != domTranslate::ID() )
+		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
 		{
 			llwarns<< "The found element is not a translate node" <<llendl;
 		}
