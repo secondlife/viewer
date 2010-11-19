@@ -24,9 +24,10 @@
  * $/LicenseInfo$
  */
 
-
 #ifndef LL_LLLOGCHAT_H
 #define LL_LLLOGCHAT_H
+
+class LLChat;
 
 class LLLogChat
 {
@@ -40,6 +41,10 @@ public:
 	};
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
+	/**
+	*Add functions to get old and non date stamped file names when needed
+	*/
+	static std::string oldLogFileName(std::string(filename));
 	static void saveHistory(const std::string& filename,
 				const std::string& from,
 				const LLUUID& from_id,
@@ -106,5 +111,11 @@ protected:
 	LLChatLogParser();
 	virtual ~LLChatLogParser() {};
 };
+
+// LLSD map lookup constants
+extern const std::string IM_TIME; //("time");
+extern const std::string IM_TEXT; //("message");
+extern const std::string IM_FROM; //("from");
+extern const std::string IM_FROM_ID; //("from_id");
 
 #endif

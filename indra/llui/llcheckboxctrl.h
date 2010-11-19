@@ -52,8 +52,6 @@ public:
 	struct Params 
 	:	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLUIColor>		text_enabled_color;
-		Optional<LLUIColor>		text_disabled_color;
 		Optional<bool>			initial_value;	// override LLUICtrl initial_value
 
 		Optional<LLTextBox::Params> label_text;

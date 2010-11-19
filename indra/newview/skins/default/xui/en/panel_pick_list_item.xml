@@ -52,6 +52,7 @@
      layout="topleft"
      left="110"
      name="picture_name"
+     parse_urls="false"
      text_color="white"
      top="9"
      use_ellipses="true"

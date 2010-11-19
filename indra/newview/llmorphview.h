@@ -32,7 +32,6 @@
 #include "llframetimer.h"
 
 class LLJoint;
-class LLFloaterCustomize;
 
 class LLMorphView : public LLView
 {

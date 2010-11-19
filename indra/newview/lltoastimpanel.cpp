@@ -45,7 +45,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 								mAvatarIcon(NULL), mAvatarName(NULL),
 								mTime(NULL), mMessage(NULL), mGroupIcon(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
+	buildFromFile( "panel_instant_message.xml");
 
 	mGroupIcon = getChild<LLGroupIconCtrl>("group_icon");
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
@@ -141,7 +141,8 @@ void LLToastIMPanel::spawnNameToolTip()
 {
 	// Spawn at right side of the name textbox.
 	LLRect sticky_rect = mAvatarName->calcScreenRect();
-	S32 icon_x = llmin(sticky_rect.mLeft + mAvatarName->getTextPixelWidth() + 3, sticky_rect.mRight - 16);
+	S32 icon_x =
+		llmin(sticky_rect.mLeft + mAvatarName->getTextPixelWidth() + 3, sticky_rect.mRight);
 	LLCoordGL pos(icon_x, sticky_rect.mTop);
 
 	LLToolTip::Params params;

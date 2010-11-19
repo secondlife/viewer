@@ -38,7 +38,6 @@
 #include "llviewermedia.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
-#include "llnotificationsutil.h"
 #include "llweb.h"
 #include "llrender.h"
 #include "llpluginclassmedia.h"
@@ -48,6 +47,13 @@
 
 // linden library includes
 #include "llfocusmgr.h"
+#include "llsdutil.h"
+#include "lllayoutstack.h"
+#include "lliconctrl.h"
+#include "lltextbox.h"
+#include "llbutton.h"
+#include "llcheckboxctrl.h"
+#include "llnotifications.h"
 
 extern BOOL gRestoreGL;
 
@@ -62,19 +68,21 @@ LLMediaCtrl::Params::Params()
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
-	initial_mime_type("initial_mime_type")
+	initial_mime_type("initial_mime_type"),
+	media_id("media_id"),
+	trusted_content("trusted_content", false)
 {
 	tab_stop(false);
 }
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	LLPanel( p ),
+	LLInstanceTracker<LLMediaCtrl, LLUUID>(LLUUID::generateNewID()),
 	mTextureDepthBytes( 4 ),
 	mBorder(NULL),
 	mFrequentUpdates( true ),
 	mForceUpdate( false ),
 	mHomePageUrl( "" ),
-	mTrusted(false),
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
 	mMediaSource( 0 ),
@@ -88,7 +96,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
-	mHomePageMimeType(p.initial_mime_type)
+	mHomePageMimeType(p.initial_mime_type),
+	mTrusted(p.trusted_content)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -161,19 +170,10 @@ void LLMediaCtrl::setTakeFocusOnClick( bool take_focus )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LLMediaCtrl::setTrusted( bool valIn )
-{
-	if(mMediaSource)
-	{
-		mMediaSource->setTrustedBrowser(valIn);
-	}
-	mTrusted = valIn;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 //
 BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleHover(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -189,6 +189,7 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 //
 BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
+	if (LLPanel::handleScrollWheel(x, y, clicks)) return TRUE;
 	if (mMediaSource && mMediaSource->hasMedia())
 		mMediaSource->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
 
@@ -199,6 +200,7 @@ BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 //
 BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleMouseUp(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -223,6 +225,7 @@ BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 //
 BOOL LLMediaCtrl::handleMouseDown( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleMouseDown(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -242,6 +245,7 @@ BOOL LLMediaCtrl::handleMouseDown( S32 x, S32 y, MASK mask )
 //
 BOOL LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleRightMouseUp(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -266,6 +270,7 @@ BOOL LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
 //
 BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleRightMouseDown(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -285,6 +290,7 @@ BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 //
 BOOL LLMediaCtrl::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
+	if (LLPanel::handleDoubleClick(x, y, mask)) return TRUE;
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
@@ -339,6 +345,85 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
+	LLLayoutStack::Params layout_p;
+	layout_p.name = "notification_stack";
+	layout_p.rect = LLRect(0,getLocalRect().mTop,getLocalRect().mRight, 30);
+	layout_p.follows.flags = FOLLOWS_ALL;
+	layout_p.mouse_opaque = false;
+	layout_p.orientation = "vertical";
+
+	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
+	addChild(stackp);
+
+	LLLayoutPanel::Params panel_p;
+	panel_p.rect = LLRect(0, 30, 800, 0);
+	panel_p.min_height = 30;
+	panel_p.name = "notification_area";
+	panel_p.visible = false;
+	panel_p.user_resize = false;
+	panel_p.background_visible = true;
+	panel_p.bg_alpha_image.name = "Yellow_Gradient";
+	panel_p.auto_resize = false;
+	LLLayoutPanel* notification_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(notification_panel);
+
+	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
+	panel_p.auto_resize = true;
+	panel_p.mouse_opaque = false;
+	LLLayoutPanel* dummy_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(dummy_panel);
+
+	layout_p = LLUICtrlFactory::getDefaultParams<LLLayoutStack>();
+	layout_p.rect = LLRect(0, 30, 800, 0);
+	layout_p.follows.flags = FOLLOWS_ALL;
+	layout_p.orientation = "horizontal";
+	stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
+	notification_panel->addChild(stackp);
+
+	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
+	panel_p.rect.height = 30;
+	LLLayoutPanel* panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(panel);
+
+	LLIconCtrl::Params icon_p;
+	icon_p.name = "notification_icon";
+	icon_p.rect = LLRect(5, 23, 21, 8);
+	panel->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_p));
+
+	LLTextBox::Params text_p;
+	text_p.rect = LLRect(31, 20, 430, 0);
+	text_p.text_color = LLColor4::black;
+	text_p.font = LLFontGL::getFontSansSerif();
+	text_p.font.style = "BOLD";
+	text_p.name = "notification_text";
+	text_p.use_ellipses = true;
+	panel->addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+
+	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
+	panel_p.auto_resize = false;
+	panel_p.user_resize = false;
+	panel_p.name="form_elements";
+	panel_p.rect = LLRect(0, 30, 130, 0);
+	LLLayoutPanel* form_elements_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(form_elements_panel);
+
+	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
+	panel_p.auto_resize = false;
+	panel_p.user_resize = false;
+	panel_p.rect = LLRect(0, 30, 25, 0);
+	LLLayoutPanel* close_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(close_panel);
+
+	LLButton::Params button_p;
+	button_p.name = "close_notification";
+	button_p.rect = LLRect(5, 23, 21, 7);
+	button_p.image_color=LLUIColorTable::instance().getColor("DkGray_66");
+    button_p.image_unselected.name="Icon_Close_Foreground";
+	button_p.image_selected.name="Icon_Close_Press";
+	button_p.click_callback.function = boost::bind(&LLMediaCtrl::onCloseNotification, this);
+
+	close_panel->addChild(LLUICtrlFactory::create<LLButton>(button_p));
+
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
 	return TRUE;
 }
@@ -347,6 +432,7 @@ BOOL LLMediaCtrl::postBuild ()
 //
 BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
+	if (LLPanel::handleKeyHere(key, mask)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
@@ -372,6 +458,7 @@ void LLMediaCtrl::handleVisibilityChange ( BOOL new_visibility )
 //
 BOOL LLMediaCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
+	if (LLPanel::handleUnicodeCharHere(uni_char)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
@@ -572,6 +659,15 @@ void LLMediaCtrl::setHomePageUrl( const std::string& urlIn, const std::string& m
 	}
 }
 
+void LLMediaCtrl::setTarget(const std::string& target)
+{
+	mTarget = target;
+	if (mMediaSource)
+	{
+		mMediaSource->setTarget(mTarget);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned int blue)
@@ -613,6 +709,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 		{
 			mMediaSource->setUsedInUI(true);
 			mMediaSource->setHomeURL(mHomePageUrl, mHomePageMimeType);
+			mMediaSource->setTarget(mTarget);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
@@ -824,6 +921,10 @@ void LLMediaCtrl::draw()
 	if ( mBorder && mBorder->getVisible() )
 		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus( this ) );
 
+	if (mCurNotification && !mCurNotification->isActive())
+	{
+		hideNotification();
+	}
 	
 	LLPanel::draw();
 
@@ -890,6 +991,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
+			hideNotification();
 		};
 		break;
 		
@@ -924,9 +1026,27 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
+			// retrieve the event parameters
+			std::string url = self->getClickURL();
+			std::string target = self->getClickTarget();
+			std::string uuid = self->getClickUUID();
+
+			LLNotification::Params notify_params;
+			notify_params.name = "PopupAttempt";
+			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", getKey());
+			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+
+			if (mTrusted)
+			{
+				LLNotifications::instance().forceResponse(notify_params, 0);
+			}
+			else
+			{
+				LLNotifications::instance().add(notify_params);
+			}
+			break;
 		};
-		break;
-		
+
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
@@ -950,6 +1070,24 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAME_CHANGED" << LL_ENDL;
 		};
 		break;
+		
+		case MEDIA_EVENT_CLOSE_REQUEST:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLOSE_REQUEST" << LL_ENDL;
+		}
+		break;
+		
+		case MEDIA_EVENT_PICK_FILE_REQUEST:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PICK_FILE_REQUEST" << LL_ENDL;
+		}
+		break;
+		
+		case MEDIA_EVENT_GEOMETRY_CHANGE:
+		{
+			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;
+		}
+		break;
 	};
 
 	// chain all events to any potential observers of this object.
@@ -963,3 +1101,113 @@ std::string LLMediaCtrl::getCurrentNavUrl()
 	return mCurrentNavUrl;
 }
 
+void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
+{
+	if (response["open"])
+	{
+		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+	}
+	else
+	{
+		// Make sure the opening instance knows its window open request was denied, so it can clean things up.
+		LLViewerMedia::proxyWindowClosed(notification["payload"]["uuid"]);
+	}
+
+}
+
+void LLMediaCtrl::onCloseNotification()
+{
+	LLNotifications::instance().cancel(mCurNotification);
+}
+
+void LLMediaCtrl::onClickIgnore(LLUICtrl* ctrl)
+{
+	bool check = ctrl->getValue().asBoolean();
+	if (mCurNotification && mCurNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
+	{
+		// question was "show again" so invert value to get "ignore"
+		check = !check;
+	}
+	mCurNotification->setIgnored(check);
+}
+
+void LLMediaCtrl::onClickNotificationButton(const std::string& name)
+{
+	if (!mCurNotification) return;
+
+	LLSD response = mCurNotification->getResponseTemplate();
+	response[name] = true;
+
+	mCurNotification->respond(response); 
+}
+
+void LLMediaCtrl::showNotification(LLNotificationPtr notify)
+{
+	mCurNotification = notify;
+
+	// add popup here
+	LLSD payload = notify->getPayload();
+
+	LLNotificationFormPtr formp = notify->getForm();
+	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
+	panel.setVisible(true);
+	panel.getChild<LLUICtrl>("notification_icon")->setValue(notify->getIcon());
+	panel.getChild<LLUICtrl>("notification_text")->setValue(notify->getMessage());
+	panel.getChild<LLUICtrl>("notification_text")->setToolTip(notify->getMessage());
+	LLNotificationForm::EIgnoreType ignore_type = formp->getIgnoreType(); 
+	LLLayoutPanel& form_elements = panel.getChildRef<LLLayoutPanel>("form_elements");
+	form_elements.deleteAllChildren();
+
+	const S32 FORM_PADDING_HORIZONTAL = 10;
+	const S32 FORM_PADDING_VERTICAL = 3;
+	S32 cur_x = FORM_PADDING_HORIZONTAL;
+
+	if (ignore_type != LLNotificationForm::IGNORE_NO)
+	{
+		LLCheckBoxCtrl::Params checkbox_p;
+		checkbox_p.name = "ignore_check";
+		checkbox_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
+		checkbox_p.label = formp->getIgnoreMessage();
+		checkbox_p.label_text.text_color = LLColor4::black;
+		checkbox_p.commit_callback.function = boost::bind(&LLMediaCtrl::onClickIgnore, this, _1);
+		checkbox_p.initial_value = formp->getIgnored();
+
+		LLCheckBoxCtrl* check = LLUICtrlFactory::create<LLCheckBoxCtrl>(checkbox_p);
+		check->setRect(check->getBoundingRect());
+		form_elements.addChild(check);
+		cur_x = check->getRect().mRight + FORM_PADDING_HORIZONTAL;
+	}
+
+	for (S32 i = 0; i < formp->getNumElements(); i++)
+	{
+		LLSD form_element = formp->getElement(i);
+		if (form_element["type"].asString() == "button")
+		{
+			LLButton::Params button_p;
+			button_p.name = form_element["name"];
+			button_p.label = form_element["text"];
+			button_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
+			button_p.click_callback.function = boost::bind(&LLMediaCtrl::onClickNotificationButton, this, form_element["name"].asString());
+			button_p.auto_resize = true;
+
+			LLButton* button = LLUICtrlFactory::create<LLButton>(button_p);
+			button->autoResize();
+			form_elements.addChild(button);
+
+			cur_x = button->getRect().mRight + FORM_PADDING_HORIZONTAL;
+		}
+	}
+
+
+	form_elements.reshape(cur_x, form_elements.getRect().getHeight());
+
+	//LLWeb::loadURL(payload["url"], payload["target"]);
+}
+
+void LLMediaCtrl::hideNotification()
+{
+	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
+	panel.setVisible(FALSE);
+
+	mCurNotification.reset();
+}

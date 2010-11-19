@@ -79,6 +79,8 @@
      layout="topleft"
      left_delta="0"
      multi_select="true"
+     sort_column="0"
+     sort_ascending="true"
      name="scripts_list"
      top_delta="16"
      width="460">

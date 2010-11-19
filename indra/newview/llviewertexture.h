@@ -441,6 +441,7 @@ public:
 
 	LLImageRaw* reloadRawImage(S8 discard_level) ;
 	void destroyRawImage();
+	bool needsToSaveRawImage();
 
 	const std::string& getUrl() const {return mUrl;}
 	//---------------
@@ -532,6 +533,7 @@ protected:
 	S8              mLoadedCallbackDesiredDiscardLevel;
 	BOOL            mPauseLoadedCallBacks;
 	callback_list_t mLoadedCallbackList;
+	F32             mLastCallBackActiveTime;
 
 	LLPointer<LLImageRaw> mRawImage;
 	S32 mRawDiscardLevel;
@@ -543,6 +545,7 @@ protected:
 	//keep a copy of mRawImage for some special purposes
 	//when mForceToSaveRawImage is set.
 	BOOL mForceToSaveRawImage ;
+	BOOL mSaveRawImage;
 	LLPointer<LLImageRaw> mSavedRawImage;
 	S32 mSavedRawDiscardLevel;
 	S32 mDesiredSavedRawDiscardLevel;
@@ -732,7 +735,7 @@ public:
 //it tracks the activities of the texture pipeline
 //records them, and outputs them to log files
 //
-class LLTexturePipelineTester : public LLMetricPerformanceTester
+class LLTexturePipelineTester : public LLMetricPerformanceTesterWithSession
 {
 	enum
 	{
@@ -747,8 +750,6 @@ public:
 	void updateTextureLoadingStats(const LLViewerFetchedTexture* imagep, const LLImageRaw* raw_imagep, BOOL from_cache) ;
 	void updateGrayTextureBinding() ;
 	void setStablizingTime() ;
-
-	/*virtual*/ void analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) ;
 
 private:
 	void reset() ;
@@ -820,7 +821,7 @@ private:
 		S32 mInstantPerformanceListCounter ;
 	};
 
-	/*virtual*/ LLMetricPerformanceTester::LLTestSession* loadTestSession(LLSD* log) ;
+	/*virtual*/ LLMetricPerformanceTesterWithSession::LLTestSession* loadTestSession(LLSD* log) ;
 	/*virtual*/ void compareTestSessions(std::ofstream* os) ;
 };
 

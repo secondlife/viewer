@@ -114,10 +114,6 @@ void audio_update_volume(bool force_update)
 
 		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
 		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
-#ifdef kAUDIO_ENABLE_WIND
-		gAudiop->enableWind(!mute_audio);
-#endif
-
 		gAudiop->setMuted(mute_audio);
 		
 		if (force_update)

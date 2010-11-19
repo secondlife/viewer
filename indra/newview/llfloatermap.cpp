@@ -43,6 +43,8 @@
 #include "lldraghandle.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
+#include "llfloaterworldmap.h"
+#include "llagent.h"
 
 //
 // Constants
@@ -72,7 +74,6 @@ LLFloaterMap::LLFloaterMap(const LLSD& key)
 	  mTextBoxSouthWest(NULL),
 	  mMap(NULL)
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_map.xml", FALSE);
 }
 
 LLFloaterMap::~LLFloaterMap()
@@ -96,7 +97,7 @@ BOOL LLFloaterMap::postBuild()
 	mTextBoxNorthWest = getChild<LLTextBox> ("floater_map_northwest");
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
+	
 	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
 
@@ -123,9 +124,36 @@ BOOL LLFloaterMap::postBuild()
 	return TRUE;
 }
 
-BOOL LLFloaterMap::handleDoubleClick( S32 x, S32 y, MASK mask )
+BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	LLFloaterReg::showInstance("world_map");
+	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
+	if (isMinimized())
+	{
+		setMinimized(FALSE);
+		return TRUE;
+	}
+
+	LLVector3d pos_global = mMap->viewPosToGlobal(x, y);
+	
+	// If we're not tracking a beacon already, double-click will set one 
+	if (!LLTracker::isTracking(NULL))
+	{
+		LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
+		if (world_map)
+		{
+			world_map->trackLocation(pos_global);
+		}
+	}
+	
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
+		gAgent.teleportViaLocationLookAt(pos_global);
+	}
+	else 
+	{
+		LLFloaterReg::showInstance("world_map");
+	}
 	return TRUE;
 }
 
@@ -258,7 +286,7 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterMap::handleZoom(const LLSD& userdata)
 {
 	std::string level = userdata.asString();
-
+	
 	F32 scale = 0.0f;
 	if (level == std::string("close"))
 		scale = LLNetMap::MAP_SCALE_MAX;

@@ -118,8 +118,8 @@ public:
 	// Use these for temporarily muting the audio system.
 	// Does not change buffers, initialization, etc. but
 	// stops playing new sounds.
-	virtual void setMuted(bool muted);
-	virtual bool getMuted() const { return mMuted; }
+	void setMuted(bool muted);
+	bool getMuted() const { return mMuted; }
 #ifdef USE_PLUGIN_MEDIA
 	LLPluginClassMedia* initializeMedia(const std::string& media_type);
 #endif
@@ -239,6 +239,7 @@ protected:
 	LLAudioBuffer *mBuffers[MAX_BUFFERS];
 	
 	F32 mMasterGain;
+	F32 mInternalGain;			// Actual gain set; either mMasterGain or 0 when mMuted is true.
 	F32 mSecondaryGain[AUDIO_TYPE_COUNT];
 
 	F32 mNextWindUpdate;
@@ -303,7 +304,8 @@ public:
 	virtual void setGain(const F32 gain)							{ mGain = llclamp(gain, 0.f, 1.f); }
 
 	const LLUUID &getID() const		{ return mID; }
-	bool isDone();
+	bool isDone() const;
+	bool isMuted() const { return mSourceMuted; }
 
 	LLAudioData *getCurrentData();
 	LLAudioData *getQueuedData();
@@ -325,6 +327,7 @@ protected:
 	LLUUID			mOwnerID;	// owner of the object playing the sound
 	F32				mPriority;
 	F32				mGain;
+	bool			mSourceMuted;
 	bool			mAmbient;
 	bool			mLoop;
 	bool			mSyncMaster;

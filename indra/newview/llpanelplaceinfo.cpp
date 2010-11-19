@@ -28,6 +28,7 @@
 
 #include "llpanelplaceinfo.h"
 
+#include "llavatarname.h"
 #include "llsdutil.h"
 
 #include "llsdutil_math.h"
@@ -304,9 +305,15 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit*
 }
 
 // static
-void LLPanelPlaceInfo::nameUpdatedCallback(LLTextBox* text,
-										   const std::string& first,
-										   const std::string& last)
+void LLPanelPlaceInfo::onNameCache(LLTextBox* text, const std::string& full_name)
 {
-	text->setText(first + " " + last);
+	text->setText(full_name);
+}
+
+// static
+void LLPanelPlaceInfo::onAvatarNameCache(const LLUUID& agent_id,
+										 const LLAvatarName& av_name,
+										 LLTextBox* text)
+{
+	text->setText( av_name.getCompleteName() );
 }

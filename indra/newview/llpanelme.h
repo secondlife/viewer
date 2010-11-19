@@ -28,8 +28,9 @@
 #define LL_LLPANELMEPROFILE_H
 
 #include "llpanel.h"
-#include "llpanelavatar.h"
+#include "llpanelprofile.h"
 
+class LLAvatarName;
 class LLPanelMyProfileEdit;
 class LLPanelProfile;
 class LLIconCtrl;
@@ -77,23 +78,31 @@ public:
 	/*virtual*/BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(const LLSD& key);
+
+	void onAvatarNameChanged();
 
 protected:	
 
 	/*virtual*/void resetData();
 
 	void processProfileProperties(const LLAvatarData* avatar_data);
+	void onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 private:
 	void initTexturePickerMouseEvents();
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
+	void onClickSetName();
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
 	/**
 	 * Enabled/disables controls to prevent overwriting edited data upon receiving
 	 * current data from server.
 	 */
 	void enableEditing(bool enable);
+
+
 
 private:
 	// map TexturePicker name => Edit Icon pointer should be visible while hovering Texture Picker

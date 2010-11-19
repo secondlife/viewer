@@ -108,6 +108,9 @@ std::string build_transfer_message_to_source(
 	std::ostringstream ostr;
 	if(dest_id.isNull())
 	{
+		// *NOTE: Do not change these strings!  The viewer matches
+		// them in llviewermessage.cpp to perform localization.
+		// If you need to make changes, add a new, localizable message. JC
 		ostr << "You paid L$" << amount;
 		switch(transaction_type)
 		{
@@ -154,6 +157,9 @@ std::string build_transfer_message_to_destination(
 		return description;
 	}
 	std::ostringstream ostr;
+	// *NOTE: Do not change these strings!  The viewer matches
+	// them in llviewermessage.cpp to perform localization.
+	// If you need to make changes, add a new, localizable message. JC
 	ostr << source_name << " paid you L$" << amount;
 	append_reason(ostr, transaction_type, description);
 	ostr << ".";

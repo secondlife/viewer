@@ -558,7 +558,7 @@ F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
 U32		gTotalWorldBytes = 0, gTotalObjectBytes = 0, gTotalTextureBytes = 0, gSimPingCount = 0;
 U32		gObjectBits = 0;
 F32		gAvgSimPing = 0.f;
-
+U32     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -847,6 +847,9 @@ void send_stats()
 
 	llinfos << "Misc Stats: int_1: " << misc["int_1"] << " int_2: " << misc["int_2"] << llendl;
 	llinfos << "Misc Stats: string_1: " << misc["string_1"] << " string_2: " << misc["string_2"] << llendl;
+
+	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
+	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
 	
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());

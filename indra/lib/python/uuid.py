@@ -446,8 +446,14 @@ def uuid1(node=None, clock_seq=None):
 
 def uuid3(namespace, name):
     """Generate a UUID from the MD5 hash of a namespace UUID and a name."""
-    import md5
-    hash = md5.md5(namespace.bytes + name).digest()
+    try:
+        # Python 2.6
+        from hashlib import md5
+    except ImportError:
+        # Python 2.5 and earlier
+        from md5 import new as md5
+        
+    hash = md5(namespace.bytes + name).digest()
     return UUID(bytes=hash[:16], version=3)
 
 def uuid4():

@@ -27,13 +27,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llcallfloater.h"
+
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
-#include "llcallfloater.h"
-
 #include "llagent.h"
 #include "llagentdata.h" // for gAgentID
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -44,6 +45,8 @@
 #include "llspeakers.h"
 #include "lltextutil.h"
 #include "lltransientfloatermgr.h"
+#include "llviewercontrol.h"
+#include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
@@ -77,7 +80,8 @@ public:
 	void setName(const std::string& name)
 	{
 		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
+		LLAvatarListItem::setAvatarName(formatted_phone);
+		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 
 	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }
@@ -112,6 +116,11 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 	// force docked state since this floater doesn't save it between recreations
 	setDocked(true);
+
+	// update the agent's name if display name setting change
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
+	LLViewerDisplayName::addNameChangedCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
+
 }
 
 LLCallFloater::~LLCallFloater()
@@ -141,7 +150,7 @@ BOOL LLCallFloater::postBuild()
 
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
-	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
+	mNonAvatarCaller = findChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
@@ -327,8 +336,9 @@ void LLCallFloater::refreshParticipantList()
 	{
 		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
-		mParticipants->setSortOrder(LLParticipantList::E_SORT_BY_RECENT_SPEAKERS);
-
+		const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
+		mParticipants->setSortOrder(LLParticipantList::EParticipantSortOrder(speaker_sort_order));
+		
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
@@ -368,9 +378,31 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	call_floater->connectToChannel(channel);
 }
 
+void LLCallFloater::onAvatarNameCache(const LLUUID& agent_id,
+									  const LLAvatarName& av_name)
+{
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = av_name.getCompleteName();
+	std::string title = getString("title_peer_2_peer", args);
+	setTitle(title);
+}
+
 void LLCallFloater::updateTitle()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (mVoiceType == VC_PEER_TO_PEER)
+	{
+		LLUUID session_id = voice_channel->getSessionID();
+		LLIMModel::LLIMSession* im_session =
+			LLIMModel::getInstance()->findIMSession(session_id);
+		if (im_session)
+		{
+			LLAvatarNameCache::get(im_session->mOtherParticipantID,
+				boost::bind(&LLCallFloater::onAvatarNameCache,
+					this, _1, _2));
+			return;
+		}
+	}
 	std::string title;
 	switch (mVoiceType)
 	{
@@ -415,9 +447,10 @@ void LLCallFloater::initAgentData()
 	{
 		mAgentPanel->getChild<LLUICtrl>("user_icon")->setValue(gAgentID);
 
-		std::string name;
-		gCacheName->getFullName(gAgentID, name);
-		mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+		// Just use display name, because it's you
+		LLAvatarName av_name;
+		LLAvatarNameCache::get( gAgentID, &av_name );
+		mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(av_name.mDisplayName);
 
 		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
@@ -435,12 +468,12 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 	mSpeakingIndicator->setIsMuted(moderator_muted);
 }
 
-void LLCallFloater::updateAgentModeratorState()
+void LLCallFloater::onModeratorNameCache(const LLAvatarName& av_name)
 {
 	std::string name;
-	gCacheName->getFullName(gAgentID, name);
+	name = av_name.mDisplayName;
 
-	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
+	if(mSpeakerManager && gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
 		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
 		// in this case there are not any speakers yet.
@@ -456,6 +489,11 @@ void LLCallFloater::updateAgentModeratorState()
 		}
 	}
 	mAgentPanel->getChild<LLUICtrl>("user_text")->setValue(name);
+}
+
+void LLCallFloater::updateAgentModeratorState()
+{
+	LLAvatarNameCache::get(gAgentID, boost::bind(&LLCallFloater::onModeratorNameCache, this, _2));
 }
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)

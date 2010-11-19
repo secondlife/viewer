@@ -50,7 +50,6 @@
 LLFloaterEnvSettings::LLFloaterEnvSettings(const LLSD& key)
   : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_env_settings.xml");
 }
 // virtual
 LLFloaterEnvSettings::~LLFloaterEnvSettings()

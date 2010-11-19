@@ -157,7 +157,7 @@
      left="3"
      name="bottom_panel"
      width="313">
-        <button
+        <menu_button
          follows="bottom|left"
          tool_tip="Show additional options"
          height="25"

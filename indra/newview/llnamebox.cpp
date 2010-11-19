@@ -47,6 +47,7 @@ LLNameBox::LLNameBox(const Params& p)
 {
 	mNameID = LLUUID::null;
 	mLink = p.link;
+	mParseHTML = mLink; // STORM-215
 	mInitialValue = p.initial_value().asString();
 	LLNameBox::sInstances.insert(this);
 	setText(LLStringUtil::null);
@@ -81,26 +82,15 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 		setText(mInitialValue);
 }
 
-void LLNameBox::refresh(const LLUUID& id, const std::string& firstname,
-						const std::string& lastname, BOOL is_group)
+void LLNameBox::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	if (id == mNameID)
 	{
-		std::string name;
-		if (!is_group)
-		{
-			name = firstname + " " + lastname;
-		}
-		else
-		{
-			name = firstname;
-		}
-		setName(name, is_group);
+		setName(full_name, is_group);
 	}
 }
 
-void LLNameBox::refreshAll(const LLUUID& id, const std::string& firstname,
-						   const std::string& lastname, BOOL is_group)
+void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	std::set<LLNameBox*>::iterator it;
 	for (it = LLNameBox::sInstances.begin();
@@ -108,7 +98,7 @@ void LLNameBox::refreshAll(const LLUUID& id, const std::string& firstname,
 		 ++it)
 	{
 		LLNameBox* box = *it;
-		box->refresh(id, firstname, lastname, is_group);
+		box->refresh(id, full_name, is_group);
 	}
 }
 
@@ -119,7 +109,7 @@ void LLNameBox::setName(const std::string& name, BOOL is_group)
 		std::string url;
 
 		if (is_group)
-			url = "[secondlife:///app/group/" + LLURI::escape(name) + "/about " + name + "]";
+			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
 		else
 			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
 

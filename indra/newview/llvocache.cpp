@@ -28,6 +28,7 @@
 #include "llvocache.h"
 #include "llerror.h"
 #include "llregionhandle.h"
+#include "llviewercontrol.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -44,25 +45,27 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
+	:
+	mLocalID(local_id),
+	mCRC(crc),
+	mHitCount(0),
+	mDupeCount(0),
+	mCRCChangeCount(0)
 {
-	mLocalID = local_id;
-	mCRC = crc;
-	mHitCount = 0;
-	mDupeCount = 0;
-	mCRCChangeCount = 0;
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
+	:
+	mLocalID(0),
+	mCRC(0),
+	mHitCount(0),
+	mDupeCount(0),
+	mCRCChangeCount(0),
+	mBuffer(NULL)
 {
-	mLocalID = 0;
-	mCRC = 0;
-	mHitCount = 0;
-	mDupeCount = 0;
-	mCRCChangeCount = 0;
-	mBuffer = NULL;
 	mDP.assignBuffer(mBuffer, 0);
 }
 
@@ -73,7 +76,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
-{
+	{
 		success = check_read(apr_file, &mCRC, sizeof(U32));
 	}
 	if(success)
@@ -83,27 +86,24 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mDupeCount, sizeof(S32));
-}
+	}
 	if(success)
-{
+	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
 	}
 	if(success)
 	{
 		success = check_read(apr_file, &size, sizeof(S32));
 
-	// Corruption in the cache entries
-	if ((size > 10000) || (size < 1))
-	{
-		// We've got a bogus size, skip reading it.
-		// We won't bother seeking, because the rest of this file
-		// is likely bogus, and will be tossed anyway.
-		llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
-		mLocalID = 0;
-		mCRC = 0;
-		mBuffer = NULL;
-		return;
-	}
+		// Corruption in the cache entries
+		if ((size > 10000) || (size < 1))
+		{
+			// We've got a bogus size, skip reading it.
+			// We won't bother seeking, because the rest of this file
+			// is likely bogus, and will be tossed anyway.
+			llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
+			success = FALSE;
+		}
 	}
 	if(success && size > 0)
 	{
@@ -112,8 +112,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 		if(success)
 		{
-	mDP.assignBuffer(mBuffer, size);
-}
+			mDP.assignBuffer(mBuffer, size);
+		}
 		else
 		{
 			delete[] mBuffer ;
@@ -125,6 +125,9 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	{
 		mLocalID = 0;
 		mCRC = 0;
+		mHitCount = 0;
+		mDupeCount = 0;
+		mCRCChangeCount = 0;
 		mBuffer = NULL;
 	}
 }
@@ -221,7 +224,6 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 // Format string used to construct filename for the object cache
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
-const U32 MAX_NUM_OBJECT_ENTRIES = 128 ;
 const U32 NUM_ENTRIES_TO_PURGE = 16 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
@@ -230,11 +232,11 @@ LLVOCache* LLVOCache::sInstance = NULL;
 
 //static 
 LLVOCache* LLVOCache::getInstance() 
-{
+{	
 	if(!sInstance)
 	{
 		sInstance = new LLVOCache() ;
-}
+	}
 	return sInstance ;
 }
 
@@ -257,15 +259,20 @@ void LLVOCache::destroyClass()
 LLVOCache::LLVOCache():
 	mInitialized(FALSE),
 	mReadOnly(TRUE),
-	mNumEntries(0)
+	mNumEntries(0),
+	mCacheSize(1)
 {
+	mEnabled = gSavedSettings.getBOOL("ObjectCacheEnabled");
 	mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
 }
 
 LLVOCache::~LLVOCache()
 {
-	writeCacheHeader();
-	clearCacheInMemory();
+	if(mEnabled)
+	{
+		writeCacheHeader();
+		clearCacheInMemory();
+	}
 	delete mLocalAPRFilePoolp;
 }
 
@@ -279,7 +286,7 @@ void LLVOCache::setDirNames(ELLPath location)
 
 void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 {
-	if(mInitialized)
+	if(mInitialized || !mEnabled)
 	{
 		return ;
 	}
@@ -288,9 +295,9 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	if (!mReadOnly)
 	{
 		LLFile::mkdir(mObjectCacheDirName);
-	}	
-	mCacheSize = llmin(size, MAX_NUM_OBJECT_ENTRIES) ;
-	mCacheSize = llmax(mCacheSize, NUM_ENTRIES_TO_PURGE);
+	}
+
+	mCacheSize = size;
 
 	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();
@@ -406,6 +413,11 @@ BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes)
 
 void LLVOCache::readCacheHeader()
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
+
 	//clear stale info.
 	clearCacheInMemory();	
 
@@ -421,7 +433,7 @@ void LLVOCache::readCacheHeader()
 
 		HeaderEntryInfo* entry ;
 		mNumEntries = 0 ;
-		while(mNumEntries < MAX_NUM_OBJECT_ENTRIES)
+		while(mNumEntries < mCacheSize)
 		{
 			entry = new HeaderEntryInfo() ;
 			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo)))
@@ -450,7 +462,7 @@ void LLVOCache::readCacheHeader()
 
 void LLVOCache::writeCacheHeader()
 {
-	if(mReadOnly)
+	if(mReadOnly || !mEnabled)
 	{
 		return ;
 	}	
@@ -474,10 +486,10 @@ void LLVOCache::writeCacheHeader()
 	}
 
 	mNumEntries = mHeaderEntryQueue.size() ;
-	if(mNumEntries < MAX_NUM_OBJECT_ENTRIES)
+	if(mNumEntries < mCacheSize)
 	{
 		HeaderEntryInfo* entry = new HeaderEntryInfo() ;
-		for(S32 i = mNumEntries ; i < MAX_NUM_OBJECT_ENTRIES ; i++)
+		for(U32 i = mNumEntries ; i < mCacheSize; i++)
 		{
 			//fill the cache with the default entry.
 			if(!checkWrite(apr_file, entry, sizeof(HeaderEntryInfo)))
@@ -501,6 +513,10 @@ BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 
 void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) 
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
 	llassert_always(mInitialized);
 
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
@@ -570,6 +586,10 @@ void LLVOCache::purgeEntries()
 
 void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) 
 {
+	if(!mEnabled)
+	{
+		return ;
+	}
 	llassert_always(mInitialized);
 
 	if(mReadOnly)

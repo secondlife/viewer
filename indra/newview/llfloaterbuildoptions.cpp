@@ -40,7 +40,6 @@
 LLFloaterBuildOptions::LLFloaterBuildOptions(const LLSD& key)
   : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_build_options.xml");
 }
 
 LLFloaterBuildOptions::~LLFloaterBuildOptions()

@@ -85,6 +85,7 @@ clicking on their names.
              right="-1"
              multi_select="true"
              name="member_list"
+             short_names="false" 
              top_pad="5">
                 <name_list.columns
                  label="Member"
@@ -389,7 +390,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          follows="left|top|right"
          right="-1"
-         max_length="20"
+         max_length_bytes="20"
          name="role_name"
          top_pad="0"
          width="300">
@@ -412,7 +413,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          follows="left|top|right"
          right="-1"
-         max_length="20"
+         max_length_bytes="20"
          name="role_title"
          top_pad="0"
          width="300">

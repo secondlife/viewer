@@ -283,7 +283,7 @@
 				<combo_box.item label="Plastica" name="Plastic"/>
 				<combo_box.item label="Gomma" name="Rubber"/>
 			</combo_box>
-			<text name="text cut">
+			<text name="text cut" left_delta="-10" width="170">
 				Riduci una sezione (inizio/fine)
 			</text>
 			<spinner label="I" name="cut begin"/>

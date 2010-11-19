@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  bottom="806"
  layout="topleft"
  left="0"
@@ -145,4 +145,4 @@
          function="Places.LandmarksGear.Folding.Action"
          parameter="sort_by_date" />
     </menu_item_check>
-</menu>
+</toggleable_menu>

@@ -350,7 +350,6 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mFactoryMap["Contents"] = LLCallbackMap(createPanelContents, this);//LLPanelContents
 	mFactoryMap["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 	
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_tools.xml",FALSE);
 	mCommitCallbackRegistrar.add("BuildTool.setTool",			boost::bind(&LLFloaterTools::setTool,this, _2));
 	mCommitCallbackRegistrar.add("BuildTool.commitZoom",		boost::bind(&commit_slider_zoom, _1));
 	mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",	boost::bind(&commit_radio_group_focus, _1));

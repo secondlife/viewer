@@ -70,6 +70,11 @@ public:
 			mMap.erase(key);
 		}
 
+		void replace(ref_const_key_t key, ref_const_value_t value)
+		{
+			mMap[key] = value;
+		}
+
 		typename registry_map_t::const_iterator beginItems() const
 		{
 			return mMap.begin();

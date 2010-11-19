@@ -1161,6 +1161,8 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 // static
 void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_data)
 {
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receive image header, copy into image object and decompresses 
@@ -1171,14 +1173,16 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	char ip_string[256];
 	u32_to_ip_string(msg->getSenderIP(),ip_string);
 	
+	U32 received_size ;
 	if (msg->getReceiveCompressedSize())
 	{
-		gTextureList.sTextureBits += msg->getReceiveCompressedSize() * 8;
+		received_size = msg->getReceiveCompressedSize() ;		
 	}
 	else
 	{
-		gTextureList.sTextureBits += msg->getReceiveSize() * 8;
+		received_size = msg->getReceiveSize() ;		
 	}
+	gTextureList.sTextureBits += received_size * 8;
 	gTextureList.sTexturePackets++;
 	
 	U8 codec;
@@ -1213,6 +1217,11 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
+	if(log_texture_traffic)
+	{
+		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
+	}
+
 	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImageHeader(msg->getSender(), id, codec, packets, totalbytes, data_size, data);
 	if (!res)
@@ -1224,6 +1233,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_data)
 {
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 	LLMemType mt1(LLMemType::MTYPE_APPFMTIMAGE);
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
@@ -1236,14 +1247,16 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 	char ip_string[256];
 	u32_to_ip_string(msg->getSenderIP(),ip_string);
 	
+	U32 received_size ;
 	if (msg->getReceiveCompressedSize())
 	{
-		gTextureList.sTextureBits += msg->getReceiveCompressedSize() * 8;
+		received_size = msg->getReceiveCompressedSize() ;
 	}
 	else
 	{
-		gTextureList.sTextureBits += msg->getReceiveSize() * 8;
+		received_size = msg->getReceiveSize() ;		
 	}
+	gTextureList.sTextureBits += received_size * 8;
 	gTextureList.sTexturePackets++;
 	
 	//llprintline("Start decode, image header...");
@@ -1277,6 +1290,11 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
+	if(log_texture_traffic)
+	{
+		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
+	}
+
 	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImagePacket(msg->getSender(), id, packet_num, data_size, data);
 	if (!res)
@@ -1544,7 +1562,8 @@ bool LLUIImageList::initFromFile()
 	}
 
 	UIImageDeclarations images;
-	LLXUIParser::instance().readXUI(root, images, base_file_path);
+	LLXUIParser parser;
+	parser.readXUI(root, images, base_file_path);
 
 	if (!images.validateBlock()) return false;
 
@@ -1557,8 +1576,8 @@ bool LLUIImageList::initFromFile()
 
 	for (S32 cur_pass = PASS_DECODE_NOW; cur_pass < NUM_PASSES; cur_pass++)
 	{
-		for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures().begin();
-			image_it != images.textures().end();
+		for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures.begin();
+			image_it != images.textures.end();
 			++image_it)
 		{
 			std::string file_name = image_it->file_name.isProvided() ? image_it->file_name() : image_it->name();

@@ -51,7 +51,6 @@ LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
 	mTelehubRot(),
 	mNumSpawn(0)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
 }
 
 BOOL LLFloaterTelehub::postBuild()

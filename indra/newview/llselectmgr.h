@@ -347,6 +347,7 @@ public:
 	static LLColor4				sContextSilhouetteColor;
 
 	LLCachedControl<bool>					mHideSelectedObjects;
+	LLCachedControl<bool>					mRenderHighlightSelections;
 	LLCachedControl<bool>					mAllowSelectAvatar;
 	LLCachedControl<bool>					mDebugSelectMgr;
 

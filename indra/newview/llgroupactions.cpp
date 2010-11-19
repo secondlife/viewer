@@ -235,7 +235,7 @@ static bool isGroupUIVisible()
 {
 	static LLPanel* panel = 0;
 	if(!panel)
-		panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
+		panel = LLSideTray::getInstance()->getPanel("panel_group_info_sidetray");
 	if(!panel)
 		return false;
 	return panel->isInVisibleChain();

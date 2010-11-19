@@ -1212,8 +1212,6 @@ LLViewerWindow::ESnapshotType LLFloaterSnapshot::Impl::getLayerType(LLFloaterSna
 		type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
 	else if (id == "depth")
 		type = LLViewerWindow::SNAPSHOT_TYPE_DEPTH;
-	else if (id == "objects")
-		type = LLViewerWindow::SNAPSHOT_TYPE_OBJECT_ID;
 	return type;
 }
 
@@ -2071,7 +2069,6 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 	: LLFloater(key),
 	  impl (*(new Impl))
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_snapshot.xml", FALSE);
 }
 
 // Destroys the object

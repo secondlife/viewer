@@ -36,14 +36,6 @@ import os.path
 import re
 import time
 
-#import sys # *TODO: remove. only used in testing.
-#import pprint # *TODO: remove. only used in testing.
-
-try:
-    set = set
-except NameError:
-    from sets import Set as set
-
 from indra.base import llsd
 from indra.base import config
 
@@ -195,8 +187,6 @@ class NamedQuery(object):
         style. It also has to look for %:name% and :name% and
         ready them for use in LIKE statements"""
         if sql:
-            #print >>sys.stderr, "sql:",sql
-            
             # This first sub is to properly escape any % signs that
             # are meant to be literally passed through to mysql in the
             # query.  It leaves any %'s that are used for
@@ -408,7 +398,6 @@ class NamedQuery(object):
         # build the query from the options available and the params
         base_query = []
         base_query.append(self._base_query)
-        #print >>sys.stderr, "base_query:",base_query
         for opt, extra_where in self._options.items():
             if type(extra_where) in (dict, list, tuple):
                 if opt in params:
@@ -418,7 +407,6 @@ class NamedQuery(object):
                     base_query.append(extra_where)
         if self._query_suffix:
             base_query.append(self._query_suffix)
-        #print >>sys.stderr, "base_query:",base_query
         full_query = '\n'.join(base_query)
 
         # Go through the query and rewrite all of the ones with the

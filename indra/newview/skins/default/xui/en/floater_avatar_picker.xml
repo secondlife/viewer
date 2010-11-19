@@ -5,11 +5,11 @@
  height="350"
  layout="topleft"
  min_height="200"
- min_width="265"
+ min_width="400"
  name="avatarpicker"
  help_topic="avatarpicker"
  title="CHOOSE RESIDENT"
- width="265">
+ width="500">
     <floater.string
      name="not_found">
         &apos;[TEXT]&apos; not found
@@ -40,7 +40,7 @@
      name="ResidentChooserTabs"
      tab_position="top"
      top="20"
-     width="265">
+     width="500">
         <panel
          border="none"
          height="150"
@@ -83,14 +83,24 @@
              left_pad="5"
              name="Find"
              width="45" />
-            <scroll_list
-             follows="all"
-             height="98"
-             layout="topleft"
-             left="0"
-             name="SearchResults"
-             top="52"
-             width="132" />
+          <scroll_list
+            draw_heading="true" 
+           follows="all"
+           height="98"
+           layout="topleft"
+           left="0"
+           name="SearchResults"
+           top="52"
+           width="132">
+            <columns
+              label="Name"
+              name="name"
+              width="150" />
+            <columns
+              label="Username"
+              name="username"
+              width="150" />
+          </scroll_list>
         </panel>
         <panel
          border="none"
@@ -128,7 +138,7 @@
             </button>
             <scroll_list
              follows="all"
-             height="100"
+             height="120"
              border="false"
              layout="topleft"
              left="0"
@@ -194,7 +204,8 @@
              width="28"
              name="Refresh"
              image_overlay="Refresh_Off" />
-            <scroll_list
+          <scroll_list
+             draw_heading="true"
              follows="all"
              height="100"
              border="false"
@@ -202,21 +213,30 @@
              left="0"
              name="NearMe"
              sort_column="0"
-             top="50"
-             width="132" />
+             top="52"
+             width="132">
+            <columns
+              label="Name"
+              name="name"
+              width="150" />
+            <columns
+              label="Username"
+              name="username"
+              width="150" />
+          </scroll_list>
         </panel>
     </tab_container>
     <button
-     follows="right|bottom"
+     follows="left|bottom"
      height="23"
      label="OK"
      label_selected="OK"
      name="ok_btn"
      top_pad="3"
-     left="46"
+     left="10"
      width="100" />
     <button
-     follows="right|bottom"
+     follows="left|bottom"
      height="23"
      label="Cancel"
      label_selected="Cancel"

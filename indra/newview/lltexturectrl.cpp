@@ -196,8 +196,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE )
 {
+	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
 	setCanMinimize(FALSE);
 }
 

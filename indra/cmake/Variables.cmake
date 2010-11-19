@@ -54,19 +54,20 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
 
   # If someone has specified a word size, use that to determine the
-  # architecture.  Otherwise, let the architecture specify the word size.
+  # architecture.  Otherwise, let the compiler specify the word size.
+  # Using uname will break under chroots and other cross arch compiles. RC
   if (WORD_SIZE EQUAL 32)
     set(ARCH i686)
   elseif (WORD_SIZE EQUAL 64)
     set(ARCH x86_64)
   else (WORD_SIZE EQUAL 32)
-    execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
-                    OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (ARCH STREQUAL x86_64)
-      set(WORD_SIZE 64)
-    else (ARCH STREQUAL x86_64)
+    if(CMAKE_SIZEOF_VOID_P MATCHES 4)
+      set(ARCH i686)
       set(WORD_SIZE 32)
-    endif (ARCH STREQUAL x86_64)
+    else(CMAKE_SIZEOF_VOID_P MATCHES 4)
+      set(ARCH x86_64)
+      set(WORD_SIZE 64)
+    endif(CMAKE_SIZEOF_VOID_P MATCHES 4)
   endif (WORD_SIZE EQUAL 32)
 
   set(LL_ARCH ${ARCH}_linux)
@@ -86,7 +87,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     # NOTE: setting -isysroot is NOT adequate: http://lists.apple.com/archives/Xcode-users/2007/Oct/msg00696.html
     # see http://public.kitware.com/Bug/view.php?id=9959 + poppy
-    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.4u.sdk)
+    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.4)
   endif (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
 

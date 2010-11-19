@@ -83,6 +83,7 @@
 			<menu_item_call label="Weź kopię" name="Take Copy"/>
 			<menu_item_call label="Zapisz obiekt do Szafy" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Zapisz do treści obiektu" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Zwróć obiekt" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Skrypty" name="Scripts">
 			<menu_item_call label="Zrekompiluj skrypt w selekcji (Mono)" name="Mono"/>
@@ -96,6 +97,7 @@
 			<menu_item_check label="Wybierz tylko moje obiekty" name="Select Only My Objects"/>
 			<menu_item_check label="Wybierz tylko obiekty przesuwalne" name="Select Only Movable Objects"/>
 			<menu_item_check label="Wybierz przez otoczenie" name="Select By Surrounding"/>
+			<menu_item_check label="Pokaż wytyczne selekcji" name="Show Selection Outlines"/>
 			<menu_item_check label="Zobacz ukrytą selekcję" name="Show Hidden Selection"/>
 			<menu_item_check label="Pokaż promień emitera dla selekcji" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Pokaż emiter selekcji" name="Show Selection Beam"/>
@@ -116,6 +118,7 @@
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś błędy klienta" name="Report Bug"/>
 		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Włącz podpowiedzi" name="Enable Hints"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
 		<menu_item_call label="Zatrzymaj wszystkie animacje" name="Stop Animating My Avatar"/>
@@ -262,7 +265,7 @@
 			<menu_item_call label="Test przeglądarki internetowej" name="Web Browser Test"/>
 			<menu_item_call label="Drukuj zaznaczone informacje o obiekcie" name="Print Selected Object Info"/>
 			<menu_item_call label="Statystyki pamięci" name="Memory Stats"/>
-			<menu_item_check label="Podwójne kliknięcie - Auto-Pilot" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="Auto-pilot na podwójne kliknięcie" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="Podwójne kliknięcie - Teleportuj" name="DoubleClick Teleport"/>
 			<menu_item_check label="Debugowanie zdarzeń klikania" name="Debug Clicks"/>
 			<menu_item_check label="Debugowanie zdarzeń myszy" name="Debug Mouse Events"/>
@@ -274,6 +277,7 @@
 			<menu_item_call label="Zapisz jako XML" name="Save to XML"/>
 			<menu_item_check label="Pokaż nazwy XUI" name="Show XUI Names"/>
 			<menu_item_call label="Wyślij wiadomość (IM) testową" name="Send Test IMs"/>
+			<menu_item_call label="Wyczyść bufor pamięci nazw" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Awatar" name="Character">
 			<menu label="Przesuń bakowaną teksturę" name="Grab Baked Texture">

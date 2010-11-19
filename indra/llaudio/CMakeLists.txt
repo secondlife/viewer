@@ -14,7 +14,6 @@ include(LLVFS)
 
 include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
-    ${FMOD_INCLUDE_DIR}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
@@ -45,6 +44,10 @@ set(llaudio_HEADER_FILES
     )
 
 if (FMOD)
+    include_directories(
+        ${FMOD_INCLUDE_DIR}
+        )
+
     list(APPEND llaudio_SOURCE_FILES
          llaudioengine_fmod.cpp
          lllistener_fmod.cpp

@@ -41,7 +41,6 @@
 LLFloaterWhiteListEntry::LLFloaterWhiteListEntry( const LLSD& key ) :
 	LLFloater(key)
 {
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_whitelist_entry.xml");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

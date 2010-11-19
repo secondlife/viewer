@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Choses" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		Récupération de [ITEM_COUNT] objets... [FILTER]
+		Récupération : [ITEM_COUNT] articles... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT] objets [FILTER]
+		[ITEM_COUNT] articles [FILTER]
 	</panel.string>
 	<text name="ItemcountText">
-		Objets :
+		Articles :
 	</text>
 	<filter_editor label="Filtrer l&apos;inventaire" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">

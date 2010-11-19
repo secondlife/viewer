@@ -24,6 +24,8 @@ top="600"
 </panel.string>
 <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
 <web_browser
+  tab_stop="false" 
+trusted_content="true" 
 bg_opaque_color="Black"
 border_visible="false"
 bottom="600"
@@ -65,12 +67,13 @@ Username:
 <line_editor
 follows="left|bottom"
 height="22"
-label="Username"
+label="bobsmith12 or Steller Sunshine"
 left_delta="0"
-max_length="31"
+max_length_bytes="63"
 name="username_edit"
+prevalidate_callback="ascii" 
 select_on_focus="true"
-tool_tip="[SECOND_LIFE] Username"
+tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 top_pad="0"
 width="150" />
 <text
@@ -86,7 +89,7 @@ top="20"
 <line_editor
 follows="left|bottom"
   height="22"
-  max_length="16"
+  max_length_bytes="16"
 name="password_edit"
 select_on_focus="true"
   top_pad="0"
@@ -159,8 +162,8 @@ width="135"
 tab_stop="false"
 follows="right|bottom"
 name="links"
-width="200"
-min_width="200"
+width="205"
+min_width="205"
 user_resize="false"
 height="80">
    <text
@@ -172,7 +175,7 @@ height="16"
 top="12"
 right="-10"
 name="create_new_account_text"
-  width="180">
+  width="200">
        Sign up
  </text>
 <text
@@ -184,8 +187,8 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="180">
-       Forgot your name or password?
+  width="200">
+       Forgot your username or password?
 </text>
 <text
 follows="right|bottom"
@@ -196,7 +199,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="180">
+    width="200">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"

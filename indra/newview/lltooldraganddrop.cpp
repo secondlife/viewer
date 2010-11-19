@@ -1446,10 +1446,10 @@ static void give_inventory_cb(const LLSD& notification, const LLSD& response)
 }
 
 static void show_item_sharing_confirmation(const std::string name,
-										   LLViewerInventoryItem* inv_item,
-										   const LLSD& dest,
-										   const LLUUID& dest_agent,
-										   const LLUUID& session_id = LLUUID::null)
+					   LLViewerInventoryItem* inv_item,
+					   const LLSD& dest,
+					   const LLUUID& dest_agent,
+					   const LLUUID& session_id = LLUUID::null)
 {
 	if (!inv_item)
 	{
@@ -1459,7 +1459,7 @@ static void show_item_sharing_confirmation(const std::string name,
 
 	LLSD substitutions;
 	substitutions["RESIDENTS"] = name;
-	substitutions["ITEMS"] = inv_item ? inv_item->getName() : LLStringUtil::null;
+	substitutions["ITEMS"] = inv_item->getName();
 	LLSD payload;
 	payload["agent_id"] = dest_agent;
 	payload["item_id"] = inv_item->getUUID();
@@ -1469,13 +1469,12 @@ static void show_item_sharing_confirmation(const std::string name,
 }
 
 static void get_name_cb(const LLUUID& id,
-						const std::string& first_name,
-						const std::string& last_name,
+						const std::string& full_name,
 						LLViewerInventoryItem* inv_item,
 						const LLSD& dest,
 						const LLUUID& dest_agent)
 {
-	show_item_sharing_confirmation(first_name + " " + last_name,
+	show_item_sharing_confirmation(full_name,
 								   inv_item,
 								   dest,
 								   id,
@@ -1528,7 +1527,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 					}
 					else
 					{
-						gCacheName->get(dest_agent, FALSE, boost::bind(&get_name_cb, _1, _2, _3, inv_item, dest, dest_agent));
+						gCacheName->get(dest_agent, false, boost::bind(&get_name_cb, _1, _2, inv_item, dest, dest_agent));
 					}
 
 					return true;

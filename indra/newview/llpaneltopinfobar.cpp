@@ -66,7 +66,7 @@ LLPanelTopInfoBar::LLPanelTopInfoBar(): mParcelChangedObserver(0)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar()
 			.add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
 
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_topinfo_bar.xml");
+	buildFromFile( "panel_topinfo_bar.xml");
 }
 
 LLPanelTopInfoBar::~LLPanelTopInfoBar()

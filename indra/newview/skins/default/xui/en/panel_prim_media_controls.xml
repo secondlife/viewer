@@ -33,10 +33,9 @@
 		mouse_opaque="false"
 		layout="topleft"
 		user_resize="false" />
-	<panel
+	<layout_panel
 		name="media_progress_indicator"
 		mouse_opaque="false"
-		follows="left|right|top"
 		height="8"
 		layout="topleft"
 		left="0"
@@ -55,7 +54,7 @@
 		  top="0"
 		  left="0"
 		  tool_tip="Media is Loading"/>
-	</panel>
+	</layout_panel>
 	<layout_panel
 		name="right_bookend_bottom"
 		width="0"
@@ -320,7 +319,7 @@
 		min_width="90">
 	  <line_editor 
 		  name="media_address_url"
-		  max_length="1024"
+		  max_length_bytes="1023"
 		  follows="top|left|right" 
 		  height="22"
 		  top="0"
