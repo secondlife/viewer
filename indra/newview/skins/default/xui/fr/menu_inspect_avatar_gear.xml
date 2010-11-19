@@ -3,7 +3,7 @@
 	<menu_item_call label="Voir le profil" name="view_profile"/>
 	<menu_item_call label="Devenir amis" name="add_friend"/>
 	<menu_item_call label="IM" name="im"/>
-	<menu_item_call label="Appeler" name="call"/>
+	<menu_item_call label="Appel" name="call"/>
 	<menu_item_call label="Téléporter" name="teleport"/>
 	<menu_item_call label="Inviter dans le groupe" name="invite_to_group"/>
 	<menu_item_call label="Ignorer" name="block"/>

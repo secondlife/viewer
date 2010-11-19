@@ -8351,6 +8351,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+	<key>RenderTransparentWater</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Render water as transparent.  Setting to false renders water as opaque with a simple texture applied.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+	</map>
     <key>RenderTreeLODFactor</key>
     <map>
       <key>Comment</key>

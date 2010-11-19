@@ -70,7 +70,7 @@
 		name="UI Volume"
 		show_text="false"
 		slider_label.halign="right"
-		top_pad="5"
+		top_pad="4"
 		volume="true"
 		width="300">
 	  <slider.commit_callback
@@ -104,7 +104,7 @@
      name="Wind Volume"
      show_text="false"
      slider_label.halign="right"
-     top_pad="5"
+     top_pad="4"
      volume="true"
      width="300">
         <slider.commit_callback
@@ -138,7 +138,7 @@
      left="0"
      name="SFX Volume"
      show_text="false"
-     top_pad="7"
+     top_pad="4"
      volume="true"
      width="300">
         <slider.commit_callback
@@ -172,7 +172,7 @@
      name="Music Volume"
      slider_label.halign="right"
      show_text="false"
-     top_pad="5"
+     top_pad="4"
      volume="true"
      width="300">
         <slider.commit_callback
@@ -215,7 +215,7 @@
 		name="Media Volume"
 		show_text="false"
 		slider_label.halign="right"
-		top_pad="5"
+		top_pad="4"
 		volume="true"
 		width="300">
 	  <slider.commit_callback
@@ -257,7 +257,7 @@
 		label_width="120"
 		layout="topleft"
 		left="0"
-		top_pad="5"
+		top_pad="4"
 		name="Voice Volume"
 		show_text="false"
 		slider_label.halign="right"
@@ -301,9 +301,9 @@
 		height="15"
 		tool_tip="Check this to let media auto-play if it wants"
 		label="Allow Media to auto-play"
-		top_pad="5"
+		top_pad="1"
 		left="25"/>
-	<check_box
+ 	<check_box
 		name="media_show_on_others_btn"
 		control_name="MediaShowOnOthers"
 		value="true"
@@ -313,16 +313,6 @@
 		label="Play media attached to other avatars"
 		left="25"
     width="230"/>
-  <check_box
-     control_name="LipSyncEnabled"
-     follows="left|top"
-     height="20"
-     label="Move avatar lips when speaking"
-     layout="topleft"
-     left_pad="0"
-     name="enable_lip_sync"
-     width="237"
-     top_delta="-4" />
 
     <text
      type="string"
@@ -333,7 +323,7 @@
      left="25"
      name="voice_chat_settings"
      width="180"
-     top_pad="10">
+     top_pad="7">
 	  Voice Chat Settings
     </text>
     <text
@@ -341,10 +331,10 @@
      length="1"
      follows="left|top"
      layout="topleft"
-	   left="80"
+	   left="46"
 	   top_delta="16"
      name="Listen from"
-     width="102">
+     width="112">
         Listen from:
     </text>
 	<icon
@@ -363,7 +353,7 @@
 		height="18"
 		image_name="Move_Walk_Off"
 		layout="topleft"
-    left_pad="130" 
+    left_pad="170" 
 		name="avatar_icon"
 		mouse_opaque="false"
 		visible="true"
@@ -375,7 +365,7 @@
      draw_border="false"
      follows="left|top"
      layout="topleft"
-     left_delta="-128"
+     left_delta="-168"
      width="221"
      height="20"
      name="ear_location">
@@ -391,11 +381,21 @@
      follows="left|top"
      label="Avatar position"
      layout="topleft"
-     left_pad="-54"
+     left_pad="-16"
      name="1"
      top_delta ="0" 
      width="200" />
    </radio_group>
+  <check_box
+   control_name="LipSyncEnabled"
+   follows="left|top"
+   height="15"
+   label="Move avatar lips when speaking"
+   layout="topleft"
+   left="44"
+   name="enable_lip_sync"
+   top_pad="5" 
+   width="237"/>
  <check_box
   follows="top|left"
   enabled_control="EnableVoiceChat"
@@ -403,10 +403,11 @@
   height="15"
   label="Toggle speak on/off when I press:"
   layout="topleft"
-  left="30"
+  left="44"
   name="push_to_talk_toggle_check"
   width="237"
-  tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
+  tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
+  top_pad="3"/>
   <line_editor
    follows="top|left"
    control_name="PushToTalkButton"
@@ -454,7 +455,7 @@
    label="Input/Output devices"
    layout="topleft"
    left="20"
-   top_pad="8"
+   top_pad="6"
    name="device_settings_btn"
    width="190">
   </button>
