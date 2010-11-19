@@ -10,7 +10,7 @@
 		Betaal inwoner:
 	</text>
 	<text name="payee_name" left="110">
-		[FIRST] [LAST]
+		Test Name That Is Extremely Long To Check Clipping
 	</text>
 	<text name="fastpay text">
 		Snel betalen:

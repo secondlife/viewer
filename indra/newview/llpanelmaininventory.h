@@ -136,6 +136,7 @@ protected:
 	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);
 	BOOL isActionEnabled(const LLSD& command_name);
+	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 	/**

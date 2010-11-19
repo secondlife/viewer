@@ -81,6 +81,7 @@
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
 #include "llfloaterproperties.h"
+#include "llfloaterregiondebugconsole.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
@@ -227,6 +228,7 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("reporter", "floater_report_abuse.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterReporter>);
 	LLFloaterReg::add("reset_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterResetQueue>);
+	LLFloaterReg::add("region_debug_console", "floater_region_debug_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionDebugConsole>);
 	LLFloaterReg::add("region_info", "floater_region_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionInfo>);
 	
 	LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);

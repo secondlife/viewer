@@ -177,7 +177,10 @@
    left_delta="0"
    name="double_click_chkbox"
    width="237"
-   top_pad="0"/>
+   top_pad="0">
+   <check_box.commit_callback
+    function="Pref.CommitDoubleClickChekbox"/>
+  </check_box>
   <radio_group
      height="20"
      layout="topleft"
@@ -191,7 +194,6 @@
      left="0"
      name="radio_teleport"
      top_delta="20"
-     value="0"
      width="100" />
     <radio_item
      height="16"
@@ -200,7 +202,19 @@
      layout="topleft"
      name="radio_autopilot"
      top_delta="0"
-     value="1"
      width="75" />
+    <radio_group.commit_callback
+	     function="Pref.CommitRadioDoubleClick"/>
   </radio_group>
+  <button
+   height="23"
+   label="Other Devices"
+   left="30"
+   name="joystick_setup_button"
+   top="30"
+   width="155">
+    <button.commit_callback
+     function="Floater.Show"
+     parameter="pref_joystick" />
+  </button>
 </panel>

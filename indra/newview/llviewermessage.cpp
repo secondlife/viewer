@@ -3032,6 +3032,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 		}
 		else
 		{
+			args["NAME"] = source_name;
 			LLNotificationsUtil::add("OfferCallingCard", args, payload);
 		}
 	}

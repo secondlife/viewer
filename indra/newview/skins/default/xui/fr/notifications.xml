@@ -2464,7 +2464,7 @@ Veuillez réessayer dans quelques minutes.
 		Amitié refusée.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] vous offre sa carte de visite.
+		[NAME] vous offre sa carte de visite.
 Cela ajoute un marque-page dans votre inventaire, ce qui vous permet d&apos;envoyer rapidement un IM à ce résident.
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
