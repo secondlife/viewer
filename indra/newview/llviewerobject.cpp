@@ -518,10 +518,10 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 // agent.
 bool LLViewerObject::isReturnable()
 {
-	LLBBox(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f);
+	LLBBox box_in_region_frame(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f);
 	return !isAttachment()
 		&& mRegionp
-		&& mRegionp->objectIsReturnable(getPositionRegion(), getBoundingBoxRegion());
+		&& mRegionp->objectIsReturnable(getPositionRegion(), box_in_region_frame);
 }
 
 BOOL LLViewerObject::setParent(LLViewerObject* parent)
