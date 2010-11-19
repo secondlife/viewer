@@ -114,7 +114,7 @@ public:
 		U32 num_verts, 
 		U32 num_indices);
 
-	void smoothNormals(F32 angle_cutoff);
+	void generateNormals(F32 angle_cutoff);
 
 	void addFace(const LLVolumeFace& face);
 

@@ -49,14 +49,6 @@ class domInstance_geometry;
 class domNode;
 class domTranslate;
 
-class LLPhysicsDecompFloater : public LLFloater
-{
-public:
-
-	LLPhysicsDecompFloater(LLSD& key);
-	~LLPhysicsDecompFloater();
-};
-
 class LLModelLoader : public LLThread
 {
 public:
@@ -145,16 +137,12 @@ public:
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 	
-	static void onBrowseHighLOD(void* data);
-	static void onBrowseMediumLOD(void* data); 
-	static void onBrowseLowLOD(void* data);
-	static void onBrowseLowestLOD(void* data);
+	static void onBrowseLOD(void* data);
 	
 	static void onUpload(void* data);
 	
 	static void onConsolidate(void* data);
-	static void onScrubMaterials(void* data);
-	static void onDecompose(void* data);
+	static void onClearMaterials(void* data);
 	static void onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh);
 	
 	static void refresh(LLUICtrl* ctrl, void* data);
@@ -167,27 +155,16 @@ protected:
 	friend class LLModelPreview;
 	friend class LLMeshFilePicker;
 	friend class LLPhysicsDecomp;
-	friend class LLPhysicsDecompFloater;
 	
-	static void		onDebugScaleCommit(LLUICtrl*, void*);
+	static void		onImportScaleCommit(LLUICtrl*, void*);
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
-	static void		onHighLODCommit(LLUICtrl*,void*);
-	static void		onMediumLODCommit(LLUICtrl*,void*);
-	static void		onLowLODCommit(LLUICtrl*,void*);
-	static void		onLowestLODCommit(LLUICtrl*,void*);
-	static void		onPhysicsLODCommit(LLUICtrl*,void*);
+	static void		onTriangleLimitCommit(LLUICtrl*,void*);
 	
-	static void		onHighLimitCommit(LLUICtrl*,void*);
-	static void		onMediumLimitCommit(LLUICtrl*,void*);
-	static void		onLowLimitCommit(LLUICtrl*,void*);
-	static void		onLowestLimitCommit(LLUICtrl*,void*);
-	static void		onPhysicsLimitCommit(LLUICtrl*,void*);
-	
-	static void		onSmoothNormalsCommit(LLUICtrl*,void*);
+	static void		onGenerateNormalsCommit(LLUICtrl*,void*);
 	
 	static void		onAutoFillCommit(LLUICtrl*,void*);
 	static void		onShowEdgesCommit(LLUICtrl*,void*);
@@ -197,20 +174,24 @@ protected:
 	static void onPhysicsParamCommit(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageExecute(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageCancel(LLUICtrl* ctrl, void* userdata);
-	static void onClosePhysicsFloater(LLUICtrl* ctrl, void* userdata);
+	
+	static void onPhysicsBrowse(LLUICtrl* ctrl, void* userdata);
+	static void onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata);
+	static void onPhysicsOptimize(LLUICtrl* ctrl, void* userdata);
+	static void onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata);
+	static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
+	
+	
 	
 	void			draw();
-	static void		setLODMode(S32 lod, void* userdata);
-	void			setLODMode(S32 lod, S32 which_mode);
 	
 	static void		setLimit(S32 lod, void* userdata);
 	void			setLimit(S32 lod, S32 limit);
 	
-	void showDecompFloater();
+	void initDecompControls();
 	
 	LLModelPreview*	mModelPreview;
 	
-	LLFloater* mDecompFloater;
 	LLPhysicsDecomp::decomp_params mDecompParams;
 	
 	S32				mLastMouseX;
@@ -236,6 +217,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void setPreviewTarget(F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
 
+	void setPhysicsFromLOD(S32 lod);
 	BOOL render();
 	void update();
 	void genBuffers(S32 lod, bool skinned);
@@ -250,9 +232,9 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1);
-	void smoothNormals();
+	void generateNormals();
 	void consolidate();
-	void scrubMaterials();
+	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
 	void clearIncompatible(S32 lod);
@@ -280,9 +262,9 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLVector3	mPreviewScale;
 	S32			mPreviewLOD;
 	U32			mResourceCost;
-	S32			mLODMode[LLModel::NUM_LODS];
 	S32			mLimit[LLModel::NUM_LODS];
-	
+	std::string mLODFile[LLModel::NUM_LODS];
+
 	LLModelLoader* mModelLoader;
 
 
