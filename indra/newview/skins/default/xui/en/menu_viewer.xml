@@ -2675,26 +2675,6 @@
                  function="Advanced.PrintTextureMemoryStats" />
             </menu_item_call>
             <menu_item_check
-             label="Double-ClickAuto-Pilot"
-             name="Double-ClickAuto-Pilot">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DoubleClickAutoPilot" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DoubleClickAutoPilot" />
-            </menu_item_check>
-            <menu_item_check
-             label="Double-Click Teleport"
-             name="DoubleClick Teleport">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DoubleClickTeleport" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DoubleClickTeleport" />
-            </menu_item_check>
-            <menu_item_check
              label="Region Debug Console"
              name="Region Debug Console"
              shortcut="control|shift|`"
