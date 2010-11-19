@@ -102,7 +102,7 @@
             <menu_item_call
              label="Sit Down"
              layout="topleft"
-		     shortcut="control|alt|S"
+		     shortcut="alt|shift|S"
              name="Sit Down Here">
                 <menu_item_call.on_click
                  function="Self.SitDown"
@@ -110,15 +110,6 @@
                 <menu_item_call.on_enable
                  function="Self.EnableSitDown" />
             </menu_item_call>
-            <menu_item_check
-             label="Always Run"
-             name="Always Run"
-             shortcut="control|R">
-                <menu_item_check.on_check
-                 function="World.CheckAlwaysRun" />
-                <menu_item_check.on_click
-                 function="World.AlwaysRun" />
-            </menu_item_check>
             <menu_item_check
              label="Fly"
              name="Fly"
@@ -129,6 +120,15 @@
                  function="Agent.toggleFlying" />
                 <menu_item_check.on_enable
                  function="Agent.enableFlying" />
+            </menu_item_check>
+            <menu_item_check
+             label="Always Run"
+             name="Always Run"
+             shortcut="control|R">
+                <menu_item_check.on_check
+                 function="World.CheckAlwaysRun" />
+                <menu_item_check.on_click
+                 function="World.AlwaysRun" />
             </menu_item_check>
             <menu_item_call
              label="Stop Animating Me"
