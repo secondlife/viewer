@@ -3469,7 +3469,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Rozmowa głosowa zakończona
 	</string>
 	<string name="conference-title-incoming">
-		Konferencja z  [AGENT_NAME]
+		Konferencja z [AGENT_NAME]
 	</string>
 	<string name="no_session_message">
 		(Sesja IM wygasła)
