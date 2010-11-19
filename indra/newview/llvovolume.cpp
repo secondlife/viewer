@@ -2950,6 +2950,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	// these multipliers are variable and can be floating point
 	F32 scale = 0.f;
 	F32 twist = 0.f; 
+	F32 revolutions = 0.f;
 
 
 	const LLDrawable* drawablep = mDrawable;
@@ -3046,6 +3047,13 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	// scale to degrees / 90 by multiplying by 2.
 	twist = twist_mag * 2.f;
 
+	// multiply by the number of revolutions in the prim. cap at 4.
+	revolutions = path_params.getRevolutions();
+	if (revolutions > 4.f)
+	{
+		revolutions = 4.f;
+	}
+
 	// double cost for circular profiles / sculpties
 	if (profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE ||
 		profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE_HALF)
@@ -3135,11 +3143,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame *= hollow * ARC_HOLLOW_MULT;
 	}
 
-	if (twist > 1.f)
-	{
-		shame = (U32)(shame * twist);
-	}
-
 	if (circular_profile)
 	{
 		shame *= circular_profile * ARC_CIRC_PROF_MULT;
@@ -3170,9 +3173,19 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame *= shiny * ARC_SHINY_MULT;
 	}
 
+	if (twist > 1.f)
+	{
+		shame = (U32)(shame * twist);
+	}
+
 	if (scale > 1.f)
 	{
 		shame = (U32)(shame *scale);
+	}
+
+	if (revolutions > 1.f)
+	{
+		shame = (U32)(shame * revolutions);
 	}
 
 	// add additional costs
