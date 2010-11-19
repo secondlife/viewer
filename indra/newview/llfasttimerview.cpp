@@ -1463,7 +1463,6 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 	std::ofstream os(output.c_str());
 
 	LLSD::Real session_time = current["SessionTime"].asReal();
-	//LLSD::Real frame_count = current["FrameCount"].asReal();
 	os <<
 		"Label, "
 		"% Change, "

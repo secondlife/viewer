@@ -450,7 +450,8 @@ void LLFloaterTools::refresh()
 	if (sShowObjectCost)
 	{
 		std::string prim_cost_string;
-		LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+		S32 cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
+		LLResMgr::getInstance()->getIntegerString(prim_cost_string, cost);
 		getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
 	}
 
@@ -998,38 +999,6 @@ void LLFloaterTools::onClickGridOptions()
 	LLFloaterReg::showInstance("build_options");
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
-}
-
-S32 LLFloaterTools::calcRenderCost()
-{
-	S32 cost = 0;
-	LLVOVolume::texture_cost_t textures;
-
-	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
-		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
-		  ++selection_iter)
-	{
-		LLSelectNode *select_node = *selection_iter;
-		if (select_node)
-		{
-			LLViewerObject *vobj = select_node->getObject();
-			if (vobj->getVolume())
-			{
-				LLVOVolume* volume = (LLVOVolume*) vobj;
-
-				cost += volume->getRenderCost(textures);
-				for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
-				{
-					// add the cost of each individual texture in the linkset
-					cost += iter->second;
-				}
-				textures.clear();
-			}
-		}
-	}
-
-
-	return cost;
 }
 
 // static
