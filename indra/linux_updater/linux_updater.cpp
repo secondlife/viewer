@@ -49,6 +49,7 @@ const guint ROTATE_IMAGE_TIMEOUT = 8000;
 typedef struct _updater_app_state {
 	std::string app_name;
 	std::string url;
+	std::string file;
 	std::string image_dir;
 	std::string dest_dir;
 	std::string strings_dirs;
@@ -113,7 +114,7 @@ BOOL install_package(std::string package_file, std::string destination);
 BOOL spawn_viewer(UpdaterAppState *app_state);
 
 extern "C" {
-	void on_window_closed(GtkWidget *sender, gpointer state);
+	void on_window_closed(GtkWidget *sender, GdkEvent *event, gpointer state);
 	gpointer worker_thread_cb(gpointer *data);
 	int download_progress_cb(gpointer data, double t, double d, double utotal, double ulnow);
 	gboolean rotate_image_cb(gpointer data);
@@ -220,7 +221,7 @@ std::string next_image_filename(std::string& image_path)
 	return image_path + "/" + image_filename;
 }
 
-void on_window_closed(GtkWidget *sender, gpointer data)
+void on_window_closed(GtkWidget *sender, GdkEvent* event, gpointer data)
 {
 	UpdaterAppState *app_state;
 
@@ -266,85 +267,95 @@ gpointer worker_thread_cb(gpointer data)
 	CURLcode result;
 	FILE *package_file;
 	GError *error = NULL;
-	char *tmp_filename = NULL;
 	int fd;
 
 	//g_return_val_if_fail (data != NULL, NULL);
 	app_state = (UpdaterAppState *) data;
 
 	try {
-		// create temporary file to store the package.
-		fd = g_file_open_tmp
-			("secondlife-update-XXXXXX", &tmp_filename, &error);
-		if (error != NULL)
+
+		if(!app_state->url.empty())
 		{
-			llerrs << "Unable to create temporary file: "
-			       << error->message
-			       << llendl;
+			char* tmp_local_filename = NULL;
+			// create temporary file to store the package.
+			fd = g_file_open_tmp
+				("secondlife-update-XXXXXX", &tmp_local_filename, &error);
+			if (error != NULL)
+			{
+				llerrs << "Unable to create temporary file: "
+					   << error->message
+					   << llendl;
 
-			g_error_free(error);
-			throw 0;
+				g_error_free(error);
+				throw 0;
+			}
+			
+			if(tmp_local_filename != NULL)
+			{
+				app_state->file = tmp_local_filename;
+				g_free(tmp_local_filename);
+			}
+
+			package_file = fdopen(fd, "wb");
+			if (package_file == NULL)
+			{
+				llerrs << "Failed to create temporary file: "
+					   << app_state->file.c_str()
+					   << llendl;
+
+				gdk_threads_enter();
+				display_error(app_state->window,
+							  LLTrans::getString("UpdaterFailDownloadTitle"),
+							  LLTrans::getString("UpdaterFailUpdateDescriptive"));
+				gdk_threads_leave();
+				throw 0;
+			}
+
+			// initialize curl and start downloading the package
+			llinfos << "Downloading package: " << app_state->url << llendl;
+
+			curl = curl_easy_init();
+			if (curl == NULL)
+			{
+				llerrs << "Failed to initialize libcurl" << llendl;
+
+				gdk_threads_enter();
+				display_error(app_state->window,
+							  LLTrans::getString("UpdaterFailDownloadTitle"),
+							  LLTrans::getString("UpdaterFailUpdateDescriptive"));
+				gdk_threads_leave();
+				throw 0;
+			}
+
+			curl_easy_setopt(curl, CURLOPT_URL, app_state->url.c_str());
+			curl_easy_setopt(curl, CURLOPT_NOSIGNAL, TRUE);
+			curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, package_file);
+			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, FALSE);
+			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, 
+							 &download_progress_cb);
+			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, app_state);
+
+			result = curl_easy_perform(curl);
+			fclose(package_file);
+			curl_easy_cleanup(curl);
+
+			if (result)
+			{
+				llerrs << "Failed to download update: " 
+					   << app_state->url 
+					   << llendl;
+
+				gdk_threads_enter();
+				display_error(app_state->window,
+							  LLTrans::getString("UpdaterFailDownloadTitle"),
+							  LLTrans::getString("UpdaterFailUpdateDescriptive"));
+				gdk_threads_leave();
+
+				throw 0;
+			}
 		}
-
-		package_file = fdopen(fd, "wb");
-		if (package_file == NULL)
-		{
-			llerrs << "Failed to create temporary file: "
-			       << tmp_filename
-			       << llendl;
-
-			gdk_threads_enter();
-			display_error(app_state->window,
-				      LLTrans::getString("UpdaterFailDownloadTitle"),
-				      LLTrans::getString("UpdaterFailUpdateDescriptive"));
-			gdk_threads_leave();
-			throw 0;
-		}
-
-		// initialize curl and start downloading the package
-		llinfos << "Downloading package: " << app_state->url << llendl;
-
-		curl = curl_easy_init();
-		if (curl == NULL)
-		{
-			llerrs << "Failed to initialize libcurl" << llendl;
-
-			gdk_threads_enter();
-			display_error(app_state->window,
-				      LLTrans::getString("UpdaterFailDownloadTitle"),
-				      LLTrans::getString("UpdaterFailUpdateDescriptive"));
-			gdk_threads_leave();
-			throw 0;
-		}
-
-		curl_easy_setopt(curl, CURLOPT_URL, app_state->url.c_str());
-		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, TRUE);
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, package_file);
-		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, FALSE);
-		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, 
-				 &download_progress_cb);
-		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, app_state);
-
-		result = curl_easy_perform(curl);
-		fclose(package_file);
-		curl_easy_cleanup(curl);
-
-		if (result)
-		{
-			llerrs << "Failed to download update: " 
-			       << app_state->url 
-			       << llendl;
-
-			gdk_threads_enter();
-			display_error(app_state->window,
-				      LLTrans::getString("UpdaterFailDownloadTitle"),
-				      LLTrans::getString("UpdaterFailUpdateDescriptive"));
-			gdk_threads_leave();
-
-			throw 0;
-		}
-
+		
 		// now pulse the progres bar back and forth while the package is
 		// being unpacked
 		gdk_threads_enter();
@@ -357,7 +368,7 @@ gpointer worker_thread_cb(gpointer data)
 
 		// *TODO: if the destination is not writable, terminate this
 		// thread and show file chooser?
-		if (!install_package(tmp_filename, app_state->dest_dir))
+		if (!install_package(app_state->file.c_str(), app_state->dest_dir))
 		{
 			llwarns << "Failed to install package to destination: "
 				<< app_state->dest_dir
@@ -390,15 +401,6 @@ gpointer worker_thread_cb(gpointer data)
 	catch (...)
 	{
 		app_state->failure = TRUE;
-	}
-
-	// FIXME: delete package file also if delete-event is raised on window
-	if (tmp_filename != NULL)
-	{
-		if (gDirUtilp->fileExists(tmp_filename))
-		{
-			LLFile::remove(tmp_filename);
-		}
 	}
 
 	gdk_threads_enter();
@@ -712,7 +714,7 @@ BOOL spawn_viewer(UpdaterAppState *app_state)
 
 void show_usage_and_exit()
 {
-	std::cout << "Usage: linux-updater --url URL --name NAME --dest PATH --stringsdir PATH1,PATH2 --stringsfile FILE"
+	std::cout << "Usage: linux-updater <--url URL | --file FILE> --name NAME --dest PATH --stringsdir PATH1,PATH2 --stringsfile FILE"
 		  << "[--image-dir PATH]"
 		  << std::endl;
 	exit(1);
@@ -727,6 +729,10 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 		if ((!strcmp(argv[i], "--url")) && (++i < argc))
 		{
 			app_state->url = argv[i];
+		}
+		else if ((!strcmp(argv[i], "--file")) && (++i < argc))
+		{
+			app_state->file = argv[i];
 		}
 		else if ((!strcmp(argv[i], "--name")) && (++i < argc))
 		{
@@ -756,7 +762,7 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 	}
 
 	if (app_state->app_name.empty() 
-	    || app_state->url.empty() 
+	    || (app_state->url.empty() && app_state->file.empty())  
 	    || app_state->dest_dir.empty())
 	{
 		show_usage_and_exit();
@@ -771,10 +777,10 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 
 int main(int argc, char **argv)
 {
-	UpdaterAppState app_state;
+	UpdaterAppState* app_state = new UpdaterAppState;
 	GThread *worker_thread;
 
-	parse_args_and_init(argc, argv, &app_state);
+	parse_args_and_init(argc, argv, app_state);
 
 	// Initialize logger, and rename old log file
 	gDirUtilp->initAppDirs("SecondLife");
@@ -797,17 +803,29 @@ int main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 
 	// create UI
-	updater_app_ui_init(&app_state);
+	updater_app_ui_init(app_state);
 
 	//llinfos << "SAMPLE TRANSLATION IS: " << LLTrans::getString("LoginInProgress") << llendl;
 
 	// create download thread
 	worker_thread = g_thread_create
-		(GThreadFunc(worker_thread_cb), &app_state, FALSE, NULL);
+		(GThreadFunc(worker_thread_cb), app_state, FALSE, NULL);
 
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
 
-	return (app_state.failure == FALSE) ? 0 : 1;
+	// Delete the file only if created from url download.
+	if(!app_state->url.empty() && !app_state->file.empty())
+	{
+		if (gDirUtilp->fileExists(app_state->file))
+		{
+			LLFile::remove(app_state->file);
+		}
+	}
+
+	bool success = !app_state->failure;
+	delete app_state;
+	return success ? 0 : 1;
 }
+

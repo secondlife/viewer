@@ -11079,7 +11079,62 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-	<key>UploadBakedTexOld</key>
+    <key>UpdaterServiceActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable or disable the updater service.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UpdaterServiceCheckPeriod</key>
+    <map>
+      <key>Comment</key>
+      <string>Default period between update checking.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>3600</integer>
+    </map>
+    <key>UpdaterServiceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Default location for the updater service.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://update.secondlife.com</string>
+    </map>
+    <key>UpdaterServicePath</key>
+    <map>
+      <key>Comment</key>
+      <string>Path on the update server host.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>update</string>
+    </map>
+    <key>UpdaterServiceProtocolVersion</key>
+    <map>
+      <key>Comment</key>
+      <string>The update protocol version to use.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>v1.0</string>
+    </map>
+    <key>UploadBakedTexOld</key>
     <map>
       <key>Comment</key>
       <string>Forces the baked texture pipeline to upload using the old method.</string>
@@ -11431,17 +11486,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VersionChannelName</key>
-    <map>
-      <key>Comment</key>
-      <string>Versioning Channel Name.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>Second Life Release</string>
     </map>
     <key>VertexShaderEnable</key>
     <map>
