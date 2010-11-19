@@ -145,7 +145,7 @@ void LLThread::shutdown()
 			// First, set the flag that indicates that we're ready to die
 			setQuitting();
 
-			llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
+			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
 			// should netver get called unless we're already stopped, really...
@@ -167,7 +167,7 @@ void LLThread::shutdown()
 		if (!isStopped())
 		{
 			// This thread just wouldn't stop, even though we gave it time
-			llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
+			//llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
 			return;
 		}
 		mAPRThreadp = NULL;
