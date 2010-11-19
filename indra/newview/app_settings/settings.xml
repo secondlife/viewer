@@ -1365,6 +1365,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>LetterKeysFocusChatBar</key>
+    <map>
+      <key>Comment</key>
+      <string>When printable characters keys (possibly with Shift held) are pressed, the chatbar takes focus</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ChatBubbleOpacity</key>
     <map>
       <key>Comment</key>
