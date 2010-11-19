@@ -247,7 +247,7 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
-        self.path("../viewer_components/updater/scripts/windows/update_install.bat")
+        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="")
 
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
