@@ -204,7 +204,11 @@ bool LLUpdateDownloader::Implementation::isDownloading(void)
 
 void LLUpdateDownloader::Implementation::resume(void)
 {
-	if(isDownloading()) mClient.downloadError("download in progress");
+	mCancelled = false;
+
+	if(isDownloading()) {
+		mClient.downloadError("download in progress");
+	}
 
 	mDownloadRecordPath = downloadMarkerPath();
 	llifstream dataStream(mDownloadRecordPath);

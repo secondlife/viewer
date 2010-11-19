@@ -62,7 +62,7 @@ public:
 
 	void setCheckPeriod(unsigned int seconds);
 	
-	void startChecking();
+	void startChecking(bool install_if_ready = false);
 	void stopChecking();
 	bool isChecking();
 

@@ -2433,7 +2433,8 @@ void LLAppViewer::initUpdater()
  	mUpdater->setCheckPeriod(check_period);
 	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
 	{
-		mUpdater->startChecking();
+		bool install_if_ready = true;
+		mUpdater->startChecking(install_if_ready);
 	}
 
     LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());

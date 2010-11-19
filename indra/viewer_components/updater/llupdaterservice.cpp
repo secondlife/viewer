@@ -112,13 +112,13 @@ public:
 	
 	void setCheckPeriod(unsigned int seconds);
 
-	void startChecking();
+	void startChecking(bool install_if_ready);
 	void stopChecking();
 	bool isChecking();
 	
 	void setAppExitCallback(LLUpdaterService::app_exit_callback_t aecb) { mAppExitCallback = aecb;}
 
-	bool checkForInstall(); // Test if a local install is ready.
+	bool checkForInstall(bool launchInstaller); // Test if a local install is ready.
 	bool checkForResume(); // Test for resumeable d/l.
 
 	// LLUpdateChecker::Client:
@@ -139,6 +139,7 @@ public:
 
 private:
 	void restartTimer(unsigned int seconds);
+	void stopTimer();
 };
 
 const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
@@ -182,7 +183,7 @@ void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 	mCheckPeriod = seconds;
 }
 
-void LLUpdaterServiceImpl::startChecking()
+void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 {
 	if(mUrl.empty() || mChannel.empty() || mVersion.empty())
 	{
@@ -193,17 +194,18 @@ void LLUpdaterServiceImpl::startChecking()
 	mIsChecking = true;
 
     // Check to see if an install is ready.
-	if(!checkForInstall())
+	bool has_install = checkForInstall(install_if_ready);
+	if(!has_install)
 	{
-		checkForResume();
-	}
+		checkForResume(); // will set mIsDownloading to true if resuming
 
-	if(!mIsDownloading)
-	{
-		// Checking can only occur during the mainloop.
-		// reset the timer to 0 so that the next mainloop event 
-		// triggers a check;
-		restartTimer(0); 
+		if(!mIsDownloading)
+		{
+			// Checking can only occur during the mainloop.
+			// reset the timer to 0 so that the next mainloop event 
+			// triggers a check;
+			restartTimer(0); 
+		}
 	}
 }
 
@@ -212,12 +214,13 @@ void LLUpdaterServiceImpl::stopChecking()
 	if(mIsChecking)
 	{
 		mIsChecking = false;
-		mTimer.stop();
+		stopTimer();
 	}
 
     if(mIsDownloading)
     {
-        this->mUpdateDownloader.cancel();
+        mUpdateDownloader.cancel();
+		mIsDownloading = false;
     }
 }
 
@@ -226,9 +229,9 @@ bool LLUpdaterServiceImpl::isChecking()
 	return mIsChecking;
 }
 
-bool LLUpdaterServiceImpl::checkForInstall()
+bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 {
-	bool result = false; // return true if install is found.
+	bool foundInstall = false; // return true if install is found.
 
 	llifstream update_marker(update_marker_path(), 
 							 std::ios::in | std::ios::binary);
@@ -239,7 +242,6 @@ bool LLUpdaterServiceImpl::checkForInstall()
 		LLSD update_info;
 		LLSDSerialize::fromXMLDocument(update_info, update_marker);
 		update_marker.close();
-		LLFile::remove(update_marker_path());
 
 		// Get the path to the installer file.
 		LLSD path = update_info.get("path");
@@ -251,33 +253,39 @@ bool LLUpdaterServiceImpl::checkForInstall()
 			{
 				llinfos << "ignoring update dowloaded by different client version" << llendl;
 				LLFile::remove(path.asString());
+				LLFile::remove(update_marker_path());
 			}
 			else
 			{
 				; // Nothing to clean up.
 			}
 			
-			result = false;
+			foundInstall = false;
 		} 
 		else if(path.isDefined() && !path.asString().empty())
 		{
-			int result = ll_install_update(install_script_path(),
-										   update_info["path"].asString(),
-										   install_script_mode());	
-			
-			if((result == 0) && mAppExitCallback)
+			if(launchInstaller)
 			{
-				mAppExitCallback();
-			} else if(result != 0) {
-				llwarns << "failed to run update install script" << LL_ENDL;
-			} else {
-				; // No op.
+				LLFile::remove(update_marker_path());
+
+				int result = ll_install_update(install_script_path(),
+											   update_info["path"].asString(),
+											   install_script_mode());	
+				
+				if((result == 0) && mAppExitCallback)
+				{
+					mAppExitCallback();
+				} else if(result != 0) {
+					llwarns << "failed to run update install script" << LL_ENDL;
+				} else {
+					; // No op.
+				}
 			}
 			
-			result = true;
+			foundInstall = true;
 		}
 	}
-	return result;
+	return foundInstall;
 }
 
 bool LLUpdaterServiceImpl::checkForResume()
@@ -324,7 +332,7 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 										  LLURI const & uri,
 										  std::string const & hash)
 {
-	mTimer.stop();
+	stopTimer();
 	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash);
 }
@@ -333,7 +341,7 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 										  LLURI const & uri,
 										  std::string const & hash)
 {
-	mTimer.stop();
+	stopTimer();
 	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash);
 }
@@ -394,12 +402,17 @@ void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }
 
+void LLUpdaterServiceImpl::stopTimer()
+{
+	mTimer.stop();
+	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
+}
+
 bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 {
 	if(mTimer.getStarted() && mTimer.hasExpired())
 	{
-		mTimer.stop();
-		LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
+		stopTimer();
 
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
@@ -468,9 +481,9 @@ void LLUpdaterService::setCheckPeriod(unsigned int seconds)
 	mImpl->setCheckPeriod(seconds);
 }
 	
-void LLUpdaterService::startChecking()
+void LLUpdaterService::startChecking(bool install_if_ready)
 {
-	mImpl->startChecking();
+	mImpl->startChecking(install_if_ready);
 }
 
 void LLUpdaterService::stopChecking()
