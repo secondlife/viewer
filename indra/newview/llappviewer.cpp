@@ -336,10 +336,9 @@ LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 //----------------------------------------------------------------------------
 // Metrics logging control constants
 //----------------------------------------------------------------------------
-static const F32 METRICS_INTERVAL_MIN = 300.0;
-static const F32 METRICS_INTERVAL_MAX = 3600.0;
 static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
-
+static const F32 METRICS_INTERVAL_QA = 30.0;
+static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
 
 void idle_afk_check()
 {
@@ -664,8 +663,15 @@ bool LLAppViewer::init()
     // Called before threads are created.
     LLCurl::initClass();
     LLMachineID::init();
-
-	LLViewerAssetStatsFF::init();
+	
+	{
+		// Viewer metrics initialization
+		if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getBOOL("QAModeMetricsSubmode"))
+		{
+			app_metrics_interval = METRICS_INTERVAL_QA;
+		}
+		LLViewerAssetStatsFF::init();
+	}
 
     initThreads();
     writeSystemInfo();
@@ -3701,7 +3707,7 @@ void LLAppViewer::idle()
 		static LLTimer report_interval;
 
 		// *TODO:  Add configuration controls for this
-		if (report_interval.getElapsedTimeF32() >= METRICS_INTERVAL_DEFAULT)
+		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
 		{
 			metricsIdle(! gDisconnected);
 			report_interval.reset();
@@ -4595,7 +4601,6 @@ void LLAppViewer::metricsIdle(bool enable_reporting)
 	if (regionp)
 	{
 		caps_url = regionp->getCapability("ViewerMetrics");
-		caps_url = "http://localhost:80/putz/";
 	}
 	
 	if (enable_reporting && regionp && ! caps_url.empty())
@@ -4608,9 +4613,9 @@ void LLAppViewer::metricsIdle(bool enable_reporting)
 		
 		LLSD * envelope = new LLSD(LLSD::emptyMap());
 		{
+			(*envelope) = gViewerAssetStatsMain->asLLSD();
 			(*envelope)["session_id"] = gAgentSessionID;
 			(*envelope)["agent_id"] = gAgentID;
-			(*envelope)["regions"] = gViewerAssetStatsMain->asLLSD();
 		}
 		
 		if (LLAppViewer::sTextureFetch)

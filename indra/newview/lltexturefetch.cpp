@@ -2764,66 +2764,75 @@ TFReqSendMetrics::doWork(LLTextureFetchWorker * fetch_worker)
 	class lcl_responder : public LLCurl::Responder
 	{
 	public:
-		lcl_responder(volatile bool & post_failed,
-					  volatile bool & post_succeeded)
+		lcl_responder(volatile bool & reporting_break,
+					  volatile bool & reporting_started)
 			: LLHTTPClient::Responder(),
-			  mPostFailedStatus(post_failed),
-			  mPostSucceededStatus(post_succeeded)
+			  mReportingBreak(reporting_break),
+			  mReportingStarted(reporting_started)
 			{}
 
 		// virtual
 		void error(U32 status_num, const std::string & reason)
 			{
-				mPostFailedStatus = true;
+				mReportingBreak = true;
 			}
 
 		// virtual
 		void result(const LLSD & content)
 			{
-				mPostSucceededStatus = true;
+				mReportingBreak = false;
+				mReportingStarted = true;
 			}
 
 	private:
-		volatile bool & mPostFailedStatus;
-		volatile bool & mPostSucceededStatus;
+		volatile bool & mReportingBreak;
+		volatile bool & mReportingStarted;
 	};
 	
 	if (! gViewerAssetStatsThread1)
 		return true;
 
+	static volatile bool reporting_started(false);
+	static S32 report_sequence(0);
+
+	// We've already taken over ownership of the LLSD at this point
+	// and can do normal LLSD sharing operations at this point.  But
+	// still being careful, regardless.
+	LLSD & main_stats = *mReportMain;
+
+	LLSD thread1_stats = gViewerAssetStatsThread1->asLLSD();			// 'duration' & 'regions' from here
+	thread1_stats["message"] = "ViewerAssetMetrics";
+	thread1_stats["sequence"] = report_sequence;
+	thread1_stats["initial"] = ! reporting_started;						// Initial data from viewer
+	thread1_stats["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
+		
+	// Update sequence number
+	if (S32_MAX == ++report_sequence)
+		report_sequence = 0;
+
+	// Merge the two LLSDs into a single report
+	LLViewerAssetStatsFF::merge_stats(main_stats, thread1_stats);
+
+	// *TODO:  Consider putting a report size limiter here.
+
 	if (! mCapsURL.empty())
 	{
-		static volatile bool not_initial_report(false);
-		static S32 report_sequence(0);
-
-		// We've already taken over ownership of the LLSD at this point
-		// and can do normal LLSD sharing operations at this point.  But
-		// still being careful, regardless.
-		LLSD & envelope = *mReportMain;
-		{
-			envelope["sequence"] = report_sequence;
-			envelope["regions_alt"] = gViewerAssetStatsThread1->asLLSD();
-			envelope["initial"] = ! not_initial_report;					// Initial data from viewer
-			envelope["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
-
-			// *FIXME:  Need to merge the two metrics streams here....
-		}
-
-		// Update sequence number and other metadata for next attempt.
-		if (S32_MAX == ++report_sequence)
-			report_sequence = 0;
-		LLTextureFetch::svMetricsDataBreak = false;
-
 		LLCurlRequest::headers_t headers;
 		fetch_worker->getFetcher().getCurlRequest().post(mCapsURL,
 														 headers,
-														 envelope,
+														 thread1_stats,
 														 new lcl_responder(LLTextureFetch::svMetricsDataBreak,
-																		   not_initial_report));
+																		   reporting_started));
 	}
 	else
 	{
 		LLTextureFetch::svMetricsDataBreak = true;
+	}
+
+	// In QA mode, Metrics submode, log the result for ease of testing
+	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getBOOL("QAModeMetricsSubmode"))
+	{
+		LL_INFOS("QAViewerMetrics") << thread1_stats << LL_ENDL;
 	}
 
 	gViewerAssetStatsThread1->reset();

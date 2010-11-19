@@ -39,9 +39,11 @@
 #include "lltut.h"
 #include "../llviewerassetstats.h"
 #include "lluuid.h"
+#include "llsdutil.h"
 
 static const char * all_keys[] = 
 {
+	"duration",
 	"get_other",
 	"get_texture_temp_http",
 	"get_texture_temp_udp",
@@ -77,11 +79,13 @@ static const char * sub_keys[] =
 static const LLUUID region1("4e2d81a3-6263-6ffe-ad5c-8ce04bee07e8");
 static const LLUUID region2("68762cc8-b68b-4e45-854b-e830734f2d4a");
 
+#if 0
 static bool
 is_empty_map(const LLSD & sd)
 {
 	return sd.isMap() && 0 == sd.size();
 }
+#endif
 
 static bool
 is_single_key_map(const LLSD & sd, const std::string & key)
@@ -93,6 +97,12 @@ static bool
 is_double_key_map(const LLSD & sd, const std::string & key1, const std::string & key2)
 {
 	return sd.isMap() && 2 == sd.size() && sd.has(key1) && sd.has(key2);
+}
+
+static bool
+is_no_stats_map(const LLSD & sd)
+{
+	return is_double_key_map(sd, "duration", "regions");
 }
 
 namespace tut
@@ -131,14 +141,15 @@ namespace tut
 
 		// Default (NULL) region ID doesn't produce LLSD results so should
 		// get an empty map back from output
-		ensure("Null LLSD initially", is_empty_map(sd_full));
+		ensure("Stat-less LLSD initially", is_no_stats_map(sd_full));
 
 		// Once the region is set, we will get a response even with no data collection
 		it->setRegionID(region1);
 		sd_full = it->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd_full, region1.asString()));
-
-		LLSD sd = sd_full[region1.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd_full, "duration", "regions"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd_full["regions"], region1.asString()));
+		
+		LLSD sd = sd_full["regions"][region1.asString()];
 
 		delete it;
 			
@@ -167,7 +178,8 @@ namespace tut
 		it->setRegionID(region1);
 		
 		LLSD sd = it->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region1.asString()));
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1.asString()));
 		sd = sd[region1.asString()];
 		
 		delete it;
@@ -191,8 +203,9 @@ namespace tut
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region1.asString()));
-		sd = sd[region1.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1.asString()));
+		sd = sd["regions"][region1.asString()];
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -204,7 +217,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()[region1.asString()];
+		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1.asString()];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -228,10 +241,11 @@ namespace tut
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStatsThread1->asLLSD();
-		ensure("Other collector is empty", is_empty_map(sd));
+		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region1.asString()));
-		sd = sd[region1.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1.asString()));
+		sd = sd["regions"][region1.asString()];
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -243,7 +257,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()[region1.asString()];
+		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1.asString()];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -277,9 +291,12 @@ namespace tut
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD();
 
-		ensure("Correct double-key LLSD map", is_double_key_map(sd, region1.asString(), region2.asString()));
-		LLSD sd1 = sd[region1.asString()];
-		LLSD sd2 = sd[region2.asString()];
+		// std::cout << sd << std::endl;
+		
+		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct double-key LLSD map regions", is_double_key_map(sd["regions"], region1.asString(), region2.asString()));
+		LLSD sd1 = sd["regions"][region1.asString()];
+		LLSD sd2 = sd["regions"][region2.asString()];
 		
 		// Check a few points on the tree for content
 		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -297,8 +314,9 @@ namespace tut
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region2.asString()));
-		sd2 = sd[region2.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2.asString()));
+		sd2 = sd["regions"][region2.asString()];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -345,9 +363,10 @@ namespace tut
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD();
 
-		ensure("Correct double-key LLSD map", is_double_key_map(sd, region1.asString(), region2.asString()));
-		LLSD sd1 = sd[region1.asString()];
-		LLSD sd2 = sd[region2.asString()];
+		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct double-key LLSD map regions", is_double_key_map(sd["regions"], region1.asString(), region2.asString()));
+		LLSD sd1 = sd["regions"][region1.asString()];
+		LLSD sd2 = sd["regions"][region2.asString()];
 		
 		// Check a few points on the tree for content
 		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -365,8 +384,9 @@ namespace tut
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region2.asString()));
-		sd2 = sd[region2.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2.asString()));
+		sd2 = sd["regions"][region2.asString()];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -407,10 +427,11 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
 		LLSD sd = gViewerAssetStatsThread1->asLLSD();
-		ensure("Other collector is empty", is_empty_map(sd));
+		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD();
-		ensure("Correct single-key LLSD map", is_single_key_map(sd, region1.asString()));
-		sd = sd[region1.asString()];
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1.asString()));
+		sd = sd["regions"][region1.asString()];
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_gesture_udp][enqueued] is 0", (0 == sd["get_gesture_udp"]["enqueued"].asInteger()));
@@ -425,7 +446,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()[region1.asString()];
+		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1.asString()];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -436,4 +457,65 @@ namespace tut
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 	}
 
+	// Check that the LLSD merger knows what it's doing (basic test)
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<9>()
+	{
+		LLSD::String reg1_name = region1.asString();
+		LLSD::String reg2_name = region2.asString();
+
+		LLSD reg1_stats = LLSD::emptyMap();
+		LLSD reg2_stats = LLSD::emptyMap();
+
+		LLSD & tmp_other1 = reg1_stats["get_other"];
+		tmp_other1["enqueued"] = 4;
+		tmp_other1["dequeued"] = 4;
+		tmp_other1["resp_count"] = 8;
+		tmp_other1["resp_max"] = F64(23.2892);
+		tmp_other1["resp_min"] = F64(0.2829);
+		tmp_other1["resp_mean"] = F64(2.298928);
+
+		LLSD & tmp_other2 = reg2_stats["get_other"];
+		tmp_other2["enqueued"] = 8;
+		tmp_other2["dequeued"] = 7;
+		tmp_other2["resp_count"] = 3;
+		tmp_other2["resp_max"] = F64(6.5);
+		tmp_other2["resp_min"] = F64(0.01);
+		tmp_other2["resp_mean"] = F64(4.1);
+		
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg2_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeLLSD(src, dst);
+		
+			ensure("region 1 in merged stats", llsd_equals(reg1_stats, dst["regions"][reg1_name]));
+			ensure("region 2 still in merged stats", llsd_equals(reg2_stats, dst["regions"][reg2_name]));
+		}
+
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeLLSD(src, dst);
+
+			ensure("src not ruined", llsd_equals(reg1_stats, src["regions"][reg1_name]));
+			ensure_equals("added enqueued counts", dst["regions"][reg1_name]["get_other"]["enqueued"].asInteger(), 12);
+			ensure_equals("added dequeued counts", dst["regions"][reg1_name]["get_other"]["dequeued"].asInteger(), 11);
+			ensure_equals("added response counts", dst["regions"][reg1_name]["get_other"]["resp_count"].asInteger(), 11);
+			ensure_approximately_equals("min'd minimum response times", dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), 0.01, 20);
+			ensure_approximately_equals("max'd maximum response times", dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), 23.2892, 20);
+			ensure_approximately_equals("weighted mean of means", dst["regions"][reg1_name]["get_other"]["resp_mean"].asReal(), 2.7901295, 20);
+		}
+	}
 }

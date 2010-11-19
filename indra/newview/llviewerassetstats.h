@@ -83,10 +83,10 @@ class LLViewerAssetStats
 public:
 	enum EViewerAssetCategories
 	{
-		EVACTextureTempHTTPGet,			//< Texture GETs
-		EVACTextureTempUDPGet,			//< Texture GETs
-		EVACTextureNonTempHTTPGet,		//< Texture GETs
-		EVACTextureNonTempUDPGet,		//< Texture GETs
+		EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
+		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
+		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
+		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
 		EVACWearableUDPGet,				//< Wearable GETs
 		EVACSoundUDPGet,				//< Sound GETs
 		EVACGestureUDPGet,				//< Gesture GETs
@@ -103,7 +103,11 @@ public:
 	typedef U64 duration_t;
 	
 	/**
-	 * Collected data for a single region visited by the avatar.
+	 * @brief Collected data for a single region visited by the avatar.
+	 *
+	 * Fairly simple, for each asset bin enumerated above a count
+	 * of enqueue and dequeue operations and simple stats on response
+	 * times for completed requests.
 	 */
 	class PerRegionStats : public LLRefCount
 	{
@@ -118,8 +122,15 @@ public:
 		
 		void reset();
 
+		// Apply current running time to total and reset start point.
+		// Return current timestamp as a convenience.
+		void accumulateTime(duration_t now);
+		
 	public:
 		LLUUID mRegionID;
+		duration_t mTotalTime;
+		duration_t mStartTimestamp;
+		
 		struct
 		{
 			LLSimpleStatCounter			mEnqueued;
@@ -142,13 +153,17 @@ public:
 	// collection calls.
 	void setRegionID(const LLUUID & region_id);
 
-	// Non-Cached GET Requests
+	// Asset GET Requests
 	void recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration);
 
-	// Retrieve current metrics for all visited regions.
-	const LLSD asLLSD() const;
+	// Retrieve current metrics for all visited regions (NULL region UUID excluded)
+	LLSD asLLSD();
+
+	// Merge two LLSD's structured as per asLLSD().  If inputs are not
+	// correctly formed, result is undefined (little defensive action).
+	static void mergeLLSD(const LLSD & src, LLSD & dst);
 	
 protected:
 	typedef std::map<LLUUID, LLPointer<PerRegionStats> > PerRegionContainer;
@@ -165,6 +180,9 @@ protected:
 
 	// Metrics data for all regions during one collection cycle
 	PerRegionContainer mRegionStats;
+
+	// Time of last reset
+	duration_t mResetTimestamp;
 };
 
 
@@ -188,6 +206,17 @@ extern LLViewerAssetStats * gViewerAssetStatsThread1;
 
 namespace LLViewerAssetStatsFF
 {
+/**
+ * @brief Allocation and deallocation of globals.
+ *
+ * init() should be called before threads are started that will access it though
+ * you'll likely get away with calling it afterwards.  cleanup() should only be
+ * called after threads are shutdown to prevent races on the global pointers.
+ */
+void init();
+
+void cleanup();
+
 /**
  * We have many timers, clocks etc. in the runtime.  This is the
  * canonical timestamp for these metrics which is compatible with
@@ -224,15 +253,16 @@ void record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool i
 						  LLViewerAssetStats::duration_t duration);
 
 /**
- * @brief Allocation and deallocation of globals.
+ * @brief Merge two LLSD reports from different collector instances
  *
- * init() should be called before threads are started that will access it though
- * you'll likely get away with calling it afterwards.  cleanup() should only be
- * called after threads are shutdown to prevent races on the global pointers.
+ * Use this to merge the LLSD's from two threads.  For top-level,
+ * non-region data the destination (dst) is considered authoritative
+ * if the key is present in both source and destination.  For
+ * regions, a numerical merge is performed when data are present in
+ * both source and destination and the 'right thing' is done for
+ * counts, minimums, maximums and averages.
  */
-void init();
-
-void cleanup();
+void merge_stats(const LLSD & src, LLSD & dst);
 
 } // namespace LLViewerAssetStatsFF
 
