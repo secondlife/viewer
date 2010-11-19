@@ -72,16 +72,13 @@ static void substitute_string(std::string &input, const std::string &search, con
 	}
 }
 
-class LLAgent
-{
-public:
-	LLAgent() {}
-	~LLAgent() {}
-#ifdef __GNUC__
-	__attribute__ ((noinline))
-#endif
-	bool isGodlike() const { return FALSE; }
-};
+#include "../llagent.h"
+LLAgent::LLAgent() : mAgentAccess(gSavedSettings) { }
+LLAgent::~LLAgent() { }
+bool LLAgent::isGodlike() const { return FALSE; }
+LLAgentAccess::LLAgentAccess(LLControlGroup& settings) : mSavedSettings(settings) { }
+LLUIColor::LLUIColor() {}
+
 LLAgent gAgent;
 
 std::string LLWeb::expandURLSubstitutions(const std::string &url,
