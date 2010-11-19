@@ -1089,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value=" depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>

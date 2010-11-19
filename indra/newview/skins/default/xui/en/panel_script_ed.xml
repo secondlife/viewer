@@ -179,4 +179,13 @@
      right="487"
      name="Save_btn"
      width="81" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Edit..."
+     layout="topleft"
+     top_pad="-23"
+     right="400"
+     name="Edit_btn"
+     width="81" />
 </panel>

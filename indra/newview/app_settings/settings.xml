@@ -8340,6 +8340,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+	<key>RenderTransparentWater</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Render water as transparent.  Setting to false renders water as opaque with a simple texture applied.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+	</map>
     <key>RenderTreeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -11905,10 +11916,10 @@
       <key>Value</key>
       <real>150000.0</real>
     </map>
-    <key>XUIEditor</key>
+    <key>ExternalEditor</key>
     <map>
       <key>Comment</key>
-      <string>Path to program used to edit XUI files</string>
+      <string>Path to program used to edit LSL scripts and XUI files, e.g.: /usr/bin/gedit --new-window "%s"</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

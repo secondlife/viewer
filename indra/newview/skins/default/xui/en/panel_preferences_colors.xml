@@ -113,22 +113,22 @@
   </text>
   <color_swatch
    can_apply_immediately="true"
-   color="LtGray"
+   color="EmphasisColor_35"
    follows="left|top"
    height="24"
    label_height="0"
    label_width="60"
    layout="topleft"
    left="360"
-   name="im"
+   name="objects"
    top_pad="-15"
    width="44">
     <color_swatch.init_callback
 		 function="Pref.getUIColor"
-		 parameter="IMChatColor" />
+		 parameter="ObjectChatColor" />
     <color_swatch.commit_callback
 		 function="Pref.applyUIColor"
-		 parameter="IMChatColor" />
+		 parameter="ObjectChatColor" />
   </color_swatch>
   <text
      type="string"
@@ -141,7 +141,7 @@
      name="text_box3"
      top_delta="5"
      width="95">
-    IM
+    Objects
   </text>
   <color_swatch
    can_apply_immediately="true"
@@ -205,37 +205,6 @@
    top_delta="5"
    width="95">
     Errors
-  </text>
-  <color_swatch
-   can_apply_immediately="true"
-   color="EmphasisColor_35"
-   follows="left|top"
-   height="24"
-   label_height="0"
-   layout="topleft"
-   left="360"
-   name="objects"
-   top_pad="-15"
-   width="44" >
-    <color_swatch.init_callback
-		 function="Pref.getUIColor"
-		 parameter="ObjectChatColor" />
-    <color_swatch.commit_callback
-		 function="Pref.applyUIColor"
-		 parameter="ObjectChatColor" />
-  </color_swatch>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_pad="5"
-   mouse_opaque="false"
-   name="text_box6"
-   top_delta="5"
-   width="95">
-    Objects
   </text>
   <color_swatch
    can_apply_immediately="true"
@@ -305,7 +274,7 @@
    left="30"
    height="12"
    name="bubble_chat"
-   top_pad="28"
+   top_pad="20"
    width="120"
    >
     Bubble chat:
@@ -336,11 +305,58 @@
    height="16"
    increment="0.05"
    initial_value="1"
-   label="Opacity"
+   label="Opacity:"
    layout="topleft"
-   left_pad="15"
-   label_width="56"
+   left_pad="10"
+   label_width="70"
    name="bubble_chat_opacity"
    top_delta = "6"
-   width="347" />
+   width="378" />
+  <text
+   follows="left|top"
+   layout="topleft"
+   left="30"
+   height="12"
+   name="bubble_chat"
+   top_pad="15"
+   width="120"
+   >
+    Floater Opacity:
+  </text>
+ <slider
+   can_edit_text="false"
+   control_name="ActiveFloaterTransparency"
+   decimal_digits="2"
+   follows="left|top"
+   height="16"
+   increment="0.01"
+   initial_value="0.8"
+   layout="topleft"
+   label_width="115"
+   label="Active :"
+   left="50"
+   max_val="1.00"
+   min_val="0.00"
+   name="active"
+   show_text="true"
+   top_pad="5"
+   width="415" />
+  <slider
+   can_edit_text="false"
+   control_name="InactiveFloaterTransparency"
+   decimal_digits="2"
+   follows="left|top"
+   height="16"
+   increment="0.01"
+   initial_value="0.5"
+   layout="topleft"
+   label_width="115"
+   label="Inctive :"
+   left="50"
+   max_val="1.00"
+   min_val="0.00"
+   name="active"
+   show_text="true"
+   top_pad="5"
+   width="415" />
 </panel>
