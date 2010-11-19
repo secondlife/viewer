@@ -160,7 +160,7 @@
      layout="topleft"
      left="10"
       height="70"
-      top="54"
+      top="59"
      name="focus_radio_group">
         <radio_item
          top_pad="6"
@@ -197,7 +197,7 @@
    <radio_group
       left="10"
       height="70"
-      top="54"
+      top="59"
      layout="topleft"
      name="move_radio_group">
         <radio_item
@@ -931,7 +931,7 @@
 			 height="23"
 			 image_overlay="Edit_Wrench"
 			 layout="topleft"
-			 left_pad="3"
+			 left_pad="13"
 			 name="button set group"
 			 tab_stop="false"
 			 tool_tip="Choose a group to share this object's permissions"
@@ -944,7 +944,7 @@
              name="checkbox share with group"
              tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
              top_pad="10"
-             left="106"
+             left="100"
              width="87" />
             <button
              follows="top|left"
@@ -953,7 +953,7 @@
              label_selected="Deed"
              layout="topleft"
              name="button deed"
-             left_pad="3"
+             left_pad="19"
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
              width="80" />
             <text
@@ -974,7 +974,7 @@
              layout="topleft"
              name="clickaction"
              width="148"
-             left_pad="0">
+             left_pad="10">
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
@@ -1009,7 +1009,7 @@
              width="100" />
 <!-- NEW SALE TYPE COMBO BOX -->
       <combo_box
-            left_pad="0"
+            left_pad="10"
             layout="topleft"
             follows="left|top"
             allow_text_entry="false"
@@ -1041,7 +1041,7 @@ even though the user gets a free copy.
         decimal_digits="0"
         increment="1"
         top_pad="8"
-        left="108"
+        left="118"
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
