@@ -54,6 +54,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llnotifications.h"
+#include "lllineeditor.h"
 
 extern BOOL gRestoreGL;
 
@@ -69,7 +70,6 @@ LLMediaCtrl::Params::Params()
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
-	media_id("media_id"),
 	trusted_content("trusted_content", false)
 {
 	tab_stop(false);
@@ -126,7 +126,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		setTextureSize(screen_width, screen_height);
 	}
 	
-	mMediaTextureID.generate();
+	mMediaTextureID = getKey();
 	
 	// We don't need to create the media source up front anymore unless we have a non-empty home URL to navigate to.
 	if(!mHomePageUrl.empty())
@@ -140,8 +140,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 //	addChild( mBorder );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// note: this is now a singleton and destruction happens via initClass() now
 LLMediaCtrl::~LLMediaCtrl()
 {
 
@@ -1037,7 +1035,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 			LLNotification::Params notify_params;
 			notify_params.name = "PopupAttempt";
-			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", getKey());
+			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
 			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
 
 			if (mTrusted)
@@ -1095,8 +1093,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 		case MEDIA_EVENT_AUTH_REQUEST:
 		{
-			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_AUTH_REQUEST, url " << self->getAuthURL() << ", realm " << self->getAuthRealm() << LL_ENDL;
-		}
+			LLNotification::Params auth_request_params;
+			auth_request_params.name = "AuthRequest";
+			auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
+			auth_request_params.functor.function = boost::bind(&LLMediaCtrl::onAuthSubmit, this, _1, _2);
+			LLNotifications::instance().add(auth_request_params);
+		};
 		break;
 	};
 
@@ -1122,8 +1124,20 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 		// Make sure the opening instance knows its window open request was denied, so it can clean things up.
 		LLViewerMedia::proxyWindowClosed(notification["payload"]["uuid"]);
 	}
-
 }
+
+void LLMediaCtrl::onAuthSubmit(const LLSD& notification, const LLSD& response)
+{
+	if (response["ok"])
+	{
+		mMediaSource->getMediaPlugin()->sendAuthResponse(true, response["username"], response["password"]);
+	}
+	else
+	{
+		mMediaSource->getMediaPlugin()->sendAuthResponse(false, "", "");
+	}
+}
+
 
 void LLMediaCtrl::onCloseNotification()
 {
@@ -1145,15 +1159,20 @@ void LLMediaCtrl::onClickNotificationButton(const std::string& name)
 {
 	if (!mCurNotification) return;
 
-	LLSD response = mCurNotification->getResponseTemplate();
-	response[name] = true;
+	mCurNotificationResponse[name] = true;
 
-	mCurNotification->respond(response); 
+	mCurNotification->respond(mCurNotificationResponse);
+}
+
+void LLMediaCtrl::onEnterNotificationText(LLUICtrl* ctrl, const std::string& name)
+{
+	mCurNotificationResponse[name] = ctrl->getValue().asString();
 }
 
 void LLMediaCtrl::showNotification(LLNotificationPtr notify)
 {
 	mCurNotification = notify;
+	mCurNotificationResponse = notify->getResponseTemplate();
 
 	// add popup here
 	LLSD payload = notify->getPayload();
@@ -1206,12 +1225,30 @@ void LLMediaCtrl::showNotification(LLNotificationPtr notify)
 
 			cur_x = button->getRect().mRight + FORM_PADDING_HORIZONTAL;
 		}
+		else if (form_element["type"].asString() == "text")
+		{
+			LLTextBox::Params label_p;
+			label_p.name = form_element["name"].asString() + "_label";
+			label_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x + 120, FORM_PADDING_VERTICAL);
+			label_p.initial_value = form_element["text"];
+			LLTextBox* textbox = LLUICtrlFactory::create<LLTextBox>(label_p);
+			textbox->reshapeToFitText();
+			form_elements.addChild(textbox);
+			cur_x = textbox->getRect().mRight + FORM_PADDING_HORIZONTAL;
+
+			LLLineEditor::Params line_p;
+			line_p.name = form_element["name"];
+			line_p.commit_callback.function = boost::bind(&LLMediaCtrl::onEnterNotificationText, this, _1, form_element["name"].asString());
+			line_p.commit_on_focus_lost = true;
+			line_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x + 120, FORM_PADDING_VERTICAL);
+
+			LLLineEditor* line_editor = LLUICtrlFactory::create<LLLineEditor>(line_p);
+			form_elements.addChild(line_editor);
+			cur_x = line_editor->getRect().mRight + FORM_PADDING_HORIZONTAL;
+		}
 	}
 
-
 	form_elements.reshape(cur_x, form_elements.getRect().getHeight());
-
-	//LLWeb::loadURL(payload["url"], payload["target"]);
 }
 
 void LLMediaCtrl::hideNotification()

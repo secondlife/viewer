@@ -61,7 +61,6 @@ public:
 		Optional<LLUIColor>		caret_color;
 
 		Optional<std::string>	initial_mime_type;
-		Optional<std::string>	media_id;
 		
 		Params();
 	};
@@ -167,8 +166,10 @@ public:
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
 		void onPopup(const LLSD& notification, const LLSD& response);
+		void onAuthSubmit(const LLSD& notification, const LLSD& response);
 		void onCloseNotification();
 		void onClickNotificationButton(const std::string& name);
+		void onEnterNotificationText(LLUICtrl* ctrl, const std::string& name);
 		void onClickIgnore(LLUICtrl* ctrl);
 
 		const S32 mTextureDepthBytes;
@@ -194,6 +195,7 @@ public:
 		S32 mTextureHeight;
 		bool mClearCache;
 		boost::shared_ptr<class LLNotification> mCurNotification;
+		LLSD mCurNotificationResponse;
 };
 
 #endif // LL_LLMediaCtrl_H

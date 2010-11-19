@@ -2903,7 +2903,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
 			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
-
 		}
 		break;
 		case MEDIA_EVENT_CLICK_LINK_HREF:
@@ -3060,10 +3059,9 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case LLViewerMediaObserver::MEDIA_EVENT_AUTH_REQUEST:
 		{
 			llinfos <<  "MEDIA_EVENT_AUTH_REQUEST, url " << plugin->getAuthURL() << ", realm " << plugin->getAuthRealm() << LL_ENDL;
-			
-			// TODO: open an auth dialog that will call this when complete
-			plugin->sendAuthResponse(false, "", "");
+			//plugin->sendAuthResponse(false, "", "");
 		}
+		break;
 		
 		case LLViewerMediaObserver::MEDIA_EVENT_CLOSE_REQUEST:
 		{

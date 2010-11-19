@@ -29,8 +29,8 @@
 
 #include "llnotificationhandler.h"
 #include "llnotifications.h"
-#include "llfloaterreg.h"
 #include "llmediactrl.h"
+#include "llviewermedia.h"
 
 using namespace LLNotificationsUI;
 
