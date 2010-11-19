@@ -2469,7 +2469,7 @@ Por favor, vuelve a intentarlo en unos momentos.
 		Rehusado el ofrecimiento de amistad.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] te está ofreciendo su tarjeta de visita.
+		[NAME] te está ofreciendo su tarjeta de visita.
 Esto añadirá un marcador en tu inventario para que puedas enviarle rápidamente un MI.
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>

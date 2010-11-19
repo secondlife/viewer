@@ -726,7 +726,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				LLVector3d new_position_global = selectNode->mSavedPositionGlobal + clamped_relative_move;
 
 				// Don't let object centers go too far underground
-				F64 min_height = LLWorld::getInstance()->getMinAllowedZ(object);
+				F64 min_height = LLWorld::getInstance()->getMinAllowedZ(object, object->getPositionGlobal());
 				if (new_position_global.mdV[VZ] < min_height)
 				{
 					new_position_global.mdV[VZ] = min_height;

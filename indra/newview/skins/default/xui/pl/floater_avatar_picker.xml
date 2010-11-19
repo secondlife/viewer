@@ -24,6 +24,10 @@
 				Wpisz fragment imienia:
 			</text>
 			<button label="Szukaj" label_selected="Szukaj" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Imię" name="name"/>
+				<columns label="Nazwa użytkownika" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="Znajomi" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -39,6 +43,10 @@
 				Metry
 			</text>
 			<button label="Odśwież" label_selected="Odśwież" name="Refresh"/>
+			<scroll_list name="NearMe">
+				<columns label="Imię" name="name"/>
+				<columns label="Nazwa użytkownika" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

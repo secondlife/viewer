@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="APPEL D&apos;UN(E)INCONNU(E)">
+<floater name="incoming call" title="Appel entrant">
 	<floater.string name="lifetime">
 		5
 	</floater.string>

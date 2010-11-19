@@ -931,10 +931,10 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		Erstattet manglende tøj/kropsdele med standard.
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] er Online
+		[NAME] er Online
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] er Offline
+		[NAME] er Offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Selvom du nok er meget sød, kan du ikke tilføje dig selv som ven.
@@ -1001,9 +1001,6 @@ Prøv venligst igen.
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
 		Du kan ikke fjerne beskyttede kategorier.
-	</notification>
-	<notification name="OfferedCard">
-		Du har tilbudt et visitkort til [FIRST] [LAST]
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		Ikke muligt at købe, imens genstandens data hentes.
@@ -1120,7 +1117,7 @@ Prøv venligst at geninstallere plugin eller kontakt leverandøren hvis probleme
 		De genstande du ejer på det valgte stykke land er blevet returneret til din beholdning.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		Genstandene på det valgte stykke land der er ejet af [FIRST] [LAST] er blevet returneret til hans eller hendes beholdning.
+		Genstandene på det valgte stykke land der er ejet af [NAME] er blevet returneret til hans eller hendes beholdning.
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		Objekterne i den valgte parcel, ejet af beboeren &apos;[NAME]&apos;, er blevet returneret til deres ejer.
@@ -1321,7 +1318,7 @@ Prøv igen om lidt.
 		Tilbud om venskab afvist.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] tilbyder dig et visitkort.
+		[NAME] tilbyder dig et visitkort.
 Dette vil lave et bogmørke i din beholding, så du hurtigt kan sende en IM til denne beboer.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
@@ -1380,7 +1377,7 @@ Tillad denne anmodning?
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+		[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorér"/>
@@ -1424,13 +1421,13 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] fik tilsendt en personlig besked og er dermed automatisk ikke mere blokeret.
+		[NAME] fik tilsendt en personlig besked og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] blev givet penge og er dermed automatisk ikke mere blokeret.
+		[NAME] blev givet penge og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] blev tilbudt en genstand og er dermed automatisk ikke mere blokeret.
+		[NAME] blev tilbudt en genstand og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] har has sluttet sig til stemme-chaten i gruppen [GROUP].

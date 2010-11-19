@@ -80,7 +80,7 @@
 						<text name="region_rating_label" value="Catégorie :"/>
 						<text name="region_rating" value="Adulte"/>
 						<text name="region_owner_label" value="Propriétaire :"/>
-						<text name="region_owner" value="orignal Van Orignal"/>
+						<text name="region_owner" value="moose Van Moose extra long name moose"/>
 						<text name="region_group_label" value="Groupe :"/>
 						<text name="region_group">
 							Le puissant orignal d’Orignalville
@@ -93,6 +93,7 @@
 						<text name="estate_name_label" value="Domaine :"/>
 						<text name="estate_rating_label" value="Catégorie :"/>
 						<text name="estate_owner_label" value="Propriétaire :"/>
+						<text name="estate_owner" value="Testing owner name length with long name"/>
 						<text name="covenant_label" value="Règlement :"/>
 					</panel>
 				</accordion_tab>
