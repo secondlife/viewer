@@ -1056,9 +1056,9 @@ void LLModel::addFace(const LLVolumeFace& face)
 }
 
 
-void LLModel::smoothNormals(F32 angle_cutoff)
+void LLModel::generateNormals(F32 angle_cutoff)
 {
-	//smooth normals for all faces by:
+	//generate normals for all faces by:
 	// 1 - Create faceted copy of face with no texture coordinates
 	// 2 - Weld vertices in faceted copy that are shared between triangles with less than "angle_cutoff" difference between normals
 	// 3 - Generate smoothed set of normals based on welding results
