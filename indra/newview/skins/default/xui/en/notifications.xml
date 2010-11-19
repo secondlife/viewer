@@ -2873,8 +2873,9 @@ Download to your Applications folder?
    icon="alertmodal.tga"
    name="FailedUpdateInstall"
    type="alertmodal">
-Gadzooks, I failed to install the latest update.
-Get thee to the interwebs and install it thyself.
+An error occurred installing the viewer update.
+Please download and install the latest viewer from
+http://secondlife.com/download.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
