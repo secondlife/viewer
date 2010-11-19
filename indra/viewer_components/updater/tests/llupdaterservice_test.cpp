@@ -61,7 +61,7 @@ class LLDir_Mock : public LLDir
 
 	BOOL getNextFileInDir(const std::string &dirname, 
 						  const std::string &mask, 
-						  std::string &fname, BOOL wrap) 
+						  std::string &fname) 
 	{
 		return false;
 	}
