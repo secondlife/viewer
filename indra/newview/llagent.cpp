@@ -59,6 +59,7 @@
 #include "llsidetray.h"
 #include "llsky.h"
 #include "llsmoothstep.h"
+#include "llstartup.h"
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
@@ -2452,7 +2453,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < MAX_AGENT_GROUPS;
+	return mGroups.count() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
