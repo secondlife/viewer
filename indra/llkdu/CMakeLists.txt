@@ -7,15 +7,13 @@ project(llkdu)
 # errors), even when the specific warnings that make it croak are
 # disabled.
 
-set(VS_DISABLE_FATAL_WARNINGS ON)
+#set(VS_DISABLE_FATAL_WARNINGS ON)
 
 include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLKDU)
 include(LLMath)
-#include(LLVFS)
-#include(Linking)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -31,6 +29,7 @@ set(llkdu_SOURCE_FILES
 
 set(llkdu_HEADER_FILES
     CMakeLists.txt
+	
     llimagej2ckdu.h
     llkdumem.h
     )
@@ -40,28 +39,28 @@ set_source_files_properties(${llkdu_HEADER_FILES}
 
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 
-if (WINDOWS)
+#if (WINDOWS)
   # This turns off the warning about flow control ending in a destructor.
-  set_source_files_properties(
-      kdu_image.cpp llkdumem.cpp 
-      PROPERTIES
-      COMPILE_FLAGS "/wd4702 /wd4722"
-      )
+#  set_source_files_properties(
+#      kdu_image.cpp llkdumem.cpp 
+#      PROPERTIES
+#      COMPILE_FLAGS "/wd4702 /wd4722"
+#      )
 
   # This turns off the warning about sprintf in the following 2 files.
-  set_source_files_properties(
-      kde_flow_control.cpp kdc_flow_control.cpp
-      PROPERTIES
-      COMPILE_FLAGS /D_CRT_SECURE_NO_DEPRECATE
-      )
-endif (WINDOWS)
+#  set_source_files_properties(
+#      kde_flow_control.cpp kdc_flow_control.cpp
+#      PROPERTIES
+#      COMPILE_FLAGS /D_CRT_SECURE_NO_DEPRECATE
+#      )
+#endif (WINDOWS)
 
-if (LLKDU_LIBRARY)
-  add_library (${LLKDU_LIBRARY} ${llkdu_SOURCE_FILES})
+if (USE_KDU)
+  add_library (${LLKDU_LIBRARIES} ${llkdu_SOURCE_FILES})
   
-  target_link_libraries(
-        ${LLKDU_LIBRARY}
-        ${LLMATH_LIBRARIES}
-        ${KDU_LIBRARY}
-        )
-endif (LLKDU_LIBRARY)
+#  target_link_libraries(
+#        ${LLKDU_LIBRARY}
+#        ${LLMATH_LIBRARIES}
+#        ${KDU_LIBRARY}
+#        )
+endif (USE_KDU)
