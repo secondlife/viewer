@@ -2330,7 +2330,10 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	
 	mDirty = true;
 	
-	resetPreviewTarget();
+	if (lod == LLModel::LOD_HIGH)
+	{
+		resetPreviewTarget();
+	}
 	
 	mFMP->mLoading = FALSE;
 	refresh();
