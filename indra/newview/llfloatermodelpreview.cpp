@@ -3825,7 +3825,6 @@ void LLFloaterModelPreview::onClearMaterials(void* user_data)
 //static 
 void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
 {
-	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 	sInstance->mModelPreview->mDirty = true;
 }
 
