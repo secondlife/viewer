@@ -150,6 +150,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
+	requested_options.append("max-agent-groups");	
 	requested_options.append("map-server-url");	
 	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
