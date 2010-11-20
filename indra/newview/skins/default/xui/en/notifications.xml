@@ -2871,6 +2871,25 @@ Download to your Applications folder?
 
   <notification
    icon="alertmodal.tga"
+   name="FailedUpdateInstall"
+   type="alertmodal">
+An error occurred installing the viewer update.
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  <notification
+   icon="notifytip.tga"
+   name="DownloadBackground"
+   type="notifytip">
+An updated version of [APP_NAME] has been downloaded.
+It will be applied the next time you restart [APP_NAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DeedObjectToGroup"
    type="alertmodal">
 Deeding this object will cause the group to:

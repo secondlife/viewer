@@ -341,4 +341,20 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
+
+  <check_box
+    top_delta="2"
+    enabled="true"
+    follows="left|top"
+    height="18"
+    initial_value="true"
+    control_name="UpdaterServiceActive"
+    label="Automatically download and install [APP_NAME] updates"
+    left="30"
+    mouse_opaque="true"
+    name="updater_service_active"
+    radio_style="false"
+    width="400"
+    top_pad="10"/>
+
 </panel>

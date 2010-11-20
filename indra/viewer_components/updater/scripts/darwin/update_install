@@ -1,0 +1,9 @@
+#! /bin/bash
+
+#
+# The first argument contains the path to the installer app.  The second a path
+# to a marker file which should be created if the installer fails.q
+#
+
+open ../Resources/mac-updater.app --args -dmg "$1" -name "Second Life Viewer 2" -marker "$2"
+exit 0

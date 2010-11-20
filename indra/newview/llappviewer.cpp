@@ -83,6 +83,7 @@
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
+#include "llupdaterservice.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -195,6 +196,8 @@
 // Include for security api initialization
 #include "llsecapi.h"
 #include "llmachineid.h"
+
+#include "llmainlooprepeater.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -576,7 +579,8 @@ LLAppViewer::LLAppViewer() :
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
-	mFastTimerLogThread(NULL)
+	mFastTimerLogThread(NULL),
+	mUpdater(new LLUpdaterService())
 {
 	if(NULL != sInstance)
 	{
@@ -652,10 +656,13 @@ bool LLAppViewer::init()
     initThreads();
     writeSystemInfo();
 
-	// Build a string representing the current version number.
-    gCurrentVersion = llformat("%s %s", 
-							   gSavedSettings.getString("VersionChannelName").c_str(),
-							   LLVersionInfo::getVersion().c_str());
+	// Initialize updater service (now that we have an io pump)
+	initUpdater();
+	if(isQuitting())
+	{
+		// Early out here because updater set the quitting flag.
+		return true;
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -799,6 +806,9 @@ bool LLAppViewer::init()
 		return 1;
 	}
 	
+	// Initialize the repeater service.
+	LLMainLoopRepeater::instance().start();
+	
 	//
 	// Initialize the window
 	//
@@ -895,7 +905,8 @@ bool LLAppViewer::init()
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
 	// Save the current version to the prefs file
-	gSavedSettings.setString("LastRunVersion", gCurrentVersion);
+	gSavedSettings.setString("LastRunVersion", 
+							 LLVersionInfo::getVersionAndChannel());
 
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
@@ -970,7 +981,7 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
-
+	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
@@ -1353,11 +1364,14 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning Up" << llendflush;
 
 	// Must clean up texture references before viewer window is destroyed.
-	LLHUDManager::getInstance()->updateEffects();
-	LLHUDObject::updateAll();
-	LLHUDManager::getInstance()->cleanupEffects();
-	LLHUDObject::cleanupHUDObjects();
-	llinfos << "HUD Objects cleaned up" << llendflush;
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->updateEffects();
+		LLHUDObject::updateAll();
+		LLHUDManager::getInstance()->cleanupEffects();
+		LLHUDObject::cleanupHUDObjects();
+		llinfos << "HUD Objects cleaned up" << llendflush;
+	}
 
 	LLKeyframeDataCache::clear();
 	
@@ -1369,8 +1383,10 @@ bool LLAppViewer::cleanup()
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
-	LLHUDManager::getInstance()->shutdownClass();
-	
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->shutdownClass();
+	}
 
 	delete gAssetStorage;
 	gAssetStorage = NULL;
@@ -1666,7 +1682,10 @@ bool LLAppViewer::cleanup()
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Auditing VFS" << llendl;
-	gVFS->audit();
+	if(gVFS)
+	{
+		gVFS->audit();
+	}
 #endif
 
 	llinfos << "Misc Cleanup" << llendflush;
@@ -1706,6 +1725,8 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
+
+	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
 
@@ -1953,8 +1974,6 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", LLVersionInfo::getChannel());
-
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
 	// persisted to settings.xml
@@ -2095,6 +2114,11 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    if(clp.hasOption("channel"))
+    {
+		LLVersionInfo::resetChannel(clp.getOption("channel")[0]);
+	}
+	
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
 	if(clp.hasOption("crashonstartup"))
@@ -2364,6 +2388,58 @@ bool LLAppViewer::initConfiguration()
 	return true; // Config was successful.
 }
 
+namespace {
+    // *TODO - decide if there's a better place for this function.
+    // do we need a file llupdaterui.cpp or something? -brad
+    bool notify_update(LLSD const & evt)
+    {
+		switch (evt["type"].asInteger())
+		{
+			case LLUpdaterService::DOWNLOAD_COMPLETE:
+				LLNotificationsUtil::add("DownloadBackground");
+				break;
+			case LLUpdaterService::INSTALL_ERROR:
+				LLNotificationsUtil::add("FailedUpdateInstall");
+				break;
+			default:
+				llinfos << "unhandled update event " << evt << llendl;
+				break;
+		}
+
+		// let others also handle this event by default
+        return false;
+    }
+};
+
+void LLAppViewer::initUpdater()
+{
+	// Initialize the updater service.
+	// Generate URL to the udpater service
+	// Get Channel
+	// Get Version
+	std::string url = gSavedSettings.getString("UpdaterServiceURL");
+	std::string channel = LLVersionInfo::getChannel();
+	std::string version = LLVersionInfo::getVersion();
+	std::string protocol_version = gSavedSettings.getString("UpdaterServiceProtocolVersion");
+	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
+	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
+
+	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
+	mUpdater->initialize(protocol_version, 
+						 url, 
+						 service_path, 
+						 channel, 
+						 version);
+ 	mUpdater->setCheckPeriod(check_period);
+	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
+	{
+		bool install_if_ready = true;
+		mUpdater->startChecking(install_if_ready);
+	}
+
+    LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());
+    updater_pump.listen("notify_update", &notify_update);
+}
 
 void LLAppViewer::checkForCrash(void)
 {
@@ -2524,15 +2600,18 @@ void LLAppViewer::cleanupSavedSettings()
 
 	// save window position if not maximized
 	// as we don't track it in callbacks
-	BOOL maximized = gViewerWindow->mWindow->getMaximized();
-	if (!maximized)
+	if(NULL != gViewerWindow)
 	{
-		LLCoordScreen window_pos;
-
-		if (gViewerWindow->mWindow->getPosition(&window_pos))
+		BOOL maximized = gViewerWindow->mWindow->getMaximized();
+		if (!maximized)
 		{
-			gSavedSettings.setS32("WindowX", window_pos.mX);
-			gSavedSettings.setS32("WindowY", window_pos.mY);
+			LLCoordScreen window_pos;
+
+			if (gViewerWindow->mWindow->getPosition(&window_pos))
+			{
+				gSavedSettings.setS32("WindowX", window_pos.mX);
+				gSavedSettings.setS32("WindowY", window_pos.mY);
+			}
 		}
 	}
 
@@ -2555,7 +2634,7 @@ void LLAppViewer::writeSystemInfo()
 {
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
@@ -2658,7 +2737,7 @@ void LLAppViewer::handleViewerCrash()
 	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
@@ -4271,7 +4350,10 @@ void LLAppViewer::disconnectViewer()
 
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.
-	LLWorld::getInstance()->destroyClass();
+	if(LLWorld::instanceExists())
+	{
+		LLWorld::getInstance()->destroyClass();
+	}
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();
@@ -4385,7 +4467,7 @@ void LLAppViewer::handleLoginComplete()
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
@@ -4491,7 +4573,7 @@ void LLAppViewer::launchUpdater()
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
 	query_map["userserver"] = LLGridManager::getInstance()->getGridLabel();
-	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
+	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);

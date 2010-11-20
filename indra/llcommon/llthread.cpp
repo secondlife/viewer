@@ -147,16 +147,20 @@ void LLThread::shutdown()
 		{
 			// This thread just wouldn't stop, even though we gave it time
 			llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
+			// Put a stake in its heart.
+			apr_thread_exit(mAPRThreadp, -1);
 			return;
 		}
 		mAPRThreadp = NULL;
 	}
 
 	delete mRunCondition;
+	mRunCondition = 0;
 	
-	if (mIsLocalPool)
+	if (mIsLocalPool && mAPRPoolp)
 	{
 		apr_pool_destroy(mAPRPoolp);
+		mAPRPoolp = 0;
 	}
 }
 
