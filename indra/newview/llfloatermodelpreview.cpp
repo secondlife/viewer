@@ -2994,7 +2994,7 @@ void LLModelPreview::updateStatusMessages()
 			{
 				for (U32 i = 0; i < verts[lod].size(); ++i)
 				{
-					S32 max_verts = verts[lod+1][i];
+					S32 max_verts = i < verts[lod+1].size() ? verts[lod+1][i] : 0;
 					
 					if (verts[lod][i] > max_verts)
 					{ //too many vertices in this lod
