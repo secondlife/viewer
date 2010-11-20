@@ -6554,7 +6554,7 @@ Mute everyone?
     Enter user name and password to continue.
     <form name="form">
       <input name="username" type="text" text="User Name"/>
-      <input name="password" type="text" text="Password"/>
+      <input name="password" type="password" text="Password"/>
       <button default="true"
               index="0"
               name="ok"

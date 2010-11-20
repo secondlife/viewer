@@ -47,47 +47,47 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
  	mMaxDim(p.max_dim), 
  	mAutoResize(p.auto_resize),
  	mUserResize(p.user_resize),
-		mCollapsed(FALSE),
-		mCollapseAmt(0.f),
-		mVisibleAmt(1.f), // default to fully visible
-		mResizeBar(NULL) 
-	{
+	mCollapsed(FALSE),
+	mCollapseAmt(0.f),
+	mVisibleAmt(1.f), // default to fully visible
+	mResizeBar(NULL) 
+{
 	// panels initialized as hidden should not start out partially visible
 	if (!getVisible())
-		{
+	{
 		mVisibleAmt = 0.f;
-		}
-		}
+	}
+}
 
 void LLLayoutPanel::initFromParams(const Params& p)
-		{
+{
 	LLPanel::initFromParams(p);
 	setFollowsNone();
-	}
+}
 
 
 LLLayoutPanel::~LLLayoutPanel()
-	{
-		// probably not necessary, but...
-		delete mResizeBar;
-		mResizeBar = NULL;
-	}
+{
+	// probably not necessary, but...
+	delete mResizeBar;
+	mResizeBar = NULL;
+}
 	
 F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation)
-	{
+{
 	if (orientation == LLLayoutStack::HORIZONTAL)
-		{
-			F32 collapse_amt = 
-			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
-			return mVisibleAmt * collapse_amt;
-		}
-		else
+	{
+		F32 collapse_amt = 
+		clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
+		return mVisibleAmt * collapse_amt;
+	}
+	else
 	{
 			F32 collapse_amt = 
 			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)mMinDim / (F32)llmax(1, getRect().getHeight())));
 			return mVisibleAmt * collapse_amt;
-		}
 	}
+}
 
 //
 // LLLayoutStack
