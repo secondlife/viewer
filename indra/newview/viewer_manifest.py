@@ -247,12 +247,11 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
-        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="")
+        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
 
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
-
 
             self.enable_crt_manifest_check()
 
