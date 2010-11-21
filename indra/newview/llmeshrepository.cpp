@@ -80,6 +80,8 @@ U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sPeakKbps = 0;
 	
 
+const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
+
 std::string header_lod[] = 
 {
 	"lowest_lod",
@@ -245,15 +247,23 @@ public:
 		else
 		{
 			llwarns << status << ": " << reason << llendl;
-			llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
-			
-			if (status == 499)
+
+			if (mData.mRetries < MAX_TEXTURE_UPLOAD_RETRIES)
 			{
-				mThread->uploadTexture(mData);
+				llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
+			
+				if (status == 499 || status == 500)
+				{
+					mThread->uploadTexture(mData);
+				}
+				else
+				{
+					llerrs << "Unhandled status " << status << llendl;
+				}
 			}
 			else
-			{
-				llerrs << "Unhandled status " << status << llendl;
+			{ 
+				llwarns << "Giving up after " << mData.mRetries << " retries." << llendl;
 			}
 		}
 	}
