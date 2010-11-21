@@ -687,8 +687,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
-	mImpostorExtents = (LLVector4a*) ll_aligned_malloc_16(32);
-
+	
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
@@ -835,9 +834,6 @@ LLVOAvatar::~LLVOAvatar()
 	
 	mAnimationSources.clear();
 	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
-
-	ll_aligned_free_16(mImpostorExtents);
-	mImpostorExtents = NULL;
 
 	lldebugs << "LLVOAvatar Destructor end" << llendl;
 }
