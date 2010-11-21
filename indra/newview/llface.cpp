@@ -146,8 +146,6 @@ void cylindricalProjection(LLVector2 &tc, const LLVector4a& normal, const LLVect
 
 void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 {
-	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*2);
-
 	mLastUpdateTime = gFrameTimeSeconds;
 	mLastMoveTime = 0.f;
 	mLastSkinTime = gFrameTimeSeconds;
@@ -239,9 +237,6 @@ void LLFace::destroy()
 		
 	mDrawablep = NULL;
 	mVObjp = NULL;
-	
-	ll_aligned_free_16(mExtents);
-	mExtents = NULL;
 }
 
 

@@ -101,7 +101,7 @@ public:
 	const LLVector3&	  getPosition() const			{ return mXform.getPosition(); }
 	const LLVector3&      getWorldPosition() const		{ return mXform.getPositionW(); }
 	const LLVector3		  getPositionAgent() const;
-	const LLVector4a&	  getPositionGroup() const		{ return *mPositionGroup; }
+	const LLVector4a&	  getPositionGroup() const		{ return mPositionGroup; }
 	const LLVector3&	  getScale() const				{ return mCurrentScale; }
 	void				  setScale(const LLVector3& scale) { mCurrentScale = scale; }
 	const LLQuaternion&   getWorldRotation() const		{ return mXform.getWorldRotation(); }
@@ -278,6 +278,11 @@ public:
 		RIGGED			= 0x08000000,
 	} EDrawableFlags;
 
+private: //aligned members
+	LLVector4a		mExtents[2];
+	LLVector4a		mPositionGroup;
+	
+public:
 	LLXformMatrix       mXform;
 
 	// vis data
@@ -298,9 +303,6 @@ public:
 private:
 	typedef std::vector<LLFace*> face_list_t;
 	
-	LLVector4a*		mExtents;
-	LLVector4a*		mPositionGroup;
-		
 	U32				mState;
 	S32				mRenderType;
 	LLPointer<LLViewerObject> mVObjp;

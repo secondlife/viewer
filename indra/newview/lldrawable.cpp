@@ -89,9 +89,6 @@ void LLDrawable::incrementVisible()
 
 void LLDrawable::init()
 {
-	mExtents = (LLVector4a*) ll_aligned_malloc_32(sizeof(LLVector4a)*3);
-	mPositionGroup = mExtents + 2;
-
 	// mXform
 	mParent = NULL;
 	mRenderType = 0;
@@ -144,8 +141,6 @@ void LLDrawable::destroy()
 		llinfos << "- Zombie drawables: " << sNumZombieDrawables << llendl;
 	}*/	
 
-	ll_aligned_free_32(mExtents);
-	mExtents = mPositionGroup = NULL;
 }
 
 void LLDrawable::markDead()
@@ -836,7 +831,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		
 		mExtents[0].add(shift_vector);
 		mExtents[1].add(shift_vector);
-		mPositionGroup->add(shift_vector);
+		mPositionGroup.add(shift_vector);
 	}
 	else if (mSpatialBridge)
 	{
@@ -846,7 +841,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 	{
 		mExtents[0].add(shift_vector);
 		mExtents[1].add(shift_vector);
-		mPositionGroup->add(shift_vector);
+		mPositionGroup.add(shift_vector);
 	}
 	
 	mVObjp->onShift(shift_vector);
@@ -877,7 +872,7 @@ void LLDrawable::setSpatialExtents(const LLVector4a& min, const LLVector4a& max)
 
 void LLDrawable::setPositionGroup(const LLVector4a& pos)
 {
-	*mPositionGroup = pos;
+	mPositionGroup = pos;
 }
 
 void LLDrawable::updateSpatialExtents()
@@ -891,7 +886,7 @@ void LLDrawable::updateSpatialExtents()
 	
 	if (mSpatialBridge.notNull())
 	{
-		mPositionGroup->splat(0.f);
+		mPositionGroup.splat(0.f);
 	}
 }
 
@@ -1160,8 +1155,8 @@ void LLSpatialBridge::updateSpatialExtents()
 	diagonal.setSub(newMax, newMin);
 	mRadius = diagonal.getLength3().getF32() * 0.5f;
 	
-	mPositionGroup->setAdd(newMin,newMax);
-	mPositionGroup->mul(0.5f);
+	mPositionGroup.setAdd(newMin,newMax);
+	mPositionGroup.mul(0.5f);
 	updateBinRadius();
 }
 
@@ -1430,7 +1425,7 @@ void LLSpatialBridge::shiftPos(const LLVector4a& vec)
 {
 	mExtents[0].add(vec);
 	mExtents[1].add(vec);
-	mPositionGroup->add(vec);
+	mPositionGroup.add(vec);
 }
 
 void LLSpatialBridge::cleanupReferences()

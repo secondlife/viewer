@@ -219,6 +219,9 @@ public:
 	void                  removeAtlas() ;
 	BOOL                  switchTexture() ;
 
+public: //aligned members
+	LLVector4a		mExtents[2];
+
 private:	
 	F32         adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius );
 	BOOL        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
@@ -230,8 +233,6 @@ public:
 	
 	LLVector3		mCenterLocal;
 	LLVector3		mCenterAgent;
-	
-	LLVector4a*		mExtents;
 	
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
