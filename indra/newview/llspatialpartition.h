@@ -86,7 +86,7 @@ public:
 
 	void validate();
 
-	LLVector4a* mExtents;
+	LLVector4a mExtents[2];
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
@@ -357,12 +357,12 @@ public:
 		V4_COUNT = 10
 	} eV4Index;
 
-	LLVector4a* mBounds; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a* mExtents; // extents (min, max) of this node and all its children
-	LLVector4a* mObjectExtents; // extents (min, max) of objects in this node
-	LLVector4a* mObjectBounds; // bounding box (center, size) of objects in this node
-	LLVector4a* mViewAngle;
-	LLVector4a* mLastUpdateViewAngle;
+	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
+	LLVector4a mObjectExtents[2]; // extents (min, max) of objects in this node
+	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
+	LLVector4a mViewAngle;
+	LLVector4a mLastUpdateViewAngle;
 		
 private:
 	U32                     mCurUpdatingTime ;
