@@ -12,8 +12,6 @@
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 
-uniform float gi_dist_cutoff;
-
 varying vec2 vary_fragcoord;
 
 uniform float depth_cutoff;

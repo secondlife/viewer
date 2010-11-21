@@ -693,8 +693,9 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	}
 	
 
-	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
-	{
+	if (LLRenderTarget::sUseFBO && !sRenderDeferred && gGLManager.mHasFramebufferMultisample && samples > 1)
+	{ // DON'T use multisample buffers when rendering deferred -- multisampling doesn't play nice with deferred rendering
+		//so a post-effect smooths edges in screen space
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
 		{
@@ -6245,12 +6246,18 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	
 	LLVertexBuffer::unbind();
 
-	if (LLPipeline::sRenderDeferred && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
+	if (LLPipeline::sRenderDeferred)
 	{
-		LLGLDisable blend(GL_BLEND);
-		bindDeferredShader(gDeferredGIFinalProgram);
+		LLGLSLShader* shader = &gDeferredPostProgram;
+		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
+		{
+			shader = &gDeferredGIFinalProgram;
+		}
 
-		S32 channel = gDeferredGIFinalProgram.enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
+		LLGLDisable blend(GL_BLEND);
+		bindDeferredShader(*shader);
+
+		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0, channel);
@@ -6268,7 +6275,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		gGL.end();
 
-		unbindDeferredShader(gDeferredGIFinalProgram);
+		unbindDeferredShader(*shader);
 	}
 	else
 	{
@@ -6329,12 +6336,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		gGL.getTexUnit(0)->activate();
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
 
-		if (LLRenderTarget::sUseFBO)
-		{ //copy depth buffer from mScreen to framebuffer
-			LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
-				0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-		}
+	if (LLRenderTarget::sUseFBO)
+	{ //copy depth buffer from mScreen to framebuffer
+		LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
+			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	}
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
