@@ -1674,16 +1674,16 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
-if (LLKDU_LIBRARY)
+if (USE_KDU)
     target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLKDU_LIBRARIES}
         ${KDU_LIBRARY}
         )
-else (LLKDU_LIBRARY)
+else (USE_KDU)
     target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLIMAGEJ2COJ_LIBRARIES}
         )
-endif (LLKDU_LIBRARY)
+endif (USE_KDU)
     
 build_version(viewer)
 
