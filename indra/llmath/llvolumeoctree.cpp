@@ -191,7 +191,7 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle>* n
 
 const LLVector4a& LLVolumeTriangle::getPositionGroup() const
 {
-	return *mPositionGroup;
+	return mPositionGroup;
 }
 
 const F32& LLVolumeTriangle::getBinRadius() const

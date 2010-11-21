@@ -5522,7 +5522,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 		center.setAdd(min, max);
 		center.mul(0.5f);
 
-		*tri->mPositionGroup = center;
+		tri->mPositionGroup = center;
 
 		//compute "radius"
 		LLVector4a size;
