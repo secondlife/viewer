@@ -64,8 +64,8 @@ public:
 	
 
 public:
-	LLVector4a* mBounds; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a* mExtents; // extents (min, max) of this node and all its children
+	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
 };
 
 class LLOctreeTriangleRayIntersect : public LLOctreeTraveler<LLVolumeTriangle>

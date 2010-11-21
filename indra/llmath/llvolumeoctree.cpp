@@ -78,14 +78,11 @@ BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, c
 LLVolumeOctreeListener::LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle>* node)
 {
 	node->addListener(this);
-
-	mBounds = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*4);
-	mExtents = mBounds+2;
 }
 
 LLVolumeOctreeListener::~LLVolumeOctreeListener()
 {
-	ll_aligned_free_16(mBounds);
+
 }
 	
 void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTriangle>* parent, 
