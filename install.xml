@@ -837,9 +837,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>1e06405071371c69ce22d8e8a682cd3a</string>
+            <string>c46f5bc8e72e5a16c5a9d2b844ed1256</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101120.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101121.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
