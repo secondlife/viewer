@@ -107,7 +107,7 @@ INCLUDE(GoogleMock)
 
     # Setup target
     ADD_EXECUTABLE(PROJECT_${project}_TEST_${name} ${${name}_test_SOURCE_FILES})
-    SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_STAGING_DIR})
+    SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
 
     #
     # Per-codefile additional / external project dep and lib dep property extraction
@@ -196,7 +196,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     message(STATUS "ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})")
   endif(TEST_DEBUG)
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
-  SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_STAGING_DIR})
+  SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
 
   # Add link deps to the executable
   if(TEST_DEBUG)
