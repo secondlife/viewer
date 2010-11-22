@@ -33,7 +33,12 @@
 
 #include <iostream>
 #include "apr_base64.h"
-#include "zlib/zlib.h"  // for davep's dirty little zip functions
+
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"  // for davep's dirty little zip functions
+#endif
 
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl
