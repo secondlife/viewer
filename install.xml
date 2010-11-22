@@ -1100,7 +1100,7 @@ anguage Infrstructure (CLI) international standard</string>
             <key>md5sum</key>
             <string>349fa0e287fb275bbee43ced194a1db1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-darwin-20101015.tar.bz</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-darwin-20101015.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
