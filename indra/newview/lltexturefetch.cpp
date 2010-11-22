@@ -405,7 +405,7 @@ namespace
  * into the respective collector unconcerned with locking and
  * the state of any other thread.  But when the agent moves into
  * a different region or the metrics timer expires and a report
- * needs to be sent back to the grid, messaging across grids
+ * needs to be sent back to the grid, messaging across threads
  * is required to distribute data and perform global actions.
  * In pseudo-UML, it looks like:
  *
@@ -484,7 +484,11 @@ public:
 	virtual ~TFRequest()
 		{}
 
-	virtual bool doWork(LLTextureFetchWorker * worker) = 0;
+	// Patterned after QueuedRequest's method but expected behavior
+	// is different.  Always expected to complete on the first call
+	// and work dispatcher will assume the same and delete the
+	// request after invocation.
+	virtual bool doWork(LLTextureFetch * fetcher) = 0;
 };
 
 
@@ -511,7 +515,7 @@ public:
 	virtual ~TFReqSetRegion()
 		{}
 
-	virtual bool doWork(LLTextureFetchWorker * worker);
+	virtual bool doWork(LLTextureFetch * fetcher);
 		
 public:
 	const LLUUID mRegionID;
@@ -557,7 +561,7 @@ public:
 
 	virtual ~TFReqSendMetrics();
 
-	virtual bool doWork(LLTextureFetchWorker * worker);
+	virtual bool doWork(LLTextureFetch * fetcher);
 		
 public:
 	const std::string mCapsURL;
@@ -808,9 +812,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 	}
 
-	// Run a cross-thread command, if any.
-	mFetcher->cmdDoWork(this);
-	
 	if(mImagePriority < F_ALMOST_ZERO)
 	{
 		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
@@ -2188,6 +2189,9 @@ void LLTextureFetch::threadedUpdate()
 	}
 	process_timer.reset();
 	
+	// Run a cross-thread command, if any.
+	cmdDoWork();
+	
 	// Update Curl on same thread as mCurlGetRequest was constructed
 	S32 processed = mCurlGetRequest->process();
 	if (processed > 0)
@@ -2695,22 +2699,22 @@ TFRequest * LLTextureFetch::cmdDequeue()
 	return ret;
 }
 
-void LLTextureFetch::cmdDoWork(LLTextureFetchWorker * worker)
+void LLTextureFetch::cmdDoWork()
 {
-	// Queue is expected to be locked here.
-
 	if (mDebugPause)
 	{
 		return;  // debug: don't do any work
 	}
 
+	lockQueue();
 	TFRequest * req = cmdDequeue();
 	if (req)
 	{
 		// One request per pass should really be enough for this.
-		req->doWork(worker);
+		req->doWork(this);
 		delete req;
 	}
+	unlockQueue();
 }
 
 
@@ -2727,7 +2731,7 @@ namespace
  * Thread:  Thread1 (TextureFetch)
  */
 bool
-TFReqSetRegion::doWork(LLTextureFetchWorker *)
+TFReqSetRegion::doWork(LLTextureFetch *)
 {
 	LLViewerAssetStatsFF::set_region_thread1(mRegionID);
 
@@ -2749,7 +2753,7 @@ TFReqSendMetrics::~TFReqSendMetrics()
  * Thread:  Thread1 (TextureFetch)
  */
 bool
-TFReqSendMetrics::doWork(LLTextureFetchWorker * fetch_worker)
+TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
 	/*
 	 * HTTP POST responder.  Doesn't do much but tries to
@@ -2818,11 +2822,11 @@ TFReqSendMetrics::doWork(LLTextureFetchWorker * fetch_worker)
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;
-		fetch_worker->getFetcher().getCurlRequest().post(mCapsURL,
-														 headers,
-														 thread1_stats,
-														 new lcl_responder(LLTextureFetch::svMetricsDataBreak,
-																		   reporting_started));
+		fetcher->getCurlRequest().post(mCapsURL,
+									   headers,
+									   thread1_stats,
+									   new lcl_responder(LLTextureFetch::svMetricsDataBreak,
+														 reporting_started));
 	}
 	else
 	{

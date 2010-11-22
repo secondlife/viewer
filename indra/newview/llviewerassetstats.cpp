@@ -230,7 +230,7 @@ LLViewerAssetStats::asLLSD()
 			LLSD::String("get_other")
 		};
 
-	// Sub-tags.  If you add or delete from this list, mergeLLSD() must be updated.
+	// Sub-tags.  If you add or delete from this list, mergeRegionsLLSD() must be updated.
 	static const LLSD::String enq_tag("enqueued");
 	static const LLSD::String deq_tag("dequeued");
 	static const LLSD::String rcnt_tag("resp_count");
@@ -281,7 +281,7 @@ LLViewerAssetStats::asLLSD()
 }
 
 /* static */ void
-LLViewerAssetStats::mergeLLSD(const LLSD & src, LLSD & dst)
+LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
 {
 	// Merge operator definitions
 	static const int MOP_ADD_INT(0);
@@ -290,11 +290,6 @@ LLViewerAssetStats::mergeLLSD(const LLSD & src, LLSD & dst)
 	static const int MOP_MEAN_REAL(3);	// Requires a 'mMergeOpArg' to weight the input terms
 
 	static const LLSD::String regions_key("regions");
-	static const LLSD::String root_key_list[] =
-		{
-			"duration",
-			regions_key
-		};
 	
 	static const struct
 		{
@@ -318,35 +313,29 @@ LLViewerAssetStats::mergeLLSD(const LLSD & src, LLSD & dst)
 			{ "resp_max", MOP_MAX_REAL, "" }
 		};
 
-	// First normalized the root keys but remember if we need to do full merge
-	const bool needs_deep_merge(src.has(regions_key) && dst.has(regions_key));
-	
-	for (int root_index(0); root_index < LL_ARRAY_SIZE(root_key_list); ++root_index)
+	// Trivial checks
+	if (! src.has(regions_key))
 	{
-		const LLSD::String & key_name(root_key_list[root_index]);
-						
-		if ((! src.has(key_name)) || dst.has(key_name))
-			continue;
-
-		// key present in source, not in dst here
-		dst[key_name] = src[key_name];
+		return;
 	}
 
-	if (! needs_deep_merge)
+	if (! dst.has(regions_key))
+	{
+		dst[regions_key] = src[regions_key];
 		return;
-
-	// Okay, had both src and dst 'regions' section, do the deep merge
-
+	}
+	
+	// Non-trivial cases requiring a deep merge.
 	const LLSD & root_src(src[regions_key]);
 	LLSD & root_dst(dst[regions_key]);
 	
-	const LLSD::map_const_iterator it_end(root_src.endMap());
-	for (LLSD::map_const_iterator it(root_src.beginMap()); it_end != it; ++it)
+	const LLSD::map_const_iterator it_uuid_end(root_src.endMap());
+	for (LLSD::map_const_iterator it_uuid(root_src.beginMap()); it_uuid_end != it_uuid; ++it_uuid)
 	{
-		if (! root_dst.has(it->first))
+		if (! root_dst.has(it_uuid->first))
 		{
 			// src[<region>] without matching dst[<region>]
-			root_dst[it->first] = it->second;
+			root_dst[it_uuid->first] = it_uuid->second;
 		}
 		else
 		{
@@ -354,30 +343,30 @@ LLViewerAssetStats::mergeLLSD(const LLSD & src, LLSD & dst)
 			// We have matching source and destination regions.
 			// Now iterate over each asset bin in the region status.  Could iterate over
 			// an explicit list but this will do as well.
-			LLSD & reg_dst(root_dst[it->first]);
-			const LLSD & reg_src(root_src[it->first]);
+			LLSD & reg_dst(root_dst[it_uuid->first]);
+			const LLSD & reg_src(root_src[it_uuid->first]);
 
-			const LLSD::map_const_iterator it_src_bin_end(reg_src.endMap());
-			for (LLSD::map_const_iterator it_src_bin(reg_src.beginMap()); it_src_bin_end != it_src_bin; ++it_src_bin)
+			const LLSD::map_const_iterator it_sets_end(reg_src.endMap());
+			for (LLSD::map_const_iterator it_sets(reg_src.beginMap()); it_sets_end != it_sets; ++it_sets)
 			{
 				static const LLSD::String no_touch_1("duration");
 
-				if (no_touch_1 == it_src_bin->first)
+				if (no_touch_1 == it_sets->first)
 				{
 					continue;
 				}
-				else if (! reg_dst.has(it_src_bin->first))
+				else if (! reg_dst.has(it_sets->first))
 				{
 					// src[<region>][<asset>] without matching dst[<region>][<asset>]
-					reg_dst[it_src_bin->first] = it_src_bin->second;
+					reg_dst[it_sets->first] = it_sets->second;
 				}
 				else
 				{
 					// src[<region>][<asset>] with matching dst[<region>][<asset>]
 					// Matching stats bin in both source and destination regions.
 					// Iterate over those bin keys we know how to merge, leave the remainder untouched.
-					LLSD & bin_dst(reg_dst[it_src_bin->first]);
-					const LLSD & bin_src(reg_src[it_src_bin->first]);
+					LLSD & bin_dst(reg_dst[it_sets->first]);
+					const LLSD & bin_src(reg_src[it_sets->first]);
 
 					for (int key_index(0); key_index < LL_ARRAY_SIZE(key_list); ++key_index)
 					{
@@ -577,7 +566,6 @@ void
 merge_stats(const LLSD & src, LLSD & dst)
 {
 	static const LLSD::String regions_key("regions");
-	static const LLSD::String dur_key("duration");
 
 	// Trivial cases first
 	if (! src.isMap())
@@ -592,14 +580,14 @@ merge_stats(const LLSD & src, LLSD & dst)
 	}
 	
 	// Okay, both src and dst are maps at this point.
-	// Collector class know how to merge it's part
-	LLViewerAssetStats::mergeLLSD(src, dst);
+	// Collector class know how to merge the regions part.
+	LLViewerAssetStats::mergeRegionsLLSD(src, dst);
 
-	// Now merge non-collector bits manually.
+	// Now merge non-regions bits manually.
 	const LLSD::map_const_iterator it_end(src.endMap());
 	for (LLSD::map_const_iterator it(src.beginMap()); it_end != it; ++it)
 	{
-		if (regions_key == it->first || dur_key == it->first)
+		if (regions_key == it->first)
 			continue;
 
 		if (dst.has(it->first))

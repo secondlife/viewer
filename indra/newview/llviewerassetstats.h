@@ -159,11 +159,43 @@ public:
 	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration);
 
 	// Retrieve current metrics for all visited regions (NULL region UUID excluded)
+    // Returned LLSD is structured as follows:
+	//
+	// &stats_group = {
+	//   enqueued   : int,
+	//   dequeued   : int,
+	//   resp_count : int,
+	//   resp_min   : float,
+	//   resp_max   : float,
+	//   resp_mean  : float
+	// }
+	//
+	// {
+	//   duration: int
+	//   regions: {
+	//     $: {
+	//       duration:                 : int,
+	//       get_texture_temp_http     : &stats_group,
+	//       get_texture_temp_udp      : &stats_group,
+	//       get_texture_non_temp_http : &stats_group,
+	//       get_texture_non_temp_udp  : &stats_group,
+	//       get_wearable_udp          : &stats_group,
+	//       get_sound_udp             : &stats_group,
+	//       get_gesture_udp           : &stats_group,
+	//       get_other                 : &stats_group
+	//     }
+	//   }
+	// }
 	LLSD asLLSD();
 
-	// Merge two LLSD's structured as per asLLSD().  If inputs are not
-	// correctly formed, result is undefined (little defensive action).
-	static void mergeLLSD(const LLSD & src, LLSD & dst);
+	// Merges the "regions" maps in two LLSDs structured as per asLLSD().
+	// This takes two LLSDs as returned by asLLSD() and intelligently
+	// merges the metrics contained in the maps indexed by "regions".
+	// The remainder of the top-level map of the LLSDs is left unchanged
+	// in expectation that callers will add other information at this
+	// level.  The "regions" information must be correctly formed or the
+	// final result is undefined (little defensive action).
+	static void mergeRegionsLLSD(const LLSD & src, LLSD & dst);
 	
 protected:
 	typedef std::map<LLUUID, LLPointer<PerRegionStats> > PerRegionContainer;

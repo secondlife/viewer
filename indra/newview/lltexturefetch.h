@@ -85,7 +85,7 @@ public:
 
 	LLTextureInfo* getTextureInfo() { return &mTextureInfo; }
 
-	// Commands available to other threads.
+	// Commands available to other threads to control metrics gathering operations.
 	void commandSetRegion(const LLUUID & region_id);
 	void commandSendMetrics(const std::string & caps_url, LLSD * report_main);
 	void commandDataBreak();
@@ -98,8 +98,6 @@ protected:
 	void addToHTTPQueue(const LLUUID& id);
 	void removeFromHTTPQueue(const LLUUID& id, S32 received_size = 0);
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
-	// Called from worker thread (during doWork)
-	void processCurlRequests();
 
 	// Overrides from the LLThread tree
 	bool runCondition();
@@ -110,10 +108,10 @@ private:
 	/*virtual*/ void endThread(void);
 	/*virtual*/ void threadedUpdate(void);
 
-	// command helpers
+	// Metrics command helpers
 	void cmdEnqueue(TFRequest *);
 	TFRequest * cmdDequeue();
-	void cmdDoWork(LLTextureFetchWorker* worker);
+	void cmdDoWork();
 	
 public:
 	LLUUID mDebugID;
@@ -146,7 +144,7 @@ private:
 
 	U32 mHTTPTextureBits;
 
-	// Special cross-thread command queue.  This command queue
+	// Out-of-band cross-thread command queue.  This command queue
 	// is logically tied to LLQueuedThread's list of
 	// QueuedRequest instances and so must be covered by the
 	// same locks.

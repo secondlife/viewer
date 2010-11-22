@@ -492,7 +492,7 @@ namespace tut
 			dst["regions"][reg2_name] = reg2_stats;
 			dst["duration"] = 36;
 
-			LLViewerAssetStats::mergeLLSD(src, dst);
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
 		
 			ensure("region 1 in merged stats", llsd_equals(reg1_stats, dst["regions"][reg1_name]));
 			ensure("region 2 still in merged stats", llsd_equals(reg2_stats, dst["regions"][reg2_name]));
@@ -507,7 +507,7 @@ namespace tut
 			dst["regions"][reg1_name] = reg2_stats;
 			dst["duration"] = 36;
 
-			LLViewerAssetStats::mergeLLSD(src, dst);
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
 
 			ensure("src not ruined", llsd_equals(reg1_stats, src["regions"][reg1_name]));
 			ensure_equals("added enqueued counts", dst["regions"][reg1_name]["get_other"]["enqueued"].asInteger(), 12);
