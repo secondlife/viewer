@@ -14,7 +14,7 @@
       bg_opaque_color="DkGray2"
       background_visible="true"
       background_opaque="true"
-	  follows="top|left|right"
+	  follows="all"
 	  height="400" 
 	  left="10" 
 	  layout="topleft" 

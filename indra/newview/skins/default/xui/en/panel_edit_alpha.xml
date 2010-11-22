@@ -8,6 +8,17 @@
 	 name="edit_alpha_panel"
 	 top_pad="10"
 	 width="333" >
+   <scroll_container
+    color="DkGray2"
+    follows="all"
+    height="400"
+    layout="topleft"
+    left="10"
+    top_pad="0"
+    name="avatar_alpha_color_panel_scroll"
+    reserve_scroll_corner="false"
+    opaque="true"
+    width="313">
    <panel
       border="false"
       bg_alpha_color="DkGray2"
@@ -16,14 +27,14 @@
       background_opaque="true"
       follows="top|left|right"
       height="400" 
-      left="10" 
+      left="0" 
       layout="topleft" 
       name="avatar_alpha_color_panel"
       top="0"
       width="313" >
        <check_box
         control_name="LowerAlphaTextureInvisible"
-        follows="left"
+        follows="left|top"
         height="16"
         layout="topleft"
         left="5"
@@ -48,7 +59,7 @@
 
        <check_box
         control_name="UpperAlphaTextureInvisible"
-        follows="left"
+        follows="left|top"
         height="16"
         layout="topleft"
         left_pad="20"
@@ -73,7 +84,7 @@
 
        <check_box
         control_name="HeadAlphaTextureInvisible"
-        follows="left"
+        follows="left|top"
         height="16"
         layout="topleft"
         left="5"
@@ -98,7 +109,7 @@
 
        <check_box
         control_name="Eye AlphaTextureInvisible"
-        follows="left"
+        follows="left|top"
         height="16"
         layout="topleft"
         left_pad="20"
@@ -123,7 +134,7 @@
 
        <check_box
         control_name="HairAlphaTextureInvisible"
-        follows="left"
+        follows="left|top"
         height="16"
         layout="topleft"
         left="5"
@@ -147,5 +158,6 @@
        </texture_picker>
 
 	 </panel>
+	 </scroll_container>
 </panel>
 
