@@ -97,6 +97,7 @@ public:
 	LLColor4 getDaeColor(daeElement* element);
 	
 	daeElement* getChildFromElement( daeElement* pElement, std::string const & name );
+	
 	bool isNodeAJoint( domNode* pNode );
 	void processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms );
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );

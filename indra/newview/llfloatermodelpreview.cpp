@@ -1173,21 +1173,7 @@ void LLModelLoader::run()
 								
 							}
 							
-							/*{
-							 LLMatrix4 rotation;
-							 if (up == UPAXISTYPE_X_UP)
-							 {
-							 rotation.initRotation(0.0f, 90.0f * DEG_TO_RAD, 0.0f);
-							 }
-							 else if (up == UPAXISTYPE_Z_UP)
-							 {
-							 rotation.initRotation(90.0f * DEG_TO_RAD, 90.0f * DEG_TO_RAD, 0.0f);
-							 }
-							 
-							 rotation *= model->mBindShapeMatrix;
-							 model->mBindShapeMatrix = rotation;
-							 }*/
-							
+														
 							//The joint transfom map that we'll populate below
 							std::map<std::string,LLMatrix4> jointTransforms;
 							jointTransforms.clear();
@@ -1195,6 +1181,7 @@ void LLModelLoader::run()
 							//Some collada setup for accessing the skeleton
 							daeElement* pElement = 0;
 							dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
+							
 							//Try to get at the skeletal instance controller
 							domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
 							bool missingSkeletonOrScene = false;
@@ -1281,8 +1268,6 @@ void LLModelLoader::run()
 											//Store the joint transform w/respect to it's name.
 											jointTransforms[(*jointIt).second.c_str()] = workingTransform;                                                                                                                             
                                         }
-										
-										
 									}
 									
 									//If anything failed in regards to extracting the skeleton, joints or translation id,
@@ -1317,17 +1302,16 @@ void LLModelLoader::run()
 											llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
 										}
 										//Reposition the avatars pelvis (avPos+offset)
-										if ( lookingForJoint == "mPelvis" )
-										{												
-											const LLVector3& pos = gAgentAvatarp->getCharacterPosition();
-											gAgentAvatarp->setPelvisOffset( true, jointTransform.getTranslation() );
-											gAgentAvatarp->setPosition( pos + jointTransform.getTranslation() );											
-										}
+										//if ( lookingForJoint == "mPelvis" )
+										//{												
+										//	const LLVector3& pos = gAgentAvatarp->getCharacterPosition();
+										//	gAgentAvatarp->setPelvisOffset( true, jointTransform.getTranslation() );
+										//	gAgentAvatarp->setPosition( pos + jointTransform.getTranslation() );											
+										//}
 									}
 								}
 							} //missingSkeletonOrScene
-					
-														
+																				
 							domSkin::domJoints* joints = skin->getJoints();
 							
 							domInputLocal_Array& joint_input = joints->getInput_array();

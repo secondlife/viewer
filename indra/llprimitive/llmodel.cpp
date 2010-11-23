@@ -34,7 +34,13 @@
 #include "dae/daeErrorHandler.h"
 #include "dom/domConstants.h"
 #include "dom/domMesh.h"
-#include "zlib/zlib.h"
+
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"
+#endif
+
 
 
 std::string model_names[] =
