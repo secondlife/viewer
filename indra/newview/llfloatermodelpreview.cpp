@@ -1302,12 +1302,12 @@ void LLModelLoader::run()
 											llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
 										}
 										//Reposition the avatars pelvis (avPos+offset)
-										if ( lookingForJoint == "mPelvis" )
-										{												
-											const LLVector3& pos = gAgentAvatarp->getCharacterPosition();
-											gAgentAvatarp->setPelvisOffset( true, jointTransform.getTranslation() );
-											gAgentAvatarp->setPosition( pos + jointTransform.getTranslation() );											
-										}
+										//if ( lookingForJoint == "mPelvis" )
+										//{												
+										//	const LLVector3& pos = gAgentAvatarp->getCharacterPosition();
+										//	gAgentAvatarp->setPelvisOffset( true, jointTransform.getTranslation() );
+										//	gAgentAvatarp->setPosition( pos + jointTransform.getTranslation() );											
+										//}
 									}
 								}
 							} //missingSkeletonOrScene
