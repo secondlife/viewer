@@ -35,6 +35,7 @@
 
 namespace {
 	LLControlGroup s_saved_settings("dummy_settings");
+	const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
 }
 
 LLCurl::Responder::Responder() { }
@@ -49,7 +50,10 @@ void LLMessageSystem::getF32(char const *,char const *,F32 &,S32) { }
 void LLMessageSystem::getU8(char const *,char const *,U8 &,S32) { }
 void LLMessageSystem::getS32(char const *,char const *,S32 &,S32) { }
 void LLMessageSystem::getString(char const *,char const *, std::string &,S32) { }
-void LLMessageSystem::getUUID(char const *,char const *, LLUUID &,S32) { }
+void LLMessageSystem::getUUID(char const *,char const *, LLUUID & out_id,S32)
+{
+	out_id = TEST_PARCEL_ID;
+}
 void LLMessageSystem::nextBlock(char const *) { }
 void LLMessageSystem::addUUID(char const *,LLUUID const &) { }
 void LLMessageSystem::addUUIDFast(char const *,LLUUID const &) { }
@@ -105,7 +109,7 @@ namespace tut
 		boost::scoped_ptr<TestObserver> observer(new TestObserver());
 
 		LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
-		processor.addObserver(LLUUID(), observer.get());
+		processor.addObserver(LLUUID(TEST_PARCEL_ID), observer.get());
 
 		processor.processParcelInfoReply(gMessageSystem, NULL);
 
@@ -120,7 +124,7 @@ namespace tut
 		LLRemoteParcelInfoObserver * observer = new TestObserver();
 
 		LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
-		processor.addObserver(LLUUID(), observer);
+		processor.addObserver(LLUUID(TEST_PARCEL_ID), observer);
 
 		delete observer;
 		observer = NULL;
