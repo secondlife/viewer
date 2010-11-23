@@ -667,9 +667,9 @@ bool LLAppViewer::init()
 	
 	{
 		// Viewer metrics initialization
-		static LLCachedControl<BOOL> metrics_submode(gSavedSettings,
+		static LLCachedControl<bool> metrics_submode(gSavedSettings,
 													 "QAModeMetrics",
-													 FALSE,
+													 false,
 													 "Enables QA features (logging, faster cycling) for metrics collector");
 
 		if (metrics_submode)
@@ -4606,30 +4606,26 @@ void LLAppViewer::metricsIdle(bool enable_reporting)
 	if (! gViewerAssetStatsMain)
 		return;
 
-	std::string caps_url;
-	LLViewerRegion * regionp = gAgent.getRegion();
-	if (regionp)
+	if (LLAppViewer::sTextureFetch)
 	{
-		caps_url = regionp->getCapability("ViewerMetrics");
-	}
-	
-	if (enable_reporting && regionp && ! caps_url.empty())
-	{
-		// *NOTE:  Pay attention here.  LLSD's are not safe for thread sharing
-		// and their ownership is difficult to transfer across threads.  We do
-		// it here by having only one reference (the new'd pointer) to the LLSD
-		// or any subtree of it.  This pointer is then transfered to the other
-		// thread using correct thread logic.
-		
-		LLSD * envelope = new LLSD(LLSD::emptyMap());
+		LLViewerRegion * regionp = gAgent.getRegion();
+
+		if (enable_reporting && regionp)
 		{
-			(*envelope) = gViewerAssetStatsMain->asLLSD();
-			(*envelope)["session_id"] = gAgentSessionID;
-			(*envelope)["agent_id"] = gAgentID;
-		}
+			std::string	caps_url = regionp->getCapability("ViewerMetrics");
+
+			// *NOTE:  Pay attention here.  LLSD's are not safe for thread sharing
+			// and their ownership is difficult to transfer across threads.  We do
+			// it here by having only one reference (the new'd pointer) to the LLSD
+			// or any subtree of it.  This pointer is then transfered to the other
+			// thread using correct thread logic to do all data ordering.
+			LLSD * envelope = new LLSD(LLSD::emptyMap());
+			{
+				(*envelope) = gViewerAssetStatsMain->asLLSD();
+				(*envelope)["session_id"] = gAgentSessionID;
+				(*envelope)["agent_id"] = gAgentID;
+			}
 		
-		if (LLAppViewer::sTextureFetch)
-		{
 			// Send a report request into 'thread1' to get the rest of the data
 			// and have it sent to the stats collector.  LLSD ownership transfers
 			// with this call.
@@ -4638,14 +4634,8 @@ void LLAppViewer::metricsIdle(bool enable_reporting)
 		}
 		else
 		{
-			// No 'thread1' so transfer doesn't happen and we need to clean up
-			delete envelope;
-			envelope = 0;
+			LLAppViewer::sTextureFetch->commandDataBreak();
 		}
-	}
-	else
-	{
-		LLAppViewer::sTextureFetch->commandDataBreak();
 	}
 
 	// Reset even if we can't report.  Rather than gather up a huge chunk of
