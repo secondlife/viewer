@@ -556,35 +556,43 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 //static 
 std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 {
-	// regexp doesn't play nice with unicode, chop off the display name
+	//boost::regexp was showing up in the crashreporter, so doing  
+	//painfully manual parsing using substr. LF
 	S32 open_paren = complete_name.rfind(" (");
+	S32 close_paren = complete_name.rfind(')');
 
-	if (open_paren == std::string::npos)
+	if (open_paren != std::string::npos &&
+		close_paren == complete_name.length()-1)
 	{
-		return complete_name;
+		S32 length = close_paren - open_paren - 2;
+		std::string legacy_name = complete_name.substr(open_paren+2, length);
+		
+		if (legacy_name.length() > 0)
+		{			
+			std::string cap_letter = legacy_name.substr(0, 1);
+			LLStringUtil::toUpper(cap_letter);
+			legacy_name = cap_letter + legacy_name.substr(1);
+	
+			S32 separator = legacy_name.find('.');
+
+			if (separator != std::string::npos)
+			{
+				std::string last_name = legacy_name.substr(separator+1);
+				legacy_name = legacy_name.substr(0, separator);
+
+				if (last_name.length() > 0)
+				{
+					cap_letter = last_name.substr(0, 1);
+					LLStringUtil::toUpper(cap_letter);
+					legacy_name = legacy_name + " " + cap_letter + last_name.substr(1);
+				}
+			}
+
+			return legacy_name;
+		}
 	}
 
-	std::string username = complete_name.substr(open_paren);
-	boost::regex complete_name_regex("( \\()([a-z0-9]+)(.[a-z]+)*(\\))");
-	boost::match_results<std::string::const_iterator> name_results;
-	if (!boost::regex_match(username, name_results, complete_name_regex)) return complete_name;
-
-	std::string legacy_name = name_results[2];
-	// capitalize the first letter
-	std::string cap_letter = legacy_name.substr(0, 1);
-	LLStringUtil::toUpper(cap_letter);
-	legacy_name = cap_letter + legacy_name.substr(1);
-
-	if (name_results[3].matched)
-	{
-		std::string last_name = name_results[3];
-		std::string cap_letter = last_name.substr(1, 1);
-		LLStringUtil::toUpper(cap_letter);
-		last_name = cap_letter + last_name.substr(2);
-		legacy_name = legacy_name + " " + last_name;
-	}
-
-	return legacy_name;
+	return complete_name;
 }
 
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
