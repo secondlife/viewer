@@ -70,7 +70,9 @@ public:
 
 		Params()
 		:	bg_image("bg_image")
-		{}
+		{
+			mouse_opaque = false;
+		}
 	};
 
 	void show();
