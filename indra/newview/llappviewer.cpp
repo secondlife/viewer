@@ -666,11 +666,18 @@ bool LLAppViewer::init()
 	
 	{
 		// Viewer metrics initialization
-		if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getBOOL("QAModeMetricsSubmode"))
+		static LLCachedControl<BOOL> metrics_submode(gSavedSettings,
+													 "QAModeMetricsSubmode",
+													 FALSE,
+													 "Enables metrics submode when QAMode is also enabled");
+
+		bool qa_mode(false);
+		if (gSavedSettings.getBOOL("QAMode") && metrics_submode)
 		{
 			app_metrics_interval = METRICS_INTERVAL_QA;
+			qa_mode = true;
 		}
-		LLViewerAssetStatsFF::init();
+		LLViewerAssetStatsFF::init(qa_mode);
 	}
 
     initThreads();

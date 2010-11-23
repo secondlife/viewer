@@ -140,7 +140,7 @@ public:
 	};
 
 public:
-	LLViewerAssetStats();
+	LLViewerAssetStats(bool qa_mode);
 	// Default destructor is correct.
 	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
 
@@ -196,6 +196,10 @@ public:
 	// level.  The "regions" information must be correctly formed or the
 	// final result is undefined (little defensive action).
 	static void mergeRegionsLLSD(const LLSD & src, LLSD & dst);
+
+	// QA mode is established during initialization so we don't
+	// touch LLSD at runtime.
+	bool isQAMode() const { return mQAMode; }
 	
 protected:
 	typedef std::map<LLUUID, LLPointer<PerRegionStats> > PerRegionContainer;
@@ -215,6 +219,9 @@ protected:
 
 	// Time of last reset
 	duration_t mResetTimestamp;
+
+	// QA Mode
+	const bool mQAMode;
 };
 
 
@@ -245,7 +252,7 @@ namespace LLViewerAssetStatsFF
  * you'll likely get away with calling it afterwards.  cleanup() should only be
  * called after threads are shutdown to prevent races on the global pointers.
  */
-void init();
+void init(bool qa_mode);
 
 void cleanup();
 
@@ -298,5 +305,4 @@ void merge_stats(const LLSD & src, LLSD & dst);
 
 } // namespace LLViewerAssetStatsFF
 
-
-#endif	// LL_LLVIEWERASSETSTATUS_H
+#endif // LL_LLVIEWERASSETSTATUS_H

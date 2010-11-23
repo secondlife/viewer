@@ -2680,8 +2680,9 @@ void LLTextureFetch::cmdEnqueue(TFRequest * req)
 {
 	lockQueue();
 	mCommands.push_back(req);
-	wake();
 	unlockQueue();
+
+	wake();
 }
 
 TFRequest * LLTextureFetch::cmdDequeue()
@@ -2706,7 +2707,6 @@ void LLTextureFetch::cmdDoWork()
 		return;  // debug: don't do any work
 	}
 
-	lockQueue();
 	TFRequest * req = cmdDequeue();
 	if (req)
 	{
@@ -2714,7 +2714,6 @@ void LLTextureFetch::cmdDoWork()
 		req->doWork(this);
 		delete req;
 	}
-	unlockQueue();
 }
 
 
@@ -2834,7 +2833,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	}
 
 	// In QA mode, Metrics submode, log the result for ease of testing
-	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getBOOL("QAModeMetricsSubmode"))
+	if (gViewerAssetStatsThread1->isQAMode())
 	{
 		LL_INFOS("QAViewerMetrics") << thread1_stats << LL_ENDL;
 	}

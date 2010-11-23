@@ -129,7 +129,8 @@ LLViewerAssetStats::PerRegionStats::accumulateTime(duration_t now)
 // ------------------------------------------------------
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
-LLViewerAssetStats::LLViewerAssetStats()
+LLViewerAssetStats::LLViewerAssetStats(bool qa_mode)
+	: mQAMode(qa_mode)
 {
 	reset();
 }
@@ -539,15 +540,15 @@ record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_tem
 
 
 void
-init()
+init(bool qa_mode)
 {
 	if (! gViewerAssetStatsMain)
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats;
+		gViewerAssetStatsMain = new LLViewerAssetStats(qa_mode);
 	}
 	if (! gViewerAssetStatsThread1)
 	{
-		gViewerAssetStatsThread1 = new LLViewerAssetStats;
+		gViewerAssetStatsThread1 = new LLViewerAssetStats(qa_mode);
 	}
 }
 
