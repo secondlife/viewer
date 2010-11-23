@@ -39,28 +39,7 @@ set_source_files_properties(${llkdu_HEADER_FILES}
 
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 
-#if (WINDOWS)
-  # This turns off the warning about flow control ending in a destructor.
-#  set_source_files_properties(
-#      kdu_image.cpp llkdumem.cpp 
-#      PROPERTIES
-#      COMPILE_FLAGS "/wd4702 /wd4722"
-#      )
-
-  # This turns off the warning about sprintf in the following 2 files.
-#  set_source_files_properties(
-#      kde_flow_control.cpp kdc_flow_control.cpp
-#      PROPERTIES
-#      COMPILE_FLAGS /D_CRT_SECURE_NO_DEPRECATE
-#      )
-#endif (WINDOWS)
-
 if (USE_KDU)
   add_library (${LLKDU_LIBRARIES} ${llkdu_SOURCE_FILES})
   
-#  target_link_libraries(
-#        ${LLKDU_LIBRARY}
-#        ${LLMATH_LIBRARIES}
-#        ${KDU_LIBRARY}
-#        )
 endif (USE_KDU)

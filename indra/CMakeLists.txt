@@ -40,6 +40,7 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llaudio)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcharacter)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcommon)
 add_subdirectory(${LIBS_OPEN_PREFIX}llimage)
+add_subdirectory(${LIBS_OPEN_PREFIX}llkdu)
 add_subdirectory(${LIBS_OPEN_PREFIX}llimagej2coj)
 add_subdirectory(${LIBS_OPEN_PREFIX}llinventory)
 add_subdirectory(${LIBS_OPEN_PREFIX}llmath)
@@ -49,10 +50,6 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llrender)
 add_subdirectory(${LIBS_OPEN_PREFIX}llvfs)
 add_subdirectory(${LIBS_OPEN_PREFIX}llwindow)
 add_subdirectory(${LIBS_OPEN_PREFIX}llxml)
-
-if (EXISTS ${LIBS_CLOSED_DIR}llkdu)
-  add_subdirectory(${LIBS_CLOSED_PREFIX}llkdu)
-endif (EXISTS ${LIBS_CLOSED_DIR}llkdu)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}lscript)
 
