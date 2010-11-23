@@ -95,12 +95,12 @@
      width="126" />
     <icon
      height="16"
-     image_name="Inv_Notecard"
+     image_name="Inv_Mesh"
      layout="topleft"
      left="8"
      mouse_opaque="true"
-     name="icon_notecard"
-     top="122"
+     name="icon_mesh"
+     top="142"
      width="16" />
     <check_box
      height="16"
@@ -112,12 +112,12 @@
      width="126" />
     <icon
      height="16"
-     image_name="Inv_Mesh"
+     image_name="Inv_Notecard"
      layout="topleft"
      left="8"
      mouse_opaque="true"
-     name="icon_mesh"
-     top="142"
+     name="icon_notecard"
+     top="122"
      width="16" />
     <check_box
      height="16"
