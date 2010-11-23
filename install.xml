@@ -844,9 +844,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b44373778fac7e5a53bc90b2c0f11ad9</string>
+            <string>c8f422b19c339f12e591b24ca3db9a9d</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20101122.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20101123.tar.bz2</uri>
           </map>
         </map>
       </map>
