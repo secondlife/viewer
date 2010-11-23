@@ -77,23 +77,19 @@ void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason
 
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
 {
-	// Check if the observer is already in observers list for this UUID
 	observer_multimap_t::iterator it;
+	observer_multimap_t::iterator end = mObservers.upper_bound(parcel_id);
 
-	it = mObservers.find(parcel_id);
-	while (it != mObservers.end())
+	// Check if the observer is already in observers list for this UUID
+	for(it = mObservers.find(parcel_id); it != end; ++it)
 	{
-		if (it->second == observer)
+		if (it->second.get() == observer)
 		{
 			return;
 		}
-		else
-		{
-			++it;
-		}
 	}
 
-	mObservers.insert(std::pair<LLUUID, LLRemoteParcelInfoObserver*>(parcel_id, observer));
+	mObservers.insert(std::make_pair(parcel_id, observer->getObserverHandle()));
 }
 
 void LLRemoteParcelInfoProcessor::removeObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
@@ -104,18 +100,14 @@ void LLRemoteParcelInfoProcessor::removeObserver(const LLUUID& parcel_id, LLRemo
 	}
 
 	observer_multimap_t::iterator it;
+	observer_multimap_t::iterator end = mObservers.upper_bound(parcel_id);
 
-	it = mObservers.find(parcel_id);
-	while (it != mObservers.end())
+	for(it = mObservers.find(parcel_id); it != end; ++it)
 	{
-		if (it->second == observer)
+		if (it->second.get() == observer)
 		{
 			mObservers.erase(it);
 			break;
-		}
-		else
-		{
-			++it;
 		}
 	}
 }
@@ -141,13 +133,34 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	msg->getS32		("Data", "SalePrice", parcel_data.sale_price);
 	msg->getS32		("Data", "AuctionID", parcel_data.auction_id);
 
-	LLRemoteParcelInfoProcessor::observer_multimap_t observers = LLRemoteParcelInfoProcessor::getInstance()->mObservers;
+	LLRemoteParcelInfoProcessor::observer_multimap_t & observers = LLRemoteParcelInfoProcessor::getInstance()->mObservers;
 
-	observer_multimap_t::iterator oi = observers.find(parcel_data.parcel_id);
+	typedef std::vector<observer_multimap_t::iterator> deadlist_t;
+	deadlist_t dead_iters;
+
+	observer_multimap_t::iterator oi;
 	observer_multimap_t::iterator end = observers.upper_bound(parcel_data.parcel_id);
-	for (; oi != end; ++oi)
+
+	for (oi = observers.find(parcel_data.parcel_id); oi != end; ++oi)
 	{
-		oi->second->processParcelInfo(parcel_data);
+		LLRemoteParcelInfoObserver * observer = oi->second.get();
+		if(observer)
+		{
+			observer->processParcelInfo(parcel_data);
+		}
+		else
+		{
+			// the handle points to an expired observer, so don't keep it
+			// around anymore
+			dead_iters.push_back(oi);
+		}
+	}
+
+	deadlist_t::iterator i;
+	deadlist_t::iterator end_dead = dead_iters.end();
+	for(i = dead_iters.begin(); i != end_dead; ++i)
+	{
+		observers.erase(*i);
 	}
 }
 
