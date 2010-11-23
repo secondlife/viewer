@@ -29,6 +29,7 @@
 #include "llmath.h"
 
 #include <set>
+#include <stdint.h>
 
 #include "llerror.h"
 #include "llmemtype.h"
@@ -90,10 +91,10 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
-void assert_aligned(void* ptr, U32 alignment)
+void assert_aligned(void* ptr, uintptr_t alignment)
 {
 #if 0
-	U32 t = (U32) ptr;
+	uintptr_t t = (uintptr_t) ptr;
 	if (t%alignment != 0)
 	{
 		llerrs << "WTF?" << llendl;
