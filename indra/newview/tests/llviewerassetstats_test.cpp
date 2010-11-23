@@ -133,7 +133,7 @@ namespace tut
 	{
 		ensure("Global gViewerAssetStatsMain should be NULL", (NULL == gViewerAssetStatsMain));
 
-		LLViewerAssetStats * it = new LLViewerAssetStats(false);
+		LLViewerAssetStats * it = new LLViewerAssetStats();
 
 		ensure("Global gViewerAssetStatsMain should still be NULL", (NULL == gViewerAssetStatsMain));
 
@@ -174,7 +174,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<3>()
 	{
-		LLViewerAssetStats * it = new LLViewerAssetStats(false);
+		LLViewerAssetStats * it = new LLViewerAssetStats();
 		it->setRegionID(region1);
 		
 		LLSD sd = it->asLLSD();
@@ -193,7 +193,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<4>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats(false);
+		gViewerAssetStatsMain = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region_main(region1);
 
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
@@ -230,8 +230,8 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<5>()
 	{
-		gViewerAssetStatsThread1 = new LLViewerAssetStats(false);
-		gViewerAssetStatsMain = new LLViewerAssetStats(false);
+		gViewerAssetStatsThread1 = new LLViewerAssetStats();
+		gViewerAssetStatsMain = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region_main(region1);
 
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
@@ -272,7 +272,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<6>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats(false);
+		gViewerAssetStatsMain = new LLViewerAssetStats();
 
 		LLViewerAssetStatsFF::set_region_main(region1);
 
@@ -329,7 +329,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<7>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats(false);
+		gViewerAssetStatsMain = new LLViewerAssetStats();
 
 		LLViewerAssetStatsFF::set_region_main(region1);
 
@@ -399,8 +399,8 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<8>()
 	{
-		gViewerAssetStatsThread1 = new LLViewerAssetStats(false);
-		gViewerAssetStatsMain = new LLViewerAssetStats(false);
+		gViewerAssetStatsThread1 = new LLViewerAssetStats();
+		gViewerAssetStatsMain = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region_main(region1);
 
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);

@@ -49,7 +49,7 @@ class LLTextureFetch : public LLWorkerThread
 	friend class HTTPGetResponder;
 	
 public:
-	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded);
+	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
 	~LLTextureFetch();
 
 	/*virtual*/ S32 update(U32 max_time_ms);	
@@ -90,8 +90,10 @@ public:
 	void commandSendMetrics(const std::string & caps_url, LLSD * report_main);
 	void commandDataBreak();
 
-	LLCurlRequest & getCurlRequest() { return *mCurlGetRequest; }
-	
+	LLCurlRequest & getCurlRequest()	{ return *mCurlGetRequest; }
+
+	bool isQAMode() const				{ return mQAMode; }
+
 protected:
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
 	void removeFromNetworkQueue(LLTextureFetchWorker* worker, bool cancel);
@@ -109,8 +111,33 @@ private:
 	/*virtual*/ void threadedUpdate(void);
 
 	// Metrics command helpers
+	/**
+	 * Enqueues a command request at the end of the command queue
+	 * and wakes up the thread as needed.
+	 *
+	 * Takes ownership of the TFRequest object.
+	 *
+	 * Method locks the command queue.
+	 */
 	void cmdEnqueue(TFRequest *);
+
+	/**
+	 * Returns the first TFRequest object in the command queue or
+	 * NULL if none is present.
+	 *
+	 * Caller acquires ownership of the object and must dispose of it.
+	 *
+	 * Method locks the command queue.
+	 */
 	TFRequest * cmdDequeue();
+
+	/**
+	 * Processes the first command in the queue disposing of the
+	 * request on completion.  Successive calls are needed to perform
+	 * additional commands.
+	 *
+	 * Method locks the command queue.
+	 */
 	void cmdDoWork();
 	
 public:
@@ -151,6 +178,9 @@ private:
 	typedef std::vector<TFRequest *> command_queue_t;
 	command_queue_t mCommands;
 
+	// If true, modifies some behaviors that help with QA tasks.
+	const bool mQAMode;
+	
 public:
 	// A probabilistically-correct indicator that the current
 	// attempt to log metrics follows a break in the metrics stream

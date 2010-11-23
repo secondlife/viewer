@@ -1774,7 +1774,7 @@ bool LLTextureFetchWorker::writeToCacheComplete()
 //////////////////////////////////////////////////////////////////////////////
 // public
 
-LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded)
+LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode)
 	: LLWorkerThread("TextureFetch", threaded),
 	  mDebugCount(0),
 	  mDebugPause(FALSE),
@@ -1786,7 +1786,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mImageDecodeThread(imagedecodethread),
 	  mTextureBandwidth(0),
 	  mHTTPTextureBits(0),
-	  mCurlGetRequest(NULL)
+	  mCurlGetRequest(NULL),
+	  mQAMode(qa_mode)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
@@ -2833,7 +2834,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	}
 
 	// In QA mode, Metrics submode, log the result for ease of testing
-	if (gViewerAssetStatsThread1->isQAMode())
+	if (fetcher->isQAMode())
 	{
 		LL_INFOS("QAViewerMetrics") << thread1_stats << LL_ENDL;
 	}

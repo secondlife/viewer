@@ -339,6 +339,7 @@ LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
 static const F32 METRICS_INTERVAL_QA = 30.0;
 static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
+static bool app_metrics_qa_mode = false;
 
 void idle_afk_check()
 {
@@ -667,17 +668,16 @@ bool LLAppViewer::init()
 	{
 		// Viewer metrics initialization
 		static LLCachedControl<BOOL> metrics_submode(gSavedSettings,
-													 "QAModeMetricsSubmode",
+													 "QAModeMetrics",
 													 FALSE,
-													 "Enables metrics submode when QAMode is also enabled");
+													 "Enables QA features (logging, faster cycling) for metrics collector");
 
-		bool qa_mode(false);
-		if (gSavedSettings.getBOOL("QAMode") && metrics_submode)
+		if (metrics_submode)
 		{
+			app_metrics_qa_mode = true;
 			app_metrics_interval = METRICS_INTERVAL_QA;
-			qa_mode = true;
 		}
-		LLViewerAssetStatsFF::init(qa_mode);
+		LLViewerAssetStatsFF::init();
 	}
 
     initThreads();
@@ -1760,7 +1760,10 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+													sImageDecodeThread,
+													enable_threads && true,
+													app_metrics_qa_mode);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
