@@ -37,12 +37,24 @@ class LLLayoutPanel;
 class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 {
 public:
+	typedef enum e_layout_orientation
+	{
+		HORIZONTAL,
+		VERTICAL
+	} ELayoutOrientation;
+
+	struct OrientationNames
+	:	public LLInitParam::TypeValuesHelper<ELayoutOrientation, OrientationNames>
+	{
+		static void declareValues();
+	};
+
 	struct LayoutStackRegistry : public LLChildRegistry<LayoutStackRegistry>
 	{};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Mandatory<std::string>	orientation;
+		Mandatory<ELayoutOrientation, OrientationNames>	orientation;
 		Optional<S32>			border_size;
 		Optional<bool>			animate,
 								clip;
@@ -51,12 +63,6 @@ public:
 	};
 
 	typedef LayoutStackRegistry child_registry_t;
-
-	typedef enum e_layout_orientation
-	{
-		HORIZONTAL,
-		VERTICAL
-	} ELayoutOrientation;
 
 	virtual ~LLLayoutStack();
 

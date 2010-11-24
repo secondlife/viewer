@@ -70,7 +70,9 @@ public:
 
 		Params()
 		:	bg_image("bg_image")
-		{}
+		{
+			mouse_opaque = false;
+		}
 	};
 
 	void show();
@@ -107,7 +109,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	layout_p.rect = LLRect(0,getLocalRect().mTop,getLocalRect().mRight, 30);
 	layout_p.follows.flags = FOLLOWS_ALL;
 	layout_p.mouse_opaque = false;
-	layout_p.orientation = "vertical";
+	layout_p.orientation = LLLayoutStack::VERTICAL;
 
 	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
 	addChild(stackp);
@@ -133,7 +135,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	layout_p = LLUICtrlFactory::getDefaultParams<LLLayoutStack>();
 	layout_p.rect = LLRect(0, 30, 800, 0);
 	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.orientation = "horizontal";
+	layout_p.orientation = LLLayoutStack::HORIZONTAL;
 	stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
 	notification_panel->addChild(stackp);
 
