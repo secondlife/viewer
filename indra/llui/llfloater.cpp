@@ -61,10 +61,6 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
-// static
-F32 LLFloater::sActiveFloaterTransparency = 0.0f;
-F32 LLFloater::sInactiveFloaterTransparency = 0.0f;
-
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
 	"llfloater_close_btn",		//BUTTON_CLOSE
@@ -208,14 +204,14 @@ void LLFloater::initClass()
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
-		sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+		updateActiveFloaterTransparency();
 	}
 
 	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
-		sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+		updateInactiveFloaterTransparency();
 	}
 
 }
@@ -225,7 +221,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
-	mDragHandle(NULL),
+ 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
@@ -368,13 +364,13 @@ void LLFloater::layoutDragHandle()
 // static
 void LLFloater::updateActiveFloaterTransparency()
 {
-	sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+	sActiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
 }
 
 // static
 void LLFloater::updateInactiveFloaterTransparency()
 {
-	sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+	sInactiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -1193,6 +1189,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
+	updateChildrenTransparency(this);
 }
 
 // virtual
@@ -1652,7 +1649,7 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	mCurrentTransparency = hasFocus() ? sActiveFloaterTransparency : sInactiveFloaterTransparency;
+	mCurrentTransparency = hasFocus() ? sActiveControlTransparency : sInactiveControlTransparency;
 
 	// draw background
 	if( isBackgroundVisible() )
@@ -1769,6 +1766,24 @@ void	LLFloater::drawShadow(LLPanel* panel)
 	gl_drop_shadow(left, top, right, bottom, 
 		shadow_color % mCurrentTransparency,
 		llround(shadow_offset));
+}
+
+void LLFloater::updateChildrenTransparency(LLView* ctrl)
+{
+	child_list_t children = *ctrl->getChildList();
+	child_list_t::iterator it = children.begin();
+
+	ETypeTransparency transparency_type = hasFocus() ? TT_ACTIVE : TT_INACTIVE;
+
+	for(; it != children.end(); ++it)
+	{
+		LLUICtrl* ui_ctrl = dynamic_cast<LLUICtrl*>(*it);
+		if (ui_ctrl)
+		{
+			ui_ctrl->setTransparencyType(transparency_type);
+		}
+		updateChildrenTransparency(*it);
+	}
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)

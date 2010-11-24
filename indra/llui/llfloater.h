@@ -343,6 +343,7 @@ private:
 
 	static void		updateActiveFloaterTransparency();
 	static void		updateInactiveFloaterTransparency();
+	void			updateChildrenTransparency(LLView* ctrl);
 
 public:
 	// Called when floater is opened, passes mKey
@@ -412,9 +413,6 @@ private:
 	bool            mTornOff;
 
 	F32				mCurrentTransparency;
-
-	static F32		sActiveFloaterTransparency;
-	static F32		sInactiveFloaterTransparency;
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sQuitting;
