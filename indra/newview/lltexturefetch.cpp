@@ -2659,7 +2659,6 @@ void LLTextureFetch::commandSetRegion(const LLUUID & region_id)
 	TFReqSetRegion * req = new TFReqSetRegion(region_id);
 
 	cmdEnqueue(req);
-	LL_INFOS("Texture") << "COMMANDING SET REGION" << LL_ENDL;
 }
 
 void LLTextureFetch::commandSendMetrics(const std::string & caps_url,
@@ -2821,7 +2820,6 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	LLViewerAssetStatsFF::merge_stats(main_stats, thread1_stats);
 
 	// *TODO:  Consider putting a report size limiter here.
-	LL_INFOS("Texture") << "PROCESSING SENDMETRICS REQUEST" << LL_ENDL;
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;
@@ -2839,7 +2837,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("QAViewerMetrics") << thread1_stats << LL_ENDL;
+		LL_INFOS("Textures") << thread1_stats << LL_ENDL;
 	}
 
 	gViewerAssetStatsThread1->reset();

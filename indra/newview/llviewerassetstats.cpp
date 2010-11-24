@@ -263,19 +263,19 @@ LLViewerAssetStats::asLLSD()
 			slot[enq_tag] = LLSD(S32(stats.mRequests[i].mEnqueued.getCount()));
 			slot[deq_tag] = LLSD(S32(stats.mRequests[i].mDequeued.getCount()));
 			slot[rcnt_tag] = LLSD(S32(stats.mRequests[i].mResponse.getCount()));
-			slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin()));
-			slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax()));
-			slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean()));
+			slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin() * 1.0e-6));
+			slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax() * 1.0e-6));
+			slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean() * 1.0e-6));
 		}
 
-		reg_stat["duration"] = LLSD::Integer(stats.mTotalTime / 1000000);
+		reg_stat["duration"] = LLSD::Real(stats.mTotalTime * 1.0e-6);
 		
 		regions[it->first.asString()] = reg_stat;
 	}
 
 	LLSD ret = LLSD::emptyMap();
 	ret["regions"] = regions;
-	ret["duration"] = LLSD::Integer((now - mResetTimestamp) / 1000000);
+	ret["duration"] = LLSD::Real((now - mResetTimestamp) * 1.0e-6);
 	
 	return ret;
 }
@@ -290,12 +290,12 @@ LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
 	static const int MOP_MEAN_REAL(3);	// Requires a 'mMergeOpArg' to weight the input terms
 
 	static const LLSD::String regions_key("regions");
+	static const LLSD::String resp_count_key("resp_count");
 	
 	static const struct
 		{
 			LLSD::String		mName;
 			int					mMergeOp;
-			LLSD::String		mMergeOpArg;
 		}
 	key_list[] =
 		{
@@ -305,12 +305,12 @@ LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
 			// is modified or the weight will be wrong.  Key list is
 			// defined in asLLSD() and must track it.
 
-			{ "resp_mean", MOP_MEAN_REAL, "resp_count" },
-			{ "enqueued", MOP_ADD_INT, "" },
-			{ "dequeued", MOP_ADD_INT, "" },
-			{ "resp_count", MOP_ADD_INT, "" },
-			{ "resp_min", MOP_MIN_REAL, "" },
-			{ "resp_max", MOP_MAX_REAL, "" }
+			{ "resp_mean", MOP_MEAN_REAL },
+			{ "enqueued", MOP_ADD_INT },
+			{ "dequeued", MOP_ADD_INT },
+			{ "resp_min", MOP_MIN_REAL },
+			{ "resp_max", MOP_MAX_REAL },
+			{ resp_count_key, MOP_ADD_INT }			// Keep last
 		};
 
 	// Trivial checks
@@ -368,6 +368,10 @@ LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
 					LLSD & bin_dst(reg_dst[it_sets->first]);
 					const LLSD & bin_src(reg_src[it_sets->first]);
 
+					// The "resp_count" value is needed repeatedly in operations.
+					const LLSD::Integer bin_src_count(bin_src[resp_count_key].asInteger());
+					const LLSD::Integer bin_dst_count(bin_dst[resp_count_key].asInteger());
+			
 					for (int key_index(0); key_index < LL_ARRAY_SIZE(key_list); ++key_index)
 					{
 						const LLSD::String & key_name(key_list[key_index].mName);
@@ -395,25 +399,45 @@ LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
 							case MOP_ADD_INT:
 								// Simple counts, just add
 								dst_value = dst_value.asInteger() + src_value.asInteger();
-						
 								break;
 						
 							case MOP_MIN_REAL:
 								// Minimum
-								dst_value = llmin(dst_value.asReal(), src_value.asReal());
+								if (bin_src_count)
+								{
+									// If src has non-zero count, it's min is meaningful
+									if (bin_dst_count)
+									{
+										dst_value = llmin(dst_value.asReal(), src_value.asReal());
+									}
+									else
+									{
+										dst_value = src_value;
+									}
+								}
 								break;
 
 							case MOP_MAX_REAL:
 								// Maximum
-								dst_value = llmax(dst_value.asReal(), src_value.asReal());
+								if (bin_src_count)
+								{
+									// If src has non-zero count, it's max is meaningful
+									if (bin_dst_count)
+									{
+										dst_value = llmax(dst_value.asReal(), src_value.asReal());
+									}
+									else
+									{
+										dst_value = src_value;
+									}
+								}
 								break;
 
 							case MOP_MEAN_REAL:
 							    {
 									// Mean
-									const LLSD::String & weight_key(key_list[key_index].mMergeOpArg);
-									F64 src_weight(bin_src[weight_key].asReal());
-									F64 dst_weight(bin_dst[weight_key].asReal());
+									F64 src_weight(bin_src_count);
+									F64 dst_weight(bin_dst_count);
 									F64 tot_weight(src_weight + dst_weight);
 									if (tot_weight >= F64(0.5))
 									{

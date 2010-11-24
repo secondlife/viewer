@@ -518,4 +518,232 @@ namespace tut
 			ensure_approximately_equals("weighted mean of means", dst["regions"][reg1_name]["get_other"]["resp_mean"].asReal(), 2.7901295, 20);
 		}
 	}
+
+	// Maximum merges are interesting when one side contributes nothing
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<10>()
+	{
+		LLSD::String reg1_name = region1.asString();
+		LLSD::String reg2_name = region2.asString();
+
+		LLSD reg1_stats = LLSD::emptyMap();
+		LLSD reg2_stats = LLSD::emptyMap();
+
+		LLSD & tmp_other1 = reg1_stats["get_other"];
+		tmp_other1["enqueued"] = 4;
+		tmp_other1["dequeued"] = 4;
+		tmp_other1["resp_count"] = 7;
+		tmp_other1["resp_max"] = F64(-23.2892);
+		tmp_other1["resp_min"] = F64(-123.2892);
+		tmp_other1["resp_mean"] = F64(-58.28298);
+
+		LLSD & tmp_other2 = reg2_stats["get_other"];
+		tmp_other2["enqueued"] = 8;
+		tmp_other2["dequeued"] = 7;
+		tmp_other2["resp_count"] = 0;
+		tmp_other2["resp_max"] = F64(0);
+		tmp_other2["resp_min"] = F64(0);
+		tmp_other2["resp_mean"] = F64(0);
+		
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum",
+										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+		}
+
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg2_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg1_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("src maximum with count 0 does not contribute to merged maximum",
+										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+		}
+	}
+
+    // Minimum merges are interesting when one side contributes nothing
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<11>()
+	{
+		LLSD::String reg1_name = region1.asString();
+		LLSD::String reg2_name = region2.asString();
+
+		LLSD reg1_stats = LLSD::emptyMap();
+		LLSD reg2_stats = LLSD::emptyMap();
+
+		LLSD & tmp_other1 = reg1_stats["get_other"];
+		tmp_other1["enqueued"] = 4;
+		tmp_other1["dequeued"] = 4;
+		tmp_other1["resp_count"] = 7;
+		tmp_other1["resp_max"] = F64(123.2892);
+		tmp_other1["resp_min"] = F64(23.2892);
+		tmp_other1["resp_mean"] = F64(58.28298);
+
+		LLSD & tmp_other2 = reg2_stats["get_other"];
+		tmp_other2["enqueued"] = 8;
+		tmp_other2["dequeued"] = 7;
+		tmp_other2["resp_count"] = 0;
+		tmp_other2["resp_max"] = F64(0);
+		tmp_other2["resp_min"] = F64(0);
+		tmp_other2["resp_mean"] = F64(0);
+		
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum",
+										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
+		}
+
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg2_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg1_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("src minimum with count 0 does not contribute to merged minimum",
+										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
+		}
+	}
+
+    // resp_count missing is taken as '0' for maximum calculation
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<12>()
+	{
+		LLSD::String reg1_name = region1.asString();
+		LLSD::String reg2_name = region2.asString();
+
+		LLSD reg1_stats = LLSD::emptyMap();
+		LLSD reg2_stats = LLSD::emptyMap();
+
+		LLSD & tmp_other1 = reg1_stats["get_other"];
+		tmp_other1["enqueued"] = 4;
+		tmp_other1["dequeued"] = 4;
+		tmp_other1["resp_count"] = 7;
+		tmp_other1["resp_max"] = F64(-23.2892);
+		tmp_other1["resp_min"] = F64(-123.2892);
+		tmp_other1["resp_mean"] = F64(-58.28298);
+
+		LLSD & tmp_other2 = reg2_stats["get_other"];
+		tmp_other2["enqueued"] = 8;
+		tmp_other2["dequeued"] = 7;
+		// tmp_other2["resp_count"] = 0;
+		tmp_other2["resp_max"] = F64(0);
+		tmp_other2["resp_min"] = F64(0);
+		tmp_other2["resp_mean"] = F64(0);
+		
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("dst maximum with undefined count does not contribute to merged maximum",
+										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+		}
+
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg2_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg1_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("src maximum with undefined count does not contribute to merged maximum",
+										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+		}
+	}
+
+    // resp_count unspecified is taken as 0 for minimum merges
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<13>()
+	{
+		LLSD::String reg1_name = region1.asString();
+		LLSD::String reg2_name = region2.asString();
+
+		LLSD reg1_stats = LLSD::emptyMap();
+		LLSD reg2_stats = LLSD::emptyMap();
+
+		LLSD & tmp_other1 = reg1_stats["get_other"];
+		tmp_other1["enqueued"] = 4;
+		tmp_other1["dequeued"] = 4;
+		tmp_other1["resp_count"] = 7;
+		tmp_other1["resp_max"] = F64(123.2892);
+		tmp_other1["resp_min"] = F64(23.2892);
+		tmp_other1["resp_mean"] = F64(58.28298);
+
+		LLSD & tmp_other2 = reg2_stats["get_other"];
+		tmp_other2["enqueued"] = 8;
+		tmp_other2["dequeued"] = 7;
+		// tmp_other2["resp_count"] = 0;
+		tmp_other2["resp_max"] = F64(0);
+		tmp_other2["resp_min"] = F64(0);
+		tmp_other2["resp_mean"] = F64(0);
+		
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg1_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg2_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("dst minimum with undefined count does not contribute to merged minimum",
+										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
+		}
+
+		{
+			LLSD src = LLSD::emptyMap();
+			LLSD dst = LLSD::emptyMap();
+
+			src["regions"][reg1_name] = reg2_stats;
+			src["duration"] = 24;
+			dst["regions"][reg1_name] = reg1_stats;
+			dst["duration"] = 36;
+
+			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		
+			ensure_approximately_equals("src minimum with undefined count does not contribute to merged minimum",
+										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
+		}
+	}
 }
