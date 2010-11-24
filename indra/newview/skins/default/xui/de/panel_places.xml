@@ -21,7 +21,7 @@
 						<button label="Bearbeiten" name="edit_btn" tool_tip="Landmarken-Info bearbeiten"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">
