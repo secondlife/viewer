@@ -2183,7 +2183,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 						LLAvatarName av_name;
 						if (LLAvatarNameCache::get(caller_id, &av_name))
 						{
-							correct_session_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
+							correct_session_name = av_name.getCompleteName();
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}
