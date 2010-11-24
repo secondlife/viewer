@@ -89,6 +89,16 @@ const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+
  */
 const static boost::regex NAME_AND_TEXT("([^:]+[:]{1})?(\\s*)(.*)");
 
+/**
+ * These are recognizers for matching the names of ad-hoc conferences when generating the log file name
+ * On invited side, an ad-hoc is named like "<first name> <last name> Conference 2010/11/19 03:43 f0f4"
+ * On initiating side, an ad-hoc is named like Ad-hoc Conference hash<hash>"
+ * If the naming system for ad-hoc conferences are change in LLIMModel::LLIMSession::buildHistoryFileName()
+ * then these definition need to be adjusted as well.
+ */
+const static boost::regex INBOUND_CONFERENCE("^[a-zA-Z]{1,31} [a-zA-Z]{1,31} Conference [0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2} [0-9a-f]{4}");
+const static boost::regex OUTBOUND_CONFERENCE("^Ad-hoc Conference hash[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+
 //is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
 const static std::string NAME_TEXT_DIVIDER(": ");
 
@@ -182,25 +192,37 @@ private:
 //static
 std::string LLLogChat::makeLogFileName(std::string filename)
 {
-    if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
+	/**
+	* Testing for in bound and out bound ad-hoc file names
+	* if it is then skip date stamping.
+	**/
+	//LL_INFOS("") << "Befor:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+    boost::match_results<std::string::const_iterator> matches;
+	bool inboundConf = boost::regex_match(filename, matches, INBOUND_CONFERENCE);
+	bool outboundConf = boost::regex_match(filename, matches, OUTBOUND_CONFERENCE);
+	if (!(inboundConf || outboundConf))
 	{
-		time_t now;
-		time(&now);
-		char dbuffer[20];		/* Flawfinder: ignore */
-		if (filename == "chat")
+		if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
 		{
-			strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&now));
+			time_t now;
+			time(&now);
+			char dbuffer[20];		/* Flawfinder: ignore */
+			if (filename == "chat")
+			{
+				strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&now));
+			}
+			else
+			{
+				strftime(dbuffer, 20, "-%Y-%m", localtime(&now));
+			}
+			filename += dbuffer;
 		}
-		else
-		{
-			strftime(dbuffer, 20, "-%Y-%m", localtime(&now));
-		}
-		filename += dbuffer;
 	}
+	//LL_INFOS("") << "After:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
 	filename += ".txt";
-	//LL_INFOS("") << "Current:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	//LL_INFOS("") << "Full:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	return filename;
 }
 

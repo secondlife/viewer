@@ -1877,6 +1877,7 @@ if (LL_TESTS)
     lldateutil.cpp
     llmediadataclient.cpp
     lllogininstance.cpp
+    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
   )

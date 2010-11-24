@@ -140,7 +140,7 @@
      reference="AvatarListItemIconOfflineColor" />
     <color
      name="BackgroundChatColor"
-     reference="DkGray_66" />
+     reference="White" />
     <color
      name="ButtonBorderColor"
      reference="Unused?" />
