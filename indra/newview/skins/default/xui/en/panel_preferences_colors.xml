@@ -317,7 +317,7 @@
    layout="topleft"
    left="30"
    height="12"
-   name="bubble_chat"
+   name="floater_opacity"
    top_pad="15"
    width="120"
    >
@@ -355,7 +355,7 @@
    left="50"
    max_val="1.00"
    min_val="0.00"
-   name="active"
+   name="inactive"
    show_text="true"
    top_pad="5"
    width="415" />
