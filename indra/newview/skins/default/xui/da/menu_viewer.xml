@@ -83,6 +83,7 @@
 			<menu_item_call label="Tag kopi" name="Take Copy"/>
 			<menu_item_call label="Opdatér ændringer til beholdning" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Returnér objekt" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Genoversæt scripts (Mono)" name="Mono"/>
@@ -96,6 +97,7 @@
 			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
 			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
 			<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
+			<menu_item_check label="Vis selektions afgrænsning" name="Show Selection Outlines"/>
 			<menu_item_check label="Vis skjulte objekter" name="Show Hidden Selection"/>
 			<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Vis pejlelys for valgte" name="Show Selection Beam"/>
@@ -116,6 +118,7 @@
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
 		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
@@ -262,7 +265,7 @@
 			<menu_item_call label="Test web browser" name="Web Browser Test"/>
 			<menu_item_call label="Print info om valgt objekt" name="Print Selected Object Info"/>
 			<menu_item_call label="Hukommelse statistik" name="Memory Stats"/>
-			<menu_item_check label="Dobbeltklik for auto-pilot" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="Dobbelt-klink Auto-pilot" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="Dobeltklik for at teleportere" name="DoubleClick Teleport"/>
 			<menu_item_check label="Debug klik" name="Debug Clicks"/>
 			<menu_item_check label="Debug muse-hændelser" name="Debug Mouse Events"/>
@@ -274,6 +277,7 @@
 			<menu_item_call label="Gem til XML" name="Save to XML"/>
 			<menu_item_check label="Vis XUI navne" name="Show XUI Names"/>
 			<menu_item_call label="Send testbeskeder (IM)" name="Send Test IMs"/>
+			<menu_item_call label="Skriv navne-cache til disk" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">

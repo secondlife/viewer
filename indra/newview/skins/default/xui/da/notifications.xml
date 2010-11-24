@@ -110,8 +110,8 @@ Vælg kun en genstand, og prøv igen.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		At give redigerings rettigheder til en anden beboer, giver dem mulighed for at ændre, slette eller tage ALLE genstande, du måtte have i verden. Vær MEGET forsigtig når uddeler denne tilladelse.
-Ønsker du at ændre rettigheder for [FIRST_NAME] [LAST_NAME]?
+		Tildeling af ændre-rettigheder til andre beboere, tillader dem at ændre, slette eller tage ETHVERT objekt du måtte have. Vær MEGET forsigtig ved tildeling af denne rettighed.
+Ønsker du at give ændre-rettgheder til [NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
@@ -120,7 +120,7 @@ Vælg kun en genstand, og prøv igen.
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="RevokeModifyRights">
-		Vil du tilbagekalde rettighederne for [FIRST_NAME] [LAST_NAME]?
+		Ønsker du at tilbagekalder ændre-rettigheder for [NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="RevokeModifyRightsMultiple">
@@ -202,14 +202,14 @@ Hvis media kun skal vises på en overflade, vælg &apos;Vælg overflade&apos; og
 Overskrider vedhæftnings begrænsning på [MAX_ATTACHMENTS] objekter. Tag venligst en anden vedhæftning af først.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		Ups! Noget var tomt.
-Du skal skrive både fornavn og efternavn på din figur.
+		Ups. Noget mangler at blive udfyldt.
+Du skal indtaste brugernavnet for din avatar.
 
-Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
+Du skal bruge en konto for at benytte [SECOND_LIFE]. Ønsker du at oprette en konto nu?
 		<usetemplate name="okcancelbuttons" notext="Prøv igen" yestext="Lav ny konto"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
-		Du skal indtaste både fornavn og efternavn i din avatars brugernavn felt og derefter logge på igen.
+		Du skal indtaste enten dit brugernavn eller både dit fornavn og efternavn for din avatar i brugernavn feltet, derefter log på igen.
 	</notification>
 	<notification name="AddClassified">
 		Annoncer vil vises i &apos;Annoncer&apos; sektionen i søge biblioteket og på [http://secondlife.com/community/classifieds secondlife.com] i en uge.
@@ -390,13 +390,6 @@ Dette er typisk en midlertidig fejl. Venligst rediger og gem igen om et par minu
             [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Afslut" yestext="Se PB &amp; Chat"/>
 	</notification>
-	<notification label="Tilføj ven" name="AddFriend">
-		Venner kan give tilladelse til at følge hinanden
-på Verdenskortet eller modtage status opdateringer.
-
-Tilbyd venskab til [NAME]?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
-	</notification>
 	<notification label="Tilføj ven" name="AddFriendWithMessage">
 		Venner kan give tilladelse til at følge hinanden
 på Verdenskortet eller modtage status opdateringer.
@@ -440,11 +433,21 @@ Tilbyd venskab til [NAME]?
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
+	<notification name="RemoveFromFriends">
+		Ønsker du at fjerne [NAME] fra din venneliste?
+	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
 		Mindst en af genstandene har lænkede genstande der peger på den. Hvis du sletter denne genstand, vil lænkninger ikke virke mere.  Det anbefales kraftigt at fjerne lænkninger først.
 
 Er du sikker på at du vil slette disse genstande?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
+	</notification>
+	<notification name="DeedLandToGroupWithContribution">
+		Ved at dedikere denne parcel, vil gruppen skulle have og vedblive med at have nok kreditter til brug af land.
+Dedikeringen vil inkludere samtidige bidrag til gruppen fra &apos;[NAME]&apos;.
+Købsprisen for dette land er ikke refunderet til ejeren. Hvis en dedikeret parvel sælges, vil salgsprisen blive delt ligeligt mellem gruppe medlemmerne.
+
+Dediker disse [AREA] m² land til gruppen &apos;[GROUP_NAME]&apos;?
 	</notification>
 	<notification name="ErrorMessage">
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -650,6 +653,46 @@ Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &a
 	</notification>
 	<notification name="UnFreezeUser">
 		Fjern frysning af beboeren med hvilken besked?
+	</notification>
+	<notification name="SetDisplayNameSuccess">
+		Hej [DISPLAY_NAME]!
+
+Præcist som i virkeligheden tager det et stykke tid at vænne sig til et nyt navn. Det kan tage flere dage for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] i objekter, scripts, søgninger m.v.
+	</notification>
+	<notification name="SetDisplayNameBlocked">
+		Beklager, du kan ikke ændre dit visningsnavn. Hvis du mener dette skyldes en fejl, kontakt venligst support.
+	</notification>
+	<notification name="SetDisplayNameFailedLength">
+		Beklager, mavnet er for langt. Visningsnavne kan ikke indholde mere end [LENGTH] karakterer.
+
+Prøv venligst med et kortere navn.
+	</notification>
+	<notification name="SetDisplayNameFailedGeneric">
+		Beklager, vi kunne ikke sætte dit visningsnavn.  Prøv venligst igen senere.
+	</notification>
+	<notification name="SetDisplayNameMismatch">
+		Visningsnavnene du angav matcher ikke. Prøv at taste ind igen.
+	</notification>
+	<notification name="AgentDisplayNameUpdateThresholdExceeded">
+		Beklager, du er nødt til at vente længere, inden du kan ændre visningsnavn.
+
+Se mere under http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Prøv venligst igen senere.
+	</notification>
+	<notification name="AgentDisplayNameSetBlocked">
+		Beklager, vi kunne ikke sætte dit valgte navn da det indholder et ikke tilladt ord.
+
+ Prøv med et andet navn.
+	</notification>
+	<notification name="AgentDisplayNameSetInvalidUnicode">
+		Visningsnavnet du prøver at angive indeholder ugyldige karakterer.
+	</notification>
+	<notification name="AgentDisplayNameSetOnlyPunctuation">
+		Dit vinsningsnavn skal indeholde andre bogstaver end tegnsætningstegn.
+	</notification>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([SLID]) er nu kendt som [NEW_NAME].
 	</notification>
 	<notification name="OfferTeleport">
 		<form name="form">
@@ -931,10 +974,10 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		Erstattet manglende tøj/kropsdele med standard.
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] er Online
+		[NAME] er logget på
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] er Offline
+		[NAME] er logget af
 	</notification>
 	<notification name="AddSelfFriend">
 		Selvom du nok er meget sød, kan du ikke tilføje dig selv som ven.
@@ -1073,7 +1116,10 @@ Prøv at vælge mindre stykker land.
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
-	<notification name="PaymentRecived">
+	<notification name="PaymentReceived">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentSent">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -1082,7 +1128,7 @@ Prøv at vælge mindre stykker land.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Details" text="Beskrivelse"/>
+			<button name="Details" text="Detaljer"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
@@ -1117,7 +1163,7 @@ Prøv venligst at geninstallere plugin eller kontakt leverandøren hvis probleme
 		De genstande du ejer på det valgte stykke land er blevet returneret til din beholdning.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		Genstandene på det valgte stykke land der er ejet af [NAME] er blevet returneret til hans eller hendes beholdning.
+		Objekterne på den valgte parcel, ejet af [NAME], er blevet returneret til vedkommendes beholdning.
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		Objekterne i den valgte parcel, ejet af beboeren &apos;[NAME]&apos;, er blevet returneret til deres ejer.
@@ -1241,7 +1287,7 @@ Prøv igen om lidt.
 		No valid parcel could be found.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Et objekt med navnet [OBJECTFROMNAME] ejet af [NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
+		Et object med navnet &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; ejet af [NAME_SLURL] har givet dig denne [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
@@ -1305,6 +1351,11 @@ Prøv igen om lidt.
 	<notification name="FriendshipOffered">
 		Du har tilbudt venskab til [TO_NAME]
 	</notification>
+	<notification name="OfferFriendshipNoMessage">
+		[NAME_SLURL] tilbyder venskab.
+
+(Som udgangspunkt, vil du være i stand til at se den andens online status)
+	</notification>
 	<notification name="FriendshipAccepted">
 		[NAME] accepterede dit tilbud om venskab.
 	</notification>
@@ -1334,11 +1385,11 @@ Hvis du ikke forlader regionen, vil du blive logget af.
 Hvis du ikke forlader regionen, vil du blive logget af.
 	</notification>
 	<notification name="LoadWebPage">
-		Indlæs internetside [URL]?
+		Indlæas websiden [URL]?
 
 [MESSAGE]
 
-Fra genstand: [OBJECTNAME], ejer: [NAME]?
+Fra objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, ejer: [NAME]?
 		<form name="form">
 			<button name="Gotopage" text="Gå til side"/>
 			<button name="Cancel" text="Afbryd"/>
@@ -1354,9 +1405,10 @@ Fra genstand: [OBJECTNAME], ejer: [NAME]?
 		Den genstand du prøver at tage på benytter en funktion din klient ikke kan forstå. Upgradér venligst din version af [APP_NAME] for at kunne tage denne genstand på.
 	</notification>
 	<notification name="ScriptQuestion">
-		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[NAME]&apos;, vil gerne:
- [QUESTIONS]
-Er det iorden?
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, et objekt ved ejet af &apos;[NAME]&apos;, ønsker at:
+
+[QUESTIONS]
+Er dette OK?
 		<form name="form">
 			<button name="Yes" text="Ja"/>
 			<button name="No" text="Nej"/>
@@ -1364,12 +1416,12 @@ Er det iorden?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Et objekt med navnet &apos;[OBJECTNAME]&apos;, ejet af &apos;[NAME]&apos;, ønsker at:
+		Et objeckt med navn &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, ejet af  &apos;[NAME]&apos; ønsker at:
 
 [QUESTIONS]
-Hvis du ikke stoler på dette objekt og dets skaber, bør du afvise denne forespørgsel.
+Hvis du ikke stoler på dette objekt og dets skaber, bør du afvise dette ønske.
 
-Tillad denne anmodning?
+Opfyld dette ønske?
 		<form name="form">
 			<button name="Grant" text="Imødekom"/>
 			<button name="Deny" text="Afvis"/>
@@ -1384,7 +1436,7 @@ Tillad denne anmodning?
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME]&apos;s &apos;[TITLE]&apos;
+		[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorér"/>
@@ -1421,13 +1473,13 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[NAME] fik tilsendt en personlig besked og er dermed automatisk ikke mere blokeret.
+		[NAME] har fået sendt en besked og blokering er derfor automatisk blevet fjernet.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[NAME] blev givet penge og er dermed automatisk ikke mere blokeret.
+		[NAME] har fået givet penge og blokering er derfor automatisk blevet fjernet.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[NAME] blev tilbudt en genstand og er dermed automatisk ikke mere blokeret.
+		[NAME] er blevet tilbud noget fra beholdning og blokering er derfor automatisk blevet fjernet.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] har has sluttet sig til stemme-chaten i gruppen [GROUP].
@@ -1654,6 +1706,37 @@ vil have lyden slukket - selv efter de har forladt kaldet.
 
 Sluk for alles lyd?
 		<usetemplate ignoretext="Bekræft før jeg slukker for alle deltageres lyd i gruppe-kald" name="okcancelignore" notext="Annullér" yestext="Ok"/>
+	</notification>
+	<notification label="Chat" name="HintChat">
+		For at deltage i samtalen tast tekst ind i chat feltet nedenfor.
+	</notification>
+	<notification label="Stå op" name="HintSit">
+		For at rejse dig op og forlad siddeposition, tryk på &quot;Stå op&quot; knappen.
+	</notification>
+	<notification label="Undersøg verden" name="HintDestinationGuide">
+		Destinationsguiden indeholder tusinder af nye steder der kan opleves. Vælg venligst et sted og vælg Teleport for at komme derhen.
+	</notification>
+	<notification label="Side panel" name="HintSidePanel">
+		Få hurtig tilgang til din beholdning, sæt, profiler og andet i dette side panel.
+	</notification>
+	<notification label="Flyt" name="HintMove">
+		For at gå eller løbe, åben Flyt panelet for neden og brug pilene til at navigere. Du kan også bruge pile-tasterne på dit tastatur.
+	</notification>
+	<notification label="Visningsnavn" name="HintDisplayName">
+		Angiv dit konfigurérbare visningsnavn her. Dette er i tillæg til dit unikke brugernavn, som ikke kan ændres. Du kan ændre hvordan du ser andre beboeres navne i dine indstillinger.
+	</notification>
+	<notification label="Beholdning" name="HintInventory">
+		Undersøg din beholdning for at finde ting. Nyeste genstand findes lettes under fanen &quot;Nye ting&quot;
+	</notification>
+	<notification label="Der er kommet Linden Dollars" name="HintLindenDollar">
+		Her er din nuværende balance af L$. Klik på Køb L$ for at købe flere Linden dollars.
+	</notification>
+	<notification name="PopupAttempt">
+		En pop-up blev hindret i at blive vist.
+		<form name="form">
+			<ignore name="ignore" text="Tillad alle pop-ups"/>
+			<button name="open" text="Åben pop-up vindue"/>
+		</form>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.
