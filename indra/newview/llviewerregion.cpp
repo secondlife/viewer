@@ -1341,6 +1341,14 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->nextBlock("RegionInfo");
 	msg->addU32("Flags", 0x0 );
 	msg->sendReliable(host);
+
+	// Inform metrics when a region associated with an agent
+	// receives a regionID.
+	if (gAgent.getRegion() == this)
+	{
+		// Region is active in agent, tell metrics about the region ID
+		LLAppViewer::metricsUpdateRegion(region_id);
+	}
 }
 
 void LLViewerRegion::setSeedCapability(const std::string& url)

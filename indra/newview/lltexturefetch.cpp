@@ -2105,6 +2105,21 @@ bool LLTextureFetch::runCondition()
 
 //////////////////////////////////////////////////////////////////////////////
 
+// MAIN THREAD (unthreaded envs), WORKER THREAD (threaded envs)
+void LLTextureFetch::commonUpdate()
+{
+	// Run a cross-thread command, if any.
+	cmdDoWork();
+	
+	// Update Curl on same thread as mCurlGetRequest was constructed
+	S32 processed = mCurlGetRequest->process();
+	if (processed > 0)
+	{
+		lldebugs << "processed: " << processed << " messages." << llendl;
+	}	
+}
+
+
 // MAIN THREAD
 //virtual
 S32 LLTextureFetch::update(U32 max_time_ms)
@@ -2130,12 +2145,7 @@ S32 LLTextureFetch::update(U32 max_time_ms)
 
 	if (!mThreaded)
 	{
-		// Update Curl on same thread as mCurlGetRequest was constructed
-		S32 processed = mCurlGetRequest->process();
-		if (processed > 0)
-		{
-			lldebugs << "processed: " << processed << " messages." << llendl;
-		}
+		commonUpdate();
 	}
 
 	return res;
@@ -2190,15 +2200,7 @@ void LLTextureFetch::threadedUpdate()
 	}
 	process_timer.reset();
 	
-	// Run a cross-thread command, if any.
-	cmdDoWork();
-	
-	// Update Curl on same thread as mCurlGetRequest was constructed
-	S32 processed = mCurlGetRequest->process();
-	if (processed > 0)
-	{
-		lldebugs << "processed: " << processed << " messages." << llendl;
-	}
+	commonUpdate();
 
 #if 0
 	const F32 INFO_TIME = 1.0f; 
@@ -2657,6 +2659,7 @@ void LLTextureFetch::commandSetRegion(const LLUUID & region_id)
 	TFReqSetRegion * req = new TFReqSetRegion(region_id);
 
 	cmdEnqueue(req);
+	LL_INFOS("Texture") << "COMMANDING SET REGION" << LL_ENDL;
 }
 
 void LLTextureFetch::commandSendMetrics(const std::string & caps_url,
@@ -2683,7 +2686,7 @@ void LLTextureFetch::cmdEnqueue(TFRequest * req)
 	mCommands.push_back(req);
 	unlockQueue();
 
-	wake();
+	unpause();
 }
 
 TFRequest * LLTextureFetch::cmdDequeue()
@@ -2818,7 +2821,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	LLViewerAssetStatsFF::merge_stats(main_stats, thread1_stats);
 
 	// *TODO:  Consider putting a report size limiter here.
-
+	LL_INFOS("Texture") << "PROCESSING SENDMETRICS REQUEST" << LL_ENDL;
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;

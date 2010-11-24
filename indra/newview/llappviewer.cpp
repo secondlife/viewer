@@ -2932,6 +2932,7 @@ void LLAppViewer::requestQuit()
 	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
 
 	send_stats();
+	metricsSend(!gDisconnected);
 
 	gLogoutTimer.reset();
 	mQuitRequested = true;
@@ -3719,7 +3720,7 @@ void LLAppViewer::idle()
 		// *TODO:  Add configuration controls for this
 		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
 		{
-			metricsIdle(! gDisconnected);
+			metricsSend(! gDisconnected);
 			report_interval.reset();
 		}
 	}
@@ -4601,7 +4602,7 @@ void LLAppViewer::metricsUpdateRegion(const LLUUID & region_id)
  * Attempts to start a multi-threaded metrics report to be sent back to
  * the grid for consumption.
  */
-void LLAppViewer::metricsIdle(bool enable_reporting)
+void LLAppViewer::metricsSend(bool enable_reporting)
 {
 	if (! gViewerAssetStatsMain)
 		return;

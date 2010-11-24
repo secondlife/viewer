@@ -170,7 +170,7 @@ public:
 
 	// Metrics policy helper statics.
 	static void metricsUpdateRegion(const LLUUID & region_id);
-	static void metricsIdle(bool enable_reporting);
+	static void metricsSend(bool enable_reporting);
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.

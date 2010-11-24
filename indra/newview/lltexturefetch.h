@@ -109,6 +109,7 @@ private:
 	/*virtual*/ void startThread(void);
 	/*virtual*/ void endThread(void);
 	/*virtual*/ void threadedUpdate(void);
+	void commonUpdate();
 
 	// Metrics command helpers
 	/**
