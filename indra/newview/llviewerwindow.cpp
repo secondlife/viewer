@@ -3549,6 +3549,8 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
+	//gDebugRaycastIntersection = mouse_world_end;
+
 	if (start)
 	{
 		*start = mouse_world_start;
@@ -3570,8 +3572,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 			{
 				found = this_object;
 			}
-			}
-		
+		}
 		else // is a world object
 		{
 			if (this_object->lineSegmentIntersect(mouse_world_start, mouse_world_end, this_face, pick_transparent,
@@ -3579,21 +3580,22 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 			{
 				found = this_object;
 			}
-			}
-			}
-
+		}
+	}
 	else // check ALL objects
-			{
+	{
 		found = gPipeline.lineSegmentIntersectInHUD(mouse_hud_start, mouse_hud_end, pick_transparent,
 													face_hit, intersection, uv, normal, binormal);
 
 		if (!found) // if not found in HUD, look in world:
-
-			{
+		{
 			found = gPipeline.lineSegmentIntersectInWorld(mouse_world_start, mouse_world_end, pick_transparent,
 														  face_hit, intersection, uv, normal, binormal);
+			if (found)
+			{
+				gDebugRaycastIntersection = *intersection;
 			}
-
+		}
 	}
 
 	return found;

@@ -6253,14 +6253,71 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		{
 			shader = &gDeferredGIFinalProgram;
 		}
-
+		
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
+
+
+		//depth of field focal plane calculations
+
+		F32 subject_distance = 16.f;
+		if (LLViewerJoystick::getInstance()->getOverrideCamera())
+		{
+			//flycam mode, use mouse cursor as focus point
+			LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+			subject_distance = (eye-gDebugRaycastIntersection).magVec();
+		}
+		else
+		{
+			LLViewerObject* obj = gAgentCamera.getFocusObject();
+			if (obj)
+			{
+				LLVector3 focus = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
+				LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+				subject_distance = (focus-eye).magVec();
+			}
+		}
+
+		//convert to mm
+		subject_distance *= 1000.f;
+		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
+		F32 focal_length = gSavedSettings.getF32("CameraFocalLength");
+		F32 coc = gSavedSettings.getF32("CameraCoC");
+
+
+		F32 hyperfocal_distance = (focal_length*focal_length)/(fnumber*coc);
+
+		subject_distance = llmin(hyperfocal_distance, subject_distance);
+
+		//adjust focal length for subject distance
+		focal_length = llmax(focal_length, 1.f/(1.f/focal_length - 1.f/subject_distance));
+
+		//adjust focal length for zoom
+		F32 fov = LLViewerCamera::getInstance()->getView();
+		F32 default_fov = LLViewerCamera::getInstance()->getDefaultFOV();
+		focal_length *= default_fov/fov;
+
+		F32 near_focal_distance = hyperfocal_distance*subject_distance/(hyperfocal_distance+subject_distance);
+		
+		//beyond far clip plane is effectively infinity
+		F32 far_focal_distance = 4096.f;
+
+		if (subject_distance < hyperfocal_distance)
+		{
+			far_focal_distance = hyperfocal_distance*subject_distance/(hyperfocal_distance-subject_distance);
+			far_focal_distance /= 1000.f;
+		}
+
+		near_focal_distance /= 1000.f;
+
+		shader->uniform1f("far_focal_distance", -far_focal_distance);
+		shader->uniform1f("near_focal_distance", -near_focal_distance);
 
 		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0, channel);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -6753,6 +6810,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 	shader.uniform2f("proj_shadow_res", mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f("depth_cutoff", gSavedSettings.getF32("RenderEdgeDepthCutoff"));
 	shader.uniform1f("norm_cutoff", gSavedSettings.getF32("RenderEdgeNormCutoff"));
+	
 
 	if (shader.getUniformLocation("norm_mat") >= 0)
 	{
