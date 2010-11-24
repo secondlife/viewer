@@ -830,21 +830,21 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>73cf230b38b9576933db5ba0fbe983f6</string>
+            <string>8261994de5af6581e08c26fefe1b2810</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20101122.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20101123.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>593500dbc73810a34836368b70c1abf5</string>
+            <string>ed3e58899a424684dad49c94ba3813e7</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101123.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101124.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>c8f422b19c339f12e591b24ca3db9a9d</string>
+            <string>066e089a5d9faeaf131e1f4e4860a163</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20101123.tar.bz2</uri>
           </map>
