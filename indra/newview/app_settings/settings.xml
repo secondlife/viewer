@@ -1332,7 +1332,45 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>CertStore</key>
+
+  <key>CameraFNumber</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera f-number value for DoF effect</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.8</real>
+  </map>
+
+  <key>CameraFocalLength</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera focal length for DoF effect (in millimeters)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50</real>
+  </map>
+
+  <key>CameraCoC</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera circle of confusion for DoF effect (in millimeters)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+
+  
+  <key>CertStore</key>
     <map>
       <key>Comment</key>
       <string>Specifies the Certificate Store for certificate trust verification</string>
