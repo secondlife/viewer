@@ -849,6 +849,7 @@ For at få adgang til voksen regioner, skal beboere være alders-checket, enten 
 		<usetemplate ignoretext="Start min browser for at se min konto historik" name="okcancelignore" notext="Cancel" yestext="Go to page"/>
 	</notification>
 	<notification name="ConfirmQuit">
+		Are you sure you want to quit?
 		<usetemplate ignoretext="Bekræft før jeg afslutter" name="okcancelignore" notext="Afslut ikke" yestext="Quit"/>
 	</notification>
 	<notification name="DeleteItems">
