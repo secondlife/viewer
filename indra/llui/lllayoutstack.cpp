@@ -38,6 +38,12 @@
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
+void LLLayoutStack::OrientationNames::declareValues()
+{
+	declare("horizontal", HORIZONTAL);
+	declare("vertical", VERTICAL);
+}
+
 //
 // LLLayoutPanel
 //
@@ -107,7 +113,7 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mMinWidth(0),
 	mMinHeight(0),
 	mPanelSpacing(p.border_size),
-	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
+	mOrientation(p.orientation),
 	mAnimate(p.animate),
 	mAnimatedThisFrame(false),
 	mClip(p.clip)
