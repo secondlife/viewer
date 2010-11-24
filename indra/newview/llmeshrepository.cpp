@@ -110,7 +110,7 @@ U32 get_volume_memory_size(const LLVolume* volume)
 
 std::string scrub_host_name(std::string http_url)
 { //curl loves to abuse the DNS cache, so scrub host names out of urls where trivial to prevent DNS timeouts
-
+#if 0
 	if (http_url.empty())
 	{
 		return http_url;
@@ -145,6 +145,7 @@ std::string scrub_host_name(std::string http_url)
 			http_url.replace(idx, host_string.length(), ip_string);
 		}
 	}
+#endif
 	
 	return http_url;
 }
