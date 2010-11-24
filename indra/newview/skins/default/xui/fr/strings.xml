@@ -807,7 +807,7 @@
 	<string name="xml_file">
 		Fichier XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Fichier RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1089,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value=" depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>

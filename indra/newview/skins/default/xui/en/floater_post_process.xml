@@ -416,7 +416,7 @@
              label="Effect Name"
              layout="topleft"
              left_delta="0"
-             max_length="40"
+             max_length_bytes="40"
              name="PPEffectNameEditor"
              tab_group="1"
              top_pad="22"

@@ -54,7 +54,7 @@
 				<text name="my_account_link" value="[[URL] Accéder à ma Page d&apos;accueil]"/>
 				<text name="title_partner_text" value="Mon partenaire :"/>
 				<panel name="partner_data_panel">
-					<text initial_value="(récupération en cours)" name="partner_text" value="[FIRST] [LAST]"/>
+					<text initial_value="(récupération en cours)" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] Modifier]"/>
 			</panel>

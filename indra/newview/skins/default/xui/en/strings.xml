@@ -338,7 +338,7 @@
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
-	<string name="dot_raw_file">RAW File</string>
+	<string name="raw_file">RAW File</string>
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
@@ -1823,8 +1823,8 @@ key llRequestUsername(key id)
 Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
 </string>
 <string name="LSLTipText_llGetDisplayName" translate="false">
-string llGetDisplayName(key id)
-Returns the name of an avatar, iff the avatar is in the current simulator, otherwise the empty string.
+  string llGetDisplayName(key id)
+  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
 </string>
 <string name="LSLTipText_llRequestDisplayName" translate="false">
 key llRequestDisplayName(key id)
@@ -2279,8 +2279,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="InvOfferOwnedBy">owned by</string>
 	<string name="InvOfferOwnedByUnknownUser">owned by an unknown user</string>
 	<string name="InvOfferGaveYou">gave you</string>
-	<string name="InvOfferYouDecline">You decline</string>
-	<string name="InvOfferFrom">from</string>
+	<string name="InvOfferDecline">You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.</string>
 
 	<!-- group money -->
 	<string name="GroupMoneyTotal">Total</string>
