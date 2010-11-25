@@ -564,25 +564,26 @@ void LLFloaterTexturePicker::draw()
 		LLRect interior = border;
 		interior.stretch( -1 ); 
 
+		const F32 alpha = mCurrentTransparency; // mCurrentTransparency gets updated in LLFloater::draw()
 		if( mTexturep )
 		{
 			if( mTexturep->getComponents() == 4 )
 			{
-				gl_rect_2d_checkerboard( interior );
+				gl_rect_2d_checkerboard( interior, alpha );
 			}
 
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep );
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha );
 
 			// Pump the priority
 			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 		}
 		else if (!mFallbackImage.isNull())
 		{
-			mFallbackImage->draw(interior);
+			mFallbackImage->draw(interior, UI_VERTEX_COLOR % alpha);
 		}
 		else
 		{
-			gl_rect_2d( interior, LLColor4::grey, TRUE );
+			gl_rect_2d( interior, LLColor4::grey % alpha, TRUE );
 
 			// Draw X
 			gl_draw_x(interior, LLColor4::black );
@@ -1263,23 +1264,24 @@ void LLTextureCtrl::draw()
 	LLRect interior = border;
 	interior.stretch( -1 ); 
 
+	const F32 alpha = getCurrentTransparency();
 	if( mTexturep )
 	{
 		if( mTexturep->getComponents() == 4 )
 		{
-			gl_rect_2d_checkerboard( interior );
+			gl_rect_2d_checkerboard( interior, alpha );
 		}
 		
-		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep);
+		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
 		mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
 	else if (!mFallbackImage.isNull())
 	{
-		mFallbackImage->draw(interior);
+		mFallbackImage->draw(interior, UI_VERTEX_COLOR % alpha);
 	}
 	else
 	{
-		gl_rect_2d( interior, LLColor4::grey, TRUE );
+		gl_rect_2d( interior, LLColor4::grey % alpha, TRUE );
 
 		// Draw X
 		gl_draw_x( interior, LLColor4::black );
