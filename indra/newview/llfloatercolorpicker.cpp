@@ -533,8 +533,10 @@ void LLFloaterColorPicker::draw()
 	// base floater stuff
 	LLFloater::draw ();
 
+	const F32 alpha = mCurrentTransparency; // mCurrentTransparency gets updated in LLFloater::draw()
+
 	// draw image for RGB area (not really RGB but you'll see what I mean...
-	gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage, LLColor4::white );
+	gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage, LLColor4::white % alpha);
 
 	// update 'cursor' into RGB Section
 	S32 xPos = ( S32 ) ( ( F32 )mRGBViewerImageWidth * getCurH () ) - 8;
@@ -556,7 +558,7 @@ void LLFloaterColorPicker::draw()
 				 mRGBViewerImageTop - mRGBViewerImageHeight,
 				 mRGBViewerImageLeft + mRGBViewerImageWidth + 1,
 				 mRGBViewerImageTop,
-				 LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ),
+				 LLColor4 ( 0.0f, 0.0f, 0.0f, alpha ),
 				 FALSE );
 
 	// draw luminance slider
@@ -569,7 +571,7 @@ void LLFloaterColorPicker::draw()
 			mLumRegionTop - mLumRegionHeight + y, 
 				mLumRegionLeft + mLumRegionWidth, 
 					mLumRegionTop - mLumRegionHeight + y - 1, 
-						LLColor4 ( rValSlider, gValSlider, bValSlider, 1.0f ) );
+						LLColor4 ( rValSlider, gValSlider, bValSlider, alpha ) );
 	}
 
 
@@ -594,7 +596,7 @@ void LLFloaterColorPicker::draw()
 				 mSwatchRegionTop - mSwatchRegionHeight,
 				 mSwatchRegionLeft + mSwatchRegionWidth,
 				 mSwatchRegionTop,
-				 LLColor4 ( getCurR (), getCurG (), getCurB (), 1.0f ),
+				 LLColor4 ( getCurR (), getCurG (), getCurB (), alpha ),
 				 TRUE );
 
 	// draw selected color swatch outline
@@ -648,7 +650,7 @@ void LLFloaterColorPicker::drawPalette ()
 			// draw palette entry color
 			if ( mPalette [ curEntry ] )
 			{
-				gl_rect_2d ( x1 + 2, y1 - 2, x2 - 2, y2 + 2, *mPalette [ curEntry++ ], TRUE );
+				gl_rect_2d ( x1 + 2, y1 - 2, x2 - 2, y2 + 2, *mPalette [ curEntry++ ] % mCurrentTransparency, TRUE );
 				gl_rect_2d ( x1 + 1, y1 - 1, x2 - 1, y2 + 1, LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ), FALSE );
 			}
 		}

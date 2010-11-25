@@ -361,6 +361,7 @@ protected:
 	std::string		mVisibilityControl;
 	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
+	F32				mCurrentTransparency;
 
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
@@ -411,8 +412,6 @@ private:
 	bool            mCanDock;
 	bool            mDocked;
 	bool            mTornOff;
-
-	F32				mCurrentTransparency;
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sQuitting;
