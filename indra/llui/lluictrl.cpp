@@ -929,7 +929,7 @@ void LLUICtrl::setColor(const LLColor4& color)
 
 F32 LLUICtrl::getCurrentTransparency()
 {
-	F32 alpha;
+	F32 alpha = 0;
 
 	switch(mTransparencyType)
 	{
