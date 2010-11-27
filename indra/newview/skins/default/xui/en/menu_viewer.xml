@@ -94,6 +94,49 @@
              function="Floater.Toggle"
              parameter="voice_effect" />
         </menu_item_check>
+		<menu
+		 create_jump_keys="true"
+		 label="Movement"
+		 name="Movement"
+		 tear_off="true">
+            <menu_item_call
+             label="Sit Down"
+             layout="topleft"
+		     shortcut="alt|shift|S"
+             name="Sit Down Here">
+                <menu_item_call.on_click
+                 function="Self.SitDown"
+                 parameter="" />
+                <menu_item_call.on_enable
+                 function="Self.EnableSitDown" />
+            </menu_item_call>
+            <menu_item_check
+             label="Fly"
+             name="Fly"
+             shortcut="Home">
+                <menu_item_check.on_check
+                 function="Agent.getFlying" />
+                <menu_item_check.on_click
+                 function="Agent.toggleFlying" />
+                <menu_item_check.on_enable
+                 function="Agent.enableFlying" />
+            </menu_item_check>
+            <menu_item_check
+             label="Always Run"
+             name="Always Run"
+             shortcut="control|R">
+                <menu_item_check.on_check
+                 function="World.CheckAlwaysRun" />
+                <menu_item_check.on_click
+                 function="World.AlwaysRun" />
+            </menu_item_check>
+            <menu_item_call
+             label="Stop Animating Me"
+             name="Stop Animating My Avatar">
+                 <menu_item_call.on_click
+                  function="Tools.StopAllAnimations" />
+            </menu_item_call>
+		</menu>
         <menu
          create_jump_keys="true"
          label="My Status"
@@ -358,6 +401,18 @@
                parameter="NavBarShowParcelProperties" />
             <menu_item_check.on_check
                control="NavBarShowParcelProperties" />
+          </menu_item_check>
+          <menu_item_separator />
+          <menu_item_check
+             label="Advanced Menu"
+             name="Show Advanced Menu"
+             shortcut="control|alt|shift|D">
+            <on_check
+               function="CheckControl"
+               parameter="UseDebugMenus" />
+            <on_click
+               function="ToggleControl"
+               parameter="UseDebugMenus" />
           </menu_item_check>
         </menu>
 
@@ -984,12 +1039,6 @@
      tear_off="true"
      visible="false">
         <menu_item_call
-         label="Stop Animating Me"
-         name="Stop Animating My Avatar">
-            <menu_item_call.on_click
-             function="Tools.StopAllAnimations" />
-        </menu_item_call>
-        <menu_item_call
          label="Rebake Textures"
          name="Rebake Texture"
          shortcut="control|alt|R">
@@ -1526,28 +1575,17 @@
                 <menu_item_call.on_click
                  function="View.DefaultUISize" />
             </menu_item_call>
-
-            <menu_item_separator/>
-
+            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
             <menu_item_check
-             label="Always Run"
-             name="Always Run"
-             shortcut="control|R">
-                <menu_item_check.on_check
-                 function="World.CheckAlwaysRun" />
-                <menu_item_check.on_click
-                 function="World.AlwaysRun" />
-            </menu_item_check>
-            <menu_item_check
-             label="Fly"
-             name="Fly"
-             shortcut="Home">
-                <menu_item_check.on_check
-                 function="Agent.getFlying" />
-                <menu_item_check.on_click
-                 function="Agent.toggleFlying" />
-                <menu_item_check.on_enable
-                 function="Agent.enableFlying" />
+               label="Show Advanced Menu - legacy shortcut"
+               name="Show Advanced Menu - legacy shortcut"
+               shortcut="control|alt|D">
+              <on_check
+                 function="CheckControl"
+                 parameter="UseDebugMenus" />
+              <on_click
+                 function="ToggleControl"
+                 parameter="UseDebugMenus" />
             </menu_item_check>
 
             <menu_item_separator/>
@@ -1693,23 +1731,6 @@
                 <menu_item_call.on_click
                  function="View.ZoomOut" />
             </menu_item_call>
-            <menu_item_separator
-             visible="false"/>
-            <!-- Made invisible to avoid a dissonance: menu item toggles the menu where it is located. EXT-8069.
-              Can't be removed, to keep shortcut workable.
-            -->
-            <menu_item_check
-             label="Show Advanced Menu"
-             name="Show Advanced Menu"
-             shortcut="control|alt|D"
-             visible="false">
-                <on_check
-                 function="CheckControl"
-                 parameter="UseDebugMenus" />
-                <on_click
-                 function="ToggleControl"
-                 parameter="UseDebugMenus" />
-        </menu_item_check>
         </menu> <!--Shortcuts-->
 
         <menu_item_separator/>
@@ -1732,7 +1753,6 @@
              function="ToggleControl"
              parameter="QAMode" />
         </menu_item_check>
-    
     </menu>
     <menu
      create_jump_keys="true"
@@ -2655,24 +2675,16 @@
                  function="Advanced.PrintTextureMemoryStats" />
             </menu_item_call>
             <menu_item_check
-             label="Double-ClickAuto-Pilot"
-             name="Double-ClickAuto-Pilot">
+             label="Region Debug Console"
+             name="Region Debug Console"
+             shortcut="control|shift|`"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DoubleClickAutoPilot" />
+                 function="Floater.Visible"
+                 parameter="region_debug_console" />
                 <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DoubleClickAutoPilot" />
-            </menu_item_check>
-            <menu_item_check
-             label="Double-Click Teleport"
-             name="DoubleClick Teleport">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DoubleClickTeleport" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DoubleClickTeleport" />
+                 function="Floater.Toggle"
+                 parameter="region_debug_console" />
             </menu_item_check>
 
             <menu_item_separator />

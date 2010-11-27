@@ -43,6 +43,9 @@ viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
+# Settings to test new code ticket service
+viewer-beta.codeticket_server_url = "http://pdp75.lindenlab.com:8000/codeticket/linden/"
+viewer-beta.codeticket_add_context = true
 
 # ========================================
 # Viewer Release
@@ -51,7 +54,7 @@ viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
-
+viewer-release.release-viewer.jira = DRTVWR-13
 
 # ========================================
 # aimee

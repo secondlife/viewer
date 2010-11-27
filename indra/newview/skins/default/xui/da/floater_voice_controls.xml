@@ -19,10 +19,10 @@
 		<layout_panel name="my_panel">
 			<text name="user_text" value="Min avatar:"/>
 		</layout_panel>
-        <layout_panel name="leave_call_panel">
+		<layout_panel name="leave_call_panel">
 			<layout_stack name="voice_effect_and_leave_call_stack">
 				<layout_panel name="leave_call_btn_panel">
-					<button label="Forlad opkald" name="leave_call_btn"/>
+					<button label="Forlad samtale" name="leave_call_btn"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

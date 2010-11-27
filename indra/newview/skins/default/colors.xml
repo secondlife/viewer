@@ -140,7 +140,7 @@
      reference="AvatarListItemIconOfflineColor" />
     <color
      name="BackgroundChatColor"
-     reference="DkGray_66" />
+     reference="White" />
     <color
      name="ButtonBorderColor"
      reference="Unused?" />
@@ -399,9 +399,6 @@
     <color
      name="HighlightParentColor"
      value="0.67 0.83 0.96 1" />
-    <color
-     name="IMChatColor"
-     reference="LtGray" />
     <color
      name="IMHistoryBgColor"
      reference="Unused?" />

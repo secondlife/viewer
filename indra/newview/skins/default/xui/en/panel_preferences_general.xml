@@ -331,6 +331,7 @@
        Pressing letter keys:
    </text>
    <radio_group
+     control_name="LetterKeysFocusChatBar" 
      height="20"
      layout="topleft"
      left="35"
@@ -338,12 +339,12 @@
      name="inworld_typing_preference">
         <radio_item
          label="Starts local chat"
-         name="radio_button1"
+         name="radio_start_chat"
          top_delta="20" 
          layout="topleft"
          height="16" 
          left="0" 
-         value="0"
+         value="1"
          width="150" />
         <radio_item
          label="Affects movement (i.e. WASD)"
@@ -351,8 +352,8 @@
          layout="topleft"
          top_delta="0" 
          height="16" 
-         name="radio_button2"
-         value="1"
+         name="radio_move"
+         value="0"
          width="75" />
     </radio_group>
     

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="BUILD TOOLS" title="" width="288">
+<floater name="toolbox floater" short_title="BUILD TOOLS" title="">
 	<floater.string name="status_rotate">
 		Arrastar as faixas coloridas para girar o objeto
 	</floater.string>

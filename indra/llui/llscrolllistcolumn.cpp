@@ -83,7 +83,14 @@ void LLScrollColumnHeader::draw()
 			&& (sort_column == mColumn->mSortingColumn || sort_column == mColumn->mName);
 
 	BOOL is_ascending = mColumn->mParentCtrl->getSortAscending();
-	setImageOverlay(is_ascending ? "up_arrow.tga" : "down_arrow.tga", LLFontGL::RIGHT, draw_arrow ? LLColor4::white : LLColor4::transparent);
+	if (draw_arrow)
+	{
+		setImageOverlay(is_ascending ? "up_arrow.tga" : "down_arrow.tga", LLFontGL::RIGHT, LLColor4::white);
+	}
+	else
+	{
+		setImageOverlay(LLUUID::null);
+	}
 
 	// Draw children
 	LLButton::draw();

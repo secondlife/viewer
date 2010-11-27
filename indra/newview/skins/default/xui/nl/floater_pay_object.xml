@@ -7,7 +7,7 @@
 		Betaal inwoner:
 	</text>
 	<text name="payee_name" left="100" width="200">
-		[FIRST] [LAST]
+		Ericacita Moostopolison
 	</text>
 	<text name="object_name_label" left="5" width="90" halign="left">
 		Via object:

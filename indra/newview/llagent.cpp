@@ -56,9 +56,9 @@
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
-#include "llsidetray.h"
 #include "llsky.h"
 #include "llsmoothstep.h"
+#include "llstartup.h"
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
@@ -1726,9 +1726,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
-
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -1827,9 +1824,6 @@ void LLAgent::endAnimationUpdateUI()
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
-
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
@@ -2452,7 +2446,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < MAX_AGENT_GROUPS;
+	return mGroups.count() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
