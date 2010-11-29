@@ -506,9 +506,9 @@ public:
 class TFReqSetRegion : public TFRequest
 {
 public:
-	TFReqSetRegion(const LLUUID & region_id)
+	TFReqSetRegion(U64 region_handle)
 		: TFRequest(),
-		  mRegionID(region_id)
+		  mRegionHandle(region_handle)
 		{}
 	TFReqSetRegion & operator=(const TFReqSetRegion &);	// Not defined
 
@@ -518,7 +518,7 @@ public:
 	virtual bool doWork(LLTextureFetch * fetcher);
 		
 public:
-	const LLUUID mRegionID;
+	const U64 mRegionHandle;
 };
 
 
@@ -2654,9 +2654,9 @@ void LLTextureFetch::dump()
 
 // cross-thread command methods
 
-void LLTextureFetch::commandSetRegion(const LLUUID & region_id)
+void LLTextureFetch::commandSetRegion(U64 region_handle)
 {
-	TFReqSetRegion * req = new TFReqSetRegion(region_id);
+	TFReqSetRegion * req = new TFReqSetRegion(region_handle);
 
 	cmdEnqueue(req);
 }
@@ -2735,7 +2735,7 @@ namespace
 bool
 TFReqSetRegion::doWork(LLTextureFetch *)
 {
-	LLViewerAssetStatsFF::set_region_thread1(mRegionID);
+	LLViewerAssetStatsFF::set_region_thread1(mRegionHandle);
 
 	return true;
 }
@@ -2806,9 +2806,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// still being careful, regardless.
 	LLSD & main_stats = *mReportMain;
 
-	LLSD thread1_stats = gViewerAssetStatsThread1->asLLSD();			// 'duration' & 'regions' from here
-	thread1_stats["message"] = "ViewerAssetMetrics";
-	thread1_stats["sequence"] = report_sequence;
+	LLSD thread1_stats = gViewerAssetStatsThread1->asLLSD();			// 'duration' & 'regions' from this LLSD
+	thread1_stats["message"] = "ViewerAssetMetrics";					// Identifies the type of metrics
+	thread1_stats["sequence"] = report_sequence;						// Sequence number
 	thread1_stats["initial"] = ! reporting_started;						// Initial data from viewer
 	thread1_stats["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
 		

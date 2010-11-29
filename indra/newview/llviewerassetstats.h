@@ -101,7 +101,14 @@ public:
 	 * fetcher class, LLTextureFetch.
 	 */
 	typedef U64 duration_t;
-	
+
+	/**
+	 * Type for the region identifier used in stats.  Currently uses
+	 * the region handle's type (a U64) rather than the regions's LLUUID
+	 * as the latter isn't available immediately.
+	 */
+	typedef U64 region_handle_t;
+
 	/**
 	 * @brief Collected data for a single region visited by the avatar.
 	 *
@@ -112,9 +119,9 @@ public:
 	class PerRegionStats : public LLRefCount
 	{
 	public:
-		PerRegionStats(const LLUUID & region_id)
+		PerRegionStats(const region_handle_t region_handle)
 			: LLRefCount(),
-			  mRegionID(region_id)
+			  mRegionHandle(region_handle)
 			{
 				reset();
 			}
@@ -127,7 +134,7 @@ public:
 		void accumulateTime(duration_t now);
 		
 	public:
-		LLUUID mRegionID;
+		region_handle_t mRegionHandle;
 		duration_t mTotalTime;
 		duration_t mStartTimestamp;
 		
@@ -151,14 +158,14 @@ public:
 
 	// Set hidden region argument and establish context for subsequent
 	// collection calls.
-	void setRegionID(const LLUUID & region_id);
+	void setRegion(region_handle_t region_handle);
 
 	// Asset GET Requests
 	void recordGetEnqueued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration);
 
-	// Retrieve current metrics for all visited regions (NULL region UUID excluded)
+	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Returned LLSD is structured as follows:
 	//
 	// &stats_group = {
@@ -173,7 +180,7 @@ public:
 	// {
 	//   duration: int
 	//   regions: {
-	//     $: {
+	//     $: {			// Keys are strings of the region's handle in hex
 	//       duration:                 : int,
 	//       get_texture_temp_http     : &stats_group,
 	//       get_texture_temp_udp      : &stats_group,
@@ -198,12 +205,12 @@ public:
 	static void mergeRegionsLLSD(const LLSD & src, LLSD & dst);
 
 protected:
-	typedef std::map<LLUUID, LLPointer<PerRegionStats> > PerRegionContainer;
+	typedef std::map<region_handle_t, LLPointer<PerRegionStats> > PerRegionContainer;
 
 	// Region of the currently-active region.  Always valid but may
-	// be a NULL UUID after construction or when explicitly set.  Unchanged
+	// be zero after construction or when explicitly set.  Unchanged
 	// by a reset() call.
-	LLUUID mRegionID;
+	region_handle_t mRegionHandle;
 
 	// Pointer to metrics collection for currently-active region.  Always
 	// valid and unchanged after reset() though contents will be changed.
@@ -262,7 +269,7 @@ inline LLViewerAssetStats::duration_t get_timestamp()
 /**
  * Region context, event and duration loggers for the Main thread.
  */
-void set_region_main(const LLUUID & region_id);
+void set_region_main(LLViewerAssetStats::region_handle_t region_handle);
 
 void record_enqueue_main(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 
@@ -275,7 +282,7 @@ void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_t
 /**
  * Region context, event and duration loggers for Thread 1.
  */
-void set_region_thread1(const LLUUID & region_id);
+void set_region_thread1(LLViewerAssetStats::region_handle_t region_handle);
 
 void record_enqueue_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 

@@ -130,6 +130,7 @@ LLViewerAssetStats::PerRegionStats::accumulateTime(duration_t now)
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
 LLViewerAssetStats::LLViewerAssetStats()
+	: mRegionHandle(U64(0))
 {
 	reset();
 }
@@ -149,11 +150,11 @@ LLViewerAssetStats::reset()
 	}
 	else
 	{
-		mCurRegionStats = new PerRegionStats(mRegionID);
+		mCurRegionStats = new PerRegionStats(mRegionHandle);
 	}
 
 	// And add reference to map
-	mRegionStats[mRegionID] = mCurRegionStats;
+	mRegionStats[mRegionHandle] = mCurRegionStats;
 
 	// Start timestamp consistent with per-region collector
 	mResetTimestamp = mCurRegionStats->mStartTimestamp;
@@ -161,9 +162,9 @@ LLViewerAssetStats::reset()
 
 
 void
-LLViewerAssetStats::setRegionID(const LLUUID & region_id)
+LLViewerAssetStats::setRegion(region_handle_t region_handle)
 {
-	if (region_id == mRegionID)
+	if (region_handle == mRegionHandle)
 	{
 		// Already active, ignore.
 		return;
@@ -174,19 +175,19 @@ LLViewerAssetStats::setRegionID(const LLUUID & region_id)
 	mCurRegionStats->accumulateTime(now);
 
 	// Prepare new set
-	PerRegionContainer::iterator new_stats = mRegionStats.find(region_id);
+	PerRegionContainer::iterator new_stats = mRegionStats.find(region_handle);
 	if (mRegionStats.end() == new_stats)
 	{
 		// Haven't seen this region_id before, create a new block and make it current.
-		mCurRegionStats = new PerRegionStats(region_id);
-		mRegionStats[region_id] = mCurRegionStats;
+		mCurRegionStats = new PerRegionStats(region_handle);
+		mRegionStats[region_handle] = mCurRegionStats;
 	}
 	else
 	{
 		mCurRegionStats = new_stats->second;
 	}
 	mCurRegionStats->mStartTimestamp = now;
-	mRegionID = region_id;
+	mRegionHandle = region_handle;
 }
 
 
@@ -245,9 +246,9 @@ LLViewerAssetStats::asLLSD()
 		 mRegionStats.end() != it;
 		 ++it)
 	{
-		if (it->first.isNull())
+		if (0 == it->first)
 		{
-			// Never emit NULL UUID in results.
+			// Never emit NULL UUID/handle in results.
 			continue;
 		}
 
@@ -269,8 +270,11 @@ LLViewerAssetStats::asLLSD()
 		}
 
 		reg_stat["duration"] = LLSD::Real(stats.mTotalTime * 1.0e-6);
-		
-		regions[it->first.asString()] = reg_stat;
+		std::stringstream reg_handle;
+		reg_handle.width(16);
+		reg_handle.fill('0');
+		reg_handle << std::hex << it->first;
+		regions[reg_handle.str()] = reg_stat;
 	}
 
 	LLSD ret = LLSD::emptyMap();
@@ -487,12 +491,12 @@ namespace LLViewerAssetStatsFF
 // 'main' thread - initial program thread
 
 void
-set_region_main(const LLUUID & region_id)
+set_region_main(LLViewerAssetStats::region_handle_t region_handle)
 {
 	if (! gViewerAssetStatsMain)
 		return;
 
-	gViewerAssetStatsMain->setRegionID(region_id);
+	gViewerAssetStatsMain->setRegion(region_handle);
 }
 
 void
@@ -526,12 +530,12 @@ record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 // 'thread1' - should be for TextureFetch thread
 
 void
-set_region_thread1(const LLUUID & region_id)
+set_region_thread1(LLViewerAssetStats::region_handle_t region_handle)
 {
 	if (! gViewerAssetStatsThread1)
 		return;
 
-	gViewerAssetStatsThread1->setRegionID(region_id);
+	gViewerAssetStatsThread1->setRegion(region_handle);
 }
 
 void

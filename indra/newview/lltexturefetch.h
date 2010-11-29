@@ -86,7 +86,7 @@ public:
 	LLTextureInfo* getTextureInfo() { return &mTextureInfo; }
 
 	// Commands available to other threads to control metrics gathering operations.
-	void commandSetRegion(const LLUUID & region_id);
+	void commandSetRegion(U64 region_handle);
 	void commandSendMetrics(const std::string & caps_url, LLSD * report_main);
 	void commandDataBreak();
 

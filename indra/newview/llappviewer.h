@@ -169,7 +169,7 @@ public:
 	virtual bool getMasterSystemAudioMute();
 
 	// Metrics policy helper statics.
-	static void metricsUpdateRegion(const LLUUID & region_id);
+	static void metricsUpdateRegion(U64 region_handle);
 	static void metricsSend(bool enable_reporting);
 	
 protected:

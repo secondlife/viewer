@@ -4579,20 +4579,20 @@ bool LLAppViewer::getMasterSystemAudioMute()
  * on the main thread, we need to send a message to move the data over safely
  * and cheaply (amortized over a run).
  */
-void LLAppViewer::metricsUpdateRegion(const LLUUID & region_id)
+void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 {
-	if (! region_id.isNull())
+	if (0 != region_handle)
 	{
-		LLViewerAssetStatsFF::set_region_main(region_id);
+		LLViewerAssetStatsFF::set_region_main(region_handle);
 		if (LLAppViewer::sTextureFetch)
 		{
 			// Send a region update message into 'thread1' to get the new region.
-			LLAppViewer::sTextureFetch->commandSetRegion(region_id);
+			LLAppViewer::sTextureFetch->commandSetRegion(region_handle);
 		}
 		else
 		{
 			// No 'thread1', a.k.a. TextureFetch, so update directly
-			LLViewerAssetStatsFF::set_region_thread1(region_id);
+			LLViewerAssetStatsFF::set_region_thread1(region_handle);
 		}
 	}
 }
