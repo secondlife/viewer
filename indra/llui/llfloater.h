@@ -284,6 +284,8 @@ public:
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
+
+	void			updateChildrenTransparency(ETypeTransparency transparency_type);
 		
 protected:
 
@@ -343,7 +345,7 @@ private:
 
 	static void		updateActiveFloaterTransparency();
 	static void		updateInactiveFloaterTransparency();
-	void			updateChildrenTransparency(LLView* ctrl);
+	void			updateChildrenTransparency(LLView* ctrl, ETypeTransparency transparency_type);
 
 public:
 	// Called when floater is opened, passes mKey

@@ -1189,7 +1189,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
-	updateChildrenTransparency(this);
+	updateChildrenTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1768,12 +1768,10 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		llround(shadow_offset));
 }
 
-void LLFloater::updateChildrenTransparency(LLView* ctrl)
+void LLFloater::updateChildrenTransparency(LLView* ctrl, ETypeTransparency transparency_type)
 {
 	child_list_t children = *ctrl->getChildList();
 	child_list_t::iterator it = children.begin();
-
-	ETypeTransparency transparency_type = hasFocus() ? TT_ACTIVE : TT_INACTIVE;
 
 	for(; it != children.end(); ++it)
 	{
@@ -1782,8 +1780,13 @@ void LLFloater::updateChildrenTransparency(LLView* ctrl)
 		{
 			ui_ctrl->setTransparencyType(transparency_type);
 		}
-		updateChildrenTransparency(*it);
+		updateChildrenTransparency(*it, transparency_type);
 	}
+}
+
+void LLFloater::updateChildrenTransparency(ETypeTransparency transparency_type)
+{
+	updateChildrenTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
