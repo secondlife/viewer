@@ -829,7 +829,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			{
 				++sActiveLODRequests;
 				LLMeshRepository::sHTTPRequestCount++;
-				mCurlRequest->getByteRange(constructUrl(mesh_id), headers, offset, size,
+				mCurlRequest->getByteRange(http_url, headers, offset, size,
 										   new LLMeshDecompositionResponder(mesh_id, offset, size));
 			}
 		}
@@ -901,7 +901,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			{
 				++sActiveLODRequests;
 				LLMeshRepository::sHTTPRequestCount++;
-				mCurlRequest->getByteRange(constructUrl(mesh_id), headers, offset, size,
+				mCurlRequest->getByteRange(http_url, headers, offset, size,
 										   new LLMeshPhysicsShapeResponder(mesh_id, offset, size));
 			}
 		}
