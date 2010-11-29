@@ -47,6 +47,7 @@ public:
 	typedef enum e_menu_position
 	{
 		MP_TOP_LEFT,
+		MP_TOP_RIGHT,
 		MP_BOTTOM_LEFT
 	} EMenuPosition;
 	
