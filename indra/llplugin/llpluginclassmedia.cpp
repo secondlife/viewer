@@ -1219,6 +1219,13 @@ void LLPluginClassMedia::ignore_ssl_cert_errors(bool ignore)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::setCertificateFilePath(const std::string& path)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_certificate_file_path");
+	message.setValue("path", path);
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::crashPlugin()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "crash");

@@ -1231,6 +1231,14 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				llwarns << "Ignoring ignore_ssl_cert_errors message (llqtwebkit version is too old)." << llendl;
 #endif
 			}
+			else if(message_name == "set_certificate_file_path")
+			{
+#if LLQTWEBKIT_API_VERSION >= 3
+				LLQtWebKit::getInstance()->setCAFile( message_in.getValue("path") );
+#else
+				llwarns << "Ignoring set_certificate_file_path message (llqtwebkit version is too old)." << llendl;
+#endif
+			}
 			else if(message_name == "init_history")
 			{
 				// Initialize browser history

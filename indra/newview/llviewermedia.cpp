@@ -1805,7 +1805,18 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		{
 			media_source->ignore_ssl_cert_errors(true);
 		}
-		
+
+		// start by assuming the default CA file will be used
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+	
+		// default turned off so pick up the user specified path
+		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
+		{
+			ca_path = gSavedSettings.getString("BrowserCAFilePath");
+		}
+		// set the path to the CA.pem file
+		media_source->setCertificateFilePath( ca_path );
+
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		
 		if(mClearCache)
