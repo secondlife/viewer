@@ -75,11 +75,11 @@ void main()
 		float w = 1.0;
 		
 		float fd = far_focal_distance;
-		float sc = clamp(depth[0]/fd, 0.0, -8.0/fd);
-		sc = min(sc, 8.0);
+		float sc = far_focal_distance - depth[0];
+		sc /= -far_focal_distance;
 		
-		//fd = depth[0]*0.5;
-			
+		sc = min(sc, 8.0);
+					
 		while (sc > 1.0)
 		{
 			do_aa = false;
