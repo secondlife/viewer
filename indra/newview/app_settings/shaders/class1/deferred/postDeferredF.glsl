@@ -76,7 +76,7 @@ void main()
 		
 		float fd = far_focal_distance;
 		float sc = far_focal_distance - depth[0];
-		sc /= near_focal_distance-far_focal_distance;
+		sc /= -far_focal_distance;
 		
 		sc = min(sc, 8.0);
 					
