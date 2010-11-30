@@ -64,6 +64,7 @@
 
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
+#ifdef USE_RDTSC
 inline U32 LLFastTimer::getCPUClockCount32()
 {
 	U32 ret_val;
@@ -94,6 +95,20 @@ inline U64 LLFastTimer::getCPUClockCount64()
 	}
     return ret_val;
 }
+#else
+LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
+// These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
+inline U32 LLFastTimer::getCPUClockCount32()
+{
+	return (U32)(get_clock_count()>>8);
+}
+
+inline U64 LLFastTimer::getCPUClockCount64()
+{
+	return get_clock_count();
+}
+#endif
+
 #endif
 
 
