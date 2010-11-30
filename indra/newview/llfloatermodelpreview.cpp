@@ -3369,6 +3369,8 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 	
+	gPipeline.enableLightsPreview();
+
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
 	LLQuaternion(mCameraYaw, LLVector3::z_axis);
 	
@@ -3382,8 +3384,6 @@ BOOL LLModelPreview::render()
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, width, height, FALSE, z_near, z_far);
 	
 	stop_glerror();
-	
-	gPipeline.enableLightsAvatar();
 	
 	gGL.pushMatrix();
 	const F32 BRIGHTNESS = 0.9f;

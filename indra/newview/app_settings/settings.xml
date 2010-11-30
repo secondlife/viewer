@@ -6457,7 +6457,177 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
-	<key>PrimMediaMasterEnabled</key>
+
+  <key>PreviewAmbientColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Ambient color of preview render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>0.0</real>
+      <real>0.0</real>
+      <real>0.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+
+  <key>PreviewDiffuse0</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 0.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+  <key>PreviewDiffuse1</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 1.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>0.25</real>
+      <real>0.25</real>
+      <real>0.25</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+  <key>PreviewDiffuse2</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 2.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+  <key>PreviewSpecular0</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 0.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+  <key>PreviewSpecular1</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 1.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+  <key>PreviewSpecular2</key>
+  <map>
+    <key>Comment</key>
+    <string>Diffise color of preview light 2.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+
+
+  <key>PreviewDirection0</key>
+  <map>
+    <key>Comment</key>
+    <string>Direction of light 0 for preview render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>-0.35</real>
+      <real>1</real>
+      <real>0.7</real>
+    </array>
+  </map>
+
+  <key>PreviewDirection1</key>
+  <map>
+    <key>Comment</key>
+    <string>Direction of light 1 for preview render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>-1</real>
+      <real>-1</real>
+      <real>-0.6</real>
+    </array>
+  </map>
+  
+  <key>PreviewDirection2</key>
+  <map>
+    <key>Comment</key>
+    <string>Direction of light 2 for preview render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>-0.2</real>
+      <real>-0.8</real>
+      <real>-0.2</real>
+    </array>
+  </map>
+
+  <key>PrimMediaMasterEnabled</key>
 	<map>
 	  <key>Comment</key>
       <string>Whether or not Media on a Prim is enabled.</string>

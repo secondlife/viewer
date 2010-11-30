@@ -5226,6 +5226,61 @@ void LLPipeline::enableLightsAvatar()
 	enableLights(mask);
 }
 
+void LLPipeline::enableLightsPreview()
+{
+	disableLights();
+
+	glEnable(GL_LIGHTING);
+	LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+
+
+	LLColor4 diffuse0 = gSavedSettings.getColor4("PreviewDiffuse0");
+	LLColor4 specular0 = gSavedSettings.getColor4("PreviewSpecular0");
+	LLColor4 diffuse1 = gSavedSettings.getColor4("PreviewDiffuse1");
+	LLColor4 specular1 = gSavedSettings.getColor4("PreviewSpecular1");
+	LLColor4 diffuse2 = gSavedSettings.getColor4("PreviewDiffuse2");
+	LLColor4 specular2 = gSavedSettings.getColor4("PreviewSpecular2");
+
+	LLVector3 dir0 = gSavedSettings.getVector3("PreviewDirection0");
+	LLVector3 dir1 = gSavedSettings.getVector3("PreviewDirection1");
+	LLVector3 dir2 = gSavedSettings.getVector3("PreviewDirection2");
+
+	dir0.normVec();
+	dir1.normVec();
+	dir2.normVec();
+	
+	LLVector4 light_pos(dir0, 0.0f);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_pos.mV); 
+	glLightfv(GL_LIGHT0, GL_DIFFUSE,  diffuse0.mV);
+	glLightfv(GL_LIGHT0, GL_AMBIENT,  LLColor4::black.mV);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specular0.mV);
+	glLightf (GL_LIGHT0, GL_SPOT_EXPONENT,         0.0f);
+	glLightf (GL_LIGHT0, GL_SPOT_CUTOFF,           180.0f);
+
+	light_pos = LLVector4(dir1, 0.f);
+	glEnable(GL_LIGHT1);
+	glLightfv(GL_LIGHT1, GL_POSITION, light_pos.mV); 
+	glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuse1.mV);
+	glLightfv(GL_LIGHT1, GL_AMBIENT,  LLColor4::black.mV);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, specular1.mV);
+	glLightf (GL_LIGHT1, GL_SPOT_EXPONENT,         0.0f);
+	glLightf (GL_LIGHT1, GL_SPOT_CUTOFF,           180.0f);
+
+	light_pos = LLVector4(dir2, 0.f);
+	glEnable(GL_LIGHT2);
+	glLightfv(GL_LIGHT2, GL_POSITION, light_pos.mV); 
+	glLightfv(GL_LIGHT2, GL_DIFFUSE,  diffuse2.mV);
+	glLightfv(GL_LIGHT2, GL_AMBIENT,  LLColor4::black.mV);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, specular2.mV);
+	glLightf (GL_LIGHT2, GL_SPOT_EXPONENT,         0.0f);
+	glLightf (GL_LIGHT2, GL_SPOT_CUTOFF,           180.0f);
+
+
+}
+
+
 void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 {
 	U32 mask = 0x2002; // Avatar backlight only, set ambient
