@@ -68,7 +68,6 @@ void main()
 	depth[0] = getDepth(tc);
 		
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
-	bool do_aa = true;
 	
 	if (depth[0] < far_focal_distance)
 	{ //pixel is behind far focal plane
@@ -82,7 +81,6 @@ void main()
 					
 		while (sc > 1.0)
 		{
-			do_aa = false;
 			dofSample(diff,w, fd, sc,sc);
 			dofSample(diff,w, fd, -sc,sc);
 			dofSample(diff,w, fd, sc,-sc);
@@ -112,7 +110,6 @@ void main()
 			fd = depth[0];
 			while (sc > 1.0)
 			{
-				do_aa = false;
 				dofSampleNear(diff,w, sc,sc);
 				dofSampleNear(diff,w, -sc,sc);
 				dofSampleNear(diff,w, sc,-sc);
@@ -128,54 +125,8 @@ void main()
 			}
 			diff /= w;
 		}	
-		
-		if (do_aa)
-		{
-			depth[1] = getDepth(tc+vec2(sc,sc));
-			depth[2] = getDepth(tc+vec2(-sc,-sc));
-			depth[3] = getDepth(tc+vec2(-sc,sc));
-			depth[4] = getDepth(tc+vec2(sc, -sc));
-				
-			
-			vec2 de;
-			de.x = (depth[0]-depth[1]) + (depth[0]-depth[2]);
-			de.y = (depth[0]-depth[3]) + (depth[0]-depth[4]);
-			de /= depth[0];
-			de *= de;
-			de = step(depth_cutoff, de);
-			
-			vec2 ne;
-			vec3 nexnorm = texture2DRect(normalMap, tc+vec2(-sc,-sc)).rgb;
-			nexnorm = vec3((nexnorm.xy-0.5)*2.0,nexnorm.z); // unpack norm
-			ne.x = dot(nexnorm, norm);
-			vec3 neynorm = texture2DRect(normalMap, tc+vec2(sc,sc)).rgb;
-			neynorm = vec3((neynorm.xy-0.5)*2.0,neynorm.z); // unpack norm
-			ne.y = dot(neynorm, norm);
-			
-			ne = 1.0-ne;
-			
-			ne = step(norm_cutoff, ne);
-			
-			float edge_weight = clamp(dot(de,de)+dot(ne,ne), 0.0, 1.0);
-			//edge_weight *= 0.0;
-			
-			//diff.r = edge_weight;
-			
-			if (edge_weight > 0.0)
-			{
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(1,1))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(-1,-1))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(-1,1))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(1,-1))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(-1,0))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(1,0))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(0,1))*edge_weight;
-				diff += texture2DRect(diffuseRect, vary_fragcoord.xy+vec2(0,-1))*edge_weight;
-				diff /= 1.0+edge_weight*8.0;
-			}
-		}
 	}
-			
+	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor = diff + bloom;
 	

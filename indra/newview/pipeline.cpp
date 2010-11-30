@@ -582,7 +582,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		BOOL ssao = gSavedSettings.getBOOL("RenderDeferredSSAO");
 		bool gi = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED);
 
-		samples = llmin(samples, (U32) 8); //cap multisample buffers to 8 samples when rendering deferred
 		//allocate deferred rendering color buffers
 		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
@@ -693,9 +692,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	}
 	
 
-	if (LLRenderTarget::sUseFBO && !sRenderDeferred && gGLManager.mHasFramebufferMultisample && samples > 1)
-	{ // DON'T use multisample buffers when rendering deferred -- multisampling doesn't play nice with deferred rendering
-		//so a post-effect smooths edges in screen space
+	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
+	{ 
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
 		{
@@ -6372,7 +6370,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0, channel);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 		}
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);
