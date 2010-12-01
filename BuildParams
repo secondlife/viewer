@@ -14,6 +14,9 @@ public_build = true
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = true
 
+# Limit extent of codeticket updates to revisions after...
+codeticket_since = 2.2.0-release
+
 # ========================================
 # Viewer Development
 # ========================================

@@ -432,7 +432,7 @@
 			    user_resize="false" 
 			    auto_resize="false"
 				width="24">
-					<button
+					<menu_button
 			         follows="bottom|left|right"
 			         height="23"
 			         label="▼"

@@ -21,7 +21,7 @@
 						<button label="Editar" name="edit_btn" tool_tip="Editar la información del hito"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="Ver más opciones"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="Ver más opciones"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">

@@ -57,7 +57,7 @@
 					<button label="Téléporter" name="teleport" tool_tip="Proposer une téléportation"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
-					<button label="▼" name="overflow_btn" tool_tip="Payer le résident ou partager l&apos;inventaire avec lui"/>
+					<menu_button label="▼" name="overflow_btn" tool_tip="Payer le résident ou partager l&apos;inventaire avec lui"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
