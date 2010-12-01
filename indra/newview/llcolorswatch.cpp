@@ -195,7 +195,9 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
-	F32 alpha = getCurrentTransparency();
+	// If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
+	F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
 	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );

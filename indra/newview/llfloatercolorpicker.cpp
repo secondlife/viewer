@@ -472,6 +472,12 @@ void LLFloaterColorPicker::onMouseCaptureLost()
 	setMouseDownInLumRegion(FALSE);
 }
 
+F32 LLFloaterColorPicker::getSwatchTransparency()
+{
+	// If the floater is focused, don't apply its alpha to the color swatch (STORM-676).
+	return getTransparencyType() == TT_ACTIVE ? 1.f : LLFloater::getCurrentTransparency();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 void LLFloaterColorPicker::draw()
@@ -533,7 +539,7 @@ void LLFloaterColorPicker::draw()
 	// base floater stuff
 	LLFloater::draw ();
 
-	const F32 alpha = mCurrentTransparency; // mCurrentTransparency gets updated in LLFloater::draw()
+	const F32 alpha = getSwatchTransparency();
 
 	// draw image for RGB area (not really RGB but you'll see what I mean...
 	gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage, LLColor4::white % alpha);
@@ -636,6 +642,7 @@ const LLColor4& LLFloaterColorPicker::getComplimentaryColor ( const LLColor4& ba
 void LLFloaterColorPicker::drawPalette ()
 {
 	S32 curEntry = 0;
+	const F32 alpha = getSwatchTransparency();
 
 	for ( S32 y = 0; y < numPaletteRows; ++y )
 	{
@@ -650,7 +657,7 @@ void LLFloaterColorPicker::drawPalette ()
 			// draw palette entry color
 			if ( mPalette [ curEntry ] )
 			{
-				gl_rect_2d ( x1 + 2, y1 - 2, x2 - 2, y2 + 2, *mPalette [ curEntry++ ] % mCurrentTransparency, TRUE );
+				gl_rect_2d ( x1 + 2, y1 - 2, x2 - 2, y2 + 2, *mPalette [ curEntry++ ] % alpha, TRUE );
 				gl_rect_2d ( x1 + 1, y1 - 1, x2 - 1, y2 + 1, LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ), FALSE );
 			}
 		}
