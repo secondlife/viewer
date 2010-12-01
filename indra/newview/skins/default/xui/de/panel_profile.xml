@@ -57,7 +57,7 @@
 					<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
-					<button label="▼" name="overflow_btn" tool_tip="Dem Einwohner Geld geben oder Inventar an den Einwohner schicken"/>
+					<menu_button label="▼" name="overflow_btn" tool_tip="Dem Einwohner Geld geben oder Inventar an den Einwohner schicken"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

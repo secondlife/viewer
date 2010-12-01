@@ -68,6 +68,7 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
+    ${UPDATER_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
@@ -149,6 +150,7 @@ set(viewer_SOURCE_FILES
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
+    llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
@@ -291,6 +293,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -301,7 +304,6 @@ set(viewer_SOURCE_FILES
     llmenucommands.cpp
     llmeshrepository.cpp
     llmeshreduction.cpp
-    llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -456,6 +458,7 @@ set(viewer_SOURCE_FILES
     lltoastimpanel.cpp
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
+    lltoastscripttextbox.cpp
     lltool.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
@@ -687,6 +690,7 @@ set(viewer_HEADER_FILES
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
+    llexternaleditor.h
     llface.h
     llfasttimerview.h
     llfavoritesbar.h
@@ -829,6 +833,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -839,7 +844,6 @@ set(viewer_HEADER_FILES
     llmenucommands.h
     llmeshrepository.h
     llmeshreduction.h
-    llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
@@ -991,6 +995,7 @@ set(viewer_HEADER_FILES
     lltoastimpanel.h
     lltoastnotifypanel.h
     lltoastpanel.h
+    lltoastscripttextbox.h
     lltool.h
     lltoolbrush.h
     lltoolcomp.h
@@ -1674,7 +1679,14 @@ if (WINDOWS)
     endif (PACKAGE)
 endif (WINDOWS)
 
+# *NOTE - this list is very sensitive to ordering, test carefully on all
+# platforms if you change the releative order of the entries here.
+# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# appears to sometimes de-duplicate redundantly listed dependencies improperly.
+# To work around this, higher level modules should be listed before the modules
+# that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${UPDATER_INCLUDE_DIRS}
 	${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
@@ -1864,10 +1876,18 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
+      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
+      # set LLBUILD_CONFIG to be a shell variable evaluated at build time
+      # reflecting the configuration we are currently building.
+      set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS
       "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${LLBUILD_CONFIG}"
       "${VIEWER_DIST_DIR}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
@@ -1876,7 +1896,7 @@ if (PACKAGE)
     DEPENDS generate_breakpad_symbols.py
     VERBATIM
   )
-  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
   add_dependencies(package generate_breakpad_symbols)
 endif (PACKAGE)
@@ -1890,7 +1910,9 @@ if (LL_TESTS)
     lldateutil.cpp
     llmediadataclient.cpp
     lllogininstance.cpp
+    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
+    llversioninfo.cpp
   )
 
   ##################################################

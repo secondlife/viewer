@@ -174,13 +174,13 @@
 				Twórca:
 			</text>
 			<text name="Creator Name">
-				Thrax Linden
+				Pani Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Właściciel:
 			</text>
 			<text name="Owner Name">
-				Thrax Linden
+				Pani Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupa:
@@ -307,7 +307,7 @@
 				<combo_box.item label="Kwadrat" name="Square"/>
 				<combo_box.item label="Trójkąt" name="Triangle"/>
 			</combo_box>
-			<text name="text twist">
+			<text name="text twist" left_delta="-5" width="160">
 				Skręcenie (początek/koniec)
 			</text>
 			<spinner label="P" name="Twist Begin"/>

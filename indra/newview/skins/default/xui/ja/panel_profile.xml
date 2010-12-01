@@ -57,7 +57,7 @@
 					<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
-					<button label="▼" name="overflow_btn" tool_tip="住人にお金を渡すか持ち物を共有します"/>
+					<menu_button label="▼" name="overflow_btn" tool_tip="住人にお金を渡すか持ち物を共有します"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

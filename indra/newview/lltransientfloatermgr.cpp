@@ -36,8 +36,11 @@
 
 LLTransientFloaterMgr::LLTransientFloaterMgr()
 {
-	gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(
+	if(gViewerWindow)
+	{
+		gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(
 			&LLTransientFloaterMgr::leftMouseClickCallback, this, _1, _2, _3));
+	}
 
 	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(GLOBAL, std::set<LLView*>()));
 	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(DOCKED, std::set<LLView*>()));

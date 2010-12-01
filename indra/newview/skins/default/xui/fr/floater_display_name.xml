@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="MODIFICATION DU NOM D&apos;AFFICHAGE">
+	<text name="info_text">
+		Le nom que vous donnez à votre avatar s&apos;appelle le nom d&apos;affichage. Vous pouvez en changer une fois par semaine.
+	</text>
+	<text name="lockout_text">
+		Vous ne pouvez pas changer de nom d&apos;affichage jusqu&apos;au : [TIME].
+	</text>
+	<text name="set_name_label">
+		Nouveau nom d&apos;affichage :
+	</text>
+	<text name="name_confirm_label">
+		Saisir à nouveau le nom pour confirmer :
+	</text>
+	<button label="Enregistrer" name="save_btn" tool_tip="Enregistrer le nouveau nom d&apos;affichage."/>
+	<button label="Réinitialiser" name="reset_btn" tool_tip="Définir le nom d&apos;affichage sur le nom d&apos;utilisateur."/>
+	<button label="Annuler" name="cancel_btn"/>
+</floater>

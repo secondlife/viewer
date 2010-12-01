@@ -48,6 +48,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llviewercontrol.h"
+#include "llversioninfo.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
 #include "llfasttimerview.h"
@@ -750,7 +751,7 @@ void send_stats()
 
 	// send fps only for time app spends in foreground
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
-	agent["version"] = gCurrentVersion;
+	agent["version"] = LLVersionInfo::getVersionAndChannel();
 	std::string language = LLUI::getLanguage();
 	agent["language"] = language;
 	

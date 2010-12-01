@@ -16,22 +16,39 @@
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
-    <menu_item_call
+    <menu_item_check
      label="Sort by Name"
      layout="topleft"
      name="sort_by_name">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
          parameter="sort_by_name" />
-    </menu_item_call>
-    <menu_item_call
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_by_name" />
+    </menu_item_check>
+    <menu_item_check
      label="Sort by Most Recent"
      layout="topleft"
      name="sort_by_recent">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
          parameter="sort_by_recent" />
-    </menu_item_call>
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_by_recent" />         
+    </menu_item_check>
+    <menu_item_check
+     label="Sort System Folders to Top"
+     layout="topleft"
+     name="sort_system_folders_to_top">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_system_folders_to_top" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_system_folders_to_top" />
+    </menu_item_check>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call

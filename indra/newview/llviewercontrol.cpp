@@ -70,6 +70,7 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llupdaterservice.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -82,7 +83,6 @@ LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
 
 std::string gLastRunVersion;
-std::string gCurrentVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
@@ -117,56 +117,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
+	// Changing shader also changes the terrain detail to high, reflect that change here
+	if (newvalue.asBoolean())
+	{
+		// shaders enabled, set terrain detail to high
+		gSavedSettings.setS32("RenderTerrainDetail", 1);
+	}
+	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
 }
 
-static bool handleLightingDetailChanged(const LLSD& newvalue)
+bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
-	if (gPipeline.isInit())
-	{
-		gPipeline.setLightingDetail(-1);
-	}
-	return true;
-}
-
-
-static bool handleRenderPerfTestChanged(const LLSD& newvalue)
-{
-	bool status = !newvalue.asBoolean();
-	if (!status)
-	{
-		gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
-									  LLPipeline::RENDER_TYPE_GROUND,
-									  LLPipeline::RENDER_TYPE_TERRAIN,
-									  LLPipeline::RENDER_TYPE_GRASS,
-									  LLPipeline::RENDER_TYPE_TREE,
-									  LLPipeline::RENDER_TYPE_WATER,
-									  LLPipeline::RENDER_TYPE_PASS_GRASS,
-									  LLPipeline::RENDER_TYPE_HUD,
-									  LLPipeline::RENDER_TYPE_PARTICLES,
-									  LLPipeline::RENDER_TYPE_CLOUDS,
-									  LLPipeline::RENDER_TYPE_HUD_PARTICLES,
-									  LLPipeline::END_RENDER_TYPES); 
-		gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, false);
-	}
-	else 
-	{
-		gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
-									  LLPipeline::RENDER_TYPE_GROUND,
-									  LLPipeline::RENDER_TYPE_TERRAIN,
-									  LLPipeline::RENDER_TYPE_GRASS,
-									  LLPipeline::RENDER_TYPE_TREE,
-									  LLPipeline::RENDER_TYPE_WATER,
-									  LLPipeline::RENDER_TYPE_PASS_GRASS,
-									  LLPipeline::RENDER_TYPE_HUD,
-									  LLPipeline::RENDER_TYPE_PARTICLES,
-									  LLPipeline::RENDER_TYPE_CLOUDS,
-									  LLPipeline::RENDER_TYPE_HUD_PARTICLES,
-									  LLPipeline::END_RENDER_TYPES);
-		gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, true);
-	}
-
+	LLWorld::getInstance()->updateWaterObjects();
 	return true;
 }
 
@@ -538,6 +502,18 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
+void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
+{
+    if(new_value.asBoolean())
+    {
+        LLUpdaterService().startChecking();
+    }
+    else
+    {
+        LLUpdaterService().stopChecking();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -547,12 +523,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAnimateTrees")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderBakeSunlight")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderNoAlpha")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderShaderLightingMaxLevel")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("RenderLocalLights")->getSignal()->connect(boost::bind(&handleLightingDetailChanged, _2));
 	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
@@ -690,7 +661,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
+	gSavedSettings.getControl("UpdaterServiceActive")->getSignal()->connect(&toggle_updater_service_active);
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
+	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

@@ -789,11 +789,19 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		const S32 te = mBakedTextureDatas[i].mTextureIndex;
-		LLViewerTexture* tex = getTEImage(te) ;
+		const LLViewerTexture* tex = getTEImage(te);
+
+		// Replace with default if we can't find the asset, assuming the
+		// default is actually valid (which it should be unless something
+		// is seriously wrong).
 		if (!tex || tex->isMissingAsset())
 		{
-			setTEImage(te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR));
-			removed = TRUE;
+			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
+			if (imagep)
+			{
+				setTEImage(te, imagep);
+				removed = TRUE;
+			}
 		}
 	}
 
@@ -812,7 +820,23 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 //virtual
 void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 {
+	// Save the global position
+	LLVector3d global_pos_from_old_region = getPositionGlobal();
+
+	// Change the region
 	setRegion(regionp);
+
+	if (regionp)
+	{	// Set correct region-relative position from global coordinates
+		setPositionGlobal(global_pos_from_old_region);
+
+		// Diagnostic info
+		//LLVector3d pos_from_new_region = getPositionGlobal();
+		//llinfos << "pos_from_old_region is " << global_pos_from_old_region
+		//	<< " while pos_from_new_region is " << pos_from_new_region
+		//	<< llendl;
+	}
+
 	if (!regionp || (regionp->getHandle() != mLastRegionHandle))
 	{
 		if (mLastRegionHandle != 0)
@@ -826,6 +850,9 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 			F64 max = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_MAX);
 			max = llmax(delta, max);
 			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
+
+			// Diagnostics
+			llinfos << "Region crossing took " << (F32)(delta * 1000.0) << " ms " << llendl;
 		}
 		if (regionp)
 		{
@@ -833,6 +860,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		}
 	}
 	mRegionCrossingTimer.reset();
+	LLViewerObject::updateRegion(regionp);
 }
 
 //--------------------------------------------------------------------

@@ -11,7 +11,7 @@
 			<text name="username_text">
 				Nome de usuário:
 			</text>
-			<line_editor label="Nome de usuário" name="username_edit" tool_tip="[SECOND_LIFE] Nome de usuário"/>
+			<line_editor label="zecazc12 or Magia Solar" name="username_edit" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 or Magia Solar"/>
 			<text name="password_text">
 				Senha:
 			</text>

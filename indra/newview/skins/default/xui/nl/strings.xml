@@ -3211,7 +3211,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		U bent de enige gebruiker in deze sessie.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] is offline.
+		[NAME] is offline.
 	</string>
 	<string name="invite_message">
 		Klik de [BUTTON NAME] knop om deze voicechat te accepteren/verbinden.

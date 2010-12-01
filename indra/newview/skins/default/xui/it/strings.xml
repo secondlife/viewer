@@ -3478,7 +3478,7 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		Sei l&apos;unico utente di questa sessione.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] è offline.
+		[NAME] è offline.
 	</string>
 	<string name="invite_message">
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.

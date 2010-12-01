@@ -181,9 +181,11 @@ void LLTeleportHistoryFlatItem::setRegionName(const std::string& name)
 
 void LLTeleportHistoryFlatItem::updateTitle()
 {
+	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4U(255, 255, 255));
+
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitle,
-		LLStyle::Params(),
+		LLStyle::Params().color(sFgColor),
 		mRegionName,
 		mHighlight);
 }

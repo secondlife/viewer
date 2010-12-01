@@ -178,6 +178,7 @@ Boroondas Gupte
 	SNOW-610
 	SNOW-624
 	SNOW-737
+	STORM-318
 	VWR-233
 	VWR-20583
 	VWR-20891
@@ -355,6 +356,7 @@ Joghert LeSabre
 	VWR-64
 Jonathan Yap
 	VWR-17801
+	STORM-616
 Kage Pixel
 	VWR-11
 Ken March
@@ -415,6 +417,7 @@ McCabe Maxsted
 	VWR-8689
 	VWR-9007
 Michelle2 Zenovka
+    STORM-477
 	VWR-2652
 	VWR-2662
 	VWR-2834
@@ -713,6 +716,8 @@ Thraxis Epsilon
 	VWR-383
 tiamat bingyi
 	CT-246
+Tofu Buzzard
+	STORM-546
 TraductoresAnonimos Alter
 	CT-324
 Tue Torok
@@ -758,11 +763,22 @@ Whoops Babii
 	VWR-8298
 Wilton Lundquist
 	VWR-7682
-Zai Lynch
-	VWR-19505
-Wolfpup Lowenhar
+WolfPup Lowenhar
+	SNOW-622
+	SNOW-772
+	STORM-102
+	STORM-103
+	STORM-143
 	STORM-255
 	STORM-256
+	STORM-535
+	STORM-544
+	STORM-654
+	STORM-674
+	VWR-20741
+	VWR-20933
+Zai Lynch
+	VWR-19505
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

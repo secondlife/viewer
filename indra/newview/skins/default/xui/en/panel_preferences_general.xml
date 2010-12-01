@@ -106,7 +106,7 @@
      height="15"
      layout="topleft"
      left="30"
-     top_pad="14"
+     top_pad="8"
      name="maturity_desired_prompt"
      width="200">
         I want to access content rated:
@@ -177,7 +177,7 @@
      layout="topleft"
      left="30"
      name="start_location_textbox"
-     top_pad="15"
+     top_pad="8"
      width="394">
         Start location:
     </text>
@@ -216,7 +216,7 @@
     layout="topleft"
     left="30"
     name="name_tags_textbox"
-    top_pad="14"
+    top_pad="10"
     width="400">
        Name tags:
    </text>
@@ -224,8 +224,8 @@
      control_name="AvatarNameTagMode"
      height="20"
      layout="topleft"
-     left="50"
-     top_pad="5" 
+     left="35"
+     top_pad="0" 
      name="Name_Tag_Preference">
         <radio_item
          label="Off"
@@ -261,9 +261,9 @@
      height="16"
      label="My name"
      layout="topleft"
-     left="70"
+     left="35"
      name="show_my_name_checkbox1"
-	 top_pad="0"
+	 top_pad="2"
      width="100" />
    <check_box
      control_name="NameTagShowUsernames"
@@ -271,7 +271,7 @@
      height="16"
      label="Usernames"
      layout="topleft"
-     left_pad="70"
+     left_pad="50"
      name="show_slids"
      tool_tip="Show username, like bobsmith123"
      top_delta="0" />
@@ -281,72 +281,103 @@
      height="16"
      label="Group titles"
      layout="topleft"
-     left="70"
+     left="35"
      width="100" 
      name="show_all_title_checkbox1"
 	 tool_tip="Show group titles, like Officer or Member"
-     top_pad="5" />
-
-   <check_box
-    control_name="NameTagShowFriends"
+     top_pad="3" />
+    <check_box
+     control_name="NameTagShowFriends"
 	 enabled_control="AvatarNameTagMode"
      height="16"
-    label="Highlight friends"
+     label="Highlight friends"
      layout="topleft"
-    left_pad="70"
-    name="show_friends"
-    tool_tip="Highlight the name tags of your friends"
-    top_delta="0" />
-
+     left_pad="50"
+     name="show_friends"
+     tool_tip="Highlight the name tags of your friends"/>     
+    <check_box
+	 control_name="UseDisplayNames"
+	 follows="top|left"
+	 height="16"
+	 label="View Display Names"
+	 layout="topleft"
+	 left="35"
+	 name="display_names_check"
+	 width="237"
+	 tool_tip="Check to use display names in chat, IM, name tags, etc."
+	 top_pad="3"/>
+	 
+	<check_box
+	 control_name="EnableUIHints"
+	 follows="top|left"
+	 height="16"
+	 label="Enable Viewer UI Hints"
+	 layout="topleft"
+	 left="27"
+	 name="viewer_hints_check"
+	 top_pad="5"
+	 width="237"/>
+	 
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="15"
+	 layout="topleft"
+	 left="30"
+	 name="inworld_typing_rg_label"
+	 top_pad="6"
+	 width="400">
+       Pressing letter keys:
+   </text>
+   <radio_group
+     control_name="LetterKeysFocusChatBar" 
+     height="20"
+     layout="topleft"
+     left="35"
+     top_pad="0" 
+     name="inworld_typing_preference">
+        <radio_item
+         label="Starts local chat"
+         name="radio_start_chat"
+         top_delta="20" 
+         layout="topleft"
+         height="16" 
+         left="0" 
+         value="1"
+         width="150" />
+        <radio_item
+         label="Affects movement (i.e. WASD)"
+         left_pad="0"
+         layout="topleft"
+         top_delta="0" 
+         height="16" 
+         name="radio_move"
+         value="0"
+         width="75" />
+    </radio_group>
+    
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="15"
+     height="13"
      layout="topleft"
      left="30"
-     name="effects_color_textbox"
-     top_pad="9"
-     width="200">
-        My effects:
+     name="title_afk_text"
+     top_pad="4" 
+     width="190">
+    	Away timeout:
     </text>
-    <text
-      type="string"
-      length="1"
-      follows="left|top"
-      height="13"
-      layout="topleft"
-      left_pad="5"
-      name="title_afk_text"
-      top_delta="0" 
-      width="190">
-    Away timeout:
-    </text>
-    <color_swatch
-	 can_apply_immediately="true"
-     follows="left|top"
-     height="50"
-     layout="topleft"
-     left="50"
-     name="effect_color_swatch"
-     tool_tip="Click to open Color Picker"
-     width="38">
-		<color_swatch.init_callback
-		 function="Pref.getUIColor"
-		 parameter="EffectColor" />
-		<color_swatch.commit_callback
-		 function="Pref.applyUIColor"
-		 parameter="EffectColor" />
-	</color_swatch>
   <combo_box
-            height="23"
-            layout="topleft"
-            control_name="AFKTimeout"
-            left_pad="160"
-            label="Away timeout:"
-            top_delta="0"
-            name="afk"
-            width="130">
+     height="23"
+     layout="topleft"
+     control_name="AFKTimeout"
+     left="30"
+     label="Away timeout:"
+     top_pad="2"
+     name="afk"
+     width="130">
     <combo_box.item
      label="2 minutes"
      name="item0"
@@ -368,17 +399,6 @@
      name="item4"
      value="0" />
   </combo_box>
-  <check_box
-control_name="UseDisplayNames"
-follows="top|left"
-height="14"
-label="View Display Names"
-layout="topleft"
-left="30"
-name="display_names_check"
-width="237"
-tool_tip="Check to use display names in chat, IM, name tags, etc."
-top_pad="20"/>
     <text
      type="string"
      length="1"
@@ -388,7 +408,7 @@ top_pad="20"/>
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="10"
+     top_pad="5"
      width="240">
        Busy mode response:
     </text>
@@ -399,11 +419,11 @@ top_pad="20"/>
       use_ellipses="false"
      commit_on_focus_lost = "true"
      follows="left|top"
-     height="42"
+     height="29"
      layout="topleft"
      left="50"
      name="busy_response"
-     width="450"
+     width="470"
      word_wrap="true">
        log_in_to_change
     </text_editor>
