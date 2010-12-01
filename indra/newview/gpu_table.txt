@@ -207,6 +207,7 @@ NVIDIA GTX 280					.*NVIDIA.*GeForce GTX 28.*			3		1
 NVIDIA GTX 290					.*NVIDIA.*GeForce GTX 29.*			3		1
 NVIDIA GTX 470					.*NVIDIA.*GeForce GTX 47.*			3		1
 NVIDIA GTX 480					.*NVIDIA.*GeForce GTX 48.*			3		1
+NVIDIA GTX 580					.*NVIDIA.*GeForce GTX 58.*			3		1
 NVIDIA C51						.*NVIDIA.*C51.*						0		1
 NVIDIA G72						.*NVIDIA.*G72.*						1		1
 NVIDIA G73						.*NVIDIA.*G73.*						1		1
