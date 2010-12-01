@@ -285,7 +285,7 @@ public:
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
 
-	void			updateChildrenTransparency(ETypeTransparency transparency_type);
+	void			updateTransparency(ETypeTransparency transparency_type);
 		
 protected:
 
@@ -345,7 +345,7 @@ private:
 
 	static void		updateActiveFloaterTransparency();
 	static void		updateInactiveFloaterTransparency();
-	void			updateChildrenTransparency(LLView* ctrl, ETypeTransparency transparency_type);
+	void			updateTransparency(LLView* view, ETypeTransparency transparency_type);
 
 public:
 	// Called when floater is opened, passes mKey
@@ -363,7 +363,6 @@ protected:
 	std::string		mVisibilityControl;
 	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
-	F32				mCurrentTransparency;
 
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];

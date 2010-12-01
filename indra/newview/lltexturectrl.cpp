@@ -564,7 +564,8 @@ void LLFloaterTexturePicker::draw()
 		LLRect interior = border;
 		interior.stretch( -1 ); 
 
-		const F32 alpha = mCurrentTransparency; // mCurrentTransparency gets updated in LLFloater::draw()
+		// If the floater is focused, don't apply its alpha to the texture (STORM-677).
+		const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 		if( mTexturep )
 		{
 			if( mTexturep->getComponents() == 4 )
@@ -1264,7 +1265,8 @@ void LLTextureCtrl::draw()
 	LLRect interior = border;
 	interior.stretch( -1 ); 
 
-	const F32 alpha = getCurrentTransparency();
+	// If we're in a focused floater, don't apply the floater's alpha to the texture (STORM-677).
+	const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 	if( mTexturep )
 	{
 		if( mTexturep->getComponents() == 4 )

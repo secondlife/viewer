@@ -277,7 +277,7 @@ void LLSideTrayTab::dock(LLFloater* floater_tab)
 	if (!side_tray) return;
 
 	// Before docking the tab, reset its (and its children's) transparency to default (STORM-688).
-	floater_tab->updateChildrenTransparency(TT_DEFAULT);
+	floater_tab->updateTransparency(TT_DEFAULT);
 
 	if (!side_tray->addTab(this))
 	{

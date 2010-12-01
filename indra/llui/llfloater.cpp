@@ -1189,7 +1189,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
-	updateChildrenTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
+	updateTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1649,7 +1649,7 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	mCurrentTransparency = hasFocus() ? sActiveControlTransparency : sInactiveControlTransparency;
+	const F32 alpha = getCurrentTransparency();
 
 	// draw background
 	if( isBackgroundVisible() )
@@ -1681,12 +1681,12 @@ void LLFloater::draw()
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), overlay_color % mCurrentTransparency);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
 			// We're not using images, use old-school flat colors
-			gl_rect_2d( left, top, right, bottom, color % mCurrentTransparency );
+			gl_rect_2d( left, top, right, bottom, color % alpha );
 
 			// draw highlight on title bar to indicate focus.  RDW
 			if(hasFocus() 
@@ -1698,7 +1698,7 @@ void LLFloater::draw()
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
 				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
-					titlebar_focus_color % mCurrentTransparency, 0, TRUE);
+					titlebar_focus_color % alpha, 0, TRUE);
 			}
 		}
 	}
@@ -1764,29 +1764,30 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % mCurrentTransparency,
+		shadow_color % getCurrentTransparency(),
 		llround(shadow_offset));
 }
 
-void LLFloater::updateChildrenTransparency(LLView* ctrl, ETypeTransparency transparency_type)
+void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
 {
-	child_list_t children = *ctrl->getChildList();
+	child_list_t children = *view->getChildList();
 	child_list_t::iterator it = children.begin();
+
+	LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(view);
+	if (ctrl)
+	{
+		ctrl->setTransparencyType(transparency_type);
+	}
 
 	for(; it != children.end(); ++it)
 	{
-		LLUICtrl* ui_ctrl = dynamic_cast<LLUICtrl*>(*it);
-		if (ui_ctrl)
-		{
-			ui_ctrl->setTransparencyType(transparency_type);
-		}
-		updateChildrenTransparency(*it, transparency_type);
+		updateTransparency(*it, transparency_type);
 	}
 }
 
-void LLFloater::updateChildrenTransparency(ETypeTransparency transparency_type)
+void LLFloater::updateTransparency(ETypeTransparency transparency_type)
 {
-	updateChildrenTransparency(this, transparency_type);
+	updateTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
