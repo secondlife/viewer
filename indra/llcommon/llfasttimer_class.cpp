@@ -41,6 +41,7 @@
 #elif LL_LINUX || LL_SOLARIS
 #include <sys/time.h>
 #include <sched.h>
+#include "lltimer.h"
 #elif LL_DARWIN
 #include <sys/time.h>
 #include "lltimer.h"	// get_clock_count()
