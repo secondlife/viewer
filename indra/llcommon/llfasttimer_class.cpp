@@ -814,7 +814,7 @@ LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
 #ifdef USE_RDTSC
-inline U32 LLFastTimer::getCPUClockCount32()
+U32 LLFastTimer::getCPUClockCount32()
 {
 	U32 ret_val;
 	__asm
@@ -830,7 +830,7 @@ inline U32 LLFastTimer::getCPUClockCount32()
 }
 
 // return full timer value, *not* shifted by 8 bits
-inline U64 LLFastTimer::getCPUClockCount64()
+U64 LLFastTimer::getCPUClockCount64()
 {
 	U64 ret_val;
 	__asm
@@ -847,12 +847,12 @@ inline U64 LLFastTimer::getCPUClockCount64()
 #else
 //LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
 // These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
-inline U32 LLFastTimer::getCPUClockCount32()
+U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(get_clock_count()>>8);
 }
 
-inline U64 LLFastTimer::getCPUClockCount64()
+U64 LLFastTimer::getCPUClockCount64()
 {
 	return get_clock_count();
 }
@@ -872,7 +872,7 @@ inline U64 LLFastTimer::getCPUClockCount64()
 // be affected by CPU frequency. If not available use the REALTIME clock, but
 // this may be affected by NTP adjustments or other user activity affecting
 // the system time.
-inline U64 LLFastTimer::getCPUClockCount64()
+U64 LLFastTimer::getCPUClockCount64()
 {
 	struct timespec tp;
 	
@@ -884,7 +884,7 @@ inline U64 LLFastTimer::getCPUClockCount64()
 	return (tp.tv_sec*LLFastTimer::sClockResolution)+tp.tv_nsec;        
 }
 
-inline U32 LLFastTimer::getCPUClockCount32()
+U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(LLFastTimer::getCPUClockCount64() >> 8);
 }
@@ -894,14 +894,14 @@ inline U32 LLFastTimer::getCPUClockCount32()
 #if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
 //
 // Mac+Linux+Solaris FAST x86 implementation of CPU clock
-inline U32 LLFastTimer::getCPUClockCount32()
+U32 LLFastTimer::getCPUClockCount32()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
 	return (U32)(x >> 8);
 }
 
-inline U64 LLFastTimer::getCPUClockCount64()
+U64 LLFastTimer::getCPUClockCount64()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
@@ -916,12 +916,12 @@ inline U64 LLFastTimer::getCPUClockCount64()
 //
 // Just use gettimeofday implementation for now
 
-inline U32 LLFastTimer::getCPUClockCount32()
+U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(get_clock_count()>>8);
 }
 
-inline U64 LLFastTimer::getCPUClockCount64()
+U64 LLFastTimer::getCPUClockCount64()
 {
 	return get_clock_count();
 }
