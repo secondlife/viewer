@@ -220,6 +220,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
+    llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterwindowsize.cpp
@@ -752,6 +753,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoiceeffect.h
     llfloaterwater.h
+    llfloaterwebcontent.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterwindowsize.h

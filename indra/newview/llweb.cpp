@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llfloatermediabrowser.h"
+#include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
 #include "lllogininstance.h"
 #include "llparcel.h"
@@ -100,6 +101,13 @@ void LLWeb::loadURL(const std::string& url, const std::string& target, const std
 void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
 	LLFloaterMediaBrowser::create(url, target, uuid);
+}
+
+// static
+// Explicitly open a Web URL using the Web content floater
+void LLWeb::loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
+{
+	LLFloaterWebContent::create(url, target, uuid);
 }
 
 
