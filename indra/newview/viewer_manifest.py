@@ -248,13 +248,12 @@ class WindowsManifest(ViewerManifest):
         self.disable_manifest_check()
 
         self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
-
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
             self.enable_crt_manifest_check()
-
+            
             # Get kdu dll, continue if missing.
             try:
                 self.path('llkdu.dll', dst='llkdu.dll')
@@ -267,11 +266,25 @@ class WindowsManifest(ViewerManifest):
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
+                
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             self.disable_manifest_check()
+
+            # Mesh 3rd party libs needed for auto LOD and collada reading
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("libcollada14dom21-d.dll")
+                else:
+                    self.path("libcollada14dom21.dll")
+                    
+                self.path("glod.dll")
+            except RuntimeError, err:
+                print err.message
+                print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
+
 
             # Get fmod dll, continue if missing
             try:
@@ -324,7 +337,7 @@ class WindowsManifest(ViewerManifest):
         self.path("dbghelp.dll")
 
         self.enable_no_crt_manifest_check()
-        
+
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
@@ -646,6 +659,8 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+                                    "libcollada14dom.dylib"
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
@@ -672,6 +687,8 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+				    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -710,6 +727,7 @@ class DarwinManifest(ViewerManifest):
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
+
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
@@ -939,6 +957,36 @@ class Linux_i686Manifest(LinuxManifest):
                   dst='bin/libllkdu.so')
         except:
             print "Skipping libllkdu.so - not found"
+        for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
+            libfile = "lib%s.so" % lib
+            try:
+                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
+                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
+                      dst=os.path.join(destdir, libfile))
+                # keep this one to preserve syntax, open source mangling removes previous lines
+                pass
+            except RuntimeError:
+                print "Skipping %s - not found" % libfile
+                pass
+
+        self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
+
+        self.path("../linux_crash_logger/linux-crash-logger","bin/linux-crash-logger.bin")
+        self.path("../linux_updater/linux-updater", "bin/linux-updater.bin")
+        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
+        if self.prefix("res-sdl"):
+            self.path("*")
+            # recurse
+            self.end_prefix("res-sdl")
+
+        # plugins
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+            self.end_prefix("bin/llplugin")
+
+        self.path("featuretable_linux.txt")
+        #self.path("secondlife-i686.supp")
 
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
             self.path("libapr-1.so.0")
@@ -946,7 +994,9 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
+            self.path("libuuid.so.1")
             self.path("libexpat.so.1")
+            self.path("libglod.so")
             self.path("libssl.so.0.9.7")
             self.path("libuuid.so.1")
             self.path("libSDL-1.2.so.0")
@@ -955,6 +1005,8 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
+            self.path("libtcmalloc_minimal.so", "libtcmalloc_minimal.so") #formerly called google perf tools
+            self.path("libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.0") #formerly called google perf tools
             try:
                     self.path("libkdu.so")
                     pass
@@ -980,6 +1032,11 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
+
+            if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+                    print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+                    self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+
 
 class Linux_x86_64Manifest(LinuxManifest):
     def construct(self):
