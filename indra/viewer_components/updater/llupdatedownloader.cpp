@@ -29,6 +29,7 @@
 #include <boost/lexical_cast.hpp>
 #include <curl/curl.h>
 #include "lldir.h"
+#include "llevents.h"
 #include "llfile.h"
 #include "llmd5.h"
 #include "llsd.h"
@@ -49,6 +50,7 @@ public:
 	bool isDownloading(void);
 	size_t onHeader(void * header, size_t size);
 	size_t onBody(void * header, size_t size);
+	int onProgress(double downloadSize, double bytesDownloaded);
 	void resume(void);
 	
 private:
@@ -57,6 +59,7 @@ private:
 	CURL * mCurl;
 	LLSD mDownloadData;
 	llofstream mDownloadStream;
+	unsigned char mDownloadPercent;
 	std::string mDownloadRecordPath;
 	curl_slist * mHeaderList;
 	
@@ -149,6 +152,17 @@ namespace {
 		size_t bytes = blockSize * blocks;
 		return reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->onHeader(data, bytes);
 	}
+
+
+	int progress_callback(void * downloader,
+						  double dowloadTotal,
+						  double downloadNow,
+						  double uploadTotal,
+						  double uploadNow)
+	{
+		return reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->
+			onProgress(dowloadTotal, downloadNow);
+	}
 }
 
 
@@ -157,6 +171,7 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	mCancelled(false),
 	mClient(client),
 	mCurl(0),
+	mDownloadPercent(0),
 	mHeaderList(0)
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
@@ -290,6 +305,30 @@ size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 }
 
 
+int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double bytesDownloaded)
+{
+	int downloadPercent = static_cast<int>(100. * (bytesDownloaded / downloadSize));
+	if(downloadPercent > mDownloadPercent) {
+		mDownloadPercent = downloadPercent;
+		
+		LLSD event;
+		event["pump"] = LLUpdaterService::pumpName();
+		LLSD payload;
+		payload["type"] = LLSD(LLUpdaterService::PROGRESS);
+		payload["download_size"] = downloadSize;
+		payload["bytes_downloaded"] = bytesDownloaded;
+		event["payload"] = payload;
+		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
+		
+		LL_INFOS("UpdateDownload") << "progress event " << payload << LL_ENDL;
+	} else {
+		; // Keep events to a reasonalbe number.
+	}
+	
+	return 0;
+}
+
+
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
@@ -343,6 +382,11 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	}
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str()));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSFUNCTION, &progress_callback));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSDATA, this));
+	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOPROGRESS, false));
+	
+	mDownloadPercent = 0;
 }
 
 

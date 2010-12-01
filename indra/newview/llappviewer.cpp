@@ -2402,7 +2402,6 @@ namespace {
 				LLNotificationsUtil::add("FailedUpdateInstall");
 				break;
 			default:
-				llinfos << "unhandled update event " << evt << llendl;
 				break;
 		}
 
