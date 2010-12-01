@@ -44,12 +44,23 @@ public:
 	static std::string const & pumpName(void);
 	
 	// Type codes for events posted by this service.  Stored the event's 'type' element.
-	enum eUpdateEvent {
+	enum eUpdaterEvent {
 		INVALID,
 		DOWNLOAD_COMPLETE,
 		DOWNLOAD_ERROR,
 		INSTALL_ERROR,
-		PROGRESS
+		PROGRESS,
+		STATE_CHANGE
+	};
+	
+	enum eUpdaterState {
+		INITIAL,
+		CHECKING_FOR_UPDATE,
+		DOWNLOADING,
+		INSTALLING,
+		UP_TO_DATE,
+		TERMINAL,
+		ERROR
 	};
 
 	LLUpdaterService();
@@ -66,6 +77,7 @@ public:
 	void startChecking(bool install_if_ready = false);
 	void stopChecking();
 	bool isChecking();
+	eUpdaterState getState();
 
 	typedef boost::function<void (void)> app_exit_callback_t;
 	template <typename F>
