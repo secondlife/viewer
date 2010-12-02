@@ -1367,9 +1367,6 @@ void LLPanelPeople::onMoreButtonClicked()
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
 	std::string tab_name = key["people_panel_tab_name"];
-	mFilterEditor -> clear();
-	onFilterEdit("");
-	
 	if (!tab_name.empty())
 		mTabContainer->selectTabByName(tab_name);
 }

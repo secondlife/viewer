@@ -711,6 +711,11 @@ class DarwinManifest(ViewerManifest):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
 
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'Contents/MacOS/update_install',:
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
@@ -865,6 +870,12 @@ class LinuxManifest(ViewerManifest):
             print "Skipping llcommon.so (assuming llcommon was linked statically)"
 
         self.path("featuretable_linux.txt")
+
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'secondlife', 'bin/update_install':
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         if 'installer_name' in self.args:
