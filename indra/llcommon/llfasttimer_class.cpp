@@ -63,6 +63,8 @@ BOOL LLFastTimer::sMetricLog = FALSE;
 LLMutex* LLFastTimer::sLogLock = NULL;
 std::queue<LLSD> LLFastTimer::sLogQueue;
 
+#define USE_RDTSC 0
+
 #if LL_LINUX || LL_SOLARIS
 U64 LLFastTimer::sClockResolution = 1000000000; // Nanosecond resolution
 #else
@@ -236,10 +238,20 @@ U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 #else // windows or x86-mac or x86-linux or x86-solaris
 U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 {
+#if USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
 	static U64 sCPUClockFrequency = U64(LLProcessorInfo().getCPUFrequency()*1000000.0);
 
 	// we drop the low-order byte in our timers, so report a lower frequency
+#else
+	static bool firstcall = true;
+	static U64 sCPUClockFrequency;
+	if (firstcall)
+	{
+		QueryPerformanceFrequency((LARGE_INTEGER*)&sCPUClockFrequency);
+		firstcall = false;
+	}
+#endif
 	return sCPUClockFrequency >> 8;
 }
 #endif
@@ -813,7 +825,7 @@ LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
 
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
-#ifdef USE_RDTSC
+#if USE_RDTSC
 U32 LLFastTimer::getCPUClockCount32()
 {
 	U32 ret_val;
