@@ -407,6 +407,8 @@ private:
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
 			message.setValue("uri", event.getEventUri());
+			message.setValueBoolean("history_back_available", LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_BACK));
+			message.setValueBoolean("history_forward_available", LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_FORWARD));
 			sendMessage(message);
 		
 			setStatus(STATUS_LOADING);
@@ -605,7 +607,7 @@ private:
 			mAuthPassword = message.getValue("password");
 		}
 	}
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
 	void onLinkHovered(const EventType& event)

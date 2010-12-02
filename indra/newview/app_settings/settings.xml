@@ -6626,7 +6626,18 @@
     <key>MediaBrowserWindowLimit</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of media brower windows that can be open at once (0 for no limit)</string>
+      <string>Maximum number of media brower windows that can be open at once in the media browser floater (0 for no limit)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>WebContentWindowLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of web brower windows that can be open at once in the Web content floater (0 for no limit)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
