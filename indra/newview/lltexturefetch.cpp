@@ -568,6 +568,14 @@ public:
 	LLSD * mReportMain;
 };
 
+/*
+ * Count of POST requests outstanding.  We maintain the count
+ * indirectly in the CURL request responder's ctor and dtor and
+ * use it when determining whether or not to sleep the flag.  Can't
+ * use the LLCurl module's request counter as it isn't thread compatible.
+ */
+LLAtomic32<S32> curl_post_request_count = 0;
+    
 } // end of anonymous namespace
 
 
@@ -2084,6 +2092,33 @@ bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 	return res;
 }
 
+// Replicates and expands upon the base class's
+// getPending() implementation.  getPending() and
+// runCondition() replicate one another's logic to
+// an extent and are sometimes used for the same
+// function (deciding whether or not to sleep/pause
+// a thread).  So the implementations need to stay
+// in step, at least until this can be refactored and
+// the redundancy eliminated.
+//
+// May be called from any thread
+
+//virtual
+S32 LLTextureFetch::getPending()
+{
+	S32 res;
+	lockData();
+    {
+        LLMutexLock lock(&mQueueMutex);
+        
+        res = mRequestQueue.size();
+        res += curl_post_request_count;
+        res += mCommands.size();
+    }
+	unlockData();
+	return res;
+}
+
 // virtual
 bool LLTextureFetch::runCondition()
 {
@@ -2100,7 +2135,12 @@ bool LLTextureFetch::runCondition()
 		
 		have_no_commands = mCommands.empty();
 	}
-	return ! (have_no_commands && mRequestQueue.empty() && mIdleThread);
+	
+    bool have_no_curl_requests(0 == curl_post_request_count);
+	
+	return ! (have_no_commands
+             && have_no_curl_requests
+             && (mRequestQueue.empty() && mIdleThread));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2116,7 +2156,7 @@ void LLTextureFetch::commonUpdate()
 	if (processed > 0)
 	{
 		lldebugs << "processed: " << processed << " messages." << llendl;
-	}	
+	}
 }
 
 
@@ -2766,31 +2806,56 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	 * the referenced data is part of a pseudo-closure for
 	 * this responder rather than being required for correct
 	 * operation.
+     *
+     * We don't try very hard with the POST request.  We give
+     * it one shot and that's more-or-less it.  With a proper
+     * refactoring of the LLQueuedThread usage, these POSTs
+     * could be put in a request object and made more reliable.
 	 */
 	class lcl_responder : public LLCurl::Responder
 	{
 	public:
-		lcl_responder(volatile bool & reporting_break,
+		lcl_responder(S32 expected_sequence,
+                      volatile const S32 & live_sequence,
+                      volatile bool & reporting_break,
 					  volatile bool & reporting_started)
-			: LLHTTPClient::Responder(),
+			: LLCurl::Responder(),
+              mExpectedSequence(expected_sequence),
+              mLiveSequence(live_sequence),
 			  mReportingBreak(reporting_break),
 			  mReportingStarted(reporting_started)
-			{}
+			{
+                curl_post_request_count++;
+            }
+        
+        ~lcl_responder()
+            {
+                curl_post_request_count--;
+            }
 
 		// virtual
 		void error(U32 status_num, const std::string & reason)
 			{
-				mReportingBreak = true;
+                if (mLiveSequence == mExpectedSequence)
+                {
+                    mReportingBreak = true;
+                }
 			}
 
 		// virtual
 		void result(const LLSD & content)
 			{
-				mReportingBreak = false;
-				mReportingStarted = true;
+                if (mLiveSequence == mExpectedSequence)
+                {
+                    mReportingBreak = false;
+                    mReportingStarted = true;
+                }
 			}
+        
 
 	private:
+        S32 mExpectedSequence;
+        volatile const S32 & mLiveSequence;
 		volatile bool & mReportingBreak;
 		volatile bool & mReportingStarted;
 	};
@@ -2799,8 +2864,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		return true;
 
 	static volatile bool reporting_started(false);
-	static S32 report_sequence(0);
-
+	static volatile S32 report_sequence(0);
+    
 	// We've already taken over ownership of the LLSD at this point
 	// and can do normal LLSD sharing operations at this point.  But
 	// still being careful, regardless.
@@ -2826,7 +2891,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		fetcher->getCurlRequest().post(mCapsURL,
 									   headers,
 									   thread1_stats,
-									   new lcl_responder(LLTextureFetch::svMetricsDataBreak,
+									   new lcl_responder(report_sequence,
+                                                         report_sequence,
+                                                         LLTextureFetch::svMetricsDataBreak,
 														 reporting_started));
 	}
 	else

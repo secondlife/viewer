@@ -78,6 +78,7 @@ public:
 	S32 getNumHTTPRequests() ;
 	
 	// Public for access by callbacks
+    S32 getPending();
 	void lockQueue() { mQueueMutex.lock(); }
 	void unlockQueue() { mQueueMutex.unlock(); }
 	LLTextureFetchWorker* getWorker(const LLUUID& id);
