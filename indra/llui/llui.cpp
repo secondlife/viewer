@@ -950,7 +950,7 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 }
 
 // Draw gray and white checkerboard with black border
-void gl_rect_2d_checkerboard(const LLRect& rect)
+void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
 	// Initialize the first time this is called.
 	const S32 PIXELS = 32;
@@ -971,11 +971,11 @@ void gl_rect_2d_checkerboard(const LLRect& rect)
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// ...white squares
-	gGL.color3f( 1.f, 1.f, 1.f );
+	gGL.color4f( 1.f, 1.f, 1.f, alpha );
 	gl_rect_2d(rect);
 
 	// ...gray squares
-	gGL.color3f( .7f, .7f, .7f );
+	gGL.color4f( .7f, .7f, .7f, alpha );
 	gGL.flush();
 	glPolygonStipple( checkerboard );
 
