@@ -740,7 +740,11 @@ void LLPipeline::updateRenderDeferred()
 					 gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
 					!gUseWireframe;
 
-	sRenderDeferred = deferred;			
+	sRenderDeferred = deferred;	
+	if (deferred)
+	{ //must render glow when rendering deferred since post effect pass is needed to present any lighting at all
+		sRenderGlow = TRUE;
+	}
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -833,7 +837,6 @@ void LLPipeline::createGLBuffers()
 		allocateScreenBuffer(resX,resY);
 		mScreenWidth = 0;
 		mScreenHeight = 0;
-
 	}
 	
 	if (sRenderDeferred)
