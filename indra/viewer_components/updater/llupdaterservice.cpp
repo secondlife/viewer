@@ -504,6 +504,11 @@ std::string const & LLUpdaterService::pumpName(void)
 	return name;
 }
 
+bool LLUpdaterService::updateReadyToInstall(void)
+{
+	return LLFile::isfile(update_marker_path());
+}
+
 LLUpdaterService::LLUpdaterService()
 {
 	if(gUpdater.expired())

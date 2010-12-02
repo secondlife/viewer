@@ -43,6 +43,9 @@ public:
 	// Name of the event pump through which update events will be delivered.
 	static std::string const & pumpName(void);
 	
+	// Returns true if an update has been completely downloaded and is now ready to install.
+	static bool updateReadyToInstall(void);
+	
 	// Type codes for events posted by this service.  Stored the event's 'type' element.
 	enum eUpdaterEvent {
 		INVALID,
