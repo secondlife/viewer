@@ -98,7 +98,7 @@ public:
 	static void processParcelInfoReply(LLMessageSystem* msg, void**);
 
 private:
-	typedef std::multimap<LLUUID, LLRemoteParcelInfoObserver*> observer_multimap_t;
+	typedef std::multimap<LLUUID, LLHandle<LLRemoteParcelInfoObserver> > observer_multimap_t;
 	observer_multimap_t mObservers;
 };
 

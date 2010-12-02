@@ -573,7 +573,12 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 	//ad-hoc requires sophisticated chat history saving schemes
 	if (isAdHoc())
 	{
-		//in case of outgoing ad-hoc sessions
+		/* in case of outgoing ad-hoc sessions we need to make specilized names
+		* if this naming system is ever changed then the filtering definitions in 
+		* lllogchat.cpp need to be change acordingly so that the filtering for the
+		* date stamp code introduced in STORM-102 will work properly and not add
+		* a date stamp to the Ad-hoc conferences.
+		*/
 		if (mInitialTargetIDs.size())
 		{
 			std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());

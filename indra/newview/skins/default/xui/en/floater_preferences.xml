@@ -83,7 +83,7 @@
          label="Move &amp; View"
          layout="topleft"
          help_topic="preferences_move_tab"
-         name="audio" />
+         name="move" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_alerts.xml"

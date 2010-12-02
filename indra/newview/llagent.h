@@ -33,6 +33,7 @@
 #include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h" 			// LLAnimPauseRequest
+#include "llcoordframe.h"			// for mFrameAgent
 #include "llpointer.h"
 #include "lluicolor.h"
 #include "llvoavatardefines.h"
