@@ -57,6 +57,10 @@ public:
 	static void loadURLExternal(const std::string& url, const std::string& uuid);
 	static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
 
+	// Explicitly open a Web URL using the Web content floater vs. the more general media browser
+	static void loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid);
+	static void loadWebURLInternal(const std::string &url) { loadWebURLInternal(url, LLStringUtil::null, LLStringUtil::null); }
+
 	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
 	static std::string escapeURL(const std::string& url);
 	/// Expands various strings like [LANG], [VERSION], etc. in a URL

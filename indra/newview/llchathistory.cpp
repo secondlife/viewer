@@ -586,7 +586,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	LLLayoutStack::Params layout_p;
 	layout_p.rect = stack_rect;
 	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.orientation = "vertical";
+	layout_p.orientation = LLLayoutStack::VERTICAL;
 	layout_p.mouse_opaque = false;
 	
 	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p, this);

@@ -5009,7 +5009,7 @@ If you want to view streaming media on parcels that support it you should go to 
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
     <unique>
-      <context key="[MIME_TYPE]"/>
+      <context>MIME_TYPE</context>
     </unique>
 
   </notification>
@@ -5911,7 +5911,7 @@ You may only select up to [MAX_SELECT] items from this list.
 [NAME] is inviting you to a Voice Chat call.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -5960,8 +5960,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a Voice Chat call with the group [GROUP].
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
-      <context key="GROUP"/>
+      <context>NAME</context>
+      <context>GROUP</context>
     </unique>
     <form name="form">
       <button
@@ -5986,7 +5986,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a voice chat call with a conference chat.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -6011,7 +6011,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] is inviting you to a conference chat.
 Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -6035,7 +6035,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    type="notifytip">
 The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6053,7 +6053,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    type="notifytip">
 You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6063,7 +6063,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6073,7 +6073,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6083,7 +6083,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6093,7 +6093,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6176,7 +6176,7 @@ Cannot enter parcel, you are not on the access list.
    type="notifytip">
 You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6186,7 +6186,7 @@ You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
    type="notifytip">
 An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6571,6 +6571,23 @@ Mute everyone?
               index="0"
               name="open"
               text="Open pop-up window"/>
+    </form>
+  </notification>
+
+  <notification
+  name="AuthRequest"
+  type="browser">
+    Enter user name and password to continue.
+    <form name="form">
+      <input name="username" type="text" text="User Name"/>
+      <input name="password" type="password" text="Password"/>
+      <button default="true"
+              index="0"
+              name="ok"
+              text="Submit"/>
+      <button index="1"
+              name="cancel"
+              text="Cancel"/>
     </form>
   </notification>
 

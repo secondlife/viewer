@@ -182,6 +182,13 @@
            function="Advanced.WebBrowserTest"
            parameter="http://join.secondlife.com/"/>
         </menu_item_call>
+      <menu_item_call
+       label="Web Content Floater Test"
+       name="Web Content Floater Test">
+        <menu_item_call.on_click
+         function="Advanced.WebContentTest"
+         parameter="http://www.google.com"/>
+      </menu_item_call>
       <menu_item_separator/>
       <menu_item_check
         label="Show Grid Picker"

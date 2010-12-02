@@ -61,7 +61,6 @@ public:
 		Optional<LLUIColor>		caret_color;
 
 		Optional<std::string>	initial_mime_type;
-		Optional<std::string>	media_id;
 		
 		Params();
 	};
@@ -89,6 +88,7 @@ public:
 		virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 		virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
 		virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+		virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
 		// navigation
 		void navigateTo( std::string url_in, std::string mime_type = "");
@@ -167,9 +167,7 @@ public:
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
 		void onPopup(const LLSD& notification, const LLSD& response);
-		void onCloseNotification();
-		void onClickNotificationButton(const std::string& name);
-		void onClickIgnore(LLUICtrl* ctrl);
+		void onAuthSubmit(const LLSD& notification, const LLSD& response);
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
@@ -193,7 +191,8 @@ public:
 		S32 mTextureWidth;
 		S32 mTextureHeight;
 		bool mClearCache;
-		boost::shared_ptr<class LLNotification> mCurNotification;
+		class LLWindowShade* mWindowShade;
+		bool mHoverTextChanged;
 };
 
 #endif // LL_LLMediaCtrl_H
