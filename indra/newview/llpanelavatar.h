@@ -34,7 +34,6 @@
 
 class LLComboBox;
 class LLLineEditor;
-class LLToggleableMenu;
 
 enum EOnlineStatus
 {
@@ -207,14 +206,11 @@ protected:
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
-	void onOverflowButtonClicked();
 
 private:
 
 	typedef std::map< std::string,LLUUID>	group_map_t;
 	group_map_t 			mGroups;
-
-	LLToggleableMenu*		mProfileMenu;
 };
 
 /**

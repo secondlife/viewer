@@ -35,6 +35,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ActiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of active floaters (floaters that have focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.95</real>
+    </map>
     <key>AdvanceSnapshot</key>
     <map>
       <key>Comment</key>
@@ -1161,13 +1172,13 @@
     <key>CacheNumberOfRegionsForObjects</key>
     <map>
       <key>Comment</key>
-      <string>Controls number of regions to be cached for objects, ranges from 16 to 128.</string>
+      <string>Controls number of regions to be cached for objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>128</integer>
+      <integer>20000</integer>
     </map>
     <key>CacheSize</key>
     <map>
@@ -1391,6 +1402,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>LetterKeysFocusChatBar</key>
+    <map>
+      <key>Comment</key>
+      <string>When printable characters keys (possibly with Shift held) are pressed, the chatbar takes focus</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ChatBubbleOpacity</key>
     <map>
@@ -4034,6 +4056,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>InactiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of inactive floaters (floaters that have no focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>InBandwidth</key>
     <map>
@@ -8656,6 +8689,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+	<key>RenderTransparentWater</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Render water as transparent.  Setting to false renders water as opaque with a simple texture applied.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+	</map>
     <key>RenderTreeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -11439,7 +11483,62 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-	<key>UploadBakedTexOld</key>
+    <key>UpdaterServiceActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable or disable the updater service.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UpdaterServiceCheckPeriod</key>
+    <map>
+      <key>Comment</key>
+      <string>Default period between update checking.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>3600</integer>
+    </map>
+    <key>UpdaterServiceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Default location for the updater service.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://update.secondlife.com</string>
+    </map>
+    <key>UpdaterServicePath</key>
+    <map>
+      <key>Comment</key>
+      <string>Path on the update server host.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>update</string>
+    </map>
+    <key>UpdaterServiceProtocolVersion</key>
+    <map>
+      <key>Comment</key>
+      <string>The update protocol version to use.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>v1.0</string>
+    </map>
+    <key>UploadBakedTexOld</key>
     <map>
       <key>Comment</key>
       <string>Forces the baked texture pipeline to upload using the old method.</string>
@@ -11759,6 +11858,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>InterpolationTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How long to extrapolate object motion after last packet received</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>3.0</integer>
+    </map>
+    <key>InterpolationPhaseOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds to phase out interpolated motion</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
+    </map>
     <key>VerboseLogs</key>
     <map>
       <key>Comment</key>
@@ -11769,17 +11890,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VersionChannelName</key>
-    <map>
-      <key>Comment</key>
-      <string>Versioning Channel Name.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>Second Life Release</string>
     </map>
     <key>VertexShaderEnable</key>
     <map>
@@ -12254,10 +12364,10 @@
       <key>Value</key>
       <real>150000.0</real>
     </map>
-    <key>XUIEditor</key>
+    <key>ExternalEditor</key>
     <map>
       <key>Comment</key>
-      <string>Path to program used to edit XUI files</string>
+      <string>Path to program used to edit LSL scripts and XUI files, e.g.: /usr/bin/gedit --new-window "%s"</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

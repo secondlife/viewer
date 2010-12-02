@@ -168,7 +168,6 @@ public:
 	LLFacePool(const U32 type);
 	virtual ~LLFacePool();
 	
-	virtual void renderForSelect() = 0;
 	BOOL isDead() { return mReferences.empty(); }
 	
 	virtual LLViewerTexture *getTexture();

@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="contents" title="KOPIE DES OBJEKTES KAUFEN">
+	<floater.string name="title_buy_text">
+		Kaufen
+	</floater.string>
+	<floater.string name="title_buy_copy_text">
+		Kopie kaufen von
+	</floater.string>
+	<floater.string name="no_copy_text">
+		(kein Kopieren)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(kein Bearbeiten)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(kein Transferieren)
+	</floater.string>
 	<text name="contents_text">
 		Inhalt:
 	</text>
 	<text name="buy_text">
-		[AMOUNT] L$ von [NAME] kaufen?
+		[AMOUNT] L$ kaufen von:
 	</text>
-	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
+	<text name="buy_name_text">
+		[NAME]?
+	</text>
 	<button label="Kaufen" label_selected="Kaufen" name="buy_btn"/>
-	<text name="title_buy_text">
-		Kaufen
-	</text>
-	<string name="title_buy_copy_text">
-		Kopie kaufen von
-	</string>
-	<text name="no_copy_text">
-		(kein Kopieren)
-	</text>
-	<text name="no_modify_text">
-		(kein Bearbeiten)
-	</text>
-	<text name="no_transfer_text">
-		(kein Transferieren)
-	</text>
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
 </floater>

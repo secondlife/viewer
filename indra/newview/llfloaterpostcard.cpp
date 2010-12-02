@@ -361,9 +361,7 @@ void LLFloaterPostcard::sendPostcard()
 	{
 		gAssetStorage->storeAssetData(mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)this, FALSE);
 	}
-	
-	// give user feedback of the event
-	gViewerWindow->playSnapshotAnimAndSound();
+
 	LLUploadDialog::modalUploadDialog(getString("upload_message"));
 
 	// don't destroy the window until the upload is done

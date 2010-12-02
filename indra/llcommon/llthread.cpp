@@ -78,9 +78,6 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	// Set thread state to running
-	threadp->mStatus = RUNNING;
-
 #if !LL_DARWIN
 	sThreadID = threadp->mID;
 #endif
@@ -168,26 +165,45 @@ void LLThread::shutdown()
 		{
 			// This thread just wouldn't stop, even though we gave it time
 			//llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
+			// Put a stake in its heart.
+			apr_thread_exit(mAPRThreadp, -1);
 			return;
 		}
 		mAPRThreadp = NULL;
 	}
 
 	delete mRunCondition;
+	mRunCondition = 0;
 	
-	if (mIsLocalPool)
+	if (mIsLocalPool && mAPRPoolp)
 	{
 		apr_pool_destroy(mAPRPoolp);
+		mAPRPoolp = 0;
 	}
 }
 
 
 void LLThread::start()
 {
-	apr_thread_create(&mAPRThreadp, NULL, staticRun, (void *)this, mAPRPoolp);	
+	llassert(isStopped());
+	
+	// Set thread state to running
+	mStatus = RUNNING;
 
-	// We won't bother joining
-	apr_thread_detach(mAPRThreadp);
+	apr_status_t status =
+		apr_thread_create(&mAPRThreadp, NULL, staticRun, (void *)this, mAPRPoolp);
+	
+	if(status == APR_SUCCESS)
+	{	
+		// We won't bother joining
+		apr_thread_detach(mAPRThreadp);
+	}
+	else
+	{
+		mStatus = STOPPED;
+		llwarns << "failed to start thread " << mName << llendl;
+		ll_apr_warn_status(status);
+	}
 }
 
 //============================================================================

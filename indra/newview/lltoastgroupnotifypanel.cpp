@@ -60,7 +60,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))
 	{
-		llwarns << "Group notice for unkown group: " << payload["group_id"].asUUID() << llendl;
+		llwarns << "Group notice for unknown group: " << payload["group_id"].asUUID() << llendl;
 	}
 
 	//group icon

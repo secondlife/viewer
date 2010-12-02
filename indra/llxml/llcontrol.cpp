@@ -1107,7 +1107,7 @@ bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, const std::strin
 		return sd.asBoolean();
 	else
 	{
-		CONTROL_ERRS << "Invalid BOOL value" << llendl;
+		CONTROL_ERRS << "Invalid BOOL value for " << control_name << ": " << sd << llendl;
 		return FALSE;
 	}
 }
@@ -1119,7 +1119,7 @@ S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string&
 		return sd.asInteger();
 	else
 	{
-		CONTROL_ERRS << "Invalid S32 value" << llendl;
+		CONTROL_ERRS << "Invalid S32 value for " << control_name << ": " << sd << llendl;
 		return 0;
 	}
 }
@@ -1131,7 +1131,7 @@ U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const std::string&
 		return sd.asInteger();
 	else
 	{
-		CONTROL_ERRS << "Invalid U32 value" << llendl;
+		CONTROL_ERRS << "Invalid U32 value for " << control_name << ": " << sd << llendl;
 		return 0;
 	}
 }
@@ -1143,7 +1143,7 @@ F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, const std::string&
 		return (F32) sd.asReal();
 	else
 	{
-		CONTROL_ERRS << "Invalid F32 value" << llendl;
+		CONTROL_ERRS << "Invalid F32 value for " << control_name << ": " << sd << llendl;
 		return 0.0f;
 	}
 }
@@ -1155,7 +1155,7 @@ std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, co
 		return sd.asString();
 	else
 	{
-		CONTROL_ERRS << "Invalid string value" << llendl;
+		CONTROL_ERRS << "Invalid string value for " << control_name << ": " << sd << llendl;
 		return LLStringUtil::null;
 	}
 }
@@ -1173,7 +1173,7 @@ LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const 
 		return (LLVector3)sd;
 	else
 	{
-		CONTROL_ERRS << "Invalid LLVector3 value" << llendl;
+		CONTROL_ERRS << "Invalid LLVector3 value for " << control_name << ": " << sd << llendl;
 		return LLVector3::zero;
 	}
 }
@@ -1185,7 +1185,7 @@ LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, cons
 		return (LLVector3d)sd;
 	else
 	{
-		CONTROL_ERRS << "Invalid LLVector3d value" << llendl;
+		CONTROL_ERRS << "Invalid LLVector3d value for " << control_name << ": " << sd << llendl;
 		return LLVector3d::zero;
 	}
 }
@@ -1197,7 +1197,7 @@ LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::s
 		return LLRect(sd);
 	else
 	{
-		CONTROL_ERRS << "Invalid rect value" << llendl;
+		CONTROL_ERRS << "Invalid rect value for " << control_name << ": " << sd << llendl;
 		return LLRect::null;
 	}
 }
@@ -1211,19 +1211,19 @@ LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const st
 		LLColor4 color(sd);
 		if (color.mV[VRED] < 0.f || color.mV[VRED] > 1.f)
 		{
-			llwarns << "Color " << control_name << " value out of range " << llendl;
+			llwarns << "Color " << control_name << " red value out of range: " << color << llendl;
 		}
 		else if (color.mV[VGREEN] < 0.f || color.mV[VGREEN] > 1.f)
 		{
-			llwarns << "Color " << control_name << " value out of range " << llendl;
+			llwarns << "Color " << control_name << " green value out of range: " << color << llendl;
 		}
 		else if (color.mV[VBLUE] < 0.f || color.mV[VBLUE] > 1.f)
 		{
-			llwarns << "Color " << control_name << " value out of range " << llendl;
+			llwarns << "Color " << control_name << " blue value out of range: " << color << llendl;
 		}
 		else if (color.mV[VALPHA] < 0.f || color.mV[VALPHA] > 1.f)
 		{
-			llwarns << "Color " << control_name << " value out of range " << llendl;
+			llwarns << "Color " << control_name << " alpha value out of range: " << color << llendl;
 		}
 
 		return LLColor4(sd);
@@ -1242,7 +1242,7 @@ LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const st
 		return sd;
 	else
 	{
-		CONTROL_ERRS << "Invalid LLColor3 value" << llendl;
+		CONTROL_ERRS << "Invalid LLColor3 value for " << control_name << ": " << sd << llendl;
 		return LLColor3::white;
 	}
 }

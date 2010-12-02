@@ -2478,9 +2478,6 @@ Wilt u de [SECOND_LIFE] website bezoeken om dit in te stellen?
 	<notification name="CannotRemoveProtectedCategories">
 		U kunt geen beschermde categorieën verwijderen.
 	</notification>
-	<notification name="OfferedCard">
-		U heeft een visitekaartje aangeboden aan [FIRST] [LAST]
-	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		Niet mogelijk te kopen terwijl objectdata wordt gedownload. Probeer het alstublieft opnieuw.
 	</notification>
@@ -2780,7 +2777,7 @@ Probeer het alstublieft opnieuw over enkele ogenblikken.
 		[NAME] heeft uw vriendschapsaanbod afgewezen.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] biedt zijn/haar visitekaartje aan.
+		[NAME] biedt zijn/haar visitekaartje aan.
 Dit zal een bladwijzer in uw inventaris toevoegen zodat u deze inwoner snel kunt een IM kunt sturen.
 		<form name="form">
 			<button name="Accept" text="Accepteren"/>

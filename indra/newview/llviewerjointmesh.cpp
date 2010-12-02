@@ -62,7 +62,6 @@ extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
 #endif
-extern BOOL gRenderForSelect;
 
 static LLPointer<LLVertexBuffer> sRenderBuffer = NULL;
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
@@ -527,17 +526,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	//----------------------------------------------------------------
 	// setup current color
 	//----------------------------------------------------------------
-	if (!gRenderForSelect)
-	{
-		if (is_dummy)
-			glColor4fv(LLVOAvatar::getDummyColor().mV);
-		else
-			glColor4fv(mColor.mV);
-	}
+	if (is_dummy)
+		glColor4fv(LLVOAvatar::getDummyColor().mV);
+	else
+		glColor4fv(mColor.mV);
 
 	stop_glerror();
 	
-	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), gRenderForSelect ? 0.0f : mShiny && !(mFace->getPool()->getVertexShaderLevel() > 0));
+	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), mShiny && !(mFace->getPool()->getVertexShaderLevel() > 0));
 
 	//----------------------------------------------------------------
 	// setup current texture
@@ -584,19 +580,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	else
 	{
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
-	}
-	
-	if (gRenderForSelect)
-	{
-		if (isTransparent())
-		{
-			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-			gGL.getTexUnit(diffuse_channel)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
-		}
-		else
-		{
-			gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
-		}
 	}
 	
 	mFace->mVertexBuffer->setBuffer(sRenderMask);

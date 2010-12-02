@@ -60,8 +60,10 @@ const U32 WIDTH			= (N_RES * WAVE_STEP); //128.f //64		// width of wave tile, in
 const F32 WAVE_STEP_INV	= (1. / WAVE_STEP);
 
 
-LLVOWater::LLVOWater(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLStaticViewerObject(id, pcode, regionp),
+LLVOWater::LLVOWater(const LLUUID &id, 
+					 const LLPCode pcode, 
+					 LLViewerRegion *regionp) :
+	LLStaticViewerObject(id, pcode, regionp),
 	mRenderType(LLPipeline::RENDER_TYPE_WATER)
 {
 	// Terrain must draw during selection passes so it can block objects behind it.
@@ -153,11 +155,17 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	LLStrider<U16> indicesp;
 	U16 index_offset;
 
-	S32 size = 16;
 
-	S32 num_quads = size*size;	
-	face->setSize(4*num_quads, 6*num_quads);
+	// A quad is 4 vertices and 6 indices (making 2 triangles)
+	static const unsigned int vertices_per_quad = 4;
+	static const unsigned int indices_per_quad = 6;
 
+	const S32 size = gSavedSettings.getBOOL("RenderTransparentWater") ? 16 : 1;
+
+	const S32 num_quads = size * size;
+	face->setSize(vertices_per_quad * num_quads,
+				  indices_per_quad * num_quads);
+	
 	if (face->mVertexBuffer.isNull())
 	{
 		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
