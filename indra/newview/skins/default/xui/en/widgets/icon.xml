@@ -3,5 +3,6 @@
       tab_stop="false"
       mouse_opaque="false"
       name="icon"
+      use_draw_context_alpha="true"
       follows="left|top">
 </icon>

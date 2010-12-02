@@ -120,6 +120,12 @@ public:
 		Params();
 	};
 
+	enum ETypeTransparency
+	{
+		TT_DEFAULT,
+		TT_ACTIVE,
+		TT_INACTIVE
+	};
 	/*virtual*/ ~LLUICtrl();
 
 	void initFromParams(const Params& p);
@@ -202,6 +208,11 @@ public:
 
 	virtual void	setColor(const LLColor4& color);
 
+	F32 			getCurrentTransparency();
+
+	void				setTransparencyType(ETypeTransparency type);
+	ETypeTransparency	getTransparencyType() const {return mTransparencyType;}
+
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);
 	BOOL 	focusFirstItem(BOOL prefer_text_fields = FALSE, BOOL focus_flash = TRUE );
@@ -283,12 +294,18 @@ protected:
 	boost::signals2::connection mMakeVisibleControlConnection;
 	LLControlVariable* mMakeInvisibleControlVariable;
 	boost::signals2::connection mMakeInvisibleControlConnection;
+
+	static F32 sActiveControlTransparency;
+	static F32 sInactiveControlTransparency;
+
 private:
 
 	BOOL			mTabStop;
 	BOOL			mIsChrome;
 	BOOL			mTentative;
 	LLRootHandle<LLUICtrl> mUICtrlHandle;
+
+	ETypeTransparency mTransparencyType;
 
 	class DefaultTabGroupFirstSorter;
 };
