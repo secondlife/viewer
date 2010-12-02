@@ -2,9 +2,6 @@
 <floater
  border_visible="false"
  border="false"
- bg_opaque_image="Window_Foreground" 
- bg_alpha_image="Window_Background" 
- bg_alpha_image_overlay="DkGray_66" 
  legacy_header_height="18"
  can_minimize="true"
  can_tear_off="false"
