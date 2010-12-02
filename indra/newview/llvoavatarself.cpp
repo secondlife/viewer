@@ -783,11 +783,19 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		const S32 te = mBakedTextureDatas[i].mTextureIndex;
-		LLViewerTexture* tex = getTEImage(te) ;
+		const LLViewerTexture* tex = getTEImage(te);
+
+		// Replace with default if we can't find the asset, assuming the
+		// default is actually valid (which it should be unless something
+		// is seriously wrong).
 		if (!tex || tex->isMissingAsset())
 		{
-			setTEImage(te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR));
-			removed = TRUE;
+			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
+			if (imagep)
+			{
+				setTEImage(te, imagep);
+				removed = TRUE;
+			}
 		}
 	}
 
@@ -822,7 +830,6 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		//	<< " while pos_from_new_region is " << pos_from_new_region
 		//	<< llendl;
 	}
-
 
 	if (!regionp || (regionp->getHandle() != mLastRegionHandle))
 	{
