@@ -522,7 +522,15 @@ bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifie
 			}
 		break;
 	}
-	
+
+#if LL_DARWIN	
+	if(modifiers & MASK_ALT)
+	{
+		// Option-key modified characters should be handled by the unicode input path instead of this one.
+		result = false;
+	}
+#endif
+
 	if(result)
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "key_event");
