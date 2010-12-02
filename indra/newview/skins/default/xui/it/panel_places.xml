@@ -21,7 +21,7 @@
 						<button label="Modifica" name="edit_btn" tool_tip="Modifica le informazioni del punto di riferimento"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="Mostra ulteriori opzioni"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="Mostra ulteriori opzioni"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">

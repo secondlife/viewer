@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Opsætning" name="Input panel">
-	<button label="Andre enheder" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Første person:
 	</text>
@@ -37,10 +36,11 @@
 		<radio_item label="Benyt min browser(IE, Firefox, Safari)" name="external" tool_tip="Brug systemets standard web browser til hjælp, web links, m.v. Ikke anbefalet hvis du kører i fuld-skærm." value="1"/>
 		<radio_item label="Benyt den indbyggede browser" name="internal" tool_tip="Brug den indbyggede web browser til hjælp, web links m.v. Denne browser åbner et nyt vindue i [APP_NAME]." value=""/>
 	</radio_group>
-	<check_box label="Aktivér plugins" name="browser_plugins_enabled"/>
-	<check_box label="Acceptér cookies" name="cookies_enabled"/>
-	<check_box label="Aktivér Javascript" name="browser_javascript_enabled"/>
-	<check_box label="Aktivér web proxy" name="web_proxy_enabled"/>
+	<check_box initial_value="true" label="Aktivér plugins" name="browser_plugins_enabled"/>
+	<check_box initial_value="true" label="Acceptér cookies" name="cookies_enabled"/>
+	<check_box initial_value="true" label="Aktivér Javascript" name="browser_javascript_enabled"/>
+	<check_box initial_value="fra" label="Tilad media browser pop-ups" name="media_popup_enabled"/>
+	<check_box initial_value="false" label="Aktivér web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Proxy placering:
 	</text>

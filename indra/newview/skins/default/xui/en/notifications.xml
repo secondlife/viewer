@@ -909,6 +909,13 @@ The new skin will appear after you restart [APP_NAME].
 
   <notification
    icon="alertmodal.tga"
+   name="ChangeLanguage"
+   type="alertmodal">
+Changing language will take effect after you restart [APP_NAME].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GoToAuctionPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] web page to see auction details or make a bid?

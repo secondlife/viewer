@@ -128,10 +128,6 @@ void LLPanelPlaceInfo::sendParcelInfoRequest()
 {
 	if (mParcelID != mRequestedID)
 	{
-        //ext-4655, defensive. remove now incase this gets called twice without a remove
-        //as panel never closes its ok atm (but wrong :) 
-        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mRequestedID, this);
-
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(mParcelID, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(mParcelID);
 

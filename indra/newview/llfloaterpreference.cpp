@@ -283,6 +283,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
+	mLanguageChanged(false),
 	mDoubleClickActionDirty(false)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
@@ -350,6 +351,8 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
+
+	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
 	// if floater is opened before login set default localized busy message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -570,6 +573,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		getChildView("maturity_desired_combobox")->setVisible( false);
 	}
 
+	// Forget previous language changes.
+	mLanguageChanged = false;
+
 	// Display selected maturity icons.
 	onChangeMaturity();
 	
@@ -725,6 +731,18 @@ void LLFloaterPreference::refreshEnabledGraphics()
 void LLFloaterPreference::onClickBrowserClearCache()
 {
 	LLNotificationsUtil::add("ConfirmClearBrowserCache", LLSD(), LLSD(), callback_clear_browser_cache);
+}
+
+// Called when user changes language via the combobox.
+void LLFloaterPreference::onLanguageChange()
+{
+	// Let the user know that the change will only take effect after restart.
+	// Do it only once so that we're not too irritating.
+	if (!mLanguageChanged)
+	{
+		LLNotificationsUtil::add("ChangeLanguage");
+		mLanguageChanged = true;
+	}
 }
 
 void LLFloaterPreference::onClickSetCache()
