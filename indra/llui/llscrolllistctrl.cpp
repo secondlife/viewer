@@ -1482,8 +1482,9 @@ void LLScrollListCtrl::draw()
 	// Draw background
 	if (mBackgroundVisible)
 	{
+		F32 alpha = getCurrentTransparency();
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(background, getEnabled() ? mBgWriteableColor.get() : mBgReadOnlyColor.get() );
+		gl_rect_2d(background, getEnabled() ? mBgWriteableColor.get() % alpha : mBgReadOnlyColor.get() % alpha );
 	}
 
 	if (mColumnsDirty)
