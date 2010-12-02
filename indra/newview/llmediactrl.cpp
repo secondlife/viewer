@@ -25,7 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
+#include "lltooltip.h"
 
 #include "llmediactrl.h"
 
@@ -351,7 +351,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mClearCache(false),
 	mHomePageMimeType(p.initial_mime_type),
 	mTrusted(p.trusted_content),
-	mWindowShade(NULL)
+	mWindowShade(NULL),
+	mHoverTextChanged(false)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -433,6 +434,13 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 		mMediaSource->mouseMove(x, y, mask);
 		gViewerWindow->setCursor(mMediaSource->getLastSetCursor());
 	}
+	
+	// TODO: Is this the right way to handle hover text changes driven by the plugin?
+	if(mHoverTextChanged)
+	{
+		mHoverTextChanged = false;
+		handleToolTip(x, y, mask);
+	}
 
 	return TRUE;
 }
@@ -444,6 +452,35 @@ BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	if (LLPanel::handleScrollWheel(x, y, clicks)) return TRUE;
 	if (mMediaSource && mMediaSource->hasMedia())
 		mMediaSource->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//	virtual 
+BOOL LLMediaCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	std::string hover_text;
+	
+	if (mMediaSource && mMediaSource->hasMedia())
+		hover_text = mMediaSource->getMediaPlugin()->getHoverText();
+	
+	if(hover_text.empty())
+	{
+		return FALSE;
+	}
+	else
+	{
+		S32 screen_x, screen_y;
+
+		localPointToScreen(x, y, &screen_x, &screen_y);
+		LLRect sticky_rect_screen;
+		sticky_rect_screen.setCenterAndSize(screen_x, screen_y, 20, 20);
+
+		LLToolTipMgr::instance().show(LLToolTip::Params()
+			.message(hover_text)
+			.sticky_rect(sticky_rect_screen));		
+	}
 
 	return TRUE;
 }
@@ -1268,6 +1305,13 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
 			auth_request_params.functor.function = boost::bind(&LLMediaCtrl::onAuthSubmit, this, _1, _2);
 			LLNotifications::instance().add(auth_request_params);
+		};
+		break;
+
+		case MEDIA_EVENT_LINK_HOVERED:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << LL_ENDL;
+			mHoverTextChanged = true;
 		};
 		break;
 	};

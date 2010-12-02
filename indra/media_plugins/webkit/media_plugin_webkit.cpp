@@ -605,6 +605,20 @@ private:
 			mAuthPassword = message.getValue("password");
 		}
 	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onLinkHovered(const EventType& event)
+	{
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
+		{
+			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "link_hovered");
+			message.setValue("link", event.getEventUri());
+			message.setValue("title", event.getStringValue());
+			message.setValue("text", event.getStringValue2());
+			sendMessage(message);
+		}
+	}
 	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{

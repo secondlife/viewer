@@ -88,6 +88,7 @@ public:
 		virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 		virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
 		virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+		virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
 		// navigation
 		void navigateTo( std::string url_in, std::string mime_type = "");
@@ -191,6 +192,7 @@ public:
 		S32 mTextureHeight;
 		bool mClearCache;
 		class LLWindowShade* mWindowShade;
+		bool mHoverTextChanged;
 };
 
 #endif // LL_LLMediaCtrl_H

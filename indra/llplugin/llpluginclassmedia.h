@@ -242,6 +242,9 @@ public:
 	std::string	getAuthURL() const { return mAuthURL; };
 	std::string	getAuthRealm() const { return mAuthRealm; };
 
+	// This is valid during MEDIA_EVENT_LINK_HOVERED
+	std::string	getHoverText() const { return mHoverText; };
+	
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -381,6 +384,7 @@ protected:
 	S32				mGeometryHeight;
 	std::string		mAuthURL;
 	std::string		mAuthRealm;
+	std::string		mHoverText;
 	
 	/////////////////////////////////////////
 	// media_time class

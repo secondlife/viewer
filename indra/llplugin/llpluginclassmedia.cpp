@@ -1047,6 +1047,15 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 				
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_GEOMETRY_CHANGE);
 		}
+		else if(message_name == "link_hovered")
+		{
+			// Link and text are not currently used -- the tooltip hover text is taken from the "title".
+			// message.getValue("link");
+			mHoverText = message.getValue("title");
+			// message.getValue("text");
+				
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_LINK_HOVERED);
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;
