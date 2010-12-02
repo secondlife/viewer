@@ -392,7 +392,7 @@ with the same filename but different name
   <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png" preload="true" />
 
 
-  <texture name="Refresh_Off" file_name="icons/Refresh_Off.png" preload="false" />
+  <texture name="Refresh_Off" file_name="icons/Refresh_Off.png" preload="true" />
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
@@ -468,7 +468,7 @@ with the same filename but different name
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="false" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="false" />
 
-  <texture name="Stop_Off" file_name="icons/Stop_Off.png" preload="false" />
+  <texture name="Stop_Off" file_name="icons/Stop_Off.png" preload="true" />
   <texture name="StopReload_Off" file_name="icons/StopReload_Off.png" preload="false" />
   <texture name="StopReload_Over" file_name="icons/StopReload_Over.png" preload="false" />
 

@@ -1049,8 +1049,8 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		}
 		else if(message_name == "link_hovered")
 		{
-			// Link and text are not currently used -- the tooltip hover text is taken from the "title".
-			// message.getValue("link");
+			// text is not currently used -- the tooltip hover text is taken from the "title".
+			mHoverLink = message.getValue("link");
 			mHoverText = message.getValue("title");
 			// message.getValue("text");
 				
