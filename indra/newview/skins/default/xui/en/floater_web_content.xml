@@ -24,7 +24,7 @@
     <layout_panel
       auto_resize="false"
       default_tab_group="1"
-      height="20"
+      height="22"
       layout="topleft"
       left="0"
       min_height="20"
@@ -33,83 +33,86 @@
       user_resize="false"
       width="800">
       <button
+        image_overlay="Arrow_Left_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+		    hover_glow_amount="0.15"
         follows="left|top"
-        height="20"
-        label="Back"
+        height="22"
         layout="topleft"
-        left="0"
+        left="1"
         name="back"
         top="0"
-        width="35">
+        width="22">
         <button.commit_callback
           function="WebContent.Back" />
       </button>
       <button
-        follows="left|top"
-        height="20"
-        label="Forward"
-        layout="topleft"
-        left_pad="3"
-        name="forward"
-        top_delta="0"
-        width="35">
-        <button.commit_callback
-          function="WebContent.Forward" />
-      </button>
-      <button
+        image_overlay="Stop_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
         enabled="false"
         follows="left|top"
-        height="20"
-        label="Reload"
+        height="22"
         layout="topleft"
-        left_pad="2"
-        name="reload"
-        top_delta="0"
-        width="35">
-        <button.commit_callback
-          function="WebContent.Reload" />
-      </button>
-      <button
-        enabled="false"
-        follows="left|top"
-        height="20"
-        label="Stop"
-        layout="topleft"
-        left_pad="2"
+        left="27"
         name="stop"
         top_delta="0"
-        width="35">
+        width="22">
         <button.commit_callback
           function="WebContent.Stop" />
+      </button>
+      <button
+        image_overlay="Refresh_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="27"
+        name="reload"
+        top_delta="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.Reload" />
+      </button>      
+      <button
+        image_overlay="Arrow_Right_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="51"
+        name="forward"
+        top_delta="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.Forward" />
       </button>
       <combo_box
         allow_text_entry="true"
         follows="left|top|right"
         tab_group="1"
-        height="20"
+        height="22"
         layout="topleft"
-        left_pad="5"
+        left_pad="4"
         max_chars="1024"
         name="address"
         combo_editor.select_on_focus="true"
         top_delta="0"
-        width="610">
+        width="729">
         <combo_box.commit_callback
           function="WebContent.EnterAddress" />
       </combo_box>
-      <button
-        enabled="false"
-        follows="right|top"
-        height="20"
-        label="Go"
-        layout="topleft"
-        left_pad="0"
-        name="go"
-        top_delta="0"
-        width="35">
-        <button.commit_callback
-          function="WebContent.Go" />
-      </button>
     </layout_panel>
     <layout_panel
       height="40"
@@ -125,8 +128,7 @@
         layout="topleft"
         left="0"
         name="webbrowser"
-        top="0"
-        width="540" />
+        top="0"/>
       <text
         type="string"
         length="100"
@@ -138,7 +140,7 @@
         top_pad="5"
         width="452"/>
       <progress_bar
-        color_bar="0.3 1.0 0.3 1" 
+        color_bar="0.3 1.0 0.3 1"
         follows="bottom|right"
         height="16"
         top_delta="-1"

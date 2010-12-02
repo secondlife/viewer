@@ -45,7 +45,6 @@ LLFloaterWebContent::LLFloaterWebContent(const LLSD& key)
 	mCommitCallbackRegistrar.add("WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this));
 
 	mCommitCallbackRegistrar.add("WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this));
-	mCommitCallbackRegistrar.add("WebContent.Go", boost::bind( &LLFloaterWebContent::onClickGo, this));
 }
 
 BOOL LLFloaterWebContent::postBuild()
@@ -61,7 +60,6 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// these button are always enabled
 	getChildView("reload")->setEnabled( true );
-	getChildView("go")->setEnabled( true );
 
 	return TRUE;
 }
@@ -214,7 +212,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
 
 		// manually decide on the state of this button
-		getChildView("stop")->setEnabled( true );
+		getChildView("reload")->setVisible( false );
+		getChildView("stop")->setVisible( true );
 
 		// turn "on" progress bar now we're loaded
 		mStatusBarProgress->setVisible( true );
@@ -226,7 +225,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
 
 		// manually decide on the state of this button
-		getChildView("stop")->setEnabled( false );
+		getChildView("reload")->setVisible( true );
+		getChildView("stop")->setVisible( false );
 
 		// turn "off" progress bar now we're loaded
 		mStatusBarProgress->setVisible( false );
@@ -299,11 +299,6 @@ void LLFloaterWebContent::onClickStop()
 }
 
 void LLFloaterWebContent::onEnterAddress()
-{
-	mWebBrowser->navigateTo( mAddressCombo->getValue().asString() );
-}
-
-void LLFloaterWebContent::onClickGo()
 {
 	mWebBrowser->navigateTo( mAddressCombo->getValue().asString() );
 }
