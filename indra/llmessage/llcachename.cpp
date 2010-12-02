@@ -975,6 +975,10 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 			if (entry->mLastName.empty())
 			{
 				full_name = cleanFullName(entry->mFirstName);
+
+				//fix what we are putting in the cache
+				entry->mFirstName = full_name;
+				entry->mLastName = "Resident";
 			}
 			else
 			{
