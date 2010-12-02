@@ -37,26 +37,26 @@
 
 #include "llfloaterwebcontent.h"
 
-LLFloaterWebContent::LLFloaterWebContent(const LLSD& key)
-	: LLFloater(key)
+LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
+	: LLFloater( key )
 {
-	mCommitCallbackRegistrar.add("WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this));
-	mCommitCallbackRegistrar.add("WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this));
-	mCommitCallbackRegistrar.add("WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this));
+	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
+	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
+	mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
 
-	mCommitCallbackRegistrar.add("WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this));
+	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
 }
 
 BOOL LLFloaterWebContent::postBuild()
 {
 	// these are used in a bunch of places so cache them
-	mWebBrowser = getChild<LLMediaCtrl>("webbrowser");
-	mAddressCombo = getChild<LLComboBox>("address");
-	mStatusBarText = getChild<LLTextBox>("statusbartext");
-	mStatusBarProgress = getChild<LLProgressBar>("statusbarprogress");
+	mWebBrowser = getChild< LLMediaCtrl >( "webbrowser" );
+	mAddressCombo = getChild< LLComboBox >( "address" );
+	mStatusBarText = getChild< LLTextBox >( "statusbartext" );
+	mStatusBarProgress = getChild<LLProgressBar>("statusbarprogress" );
 
 	// observe browser events
-	mWebBrowser->addObserver(this);
+	mWebBrowser->addObserver( this );
 
 	// these button are always enabled
 	getChildView("reload")->setEnabled( true );
@@ -65,7 +65,7 @@ BOOL LLFloaterWebContent::postBuild()
 }
 
 //static
-void LLFloaterWebContent::create(const std::string &url, const std::string& target, const std::string& uuid)
+void LLFloaterWebContent::create( const std::string &url, const std::string& target, const std::string& uuid )
 {
 	lldebugs << "url = " << url << ", target = " << target << ", uuid = " << uuid << llendl;
 
@@ -194,11 +194,22 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 	destroy();
 }
 
+// virtual
+void LLFloaterWebContent::draw()
+{
+	// this is asychronous so we need to keep checking
+	getChildView( "back" )->setEnabled( mWebBrowser->canNavigateBack() );
+	getChildView( "forward" )->setEnabled( mWebBrowser->canNavigateForward() );
+
+	LLFloater::draw();
+}
+
+// virtual
 void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
 	if(event == MEDIA_EVENT_LOCATION_CHANGED)
 	{
-		const std::string url = self->getStatusText();
+		const std::string url = self->getLocation();
 
 		if ( url.length() )
 			mStatusBarText->setText( url );
@@ -211,11 +222,11 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
 		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
 
-		// manually decide on the state of this button
+		// toggle visibility of these buttons based on browser state
 		getChildView("reload")->setVisible( false );
 		getChildView("stop")->setVisible( true );
 
-		// turn "on" progress bar now we're loaded
+		// turn "on" progress bar now we're about to start loading
 		mStatusBarProgress->setVisible( true );
 	}
 	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
@@ -224,12 +235,16 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
 		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
 
-		// manually decide on the state of this button
+		// toggle visibility of these buttons based on browser state
 		getChildView("reload")->setVisible( true );
 		getChildView("stop")->setVisible( false );
 
 		// turn "off" progress bar now we're loaded
 		mStatusBarProgress->setVisible( false );
+
+		// we populate the status bar with URLs as they change so clear it now we're done
+		const std::string end_str = "";
+		mStatusBarText->setText( end_str );
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -255,6 +270,11 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		std::string page_title = self->getMediaName();
 		setTitle( page_title );
+	}
+	else if(event == MEDIA_EVENT_LINK_HOVERED )
+	{
+		const std::string link = self->getHoverLink();
+		mStatusBarText->setText( link );
 	}
 }
 
@@ -300,5 +320,10 @@ void LLFloaterWebContent::onClickStop()
 
 void LLFloaterWebContent::onEnterAddress()
 {
-	mWebBrowser->navigateTo( mAddressCombo->getValue().asString() );
+	// make sure there is at least something there.
+	// (perhaps this test should be for minimum length of a URL)
+	if ( mAddressCombo->getValue().asString().length() > 0 )
+	{
+		mWebBrowser->navigateTo( mAddressCombo->getValue().asString() );
+	};
 }
