@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+        <!-- LLSD document has exactly one value -->
+	<xsd:element name="llsd">
+		<xsd:complexType>                        
+                        <xsd:group ref="llsd-value" />
+		</xsd:complexType>
+	</xsd:element>
+
+        <!-- Value is one of undef, boolean, integer, real, 
+             uuid, string, date, binary, array, or map -->
+        <xsd:group name="llsd-value">
+                <xsd:choice>
+        		<xsd:element ref="undef"/>
+        		<xsd:element ref="boolean"/>
+        		<xsd:element ref="integer"/>
+        		<xsd:element ref="real"/>
+        		<xsd:element ref="uuid"/>
+        		<xsd:element ref="string"/>
+        		<xsd:element ref="date"/>
+			<xsd:element ref="uri"/>
+			<xsd:element ref="binary"/>
+			<xsd:element ref="array"/>
+			<xsd:element ref="map"/>
+                </xsd:choice>
+        </xsd:group>
+
+        <!-- Undefined is an empty eleemnt -->
+	<xsd:element name="undef">
+		<xsd:simpleType>
+                        <xsd:restriction base="xsd:string">
+                             <xsd:length value="0" />
+                        </xsd:restriction>
+                </xsd:simpleType>
+        </xsd:element>
+
+        <!-- Boolean is true or false -->
+	<xsd:element name="boolean">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:enumeration value="true" />
+				<xsd:enumeration value="false" />
+
+                                <!-- In practice, these other serializations are seen: -->
+				<xsd:enumeration value="" />
+				<xsd:enumeration value="1" />
+				<xsd:enumeration value="0" />
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- Integer is restricted to 32-bit signed values -->
+	<xsd:element name="integer">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:int" />
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- Real is an IEEE 754 "double" value, including Infinities and NaN -->
+	<xsd:element name="real">
+		<xsd:simpleType>
+                        <!-- TODO: xsd:double uses "INF", "-INF", and "NaN",
+                        whereas LLSD prefers "Infinity", "-Infinity" and "NaN" -->
+			<xsd:restriction base="xsd:double" />
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- UUID per RFC 4122 -->
+	<xsd:element name="uuid">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|" />
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- String is any sequence of Unicode characters -->
+	<xsd:element name="string">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string" />
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- Date is ISO 8601 in UTC -->
+	<xsd:element name="date">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:dateTime">
+                                <!-- Restrict to UTC (Z) times -->
+                                <xsd:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z" />
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- URI per RFC 3986 -->
+	<xsd:element name="uri">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:anyURI" />
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- Binary data is base64 encoded -->
+	<xsd:element name="binary">
+		<xsd:simpleType>
+                        <!-- TODO: Require encoding attribute? -->
+			<xsd:restriction base="xsd:base64Binary" />
+		</xsd:simpleType>
+	</xsd:element>
+
+        <!-- Array is a sequence of zero or more values -->
+	<xsd:element name="array">
+		<xsd:complexType>
+                        <xsd:group minOccurs="0" maxOccurs="unbounded" ref="llsd-value" />
+		</xsd:complexType>
+	</xsd:element>
+
+        <!-- Map is a sequence of zero or more key/value pairs -->
+	<xsd:element name="map">
+		<xsd:complexType>
+			<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+				<xsd:element name="key">
+                                	<xsd:simpleType>
+                                        	<xsd:restriction base="xsd:string" />
+                                        </xsd:simpleType>
+				</xsd:element>
+                                <xsd:group ref="llsd-value" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<notification_visibility>
+  <hide name="HintMoveArrows"/>
+	<show/> 
+</notification_visibility>
+
