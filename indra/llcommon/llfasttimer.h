@@ -27,7 +27,6 @@
 #ifndef LL_FASTTIMER_H
 #define LL_FASTTIMER_H
 
-// Temporarily(?) de-inlined these functions to simplify diagnosis of problems.
 // Implementation of getCPUClockCount32() and getCPUClockCount64 are now in llfastertimer_class.cpp.
 
 // pull in the actual class definition
