@@ -456,8 +456,8 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 LLStyle::Params LLUrlEntryAgent::getStyle() const
 {
 	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("AgentLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("AgentLinkColor");
+	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 	return style_params;
 }
 
