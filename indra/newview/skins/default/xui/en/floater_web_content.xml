@@ -138,6 +138,8 @@
         layout="topleft"
         left_delta="0"
         name="statusbartext"
+        parse_urls="false"
+        text_color="0.4 0.4 0.4 1" 
         top_pad="5"
         width="452"/>
       <progress_bar
