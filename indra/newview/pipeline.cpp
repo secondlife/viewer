@@ -6161,8 +6161,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		subject_distance *= 1000.f;
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
 		F32 focal_length = gSavedSettings.getF32("CameraFocalLength");
-		F32 coc = gSavedSettings.getF32("CameraCoC");
+		F32 coc_ratio = gSavedSettings.getF32("CameraCoCRatio");
 
+		F32 coc = coc_ratio/mScreen.getHeight();
 
 		F32 hyperfocal_distance = (focal_length*focal_length)/(fnumber*coc);
 
