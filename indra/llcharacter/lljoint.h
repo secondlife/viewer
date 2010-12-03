@@ -83,6 +83,7 @@ protected:
 	LLXformMatrix		mOldXform;
 	LLXformMatrix		mDefaultXform;
 
+	LLUUID				mId;
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
@@ -182,6 +183,8 @@ public:
 	void setDefaultFromCurrentXform( void );
 	
 	void storeCurrentXform( const LLVector3& pos );
+	LLUUID getId( void ) { return mId; }
+	void setId( const LLUUID& id ) { mId = id;}
 };
 #endif // LL_LLJOINT_H
 

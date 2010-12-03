@@ -769,7 +769,7 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 			return FALSE;
 		}
 		// if selection has changed, pop open list
-		else
+		else if ((mList->getLastSelectedItem() != last_selected_item) || (key == KEY_DOWN) || (key == KEY_UP))
 		{
 			showList();
 		}

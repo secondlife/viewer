@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llglheaders.h
  * @brief LLGL definitions
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -449,30 +449,27 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
 //GL_EXT_blend_func_separate
 extern PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT;
 
-//GL_EXT_framebuffer_object
-extern PFNGLISRENDERBUFFEREXTPROC glIsRenderbufferEXT;
-extern PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
-extern PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
-extern PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
-extern PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
-extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC glGetRenderbufferParameterivEXT;
-extern PFNGLISFRAMEBUFFEREXTPROC glIsFramebufferEXT;
-extern PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
-extern PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
-extern PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
-extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
-extern PFNGLFRAMEBUFFERTEXTURE1DEXTPROC glFramebufferTexture1DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE3DEXTPROC glFramebufferTexture3DEXT;
-extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
-extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT;
-extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
-
-// GL_EXT_framebuffer_multisample
-extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;
-
-// GL_EXT_framebuffer_blit
-extern PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT;
+//GL_ARB_framebuffer_object
+extern PFNGLISRENDERBUFFERPROC glIsRenderbuffer;
+extern PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
+extern PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers;
+extern PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
+extern PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
+extern PFNGLGETRENDERBUFFERPARAMETERIVPROC glGetRenderbufferParameteriv;
+extern PFNGLISFRAMEBUFFERPROC glIsFramebuffer;
+extern PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+extern PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
+extern PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+extern PFNGLFRAMEBUFFERTEXTURE1DPROC glFramebufferTexture1D;
+extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+extern PFNGLFRAMEBUFFERTEXTURE3DPROC glFramebufferTexture3D;
+extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
+extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv;
+extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample;
+extern PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 //GL_ARB_draw_buffers
 extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
@@ -651,30 +648,27 @@ extern PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB;
 //GL_EXT_blend_func_separate
 extern PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT;
 
-//GL_EXT_framebuffer_object
-extern PFNGLISRENDERBUFFEREXTPROC glIsRenderbufferEXT;
-extern PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
-extern PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
-extern PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
-extern PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
-extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC glGetRenderbufferParameterivEXT;
-extern PFNGLISFRAMEBUFFEREXTPROC glIsFramebufferEXT;
-extern PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
-extern PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
-extern PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
-extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
-extern PFNGLFRAMEBUFFERTEXTURE1DEXTPROC glFramebufferTexture1DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE3DEXTPROC glFramebufferTexture3DEXT;
-extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
-extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT;
-extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
-
-// GL_EXT_framebuffer_multisample
-extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;
-
-// GL_EXT_framebuffer_blit
-extern PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT;
+//GL_ARB_framebuffer_object
+extern PFNGLISRENDERBUFFERPROC glIsRenderbuffer;
+extern PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
+extern PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers;
+extern PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
+extern PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
+extern PFNGLGETRENDERBUFFERPARAMETERIVPROC glGetRenderbufferParameteriv;
+extern PFNGLISFRAMEBUFFERPROC glIsFramebuffer;
+extern PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+extern PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
+extern PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+extern PFNGLFRAMEBUFFERTEXTURE1DPROC glFramebufferTexture1D;
+extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+extern PFNGLFRAMEBUFFERTEXTURE3DPROC glFramebufferTexture3D;
+extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
+extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv;
+extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample;
+extern PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 
 //GL_ARB_draw_buffers
 extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;

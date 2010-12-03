@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmemory.h
  * @brief Memory allocation/deallocation header-stuff goes here.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -29,12 +29,13 @@
 #include <stdlib.h>
 
 // A not necessarily efficient, but general, aligned malloc http://stackoverflow.com/questions/196329/osx-lacks-memalign
+#if 0  //DON'T use ll_aligned_foo now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
 	char* aligned = ((char*)mem) + sizeof(void*);
 	aligned += align - ((uintptr_t)aligned & (align - 1));
-	
+
 	((void**)aligned)[-1] = mem;
 	return aligned;
 }
@@ -95,6 +96,7 @@ inline void ll_aligned_free_32(void *p)
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
+#endif
 
 class LL_COMMON_API LLMemory
 {

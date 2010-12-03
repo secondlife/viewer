@@ -61,7 +61,6 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 SkyUseClassicClouds			1	1
 WatchdogDisabled				1	1
-RenderUseFBO				1	1
 
 //
 // Low Graphics Settings
@@ -90,7 +89,6 @@ VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
 SkyUseClassicClouds			1	0
-RenderUseFBO				1	0
 
 //
 // Mid Graphics Settings
@@ -117,7 +115,6 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-RenderUseFBO				1	0
 
 //
 // High Graphics Settings (purty)
@@ -144,7 +141,6 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
-RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -171,7 +167,6 @@ RenderWaterReflections		1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderUseFBO				1	0
 
 //
 // Class Unknown Hardware (unknown)
@@ -237,7 +232,6 @@ RenderUseImpostors			0	0
 RenderVBOEnable				1	0
 RenderWaterReflections		0	0
 WindLightUseAtmosShaders	0	0
-RenderUseFBO				1	0
 
 //
 // CPU based feature masks
@@ -382,7 +376,6 @@ list ATI_Radeon_X1500
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1600 
 Disregard128DefaultDrawDistance	1	0
-RenderUseFBO 					0	0
 list ATI_Radeon_X1700 
 Disregard128DefaultDrawDistance	1	0
 list ATI_Mobility_Radeon_X1xxx

@@ -193,8 +193,19 @@
 		 left_delta="0"
 		 name="BumpShiny"
 		 top_pad="1"
+		width="256" />
+    <check_box
+		control_name="RenderLocalLights"
+		height="16"
+		initial_value="true"
+		label="Local Lights"
+		layout="topleft"
+		left_delta="0"
+		name="LocalLights"
+		 top_pad="1"
 		 width="256" />
-		<check_box
+		width="256" />
+      <check_box
 		 control_name="VertexShaderEnable"
 		 height="16"
 		 initial_value="true"
@@ -221,7 +232,6 @@
 			<check_box.commit_callback
 			 function="Pref.VertexShaderEnable" />
 		</check_box>
-<!-- DISABLED UNTIL WE REALLY WANT TO SUPPORT THIS
     	<check_box
 		 control_name="RenderDeferred"
 		 height="16"
@@ -283,7 +293,7 @@
             name="2"
             value="2"/>
         </combo_box>
--->
+
         <text
          type="string"
          length="1"

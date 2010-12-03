@@ -415,9 +415,6 @@ void LLViewerShaderMgr::setShaders()
 				deferred_class = 1;
 			}
 
-			//make sure framebuffer objects are enabled
-			gSavedSettings.setBOOL("RenderUseFBO", TRUE);
-
 			//make sure hardware skinning is enabled
 			gSavedSettings.setBOOL("RenderAvatarVP", TRUE);
 			

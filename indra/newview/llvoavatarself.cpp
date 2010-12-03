@@ -650,10 +650,10 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	}
 	return LLVOAvatar::getJoint(name);
 }
-
+//virtual
 void LLVOAvatarSelf::resetJointPositions( void )
 {
-	return LLVOAvatar::resetJointPositionsToDefault();
+	return LLVOAvatar::resetJointPositions();
 }
 // virtual
 BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake )
@@ -1161,7 +1161,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
 					if ( bindCnt > 0 )
 					{
-						resetJointPositions();
+						LLVOAvatar::resetJointPositionsToDefault();
 					}
 				}				
 			}

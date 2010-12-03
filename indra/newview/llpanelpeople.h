@@ -152,6 +152,7 @@ private:
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
+	Updater*				mButtonsUpdater;
 
 	LLMenuButton*			mNearbyGearButton;
 	LLMenuButton*			mFriendsGearButton;

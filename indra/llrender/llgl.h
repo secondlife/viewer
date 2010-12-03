@@ -80,7 +80,6 @@ public:
 	BOOL mHasMipMapGeneration;
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
-	BOOL mHasFramebufferMultisample;
 	BOOL mHasBlendFuncSeparate;
 	
 	// ARB Extensions

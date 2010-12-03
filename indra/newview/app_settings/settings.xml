@@ -1353,7 +1353,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>8.0</real>
+    <real>11.0</real>
   </map>
 
   <key>CameraFocalLength</key>
@@ -1365,22 +1365,22 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>50</real>
+    <real>35</real>
   </map>
 
-  <key>CameraCoC</key>
+  <key>CameraCoCRatio</key>
   <map>
     <key>Comment</key>
-    <string>Camera circle of confusion for DoF effect (in millimeters)</string>
+    <string>Ratio of circle of confusion to vertical resolution for DoF effect.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.05</real>
+    <real>54</real>
   </map>
 
-  
+
   <key>CertStore</key>
     <map>
       <key>Comment</key>
@@ -8743,17 +8743,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>RenderUseFBO</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether we want to use GL_EXT_framebuffer_objects.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
   <key>RenderUseTriStrips</key>
   <map>

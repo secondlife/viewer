@@ -108,15 +108,15 @@ namespace
 }
 
 //static
-const std::string &LLVersionInfo::getVersionAndChannel()
+const std::string &LLVersionInfo::getChannelAndVersion()
 {
 	if (sVersionChannel.empty())
 	{
 		// cache the version string
 		std::ostringstream stream;
-		stream << LLVersionInfo::getVersion() 
+		stream << LLVersionInfo::getChannel()
 			   << " "
-			   << LLVersionInfo::getChannel();
+			   << LLVersionInfo::getVersion();
 		sVersionChannel = stream.str();
 	}
 
