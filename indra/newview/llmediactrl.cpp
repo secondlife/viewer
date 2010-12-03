@@ -55,6 +55,8 @@
 #include "llcheckboxctrl.h"
 #include "llnotifications.h"
 #include "lllineeditor.h"
+#include "llfloatermediabrowser.h"
+#include "llfloaterwebcontent.h"
 
 extern BOOL gRestoreGL;
 
@@ -1331,7 +1333,16 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 {
 	if (response["open"])
 	{
-		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		std::string floater_name = gFloaterView->getParentFloater(this)->getInstanceName();
+		if ( floater_name == "media_browser" )
+		{
+			LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		}
+		else
+		if ( floater_name == "web_content" )
+		{
+			LLWeb::loadWebURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		}
 	}
 	else
 	{

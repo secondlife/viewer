@@ -96,6 +96,23 @@ void LLWeb::loadURL(const std::string& url, const std::string& target, const std
 	}
 }
 
+// static
+void LLWeb::loadWebURL(const std::string& url, const std::string& target, const std::string& uuid)
+{
+	if(target == "_internal")
+	{
+		// Force load in the internal browser, as if with a blank target.
+		loadWebURLInternal(url, "", uuid);
+	}
+	else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
+	{
+		loadURLExternal(url);
+	}
+	else
+	{
+		loadWebURLInternal(url, target, uuid);
+	}
+}
 
 // static
 void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
