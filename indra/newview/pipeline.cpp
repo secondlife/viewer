@@ -6174,8 +6174,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		//adjust focal length for zoom
 		F32 fov = LLViewerCamera::getInstance()->getView();
-		F32 default_fov = LLViewerCamera::getInstance()->getDefaultFOV();
-		focal_length *= default_fov/fov;
+		focal_length *= 1.f/fov;
 
 		F32 near_focal_distance = hyperfocal_distance*subject_distance/(hyperfocal_distance+subject_distance);
 		
@@ -6197,7 +6196,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0, channel);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);

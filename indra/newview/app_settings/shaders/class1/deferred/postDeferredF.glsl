@@ -73,12 +73,14 @@ void main()
 	{ //pixel is behind far focal plane
 		float w = 1.0;
 		
-		float fd = far_focal_distance;
+		float fd = (depth[0]-far_focal_distance)*0.5+far_focal_distance;
 		float sc = far_focal_distance - depth[0];
-		sc /= -far_focal_distance;
+		sc /= near_focal_distance-far_focal_distance;
+		
+		sc = sqrt(sc);
 		
 		sc = min(sc, 8.0);
-					
+		
 		while (sc > 1.0)
 		{
 			dofSample(diff,w, fd, sc,sc);
@@ -104,8 +106,10 @@ void main()
 		{ //pixel is in front of near focal plane
 			//diff.r = 1.0;
 			float w = 1.0;
-			float sc = depth[0] - fd;
-			sc = min(-sc/fd*16.0, 8.0);
+			float sc = near_focal_distance-depth[0];
+			sc /= near_focal_distance;
+			sc *= 8.0;
+			sc = min(sc, 8.0);
 						
 			fd = depth[0];
 			while (sc > 1.0)
