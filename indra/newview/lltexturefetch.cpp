@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <iostream>
+#include <map>
 
 #include "llstl.h"
 
@@ -446,7 +447,7 @@ namespace
  *                        .                   +-----+
  *                        .                      |
  *                        .                   +-----+
- *                        .                   | CP  |--> HTTP PUT
+ *                        .                   | CP  |--> HTTP POST
  *                        .                   +-----+
  *                        .                      .
  *                        .                      .
@@ -469,7 +470,7 @@ namespace
  *       new region.
  * TE  - Timer Expired.  Metrics timer has expired (on the order
  *       of 10 minutes).
- * CP  - CURL Put
+ * CP  - CURL Post
  * MSC - Modify Stats Collector.  State change in the thread-local
  *       collector.  Typically a region change which affects the
  *       global pointers used to find the 'current stats'.
@@ -571,11 +572,23 @@ public:
 /*
  * Count of POST requests outstanding.  We maintain the count
  * indirectly in the CURL request responder's ctor and dtor and
- * use it when determining whether or not to sleep the flag.  Can't
+ * use it when determining whether or not to sleep the thread.  Can't
  * use the LLCurl module's request counter as it isn't thread compatible.
  */
 LLAtomic32<S32> curl_post_request_count = 0;
-    
+
+/*
+ * Examines the merged viewer metrics report and if found to be too long,
+ * will attempt to truncate it in some reasonable fashion.
+ *
+ * @param		max_regions		Limit of regions allowed in report.
+ *
+ * @param		metrics			Full, merged viewer metrics report.
+ *
+ * @returns		If data was truncated, returns true.
+ */
+bool truncate_viewer_metrics(int max_regions, LLSD & metrics);
+
 } // end of anonymous namespace
 
 
@@ -2128,7 +2141,9 @@ bool LLTextureFetch::runCondition()
 	// private method which is unfortunate.  I want to use it directly
 	// but I'm going to have to re-implement the logic here (or change
 	// declarations, which I don't want to do right now).
-
+	//
+	// Changes here may need to be reflected in getPending().
+	
 	bool have_no_commands(false);
 	{
 		LLMutexLock lock(&mQueueMutex);
@@ -2139,8 +2154,8 @@ bool LLTextureFetch::runCondition()
     bool have_no_curl_requests(0 == curl_post_request_count);
 	
 	return ! (have_no_commands
-             && have_no_curl_requests
-             && (mRequestQueue.empty() && mIdleThread));
+			  && have_no_curl_requests
+			  && (mRequestQueue.empty() && mIdleThread));		// From base class
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2840,6 +2855,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
                 {
                     mReportingBreak = true;
                 }
+				LL_WARNS("Texture") << "Break in metrics stream due to POST failure to metrics collection service.  Reason:  "
+									<< reason << LL_ENDL;
 			}
 
 		// virtual
@@ -2851,14 +2868,14 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
                     mReportingStarted = true;
                 }
 			}
-        
 
 	private:
         S32 mExpectedSequence;
         volatile const S32 & mLiveSequence;
 		volatile bool & mReportingBreak;
 		volatile bool & mReportingStarted;
-	};
+
+	}; // class lcl_responder
 	
 	if (! gViewerAssetStatsThread1)
 		return true;
@@ -2884,7 +2901,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// Merge the two LLSDs into a single report
 	LLViewerAssetStatsFF::merge_stats(main_stats, thread1_stats);
 
-	// *TODO:  Consider putting a report size limiter here.
+	// Limit the size of the stats report if necessary.
+	thread1_stats["truncated"] = truncate_viewer_metrics(10, thread1_stats);
+
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;
@@ -2908,6 +2927,42 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	}
 
 	gViewerAssetStatsThread1->reset();
+
+	return true;
+}
+
+
+bool
+truncate_viewer_metrics(int max_regions, LLSD & metrics)
+{
+	static const LLSD::String reg_tag("regions");
+	static const LLSD::String duration_tag("duration");
+	
+	LLSD & reg_map(metrics[reg_tag]);
+	if (reg_map.size() <= max_regions)
+	{
+		return false;
+	}
+
+	// Build map of region hashes ordered by duration
+	typedef std::multimap<LLSD::Integer, LLSD::String> reg_ordered_list_t;
+	reg_ordered_list_t regions_by_duration;
+
+	LLSD::map_const_iterator it_end(reg_map.endMap());
+	for (LLSD::map_const_iterator it(reg_map.beginMap()); it_end != it; ++it)
+	{
+		LLSD::Integer duration = (it->second)[duration_tag].asInteger();
+		regions_by_duration.insert(reg_ordered_list_t::value_type(duration, it->first));
+	}
+
+	// Erase excess region reports selecting shortest duration first
+	reg_ordered_list_t::const_iterator it2_end(regions_by_duration.end());
+	reg_ordered_list_t::const_iterator it2(regions_by_duration.begin());
+	int limit(regions_by_duration.size() - max_regions);
+	for (int i(0); i < limit && it2_end != it2; ++i, ++it2)
+	{
+		reg_map.erase(it2->second);
+	}
 
 	return true;
 }
