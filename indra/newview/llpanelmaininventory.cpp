@@ -329,15 +329,23 @@ void LLPanelMainInventory::setSortBy(const LLSD& userdata)
 	if (sort_field == "name")
 	{
 		U32 order = getActivePanel()->getSortOrder();
-		getActivePanel()->setSortOrder( order & ~LLInventoryFilter::SO_DATE );
-			
+		order &= ~LLInventoryFilter::SO_DATE;
+
+		getActivePanel()->setSortOrder( order );
+
+		gSavedSettings.setU32("InventorySortOrder", order);
+
 		gSavedSettings.setBOOL("Inventory.SortByName", TRUE );
 		gSavedSettings.setBOOL("Inventory.SortByDate", FALSE );
 	}
 	else if (sort_field == "date")
 	{
 		U32 order = getActivePanel()->getSortOrder();
-		getActivePanel()->setSortOrder( order | LLInventoryFilter::SO_DATE );
+		order |= LLInventoryFilter::SO_DATE;
+
+		getActivePanel()->setSortOrder( order );
+
+		gSavedSettings.setU32("InventorySortOrder", order);
 
 		gSavedSettings.setBOOL("Inventory.SortByName", FALSE );
 		gSavedSettings.setBOOL("Inventory.SortByDate", TRUE );
@@ -375,6 +383,8 @@ void LLPanelMainInventory::setSortBy(const LLSD& userdata)
 			gSavedSettings.setBOOL("Inventory.SystemFoldersToTop", TRUE );
 		}
 		getActivePanel()->setSortOrder( order );
+
+		gSavedSettings.setU32("InventorySortOrder", order);
 	}
 }
 
@@ -924,6 +934,7 @@ void LLPanelMainInventory::initListCommandsHandlers()
 			));
 
 	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
+	mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearMenuButton->setMenu(mMenuGearDefault);
@@ -1007,6 +1018,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	if (command_name == "sort_by_recent")
 	{
 		const LLSD arg = "date";
+		setSortBy(arg);
+	}
+	if (command_name == "sort_system_folders_to_top")
+	{
+		const LLSD arg = "systemfolderstotop";
 		setSortBy(arg);
 	}
 	if (command_name == "show_filters")
@@ -1180,6 +1196,31 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	}
 
 	return TRUE;
+}
+
+BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+
+	if (command_name == "sort_by_name")
+	{
+		U32 order = getActivePanel()->getSortOrder();
+		return ~order & LLInventoryFilter::SO_DATE;
+	}
+
+	if (command_name == "sort_by_recent")
+	{
+		U32 order = getActivePanel()->getSortOrder();
+		return order & LLInventoryFilter::SO_DATE;
+	}
+
+	if (command_name == "sort_system_folders_to_top")
+	{
+		U32 order = getActivePanel()->getSortOrder();
+		return order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
+	}
+
+	return FALSE;
 }
 
 bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Configurações" name="Input panel">
-	<button bottom_delta="-40" label="Outros dispositivos" name="joystick_setup_button" width="165"/>
 	<text name="Mouselook:">
 		Visão subjetiva:
 	</text>
@@ -40,6 +39,7 @@
 	<check_box initial_value="true" label="Habilitar plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Aceitar cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Habilitar Javascript" name="browser_javascript_enabled"/>
+	<check_box initial_value="falso" label="Ativar pop-ups no navegador de mídia" name="media_popup_enabled"/>
 	<check_box initial_value="false" label="Ativar web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Localização do proxy:

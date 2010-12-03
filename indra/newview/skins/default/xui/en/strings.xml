@@ -1794,6 +1794,43 @@ Returns the media params for a particular face on an object, given the desired l
 llClearPrimMedia(integer face)
 Clears (deletes) the media and all params from the given face.
   </string>
+<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
+llSetLinkPrimitiveParamsFast(integer linknumber,list rules)
+Set primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
+llGetLinkPrimitiveParams(integer linknumber,list rules)
+Get primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llLinkParticleSystem" translate="false">
+llLinkParticleSystem(integer linknumber,list rules)
+Creates a particle system based on rules.  Empty list removes particle system from object.
+List format is [ rule1, data1, rule2, data2 . . . rulen, datan ].
+</string>
+<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
+llSetLinkTextureAnim(integer link, integer mode, integer face, integer sizex, integer sizey, float start, float length, float rate)
+Animate the texture on the specified prim's face/faces.
+</string>
+<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
+integer llGetLinkNumberOfSides(integer link)
+Returns the number of sides of the specified linked prim.
+</string>
+<string name="LSLTipText_llGetUsername" translate="false">
+string llGetUsername(key id)
+Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
+</string>
+<string name="LSLTipText_llRequestUsername" translate="false">
+key llRequestUsername(key id)
+Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
+</string>
+<string name="LSLTipText_llGetDisplayName" translate="false">
+  string llGetDisplayName(key id)
+  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
+</string>
+<string name="LSLTipText_llRequestDisplayName" translate="false">
+key llRequestDisplayName(key id)
+Requests name of an avatar.  When data is available the dataserver event will be raised.
+</string>
 
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>

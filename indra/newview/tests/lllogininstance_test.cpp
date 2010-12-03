@@ -48,6 +48,9 @@ const std::string VIEWERLOGIN_GRIDLABEL("viewerlogin_grid");
 
 const std::string APPVIEWER_SERIALNUMBER("appviewer_serialno");
 
+const std::string VIEWERLOGIN_CHANNEL("invalid_channel");
+const std::string VIEWERLOGIN_VERSION_CHANNEL("invalid_version");
+
 // Link seams.
 
 //-----------------------------------------------------------------------------
@@ -160,7 +163,6 @@ std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
 //-----------------------------------------------------------------------------
 #include "../llviewercontrol.h"
 LLControlGroup gSavedSettings("Global");
-std::string gCurrentVersion = "invalid_version";
 
 LLControlGroup::LLControlGroup(const std::string& name) :
 	LLInstanceTracker<LLControlGroup, std::string>(name){}
@@ -177,6 +179,10 @@ BOOL LLControlGroup::declareString(const std::string& name, const std::string &i
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
 
+//-----------------------------------------------------------------------------
+#include "../llversioninfo.h"
+const std::string &LLVersionInfo::getVersionAndChannel() { return VIEWERLOGIN_VERSION_CHANNEL; }
+const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
@@ -290,7 +296,6 @@ namespace tut
 			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", FALSE);
 			gSavedSettings.declareBOOL("ForceMandatoryUpdate", FALSE, "", FALSE);
 			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", FALSE);
-			gSavedSettings.declareString("VersionChannelName", "test_version_string", "", FALSE);
 			gSavedSettings.declareString("NextLoginLocation", "", "", FALSE);
 			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", FALSE);
 

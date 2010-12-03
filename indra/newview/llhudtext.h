@@ -128,8 +128,7 @@ protected:
 	LLHUDText(const U8 type);
 
 	/*virtual*/ void render();
-	/*virtual*/ void renderForSelect();
-	void renderText(BOOL for_select);
+	void renderText();
 	static void updateAll();
 	S32 getMaxLines();
 

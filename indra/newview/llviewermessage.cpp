@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
+#include "lllslconstants.h"
 #include "llregionhandle.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
@@ -638,7 +639,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	if(option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
-		S32 max_groups = MAX_AGENT_GROUPS;
+		S32 max_groups = gMaxAgentGroups;
 		if(gAgent.isInGroup(group_id)) ++max_groups;
 
 		if(gAgent.mGroups.count() < max_groups)
@@ -2509,15 +2510,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				invite_bucket = (struct invite_bucket_t*) &binary_bucket[0];
 				S32 membership_fee = ntohl(invite_bucket->membership_fee);
 
-				// IDEVO Clean up legacy name "Resident" in message constructed in
-				// lldatagroups.cpp
-				U32 pos = message.find(" has invited you to join a group.\n");
-				if (pos != std::string::npos)
-				{
-					// use cleaned-up name from above
-					message = name + message.substr(pos);
-				}
-
 				LLSD payload;
 				payload["transaction_id"] = session_id;
 				payload["group_id"] = from_id;
@@ -3040,6 +3032,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 		}
 		else
 		{
+			args["NAME"] = source_name;
 			LLNotificationsUtil::add("OfferCallingCard", args, payload);
 		}
 	}
@@ -3875,6 +3868,7 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 		return;
 	}
 	LL_INFOS("Messaging") << "process_crossed_region()" << LL_ENDL;
+	gAgentAvatarp->resetRegionCrossingTimer();
 
 	U32 sim_ip;
 	msg->getIPAddrFast(_PREHASH_RegionData, _PREHASH_SimIP, sim_ip);
@@ -6443,8 +6437,22 @@ const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
-	std::string button = LLNotification::getSelectedOptionName(response);
-	S32 button_idx = LLNotification::getSelectedOption(notification, response);
+
+	std::string rtn_text;
+	S32 button_idx;
+	button_idx = LLNotification::getSelectedOption(notification, response);
+	if (response[TEXTBOX_MAGIC_TOKEN].isDefined())
+	{
+		if (response[TEXTBOX_MAGIC_TOKEN].isString())
+			rtn_text = response[TEXTBOX_MAGIC_TOKEN].asString();
+		else
+			rtn_text.clear(); // bool marks empty string
+	}
+	else
+	{
+		rtn_text = LLNotification::getSelectedOptionName(response);
+	}
+
 	// Didn't click "Ignore"
 	if (button_idx != -1)
 	{
@@ -6457,7 +6465,7 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addUUID("ObjectID", notification["payload"]["object_id"].asUUID());
 		msg->addS32("ChatChannel", notification["payload"]["chat_channel"].asInteger());
 		msg->addS32("ButtonIndex", button_idx);
-		msg->addString("ButtonLabel", button);
+		msg->addString("ButtonLabel", rtn_text);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
 	}
 

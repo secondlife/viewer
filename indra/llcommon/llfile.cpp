@@ -318,7 +318,12 @@ void llofstream::close()
 	if(is_open())
 	{
 		if (_Filebuffer->close() == 0)
+		{
 			_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
+		}
+		delete _Filebuffer;
+		_Filebuffer = NULL;
+		_ShouldClose = false;
 	}
 }
 

@@ -1448,14 +1448,22 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
 //static
 void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target, std::string output)
 {
+	// Open baseline and current target, exit if one is inexistent
+	std::ifstream base_is(baseline.c_str());
+	std::ifstream target_is(target.c_str());
+	if (!base_is.is_open() || !target_is.is_open())
+	{
+		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		base_is.close();
+		target_is.close();
+		return;
+	}
 
 	//analyze baseline
-	std::ifstream base_is(baseline.c_str());
 	LLSD base = analyzePerformanceLogDefault(base_is);
 	base_is.close();
 
 	//analyze current
-	std::ifstream target_is(target.c_str());
 	LLSD current = analyzePerformanceLogDefault(target_is);
 	target_is.close();
 
@@ -1543,15 +1551,15 @@ LLSD LLFastTimerView::analyzeMetricPerformanceLog(std::istream& is)
 		{
 			std::string label = iter->first;
 
-			LLMetricPerformanceTester* tester = LLMetricPerformanceTester::getTester(iter->second["Name"].asString()) ;
+			LLMetricPerformanceTesterBasic* tester = LLMetricPerformanceTesterBasic::getTester(iter->second["Name"].asString()) ;
 			if(tester)
 			{
 				ret[label]["Name"] = iter->second["Name"] ;
 
-				S32 num_of_strings = tester->getNumOfMetricStrings() ;
-				for(S32 index = 0 ; index < num_of_strings ; index++)
+				S32 num_of_metrics = tester->getNumberOfMetrics() ;
+				for(S32 index = 0 ; index < num_of_metrics ; index++)
 				{
-					ret[label][ tester->getMetricString(index) ] = iter->second[ tester->getMetricString(index) ] ;
+					ret[label][ tester->getMetricName(index) ] = iter->second[ tester->getMetricName(index) ] ;
 				}
 			}
 		}
@@ -1561,20 +1569,43 @@ LLSD LLFastTimerView::analyzeMetricPerformanceLog(std::istream& is)
 }
 
 //static
+void LLFastTimerView::outputAllMetrics()
+{
+	if (LLMetricPerformanceTesterBasic::hasMetricPerformanceTesters())
+	{
+		for (LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin(); 
+			iter != LLMetricPerformanceTesterBasic::sTesterMap.end(); ++iter)
+		{
+			LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second);	
+			tester->outputTestResults();
+		}
+	}
+}
+
+//static
 void LLFastTimerView::doAnalysisMetrics(std::string baseline, std::string target, std::string output)
 {
-	if(!LLMetricPerformanceTester::hasMetricPerformanceTesters())
+	if(!LLMetricPerformanceTesterBasic::hasMetricPerformanceTesters())
 	{
 		return ;
 	}
 
-	//analyze baseline
+	// Open baseline and current target, exit if one is inexistent
 	std::ifstream base_is(baseline.c_str());
+	std::ifstream target_is(target.c_str());
+	if (!base_is.is_open() || !target_is.is_open())
+	{
+		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		base_is.close();
+		target_is.close();
+		return;
+	}
+
+	//analyze baseline
 	LLSD base = analyzeMetricPerformanceLog(base_is);
 	base_is.close();
 
 	//analyze current
-	std::ifstream target_is(target.c_str());
 	LLSD current = analyzeMetricPerformanceLog(target_is);
 	target_is.close();
 
@@ -1582,10 +1613,10 @@ void LLFastTimerView::doAnalysisMetrics(std::string baseline, std::string target
 	std::ofstream os(output.c_str());
 	
 	os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n"; 
-	for(LLMetricPerformanceTester::name_tester_map_t::iterator iter = LLMetricPerformanceTester::sTesterMap.begin() ; 
-		iter != LLMetricPerformanceTester::sTesterMap.end() ; ++iter)
+	for(LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin() ; 
+		iter != LLMetricPerformanceTesterBasic::sTesterMap.end() ; ++iter)
 	{
-		LLMetricPerformanceTester* tester = ((LLMetricPerformanceTester*)iter->second) ;	
+		LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second) ;	
 		tester->analyzePerformance(&os, &base, &current) ;
 	}
 	

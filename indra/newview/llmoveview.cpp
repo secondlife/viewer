@@ -552,7 +552,7 @@ LLPanelStandStopFlying::LLPanelStandStopFlying() :
 }
 
 // static
-inline LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
+LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
 {
 	static LLPanelStandStopFlying* panel = getStandStopFlyingPanel();
 	return panel;

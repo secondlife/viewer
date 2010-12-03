@@ -53,6 +53,7 @@ LLColorSwatchCtrl::Params::Params()
 	alpha_background_image("alpha_background_image"),
 	border_color("border_color"),
     label_width("label_width", -1),
+	label_height("label_height", -1),
 	caption_text("caption_text"),
 	border("border")
 {
@@ -68,17 +69,20 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 	mOnCancelCallback(p.cancel_callback()),
 	mOnSelectCallback(p.select_callback()),
 	mBorderColor(p.border_color()),
-	mLabelWidth(p.label_width)
+	mLabelWidth(p.label_width),
+	mLabelHeight(p.label_height)
 {	
 	LLTextBox::Params tp = p.caption_text;
+	// use custom label height if it is provided
+	mLabelHeight = mLabelHeight != -1 ? mLabelHeight : BTN_HEIGHT_SMALL;
 	// label_width is specified, not -1
 	if(mLabelWidth!= -1)
 	{
-		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, mLabelWidth, 0 ));
+		tp.rect(LLRect( 0, mLabelHeight, mLabelWidth, 0 ));
 	}
 	else
 	{
-		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ));
+		tp.rect(LLRect( 0, mLabelHeight, getRect().getWidth(), 0 ));
 	}
 	
 	tp.initial_value(p.label());
@@ -88,7 +92,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 	LLRect border_rect = getLocalRect();
 	border_rect.mTop -= 1;
 	border_rect.mRight -=1;
-	border_rect.mBottom += BTN_HEIGHT_SMALL;
+	border_rect.mBottom += mLabelHeight;
 
 	LLViewBorder::Params params = p.border;
 	params.rect(border_rect);
@@ -194,7 +198,7 @@ void LLColorSwatchCtrl::draw()
 	F32 alpha = getDrawContext().mAlpha;
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
-	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
+	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
 	gl_rect_2d( border, mBorderColor.get(), FALSE );
 
 	LLRect interior = border;

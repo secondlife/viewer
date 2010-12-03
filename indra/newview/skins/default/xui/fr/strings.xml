@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Cliquez pour afficher le profil de ce résident
 	</string>
+	<string name="TooltipAgentInspect">
+		En savoir plus sur ce résident
+	</string>
 	<string name="TooltipAgentMute">
 		Cliquer pour ignorer ce résident
 	</string>
@@ -246,7 +249,7 @@
 		Cliquez pour voir cet emplacement sur la carte
 	</string>
 	<string name="TooltipSLAPP">
-		Cliquez pour exécuter la commande secondlife:// command
+		Cliquez pour exécuter la commande secondlife://
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
@@ -762,6 +765,12 @@
 	<string name="Estate / Full Region">
 		Domaine / Région entière
 	</string>
+	<string name="Estate / Homestead">
+		Domaine / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continent / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Continent / Région entière
 	</string>
@@ -1027,10 +1036,10 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1080,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value=" depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
@@ -1388,7 +1397,7 @@
 		Personne dont l&apos;âge n&apos;a pas été vérifié
 	</string>
 	<string name="Center 2">
-		Centrer 2
+		Centre 2
 	</string>
 	<string name="Top Right">
 		En haut à droite
@@ -1400,7 +1409,7 @@
 		En haut à gauche
 	</string>
 	<string name="Center">
-		Centrer
+		Centre
 	</string>
 	<string name="Bottom Left">
 		En bas à gauche
@@ -3574,7 +3583,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vous êtes le seul participant à cette session.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] est déconnecté(e).
+		[NAME] est hors ligne.
 	</string>
 	<string name="invite_message">
 		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
@@ -3643,7 +3652,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] vous a payé [AMOUNT] L$
+		[NAME] vous a payé [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
@@ -3656,6 +3668,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for item">
+		pour l&apos;article suivant : [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		pour une parcelle de terrain
@@ -3674,6 +3689,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		pour charger
+	</string>
+	<string name="to publish a classified ad">
+		pour publier une petite annonce
 	</string>
 	<string name="giving">
 		Donner [AMOUNT] L$

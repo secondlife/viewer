@@ -183,12 +183,15 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 
 void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 {
-	updateToVisibility(new_visibility);
+	LLSD visibility;
+	visibility["visible"] = new_visibility.asBoolean();
+	visibility["reset_accordion"] = true;
+	updateToVisibility(visibility);
 }
 
 void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 {
-	if (new_visibility.asBoolean())
+	if (new_visibility["visible"].asBoolean())
 	{
 		bool is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();
 		bool is_wearable_edit_visible = mEditWearable && mEditWearable->getVisible();
@@ -209,7 +212,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 				}
 			}
 
-			if (is_outfit_edit_visible)
+			if (is_outfit_edit_visible && new_visibility["reset_accordion"].asBoolean())
 			{
 				mOutfitEdit->resetAccordionState();
 			}

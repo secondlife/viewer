@@ -247,6 +247,7 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
+        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
@@ -586,6 +587,8 @@ class DarwinManifest(ViewerManifest):
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
 
+            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
                 super(DarwinManifest, self).construct()
@@ -661,8 +664,11 @@ class DarwinManifest(ViewerManifest):
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
-                #libfmodwrapper.dylib
-                self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
+                try:
+                    # FMOD for sound
+                    self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
+                except:
+                    print "Skipping FMOD - not found"
                 
                 # our apps
                 self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
@@ -723,6 +729,12 @@ class DarwinManifest(ViewerManifest):
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
 
 
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'Contents/MacOS/update_install',:
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
+
     def package_finish(self):
         channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
         if not self.default_channel():
@@ -757,6 +769,11 @@ class DarwinManifest(ViewerManifest):
         try:
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
+
+            if devfile != '/dev/disk1':
+                # adding more debugging info based upon nat's hunches to the
+                # logs to help track down 'SetFile -a V' failures -brad
+                print "WARNING: 'SetFile -a V' command below is probably gonna fail"
 
             # Copy everything in to the mounted .dmg
 
@@ -847,6 +864,36 @@ class LinuxManifest(ViewerManifest):
         # Create an appropriate gridargs.dat for this package, denoting required grid.
         self.put_in_file(self.flags_list(), 'etc/gridargs.dat')
 
+        self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
+        self.path("../linux_crash_logger/linux-crash-logger","bin/linux-crash-logger.bin")
+        self.path("../linux_updater/linux-updater", "bin/linux-updater.bin")
+        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
+
+        if self.prefix("res-sdl"):
+            self.path("*")
+            # recurse
+            self.end_prefix("res-sdl")
+
+        self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
+
+        # plugins
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+            self.end_prefix("bin/llplugin")
+
+        try:
+            self.path("../llcommon/libllcommon.so", "lib/libllcommon.so")
+        except:
+            print "Skipping llcommon.so (assuming llcommon was linked statically)"
+
+        self.path("featuretable_linux.txt")
+
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'secondlife', 'bin/update_install':
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         if 'installer_name' in self.args:
@@ -860,6 +907,10 @@ class LinuxManifest(ViewerManifest):
                     installer_name += '_' + self.args['grid'].upper()
             else:
                 installer_name += '_' + self.channel_oneword().upper()
+
+        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+            self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
         # Fix access permissions
         self.run_command("""
@@ -886,6 +937,9 @@ class LinuxManifest(ViewerManifest):
                         'dir': self.get_build_prefix(),
                         'inst_name': installer_name,
                         'inst_path':self.build_path_of(installer_name)})
+            else:
+                print "Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                      (installer_name, self.args['buildtype'])
         finally:
             self.run_command("mv %(inst)s %(dst)s" % {
                 'dst': self.get_dst_prefix(),
@@ -897,6 +951,12 @@ class Linux_i686Manifest(LinuxManifest):
 
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
+        try:
+            self.path(self.find_existing_file('../llkdu/libllkdu.so',
+                '../../libraries/i686-linux/lib_release_client/libllkdu.so'),
+                  dst='bin/libllkdu.so')
+        except:
+            print "Skipping libllkdu.so - not found"
         for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
             libfile = "lib%s.so" % lib
             try:
@@ -934,9 +994,11 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
+            self.path("libuuid.so.1")
             self.path("libexpat.so.1")
             self.path("libglod.so")
             self.path("libssl.so.0.9.7")
+            self.path("libuuid.so.1")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
@@ -955,7 +1017,7 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libfmod-3.75.so")
                     pass
             except:
-                    print "Skipping libkdu_v42R.so - not found"
+                    print "Skipping libfmod-3.75.so - not found"
                     pass
             self.end_prefix("lib")
 

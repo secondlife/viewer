@@ -487,7 +487,7 @@ public:
 	bool specialHoverCursor() const;	// does it have a special hover cursor?
 
 	void			setRegion(LLViewerRegion *regionp);
-	virtual void	updateRegion(LLViewerRegion *regionp) {}
+	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
@@ -538,6 +538,9 @@ private:
     // and the update wasn't due to this agent's last action.
     U32 checkMediaURL(const std::string &media_url);
 	
+	// Motion prediction between updates
+	void interpolateLinearMotion(const F64 & time, const F32 & dt);
+
 public:
 	//
 	// Viewer-side only types - use the LL_PCODE_APP mask.
@@ -655,6 +658,8 @@ protected:
 	F64				mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64				mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
+	U32				mCircuitPacketCount;			// Packet tracking for early detection of a stopped simulator circuit
+
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
 
@@ -719,8 +724,20 @@ protected:
 	mutable LLVector3		mPositionRegion;
 	mutable LLVector3		mPositionAgent;
 
+	static void setPhaseOutUpdateInterpolationTime(F32 value)	{ sPhaseOutUpdateInterpolationTime = (F64) value;	}
+	static void setMaxUpdateInterpolationTime(F32 value)		{ sMaxUpdateInterpolationTime = (F64) value;	}
+
+	static void	setVelocityInterpolate(BOOL value)		{ sVelocityInterpolate = value;	}
+	static void	setPingInterpolate(BOOL value)			{ sPingInterpolate = value;	}
+
 private:	
 	static S32 sNumObjects;
+
+	static F64 sPhaseOutUpdateInterpolationTime;	// For motion interpolation
+	static F64 sMaxUpdateInterpolationTime;			// For motion interpolation
+
+	static BOOL sVelocityInterpolate;
+	static BOOL sPingInterpolate;
 
 	//--------------------------------------------------------------------
 	// For objects that are attachments
@@ -792,7 +809,5 @@ public:
 	virtual void updateDrawable(BOOL force_damped);
 };
 
-extern BOOL gVelocityInterpolate;
-extern BOOL gPingInterpolate;
 
 #endif

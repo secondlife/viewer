@@ -202,11 +202,6 @@ void LLHUDIcon::render()
 	renderIcon(FALSE);
 }
 
-void LLHUDIcon::renderForSelect()
-{
-	renderIcon(TRUE);
-}
-
 BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3* intersection)
 {
 	if (mHidden)

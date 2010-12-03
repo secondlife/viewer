@@ -62,7 +62,7 @@ class LLIMModel :  public LLSingleton<LLIMModel>
 {
 public:
 
-	struct LLIMSession
+	struct LLIMSession : public boost::signals2::trackable
 	{
 		typedef enum e_session_type
 		{   // for now we have 4 predefined types for a session
