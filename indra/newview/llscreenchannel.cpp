@@ -485,7 +485,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
-	if(mToastList.size() == 0 || isHovering())
+	if(mToastList.size() == 0)
 		return;
 
 	switch(mToastAlignment)
