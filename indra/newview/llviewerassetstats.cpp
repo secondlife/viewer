@@ -240,8 +240,9 @@ LLViewerAssetStats::asLLSD()
 	static const LLSD::String rmean_tag("resp_mean");
 
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
-	LLSD regions = LLSD::emptyMap();
+	mCurRegionStats->accumulateTime(now);
 
+	LLSD regions = LLSD::emptyMap();
 	for (PerRegionContainer::iterator it = mRegionStats.begin();
 		 mRegionStats.end() != it;
 		 ++it)
@@ -253,7 +254,6 @@ LLViewerAssetStats::asLLSD()
 		}
 
 		PerRegionStats & stats = *it->second;
-		stats.accumulateTime(now);
 		
 		LLSD reg_stat = LLSD::emptyMap();
 		
