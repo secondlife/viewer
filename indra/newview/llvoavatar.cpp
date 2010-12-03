@@ -4975,7 +4975,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 		//restore joints to default positions, however skip over the pelvis
 		if ( pJoint && pPelvis != pJoint )
 		{
-			pJoint->restoreToDefaultXform();
+			pJoint->restoreOldXform();
 		}
 	}
 	//make sure we don't apply the joint offset
