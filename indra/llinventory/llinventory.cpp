@@ -61,8 +61,6 @@ static const std::string INV_FOLDER_ID_LABEL_WS("category_id");
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-const U8 TASK_INVENTORY_ITEM_KEY = 0;
-const U8 TASK_INVENTORY_ASSET_KEY = 1;
 
 const LLUUID MAGIC_ID("3c115e51-04f4-523c-9fa6-98aff1034730");	
 
