@@ -938,8 +938,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseFBO") &&
-	    LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 		shaders)
 	{
 		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;

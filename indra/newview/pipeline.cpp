@@ -561,6 +561,11 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	
 	//never use more than 4 samples for render targets
 	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 4);
+	if (gGLManager.mIsATI)
+	{ //disable multisampling of render targets where ATI is involved
+		samples = 0;
+	}
+
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -689,8 +694,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 	}
 	
-
-	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
+	if (LLRenderTarget::sUseFBO && samples > 1)
 	{ 
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
@@ -978,7 +982,7 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	return TRUE; //(gSavedSettings.getBOOL("RenderUseFBO"));
+	return TRUE;
 }
 
 void LLPipeline::unloadShaders()
@@ -5853,21 +5857,21 @@ void apply_cube_face_rotation(U32 face)
 void validate_framebuffer_object()
 {                                                           
 	GLenum status;                                            
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT); 
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT); 
 	switch(status) 
 	{                                          
-		case GL_FRAMEBUFFER_COMPLETE_EXT:                       
+		case GL_FRAMEBUFFER_COMPLETE:                       
 			//framebuffer OK, no error.
 			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
 			// frame buffer not OK: probably means unsupported depth buffer format
-			llerrs << "Framebuffer Incomplete Dimensions." << llendl;
+			llerrs << "Framebuffer Incomplete Missing Attachment." << llendl;
 			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
 			// frame buffer not OK: probably means unsupported depth buffer format
 			llerrs << "Framebuffer Incomplete Attachment." << llendl;
 			break; 
-		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:                    
+		case GL_FRAMEBUFFER_UNSUPPORTED:                    
 			/* choose different formats */                        
 			llerrs << "Framebuffer unsupported." << llendl;
 			break;                                                
@@ -6105,7 +6109,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	if (LLRenderTarget::sUseFBO)
 	{
 		LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
@@ -6856,7 +6860,7 @@ void LLPipeline::renderDeferredLighting()
 						mLuminanceMap.flush();
 						gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLuminanceMap.getTexture(), true);
 						gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
-						glGenerateMipmapEXT(GL_TEXTURE_2D);
+						glGenerateMipmap(GL_TEXTURE_2D);
 					}
 				}
 

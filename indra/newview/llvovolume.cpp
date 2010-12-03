@@ -4057,7 +4057,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 				if ( pAvatarVO )
 				{
-					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( vobj->getVolume()->getParams().getSculptID() );
+					LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
+					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId );
 				
 					if ( pSkinData )
 					{
@@ -4069,8 +4070,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{
 								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
 								LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
-								if ( pJoint )
+								if ( pJoint && pJoint->getId() != currentId )
 								{   									
+									pJoint->setId( currentId );
 									const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
 									//If joint is a pelvis then handle by setting avPos+offset								
 									if ( lookingForJoint == "mPelvis" )
