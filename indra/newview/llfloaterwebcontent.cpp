@@ -181,9 +181,10 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 
 void LLFloaterWebContent::open_media(const std::string& web_url, const std::string& target)
 {
-	mWebBrowser->setHomePageUrl(web_url);
+	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
+	mWebBrowser->setHomePageUrl(web_url, "text/html");
 	mWebBrowser->setTarget(target);
-	mWebBrowser->navigateTo(web_url);
+	mWebBrowser->navigateTo(web_url, "text/html");
 	set_current_url(web_url);
 }
 
@@ -324,6 +325,6 @@ void LLFloaterWebContent::onEnterAddress()
 	// (perhaps this test should be for minimum length of a URL)
 	if ( mAddressCombo->getValue().asString().length() > 0 )
 	{
-		mWebBrowser->navigateTo( mAddressCombo->getValue().asString() );
+		mWebBrowser->navigateTo( mAddressCombo->getValue().asString(), "text/html");
 	};
 }
