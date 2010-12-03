@@ -1353,7 +1353,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>8.0</real>
+    <real>11.0</real>
   </map>
 
   <key>CameraFocalLength</key>
@@ -1365,19 +1365,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>50</real>
-  </map>
-
-  <key>CameraCoC</key>
-  <map>
-    <key>Comment</key>
-    <string>Camera circle of confusion for DoF effect (in millimeters)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.05</real>
+    <real>35</real>
   </map>
 
   <key>CameraCoCRatio</key>
