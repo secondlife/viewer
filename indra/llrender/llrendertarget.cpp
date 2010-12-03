@@ -38,7 +38,7 @@ void check_framebuffer_status()
 {
 	if (gDebugGL)
 	{
-		GLenum status = glCheckFramebufferStatusARB(GL_DRAW_FRAMEBUFFER);
+		GLenum status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
 		switch (status)
 		{
 		case GL_FRAMEBUFFER_COMPLETE:
@@ -99,24 +99,24 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 			stop_glerror();
 		}
 
-		glGenFramebuffersARB(1, (GLuint *) &mFBO);
+		glGenFramebuffers(1, (GLuint *) &mFBO);
 
 		if (mDepth)
 		{
-			glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 			if (mStencil)
 			{
-				glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 				stop_glerror();
-				glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 				stop_glerror();
 			}
 			else
 			{
-				glFramebufferTexture2DARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 				stop_glerror();
 			}
-			glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 		
 		stop_glerror();
@@ -168,14 +168,14 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 	}
 	if (mFBO)
 	{
-		glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
-		glFramebufferTexture2DARB(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+offset,
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+offset,
 			LLTexUnit::getInternalType(mUsage), tex, 0);
 			stop_glerror();
 
 		check_framebuffer_status();
 		
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	mTex.push_back(tex);
@@ -187,10 +187,10 @@ void LLRenderTarget::allocateDepth()
 	if (mStencil)
 	{
 		//use render buffers where stencil buffers are in play
-		glGenRenderbuffersARB(1, (GLuint *) &mDepth);
-		glBindRenderbufferARB(GL_RENDERBUFFER, mDepth);
-		glRenderbufferStorageARB(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
-		glBindRenderbufferARB(GL_RENDERBUFFER, 0);
+		glGenRenderbuffers(1, (GLuint *) &mDepth);
+		glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 	else
 	{
@@ -222,23 +222,23 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 	if (mDepth)
 	{
 		stop_glerror();
-		glBindFramebufferARB(GL_FRAMEBUFFER, target.mFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, target.mFBO);
 		stop_glerror();
 
 		if (mStencil)
 		{
-			glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 			stop_glerror();
-			glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);			
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);			
 			stop_glerror();
 			target.mStencil = true;
 		}
 		else
 		{
-			glFramebufferTexture2DARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 			stop_glerror();
 		}
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		target.mUseDepth = true;
 	}
@@ -250,7 +250,7 @@ void LLRenderTarget::release()
 	{
 		if (mStencil)
 		{
-			glDeleteRenderbuffersARB(1, (GLuint*) &mDepth);
+			glDeleteRenderbuffers(1, (GLuint*) &mDepth);
 			stop_glerror();
 		}
 		else
@@ -262,23 +262,23 @@ void LLRenderTarget::release()
 	}
 	else if (mUseDepth && mFBO)
 	{ //detach shared depth buffer
-		glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		if (mStencil)
 		{ //attached as a renderbuffer
-			glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-			glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
 			mStencil = false;
 		}
 		else
 		{ //attached as a texture
-			glFramebufferTexture2DARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), 0, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), 0, 0);
 		}
 		mUseDepth = false;
 	}
 
 	if (mFBO)
 	{
-		glDeleteFramebuffersARB(1, (GLuint *) &mFBO);
+		glDeleteFramebuffers(1, (GLuint *) &mFBO);
 		mFBO = 0;
 	}
 
@@ -304,7 +304,7 @@ void LLRenderTarget::bindTarget()
 		}
 		else
 		{
-			glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 			stop_glerror();
 			if (gGLManager.mHasDrawBuffers)
 			{ //setup multiple render targets
@@ -336,7 +336,7 @@ void LLRenderTarget::unbindTarget()
 {
 	if (gGLManager.mHasFramebufferObject)
 	{
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	sBoundTarget = NULL;
 }
@@ -407,7 +407,7 @@ void LLRenderTarget::flush(bool fetch_depth)
 	{
 		stop_glerror();
 
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		stop_glerror();
 	
@@ -415,41 +415,41 @@ void LLRenderTarget::flush(bool fetch_depth)
 		{
 			LLGLEnable multisample(GL_MULTISAMPLE);
 			stop_glerror();
-			glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 			stop_glerror();
 			check_framebuffer_status();
-			glBindFramebufferARB(GL_READ_FRAMEBUFFER, mSampleBuffer->mFBO);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, mSampleBuffer->mFBO);
 			check_framebuffer_status();
 			
 			stop_glerror();
-			glBlitFramebufferARB(0, 0, mResX, mResY, 0, 0, mResX, mResY, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+			glBlitFramebuffer(0, 0, mResX, mResY, 0, 0, mResX, mResY, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 			stop_glerror();		
 
 			if (mTex.size() > 1)
 			{		
 				for (U32 i = 1; i < mTex.size(); ++i)
 				{
-					glFramebufferTexture2DARB(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+					glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 										LLTexUnit::getInternalType(mUsage), mTex[i], 0);
 					stop_glerror();
-					glFramebufferRenderbufferARB(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mSampleBuffer->mTex[i]);
+					glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mSampleBuffer->mTex[i]);
 					stop_glerror();
-					glBlitFramebufferARB(0, 0, mResX, mResY, 0, 0, mResX, mResY, GL_COLOR_BUFFER_BIT, GL_NEAREST);		
+					glBlitFramebuffer(0, 0, mResX, mResY, 0, 0, mResX, mResY, GL_COLOR_BUFFER_BIT, GL_NEAREST);		
 					stop_glerror();
 				}
 
 				for (U32 i = 0; i < mTex.size(); ++i)
 				{
-					glFramebufferTexture2DARB(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i,
+					glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i,
 										LLTexUnit::getInternalType(mUsage), mTex[i], 0);
 					stop_glerror();
-					glFramebufferRenderbufferARB(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_RENDERBUFFER, mSampleBuffer->mTex[i]);
+					glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_RENDERBUFFER, mSampleBuffer->mTex[i]);
 					stop_glerror();
 				}
 			}
 		}
 
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }
 
@@ -476,25 +476,25 @@ void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, 
 		{
 			stop_glerror();
 		
-			glBindFramebufferARB(GL_FRAMEBUFFER, source.mFBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, source.mFBO);
 			gGL.getTexUnit(0)->bind(this, true);
 			stop_glerror();
 			glCopyTexSubImage2D(LLTexUnit::getInternalType(mUsage), 0, srcX0, srcY0, dstX0, dstY0, dstX1, dstY1);
 			stop_glerror();
-			glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			stop_glerror();
 		}
 		else
 		{
-			glBindFramebufferARB(GL_READ_FRAMEBUFFER, source.mFBO);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, source.mFBO);
 			stop_glerror();
-			glBindFramebufferARB(GL_DRAW_FRAMEBUFFER, mFBO);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBO);
 			stop_glerror();
 			check_framebuffer_status();
 			stop_glerror();
-			glBlitFramebufferARB(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+			glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
 			stop_glerror();
-			glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			stop_glerror();
 		}
 	}
@@ -513,15 +513,15 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 
 		LLGLDepthTest depth(write_depth, write_depth);
 		
-		glBindFramebufferARB(GL_READ_FRAMEBUFFER, source.mFBO);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, source.mFBO);
 		stop_glerror();
-		glBindFramebufferARB(GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		stop_glerror();
 		check_framebuffer_status();
 		stop_glerror();
-		glBlitFramebufferARB(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+		glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
 		stop_glerror();
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		stop_glerror();
 	}
 }
@@ -556,19 +556,19 @@ void LLMultisampleBuffer::release()
 {
 	if (mFBO)
 	{
-		glDeleteFramebuffersARB(1, (GLuint *) &mFBO);
+		glDeleteFramebuffers(1, (GLuint *) &mFBO);
 		mFBO = 0;
 	}
 
 	if (mTex.size() > 0)
 	{
-		glDeleteRenderbuffersARB(mTex.size(), (GLuint *) &mTex[0]);
+		glDeleteRenderbuffers(mTex.size(), (GLuint *) &mTex[0]);
 		mTex.clear();
 	}
 
 	if (mDepth)
 	{
-		glDeleteRenderbuffersARB(1, (GLuint *) &mDepth);
+		glDeleteRenderbuffers(1, (GLuint *) &mDepth);
 		mDepth = 0;
 	}
 }
@@ -585,7 +585,7 @@ void LLMultisampleBuffer::bindTarget(LLRenderTarget* ref)
 		ref = this;
 	}
 
-	glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 	if (gGLManager.mHasDrawBuffers)
 	{ //setup multiple render targets
 		GLenum drawbuffers[] = {GL_COLOR_ATTACHMENT0,
@@ -638,21 +638,21 @@ void LLMultisampleBuffer::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth
 			stop_glerror();
 		}
 
-		glGenFramebuffersARB(1, (GLuint *) &mFBO);
+		glGenFramebuffers(1, (GLuint *) &mFBO);
 
-		glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 
 		if (mDepth)
 		{
-			glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
 			if (mStencil)
 			{
-				glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);			
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);			
 			}
 		}
 	
 		stop_glerror();
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		stop_glerror();
 	}
 
@@ -674,18 +674,18 @@ void LLMultisampleBuffer::addColorAttachment(U32 color_fmt)
 	}
 
 	U32 tex;
-	glGenRenderbuffersARB(1, &tex);
+	glGenRenderbuffers(1, &tex);
 	
-	glBindRenderbufferARB(GL_RENDERBUFFER, tex);
-	glRenderbufferStorageMultisampleARB(GL_RENDERBUFFER, mSamples, color_fmt, mResX, mResY);
+	glBindRenderbuffer(GL_RENDERBUFFER, tex);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, mSamples, color_fmt, mResX, mResY);
 	stop_glerror();
 
 	if (mFBO)
 	{
-		glBindFramebufferARB(GL_FRAMEBUFFER, mFBO);
-		glFramebufferRenderbufferARB(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+offset, GL_RENDERBUFFER, tex);
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+offset, GL_RENDERBUFFER, tex);
 		stop_glerror();
-		GLenum status = glCheckFramebufferStatusARB(GL_FRAMEBUFFER);
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		switch (status)
 		{
 		case GL_FRAMEBUFFER_COMPLETE:
@@ -695,7 +695,7 @@ void LLMultisampleBuffer::addColorAttachment(U32 color_fmt)
 			break;
 		}
 
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	mTex.push_back(tex);
@@ -703,15 +703,15 @@ void LLMultisampleBuffer::addColorAttachment(U32 color_fmt)
 
 void LLMultisampleBuffer::allocateDepth()
 {
-	glGenRenderbuffersARB(1, (GLuint* ) &mDepth);
-	glBindRenderbufferARB(GL_RENDERBUFFER, mDepth);
+	glGenRenderbuffers(1, (GLuint* ) &mDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
 	if (mStencil)
 	{
-		glRenderbufferStorageMultisampleARB(GL_RENDERBUFFER, mSamples, GL_DEPTH24_STENCIL8, mResX, mResY);	
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, mSamples, GL_DEPTH24_STENCIL8, mResX, mResY);	
 	}
 	else
 	{
-		glRenderbufferStorageMultisampleARB(GL_RENDERBUFFER, mSamples, GL_DEPTH_COMPONENT16, mResX, mResY);	
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, mSamples, GL_DEPTH_COMPONENT16, mResX, mResY);	
 	}
 }
 

@@ -5857,7 +5857,7 @@ void apply_cube_face_rotation(U32 face)
 void validate_framebuffer_object()
 {                                                           
 	GLenum status;                                            
-	status = glCheckFramebufferStatusARB(GL_FRAMEBUFFER_EXT); 
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT); 
 	switch(status) 
 	{                                          
 		case GL_FRAMEBUFFER_COMPLETE:                       
@@ -6109,7 +6109,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	if (LLRenderTarget::sUseFBO)
 	{
 		LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
@@ -6860,7 +6860,7 @@ void LLPipeline::renderDeferredLighting()
 						mLuminanceMap.flush();
 						gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLuminanceMap.getTexture(), true);
 						gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
-						glGenerateMipmapARB(GL_TEXTURE_2D);
+						glGenerateMipmap(GL_TEXTURE_2D);
 					}
 				}
 

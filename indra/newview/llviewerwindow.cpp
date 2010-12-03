@@ -4188,7 +4188,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		mWindowRectRaw = window_rect;
 		target.flush();
-		glBindFramebufferARB(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	gDisplaySwapBuffers = FALSE;
 	gDepthDirty = TRUE;
