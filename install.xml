@@ -37,9 +37,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>91155239b02f576384603795d41eb971</string>
+            <string>614ac4227391bf98d60325376613b4bc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20090505.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20101202.tar.bz2</uri>
           </map>
         </map>
       </map>

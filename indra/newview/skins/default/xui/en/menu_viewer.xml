@@ -2278,19 +2278,6 @@
                 <menu_item_check.on_enable
                  function="Advanced.EnableObjectObjectOcclusion" />
             </menu_item_check>
-          <menu_item_check
-             label="Framebuffer Objects"
-             name="Framebuffer Objects">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderFBO" />
-           </menu_item_check>
-
           <menu_item_separator />
 
           <menu_item_check
