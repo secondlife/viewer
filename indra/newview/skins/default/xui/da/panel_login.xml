@@ -14,7 +14,7 @@
 			<text name="username_text">
 				Brugernavn:
 			</text>
-			<line_editor label="Brugernavn" name="username_edit" tool_tip="[SECOND_LIFE] Brugernavn"/>
+			<line_editor label="bobsmith12 eller Steller Sunshine" name="username_edit" tool_tip="Det brugernavn du valgte da du registrerede, som f.eks. bobsmith12 eller Steller Sunshine"/>
 			<text name="password_text">
 				Password:
 			</text>
@@ -34,7 +34,7 @@
 				Opret bruger
 			</text>
 			<text name="forgot_password_text">
-				Glemt navn eller password?
+				Har du glemt brugernavn eller password?
 			</text>
 			<text name="login_help">
 				Hjælp til login

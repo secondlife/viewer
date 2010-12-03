@@ -42,7 +42,7 @@
 					<button label="Teleportuj" name="teleport" tool_tip="Teleportuj"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
-					<button label="▼" name="overflow_btn" tool_tip="Zapłać lub udostępnij obiekt Rezydentowi"/>
+					<menu_button label="▼" name="overflow_btn" tool_tip="Zapłać lub udostępnij obiekt Rezydentowi"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

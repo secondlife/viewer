@@ -21,7 +21,7 @@
 						<button label="編集" name="edit_btn" tool_tip="ランドマークの情報を編集します"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="オプションを表示します"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="オプションを表示します"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">

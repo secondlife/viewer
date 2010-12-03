@@ -175,6 +175,13 @@ void LLMenuButton::updateMenuOrigin()
 			mY = rect.mTop + mMenuHandle.get()->getRect().getHeight();
 			break;
 		}
+		case MP_TOP_RIGHT:
+		{
+			const LLRect& menu_rect = mMenuHandle.get()->getRect();
+			mX = rect.mRight - menu_rect.getWidth();
+			mY = rect.mTop + menu_rect.getHeight();
+			break;
+		}
 		case MP_BOTTOM_LEFT:
 		{
 			mX = rect.mLeft;
