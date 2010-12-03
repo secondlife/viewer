@@ -1125,8 +1125,8 @@ void LLSidepanelTaskInfo::updateVerbs()
 	mOpenBtn->setVisible(!multi_select);
 	mPayBtn->setVisible(!multi_select);
 	mBuyBtn->setVisible(!multi_select);
-	mDetailsBtn->setVisible(multi_select);
-	mDetailsBtn->setEnabled(multi_select);
+	mDetailsBtn->setVisible(TRUE);
+	mDetailsBtn->setEnabled(TRUE);
 
 	mOpenBtn->setEnabled(enable_object_open());
 	mPayBtn->setEnabled(enable_pay_object());

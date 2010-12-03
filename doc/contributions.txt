@@ -354,10 +354,11 @@ JB Kraft
 Joghert LeSabre
 	VWR-64
 Jonathan Yap
-	VWR-17801
+	STORM-596
 	STORM-616
 	STORM-679
-	STORM-596
+	STORM-723
+	VWR-17801
 Kage Pixel
 	VWR-11
 Ken March
