@@ -11,6 +11,7 @@
   save_rect="true"
   auto_tile="true"
   title="WEB CONTENT"
+  initial_mime_type="text/html"
   width="820">
   <layout_stack
     bottom="440"
@@ -50,6 +51,22 @@
           function="WebContent.Back" />
       </button>
       <button
+        image_overlay="Arrow_Right_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="27"
+        name="forward"
+        top_delta="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.Forward" />
+      </button>
+      <button
         image_overlay="Stop_Off"
 		    image_disabled="PushButton_Disabled"
 		    image_disabled_selected="PushButton_Disabled"
@@ -59,7 +76,7 @@
         follows="left|top"
         height="22"
         layout="topleft"
-        left="27"
+        left="51"
         name="stop"
         top_delta="0"
         width="22">
@@ -75,28 +92,12 @@
         follows="left|top"
         height="22"
         layout="topleft"
-        left="27"
+        left="51"
         name="reload"
         top_delta="0"
         width="22">
         <button.commit_callback
           function="WebContent.Reload" />
-      </button>      
-      <button
-        image_overlay="Arrow_Right_Off"
-		    image_disabled="PushButton_Disabled"
-		    image_disabled_selected="PushButton_Disabled"
-		    image_selected="PushButton_Selected"
-		    image_unselected="PushButton_Off"
-        follows="left|top"
-        height="22"
-        layout="topleft"
-        left="51"
-        name="forward"
-        top_delta="0"
-        width="22">
-        <button.commit_callback
-          function="WebContent.Forward" />
       </button>
       <combo_box
         allow_text_entry="true"
