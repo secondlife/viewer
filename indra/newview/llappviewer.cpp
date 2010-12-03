@@ -906,7 +906,7 @@ bool LLAppViewer::init()
 
 	// Save the current version to the prefs file
 	gSavedSettings.setString("LastRunVersion", 
-							 LLVersionInfo::getVersionAndChannel());
+							 LLVersionInfo::getChannelAndVersion());
 
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;

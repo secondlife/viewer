@@ -87,6 +87,7 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 	mZCompare(TRUE),
 	mVisibleOffScreen(FALSE),
 	mOffscreen(FALSE),
+	mColor(1.f, 1.f, 1.f, 1.f),
 //	mScale(),
 	mWidth(0.f),
 	mHeight(0.f),
@@ -108,8 +109,6 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 {
 	LLPointer<LLHUDNameTag> ptr(this);
 	sTextObjects.insert(ptr);
-
-	mColor = LLUIColorTable::instance().getColor("BackgroundChatColor");
 }
 
 LLHUDNameTag::~LLHUDNameTag()
@@ -257,7 +256,6 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	
 	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
 	F32 alpha_factor = 1.f;
-	mColor = LLUIColorTable::instance().getColor("BackgroundChatColor");
 	LLColor4 text_color = mColor;
 	if (mDoFade)
 	{
@@ -523,6 +521,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 				x_offset += 1;
 			}
 
+			text_color = segment_iter->mColor;
 			text_color.mV[VALPHA] *= alpha_factor;
 
 			hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, FALSE);

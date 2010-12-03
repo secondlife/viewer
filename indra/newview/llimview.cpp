@@ -279,9 +279,27 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
+	if (av_name.mIsDummy)
+	{
+		S32 separator_index = mName.rfind(" ");
+		std::string name = mName.substr(0, separator_index);
+		++separator_index;
+		std::string conference_word = mName.substr(separator_index, mName.length());
+
+		// additional check that session name is what we expected
+		if ("Conference" == conference_word)
+		{
 			LLStringUtil::format_map_t args;
-	args["[AGENT_NAME]"] = av_name.getCompleteName();
+			args["[AGENT_NAME]"] = name;
 			LLTrans::findString(mName, "conference-title-incoming", args);
+		}
+	}
+	else
+	{
+		LLStringUtil::format_map_t args;
+		args["[AGENT_NAME]"] = av_name.getCompleteName();
+		LLTrans::findString(mName, "conference-title-incoming", args);
+	}
 }
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
@@ -555,7 +573,12 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 	//ad-hoc requires sophisticated chat history saving schemes
 	if (isAdHoc())
 	{
-		//in case of outgoing ad-hoc sessions
+		/* in case of outgoing ad-hoc sessions we need to make specilized names
+		* if this naming system is ever changed then the filtering definitions in 
+		* lllogchat.cpp need to be change acordingly so that the filtering for the
+		* date stamp code introduced in STORM-102 will work properly and not add
+		* a date stamp to the Ad-hoc conferences.
+		*/
 		if (mInitialTargetIDs.size())
 		{
 			std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());
@@ -2165,7 +2188,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 						LLAvatarName av_name;
 						if (LLAvatarNameCache::get(caller_id, &av_name))
 						{
-							correct_session_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
+							correct_session_name = av_name.getCompleteName();
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}
