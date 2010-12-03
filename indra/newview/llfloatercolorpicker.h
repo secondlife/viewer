@@ -55,6 +55,7 @@ class LLFloaterColorPicker
 		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleHover ( S32 x, S32 y, MASK mask );
 		virtual void onMouseCaptureLost();
+		virtual F32  getSwatchTransparency();
 
 		// implicit methods
 		void createUI ();

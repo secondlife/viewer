@@ -275,14 +275,14 @@
    height="12"
    name="bubble_chat"
    top_pad="20"
-   width="120"
+   width="140"
    >
-    Bubble chat:
+    Bubble chat background:
   </text>
   <color_swatch
    can_apply_immediately="true"
    color="0 0 0 1"
-   control_name="BackgroundChatColor"
+   control_name="NameTagBackground"
    follows="left|top"
    height="24"
    label_height="0"
@@ -294,10 +294,10 @@
    width="44">
    <color_swatch.init_callback
     function="Pref.getUIColor"
-    parameter="BackgroundChatColor" />
+    parameter="NameTagBackground" />
    <color_swatch.commit_callback
     function="Pref.applyUIColor"
-    parameter="BackgroundChatColor" />
+    parameter="NameTagBackground" />
   </color_swatch>
   <slider
    control_name="ChatBubbleOpacity"
@@ -333,7 +333,7 @@
    initial_value="0.8"
    layout="topleft"
    label_width="115"
-   label="Active :"
+   label="Active:"
    left="50"
    max_val="1.00"
    min_val="0.00"
@@ -351,7 +351,7 @@
    initial_value="0.5"
    layout="topleft"
    label_width="115"
-   label="Inctive :"
+   label="Inactive:"
    left="50"
    max_val="1.00"
    min_val="0.00"

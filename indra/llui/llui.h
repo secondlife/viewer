@@ -79,7 +79,7 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, const LL
 void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixel_offset = 0, BOOL filled = TRUE );
 void gl_rect_2d(const LLRect& rect, BOOL filled = TRUE );
 void gl_rect_2d(const LLRect& rect, const LLColor4& color, BOOL filled = TRUE );
-void gl_rect_2d_checkerboard(const LLRect& rect);
+void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha = 1.0f);
 
 void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &start_color, S32 lines);
 

@@ -118,7 +118,7 @@ public:
 protected:
 	LLSideTrayTab(const Params& params);
 	
-	void			dock();
+	void			dock(LLFloater* floater_tab);
 	void			undock(LLFloater* floater_tab);
 
 	LLSideTray*		getSideTray();
@@ -259,7 +259,7 @@ void LLSideTrayTab::toggleTabDocked()
 
 	if (docking)
 	{
-		dock();
+		dock(floater_tab);
 	}
 	else
 	{
@@ -271,10 +271,13 @@ void LLSideTrayTab::toggleTabDocked()
 	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 }
 
-void LLSideTrayTab::dock()
+void LLSideTrayTab::dock(LLFloater* floater_tab)
 {
 	LLSideTray* side_tray = getSideTray();
 	if (!side_tray) return;
+
+	// Before docking the tab, reset its (and its children's) transparency to default (STORM-688).
+	floater_tab->updateTransparency(TT_DEFAULT);
 
 	if (!side_tray->addTab(this))
 	{
