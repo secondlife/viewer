@@ -909,7 +909,7 @@ bool LLAppViewer::init()
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
 	// Save the current version to the prefs file
-	gSavedSettings.setString("LastRunVersion", LLVersionInfo::getVersionAndChannel());
+	gSavedSettings.setString("LastRunVersion",
 							 LLVersionInfo::getChannelAndVersion());
 
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
