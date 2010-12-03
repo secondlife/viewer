@@ -501,6 +501,18 @@ void LLFastTimer::NamedTimer::resetFrame()
 	if (sLog)
 	{ //output current frame counts to performance log
 
+		static S32 call_count = 0;
+		if (call_count % 100 == 0)
+		{
+			llinfos << "countsPerSecond (32 bit): " << countsPerSecond() << llendl;
+			llinfos << "get_clock_count (64 bit): " << get_clock_count() << llendl;
+			llinfos << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << llendl;
+			llinfos << "getCPUClockCount32() " << getCPUClockCount32() << llendl;
+			llinfos << "getCPUClockCount64() " << getCPUClockCount64() << llendl;
+			llinfos << "elapsed sec " << ((F64)getCPUClockCount64())/((F64)LLProcessorInfo().getCPUFrequency()*1000000.0) << llendl;
+		}
+		call_count++;
+
 		F64 iclock_freq = 1000.0 / countsPerSecond(); // good place to calculate clock frequency
 
 		F64 total_time = 0;
