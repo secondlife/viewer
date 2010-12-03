@@ -192,6 +192,7 @@
 		 layout="topleft"
 		 left_delta="0"
 		 name="BumpShiny"
+		 top_pad="1"
 		width="256" />
     <check_box
 		control_name="RenderLocalLights"
