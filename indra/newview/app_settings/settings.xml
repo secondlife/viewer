@@ -11121,7 +11121,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://update.secondlife.com</string>
+      <string>https://update.secondlife.com</string>
     </map>
     <key>UpdaterServicePath</key>
     <map>

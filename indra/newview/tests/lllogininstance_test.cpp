@@ -181,7 +181,7 @@ void LLUIColorTable::saveUserSettings(void)const {}
 
 //-----------------------------------------------------------------------------
 #include "../llversioninfo.h"
-const std::string &LLVersionInfo::getVersionAndChannel() { return VIEWERLOGIN_VERSION_CHANNEL; }
+const std::string &LLVersionInfo::getChannelAndVersion() { return VIEWERLOGIN_VERSION_CHANNEL; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
 //-----------------------------------------------------------------------------

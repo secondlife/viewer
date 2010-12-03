@@ -59,8 +59,8 @@ public:
 	static const std::string &getShortVersion();
 
 	/// return the viewer version and channel as a string
-	/// like "2.0.0.200030 Second Life Release"
-	static const std::string &getVersionAndChannel();
+	/// like "Second Life Release 2.0.0.200030"
+	static const std::string &getChannelAndVersion();
 
 	/// return the channel name, e.g. "Second Life"
 	static const std::string &getChannel();
