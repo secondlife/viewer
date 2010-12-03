@@ -51,15 +51,15 @@ namespace tut
 			mShortVersion = stream.str();
 			stream.str("");
 
-			stream << mVersion
+			stream << LL_CHANNEL
 				   << " "
-				   << LL_CHANNEL;
+				   << mVersion;
 			mVersionAndChannel = stream.str();
 			stream.str("");
 
-			stream << mVersion
+			stream << mResetChannel
 				   << " "
-				   << mResetChannel;
+				   << mVersion;
 			mResetVersionAndChannel = stream.str();
 		}
 		std::string mResetChannel;
@@ -99,7 +99,7 @@ namespace tut
 					  LLVersionInfo::getShortVersion(), 
 					  mShortVersion);
 		ensure_equals("Version and channel String", 
-					  LLVersionInfo::getVersionAndChannel(), 
+					  LLVersionInfo::getChannelAndVersion(), 
 					  mVersionAndChannel);
 
 		LLVersionInfo::resetChannel(mResetChannel);
@@ -108,7 +108,7 @@ namespace tut
 					  mResetChannel);
 
 		ensure_equals("Reset Version and channel String", 
-					  LLVersionInfo::getVersionAndChannel(), 
+					  LLVersionInfo::getChannelAndVersion(), 
 					  mResetVersionAndChannel);
 	}
 }
