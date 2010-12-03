@@ -78,10 +78,11 @@ void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
 {
 	observer_multimap_t::iterator it;
+	observer_multimap_t::iterator start = mObservers.lower_bound(parcel_id);
 	observer_multimap_t::iterator end = mObservers.upper_bound(parcel_id);
 
 	// Check if the observer is already in observers list for this UUID
-	for(it = mObservers.find(parcel_id); it != end; ++it)
+	for(it = start; it != end; ++it)
 	{
 		if (it->second.get() == observer)
 		{
@@ -100,9 +101,10 @@ void LLRemoteParcelInfoProcessor::removeObserver(const LLUUID& parcel_id, LLRemo
 	}
 
 	observer_multimap_t::iterator it;
+	observer_multimap_t::iterator start = mObservers.lower_bound(parcel_id);
 	observer_multimap_t::iterator end = mObservers.upper_bound(parcel_id);
 
-	for(it = mObservers.find(parcel_id); it != end; ++it)
+	for(it = start; it != end; ++it)
 	{
 		if (it->second.get() == observer)
 		{
@@ -139,9 +141,10 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	deadlist_t dead_iters;
 
 	observer_multimap_t::iterator oi;
+	observer_multimap_t::iterator start = observers.lower_bound(parcel_data.parcel_id);
 	observer_multimap_t::iterator end = observers.upper_bound(parcel_data.parcel_id);
 
-	for (oi = observers.find(parcel_data.parcel_id); oi != end; ++oi)
+	for (oi = start; oi != end; ++oi)
 	{
 		LLRemoteParcelInfoObserver * observer = oi->second.get();
 		if(observer)
