@@ -835,7 +835,6 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 		}
 	}
 
-	if(!isHovering())
 		redrawToasts();
 }
 
