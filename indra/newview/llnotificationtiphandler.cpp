@@ -96,7 +96,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 					LLNearbyChat>("nearby_chat", LLSD());
 			if (nearby_chat->getVisible())
 			{
-				return true;
+				return false;
 			}
 		}
 
@@ -121,7 +121,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		// don't spawn toast for inventory accepted/declined offers if respective IM window is open (EXT-5909)
 		if (!LLHandlerUtil::canSpawnToast(notification))
 		{
-			return true;
+			return false;
 		}
 
 		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
@@ -144,7 +144,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 	{
 		mChannel->killToastByNotificationID(notification->getID());
 	}
-	return true;
+	return false;
 }
 
 //--------------------------------------------------------------------------

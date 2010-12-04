@@ -30,6 +30,7 @@
 
 // Viewer includes
 #include "llversioninfo.h"
+#include "llversionviewer.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
@@ -82,8 +83,10 @@
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
+#include "llupdaterservice.h"
 
 // Linden library includes
+#include "llavatarnamecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -156,7 +159,6 @@
 // Included so that constants/settings might be initialized
 // in save_settings_to_globals()
 #include "llbutton.h"
-#include "llcombobox.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "llvosky.h"
@@ -194,6 +196,8 @@
 // Include for security api initialization
 #include "llsecapi.h"
 #include "llmachineid.h"
+
+#include "llmainlooprepeater.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -262,6 +266,7 @@ const F64 FRAME_STALL_THRESHOLD = 1.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
+LLFrameTimer gLoggedInTime;
 LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
@@ -360,19 +365,19 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	if(gAgent.isInGroup(match_id, TRUE))
 	{
-		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
 	}
 	else
 	{
-		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = match_id;
 		icon_params.rect = LLRect(0, 16, 16, 0);
 		icon_params.visible = true;
-		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+		icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
 	}
 
 	LLInlineViewSegment::Params params;
@@ -431,9 +436,6 @@ static void settings_to_globals()
 
 	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
 	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
-
-	LLCOMBOBOX_HEIGHT	= BTN_HEIGHT - 2;
-	LLCOMBOBOX_WIDTH	= 128;
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
@@ -512,16 +514,10 @@ class LLFastTimerLogThread : public LLThread
 public:
 	std::string mFile;
 
-	LLFastTimerLogThread() : LLThread("fast timer log")
+	LLFastTimerLogThread(std::string& test_name) : LLThread("fast timer log")
 	{
-		if(LLFastTimer::sLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp");
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp");
-		}
+		std::string file_name = test_name + std::string(".slp");
+		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name);
 	}
 
 	void run()
@@ -537,6 +533,7 @@ public:
 
 		os.close();
 	}
+
 };
 
 //virtual
@@ -583,7 +580,8 @@ LLAppViewer::LLAppViewer() :
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
-	mFastTimerLogThread(NULL)
+	mFastTimerLogThread(NULL),
+	mUpdater(new LLUpdaterService())
 {
 	if(NULL != sInstance)
 	{
@@ -592,6 +590,7 @@ LLAppViewer::LLAppViewer() :
 
 	setupErrorHandling();
 	sInstance = this;
+	gLoggedInTime.stop();
 }
 
 LLAppViewer::~LLAppViewer()
@@ -658,10 +657,13 @@ bool LLAppViewer::init()
     initThreads();
     writeSystemInfo();
 
-	// Build a string representing the current version number.
-    gCurrentVersion = llformat("%s %s", 
-							   gSavedSettings.getString("VersionChannelName").c_str(),
-							   LLVersionInfo::getVersion().c_str());
+	// Initialize updater service (now that we have an io pump)
+	initUpdater();
+	if(isQuitting())
+	{
+		// Early out here because updater set the quitting flag.
+		return true;
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -805,6 +807,9 @@ bool LLAppViewer::init()
 		return 1;
 	}
 	
+	// Initialize the repeater service.
+	LLMainLoopRepeater::instance().start();
+	
 	//
 	// Initialize the window
 	//
@@ -901,7 +906,8 @@ bool LLAppViewer::init()
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
 	// Save the current version to the prefs file
-	gSavedSettings.setString("LastRunVersion", gCurrentVersion);
+	gSavedSettings.setString("LastRunVersion", 
+							 LLVersionInfo::getChannelAndVersion());
 
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
@@ -929,8 +935,9 @@ bool LLAppViewer::init()
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
 	//datetime formatting functions didn't support some parameters such as "weekday".
+	//Names for days and months localized in xml are also useful for Polish locale(STORM-107).
 	std::string language = LLControlGroup::getInstance(sGlobalSettingsName)->getString("Language");
-	if(language == "ja")
+	if(language == "ja" || language == "pl")
 	{
 		LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
 		LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
@@ -975,13 +982,14 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
-
+	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::getInstance()->init(gServicePump);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
+	LLFrameTimer memCheckTimer;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	joystick->setNeedsReset(true);
 
@@ -992,10 +1000,28 @@ bool LLAppViewer::mainLoop()
     // point of posting.
     LLSD newFrame;
 
+	const F32 memory_check_interval = 1.0f ; //second
+
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+
+		//clear call stack records
+		llclearcallstacks;
+
+		//check memory availability information
+		{
+			if(memory_check_interval < memCheckTimer.getElapsedTimeF32())
+			{
+				memCheckTimer.reset() ;
+
+				//update the availability of memory
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+			}
+			llcallstacks << "Available physical mem(KB): " << mAvailPhysicalMemInKB << llcallstacksendl ;
+			llcallstacks << "Available virtual mem(KB): " << mAvailVirtualMemInKB << llcallstacksendl ;
+		}
 
 		try
 		{
@@ -1223,11 +1249,20 @@ bool LLAppViewer::mainLoop()
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
-			}
-						
+			}			
 		}
 		catch(std::bad_alloc)
 		{			
+			{
+				llinfos << "Availabe physical memory(KB) at the beginning of the frame: " << mAvailPhysicalMemInKB << llendl ;
+				llinfos << "Availabe virtual memory(KB) at the beginning of the frame: " << mAvailVirtualMemInKB << llendl ;
+
+				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
+
+				llinfos << "Current availabe physical memory(KB): " << mAvailPhysicalMemInKB << llendl ;
+				llinfos << "Current availabe virtual memory(KB): " << mAvailVirtualMemInKB << llendl ;
+			}
+
 			//stop memory leaking simulation
 			LLFloaterMemLeak* mem_leak_instance =
 				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1330,11 +1365,14 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning Up" << llendflush;
 
 	// Must clean up texture references before viewer window is destroyed.
-	LLHUDManager::getInstance()->updateEffects();
-	LLHUDObject::updateAll();
-	LLHUDManager::getInstance()->cleanupEffects();
-	LLHUDObject::cleanupHUDObjects();
-	llinfos << "HUD Objects cleaned up" << llendflush;
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->updateEffects();
+		LLHUDObject::updateAll();
+		LLHUDManager::getInstance()->cleanupEffects();
+		LLHUDObject::cleanupHUDObjects();
+		llinfos << "HUD Objects cleaned up" << llendflush;
+	}
 
 	LLKeyframeDataCache::clear();
 	
@@ -1346,16 +1384,17 @@ bool LLAppViewer::cleanup()
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
-	LLHUDManager::getInstance()->shutdownClass();
-	
+	if(LLHUDManager::instanceExists())
+	{
+		LLHUDManager::getInstance()->shutdownClass();
+	}
 
 	delete gAssetStorage;
 	gAssetStorage = NULL;
 
 	LLPolyMesh::freeAllMeshes();
 
-	delete gCacheName;
-	gCacheName = NULL;
+	LLStartUp::cleanupNameCache();
 
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be deleted.
 
@@ -1616,22 +1655,16 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		if(LLFastTimer::sLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_report.csv"));
-		}
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+
+		LLFastTimerView::doAnalysis(
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));
 	}
-	LLMetricPerformanceTester::cleanClass() ;
+	LLMetricPerformanceTesterBasic::cleanClass() ;
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -1650,7 +1683,10 @@ bool LLAppViewer::cleanup()
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Auditing VFS" << llendl;
-	gVFS->audit();
+	if(gVFS)
+	{
+		gVFS->audit();
+	}
 #endif
 
 	llinfos << "Misc Cleanup" << llendflush;
@@ -1690,6 +1726,8 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
+
+	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
 
@@ -1738,7 +1776,7 @@ bool LLAppViewer::initThreads()
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
 		LLFastTimer::sLogLock = new LLMutex(NULL);
-		mFastTimerLogThread = new LLFastTimerLogThread();
+		mFastTimerLogThread = new LLFastTimerLogThread(LLFastTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -1937,8 +1975,6 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", LLVersionInfo::getChannel());
-
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
 	// persisted to settings.xml
@@ -2021,6 +2057,15 @@ bool LLAppViewer::initConfiguration()
 	// - apply command line settings 
 	clp.notify(); 
 
+	// Register the core crash option as soon as we can
+	// if we want gdb post-mortem on cores we need to be up and running
+	// ASAP or we might miss init issue etc.
+	if(clp.hasOption("disablecrashlogger"))
+	{
+		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << llendl;
+		LLAppViewer::instance()->disableCrashlogger();
+	}
+
 	// Handle initialization from settings.
 	// Start up the debugging console before handling other options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
@@ -2070,6 +2115,11 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    if(clp.hasOption("channel"))
+    {
+		LLVersionInfo::resetChannel(clp.getOption("channel")[0]);
+	}
+	
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
 	if(clp.hasOption("crashonstartup"))
@@ -2080,11 +2130,25 @@ bool LLAppViewer::initConfiguration()
 	if (clp.hasOption("logperformance"))
 	{
 		LLFastTimer::sLog = TRUE;
+		LLFastTimer::sLogName = std::string("performance");
 	}
 	
-	if(clp.hasOption("logmetrics"))
+	if (clp.hasOption("logmetrics"))
 	{
 		LLFastTimer::sMetricLog = TRUE ;
+		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
+		std::string test_name = clp.getOption("logmetrics")[0];
+		llinfos << "'--logmetrics' argument : " << test_name << llendl;
+		if (test_name == "")
+		{
+			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
+			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
+		}
+		else
+		{
+			LLFastTimer::sLogName = test_name;
+		}
 	}
 
 	if (clp.hasOption("graphicslevel"))
@@ -2325,6 +2389,58 @@ bool LLAppViewer::initConfiguration()
 	return true; // Config was successful.
 }
 
+namespace {
+    // *TODO - decide if there's a better place for this function.
+    // do we need a file llupdaterui.cpp or something? -brad
+    bool notify_update(LLSD const & evt)
+    {
+		switch (evt["type"].asInteger())
+		{
+			case LLUpdaterService::DOWNLOAD_COMPLETE:
+				LLNotificationsUtil::add("DownloadBackground");
+				break;
+			case LLUpdaterService::INSTALL_ERROR:
+				LLNotificationsUtil::add("FailedUpdateInstall");
+				break;
+			default:
+				llinfos << "unhandled update event " << evt << llendl;
+				break;
+		}
+
+		// let others also handle this event by default
+        return false;
+    }
+};
+
+void LLAppViewer::initUpdater()
+{
+	// Initialize the updater service.
+	// Generate URL to the udpater service
+	// Get Channel
+	// Get Version
+	std::string url = gSavedSettings.getString("UpdaterServiceURL");
+	std::string channel = LLVersionInfo::getChannel();
+	std::string version = LLVersionInfo::getVersion();
+	std::string protocol_version = gSavedSettings.getString("UpdaterServiceProtocolVersion");
+	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
+	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
+
+	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
+	mUpdater->initialize(protocol_version, 
+						 url, 
+						 service_path, 
+						 channel, 
+						 version);
+ 	mUpdater->setCheckPeriod(check_period);
+	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
+	{
+		bool install_if_ready = true;
+		mUpdater->startChecking(install_if_ready);
+	}
+
+    LLEventPump & updater_pump = LLEventPumps::instance().obtain(LLUpdaterService::pumpName());
+    updater_pump.listen("notify_update", &notify_update);
+}
 
 void LLAppViewer::checkForCrash(void)
 {
@@ -2485,15 +2601,18 @@ void LLAppViewer::cleanupSavedSettings()
 
 	// save window position if not maximized
 	// as we don't track it in callbacks
-	BOOL maximized = gViewerWindow->mWindow->getMaximized();
-	if (!maximized)
+	if(NULL != gViewerWindow)
 	{
-		LLCoordScreen window_pos;
-
-		if (gViewerWindow->mWindow->getPosition(&window_pos))
+		BOOL maximized = gViewerWindow->mWindow->getMaximized();
+		if (!maximized)
 		{
-			gSavedSettings.setS32("WindowX", window_pos.mX);
-			gSavedSettings.setS32("WindowY", window_pos.mY);
+			LLCoordScreen window_pos;
+
+			if (gViewerWindow->mWindow->getPosition(&window_pos))
+			{
+				gSavedSettings.setS32("WindowX", window_pos.mX);
+				gSavedSettings.setS32("WindowY", window_pos.mY);
+			}
 		}
 	}
 
@@ -2516,7 +2635,7 @@ void LLAppViewer::writeSystemInfo()
 {
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
@@ -2597,6 +2716,11 @@ void LLAppViewer::handleViewerCrash()
 		abort();
 	}
 
+	if (LLApp::isCrashloggerDisabled())
+	{
+		abort();
+	}
+
 	// Returns whether a dialog was shown.
 	// Only do the logic in here once
 	if (pApp->mReportedCrash)
@@ -2614,7 +2738,7 @@ void LLAppViewer::handleViewerCrash()
 	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
@@ -2992,7 +3116,7 @@ void LLAppViewer::migrateCacheDirectory()
 			S32 file_count = 0;
 			std::string file_name;
 			std::string mask = delimiter + "*.*";
-			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name, false))
+			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name))
 			{
 				if (file_name == "." || file_name == "..") continue;
 				std::string source_path = old_cache_dir + delimiter + file_name;
@@ -3024,14 +3148,6 @@ void LLAppViewer::migrateCacheDirectory()
 		}
 	}
 #endif // LL_WINDOWS || LL_DARWIN
-}
-
-//static
-S32 LLAppViewer::getCacheVersion() 
-{
-	static const S32 cache_version = 7;
-
-	return cache_version ;
 }
 
 void dumpVFSCaches()
@@ -3072,23 +3188,40 @@ void dumpVFSCaches()
 	SetCurrentDirectory(w_str);
 #endif
 }
+
+//static
+U32 LLAppViewer::getTextureCacheVersion() 
+{
+	//viewer texture cache version, change if the texture cache format changes.
+	const U32 TEXTURE_CACHE_VERSION = 7;
+
+	return TEXTURE_CACHE_VERSION ;
+}
+
+//static
+U32 LLAppViewer::getObjectCacheVersion() 
+{
+	// Viewer object cache version, change if object update
+	// format changes. JC
+	const U32 INDRA_OBJECT_CACHE_VERSION = 14;
+
+	return INDRA_OBJECT_CACHE_VERSION;
+}
+
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
-	BOOL disable_texture_cache = FALSE ;
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
+	LLVOCache::getInstance()->setReadOnly(read_only);
 
-	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getCacheVersion()) 
+	BOOL texture_cache_mismatch = FALSE ;
+	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion()) 
 	{
-		if(read_only) 
+		texture_cache_mismatch = TRUE ;
+		if(!read_only) 
 		{
-			disable_texture_cache = TRUE ; //if the cache version of this viewer is different from the running one, this viewer can not use the texture cache.
-		}
-		else
-		{
-			mPurgeCache = true; // Purge cache if the version number is different.
-			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getCacheVersion());
+			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
 		}
 	}
 
@@ -3139,8 +3272,10 @@ bool LLAppViewer::initCache()
 	const S64 MAX_CACHE_SIZE = 1024*MB;
 	cache_size = llmin(cache_size, MAX_CACHE_SIZE);
 	S64 texture_cache_size = ((cache_size * 8)/10);
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, disable_texture_cache);
+	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
+
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 	
@@ -3200,7 +3335,7 @@ bool LLAppViewer::initCache()
 		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
 
 		std::string found_file;
-		if (gDirUtilp->getNextFileInDir(dir, mask, found_file, false))
+		if (gDirUtilp->getNextFileInDir(dir, mask, found_file))
 		{
 			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
 
@@ -3304,6 +3439,7 @@ void LLAppViewer::purgeCache()
 {
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << llendl;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
+	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
 	std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
 	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 }
@@ -3421,6 +3557,15 @@ void LLAppViewer::saveFinalSnapshot()
 
 void LLAppViewer::loadNameCache()
 {
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llifstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::importFile(name_cache_stream);
+	}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;
@@ -3430,19 +3575,19 @@ void LLAppViewer::loadNameCache()
 	{
 		if(gCacheName->importFile(cache_file)) return;
 	}
-
-	// Try to load from the legacy format. This should go away after a
-	// while. Phoenix 2008-01-30
-	LLFILE* name_cache_fp = LLFile::fopen(name_cache, "r");		// Flawfinder: ignore
-	if (name_cache_fp)
-	{
-		gCacheName->importFile(name_cache_fp);
-		fclose(name_cache_fp);
-	}
 }
 
 void LLAppViewer::saveNameCache()
-{
+	{
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llofstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::exportFile(name_cache_stream);
+}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;
@@ -3642,6 +3787,7 @@ void LLAppViewer::idle()
 	    // NOTE: Starting at this point, we may still have pointers to "dead" objects
 	    // floating throughout the various object lists.
 	    //
+		idleNameCache();
     
 		idleNetwork();
 	    	        
@@ -3979,6 +4125,60 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
+void LLAppViewer::idleNameCache()
+{
+	// Neither old nor new name cache can function before agent has a region
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	// deal with any queued name requests and replies.
+	gCacheName->processPending();
+
+	// Can't run the new cache until we have the list of capabilities
+	// for the agent region, and can therefore decide whether to use
+	// display names or fall back to the old name system.
+	if (!region->capabilitiesReceived()) return;
+
+	// Agent may have moved to a different region, so need to update cap URL
+	// for name lookups.  Can't do this in the cap grant code, as caps are
+	// granted to neighbor regions before the main agent gets there.  Can't
+	// do it in the move-into-region code because cap not guaranteed to be
+	// granted yet, for example on teleport.
+	bool had_capability = LLAvatarNameCache::hasNameLookupURL();
+	std::string name_lookup_url;
+	name_lookup_url.reserve(128); // avoid a memory allocation below
+	name_lookup_url = region->getCapability("GetDisplayNames");
+	bool have_capability = !name_lookup_url.empty();
+	if (have_capability)
+	{
+		// we have support for display names, use it
+	    U32 url_size = name_lookup_url.size();
+	    // capabilities require URLs with slashes before query params:
+	    // https://<host>:<port>/cap/<uuid>/?ids=<blah>
+	    // but the caps are granted like:
+	    // https://<host>:<port>/cap/<uuid>
+	    if (url_size > 0 && name_lookup_url[url_size-1] != '/')
+	    {
+		    name_lookup_url += '/';
+	    }
+		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+	}
+	else
+	{
+		// Display names not available on this region
+		LLAvatarNameCache::setNameLookupURL( std::string() );
+	}
+
+	// Error recovery - did we change state?
+	if (had_capability != have_capability)
+	{
+		// name tags are persistant on screen, so make sure they refresh
+		LLVOAvatar::invalidateNameTags();
+	}
+
+	LLAvatarNameCache::idle();
+}
+
 //
 // Handle messages, and all message related stuff
 //
@@ -4004,8 +4204,6 @@ void LLAppViewer::idleNetwork()
 	{
 		LLFastTimer t(FTM_IDLE_NETWORK); // decode
 		
-		// deal with any queued name requests and replies.
-		gCacheName->processPending();
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
 		const S64 frame_count = gFrameCount;  // U32->S64
@@ -4153,7 +4351,10 @@ void LLAppViewer::disconnectViewer()
 
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.
-	LLWorld::getInstance()->destroyClass();
+	if(LLWorld::instanceExists())
+	{
+		LLWorld::getInstance()->destroyClass();
+	}
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();
@@ -4263,10 +4464,11 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::handleLoginComplete()
 {
+	gLoggedInTime.start();
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
@@ -4372,7 +4574,7 @@ void LLAppViewer::launchUpdater()
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
 	query_map["userserver"] = LLGridManager::getInstance()->getGridLabel();
-	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
+	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
@@ -4440,6 +4642,8 @@ void LLAppViewer::launchUpdater()
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -bundleid \"";
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += LL_VERSION_BUNDLE_ID;
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;

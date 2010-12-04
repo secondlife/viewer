@@ -36,6 +36,8 @@
 #include "llcallingcard.h" // for LLFriendObserver
 
 class LLAvatarIconCtrl;
+class LLAvatarName;
+class LLIconCtrl;
 
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
@@ -48,6 +50,8 @@ public:
 									voice_call_left_style,
 									online_style,
 									offline_style;
+
+		Optional<S32>				name_right_pad;
 
 		Params();
 	};
@@ -85,7 +89,9 @@ public:
 	virtual void changed(U32 mask); // from LLFriendObserver
 
 	void setOnline(bool online);
-	void setName(const std::string& name);
+	void updateAvatarName(); // re-query the name cache
+	void setAvatarName(const std::string& name);
+	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
 	void setState(EItemState item_style);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
@@ -94,11 +100,13 @@ public:
 	void setShowProfileBtn(bool show);
 	void setShowInfoBtn(bool show);
 	void showSpeakingIndicator(bool show);
+	void setShowPermissions(bool show) { mShowPermissions = show; };
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
-	const std::string getAvatarName() const;
+	std::string getAvatarName() const;
+	std::string getAvatarToolTip() const;
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();
@@ -112,6 +120,15 @@ protected:
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 
 	LLAvatarIconCtrl* mAvatarIcon;
+
+	/// Indicator for permission to see me online.
+	LLIconCtrl* mIconPermissionOnline;
+	/// Indicator for permission to see my position on the map.
+	LLIconCtrl* mIconPermissionMap;
+	/// Indicator for permission to edit my objects.
+	LLIconCtrl* mIconPermissionEditMine;
+	/// Indicator for permission to edit their objects.
+	LLIconCtrl* mIconPermissionEditTheirs;
 
 private:
 
@@ -132,6 +149,10 @@ private:
 		ALIC_SPEAKER_INDICATOR,
 		ALIC_PROFILE_BUTTON,
 		ALIC_INFO_BUTTON,
+		ALIC_PERMISSION_ONLINE,
+		ALIC_PERMISSION_MAP,
+		ALIC_PERMISSION_EDIT_MINE,
+		ALIC_PERMISSION_EDIT_THEIRS,
 		ALIC_INTERACTION_TIME,
 		ALIC_NAME,
 		ALIC_ICON,
@@ -139,7 +160,7 @@ private:
 	} EAvatarListItemChildIndex;
 
 	void setNameInternal(const std::string& name, const std::string& highlight);
-	void onNameCache(const std::string& first_name, const std::string& last_name);
+	void onAvatarNameCache(const LLAvatarName& av_name);
 
 	std::string formatSeconds(U32 secs);
 
@@ -157,6 +178,13 @@ private:
 	 * Updates position and rectangle of visible children to fit all available item's width.
 	 */
 	void updateChildren();
+
+	/**
+	 * Update visibility of active permissions icons.
+	 *
+	 * Need to call updateChildren() afterwards to sort out their layout.
+	 */
+	bool showPermissions(bool visible);
 
 	/**
 	 * Gets child view specified by index.
@@ -181,9 +209,15 @@ private:
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
 
+	/// indicates whether to show icons representing permissions granted
+	bool mShowPermissions;
+
+	/// true when the mouse pointer is hovering over this item
+	bool mHovered;
+
 	static bool	sStaticInitialized; // this variable is introduced to improve code readability
 	static S32  sLeftPadding; // padding to first left visible child (icon or name)
-	static S32  sRightNamePadding; // right padding from name to next visible child
+	static S32  sNameRightPadding; // right padding from name to next visible child
 
 	/**
 	 * Contains widths of each child specified by EAvatarListItemChildIndex

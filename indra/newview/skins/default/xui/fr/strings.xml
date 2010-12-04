@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Cliquez pour afficher le profil de ce résident
 	</string>
+	<string name="TooltipAgentInspect">
+		En savoir plus sur ce résident
+	</string>
 	<string name="TooltipAgentMute">
 		Cliquer pour ignorer ce résident
 	</string>
@@ -246,7 +249,7 @@
 		Cliquez pour voir cet emplacement sur la carte
 	</string>
 	<string name="TooltipSLAPP">
-		Cliquez pour exécuter la commande secondlife:// command
+		Cliquez pour exécuter la commande secondlife://
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
@@ -762,6 +765,12 @@
 	<string name="Estate / Full Region">
 		Domaine / Région entière
 	</string>
+	<string name="Estate / Homestead">
+		Domaine / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continent / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Continent / Région entière
 	</string>
@@ -798,7 +807,7 @@
 	<string name="xml_file">
 		Fichier XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Fichier RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1027,10 +1036,10 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/ Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1080,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value=" depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
@@ -1145,6 +1154,9 @@
 		Gestes
 	</string>
 	<string name="InvFolder Favorite">
+		Favoris
+	</string>
+	<string name="InvFolder favorite">
 		Favoris
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -1291,6 +1303,9 @@
 	<string name="Right Pec">
 		Pectoral droit
 	</string>
+	<string name="Invalid Attachment">
+		Point d&apos;attache non valide
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1382,7 +1397,7 @@
 		Personne dont l&apos;âge n&apos;a pas été vérifié
 	</string>
 	<string name="Center 2">
-		Centrer 2
+		Centre 2
 	</string>
 	<string name="Top Right">
 		En haut à droite
@@ -1394,7 +1409,7 @@
 		En haut à gauche
 	</string>
 	<string name="Center">
-		Centrer
+		Centre
 	</string>
 	<string name="Bottom Left">
 		En bas à gauche
@@ -1668,9 +1683,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD en bas à droite
 	</string>
-	<string name="Bad attachment point">
-		Point d&apos;attache non valide
-	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
 	</string>
@@ -1691,12 +1703,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
-	</string>
-	<string name="NoOutfits">
-		Aucune tenue n&apos;est actuellement en votre possession. Essayez [secondlife:///app/search/all Rechercher].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="MuteByName">
 		(par nom)
@@ -1738,7 +1744,7 @@
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		L&apos;utilisateur n&apos;a ni favoris ni petites annonces
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
@@ -1860,6 +1866,12 @@
 	</string>
 	<string name="accel-win-shift">
 		Maj+
+	</string>
+	<string name="Esc">
+		Échap
+	</string>
+	<string name="Home">
+		Début
 	</string>
 	<string name="FileSaved">
 		Fichier enregistré
@@ -3525,6 +3537,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Modérateur)
 	</string>
+	<string name="Saved_message">
+		(Enregistrement : [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
@@ -3552,17 +3567,23 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="conference-title">
 		Conférence ad-hoc
 	</string>
+	<string name="conference-title-incoming">
+		Conférence avec [AGENT_NAME]
+	</string>
 	<string name="inventory_item_offered-im">
 		Objet de l&apos;inventaire offert
 	</string>
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
 	</string>
+	<string name="no_session_message">
+		(Session IM inexistante)
+	</string>
 	<string name="only_user_message">
 		Vous êtes le seul participant à cette session.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] est déconnecté(e).
+		[NAME] est hors ligne.
 	</string>
 	<string name="invite_message">
 		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
@@ -3631,7 +3652,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] vous a payé [AMOUNT] L$
+		[NAME] vous a payé [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
@@ -3644,6 +3668,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for item">
+		pour l&apos;article suivant : [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		pour une parcelle de terrain
@@ -3662,6 +3689,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		pour charger
+	</string>
+	<string name="to publish a classified ad">
+		pour publier une petite annonce
 	</string>
 	<string name="giving">
 		Donner [AMOUNT] L$
@@ -3941,5 +3971,14 @@ de l&apos;infraction signalée
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Supprimer les articles sélectionnés ?
+	</string>
+	<string name="DeleteItem">
+		Supprimer l&apos;article sélectionné ?
+	</string>
+	<string name="EmptyOutfitText">
+		Cette tenue ne contient aucun article.
 	</string>
 </strings>

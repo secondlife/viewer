@@ -56,4 +56,27 @@
 		<radio_item label="Osobne okna" name="radio" value="0"/>
 		<radio_item label="Etykiety" name="radio2" value="1"/>
 	</radio_group>
+	<check_box label="Używaj translatora podczas rozmowy (wspierany przez Google)" name="translate_chat_checkbox"/>
+	<text name="translate_language_text">
+		Przetłumacz czat na:
+	</text>
+	<combo_box name="translate_language_combobox">
+		<combo_box.item label="Domyślny" name="System Default Language"/>
+		<combo_box.item label="English (Angielski)" name="English"/>
+		<combo_box.item label="Dansk (Duński)" name="Danish"/>
+		<combo_box.item label="Deutsch (Niemiecki)" name="German"/>
+		<combo_box.item label="Español (Hiszpański)" name="Spanish"/>
+		<combo_box.item label="Français (Francuski)" name="French"/>
+		<combo_box.item label="Italiano (Włoski)" name="Italian"/>
+		<combo_box.item label="Magyar (Węgierski)" name="Hungarian"/>
+		<combo_box.item label="Nederlands (Holenderski)" name="Dutch"/>
+		<combo_box.item label="Polski" name="Polish"/>
+		<combo_box.item label="Português (Portugalski)" name="Portugese"/>
+		<combo_box.item label="Русский (Rosyjski)" name="Russian"/>
+		<combo_box.item label="Türkçe (Turecki)" name="Turkish"/>
+		<combo_box.item label="Українська (Ukraiński)" name="Ukrainian"/>
+		<combo_box.item label="中文 (简体) (Chiński)" name="Chinese"/>
+		<combo_box.item label="日本語 (Japoński)" name="Japanese"/>
+		<combo_box.item label="한국어 (Koreański)" name="Korean"/>
+	</combo_box>
 </panel>

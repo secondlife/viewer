@@ -96,11 +96,7 @@ LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 BOOL LLFloaterSearch::postBuild()
 {
 	mBrowser = getChild<LLMediaCtrl>("browser");
-	if (mBrowser)
-	{
-		mBrowser->addObserver(this);
-		mBrowser->setTrusted(true);
-	}
+	mBrowser->addObserver(this);
 
 	return TRUE;
 }

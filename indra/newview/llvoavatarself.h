@@ -33,6 +33,7 @@
 
 struct LocalTextureData;
 
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatarSelf
 //
@@ -122,6 +123,8 @@ public:
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
+	void			resetRegionCrossingTimer()	{ mRegionCrossingTimer.reset();	}
+
 private:
 	U64				mLastRegionHandle;
 	LLFrameTimer	mRegionCrossingTimer;

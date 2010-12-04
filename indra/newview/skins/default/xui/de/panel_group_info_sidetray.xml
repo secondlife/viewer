@@ -13,7 +13,7 @@
 		Kostenlos
 	</panel.string>
 	<panel name="group_info_top">
-		<text name="group_name" value="(wird geladen...)"/>
+		<text_editor name="group_name" value="(wird geladen...)"/>
 		<line_editor label="Neuen Gruppennamen hier eingeben" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
@@ -25,9 +25,15 @@
 				<accordion_tab name="group_land_tab" title="Land/Kapital"/>
 			</accordion>
 		</layout_panel>
-		<layout_panel name="button_row">
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
 			<button label="Chat" name="btn_chat"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
 			<button label="Gruppe anrufen" name="btn_call" tool_tip="Diese Gruppe anrufen"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
 			<button label="Speichern" label_selected="Speichern" name="btn_apply"/>
 			<button label="Gruppe erstellen" name="btn_create" tool_tip="Neue Gruppe erstellen"/>
 		</layout_panel>

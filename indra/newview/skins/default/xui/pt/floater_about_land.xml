@@ -221,60 +221,60 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 			<text name="Simulator primitive usage:">
 				Uso de prims:
 			</text>
-			<text left="214" name="objects_available" width="230">
+			<text name="objects_available">
 				[COUNT] de [MAX] ([AVAILABLE] disponíveis)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Prims suportados pelo lote:
 			</text>
-			<text left="214" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims no lote:
 			</text>
-			<text left="214" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Pertencentes ao dono do lote:
 			</text>
-			<text left="214" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOwner..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner"/>
+			<button label="Devolver" name="ReturnOwner..." tool_tip="Devolver objetos a seus donos."/>
+			<text name="Set to group:">
 				Reservado para o grupo:
 			</text>
-			<text left="214" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnGroup..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup"/>
+			<button label="Devolver" name="ReturnGroup..." tool_tip="Devolver objetos a seus donos."/>
+			<text name="Owned by others:">
 				Propriedade de outros:
 			</text>
-			<text left="214" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOther..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="193">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOther"/>
+			<button label="Devolver" name="ReturnOther..." tool_tip="Devolver objetos a seus donos."/>
+			<text name="Selected / sat upon:">
 				Selecionado/Sentado:
 			</text>
-			<text left="214" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Devolver objetos de outros residentes (p/ desligar tecle 0)
 			</text>
-			<line_editor name="clean other time" right="-10"/>
+			<line_editor name="clean other time"/>
 			<text name="Object Owners:">
 				Donos dos objetos:
 			</text>
-			<button label="Atualizar lista" label_selected="Atualizar lista" left="118" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Devolver objetos..." label_selected="Devolver objetos..." left="230" name="Return objects..."/>
+			<button label="Atualizar lista" label_selected="Atualizar lista" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Devolver objetos..." label_selected="Devolver objetos..." name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nome" name="name"/>
@@ -340,7 +340,7 @@ Apenas lotes maiores podem ser listados na busca.
 			<check_box label="Seguro (sem danos)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, impedindo lutas com danos. Se não ativado, lutas com danos é habilitado."/>
 			<check_box label="Proibido empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. Ativar essa opção ajuda a prevenir comportamentos desordeiros no seu terreno."/>
 			<check_box label="Mostrar terreno nos resultados de busca (L$30/semana)" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
-			<combo_box left="265" name="land category with adult" width="155">
+			<combo_box name="land category with adult">
 				<combo_box.item label="Qualquer categoria" name="item0"/>
 				<combo_box.item label="Locação Linden" name="item1"/>
 				<combo_box.item label="Adulto" name="item2"/>
@@ -355,7 +355,7 @@ Apenas lotes maiores podem ser listados na busca.
 				<combo_box.item label="Compras" name="item11"/>
 				<combo_box.item label="Outros" name="item12"/>
 			</combo_box>
-			<combo_box left="265" name="land category" width="155">
+			<combo_box name="land category">
 				<combo_box.item label="Qualquer categoria" name="item0"/>
 				<combo_box.item label="Locação Linden" name="item1"/>
 				<combo_box.item label="Artes e cultura" name="item3"/>
@@ -382,7 +382,7 @@ Apenas lotes maiores podem ser listados na busca.
 			<text name="Teleport Routing: ">
 				Rota de teletransporte:
 			</text>
-			<combo_box left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os teletransportes no seu lote." width="160">
+			<combo_box name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os teletransportes no seu lote." width="160">
 				<combo_box.item label="Bloqueado" name="Blocked"/>
 				<combo_box.item label="Ponto de aterrissagem" name="LandingPoint"/>
 				<combo_box.item label="Qualquer lugar" name="Anywhere"/>
@@ -470,7 +470,20 @@ Mídia:
 			<spinner label="Preço em L$:" name="PriceSpin"/>
 			<spinner label="Horas de acesso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
+				<text label="Always Allow" name="AllowedText">
+					Residentes permitidos
+				</text>
 				<name_list name="AccessList" tool_tip="(Total [LISTED], máx de [MAX])"/>
+				<button label="Adicionar" name="add_allowed"/>
+				<button label="Tirar" label_selected="Tirar" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="Ban" name="BanCheck">
+					Residentes banidos
+				</text>
+				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])"/>
+				<button label="Adicionar" name="add_banned"/>
+				<button label="Tirar" label_selected="Tirar" name="remove_banned"/>
 			</panel>
 		</panel>
 	</tab_container>

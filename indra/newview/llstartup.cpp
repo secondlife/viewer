@@ -46,6 +46,7 @@
 #endif
 
 #include "llares.h"
+#include "llavatarnamecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -118,7 +119,6 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
@@ -198,6 +198,7 @@
 // exported globals
 //
 bool gAgentMovementCompleted = false;
+S32  gMaxAgentGroups;
 
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
@@ -261,11 +262,10 @@ void apply_udp_blacklist(const std::string& csv);
 bool process_login_success_response();
 void transition_back_to_login_panel(const std::string& emsg);
 
-void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group)
+void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	LLNameListCtrl::refreshAll(id, firstname, lastname, is_group);
-	LLNameBox::refreshAll(id, firstname, lastname, is_group);
-	LLNameEditor::refreshAll(id, firstname, lastname, is_group);
+	LLNameBox::refreshAll(id, full_name, is_group);
+	LLNameEditor::refreshAll(id, full_name, is_group);
 	
 	// TODO: Actually be intelligent about the refresh.
 	// For now, just brute force refresh the dialogs.
@@ -794,10 +794,6 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
-		// Move the progress view in front of the UI immediately when login is performed
-		// this allows not to see main menu after Alt+Tab was pressed while login. EXT-744.
-		gViewerWindow->moveProgressViewToFront();
-
 		//reset the values that could have come in from a slurl
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
@@ -1251,9 +1247,6 @@ bool idle_startup()
 
 		if (!gNoRender)
 		{
-			// Move the progress view in front of the UI
-			gViewerWindow->moveProgressViewToFront();
-
 			// direct logging to the debug console's line buffer
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 			
@@ -1279,16 +1272,7 @@ bool idle_startup()
 
 		gXferManager->registerCallbacks(gMessageSystem);
 
-		if ( gCacheName == NULL )
-		{
-			gCacheName = new LLCacheName(gMessageSystem);
-			gCacheName->addObserver(&callback_cache_name);
-			gCacheName->LocalizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
-			gCacheName->LocalizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
-			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
-			// Load stored cache if possible
-            LLAppViewer::instance()->loadNameCache();
-		}
+		LLStartUp::initNameCache();
 
 		// update the voice settings *after* gCacheName initialization
 		// so that we can construct voice UI that relies on the name cache
@@ -1612,12 +1596,6 @@ bool idle_startup()
 			LLFloaterReg::showInstance("hud", LLSD(), FALSE);
 		}
 
-		LLSD event_categories = response["event_categories"];
-		if(event_categories.isDefined())
-		{
-			LLEventInfo::loadCategories(event_categories);
-		}
-
 		LLSD event_notifications = response["event_notifications"];
 		if(event_notifications.isDefined())
 		{
@@ -1629,7 +1607,6 @@ bool idle_startup()
 		{
 			LLClassifiedInfo::loadCategories(classified_categories);
 		}
-
 
 		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
@@ -2329,8 +2306,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
-
-	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLEventNotifier::processEventInfoReply);
+	
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2673,6 +2650,33 @@ void LLStartUp::fontInit()
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();
+}
+
+void LLStartUp::initNameCache()
+{
+	// Can be called multiple times
+	if ( gCacheName ) return;
+
+	gCacheName = new LLCacheName(gMessageSystem);
+	gCacheName->addObserver(&callback_cache_name);
+	gCacheName->localizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
+	gCacheName->localizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
+	gCacheName->localizeCacheName("none", LLTrans::getString("GroupNameNone"));
+	// Load stored cache if possible
+	LLAppViewer::instance()->loadNameCache();
+
+	// Start cache in not-running state until we figure out if we have
+	// capabilities for display name lookup
+	LLAvatarNameCache::initClass(false);
+	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
+}
+
+void LLStartUp::cleanupNameCache()
+{
+	LLAvatarNameCache::cleanupClass();
+
+	delete gCacheName;
+	gCacheName = NULL;
 }
 
 bool LLStartUp::dispatchURL()
@@ -3148,6 +3152,18 @@ bool process_login_success_response()
 		LLViewerMedia::openIDSetup(openid_url, openid_token);
 	}
 
+	if(response.has("max-agent-groups")) {		
+		std::string max_agent_groups(response["max-agent-groups"]);
+		gMaxAgentGroups = atoi(max_agent_groups.c_str());
+		LL_INFOS("LLStartup") << "gMaxAgentGroups read from login.cgi: "
+							  << gMaxAgentGroups << LL_ENDL;
+	}
+	else {
+		gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
+		LL_INFOS("LLStartup") << "using gMaxAgentGroups default: "
+							  << gMaxAgentGroups << LL_ENDL;
+	}
+		
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.

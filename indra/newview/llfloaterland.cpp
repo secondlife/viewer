@@ -31,7 +31,7 @@
 
 #include "llfloaterland.h"
 
-#include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "llfocusmgr.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
@@ -247,8 +247,6 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_audio_panel"] =	LLCallbackMap(createPanelLandAudio, this);
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
-
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
@@ -567,7 +565,10 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-			mLandType->setText(LLTrans::getString(regionp->getSimProductName()));
+
+			std::string land_type;
+			bool is_land_type_localized = LLTrans::findString(land_type, regionp->getSimProductName());
+			mLandType->setText(is_land_type_localized ? land_type : regionp->getSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel
@@ -1377,10 +1378,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 			}
 			else
 			{
-				std::string first, last;
-				gCacheName->getName(owner_id, first, last);
-				args["FIRST"] = first;
-				args["LAST"] = last;
+				args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 				LLNotificationsUtil::add("OtherObjectsReturned", args);
 			}
 			send_return_objects_message(parcel->getLocalID(), RT_OWNER);
@@ -1598,9 +1596,9 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		}
 
 		// Placeholder for name.
-		std::string name;
-		gCacheName->getFullName(owner_id, name);		
-		item_params.columns.add().value(name).font(FONT).column("name");
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(owner_id, &av_name);
+		item_params.columns.add().value(av_name.getCompleteName()).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
@@ -1709,9 +1707,7 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 	}
 	else
 	{
-		std::string name;
-		gCacheName->getFullName(owner_id, name);
-		args["NAME"] = name;
+		args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 		LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
 	}
 }
@@ -1770,10 +1766,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 		}
 		else
 		{
-			std::string name;
-			gCacheName->getFullName(owner_id, name);
-			args["NAME"] = name;
-
+			args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 			LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 		}
 	}
@@ -2434,7 +2427,7 @@ void LLPanelLandAccess::refresh()
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		
@@ -2475,7 +2468,7 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
 		
@@ -2764,12 +2757,12 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1,_2)) );
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1)) );
 }
 
-void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelLandAccess::callbackAvatarCBAccess(const uuid_vec_t& ids)
 {
-	if (!names.empty() && !ids.empty())
+	if (!ids.empty())
 	{
 		LLUUID id = ids[0];
 		LLParcel* parcel = mParcel->getParcel();
@@ -2808,13 +2801,13 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1,_2)));
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1)));
 }
 
 // static
-void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLPanelLandAccess::callbackAvatarCBBanned(const uuid_vec_t& ids)
 {
-	if (!names.empty() && !ids.empty())
+	if (!ids.empty())
 	{
 		LLUUID id = ids[0];
 		LLParcel* parcel = mParcel->getParcel();

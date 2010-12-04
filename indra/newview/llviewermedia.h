@@ -152,6 +152,9 @@ public:
 	static void openIDSetup(const std::string &openid_url, const std::string &openid_token);
 	static void openIDCookieResponse(const std::string &cookie);
 	
+	static void proxyWindowOpened(const std::string &target, const std::string &uuid);
+	static void proxyWindowClosed(const std::string &uuid);
+	
 private:
 	static void setOpenIDCookie();
 	static void onTeleportFinished();
@@ -271,8 +274,10 @@ public:
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; }
 	
+	void setTarget(const std::string& target) { mTarget = target; }
+	
 	// utility function to create a ready-to-use media instance from a desired media type.
-	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height);
+	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target = LLStringUtil::null);
 
 	// Internally set our desired browser user agent string, including
 	// the Second Life version and skin name.  Used because we can
@@ -438,6 +443,7 @@ private:
 	bool mNavigateSuspended;
 	bool mNavigateSuspendedDeferred;
 	bool mTrustedBrowser;
+	std::string mTarget;
 	
 private:
 	BOOL mIsUpdated ;

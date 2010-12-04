@@ -191,6 +191,9 @@
 	<string name="TooltipAgentUrl">
 		Klik for at se beboers profil
 	</string>
+	<string name="TooltipAgentInspect">
+		Lær mere om denne beboer
+	</string>
 	<string name="TooltipAgentMute">
 		Klik for at slukke for denne beboer
 	</string>
@@ -738,6 +741,12 @@
 	<string name="Estate / Full Region">
 		Estate / Hel region
 	</string>
+	<string name="Estate / Homestead">
+		Estate / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Hel region
 	</string>
@@ -774,7 +783,7 @@
 	<string name="xml_file">
 		XML Fil
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW Fil
 	</string>
 	<string name="compressed_image_files">
@@ -1117,6 +1126,9 @@
 	<string name="InvFolder Favorite">
 		Favoritter
 	</string>
+	<string name="InvFolder favorite">
+		Favoritter
+	</string>
 	<string name="InvFolder Current Outfit">
 		Nuværende sæt
 	</string>
@@ -1260,6 +1272,9 @@
 	</string>
 	<string name="Right Pec">
 		Højre bryst
+	</string>
+	<string name="Invalid Attachment">
+		Ugyldig vedhæftningspunktt
 	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] gammel
@@ -1638,9 +1653,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD Nederst til højre
 	</string>
-	<string name="Bad attachment point">
-		Ugyldig fæste-punkt
-	</string>
 	<string name="CursorPos">
 		Linie [LINE], Kolonne [COLUMN]
 	</string>
@@ -1655,12 +1667,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
-	</string>
-	<string name="NoOutfits">
-		You don&apos;t have any outfits yet. Try [secondlife:///app/search/all/ Search]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(Efter navn)
@@ -1815,6 +1821,12 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Hjem
 	</string>
 	<string name="FileSaved">
 		Fil gemt
@@ -3432,6 +3444,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="Saved_message">
+		(Gemt [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Dit opkald er blevet besvaret
 	</string>
@@ -3453,11 +3468,17 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="hang_up-im">
 		Forladt stemme opkald
 	</string>
+	<string name="conference-title-incoming">
+		Konference med [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(IM session eksisterer ikke)
+	</string>
 	<string name="only_user_message">
 		Du er den eneste deltager i denne samtale
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] er ikke logget på.
+		[NAME] er logget af.
 	</string>
 	<string name="invite_message">
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
@@ -3526,7 +3547,10 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] betalte dig L$[AMOUNT]
+		[NAME] betalte dig L$[AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] betalte dig L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Du betalte [NAME] L$[AMOUNT] [REASON].
@@ -3539,6 +3563,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Du betalte L$[AMOUNT] [REASON].
+	</string>
+	<string name="for item">
+		til [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		for en parcel land
@@ -3557,6 +3584,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		for at uploade
+	</string>
+	<string name="to publish a classified ad">
+		til offentliggørelse af annonce
 	</string>
 	<string name="giving">
 		Giver L$ [AMOUNT]
@@ -3836,5 +3866,14 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Slet valgte genstande?
+	</string>
+	<string name="DeleteItem">
+		Slet valgte genstand?
+	</string>
+	<string name="EmptyOutfitText">
+		Der er ingen genstande i dette sæt
 	</string>
 </strings>

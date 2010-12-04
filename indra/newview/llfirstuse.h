@@ -70,10 +70,13 @@ object or from inventory.
 14. First time you create/edit a sculpted prim.
 */
 
+class LLNotification;
+
+
 class LLFirstUse
 {
 public:
-/*	
+
 	// Add a config variable to be reset on resetFirstUse()
 	static void addConfigVariable(const std::string& var);
 	
@@ -81,35 +84,22 @@ public:
 	static void disableFirstUse();
 	static void resetFirstUse();
 
-	// These methods are called each time the appropriate action is
-	// taken.  The functions themselves handle only showing the dialog
-	// the first time, or subsequent times if the user wishes.
-	static void useBalanceIncrease(S32 delta);
-	static void useBalanceDecrease(S32 delta);
-	static void useSit();
-	static void useMap();
-	static void useGoTo();
-	static void useBuild();
-//	static void useLeftClickNoHit();
-	static void useTeleport();
-*/ 
-	static void useOverrideKeys();
-/*	
-	static void useAttach();
-	static void useAppearance();
-	static void useInventory();
- */
+	static void otherAvatarChatFirst(bool enable = true);
+	static void sit(bool enable = true);
+	static void notUsingDestinationGuide(bool enable = true);
+	static void notUsingSidePanel(bool enable = true);
+	static void notMoving(bool enable = true);
+	static void newInventory(bool enable = true);
+	static void receiveLindens(bool enable = true);
+	static void setDisplayName(bool enable = true);
 	static void useSandbox();
 	
-/*
-	static void useFlexible();
-	static void useDebugMenus();
-	static void useSculptedPrim();
-	static void useMedia();
-	
 protected:
+	static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
 	static std::set<std::string> sConfigVariables;
-*/
+
+	static void init();
+	static bool processNotification(const LLSD& notify);
 };
 
 #endif

@@ -5,10 +5,10 @@
 	<menu_item_call label="Tilføj" name="wear_add"/>
 	<menu_item_call label="Tag af" name="take_off_or_detach"/>
 	<menu_item_call label="Tag af" name="detach"/>
-	<context_menu label="Vedhæft til  ▶" name="wearable_attach_to"/>
-	<context_menu label="Vedhæft på HUD  ▶" name="wearable_attach_to_hud"/>
+	<context_menu label="Vedhæft til" name="wearable_attach_to"/>
+	<context_menu label="Vedhæft til HUD" name="wearable_attach_to_hud"/>
 	<menu_item_call label="Tag af" name="take_off"/>
 	<menu_item_call label="Redigér" name="edit"/>
-	<menu_item_call label="Objekt profil" name="object_profile"/>
+	<menu_item_call label="Genstandsprofil" name="object_profile"/>
 	<menu_item_call label="Vis original" name="show_original"/>
 </context_menu>

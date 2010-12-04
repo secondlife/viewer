@@ -24,7 +24,7 @@ myprog somearg otherarg
 
 $LicenseInfo:firstyear=2009&license=viewerlgpl$
 Second Life Viewer Source Code
-Copyright (C) 2010, Linden Research, Inc.
+Copyright (C) 2009-2010, Linden Research, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,10 +82,24 @@ def main(command, libpath=[], vars={}):
         dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
         print "%s += %r" % (var, libpath)
-        dirs.extend(libpath)
+        for dir in libpath:
+            # append system paths at the end
+            if dir in ('/lib', '/usr/lib'):
+                dirs.append(dir)
+            # prepend non-system paths
+            else:
+                dirs.insert(0, dir)
+
+        # Filter out some useless pieces
+        clean_dirs = []
+        for dir in dirs:
+            if dir and dir not in ('', '.'):
+                clean_dirs.append(dir)
+
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
-        os.environ[var] = os.pathsep.join(dirs)
+        os.environ[var] = os.pathsep.join(clean_dirs)
+        print "%s = %r" % (var, os.environ[var])
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:

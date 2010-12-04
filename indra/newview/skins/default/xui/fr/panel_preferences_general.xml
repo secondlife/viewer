@@ -13,7 +13,7 @@
 		<combo_box.item label="Italiano (Italien) - Bêta" name="Italian"/>
 		<combo_box.item label="Nederlands (Néerlandais) - Bêta" name="Dutch"/>
 		<combo_box.item label="Polski (Polonais) - Bêta" name="Polish"/>
-		<combo_box.item label="Portugués (Portugais) - Bêta" name="Portugese"/>
+		<combo_box.item label="Português (Portugais) - Bêta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japonais) - Bêta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
@@ -44,9 +44,10 @@
 		<radio_item label="Activé" name="radio2" value="1"/>
 		<radio_item label="Afficher brièvement" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Montrer mon nom" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Affichage en petit" name="small_avatar_names_checkbox"/>
-	<check_box label="Afficher les titres de groupe" name="show_all_title_checkbox1"/>
+	<check_box label="Mon nom" name="show_my_name_checkbox1"/>
+	<check_box label="Noms d&apos;utilisateur" name="show_slids" tool_tip="Afficher le nom d&apos;utilisateur, comme bobsmith123."/>
+	<check_box label="Titres de groupe" name="show_all_title_checkbox1" tool_tip="Afficher les titres de groupe, comme Officier ou Membre."/>
+	<check_box label="Mettre mes amis en surbrillance" name="show_friends" tool_tip="Mettre en surbrillance l&apos;affichage des noms de vos amis."/>
 	<text name="effects_color_textbox">
 		Mes effets :
 	</text>
@@ -61,6 +62,7 @@
 		<combo_box.item label="30 minutes" name="item3"/>
 		<combo_box.item label="Jamais" name="item4"/>
 	</combo_box>
+	<check_box label="Voir les noms d&apos;affichage" name="display_names_check" tool_tip="Cocher pour utiliser les noms d&apos;affichage dans les chats, les IM, l&apos;affichage des noms, etc."/>
 	<text name="text_box3">
 		Réponse si occupé(e) :
 	</text>

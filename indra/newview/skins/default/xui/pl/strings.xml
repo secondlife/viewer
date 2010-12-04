@@ -191,6 +191,9 @@
 	<string name="TooltipAgentUrl">
 		Kliknij aby zobaczyc profil Rezydenta
 	</string>
+	<string name="TooltipAgentInspect">
+		Dowiedz się więcej o tym Rezydencie
+	</string>
 	<string name="TooltipAgentMute">
 		Kliknij aby wyciszyc tego Rezydenta
 	</string>
@@ -738,6 +741,12 @@
 	<string name="Estate / Full Region">
 		Majątek / Region
 	</string>
+	<string name="Estate / Homestead">
+		Estate / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Region
 	</string>
@@ -774,7 +783,7 @@
 	<string name="xml_file">
 		Plik XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Plik RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1114,6 +1123,12 @@
 	<string name="InvFolder Gestures">
 		Gesturki
 	</string>
+	<string name="InvFolder Favorite">
+		Ulubione
+	</string>
+	<string name="InvFolder favorite">
+		Ulubione
+	</string>
 	<string name="InvFolder Current Outfit">
 		Obecny strój
 	</string>
@@ -1257,6 +1272,9 @@
 	</string>
 	<string name="Right Pec">
 		Prawy Pec
+	</string>
+	<string name="Invalid Attachment">
+		Nieważny punkt załącznika
 	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
@@ -1635,9 +1653,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD prawa dolna strona
 	</string>
-	<string name="Bad attachment point">
-		Nieprawidłowy punkt załączenia
-	</string>
 	<string name="CursorPos">
 		Linia [LINE], Kolumna [COLUMN]
 	</string>
@@ -1652,12 +1667,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przejrzenia poźniej.
-	</string>
-	<string name="NoOutfits">
-		Nie posiadasz jeszcze żadnych strojów. Spróbuj [secondlife:///app/search/all/ Szukaj]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Szukaj].
 	</string>
 	<string name="MuteByName">
 		(Nazwa)
@@ -1699,7 +1708,7 @@
 		Nie dodałeś nic do Ulubionych i Reklam. Kliknij na poniższy przycisk Dodaj aby dodać miejsce do Ulubionych lub Reklamy.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Użytkownik nie posiada Ulubionych lub Reklam
+		Brak ulubionych miejsc/reklam
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Ładowanie...
@@ -1812,6 +1821,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Miejsce Startu
 	</string>
 	<string name="FileSaved">
 		Zapisane pliki
@@ -3429,6 +3444,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="Saved_message">
+		(Zapisano [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Twoja rozmowa głosowa została odebrana
 	</string>
@@ -3450,11 +3468,17 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="hang_up-im">
 		Rozmowa głosowa zakończona
 	</string>
+	<string name="conference-title-incoming">
+		Konferencja z [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(Sesja IM wygasła)
+	</string>
 	<string name="only_user_message">
 		Jesteś jedyną osobą w tej konferencji.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] - ta osoba jest obecnie niedostępna.
+		[NAME] opuszcza Second Life.
 	</string>
 	<string name="invite_message">
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
@@ -3523,7 +3547,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] zapłacił Ci L$[AMOUNT]
+		[NAME] zapłaciła/zapłacił Tobie [AMOUNT]L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] zapłacił/zapłaciła Tobie L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Zapłacono [NAME] [AMOUNT]L$ [REASON].
@@ -3536,6 +3563,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Zapłacono [AMOUNT]L$ [REASON].
+	</string>
+	<string name="for item">
+		dla [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		za Posiadłość
@@ -3554,6 +3584,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		aby pobrać
+	</string>
+	<string name="to publish a classified ad">
+		publikacja reklamy
 	</string>
 	<string name="giving">
 		Dajesz L$ [AMOUNT]
@@ -3833,5 +3866,14 @@ Raport o Nadużyciu
 	</string>
 	<string name="Chat">
 		Czat
+	</string>
+	<string name="DeleteItems">
+		Usuń wybrane obiekty?
+	</string>
+	<string name="DeleteItem">
+		Usuń wybrane obiekty?
+	</string>
+	<string name="EmptyOutfitText">
+		W tym stroju nie ma elementów
 	</string>
 </strings>

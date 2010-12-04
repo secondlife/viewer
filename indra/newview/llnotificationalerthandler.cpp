@@ -133,7 +133,7 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		if(channel)
 			channel->killToastByNotificationID(notification->getID());
 	}
-	return true;
+	return false;
 }
 
 //--------------------------------------------------------------------------

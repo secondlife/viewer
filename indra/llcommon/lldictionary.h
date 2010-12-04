@@ -78,7 +78,9 @@ protected:
 	virtual Index notFound() const
 	{
 		// default is to assert
-		llassert(false);
+		// don't assert -- makes it impossible to work on mesh-development and viewer-development simultaneously
+		//			-- davep 2010.10.29
+		//llassert(false);
 		return Index(-1);
 	}
 	void addEntry(Index index, Entry *entry)

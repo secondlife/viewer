@@ -731,14 +731,17 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 
 	nowT = time (NULL);
 
-	tmpT = localtime (&nowT);
-	localT = mktime (tmpT);
-
 	tmpT = gmtime (&nowT);
 	gmtT = mktime (tmpT);
 
+	tmpT = localtime (&nowT);
+	localT = mktime (tmpT);
+	
 	sLocalTimeOffset = (long) (gmtT - localT);
-
+	if (tmpT->tm_isdst)
+	{
+		sLocalTimeOffset -= 60 * 60;	// 1 hour
+	}
 
 	sPacificDaylightTime = daylight;
 	sPacificTimeOffset = (sPacificDaylightTime? 7 : 8 ) * 60 * 60;
@@ -1112,7 +1115,7 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 	else if(LLStringOps::sMonthList.size() == 12 && code == "%B")
 	{
 		struct tm * gmt = gmtime (&loc_seconds);
-		replacement = LLStringOps::sWeekDayList[gmt->tm_mon];
+		replacement = LLStringOps::sMonthList[gmt->tm_mon];
 	}
 	else if( !LLStringOps::sDayFormat.empty() && code == "%d" )
 	{

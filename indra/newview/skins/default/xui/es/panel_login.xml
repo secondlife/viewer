@@ -11,7 +11,7 @@
 			<text name="username_text">
 				Nombre de usuario:
 			</text>
-			<line_editor label="Nombre de usuario" name="username_edit" tool_tip="Nombre de usuario de [SECOND_LIFE]"/>
+			<line_editor label="bobsmith12 o Steller Sunshine" name="username_edit" tool_tip="El nombre de usuario que elegiste al registrarte, como bobsmith12 o Steller Sunshine"/>
 			<text name="password_text">
 				Contraseña:
 			</text>
@@ -30,7 +30,7 @@
 				Registrarme
 			</text>
 			<text name="forgot_password_text">
-				¿Olvidaste el nombre o la contraseña?
+				¿Olvidaste el nombre de usuario o la contraseña?
 			</text>
 			<text name="login_help">
 				¿Necesitas ayuda para conectarte?

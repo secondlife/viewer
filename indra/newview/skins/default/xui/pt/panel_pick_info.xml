@@ -3,14 +3,22 @@
 	<text name="title" value="Detalhes do destaque"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="pick_name" value="[NAME]"/>
-			<text name="pick_location" value="[carregando...]"/>
-			<text name="pick_desc" value="[descrição]"/>
+			<text_editor name="pick_name" value="[NAME]"/>
+			<text_editor name="pick_location" value="[carregando...]"/>
+			<text_editor name="pick_desc" value="[descrição]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
-		<button label="Teletransportar" name="teleport_btn"/>
-		<button label="Mapa" name="show_on_map_btn"/>
-		<button label="Editar" name="edit_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Teletransportar" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Mapa" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Editar" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

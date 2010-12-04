@@ -33,6 +33,7 @@
 
 // library includes
 #include "lldbstrings.h"
+#include "lllslconstants.h"
 #include "llnotifications.h"
 #include "lluiconstants.h"
 #include "llrect.h"
@@ -51,7 +52,7 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
+LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect, bool show_images) : 
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
@@ -61,7 +62,7 @@ mNumButtons(0),
 mAddedDefaultBtn(false),
 mCloseNotificationOnDestroy(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
+	buildFromFile( "panel_notification.xml");
 	if(rect != LLRect::null)
 	{
 		this->setShape(rect);
@@ -70,11 +71,11 @@ mCloseNotificationOnDestroy(true)
 	mControlPanel = getChild<LLPanel>("control_panel");
 	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
 	// customize panel's attributes
-	// is it intended for displaying a tip
+	// is it intended for displaying a tip?
 	mIsTip = notification->getType() == "notifytip";
-	// is it a script dialog
+	// is it a script dialog?
 	mIsScriptDialog = (notification->getName() == "ScriptDialog" || notification->getName() == "ScriptDialogGroup");
-	// is it a caution
+	// is it a caution?
 	//
 	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
 	// notify xml template specifies that it is a caution
@@ -120,6 +121,7 @@ mCloseNotificationOnDestroy(true)
 
 	mTextBox->setMaxTextLength(MAX_LENGTH);
 	mTextBox->setVisible(TRUE);
+	mTextBox->setPlainText(!show_images);
 	mTextBox->setValue(notification->getMessage());
 
 	// add buttons for a script notification
@@ -138,6 +140,12 @@ mCloseNotificationOnDestroy(true)
 			LLSD form_element = form->getElement(i);
 			if (form_element["type"].asString() != "button")
 			{
+				// not a button.
+				continue;
+			}
+			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+			{
+				// a textbox pretending to be a button.
 				continue;
 			}
 			LLButton* new_button = createButton(form_element, TRUE);
@@ -158,7 +166,7 @@ mCloseNotificationOnDestroy(true)
 			if(h_pad < 2*HPAD)
 			{
 				/*
-				 * Probably it is  a scriptdialog toast
+				 * Probably it is a scriptdialog toast
 				 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
 				 * In last case set default h_pad to avoid heaping of buttons 
 				 */
@@ -260,7 +268,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	}
 	else if (mIsScriptDialog && is_ignore_btn)
 	{
-		// this is ignore button,make it smaller
+		// this is ignore button, make it smaller
 		p.rect.height = BTN_HEIGHT_SMALL;
 		p.rect.width = 1;
 		p.auto_resize = true;
@@ -523,8 +531,9 @@ void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification
 
 //////////////////////////////////////////////////////////////////////////
 
-LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */)
- : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect)
+LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */,
+										   bool show_images /* = true */)
+ : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect, show_images)
 {
 	mTextBox->setFollowsAll();
 }

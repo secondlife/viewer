@@ -13,7 +13,7 @@
 		<combo_box.item label="Italiano (Włoski) - Beta" name="Italian"/>
 		<combo_box.item label="Nederlands (Niderlandzki) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski - Beta" name="Polish"/>
-		<combo_box.item label="Portugués (Portugalski) - Beta" name="Portugese"/>
+		<combo_box.item label="Português (Portugalski) - Beta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japoński) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
@@ -44,9 +44,10 @@
 		<radio_item label="Włącz" name="radio2" value="1"/>
 		<radio_item label="Pokaż w skrócie" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Wyświetl moje imię:" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Używaj małych imion awatarów" name="small_avatar_names_checkbox"/>
-	<check_box label="Wyświetl tytuł grupowy" name="show_all_title_checkbox1"/>
+	<check_box label="Wyświetl moje imię" name="show_my_name_checkbox1"/>
+	<check_box label="Nazwy użytkowników" name="show_slids" tool_tip="Pokaż nazwy użytkowników, np. bobsmith123"/>
+	<check_box label="Wyświetl tytuł grupowy" name="show_all_title_checkbox1" tool_tip="Wyświetl tytuł grupowy np. oficer"/>
+	<check_box label="Zaznacz znajomych" name="show_friends" tool_tip="Zaznacz imiona swoich znajomych"/>
 	<text name="effects_color_textbox">
 		Kolor moich efektów:
 	</text>
@@ -61,6 +62,7 @@
 		<combo_box.item label="30 minut" name="item3"/>
 		<combo_box.item label="nigdy" name="item4"/>
 	</combo_box>
+	<check_box label="Pokaż wyświetlane nazwy" name="display_names_check" tool_tip="Pokaż wyświetlane nazwy w czacie, IM, imionach, etc."/>
 	<text name="text_box3">
 		Odpowiedź w trybie pracy:
 	</text>

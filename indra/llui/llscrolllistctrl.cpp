@@ -259,15 +259,15 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	}
 
 	
-	for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = p.contents.columns().begin();
-		row_it != p.contents.columns().end();
+	for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = p.contents.columns.begin();
+		row_it != p.contents.columns.end();
 		++row_it)
 	{
 		addColumn(*row_it);
 	}
 
-	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows().begin();
-		row_it != p.contents.rows().end();
+	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
+		row_it != p.contents.rows.end();
 		++row_it)
 	{
 		addRow(*row_it);
@@ -537,23 +537,7 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 			setNeedsSort();
 			break;
 	
-		case ADD_SORTED:
-			{
-				// sort by column 0, in ascending order
-				std::vector<sort_column_t> single_sort_column;
-				single_sort_column.push_back(std::make_pair(0, TRUE));
-
-				mItemList.push_back(item);
-				std::stable_sort(
-					mItemList.begin(), 
-					mItemList.end(), 
-					SortScrollListItem(single_sort_column,mSortCallback));
-				
-				// ADD_SORTED just sorts by first column...
-				// this might not match user sort criteria, so flag list as being in unsorted state
-				setNeedsSort();
-				break;
-			}	
+		case ADD_DEFAULT:
 		case ADD_BOTTOM:
 			mItemList.push_back(item);
 			setNeedsSort();
@@ -1498,8 +1482,9 @@ void LLScrollListCtrl::draw()
 	// Draw background
 	if (mBackgroundVisible)
 	{
+		F32 alpha = getCurrentTransparency();
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(background, getEnabled() ? mBgWriteableColor.get() : mBgReadOnlyColor.get() );
+		gl_rect_2d(background, getEnabled() ? mBgWriteableColor.get() % alpha : mBgReadOnlyColor.get() % alpha );
 	}
 
 	if (mColumnsDirty)
@@ -2578,7 +2563,8 @@ BOOL	LLScrollListCtrl::canDeselect() const
 void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 {
 	LLScrollListColumn::Params p;
-	LLParamSDParser::instance().readSD(column, p);
+	LLParamSDParser parser;
+	parser.readSD(column, p);
 	addColumn(p, pos);
 }
 
@@ -2764,31 +2750,35 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(const std::string& name)
 	return NULL;
 }
 
-
+LLFastTimer::DeclareTimer FTM_ADD_SCROLLLIST_ELEMENT("Add Scroll List Item");
 LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	LLScrollListItem::Params item_params;
-	LLParamSDParser::instance().readSD(element, item_params);
+	LLParamSDParser parser;
+	parser.readSD(element, item_params);
 	item_params.userdata = userdata;
 	return addRow(item_params, pos);
 }
 
 LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	LLScrollListItem *new_item = new LLScrollListItem(item_p);
 	return addRow(new_item, item_p, pos);
 }
 
 LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
+	LLFastTimer _(FTM_ADD_SCROLLLIST_ELEMENT);
 	if (!item_p.validateBlock() || !new_item) return NULL;
 	new_item->setNumColumns(mColumns.size());
 
 	// Add any columns we don't already have
 	S32 col_index = 0;
 
-	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns().begin();
-		itor != item_p.columns().end();
+	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns.begin();
+		itor != item_p.columns.end();
 		++itor)
 	{
 		LLScrollListCell::Params cell_p = *itor;
@@ -2839,7 +2829,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 		col_index++;
 	}
 
-	if (item_p.columns().empty())
+	if (item_p.columns.empty())
 	{
 		if (mColumns.empty())
 		{

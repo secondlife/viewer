@@ -168,7 +168,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	LLUICtrlFactory::getInstance()->buildFloater(this, xml_filename, NULL);
 
 	setTitle(mSessionLabel);
-	mInputEditor->setMaxTextLength(1023);
+	mInputEditor->setMaxTextLength(DB_IM_MSG_STR_LEN);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 

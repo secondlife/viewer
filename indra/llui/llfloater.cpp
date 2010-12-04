@@ -36,6 +36,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -59,7 +60,6 @@
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
-
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
@@ -199,6 +199,21 @@ void LLFloater::initClass()
 	{
 		sButtonToolTips[i] = LLTrans::getString( sButtonToolTipsIndex[i] );
 	}
+
+	LLControlVariable* ctrl = LLUI::sSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
+		updateActiveFloaterTransparency();
+	}
+
+	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
+		updateInactiveFloaterTransparency();
+	}
+
 }
 
 // defaults for floater param block pulled from widgets/floater.xml
@@ -206,7 +221,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
-	mDragHandle(NULL),
+ 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
@@ -231,7 +246,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0)
+	mPreviousMinimizedLeft(0),
+	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
 	mHandle.bind(this);
@@ -343,6 +359,18 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setShape(rect);
 	updateTitleButtons();
+}
+
+// static
+void LLFloater::updateActiveFloaterTransparency()
+{
+	sActiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+}
+
+// static
+void LLFloater::updateInactiveFloaterTransparency()
+{
+	sInactiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -493,13 +521,15 @@ LLFloater::~LLFloater()
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
+
+	delete mMinimizeSignal;
 }
 
 void LLFloater::storeRectControl()
 {
 	if( mRectControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setRect( mRectControl, getRect() );
+		getControlGroup()->setRect( mRectControl, getRect() );
 	}
 }
 
@@ -507,7 +537,7 @@ void LLFloater::storeVisibilityControl()
 {
 	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
+		getControlGroup()->setBOOL( mVisibilityControl, getVisible() );
 	}
 }
 
@@ -515,7 +545,7 @@ void LLFloater::storeDockStateControl()
 {
 	if( !sQuitting && mDocStateControl.size() > 1 )
 	{
-		LLUI::sSettingGroups["floater"]->setBOOL( mDocStateControl, isDocked() );
+		getControlGroup()->setBOOL( mDocStateControl, isDocked() );
 	}
 }
 
@@ -525,7 +555,7 @@ LLRect LLFloater::getSavedRect() const
 
 	if (mRectControl.size() > 1)
 	{
-		rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		rect = getControlGroup()->getRect(mRectControl);
 	}
 
 	return rect;
@@ -548,6 +578,13 @@ std::string LLFloater::getControlName(const std::string& name, const LLSD& key)
 	}
 
 	return ctrl_name;
+}
+
+// static
+LLControlGroup*	LLFloater::getControlGroup()
+{
+	// Floater size, position, visibility, etc are saved in per-account settings.
+	return LLUI::sSettingGroups["account"];
 }
 
 void LLFloater::setVisible( BOOL visible )
@@ -805,7 +842,7 @@ void LLFloater::applyRectControl()
 	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
+		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		if (rect.getWidth() > 0 && rect.getHeight() > 0)
 		{
 			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
@@ -821,7 +858,7 @@ void LLFloater::applyDockState()
 {
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
+		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
 		setDocked(dockState);
 	}
 
@@ -990,6 +1027,11 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize == mMinimized) return;
 
+	if(mMinimizeSignal)
+	{
+		(*mMinimizeSignal)(this, LLSD(minimize));
+	}
+
 	if (minimize)
 	{
 		// minimized flag should be turned on before release focus
@@ -1147,6 +1189,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
+	updateTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1606,7 +1649,8 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	const F32 alpha = getCurrentTransparency();
+
 	// draw background
 	if( isBackgroundVisible() )
 	{
@@ -1704,7 +1748,6 @@ void LLFloater::draw()
 
 void	LLFloater::drawShadow(LLPanel* panel)
 {
-	F32 alpha = panel->getDrawContext().mAlpha;
 	S32 left = LLPANEL_BORDER_WIDTH;
 	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
@@ -1721,8 +1764,30 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % alpha, 
+		shadow_color % getCurrentTransparency(),
 		llround(shadow_offset));
+}
+
+void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
+{
+	child_list_t children = *view->getChildList();
+	child_list_t::iterator it = children.begin();
+
+	LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(view);
+	if (ctrl)
+	{
+		ctrl->setTransparencyType(transparency_type);
+	}
+
+	for(; it != children.end(); ++it)
+	{
+		updateTransparency(*it, transparency_type);
+	}
+}
+
+void LLFloater::updateTransparency(ETypeTransparency transparency_type)
+{
+	updateTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
@@ -1984,6 +2049,7 @@ LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
 
 	mFocusCycleMode(FALSE),
+	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
 	mSnapOffsetRight(0)
 {
@@ -2382,7 +2448,9 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 
 		// Attempt to close floater.  This will cause the "do you want to save"
 		// dialogs to appear.
-		if (floaterp->canClose() && !floaterp->isDead())
+		// Skip invisible floaters if we're not quitting (STORM-192).
+		if (floaterp->canClose() && !floaterp->isDead() &&
+			(app_quitting || floaterp->getVisible()))
 		{
 			floaterp->closeFloater(app_quitting);
 		}
@@ -2800,12 +2868,19 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	}
 }
 
+boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
+	return mMinimizeSignal->connect(cb); 
+}
+
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
+	LLXUIParser parser;
+	parser.readXUI(node, params, filename); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2813,8 +2888,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		setupParamsForExport(output_params, parent);
         Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, &default_params);
 	}
 
 	// Default floater position to top-left corner of screen
@@ -2908,4 +2982,65 @@ bool LLFloater::isMinimized(const LLFloater* floater)
 bool LLFloater::isVisible(const LLFloater* floater)
 {
     return floater && floater->getVisible();
+}
+
+static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+
+bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_node)
+{
+	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LLXMLNodePtr root;
+
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+			return false;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	{
+		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		return false;
+	}
+	
+	// root must be called floater
+	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
+	{
+		llwarns << "Root node should be named floater in: " << filename << llendl;
+		return false;
+	}
+	
+	bool res = true;
+	
+	lldebugs << "Building floater " << filename << llendl;
+	LLUICtrlFactory::instance().pushFileName(filename);
+	{
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.push_front(&getFactoryMap());
+		}
+
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		getCommitCallbackRegistrar().pushScope();
+		getEnableCallbackRegistrar().pushScope();
+		
+		res = initFloaterXML(root, getParent(), filename, output_node);
+
+		setXMLFilename(filename);
+		
+		getCommitCallbackRegistrar().popScope();
+		getEnableCallbackRegistrar().popScope();
+		
+		if (!getFactoryMap().empty())
+		{
+			LLPanel::sFactoryStack.pop_front();
+		}
+	}
+	LLUICtrlFactory::instance().popFileName();
+	
+	return res;
 }

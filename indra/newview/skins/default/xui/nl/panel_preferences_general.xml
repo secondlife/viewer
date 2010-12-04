@@ -78,7 +78,7 @@
 		<combo_box.item name="Hungarian" label="Magyar (Hongaars) - Bèta"/>
 		<combo_box.item name="Dutch" label="Nederlands - Bèta"/>
 		<combo_box.item name="Polish" label="Polski (Pools) - Bèta"/>
-		<combo_box.item name="Portugese" label="Portugués (Portugees) - Bèta"/>
+		<combo_box.item name="Portugese" label="Português (Portugees) - Bèta"/>
 		<combo_box.item name="Russian" label="Русский (Russisch) - Bèta"/>
 		<combo_box.item name="Turkish" label="Türkçe (Turks) - Bèta"/>
 		<combo_box.item name="Ukrainian" label="Українська (Oekraïens) - Bèta"/>

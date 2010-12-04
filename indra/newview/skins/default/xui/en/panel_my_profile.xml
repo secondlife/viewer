@@ -41,7 +41,7 @@
      layout="topleft"
      left="0"
      top="0"
-     height="522"
+     height="510"
      width="315"
      border_size="0">
       <layout_panel
@@ -284,7 +284,7 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                initial_value="(retrieving)"
@@ -293,8 +293,8 @@
                link="true"
                name="partner_text"
                top="0"
-           width="300"
-               word_wrap="true" />
+               use_ellipses="true" 
+           width="300" />
             </panel>
             <text
              follows="left|top"
@@ -324,82 +324,25 @@
           </panel>
         </scroll_container>
       </layout_panel>
-      <!-- <layout_panel
-     follows="bottom|left"
+      </layout_stack>
+ 	<panel
+     follows="bottom|left|right"
+     height="23"
      layout="topleft"
      left="0"
-     name="profile_buttons_panel"
-     height="28"
-     width="313">
-         <button
-         follows="bottom|left"
-         height="23"
-         label="Add Friend"
-         layout="topleft"
-         left="0"
-         mouse_opaque="false"
-         name="add_friend"
-         tool_tip="Offer friendship to the Resident"
-         top="5"
-         width="80" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="IM"
-         layout="topleft"
-         name="im"
-         top="5"
-         left_pad="3"
-         width="45" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Call"
-         layout="topleft"
-         name="call"
-         left_pad="3"
-         top="5"
-         width="45" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         name="show_on_map_btn"
-         top="5"
-         left_pad="3"
-         width="45" />
-        <button
-         follows="bottom|left"
-         height="23"
-         label="Teleport"
-         layout="topleft"
-         name="teleport"
-         left_pad="3"
-         top="5"
-         width="85" />
- </panel>-->
- <layout_panel
-     follows="bottom|left"
-     layout="topleft"
-     left="0"
-     top_pad="0"
+     top_pad="1"
      name="profile_me_buttons_panel"
      visible="false"
-     user_resize="false" 
-     auto_resize="false" 
-     height="28"
      width="315">
         <button
          follows="bottom"
          height="23"
          left="6"
-	 top="1"
+	 	 top="1"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
          width="152" />
- </layout_panel>
-</layout_stack>
+ 	</panel>
+
 </panel>

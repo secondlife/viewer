@@ -14,6 +14,9 @@ public_build = true
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = true
 
+# Limit extent of codeticket updates to revisions after...
+codeticket_since = 2.2.0-release
+
 # ========================================
 # Viewer Development
 # ========================================
@@ -39,16 +42,22 @@ snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.
 # ========================================
 # Viewer Beta
 # ========================================
-viewer-beta.viewer_channel = "Second Life Beta"
-viewer-beta.login_channel = "Second Life Beta"
+viewer-beta.viewer_channel = "Second Life Beta Viewer"
+viewer-beta.login_channel = "Second Life Beta Viewer"
+viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
+# Settings to test new code ticket service
+viewer-beta.codeticket_server_url = "http://pdp75.lindenlab.com:8000/codeticket/linden/"
+viewer-beta.codeticket_add_context = true
 
 # ========================================
 # Viewer Release
 # ========================================
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
+viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
+viewer-release.release-viewer.jira = DRTVWR-13
 
 # ========================================
 # aimee
@@ -56,6 +65,7 @@ viewer-release.build_viewer_update_version_manager = true
 
 viewer-development-import.build_debug_release_separately = true
 viewer-development-fixes.build_debug_release_separately = true
+viewer-development-tweaks.build_debug_release_separately = true
 
 # =======================================
 # brad
@@ -78,16 +88,12 @@ brad-parabuild.build_server = false
 brad-parabuild.build_server_tests = false
 
 # ========================================
-# moss
+# CG
 # ========================================
 
-mossbuild1.email = moss@lindenlab.com
-mossbuild1.build_server = false
-mossbuild1.build_server_tests = false
-
-mossbuild2.email = moss@lindenlab.com
-mossbuild2.build_server = false
-mossbuild2.build_server_tests = false
+cg_viewer-development_lenny.collect_metrics = true
+cg_viewer-development_lenny.show_changes_since = 4b140ce7839d
+cg_viewer-development_lenny.email = cg@lindenlab.com
 
 # ========================================
 # gooey
@@ -102,6 +108,26 @@ gooey.viewer_channel = "Second Life Alpha"
 gooey.login_channel = "Second Life Alpha"
 gooey.viewer_grid = agni
 gooey.build_viewer_update_version_manager = false
+
+# ========================================
+# Display Names project
+# ========================================
+
+#viewer-identity-evolution.email = leyla@lindenlab.com
+viewer-identity.build_Debug = false
+viewer-identity.build_RelWithDebInfo = false
+viewer-identity.build_viewer = true
+viewer-identity.build_server = false
+viewer-identity.build_server_tests = false
+viewer-identity.build_Linux = true
+viewer-identity.build_hg_bundle = true
+viewer-identity.bulld_docs = true
+viewer-identity.viewer_channel = "Second Life Project Viewer"
+viewer-identity.login_channel = "Second Life Project Viewer"
+viewer-identity.viewer_grid = aditi
+viewer-identity.build_viewer_update_version_manager = false
+
+
 
 # ========================================
 # palange
@@ -171,6 +197,12 @@ oz_viewer-review2_coverity.build_coverity = true
 oz_viewer-review2_coverity.build_CYGWIN_Debug = false
 oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
 oz_viewer-review2_coverity.build_CYGWIN_Release = false
+
+# ========================================
+# tofu
+# ========================================
+
+tofu_viewer-development-staging.email = tofu.linden@lindenlab.com
 
 # ========================================
 # enus

@@ -247,6 +247,8 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
+        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
+
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
@@ -270,6 +272,12 @@ class WindowsManifest(ViewerManifest):
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             self.disable_manifest_check()
+
+            # Get fmod dll, continue if missing
+            try:
+                self.path("fmod.dll")
+            except:
+                print "Skipping fmod.dll"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
@@ -310,15 +318,10 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
+        self.path("featuretable_xp.txt")
 
         # For use in crash reporting (generates minidumps)
         self.path("dbghelp.dll")
-
-        try:
-            # FMOD for sound
-            self.path("fmod.dll")
-        except:
-            print "Skipping FMOD - not found"
 
         self.enable_no_crt_manifest_check()
         
@@ -571,6 +574,8 @@ class DarwinManifest(ViewerManifest):
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
 
+            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
                 super(DarwinManifest, self).construct()
@@ -706,6 +711,11 @@ class DarwinManifest(ViewerManifest):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
 
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'Contents/MacOS/update_install',:
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
@@ -741,6 +751,11 @@ class DarwinManifest(ViewerManifest):
         try:
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
+
+            if devfile != '/dev/disk1':
+                # adding more debugging info based upon nat's hunches to the
+                # logs to help track down 'SetFile -a V' failures -brad
+                print "WARNING: 'SetFile -a V' command below is probably gonna fail"
 
             # Copy everything in to the mounted .dmg
 
@@ -841,6 +856,8 @@ class LinuxManifest(ViewerManifest):
             # recurse
             self.end_prefix("res-sdl")
 
+        self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
+
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
             self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
@@ -853,6 +870,12 @@ class LinuxManifest(ViewerManifest):
             print "Skipping llcommon.so (assuming llcommon was linked statically)"
 
         self.path("featuretable_linux.txt")
+
+    def copy_finish(self):
+        # Force executable permissions to be set for scripts
+        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
+        for script in 'secondlife', 'bin/update_install':
+            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         if 'installer_name' in self.args:
@@ -869,7 +892,7 @@ class LinuxManifest(ViewerManifest):
 
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
         # Fix access permissions
         self.run_command("""
@@ -896,6 +919,9 @@ class LinuxManifest(ViewerManifest):
                         'dir': self.get_build_prefix(),
                         'inst_name': installer_name,
                         'inst_path':self.build_path_of(installer_name)})
+            else:
+                print "Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                      (installer_name, self.args['buildtype'])
         finally:
             self.run_command("mv %(inst)s %(dst)s" % {
                 'dst': self.get_dst_prefix(),
@@ -922,6 +948,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
             self.path("libssl.so.0.9.7")
+            self.path("libuuid.so.1")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
@@ -953,6 +980,13 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
+
+class Linux_x86_64Manifest(LinuxManifest):
+    def construct(self):
+        super(Linux_x86_64Manifest, self).construct()
+
+        # support file for valgrind debug tool
+        self.path("secondlife-i686.supp")
 
 ################################################################
 

@@ -30,7 +30,6 @@
 #include "llframetimer.h"
 #include "v3dmath.h"
 
-class LLEventInfo;
 class LLEventNotification;
 
 
@@ -41,15 +40,21 @@ public:
 	virtual ~LLEventNotifier();
 
 	void update();	// Notify the user of the event if it's coming up
+	bool add(U32 eventId, F64 eventEpoch, const std::string& eventDateStr, const std::string &eventName);
+	void add(U32 eventId);
 
+	
 	void load(const LLSD& event_options);	// In the format that it comes in from login
-	void add(LLEventInfo &event_info);	// Add a new notification for an event
 	void remove(U32 event_id);
 
 	BOOL hasNotification(const U32 event_id);
+	void serverPushRequest(U32 event_id, bool add);
 
 	typedef std::map<U32, LLEventNotification *> en_map;
+	bool  handleResponse(U32 eventId, const LLSD& notification, const LLSD& response);		
 
+	static void processEventInfoReply(LLMessageSystem *msg, void **);	
+	
 protected:
 	en_map	mEventNotifications;
 	LLFrameTimer	mNotificationTimer;
@@ -59,25 +64,21 @@ protected:
 class LLEventNotification
 {
 public:
-	LLEventNotification();
-	virtual ~LLEventNotification();
+	LLEventNotification(U32 eventId, F64 eventEpoch, const std::string& eventDateStr, const std::string &eventName);
 
-	BOOL load(const LLSD& en);		// In the format it comes in from login
-	BOOL load(const LLEventInfo &event_info);		// From existing event_info on the viewer.
-	//void setEventID(const U32 event_id);
-	//void setEventName(std::string &event_name);
+
 	U32					getEventID() const				{ return mEventID; }
 	const std::string	&getEventName() const			{ return mEventName; }
-	time_t				getEventDate() const			{ return mEventDate; }
-	const std::string	&getEventDateStr() const		{ return mEventDateStr; }
-	LLVector3d			getEventPosGlobal() const		{ return mEventPosGlobal; }
-	bool				handleResponse(const LLSD& notification, const LLSD& payload);
+	bool                isValid() const                 { return mEventID > 0 && mEventDateEpoch != 0 && mEventName.size() > 0; }
+	const F64		    &getEventDateEpoch() const		{ return mEventDateEpoch; }
+	const std::string   &getEventDateStr() const        { return mEventDateStr; }
+	
+	
 protected:
 	U32			mEventID;			// EventID for this event
 	std::string	mEventName;
+	F64		    mEventDateEpoch;
 	std::string mEventDateStr;
-	time_t		mEventDate;
-	LLVector3d	mEventPosGlobal;
 };
 
 extern LLEventNotifier gEventNotifier;

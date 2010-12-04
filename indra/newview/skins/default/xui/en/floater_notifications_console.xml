@@ -36,6 +36,7 @@
      follows="left|right|top|bottom"
      layout="topleft"
      left="5"
+     orientation="vertical" 
      name="notification_channels"
      right="-5"
      top="42" />

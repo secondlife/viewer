@@ -83,6 +83,7 @@ protected:
 	void		onBtnApply();
 
 	void		onClickBrowserClearCache();
+	void		onLanguageChange();
 
 	// set value of "BusyResponseChanged" in account settings depending on whether busy response
 	// string differs from default after user changes.
@@ -95,6 +96,14 @@ protected:
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	// callback for changing double click action checkbox
+	void onDoubleClickCheckBox(LLUICtrl* ctrl);
+	// callback for selecting double click action radio-button
+	void onDoubleClickRadio();
+	// updates double-click action settings depending on controls from preferences
+	void updateDoubleClickSettings();
+	// updates double-click action controls depending on values from settings.xml
+	void updateDoubleClickControls();
 	
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
@@ -102,6 +111,8 @@ protected:
 		
 
 public:
+
+	void setCacheLocation(const LLStringExplicit& location);
 
 	void onClickSetCache();
 	void onClickResetCache();
@@ -143,8 +154,12 @@ public:
 	static void refreshSkin(void* data);
 private:
 	static std::string sSkin;
+	// set true if state of double-click action checkbox or radio-group was changed by user
+	// (reset back to false on apply or cancel)
+	bool mDoubleClickActionDirty;
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
+	bool mLanguageChanged;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;

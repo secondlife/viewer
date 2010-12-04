@@ -28,9 +28,13 @@
 
 #include "llpanelwearing.h"
 
+#include "lltoggleablemenu.h"
+
 #include "llappearancemgr.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llmenubutton.h"
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
@@ -46,31 +50,39 @@ static void edit_outfit()
 class LLWearingGearMenu
 {
 public:
-	LLWearingGearMenu()
-	:	mMenu(NULL)
+	LLWearingGearMenu(LLPanelWearing* panel_wearing)
+	:	mMenu(NULL), mPanelWearing(panel_wearing)
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
 		registrar.add("Gear.Edit", boost::bind(&edit_outfit));
+		registrar.add("Gear.TakeOff", boost::bind(&LLWearingGearMenu::onTakeOff, this));
 
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
+
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_wearing_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(mMenu);
 	}
 
-	void show(LLView* spawning_view)
-	{
-		if (!mMenu) return;
-
-		mMenu->buildDrawLabels();
-		mMenu->updateParent(LLMenuGL::sMenuContainer);
-		S32 menu_x = 0;
-		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
-		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
-	}
+	LLToggleableMenu* getMenu() { return mMenu; }
 
 private:
-	LLMenuGL*		mMenu;
+
+	void onTakeOff()
+	{
+		uuid_vec_t selected_uuids;
+		mPanelWearing->getSelectedItemsUUIDs(selected_uuids);
+
+		for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
+		{
+				LLAppearanceMgr::instance().removeItemFromAvatar(*it);
+		}
+	}
+
+	LLToggleableMenu*		mMenu;
+	LLPanelWearing* 		mPanelWearing;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -150,7 +162,7 @@ LLPanelWearing::LLPanelWearing()
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 
-	mGearMenu = new LLWearingGearMenu();
+	mGearMenu = new LLWearingGearMenu(this);
 	mContextMenu = new LLWearingContextMenu();
 }
 
@@ -170,6 +182,10 @@ BOOL LLPanelWearing::postBuild()
 {
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
 	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
+
+	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
+
+	menu_gear_btn->setMenu(mGearMenu->getMenu());
 
 	return TRUE;
 }
@@ -226,14 +242,13 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 		// allow save only if outfit isn't locked and is dirty
 		return !outfit_locked && outfit_dirty;
 	}
-	return false;
-}
 
-// virtual
-void LLPanelWearing::showGearMenu(LLView* spawning_view)
-{
-	if (!mGearMenu) return;
-	mGearMenu->show(spawning_view);
+	if (command_name == "take_off")
+	{
+		return hasItemSelected() && canTakeOffSelected();
+	}
+
+	return false;
 }
 
 boost::signals2::connection LLPanelWearing::setSelectionChangeCallback(commit_callback_t cb)
@@ -253,6 +268,16 @@ void LLPanelWearing::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 	list->getSelectedUUIDs(selected_uuids);
 
 	mContextMenu->show(ctrl, selected_uuids, x, y);
+}
+
+bool LLPanelWearing::hasItemSelected()
+{
+	return mCOFItemsList->getSelectedItem() != NULL;
+}
+
+void LLPanelWearing::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
+{
+	mCOFItemsList->getSelectedUUIDs(selected_uuids);
 }
 
 // EOF

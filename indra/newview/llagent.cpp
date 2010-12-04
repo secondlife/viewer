@@ -38,6 +38,7 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
+#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -55,9 +56,9 @@
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
-#include "llsidetray.h"
 #include "llsky.h"
 #include "llsmoothstep.h"
+#include "llstartup.h"
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
@@ -167,6 +168,7 @@ LLAgent::LLAgent() :
 
 	mbAlwaysRun(false),
 	mbRunning(false),
+	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(gSavedSettings),
 	mTeleportState( TELEPORT_NONE ),
@@ -192,8 +194,6 @@ LLAgent::LLAgent() :
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
 	mbFlagsNeedReset(FALSE),
-
-	mbJump(FALSE),
 
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
@@ -226,8 +226,9 @@ LLAgent::LLAgent() :
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
-
 	mListener.reset(new LLAgentListener(*this));
+
+	mMoveTimer.stop();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -236,6 +237,8 @@ LLAgent::LLAgent() :
 //-----------------------------------------------------------------------------
 void LLAgent::init()
 {
+	mMoveTimer.start();
+
 	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
@@ -300,6 +303,9 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -325,6 +331,9 @@ void LLAgent::moveAt(S32 direction, bool reset)
 //-----------------------------------------------------------------------------
 void LLAgent::moveAtNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -347,6 +356,9 @@ void LLAgent::moveAtNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeft(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -369,6 +381,9 @@ void LLAgent::moveLeft(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveLeftNudge(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -391,6 +406,9 @@ void LLAgent::moveLeftNudge(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveUp(S32 direction)
 {
+	mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
+
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
@@ -535,6 +553,9 @@ void LLAgent::setFlying(BOOL fly)
 void LLAgent::toggleFlying()
 {
 	BOOL fly = !gAgent.getFlying();
+
+	gAgent.mMoveTimer.reset();
+	LLFirstUse::notMoving(false);
 
 	gAgent.setFlying( fly );
 	gAgentCamera.resetView();
@@ -1533,6 +1554,11 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+	{
+		LLFirstUse::notMoving();
+	}
+
 	propagate(dt);
 
 	// static S32 cameraUpdateCount = 0;
@@ -1700,9 +1726,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
-
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -1801,9 +1824,6 @@ void LLAgent::endAnimationUpdateUI()
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
-
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
@@ -2426,7 +2446,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < MAX_AGENT_GROUPS;
+	return mGroups.count() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -2961,12 +2981,6 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 					total_count++;
 				}
 			}
-		
-			// Any control taken?  If so, might be first time.
-			//if (total_count > 0)
-			//{
-				//LLFirstUse::useOverrideKeys();
-			//}
 		}
 		else
 		{
@@ -3249,7 +3263,11 @@ bool LLAgent::teleportCore(bool is_local)
 
 	// local logic
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
-	if (!is_local)
+	if (is_local)
+	{
+		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
+	}
+	else
 	{
 		gTeleportDisplay = TRUE;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
@@ -3268,13 +3286,15 @@ bool LLAgent::teleportCore(bool is_local)
 
 void LLAgent::teleportRequest(
 	const U64& region_handle,
-	const LLVector3& pos_local)
+	const LLVector3& pos_local,
+	bool look_at_from_camera)
 {
 	LLViewerRegion* regionp = getRegion();
-	if(regionp && teleportCore())
+	bool is_local = (region_handle == to_region_handle(getPositionGlobal()));
+	if(regionp && teleportCore(is_local))
 	{
-		llinfos << "TeleportRequest: '" << region_handle << "':" << pos_local
-				<< llendl;
+		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
+					 << pos_local << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("TeleportLocationRequest");
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -3284,6 +3304,10 @@ void LLAgent::teleportRequest(
 		msg->addU64("RegionHandle", region_handle);
 		msg->addVector3("Position", pos_local);
 		LLVector3 look_at(0,1,0);
+		if (look_at_from_camera)
+		{
+			look_at = LLViewerCamera::getInstance()->getAtAxis();
+		}
 		msg->addVector3("LookAt", look_at);
 		sendReliableMessage();
 	}
@@ -3395,6 +3419,16 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 	}
 }
 
+// Teleport to global position, but keep facing in the same direction 
+void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
+{
+	mbTeleportKeepsLookAt = true;
+	gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
+	U64 region_handle = to_region_handle(pos_global);
+	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
+	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+}
+
 void LLAgent::setTeleportState(ETeleportState state)
 {
 	mTeleportState = state;
@@ -3402,18 +3436,28 @@ void LLAgent::setTeleportState(ETeleportState state)
 	{
 		LLFloaterReg::hideInstance("snapshot");
 	}
-	if (mTeleportState == TELEPORT_MOVING)
+
+	switch (mTeleportState)
 	{
+		case TELEPORT_NONE:
+			mbTeleportKeepsLookAt = false;
+			break;
+
+		case TELEPORT_MOVING:
 		// We're outa here. Save "back" slurl.
 		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
-	}
-	else if(mTeleportState == TELEPORT_ARRIVING)
-	{
+			break;
+
+		case TELEPORT_ARRIVING:
 		// First two position updates after a teleport tend to be weird
 		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
 
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
+			break;
+
+		default:
+			break;
 	}
 }
 

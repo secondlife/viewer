@@ -42,7 +42,6 @@
 LLFloaterPostProcess::LLFloaterPostProcess(const LLSD& key)
   : LLFloater(key)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_post_process.xml");
 }
 
 LLFloaterPostProcess::~LLFloaterPostProcess()

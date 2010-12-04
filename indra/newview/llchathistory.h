@@ -138,7 +138,7 @@ class LLChatHistory : public LLUICtrl
 		S32 mTopHeaderPad;
 		S32 mBottomHeaderPad;
 
-		LLPanel*		mMoreChatPanel;
+		class LLLayoutPanel*	mMoreChatPanel;
 		LLTextBox*		mMoreChatText;
 		LLTextEditor*	mEditor;
 		typedef std::set<std::string> unread_chat_source_t;

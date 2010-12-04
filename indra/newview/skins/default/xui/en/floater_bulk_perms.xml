@@ -7,7 +7,7 @@
  name="floaterbulkperms"
  help_topic="floaterbulkperms"
  title="EDIT CONTENT PERMISSIONS"
- width="270">
+ width="410">
     <floater.string
      name="nothing_to_modify_text">
         Selection contains no editable contents.
@@ -71,7 +71,7 @@
      control_name="BulkChangeIncludeGestures"
      height="16"
      name="check_gesture"
-     left="65"
+     left="95"
      width="16"
      top="25" />
     <icon
@@ -87,7 +87,7 @@
      height="16"
      layout="topleft"
      name="check_notecard"
-     left="65"
+     left="95"
      width="16"
      top_pad="5" />
     <icon
@@ -102,7 +102,7 @@
      control_name="BulkChangeIncludeObjects"
      height="16"
      name="check_object"
-     left="65"
+     left="95"
      top_pad="5"
      width="16" />
    <icon
@@ -117,7 +117,7 @@
      height="16"
      name="check_script"
      top="25"
-     left="120"
+     left="180"
      width="16"
      />
     <icon
@@ -133,7 +133,7 @@
      height="16"
      name="check_sound"
      top_pad="5"
-     left="120"
+     left="180"
      width="16" />
     <icon
      height="16"
@@ -147,7 +147,7 @@
      height="16"
      name="check_texture"
      top_pad="5"
-     left="120"
+     left="180"
      width="16" />
     <icon
      height="16"
@@ -162,9 +162,9 @@
     layout="topleft"
    name="check_all"
      label="√ All"
-     left="180"
+     left="290"
      top="26"
-     width="70">
+     width="115">
       <button.commit_callback
        function="BulkPermission.CheckAll" />
     </button>
@@ -176,7 +176,7 @@
      layout="topleft"
      top_pad="8"
      name="check_none"
-     width="70" >
+     width="115" >
       <button.commit_callback
        function="BulkPermission.UncheckAll"/>
     </button>
@@ -199,10 +199,11 @@
        length="1"
       follows="left|top"
       layout="topleft"
-       height="16"
+       height="28"
      left="10"
       name="GroupLabel"
-       width="88">
+      width="92"
+      word_wrap="true">
        Group:
     </text>
     <check_box
@@ -212,17 +213,18 @@
      layout="topleft"
      top_pad="0"
      name="share_with_group"
-     width="88" />
+     width="92" />
         <text
      type="string"
      length="1"
      follows="left|top"
-     height="16"
+     height="28"
      layout="topleft"
      name="AnyoneLabel"
-     left="100"
+     left="124"
      top="110"
-     width="88">
+     width="92"
+     word_wrap="true">
         Anyone:
     </text>
     <check_box
@@ -232,17 +234,18 @@
      layout="topleft"
      top_pad="0"
      name="everyone_copy"
-     width="88" />
+     width="92" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="16"
+     height="28"
      layout="topleft"
      name="NextOwnerLabel"
      top="110"
-     left="185"
-     width="88">
+     left="275"
+     width="92"
+     word_wrap="true">
         Next owner:
     </text>
     <check_box
@@ -252,7 +255,7 @@
      layout="topleft"
      name="next_owner_modify"
      top_pad="0"
-     width="83" />
+     width="92" />
     <check_box
      control_name="BulkChangeNextOwnerCopy"
      height="16"
@@ -260,7 +263,7 @@
      layout="topleft"
      top_pad="0"
      name="next_owner_copy"
-     width="88">
+     width="92">
       <check_box.commit_callback
        function="BulkPermission.CommitCopy"/>
      </check_box>
@@ -274,7 +277,7 @@
      layout="topleft"
      name="next_owner_transfer"
      tool_tip="Next owner can give away or resell this object"
-     width="106" />
+     width="92" />
     <scroll_list
      enabled="false"
      follows="all"
@@ -289,7 +292,7 @@
      height="23"
      label="OK"
      layout="topleft"
-     left="65"
+     left="205"
      name="apply"
      top_pad="10"
      width="90">

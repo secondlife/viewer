@@ -181,6 +181,7 @@ template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 //-----------------------------------------------------------------------------
 LLSelectMgr::LLSelectMgr()
  : mHideSelectedObjects(LLCachedControl<bool>(gSavedSettings, "HideSelectedObjects", FALSE)),
+   mRenderHighlightSelections(LLCachedControl<bool>(gSavedSettings, "RenderHighlightSelections", TRUE)),
    mAllowSelectAvatar( LLCachedControl<bool>(gSavedSettings, "AllowSelectAvatar", FALSE)),
    mDebugSelectMgr(LLCachedControl<bool>(gSavedSettings, "DebugSelectMgr", FALSE))
 {
@@ -4898,7 +4899,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
 }
 void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 {
-	if (!mRenderSilhouettes)
+	if (!mRenderSilhouettes || !mRenderHighlightSelections)
 	{
 		return;
 	}
@@ -5058,23 +5059,13 @@ LLSelectNode::LLSelectNode(LLViewerObject* object, BOOL glow)
 	mSilhouetteExists(FALSE),
 	mDuplicated(FALSE),
 	mTESelectMask(0),
-	mLastTESelected(0)
+	mLastTESelected(0),
+	mName(LLStringUtil::null),
+	mDescription(LLStringUtil::null),
+	mTouchName(LLStringUtil::null),
+	mSitName(LLStringUtil::null),
+	mCreationDate(0)
 {
-	mObject = object;
-	selectAllTEs(FALSE);
-	mIndividualSelection	= FALSE;
-	mTransient		= FALSE;
-	mValid			= FALSE;
-	mPermissions	= new LLPermissions();
-	mInventorySerial = 0;
-	mName = LLStringUtil::null;
-	mDescription = LLStringUtil::null;
-	mTouchName = LLStringUtil::null;
-	mSitName = LLStringUtil::null;
-	mSilhouetteExists = FALSE;
-	mDuplicated = FALSE;
-	mCreationDate = 0;
-
 	saveColors();
 }
 

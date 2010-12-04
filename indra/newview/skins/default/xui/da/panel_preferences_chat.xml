@@ -56,4 +56,27 @@
 		<radio_item label="Separate vinduer" name="radio" value="0"/>
 		<radio_item label="Faner" name="radio2" value="1"/>
 	</radio_group>
+	<check_box label="Benyt maskin-oversættelse ved chat (håndteret af Google)" name="translate_chat_checkbox"/>
+	<text name="translate_language_text" width="110">
+		Oversæt chat til :
+	</text>
+	<combo_box name="translate_language_combobox" width="146">
+		<combo_box.item label="System standard" name="System Default Language"/>
+		<combo_box.item label="English (Engelsk)" name="English"/>
+		<combo_box.item label="Dansk" name="Danish"/>
+		<combo_box.item label="Deutsch (Tysk)" name="German"/>
+		<combo_box.item label="Español (Spansk)" name="Spanish"/>
+		<combo_box.item label="Français (Fransk)" name="French"/>
+		<combo_box.item label="Italiano (Italiensk)" name="Italian"/>
+		<combo_box.item label="Magyar (Ungarsk)" name="Hungarian"/>
+		<combo_box.item label="Nederlands (Hollandsk)" name="Dutch"/>
+		<combo_box.item label="Polski (Polsk)" name="Polish"/>
+		<combo_box.item label="Português (Portugisisk)" name="Portugese"/>
+		<combo_box.item label="Русский (Russisk)" name="Russian"/>
+		<combo_box.item label="Türkçe (Tyrkisk)" name="Turkish"/>
+		<combo_box.item label="Українська (Ukrainsk)" name="Ukrainian"/>
+		<combo_box.item label="中文 (简体) (Kinesisk)" name="Chinese"/>
+		<combo_box.item label="日本語 (Japansk)" name="Japanese"/>
+		<combo_box.item label="한국어 (Koreansk)" name="Korean"/>
+	</combo_box>
 </panel>

@@ -32,6 +32,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llbottomtray.h"
 #include "llchannelmanager.h"
@@ -251,14 +252,14 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mControlPanel->setSessionId(mSessionID);
-	mControlPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
+	mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
-	slide_left->setVisible(mControlPanel->getVisible());
+	slide_left->setVisible(mControlPanel->getParent()->getVisible());
 	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
-	slide_right->setVisible(!mControlPanel->getVisible());
+	slide_right->setVisible(!mControlPanel->getParent()->getVisible());
 	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
@@ -274,12 +275,6 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setRevertOnEsc( FALSE );
 	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 	mInputEditor->setPassDelete( TRUE );
-
-	std::string session_name(LLIMModel::instance().getName(mSessionID));
-
-	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + session_name);
-
-	setTitle(session_name);
 
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
@@ -298,6 +293,19 @@ BOOL LLIMFloater::postBuild()
 		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
 	}
 
+	if ( im_session && im_session->isP2PSessionType())
+	{
+		// look up display name for window title
+		LLAvatarNameCache::get(im_session->mOtherParticipantID,
+							   boost::bind(&LLIMFloater::onAvatarNameCache,
+										   this, _1, _2));
+	}
+	else
+	{
+		std::string session_name(LLIMModel::instance().getName(mSessionID));
+		updateSessionName(session_name, session_name);
+	}
+	
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
@@ -309,6 +317,23 @@ BOOL LLIMFloater::postBuild()
 	{
 		return LLDockableFloater::postBuild();
 	}
+}
+
+void LLIMFloater::updateSessionName(const std::string& ui_title,
+									const std::string& ui_label)
+{
+	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + ui_label);
+	setTitle(ui_title);	
+}
+
+void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
+									const LLAvatarName& av_name)
+{
+	// Use display name only for labels, as the extended name will be in the
+	// floater title
+	std::string ui_title = av_name.getCompleteName();
+	updateSessionName(ui_title, av_name.mDisplayName);
+	mTypingStart.setArg("[NAME]", ui_title);
 }
 
 // virtual
@@ -357,12 +382,12 @@ void* LLIMFloater::createPanelAdHocControl(void* userdata)
 
 void LLIMFloater::onSlide()
 {
-	mControlPanel->setVisible(!mControlPanel->getVisible());
+	mControlPanel->getParent()->setVisible(!mControlPanel->getParent()->getVisible());
 
-	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getVisible());
+	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getParent()->getVisible());
 
-	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getVisible());
-	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getVisible());
+	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getParent()->getVisible());
+	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getParent()->getVisible());
 
 	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
 	if (stack) stack->setAnimate(true);
@@ -655,8 +680,6 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
-
 		LLSD chat_args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
 
@@ -1071,13 +1094,9 @@ void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 	{
 		mOtherTyping = true;
 
-		// Create typing is started title string
-		LLUIString typing_start(mTypingStart);
-		typing_start.setArg("[NAME]", im_info->mName);
-
 		// Save and set new title
 		mSavedTitle = getTitle();
-		setTitle (typing_start);
+		setTitle (mTypingStart);
 
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);

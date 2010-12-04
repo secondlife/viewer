@@ -71,7 +71,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 		break;
 
 	default:
-		llwarns << "serialize request for unkown ELLSD_Serialize" << llendl;
+		llwarns << "serialize request for unknown ELLSD_Serialize" << llendl;
 	}
 
 	if (f.notNull())

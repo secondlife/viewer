@@ -98,7 +98,8 @@ LLButton::Params::Params()
 	is_toggle("is_toggle", false),
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
-	commit_on_return("commit_on_return", true)
+	commit_on_return("commit_on_return", true),
+	use_draw_context_alpha("use_draw_context_alpha", true)
 {
 	addSynonym(is_toggle, "toggle");
 	held_down_delay.seconds = 0.5f;
@@ -114,7 +115,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	mFlashing( FALSE ),
 	mCurGlowStrength(0.f),
 	mNeedsHighlight(FALSE),
-	mMouseOver(false),
 	mUnselectedLabel(p.label()),
 	mSelectedLabel(p.label_selected()),
 	mGLFont(p.font),
@@ -159,7 +159,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mLastDrawCharsCount(0),
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
-	mHeldDownSignal(NULL)
+	mHeldDownSignal(NULL),
+	mUseDrawContextAlpha(p.use_draw_context_alpha)
 
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
@@ -499,11 +500,7 @@ void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
 	LLUICtrl::onMouseEnter(x, y, mask);
 
 	if (isInEnabledChain())
-	{
 		mNeedsHighlight = TRUE;
-	}
-
-	mMouseOver = true;
 }
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -511,7 +508,6 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLUICtrl::onMouseLeave(x, y, mask);
 
 	mNeedsHighlight = FALSE;
-	mMouseOver = true;
 }
 
 void LLButton::setHighlight(bool b)
@@ -545,7 +541,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 // virtual
 void LLButton::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
 	static LLUICachedControl<F32> button_flash_rate("ButtonFlashRate", 0);
 	static LLUICachedControl<S32> button_flash_count("ButtonFlashCount", 0);
@@ -564,11 +560,19 @@ void LLButton::draw()
 		pressed_by_keyboard = gKeyboard->getKeyDown(' ') || (mCommitOnReturn && gKeyboard->getKeyDown(KEY_RETURN));
 	}
 
-	// Unselected image assignments
+	bool mouse_pressed_and_over = false;
+	if (hasMouseCapture())
+	{
+		S32 local_mouse_x ;
+		S32 local_mouse_y;
+		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+		mouse_pressed_and_over = pointInView(local_mouse_x, local_mouse_y);
+	}
+
 	bool enabled = isInEnabledChain();
 
 	bool pressed = pressed_by_keyboard 
-					|| (hasMouseCapture() && mMouseOver)
+					|| mouse_pressed_and_over
 					|| mForcePressedState;
 	bool selected = getToggleState();
 	
@@ -1117,7 +1121,7 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	// Get the visibility control name for the floater
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleFloaterInstance, sdname));
 }
@@ -1131,7 +1135,7 @@ void LLButton::setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	// Get the visibility control name for the floater
 	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
-	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLDockableFloater::toggleInstance, sdname));
 }

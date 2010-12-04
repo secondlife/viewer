@@ -43,9 +43,6 @@
 class LLFontGL;
 class LLViewBorder;
 
-extern S32 LLCOMBOBOX_HEIGHT;
-extern S32 LLCOMBOBOX_WIDTH;
-
 class LLComboBox
 :	public LLUICtrl, public LLCtrlListInterface
 {
@@ -224,8 +221,8 @@ private:
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
-        boost::signals2::connection mTopLostSignalConnection;
-    S32					mLastSelectedIndex;
+	boost::signals2::connection mTopLostSignalConnection;
+	S32                 mLastSelectedIndex;
 };
 
 // A combo box with icons for the list of items.

@@ -51,6 +51,7 @@ struct mediaPanel
 		int mId;
 		std::string mStartUrl;
 		std::string mMimeType;
+		std::string mTarget;
 		LLPluginClassMedia *mMediaSource;
 		int mMediaWidth;
 		int mMediaHeight;
@@ -91,16 +92,17 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 		void draw( int draw_type );
 		void windowPosToTexturePos( int window_x, int window_y, int& media_x, int& media_y, int& id );
 
-		void addMediaPanel( std::string url );
+		mediaPanel* addMediaPanel( std::string url );
 		void updateMediaPanel( mediaPanel* panel );
 		void remMediaPanel( mediaPanel* panel );
-		void replaceMediaPanel( mediaPanel* panel, std::string url );
+		mediaPanel* replaceMediaPanel( mediaPanel* panel, std::string url );
 		void getRandomMediaSize( int& width, int& height, std::string mime_type );
 		void navigateToNewURI( std::string uri );
         void initUrlHistory( std::string uri );
 		void selectPanelById( int id );
 		void selectPanel( mediaPanel* panel );
 		mediaPanel* findMediaPanel( LLPluginClassMedia* panel );
+		mediaPanel* findMediaPanel( const std::string &target_name );
 		void makePickTexture( int id, GLuint* texture_handle, unsigned char** texture_pixels );
 		void makeChrome();
 		void resetView();

@@ -10,51 +10,6 @@
  top="1"
  width="517">
   <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left="30"
-   name="Mouselook:"
-   top="10"
-   width="300">
-    Mouselook:
-  </text>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_delta="50"
-   name=" Mouse Sensitivity"
-   top_pad="10"
-   width="150">
-    Mouse sensitivity
-  </text>
-  <slider
-   control_name="MouseSensitivity"
-   follows="left|top"
-   height="15"
-   initial_value="2"
-   layout="topleft"
-   show_text="false"
-   left_delta="150"
-   max_val="15"
-   name="mouse_sensitivity"
-   top_delta="0"
-   width="145" />
-  <check_box
-   control_name="InvertMouse"
-   height="16"
-   label="Invert"
-   layout="topleft"
-   left_pad="2"
-   name="invert_mouse"
-   top_delta="0"
-   width="128" />
-  <text
      type="string"
      length="1"
      follows="left|top"
@@ -63,7 +18,7 @@
      left="30"
      name="Network:"
      mouse_opaque="false"
-     top_pad="4"
+     top="10"
      width="300">
     Network:
   </text>
@@ -187,7 +142,7 @@
    layout="topleft"
    left="80"
    name="Cache location"
-   top_delta="20"
+   top_delta="40"
    width="300">
     Cache location:
   </text>
@@ -195,7 +150,6 @@
    control_name="CacheLocationTopFolder"
    border_style="line"
    border_thickness="1"
-   enabled="false"
    follows="left|top"
    font="SansSerif"
    height="23"
@@ -320,7 +274,19 @@
     radio_style="false"
     width="400"
     top_pad="5"/>
-
+  <check_box
+    top_delta="4"
+    enabled="true"
+    follows="left|top"
+    height="14"
+    initial_value="false"
+    control_name="MediaEnablePopups"
+    label="Enable media browser pop-ups"
+    left_delta="0"
+    mouse_opaque="true"
+    name="media_popup_enabled"
+    width="400"           
+    top_pad="5"/>
   <check_box
     top_delta="4"
     enabled="true"
@@ -375,4 +341,20 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
+
+  <check_box
+    top_delta="2"
+    enabled="true"
+    follows="left|top"
+    height="18"
+    initial_value="true"
+    control_name="UpdaterServiceActive"
+    label="Automatically download and install [APP_NAME] updates"
+    left="30"
+    mouse_opaque="true"
+    name="updater_service_active"
+    radio_style="false"
+    width="400"
+    top_pad="10"/>
+
 </panel>

@@ -950,7 +950,7 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 }
 
 // Draw gray and white checkerboard with black border
-void gl_rect_2d_checkerboard(const LLRect& rect)
+void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
 	// Initialize the first time this is called.
 	const S32 PIXELS = 32;
@@ -971,11 +971,11 @@ void gl_rect_2d_checkerboard(const LLRect& rect)
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// ...white squares
-	gGL.color3f( 1.f, 1.f, 1.f );
+	gGL.color4f( 1.f, 1.f, 1.f, alpha );
 	gl_rect_2d(rect);
 
 	// ...gray squares
-	gGL.color3f( .7f, .7f, .7f );
+	gGL.color4f( .7f, .7f, .7f, alpha );
 	gGL.flush();
 	glPolygonStipple( checkerboard );
 
@@ -1620,7 +1620,10 @@ void LLUI::initClass(const settings_map_t& settings,
 
 void LLUI::cleanupClass()
 {
-	sImageProvider->cleanUp();
+	if(sImageProvider)
+	{
+		sImageProvider->cleanUp();
+	}
 }
 
 void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)
@@ -1796,7 +1799,8 @@ void LLUI::setupPaths()
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
 	Paths paths;
-	LLXUIParser::instance().readXUI(root, paths, filename);
+	LLXUIParser parser;
+	parser.readXUI(root, paths, filename);
 
 	sXUIPaths.clear();
 	
@@ -1805,14 +1809,14 @@ void LLUI::setupPaths()
 		LLStringUtil::format_map_t path_args;
 		path_args["[LANGUAGE]"] = LLUI::getLanguage();
 		
-		for (LLInitParam::ParamIterator<Directory>::const_iterator it = paths.directories().begin(), 
-				end_it = paths.directories().end();
+		for (LLInitParam::ParamIterator<Directory>::const_iterator it = paths.directories.begin(), 
+				end_it = paths.directories.end();
 			it != end_it;
 			++it)
 		{
 			std::string path_val_ui;
-			for (LLInitParam::ParamIterator<SubDir>::const_iterator subdir_it = it->subdirs().begin(),
-					subdir_end_it = it->subdirs().end();
+			for (LLInitParam::ParamIterator<SubDir>::const_iterator subdir_it = it->subdirs.begin(),
+					subdir_end_it = it->subdirs.end();
 				subdir_it != subdir_end_it;)
 			{
 				path_val_ui += subdir_it->value();

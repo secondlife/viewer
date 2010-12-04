@@ -1004,7 +1004,6 @@ void LLSnapshotLivePreview::saveTexture()
 				    LLFloaterPerms::getEveryonePerms(),
 				    "Snapshot : " + pos_string,
 				    callback, expected_upload_cost, userdata);
-		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
 	{
@@ -1026,10 +1025,6 @@ BOOL LLSnapshotLivePreview::saveLocal()
 	mDataSize = 0;
 	updateSnapshot(FALSE, FALSE);
 
-	if(success)
-	{
-		gViewerWindow->playSnapshotAnimAndSound();
-	}
 	return success;
 }
 
@@ -1049,8 +1044,6 @@ void LLSnapshotLivePreview::saveWeb()
 
 	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
 		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, jpg, metadata, _1, _2, _3, _4));
-
-	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z)
@@ -1212,8 +1205,6 @@ LLViewerWindow::ESnapshotType LLFloaterSnapshot::Impl::getLayerType(LLFloaterSna
 		type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
 	else if (id == "depth")
 		type = LLViewerWindow::SNAPSHOT_TYPE_DEPTH;
-	else if (id == "objects")
-		type = LLViewerWindow::SNAPSHOT_TYPE_OBJECT_ID;
 	return type;
 }
 
@@ -1542,6 +1533,8 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	if (previewp && view)
 	{
 		previewp->updateSnapshot(TRUE);
+
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 }
 
@@ -2071,7 +2064,6 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 	: LLFloater(key),
 	  impl (*(new Impl))
 {
-	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_snapshot.xml", FALSE);
 }
 
 // Destroys the object
@@ -2192,9 +2184,11 @@ void LLFloaterSnapshot::draw()
 			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
 
 			glMatrixMode(GL_MODELVIEW);
+			// Apply floater transparency to the texture unless the floater is focused.
+			F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 			gl_draw_scaled_image(offset_x, offset_y, 
 					previewp->getThumbnailWidth(), previewp->getThumbnailHeight(), 
-					previewp->getThumbnailImage(), LLColor4::white);	
+					previewp->getThumbnailImage(), LLColor4::white % alpha);
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 		}
@@ -2212,6 +2206,8 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
+
+	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLFloaterSnapshot::onClose(bool app_quitting)

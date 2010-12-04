@@ -45,7 +45,8 @@ background_visible="true"
      left="7"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
     <text_editor
      allow_scroll="false"
      bg_visible="false"
@@ -71,7 +72,7 @@ background_visible="true"
      label="Type your new group name here"
      layout="topleft"
      left_delta="10"
-     max_length="35"
+     max_length_bytes="35"
      name="group_name_editor"
      top_delta="5"
      width="270"
@@ -84,7 +85,7 @@ background_visible="true"
       follows="all"
      left="8"
      top_pad="0"
-     height="536"
+     height="506"
      width="292"
      border_size="0">
    <layout_panel
@@ -176,25 +177,17 @@ background_visible="true"
          </accordion_tab>
          </accordion>
    </layout_panel>
-   <layout_panel
-         height="30"
-         layout="topleft"
-         auto_resize="false"
-         left="0"
-         top_pad="0"
-   name="button_row"
-   follows="bottom|left|right"
-   width="313">
+  </layout_stack>
    
    		   <layout_stack
 	     	follows="bottom|left|right"
 			height="25"
 			layout="topleft"
 			name="button_row_ls"
-			left="2"
+			left="6"
 			orientation="horizontal"
 			top_pad="5"
-			width="309">
+			width="297">
 	
 				<layout_panel
 				follows="bottom|left|right"
@@ -203,7 +196,7 @@ background_visible="true"
 				left="0"
 				name="btn_refresh_lp"
 			    user_resize="false" 
-			    auto_resize="true"
+			    auto_resize="false"
 				width="24">
 					<button
 				     follows="bottom|left|right"
@@ -224,7 +217,7 @@ background_visible="true"
 				name="btn_chat_lp"
 			    user_resize="false" 
 			    auto_resize="true"
-				width="83">
+				width="91">
 					<button
 				     follows="bottom|left|right"
 				     label="Chat"
@@ -232,7 +225,7 @@ background_visible="true"
 				     left="1"     
 				     height="23"
 				     top="0"
-				     width="82" />		
+				     width="90" />		
 				</layout_panel>
 				
 				<layout_panel
@@ -243,7 +236,7 @@ background_visible="true"
 				name="call_btn_lp"
 			    user_resize="false" 
 			    auto_resize="true"
-				width="113">
+				width="91">
 					<button
 			         follows="bottom|left|right"
 			         left="1"
@@ -253,7 +246,7 @@ background_visible="true"
 			         layout="topleft"
 			         tool_tip="Call this group"
 			         top="0"
-			         width="112" />		
+			         width="90" />		
 				</layout_panel>
 				
 				<layout_panel
@@ -264,7 +257,7 @@ background_visible="true"
 				name="btn_apply_lp"
 			    user_resize="false" 
 			    auto_resize="true"
-				width="83">
+				width="91">
 					<button
 				     follows="bottom|left|right"
 				     height="23"
@@ -273,18 +266,7 @@ background_visible="true"
 				     name="btn_apply"
 				     left="1"
 				     top="0"
-				     width="82" />
-				</layout_panel>
-				
-				<layout_panel
-				follows="bottom|left|right"
-				height="23"
-				layout="bottomleft"
-				left_pad="3"
-				name="btn_create_lp"
-			    user_resize="false" 
-			    auto_resize="true"
-				width="104">
+				     width="90" />
 					<button
     				 follows="bottom|left|right"
 	                 height="23"
@@ -295,17 +277,8 @@ background_visible="true"
      				 name="btn_create"
                		 visible="true"
                  	 tool_tip="Create a new Group"
-                 	 width="103" />	
+                 	 width="90" />	
 				</layout_panel>
-		</layout_stack>
-   <!--<button
-     left_pad="3"
-     height="23"
-     label="Cancel"
-     label_selected="Cancel"
-     name="btn_cancel"
-     visible="false"
-     width="65" />-->
-     </layout_panel>
-  </layout_stack>
+		   </layout_stack>
+  
 </panel>

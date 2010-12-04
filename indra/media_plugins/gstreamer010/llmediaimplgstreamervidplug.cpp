@@ -48,7 +48,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_slvideo_debug);
 #define SLV_ALLCAPS GST_VIDEO_CAPS_RGBx SLV_SIZECAPS
 
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE (
-    "sink",
+    (gchar*)"sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (SLV_ALLCAPS)
@@ -508,18 +508,18 @@ plugin_init (GstPlugin * plugin)
    some g++ versions buggily avoid __attribute__((constructor)) functions -
    so we provide an explicit plugin init function.
  */
+#define PACKAGE (gchar*)"packagehack"
+// this macro quietly refers to PACKAGE internally
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
+		   GST_VERSION_MINOR,
+		   (gchar*)"private-slvideoplugin", 
+		   (gchar*)"SL Video sink plugin",
+		   plugin_init, (gchar*)"1.0", (gchar*)"LGPL",
+		   (gchar*)"Second Life",
+		   (gchar*)"http://www.secondlife.com/");
+#undef PACKAGE
 void gst_slvideo_init_class (void)
 {
-#define PACKAGE "packagehack"
-	// this macro quietly refers to PACKAGE internally
-	static GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
-				  GST_VERSION_MINOR,
-				  "private-slvideoplugin", 
-				  "SL Video sink plugin",
-				  plugin_init, "0.1", GST_LICENSE_UNKNOWN,
-				  "Second Life",
-				  "http://www.secondlife.com/");
-#undef PACKAGE
 	ll_gst_plugin_register_static (&gst_plugin_desc);
 	DEBUGMSG("CLASS INIT");
 }

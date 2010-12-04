@@ -42,11 +42,13 @@
 // newview
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llversioninfo.h"
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llwindow.h"
+#include "llviewerwindow.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
@@ -102,6 +104,7 @@ void LLLoginInstance::reconnect()
 	std::vector<std::string> uris;
 	LLGridManager::getInstance()->getLoginURIs(uris);
 	mLoginModule->connect(uris.front(), mRequestData);
+	gViewerWindow->setShowProgress(true);
 }
 
 void LLLoginInstance::disconnect()
@@ -137,6 +140,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 	requested_options.append("initial-outfit");
 	requested_options.append("gestures");
+	requested_options.append("display_names");
 	requested_options.append("event_categories");
 	requested_options.append("event_notifications");
 	requested_options.append("classified_categories");
@@ -146,6 +150,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
+	requested_options.append("max-agent-groups");	
 	requested_options.append("map-server-url");	
 	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
@@ -178,8 +183,8 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["mac"] = hashed_unique_id_string;
-	request_params["version"] = gCurrentVersion; // Includes channel name
-	request_params["channel"] = gSavedSettings.getString("VersionChannelName");
+	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
+	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["id0"] = mSerialNumber;
 
 	mRequestData.clear();
@@ -239,6 +244,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 			LLSD data(LLSD::emptyMap());
 			data["message"] = message_response;
 			data["reply_pump"] = TOS_REPLY_PUMP;
+			gViewerWindow->setShowProgress(FALSE);
 			LLFloaterReg::showInstance("message_tos", data);
 			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 				.listen(TOS_LISTENER_NAME,
@@ -259,6 +265,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 				data["certificate"] = response["certificate"];
 			}
 			
+			gViewerWindow->setShowProgress(FALSE);
 			LLFloaterReg::showInstance("message_critical", data);
 			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 				.listen(TOS_LISTENER_NAME,
@@ -402,6 +409,8 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	{
 		mNotifications->add(notification_name, args, payload, 
 			boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
+
+		gViewerWindow->setShowProgress(false);
 	}
 }
 

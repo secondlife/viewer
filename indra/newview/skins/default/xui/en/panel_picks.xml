@@ -30,7 +30,7 @@ bg_opaque_color="DkGray2"
  <accordion
   fit_parent="true" 
   follows="all"
-  height="470"
+  height="485"
   layout="topleft"
   left="0"
   name="accordion"
@@ -106,18 +106,6 @@ bg_opaque_color="DkGray2"
 		      user_resize="false" 
 		      auto_resize="true"
 			  width="51">
-	            <button
-	             enabled="false"
-	             follows="bottom|left"
-	             height="18"
-	             image_selected="OptionsMenu_Press"
-	             image_unselected="OptionsMenu_Off"
-	             image_disabled="OptionsMenu_Disabled"
-	             layout="topleft"
-	             left="0"
-	             name="gear_menu_btn"
-	             top_pad="0"
-	             width="18" />
 				<button
 	             follows="bottom|left"
 	             height="18"
@@ -125,9 +113,10 @@ bg_opaque_color="DkGray2"
 	             image_selected="AddItem_Press"
 	             image_unselected="AddItem_Off"
 	             layout="topleft"
-	             left_pad="15"
+	             left="0"
 	             name="new_btn"
 	             tool_tip="Create a new pick or classified at the current location"
+	             top="0"
 	             width="18" />
 		  </layout_panel>
 		  

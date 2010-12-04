@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="座る" name="Sit Down Here"/>
 	<menu_item_call label="立ち上がる" name="Stand Up"/>
-	<context_menu label="脱ぐ  ▶" name="Take Off &gt;">
-		<context_menu label="衣類  ▶" name="Clothes &gt;">
+	<context_menu label="取り外す" name="Take Off &gt;">
+		<context_menu label="衣類" name="Clothes &gt;">
 			<menu_item_call label="シャツ" name="Shirt"/>
 			<menu_item_call label="パンツ" name="Pants"/>
 			<menu_item_call label="スカート" name="Skirt"/>
@@ -16,8 +17,8 @@
 			<menu_item_call label="アルファ" name="Self Alpha"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</context_menu>
-		<context_menu label="HUD  ▶" name="Object Detach HUD"/>
-		<context_menu label="取り外す  ▶" name="Object Detach"/>
+		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="取り外す" name="Object Detach"/>
 		<menu_item_call label="すべて取り外す" name="Detach All"/>
 	</context_menu>
 	<menu_item_call label="アウトフィットを変更" name="Chenge Outfit"/>

@@ -196,8 +196,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE )
 {
+	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
 	setCanMinimize(FALSE);
 }
 
@@ -564,25 +564,27 @@ void LLFloaterTexturePicker::draw()
 		LLRect interior = border;
 		interior.stretch( -1 ); 
 
+		// If the floater is focused, don't apply its alpha to the texture (STORM-677).
+		const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 		if( mTexturep )
 		{
 			if( mTexturep->getComponents() == 4 )
 			{
-				gl_rect_2d_checkerboard( interior );
+				gl_rect_2d_checkerboard( interior, alpha );
 			}
 
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep );
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha );
 
 			// Pump the priority
 			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 		}
 		else if (!mFallbackImage.isNull())
 		{
-			mFallbackImage->draw(interior);
+			mFallbackImage->draw(interior, UI_VERTEX_COLOR % alpha);
 		}
 		else
 		{
-			gl_rect_2d( interior, LLColor4::grey, TRUE );
+			gl_rect_2d( interior, LLColor4::grey % alpha, TRUE );
 
 			// Draw X
 			gl_draw_x(interior, LLColor4::black );
@@ -1263,23 +1265,25 @@ void LLTextureCtrl::draw()
 	LLRect interior = border;
 	interior.stretch( -1 ); 
 
+	// If we're in a focused floater, don't apply the floater's alpha to the texture (STORM-677).
+	const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 	if( mTexturep )
 	{
 		if( mTexturep->getComponents() == 4 )
 		{
-			gl_rect_2d_checkerboard( interior );
+			gl_rect_2d_checkerboard( interior, alpha );
 		}
 		
-		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep);
+		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
 		mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
 	else if (!mFallbackImage.isNull())
 	{
-		mFallbackImage->draw(interior);
+		mFallbackImage->draw(interior, UI_VERTEX_COLOR % alpha);
 	}
 	else
 	{
-		gl_rect_2d( interior, LLColor4::grey, TRUE );
+		gl_rect_2d( interior, LLColor4::grey % alpha, TRUE );
 
 		// Draw X
 		gl_draw_x( interior, LLColor4::black );

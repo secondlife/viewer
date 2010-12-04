@@ -76,7 +76,6 @@ LLFloaterPostcard::LLFloaterPostcard(const LLSD& key)
 	mViewerImage(NULL),
 	mHasFirstMsgFocus(false)
 {
-	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_postcard.xml");
 }
 
 // Destroys the object
@@ -129,6 +128,8 @@ void LLFloaterPostcard::draw()
 
 	if(!isMinimized() && mViewerImage.notNull() && mJPEGImage.notNull()) 
 	{
+		// Force the texture to be 100% opaque when the floater is focused.
+		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 		LLRect rect(getRect());
 
 		// first set the max extents of our preview
@@ -150,7 +151,7 @@ void LLFloaterPostcard::draw()
 		}
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			gl_rect_2d(rect, LLColor4(0.f, 0.f, 0.f, 1.f));
+			gl_rect_2d(rect, LLColor4(0.f, 0.f, 0.f, 1.f) % alpha);
 			rect.stretch(-1);
 		}
 		{
@@ -165,7 +166,7 @@ void LLFloaterPostcard::draw()
 								 rect.getWidth(),
 								 rect.getHeight(),
 								 mViewerImage.get(), 
-								 LLColor4::white);
+								 LLColor4::white % alpha);
 		}
 		glMatrixMode(GL_TEXTURE);
 		glPopMatrix();
@@ -362,9 +363,7 @@ void LLFloaterPostcard::sendPostcard()
 	{
 		gAssetStorage->storeAssetData(mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)this, FALSE);
 	}
-	
-	// give user feedback of the event
-	gViewerWindow->playSnapshotAnimAndSound();
+
 	LLUploadDialog::modalUploadDialog(getString("upload_message"));
 
 	// don't destroy the window until the upload is done

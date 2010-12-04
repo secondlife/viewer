@@ -224,60 +224,60 @@ o suddivisa.
 			<text name="Simulator primitive usage:">
 				Uso delle primitive:
 			</text>
-			<text left="214" name="objects_available" width="230">
+			<text name="objects_available">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Oggetti che il terreno supporta:
 			</text>
-			<text left="214" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Oggetti sul terreno:
 			</text>
-			<text left="214" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Posseduti dal proprietario:
 			</text>
-			<text left="214" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostra" label_selected="Mostra" name="ShowOwner" right="-135" width="60"/>
-			<button label="Restituisci" name="ReturnOwner..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Mostra" label_selected="Mostra" name="ShowOwner"/>
+			<button label="Restituisci" name="ReturnOwner..." tool_tip="Restituisci gli oggetti ai loro proprietari."/>
+			<text name="Set to group:">
 				Imposta al gruppo:
 			</text>
-			<text left="214" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostra" label_selected="Mostra" name="ShowGroup" right="-135" width="60"/>
-			<button label="Restituisci" name="ReturnGroup..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
-			<text left="14" name="Owned by others:" width="180">
+			<button label="Mostra" label_selected="Mostra" name="ShowGroup"/>
+			<button label="Restituisci" name="ReturnGroup..." tool_tip="Restituisci gli oggetti ai loro proprietari."/>
+			<text name="Owned by others:">
 				Posseduti da altri:
 			</text>
-			<text left="214" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostra" label_selected="Mostra" name="ShowOther" right="-135" width="60"/>
-			<button label="Restituisci" name="ReturnOther..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="193">
+			<button label="Mostra" label_selected="Mostra" name="ShowOther"/>
+			<button label="Restituisci" name="ReturnOther..." tool_tip="Restituisci gli oggetti ai loro proprietari."/>
+			<text name="Selected / sat upon:">
 				Selezionati / sui quali sei sopra:
 			</text>
-			<text left="214" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Restituzione automatica degli oggetti di altri residenti (minuti, 0 per disattivarla):
 			</text>
-			<line_editor name="clean other time" right="-20"/>
-			<text name="Object Owners:" width="150">
+			<line_editor name="clean other time"/>
+			<text name="Object Owners:">
 				Proprietari degli oggetti:
 			</text>
-			<button label="Aggiorna Elenco" label_selected="Aggiorna Elenco" left="158" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Restituisci oggetti..." label_selected="Restituisci oggetti..." left="270" name="Return objects..." width="164"/>
+			<button label="Aggiorna Elenco" label_selected="Aggiorna Elenco" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Restituisci oggetti..." label_selected="Restituisci oggetti..." name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nome" name="name"/>

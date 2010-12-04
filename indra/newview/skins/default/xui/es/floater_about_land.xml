@@ -221,60 +221,60 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Simulator primitive usage:">
 				Uso de primitivas:
 			</text>
-			<text left="204" name="objects_available" width="250">
+			<text  name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Prims que admite la parcela:
 			</text>
-			<text left="204" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims en la parcela:
 			</text>
-			<text left="204" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="180">
+			<text name="Owned by parcel owner:">
 				Del propietario de la parcela:
 			</text>
-			<text left="204" name="owner_objects_text" width="48">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOwner..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Set to group:" width="180">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner"/>
+			<button label="Devolver" name="ReturnOwner..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Set to group:">
 				Del grupo:
 			</text>
-			<text left="204" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnGroup..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup"/>
+			<button label="Devolver" name="ReturnGroup..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Owned by others:">
 				Propiedad de otros:
 			</text>
-			<text left="204" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Devolver" name="ReturnOther..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="193">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowOther"/>
+			<button label="Devolver" name="ReturnOther..." tool_tip="Devolver los objetos a sus propietarios."/>
+			<text name="Selected / sat upon:">
 				Seleccionados / con gente sentada:
 			</text>
-			<text left="204" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Devolución automát. de objetos de otros (en min., 0 la desactiva):
 			</text>
-			<line_editor name="clean other time" right="-20"/>
-			<text name="Object Owners:" width="150">
+			<line_editor name="clean other time"/>
+			<text name="Object Owners:">
 				Propietarios de los objetos:
 			</text>
-			<button label="Actualizar la lista" label_selected="Actualizar la lista" left="158" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Devolver los objetos" left="270" name="Return objects..." width="164"/>
+			<button label="Actualizar la lista" label_selected="Actualizar la lista" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Devolver los objetos" name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nombre" name="name"/>
@@ -427,7 +427,17 @@ los media:
 			<check_box label="Media en bucle" name="media_loop" tool_tip="Ejecuta el media en bucle: cuando acaba su ejecución, vuelve a empezar."/>
 		</panel>
 		<panel label="SONIDO" name="land_audio_panel">
+			<text name="MusicURL:">
+				URL de música:
+			</text>
 			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Al marcar esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
+			<text name="Sound:">
+				Sonido:
+			</text>
+			<check_box label="Restringir sonidos de objetos y gestos a esta parcela" name="check sound local"/>
+			<text name="Voice settings:">
+				Voz:
+			</text>
 			<check_box label="Activar la voz" name="parcel_enable_voice_channel"/>
 			<check_box label="Autorizar la voz (establecido por el Estado)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limitar la voz a esta parcela" name="parcel_enable_voice_channel_local"/>
@@ -460,7 +470,20 @@ los media:
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
+				<text label="Always Allow" name="AllowedText">
+					Residentes autorizados
+				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
+				<button label="Añadir" name="add_allowed"/>
+				<button label="Quitar" label_selected="Quitar" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="Ban" name="BanCheck">
+					Residentes con el acceso prohibido
+				</text>
+				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
+				<button label="Añadir" name="add_banned"/>
+				<button label="Quitar" label_selected="Quitar" name="remove_banned"/>
 			</panel>
 		</panel>
 	</tab_container>

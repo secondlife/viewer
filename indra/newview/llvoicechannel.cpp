@@ -497,14 +497,28 @@ void LLVoiceChannelGroup::activate()
 			mURI,
 			mCredentials);
 
-#if 0 // *TODO
 		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
 		{
-			// Add the party to the list of people with which we've recently interacted.
-			for (/*people in the chat*/)
-				LLRecentPeople::instance().add(buddy_id);
+			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionID);
+			// Adding ad-hoc call participants to Recent People List.
+			// If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
+			// called(both online and offline) as source to get people for recent (STORM-210).
+			if (session->isOutgoingAdHoc())
+			{
+				for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
+					it!=session->mInitialTargetIDs.end();++it)
+				{
+					const LLUUID id = *it;
+					LLRecentPeople::instance().add(id);
+				}
+			}
+			// If this ad-hoc is incoming then trying to get ids of people from mInitialTargetIDs
+			// would lead to EXT-8246. So in this case we get them from speakers list.
+			else
+			{
+				LLIMModel::addSpeakersToRecent(mSessionID);
+			}
 		}
-#endif
 
 		//Mic default state is OFF on initiating/joining Ad-Hoc/Group calls
 		if (LLVoiceClient::getInstance()->getUserPTTState() && LLVoiceClient::getInstance()->getPTTIsToggle())

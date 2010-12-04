@@ -39,7 +39,7 @@ class LLTextureCache;
 class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
-class LLCommandLineParser;
+class LLUpdaterService;
 
 struct apr_dso_handle_t;
 
@@ -94,7 +94,8 @@ public:
 	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
-	static S32 getCacheVersion() ;
+	static U32 getTextureCacheVersion() ;
+	static U32 getObjectCacheVersion() ;
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	
@@ -185,7 +186,7 @@ private:
 
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
-
+	void initUpdater(); // Initialize the updater service.
 	bool initCache(); // Initialize local client cache.
 
 
@@ -203,6 +204,8 @@ private:
     
     void idle(); 
     void idleShutdown();
+	// update avatar SLID and display name caches
+	void idleNameCache();
     void idleNetwork();
 
     void sendLogoutRequest();
@@ -248,7 +251,9 @@ private:
 
 	LLWatchdogTimeout* mMainloopTimeout;
 
+	// For performance and metric gathering
 	LLThread*	mFastTimerLogThread;
+
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
@@ -257,7 +262,16 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
+	U32 mAvailPhysicalMemInKB ;
+	U32 mAvailVirtualMemInKB ;
+	
+	boost::scoped_ptr<LLUpdaterService> mUpdater;
+
+	//---------------------------------------------
+	//*NOTE: Mani - legacy updater stuff
+	// Still useable?
 public:
+
 	//some information for updater
 	typedef struct
 	{
@@ -267,6 +281,7 @@ public:
 	static LLUpdaterInfo *sUpdaterInfo ;
 
 	void launchUpdater();
+	//---------------------------------------------
 };
 
 // consts from viewer.h
@@ -307,6 +322,7 @@ extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;
 extern LLFrameTimer gForegroundTime;
+extern LLFrameTimer gLoggedInTime;
 
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;

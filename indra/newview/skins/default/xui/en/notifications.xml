@@ -1,6 +1,5 @@
 <?xml version="1.0" ?><notifications>
-
-  <global name="skipnexttime">
+    <global name="skipnexttime">
 
 		Don&apos;t show me this again
   </global>
@@ -97,7 +96,7 @@
   </template>
 
   <notification
-   functor="GenericAcknowledge"
+ functor="GenericAcknowledge"
    icon="alertmodal.tga"
    name="MissingAlert"
    label="Unknown Notification Message"
@@ -257,7 +256,7 @@ Save all changes to clothing/body parts?
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
-Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to grant modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -280,7 +279,7 @@ Do you want to grant modify rights for the selected Residents?
    icon="alertmodal.tga"
    name="RevokeModifyRights"
    type="alertmodal">
-Do you want to revoke modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to revoke modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -717,13 +716,13 @@ You can not wear that item because it has not yet loaded. Please try again in a 
    name="MustHaveAccountToLogIn"
    type="alertmodal">
 Oops! Something was left blank.
-You need to enter both the First and Last name of your avatar.
+You need to enter the Username name of your avatar.
 
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <url
 	option="0"
 	name="url"
-	openexternally = "1">
+	target = "_external">
 
 			http://join.secondlife.com/
     </url>
@@ -737,7 +736,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="InvalidCredentialFormat"
    type="alertmodal">
-You need to enter both the First and Last name of your avatar into the Username field, then login again.
+You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
 
@@ -906,6 +905,13 @@ Port settings take effect after you restart [APP_NAME].
    name="ChangeSkin"
    type="alertmodal">
 The new skin will appear after you restart [APP_NAME].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeLanguage"
+   type="alertmodal">
+Changing language will take effect after you restart [APP_NAME].
   </notification>
 
   <notification
@@ -1363,6 +1369,14 @@ File does not appear to be a supported word size (must be 8 or 16 bit):
    name="SoundFileInvalidHeader"
    type="alertmodal">
 Could not find &apos;data&apos; chunk in WAV header:
+[FILE]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SoundFileInvalidChunkSize"
+   type="alertmodal">
+Wrong chunk size in WAV file:
 [FILE]
   </notification>
 
@@ -2021,20 +2035,6 @@ You do not have permission to buy land for your active group.
   <notification
    icon="alertmodal.tga"
    label="Add Friend"
-   name="AddFriend"
-   type="alertmodal">
-Friends can give permissions to track each other on the map and receive online status updates.
-
-Offer friendship to [NAME]?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   label="Add Friend"
    name="AddFriendWithMessage"
    type="alertmodal">
 Friends can give permissions to track each other on the map and receive online status updates.
@@ -2060,7 +2060,8 @@ Would you be my friend?
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"
- type="alertmodal">
+ type="alertmodal"
+ unique="true">
     Save what I'm wearing as a new Outfit:
     <form name="form">
       <input name="message" type="text">
@@ -2076,7 +2077,6 @@ Would you be my friend?
        name="Cancel"
        text="Cancel"/>
     </form>
-    <unique/>
   </notification>
 
   <notification
@@ -2128,7 +2128,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
-Do you want to remove [FIRST_NAME] [LAST_NAME] from your Friends List?
+Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2381,7 +2381,7 @@ Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
    name="DeedLandToGroupWithContribution"
    type="alertmodal">
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
-The deed will include a simultaneous land contribution to the group from &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
@@ -2878,6 +2878,25 @@ Download to your Applications folder?
 
   <notification
    icon="alertmodal.tga"
+   name="FailedUpdateInstall"
+   type="alertmodal">
+An error occurred installing the viewer update.
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  <notification
+   icon="notifytip.tga"
+   name="DownloadBackground"
+   type="notifytip">
+An updated version of [APP_NAME] has been downloaded.
+It will be applied the next time you restart [APP_NAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DeedObjectToGroup"
    type="alertmodal">
 Deeding this object will cause the group to:
@@ -3197,6 +3216,88 @@ You are no longer frozen.
        name="Cancel"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameSuccess"
+   type="alert">
+Hi [DISPLAY_NAME]!
+
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] in objects, scripts, search, etc.
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="SetDisplayNameBlocked"
+ type="alert">
+Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedLength"
+   type="alertmodal">
+Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+
+Please try a shorter name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedGeneric"
+   type="alertmodal">
+    Sorry, we could not set your display name.  Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameMismatch"
+   type="alertmodal">
+    The display names you entered do not match. Please re-enter.
+  </notification>
+
+  <!-- *NOTE: This should never happen -->
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameUpdateThresholdExceeded"
+   type="alertmodal">
+Sorry, you have to wait longer before you can change your display name.
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameSetBlocked"
+   type="alertmodal">
+ Sorry, we could not set your requested name because it contains a banned word.
+ 
+ Please try a different name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+ name="AgentDisplayNameSetInvalidUnicode"
+ type="alertmodal">
+    The display name you wish to set contains invalid characters.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+ name="AgentDisplayNameSetOnlyPunctuation"
+ type="alertmodal">
+    Your display name must contain letters other than punctuation.
+  </notification>
+
+
+  <notification
+   icon="notifytip.tga"
+   name="DisplayNameUpdate"
+   type="notifytip">
+    [OLD_NAME] ([SLID]) is now known as [NEW_NAME].
   </notification>
 
   <notification
@@ -4011,37 +4112,37 @@ Go to your [http://secondlife.com/account/ Dashboard] to see your account histor
   <notification
    icon="alertmodal.tga"
    name="ConfirmQuit"
-   type="alertmodal">
+   type="alertmodal"
+   unique="true">
 Are you sure you want to quit?
     <usetemplate
      ignoretext="Confirm before I quit"
      name="okcancelignore"
      notext="Don&apos;t Quit"
      yestext="Quit"/>
-     <unique/>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="DeleteItems"
-   type="alertmodal">
+   type="alertmodal"
+   unique="true">
     [QUESTION]
     <usetemplate
      ignoretext="Confirm before deleting items"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
-    <unique/>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
-   type="alert">
+   type="alert"
+   unique="true">
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
 All reported abuses are investigated and resolved.
-   <unique/>
   </notification>
 
   <notification
@@ -4516,14 +4617,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -4675,13 +4776,6 @@ You cannot modify protected categories.
    name="CannotRemoveProtectedCategories"
    type="notifytip">
 You cannot remove protected categories.
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="OfferedCard"
-   type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
   </notification>
 
   <notification
@@ -4839,7 +4933,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="PaymentRecived"
+   name="PaymentReceived"
+   persist="true"
+   type="notify">
+[MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentSent"
    persist="true"
    type="notify">
 [MESSAGE]
@@ -4858,14 +4960,10 @@ Event Notification:
     <form name="form">
       <button
        index="0"
-       name="Teleport"
-       text="Teleport"/>
+       name="Details"
+       text="Details"/>
       <button
        index="1"
-       name="Description"
-       text="Description"/>
-      <button
-       index="2"
        name="Cancel"
        text="Cancel"/>
     </form>
@@ -4941,7 +5039,7 @@ The objects you own on the selected parcel of land have been returned back to yo
    name="OtherObjectsReturned"
    persist="true"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
   </notification>
 
   <notification
@@ -4983,47 +5081,47 @@ Message from [NAME]:
    icon="notify.tga"
    name="NotSafe"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This land has damage enabled.
 You can be hurt here. If you die, you will be teleported to your home location.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoFly"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has flying disabled.
 You can&apos;t fly here.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="PushRestricted"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area does not allow pushing. You can&apos;t push others here unless you own the land.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoVoice"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
-    <unique/>
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoBuild"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 This area has building disabled. You can&apos;t build or rez objects here.
-    <unique/>
   </notification>
 
   <notification
@@ -5267,7 +5365,7 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
+An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5418,7 +5516,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
    name="OfferFriendshipNoMessage"
    persist="true"
    type="notify">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
@@ -5467,7 +5565,7 @@ Friendship offer declined.
    name="OfferCallingCard"
    persist="true"
    type="notify">
-[FIRST] [LAST] is offering their calling card.
+[NAME] is offering their calling card.
 This will add a bookmark in your inventory so you can quickly IM this Resident.
     <form name="form">
       <button
@@ -5511,7 +5609,7 @@ Load web page [URL]?
 
 [MESSAGE]
 
-From object: [OBJECTNAME], owner: [NAME]?
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
     <form name="form">
       <button
        index="0"
@@ -5553,7 +5651,7 @@ The item you are trying to wear uses a feature that your Viewer can&apos;t read.
    name="ScriptQuestion"
    persist="true"
    type="notify">
-&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, would like to:
 
 [QUESTIONS]
 Is this OK?
@@ -5579,7 +5677,7 @@ Is this OK?
    priority="high"
    persist="true"
    type="notify">
-An object named &apos;[OBJECTNAME]&apos;, owned by &apos;[NAME]&apos; would like to:
+An object named &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, owned by &apos;[NAME]&apos; would like to:
 
 [QUESTIONS]
 If you do not trust this object and its creator, you should deny the request.
@@ -5606,7 +5704,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5620,7 +5718,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialogGroup"
    type="notify">
-[GROUPNAME]&apos;s &apos;[TITLE]&apos;
+[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5836,7 +5934,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByIM"
    persist="true"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
+[NAME] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5844,7 +5942,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByMoney"
    persist="true"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unblocked.
+[NAME] was given money and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5852,7 +5950,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByInventory"
    persist="true"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unblocked.
+[NAME] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5944,9 +6042,9 @@ The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum
   <notification
    icon="notifytip.tga"
    name="ProximalVoiceChannelFull"
-   type="notifytip">
+   type="notifytip"
+   unique="true">
 We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
-    <unique/>
   </notification>
 
   <notification
@@ -6003,9 +6101,9 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
    duration="10"
    icon="notifytip.tga"
    name="VoiceLoginRetry"
-   type="notifytip">
+   type="notifytip"
+   unique="true">
 We are creating a voice channel for you. This may take up to one minute.
-    <unique/>
   </notification>
 
   <notification
@@ -6013,10 +6111,10 @@ We are creating a voice channel for you. This may take up to one minute.
    name="VoiceEffectsExpired"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 One or more of your subscribed Voice Morphs has expired.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
 
   <notification
@@ -6024,10 +6122,10 @@ One or more of your subscribed Voice Morphs has expired.
    name="VoiceEffectsExpiredInUse"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 The active Voice Morph has expired, your normal voice settings have been applied.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
 
   <notification
@@ -6035,21 +6133,20 @@ The active Voice Morph has expired, your normal voice settings have been applied
    name="VoiceEffectsWillExpire"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 One or more of your Voice Morphs will expire in less than [INTERVAL] days.
 [[URL] Click here] to renew your subscription.
-    <unique/>
   </notification>
-		LLNotificationsUtil::add("VoiceEffectsNew");
 
   <notification
    icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
-   type="notify">
+   type="notify"
+   unique="true">
 New Voice Morphs are available!
-    <unique/>
   </notification>
 
   <notification
@@ -6268,7 +6365,6 @@ You sent out an update of your appearance after [TIME] seconds.
 [STATUS]
   </notification>
 
-
   <notification
    icon="notifytip.tga"
    name="AvatarRezCloudNotification"
@@ -6376,8 +6472,8 @@ Are you sure you want to leave this call?
      ignoretext="Confirm before I leave call"
      name="okcancelignore"
      notext="No"
-     yestext="Yes"/>
-    <unique/>
+     yestext="Yes"
+     unique="true"/>
   </notification>
 
   <notification
@@ -6393,10 +6489,92 @@ Mute everyone?
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
      yestext="Ok"
-     notext="Cancel"/>
-    <unique/>
+     notext="Cancel"
+     unique="true"/>
   </notification>
 
+  <notification
+  name="HintChat"
+  label="Chat"
+  type="hint"
+  unique="true">
+    To join the conversation, type into the chat field below.
+  </notification>
+
+  <notification
+  name="HintSit"
+  label="Stand"
+  type="hint"
+  unique="true">
+    To stand up and exit the sitting position, click the Stand button.
+  </notification>
+
+  <notification
+  name="HintDestinationGuide"
+  label="Explore the World"
+  type="hint"
+  unique="true">
+    The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
+  </notification>
+
+  <notification
+    name="HintSidePanel"
+    label="Side Panel"
+    type="hint"
+    unique="true">
+    Get quick access to your inventory, outfits, profiles and more in the side panel.
+  </notification>
+
+  <notification
+  name="HintMove"
+  label="Move"
+  type="hint"
+  unique="true">
+    To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
+  </notification>
+
+  <notification
+  name="HintDisplayName"
+  label="Display Name"
+  type="hint"
+  unique="true">
+    Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
+  </notification>
+
+  <notification
+  name="HintInventory"
+  label="Inventory"
+  type="hint"
+  unique="true">
+    Check your inventory to find items. Newest items can be easily found in the Recent tab.
+  </notification>
+
+  <notification
+  name="HintLindenDollar"
+  label="You've got Linden Dollars!"
+  type="hint"
+  unique="true">
+    Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
+  </notification>
+
+  <notification
+  name="PopupAttempt"
+  icon="Popup_Caution"
+  type="browser">
+    A pop-up was prevented from opening.
+    <form name="form">
+      <ignore name="ignore"
+              control="MediaEnablePopups"
+              invert_control="true"
+              text="Enable all pop-ups"/>
+      <button default="true"
+              index="0"
+              name="open"
+              text="Open pop-up window"/>
+    </form>
+  </notification>
+
+  
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

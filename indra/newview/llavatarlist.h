@@ -28,7 +28,6 @@
 #define LL_LLAVATARLIST_H
 
 #include "llflatlistview.h"
-
 #include "llavatarlistitem.h"
 
 class LLTimer;
@@ -54,7 +53,8 @@ public:
 						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
 						show_info_btn,
 						show_profile_btn,
-						show_speaking_indicator;
+						show_speaking_indicator,
+						show_permissions_granted;
 		Params();
 	};
 
@@ -78,6 +78,7 @@ public:
 
 	void toggleIcons();
 	void setSpeakingIndicatorsVisible(bool visible);
+	void showPermissions(bool visible);
 	void sortByName();
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
@@ -94,6 +95,7 @@ public:
 	virtual S32 notifyParent(const LLSD& info);
 
 	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
+	void handleDisplayNamesOptionChanged();
 
 protected:
 	void refresh();
@@ -103,18 +105,22 @@ protected:
 		const uuid_vec_t& vnew,
 		uuid_vec_t& vadded,
 		uuid_vec_t& vremoved);
-	void updateLastInteractionTimes();
+	void updateLastInteractionTimes();	
+	void rebuildNames();
 	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
+	void updateAvatarNames();
 
 private:
 
 	bool mIgnoreOnlineStatus;
 	bool mShowLastInteractionTime;
 	bool mDirty;
+	bool mNeedUpdateNames;
 	bool mShowIcons;
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
 	bool mShowSpeakingIndicator;
+	bool mShowPermissions;
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;

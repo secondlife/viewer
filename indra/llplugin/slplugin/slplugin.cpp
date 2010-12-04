@@ -281,7 +281,7 @@ int main(int argc, char **argv)
 			}
 			
 			// Check for a change in this process's frontmost window.
-			if(FrontWindow() != front_window)
+			if(GetFrontWindowOfClass(kAllWindowClasses, true) != front_window)
 			{
 				ProcessSerialNumber self = { 0, kCurrentProcess };
 				ProcessSerialNumber parent = { 0, kNoProcess };
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 					}
 				}
 								
-				if((FrontWindow() != NULL) && (front_window == NULL))
+				if((GetFrontWindowOfClass(kAllWindowClasses, true) != NULL) && (front_window == NULL))
 				{
 					// Opening the first window
 					
@@ -319,7 +319,7 @@ int main(int argc, char **argv)
 
 					if(layer_group)
 					{
-						SetWindowGroup(FrontWindow(), layer_group);
+						SetWindowGroup(GetFrontWindowOfClass(kAllWindowClasses, true), layer_group);
 					}
 					
 					if(parent_is_front_process)
@@ -328,9 +328,9 @@ int main(int argc, char **argv)
 						(void) SetFrontProcess( &self );
 					}
 
-					ActivateWindow(FrontWindow(), true);					
+					ActivateWindow(GetFrontWindowOfClass(kAllWindowClasses, true), true);
 				}
-				else if((FrontWindow() == NULL) && (front_window != NULL))
+				else if((GetFrontWindowOfClass(kAllWindowClasses, true) == NULL) && (front_window != NULL))
 				{
 					// Closing the last window
 					
@@ -350,7 +350,7 @@ int main(int argc, char **argv)
 					window_hack_state = 2;
 				}
 
-				front_window = FrontWindow();
+				front_window = GetFrontWindowOfClass(kAllWindowClasses, true);
 
 			}
 		}

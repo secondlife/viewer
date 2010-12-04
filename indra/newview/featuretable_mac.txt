@@ -1,4 +1,4 @@
-version 21
+version 22
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -43,6 +43,7 @@ RenderObjectBump				1	1
 RenderReflectionDetail			1	3
 RenderTerrainDetail				1	1
 RenderTerrainLODFactor			1	2.0
+RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
 RenderUseImpostors				1	1
 RenderVBOEnable					1	1
@@ -60,6 +61,7 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 SkyUseClassicClouds			1	1
 WatchdogDisabled				1	1
+RenderUseFBO				1	1
 
 //
 // Low Graphics Settings
@@ -79,14 +81,16 @@ RenderObjectBump			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
+RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderUseImpostors			1	1
-RenderVolumeLODFactor		1	0
+RenderVolumeLODFactor		1	0.5
 RenderWaterReflections		1	0
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
 SkyUseClassicClouds			1	0
+RenderUseFBO				1	0
 
 //
 // Mid Graphics Settings
@@ -105,6 +109,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
@@ -112,6 +117,7 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
+RenderUseFBO				1	0
 
 //
 // High Graphics Settings (purty)
@@ -130,6 +136,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	2
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
@@ -137,6 +144,7 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
+RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -155,6 +163,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	3
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
@@ -162,6 +171,7 @@ RenderWaterReflections		1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
+RenderUseFBO				1	0
 
 //
 // Class Unknown Hardware (unknown)
@@ -227,6 +237,7 @@ RenderUseImpostors			0	0
 RenderVBOEnable				1	0
 RenderWaterReflections		0	0
 WindLightUseAtmosShaders	0	0
+RenderUseFBO				1	0
 
 //
 // CPU based feature masks

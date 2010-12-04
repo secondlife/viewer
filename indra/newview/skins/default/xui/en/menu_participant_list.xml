@@ -130,7 +130,7 @@
      layout="topleft" 
      name="Moderator Options Separator"/>
     <context_menu
-     label="Moderator Options &gt;"
+     label="Moderator Options"
      layout="topleft"
      name="Moderator Options">
         <menu_item_check

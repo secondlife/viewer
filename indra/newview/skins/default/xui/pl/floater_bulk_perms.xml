@@ -30,8 +30,8 @@
 	<icon name="icon_sound" tool_tip="Dźwięki"/>
 	<check_box label="Tekstury" name="check_texture"/>
 	<icon name="icon_texture" tool_tip="Tekstury"/>
-	<button font="SansSerifSmall" label="√ Wszystkie" label_selected="Wszystkie" name="check_all" width="115"/>
-	<button font="SansSerifSmall" label="Żadne" label_selected="Żadne" name="check_none" width="115"/>
+	<button font="SansSerifSmall" label="√ Wszystkie" label_selected="Wszystkie" name="check_all"/>
+	<button font="SansSerifSmall" label="Żadne" label_selected="Żadne" name="check_none"/>
 	<text name="newperms">
 		Nowe prawa zawartości
 	</text>

@@ -74,7 +74,6 @@ public:
 	virtual void doItem(LLFolderViewItem* item) = 0;
 };
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderView
 //
@@ -115,7 +114,7 @@ public:
 	const std::string getFilterSubString(BOOL trim = FALSE);
 	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
-	// JAMESDEBUG use getFilter()->getShowFolderState();
+	// *NOTE: use getFilter()->getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
@@ -146,18 +145,18 @@ public:
 	// Record the selected item and pass it down the hierachy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus);
-	
+
 	// Used by menu callbacks
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
-	
+
 	// Called once a frame to update the selection if mSelectThisID has been set
-	void updateSelection();	
-	
+	void updateSelection();
+
 	// This method is used to toggle the selection of an item. Walks
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
+	virtual void extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
 
 	virtual std::set<LLUUID> getSelectionList() const;
 

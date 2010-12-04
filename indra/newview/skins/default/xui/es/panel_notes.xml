@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notas y Privacidad" name="panel_notes">
 	<layout_stack name="layout">
-		<panel name="notes_stack">
+		<layout_panel name="notes_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="Mis notas privadas:"/>
@@ -11,13 +11,25 @@
 					<check_box label="Edite, borre o coja mis objetos" name="objects_check"/>
 				</panel>
 			</scroll_container>
-		</panel>
-		<panel name="notes_buttons_panel">
-			<button label="Añadir como amigo" name="add_friend" tool_tip="Ofrecer amistad a este Residente"/>
-			<button label="MI" name="im" tool_tip="Abrir un mensaje instantáneo"/>
-			<button label="Llamar" name="call" tool_tip="Llamar a este Residente"/>
-			<button label="Mapa" name="show_on_map_btn" tool_tip="Mostrar al Residente en el mapa"/>
-			<button label="Teleportar" name="teleport" tool_tip="Ofrecer teleporte"/>
-		</panel>
+		</layout_panel>
+		<layout_panel name="notes_buttons_panel">
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Añadir como amigo" name="add_friend" tool_tip="Ofrecer amistad a este Residente"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="MI" name="im" tool_tip="Abrir una sesión de mensajes instantáneos"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Llamar" name="call" tool_tip="Llamar a este Residente"/>
+				</layout_panel>
+				<layout_panel name="show_on_map_btn_lp">
+					<button label="Mapa" name="show_on_map_btn" tool_tip="Mostrar al Residente en el mapa"/>
+				</layout_panel>
+				<layout_panel name="teleport_btn_lp">
+					<button label="Teleporte" name="teleport" tool_tip="Ofrecer teleporte"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
 	</layout_stack>
 </panel>

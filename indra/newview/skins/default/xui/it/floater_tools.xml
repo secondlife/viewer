@@ -183,10 +183,10 @@
 			<text name="Group:">
 				Gruppo:
 			</text>
-			<button label="Imposta..." label_selected="Imposta..." name="button set group" tool_tip="Scegli un gruppo con cui condividere i diritti relativi all&apos;oggetto"/>
 			<name_box initial_value="Caricamento in corso..." name="Group Name Proxy"/>
-			<button label="Cessione" label_selected="Cessione" name="button deed" tool_tip="Con una cessione si trasferisce il bene con i diritti al proprietario successivo Gli oggetti in proprietà condivisa di gruppo possono essere ceduti soltanto da un funzionario del gruppo."/>
+			<button label="Imposta..." label_selected="Imposta..." name="button set group" tool_tip="Scegli un gruppo con cui condividere i diritti relativi all&apos;oggetto"/>
 			<check_box label="Condividi" name="checkbox share with group" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica di questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
+			<button label="Cessione" label_selected="Cessione" name="button deed" tool_tip="Con una cessione si trasferisce il bene con i diritti al proprietario successivo Gli oggetti in proprietà condivisa di gruppo possono essere ceduti soltanto da un funzionario del gruppo."/>
 			<text name="label click action">
 				Fai clic per:
 			</text>
@@ -283,7 +283,7 @@
 				<combo_box.item label="Plastica" name="Plastic"/>
 				<combo_box.item label="Gomma" name="Rubber"/>
 			</combo_box>
-			<text name="text cut">
+			<text name="text cut" left_delta="-10" width="170">
 				Riduci una sezione (inizio/fine)
 			</text>
 			<spinner label="I" name="cut begin"/>
@@ -438,7 +438,8 @@
 				<combo_box.item label="Cerchi rialzati" name="suction"/>
 				<combo_box.item label="Trama" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
+			<check_box initial_value="falso" label="Allinea facce planari" name="checkbox planar align" tool_tip="Allinea le texture su tutte le facce selezionate con l’ultima faccia selezionata. È richiesta la mappatura planare delle texture."/>
+			<text name="rpt">
 				Ripetizioni / Faccia
 			</text>
 			<spinner label="Orizzontale (U)" name="TexScaleU"/>

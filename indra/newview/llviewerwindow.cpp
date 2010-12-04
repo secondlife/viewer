@@ -96,6 +96,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
+#include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
@@ -114,6 +115,7 @@
 #include "llglheaders.h"
 #include "lltooltip.h"
 #include "llhudmanager.h"
+#include "llhudobject.h"
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
@@ -304,6 +306,8 @@ public:
 
 	void update()
 	{
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 		std::string wind_vel_text;
 		std::string wind_vector_text;
 		std::string rwind_vel_text;
@@ -577,6 +581,23 @@ public:
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+		}
+		if(log_texture_traffic)
+		{	
+			U32 old_y = ypos ;
+			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
+			{
+				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				{
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					ypos += y_inc;
+				}
+			}
+			if(ypos != old_y)
+			{
+				addText(xpos, ypos, "Network traffic for textures:");
 				ypos += y_inc;
 			}
 		}
@@ -1173,12 +1194,8 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		//SetBKColor(hdc, RGB(255, 255, 255));
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
-		std::string name_str;
-		LLAgentUI::buildName(name_str);
-
 		std::string temp_str;
-		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				name_str.c_str(),
+		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
 				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
 				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
@@ -1343,7 +1360,7 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
 		ignore_pixel_depth,
-		0); //gSavedSettings.getU32("RenderFSAASamples"));
+		gSavedSettings.getBOOL("RenderUseFBO") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
@@ -1406,6 +1423,11 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 
+	if (!gGLManager.mHasDepthClamp)
+	{
+		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
+	}
+	
 	// If we crashed while initializng GL stuff last time, disable certain features
 	if (gSavedSettings.getBOOL("RenderInitError"))
 	{
@@ -1515,7 +1537,7 @@ void LLViewerWindow::initBase()
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
 	MainPanel* main_view = new MainPanel();
-	LLUICtrlFactory::instance().buildPanel(main_view, "main_view.xml");
+	main_view->buildFromFile("main_view.xml");
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
@@ -1523,7 +1545,8 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
-	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
+	mPopupView = main_view->findChild<LLPopupView>("popup_holder");
+	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -1561,7 +1584,7 @@ void LLViewerWindow::initBase()
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLFloaterPreference::initBusyResponse));
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
+	mProgressView = getRootView()->findChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 
@@ -1840,6 +1863,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			return;
 		}
 
+		gWindowResized = TRUE;
+
 		// update our window rectangle
 		mWindowRectRaw.mRight = mWindowRectRaw.mLeft + width;
 		mWindowRectRaw.mTop = mWindowRectRaw.mBottom + height;
@@ -1872,7 +1897,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		// clear font width caches
 		if (display_scale_changed)
 		{
-			LLHUDText::reshape();
+			LLHUDObject::reshapeAll();
 		}
 
 		sendShapeToSim();
@@ -2134,10 +2159,20 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
+	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+
 	// give menus a chance to handle modified (Ctrl, Alt) shortcut keys before current focus 
 	// as long as focus isn't locked
 	if (mask & (MASK_CONTROL | MASK_ALT) && !gFocusMgr.focusLocked())
 	{
+		// Check the current floater's menu first, if it has one.
+		if (gFocusMgr.keyboardFocusHasAccelerators()
+			&& keyboard_focus 
+			&& keyboard_focus->handleKey(key,mask,FALSE))
+		{
+			return TRUE;
+		}
+
 		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
 			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 		{
@@ -2173,7 +2208,6 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Traverses up the hierarchy
-	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
 		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
@@ -2232,6 +2266,20 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
+	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
+	// no view has keyboard focus, this is a printable character key (and no modifier key is 
+	// pressed except shift), then give focus to nearby chat (STORM-560)
+	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
+	{
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		if (chat_editor)
+		{
+			// passing NULL here, character will be added later when it is handled by character handler.
+			LLBottomTray::getInstance()->getNearbyChatBar()->startChat(NULL);
+			return TRUE;
+		}
+	}
 
 	// give menus a chance to handle unmodified accelerator keys
 	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
@@ -2391,7 +2439,7 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 {
 	if (viewp) 
 	{
-		if (!params.styled_message().empty())
+		if (!params.styled_message.empty())
 		{
 			params.styled_message.add().text("\n---------\n"); 
 		}
@@ -2425,6 +2473,18 @@ void LLViewerWindow::updateUI()
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
+
+	if (gLoggedInTime.getStarted())
+	{
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
+		{
+			LLFirstUse::notUsingDestinationGuide();
+		}
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
+		{
+			LLFirstUse::notUsingSidePanel();
+		}
+	}
 
 	LLConsole::updateClass();
 
@@ -2486,6 +2546,17 @@ void LLViewerWindow::updateUI()
 	// only update mouse hover set when UI is visible (since we shouldn't send hover events to invisible UI
 	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
+		// include all ancestors of captor_view as automatically having mouse
+		if (captor_view)
+		{
+			LLView* captor_parent_view = captor_view->getParent();
+			while(captor_parent_view)
+			{
+				mouse_hover_set.insert(captor_parent_view->getHandle());
+				captor_parent_view = captor_parent_view->getParent();
+			}
+		}
+
 		// aggregate visible views that contain mouse cursor in display order
 		LLPopupView::popup_list_t popups = mPopupView->getCurrentPopups();
 
@@ -3829,7 +3900,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
-	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+
+	show_ui = show_ui ? TRUE : FALSE;
 
 	if ( prev_draw_ui != show_ui)
 	{
@@ -3911,7 +3984,14 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		image_buffer_x = llfloor(snapshot_width*scale_factor) ;
 		image_buffer_y = llfloor(snapshot_height *scale_factor) ;
 	}
+	if(image_buffer_x > 0 && image_buffer_y > 0)
+	{
 	raw->resize(image_buffer_x, image_buffer_y, 3);
+	}
+	else
+	{
+		return FALSE ;
+	}
 	if(raw->isBufferInvalid())
 	{
 		return FALSE ;
@@ -3923,7 +4003,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_pause();
 		//rescale fonts
 		initFonts(scale_factor);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	S32 output_buffer_offset_y = 0;
@@ -3945,29 +4025,19 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		{
 			gDisplaySwapBuffers = FALSE;
 			gDepthDirty = TRUE;
-			if (type == SNAPSHOT_TYPE_OBJECT_ID)
-			{
-				glClearColor(0.f, 0.f, 0.f, 0.f);
-				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-				LLViewerCamera::getInstance()->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));
-				setup3DRender();
-				gObjectList.renderPickList(gViewerWindow->getWindowRectScaled(), FALSE, FALSE);
+			const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+
+			if (LLPipeline::sRenderDeferred)
+			{
+					display(do_rebuild, scale_factor, subfield, TRUE);
 			}
 			else
 			{
-				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					display(do_rebuild, scale_factor, subfield, FALSE);
-				}
-				else
-				{
-					display(do_rebuild, scale_factor, subfield, TRUE);
-					// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-					render_ui(scale_factor, subfield);
-				}
+				display(do_rebuild, scale_factor, subfield, TRUE);
+					// Required for showing the GUI in snapshots and performing bloom composite overlay
+					// Call even if show_ui is FALSE
+				render_ui(scale_factor, subfield);
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -3990,7 +4060,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 				}
 				
-				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
+				if (type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,
@@ -4052,7 +4122,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	if (high_res)
 	{
 		initFonts(1.f);
-		LLHUDText::reshape();
+		LLHUDObject::reshapeAll();
 	}
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
@@ -4240,14 +4310,6 @@ BOOL LLViewerWindow::getShowProgress() const
 	return (mProgressView && mProgressView->getVisible());
 }
 
-void LLViewerWindow::moveProgressViewToFront()
-{
-	if( mProgressView && mRootView )
-	{
-		mRootView->sendChildToFront(mProgressView);
-	}
-}
-
 void LLViewerWindow::setProgressString(const std::string& string)
 {
 	if (mProgressView)
@@ -4382,6 +4444,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
+		gWindowResized = TRUE;
 
 		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
 		{

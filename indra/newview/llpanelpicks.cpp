@@ -229,9 +229,9 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		LLAvatarPicks* avatar_picks = static_cast<LLAvatarPicks*>(data);
 		if(avatar_picks && getAvatarId() == avatar_picks->target_id)
 		{
-			std::string name, second_name;
-			gCacheName->getName(getAvatarId(),name,second_name);
-			getChild<LLUICtrl>("pick_title")->setTextArg("[NAME]", name);
+			std::string full_name;
+			gCacheName->getFullName(getAvatarId(), full_name);
+			getChild<LLUICtrl>("pick_title")->setTextArg("[NAME]", full_name);
 			
 			// Save selection, to be able to edit same item after saving changes. See EXT-3023.
 			LLUUID selected_id = mPicksList->getSelectedValue()[PICK_ID];
@@ -1039,7 +1039,7 @@ LLPickItem::LLPickItem()
 , mSnapshotID(LLUUID::null)
 , mNeedData(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_pick_list_item.xml");
+	buildFromFile("panel_pick_list_item.xml");
 }
 
 LLPickItem::~LLPickItem()
@@ -1169,7 +1169,7 @@ LLClassifiedItem::LLClassifiedItem(const LLUUID& avatar_id, const LLUUID& classi
  , mAvatarId(avatar_id)
  , mClassifiedId(classified_id)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_classifieds_list_item.xml");
+	buildFromFile("panel_classifieds_list_item.xml");
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());

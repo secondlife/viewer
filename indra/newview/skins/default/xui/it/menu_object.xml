@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
 	<menu_item_call label="Tocca" name="Object Touch">
-		<on_enable parameter="Tocca" name="EnableTouch"/>
+		<menu_item_call.on_enable name="EnableTouch" parameter="Tocca"/>
 	</menu_item_call>
 	<menu_item_call label="Modifica" name="Edit..."/>
 	<menu_item_call label="Costruisci" name="Build"/>
@@ -10,18 +10,18 @@
 	<menu_item_call label="Alzati" name="Object Stand Up"/>
 	<menu_item_call label="Profilo dell&apos;oggetto" name="Object Inspect"/>
 	<menu_item_call label="Zoom avanti" name="Zoom In"/>
-	<context_menu label="Indossa  ▶" name="Put On">
+	<context_menu label="Metti" name="Put On">
 		<menu_item_call label="Indossa" name="Wear"/>
-		<context_menu label="Attacca  ▶" name="Object Attach"/>
-		<context_menu label="Attacca HUD  ▶" name="Object Attach HUD"/>
+		<menu_item_call label="Aggiungi" name="Add"/>
+		<context_menu label="Attacca" name="Object Attach"/>
+		<context_menu label="Attacca HUD" name="Object Attach HUD"/>
 	</context_menu>
-	<context_menu label="Togli  ▶" name="Remove">
+	<context_menu label="Rimuovi" name="Remove">
 		<menu_item_call label="Segnala abuso" name="Report Abuse..."/>
 		<menu_item_call label="Blocca" name="Object Mute"/>
 		<menu_item_call label="Restituisci" name="Return..."/>
 		<menu_item_call label="Elimina" name="Delete"/>
 	</context_menu>
-	<menu_item_call label="Acquista" name="Pie Object Bye"/>
 	<menu_item_call label="Prendi" name="Pie Object Take"/>
 	<menu_item_call label="Prendi copia" name="Take Copy"/>
 	<menu_item_call label="Paga" name="Pay..."/>

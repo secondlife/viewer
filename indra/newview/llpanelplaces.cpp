@@ -37,7 +37,9 @@
 
 #include "llcombobox.h"
 #include "llfiltereditor.h"
+#include "llfirstuse.h"
 #include "llfloaterreg.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lltabcontainer.h"
 #include "lltexteditor.h"
@@ -246,7 +248,7 @@ LLPanelPlaces::LLPanelPlaces()
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::updateVerbs, this));
 
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
+	//buildFromFile( "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLPanelPlaces::~LLPanelPlaces()
@@ -281,8 +283,8 @@ BOOL LLPanelPlaces::postBuild()
 	mCloseBtn = getChild<LLButton>("close_btn");
 	mCloseBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	mOverflowBtn = getChild<LLButton>("overflow_btn");
-	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
+	mOverflowBtn = getChild<LLMenuButton>("overflow_btn");
+	mOverflowBtn->setMouseDownCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
 	mPlaceInfoBtn = getChild<LLButton>("profile_btn");
 	mPlaceInfoBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onProfileButtonClicked, this));
@@ -321,8 +323,8 @@ BOOL LLPanelPlaces::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
 	}
 
-	mPlaceProfile = getChild<LLPanelPlaceProfile>("panel_place_profile");
-	mLandmarkInfo = getChild<LLPanelLandmarkInfo>("panel_landmark_info");
+	mPlaceProfile = findChild<LLPanelPlaceProfile>("panel_place_profile");
+	mLandmarkInfo = findChild<LLPanelLandmarkInfo>("panel_landmark_info");
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return FALSE;
 
@@ -346,6 +348,8 @@ BOOL LLPanelPlaces::postBuild()
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
+	LLFirstUse::notUsingDestinationGuide(false);
+
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return;
 
@@ -780,16 +784,7 @@ void LLPanelPlaces::onOverflowButtonClicked()
 		return;
 	}
 
-	if (!menu->toggleVisibility())
-		return;
-
-	if (menu->getButtonRect().isEmpty())
-	{
-		menu->setButtonRect(mOverflowBtn);
-	}
-	menu->updateParent(LLMenuGL::sMenuContainer);
-	LLRect rect = mOverflowBtn->getRect();
-	LLMenuGL::showPopup(this, menu, rect.mRight, rect.mTop);
+	mOverflowBtn->setMenu(menu, LLMenuButton::MP_TOP_RIGHT);
 }
 
 void LLPanelPlaces::onProfileButtonClicked()

@@ -783,7 +783,7 @@
 	<string name="xml_file">
 		File XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		File RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1126,6 +1126,9 @@
 	<string name="InvFolder Favorite">
 		Preferiti
 	</string>
+	<string name="InvFolder favorite">
+		Preferiti
+	</string>
 	<string name="InvFolder Current Outfit">
 		Abbigliamento attuale
 	</string>
@@ -1269,6 +1272,9 @@
 	</string>
 	<string name="Right Pec">
 		Petto destro
+	</string>
+	<string name="Invalid Attachment">
+		Punto di collegamento non valido
 	</string>
 	<string name="YearsMonthsOld">
 		Nato da [AGEYEARS] [AGEMONTHS]
@@ -1647,9 +1653,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD basso a destra
 	</string>
-	<string name="Bad attachment point">
-		Punto di collegamento non valido
-	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
 	</string>
@@ -1664,12 +1667,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
-	</string>
-	<string name="NoOutfits">
-		Non hai ancora vestiario da indossare. Prova [secondlife:///app/search/all Cerca].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all/[SEARCH_TERM] Cerca].
 	</string>
 	<string name="MuteByName">
 		(In base al nome)
@@ -1824,6 +1821,12 @@ Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Home
 	</string>
 	<string name="FileSaved">
 		File salvato
@@ -3441,6 +3444,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderatore)
 	</string>
+	<string name="Saved_message">
+		(Salvato [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
@@ -3462,11 +3468,17 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="hang_up-im">
 		Chiusa la chiamata
 	</string>
+	<string name="conference-title-incoming">
+		Chiamata in conferenza con [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(La sessione IM non esiste)
+	</string>
 	<string name="only_user_message">
 		Sei l&apos;unico utente di questa sessione.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] è offline.
+		[NAME] è offline.
 	</string>
 	<string name="invite_message">
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.
@@ -3845,5 +3857,14 @@ Segnala abuso
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Cancellare gli elementi selezionati?
+	</string>
+	<string name="DeleteItem">
+		Cancellare l’elemento selezionato?
+	</string>
+	<string name="EmptyOutfitText">
+		Questo vestiario non contiene alcun elemento
 	</string>
 </strings>

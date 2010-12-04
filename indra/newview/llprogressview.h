@@ -59,6 +59,7 @@ public:
 
 	static void onCancelButtonClicked( void* );
 	static void onClickMessage(void*);
+	bool onAlertModal(const LLSD& sd);
 
 protected:
 	LLProgressBar* mProgressBar;

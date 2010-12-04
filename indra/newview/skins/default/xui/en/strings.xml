@@ -89,6 +89,7 @@
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+  <string name="TooltipAgentInspect">Learn more about this Resident</string>
 	<string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
@@ -321,6 +322,8 @@
 
 	<!-- For land type back from the simulator -->
 	<string name="Estate / Full Region">Estate / Full Region</string>
+	<string name="Estate / Homestead">Estate / Homestead</string>
+	<string name="Mainland / Homestead">Mainland / Homestead</string>
 	<string name="Mainland / Full Region">Mainland / Full Region</string>
 
 	<!-- File load/save dialogs -->
@@ -335,7 +338,7 @@
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
-	<string name="dot_raw_file">RAW File</string>
+	<string name="raw_file">RAW File</string>
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
@@ -1790,6 +1793,43 @@ Returns the media params for a particular face on an object, given the desired l
 llClearPrimMedia(integer face)
 Clears (deletes) the media and all params from the given face.
   </string>
+<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
+llSetLinkPrimitiveParamsFast(integer linknumber,list rules)
+Set primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
+llGetLinkPrimitiveParams(integer linknumber,list rules)
+Get primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llLinkParticleSystem" translate="false">
+llLinkParticleSystem(integer linknumber,list rules)
+Creates a particle system based on rules.  Empty list removes particle system from object.
+List format is [ rule1, data1, rule2, data2 . . . rulen, datan ].
+</string>
+<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
+llSetLinkTextureAnim(integer link, integer mode, integer face, integer sizex, integer sizey, float start, float length, float rate)
+Animate the texture on the specified prim's face/faces.
+</string>
+<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
+integer llGetLinkNumberOfSides(integer link)
+Returns the number of sides of the specified linked prim.
+</string>
+<string name="LSLTipText_llGetUsername" translate="false">
+string llGetUsername(key id)
+Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
+</string>
+<string name="LSLTipText_llRequestUsername" translate="false">
+key llRequestUsername(key id)
+Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
+</string>
+<string name="LSLTipText_llGetDisplayName" translate="false">
+  string llGetDisplayName(key id)
+  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
+</string>
+<string name="LSLTipText_llRequestDisplayName" translate="false">
+key llRequestDisplayName(key id)
+Requests name of an avatar.  When data is available the dataserver event will be raised.
+</string>
 
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>
@@ -2022,6 +2062,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
+	<string name="Invalid Attachment">Invalid Attachment Point</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS] [AGEMONTHS] old</string>
@@ -2185,7 +2226,6 @@ Clears (deletes) the media and all params from the given face.
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
-	<string name="Bad attachment point">Invalid Attachment Point</string>
 			
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
@@ -2228,7 +2268,7 @@ Clears (deletes) the media and all params from the given face.
   
   <!-- panel picks -->
   <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
-  <string name="NoAvatarPicksClassifiedsText">User has no picks or classfields</string>
+  <string name="NoAvatarPicksClassifiedsText">User has no picks or classifieds</string>
   <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->
@@ -2242,8 +2282,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvOfferOwnedBy">owned by</string>
 	<string name="InvOfferOwnedByUnknownUser">owned by an unknown user</string>
 	<string name="InvOfferGaveYou">gave you</string>
-	<string name="InvOfferYouDecline">You decline</string>
-	<string name="InvOfferFrom">from</string>
+	<string name="InvOfferDecline">You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.</string>
 
 	<!-- group money -->
 	<string name="GroupMoneyTotal">Total</string>
@@ -3047,7 +3086,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Ad-hoc Conference
   </string>
   <string name="conference-title-incoming">
-    [AGENT_NAME] Conference
+    Conference with [AGENT_NAME]
   </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
@@ -3057,11 +3096,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
 
 
+  <string name="no_session_message">
+    (IM Session Doesn't Exist)
+  </string>
   <string name="only_user_message">
     You are the only user in this session.
   </string>
   <string name="offline_message">
-    [FIRST] [LAST] is offline.
+    [NAME] is offline.
   </string>
   <string name="invite_message">
     Click the [BUTTON NAME] button to accept/connect to this voice chat.
@@ -3147,17 +3189,20 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
 
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="for item">for [ITEM]</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
   <string name="for deeding land">for deeding land</string>
   <string name="to create a group">to create a group</string>
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
+  <string name="to publish a classified ad">to publish a classified ad</string>
   
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>

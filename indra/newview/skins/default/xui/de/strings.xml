@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Anklicken, um das Profil dieses Einwohners anzuzeigen
 	</string>
+	<string name="TooltipAgentInspect">
+		Mehr über diesen Einwohner
+	</string>
 	<string name="TooltipAgentMute">
 		Klicken, um diesen Einwohner stummzuschalten
 	</string>
@@ -762,6 +765,12 @@
 	<string name="Estate / Full Region">
 		Grundstück / Vollständige Region
 	</string>
+	<string name="Estate / Homestead">
+		Grundbesitz/Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland/Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Vollständige Region
 	</string>
@@ -798,7 +807,7 @@
 	<string name="xml_file">
 		XML-Datei
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW-Datei
 	</string>
 	<string name="compressed_image_files">
@@ -1147,6 +1156,9 @@
 	<string name="InvFolder Favorite">
 		Favoriten
 	</string>
+	<string name="InvFolder favorite">
+		Favoriten
+	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
 	</string>
@@ -1290,6 +1302,9 @@
 	</string>
 	<string name="Right Pec">
 		Rechts
+	</string>
+	<string name="Invalid Attachment">
+		Ungültige Stelle für Anhang
 	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] alt
@@ -1668,9 +1683,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD unten rechts
 	</string>
-	<string name="Bad attachment point">
-		Ungültige Stelle für Anhang
-	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -1691,12 +1703,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Der Einwohner/Die Einwohnerin ist „beschäftigt”, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
-	</string>
-	<string name="NoOutfits">
-		Sie haben noch keine Outfits. Versuchen Sie es mit der [secondlife:///app/search/all Suche].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
 	</string>
 	<string name="MuteByName">
 		(Nach Namen)
@@ -1738,7 +1744,7 @@
 		Sie haben keine Auswahl oder Anzeigen erstelllt. Klicken Sie auf die „Plus&quot;-Schaltfläche, um eine Auswahl oder Anzeige zu erstellen.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Der Einwohner hat eine Auswahl oder Anzeigen im Profil.
+		Der Einwohner hat keine Auswahl oder Anzeigen
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Wird geladen...
@@ -1860,6 +1866,12 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 	</string>
 	<string name="accel-win-shift">
 		Umschalt+
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Zuhause
 	</string>
 	<string name="FileSaved">
 		Datei wurde gespeichert
@@ -3525,6 +3537,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="Saved_message">
+		(Gespeichert am [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Ihr Anruf wurde entgegengenommen
 	</string>
@@ -3552,17 +3567,23 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="conference-title">
 		Ad-hoc-Konferenz
 	</string>
+	<string name="conference-title-incoming">
+		Konferenz mit [AGENT_NAME]
+	</string>
 	<string name="inventory_item_offered-im">
 		Inventarobjekt angeboten
 	</string>
 	<string name="share_alert">
 		Objekte aus dem Inventar hier her ziehen
 	</string>
+	<string name="no_session_message">
+		(IM-Session nicht vorhanden)
+	</string>
 	<string name="only_user_message">
 		Sie sind der einzige Benutzer in dieser Sitzung.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] ist offline.
+		[NAME] ist offline.
 	</string>
 	<string name="invite_message">
 		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
@@ -3631,7 +3652,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
+		[NAME] hat Ihnen [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
@@ -3644,6 +3668,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Sie haben [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="for item">
+		für [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		für eine Landparzelle
@@ -3662,6 +3689,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="to upload">
 		fürs Hochladen
+	</string>
+	<string name="to publish a classified ad">
+		um eine Anzeige aufzugeben
 	</string>
 	<string name="giving">
 		[AMOUNT] L$ werden bezahlt
@@ -3941,5 +3971,14 @@ Missbrauchsbericht
 	</string>
 	<string name="Chat">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Ausgewählte Objekte löschen?
+	</string>
+	<string name="DeleteItem">
+		Ausgewähltes Objekt löschen?
+	</string>
+	<string name="EmptyOutfitText">
+		Keine Objekte in diesem Outfit
 	</string>
 </strings>

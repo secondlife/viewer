@@ -56,4 +56,27 @@
 		<radio_item label="別々のウィンドウ" name="radio" value="0"/>
 		<radio_item label="タブ" name="radio2" value="1"/>
 	</radio_group>
+	<check_box label="チャット中に内容を機械翻訳する（Google翻訳）" name="translate_chat_checkbox"/>
+	<text name="translate_language_text">
+		翻訳する言語：
+	</text>
+	<combo_box name="translate_language_combobox">
+		<combo_box.item label="システム標準" name="System Default Language"/>
+		<combo_box.item label="English（英語）" name="English"/>
+		<combo_box.item label="Dansk（デンマーク語）" name="Danish"/>
+		<combo_box.item label="Deutsch（ドイツ語）" name="German"/>
+		<combo_box.item label="Español（スペイン語）" name="Spanish"/>
+		<combo_box.item label="Français（フランス語）" name="French"/>
+		<combo_box.item label="Italiano（イタリア語）" name="Italian"/>
+		<combo_box.item label="Magyar（ハンガリー語）" name="Hungarian"/>
+		<combo_box.item label="Nederlands（オランダ語）" name="Dutch"/>
+		<combo_box.item label="Polski（ポーランド語）" name="Polish"/>
+		<combo_box.item label="Português（ポルトガル語）" name="Portugese"/>
+		<combo_box.item label="Русский（ロシア語）" name="Russian"/>
+		<combo_box.item label="Türkçe（トルコ語）" name="Turkish"/>
+		<combo_box.item label="Українська（ウクライナ語）" name="Ukrainian"/>
+		<combo_box.item label="中文 (简体)（中国語）" name="Chinese"/>
+		<combo_box.item label="日本語" name="Japanese"/>
+		<combo_box.item label="한국어（韓国語）" name="Korean"/>
+	</combo_box>
 </panel>

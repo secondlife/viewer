@@ -118,6 +118,8 @@
     <map>
       <key>desc</key>
       <string>Log metrics for benchmarking</string>
+      <key>count</key>
+      <integer>1</integer>
       <key>map-to</key>
       <string>LogMetrics</string>
     </map>
@@ -296,7 +298,7 @@
     <key>multiple</key>		  
     <map>
       <key>desc</key>
-      <string>Allow multple viewers.</string>
+      <string>Allow multiple viewers.</string>
       <key>map-to</key>
       <string>AllowMultipleViewers</string>
     </map>
@@ -361,8 +363,7 @@
     <map>
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>VersionChannelName</string>
+      <!-- Special case. Not mapped to a setting. -->
     </map>
 
     <key>loginpage</key>
@@ -389,6 +390,14 @@
       <string>Crashes on startup. For QA use.</string>
       <key>map-to</key>
       <string>CrashOnStartup</string>
+    </map>
+
+    <key>disablecrashlogger</key>
+    <map>
+      <key>desc</key>
+      <string>Disables the crash logger and lets the OS handle crashes</string>
+      <key>map-to</key>
+      <string>DisableCrashLogger</string>
     </map>
 
   </map>

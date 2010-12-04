@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu name="menu_group_plus"
+<toggleable_menu
+     name="menu_group_plus"
      left="0" bottom="0" visible="false"
      mouse_opaque="false">
   <menu_item_check
@@ -31,8 +32,16 @@
      function="CheckControl"
      parameter="FriendsListShowIcons" />
   </menu_item_check>
+  <menu_item_check name="view_permissions" label="View Permissions Granted">
+    <menu_item_check.on_click
+     function="People.Friends.ViewSort.Action"
+     parameter="view_permissions" />
+    <menu_item_check.on_check
+     function="CheckControl"
+     parameter="FriendsListShowPermissions" />
+  </menu_item_check>
   <menu_item_separator layout="topleft" />
   <menu_item_call name="show_blocked_list" label="Show Blocked Residents &amp; Objects">
     <menu_item_call.on_click function="SideTray.ShowPanel" parameter="panel_block_list_sidetray" />
   </menu_item_call>
-</menu>
+</toggleable_menu>

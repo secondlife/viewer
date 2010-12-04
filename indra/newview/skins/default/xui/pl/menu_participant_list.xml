@@ -11,7 +11,7 @@
 	<menu_item_check label="Przeglądaj ikonki" name="View Icons"/>
 	<menu_item_check label="Zablokuj głos" name="Block/Unblock"/>
 	<menu_item_check label="Zablokuj tekst" name="MuteText"/>
-	<context_menu label="Opcje Moderatora &gt;" name="Moderator Options">
+	<context_menu label="Opcje Moderatora" name="Moderator Options">
 		<menu_item_check label="Czat/IM dozwolony" name="AllowTextChat"/>
 		<menu_item_call label="Wycisz tego uczestnika" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Odblokuj wyciszenie tego uczestnika" name="ModerateVoiceUnMuteSelected"/>

@@ -11,7 +11,7 @@
 	<menu_item_check label="Symbole für Personen anzeigen" name="View Icons"/>
 	<menu_item_check label="Voice ignorieren" name="Block/Unblock"/>
 	<menu_item_check label="Text ignorieren" name="MuteText"/>
-	<context_menu label="Moderator-Optionen &gt;" name="Moderator Options">
+	<context_menu label="Moderator-Optionen" name="Moderator Options">
 		<menu_item_check label="Text-Chat zulassen" name="AllowTextChat"/>
 		<menu_item_call label="Diesen Teilnehmer stummschalten" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Stummschaltung für diesen Teilnehmer aufheben" name="ModerateVoiceUnMuteSelected"/>

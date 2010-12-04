@@ -65,13 +65,6 @@
          name="display" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_privacy.xml"
-         label="Privacy"
-         layout="topleft"
-         help_topic="preferences_im_tab"
-         name="im" />
-        <panel
-		 class="panel_preference"
          filename="panel_preferences_sound.xml"
          label="Sound &amp; Media"
          layout="topleft"
@@ -86,11 +79,32 @@
          name="chat" />
         <panel
 		 class="panel_preference"
+         filename="panel_preferences_move.xml"
+         label="Move &amp; View"
+         layout="topleft"
+         help_topic="preferences_move_tab"
+         name="move" />
+        <panel
+		 class="panel_preference"
          filename="panel_preferences_alerts.xml"
          label="Notifications"
          layout="topleft"
          help_topic="preferences_msgs_tab"
          name="msgs" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_colors.xml"
+         label="Colors"
+         layout="topleft"
+         help_topic="preferences_im_tab"
+         name="colors" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_privacy.xml"
+         label="Privacy"
+         layout="topleft"
+         help_topic="preferences_im_tab"
+         name="im" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_setup.xml"

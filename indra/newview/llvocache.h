@@ -30,17 +30,18 @@
 #include "lluuid.h"
 #include "lldatapacker.h"
 #include "lldlinked.h"
+#include "lldir.h"
 
 
 //---------------------------------------------------------------------------
 // Cache entries
 class LLVOCacheEntry;
 
-class LLVOCacheEntry : public LLDLinked<LLVOCacheEntry>
+class LLVOCacheEntry
 {
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
-	LLVOCacheEntry(LLFILE *fp);
+	LLVOCacheEntry(LLAPRFile* apr_file);
 	LLVOCacheEntry();
 	~LLVOCacheEntry();
 
@@ -50,11 +51,14 @@ public:
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 
 	void dump() const;
-	void writeToFile(LLFILE *fp) const;
+	BOOL writeToFile(LLAPRFile* apr_file) const;
 	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
+
+public:
+	typedef std::map<U32, LLVOCacheEntry*>	vocache_entry_map_t;
 
 protected:
 	U32							mLocalID;
@@ -64,6 +68,84 @@ protected:
 	S32							mCRCChangeCount;
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
+};
+
+//
+//Note: LLVOCache is not thread-safe
+//
+class LLVOCache
+{
+private:
+	struct HeaderEntryInfo
+	{
+		HeaderEntryInfo() : mIndex(0), mHandle(0), mTime(0) {}
+		S32 mIndex;
+		U64 mHandle ;
+		U32 mTime ;
+	};
+
+	struct HeaderMetaInfo
+	{
+		HeaderMetaInfo() : mVersion(0){}
+
+		U32 mVersion;
+	};
+
+	struct header_entry_less
+	{
+		bool operator()(const HeaderEntryInfo* lhs, const HeaderEntryInfo* rhs) const
+		{
+			return lhs->mTime < rhs->mTime; // older entry in front of queue (set)
+		}
+	};
+	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
+	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
+private:
+	LLVOCache() ;
+
+public:
+	~LLVOCache() ;
+
+	void initCache(ELLPath location, U32 size, U32 cache_version) ;
+	void removeCache(ELLPath location) ;
+
+	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
+	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) ;
+
+	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
+
+private:
+	void setDirNames(ELLPath location);	
+	// determine the cache filename for the region from the region handle	
+	void getObjectCacheFilename(U64 handle, std::string& filename);
+	void removeFromCache(U64 handle);
+	void readCacheHeader();
+	void writeCacheHeader();
+	void clearCacheInMemory();
+	void removeCache() ;
+	void purgeEntries();
+	BOOL updateEntry(const HeaderEntryInfo* entry);
+	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
+	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
+	
+private:
+	BOOL                 mEnabled;
+	BOOL                 mInitialized ;
+	BOOL                 mReadOnly ;
+	HeaderMetaInfo       mMetaInfo;
+	U32                  mCacheSize;
+	U32                  mNumEntries;
+	std::string          mHeaderFileName ;
+	std::string          mObjectCacheDirName;
+	LLVolatileAPRPool*   mLocalAPRFilePoolp ; 	
+	header_entry_queue_t mHeaderEntryQueue;
+	handle_entry_map_t   mHandleEntryMap;	
+
+	static LLVOCache* sInstance ;
+public:
+	static LLVOCache* getInstance() ;
+	static BOOL       hasInstance() ;	
+	static void       destroyClass() ;
 };
 
 #endif

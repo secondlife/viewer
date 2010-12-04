@@ -315,6 +315,20 @@ void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLFocusableElement* f
 	}
 }
 
+bool LLFocusMgr::keyboardFocusHasAccelerators() const
+{
+	LLView* focus_view = dynamic_cast<LLView*>(mKeyboardFocus);
+	while( focus_view )
+	{
+		if(focus_view->hasAccelerators())
+		{
+			return true;
+		}
+
+		focus_view = focus_view->getParent();
+	}
+	return false;
+}
 
 void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 {

@@ -21,7 +21,8 @@
      left="10"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"

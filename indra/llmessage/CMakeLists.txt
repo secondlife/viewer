@@ -25,6 +25,7 @@ set(llmessage_SOURCE_FILES
     llares.cpp
     llareslistener.cpp
     llassetstorage.cpp
+    llavatarnamecache.cpp
     llblowfishcipher.cpp
     llbuffer.cpp
     llbufferstream.cpp
@@ -110,6 +111,7 @@ set(llmessage_HEADER_FILES
     llares.h
     llareslistener.h
     llassetstorage.h
+    llavatarnamecache.h
     llblowfishcipher.h
     llbuffer.h
     llbufferstream.h
@@ -248,6 +250,7 @@ if (LL_TESTS)
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
     )
 
+  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")

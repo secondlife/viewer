@@ -97,6 +97,7 @@ void LLAudioEngine::setDefaults()
 	}
 
 	mMasterGain = 1.f;
+	mInternalGain = 0.f;
 	mNextWindUpdate = 0.f;
 
 	mStreamingAudioImpl = NULL;
@@ -247,15 +248,6 @@ void LLAudioEngine::idle(F32 max_decode_time)
 	// Primarily does position updating, cleanup of unused audio sources.
 	// Also does regeneration of the current priority of each audio source.
 
-	if (getMuted())
-	{
-		setInternalGain(0.f);
-	}
-	else
-	{
-		setInternalGain(getMasterGain());
-	}
-
 	S32 i;
 	for (i = 0; i < MAX_BUFFERS; i++)
 	{
@@ -282,6 +274,12 @@ void LLAudioEngine::idle(F32 max_decode_time)
 			delete sourcep;
 			mAllSources.erase(iter++);
 			continue;
+		}
+
+		if (sourcep->isMuted())
+		{
+			++iter;
+		  	continue;
 		}
 
 		if (!sourcep->getChannel() && sourcep->getCurrentBuffer())
@@ -336,9 +334,9 @@ void LLAudioEngine::idle(F32 max_decode_time)
 		// attached to each channel, since only those with active channels
 		// can have anything interesting happen with their queue? (Maybe not true)
 		LLAudioSource *sourcep = iter->second;
-		if (!sourcep->mQueuedDatap)
+		if (!sourcep->mQueuedDatap || sourcep->isMuted())
 		{
-			// Nothing queued, so we don't care.
+			// Muted, or nothing queued, so we don't care.
 			continue;
 		}
 
@@ -418,6 +416,10 @@ void LLAudioEngine::idle(F32 max_decode_time)
 	for (iter = mAllSources.begin(); iter != mAllSources.end(); ++iter)
 	{
 		LLAudioSource *sourcep = iter->second;
+		if (sourcep->isMuted())
+		{
+			continue;
+		}
 		if (sourcep->isSyncMaster())
 		{
 			if (sourcep->getPriority() > max_sm_priority)
@@ -691,15 +693,23 @@ bool LLAudioEngine::isWindEnabled()
 
 void LLAudioEngine::setMuted(bool muted)
 {
-	mMuted = muted;
+	if (muted != mMuted)
+	{
+		mMuted = muted;
+		setMasterGain(mMasterGain);
+	}
 	enableWind(!mMuted);
 }
-
 
 void LLAudioEngine::setMasterGain(const F32 gain)
 {
 	mMasterGain = gain;
-	setInternalGain(gain);
+	F32 internal_gain = getMuted() ? 0.f : gain;
+	if (internal_gain != mInternalGain)
+	{
+		mInternalGain = internal_gain;
+		setInternalGain(mInternalGain);
+	}
 }
 
 F32 LLAudioEngine::getMasterGain()
@@ -1243,13 +1253,14 @@ LLAudioSource::LLAudioSource(const LLUUID& id, const LLUUID& owner_id, const F32
 	mOwnerID(owner_id),
 	mPriority(0.f),
 	mGain(gain),
-	mType(type),
+	mSourceMuted(false),
 	mAmbient(false),
 	mLoop(false),
 	mSyncMaster(false),
 	mSyncSlave(false),
 	mQueueSounds(false),
 	mPlayedOnce(false),
+	mType(type),
 	mChannelp(NULL),
 	mCurrentDatap(NULL),
 	mQueuedDatap(NULL)
@@ -1301,6 +1312,10 @@ void LLAudioSource::updatePriority()
 	{
 		mPriority = 1.f;
 	}
+	else if (isMuted())
+	{
+		mPriority = 0.f;
+	}
 	else
 	{
 		// Priority is based on distance
@@ -1349,25 +1364,33 @@ bool LLAudioSource::setupChannel()
 
 bool LLAudioSource::play(const LLUUID &audio_uuid)
 {
+	// Special abuse of play(); don't play a sound, but kill it.
 	if (audio_uuid.isNull())
 	{
 		if (getChannel())
 		{
 			getChannel()->setSource(NULL);
 			setChannel(NULL);
-			addAudioData(NULL, true);
+			if (!isMuted())
+			{
+				mCurrentDatap = NULL;
+			}
 		}
+		return false;
 	}
+
 	// Reset our age timeout if someone attempts to play the source.
 	mAgeTimer.reset();
 
 	LLAudioData *adp = gAudiop->getAudioData(audio_uuid);
-
-	bool has_buffer = gAudiop->updateBufferForData(adp, audio_uuid);
-
-
 	addAudioData(adp);
 
+	if (isMuted())
+	{
+		return false;
+	}
+
+	bool has_buffer = gAudiop->updateBufferForData(adp, audio_uuid);
 	if (!has_buffer)
 	{
 		// Don't bother trying to set up a channel or anything, we don't have an audio buffer.
@@ -1392,17 +1415,17 @@ bool LLAudioSource::play(const LLUUID &audio_uuid)
 }
 
 
-bool LLAudioSource::isDone()
+bool LLAudioSource::isDone() const
 {
 	const F32 MAX_AGE = 60.f;
 	const F32 MAX_UNPLAYED_AGE = 15.f;
+	const F32 MAX_MUTED_AGE = 11.f;
 
 	if (isLoop())
 	{
 		// Looped sources never die on their own.
 		return false;
 	}
-
 
 	if (hasPendingPreloads())
 	{
@@ -1420,10 +1443,10 @@ bool LLAudioSource::isDone()
 	// This is a single-play source
 	if (!mChannelp)
 	{
-		if ((elapsed > MAX_UNPLAYED_AGE) || mPlayedOnce)
+		if ((elapsed > (mSourceMuted ? MAX_MUTED_AGE : MAX_UNPLAYED_AGE)) || mPlayedOnce)
 		{
 			// We don't have a channel assigned, and it's been
-			// over 5 seconds since we tried to play it.  Don't bother.
+			// over 15 seconds since we tried to play it.  Don't bother.
 			//llinfos << "No channel assigned, source is done" << llendl;
 			return true;
 		}
@@ -1449,7 +1472,7 @@ bool LLAudioSource::isDone()
 
 	if ((elapsed > MAX_UNPLAYED_AGE) || mPlayedOnce)
 	{
-		// The sound isn't playing back after 5 seconds or we're already done playing it, kill it.
+		// The sound isn't playing back after 15 seconds or we're already done playing it, kill it.
 		return true;
 	}
 
@@ -1534,6 +1557,10 @@ bool LLAudioSource::hasPendingPreloads() const
 		LLAudioData *adp = iter->second;
 		// note: a bad UUID will forever be !hasDecodedData()
 		// but also !hasValidData(), hence the check for hasValidData()
+		if (!adp)
+		{
+			continue;
+		}
 		if (!adp->hasDecodedData() && adp->hasValidData())
 		{
 			// This source is still waiting for a preload

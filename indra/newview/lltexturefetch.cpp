@@ -299,6 +299,7 @@ public:
 	{
 		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog");
 		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator");
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
 		if (log_to_viewer_log || log_to_sim)
 		{
@@ -332,6 +333,16 @@ public:
 			}
 			
 			S32 data_size = worker->callbackHttpGet(channels, buffer, partial, success);
+			
+			if(log_texture_traffic && data_size > 0)
+			{
+				LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID) ;
+				if(tex)
+				{
+					gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
+				}
+			}
+
 			mFetcher->removeFromHTTPQueue(mID, data_size);
 		}
 		else
@@ -847,10 +858,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if(mCanUseHTTP)
 		{
 			//NOTE:
-			//it seems ok to let sim control the UDP traffic
-			//so there is no throttle for http here.
+			//control the number of the http requests issued for:
+			//1, not openning too many file descriptors at the same time;
+			//2, control the traffic of http so udp gets bandwidth.
 			//
-			
+			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 32 ;
+			if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
+			{
+				return false ; //wait.
+			}
+
 			mFetcher->removeFromNetworkQueue(this, false);
 			
 			S32 cur_size = 0;
@@ -1557,7 +1574,6 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
 		// Only do partial requests for J2C at the moment
-		//llinfos << "Merov : LLTextureFetch::createRequest(), blocking fetch on " << url << llendl;
 		desired_size = MAX_IMAGE_DATA_SIZE;
 		desired_discard = 0;
 	}

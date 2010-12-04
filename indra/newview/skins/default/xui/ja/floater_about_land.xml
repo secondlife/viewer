@@ -109,7 +109,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				価格： L$ [PRICE] （L$ [PRICE_PER_SQM] / 平方メートル）
 			</text>
-			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..." width="100"/>
+			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..."/>
 			<text name="For sale to">
 				販売先：[BUYER]
 			</text>
@@ -119,7 +119,7 @@
 			<text name="Selling with no objects in parcel.">
 				オブジェクトは販売しない
 			</text>
-			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale" width="100"/>
+			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				取得日時：
 			</text>
@@ -210,72 +210,72 @@
 			</text>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
-			<panel.string left="200" name="objects_available_text">
+			<panel.string name="objects_available_text">
 				[MAX] の内 [COUNT]（[AVAILABLE] 利用可能）
 			</panel.string>
-			<panel.string left="200" name="objects_deleted_text">
+			<panel.string name="objects_deleted_text">
 				[MAX] の内 [COUNT]（[DELETED] を削除）
 			</panel.string>
 			<text name="parcel_object_bonus">
 				オブジェクトボーナス: [BONUS]
 			</text>
-			<text name="Simulator primitive usage:" width="500">
+			<text name="Simulator primitive usage:">
 				プリム使用状況：
 			</text>
-			<text left="200" name="objects_available">
+			<text name="objects_available">
 				[MAX] の内 [COUNT] （[AVAILABLE] 利用可能）
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				区画でサポートされるプリム数：
 			</text>
-			<text left="200" name="object_contrib_text">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				区画上のプリム数：
 			</text>
-			<text left="200" name="total_objects_text">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text name="Owned by parcel owner:" width="300">
+			<text name="Owned by parcel owner:">
 				区画所有者の所有物：
 			</text>
-			<text left="200" name="owner_objects_text">
+			<text name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="表示" label_selected="表示" name="ShowOwner" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" label_selected="表示" name="ShowOwner"/>
+			<button label="返却" label_selected="返却..." name="ReturnOwner..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Set to group:">
 				グループに設定：
 			</text>
-			<text left="200" name="group_objects_text">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="表示" label_selected="表示" name="ShowGroup" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" label_selected="表示" name="ShowGroup"/>
+			<button label="返却" label_selected="返却..." name="ReturnGroup..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Owned by others:">
 				他人の所有物：
 			</text>
-			<text left="200" name="other_objects_text">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
-			<button label="表示" label_selected="表示" name="ShowOther" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" label_selected="表示" name="ShowOther"/>
+			<button label="返却" label_selected="返却..." name="ReturnOther..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Selected / sat upon:">
 				選択済み・決定済み：
 			</text>
-			<text left="200" name="selected_objects_text">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				他人のオブジェクトを自動返却（分単位、0 で自動返却なし）：
 			</text>
-			<line_editor left_delta="5" name="clean other time" right="-80"/>
-			<text name="Object Owners:" width="150">
+			<line_editor left_delta="5" name="clean other time"/>
+			<text name="Object Owners:">
 				オブジェクトの所有者：
 			</text>
-			<button label="リスト更新" label_selected="リスト更新" left="146" name="Refresh List" tool_tip="オブジェクトのリストを更新します"/>
-			<button label="オブジェクトを返却する" label_selected="オブジェクトの返却..." left="256" name="Return objects..."/>
+			<button label="リスト更新" label_selected="リスト更新" name="Refresh List" tool_tip="オブジェクトのリストを更新します"/>
+			<button label="オブジェクトを返却する" label_selected="オブジェクトの返却..." name="Return objects..."/>
 			<name_list label="カウント" name="owner list">
 				<name_list.columns label="タイプ" name="type"/>
 				<name_list.columns name="online_status"/>

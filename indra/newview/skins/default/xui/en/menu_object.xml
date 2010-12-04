@@ -72,7 +72,7 @@
   </menu_item_call>
 <menu_item_separator layout="topleft" />
    <context_menu
-         label="Put On  ▶"
+         label="Put On"
          name="Put On" >
    <menu_item_call
       enabled="false"
@@ -93,14 +93,14 @@
              function="Object.EnableWear" />
    </menu_item_call>
    <context_menu
-         label="Attach  ▶"
+         label="Attach"
          name="Object Attach" />
    <context_menu
-         label="Attach HUD  ▶"
+         label="Attach HUD"
          name="Object Attach HUD" />
    </context_menu>
    <context_menu
-         label="Remove  ▶"
+         label="Remove"
          name="Remove">
    <menu_item_call
          enabled="false"

@@ -39,7 +39,9 @@
 
 class LLAccordionCtrlTab;
 class LLFolderViewItem;
+class LLMenuButton;
 class LLMenuGL;
+class LLToggleableMenu;
 class LLInventoryPanel;
 class LLPlacesInventoryPanel;
 
@@ -127,12 +129,12 @@ private:
 	void onCustomAction(const LLSD& command_name);
 
 	/**
-	 * Determines if selected item can be modified via context/gear menu.
+	 * Determines if an item can be modified via context/gear menu.
 	 *
 	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
 	 * For now it checks cut/rename/delete/paste actions.
 	 */
-	bool canSelectedBeModified(const std::string& command_name) const;
+	bool canItemBeModified(const std::string& command_name, LLFolderViewItem* item) const;
 	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
 
 	/**
@@ -155,8 +157,9 @@ private:
 	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
 	LLPlacesInventoryPanel*		mMyInventoryPanel;
 	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
-	LLMenuGL*					mGearLandmarkMenu;
-	LLMenuGL*					mGearFolderMenu;
+	LLMenuButton*				mGearButton;
+	LLToggleableMenu*			mGearLandmarkMenu;
+	LLToggleableMenu*			mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;

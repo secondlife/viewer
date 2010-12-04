@@ -147,31 +147,31 @@
 			<text name="region_name_lbl">
 				Naam:
 			</text>
-			<text name="region_name_text" left="114">
+			<text name="region_name_text">
 				leyla
 			</text>
 			<text name="region_landtype_lbl">
 				Type:
 			</text>
-			<text name="region_landtype_text" left="114">
+			<text name="region_landtype_text">
 				Mainland / Homestead
 			</text>
 			<text name="region_maturity_lbl">
 				Inhoudscategorie:
 			</text>
-			<text name="region_maturity_text" left="114">
+			<text name="region_maturity_text">
 				Adult
 			</text>
 			<text name="resellable_lbl">
 				Doorverkopen:
 			</text>
-			<text name="resellable_clause" left="114">
+			<text name="resellable_clause">
 				Land in deze regio mag niet worden doorverkocht.
 			</text>
 			<text name="changeable_lbl">
 				Opsplitsen:
 			</text>
-			<text name="changeable_clause" left="114" width="340">
+			<text name="changeable_clause">
 				Land in deze regio mag niet worden samengevoegd/opgesplitst.
 			</text>
 			<panel.string name="can_resell">
@@ -196,7 +196,7 @@ of opgedeeld.
 			<text name="Simulator primitive usage:">
 				Simulator primitieven gebruik:
 			</text>
-			<text name="objects_available" left="214" width="230">
+			<text name="objects_available">
 				[COUNT] van [MAX] ([AVAILABLE] beschikbaar)
 			</text>
 			<panel.string name="objects_available_text">
@@ -205,59 +205,59 @@ of opgedeeld.
 			<panel.string name="objects_deleted_text">
 				[COUNT] van [MAX] ([DELETED] zullen worden verwijderd)
 			</panel.string>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Primitieven ondersteund door perceel:
 			</text>
-			<text name="object_contrib_text" left="214" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Primitieven op perceel:
 			</text>
-			<text name="total_objects_text" left="214"  width="48">
+			<text name="total_objects_text" >
 				[COUNT]
 			</text>
-			<text name="Owned by parcel owner:" left="14" width="180" >
+			<text name="Owned by parcel owner:" >
 				Eigendom van perceeleigenaar:
 			</text>
-			<text name="owner_objects_text" left="214"  width="48">
+			<text name="owner_objects_text" >
 				[COUNT]
 			</text>
-			<button label="Toon" label_selected="Toon" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retourneren" name="ReturnOwner..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
-			<text name="Set to group:" left="14"  width="180">
+			<button label="Toon" label_selected="Toon" name="ShowOwner"/>
+			<button label="Retourneren" name="ReturnOwner..." tool_tip="Retourneer objecten naar hun eigenaren."/>
+			<text name="Set to group:" >
 				Groep toewijzen:
 			</text>
-			<text name="group_objects_text" left="214"  width="48">
+			<text name="group_objects_text" >
 				[COUNT]
 			</text>
-			<button label="Toon" label_selected="Toon" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retourneren" name="ReturnGroup..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
-			<text name="Owned by others:" left="14" width="128">
+			<button label="Toon" label_selected="Toon" name="ShowGroup"/>
+			<button label="Retourneren" name="ReturnGroup..." tool_tip="Retourneer objecten naar hun eigenaren."/>
+			<text name="Owned by others:">
 				Eigendom van anderen:
 			</text>
-			<text name="other_objects_text" left="214"  width="48">
+			<text name="other_objects_text" >
 				[COUNT]
 			</text>
-			<button label="Toon" label_selected="Toon" name="ShowOther" right="-135" width="60"/>
-			<button label="Retourneren" name="ReturnOther..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
-			<text name="Selected / sat upon:" left="14" width="193">
+			<button label="Toon" label_selected="Toon" name="ShowOther"/>
+			<button label="Retourneren" name="ReturnOther..." tool_tip="Retourneer objecten naar hun eigenaren."/>
+			<text name="Selected / sat upon:">
 				Geselecteerd/Er op gezeten
 			</text>
-			<text name="selected_objects_text" left="214"  width="48">
+			<text name="selected_objects_text" >
 				[COUNT]
 			</text>
-			<text name="Autoreturn" left="4" width="412" height="32" bottom="-196">
+			<text name="Autoreturn">
 				Objecten van andere inwoners automatisch retourneren (minuten):
                                                                                                (0 om uit te schakelen)
 			</text>
-			<line_editor name="clean other time" right="-50" bottom="-179"/>
-			<text name="Object Owners:" bottom="-213">
+			<line_editor name="clean other time"/>
+			<text name="Object Owners:">
 				Objecteigenaren:
 			</text>
-			<button label="Ververs lijst" label_selected="Ververs lijst" name="Refresh List" bottom="-213"/>
-			<button label="Retourneer objecten" name="Return objects..." width="164" bottom="-213"/>
-			<name_list name="owner list" height="104">
+			<button label="Ververs lijst" label_selected="Ververs lijst" name="Refresh List"/>
+			<button label="Retourneer objecten" name="Return objects..."/>
+			<name_list name="owner list">
 				<column label="Type" name="type"/>
 				<column label="Naam" name="name"/>
 				<column label="Aantal" name="count"/>
@@ -271,20 +271,20 @@ of opgedeeld.
 			<check_box label="Terrein bewerken" name="edit land check" tool_tip="Indien aangevinkt, kan iedereen uw terrein bewerken. Het is het beste om dit uit te laten staan, omdat u zelf altijd uw eigen land kunt bewerken."/>
 			<check_box label="Maak landmarkering" name="check landmark"/>
 			<check_box label="Vliegen" name="check fly" tool_tip="Indien aangevinkt, kunnen inwoners op uw land vliegen. Indien niet aangevinkt, kunnen ze alleen het land binnenvliegen of eroverheen vliegen."/>
-			<text name="allow_label2" left="162">
+			<text name="allow_label2">
 				Maak objecten:
 			</text>
-			<check_box label="Alle inwoners" name="edit objects check" left="275"/>
+			<check_box label="Alle inwoners" name="edit objects check"/>
 			<check_box label="Groep" name="edit group objects check"/>
-			<text name="allow_label3" left="162">
+			<text name="allow_label3">
 				Objecten binnenlaten:
 			</text>
-			<check_box label="Alle inwoners" name="all object entry check" left="275"/>
+			<check_box label="Alle inwoners" name="all object entry check"/>
 			<check_box label="Groep" name="group object entry check"/>
-			<text name="allow_label4" left="162">
+			<text name="allow_label4">
 				Scripts uitvoeren:
 			</text>
-			<check_box label="Alle inwoners" name="check other scripts" left="275"/>
+			<check_box label="Alle inwoners" name="check other scripts"/>
 			<check_box label="Groep" name="check group scripts"/>
 			<text name="land_options_label">
 				Landopties:
@@ -379,8 +379,8 @@ of opgedeeld.
 			<panel.string name="landing_point_none">
 				(none)
 			</panel.string>
-			<button width="70" label="Instellen" label_selected="Instellen" name="Set" tool_tip="Stelt het landingspunt in waar bezoekers arriveren. Wordt ingesteld op uw avatar&apos;s positie binnen dit perceel."/>
-			<button width="80" left="311" label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
+			<button label="Instellen" label_selected="Instellen" name="Set" tool_tip="Stelt het landingspunt in waar bezoekers arriveren. Wordt ingesteld op uw avatar&apos;s positie binnen dit perceel."/>
+			<button label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
 			<text name="Teleport Routing: ">
 				Teleport routering:
 			</text>
@@ -473,8 +473,8 @@ hebt geklikt.)
 				<combo_box.item name="Group" label="Groep"
 				/>
 			</combo_box>
-			<spinner label="Prijs in L$:" name="PriceSpin" label_width="168" width="228" />
-			<spinner label="Toegangsuren" name="HoursSpin" label_width="168" width="228" />
+			<spinner label="Prijs in L$:" name="PriceSpin" label_width="168" />
+			<spinner label="Toegangsuren" name="HoursSpin" label_width="168" />
 			<text label="Altijd toestaan" name="AllowedText">
 				Toegestane inwoners
 			</text>

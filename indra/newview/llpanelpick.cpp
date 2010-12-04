@@ -74,7 +74,7 @@
 LLPanelPickInfo* LLPanelPickInfo::create()
 {
 	LLPanelPickInfo* panel = new LLPanelPickInfo();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, XML_PANEL_PICK_INFO);
+	panel->buildFromFile(XML_PANEL_PICK_INFO);
 	return panel;
 }
 
@@ -204,9 +204,6 @@ void LLPanelPickInfo::sendParcelInfoRequest()
 {
 	if (mParcelId != mRequestedId)
 	{
-        //ext-4655, remove now incase this gets called twice without a remove
-        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mRequestedId, this);
-        
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(mParcelId, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(mParcelId);
 
@@ -344,7 +341,7 @@ void LLPanelPickInfo::onClickBack()
 LLPanelPickEdit* LLPanelPickEdit::create()
 {
 	LLPanelPickEdit* panel = new LLPanelPickEdit();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, XML_PANEL_EDIT_PICK);
+	panel->buildFromFile(XML_PANEL_EDIT_PICK);
 	return panel;
 }
 

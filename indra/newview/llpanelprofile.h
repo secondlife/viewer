@@ -27,7 +27,6 @@
 #ifndef LL_LLPANELPROFILE_H
 #define LL_LLPANELPROFILE_H
 
-#include "llviewerprecompiledheaders.h"
 #include "llpanel.h"
 #include "llpanelavatar.h"
 

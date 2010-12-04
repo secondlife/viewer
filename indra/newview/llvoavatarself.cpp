@@ -43,7 +43,6 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
-#include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
@@ -241,58 +240,58 @@ BOOL LLVOAvatarSelf::buildMenus()
 	gAttachBodyPartPieMenus[0] = NULL;
 
 	LLContextMenu::Params params;
-	params.label(LLTrans::getString("BodyPartsRightArm") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsRightArm"));
 	params.name(params.label);
 	params.visible(false);
 	gAttachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsHead") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsHead"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsLeftArm") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsLeftArm"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gAttachBodyPartPieMenus[4] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsLeftLeg") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsLeftLeg"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsTorso") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsTorso"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsRightLeg") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsRightLeg"));
 	params.name(params.label);
 	gAttachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gDetachBodyPartPieMenus[0] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsRightArm") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsRightArm"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsHead") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsHead"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsLeftArm") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsLeftArm"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 	gDetachBodyPartPieMenus[4] = NULL;
 
-	params.label(LLTrans::getString("BodyPartsLeftLeg") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsLeftLeg"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsTorso") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsTorso"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
 
-	params.label(LLTrans::getString("BodyPartsRightLeg") + " " + LLMenuGL::BRANCH_SUFFIX);
+	params.label(LLTrans::getString("BodyPartsRightLeg"));
 	params.name(params.label);
 	gDetachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
@@ -784,11 +783,19 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		const S32 te = mBakedTextureDatas[i].mTextureIndex;
-		LLViewerTexture* tex = getTEImage(te) ;
+		const LLViewerTexture* tex = getTEImage(te);
+
+		// Replace with default if we can't find the asset, assuming the
+		// default is actually valid (which it should be unless something
+		// is seriously wrong).
 		if (!tex || tex->isMissingAsset())
 		{
-			setTEImage(te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR));
-			removed = TRUE;
+			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
+			if (imagep)
+			{
+				setTEImage(te, imagep);
+				removed = TRUE;
+			}
 		}
 	}
 
@@ -807,7 +814,23 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 //virtual
 void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 {
+	// Save the global position
+	LLVector3d global_pos_from_old_region = getPositionGlobal();
+
+	// Change the region
 	setRegion(regionp);
+
+	if (regionp)
+	{	// Set correct region-relative position from global coordinates
+		setPositionGlobal(global_pos_from_old_region);
+
+		// Diagnostic info
+		//LLVector3d pos_from_new_region = getPositionGlobal();
+		//llinfos << "pos_from_old_region is " << global_pos_from_old_region
+		//	<< " while pos_from_new_region is " << pos_from_new_region
+		//	<< llendl;
+	}
+
 	if (!regionp || (regionp->getHandle() != mLastRegionHandle))
 	{
 		if (mLastRegionHandle != 0)
@@ -821,6 +844,9 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 			F64 max = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_MAX);
 			max = llmax(delta, max);
 			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
+
+			// Diagnostics
+			llinfos << "Region crossing took " << (F32)(delta * 1000.0) << " ms " << llendl;
 		}
 		if (regionp)
 		{
@@ -828,6 +854,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		}
 	}
 	mRegionCrossingTimer.reset();
+	LLViewerObject::updateRegion(regionp);
 }
 
 //--------------------------------------------------------------------
@@ -1163,11 +1190,23 @@ BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		
-		// this object might have been selected, so let the selection manager know it's gone now
+		// This object might have been selected, so let the selection manager know it's gone now
 		LLViewerObject *found_obj = gObjectList.findObject(item_id);
 		if (found_obj)
 		{
 			LLSelectMgr::getInstance()->remove(found_obj);
+		}
+
+		// Error checking in case this object was attached to an invalid point
+		// In that case, just remove the item from COF preemptively since detach 
+		// will fail.
+		if (isAgentAvatarValid())
+		{
+			const LLViewerObject *attached_obj = gAgentAvatarp->getWornAttachment(item_id);
+			if (!attached_obj)
+			{
+				LLAppearanceMgr::instance().removeCOFItemLinks(item_id, false);
+			}
 		}
 		return TRUE;
 	}

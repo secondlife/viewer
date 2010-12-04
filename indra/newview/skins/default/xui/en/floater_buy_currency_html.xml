@@ -16,6 +16,7 @@
     https://quick-buy.secondlife.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
   </floater.string>
   <web_browser
+    trusted_content="true" 
     follows="all"
     layout="topleft"
     left="1"

@@ -183,7 +183,15 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 
 void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 {
-	if (new_visibility.asBoolean())
+	LLSD visibility;
+	visibility["visible"] = new_visibility.asBoolean();
+	visibility["reset_accordion"] = true;
+	updateToVisibility(visibility);
+}
+
+void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
+{
+	if (new_visibility["visible"].asBoolean())
 	{
 		const BOOL is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();
 		const BOOL is_wearable_edit_visible = mEditWearable && mEditWearable->getVisible();
@@ -212,7 +220,7 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 				}
 			}
 
-			if (is_outfit_edit_visible)
+			if (is_outfit_edit_visible && new_visibility["reset_accordion"].asBoolean())
 			{
 				mOutfitEdit->resetAccordionState();
 			}
@@ -294,6 +302,8 @@ void LLSidepanelAppearance::showOutfitsInventoryPanel()
 
 void LLSidepanelAppearance::showOutfitEditPanel()
 {
+	if (mOutfitEdit && mOutfitEdit->getVisible()) return;
+
 	// Accordion's state must be reset in all cases except the one when user
 	// is returning back to the mOutfitEdit panel from the mEditWearable panel.
 	// The simplest way to control this is to check the visibility state of the mEditWearable

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<check_box text_enabled_color="LabelTextColor"
-           text_disabled_color="LabelDisabledColor"
-           font="SansSerifSmall"
+<check_box font="SansSerifSmall"
            follows="left|top">
-  <check_box.label_text name="checkbox label" />
+  <check_box.label_text name="checkbox label"
+                        text_color="LabelTextColor"
+                        text_readonly_color="LabelDisabledColor"/>
   <check_box.check_button name="CheckboxCtrl Button"
                           commit_on_return="false"
                           label=""

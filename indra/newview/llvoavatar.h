@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/signals2.hpp>
+
 #include "imageids.h"			// IMG_INVISIBLE
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
@@ -60,7 +62,7 @@ extern const LLUUID ANIM_AGENT_WALK_ADJUST;
 
 class LLTexLayerSet;
 class LLVoiceVisualizer;
-class LLHUDText;
+class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
 class LLVOAvatarBoneInfo;
@@ -72,7 +74,8 @@ class LLVOAvatarSkeletonInfo;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLVOAvatar :
 	public LLViewerObject,
-	public LLCharacter
+	public LLCharacter,
+	public boost::signals2::trackable
 {
 public:
 	friend class LLVOAvatarSelf;
@@ -208,6 +211,15 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagText(BOOL new_name);
+	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
+	LLColor4		getNameTagColor(bool is_friend);
+	void			clearNameTag();
+	static void		invalidateNameTag(const LLUUID& agent_id);
+	// force all name tags to rebuild, useful when display names turned on/off
+	static void		invalidateNameTags();
+	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
 	void 			idleUpdateBelowWater();
 
@@ -829,13 +841,15 @@ protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
 private:
-	LLWString 		mNameString;
+	std::string		mNameString;		// UTF-8 title + name + status
 	std::string  	mTitle;
-	BOOL	  		mNameAway;
-	BOOL	  		mNameBusy;
-	BOOL	  		mNameMute;
-	BOOL      		mNameAppearance;
-	BOOL      		mNameCloud;
+	bool	  		mNameAway;
+	bool	  		mNameBusy;
+	bool	  		mNameMute;
+	bool      		mNameAppearance;
+	bool			mNameFriend;
+	bool			mNameCloud;
+	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
 
 	//--------------------------------------------------------------------
@@ -843,7 +857,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLFrameTimer	mChatTimer;
-	LLPointer<LLHUDText> mNameText;
+	LLPointer<LLHUDNameTag> mNameText;
 private:
 	LLFrameTimer	mTimeVisible;
 	std::deque<LLChat> mChats;

@@ -665,7 +665,7 @@
 	<string name="xml_file">
 		XML bestand
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW bestand
 	</string>
 	<string name="compressed_image_files">
@@ -910,6 +910,9 @@
 		Gebaren
 	</string>
 	<string name="InvFolder Favorite">
+		Favoriten
+	</string>
+	<string name="InvFolder favorite">
 		Favoriten
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -3208,7 +3211,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		U bent de enige gebruiker in deze sessie.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] is offline.
+		[NAME] is offline.
 	</string>
 	<string name="invite_message">
 		Klik de [BUTTON NAME] knop om deze voicechat te accepteren/verbinden.

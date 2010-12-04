@@ -27,12 +27,15 @@
 #include "llviewerprecompiledheaders.h"
 
 // libs
+#include "llavatarname.h"
 #include "llfloaterreg.h"
+#include "llmenubutton.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "lleventtimer.h"
 #include "llfiltereditor.h"
 #include "lltabcontainer.h"
+#include "lltoggleablemenu.h"
 #include "lluictrlfactory.h"
 
 #include "llpanelpeople.h"
@@ -228,12 +231,36 @@ public:
 	virtual void setActive(bool) {}
 
 protected:
-	void updateList()
+	void update()
 	{
 		mCallback();
 	}
 
 	callback_t		mCallback;
+};
+
+/**
+ * Update buttons on changes in our friend relations (STORM-557).
+ */
+class LLButtonsUpdater : public LLPanelPeople::Updater, public LLFriendObserver
+{
+public:
+	LLButtonsUpdater(callback_t cb)
+	:	LLPanelPeople::Updater(cb)
+	{
+		LLAvatarTracker::instance().addObserver(this);
+	}
+
+	~LLButtonsUpdater()
+	{
+		LLAvatarTracker::instance().removeObserver(this);
+	}
+
+	/*virtual*/ void changed(U32 mask)
+	{
+		(void) mask;
+		update();
+	}
 };
 
 class LLAvatarListUpdater : public LLPanelPeople::Updater, public LLEventTimer
@@ -303,7 +330,7 @@ public:
 
 		if (mMask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
 		{
-			updateList();
+			update();
 		}
 
 		// Stop updates.
@@ -418,7 +445,7 @@ public:
 		if (val)
 		{
 			// update immediately and start regular updates
-			updateList();
+			update();
 			mEventTimer.start(); 
 		}
 		else
@@ -430,7 +457,7 @@ public:
 
 	/*virtual*/ BOOL tick()
 	{
-		updateList();
+		update();
 		return FALSE;
 	}
 private:
@@ -447,7 +474,7 @@ public:
 	LLRecentListUpdater(callback_t cb)
 	:	LLAvatarListUpdater(cb, 0)
 	{
-		LLRecentPeople::instance().setChangedCallback(boost::bind(&LLRecentListUpdater::updateList, this));
+		LLRecentPeople::instance().setChangedCallback(boost::bind(&LLRecentListUpdater::update, this));
 	}
 };
 
@@ -463,16 +490,22 @@ LLPanelPeople::LLPanelPeople()
 		mAllFriendList(NULL),
 		mNearbyList(NULL),
 		mRecentList(NULL),
-		mGroupList(NULL)
+		mGroupList(NULL),
+		mNearbyGearButton(NULL),
+		mFriendsGearButton(NULL),
+		mGroupsGearButton(NULL),
+		mRecentGearButton(NULL)
 {
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
+	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 }
 
 LLPanelPeople::~LLPanelPeople()
 {
+	delete mButtonsUpdater;
 	delete mNearbyListUpdater;
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
@@ -522,8 +555,10 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList = friends_tab->getChild<LLAvatarList>("avatars_all");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
 	mOnlineFriendList->setShowIcons("FriendsListShowIcons");
+	mOnlineFriendList->showPermissions("FriendsListShowPermissions");
 	mAllFriendList->setNoItemsCommentText(getString("no_friends"));
 	mAllFriendList->setShowIcons("FriendsListShowIcons");
+	mAllFriendList->showPermissions("FriendsListShowPermissions");
 
 	LLPanel* nearby_tab = getChild<LLPanel>(NEARBY_TAB_NAME);
 	nearby_tab->setVisibleCallback(boost::bind(&Updater::setActive, mNearbyListUpdater, _2));
@@ -597,11 +632,6 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("teleport_btn",		boost::bind(&LLPanelPeople::onTeleportButtonClicked,	this));
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 
-	getChild<LLPanel>(NEARBY_TAB_NAME)->childSetAction("nearby_view_sort_btn",boost::bind(&LLPanelPeople::onNearbyViewSortButtonClicked,		this));
-	getChild<LLPanel>(RECENT_TAB_NAME)->childSetAction("recent_viewsort_btn",boost::bind(&LLPanelPeople::onRecentViewSortButtonClicked,			this));
-	getChild<LLPanel>(FRIENDS_TAB_NAME)->childSetAction("friends_viewsort_btn",boost::bind(&LLPanelPeople::onFriendsViewSortButtonClicked,		this));
-	getChild<LLPanel>(GROUP_TAB_NAME)->childSetAction("groups_viewsort_btn",boost::bind(&LLPanelPeople::onGroupsViewSortButtonClicked,		this));
-
 	// Must go after setting commit callback and initializing all pointers to children.
 	mTabContainer->selectTabByName(NEARBY_TAB_NAME);
 
@@ -621,24 +651,41 @@ BOOL LLPanelPeople::postBuild()
 	enable_registrar.add("People.Recent.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,	this, _2));
 	enable_registrar.add("People.Nearby.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,	this, _2));
 
+	mNearbyGearButton = getChild<LLMenuButton>("nearby_view_sort_btn");
+	mFriendsGearButton = getChild<LLMenuButton>("friends_viewsort_btn");
+	mGroupsGearButton = getChild<LLMenuButton>("groups_viewsort_btn");
+	mRecentGearButton = getChild<LLMenuButton>("recent_viewsort_btn");
+
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
 
-	LLMenuGL* nearby_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_nearby_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* nearby_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_nearby_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(nearby_view_sort)
+	{
 		mNearbyViewSortMenuHandle  = nearby_view_sort->getHandle();
+		mNearbyGearButton->setMenu(nearby_view_sort);
+	}
 
-	LLMenuGL* friend_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_friends_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* friend_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_friends_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(friend_view_sort)
+	{
 		mFriendsViewSortMenuHandle  = friend_view_sort->getHandle();
+		mFriendsGearButton->setMenu(friend_view_sort);
+	}
 
-	LLMenuGL* group_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_groups_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* group_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_groups_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(group_view_sort)
+	{
 		mGroupsViewSortMenuHandle  = group_view_sort->getHandle();
+		mGroupsGearButton->setMenu(group_view_sort);
+	}
 
-	LLMenuGL* recent_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_recent_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* recent_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_recent_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(recent_view_sort)
+	{
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
+		mRecentGearButton->setMenu(recent_view_sort);
+	}
 
 	LLVoiceClient::getInstance()->addObserver(this);
 
@@ -908,7 +955,7 @@ void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
 
 	// Calculate its coordinates.
 	// (assumes that groups panel is the current tab)
-	LLPanel* bottom_panel = mTabContainer->getCurrentPanel()->getChild<LLPanel>("bottom_panel"); 
+	LLPanel* bottom_panel = mTabContainer->getCurrentPanel()->getChild<LLPanel>("bottom_panel");
 	LLPanel* parent_panel = mTabContainer->getCurrentPanel();
 	menu->arrangeAndClear();
 	S32 menu_height = menu->getRect().getHeight();
@@ -1148,12 +1195,10 @@ void LLPanelPeople::onActivateButtonClicked()
 }
 
 // static
-void LLPanelPeople::onAvatarPicked(
-		const std::vector<std::string>& names,
-		const uuid_vec_t& ids)
+void LLPanelPeople::onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (!names.empty() && !ids.empty())
-		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
+		LLAvatarActions::requestFriendshipDialog(ids[0], names[0].getCompleteName());
 }
 
 void LLPanelPeople::onGroupPlusButtonClicked()
@@ -1204,6 +1249,14 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 	{
 		mAllFriendList->toggleIcons();
 		mOnlineFriendList->toggleIcons();
+	}
+	else if (chosen_item == "view_permissions")
+	{
+		bool show_permissions = !gSavedSettings.getBOOL("FriendsListShowPermissions");
+		gSavedSettings.setBOOL("FriendsListShowPermissions", show_permissions);
+
+		mAllFriendList->showPermissions(show_permissions);
+		mOnlineFriendList->showPermissions(show_permissions);
 	}
 }
 
@@ -1337,44 +1390,9 @@ void LLPanelPeople::onMoreButtonClicked()
 	// *TODO: not implemented yet
 }
 
-void LLPanelPeople::onFriendsViewSortButtonClicked()
-{
-	LLMenuGL* menu = (LLMenuGL*)mFriendsViewSortMenuHandle.get();
-	if (!menu)
-		return;
-	showGroupMenu(menu);
-}
-
-void LLPanelPeople::onGroupsViewSortButtonClicked()
-{
-	LLMenuGL* menu = (LLMenuGL*)mGroupsViewSortMenuHandle.get();
-	if (!menu)
-		return;
-	showGroupMenu(menu);
-}
-
-void LLPanelPeople::onRecentViewSortButtonClicked()
-{
-	LLMenuGL* menu = (LLMenuGL*)mRecentViewSortMenuHandle.get();
-	if (!menu)
-		return;
-	showGroupMenu(menu);
-}
-
-void LLPanelPeople::onNearbyViewSortButtonClicked()
-{
-	LLMenuGL* menu = (LLMenuGL*)mNearbyViewSortMenuHandle.get();
-	if (!menu)
-		return;
-	showGroupMenu(menu);
-}
-
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
 	std::string tab_name = key["people_panel_tab_name"];
-	mFilterEditor -> clear();
-	onFilterEdit("");
-	
 	if (!tab_name.empty())
 		mTabContainer->selectTabByName(tab_name);
 }

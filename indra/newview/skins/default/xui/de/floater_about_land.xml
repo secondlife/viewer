@@ -259,18 +259,18 @@ werden.
 			<text left="204" name="other_objects_text" width="48">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther" right="-135" width="60"/>
-			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOther..." right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="140">
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther"/>
+			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOther..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
+			<text name="Selected / sat upon:">
 				Ausgewählt/gesessen auf:
 			</text>
-			<text left="204" name="selected_objects_text" width="48">
+			<text name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn">
 				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
 			</text>
-			<line_editor name="clean other time" right="-10" width="56"/>
+			<line_editor name="clean other time"/>
 			<text name="Object Owners:">
 				Objekteigentümer:
 			</text>
@@ -279,7 +279,7 @@ werden.
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type"/>
 				<name_list.columns label="Name" name="name"/>
-				<name_list.columns label="Anzahl" name="count" width="80"/>
+				<name_list.columns label="Anzahl" name="count"/>
 				<name_list.columns label="Aktuellstes" name="mostrecent"/>
 			</name_list>
 		</panel>

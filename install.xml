@@ -185,7 +185,7 @@
         <key>copyright</key>
         <string>various</string>
         <key>description</key>
-        <string>A set of portable C++ libraries which provide a wide set of functionality. Used primarily for tokenization. </string>
+        <string>A set of portable C++ libraries which provide a wide set of functionality. </string>
         <key>license</key>
         <string>boost</string>
         <key>packages</key>
@@ -366,23 +366,23 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c7e317bec481b7efa2a0319e163dcc65</string>
+            <string>261bcd3387066cf0a1d46549400052b5</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20080818.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20101007.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>abd2b4ba4ac993f19d82804af387eb7c</string>
+            <string>8490d97430c12c2e1ac19ff80a8d4db4</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20080818.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20101007.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>1a55dec2907821f5f785648a660126c3</string>
+            <string>bab1babcb01ff9849b7f072d352e1ecd</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20080611.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20101007.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -777,6 +777,46 @@
           </map>
         </map>
       </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>copyright</key>
+        <string>json-cpp library released to Public Domain by Baptiste Lepilleur &lt;blep@users.sourceforge.net&gt;</string>
+        <key>description</key>
+        <string>jsoncpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
+        <key>license</key>
+        <string>jsoncpp</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>4c6b949778099a63550898f00f3e6a5e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-darwin-20090923.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>a2a94b8ca1d32f23e3e668d64023514e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux-20090922.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>a06ab38628ab7b53b8f3326cd942a6a8</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux64-20090922.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>caf152cfc730737c124f7612cf68fbd3</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20090922.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>kdu</key>
       <map>
         <key>copyright</key>
@@ -891,6 +931,25 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
+      <key>libuuid</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
+        <key>description</key>
+        <string>Generates UUIDs under Linux. Originally a part of the ext2fs filesystem. Also see lluuid.cpp for all platforms. Part of the e2fsprogs package.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>91b194aed4b38bc23493b198009a8c6a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20090417.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>libxml</key>
       <map>
         <key>license</key>
@@ -922,23 +981,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>becffca6bd8dcb239de284ea2a8b485b</string>
+            <string>34d9e4c93678a422cf80521bf0cd7628</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100914.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>414d72dd59e3d83c96f0e1531360792e</string>
+            <string>5d743c93b970abe685b185de83001a6e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20100923.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>df1bdd683128e060d60e435f65d8f7e8</string>
+            <string>4b8412833c00f8cdaba26808f0ddb404</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100617.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100916.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1349,7 +1408,7 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>vivox</key>
+      <key>slvoice</key>
       <map>
         <key>copyright</key>
         <string> </string>
@@ -1360,23 +1419,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>aa144917d0e33453d3c2cc2c05c6c47c</string>
+            <string>2f9b3528d4b5f858fb8dcee4b6dd5188</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-darwin-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20101117a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>98f7945755f3ee8e52f685a3eff4d7be</string>
+            <string>cde4728b8a75a76c72a8785815cb769f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-linux-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20101117a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e8fdd46cb026c2ec72c4489eb3bf39c1</string>
+            <string>940ac55a6d0141c958bf2b14939d8474</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20101117a.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1720,6 +1779,13 @@ Cass Everitt - cass@r3.nu
       <map>
         <key>text</key>
         <string>http://nyctergatis.com/jpeglib/</string>
+      </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>text</key>
+        <string>The json-cpp library and this documentation are in Public Domain.  Retrieved from http://jsoncpp.sourceforge.net/ on 2009-09-04.</string>
+        <key>url</key>
+        <string>http://jsoncpp.sourceforge.net</string>
       </map>
       <key>kdu</key>
       <map>

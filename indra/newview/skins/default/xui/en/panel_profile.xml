@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="540"
+ height="430"
  label="Profile"
  layout="topleft"
  left="0"
@@ -41,7 +41,7 @@
      layout="topleft"
      left="0"
      top="0"
-     height="524"
+     height="400"
      width="317"
      border_size="0">
       <layout_panel
@@ -50,7 +50,7 @@
          layout="topleft"
          top="0"
          left="0"
-         height="524"
+         height="400"
          width="317">
         <scroll_container
          color="DkGray2"
@@ -263,7 +263,7 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                initial_value="(retrieving)"
@@ -272,8 +272,8 @@
                link="true"
                name="partner_text"
                top="0"
-           width="300"
-               word_wrap="true" />
+               use_ellipses="true"
+           width="300" />
             </panel>
             <text
              follows="left|top"
@@ -304,11 +304,25 @@
           </panel>
         </scroll_container>
       </layout_panel>
-      <layout_panel
+           
+</layout_stack>
+
+	<layout_stack
+     name="layout_verb_buttons"
+     orientation="horizontal"
+     follows="bottom|left|right"
+     layout="topleft"
+     left="2"
+     top_pad="1"
+     height="30"
+     width="315"
+     border_size="0">
+     	<layout_panel
          follows="bottom|left"
          height="30"
          layout="topleft"
          name="profile_buttons_panel"
+         top="0"
          auto_resize="false"
          width="317">
          	
@@ -330,7 +344,7 @@
 				name="add_friend_btn_lp"
 			    user_resize="false" 
 			    auto_resize="true"
-				width="118">
+				width="121">
 					<button
 			         follows="bottom|left|right"
 			         height="23"
@@ -341,7 +355,7 @@
 			         name="add_friend"
 			         tool_tip="Offer friendship to the Resident"
 			         top="0"
-			         width="117" />	
+			         width="120" />	
 				</layout_panel>
 				
 				<layout_panel
@@ -416,9 +430,9 @@
 				left_pad="3"
 				name="overflow_btn_lp"
 			    user_resize="false" 
-			    auto_resize="true"
-				width="27">
-					<button
+			    auto_resize="false"
+				width="24">
+					<menu_button
 			         follows="bottom|left|right"
 			         height="23"
 			         label="▼"
@@ -448,6 +462,6 @@
          tool_tip="Edit your personal information"
          width="130" />
         </layout_panel>
+     </layout_stack>
 
-</layout_stack>
 </panel>

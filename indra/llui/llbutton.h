@@ -124,6 +124,8 @@ public:
 		Optional<F32>				hover_glow_amount;
 		Optional<TimeIntervalParam>	held_down_delay;
 
+		Optional<bool>			use_draw_context_alpha;
+
 		Params();
 	};
 	
@@ -338,6 +340,8 @@ private:
 	S32							mImageOverlayTopPad;
 	S32							mImageOverlayBottomPad;
 
+	bool						mUseDrawContextAlpha;
+
 	/*
 	 * Space between image_overlay and label
 	 */
@@ -350,7 +354,6 @@ private:
 	BOOL						mCommitOnReturn;
 	BOOL						mFadeWhenDisabled;
 	bool						mForcePressedState;
-	bool						mMouseOver;
 
 	LLFrameTimer				mFlashingTimer;
 };

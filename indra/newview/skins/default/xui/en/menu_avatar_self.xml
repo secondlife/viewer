@@ -23,11 +23,11 @@
          function="Self.EnableStandUp" />
     </menu_item_call>
     <context_menu
-     label="Take Off  ▶"
+     label="Take Off"
      layout="topleft"
      name="Take Off &gt;">
         <context_menu
-         label="Clothes  ▶"
+         label="Clothes"
          layout="topleft"
          name="Clothes &gt;">
             <menu_item_call
@@ -186,11 +186,11 @@
                 </menu_item_call>
         </context_menu>
         <context_menu
-         label="HUD  ▶"
+         label="HUD"
          layout="topleft"
          name="Object Detach HUD" />
         <context_menu
-         label="Detach  ▶"
+         label="Detach"
          layout="topleft"
          name="Object Detach" />
         <menu_item_call

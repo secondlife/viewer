@@ -31,6 +31,7 @@
 
 #include "llchatmsgbox.h"
 #include "llavatariconctrl.h"
+#include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
 #include "lltrans.h"
@@ -45,13 +46,47 @@ static const S32 msg_right_offset = 10;
 static const S32 msg_height_pad = 5;
 
 //*******************************************************************************************************************
+// LLObjectHandler
+//*******************************************************************************************************************
+
+// handle secondlife:///app/object/<ID>/inspect SLURLs
+class LLObjectHandler : public LLCommandHandler
+{
+public:
+	LLObjectHandler() : LLCommandHandler("object", UNTRUSTED_BLOCK) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params.size() < 2) return false;
+
+		LLUUID object_id;
+		if (!object_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		const std::string verb = params[1].asString();
+
+		if (verb == "inspect")
+		{
+			LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
+			return true;
+		}
+
+		return false;
+	}
+};
+
+LLObjectHandler gObjectHandler;
+
+//*******************************************************************************************************************
 //LLNearbyChatToastPanel
 //*******************************************************************************************************************
 
 LLNearbyChatToastPanel* LLNearbyChatToastPanel::createInstance()
 {
 	LLNearbyChatToastPanel* item = new LLNearbyChatToastPanel();
-	LLUICtrlFactory::getInstance()->buildPanel(item, "panel_chat_item.xml");
+	item->buildFromFile("panel_chat_item.xml");
 	item->setFollows(FOLLOWS_NONE);
 	return item;
 }
@@ -173,23 +208,38 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 		str_sender+=" ";
 
-		//append user name
+		//append sender name
+		if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
 		{
 			LLStyle::Params style_params_name;
 
-			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
+			std::string href;
 
-			style_params_name.color(userNameColor);
+			if (mSourceType == CHAT_SOURCE_AGENT)
+			{
+				href = LLSLURL("agent", mFromID, "about").getSLURLString();
+			}
+			else
+			{
+				href = LLSLURL("object", mFromID, "inspect").getSLURLString();
+			}
+
+			style_params_name.color(textColor);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
 			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
-			style_params_name.link_href = LLSLURL("agent",mFromID,"about").getSLURLString();
+			style_params_name.link_href = href;
+			style_params_name.is_link = true;
 
 			msg_text->appendText(str_sender, FALSE, style_params_name);
 
+		}
+		else
+		{
+			msg_text->appendText(str_sender, false);
 		}
 	}
 

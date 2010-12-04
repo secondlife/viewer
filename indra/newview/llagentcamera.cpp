@@ -297,8 +297,11 @@ void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 			LLSelectMgr::getInstance()->deselectAll();
 		}
 
-		// Hide all popup menus
-		gMenuHolder->hideMenus();
+		if (gMenuHolder != NULL)
+		{
+			// Hide all popup menus
+			gMenuHolder->hideMenus();
+		}
 	}
 
 	if (change_camera && !gSavedSettings.getBOOL("FreezeTime"))

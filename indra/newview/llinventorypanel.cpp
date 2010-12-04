@@ -290,7 +290,10 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		const LLUUID& item_id = (*items_iter);
 		const LLInventoryObject* model_item = model->getObject(item_id);
 		LLFolderViewItem* view_item = mFolderRoot->getItemByID(item_id);
-		LLFolderViewFolder* view_folder = mFolderRoot->getFolderByID(item_id);
+
+		// LLFolderViewFolder is derived from LLFolderViewItem so dynamic_cast from item
+		// to folder is the fast way to get a folder without searching through folders tree.
+		LLFolderViewFolder* view_folder = dynamic_cast<LLFolderViewFolder*>(view_item);
 
 		//////////////////////////////
 		// LABEL Operation
@@ -916,6 +919,8 @@ BOOL is_inventorysp_active()
 // static
 LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 {
+	S32 z_min = S32_MAX;
+	LLInventoryPanel* res = NULL;
 	// A. If the inventory side panel is open, use that preferably.
 	if (is_inventorysp_active())
 	{
@@ -925,11 +930,26 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 			return inventorySP->getActivePanel();
 		}
 	}
+	// or if it is in floater undocked from sidetray get it and remember z order of floater to later compare it
+	// with other inventory floaters order.
+	else if (!LLSideTray::getInstance()->isTabAttached("sidebar_inventory"))
+	{
+		LLSidepanelInventory *inventorySP =
+			dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		LLFloater* inv_floater = LLFloaterReg::findInstance("side_bar_tab", LLSD("sidebar_inventory"));
+		if (inventorySP && inv_floater)
+		{
+			res = inventorySP->getActivePanel();
+			z_min = gFloaterView->getZOrder(inv_floater);
+		}
+		else
+		{
+			llwarns << "Inventory tab is detached from sidetray, but  either panel or floater were not found!" << llendl;
+		}
+	}
 	
 	// B. Iterate through the inventory floaters and return whichever is on top.
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-	S32 z_min = S32_MAX;
-	LLInventoryPanel* res = NULL;
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
 	{
 		LLFloaterInventory* iv = dynamic_cast<LLFloaterInventory*>(*iter);

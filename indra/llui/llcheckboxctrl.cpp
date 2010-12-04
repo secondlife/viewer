@@ -50,9 +50,7 @@ template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
 	const std::string& name, BOOL recurse) const;
 
 LLCheckBoxCtrl::Params::Params()
-:	text_enabled_color("text_enabled_color"),
-	text_disabled_color("text_disabled_color"),
-	initial_value("initial_value", false),
+:	initial_value("initial_value", false),
 	label_text("label_text"),
 	check_button("check_button"),
 	radio_style("radio_style")
@@ -61,8 +59,8 @@ LLCheckBoxCtrl::Params::Params()
 
 LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 :	LLUICtrl(p),
-	mTextEnabledColor(p.text_enabled_color()),
-	mTextDisabledColor(p.text_disabled_color()),
+	mTextEnabledColor(p.label_text.text_color()),
+	mTextDisabledColor(p.label_text.text_readonly_color()),
 	mFont(p.font())
 {
 	mViewModel->setValue(LLSD(p.initial_value));
@@ -89,7 +87,6 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 	{
 		tbparams.font(p.font);
 	}
-	tbparams.text_color( p.enabled() ? p.text_enabled_color() : p.text_disabled_color() );
 	mLabel = LLUICtrlFactory::create<LLTextBox> (tbparams);
 	addChild(mLabel);
 

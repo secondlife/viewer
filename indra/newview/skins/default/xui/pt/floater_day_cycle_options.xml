@@ -52,8 +52,8 @@
 				Duração do Ciclo:
 			</text>
 			<spinner label="Hora" name="WLLengthOfDayHour"/>
-			<spinner label="Minuto" name="WLLengthOfDayMin"/>
-			<spinner label="Segundo" name="WLLengthOfDaySec"/>
+			<spinner label="Min." name="WLLengthOfDayMin"/>
+			<spinner label="Seg." name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
 				Visualizar
 			</text>

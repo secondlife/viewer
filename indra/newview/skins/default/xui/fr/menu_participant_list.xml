@@ -11,7 +11,7 @@
 	<menu_item_check label="Afficher les icônes des résidents" name="View Icons"/>
 	<menu_item_check label="Bloquer le chat vocal" name="Block/Unblock"/>
 	<menu_item_check label="Ignorer le texte" name="MuteText"/>
-	<context_menu label="Options du modérateur &gt;" name="Moderator Options">
+	<context_menu label="Options du modérateur" name="Moderator Options">
 		<menu_item_check label="Autoriser les chats écrits" name="AllowTextChat"/>
 		<menu_item_call label="Ignorer ce participant" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Ne plus ignorer ce participant" name="ModerateVoiceUnMuteSelected"/>

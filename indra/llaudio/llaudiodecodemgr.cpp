@@ -218,7 +218,7 @@ BOOL LLVorbisDecodeState::initDecode()
 	S32 sample_count = ov_pcm_total(&mVF, -1);
 	size_t size_guess = (size_t)sample_count;
 	vorbis_info* vi = ov_info(&mVF, -1);
-	size_guess *= vi->channels;
+	size_guess *= (vi? vi->channels : 1);
 	size_guess *= 2;
 	size_guess += 2048;
 	

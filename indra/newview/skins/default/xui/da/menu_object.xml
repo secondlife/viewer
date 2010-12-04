@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Object Pie">
 	<menu_item_call label="Berør" name="Object Touch">
-		<on_enable parameter="Berør" name="EnableTouch"/>
+		<menu_item_call.on_enable name="EnableTouch" parameter="Berør"/>
 	</menu_item_call>
 	<menu_item_call label="Redigér" name="Edit..."/>
 	<menu_item_call label="Byg" name="Build"/>
@@ -10,18 +10,18 @@
 	<menu_item_call label="Stå op" name="Object Stand Up"/>
 	<menu_item_call label="Objekt profil" name="Object Inspect"/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
-	<context_menu label="Tag på  ▶" name="Put On">
+	<context_menu label="Tag på" name="Put On">
 		<menu_item_call label="Tag på" name="Wear"/>
-		<context_menu label="Vedhæft  ▶" name="Object Attach"/>
-		<context_menu label="Vedhæft HUD  ▶" name="Object Attach HUD"/>
+		<menu_item_call label="Tilføj" name="Add"/>
+		<context_menu label="Vedhæft" name="Object Attach"/>
+		<context_menu label="Vedhæft HUD" name="Object Attach HUD"/>
 	</context_menu>
-	<context_menu label="Fjern  ▶" name="Remove">
+	<context_menu label="Fjern" name="Remove">
 		<menu_item_call label="Rapportér misbrug" name="Report Abuse..."/>
 		<menu_item_call label="Blokér" name="Object Mute"/>
 		<menu_item_call label="Returnér" name="Return..."/>
 		<menu_item_call label="Slet" name="Delete"/>
 	</context_menu>
-	<menu_item_call label="Køb" name="Pie Object Bye"/>
 	<menu_item_call label="Tag" name="Pie Object Take"/>
 	<menu_item_call label="Tag kopi" name="Take Copy"/>
 	<menu_item_call label="Betal" name="Pay..."/>

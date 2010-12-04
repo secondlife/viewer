@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  layout="topleft"
  visible="false"
  name="Gear Wearing">
@@ -10,4 +10,14 @@
         <on_click
          function="Gear.Edit" />
     </menu_item_call>
-</menu>
+    <menu_item_call
+     label="Take Off"
+     layout="topleft"
+     name="takeoff">
+        <on_click
+         function="Gear.TakeOff" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="take_off" />
+    </menu_item_call>
+</toggleable_menu>

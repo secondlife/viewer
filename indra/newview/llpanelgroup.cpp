@@ -112,6 +112,7 @@ void LLPanelGroup::onOpen(const LLSD& key)
 	if(!key.has("action"))
 	{
 		setGroupID(group_id);
+		getChild<LLAccordionCtrl>("groups_accordion")->expandDefaultTab();
 		return;
 	}
 
@@ -175,11 +176,6 @@ BOOL LLPanelGroup::postBuild()
 	LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
 	LLPanelGroupTab* panel_notices = findChild<LLPanelGroupTab>("group_notices_tab_panel");
 	LLPanelGroupTab* panel_land = findChild<LLPanelGroupTab>("group_land_tab_panel");
-
-	if (LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("groups_accordion"))
-	{
-		setVisibleCallback(boost::bind(&LLPanelGroup::onVisibilityChange, this, _2, accordion_ctrl));
-	}
 
 	if(panel_general)	mTabs.push_back(panel_general);
 	if(panel_roles)		mTabs.push_back(panel_roles);
@@ -302,14 +298,6 @@ void LLPanelGroup::onBtnJoin()
 void LLPanelGroup::onBtnCancel()
 {
 	onBackBtnClick();
-}
-
-void LLPanelGroup::onVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl)
-{
-	if (in_visible_chain.asBoolean() && accordion_ctrl != NULL)
-	{
-		accordion_ctrl->expandDefaultTab();
-	}
 }
 
 void LLPanelGroup::changed(LLGroupChange gc)
@@ -609,7 +597,7 @@ void LLPanelGroup::showNotice(const std::string& subject,
 //static
 void LLPanelGroup::refreshCreatedGroup(const LLUUID& group_id)
 {
-	LLPanelGroup* panel = LLSideTray::getInstance()->findChild<LLPanelGroup>("panel_group_info_sidetray");
+	LLPanelGroup* panel = LLSideTray::getInstance()->getPanel<LLPanelGroup>("panel_group_info_sidetray");
 	if(!panel)
 		return;
 	panel->setGroupID(group_id);
@@ -624,7 +612,7 @@ void LLPanelGroup::showNotice(const std::string& subject,
 					   const std::string& inventory_name,
 					   LLOfferInfo* inventory_offer)
 {
-	LLPanelGroup* panel = LLSideTray::getInstance()->findChild<LLPanelGroup>("panel_group_info_sidetray");
+	LLPanelGroup* panel = LLSideTray::getInstance()->getPanel<LLPanelGroup>("panel_group_info_sidetray");
 	if(!panel)
 		return;
 

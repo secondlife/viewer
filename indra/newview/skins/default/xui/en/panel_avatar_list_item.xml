@@ -19,6 +19,11 @@
     <string name="FormatMonths">[COUNT]mon</string>
     <string name="FormatYears">[COUNT]y</string>
  
+    <!--
+    *NOTE: llavatarlistitem.cpp lays these controls out depending on which
+           ones are visible. Trying to change their order here will break it
+           ... which kinda sucks.
+    -->
     <icon
      follows="top|right|left"
      height="24"
@@ -57,7 +62,7 @@
      name="avatar_name"
      top="6"
      use_ellipses="true"
-     value="Unknown"
+     value="(loading)"
      width="180" />
     <text
      follows="right"
@@ -65,11 +70,55 @@
      height="15"
      layout="topleft"
      left_pad="5"
-     right="-72"
+     right="-164"
      name="last_interaction"
      text_color="LtGray_50"
      value="0s"
      width="35" />
+    <icon
+     height="16"
+     follows="right"
+     image_name="Permission_Edit_Objects_Theirs"
+     layout="topleft"
+     left_pad="3"
+     right="-129"
+     name="permission_edit_theirs_icon"
+     tool_tip="You can edit this friend&apos;s objects"
+     top="4"
+     width="16" />
+    <icon
+     height="16"
+     follows="right"
+     image_name="Permission_Edit_Objects_Mine"
+     layout="topleft"
+     left_pad="3"
+     right="-110"
+     name="permission_edit_mine_icon"
+     tool_tip="This friend can edit, delete or take your objects"
+     top_delta="0"
+     width="16" />
+    <icon
+     height="16"
+     follows="right"
+     image_name="Permission_Visible_Map"
+     layout="topleft"
+     left_pad="3"
+     tool_tip="This friend can locate you on the map"
+     right="-91"
+     name="permission_map_icon"
+     top_delta="0"
+     width="16" />
+    <icon
+     height="16"
+     follows="right"
+     image_name="Permission_Visible_Online"
+     layout="topleft"
+     left_pad="3"
+     right="-72"
+     name="permission_online_icon"
+     tool_tip="This friend can see when you&apos;re online"
+     top_delta="0"
+     width="16" />
     <button
      follows="right"
      height="16"
@@ -80,7 +129,7 @@
      right="-53"
      name="info_btn"
      tab_stop="false"
-     top_delta="-2"
+     top_delta="0"
      width="16" />
     <button
      follows="right"

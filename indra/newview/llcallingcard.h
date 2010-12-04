@@ -45,7 +45,7 @@ class LLFriendObserver
 public:
 	// This enumeration is a way to refer to what changed in a more
 	// human readable format. You can mask the value provided by
-	// chaged() to see if the observer is interested in the change.
+	// changed() to see if the observer is interested in the change.
 	enum 
 	{
 		NONE = 0,
@@ -235,8 +235,7 @@ public:
 	virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
 	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
 	buddy_map_t mMappable;
-	std::string mFirst;
-	std::string mLast;
+	std::string mFullName;
 };
 
 // collect dictionary sorted map of name -> agent_id for every online buddy
@@ -248,8 +247,7 @@ public:
 	virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
 	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
 	buddy_map_t mOnline;
-	std::string mFirst;
-	std::string mLast;
+	std::string mFullName;
 };
 
 // collect dictionary sorted map of name -> agent_id for every buddy,
@@ -263,8 +261,7 @@ public:
 	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
 	buddy_map_t mOnline;
 	buddy_map_t mOffline;
-	std::string mFirst;
-	std::string mLast;
+	std::string mFullName;
 };
 
 #endif // LL_LLCALLINGCARD_H

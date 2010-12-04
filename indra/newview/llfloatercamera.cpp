@@ -345,7 +345,7 @@ BOOL LLFloaterCamera::postBuild()
 	setTitleVisible(TRUE); // restore title visibility after chrome applying
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
-	mZoom = getChild<LLPanelCameraZoom>(ZOOM);
+	mZoom = findChild<LLPanelCameraZoom>(ZOOM);
 	mTrack = getChild<LLJoystickCameraTrack>(PAN);
 
 	assignButton2Mode(CAMERA_CTRL_MODE_MODES,			"avatarview_btn");

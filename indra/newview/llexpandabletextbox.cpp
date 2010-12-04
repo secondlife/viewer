@@ -121,7 +121,6 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 
 void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	hideExpandText();
 	LLTextEditor::reshape(width, height, called_from_parent);
 
 	if (getTextPixelHeight() > getRect().getHeight())

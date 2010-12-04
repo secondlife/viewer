@@ -379,7 +379,7 @@ void LLPanelPermissions::refresh()
 		if (mLabelGroupName)
 		{
 			mLabelGroupName->setNameID(LLUUID::null, TRUE);
-			mLabelGroupName->refresh(LLUUID::null,LLStringUtil::null, LLStringUtil::null, TRUE);
+			mLabelGroupName->refresh(LLUUID::null, std::string(), true);
 			mLabelGroupName->setEnabled(FALSE);
 		}
 	}

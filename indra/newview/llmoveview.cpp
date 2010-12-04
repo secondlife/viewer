@@ -39,7 +39,9 @@
 #include "llvoavatarself.h" // to check gAgentAvatarp->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
+#include "llfirstuse.h"
 #include "llfloaterreg.h"
+#include "llhints.h"
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
@@ -161,6 +163,7 @@ void LLFloaterMove::setVisible(BOOL visible)
 
 	if (visible)
 	{
+		LLFirstUse::notMoving(false);
 		// Attach the Stand/Stop Flying panel.
 		LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
 		ssf_panel->reparent(this);
@@ -549,7 +552,7 @@ LLPanelStandStopFlying::LLPanelStandStopFlying() :
 }
 
 // static
-inline LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
+LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
 {
 	static LLPanelStandStopFlying* panel = getStandStopFlyingPanel();
 	return panel;
@@ -560,6 +563,11 @@ void LLPanelStandStopFlying::setStandStopFlyingMode(EStandStopFlyingMode mode)
 {
 	LLPanelStandStopFlying* panel = getInstance();
 
+	if (mode == SSFM_STAND)
+	{
+		LLFirstUse::sit();
+		LLFirstUse::notMoving(false);
+	}
 	panel->mStandButton->setVisible(SSFM_STAND == mode);
 	panel->mStopFlyingButton->setVisible(SSFM_STOP_FLYING == mode);
 
@@ -590,6 +598,7 @@ BOOL LLPanelStandStopFlying::postBuild()
 	mStandButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
 	mStandButton->setCommitCallback(boost::bind(&LLFloaterMove::enableInstance, TRUE));
 	mStandButton->setVisible(FALSE);
+	LLHints::registerHintTarget("stand_btn", mStandButton->getHandle());
 	
 	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
 	//mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
@@ -688,7 +697,7 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 {
 	LLPanelStandStopFlying* panel = new LLPanelStandStopFlying();
-	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_stand_stop_flying.xml");
+	panel->buildFromFile("panel_stand_stop_flying.xml");
 
 	panel->setVisible(FALSE);
 	//LLUI::getRootView()->addChild(panel);
@@ -701,6 +710,8 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 
 void LLPanelStandStopFlying::onStandButtonClick()
 {
+	LLFirstUse::sit(false);
+
 	LLSelectMgr::getInstance()->deselectAllForStandingUp();
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 

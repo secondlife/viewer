@@ -223,7 +223,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Simulator primitive usage:">
 				Ilość używanych primów:
 			</text>
-			<text name="objects_available" width="230">
+			<text name="objects_available">
 				[COUNT] z [MAX] ([AVAILABLE] jest dostępne)
 			</text>
 			<text name="Primitives parcel supports:">
@@ -271,11 +271,11 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Autoreturn">
 				Zwracaj obiekty innych Rezydentów (minut, 0 = wyłącz):
 			</text>
-			<text name="Object Owners:" width="108">
+			<text name="Object Owners:">
 				Właściciel obiektów:
 			</text>
-			<button label="Odśwież listę" label_selected="Odśwież listę" left="112" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." left="224" name="Return objects..."/>
+			<button label="Odśwież listę" label_selected="Odśwież listę" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type"/>
 				<name_list.columns name="online_status"/>

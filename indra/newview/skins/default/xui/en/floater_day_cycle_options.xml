@@ -359,9 +359,9 @@
              increment="1"
              initial_value="0"
              label="Hour"
-             label_width="30"
+             label_width="35"
              layout="topleft"
-             left_delta="25"
+             left_delta="20"
              max_val="100"
              name="WLCurKeyHour"
              top_pad="4"
@@ -374,13 +374,13 @@
              increment="5"
              initial_value="0"
              label="Min"
-             label_width="20"
+             label_width="45"
              layout="topleft"
              left_pad="5"
              max_val="55"
              name="WLCurKeyMin"
              top_delta="0"
-             width="60" />
+             width="85" />
             <text
              type="string"
              length="1"
@@ -456,9 +456,9 @@
              increment="1"
              initial_value="0"
              label="Hour"
-             label_width="30"
+             label_width="33"
              layout="topleft"
-             left_delta="0"
+             left_delta="-3"
              max_val="100"
              name="WLLengthOfDayHour"
              top_pad="4"
@@ -471,13 +471,13 @@
              increment="1"
              initial_value="0"
              label="Min"
-             label_width="20"
+             label_width="25"
              layout="topleft"
-             left_pad="5"
+             left_pad="2"
              max_val="59"
              name="WLLengthOfDayMin"
              top_delta="0"
-             width="60" />
+             width="65" />
             <spinner
              control_name="WLLengthOfDaySec"
              decimal_digits="0"
@@ -486,13 +486,13 @@
              increment="1"
              initial_value="24"
              label="Sec"
-             label_width="20"
+             label_width="25"
              layout="topleft"
-             left_pad="5"
+             left_pad="2"
              max_val="59"
              name="WLLengthOfDaySec"
              top_delta="0"
-             width="60"/>
+             width="65"/>
             <text
              type="string"
              halign="right"

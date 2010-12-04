@@ -38,6 +38,7 @@
 // newview
 #include "llagentdata.h" // for comparator
 #include "llavatariconctrl.h"
+#include "llavatarnamecache.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "lllistcontextmenu.h"
@@ -90,6 +91,20 @@ void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
 	}
 }
 
+void LLAvatarList::showPermissions(bool visible)
+{
+	// Save the value for new items to use.
+	mShowPermissions = visible;
+
+	// Enable or disable showing permissions icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for(std::vector<LLPanel*>::const_iterator it = items.begin(), end_it = items.end(); it != end_it; ++it)
+	{
+		static_cast<LLAvatarListItem*>(*it)->setShowPermissions(mShowPermissions);
+	}
+}
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
@@ -107,6 +122,7 @@ LLAvatarList::Params::Params()
 , show_info_btn("show_info_btn", true)
 , show_profile_btn("show_profile_btn", true)
 , show_speaking_indicator("show_speaking_indicator", true)
+, show_permissions_granted("show_permissions_granted", false)
 {
 }
 
@@ -116,11 +132,13 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowLastInteractionTime(p.show_last_interaction_time)
 , mContextMenu(NULL)
 , mDirty(true) // to force initial update
+, mNeedUpdateNames(false)
 , mLITUpdateTimer(NULL)
 , mShowIcons(true)
 , mShowInfoBtn(p.show_info_btn)
 , mShowProfileBtn(p.show_profile_btn)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
+, mShowPermissions(p.show_permissions_granted)
 {
 	setCommitOnSelectionChange(true);
 
@@ -133,7 +151,16 @@ LLAvatarList::LLAvatarList(const Params& p)
 		mLITUpdateTimer->setTimerExpirySec(0); // zero to force initial update
 		mLITUpdateTimer->start();
 	}
+	
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
 }
+
+
+void LLAvatarList::handleDisplayNamesOptionChanged()
+{
+	mNeedUpdateNames = true;
+}
+
 
 LLAvatarList::~LLAvatarList()
 {
@@ -153,6 +180,11 @@ void LLAvatarList::draw()
 	// Call refresh() after draw() to avoid flickering of avatar list items.
 
 	LLFlatListViewEx::draw();
+
+	if (mNeedUpdateNames)
+	{
+		updateAvatarNames();
+	}
 
 	if (mDirty)
 		refresh();
@@ -217,7 +249,6 @@ void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_i
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED SECTION
 //////////////////////////////////////////////////////////////////////////
-
 void LLAvatarList::refresh()
 {
 	bool have_names			= TRUE;
@@ -236,12 +267,15 @@ void LLAvatarList::refresh()
 
 	// Handle added items.
 	unsigned nadded = 0;
+	const std::string waiting_str = LLTrans::getString("AvatarNameWaiting");
+
 	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); it++)
 	{
-		std::string name;
 		const LLUUID& buddy_id = *it;
-		have_names &= (bool)gCacheName->getFullName(buddy_id, name);
-		if (!have_filter || findInsensitive(name, mNameFilter))
+		LLAvatarName av_name;
+		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
+
+		if (!have_filter || findInsensitive(av_name.mDisplayName, mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -250,7 +284,11 @@ void LLAvatarList::refresh()
 			}
 			else
 			{
-				addNewItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+				// *NOTE: If you change the UI to show a different string,
+				// be sure to change the filter code below.
+				addNewItem(buddy_id, 
+					       av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
+						   LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				modified = true;
 				nadded++;
 			}
@@ -272,10 +310,10 @@ void LLAvatarList::refresh()
 
 		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); it++)
 		{
-			std::string name;
 			const LLUUID& buddy_id = it->asUUID();
-			have_names &= (bool)gCacheName->getFullName(buddy_id, name);
-			if (!findInsensitive(name, mNameFilter))
+			LLAvatarName av_name;
+			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
+			if (!findInsensitive(av_name.mDisplayName, mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -321,20 +359,34 @@ void LLAvatarList::refresh()
 		onCommit();
 }
 
+void LLAvatarList::updateAvatarNames()
+{
+	std::vector<LLPanel*> items;
+	getItems(items);
+
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
+		item->updateAvatarName();
+	}
+	mNeedUpdateNames = false;
+}
+
+
 bool LLAvatarList::filterHasMatches()
 {
 	uuid_vec_t values = getIDs();
 
 	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); it++)
 	{
-		std::string name;
 		const LLUUID& buddy_id = *it;
-		BOOL have_name = gCacheName->getFullName(buddy_id, name);
+		LLAvatarName av_name;
+		bool have_name = LLAvatarNameCache::get(buddy_id, &av_name);
 
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(name, mNameFilter))
+		if (have_name && !findInsensitive(av_name.mDisplayName, mNameFilter))
 		{
 			continue;
 		}
@@ -368,7 +420,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->setName(name);
+	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
@@ -377,6 +429,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
+	item->setShowPermissions(mShowPermissions);
 
 	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
 
@@ -492,7 +545,7 @@ LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarList
 , mIsHideNumber(hide_number)
 {
 	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	buildFromFile( "panel_avatar_list_item.xml");
 }
 
 BOOL LLAvalineListItem::postBuild()
@@ -534,11 +587,13 @@ void LLAvalineListItem::setName(const std::string& name)
 		std::string hidden_name = LLTrans::getString("AvalineCaller", args);
 
 		LL_DEBUGS("Avaline") << "Avaline caller: " << uuid << ", name: " << hidden_name << LL_ENDL;
-		LLAvatarListItem::setName(hidden_name);
+		LLAvatarListItem::setAvatarName(hidden_name);
+		LLAvatarListItem::setAvatarToolTip(hidden_name);
 	}
 	else
 	{
 		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
+		LLAvatarListItem::setAvatarName(formatted_phone);
+		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 }

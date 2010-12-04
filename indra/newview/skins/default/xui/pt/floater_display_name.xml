@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="MUDAR NOME DE TELA">
+	<text name="info_text">
+		O nome que você selecionou para o seu avatar é denominado nome de tela. Você pode mudar seu nome de tela uma vez por semana.
+	</text>
+	<text name="lockout_text">
+		Você poderá mudar seu nome de tela depois de: [TIME].
+	</text>
+	<text name="set_name_label">
+		Novo nome de tela:
+	</text>
+	<text name="name_confirm_label">
+		Digite seu novo nome novamente para confirmá-lo:
+	</text>
+	<button label="Salvar" name="save_btn" tool_tip="Salvar o novo nome de tela"/>
+	<button label="Redefinir" name="reset_btn" tool_tip="Usar o mesmo nome como nome de tela e de usuário"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>
