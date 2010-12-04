@@ -63,7 +63,7 @@ public:
 		INSTALLING,
 		UP_TO_DATE,
 		TERMINAL,
-		ERROR
+		FAILURE
 	};
 
 	LLUpdaterService();
