@@ -98,6 +98,7 @@
 #include "llspatialpartition.h"
 #include "llmutelist.h"
 #include "lltoolpie.h"
+#include "llnotifications.h"
 
 
 #ifdef _DEBUG
@@ -281,6 +282,7 @@ BOOL	LLPipeline::sRenderAttachedLights = TRUE;
 BOOL	LLPipeline::sRenderAttachedParticles = TRUE;
 BOOL	LLPipeline::sRenderDeferred = FALSE;
 BOOL    LLPipeline::sAllowRebuildPriorityGroup = FALSE ;
+BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 
@@ -512,6 +514,24 @@ void LLPipeline::destroyGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
+
+//static
+void LLPipeline::throttleNewMemoryAllocation(BOOL disable)
+{
+	if(sMemAllocationThrottled != disable)
+	{
+		sMemAllocationThrottled = disable ;
+
+		if(sMemAllocationThrottled)
+		{
+			//send out notification
+			LLNotification::Params params("LowMemory");
+			LLNotifications::instance().add(params);
+
+			//release some memory.
+		}
+	}
+}
 
 void LLPipeline::resizeScreenTexture()
 {
@@ -8792,7 +8812,7 @@ void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL textu
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
-	LLMemType mt_gi(LLMemType::MTYPE_PIPELINE_GENERATE_IMPOSTOR);
+	LLMemType mt_gi(LLMemType::MTYPE_PIPELINE_GENERATE_IMPOSTOR);	
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();

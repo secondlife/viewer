@@ -40,6 +40,7 @@
 #include "llvertexbuffer.h"
 #include "llviewerdisplay.h"
 #include "llrender.h"
+#include "pipeline.h"
 
 // static
 LLViewerDynamicTexture::instance_list_t LLViewerDynamicTexture::sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
@@ -205,7 +206,7 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
 	sNumRenders = 0;
-	if (gGLManager.mIsDisabled)
+	if (gGLManager.mIsDisabled || LLPipeline::sMemAllocationThrottled)
 	{
 		return TRUE;
 	}
@@ -221,9 +222,8 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 			if (dynamicTexture->needsRender())
 			{				
 				if(gGLManager.mDebugGPU)
-				{				
+				{			
 					llinfos << "class type: " << (S32)dynamicTexture->getType() << llendl;
-					LLGLState::dumpStates() ;
 				}
 
 				glClear(GL_DEPTH_BUFFER_BIT);

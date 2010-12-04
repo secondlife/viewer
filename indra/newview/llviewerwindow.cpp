@@ -3874,6 +3874,19 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		return FALSE;
 	}
+	//check if there is enough memory for the snapshot image
+	if(LLPipeline::sMemAllocationThrottled)
+	{
+		return FALSE ; //snapshot taking is disabled due to memory restriction.
+	}
+	if(image_width * image_height > (1 << 22)) //if snapshot image is larger than 2K by 2K
+	{
+		if(!LLMemory::tryToAlloc(NULL, image_width * image_height * 3))
+		{
+			llwarns << "No enough memory to take the snapshot with size (w : h): " << image_width << " : " << image_height << llendl ;
+			return FALSE ; //there is no enough memory for taking this snapshot.
+		}
+	}
 
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;

@@ -604,7 +604,7 @@ LLAppViewer::~LLAppViewer()
 }
 
 bool LLAppViewer::init()
-{
+{	
 	//
 	// Start of the application
 	//
@@ -631,6 +631,9 @@ bool LLAppViewer::init()
 	
 	if (!initConfiguration())
 		return false;
+
+	//set the max heap size.
+	initMaxHeapSize() ;
 
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
@@ -949,6 +952,96 @@ bool LLAppViewer::init()
 	return true;
 }
 
+void LLAppViewer::initMaxHeapSize()
+{
+	//set the max heap size.
+	//here is some info regarding to the max heap size:
+	//------------------------------------------------------------------------------------------
+	// OS       | setting | SL address bits | max manageable memory space | max heap size
+	// Win 32   | default | 32-bit          | 2GB                         | < 1.7GB
+	// Win 32   | /3G     | 32-bit          | 3GB                         | < 1.7GB or 2.7GB
+	//Linux 32  | default | 32-bit          | 3GB                         | < 2.7GB
+	//Linux 32  |HUGEMEM  | 32-bit          | 4GB                         | < 3.7GB
+	//64-bit OS |default  | 32-bit          | 4GB                         | < 3.7GB
+	//64-bit OS |default  | 64-bit          | N/A (> 4GB)                 | N/A (> 4GB)
+	//------------------------------------------------------------------------------------------
+	//currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
+
+	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
+	F32 max_heap_size_gb = gSavedSettings.getF32("MaxHeapSize") ;
+	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemeoyFailurePreventionEnabled") ;
+
+	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
+}
+
+void LLAppViewer::checkMemory()
+{
+	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
+	const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
+	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
+	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
+	static void* last_reserved_address = NULL ;
+
+	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
+	{
+		return ;
+	}
+	mMemCheckTimer.reset() ;
+
+	if(gGLManager.mDebugGPU)
+	{
+		//update the availability of memory
+		LLMemory::updateMemoryInfo() ;
+	}
+
+	//check the virtual address space fragmentation
+	if(!last_reserved_address)
+	{
+		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+	}
+	else
+	{
+		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+		if(!last_reserved_address) //failed, try once more
+		{
+			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+		}
+	}
+
+	S32 is_low = !last_reserved_address || LLMemory::isMemoryPoolLow() ;
+
+	//if(is_low < 0) //to force quit
+	//{
+	//	if(force_quit_timer > MAX_QUIT_WAIT_TIME) //just hit the limit for the first time
+	//	{
+	//		//send out the notification to tell the viewer is about to quit in 30 seconds.
+	//		LLNotification::Params params("ForceQuitDueToLowMemory");
+	//		LLNotifications::instance().add(params);
+
+	//		force_quit_timer = MAX_QUIT_WAIT_TIME - MEMORY_CHECK_INTERVAL ;
+	//	}
+	//	else
+	//	{
+	//		force_quit_timer -= MEMORY_CHECK_INTERVAL ;
+	//		if(force_quit_timer < 0.f)
+	//		{
+	//			forceQuit() ; //quit
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
+	//}
+
+	LLPipeline::throttleNewMemoryAllocation(!is_low ? FALSE : TRUE) ;		
+	
+	if(is_low)
+	{
+		LLMemory::logMemoryInfo() ;
+	}
+}
+
 static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
 static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
 static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
@@ -983,8 +1076,7 @@ bool LLAppViewer::mainLoop()
 	LLVoiceChannel::initClass();
 	LLVoiceClient::getInstance()->init(gServicePump);
 	LLTimer frameTimer,idleTimer;
-	LLTimer debugTime;
-	LLFrameTimer memCheckTimer;
+	LLTimer debugTime;	
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	joystick->setNeedsReset(true);
 
@@ -993,9 +1085,7 @@ bool LLAppViewer::mainLoop()
     // with each frame, no need to instantiate a new LLSD event object each
     // time. Obviously, if that changes, just instantiate the LLSD at the
     // point of posting.
-    LLSD newFrame;
-
-	const F32 memory_check_interval = 1.0f ; //second
+    LLSD newFrame;	
 
 	// Handle messages
 	while (!LLApp::isExiting())
@@ -1006,18 +1096,8 @@ bool LLAppViewer::mainLoop()
 		llclearcallstacks;
 
 		//check memory availability information
-		{
-			if(memory_check_interval < memCheckTimer.getElapsedTimeF32())
-			{
-				memCheckTimer.reset() ;
-
-				//update the availability of memory
-				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
-			}
-			llcallstacks << "Available physical mem(KB): " << mAvailPhysicalMemInKB << llcallstacksendl ;
-			llcallstacks << "Available virtual mem(KB): " << mAvailVirtualMemInKB << llcallstacksendl ;
-		}
-
+		checkMemory() ;
+		
 		try
 		{
 			pingMainloopTimeout("Main:MiscNativeWindowEvents");
@@ -1181,7 +1261,7 @@ bool LLAppViewer::mainLoop()
 				idleTimer.reset();
 				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
 				S32 total_work_pending = 0;
-				S32 total_io_pending = 0;				
+				S32 total_io_pending = 0;	
 				while(!is_slow)//do not unpause threads if the frame rates are very low.
 				{
 					S32 work_pending = 0;
@@ -1248,15 +1328,7 @@ bool LLAppViewer::mainLoop()
 		}
 		catch(std::bad_alloc)
 		{			
-			{
-				llinfos << "Availabe physical memory(KB) at the beginning of the frame: " << mAvailPhysicalMemInKB << llendl ;
-				llinfos << "Availabe virtual memory(KB) at the beginning of the frame: " << mAvailVirtualMemInKB << llendl ;
-
-				LLMemoryInfo::getAvailableMemoryKB(mAvailPhysicalMemInKB, mAvailVirtualMemInKB) ;
-
-				llinfos << "Current availabe physical memory(KB): " << mAvailPhysicalMemInKB << llendl ;
-				llinfos << "Current availabe virtual memory(KB): " << mAvailVirtualMemInKB << llendl ;
-			}
+			LLMemory::logMemoryInfo(TRUE) ;
 
 			//stop memory leaking simulation
 			LLFloaterMemLeak* mem_leak_instance =

@@ -26,8 +26,6 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
-
-
 extern S32 gTotalDAlloc;
 extern S32 gTotalDAUse;
 extern S32 gDACount;
@@ -44,8 +42,180 @@ public:
 	// Return the resident set size of the current process, in bytes.
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
+
+	static void* tryToAlloc(void* address, U32 size);
+	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
+	static void updateMemoryInfo() ;
+	static void logMemoryInfo(BOOL update = FALSE);
+	static S32  isMemoryPoolLow();
+
+	static U32 getAvailableMemKB() ;
+	static U32 getMaxMemKB() ;
+	static U32 getAllocatedMemKB() ;
 private:
 	static char* reserveMem;
+	static U32 sAvailPhysicalMemInKB ;
+	static U32 sMaxPhysicalMemInKB ;
+	static U32 sAllocatedMemInKB;
+	static U32 sAllocatedPageSizeInKB ;
+
+	static U32 sMaxHeapSizeInKB;
+	static BOOL sEnableMemoryFailurePrevention;
+};
+
+class LL_COMMON_API LLPrivateMemoryPool
+{
+public:
+	class LL_COMMON_API LLMemoryBlock //each block is devided into slots uniformly
+	{
+	public: 
+		LLMemoryBlock() ;
+		~LLMemoryBlock() ;
+
+		void init(char* buffer, U32 buffer_size, U32 slot_size) ;
+		void setBuffer(char* buffer, U32 buffer_size) ;
+
+		char* allocate() ;
+		void  free(void* addr) ;
+
+		bool empty() {return !mAllocatedSlots;}
+		bool isFull() {return mAllocatedSlots == mTotalSlots;}
+		bool isFree() {return !mTotalSlots;}
+
+		U32  getSlotSize()const {return mSlotSize;}
+		U32  getTotalSlots()const {return mTotalSlots;}
+		U32  getBufferSize()const {return mBufferSize;}
+		char* getBuffer() const {return mBuffer;}
+
+	private:
+		char* mBuffer;
+		U32   mSlotSize ; //when the block is not initialized, it is the buffer size.
+		U32   mBufferSize ;
+		U32   mUsageBits ;
+		U8    mTotalSlots ;
+		U8    mAllocatedSlots ;
+		U8    mDummySize ; //size of extra U32 reserved for mUsageBits.
+
+	public:
+		LLMemoryBlock* mPrev ;
+		LLMemoryBlock* mNext ;
+		LLMemoryBlock* mSelf ;
+	};
+
+	class LL_COMMON_API LLMemoryChunk //is divided into memory blocks.
+	{
+	public:
+		LLMemoryChunk() ;
+		~LLMemoryChunk() ;
+
+		void init(char* buffer, U32 buffer_size, U32 min_slot_size, U32 max_slot_size, U32 min_block_size, U32 max_block_size) ;
+		void setBuffer(char* buffer, U32 buffer_size) ;
+
+		bool empty() ;
+		
+		char* allocate(U32 size) ;
+		void  free(void* addr) ;
+
+		const char* getBuffer() const {return mBuffer;}
+		U32 getBufferSize() const {return mBufferSize;}
+
+		static U32 getMaxOverhead(U32 data_buffer_size, U32 min_page_size) ;
+	
+	private:
+		LLMemoryBlock* addBlock(U32 blk_idx) ;
+		void popAvailBlockList(U32 blk_idx) ;
+		void addToFreeSpace(LLMemoryBlock* blk) ;
+		void removeFromFreeSpace(LLMemoryBlock* blk) ;
+		void removeBlock(LLMemoryBlock* blk) ;
+		void addToAvailBlockList(LLMemoryBlock* blk) ;
+		LLMemoryBlock* createNewBlock(LLMemoryBlock** cur_idxp, U32 buffer_size, U32 slot_size, U32 blk_idx) ;
+
+	private:
+		LLMemoryBlock** mAvailBlockList ;//256 by mMinSlotSize
+		LLMemoryBlock** mFreeSpaceList;
+		LLMemoryBlock*  mBlocks ; //index of blocks by address.
+		
+		char* mBuffer ;
+		U32   mBufferSize ;
+		char* mDataBuffer ;
+		char* mMetaBuffer ;
+		U32   mMinBlockSize ;
+		U32   mMaxBlockSize;
+		U32   mMinSlotSize ;
+		U16   mBlockLevels;
+		U16   mPartitionLevels;
+
+	public:
+		//form a linked list
+		LLMemoryChunk* mNext ;
+		LLMemoryChunk* mPrev ;
+
+		U32 mKey ; //= mBuffer
+	} ;
+
+public:
+	LLPrivateMemoryPool(U32 max_size, bool threaded) ;
+	~LLPrivateMemoryPool() ;
+
+	char *allocate(U32 size) ;
+	void  free(void* addr) ;
+	void  dump() ;
+
+private:
+	void lock() ;
+	void unlock() ;	
+	S32 getChunkIndex(U32 size) ;
+	LLMemoryChunk*  addChunk(S32 chunk_index) ;
+	void removeChunk(LLMemoryChunk* chunk) ;
+	U16  findChunk(const char* addr) ;
+	void destroyPool() ;
+
+private:
+	LLMutex* mMutexp ;
+	U32  mMaxPoolSize;
+	U32  mReservedPoolSize ;
+	
+	enum
+	{
+		SMALL_ALLOCATION = 0, //from 8 bytes to 2KB(exclusive), page size 2KB, max chunk size is 4MB.
+		MEDIUM_ALLOCATION,    //from 2KB to 512KB(exclusive), page size 32KB, max chunk size 4MB
+		LARGE_ALLOCATION,     //from 512KB to 4MB(inclusive), page size 64KB, max chunk size 16MB
+		SUPER_ALLOCATION      //allocation larger than 4MB.
+	};
+
+	LLMemoryChunk* mChunkList[SUPER_ALLOCATION] ; //all memory chunks reserved by this pool, sorted by address
+	std::vector<LLMemoryChunk*> mChunks ;
+	U16 mNumOfChunks ;
+	U16 mChunkVectorCapacity ;
+};
+
+//
+//the below singleton is used to test the private memory pool.
+//
+class LLPrivateMemoryPoolTester
+{
+private:
+	LLPrivateMemoryPoolTester() ;
+	~LLPrivateMemoryPoolTester() ;
+
+public:
+	static LLPrivateMemoryPoolTester* getInstance() ;
+	static void destroy() ;
+
+	void run() ;	
+
+private:
+	void correctnessTest() ;
+	void reliabilityTest() ;
+	void performanceTest() ;
+	void fragmentationtest() ;
+
+	void* operator new(size_t);
+    void  operator delete(void*);
+
+private:
+	static LLPrivateMemoryPoolTester* sInstance;
+	static LLPrivateMemoryPool* sPool ;
 };
 
 // LLRefCount moved to llrefcount.h

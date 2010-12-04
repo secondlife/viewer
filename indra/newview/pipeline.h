@@ -334,6 +334,8 @@ public:
 
 	static void updateRenderDeferred();
 
+	static void throttleNewMemoryAllocation(BOOL disable);
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -477,8 +479,9 @@ public:
 	static BOOL				sRenderAttachedParticles;
 	static BOOL				sRenderDeferred;
 	static BOOL             sAllowRebuildPriorityGroup;
+	static BOOL             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
-	static F32				sMinRenderSize;
+	static F32				sMinRenderSize;	
 
 	//screen texture
 	U32 					mScreenWidth;

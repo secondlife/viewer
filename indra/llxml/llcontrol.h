@@ -385,7 +385,8 @@ class LLCachedControl
 {
 public:
 	LLCachedControl(LLControlGroup& group,
-					const std::string& name, 
+					const std::string& name,
+
 					const T& default_value, 
 					const std::string& comment = "Declared In Code")
 	{

@@ -166,8 +166,8 @@ public:
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
-	virtual bool getMasterSystemAudioMute();
-	
+	virtual bool getMasterSystemAudioMute();	
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -184,11 +184,12 @@ protected:
 
 private:
 
+	void initMaxHeapSize();
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
 
 	bool initCache(); // Initialize local client cache.
-
+	void checkMemory() ;
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.
@@ -258,8 +259,7 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
-	U32 mAvailPhysicalMemInKB ;
-	U32 mAvailVirtualMemInKB ;
+	LLFrameTimer mMemCheckTimer;
 public:
 	//some information for updater
 	typedef struct

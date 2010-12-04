@@ -116,7 +116,7 @@ public:
 	U32 getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
 
 	//get the available memory infomation in KiloBytes.
-	static void getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb);
+	static U32 getAvailableMemoryKB();
 };
 
 
