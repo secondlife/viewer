@@ -90,8 +90,7 @@ public:
 										fading_time_secs; // Number of seconds while a toast is transparent
 
 
-		Optional<toast_callback_t>		on_delete_toast,
-										on_mouse_enter;
+		Optional<toast_callback_t>		on_delete_toast;
 		Optional<bool>					can_fade,
 										can_be_stored,
 										enable_hide_btn,
@@ -182,7 +181,6 @@ public:
 
 	// Registers signals/callbacks for events
 	toast_signal_t mOnFadeSignal;
-	toast_signal_t mOnMouseEnterSignal;
 	toast_signal_t mOnDeleteToastSignal;
 	toast_signal_t mOnToastDestroyedSignal;
 	boost::signals2::connection setOnFadeCallback(toast_callback_t cb) { return mOnFadeSignal.connect(cb); }
