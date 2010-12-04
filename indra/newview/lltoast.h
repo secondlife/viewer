@@ -141,7 +141,7 @@ public:
 	//
 	virtual void setVisible(BOOL show);
 
-	/*virtual*/ void setBackgroundOpaque(BOOL b);
+	virtual void setBackgroundOpaque(BOOL b);
 	//
 	virtual void hide();
 
@@ -198,6 +198,10 @@ public:
 
 	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
 
+	bool			getTransparentState() const { return mIsTransparent; }
+	virtual void	setTransparentState(bool transparent);
+
+
 private:
 
 	void onToastMouseEnter();
@@ -205,8 +209,6 @@ private:
 	void onToastMouseLeave();
 
 	void expire();
-
-	void setTransparentState(bool transparent);
 
 	LLUUID				mNotificationID;
 	LLUUID				mSessionID;
