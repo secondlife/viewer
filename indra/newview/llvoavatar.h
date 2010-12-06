@@ -690,6 +690,7 @@ public:
 protected:
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();
+	void				rebuildRiggedAttachments( void );
 
 	//--------------------------------------------------------------------
 	// Map of attachment points, by ID
