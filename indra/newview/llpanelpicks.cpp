@@ -781,7 +781,7 @@ void LLPanelPicks::showAccordion(const std::string& name, bool show)
 
 void LLPanelPicks::onPanelPickClose(LLPanel* panel)
 {
-	panel->setVisible(FALSE);
+	getProfilePanel()->closePanel(panel);
 }
 
 void LLPanelPicks::onPanelPickSave(LLPanel* panel)
