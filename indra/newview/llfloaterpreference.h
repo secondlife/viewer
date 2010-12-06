@@ -162,6 +162,7 @@ private:
 	bool mLanguageChanged;
 	
 	bool mOriginalHideOnlineStatus;
+	bool mFavoritesFileMayExist;
 	std::string mDirectoryVisibility;
 };
 
@@ -183,6 +184,8 @@ public:
 private:
 	//for "Only friends and groups can call or IM me"
 	static void showFriendsOnlyWarning(LLUICtrl*, const LLSD&);
+	//for "Show my Favorite Landmarks at Login"
+	static void showFavoritesOnLoginWarning(LLUICtrl* checkbox, const LLSD& value);
 
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;

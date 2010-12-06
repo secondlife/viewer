@@ -330,6 +330,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
+
+	mFavoritesFileMayExist = gSavedSettings.getBOOL("ShowFavoritesOnLogin");
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -488,6 +490,13 @@ void LLFloaterPreference::apply()
 	{
 		updateDoubleClickSettings();
 		mDoubleClickActionDirty = false;
+	}
+
+	if (mFavoritesFileMayExist && !gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
+	{
+		mFavoritesFileMayExist = false;
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+		LLFile::remove(filename);
 	}
 }
 
@@ -1491,6 +1500,10 @@ BOOL LLPanelPreference::postBuild()
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
 	}
+	if (hasChild("favorites_on_login_check"))
+	{
+		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
+	}
 
 	// Panel Advanced
 	if (hasChild("modifier_combo"))
@@ -1555,6 +1568,14 @@ void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& v
 	if (checkbox && checkbox->getValue())
 	{
 		LLNotificationsUtil::add("FriendsAndGroupsOnly");
+	}
+}
+
+void LLPanelPreference::showFavoritesOnLoginWarning(LLUICtrl* checkbox, const LLSD& value)
+{
+	if (checkbox && checkbox->getValue())
+	{
+		LLNotificationsUtil::add("FavoritesOnLogin");
 	}
 }
 

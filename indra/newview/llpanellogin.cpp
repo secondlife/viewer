@@ -262,9 +262,43 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	gResponsePtr = LLIamHereLogin::build( this );
 
 	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
-	
+
+	// Show last logged in user favorites in "Start at" combo if corresponding option is enabled.
+	if (gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
+	{
+		addFavoritesToStartLocation();
+	}
+
 	updateLocationCombo(false);
 
+}
+
+void LLPanelLogin::addFavoritesToStartLocation()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
+	combo->addSeparator();
+	LLSDSerialize::fromXML(fav_llsd, file);
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		LLSD user_llsd = iter->second;
+		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
+			iter1 != user_llsd.endArray(); ++iter1)
+		{
+			std::string label = (*iter1)["name"].asString();
+			std::string value = (*iter1)["slurl"].asString();
+			if(label != "" && value != "")
+			{
+				combo->add(label, value);
+			}
+		}
+
+	}
 }
 
 // force the size to be correct (XML doesn't seem to be sufficient to do this)
