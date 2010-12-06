@@ -1502,8 +1502,9 @@ const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHIN
 
 bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const LLBBox& bbox)
 {
-	return mParcelOverlay
-		&& ( mParcelOverlay->isOwned(pos)
+	return (mParcelOverlay != NULL)
+		&& (mParcelOverlay->isOwnedSelf(pos)
+			|| mParcelOverlay->isOwnedGroup(pos)
 			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
 				&& mParcelOverlay->encroachesOwned(bbox)) );
 }
