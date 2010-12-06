@@ -908,6 +908,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 		}
+
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	previewp->getWindow()->decBusyCount();
 	// only show fullscreen preview when in freeze frame mode
@@ -1533,8 +1535,6 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	if (previewp && view)
 	{
 		previewp->updateSnapshot(TRUE);
-
-		gViewerWindow->playSnapshotAnimAndSound();
 	}
 }
 
@@ -2206,8 +2206,6 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
-
-	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLFloaterSnapshot::onClose(bool app_quitting)
