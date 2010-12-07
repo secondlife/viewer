@@ -153,6 +153,7 @@ private:
 	LLPanelClassifiedInfo* mPanelClassifiedInfo;
 	LLPanelPickEdit* mPanelPickEdit;
 	LLToggleableMenu* mPlusMenu;
+	LLUICtrl* mNoItemsLabel;
 
 	// <classified_id, edit_panel>
 	typedef std::map<LLUUID, LLPanelClassifiedEdit*> panel_classified_edit_map_t;

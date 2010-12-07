@@ -56,7 +56,7 @@
      height="22"
      layout="topleft"
      left_pad="0"
-     max_length="127"
+     max_length_bytes="127"
      name="desc"
      width="296" />
     <text_editor

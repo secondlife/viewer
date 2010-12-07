@@ -77,6 +77,7 @@
 #include "llvosky.h"
 
 // linden library includes
+#include "llavatarnamecache.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -179,6 +180,8 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
+void handleNameTagOptionChanged(const LLSD& newvalue);	
+void handleDisplayNamesOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -213,6 +216,18 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	
 	return false;
 }
+
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::invalidateNameTags();
+}
+
+void handleDisplayNamesOptionChanged(const LLSD& newvalue)
+{
+	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLVOAvatar::invalidateNameTags();
+}
+
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
  {
@@ -265,9 +280,11 @@ std::string LLFloaterPreference::sSkin = "";
 // LLFloaterPreference
 
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
-: LLFloater(key),
-mGotPersonalInfo(false),
-mOriginalIMViaEmail(false)
+	: LLFloater(key),
+	mGotPersonalInfo(false),
+	mOriginalIMViaEmail(false),
+	mLanguageChanged(false),
+	mDoubleClickActionDirty(false)
 {
 	
 	
@@ -309,7 +326,14 @@ mOriginalIMViaEmail(false)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
+
+	mCommitCallbackRegistrar.add("Pref.CommitDoubleClickChekbox",	boost::bind(&LLFloaterPreference::onDoubleClickCheckBox, this, _1));
+	mCommitCallbackRegistrar.add("Pref.CommitRadioDoubleClick",	boost::bind(&LLFloaterPreference::onDoubleClickRadio, this));
 	
+	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
+
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 }
 
@@ -362,11 +386,23 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
+<<<<<<< local
 	
+=======
+
+	updateDoubleClickControls();
+
+>>>>>>> other
 	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
+<<<<<<< local
 	
+=======
+
+	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+
+>>>>>>> other
 	// if floater is opened before login set default localized busy message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
@@ -498,8 +534,17 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
+<<<<<<< local
 	
 	saveAvatarProperties();
+=======
+
+	if (mDoubleClickActionDirty)
+	{
+		updateDoubleClickSettings();
+		mDoubleClickActionDirty = false;
+	}
+>>>>>>> other
 }
 
 void LLFloaterPreference::cancel()
@@ -526,6 +571,12 @@ void LLFloaterPreference::cancel()
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
+
+	if (mDoubleClickActionDirty)
+	{
+		updateDoubleClickControls();
+		mDoubleClickActionDirty = false;
+	}
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -579,7 +630,14 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setVisible( false);
 	}
+<<<<<<< local
 	
+=======
+
+	// Forget previous language changes.
+	mLanguageChanged = false;
+
+>>>>>>> other
 	// Display selected maturity icons.
 	onChangeMaturity();
 	
@@ -737,6 +795,18 @@ void LLFloaterPreference::onClickBrowserClearCache()
 	LLNotificationsUtil::add("ConfirmClearBrowserCache", LLSD(), LLSD(), callback_clear_browser_cache);
 }
 
+// Called when user changes language via the combobox.
+void LLFloaterPreference::onLanguageChange()
+{
+	// Let the user know that the change will only take effect after restart.
+	// Do it only once so that we're not too irritating.
+	if (!mLanguageChanged)
+	{
+		LLNotificationsUtil::add("ChangeLanguage");
+		mLanguageChanged = true;
+	}
+}
+
 void LLFloaterPreference::onClickSetCache()
 {
 	std::string cur_name(gSavedSettings.getString("CacheLocation"));
@@ -830,7 +900,7 @@ void LLFloaterPreference::buildPopupLists()
 		
 		LLScrollListItem* item = NULL;
 		
-		bool show_popup = formp->getIgnored();
+		bool show_popup = !formp->getIgnored();
 		if (!show_popup)
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -1182,7 +1252,7 @@ void LLFloaterPreference::onClickDisablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		templatep->mForm->setIgnored(false);
+		templatep->mForm->setIgnored(true);
 	}
 	
 	buildPopupLists();
@@ -1196,7 +1266,7 @@ void LLFloaterPreference::resetAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(true);
+			iter->second->mForm->setIgnored(false);
 		}
 	}
 }
@@ -1209,7 +1279,7 @@ void LLFloaterPreference::setAllIgnored()
 	{
 		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
 		{
-			iter->second->mForm->setIgnored(false);
+			iter->second->mForm->setIgnored(true);
 		}
 	}
 }
@@ -1273,7 +1343,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("log_path_string")->setEnabled(FALSE);// LineEditor becomes readonly in this case.
 	getChildView("log_path_button")->setEnabled(TRUE);
-	
+	childEnable("logfile_name_datestamp");	
 	std::string display_email(email);
 	getChild<LLUICtrl>("email_address")->setValue(display_email);
 	
@@ -1345,6 +1415,68 @@ void LLFloaterPreference::onClickBlockList()
 	}
 }
 
+void LLFloaterPreference::onDoubleClickCheckBox(LLUICtrl* ctrl)
+{
+	if (!ctrl) return;
+	mDoubleClickActionDirty = true;
+	LLRadioGroup* radio_double_click_action = getChild<LLRadioGroup>("double_click_action");
+	if (!radio_double_click_action) return;
+	// select default value("teleport") in radio-group.
+	radio_double_click_action->setSelectedIndex(0);
+	// set radio-group enabled depending on state of checkbox
+	radio_double_click_action->setEnabled(ctrl->getValue());
+}
+
+void LLFloaterPreference::onDoubleClickRadio()
+{
+	mDoubleClickActionDirty = true;
+}
+
+void LLFloaterPreference::updateDoubleClickSettings()
+{
+	LLCheckBoxCtrl* double_click_action_cb = getChild<LLCheckBoxCtrl>("double_click_chkbox");
+	if (!double_click_action_cb) return;
+	bool enable = double_click_action_cb->getValue().asBoolean();
+
+	LLRadioGroup* radio_double_click_action = getChild<LLRadioGroup>("double_click_action");
+	if (!radio_double_click_action) return;
+	
+	// enable double click radio-group depending on state of checkbox
+	radio_double_click_action->setEnabled(enable);
+	
+	if (!enable)
+	{
+		// set double click action settings values to false if checkbox was unchecked
+		gSavedSettings.setBOOL("DoubleClickAutoPilot", false);
+		gSavedSettings.setBOOL("DoubleClickTeleport", false);
+	}
+	else
+	{
+		std::string selected = radio_double_click_action->getValue().asString();
+		bool teleport_selected = selected == "radio_teleport";
+		// set double click action settings values depending on chosen radio-button
+		gSavedSettings.setBOOL( "DoubleClickTeleport", teleport_selected );
+		gSavedSettings.setBOOL( "DoubleClickAutoPilot", !teleport_selected );
+	}
+}
+
+void LLFloaterPreference::updateDoubleClickControls()
+{
+	// check is one of double-click actions settings enabled
+	bool double_click_action_enabled = gSavedSettings.getBOOL("DoubleClickAutoPilot") || gSavedSettings.getBOOL("DoubleClickTeleport");
+	LLCheckBoxCtrl* double_click_action_cb = getChild<LLCheckBoxCtrl>("double_click_chkbox");
+	if (double_click_action_cb)
+	{
+		// check checkbox if one of double-click actions settings enabled, uncheck otherwise
+		double_click_action_cb->setValue(double_click_action_enabled);
+	}
+	LLRadioGroup* double_click_action_radio = getChild<LLRadioGroup>("double_click_action");
+	if (!double_click_action_radio) return;
+	// set radio-group enabled if one of double-click actions settings enabled
+	double_click_action_radio->setEnabled(double_click_action_enabled);
+	// select button in radio-group depending on setting
+	double_click_action_radio->setSelectedIndex(gSavedSettings.getBOOL("DoubleClickAutoPilot"));
+}
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
 {

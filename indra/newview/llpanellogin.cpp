@@ -205,7 +205,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	getChild<LLLineEditor>("username_edit")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
@@ -231,7 +230,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
 
-	std::string channel = gSavedSettings.getString("VersionChannelName");
+	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
@@ -501,8 +500,16 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	LLSD identifier = credential->getIdentifier();
 	if((std::string)identifier["type"] == "agent") 
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["first_name"] + " " + 
-								(std::string)identifier["last_name"]);	
+		std::string firstname = identifier["first_name"].asString();
+		std::string lastname = identifier["last_name"].asString();
+	    std::string login_id = firstname;
+	    if (!lastname.empty() && lastname != "Resident")
+	    {
+		    // support traditional First Last name SLURLs
+		    login_id += " ";
+		    login_id += lastname;
+	    }
+		sInstance->getChild<LLUICtrl>("username_edit")->setValue(login_id);	
 	}
 	else if((std::string)identifier["type"] == "account")
 	{
@@ -566,7 +573,8 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
-	if (separator_index == username.npos)
+	if (separator_index == username.npos
+		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
 		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
@@ -583,9 +591,23 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	}
 	else
 	{
+		// Be lenient in terms of what separators we allow for two-word names
+		// and allow legacy users to login with firstname.lastname
+		separator_index = username.find_first_of(" ._");
 		std::string first = username.substr(0, separator_index);
-		std::string last = username.substr(separator_index, username.npos);
+		std::string last;
+		if (separator_index != username.npos)
+		{
+			last = username.substr(separator_index+1, username.npos);
 		LLStringUtil::trim(last);
+		}
+		else
+		{
+			// ...on Linden grids, single username users as considered to have
+			// last name "Resident"
+			// *TODO: Make login.cgi support "account_name" like above
+			last = "Resident";
+		}
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
@@ -795,7 +817,7 @@ void LLPanelLogin::loadLoginPage()
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
 
-	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
+	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);
 
 	oStr << "&channel=" << curl_channel;
@@ -805,7 +827,7 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLoginID().c_str(), 0);
+	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLabel().c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());

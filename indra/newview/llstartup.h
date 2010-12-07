@@ -70,6 +70,7 @@ typedef enum {
 
 // exported symbols
 extern bool gAgentMovementCompleted;
+extern S32  gMaxAgentGroups;
 extern LLPointer<LLViewerTexture> gStartTexture;
 
 class LLStartUp
@@ -87,7 +88,11 @@ public:
 	// Load default fonts not already loaded at start screen
 	static void fontInit();
 
+	static void initNameCache();
+	
 	static void copyLibraryGestures(const std::string& same_gender_gestures);
+
+	static void cleanupNameCache();
 
 	// outfit_folder_name can be a folder anywhere in your inventory, 
 	// but the name must be a case-sensitive exact match.

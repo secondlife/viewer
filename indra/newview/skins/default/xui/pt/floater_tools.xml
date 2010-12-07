@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="BUILD TOOLS" title="" width="288">
+<floater name="toolbox floater" short_title="BUILD TOOLS" title="">
 	<floater.string name="status_rotate">
 		Arrastar as faixas coloridas para girar o objeto
 	</floater.string>
@@ -171,21 +171,21 @@
 				Criador:
 			</text>
 			<text name="Creator Name">
-				Thrax Linden
+				Mrs. Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Proprietário:
 			</text>
 			<text name="Owner Name">
-				Thrax Linden
+				Mrs. Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupo:
 			</text>
-			<button label="Definir..." label_selected="Definir..." name="button set group" tool_tip="Selecione o grupo que terá acesso à autorização do objeto"/>
 			<name_box initial_value="Carregando..." name="Group Name Proxy"/>
-			<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
+			<button label="Definir..." label_selected="Definir..." name="button set group" tool_tip="Selecione o grupo que terá acesso à autorização do objeto"/>
 			<check_box label="Compartilhar" name="checkbox share with group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto.  Faça uma doação para ativar restrições de função."/>
+			<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
 			<text name="label click action">
 				Clique para:
 			</text>
@@ -437,8 +437,9 @@
 				<combo_box.item label="Sulcos" name="suction"/>
 				<combo_box.item label="Weave" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
-				Repetições/Face
+			<check_box initial_value="falso" label="Alinhar planares" name="checkbox planar align" tool_tip="Alinhar texturas dos planos selecionados com o plano selecionado por último. Requer mapeamento planar da textura."/>
+			<text name="rpt">
+				Repetições / Plano
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Inverter" name="checkbox flip s"/>

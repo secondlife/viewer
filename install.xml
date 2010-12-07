@@ -366,23 +366,23 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c7e317bec481b7efa2a0319e163dcc65</string>
+            <string>261bcd3387066cf0a1d46549400052b5</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20080818.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20101007.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>abd2b4ba4ac993f19d82804af387eb7c</string>
+            <string>8490d97430c12c2e1ac19ff80a8d4db4</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20080818.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20101007.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>1a55dec2907821f5f785648a660126c3</string>
+            <string>bab1babcb01ff9849b7f072d352e1ecd</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20080611.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20101007.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1408,7 +1408,7 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>vivox</key>
+      <key>slvoice</key>
       <map>
         <key>copyright</key>
         <string> </string>
@@ -1419,23 +1419,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>aa144917d0e33453d3c2cc2c05c6c47c</string>
+            <string>2f9b3528d4b5f858fb8dcee4b6dd5188</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-darwin-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20101117a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>98f7945755f3ee8e52f685a3eff4d7be</string>
+            <string>cde4728b8a75a76c72a8785815cb769f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-linux-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20101117a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e8fdd46cb026c2ec72c4489eb3bf39c1</string>
+            <string>940ac55a6d0141c958bf2b14939d8474</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20101117a.tar.bz2</uri>
           </map>
         </map>
       </map>

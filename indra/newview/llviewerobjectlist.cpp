@@ -47,7 +47,7 @@
 #include "lltooltip.h"
 #include "llworld.h"
 #include "llstring.h"
-#include "llhudtext.h"
+#include "llhudnametag.h"
 #include "lldrawable.h"
 #include "xform.h"
 #include "llsky.h"
@@ -165,6 +165,11 @@ BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 	{
 		U32 local_id = object.mLocalID;
 		LLHost region_host = object.getRegion()->getHost();
+		if(!region_host.isOk())
+		{
+			return FALSE ;
+		}
+
 		U32 ip = region_host.getAddress();
 		U32 port = region_host.getPort();
 		U64 ipport = (((U64)ip) << 32) | (U64)port;
@@ -654,9 +659,24 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
+
 	// Update globals
-	gVelocityInterpolate = gSavedSettings.getBOOL("VelocityInterpolate");
-	gPingInterpolate = gSavedSettings.getBOOL("PingInterpolate");
+	LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
+	LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
+	
+	F32 interp_time = gSavedSettings.getF32("InterpolationTime");
+	F32 phase_out_time = gSavedSettings.getF32("InterpolationPhaseOut");
+	if (interp_time < 0.0 || 
+		phase_out_time < 0.0 ||
+		phase_out_time > interp_time)
+	{
+		llwarns << "Invalid values for InterpolationTime or InterpolationPhaseOut, resetting to defaults" << llendl;
+		interp_time = 3.0f;
+		phase_out_time = 1.0f;
+	}
+	LLViewerObject::setPhaseOutUpdateInterpolationTime( interp_time );
+	LLViewerObject::setMaxUpdateInterpolationTime( phase_out_time );
+
 	gAnimateTextures = gSavedSettings.getBOOL("AnimateTextures");
 
 	// update global timer
@@ -1195,7 +1215,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			}
 		}
 
-		LLHUDText::addPickable(mSelectPickList);
+		LLHUDNameTag::addPickable(mSelectPickList);
 
 		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 			iter != LLCharacter::sInstances.end(); ++iter)
@@ -1267,34 +1287,6 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 
 			LLHUDIcon::generatePickIDs(i * step, step);
 	}
-}
-
-void LLViewerObjectList::renderPickList(const LLRect& screen_rect, BOOL pick_parcel_wall, BOOL render_transparent)
-{
-	gRenderForSelect = TRUE;
-		
-	gPipeline.renderForSelect(mSelectPickList, render_transparent, screen_rect);
-
-	//
-	// Render pass for selected objects
-	//
-	gGL.color4f(1,1,1,1);	
-	gViewerWindow->renderSelections( TRUE, pick_parcel_wall, FALSE );
-
-	//fix for DEV-19335.  Don't pick hud objects when customizing avatar (camera mode doesn't play nice with nametags).
-	if (!gAgentCamera.cameraCustomizeAvatar())
-	{
-		// render pickable ui elements, like names, etc.
-		LLHUDObject::renderAllForSelect();
-	}
-	
-	gGL.flush();
-	LLVertexBuffer::unbind();
-
-	gRenderForSelect = FALSE;
-
-	//llinfos << "Rendered " << count << " for select" << llendl;
-	//llinfos << "Took " << pick_timer.getElapsedTimeF32()*1000.f << "ms to pick" << llendl;
 }
 
 LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)

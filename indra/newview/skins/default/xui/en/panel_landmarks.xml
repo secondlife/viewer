@@ -3,7 +3,7 @@
    name="Landmarks"
    top="0"
    height="400"
-   layout="topleft"
+   layout="topleft" 
    left="0"
    width="313"
    help_topic="panel_landmarks"
@@ -88,7 +88,7 @@
         </accordion_tab>
     </accordion>
     <panel
-     background_visible="true"
+       background_visible="true"
      bevel_style="none"
      bottom="0"
      follows="left|right|bottom"
@@ -114,8 +114,9 @@
 		       height="25"
 		       layout="topleft"
 		       name="options_gear_btn_panel"
+		       user_resize="false"
 		       width="32">
-		          <button
+		          <menu_button
 		           follows="bottom|left"
 		           tool_tip="Show additional options"
 		           height="25"
@@ -134,6 +135,7 @@
 		       height="25"
 		       layout="topleft"
 		       name="add_btn_panel"
+		       user_resize="false"
 		       width="32">
 		          <button
 		           follows="bottom|left"
@@ -154,6 +156,7 @@
 		       height="25"
 		       layout="topleft"
 		       name="dummy_panel"
+		       user_resize="false"
 		       width="212">
 		          <icon
 		           follows="bottom|left|right"
@@ -170,6 +173,7 @@
 		       height="25"
 		       layout="topleft"
 		       name="trash_btn_panel"
+		       user_resize="false"
 		       width="31">
 		          <dnd_button
 		           follows="bottom|left"

@@ -61,7 +61,6 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
-
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
 	"llfloater_close_btn",		//BUTTON_CLOSE
@@ -200,6 +199,21 @@ void LLFloater::initClass()
 	{
 		sButtonToolTips[i] = LLTrans::getString( sButtonToolTipsIndex[i] );
 	}
+
+	LLControlVariable* ctrl = LLUI::sSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
+		updateActiveFloaterTransparency();
+	}
+
+	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
+		updateInactiveFloaterTransparency();
+	}
+
 }
 
 // defaults for floater param block pulled from widgets/floater.xml
@@ -207,7 +221,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
-	mDragHandle(NULL),
+ 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
@@ -232,7 +246,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0)
+	mPreviousMinimizedLeft(0),
+	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
 	mHandle.bind(this);
@@ -344,6 +359,18 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setShape(rect);
 	updateTitleButtons();
+}
+
+// static
+void LLFloater::updateActiveFloaterTransparency()
+{
+	sActiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+}
+
+// static
+void LLFloater::updateInactiveFloaterTransparency()
+{
+	sInactiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -494,6 +521,8 @@ LLFloater::~LLFloater()
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
+
+	delete mMinimizeSignal;
 }
 
 void LLFloater::storeRectControl()
@@ -998,6 +1027,11 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize == mMinimized) return;
 
+	if(mMinimizeSignal)
+	{
+		(*mMinimizeSignal)(this, LLSD(minimize));
+	}
+
 	if (minimize)
 	{
 		// minimized flag should be turned on before release focus
@@ -1155,6 +1189,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
+	updateTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1614,7 +1649,8 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	const F32 alpha = getCurrentTransparency();
+
 	// draw background
 	if( isBackgroundVisible() )
 	{
@@ -1712,7 +1748,6 @@ void LLFloater::draw()
 
 void	LLFloater::drawShadow(LLPanel* panel)
 {
-	F32 alpha = panel->getDrawContext().mAlpha;
 	S32 left = LLPANEL_BORDER_WIDTH;
 	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
@@ -1729,8 +1764,30 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % alpha, 
+		shadow_color % getCurrentTransparency(),
 		llround(shadow_offset));
+}
+
+void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
+{
+	child_list_t children = *view->getChildList();
+	child_list_t::iterator it = children.begin();
+
+	LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(view);
+	if (ctrl)
+	{
+		ctrl->setTransparencyType(transparency_type);
+	}
+
+	for(; it != children.end(); ++it)
+	{
+		updateTransparency(*it, transparency_type);
+	}
+}
+
+void LLFloater::updateTransparency(ETypeTransparency transparency_type)
+{
+	updateTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
@@ -2809,6 +2866,12 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	{
 		mCloseSignal.connect(initCommitCallback(p.close_callback));
 	}
+}
+
+boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
+	return mMinimizeSignal->connect(cb); 
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");

@@ -73,7 +73,7 @@
              height="20"
              layout="topleft"
              left_pad="0"
-             max_length="63"
+             max_length_bytes="63"
              name="region name"
              top_delta="0"
              width="250">
@@ -236,7 +236,7 @@
              height="16"
              layout="topleft"
              left_delta="108"
-             max_length="10"
+             max_length_bytes="10"
              name="estate"
              top_delta="0"
              width="50" />
@@ -260,7 +260,7 @@
              height="16"
              layout="topleft"
              left_delta="108"
-             max_length="10"
+             max_length_bytes="10"
              name="parentestate"
              tool_tip="This is the parent estate for this region"
              top_delta="0"
@@ -287,7 +287,7 @@
              height="16"
              layout="topleft"
              left_delta="88"
-             max_length="10"
+             max_length_bytes="10"
              name="gridposx"
              tool_tip="This is the grid x position for this region"
              top_delta="0"
@@ -302,7 +302,7 @@
              height="16"
              layout="topleft"
              left_pad="10"
-             max_length="10"
+             max_length_bytes="10"
              name="gridposy"
              tool_tip="This is the grid y position for this region"
              top_delta="0"
@@ -329,7 +329,7 @@
              height="16"
              layout="topleft"
              left_pad="0"
-             max_length="10"
+             max_length_bytes="10"
              name="redirectx"
              width="50">
 			       <line_editor.commit_callback
@@ -342,7 +342,7 @@
              height="16"
              layout="topleft"
              left_pad="10"
-             max_length="10"
+             max_length_bytes="10"
              name="redirecty"
              top_delta="0"
              width="40">
@@ -754,7 +754,7 @@
              height="22"
              layout="topleft"
              left_pad="10"
-             max_length="63"
+             max_length_bytes="63"
              name="parameter"
              top_delta="0"
              width="290" />

@@ -110,8 +110,8 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		<usetemplate name="okbutton" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Wenn Sie einem anderen Einwohner die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
-Möchten Sie [FIRST_NAME] [LAST_NAME] die Erlaubnis zum Bearbeiten gewähren?
+		Wenn Sie einem anderen Einwohner Änderungsrechte gewähren, dann kann dieser JEDES Objekt, das Sie inworld besitzen, ändern, löschen oder an sich nehmen. Seien Sie daher beim Gewähren dieser Rechte sehr vorsichtig!
+Möchten Sie [NAME] Änderungsrechte gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
@@ -120,7 +120,7 @@ Möchten Sie den ausgewählten Einwohnern Änderungsrechte gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="RevokeModifyRights">
-		Möchten Sie [FIRST_NAME] [LAST_NAME] die Änderungsrechte entziehen?
+		Möchten Sie [NAME] die Änderungsrechte entziehen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="RevokeModifyRightsMultiple">
@@ -324,17 +324,17 @@ Der Outfit-Ordner enthält keine Kleidung, Körperteile oder Anhänge.
 		Sie können das Objekt nicht anziehen, weil es noch nicht geladen wurde. Warten Sie kurz und versuchen Sie es dann noch einmal.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		Hoppla! Da fehlt noch etwas.
-Geben Sie bitte den Vor- und den Nachnamen Ihres Avatars ein.
+		Sue haben ein Feld leer gelassen.
+Sie müssen den Benutzernamen Ihres Avatars eingeben.
 
-Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten Sie jetzt ein Benutzerkonto anlegen?
+Sie benötigen ein Konto, um [SECOND_LIFE] betreten zu können. Möchten Sie jetzt ein Konto erstellen?
 		<url name="url">
 			https://join.secondlife.com/index.php?lang=de-DE
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Erneut versuchen" yestext="Neues Benutzerkonto anlegen"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
-		Sie müssen den Vor- und Nachnamen Ihres Avatars in das Feld Benutzername eingeben, und sich dann erneut anmelden.
+		Sie müssen entweder den Benutzernamen oder den Vor- und Nachnamen Ihres Avatars in das Feld „Benutzername“ eingeben und die Anmeldung dann erneut versuchen.
 	</notification>
 	<notification name="AddClassified">
 		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
@@ -932,12 +932,6 @@ Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen
 		Landkauf für Gruppe nicht möglich:
 Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 	</notification>
-	<notification label="Freund hinzufügen" name="AddFriend">
-		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
-
-[NAME] Freundschaft anbieten?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
-	</notification>
 	<notification label="Freund hinzufügen" name="AddFriendWithMessage">
 		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
 
@@ -981,7 +975,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Möchten Sie [FIRST_NAME] [LAST_NAME] aus Ihrer Freundesliste entfernen?
+		Möchten Sie [NAME] aus Ihrer Freundesliste entfernen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1104,11 +1098,10 @@ Der Gruppe „[GROUP_NAME]“
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
 		Die Schenkung dieser Parzelle setzt voraus, dass die Gruppe über ausreichende Landnutzungsrechte verfügt.
-Die Schenkung beinhaltet eine Landübertragung an die Gruppe von „[FIRST_NAME] [LAST_NAME]“.
+Die Schenkung beinhaltet eine Landübertragung an die Gruppe von „[NAME]“.
 Dem Eigentümer wird der Kaufpreis für das Land nicht rückerstattet. Bei Verkauf der übertragenen Parzelle wird der Erlös zwischen den Gruppenmitgliedern aufgeteilt.
 
-Der Gruppe „[GROUP_NAME]“
- [AREA] m² Land schenken?
+Der Gruppe „[GROUP_NAME]“ [AREA] m² an Land schenken?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1479,6 +1472,46 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
+	<notification name="SetDisplayNameSuccess">
+		Hallo [DISPLAY_NAME],
+
+wir bitten Sie um Geduld, während Ihr Name im System geändert wird. Es kann einige Tage dauern, bis Ihr [http://wiki.secondlife.com/wiki/Setting_your_display_name neuer Name] in Objekten, Skripts, Suchen usw. erscheint.
+	</notification>
+	<notification name="SetDisplayNameBlocked">
+		Ihr Anzeigename kann leider nicht geändert werden. Wenn Sie der Ansicht sind, dass Sie diese Meldung fälschlicherweise erhalten haben, wenden Sie sich bitte an unseren Support.
+	</notification>
+	<notification name="SetDisplayNameFailedLength">
+		Dieser Name ist leider zu lang. Anzeigenamen können maximal [LENGTH] Zeichen enthalten.
+
+Wählen Sie einen kürzeren Namen.
+	</notification>
+	<notification name="SetDisplayNameFailedGeneric">
+		Ihr Anzeigename konnte leider nicht festgelegt werden. Versuchen Sie es später erneut.
+	</notification>
+	<notification name="SetDisplayNameMismatch">
+		Die eingegebenen Anzeigenamen stimmen nicht überein. Wiederholen Sie die Eingabe.
+	</notification>
+	<notification name="AgentDisplayNameUpdateThresholdExceeded">
+		Sie müssen leider noch ein bisschen warten, bevor Sie Ihren Anzeigenamen ändern können.
+
+Weitere Informationen finden Sie unter http://wiki.secondlife.com/wiki/Setting_your_display_name.
+
+Versuchen Sie es später erneut.
+	</notification>
+	<notification name="AgentDisplayNameSetBlocked">
+		Der angeforderte Name enthält ein unzulässiges Wort und konnte deshalb nicht festgelegt werden.
+ 
+ Versuchen Sie einen anderen Namen.
+	</notification>
+	<notification name="AgentDisplayNameSetInvalidUnicode">
+		Der gewünschte Anzeigename enthält ungültige Zeichen.
+	</notification>
+	<notification name="AgentDisplayNameSetOnlyPunctuation">
+		Ihr Anzeigenamen muss Buchstaben enthalten und kann nicht ausschließlich aus Satzzeichen bestehen.
+	</notification>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([OLD_NAME] ([SLID]) hat einen neuen Namen: [NEW_NAME].
+	</notification>
 	<notification name="OfferTeleport">
 		Teleport an Ihre Position mit der folgenden Meldung anbieten?
 		<form name="form">
@@ -1831,6 +1864,10 @@ Inventarobjekt(e) verschieben?
 		Wirklich beenden?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Vor dem Löschen von Objekten bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] und [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
@@ -2043,10 +2080,10 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		Betreff: [SUBJECT], Nachricht: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] ist online
+		[NAME] ist online
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] ist offline
+		[NAME] ist offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Obwohl Sie ein sehr netter Mensch sind, können Sie sich nicht selbst als Freund hinzufügen.
@@ -2112,9 +2149,6 @@ Dies kann die Eingabe Ihres Passworts beeinflussen.
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
 		Geschützte Kategorien können nicht entfernt werden.
-	</notification>
-	<notification name="OfferedCard">
-		Sie haben [FIRST] [LAST] eine Visitenkarte angeboten.
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		Kauf nicht möglich. Objektdaten werden noch geladen.
@@ -2186,7 +2220,10 @@ Wählen Sie eine kleinere Landfläche.
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
-	<notification name="PaymentRecived">
+	<notification name="PaymentReceived">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentSent">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2195,8 +2232,7 @@ Wählen Sie eine kleinere Landfläche.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportieren"/>
-			<button name="Description" text="Beschreibung"/>
+			<button name="Details" text="Details"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
@@ -2232,7 +2268,7 @@ Bitte installieren Sie das Plugin erneut. Falls weiterhin Problem auftreten, kon
 		Ihre Objekte auf der ausgewählten Parzelle wurden in Ihr Inventar transferiert.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		Die Objekte von [FIRST] [LAST] auf dieser Parzelle wurden in das Inventar dieser Person transferiert.
+		Alle Objekte auf der ausgewählten Parzelle, die Einwohner „[NAME]“ gehören, wurden an ihren Eigentümer zurückgegeben.
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		Alle Objekte auf der ausgewählten Parzelle, die Einwohner &apos;[NAME]&apos; gehören, wurden an ihren Eigentümern zurückgegeben.
@@ -2359,7 +2395,7 @@ Versuchen Sie es in einigen Minuten erneut.
 		Es konnte keine gültige Parzelle gefunden werden.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Ein Objekt namens [OBJECTFROMNAME] von [NAME_SLURL] hat Ihnen folgendes übergeben [OBJECTTYPE]:
+		Ein Objekt namens &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, das [NAME_SLURL] gehört, hat Ihnen folgende/n/s [OBJECTTYPE] übergeben:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behalten"/>
@@ -2424,9 +2460,9 @@ Versuchen Sie es in einigen Minuten erneut.
 		Sie haben [TO_NAME] die Freundschaft angeboten.
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] bietet Ihnen die Freundschaft an.
+		[NAME_SLURL] bietet die Freundschaft an.
 
-(Sie werden dadurch den gegenseitigen Online-Status sehen können.)
+(Standardmäßig können Sie gegenseitig ihren Online-Status sehen.)
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
@@ -2445,7 +2481,7 @@ Versuchen Sie es in einigen Minuten erneut.
 		Ihr Freundschaftsangebot wurde abgelehnt.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] bietet Ihnen ihre/seine Visitenkarte an.
+		[NAME] bietet Ihnen ihre/seine Visitenkarte an.
 Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach eine IM schicken können.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
@@ -2465,7 +2501,7 @@ Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
 
 [MESSAGE]
 
-Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
+Von Objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, Eigentümer: [NAME]?
 		<form name="form">
 			<button name="Gotopage" text="Zur Seite"/>
 			<button name="Cancel" text="Abbrechen"/>
@@ -2481,7 +2517,7 @@ Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
 		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um dieses Objekt anziehen zu können.
 	</notification>
 	<notification name="ScriptQuestion">
-		Das Objekt „[OBJECTNAME]“, Eigentum von „[NAME]“, möchte:
+		Das Objekt „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“, das „[NAME]“ gehört, stellt folgende Anfrage:
 
 [QUESTIONS]
 Ist das OK?
@@ -2492,7 +2528,7 @@ Ist das OK?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Ein Objekt namens „[OBJECTNAME]“ des Eigentümers „[NAME]“ möchte:
+		Das Objekt „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“, das „[NAME]“ gehört, stellt folgende Anfrage:
 
 [QUESTIONS]
 Wenn Sie diesem Objekt und seinem Ersteller nicht vertrauen, sollten Sie diese Anfrage ablehnen.
@@ -2505,14 +2541,14 @@ Anfrage gestatten?
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST]s „[TITLE]“
+		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [NAME]
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME]s „[TITLE]“
+		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [GROUPNAME]
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorieren"/>
@@ -2550,13 +2586,13 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Gespräch beizutreten, oder au
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] hat eine Benachrichtigung erhalten und wird nicht länger ignoriert.
+		[NAME] hat eine Instant Message erhalten und wird nicht länger ignoriert.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] wurde bezahlt und wird nicht länger ignoriert.
+		[NAME] hat Geld erhalten und wird nicht länger ignoriert.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] wurde Inventar angeboten und wird nicht länger ignoriert.
+		[NAME] wurde ein Inventarobjekt angeboten und wird nicht länger ignoriert.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] ist einem Voice-Chat mit der Gruppe [GROUP] beigetreten.
@@ -2763,9 +2799,13 @@ Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
 		(Seit [EXISTENCE] Sekunden inworld )
 Avatar &apos;[NAME]&apos; hat als vollständig gerezzter Avatar die Welt verlassen.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden [ACTION].
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
+		( [EXISTENCE] Sekunden am Leben)
+Sie haben eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME] Sekunden hochgeladen.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] Sekunden am Leben)
+Sie haben lokal eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME] Sekunden aktualisiert.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Möchten Sie dieses Gespräch wirklich verlassen ?
@@ -2778,6 +2818,37 @@ auch dann stummgeschaltet werden, wenn Sie den Anruf verlassen haben.
 
 Alle stummschalten?
 		<usetemplate ignoretext="Bestätigen, bevor alle Teilnehmer in einem Gruppengespräch stummgeschaltet werden." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification label="Chat" name="HintChat">
+		Um mitzureden, geben Sie Text in das Chat-Feld unten ein.
+	</notification>
+	<notification label="Stehen" name="HintSit">
+		Um aufzustehen, klicken Sie auf die Schaltfläche „Stehen“.
+	</notification>
+	<notification label="Welt erkunden" name="HintDestinationGuide">
+		Im Reiseführer finden Sie Tausende von interessanten Orten. Wählen Sie einfach einen Ort aus und klicken Sie auf „Teleportieren“.
+	</notification>
+	<notification label="Seitenleiste" name="HintSidePanel">
+		In der Seitenleiste können Sie schnell auf Ihr Inventar, Ihre Outfits, Ihre Profile u. ä. zugreifen.
+	</notification>
+	<notification label="Bewegen" name="HintMove">
+		Um zu gehen oder zu rennen, öffnen Sie das Bedienfeld „Bewegen“ und klicken Sie auf die Pfeile. Sie können auch die Pfeiltasten auf Ihrer Tastatur verwenden.
+	</notification>
+	<notification label="Anzeigename" name="HintDisplayName">
+		Hier können Sie Ihren anpassbaren Anzeigenamen festlegen. Der Anzeigename unterscheidet sich von Ihrem eindeutigen Benutzernamen, der nicht geändert werden kann. In den Einstellungen können Sie festlegen, welcher Name von anderen Einwohnern angezeigt wird.
+	</notification>
+	<notification label="Inventar" name="HintInventory">
+		In Ihrem Inventar befinden sich verschiedene Objekte. Die neuesten Objekte finden Sie in der Registerkarte „Aktuell“.
+	</notification>
+	<notification label="Sie haben Linden-Dollar!" name="HintLindenDollar">
+		Hier wird Ihr aktueller L$-Kontostand angezeigt. Klicken Sie auf „L$ kaufen“, um mehr Linden-Dollar zu kaufen.
+	</notification>
+	<notification name="PopupAttempt">
+		Ein Popup konnte nicht geöffnet werden.
+		<form name="form">
+			<ignore name="ignore" text="Alle Popups aktivieren"/>
+			<button name="open" text="Popup-Fenster öffnen"/>
+		</form>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.

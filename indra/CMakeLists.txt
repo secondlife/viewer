@@ -22,7 +22,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(Variables)
 
 if (DARWIN)
-  cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
+  # 2.6.4 fixes a Mac bug in get_target_property(... "SLPlugin" LOCATION):
+  # before that version it returns "pathname/SLPlugin", whereas the correct
+  # answer is "pathname/SLPlugin.app/Contents/MacOS/SLPlugin".
+  cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 endif (DARWIN)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -123,6 +126,8 @@ if (SERVER)
   endif (WINDOWS)
 endif (SERVER)
 
-# Define after the custom viewer and server targets are created so individual
-# apps can add themselves as dependencies
-add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
+if (LL_TESTS)
+  # Define after the custom viewer and server targets are created so
+  # individual apps can add themselves as dependencies
+  add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
+endif (LL_TESTS)

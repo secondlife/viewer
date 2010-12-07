@@ -22,6 +22,14 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
+				<text name="display_name_label" value="Nombre mostrado:"/>
+				<text name="solo_username_label" value="Nombre de usuario:"/>
+				<button name="set_name" tool_tip="Configurar nombre mostrado"/>
+				<text name="solo_user_name" value="Hamilton Hitchings"/>
+				<text name="user_name" value="Hamilton Hitchings"/>
+				<text name="user_name_small" value="Hamilton Hitchings"/>
+				<text name="user_label" value="Nombre de usuario:"/>
+				<text name="user_slid" value="hamilton.linden"/>
 				<panel name="lifes_images_panel">
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Pulsa para elegir una imagen"/>
 				</panel>
@@ -38,14 +46,20 @@
 				<text name="my_account_link" value="[[URL] Ir a mi Panel de Control]"/>
 				<text name="title_partner_text" value="Mi compañero/a:"/>
 				<panel name="partner_data_panel">
-					<name_box initial_value="(obteniendo)" name="partner_text"/>
+					<text initial_value="(obteniendo)" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] Editar]"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Guardar cambios" name="save_btn"/>
-		<button label="Cancelar" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Guardar cambios" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Cancelar" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

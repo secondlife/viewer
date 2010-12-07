@@ -56,7 +56,7 @@
      layout="topleft"
      left="30"
      name="online_visibility"
-     top_pad="20"
+     top_pad="30"
      width="350" />
     <check_box
      enabled_control="EnableVoiceChat"
@@ -87,9 +87,9 @@
      left="30"
      mouse_opaque="false"
      name="Logs:"
-     top_pad="10"
+     top_pad="30"
      width="350">
-        Logs:
+        Chat Logs:
     </text>
     <check_box
 	 enabled="false"
@@ -117,13 +117,23 @@
      control_name="LogTimestamp"
 	 enabled="false"
      height="16"
-     label="Add timestamp"
+     label="Add timestamp to each line in chat log"
      layout="topleft"
      left_delta="0"
      name="show_timestamps_check_im"
      top_pad="10"
      width="237" />
-    <text
+	<check_box
+     control_name="LogFileNamewithDate"
+     enabled="false"
+     height="16"
+     label="Add datestamp to log file name."
+     layout="topleft"
+     left_detla="5"
+     name="logfile_name_datestamp"
+     top_pad="10"
+     width="350"/>
+	<text
      type="string"
      length="1"
      follows="left|top"
@@ -132,7 +142,7 @@
      left_delta="0"
      mouse_opaque="false"
      name="log_path_desc"
-     top_pad="5"
+     top_pad="30"
      width="128">
         Location of logs:
     </text>    
@@ -169,11 +179,25 @@
      layout="topleft"
      left="30"
      name="block_list"
-     top_pad="20"
+     top_pad="35"
      width="145">
         <!--<button.commit_callback
          function="SideTray.ShowPanel"-->
       <button.commit_callback
          function="Pref.BlockList"/>
     </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="10"
+     mouse_opaque="false"
+     name="block_list_label"
+     top_delta="3"
+     text_color="LtGray_50"
+     width="300">
+       (People and/or Objects you have blocked)
+    </text>
     </panel>

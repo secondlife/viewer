@@ -278,6 +278,10 @@ void LLPanelProfile::setAllChildrenVisible(BOOL visible)
 
 void LLPanelProfile::openPanel(LLPanel* panel, const LLSD& params)
 {
+	// Hide currently visible panel (STORM-690).
+	setAllChildrenVisible(FALSE);
+
+	// Add the panel or bring it to front.
 	if (panel->getParent() != this)
 	{
 		addChild(panel);
@@ -304,6 +308,18 @@ void LLPanelProfile::closePanel(LLPanel* panel)
 	if (panel->getParent() == this) 
 	{
 		removeChild(panel);
+
+		// Make the underlying panel visible.
+		const child_list_t* child_list = getChildList();
+		if (child_list->size() > 0)
+		{
+			child_list->front()->setVisible(TRUE);
+			child_list->front()->setFocus(TRUE); // prevent losing focus by the floater
+		}
+		else
+		{
+			llwarns << "No underlying panel to make visible." << llendl;
+		}
 	}
 }
 

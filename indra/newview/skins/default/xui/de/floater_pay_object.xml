@@ -8,7 +8,7 @@
 	</string>
 	<icon name="icon_person" tool_tip="Person"/>
 	<text left="128" name="payee_name" width="168">
-		[FIRST] [LAST]
+		Ericacita Moostopolison
 	</text>
 	<text halign="left" name="object_name_label">
 		Über Objekt:

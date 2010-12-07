@@ -220,10 +220,15 @@ void LLDockControl::moveDockable()
 	case TOP:
 		x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
 		y = dockRect.mTop + dockableRect.getHeight();
-		// unique docking used with dock tongue, so add tongue height o the Y coordinate
+		// unique docking used with dock tongue, so add tongue height to the Y coordinate
 		if (use_tongue)
 		{
 			y += mDockTongue->getHeight();
+
+			if ( y > rootRect.mTop)
+			{
+				y = rootRect.mTop;
+			}
 		}
 
 		// check is dockable inside root view rect
@@ -257,7 +262,7 @@ void LLDockControl::moveDockable()
 	case BOTTOM:
 		x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
 		y = dockRect.mBottom;
-		// unique docking used with dock tongue, so add tongue height o the Y coordinate
+		// unique docking used with dock tongue, so add tongue height to the Y coordinate
 		if (use_tongue)
 		{
 			y -= mDockTongue->getHeight();
@@ -292,9 +297,21 @@ void LLDockControl::moveDockable()
 		break;
 	}
 
-	// move dockable
-	dockableRect.setLeftTopAndSize(x, y, dockableRect.getWidth(),
-			dockableRect.getHeight());
+	S32 max_available_height = rootRect.getHeight() - mDockTongueY - mDockTongue->getHeight();
+
+	// A floater should be shrunk so it doesn't cover a part of its docking tongue and
+	// there is a space between a dockable floater and a control to which it is docked.
+	if (use_tongue && dockableRect.getHeight() >= max_available_height)
+	{
+		dockableRect.setLeftTopAndSize(x, y, dockableRect.getWidth(), max_available_height);
+		mDockableFloater->reshape(dockableRect.getWidth(), dockableRect.getHeight());
+	}
+	else
+	{
+		// move dockable
+		dockableRect.setLeftTopAndSize(x, y, dockableRect.getWidth(),
+				dockableRect.getHeight());
+	}
 	LLRect localDocableParentRect;
 	mDockableFloater->getParent()->screenRectToLocal(dockableRect,
 			&localDocableParentRect);

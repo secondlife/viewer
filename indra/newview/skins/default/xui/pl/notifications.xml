@@ -67,7 +67,7 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
-	<notification name="BadInstallation">		
+	<notification name="BadInstallation">
 		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com pobierz najnowsza wersję] aby ściągnąć ostatnią wersję klienta.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -111,7 +111,7 @@ Wybierz pojedynczy obiekt i spróbuj jeszcze raz.
 	</notification>
 	<notification name="GrantModifyRights">
 		Udzielenie praw modyfikacji innemu Rezydentowi umożliwia modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów. Używaj tej opcji z rozwagą!
-Czy chcesz dać prawa modyfikacji osobie [FIRST_NAME] [LAST_NAME]?
+Czy chcesz udzielić prawa do modyfikacji [NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
@@ -120,7 +120,7 @@ Czy chcesz dać prawa modyfikacji wybranym osobom?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="RevokeModifyRights">
-		Czy chcesz odebrać prawa modyfikacji Rezydentowi [FIRST_NAME] [LAST_NAME]?
+		Czy chcesz odebrać prawa do modyfikacji [NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="RevokeModifyRightsMultiple">
@@ -318,12 +318,14 @@ Limit [MAX_ATTACHMENTS] załączników został przekroczony. Proszę najpierw od
 		Nie możesz założyć tego artkułu ponieważ nie załadował się poprawnie. Spróbuj ponownie za kilka minut.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		Musisz mieć konto by móc zalogować się do [SECOND_LIFE].
-Czy chcesz przejść na stronę www.secondlife.com by założyć konto?
+		Oops! Brakuje czegoś.
+Należy wprowadzić nazwę użytkownika.
+
+Potrzebujesz konta aby się zalogować do [SECOND_LIFE]. Czy chcesz utworzyć je teraz?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
-		Wpisz imię i nazwisko Twojego awatara w pole Użytkownika a następnie zaloguj się ponownie.
+		Należy wprowadzić nazwę użytkownika lub imię oraz nazwisko Twojego awatara w pole nazwy użytkownika a następnie ponownie się zalogować.
 	</notification>
 	<notification name="AddClassified">
 		Ogłoszenia reklamowe ukazują się w zakładce Reklama w wyszukiwarce (Szukaj) oraz na [http://secondlife.com/community/classifieds secondlife.com] przez tydzień.
@@ -897,12 +899,6 @@ Zazwyczaj jest to tymczasowy problem. Możesz kontynuować modyfikacje i zapisa�
 		Nie możesz kupić posiadłości dla grupy.
 Nie masz praw kupowania posiadłości dla Twojej aktywnej grupy.
 	</notification>
-	<notification label="Dodaj Znajomość" name="AddFriend">
-		Znajomi mogą pozwalać na odnajdywanie się wzajemnie na mapie i na otrzymywanie notyfikacji o logowaniu do [SECOND_LIFE].
-
-Zaproponować znajomość [NAME]?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
-	</notification>
 	<notification label="Add Friend" name="AddFriendWithMessage">
 		Znajomi mogą pozwalać na odnajdywanie się wzajemnie na mapie i na otrzymywanie notyfikacji o logowaniu do [SECOND_LIFE].
 
@@ -946,7 +942,7 @@ Zaproponować znajomość [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Chcesz usunąć [FIRST_NAME] [LAST_NAME] z listy Twoich znajomych?
+		Czy chcesz usunąć [NAME] z listy znajomych?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1065,7 +1061,8 @@ Przekazać tą posiadłość o powierzchni [AREA] m² grupie &apos;[GROUP_NAME]&
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		Po przekazaniu tej posiadłości grupa będzia musiała mieć i utrzymywać wystarczający kredyt na używanie posiadłości. Przekazanie będzie zawierać równoczesne przypisanie posiadłości do grupy od &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+		Po przekazaniu tej posiadłości grupa będzia musiała mieć i utrzymywać wystarczający kredyt na używanie posiadłości.
+Przekazanie będzie zawierać równoczesne przypisanie posiadłości do grupy od &apos;[NAME]&apos;.
 Cena zakupu posiadłości nie jest zwracana właścicielowi. Jeżeli przekazana posiadłość zostanie sprzedana, cana sprzedaży zostanie podzielona pomiędzy członków grupy.
 
 Przekazać tą posiadłość o powierzchni [AREA] m² grupie &apos;[GROUP_NAME]&apos;?
@@ -1436,6 +1433,46 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
+	<notification name="SetDisplayNameSuccess">
+		Witaj [DISPLAY_NAME]!
+
+Podobnie jak w realnym życiu potrzeba trochę czasu zanim wszyscy dowiedzą się o nowej nazwie. Kolejne kilka dni zajmie [http://wiki.secondlife.com/wiki/Setting_your_display_name aktualizacja nazwy] w obiektach, skryptach, wyszukiwarce, etc.
+	</notification>
+	<notification name="SetDisplayNameBlocked">
+		Przepraszamy, nie można zmienić Twojej wyświetlanej nazwy. Jeśli uważasz ze jest to spowodowane błędem skontaktuj się z obsługą klienta.
+	</notification>
+	<notification name="SetDisplayNameFailedLength">
+		Przepraszamy, ta nazwa jest zbyt długa. Wyświetlana nazwa może mieć maksymalnie [LENGTH] znaków.
+
+Proszę wprowadzić krótszą nazwę.
+	</notification>
+	<notification name="SetDisplayNameFailedGeneric">
+		Przepraszamy, nie można ustawić Twojej wyświetlanej nazwy. Spróbuj ponownie później.
+	</notification>
+	<notification name="SetDisplayNameMismatch">
+		Podana wyświetlana nazwa nie pasuje. Proszę wprowadzić ją ponownie.
+	</notification>
+	<notification name="AgentDisplayNameUpdateThresholdExceeded">
+		Przepraszamy, musisz jeszcze poczekać zanim będzie można zmienić Twoją wyświetlaną nazwę.
+
+Zobacz http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Proszę spróbować ponownie później.
+	</notification>
+	<notification name="AgentDisplayNameSetBlocked">
+		Przepraszamy, nie można ustawić wskazanej nazwy, ponieważ zawiera zabronione słowa.
+ 
+ Proszę spróbować wprowadzić inną nazwę.
+	</notification>
+	<notification name="AgentDisplayNameSetInvalidUnicode">
+		Wyświetlana nazwa, którą chcesz ustawić zawiera niepoprawne znaki.
+	</notification>
+	<notification name="AgentDisplayNameSetOnlyPunctuation">
+		Twoje wyświetlane imię musi zawierać litery inne niż znaki interpunkcyjne.
+	</notification>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([SLID]) jest od tej pory znana/znany jako [NEW_NAME].
+	</notification>
 	<notification name="OfferTeleport">
 		Zaproponować teleportację do miejsca Twojego pobytu z tą wiadomością?
 		<form name="form">
@@ -1786,6 +1823,10 @@ Przenieść obiekty szafy?
 		Na pewno chcesz skończyć?
 		<usetemplate ignoretext="Na pewno chcesz skończyć?" name="okcancelignore" notext="Nie kończ" yestext="Wyłącz"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Potwierdź, że na pewno chcesz skasować obiekty" name="okcancelignore" notext="Cofnij" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Używaj tej opcji do zgłaszania nadużyć [http://secondlife.com/corporate/tos.php Warunków Umowy (Terms of Service)] i [http://secondlife.com/corporate/cs.php Standardów Społeczeństwa (Community Standards)].
 
@@ -1999,10 +2040,10 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Temat: [SUBJECT], Treść: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] jest w [SECOND_LIFE]
+		[NAME] jest w Second Life
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] opuszcza [SECOND_LIFE]
+		[NAME] opuszcza Second Life
 	</notification>
 	<notification name="AddSelfFriend">
 		Nie możesz dodać siebie do listy znajomych.
@@ -2070,9 +2111,6 @@ Spróbuj jeszcze raz.
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
 		Nie możesz usunąć chronionych kategorii.
-	</notification>
-	<notification name="OfferedCard">
-		[FIRST] [LAST] daje Ci swoją wizytówkę
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		Nie można kupować w trakcie ładowania danych obiektu.
@@ -2144,7 +2182,10 @@ Spróbuj wybrać mniejszy obszar.
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
-	<notification name="PaymentRecived">
+	<notification name="PaymentReceived">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentSent">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2153,8 +2194,7 @@ Spróbuj wybrać mniejszy obszar.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="Teleportuj"/>
-			<button name="Description" text="Opis"/>
+			<button name="Details" text="Szczegóły"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
@@ -2190,7 +2230,7 @@ Zainstaluj proszę wtyczki ponownie lub skontaktuj się z dostawcą jeśli nadal
 		Twoje obiekty z wybranej posiadłości zostały zwrócone do Twojej Szafy.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		Obiekty należące do [FIRST] [LAST] na wybranej posiadłości zostały zwrócone do szafy tej osoby.
+		Obiekty należące do [NAME] na wybranej posiadłości zostały zwrócone do Szafy tej osoby.
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		Obiekty z posiadłości należącej do Rezydenta&apos;[NAME]&apos; zostały zwrócone do właściciela.
@@ -2314,7 +2354,7 @@ Spróbuj ponowanie za kilka minut.
 		Nieważana posiadłość.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Obiekt [OBJECTFROMNAME] należący do [NAME_SLURL] dał Ci [OBJECTTYPE]:
+		Obiekt o nazwie &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, należący do [NAME_SLURL] dał Tobie [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Zachowaj"/>
@@ -2379,7 +2419,7 @@ Spróbuj ponowanie za kilka minut.
 		Oferta znajomości dla [TO_NAME]
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] proponuje Ci znajomość.
+		[NAME_SLURL] proponuje Ci znajomość.
 
 (Z zalożenia będzie widzić swój status online.)
 		<form name="form">
@@ -2400,7 +2440,7 @@ Spróbuj ponowanie za kilka minut.
 		Propozycja znajomości została odrzucona.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] daje Tobie swoją wizytówkę.
+		[NAME] daje Tobie swoją wizytówkę.
 Wizytówka będzie znajdowała się w Szafie i umożliwi szybkie wysłanie IM do tego Rezydenta.
 		<form name="form">
 			<button name="Accept" text="Zaakceptuj"/>
@@ -2420,7 +2460,7 @@ Nastąpi wylogowanie jeżeli zostaniesz w tym regionie.
 
 [MESSAGE]
 
-Obiekt: [OBJECTNAME], właściciel: [NAME]?
+Od obiektu: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, właściciel właściciel: [NAME]?
 		<form name="form">
 			<button name="Gotopage" text="Załaduj"/>
 			<button name="Cancel" text="Anuluj"/>
@@ -2436,10 +2476,10 @@ Obiekt: [OBJECTNAME], właściciel: [NAME]?
 		Obiekt, który chcesz założyć używa narzędzia nieobecnego w wersji klienta, którą używasz. By go założyć ściągnij najnowszą wersję [APP_NAME].
 	</notification>
 	<notification name="ScriptQuestion">
-		&apos;[OBJECTNAME]&apos;, właściciel: &apos;[NAME]&apos;, chciał by:
+		Obiekt &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, którego właścicielem jest &apos;[NAME]&apos;, chciałby:
 
 [QUESTIONS]
-Zgadzasz się?
+Czy się zgadzasz?
 		<form name="form">
 			<button name="Yes" text="Tak"/>
 			<button name="No" text="Nie"/>
@@ -2447,12 +2487,12 @@ Zgadzasz się?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Obiekt &apos;[OBJECTNAME]&apos;, należący do &apos;[NAME]&apos; proponuje Ci:
+		Obiekt &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, którego właścicielem jest &apos;[NAME]&apos; chciałby:
 
 [QUESTIONS]
-Jeżeli nie znasz tego obiektu lub kreatora, odmów.
+Jeśli nie ufasz temu obiektowi i jego kreatorowi, odmów.
 
-Zgadzasz się?
+Czy się zgadzasz?
 		<form name="form">
 			<button name="Grant" text="Zaakceptuj"/>
 			<button name="Deny" text="Odmów"/>
@@ -2460,14 +2500,14 @@ Zgadzasz się?
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+		[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Zignoruj"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME]&apos;s &apos;[TITLE]&apos;
+		[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Zignoruj"/>
@@ -2506,13 +2546,13 @@ Wybierz Zablokuj żeby wyciszyć dzwoniącą osób
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		Wiadomość (IM) została wysłana do [FIRST] [LAST] i blokada została automatycznie usunięta.
+		Wysłano [NAME] prywatną wiadomość i ta osoba została automatycznie odblokowana.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		Pieniądze zostały przekazane do [FIRST] [LAST] i blokada została automatycznie usunięta.
+		Przekazano [NAME] pieniądze i ta osoba została automatycznie odblokowana.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		Oferta z szafy dla [FIRST] [LAST] i blokada została automatycznie usunięta.
+		Zaoferowno [NAME] obiekty i ta osoba została automatycznie odblokowana.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] zaczyna rozmowę z grupą [GROUP].
@@ -2719,9 +2759,13 @@ Proszę sprawdź swoją sieć i ustawienia firewall.
 		( [EXISTENCE] sekund w Second Life)
 Awatar &apos;[NAME]&apos; pozostał w pełni załadowany.
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( [EXISTENCE] sekund w Second Life )
-You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
+Zbakowane tekstury [RESOLUTION] dla &apos;[BODYREGION]&apos; zostały załadowane po[TIME] sekundach.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] sekund w Second Life )
+Zbakowane tekstury zostały lokalnie zaktualizowane [RESOLUTION] dla &apos;[BODYREGION]&apos; po [TIME] sekundach.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Czy jestes pewien/pewna, że chcesz zakończyć rozmowę?
@@ -2733,6 +2777,37 @@ To spowoduje również wyciszenie wszystkich Rezydentów, którzy dołączą pó
 
 Wyciszyć wszystkich?
 		<usetemplate ignoretext="Potwierdź zanim zostaną wyciszeni wszyscy uczestnicy rozmowy głosowej w grupie" name="okcancelignore" notext="Anuluj" yestext="Ok"/>
+	</notification>
+	<notification label="Czat" name="HintChat">
+		W celu przylączenia się do rozmowy zacznij pisać w poniższym polu czatu.
+	</notification>
+	<notification label="Wstań" name="HintSit">
+		Aby wstać i opuścić pozycję siedzącą, kliknij przycisk Wstań.
+	</notification>
+	<notification label="Odkrywaj Świat" name="HintDestinationGuide">
+		Destination Guide zawiera tysiące nowych miejsc do odkrycia. Wybierz lokalizację i teleportuj się aby rozpocząć zwiedzanie.
+	</notification>
+	<notification label="Schowek" name="HintSidePanel">
+		Schowek umożliwia szybki dostęp do Twojej Szafy, ubrań, profili i innych w panelu bocznym.
+	</notification>
+	<notification label="Ruch" name="HintMove">
+		Aby chodzić lub biegać, otwórz panel ruchu i użyj strzałek do nawigacji. Możesz także używać strzałek z klawiatury.
+	</notification>
+	<notification label="Wyświetlana nazwa" name="HintDisplayName">
+		Ustaw wyświetlaną nazwę, którą możesz zmieniać tutaj. Jest ona dodatkiem do unikatowej nazwy użytkownika, która nie może być zmieniona. Możesz zmienić sposób w jaki widzisz nazwy innych osób w Twoich Ustawieniach.
+	</notification>
+	<notification label="Szafa" name="HintInventory">
+		Sprawdź swoją Szafę aby znaleźć obiekty. Najnowsze obiekty mogą być łatwo odnalezione w zakładce Nowe obiekty.
+	</notification>
+	<notification label="Otrzymano L$!" name="HintLindenDollar">
+		Tutaj znajduje się Twoj bieżący bilans L$. Kliknij Kup aby kupić więcej L$.
+	</notification>
+	<notification name="PopupAttempt">
+		Wyskakujące okienko zostało zablokowane.
+		<form name="form">
+			<ignore name="ignore" text="Zezwól na wyskakujące okienka"/>
+			<button name="open" text="Otwórz wyskakujące okno."/>
+		</form>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Prędkość Twojego CPU nie spełnia minimalnych wymagań.

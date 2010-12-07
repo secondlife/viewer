@@ -59,6 +59,7 @@ pre_build()
     -t $variant \
     -G "$cmake_generator" \
    configure \
+	-DGRID:STRING="$viewer_grid" \
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \
@@ -227,7 +228,7 @@ do
       fi
     else
       begin_section "Build$variant"
-      build "$variant" "$build_dir" > "$build_log" 2>&1
+      build "$variant" "$build_dir" >> "$build_log" 2>&1
       begin_section Tests
       grep --line-buffered "^##teamcity" "$build_log"
       end_section Tests

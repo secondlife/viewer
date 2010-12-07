@@ -6,4 +6,5 @@
 	<menu_item_call label="Appeler" name="Call"/>
 	<menu_item_call label="Partager" name="Share"/>
 	<menu_item_call label="Payer" name="Pay"/>
+	<menu_item_call label="Proposer une téléportation" name="teleport"/>
 </context_menu>

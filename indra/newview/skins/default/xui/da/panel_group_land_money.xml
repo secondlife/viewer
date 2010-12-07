@@ -24,6 +24,7 @@
 			<scroll_list.columns label="Region" name="location"/>
 			<scroll_list.columns label="Type" name="type"/>
 			<scroll_list.columns label="Areal" name="area"/>
+			<scroll_list.columns label="Skjult" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			Totalt bidrag:

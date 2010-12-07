@@ -188,6 +188,7 @@ public:
 	BOOL		canUseVertexShaders();
 	BOOL		canUseWindLightShaders() const;
 	BOOL		canUseWindLightShadersOnObjects() const;
+	BOOL		canUseAntiAliasing() const;
 
 	// phases
 	void resetFrameStats();
@@ -244,7 +245,6 @@ public:
 	void renderHighlights();
 	void renderDebug();
 
-	void renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect);
 	void rebuildPools(); // Rebuild pools
 
 	void findReferences(LLDrawable *drawablep);	// Find the lists which have references to this object
@@ -358,6 +358,7 @@ public:
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
+		RENDER_TYPE_VOIDWATER					= LLDrawPool::POOL_VOIDWATER,
 		RENDER_TYPE_WATER						= LLDrawPool::POOL_WATER,
  		RENDER_TYPE_ALPHA						= LLDrawPool::POOL_ALPHA,
 		RENDER_TYPE_GLOW						= LLDrawPool::POOL_GLOW,
@@ -711,7 +712,6 @@ void render_bbox(const LLVector3 &min, const LLVector3 &max);
 void render_hud_elements();
 
 extern LLPipeline gPipeline;
-extern BOOL gRenderForSelect;
 extern BOOL gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 

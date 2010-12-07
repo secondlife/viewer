@@ -194,6 +194,8 @@ void LLPanel::draw()
 	// draw background
 	if( mBgVisible )
 	{
+		alpha = getCurrentTransparency();
+
 		LLRect local_rect = getLocalRect();
 		if (mBgOpaque )
 		{
@@ -904,7 +906,7 @@ LLPanel *LLPanel::childGetVisiblePanelWithHelp()
 		child = *it;
 		// do we have a panel with a help topic?
 		LLPanel *panel = dynamic_cast<LLPanel *>(child);
-		if (panel && panel->getVisible() && !panel->getHelpTopic().empty())
+		if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
 		{
 			return panel;
 		}

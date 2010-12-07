@@ -97,7 +97,7 @@ void LLDrawPoolSky::render(S32 pass)
 
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	LLGLClampToFarClip far_clip(glh_get_current_projection());
+	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
 	LLGLEnable fog_enable( (mVertexShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
 
@@ -141,10 +141,6 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 		glColor4f(1, 1, 1, LLSkyTex::getInterpVal()); // lighting is disabled
 		face.renderIndexed();
 	}
-}
-
-void LLDrawPoolSky::renderForSelect()
-{
 }
 
 void LLDrawPoolSky::endRenderPass( S32 pass )

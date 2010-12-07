@@ -40,29 +40,6 @@
 #include "llslurl.h"
 
 //static
-void LLAgentUI::buildName(std::string& name)
-{
-	name.clear();
-	if (isAgentAvatarValid())
-	{
-		LLNameValue *first_nv = gAgentAvatarp->getNVPair("FirstName");
-		LLNameValue *last_nv = gAgentAvatarp->getNVPair("LastName");
-		if (first_nv && last_nv)
-		{
-			name = first_nv->printData() + " " + last_nv->printData();
-		}
-		else
-		{
-			llwarns << "Agent is missing FirstName and/or LastName nv pair." << llendl;
-		}
-	}
-	else
-	{
-		name = gSavedSettings.getString("FirstName") + " " + gSavedSettings.getString("LastName");
-	}
-}
-
-//static
 void LLAgentUI::buildFullname(std::string& name)
 {
 	if (isAgentAvatarValid())

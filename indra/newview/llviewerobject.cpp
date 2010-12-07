@@ -63,6 +63,7 @@
 #include "llface.h"
 #include "llfloaterproperties.h"
 #include "llfollowcam.h"
+#include "llhudtext.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
@@ -102,8 +103,8 @@
 
 //#define DEBUG_UPDATE_TYPE
 
-BOOL gVelocityInterpolate = TRUE;
-BOOL gPingInterpolate = TRUE; 
+BOOL		LLViewerObject::sVelocityInterpolate = TRUE;
+BOOL		LLViewerObject::sPingInterpolate = TRUE; 
 
 U32			LLViewerObject::sNumZombieObjects = 0;
 S32			LLViewerObject::sNumObjects = 0;
@@ -113,6 +114,11 @@ LLColor4	LLViewerObject::sNoEditSelectColor(	1.0f, 0.f, 0.f, 0.3f);	// Can't edi
 S32			LLViewerObject::sAxisArrowLength(50);
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
 BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
+
+// sMaxUpdateInterpolationTime must be greater than sPhaseOutUpdateInterpolationTime
+F64			LLViewerObject::sMaxUpdateInterpolationTime = 3.0;		// For motion interpolation: after X seconds with no updates, don't predict object motion
+F64			LLViewerObject::sPhaseOutUpdateInterpolationTime = 2.0;	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
+
 
 static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
@@ -167,8 +173,10 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	  res = new LLVOSurfacePatch(id, pcode, regionp); break;
 	case LL_VO_SKY:
 	  res = new LLVOSky(id, pcode, regionp); break;
+	case LL_VO_VOID_WATER:
+		res = new LLVOVoidWater(id, pcode, regionp); break;
 	case LL_VO_WATER:
-	  res = new LLVOWater(id, pcode, regionp); break;
+		res = new LLVOWater(id, pcode, regionp); break;
 	case LL_VO_GROUND:
 	  res = new LLVOGround(id, pcode, regionp); break;
 	case LL_VO_PART_GROUP:
@@ -202,6 +210,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
+	mCircuitPacketCount(0),
 	mData(NULL),
 	mAudioSourcep(NULL),
 	mAudioGain(1.f),
@@ -1092,7 +1101,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					// alpha was flipped so that it zero encoded better
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
-					mText->setStringUTF8(temp_string);
+					mText->setString(temp_string);
 					
 					if (mDrawable.notNull())
 					{
@@ -1484,7 +1493,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
-					mText->setStringUTF8(temp_string);
+					mText->setString(temp_string);
 
 					setChanged(TEXTURE);
 				}
@@ -1838,7 +1847,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	new_rot.normQuat();
 
-	if (gPingInterpolate)
+	if (sPingInterpolate)
 	{ 
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
 		if (cdp)
@@ -1859,6 +1868,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//
 
+	// WTF?   If we're going to skip this message, why are we 
+	// doing all the parenting, etc above?
 	U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
 	if (packet_id < mLatestRecvPacketID && 
 		mLatestRecvPacketID - packet_id < 65536)
@@ -1868,6 +1879,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	}
 
 	mLatestRecvPacketID = packet_id;
+	mCircuitPacketCount = 0;
 
 	// Set the change flags for scale
 	if (new_scale != getScale())
@@ -1999,7 +2011,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 //	U32 ping_delay = mesgsys->mCircuitInfo.getPingDelay();
 	mLastInterpUpdateSecs = LLFrameTimer::getElapsedSeconds();
-	mLastMessageUpdateSecs = LLFrameTimer::getElapsedSeconds();
+	mLastMessageUpdateSecs = mLastInterpUpdateSecs;
 	if (mDrawable.notNull())
 	{
 		// Don't clear invisibility flag on update if still orphaned!
@@ -2026,6 +2038,8 @@ BOOL LLViewerObject::isActive() const
 	return TRUE;
 }
 
+
+
 BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	static LLFastTimer::DeclareTimer ftm("Viewer Object");
@@ -2039,7 +2053,7 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	// CRO - don't velocity interp linked objects!
 	// Leviathan - but DO velocity interp joints
-	if (!mStatic && gVelocityInterpolate && !isSelected())
+	if (!mStatic && sVelocityInterpolate && !isSelected())
 	{
 		// calculate dt from last update
 		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
@@ -2129,33 +2143,8 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			return TRUE;
 		}
 		else
-		{
-			// linear motion
-			// PHYSICS_TIMESTEP is used below to correct for the fact that the velocity in object
-			// updates represents the average velocity of the last timestep, rather than the final velocity.
-			// the time dilation above should guarantee that dt is never less than PHYSICS_TIMESTEP, theoretically
-			// 
-			// There is a problem here if dt is negative. . .
-
-			// *TODO: should also wrap linear accel/velocity in check
-			// to see if object is selected, instead of explicitly
-			// zeroing it out	
-			LLVector3 accel = getAcceleration();
-			LLVector3 vel 	= getVelocity();
-			
-			if (!(accel.isExactlyZero() && vel.isExactlyZero()))
-			{
-				LLVector3 pos 	= (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;	
-			
-				// region local  
-				setPositionRegion(pos + getPositionRegion());
-				setVelocity(vel + accel*dt);	
-				
-				// for objects that are spinning but not translating, make sure to flag them as having moved
-				setChanged(MOVED | SILHOUETTE);
-			}
-			
-			mLastInterpUpdateSecs = time;
+		{	// Move object based on it's velocity and rotation
+			interpolateLinearMotion(time, dt);
 		}
 	}
 
@@ -2169,6 +2158,158 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	return TRUE;
 }
+
+
+// Move an object due to idle-time viewer side updates by iterpolating motion
+void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
+{
+	// linear motion
+	// PHYSICS_TIMESTEP is used below to correct for the fact that the velocity in object
+	// updates represents the average velocity of the last timestep, rather than the final velocity.
+	// the time dilation above should guarantee that dt is never less than PHYSICS_TIMESTEP, theoretically
+	// 
+	// *TODO: should also wrap linear accel/velocity in check
+	// to see if object is selected, instead of explicitly
+	// zeroing it out	
+
+	F64 time_since_last_update = time - mLastMessageUpdateSecs;
+	if (time_since_last_update <= 0.0 || dt <= 0.f)
+	{
+		return;
+	}
+
+	LLVector3 accel = getAcceleration();
+	LLVector3 vel 	= getVelocity();
+	
+	if (sMaxUpdateInterpolationTime <= 0.0)
+	{	// Old code path ... unbounded, simple interpolation
+		if (!(accel.isExactlyZero() && vel.isExactlyZero()))
+		{
+			LLVector3 pos   = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;  
+		
+			// region local  
+			setPositionRegion(pos + getPositionRegion());
+			setVelocity(vel + accel*dt);	
+			
+			// for objects that are spinning but not translating, make sure to flag them as having moved
+			setChanged(MOVED | SILHOUETTE);
+		}
+	}
+	else if (!accel.isExactlyZero() || !vel.isExactlyZero())		// object is moving
+	{	// Object is moving, and hasn't been too long since we got an update from the server
+		
+		// Calculate predicted position and velocity
+		LLVector3 new_pos = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;	
+		LLVector3 new_v = accel * dt;
+
+		if (time_since_last_update > sPhaseOutUpdateInterpolationTime)
+		{	// Haven't seen a viewer update in a while, check to see if the ciruit is still active
+			if (mRegionp)
+			{	// The simulator will NOT send updates if the object continues normally on the path
+				// predicted by the velocity and the acceleration (often gravity) sent to the viewer
+				// So check to see if the circuit is blocked, which means the sim is likely in a long lag
+				LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit( mRegionp->getHost() );
+				if (cdp)
+				{
+					if (!cdp->isAlive() ||		// Circuit is dead or blocked
+						 cdp->isBlocked() ||	// or doesn't seem to be getting any packets
+						 (mCircuitPacketCount > 0 && mCircuitPacketCount == cdp->getPacketsIn()))
+					{
+						// Start to reduce motion interpolation since we haven't seen a server update in a while
+						F64 time_since_last_interpolation = time - mLastInterpUpdateSecs;
+						F64 phase_out = 1.0;
+						if (time_since_last_update > sMaxUpdateInterpolationTime)
+						{	// Past the time limit, so stop the object
+							phase_out = 0.0;
+							//llinfos << "Motion phase out to zero" << llendl;
+
+							// Kill angular motion as well.  Note - not adding this due to paranoia
+							// about stopping rotation for llTargetOmega objects and not having it restart
+							// setAngularVelocity(LLVector3::zero);
+						}
+						else if (mLastInterpUpdateSecs - mLastMessageUpdateSecs > sPhaseOutUpdateInterpolationTime)
+						{	// Last update was already phased out a bit
+							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
+										(sMaxUpdateInterpolationTime - time_since_last_interpolation);
+							//llinfos << "Continuing motion phase out of " << (F32) phase_out << llendl;
+						}
+						else
+						{	// Phase out from full value
+							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
+										(sMaxUpdateInterpolationTime - sPhaseOutUpdateInterpolationTime);
+							//llinfos << "Starting motion phase out of " << (F32) phase_out << llendl;
+						}
+						phase_out = llclamp(phase_out, 0.0, 1.0);
+
+						new_pos = new_pos * ((F32) phase_out);
+						new_v = new_v * ((F32) phase_out);
+					}
+
+					// Save current circuit packet count to see if it changes 
+					mCircuitPacketCount = cdp->getPacketsIn();
+				}
+			}
+		}
+
+		new_pos = new_pos + getPositionRegion();
+		new_v = new_v + vel;
+
+
+		// Clamp interpolated position to minimum underground and maximum region height
+		LLVector3d new_pos_global = mRegionp->getPosGlobalFromRegion(new_pos);
+		F32 min_height;
+		if (isAvatar())
+		{	// Make a better guess about AVs not going underground
+			min_height = LLWorld::getInstance()->resolveLandHeightGlobal(new_pos_global);
+			min_height += (0.5f * getScale().mV[VZ]);
+		}
+		else
+		{	// This will put the object underground, but we can't tell if it will stop 
+			// at ground level or not
+			min_height = LLWorld::getInstance()->getMinAllowedZ(this, new_pos_global);
+		}
+
+		new_pos.mV[VZ] = llmax(min_height, new_pos.mV[VZ]);
+		new_pos.mV[VZ] = llmin(LLWorld::getInstance()->getRegionMaxHeight(), new_pos.mV[VZ]);
+
+		// Check to see if it's going off the region
+		LLVector3 temp(new_pos);
+		if (temp.clamp(0.f, mRegionp->getWidth()))
+		{	// Going off this region, so see if we might end up on another region
+			LLVector3d old_pos_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());
+			new_pos_global = mRegionp->getPosGlobalFromRegion(new_pos);		// Re-fetch in case it got clipped above
+
+			// Clip the positions to known regions
+			LLVector3d clip_pos_global = LLWorld::getInstance()->clipToVisibleRegions(old_pos_global, new_pos_global);
+			if (clip_pos_global != new_pos_global)
+			{	// Was clipped, so this means we hit a edge where there is no region to enter
+				
+				//llinfos << "Hit empty region edge, clipped predicted position to " << mRegionp->getPosRegionFromGlobal(clip_pos_global)
+				//	<< " from " << new_pos << llendl;
+				new_pos = mRegionp->getPosRegionFromGlobal(clip_pos_global);
+				
+				// Stop motion and get server update for bouncing on the edge
+				new_v.clear();
+				setAcceleration(LLVector3::zero);
+			}
+			else
+			{	// Let predicted movement cross into another region
+				//llinfos << "Predicting region crossing to " << new_pos << llendl;
+			}
+		}
+
+		// Set new position and velocity
+		setPositionRegion(new_pos);
+		setVelocity(new_v);	
+		
+		// for objects that are spinning but not translating, make sure to flag them as having moved
+		setChanged(MOVED | SILHOUETTE);
+	}		
+
+	// Update the last time we did anything
+	mLastInterpUpdateSecs = time;
+}
+
 
 
 BOOL LLViewerObject::setData(const U8 *datap, const U32 data_size)
@@ -4150,7 +4291,7 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 		mText->setOnHUDAttachment(isHUDAttachment());
 	}
 	mText->setColor(LLColor4::white);
-	mText->setStringUTF8(utf8text);
+	mText->setString(utf8text);
 	mText->setZCompare(FALSE);
 	mText->setDoFade(FALSE);
 	updateText();
@@ -4959,6 +5100,7 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	}
 	
 	mLatestRecvPacketID = 0;
+	mCircuitPacketCount = 0;
 	mRegionp = regionp;
 
 	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
@@ -4970,6 +5112,20 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
 }
+
+// virtual
+void	LLViewerObject::updateRegion(LLViewerRegion *regionp)
+{
+//	if (regionp)
+//	{
+//		F64 now = LLFrameTimer::getElapsedSeconds();
+//		llinfos << "Updating to region " << regionp->getName()
+//			<< ", ms since last update message: " << (F32)((now - mLastMessageUpdateSecs) * 1000.0)
+//			<< ", ms since last interpolation: " << (F32)((now - mLastInterpUpdateSecs) * 1000.0) 
+//			<< llendl;
+//	}
+}
+
 
 bool LLViewerObject::specialHoverCursor() const
 {

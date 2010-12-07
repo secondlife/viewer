@@ -28,7 +28,6 @@
 #ifndef LL_LLCHAT_H
 #define LL_LLCHAT_H
 
-#include "llstring.h"
 #include "lluuid.h"
 #include "v3math.h"
 
@@ -71,7 +70,7 @@ typedef enum e_chat_style
 class LLChat
 {
 public:
-	LLChat(const std::string& text = LLStringUtil::null)
+	LLChat(const std::string& text = std::string())
 	:	mText(text),
 		mFromName(),
 		mFromID(),
