@@ -212,7 +212,8 @@ void LLPanelPicks::updateData()
 		mNoPicks = false;
 		mNoClassifieds = false;
 
-		getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+		mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+		mNoItemsLabel->setVisible(TRUE);
 
 		mPicksList->clear();
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
@@ -314,15 +315,17 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		mNoClassifieds = !mClassifiedsList->size();
 	}
 
-	if (mNoPicks && mNoClassifieds)
+	bool no_data = mNoPicks && mNoClassifieds;
+	mNoItemsLabel->setVisible(no_data);
+	if (no_data)
 	{
 		if(getAvatarId() == gAgentID)
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoPicksClassifiedsText"));
+			mNoItemsLabel->setValue(LLTrans::getString("NoPicksClassifiedsText"));
 		}
 		else
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
+			mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
 		}
 	}
 }
@@ -358,6 +361,8 @@ BOOL LLPanelPicks::postBuild()
 
 	mPicksList->setNoItemsCommentText(getString("no_picks"));
 	mClassifiedsList->setNoItemsCommentText(getString("no_classifieds"));
+
+	mNoItemsLabel = getChild<LLUICtrl>("picks_panel_text");
 
 	childSetAction(XML_BTN_NEW, boost::bind(&LLPanelPicks::onClickPlusBtn, this));
 	childSetAction(XML_BTN_DELETE, boost::bind(&LLPanelPicks::onClickDelete, this));
@@ -781,7 +786,7 @@ void LLPanelPicks::showAccordion(const std::string& name, bool show)
 
 void LLPanelPicks::onPanelPickClose(LLPanel* panel)
 {
-	panel->setVisible(FALSE);
+	getProfilePanel()->closePanel(panel);
 }
 
 void LLPanelPicks::onPanelPickSave(LLPanel* panel)
