@@ -2396,7 +2396,7 @@ namespace {
 		switch (evt["type"].asInteger())
 		{
 			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				LLNotificationsUtil::add("DownloadBackground");
+				LLNotificationsUtil::add("DownloadBackgroundDialog");
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
 				LLNotificationsUtil::add("FailedUpdateInstall");

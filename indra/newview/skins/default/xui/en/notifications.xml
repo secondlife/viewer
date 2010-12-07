@@ -2887,12 +2887,29 @@ http://secondlife.com/download.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
   <notification
    icon="notifytip.tga"
-   name="DownloadBackground"
+   name="DownloadBackgroundTip"
    type="notifytip">
 An updated version of [APP_NAME] has been downloaded.
 It will be applied the next time you restart [APP_NAME]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Wait"
+     yestext="Restart Now"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="DownloadBackgroundDialog"
+ type="alertmodal">
+    An updated version of [APP_NAME] has been downloaded.
+    It will be applied the next time you restart [APP_NAME]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Wait"
+     yestext="Restart Now"/>
   </notification>
 
   <notification
