@@ -2887,6 +2887,19 @@ http://secondlife.com/download.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UpdaterServiceNotRunning"
+   type="alertmodal">
+An update is required to log in. May we start the background
+updater service to fetch and install the update?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Quit"
+     yestext="Start"/>
+  </notification>
+
   <notification
    icon="notifytip.tga"
    name="DownloadBackground"

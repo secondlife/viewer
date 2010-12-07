@@ -80,6 +80,7 @@
 #include "llfeaturemanager.h"
 #include "llurlmatch.h"
 #include "lltextutil.h"
+#include "lllogininstance.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -590,10 +591,14 @@ LLAppViewer::LLAppViewer() :
 	setupErrorHandling();
 	sInstance = this;
 	gLoggedInTime.stop();
+	
+	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
 }
 
 LLAppViewer::~LLAppViewer()
 {
+	LLLoginInstance::instance().setUpdaterService(0);
+	
 	destroyMainloopTimeout();
 
 	// If we got to this destructor somehow, the app didn't hang.
