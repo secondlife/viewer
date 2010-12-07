@@ -2623,7 +2623,7 @@
                  parameter="BottomPanelNew" />
             </menu_item_check>-->
             <menu_item_call
-             label="Web Browser Test"
+             label="Media Browser Test"
              name="Web Browser Test">
                 <menu_item_call.on_click
                  function="Advanced.WebBrowserTest"
