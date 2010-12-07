@@ -205,10 +205,10 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
 		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 
