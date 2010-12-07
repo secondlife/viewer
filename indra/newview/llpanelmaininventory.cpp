@@ -506,8 +506,7 @@ void LLPanelMainInventory::onFilterSelected()
 		return;
 	}
 
-	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
-	getChildView("add_btn_panel")->setVisible( !recent_active);
+	getChildView("add_btn_panel")->setVisible(true);
 
 	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
