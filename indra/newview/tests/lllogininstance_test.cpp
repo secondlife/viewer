@@ -68,6 +68,7 @@ static bool gDisconnectCalled = false;
 
 #include "../llviewerwindow.h"
 void LLViewerWindow::setShowProgress(BOOL show) {}
+LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;
 
@@ -231,6 +232,12 @@ LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, 
 	gTOSReplyPump = &LLEventPumps::instance().obtain(key["reply_pump"]);
 	return NULL;
 }
+
+//----------------------------------------------------------------------------
+#include "../llprogressview.h"
+void LLProgressView::setText(std::string const &){}
+void LLProgressView::setPercent(float){}
+void LLProgressView::setMessage(std::string const &){}
 
 //-----------------------------------------------------------------------------
 // LLNotifications

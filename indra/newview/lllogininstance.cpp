@@ -49,6 +49,7 @@
 #include "llnotifications.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
+#include "llprogressview.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
@@ -105,6 +106,7 @@ namespace {
 	private:
 		LLTempBoundListener mConnection;
 		MandatoryUpdateMachine & mMachine;
+		LLProgressView * mProgressView;
 		
 		bool onEvent(LLSD const & event);
 	};
@@ -165,6 +167,7 @@ namespace {
 	private:
 		LLTempBoundListener mConnection;
 		MandatoryUpdateMachine & mMachine;
+		LLProgressView * mProgressView;
 		
 		bool onEvent(LLSD const & event);
 	};
@@ -213,7 +216,7 @@ void MandatoryUpdateMachine::start(void)
 					setCurrentState(new Error(*this));
 				}
 				break;
-			case LLUpdaterService::ERROR:
+			case LLUpdaterService::FAILURE:
 				setCurrentState(new Error(*this));
 				break;
 			default:
@@ -256,6 +259,11 @@ void MandatoryUpdateMachine::CheckingForUpdate::enter(void)
 {
 	llinfos << "entering checking for update" << llendl;
 	
+	mProgressView = gViewerWindow->getProgressView();
+	mProgressView->setMessage("Looking for update...");
+	mProgressView->setText("Update");
+	mProgressView->setPercent(0);
+	mProgressView->setVisible(true);
 	mConnection = LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).
 		listen("MandatoryUpdateMachine::CheckingForUpdate", boost::bind(&MandatoryUpdateMachine::CheckingForUpdate::onEvent, this, _1));
 }
@@ -275,7 +283,8 @@ bool MandatoryUpdateMachine::CheckingForUpdate::onEvent(LLSD const & event)
 				break;
 			case LLUpdaterService::UP_TO_DATE:
 			case LLUpdaterService::TERMINAL:
-			case LLUpdaterService::ERROR:
+			case LLUpdaterService::FAILURE:
+				mProgressView->setVisible(false);
 				mMachine.setCurrentState(new Error(mMachine));
 				break;
 			case LLUpdaterService::INSTALLING:
@@ -390,7 +399,8 @@ void MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked(const LLSD 
 
 
 MandatoryUpdateMachine::WaitingForDownload::WaitingForDownload(MandatoryUpdateMachine & machine):
-	mMachine(machine)
+	mMachine(machine),
+	mProgressView(0)
 {
 	; // No op.
 }
@@ -399,6 +409,11 @@ MandatoryUpdateMachine::WaitingForDownload::WaitingForDownload(MandatoryUpdateMa
 void MandatoryUpdateMachine::WaitingForDownload::enter(void)
 {
 	llinfos << "entering waiting for download" << llendl;
+	mProgressView = gViewerWindow->getProgressView();
+	mProgressView->setMessage("Downloading update...");
+	mProgressView->setText("Update");
+	mProgressView->setPercent(0);
+	mProgressView->setVisible(true);
 	mConnection = LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).
 		listen("MandatoryUpdateMachine::CheckingForUpdate", boost::bind(&MandatoryUpdateMachine::WaitingForDownload::onEvent, this, _1));
 }
@@ -406,6 +421,7 @@ void MandatoryUpdateMachine::WaitingForDownload::enter(void)
 
 void MandatoryUpdateMachine::WaitingForDownload::exit(void)
 {
+	mProgressView->setVisible(false);
 }
 
 
@@ -418,6 +434,12 @@ bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
 		case LLUpdaterService::DOWNLOAD_ERROR:
 			mMachine.setCurrentState(new Error(mMachine));
 			break;
+		case LLUpdaterService::PROGRESS: {
+			double downloadSize = event["download_size"].asReal();
+			double bytesDownloaded = event["bytes_downloaded"].asReal();
+			mProgressView->setPercent(100. * bytesDownloaded / downloadSize);
+			break;
+		}
 		default:
 			break;
 	}
