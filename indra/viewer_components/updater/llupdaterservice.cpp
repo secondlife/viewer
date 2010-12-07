@@ -25,10 +25,11 @@
 
 #include "linden_common.h"
 
+#include "llupdaterservice.h"
+
 #include "llupdatedownloader.h"
 #include "llevents.h"
 #include "lltimer.h"
-#include "llupdaterservice.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
 #include "llversionviewer.h"
@@ -419,7 +420,7 @@ void LLUpdaterServiceImpl::downloadError(std::string const & message)
 	event["payload"] = payload;
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 
-	setState(LLUpdaterService::ERROR);
+	setState(LLUpdaterService::FAILURE);
 }
 
 void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)

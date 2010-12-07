@@ -24,6 +24,9 @@
  */
 
 #include "linden_common.h"
+
+#include "llupdatedownloader.h"
+
 #include <stdexcept>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -35,7 +38,6 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llthread.h"
-#include "llupdatedownloader.h"
 #include "llupdaterservice.h"
 
 
