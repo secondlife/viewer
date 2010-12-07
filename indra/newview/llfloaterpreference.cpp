@@ -386,23 +386,15 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
-<<<<<<< local
-	
-=======
 
 	updateDoubleClickControls();
 
->>>>>>> other
 	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
-<<<<<<< local
-	
-=======
 
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
->>>>>>> other
 	// if floater is opened before login set default localized busy message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
@@ -534,17 +526,14 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
-<<<<<<< local
 	
 	saveAvatarProperties();
-=======
 
 	if (mDoubleClickActionDirty)
 	{
 		updateDoubleClickSettings();
 		mDoubleClickActionDirty = false;
 	}
->>>>>>> other
 }
 
 void LLFloaterPreference::cancel()
@@ -630,14 +619,10 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setVisible( false);
 	}
-<<<<<<< local
-	
-=======
 
 	// Forget previous language changes.
 	mLanguageChanged = false;
 
->>>>>>> other
 	// Display selected maturity icons.
 	onChangeMaturity();
 	

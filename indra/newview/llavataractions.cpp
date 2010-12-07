@@ -309,10 +309,10 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		params["open_tab_name"] = "panel_profile";
 
 		// PROFILES: open in webkit window
-		std::string first_name,last_name;
-		if (gCacheName->getName(id,first_name,last_name))
+		std::string full_name;
+		if (gCacheName->getFullName(id,full_name))
 		{
-			std::string agent_name = first_name + "." + last_name;
+			std::string agent_name = LLCacheName::buildUsername(full_name);
 			llinfos << "opening web profile for " << agent_name << llendl;		
 			std::string url = getProfileURL(agent_name);
 			LLWeb::loadURLInternal(url);
