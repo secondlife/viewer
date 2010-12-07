@@ -4946,6 +4946,7 @@ void LLVOAvatar::resetJointPositions( void )
 	for(S32 i = 0; i < (S32)mNumJoints; ++i)
 	{
 		mSkeleton[i].restoreOldXform();
+		mSkeleton[i].setId( LLUUID::null );
 	}
 	mHasPelvisOffset = false;
 }
@@ -4972,6 +4973,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	for( S32 i = 0; i < (S32)mNumJoints; ++i )
 	{
 		LLJoint* pJoint = (LLJoint*)&mSkeleton[i];
+		pJoint->setId( LLUUID::null );
 		//restore joints to default positions, however skip over the pelvis
 		if ( pJoint && pPelvis != pJoint )
 		{
