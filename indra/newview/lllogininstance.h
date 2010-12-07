@@ -34,6 +34,7 @@
 class LLLogin;
 class LLEventStream;
 class LLNotificationsInterface;
+class LLUpdaterService;
 
 // This class hosts the login module and is used to 
 // negotiate user authentication attempts.
@@ -75,6 +76,7 @@ public:
 	typedef boost::function<void()> UpdaterLauncherCallback;
 	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
 
+	void setUpdaterService(LLUpdaterService * updaterService) { mUpdaterService = updaterService; }
 private:
 	void constructAuthParams(LLPointer<LLCredential> user_credentials);
 	void updateApp(bool mandatory, const std::string& message);
@@ -104,6 +106,7 @@ private:
 	int mLastExecEvent;
 	UpdaterLauncherCallback mUpdaterLauncher;
 	LLEventDispatcher mDispatcher;
+	LLUpdaterService * mUpdaterService;
 };
 
 #endif
