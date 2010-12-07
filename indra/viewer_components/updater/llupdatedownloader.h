@@ -52,7 +52,7 @@ public:
 	void cancel(void);
 	
 	// Start a new download.
-	void download(LLURI const & uri, std::string const & hash);
+	void download(LLURI const & uri, std::string const & hash, bool required=false);
 	
 	// Returns true if a download is in progress.
 	bool isDownloading(void);
@@ -76,6 +76,7 @@ public:
 	// url - source (remote) location
 	// hash - the md5 sum that should match the installer file.
 	// path - destination (local) location
+	// required - boolean indicating if this is a required update.
 	// size - the size of the installer in bytes
 	virtual void downloadComplete(LLSD const & data) = 0;
 	
