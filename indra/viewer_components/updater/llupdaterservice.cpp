@@ -114,6 +114,7 @@ public:
 				   const std::string& version);
 	
 	void setCheckPeriod(unsigned int seconds);
+	void setBandwidthLimit(U64 bytesPerSecond);
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
@@ -187,6 +188,11 @@ void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
 void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 {
 	mCheckPeriod = seconds;
+}
+
+void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond)
+{
+	mUpdateDownloader.setBandwidthLimit(bytesPerSecond);
 }
 
 void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
@@ -540,6 +546,11 @@ void LLUpdaterService::initialize(const std::string& protocol_version,
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)
 {
 	mImpl->setCheckPeriod(seconds);
+}
+
+void LLUpdaterService::setBandwidthLimit(U64 bytesPerSecond)
+{
+	mImpl->setBandwidthLimit(bytesPerSecond);
 }
 	
 void LLUpdaterService::startChecking(bool install_if_ready)

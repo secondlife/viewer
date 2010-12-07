@@ -60,6 +60,9 @@ public:
 	// Resume a partial download.
 	void resume(void);
 	
+	// Set a limit on the dowload rate.
+	void setBandwidthLimit(U64 bytesPerSecond);
+	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
 };

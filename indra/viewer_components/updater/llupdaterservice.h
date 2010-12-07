@@ -76,6 +76,7 @@ public:
 				    const std::string& version);
 
 	void setCheckPeriod(unsigned int seconds);
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
 	void startChecking(bool install_if_ready = false);
 	void stopChecking();

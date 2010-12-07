@@ -54,8 +54,10 @@ public:
 	size_t onBody(void * header, size_t size);
 	int onProgress(double downloadSize, double bytesDownloaded);
 	void resume(void);
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
 private:
+	curl_off_t mBandwidthLimit;
 	bool mCancelled;
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
@@ -136,6 +138,12 @@ void LLUpdateDownloader::resume(void)
 }
 
 
+void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond)
+{
+	mImplementation->setBandwidthLimit(bytesPerSecond);
+}
+
+
 
 // LLUpdateDownloader::Implementation
 //-----------------------------------------------------------------------------
@@ -170,6 +178,7 @@ namespace {
 
 LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & client):
 	LLThread("LLUpdateDownloader"),
+	mBandwidthLimit(0),
 	mCancelled(false),
 	mClient(client),
 	mCurl(0),
@@ -260,6 +269,20 @@ void LLUpdateDownloader::Implementation::resume(void)
 		}
 	} catch(DownloadError & e) {
 		mClient.downloadError(e.what());
+	}
+}
+
+
+void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
+{
+	if((mBandwidthLimit != bytesPerSecond) && isDownloading()) {
+		llassert(mCurl != 0);
+		mBandwidthLimit = bytesPerSecond;
+		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
+		if(code != CURLE_OK) LL_WARNS("UpdateDownload") << 
+			"unable to change dowload bandwidth" << LL_ENDL;
+	} else {
+		mBandwidthLimit = bytesPerSecond;
 	}
 }
 
@@ -388,6 +411,9 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSFUNCTION, &progress_callback));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSDATA, this));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOPROGRESS, false));
+	if(mBandwidthLimit != 0) {
+		throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, mBandwidthLimit));
+	}
 	
 	mDownloadPercent = 0;
 }

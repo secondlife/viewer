@@ -2413,6 +2413,12 @@ namespace {
 		// let others also handle this event by default
         return false;
     }
+	
+	bool on_bandwidth_throttle(LLUpdaterService * updater, LLSD const & evt)
+	{
+		updater->setBandwidthLimit(evt.asInteger() * (1024/8));
+		return false; // Let others receive this event.
+	};
 };
 
 void LLAppViewer::initUpdater()
@@ -2435,6 +2441,9 @@ void LLAppViewer::initUpdater()
 						 channel, 
 						 version);
  	mUpdater->setCheckPeriod(check_period);
+	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("ThrottleBandwidthKBPS") * (1024/8));
+	gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->
+		connect(boost::bind(&on_bandwidth_throttle, mUpdater.get(), _2));
 	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
 	{
 		bool install_if_ready = true;
