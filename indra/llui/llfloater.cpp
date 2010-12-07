@@ -1462,6 +1462,9 @@ void LLFloater::setFrontmost(BOOL take_focus)
 		// there are more than one floater view
 		// so we need to query our parent directly
 		((LLFloaterView*)getParent())->bringToFront(this, take_focus);
+
+		// Make sure we use the active floater transparency settings (STORM-732).
+		updateTransparency(TT_ACTIVE);
 	}
 }
 
