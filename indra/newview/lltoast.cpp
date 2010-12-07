@@ -141,10 +141,6 @@ LLToast::LLToast(const LLToast::Params& p)
 	// init callbacks if present
 	if(!p.on_delete_toast().empty())
 		mOnDeleteToastSignal.connect(p.on_delete_toast());
-
-	// *TODO: This signal doesn't seem to be used at all.
-	if(!p.on_mouse_enter().empty())
-		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }
 
 void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -402,7 +398,6 @@ void LLToast::onToastMouseEnter()
 		{
 			mHideBtn->setVisible(TRUE);
 		}
-		mOnMouseEnterSignal(this);
 		mToastMouseEnterSignal(this, getValue());
 	}
 }

@@ -908,6 +908,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 		}
+
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	previewp->getWindow()->decBusyCount();
 	// only show fullscreen preview when in freeze frame mode
@@ -1533,8 +1535,6 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	if (previewp && view)
 	{
 		previewp->updateSnapshot(TRUE);
-
-		gViewerWindow->playSnapshotAnimAndSound();
 	}
 }
 
@@ -2184,9 +2184,11 @@ void LLFloaterSnapshot::draw()
 			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
 
 			glMatrixMode(GL_MODELVIEW);
+			// Apply floater transparency to the texture unless the floater is focused.
+			F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 			gl_draw_scaled_image(offset_x, offset_y, 
 					previewp->getThumbnailWidth(), previewp->getThumbnailHeight(), 
-					previewp->getThumbnailImage(), LLColor4::white);	
+					previewp->getThumbnailImage(), LLColor4::white % alpha);
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 		}
@@ -2204,8 +2206,6 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
-
-	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLFloaterSnapshot::onClose(bool app_quitting)

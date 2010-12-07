@@ -365,3 +365,16 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 		mChatHistory->setFocus(TRUE);
 	return LLDockableFloater::handleMouseDown(x, y, mask);
 }
+
+void LLNearbyChat::draw()
+{
+	// *HACK: Update transparency type depending on whether our children have focus.
+	// This is needed because this floater is chrome and thus cannot accept focus, so
+	// the transparency type setting code from LLFloater::setFocus() isn't reached.
+	if (getTransparencyType() != TT_DEFAULT)
+	{
+		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
+	}
+
+	LLDockableFloater::draw();
+}

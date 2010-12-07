@@ -45,7 +45,8 @@ background_visible="true"
      left="7"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
     <text_editor
      allow_scroll="false"
      bg_visible="false"

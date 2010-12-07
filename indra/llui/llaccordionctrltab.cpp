@@ -203,7 +203,8 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 	S32 width = getRect().getWidth();
 	S32 height = getRect().getHeight();
 
-	gl_rect_2d(0,0,width - 1 ,height - 1,mHeaderBGColor.get(),true);
+	F32 alpha = getCurrentTransparency();
+	gl_rect_2d(0,0,width - 1 ,height - 1,mHeaderBGColor.get() % alpha,true);
 
 	LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
 	bool collapsible = (parent && parent->getCollapsible());
