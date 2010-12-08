@@ -80,6 +80,7 @@ public:
 		Optional<commit_callback_t> function;
 	};
 
+	// also used for visible callbacks
 	struct EnableCallbackParam : public LLInitParam::Block<EnableCallbackParam, CallbackParam >
 	{
 		Optional<enable_callback_t> function;
@@ -260,6 +261,7 @@ public:
 	{};	
 
 	class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>{};
+	// the enable callback registry is also used for visiblity callbacks
 	class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>{};
 		
 protected:
