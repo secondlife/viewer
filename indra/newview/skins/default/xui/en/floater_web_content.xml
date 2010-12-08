@@ -110,10 +110,27 @@
         name="address"
         combo_editor.select_on_focus="true"
         top_delta="0"
-        width="729">
+        width="702">
         <combo_box.commit_callback
           function="WebContent.EnterAddress" />
       </combo_box>
+      <button
+        image_overlay="ExternalBrowser_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        follows="right|top"
+        enabled="true" 
+        height="22"
+        layout="topleft"
+        name="popexternal"
+        right="800"
+        top_delta="0"
+        width="22">
+        <button.commit_callback
+          function="WebContent.PopExternal" />
+      </button>
     </layout_panel>
     <layout_panel
       height="40"

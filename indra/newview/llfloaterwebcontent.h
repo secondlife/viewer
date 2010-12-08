@@ -61,7 +61,7 @@ public:
 	void onClickReload();
 	void onClickStop();
 	void onEnterAddress();
-	void onClickGo();
+	void onPopExternal();
 
 private:
 	void open_media(const std::string& media_url, const std::string& target);

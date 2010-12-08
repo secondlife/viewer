@@ -33,6 +33,7 @@
 #include "llprogressbar.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
+#include "llweb.h"
 #include "llwindow.h"
 
 #include "llfloaterwebcontent.h"
@@ -43,8 +44,8 @@ LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
-
 	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
+	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind( &LLFloaterWebContent::onPopExternal, this ));
 }
 
 BOOL LLFloaterWebContent::postBuild()
@@ -58,8 +59,9 @@ BOOL LLFloaterWebContent::postBuild()
 	// observe browser events
 	mWebBrowser->addObserver( this );
 
-	// these button are always enabled
+	// these buttons are always enabled
 	getChildView("reload")->setEnabled( true );
+	getChildView("popexternal")->setEnabled( true );
 
 	return TRUE;
 }
@@ -323,8 +325,20 @@ void LLFloaterWebContent::onEnterAddress()
 {
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
-	if ( mAddressCombo->getValue().asString().length() > 0 )
+	std::string url = mAddressCombo->getValue().asString();
+	if ( url.length() > 0 )
 	{
-		mWebBrowser->navigateTo( mAddressCombo->getValue().asString(), "text/html");
+		mWebBrowser->navigateTo( url, "text/html");
+	};
+}
+
+void LLFloaterWebContent::onPopExternal()
+{
+	// make sure there is at least something there.
+	// (perhaps this test should be for minimum length of a URL)
+	std::string url = mAddressCombo->getValue().asString();
+	if ( url.length() > 0 )
+	{
+		LLWeb::loadURLExternal( url );
 	};
 }
