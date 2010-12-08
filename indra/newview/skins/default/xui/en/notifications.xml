@@ -2901,9 +2901,9 @@ updater service to fetch and install the update?
   </notification>
 
   <notification
-   icon="notifytip.tga"
+   icon="notify.tga"
    name="DownloadBackgroundTip"
-   type="notifytip">
+   type="notify">
 An updated version of [APP_NAME] has been downloaded.
 It will be applied the next time you restart [APP_NAME]
     <usetemplate

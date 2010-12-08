@@ -2394,14 +2394,38 @@ bool LLAppViewer::initConfiguration()
 }
 
 namespace {
-    // *TODO - decide if there's a better place for this function.
+    // *TODO - decide if there's a better place for these functions.
     // do we need a file llupdaterui.cpp or something? -brad
+
+	void apply_update_callback(LLSD const & notification, LLSD const & response)
+	{
+		lldebugs << "LLUpdate user response: " << response << llendl;
+		if(response["OK_okcancelbuttons"].asBoolean())
+		{
+			llinfos << "LLUpdate restarting viewer" << llendl;
+			static const bool install_if_ready = true;
+			// *HACK - this lets us launch the installer immediately for now
+			LLUpdaterService().startChecking(install_if_ready);
+		}
+	}
+
     bool notify_update(LLSD const & evt)
     {
+		std::string notification_name;
 		switch (evt["type"].asInteger())
 		{
 			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				LLNotificationsUtil::add("DownloadBackgroundDialog");
+				if(LLStartUp::getStartupState() < STATE_STARTED)
+				{
+					// CHOP-262 we need to use a different notification
+					// method prior to login.
+					notification_name = "DownloadBackgroundDialog";
+				}
+				else
+				{
+					notification_name = "DownloadBackgroundTip";
+				}
+				LLNotificationsUtil::add(notification_name, LLSD(), LLSD(), apply_update_callback);
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
 				LLNotificationsUtil::add("FailedUpdateInstall");
