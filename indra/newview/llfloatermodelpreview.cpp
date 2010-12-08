@@ -284,6 +284,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	childDisable("upload_skin");
 	childDisable("upload_joints");
+	childDisable("ok_btn"); 
 	
 	initDecompControls();
 	
@@ -1554,9 +1555,11 @@ void LLModelLoader::run()
 		}
 		
 		daeElement* scene = root->getDescendant("visual_scene");
+		
 		if (!scene)
 		{
 			llwarns << "document has no visual_scene" << llendl;
+			setLoadState( ERROR_PARSING );
 			return;
 		}
 		
@@ -2001,6 +2004,11 @@ LLModelPreview::~LLModelPreview()
 U32 LLModelPreview::calcResourceCost()
 {
 	rebuildUploadData();
+
+	if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+	{
+		mFMP->childEnable("ok_btn");
+	}
 	
 	U32 cost = 0;
 	std::set<LLModel*> accounted;
@@ -2094,6 +2102,11 @@ void LLModelPreview::rebuildUploadData()
 	scale_mat.initScale(LLVector3(scale, scale, scale));
 	
 	F32 max_scale = 0.f;
+	
+	if ( mBaseScene.size() > 0 )
+	{
+		mFMP->childEnable("ok_btn");
+	}
 	
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
@@ -2235,6 +2248,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	
 	setPreviewLOD(lod);
 
+	if ( mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING )
+	{
+		mFMP->childDisable("ok_btn");
+	}
+	
 	if (lod == mPreviewLOD)
 	{
 		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
@@ -3001,7 +3019,9 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childSetText(lod_status_name[lod], message);
 	}
 	
-	if (upload_ok)
+	bool errorStateFromLoader = mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING ? true : false;
+			
+	if ( upload_ok && !errorStateFromLoader )
 	{
 		mFMP->childEnable("ok_btn");
 	}
@@ -3888,4 +3908,3 @@ void LLFloaterModelPreview::DecompRequest::completed()
 		sInstance->mCurRequest = NULL;
 	}
 }
-

@@ -60,6 +60,7 @@ public:
 		GENERATING_VERTEX_BUFFERS,
 		GENERATING_LOD,
 		DONE,
+		ERROR_PARSING, //basically loading failed
 	} eLoadState;
 
 	U32 mState;
@@ -103,7 +104,9 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
-
+	void setLoadState( U32 state ) { mState = state; }
+	U32 getLoadState( void ) { return mState; }
+	
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 };
