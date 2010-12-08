@@ -376,6 +376,7 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mLastTab(NULL),
 	mTabsHighlightEnabled(TRUE)
   , mUpdateDropDownItems(true)
+,	mRestoreOverflowMenu(false)
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
@@ -978,6 +979,14 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	{
 		return;
 	}
+
+	// Remember that the context menu was shown simultaneously with the overflow menu,
+	// so that we can restore the overflow menu when user clicks a context menu item
+	// (which hides the overflow menu).
+	{
+		LLView* overflow_menu = mOverflowMenuHandle.get();
+		mRestoreOverflowMenu = overflow_menu && overflow_menu->getVisible();
+	}
 	
 	// Release mouse capture so hover events go to the popup menu
 	// because this is happening during a mouse down.
@@ -1083,7 +1092,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
 	// See EXT-4217 and STORM-207.
 	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
-	if (menu && !menu->getVisible())
+	if (mRestoreOverflowMenu && menu && !menu->getVisible())
 	{
 		showDropDownMenu();
 	}

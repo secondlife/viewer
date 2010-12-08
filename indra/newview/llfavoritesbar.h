@@ -98,6 +98,7 @@ protected:
 	const LLFontGL *mFont;
 	S32 mFirstDropDownItem;
 	bool mUpdateDropDownItems;
+	bool mRestoreOverflowMenu;
 
 	LLUUID mSelectedItemID;
 
