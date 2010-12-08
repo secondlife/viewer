@@ -46,7 +46,7 @@
 		<slider label="Max. Anzahl an voll dargestellten Avataren:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Post-Processing-Qualität:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
-			Gitterdetails:
+			Darstellungsgrad:
 		</text>
 		<slider label="   Objekte:" name="ObjectMeshDetail"/>
 		<slider label="   Flexiprimitiva:" name="FlexibleMeshDetail"/>

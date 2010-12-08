@@ -16,7 +16,7 @@
 	</text>
 	<check_box label="Protokolle von Gesprächen in der Nähe auf meinem Computer speichern" name="log_nearby_chat"/>
 	<check_box label="IM Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
-	<check_box label="Zeitstempel hinzufügen" name="show_timestamps_check_im"/>
+	<check_box label="Zeitstempel in den Protokollen hinzufügen" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
 		Protokolle speichern in:
 	</text>
