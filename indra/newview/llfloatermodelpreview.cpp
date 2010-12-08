@@ -102,11 +102,12 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+const S32 NUM_LOD = 4;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
-std::string lod_name[] = 
+std::string lod_name[NUM_LOD+1] = 
 {
 	"lowest",
 	"low",
@@ -115,7 +116,7 @@ std::string lod_name[] =
 	"I went off the end of the lod_name array.  Me so smart."
 };
 	
-std::string lod_triangles_name[] =
+std::string lod_triangles_name[NUM_LOD+1] =
 {
 	"lowest_triangles",
 	"low_triangles",
@@ -124,7 +125,7 @@ std::string lod_triangles_name[] =
 	"I went off the end of the lod_triangles_name array.  Me so smart."
 };
 
-std::string lod_vertices_name[] =
+std::string lod_vertices_name[NUM_LOD+1] =
 {
 	"lowest_vertices",
 	"low_vertices",
@@ -133,7 +134,7 @@ std::string lod_vertices_name[] =
 	"I went off the end of the lod_vertices_name array.  Me so smart."
 };
 	
-std::string lod_status_name[] =
+std::string lod_status_name[NUM_LOD+1] =
 {
 	"lowest_status",
 	"low_status",
@@ -142,7 +143,7 @@ std::string lod_status_name[] =
 	"I went off the end of the lod_status_name array.  Me so smart."
 };
 
-std::string lod_label_name[] =
+std::string lod_label_name[NUM_LOD+1] =
 {
 	"lowest_label",
 	"low_label",
@@ -420,6 +421,7 @@ void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 	{
 		which_mode = iface->getFirstSelectedIndex();
 	}
+	which_mode = (NUM_LOD-1)-which_mode; // combo box list of lods is in reverse order
 	fp->mModelPreview->setPreviewLOD(which_mode);
 }
 
@@ -3752,7 +3754,7 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		mPreviewLOD = lod;
 		
 		LLComboBox* combo_box = mFMP->getChild<LLComboBox>("preview_lod_combo");
-		combo_box->setCurrentByIndex(mPreviewLOD);
+		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
 		mFMP->childSetTextArg("lod_table_footer", "[DETAIL]", mFMP->getString(lod_name[mPreviewLOD]));
 		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
 

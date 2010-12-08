@@ -42,19 +42,19 @@
   <text bottom_delta="20" left="15" follows="left|bottom" height="15" name="lod_label">
     Level of Detail:
   </text>
-  <combo_box bottom_delta="20" follows="left|bottom" height="18"
+  <combo_box bottom_delta="20" follows="left|bottom" list_position="below" height="18"
 	     name="preview_lod_combo" width="90" tool_tip="LOD to view in preview render">
+    <combo_item name="high">
+      High
+    </combo_item>
+    <combo_item name="medium">
+      Medium
+    </combo_item>
     <combo_item name="lowest">
       Lowest
     </combo_item>
     <combo_item name="low">
       Low
-    </combo_item>
-    <combo_item name="medium">
-      Medium
-    </combo_item>
-    <combo_item name="high">
-      High
     </combo_item>
   </combo_box>
 
