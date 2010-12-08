@@ -9990,6 +9990,17 @@
       <key>Value</key>
       <real>500.0</real>
     </map>
+    <key>UpdaterMaximumBandwidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum allowable downstream bandwidth for updater service (kilo bits per second)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>500.0</real>
+    </map>
     <key>ToolTipDelay</key>
     <map>
       <key>Comment</key>

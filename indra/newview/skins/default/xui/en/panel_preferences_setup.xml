@@ -142,7 +142,7 @@
    layout="topleft"
    left="80"
    name="Cache location"
-   top_delta="40"
+   top_delta="20"
    width="300">
     Cache location:
   </text>
@@ -341,7 +341,6 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
-
   <check_box
     top_delta="2"
     enabled="true"
@@ -356,5 +355,32 @@
     radio_style="false"
     width="400"
     top_pad="10"/>
-
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_delta="50"
+   name="UpdaterMaximumBandwidthText"
+   mouse_opaque="false"
+   top_pad="10"
+   width="200">
+Download bandwidth  
+  </text>
+  <slider
+   can_edit_text="true"
+   control_name="UpdaterMaximumBandwidth"
+   decimal_digits="0"
+   follows="left|top"
+   height="15"
+   increment="100"
+   initial_value="500"
+   layout="topleft"
+   left_delta="150"
+   max_val="10000"
+   min_val="100"
+   name="updater_max_bandwidth"
+   top_delta="0"
+   width="180" />
 </panel>

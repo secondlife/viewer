@@ -2441,8 +2441,8 @@ void LLAppViewer::initUpdater()
 						 channel, 
 						 version);
  	mUpdater->setCheckPeriod(check_period);
-	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("ThrottleBandwidthKBPS") * (1024/8));
-	gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->
+	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
+	gSavedSettings.getControl("UpdaterMaximumBandwidth")->getSignal()->
 		connect(boost::bind(&on_bandwidth_throttle, mUpdater.get(), _2));
 	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
 	{
