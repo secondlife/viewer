@@ -91,8 +91,8 @@ protected:
 	
 	void showDropDownMenu();
 
-	LLHandle<LLView> mPopupMenuHandle;
-	LLHandle<LLView> mInventoryItemsPopupMenuHandle;
+	LLHandle<LLView> mOverflowMenuHandle;
+	LLHandle<LLView> mContextMenuHandle;
 
 	LLUUID mFavoriteFolderId;
 	const LLFontGL *mFont;
