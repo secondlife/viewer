@@ -11101,16 +11101,16 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-    <key>UpdaterServiceActive</key>
+    <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
-      <string>Enable or disable the updater service.</string>
+      <string>Configure updater service.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>U32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>3</integer>
     </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>

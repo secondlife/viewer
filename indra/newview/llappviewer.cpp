@@ -2468,7 +2468,7 @@ void LLAppViewer::initUpdater()
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
 	gSavedSettings.getControl("UpdaterMaximumBandwidth")->getSignal()->
 		connect(boost::bind(&on_bandwidth_throttle, mUpdater.get(), _2));
-	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
+	if(gSavedSettings.getU32("UpdaterServiceSetting"))
 	{
 		bool install_if_ready = true;
 		mUpdater->startChecking(install_if_ready);

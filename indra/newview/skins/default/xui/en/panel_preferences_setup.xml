@@ -341,46 +341,39 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
-  <check_box
-    top_delta="2"
-    enabled="true"
-    follows="left|top"
-    height="18"
-    initial_value="true"
-    control_name="UpdaterServiceActive"
-    label="Automatically download and install [APP_NAME] updates"
-    left="30"
-    mouse_opaque="true"
-    name="updater_service_active"
-    radio_style="false"
-    width="400"
-    top_pad="10"/>
   <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_delta="50"
-   name="UpdaterMaximumBandwidthText"
-   mouse_opaque="false"
-   top_pad="10"
-   width="200">
-Download bandwidth  
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Software updates:"
+     mouse_opaque="false"
+     top_pad="5"
+     width="300">
+    Software updates:
   </text>
-  <slider
-   can_edit_text="true"
-   control_name="UpdaterMaximumBandwidth"
-   decimal_digits="0"
-   follows="left|top"
-   height="15"
-   increment="100"
-   initial_value="500"
-   layout="topleft"
-   left_delta="150"
-   max_val="10000"
-   min_val="100"
-   name="updater_max_bandwidth"
-   top_delta="0"
-   width="180" />
+  <combo_box
+     control_name="UpdaterServiceSetting"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left_delta="50"
+	 top_pad="5"
+     name="updater_service_combobox"
+     width="300">
+        <combo_box.item
+         label="Install automatically"
+         name="Install_automatically"
+         value="3" />
+        <combo_box.item
+         label="Ask before installing"
+         name="Install_ask"
+         value="1" />
+        <combo_box.item
+         label="Download and install updates manually"
+         name="Install_manual"
+         value="0" />
+  </combo_box>
 </panel>
