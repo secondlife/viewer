@@ -63,6 +63,14 @@ private:
 	static BOOL sEnableMemoryFailurePrevention;
 };
 
+//
+//class LLPrivateMemoryPool defines a private memory pool for an application to use, so the application does not
+//need to access the heap directly fro each memory allocation. Throught this, the allocation speed is faster, 
+//and reduces virtaul address space gragmentation problem.
+//Note: this class is thread-safe by passing true to the constructor function. However, you do not need to do this unless
+//you are sure the memory allocation and de-allocation will happen in different threads. To make the pool thread safe
+//increases allocation and deallocation cost.
+//
 class LL_COMMON_API LLPrivateMemoryPool
 {
 public:
@@ -122,6 +130,8 @@ public:
 		static U32 getMaxOverhead(U32 data_buffer_size, U32 min_page_size) ;
 	
 	private:
+		U32 getBlockLevel(U32 size) ;
+		U32 getPageLevel(U32 size) ;
 		LLMemoryBlock* addBlock(U32 blk_idx) ;
 		void popAvailBlockList(U32 blk_idx) ;
 		void addToFreeSpace(LLMemoryBlock* blk) ;
@@ -142,6 +152,7 @@ public:
 		U32   mMinBlockSize ;
 		U32   mMaxBlockSize;
 		U32   mMinSlotSize ;
+		U32   mAlloatedSize ;
 		U16   mBlockLevels;
 		U16   mPartitionLevels;
 
@@ -192,7 +203,7 @@ private:
 //
 //the below singleton is used to test the private memory pool.
 //
-class LLPrivateMemoryPoolTester
+class LL_COMMON_API LLPrivateMemoryPoolTester
 {
 private:
 	LLPrivateMemoryPoolTester() ;
@@ -202,22 +213,63 @@ public:
 	static LLPrivateMemoryPoolTester* getInstance() ;
 	static void destroy() ;
 
-	void run() ;	
+	void run(bool threaded) ;	
 
 private:
 	void correctnessTest() ;
-	void reliabilityTest() ;
 	void performanceTest() ;
 	void fragmentationtest() ;
 
-	void* operator new(size_t);
-    void  operator delete(void*);
+	void test(U32 min_size, U32 max_size, U32 stride, U32 times, bool random_deletion, bool output_statistics) ;
+
+public:
+	void* operator new(size_t size)
+	{
+		return (void*)sPool->allocate(size) ;
+	}
+    void  operator delete(void* addr)
+	{
+		sPool->free(addr) ;
+	}
+	void* operator new[](size_t size)
+	{
+		return (void*)sPool->allocate(size) ;
+	}
+    void  operator delete[](void* addr)
+	{
+		sPool->free(addr) ;
+	}
 
 private:
 	static LLPrivateMemoryPoolTester* sInstance;
 	static LLPrivateMemoryPool* sPool ;
+	static LLPrivateMemoryPool* sThreadedPool ;
 };
+#if 0
+//static
+void* LLPrivateMemoryPoolTester::operator new(size_t size)
+{
+	return (void*)sPool->allocate(size) ;
+}
 
+//static
+void  LLPrivateMemoryPoolTester::operator delete(void* addr)
+{
+	sPool->free(addr) ;
+}
+
+//static
+void* LLPrivateMemoryPoolTester::operator new[](size_t size)
+{
+	return (void*)sPool->allocate(size) ;
+}
+
+//static
+void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
+{
+	sPool->free(addr) ;
+}
+#endif
 // LLRefCount moved to llrefcount.h
 
 // LLPointer moved to llpointer.h

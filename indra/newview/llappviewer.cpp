@@ -1087,6 +1087,10 @@ bool LLAppViewer::mainLoop()
     // point of posting.
     LLSD newFrame;	
 
+	LLPrivateMemoryPoolTester::getInstance()->run(false) ;
+	LLPrivateMemoryPoolTester::getInstance()->run(true) ;
+	LLPrivateMemoryPoolTester::destroy() ;
+
 	// Handle messages
 	while (!LLApp::isExiting())
 	{

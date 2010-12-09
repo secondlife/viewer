@@ -40,7 +40,7 @@
 
 #include "llmemory.h"
 #include "llsys.h"
-
+#include "llframetimer.h"
 
 //----------------------------------------------------------------------------
 
@@ -505,6 +505,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::init(char* buffer, U32 buffer_size, U32
 {
 	mBuffer = buffer ;
 	mBufferSize = buffer_size ;
+	mAlloatedSize = 0 ;
 
 	mMetaBuffer = mBuffer + sizeof(LLMemoryChunk) ;
 
@@ -552,18 +553,16 @@ U32 LLPrivateMemoryPool::LLMemoryChunk::getMaxOverhead(U32 data_buffer_size, U32
 char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 {
 	char* p = NULL ;
-	U32 blk_idx = size / mMinSlotSize ;
-	if(mMinSlotSize * blk_idx < size)
-	{
-		blk_idx++ ;
-	}
+	U32 blk_idx = getBlockLevel(size);
+
+	LLMemoryBlock* blk = NULL ;
 
 	//check if there is free block available
 	if(mAvailBlockList[blk_idx])
 	{
-		LLMemoryBlock* blk = mAvailBlockList[blk_idx] ;
+		blk = mAvailBlockList[blk_idx] ;
 		p = blk->allocate() ;
-
+		
 		if(blk->isFull())
 		{
 			//removeFromFreelist
@@ -574,7 +573,7 @@ char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 	//ask for a new block
 	if(!p)
 	{
-		LLMemoryBlock* blk = addBlock(blk_idx) ;
+		blk = addBlock(blk_idx) ;
 		if(blk)
 		{
 			p = blk->allocate() ;
@@ -594,7 +593,7 @@ char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 		{
 			if(mAvailBlockList[i])
 			{
-				LLMemoryBlock* blk = mAvailBlockList[i] ;
+				blk = mAvailBlockList[i] ;
 				p = blk->allocate() ;
 
 				if(blk->isFull())
@@ -607,16 +606,23 @@ char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 		}
 	}
 
+	if(p && blk)
+	{
+		mAlloatedSize += blk->getSlotSize() ;
+	}
 	return p ;
 }
 
 void LLPrivateMemoryPool::LLMemoryChunk::free(void* addr)
 {	
-	LLMemoryBlock* blk = (LLMemoryBlock*)(mMetaBuffer + (((char*)addr - mDataBuffer) / mMinBlockSize) * sizeof(LLMemoryBlock)) ;
+	U32 blk_idx = ((U32)addr - (U32)mDataBuffer) / mMinBlockSize ;
+	if(blk_idx > 0) blk_idx-- ;
+	LLMemoryBlock* blk = (LLMemoryBlock*)(mMetaBuffer + blk_idx * sizeof(LLMemoryBlock)) ;
 	blk = blk->mSelf ;
 
 	bool was_full = blk->isFull() ;
 	blk->free(addr) ;
+	mAlloatedSize -= blk->getSlotSize() ;
 
 	if(blk->empty())
 	{
@@ -628,13 +634,18 @@ void LLPrivateMemoryPool::LLMemoryChunk::free(void* addr)
 	}
 }
 
+bool LLPrivateMemoryPool::LLMemoryChunk::empty()
+{
+	return !mAlloatedSize ;
+}
+
 LLPrivateMemoryPool::LLMemoryBlock* LLPrivateMemoryPool::LLMemoryChunk::addBlock(U32 blk_idx)
 {	
 	U32 slot_size = mMinSlotSize * (blk_idx + 1) ;
 	U32 preferred_block_size = llmax(mMinBlockSize, slot_size * 32) ;
 	preferred_block_size = llmin(preferred_block_size, mMaxBlockSize) ;	
 
-	U32 idx = preferred_block_size / mMinBlockSize ;	
+	U32 idx = preferred_block_size / mMinBlockSize - 1;
 	preferred_block_size = idx * mMinBlockSize ; //round to integer times of mMinBlockSize.
 
 	LLMemoryBlock* blk = NULL ;
@@ -710,7 +721,10 @@ LLPrivateMemoryPool::LLMemoryBlock* LLPrivateMemoryPool::LLMemoryChunk::createNe
 		else
 		{
 			*cur_idxp = blk->mNext ; //move to the next slot
-			(*cur_idxp)->mPrev = NULL ;
+			if(*cur_idxp)
+			{
+				(*cur_idxp)->mPrev = NULL ;
+			}
 
 			addToFreeSpace(next_blk) ;
 		}		
@@ -718,7 +732,10 @@ LLPrivateMemoryPool::LLMemoryBlock* LLPrivateMemoryPool::LLMemoryChunk::createNe
 	else //move to the next block
 	{
 		*cur_idxp = blk->mNext ;
-		(*cur_idxp)->mPrev = NULL ;
+		if(*cur_idxp)
+		{
+			(*cur_idxp)->mPrev = NULL ;
+		}
 	}
 
 	//insert to the available block list...
@@ -791,7 +808,9 @@ void LLPrivateMemoryPool::LLMemoryChunk::popAvailBlockList(U32 blk_idx)
 
 void LLPrivateMemoryPool::LLMemoryChunk::addToFreeSpace(LLMemoryBlock* blk) 
 {
-	U16 free_idx = blk->getBufferSize() / mMinBlockSize ;
+	U16 free_idx = blk->getBufferSize() / mMinBlockSize;
+	if(free_idx > 0) free_idx--;
+
 	(blk + free_idx)->mSelf = blk ; //mark the end pointing back to the head.
 	free_idx = llmin(free_idx, (U16)(mPartitionLevels - 1)) ;
 
@@ -809,7 +828,8 @@ void LLPrivateMemoryPool::LLMemoryChunk::addToFreeSpace(LLMemoryBlock* blk)
 
 void LLPrivateMemoryPool::LLMemoryChunk::removeFromFreeSpace(LLMemoryBlock* blk) 
 {
-	U16 free_idx = blk->getBufferSize() / mMinBlockSize ;
+	U16 free_idx = blk->getBufferSize() / mMinBlockSize;
+	if(free_idx > 0) free_idx-- ;
 	free_idx = llmin(free_idx, (U16)(mPartitionLevels - 1)) ;
 
 	if(mFreeSpaceList[free_idx] == blk)
@@ -830,7 +850,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::removeFromFreeSpace(LLMemoryBlock* blk)
 
 void LLPrivateMemoryPool::LLMemoryChunk::addToAvailBlockList(LLMemoryBlock* blk) 
 {
-	U32 blk_idx = blk->getSlotSize() / mMinSlotSize ;
+	U32 blk_idx = getBlockLevel(blk->getSlotSize());
 
 	blk->mNext = mAvailBlockList[blk_idx] ;
 	if(blk->mNext)
@@ -840,6 +860,16 @@ void LLPrivateMemoryPool::LLMemoryChunk::addToAvailBlockList(LLMemoryBlock* blk)
 	blk->mPrev = NULL ;
 	
 	return ;
+}
+
+U32 LLPrivateMemoryPool::LLMemoryChunk::getBlockLevel(U32 size)
+{
+	return (size + mMinSlotSize - 1) / mMinSlotSize - 1 ;
+}
+
+U32 LLPrivateMemoryPool::LLMemoryChunk::getPageLevel(U32 size)
+{
+	return (size + mMinBlockSize - 1) / mMinBlockSize - 1 ;
 }
 
 //-------------------------------------------------------------------
@@ -875,6 +905,11 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 {	
 	const static U32 MAX_BLOCK_SIZE = 4 * 1024 * 1024 ; //4MB
 
+	if(!size)
+	{
+		return NULL ;
+	}
+
 	//if the asked size larger than MAX_BLOCK_SIZE, fetch from heap directly, the pool does not manage it
 	if(size >= MAX_BLOCK_SIZE)
 	{
@@ -902,7 +937,10 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 	if(!p)
 	{
 		chunk = addChunk(chunk_idx) ;
-		p = chunk->allocate(size) ;
+		if(chunk)
+		{
+			p = chunk->allocate(size) ;
+		}
 	}
 
 	unlock() ;
@@ -912,6 +950,11 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 
 void LLPrivateMemoryPool::free(void* addr)
 {
+	if(!addr)
+	{
+		return ;
+	}
+
 	lock() ;
 	
 	LLMemoryChunk* chunk = mChunks[findChunk((char*)addr)] ;
@@ -1116,7 +1159,7 @@ LLPrivateMemoryPoolTester* LLPrivateMemoryPoolTester::getInstance()
 {
 	if(!sInstance)
 	{
-		sInstance = new LLPrivateMemoryPoolTester() ;
+		sInstance = ::new LLPrivateMemoryPoolTester() ;
 	}
 	return sInstance ;
 }
@@ -1126,51 +1169,181 @@ void LLPrivateMemoryPoolTester::destroy()
 {
 	if(sInstance)
 	{
-		delete sInstance ;
+		::delete sInstance ;
 		sInstance = NULL ;
 	}
 
 	if(sPool)
 	{
-		delete sPool ;
+		::delete sPool ;
 		sPool = NULL ;
 	}
 }
 
-void LLPrivateMemoryPoolTester::run() 
+void LLPrivateMemoryPoolTester::run(bool threaded) 
 {
 	const U32 max_pool_size = 16 << 20 ;
-	const bool threaded = false ;
-	if(!sPool)
+	
+	if(sPool)
 	{
-		sPool = new LLPrivateMemoryPool(max_pool_size, threaded) ;
+		::delete sPool ;
 	}
+	sPool = ::new LLPrivateMemoryPool(max_pool_size, threaded) ;
 
 	//run the test
 	correctnessTest() ;
-	reliabilityTest() ;
 	performanceTest() ;
 	fragmentationtest() ;
+
+	//release pool.
+	::delete sPool ;
+	sPool = NULL ;
+}
+
+void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32 times, 
+									 bool random_deletion, bool output_statistics)
+{
+	U32 levels = (max_size - min_size) / stride + 1 ;
+	char*** p ;
+	U32 i, j ;
+
+	//allocate space for p ;
+	if(!(p = ::new char**[times]) || !(*p = ::new char*[times * levels]))
+	{
+		llerrs << "memory initialization for p failed" << llendl ;
+	}
+
+	//init
+	for(i = 0 ; i < times; i++)
+	{
+		p[i] = *p + i * levels ;
+		for(j = 0 ; j < levels; j++)
+		{
+			p[i][j] = NULL ;
+		}
+	}
+
+	//allocation
+	U32 size ;
+	for(i = 0 ; i < times ; i++)
+	{
+		for(j = 0 ; j < levels; j++) 
+		{
+			size = min_size + j * stride ;
+			p[i][j] = sPool->allocate(size) ;
+			p[i][j][size - 1] = '\0' ; //access the last element to verify the success of the allocation.
+
+			//randomly release memory
+			if(random_deletion)
+			{
+				S32 k = rand() % levels ;
+				sPool->free(p[i][k]) ;
+				p[i][k] = NULL ;
+			}
+		}
+	}
+
+	//output pool allocation statistics
+	if(output_statistics)
+	{
+	}
+
+	//release all memory allocations
+	for(i = 0 ; i < times; i++)
+	{
+		for(j = 0 ; j < levels; j++)
+		{
+			sPool->free(p[i][j]) ;
+			p[i][j] = NULL ;
+		}
+	}
+
+	::delete[] *p ;
+	::delete[] p ;
 }
 
 void LLPrivateMemoryPoolTester::correctnessTest() 
 {
-	//try many different sized allocation, fill the memory fully to see if allocation is right.
+	//try many different sized allocation, and all kinds of edge cases, access the allocated memory 
+	//to see if allocation is right.
+	
+	//edge case
+	char* p = sPool->allocate(0) ;
+	sPool->free(p) ;
 
+	//small sized
+	// [8 bytes, 2KB), each asks for 256 allocations and deallocations
+	test(8, 2040, 8, 256, true, true) ;
+	
+	//medium sized
+	//[2KB, 512KB), each asks for 16 allocations and deallocations
+	test(2048, 512 * 1024 - 2048, 2048, 16, true, true) ;
+
+	//large sized
+	//[512KB, 4MB], each asks for 8 allocations and deallocations
+	test(512 * 1024, 4 * 1024 * 1024, 64 * 1024, 8, true, true) ;
 }
 
-void LLPrivateMemoryPoolTester::reliabilityTest() 
 void LLPrivateMemoryPoolTester::performanceTest() 
-void LLPrivateMemoryPoolTester::fragmentationtest() 
-
-void* LLPrivateMemoryPoolTester::operator new(size_t size)
 {
-	return (void*)sPool->allocate(size) ;
+	U32 test_size[3] = {768, 3* 1024, 3* 1024 * 1024};
+		
+	S32 i ;
+	LLFrameTimer timer ;
+
+	//do 1024 various-sized allocations / deallocations, compare the performance with the normal ones.
+
+	//small sized
+	{
+		timer.reset() ;
+		char* p[1024] = {NULL} ;
+		for(i = 0 ; i < 1024; i++)
+		{
+			p[i] = sPool->allocate(test_size[0]) ;
+			if(!p[i])
+			{
+				llerrs << "allocation failed" << llendl ;
+			}
+		}
+
+		for(i = 0 ; i < 1024; i++)
+		{
+			sPool->free(p[i]) ;
+			p[i] = NULL ;
+		}
+		llinfos << "time spent on 1024 small allocations: %f " << timer.getElapsedTimeF32() << llendl ;
+
+		timer.reset() ;
+
+		//using the standard allocator/de-allocator:
+		for(i = 0 ; i < 1024; i++)
+		{
+			p[i] = ::new char[test_size[0]] ;
+			if(!p[i])
+			{
+				llerrs << "allocation failed" << llendl ;
+			}
+		}
+
+		for(i = 0 ; i < 1024; i++)
+		{
+			::delete[] p[i] ;
+			p[i] = NULL ;
+		}
+		llinfos << "time spent on 1024 small allocations: %f using standard allocator/de-allocator." << timer.getElapsedTimeF32() << llendl ;
+
+		timer.reset() ;
+	}
+	//medium sized
+
+	//large sized
 }
 
-void  LLPrivateMemoryPoolTester::operator delete(void* addr)
+void LLPrivateMemoryPoolTester::fragmentationtest() 
 {
-	sPool->free(addr) ;
+	//for internal fragmentation statistics:
+	//every time when asking for a new chunk during correctness test, and performance test,
+	//print out the chunk usage statistices.
 }
 
 //--------------------------------------------------------------------
