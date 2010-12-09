@@ -51,6 +51,8 @@
 #include "llwindow.h"//for SetCursor
 #include "lltransientfloatermgr.h"
 
+#include "llsidepanelappearance.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -58,6 +60,8 @@ using namespace LLNotificationsUI;
 
 static LLRootViewRegistry::Register<LLSideTray>	t1("side_tray");
 static LLDefaultChildRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
+
+static const S32 BOTTOM_BAR_PAD = 5;
 
 static const std::string COLLAPSED_NAME = "<<";
 static const std::string EXPANDED_NAME  = ">>";
@@ -114,7 +118,7 @@ public:
 protected:
 	LLSideTrayTab(const Params& params);
 	
-	void			dock();
+	void			dock(LLFloater* floater_tab);
 	void			undock(LLFloater* floater_tab);
 
 	LLSideTray*		getSideTray();
@@ -255,7 +259,7 @@ void LLSideTrayTab::toggleTabDocked()
 
 	if (docking)
 	{
-		dock();
+		dock(floater_tab);
 	}
 	else
 	{
@@ -267,10 +271,13 @@ void LLSideTrayTab::toggleTabDocked()
 	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 }
 
-void LLSideTrayTab::dock()
+void LLSideTrayTab::dock(LLFloater* floater_tab)
 {
 	LLSideTray* side_tray = getSideTray();
 	if (!side_tray) return;
+
+	// Before docking the tab, reset its (and its children's) transparency to default (STORM-688).
+	floater_tab->updateTransparency(TT_DEFAULT);
 
 	if (!side_tray->addTab(this))
 	{
@@ -288,6 +295,17 @@ void LLSideTrayTab::dock()
 	{
 		side_tray->expandSideBar(false);
 	}
+}
+
+static void on_minimize(LLSidepanelAppearance* panel, LLSD minimized)
+{
+	if (!panel) return;
+	bool visible = !minimized.asBoolean();
+	LLSD visibility;
+	visibility["visible"] = visible;
+	// Do not reset accordion state on minimize (STORM-375)
+	visibility["reset_accordion"] = false;
+	panel->updateToVisibility(visibility);
 }
 
 void LLSideTrayTab::undock(LLFloater* floater_tab)
@@ -318,6 +336,9 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	floater_tab->setTitle(mTabTitle);
 	floater_tab->setName(getName());
 
+	// Resize handles get obscured by added panel so move them to front.
+	floater_tab->moveResizeHandlesToFront();
+
 	// Reshape the floater if needed.
 	LLRect floater_rect;
 	if (floater_tab->hasSavedRect())
@@ -329,19 +350,35 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	{
 		// Detaching for the first time. Reshape the floater.
 		floater_rect = side_tray->getLocalRect();
+
+		// Reduce detached floater height by small BOTTOM_BAR_PAD not to make it flush with the bottom bar.
+		floater_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight() + BOTTOM_BAR_PAD;
+		floater_rect.makeValid();
 		floater_tab->reshape(floater_rect.getWidth(), floater_rect.getHeight());
 	}
 
 	// Reshape the panel.
 	{
-		LLRect panel_rect = floater_rect;
+		LLRect panel_rect = floater_tab->getLocalRect();
 		panel_rect.mTop -= floater_tab->getHeaderHeight();
+		panel_rect.makeValid();
 		setRect(panel_rect);
 		reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	}
 
 	// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
 	setFollowsAll();
+
+	// Camera view may need to be changed for appearance panel(STORM-301) on minimize of floater,
+	// so setting callback here. 
+	if (getName() == "sidebar_appearance")
+	{
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel());
+		if(panel_appearance)
+		{
+			floater_tab->setMinimizeCallback(boost::bind(&on_minimize, panel_appearance, _2));
+		}
+	}
 
 	if (!side_tray->getCollapsed())
 	{
@@ -998,7 +1035,8 @@ void LLSideTray::arrange()
 	}
 
 	// The tab buttons should be shown only if there is at least one non-detached tab.
-	mButtonsPanel->setVisible(hasTabs());
+	// Also hide them in mouse-look mode.
+	mButtonsPanel->setVisible(hasTabs() && !gAgentCamera.cameraMouselook());
 }
 
 // Detach those tabs that were detached when the viewer exited last time.

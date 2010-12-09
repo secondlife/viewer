@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="Sentar" name="Sit Down Here"/>
 	<menu_item_call label="Ficar de pé" name="Stand Up"/>
 	<context_menu label="Tirar" name="Take Off &gt;">
 		<context_menu label="Roupa" name="Clothes &gt;">

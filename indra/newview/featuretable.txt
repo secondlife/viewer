@@ -1,4 +1,4 @@
-version 23
+version 25
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -42,6 +42,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVBOEnable				1	1
@@ -61,6 +62,7 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
+RenderUseFBO				1	1
 
 //
 // Low Graphics Settings
@@ -79,6 +81,7 @@ RenderObjectBump			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
+RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
@@ -89,7 +92,7 @@ SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-
+RenderUseFBO				1	0
 
 //
 // Mid Graphics Settings
@@ -107,6 +110,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
@@ -116,7 +120,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-
+RenderUseFBO				1	0
 
 //
 // High Graphics Settings (purty)
@@ -134,6 +138,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	2
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
@@ -143,7 +148,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-
+RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -161,6 +166,7 @@ RenderObjectBump			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
@@ -170,6 +176,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderUseFBO				1	0
 
 //
 // Class Unknown Hardware (unknown)
@@ -244,7 +251,8 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-
+RenderUseFBO				1	0
+		
 //
 // CPU based feature masks
 //

@@ -26,13 +26,14 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llsyswellwindow.h"
+
 #include "llagent.h"
+#include "llavatarnamecache.h"
 
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
-
-#include "llsyswellwindow.h"
 
 #include "llbottomtray.h"
 #include "llscriptfloater.h"
@@ -278,11 +279,28 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 	mChiclet->setOtherParticipantId(otherParticipantId);
 	mChiclet->setVisible(true);
 
-	LLTextBox* contactName = getChild<LLTextBox>("contact_name");
-	contactName->setValue(name);
+	if (im_chiclet_type == LLIMChiclet::TYPE_IM)
+	{
+		LLAvatarNameCache::get(otherParticipantId,
+			boost::bind(&LLIMWellWindow::RowPanel::onAvatarNameCache,
+				this, _1, _2));
+	}
+	else
+	{
+		LLTextBox* contactName = getChild<LLTextBox>("contact_name");
+		contactName->setValue(name);
+	}
 
 	mCloseBtn = getChild<LLButton>("hide_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLIMWellWindow::RowPanel::onClosePanel, this));
+}
+
+//---------------------------------------------------------------------------------
+void LLIMWellWindow::RowPanel::onAvatarNameCache(const LLUUID& agent_id,
+												 const LLAvatarName& av_name)
+{
+	LLTextBox* contactName = getChild<LLTextBox>("contact_name");
+	contactName->setValue( av_name.getCompleteName() );
 }
 
 //---------------------------------------------------------------------------------

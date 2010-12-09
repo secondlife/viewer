@@ -32,9 +32,17 @@ Stai cercando persone da frequentare? Prova la [secondlife:///app/worldmap Mappa
 				<accordion_tab name="tab_all" title="Tutto"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="Opzioni"/>
-				<button name="add_btn" tool_tip="Offri amicizia a un residente"/>
-				<button name="del_btn" tool_tip="Rimuovi la persona selezionata dalla lista degli amici"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<button name="friends_viewsort_btn" tool_tip="Mostra ulteriori opzioni"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Offri amicizia a un residente"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="trash_btn" tool_tip="Rimuovi la persona selezionata dalla lista degli amici"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="I MIEI GRUPPI" name="groups_panel">
@@ -52,13 +60,33 @@ Stai cercando persone da frequentare? Prova la [secondlife:///app/worldmap Mappa
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profilo" name="view_profile_btn" tool_tip="Mostra immagine, gruppi e altre informazioni del residente"/>
-		<button label="IM" name="im_btn" tool_tip="Apri una sessione messaggio istantaneo"/>
-		<button label="Chiama" name="call_btn" tool_tip="Chiama questo residente"/>
-		<button label="Condividi" name="share_btn" tool_tip="Condividi un oggetto dell&apos;inventario"/>
-		<button label="Teleport" name="teleport_btn" tool_tip="Offri teleport"/>
-		<button label="Profilo del gruppo" name="group_info_btn" tool_tip="Mostra informazioni gruppo"/>
-		<button label="Chat di gruppo" name="chat_btn" tool_tip="Apri sessione chat"/>
-		<button label="Chiamata al gruppo" name="group_call_btn" tool_tip="Chiama questo gruppo"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Profilo" name="view_profile_btn" tool_tip="Mostra immagine, gruppi e altre informazioni del residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Apri una sessione messaggio istantaneo"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Chiama" name="call_btn" tool_tip="Chiama questo residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Condividi" name="share_btn" tool_tip="Condividi un oggetto dell&apos;inventario"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teleport" name="teleport_btn" tool_tip="Offri teleport"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Profilo del gruppo" name="group_info_btn" tool_tip="Mostra informazioni gruppo"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Chat di gruppo" name="chat_btn" tool_tip="Apri sessione chat"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Chiamata al gruppo" name="group_call_btn" tool_tip="Chiama questo gruppo"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

@@ -22,5 +22,9 @@
 		[COUNT] a
 	</string>
 	<text name="avatar_name" value="Sconosciuto"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Puoi modificare gli oggetti di questo amico"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Questo amico può modificare, cancellare o prendere i tuoi oggetti"/>
+	<icon name="permission_map_icon" tool_tip="Questo amico può identificarti sulla mappa"/>
+	<icon name="permission_online_icon" tool_tip="Questo amico può vedere se sei online"/>
 	<button name="profile_btn" tool_tip="Vedi profilo"/>
 </panel>

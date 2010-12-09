@@ -42,6 +42,7 @@
 // newview
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llversioninfo.h"
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llfloaterreg.h"
@@ -139,6 +140,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 	requested_options.append("initial-outfit");
 	requested_options.append("gestures");
+	requested_options.append("display_names");
 	requested_options.append("event_categories");
 	requested_options.append("event_notifications");
 	requested_options.append("classified_categories");
@@ -148,6 +150,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
+	requested_options.append("max-agent-groups");	
 	requested_options.append("map-server-url");	
 	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
@@ -180,8 +183,8 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["mac"] = hashed_unique_id_string;
-	request_params["version"] = gCurrentVersion; // Includes channel name
-	request_params["channel"] = gSavedSettings.getString("VersionChannelName");
+	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
+	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["id0"] = mSerialNumber;
 
 	mRequestData.clear();

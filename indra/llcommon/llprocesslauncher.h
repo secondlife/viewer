@@ -47,6 +47,8 @@ public:
 	void setExecutable(const std::string &executable);
 	void setWorkingDirectory(const std::string &dir);
 
+	const std::string& getExecutable() const;
+
 	void clearArguments();
 	void addArgument(const std::string &arg);
 	void addArgument(const char *arg);

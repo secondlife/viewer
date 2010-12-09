@@ -34,6 +34,7 @@
 
 #include "llremoteparcelrequest.h"
 
+class LLAvatarName;
 class LLExpandableTextBox;
 class LLIconCtrl;
 class LLInventoryItem;
@@ -96,9 +97,10 @@ public:
 	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
 
 protected:
-	static void nameUpdatedCallback(LLTextBox* text,
-									const std::string& first,
-									const std::string& last);
+	static void onNameCache(LLTextBox* text, const std::string& full_name);
+	static void onAvatarNameCache(const LLUUID& agent_id,
+								  const LLAvatarName& av_name,
+								  LLTextBox* text);
 
 	/**
 	 * mParcelID is valid only for remote places, in other cases it's null. See resetLocation() 

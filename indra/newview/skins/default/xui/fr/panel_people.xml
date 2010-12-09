@@ -32,9 +32,17 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 				<accordion_tab name="tab_all" title="Tout"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="Options"/>
-				<button name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
-				<button name="del_btn" tool_tip="Supprimer le résident sélectionné de votre liste d&apos;amis"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<button name="friends_viewsort_btn" tool_tip="Afficher d&apos;autres options"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="trash_btn" tool_tip="Supprimer le résident sélectionné de votre liste d&apos;amis"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="MES GROUPES" name="groups_panel">
@@ -52,13 +60,33 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profil" name="view_profile_btn" tool_tip="Afficher la photo, les groupes et autres infos des résidents"/>
-		<button label="IM" name="im_btn" tool_tip="Ouvrir une session IM"/>
-		<button label="Appeler" name="call_btn" tool_tip="Appeler ce résident"/>
-		<button label="Partager" name="share_btn" tool_tip="Partager un article d&apos;inventaire"/>
-		<button label="Téléporter" name="teleport_btn" tool_tip="Proposer une téléportation"/>
-		<button label="Profil" name="group_info_btn" tool_tip="Voir le profil du groupe"/>
-		<button label="Chat" name="chat_btn" tool_tip="Ouvrir une session de chat"/>
-		<button label="Appel" name="group_call_btn" tool_tip="Appeler ce groupe"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Profil" name="view_profile_btn" tool_tip="Afficher la photo, les groupes et autres infos des résidents"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Ouvrir une session IM"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Appel" name="call_btn" tool_tip="Appeler ce résident"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Partager" name="share_btn" tool_tip="Partager un article de l&apos;inventaire"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Téléporter" name="teleport_btn" tool_tip="Proposer une téléportation"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Profil du groupe" name="group_info_btn" tool_tip="Afficher les informations sur le groupe"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Chat de groupe" name="chat_btn" tool_tip="Ouvrir une session de chat"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Appel de groupe" name="group_call_btn" tool_tip="Appeler ce groupe"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

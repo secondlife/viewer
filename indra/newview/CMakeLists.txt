@@ -64,6 +64,7 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
+    ${UPDATER_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -140,10 +141,10 @@ set(viewer_SOURCE_FILES
     lldriverparam.cpp
     lldynamictexture.cpp
     llemote.cpp
-    lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
+    llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
@@ -169,6 +170,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdaycycle.cpp
+    llfloaterdisplayname.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
@@ -200,6 +202,7 @@ set(viewer_SOURCE_FILES
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
+    llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterscriptdebug.cpp
@@ -243,6 +246,7 @@ set(viewer_SOURCE_FILES
     llhudeffecttrail.cpp
     llhudicon.cpp
     llhudmanager.cpp
+    llhudnametag.cpp
     llhudobject.cpp
     llhudrender.cpp
     llhudtext.cpp
@@ -281,6 +285,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -289,7 +294,6 @@ set(viewer_SOURCE_FILES
     llmediadataclient.cpp
     llmemoryview.cpp
     llmenucommands.cpp
-    llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -443,6 +447,7 @@ set(viewer_SOURCE_FILES
     lltoastimpanel.cpp
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
+    lltoastscripttextbox.cpp
     lltool.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
@@ -486,6 +491,7 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
+    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -671,10 +677,10 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
-    lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
+    llexternaleditor.h
     llface.h
     llfasttimerview.h
     llfavoritesbar.h
@@ -700,6 +706,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdaycycle.h
+    llfloaterdisplayname.h
     llfloaterenvsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
@@ -731,6 +738,7 @@ set(viewer_HEADER_FILES
     llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
+    llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterscriptdebug.h
@@ -774,6 +782,7 @@ set(viewer_HEADER_FILES
     llhudeffecttrail.h
     llhudicon.h
     llhudmanager.h
+    llhudnametag.h
     llhudobject.h
     llhudrender.h
     llhudtext.h
@@ -812,6 +821,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -820,7 +830,6 @@ set(viewer_HEADER_FILES
     llmediadataclient.h
     llmemoryview.h
     llmenucommands.h
-    llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
@@ -971,6 +980,7 @@ set(viewer_HEADER_FILES
     lltoastimpanel.h
     lltoastnotifypanel.h
     lltoastpanel.h
+    lltoastscripttextbox.h
     lltool.h
     lltoolbrush.h
     lltoolcomp.h
@@ -1015,6 +1025,7 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
+    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -1473,6 +1484,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
       ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
@@ -1494,7 +1508,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
-      ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
@@ -1638,7 +1651,14 @@ if (WINDOWS)
     endif (PACKAGE)
 endif (WINDOWS)
 
+# *NOTE - this list is very sensitive to ordering, test carefully on all
+# platforms if you change the releative order of the entries here.
+# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# appears to sometimes de-duplicate redundantly listed dependencies improperly.
+# To work around this, higher level modules should be listed before the modules
+# that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${UPDATER_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
@@ -1825,10 +1845,18 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
+      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
+      # set LLBUILD_CONFIG to be a shell variable evaluated at build time
+      # reflecting the configuration we are currently building.
+      set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS
       "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${LLBUILD_CONFIG}"
       "${VIEWER_DIST_DIR}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
@@ -1837,7 +1865,7 @@ if (PACKAGE)
     DEPENDS generate_breakpad_symbols.py
     VERBATIM
   )
-  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
   add_dependencies(package generate_breakpad_symbols)
 endif (PACKAGE)
@@ -1851,7 +1879,9 @@ if (LL_TESTS)
     lldateutil.cpp
     llmediadataclient.cpp
     lllogininstance.cpp
+    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
+    llversioninfo.cpp
   )
 
   ##################################################

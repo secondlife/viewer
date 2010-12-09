@@ -91,6 +91,7 @@ public:
 	static void notMoving(bool enable = true);
 	static void newInventory(bool enable = true);
 	static void receiveLindens(bool enable = true);
+	static void setDisplayName(bool enable = true);
 	static void useSandbox();
 	
 protected:

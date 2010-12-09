@@ -193,11 +193,11 @@ public:
 	void		closeStartUpToast();
 
 
-	/** Stop fading all toasts */
-	virtual void stopFadingToasts();
+	/** Stop fading given toast */
+	virtual void stopFadingToast(LLToast* toast);
 
-	/** Start fading all toasts */
-	virtual void startFadingToasts();
+	/** Start fading given toast */
+	virtual void startFadingToast(LLToast* toast);
 
 	// get StartUp Toast's state
 	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }

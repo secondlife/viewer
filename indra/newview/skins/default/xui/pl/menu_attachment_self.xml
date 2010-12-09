@@ -3,6 +3,7 @@
 	<menu_item_call label="Dotknij" name="Attachment Object Touch"/>
 	<menu_item_call label="Edytuj" name="Edit..."/>
 	<menu_item_call label="Odłącz" name="Detach"/>
+	<menu_item_call label="Usiądź tutaj" name="Sit Down Here"/>
 	<menu_item_call label="Wstań" name="Stand Up"/>
 	<menu_item_call label="Zmień strój" name="Change Outfit"/>
 	<menu_item_call label="Edytuj mój strój" name="Edit Outfit"/>

@@ -492,7 +492,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 
 	// Just in case we need to check browser differences in A/B test
 	// builds.
-	std::string channel = gSavedSettings.getString("VersionChannelName");
+	std::string channel = LLVersionInfo::getChannel();
 
 	// append our magic version number string to the browser user agent id
 	// See the HTTP 1.0 and 1.1 specifications for allowed formats:
@@ -1083,7 +1083,7 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// the hard part: iterate over all user directories and delete the cookie file from each one
-	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename, false))
+	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename))
 	{
 		target = base_dir;
 		target += filename;

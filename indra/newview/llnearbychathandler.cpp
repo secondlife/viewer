@@ -64,6 +64,18 @@ public:
 	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) 
 	{
 		mStopProcessing = false;
+
+		LLControlVariable* ctrl = gSavedSettings.getControl("NearbyToastLifeTime").get();
+		if (ctrl)
+		{
+			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastsLifetime, this));
+		}
+
+		ctrl = gSavedSettings.getControl("NearbyToastFadingTime").get();
+		if (ctrl)
+		{
+			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastFadingTime, this));
+		}
 	}
 
 	void addNotification	(LLSD& notification);
@@ -109,12 +121,25 @@ protected:
 		if (!toast) return;
 		LL_DEBUGS("NearbyChat") << "Pooling toast" << llendl;
 		toast->setVisible(FALSE);
-		toast->stopTimer();
+		toast->stopFading();
 		toast->setIsHidden(true);
+
+		// Nearby chat toasts that are hidden, not destroyed. They are collected to the toast pool, so that
+		// they can be used next time, this is done for performance. But if the toast lifetime was changed
+		// (from preferences floater (STORY-36)) while it was shown (at this moment toast isn't in the pool yet)
+		// changes don't take affect.
+		// So toast's lifetime should be updated each time it's added to the pool. Otherwise viewer would have
+		// to be restarted so that changes take effect.
+		toast->setLifetime(gSavedSettings.getS32("NearbyToastLifeTime"));
+		toast->setFadingTime(gSavedSettings.getS32("NearbyToastFadingTime"));
 		m_toast_pool.push_back(toast->getHandle());
 	}
 
 	void	createOverflowToast(S32 bottom, F32 timer);
+
+	void 	updateToastsLifetime();
+
+	void	updateToastFadingTime();
 
 	create_toast_panel_callback_t m_create_toast_panel_callback_t;
 
@@ -140,11 +165,20 @@ public:
 	:	LLToast(p),
 	 	mNearbyChatScreenChannelp(nc_channelp)
 	{
+		updateTransparency();
+		setMouseEnterCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
+		setMouseLeaveCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
 	}
 
 	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void setBackgroundOpaque(BOOL b);
+
+protected:
+	/*virtual*/ void setTransparentState(bool transparent);
 
 private:
+	void updateTransparency();
+
 	LLNearbyChatScreenChannel*	mNearbyChatScreenChannelp;
 };
 
@@ -205,6 +239,27 @@ void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
 	arrangeToasts();
 }
 
+void LLNearbyChatScreenChannel::updateToastsLifetime()
+{
+	S32 seconds = gSavedSettings.getS32("NearbyToastLifeTime");
+	toast_list_t::iterator it;
+
+	for(it = m_toast_pool.begin(); it != m_toast_pool.end(); ++it)
+	{
+		(*it).get()->setLifetime(seconds);
+	}
+}
+
+void LLNearbyChatScreenChannel::updateToastFadingTime()
+{
+	S32 seconds = gSavedSettings.getS32("NearbyToastFadingTime");
+	toast_list_t::iterator it;
+
+	for(it = m_toast_pool.begin(); it != m_toast_pool.end(); ++it)
+	{
+		(*it).get()->setFadingTime(seconds);
+	}
+}
 
 bool	LLNearbyChatScreenChannel::createPoolToast()
 {
@@ -250,7 +305,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 			{
 				panel->addMessage(notification);
 				toast->reshapeToPanel();
-				toast->resetTimer();
+				toast->startFading();
 	  
 				arrangeToasts();
 				return;
@@ -295,7 +350,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	panel->init(notification);
 
 	toast->reshapeToPanel();
-	toast->resetTimer();
+	toast->startFading();
 	
 	m_active_toasts.push_back(toast->getHandle());
 
@@ -325,9 +380,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
-	F32 v1 = first.get()->getTimer()->getEventTimer().getElapsedTimeF32();
-	F32 v2 = second.get()->getTimer()->getEventTimer().getElapsedTimeF32();
-	return v1 < v2;
+	F32 v1 = first.get()->getTimeLeftToLive();
+	F32 v2 = second.get()->getTimeLeftToLive();
+	return v1 > v2;
 }
 
 void LLNearbyChatScreenChannel::showToastsBottom()
@@ -549,6 +604,36 @@ void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
 void LLNearbyChatToast::onClose(bool app_quitting)
 {
 	mNearbyChatScreenChannelp->onToastDestroyed(this, app_quitting);
+}
+
+// virtual
+void LLNearbyChatToast::setBackgroundOpaque(BOOL b)
+{
+	// We don't want background changes: transparency is handled differently.
+	LLToast::setBackgroundOpaque(TRUE);
+}
+
+// virtual
+void LLNearbyChatToast::setTransparentState(bool transparent)
+{
+	LLToast::setTransparentState(transparent);
+	updateTransparency();
+}
+
+void LLNearbyChatToast::updateTransparency()
+{
+	ETypeTransparency transparency_type;
+
+	if (isHovered())
+	{
+		transparency_type = TT_ACTIVE;
+	}
+	else
+	{
+		transparency_type = getTransparentState() ? TT_FADING : TT_INACTIVE;
+	}
+
+	LLFloater::updateTransparency(transparency_type);
 }
 
 // EOF

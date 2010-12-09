@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   height="230"
+   label="instant_message"
+   layout="topleft"
+   left="0"
+   name="panel_notify_textbox"
+   top="0"
+   width="305">
+  <string
+     name="message_max_lines_count"
+     value="7" />
+  <panel
+   bevel_style="none"
+   follows="left|right|top"
+   height="150"
+   label="info_panel"
+   layout="topleft"
+   left="0"
+   name="info_panel"
+   top="0"
+   width="305">
+    <text_editor
+     parse_urls="true"
+     enabled="true"
+     follows="all"
+     height="60"
+     layout="topleft"
+     left="25"
+     max_length="250"
+     name="message"
+     parse_highlights="true"
+     read_only="false"
+     top="40"
+     type="string"
+     use_ellipses="true"
+     value="message"
+     width="260"
+     word_wrap="true" >
+    </text_editor>
+     parse_urls="false"
+    <button
+     top="110"
+     follows="top|left"
+     height="20"
+     label="Submit"
+     layout="topleft"
+     left="25"
+     name="btn_submit"
+     width="70" />
+  </panel>
+  <panel
+     background_visible="false"
+     follows="left|right|bottom"
+     height="0" 
+     width="290"
+     label="control_panel"
+     layout="topleft"
+     left="10"
+     name="control_panel"
+     top_pad="5">
+    <!-- 
+	 Notes:
+	 This panel holds the Ignore button and possibly other buttons of notification.
+      -->
+  </panel>
+</panel>

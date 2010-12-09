@@ -44,6 +44,7 @@
 // Renders a 2D icon billboard floating at the location specified.
 class LLDrawable;
 class LLViewerObject;
+class LLViewerTexture;
 
 class LLHUDIcon : public LLHUDObject
 {
@@ -51,7 +52,6 @@ friend class LLHUDObject;
 
 public:
 	/*virtual*/ void render();
-	/*virtual*/ void renderForSelect();
 	/*virtual*/ void markDead();
 	/*virtual*/ F32 getDistance() const { return mDistance; }
 

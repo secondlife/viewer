@@ -1557,6 +1557,10 @@ bool LLAudioSource::hasPendingPreloads() const
 		LLAudioData *adp = iter->second;
 		// note: a bad UUID will forever be !hasDecodedData()
 		// but also !hasValidData(), hence the check for hasValidData()
+		if (!adp)
+		{
+			continue;
+		}
 		if (!adp->hasDecodedData() && adp->hasValidData())
 		{
 			// This source is still waiting for a preload

@@ -34,6 +34,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -44,7 +45,7 @@
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llvoiceclient.h"
-#include "llnamebox.h"
+#include "lltextbox.h"
 #include "lltrans.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,13 +219,8 @@ void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
 
 void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 {
-	std::string first, last;
 	LLSD args;
-	if (gCacheName->getName(getAvatarId(), first, last))
-	{
-		args["FIRST_NAME"] = first;
-		args["LAST_NAME"] = last;
-	}
+	args["NAME"] = LLSLURL("agent", getAvatarId(), "displayname").getSLURLString();
 
 	if (grant)
 	{
@@ -484,7 +480,6 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
 	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
-	childSetCommitCallback("overflow_btn", boost::bind(&LLPanelAvatarProfile::onOverflowButtonClicked, this), NULL);
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
 	childSetCommitCallback("show_on_map_btn", (boost::bind(
 			&LLPanelAvatarProfile::onMapButtonClick, this)), NULL);
@@ -505,7 +500,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
 	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
 
-	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* profile_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	getChild<LLMenuButton>("overflow_btn")->setMenu(profile_menu, LLMenuButton::MP_TOP_RIGHT);
 
 	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
 
@@ -562,8 +558,7 @@ void LLPanelAvatarProfile::resetData()
 	getChild<LLUICtrl>("homepage_edit")->setValue(LLStringUtil::null);
 	getChild<LLUICtrl>("register_date")->setValue(LLStringUtil::null);
 	getChild<LLUICtrl>("acc_status_text")->setValue(LLStringUtil::null);
-	getChild<LLUICtrl>("partner_text")->setTextArg("[FIRST]", LLStringUtil::null);
-	getChild<LLUICtrl>("partner_text")->setTextArg("[LAST]", LLStringUtil::null);
+	getChild<LLUICtrl>("partner_text")->setValue(LLStringUtil::null);
 }
 
 void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType type)
@@ -654,15 +649,14 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
 {
-	LLNameBox* name_box = getChild<LLNameBox>("partner_text");
+	LLTextBox* partner_text = getChild<LLTextBox>("partner_text");
 	if (avatar_data->partner_id.notNull())
 	{
-		name_box->setNameID(avatar_data->partner_id, FALSE);
+		partner_text->setText(LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString());
 	}
 	else
 	{
-		name_box->setNameID(LLUUID::null, FALSE);
-		name_box->setText(getString("no_partner_text"));
+		partner_text->setText(getString("no_partner_text"));
 	}
 }
 
@@ -757,23 +751,6 @@ void LLPanelAvatarProfile::onCallButtonClick()
 void LLPanelAvatarProfile::onShareButtonClick()
 {
 	//*TODO not implemented
-}
-
-void LLPanelAvatarProfile::onOverflowButtonClicked()
-{
-	if (!mProfileMenu->toggleVisibility())
-		return;
-
-	LLView* btn = getChild<LLView>("overflow_btn");
-
-	if (mProfileMenu->getButtonRect().isEmpty())
-	{
-		mProfileMenu->setButtonRect(btn);
-	}
-	mProfileMenu->updateParent(LLMenuGL::sMenuContainer);
-
-	LLRect rect = btn->getRect();
-	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
 }
 
 LLPanelAvatarProfile::~LLPanelAvatarProfile()

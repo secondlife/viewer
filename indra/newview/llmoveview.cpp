@@ -94,6 +94,7 @@ BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
 	setTitleVisible(TRUE); // restore title visibility after chrome applying
+	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	LLDockableFloater::postBuild();
 	
@@ -552,7 +553,7 @@ LLPanelStandStopFlying::LLPanelStandStopFlying() :
 }
 
 // static
-inline LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
+LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
 {
 	static LLPanelStandStopFlying* panel = getStandStopFlyingPanel();
 	return panel;

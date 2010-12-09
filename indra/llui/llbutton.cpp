@@ -98,7 +98,8 @@ LLButton::Params::Params()
 	is_toggle("is_toggle", false),
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
-	commit_on_return("commit_on_return", true)
+	commit_on_return("commit_on_return", true),
+	use_draw_context_alpha("use_draw_context_alpha", true)
 {
 	addSynonym(is_toggle, "toggle");
 	held_down_delay.seconds = 0.5f;
@@ -158,7 +159,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mLastDrawCharsCount(0),
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
-	mHeldDownSignal(NULL)
+	mHeldDownSignal(NULL),
+	mUseDrawContextAlpha(p.use_draw_context_alpha)
 
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
@@ -499,7 +501,7 @@ void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
 
 	if (isInEnabledChain())
 		mNeedsHighlight = TRUE;
-	}
+}
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
@@ -539,7 +541,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 // virtual
 void LLButton::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
 	static LLUICachedControl<F32> button_flash_rate("ButtonFlashRate", 0);
 	static LLUICachedControl<S32> button_flash_count("ButtonFlashCount", 0);

@@ -26,17 +26,28 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelme.h"
+
+// Viewer includes
 #include "llpanelprofile.h"
 #include "llavatarconstants.h"
-#include "llpanelme.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
-#include "lliconctrl.h"
+#include "llfirstuse.h"
+#include "llfloaterreg.h"
+#include "llhints.h"
 #include "llsidetray.h"
+#include "llviewercontrol.h"
+#include "llviewerdisplayname.h"
+
+// Linden libraries
+#include "llavatarnamecache.h"		// IDEVO
+#include "lliconctrl.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"	// IDEVO
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
-#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -165,6 +176,8 @@ LLPanelMyProfileEdit::LLPanelMyProfileEdit()
 	buildFromFile( "panel_edit_profile.xml");
 
 	setAvatarId(gAgent.getID());
+
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLPanelMyProfileEdit::onAvatarNameChanged, this));
 }
 
 void LLPanelMyProfileEdit::onOpen(const LLSD& key)
@@ -174,7 +187,52 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	// Disable editing until data is loaded, or edited fields will be overwritten when data
 	// is loaded.
 	enableEditing(false);
+
+	// force new avatar name fetch so we have latest update time
+	LLAvatarNameCache::fetch(gAgent.getID()); 
 	LLPanelMyProfile::onOpen(getAvatarId());
+	
+	LLAvatarName av_name;	
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		if (LLAvatarNameCache::get(gAgent.getID(), &av_name) && av_name.mIsDisplayNameDefault)  	
+		{
+			LLFirstUse::setDisplayName();
+		}
+		else
+		{
+			LLFirstUse::setDisplayName(false);
+		}
+	}
+
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( true );
+		getChild<LLUICtrl>("user_slid")->setVisible( true );
+		getChild<LLUICtrl>("display_name_label")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setEnabled( true );
+		getChild<LLUICtrl>("solo_user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( false );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( false );
+		getChild<LLUICtrl>("user_slid")->setVisible( false );
+		getChild<LLUICtrl>("display_name_label")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setEnabled( false );
+		getChild<LLUICtrl>("solo_user_name")->setVisible( true );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( true );
+	}
+}
+
+void LLPanelMyProfileEdit::onClose(const LLSD& key)
+{
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		LLFirstUse::setDisplayName(false);
+	}	
 }
 
 void LLPanelMyProfileEdit::processProperties(void* data, EAvatarProcessorType type)
@@ -207,13 +265,61 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 
 	getChild<LLUICtrl>("show_in_search_checkbox")->setValue((BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
 
-	std::string first, last;
-	BOOL found = gCacheName->getName(avatar_data->avatar_id, first, last);
-	if (found)
+	LLAvatarNameCache::get(avatar_data->avatar_id,
+		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+}
+
+void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
+	getChild<LLUICtrl>("user_name_small")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("solo_user_name")->setValue( av_name.mDisplayName );
+
+
+	if (LLAvatarNameCache::useDisplayNames())
 	{
-		getChild<LLUICtrl>("name_text")->setTextArg("[FIRST]", first);
-		getChild<LLUICtrl>("name_text")->setTextArg("[LAST]", last);
+		getChild<LLUICtrl>("user_label")->setVisible( true );
+		getChild<LLUICtrl>("user_slid")->setVisible( true );
+		getChild<LLUICtrl>("display_name_label")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setVisible( true );
+		getChild<LLUICtrl>("set_name")->setEnabled( true );
+
+		getChild<LLUICtrl>("solo_user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( false );
+
+		// show smaller display name if too long to display in regular size
+		if (getChild<LLTextBox>("user_name")->getTextPixelWidth() > getChild<LLTextBox>("user_name")->getRect().getWidth())
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( true );
+			getChild<LLUICtrl>("user_name")->setVisible( false );
+		}
+		else
+		{
+			getChild<LLUICtrl>("user_name_small")->setVisible( false );
+			getChild<LLUICtrl>("user_name")->setVisible( true );
+		}
 	}
+	else
+	{
+		getChild<LLUICtrl>("user_label")->setVisible( false );
+		getChild<LLUICtrl>("user_slid")->setVisible( false );
+		getChild<LLUICtrl>("display_name_label")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setVisible( false );
+		getChild<LLUICtrl>("set_name")->setEnabled( false );
+		
+		getChild<LLUICtrl>("solo_user_name")->setVisible( true );
+		getChild<LLUICtrl>("user_name_small")->setVisible( false );
+		getChild<LLUICtrl>("user_name")->setVisible( false );
+		getChild<LLUICtrl>("solo_username_label")->setVisible( true );
+	}
+}
+
+
+void LLPanelMyProfileEdit::onAvatarNameChanged()
+{
+	LLAvatarNameCache::get(getAvatarId(),
+		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()
@@ -223,6 +329,11 @@ BOOL LLPanelMyProfileEdit::postBuild()
 	getChild<LLUICtrl>("partner_edit_link")->setTextArg("[URL]", getString("partner_edit_link_url"));
 	getChild<LLUICtrl>("my_account_link")->setTextArg("[URL]", getString("my_account_link_url"));
 
+	getChild<LLUICtrl>("set_name")->setCommitCallback(
+		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
+
+	LLHints::registerHintTarget("set_display_name", getChild<LLUICtrl>("set_name")->getHandle());
+	LLViewerDisplayName::addNameChangedCallback(boost::bind(&LLPanelMyProfileEdit::onAvatarNameChanged, this));
 	return LLPanelAvatarProfile::postBuild();
 }
 /**
@@ -250,8 +361,12 @@ void LLPanelMyProfileEdit::resetData()
 {
 	LLPanelMyProfile::resetData();
 
-	getChild<LLUICtrl>("name_text")->setTextArg("[FIRST]", LLStringUtil::null);
-	getChild<LLUICtrl>("name_text")->setTextArg("[LAST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
+	getChild<LLUICtrl>("solo_user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_name_small")->setValue( LLSD() );
 }
 
 void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
@@ -261,6 +376,43 @@ void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
 void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 {
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
+}
+
+void LLPanelMyProfileEdit::onClickSetName()
+{	
+	LLAvatarNameCache::get(getAvatarId(), 
+			boost::bind(&LLPanelMyProfileEdit::onAvatarNameCache,
+				this, _1, _2));	
+
+	LLFirstUse::setDisplayName(false);
+}
+
+void LLPanelMyProfileEdit::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	if (av_name.mDisplayName.empty())
+	{
+		// something is wrong, tell user to try again later
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		return;		
+	}
+
+	llinfos << "name-change now " << LLDate::now() << " next_update "
+		<< LLDate(av_name.mNextUpdate) << llendl;
+	F64 now_secs = LLDate::now().secondsSinceEpoch();
+
+	if (now_secs < av_name.mNextUpdate)
+	{
+		// if the update time is more than a year in the future, it means updates have been blocked
+		// show a more general message
+        const int YEAR = 60*60*24*365; 
+		if (now_secs + YEAR < av_name.mNextUpdate)
+		{
+			LLNotificationsUtil::add("SetDisplayNameBlocked");
+			return;
+		}
+	}
+	
+	LLFloaterReg::showInstance("display_name");
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)

@@ -29,7 +29,9 @@
 #include "llnotifications.h"
 #include "llnotificationtemplate.h"
 
+#include "llavatarnamecache.h"
 #include "llinstantmessage.h"
+#include "llcachename.h"
 #include "llxmlnode.h"
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
@@ -62,7 +64,7 @@ LLNotificationForm::FormElementBase::FormElementBase()
 LLNotificationForm::FormIgnore::FormIgnore()
 :	text("text"),
 	control("control"),
-	invert_control("invert_control", true),
+	invert_control("invert_control", false),
 	save_option("save_option", false)
 {}
 
@@ -79,7 +81,9 @@ LLNotificationForm::FormButton::FormButton()
 
 LLNotificationForm::FormInput::FormInput()
 :	type("type"),
-	width("width", 0)
+	max_length_chars("max_length_chars"),
+	width("width", 0),
+	value("value")
 {}
 
 LLNotificationForm::FormElement::FormElement()
@@ -190,7 +194,7 @@ LLNotificationForm::LLNotificationForm()
 
 LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationForm::Params& p) 
 :	mIgnore(IGNORE_NO),
-	mInvertSetting(true) // ignore settings by default mean true=show, false=ignore
+	mInvertSetting(false) // ignore settings by default mean true=show, false=ignore
 {
 	if (p.ignore.isProvided())
 	{
@@ -215,7 +219,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		}
 		else
 		{
-			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Ignore notification with this name", TRUE);
+			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", TRUE);
 			mIgnoreSetting = LLUI::sSettingGroups["ignores"]->getControl(name);
 		}
 	}
@@ -353,15 +357,15 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 
 bool LLNotificationForm::getIgnored()
 {
-	bool ignored = false;
+	bool show = true;
 	if (mIgnore != LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
-		ignored = mIgnoreSetting->getValue().asBoolean();
-		if (mInvertSetting) ignored = !ignored;
+		show = mIgnoreSetting->getValue().asBoolean();
+		if (mInvertSetting) show = !show;
 	}
 
-	return ignored;
+	return !show;
 }
 
 void LLNotificationForm::setIgnored(bool ignored)
@@ -369,7 +373,7 @@ void LLNotificationForm::setIgnored(bool ignored)
 	if (mIgnoreSetting)
 	{
 		if (mInvertSetting) ignored = !ignored;
-		mIgnoreSetting->setValue(ignored);
+		mIgnoreSetting->setValue(!ignored);
 	}
 }
 
@@ -1552,17 +1556,50 @@ std::ostream& operator<<(std::ostream& s, const LLNotification& notification)
 	return s;
 }
 
-void LLPostponedNotification::onCachedNameReceived(const LLUUID& id, const std::string& first,
-		const std::string& last, bool is_group)
+//static
+void LLPostponedNotification::lookupName(LLPostponedNotification* thiz,
+										 const LLUUID& id,
+										 bool is_group)
 {
-	mName = first + " " + last;
-
-	LLStringUtil::trim(mName);
-	if (mName.empty())
+	if (is_group)
 	{
-		llwarns << "Empty name received for Id: " << id << llendl;
-		mName = SYSTEM_FROM;
+		gCacheName->getGroup(id,
+			boost::bind(&LLPostponedNotification::onGroupNameCache,
+				thiz, _1, _2, _3));
 	}
+	else
+	{
+		LLAvatarNameCache::get(id,
+			boost::bind(&LLPostponedNotification::onAvatarNameCache,
+				thiz, _1, _2));
+	}
+}
+
+void LLPostponedNotification::onGroupNameCache(const LLUUID& id,
+											   const std::string& full_name,
+											   bool is_group)
+{
+	finalizeName(full_name);
+}
+
+void LLPostponedNotification::onAvatarNameCache(const LLUUID& agent_id,
+												const LLAvatarName& av_name)
+{
+	std::string name = av_name.getCompleteName();
+
+	// from PE merge - we should figure out if this is the right thing to do
+	if (name.empty())
+	{
+		llwarns << "Empty name received for Id: " << agent_id << llendl;
+		name = SYSTEM_FROM;
+	}
+	
+	finalizeName(name);
+}
+
+void LLPostponedNotification::finalizeName(const std::string& name)
+{
+	mName = name;
 	modifyNotificationParams();
 	LLNotifications::instance().add(mParams);
 	cleanup();

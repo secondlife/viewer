@@ -9,6 +9,7 @@
 	<menu_item_call label="Abrir" name="open"/>
 	<menu_item_call label="Editar" name="edit"/>
 	<menu_item_call label="Vestir" name="wear"/>
+	<menu_item_call label="Adicionar" name="add"/>
 	<menu_item_call label="Denunciar" name="report"/>
 	<menu_item_call label="Bloquear" name="block"/>
 	<menu_item_call label="Mais zoom" name="zoom_in"/>

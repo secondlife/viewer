@@ -6,4 +6,5 @@
 	<menu_item_call label="Zadzwoń" name="Call"/>
 	<menu_item_call label="Udostępnij" name="Share"/>
 	<menu_item_call label="Zapłać" name="Pay"/>
+	<menu_item_call label="Teleportuj" name="teleport"/>
 </context_menu>

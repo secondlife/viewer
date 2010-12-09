@@ -4,13 +4,45 @@
 	<string name="teleport_history_tab_title" value="TELEPORT HISTORIK"/>
 	<filter_editor label="Filtrér mine steder" name="Filter"/>
 	<panel name="button_panel">
-		<button label="Teleportér" name="teleport_btn" tool_tip="Teleportér til det valgte område"/>
-		<button label="Kort" name="map_btn" tool_tip="Vis dette område på verdenskortet"/>
-		<button label="Redigér" name="edit_btn" tool_tip="Redigér landemærke information"/>
-		<button label="▼" name="overflow_btn" tool_tip="Vise flere valgmuligheder"/>
-		<button label="Gem" name="save_btn"/>
-		<button label="Annullér" name="cancel_btn"/>
-		<button label="Luk" name="close_btn"/>
-		<button label="Profil" name="profile_btn" tool_tip="Vis profil for stedet"/>
+		<layout_stack name="bottom_bar_ls0">
+			<layout_panel name="lp1">
+				<layout_stack name="bottom_bar_ls1">
+					<layout_panel name="teleport_btn_lp">
+						<button label="Teleport" name="teleport_btn" tool_tip="Teleportér til valgte område"/>
+					</layout_panel>
+					<layout_panel name="chat_btn_lp">
+						<button label="Kort" name="map_btn" tool_tip="Vis tilsvarende område på verdenskort"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="lp2">
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="edit_btn_lp">
+						<button label="Redigér" name="edit_btn" tool_tip="Redigér landemærke information"/>
+					</layout_panel>
+					<layout_panel name="overflow_btn_lp">
+						<menu_button label="▼" name="overflow_btn" tool_tip="Vis flere valg"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="profile_btn_lp">
+						<button label="Profil" name="profile_btn" tool_tip="Vis profil for sted"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_close_ls3">
+					<layout_panel name="close_btn_lp">
+						<button label="Luk" name="close_btn"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls2">
+			<layout_panel name="save_btn_lp">
+				<button label="Gem" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="cancel_btn_lp">
+				<button label="Annullér" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>
