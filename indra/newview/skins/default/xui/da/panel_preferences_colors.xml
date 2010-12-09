@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Farver" name="colors_panel">
+	<text name="effects_color_textbox">
+		Mine effekter (selektions-stråle):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Klik for at åbne farve-vælger"/>
+	<text name="font_colors">
+		Chat bogstavsfarver:
+	</text>
+	<text name="text_box1">
+		Mig
+	</text>
+	<text name="text_box2">
+		Andre
+	</text>
+	<text name="text_box3">
+		Objekter
+	</text>
+	<text name="text_box4">
+		System
+	</text>
+	<text name="text_box5">
+		Fejl
+	</text>
+	<text name="text_box7">
+		Ejer
+	</text>
+	<text name="text_box9">
+		URL&apos;er
+	</text>
+	<text name="bubble_chat">
+		Chat-boble baggrund:
+	</text>
+	<color_swatch name="background" tool_tip="Vælg farve til chat-boble"/>
+	<slider label="Uigennemsigtighed:" name="bubble_chat_opacity"/>
+	<text name="floater_opacity">
+		Vindue uigennemsigtighed:
+	</text>
+	<slider label="Aktiv:" name="active"/>
+	<slider label="Inaktiv:" name="inactive"/>
+</panel>
