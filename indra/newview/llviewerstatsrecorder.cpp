@@ -50,7 +50,7 @@ void LLViewerStatsRecorder::initStatsRecorder(LLViewerRegion *regionp)
 #if LL_WINDOWS
 	std::string stats_file_name("C:\\ViewerObjectCacheStats.csv");
 #else
-	std::string stats_file_name("~/viewerstats.csv");
+	std::string stats_file_name("/tmp/viewerstats.csv");
 #endif
 
 	if (mObjectCacheFile == NULL)
