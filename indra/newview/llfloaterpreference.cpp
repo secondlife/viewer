@@ -287,7 +287,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mDoubleClickActionDirty(false)
 {
 	
-	
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
 	static bool registered_dialog = false;
@@ -358,17 +357,23 @@ void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData
 	mAvatarProperties.about_text	= pAvatarData->about_text;
 	mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
 	mAvatarProperties.profile_url   = pAvatarData->profile_url;
-	mAvatarProperties.allow_publish	= pAvatarData->allow_publish;
+	mAvatarProperties.flags		    = pAvatarData->flags;
+	mAvatarProperties.allow_publish	= pAvatarData->flags & AVATAR_ALLOW_PUBLISH;
 }
 
 void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarData )
 {
-	getChild<LLUICtrl>("online_searchresults")->setValue( pAvatarData->allow_publish );	
+	getChild<LLUICtrl>("online_searchresults")->setValue( (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH) );	
 }
 
 void LLFloaterPreference::saveAvatarProperties( void )
 {
 	mAvatarProperties.allow_publish = getChild<LLUICtrl>("online_searchresults")->getValue();
+	if ( mAvatarProperties.allow_publish )
+	{
+		mAvatarProperties.flags |= AVATAR_ALLOW_PUBLISH;
+	}
+	
 	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
 }
 
@@ -570,7 +575,6 @@ void LLFloaterPreference::cancel()
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {	
-	
 	
 	// this variable and if that follows it are used to properly handle busy mode response message
 	static bool initialized = FALSE;
