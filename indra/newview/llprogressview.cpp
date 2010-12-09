@@ -133,13 +133,13 @@ void LLProgressView::setVisible(BOOL visible)
 		mFadeTimer.start();
 	}
 	// showing progress view
-	else if (!getVisible() && visible)
+	else if (visible && (!getVisible() || mFadeTimer.getStarted()))
 	{
 		setFocus(TRUE);
 		mFadeTimer.stop();
 		mProgressTimer.start();
 		LLPanel::setVisible(TRUE);
-	}
+	} 
 }
 
 

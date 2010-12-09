@@ -2892,12 +2892,11 @@ http://secondlife.com/download.
    icon="alertmodal.tga"
    name="UpdaterServiceNotRunning"
    type="alertmodal">
-An update is required to log in. May we start the background
-updater service to fetch and install the update?
+There is a required update for your Second Life Installation.
     <usetemplate
      name="okcancelbuttons"
-     notext="Quit"
-     yestext="Start"/>
+     notext="Quit Second Life"
+     yestext="Download and install now"/>
   </notification>
 
   <notification
