@@ -392,13 +392,6 @@
       <string>CrashOnStartup</string>
     </map>
 
-    <key>fullscreen</key>
-    <map>
-      <key>desc</key>
-      <string>Force full screen mode</string>
-      <key>map-to</key>
-      <string>WindowFullScreen</string>
-    </map>
     <key>disablecrashlogger</key>
     <map>
       <key>desc</key>

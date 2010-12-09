@@ -505,6 +505,9 @@ static void settings_modify()
 	gSavedSettings.setBOOL("VectorizeEnable", FALSE );
 	gSavedSettings.setU32("VectorizeProcessor", 0 );
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
+
+	// disable fullscreen mode, unsupported
+	gSavedSettings.setBOOL("WindowFullScreen", FALSE);
 #endif
 }
 
