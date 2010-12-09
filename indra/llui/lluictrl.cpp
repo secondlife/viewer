@@ -944,6 +944,10 @@ F32 LLUICtrl::getCurrentTransparency()
 	case TT_INACTIVE:
 		alpha = sInactiveControlTransparency;
 		break;
+
+	case TT_FADING:
+		alpha = sInactiveControlTransparency / 2;
+		break;
 	}
 
 	return alpha;
