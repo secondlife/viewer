@@ -6583,14 +6583,16 @@ Mute everyone?
   type="hint"
   unique="true">
     To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
+    <tag>custom_skin</tag>
   </notification>
-  
+
   <notification
   name="HintView"
   label="View"
   type="hint"
   unique="true">
     To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
+    <tag>custom_skin</tag>
   </notification>
 
   <notification

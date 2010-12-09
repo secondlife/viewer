@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <notification_visibility>
-  <hide name="HintMoveArrows"/>
-  <hide name="HintView"/>
+  <hide tag="custom_skin"/>
 	<show/> 
 </notification_visibility>
 
