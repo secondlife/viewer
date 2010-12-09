@@ -116,7 +116,6 @@ private:
 	LLToggleableMenu*			mLandmarkMenu;
 
 	LLButton*					mPlaceProfileBackBtn;
-	LLButton*					mLandmarkInfoBackBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
 	LLButton*					mEditBtn;
