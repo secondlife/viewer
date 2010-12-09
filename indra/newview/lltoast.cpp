@@ -125,6 +125,9 @@ LLToast::LLToast(const LLToast::Params& p)
 	mWrapperPanel->setMouseEnterCallback(boost::bind(&LLToast::onToastMouseEnter, this));
 	mWrapperPanel->setMouseLeaveCallback(boost::bind(&LLToast::onToastMouseLeave, this));
 
+	setBackgroundOpaque(TRUE); // *TODO: obsolete
+	updateTransparency();
+
 	if(mPanel)
 	{
 		insertPanel(mPanel);
@@ -190,7 +193,7 @@ void LLToast::onFocusLost()
 	if(mWrapperPanel && !isBackgroundVisible())
 	{
 		// Lets make wrapper panel behave like a floater
-		setBackgroundOpaque(FALSE);
+		updateTransparency();
 	}
 }
 
@@ -199,7 +202,7 @@ void LLToast::onFocusReceived()
 	if(mWrapperPanel && !isBackgroundVisible())
 	{
 		// Lets make wrapper panel behave like a floater
-		setBackgroundOpaque(TRUE);
+		updateTransparency();
 	}
 }
 
@@ -260,8 +263,8 @@ void LLToast::expire()
 
 void LLToast::setFading(bool transparent)
 {
-	setBackgroundOpaque(!transparent);
 	mIsFading = transparent;
+	updateTransparency();
 
 	if (transparent)
 	{
@@ -349,7 +352,6 @@ void LLToast::setVisible(BOOL show)
 
 	if(show)
 	{
-		setBackgroundOpaque(TRUE);
 		if(!mTimer->getStarted() && mCanFade)
 		{
 			mTimer->start();
@@ -391,7 +393,7 @@ void LLToast::onToastMouseEnter()
 	{
 		mOnToastHoverSignal(this, MOUSE_ENTER);
 
-		setBackgroundOpaque(TRUE);
+		updateTransparency();
 
 		//toasts fading is management by Screen Channel
 
@@ -420,6 +422,8 @@ void LLToast::onToastMouseLeave()
 	{
 		mOnToastHoverSignal(this, MOUSE_LEAVE);
 
+		updateTransparency();
+
 		//toasts fading is management by Screen Channel
 
 		if(mHideBtn && mHideBtn->getEnabled())
@@ -445,6 +449,31 @@ void LLToast::setBackgroundOpaque(BOOL b)
 	{
 		LLModalDialog::setBackgroundOpaque(b);
 	}
+}
+
+void LLToast::updateTransparency()
+{
+	ETypeTransparency transparency_type;
+
+	if (mCanFade)
+	{
+		// Notification toasts (including IM/chat toasts) change their transparency on hover.
+		if (isHovered())
+		{
+			transparency_type = TT_ACTIVE;
+		}
+		else
+		{
+			transparency_type = mIsFading ? TT_FADING : TT_INACTIVE;
+		}
+	}
+	else
+	{
+		// Transparency of alert toasts depends on focus.
+		transparency_type = hasFocus() ? TT_ACTIVE : TT_INACTIVE;
+	}
+
+	LLFloater::updateTransparency(transparency_type);
 }
 
 void LLNotificationsUI::LLToast::stopTimer()

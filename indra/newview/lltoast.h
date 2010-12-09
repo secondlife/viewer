@@ -198,6 +198,9 @@ public:
 
 	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
 
+protected:
+	void updateTransparency();
+
 private:
 
 	void onToastMouseEnter();
