@@ -391,7 +391,10 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 		return;
 
 	LLRect	toast_rect;	
-	S32		bottom = getRect().mBottom;
+	updateBottom();
+	S32 channel_bottom = getRect().mBottom;
+
+	S32		bottom = channel_bottom;
 	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	//sort active toasts
@@ -523,6 +526,14 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	}
 
 	nearby_chat->addMessage(chat_msg, true, args);
+
+	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 
+		&& chat_msg.mFromID.notNull() 
+		&& chat_msg.mFromID != gAgentID)
+	{
+ 		LLFirstUse::otherAvatarChatFirst();
+	}
+
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") ) )
@@ -582,13 +593,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
 		channel->addNotification(notification);	
 	}
-	
-	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 
-		&& chat_msg.mFromID.notNull() 
-		&& chat_msg.mFromID != gAgentID)
-	{
- 		LLFirstUse::otherAvatarChatFirst();
-	}
+
 }
 
 void LLNearbyChatHandler::onDeleteToast(LLToast* toast)

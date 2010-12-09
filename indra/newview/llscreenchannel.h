@@ -111,6 +111,8 @@ public:
 	LLUUID	getChannelID() { return mID; }
 
 protected:
+	void	updateBottom();
+
 	// Channel's flags
 	bool		mControlHovering;
 	LLToast*		mHoveredToast;

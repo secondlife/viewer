@@ -823,16 +823,22 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
-	//load key settings
-	bind_keyboard_functions();
-
 	// Load Default bindings
-	if (!gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keys.ini")))
+	std::string key_bindings_file = gDirUtilp->findFile("keys.xml",
+														gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
+														gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+
+
+	if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
 	{
-		LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
+		std::string key_bindings_file = gDirUtilp->findFile("keys.ini",
+															gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
+															gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+		if (!gViewerKeyboard.loadBindings(key_bindings_file))
+		{
+			LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
+		}
 	}
-	// Load Custom bindings (override defaults)
-	gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"custom_keys.ini"));
 
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements && !gNoRender)
@@ -1310,6 +1316,21 @@ bool LLAppViewer::mainLoop()
 	return true;
 }
 
+void LLAppViewer::flushVFSIO()
+{
+	while (1)
+	{
+		S32 pending = LLVFSThread::updateClass(0);
+		pending += LLLFSThread::updateClass(0);
+		if (!pending)
+		{
+			break;
+		}
+		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
+		ms_sleep(100);
+	}
+}
+
 bool LLAppViewer::cleanup()
 {
 	// workaround for DEV-35406 crash on shutdown
@@ -1449,17 +1470,7 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cache files removed" << llendflush;
 
 	// Wait for any pending VFS IO
-	while (1)
-	{
-		S32 pending = LLVFSThread::updateClass(0);
-		pending += LLLFSThread::updateClass(0);
-		if (!pending)
-		{
-			break;
-		}
-		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
-		ms_sleep(100);
-	}
+	flushVFSIO();
 	llinfos << "Shutting down Views" << llendflush;
 
 	// Destroy the UI
@@ -2196,7 +2207,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("nonotifications"))
 	{
-		gSavedSettings.setBOOL("IgnoreAllNotifications", TRUE);
+		gSavedSettings.getControl("IgnoreAllNotifications")->setValue(true, false);
 	}
 	
 	if (clp.hasOption("debugsession"))
@@ -2243,8 +2254,8 @@ bool LLAppViewer::initConfiguration()
     if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
 		// hack to force the skin to default.
-        //gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-		gDirUtilp->setSkinFolder("default");
+        gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
+		//gDirUtilp->setSkinFolder("default");
     }
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
@@ -2499,7 +2510,7 @@ bool LLAppViewer::initWindow()
 		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		FALSE, ignorePixelDepth);
+		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
 
 	// Need to load feature table before cheking to start watchdog.
 	const S32 NEVER_SUBMIT_REPORT = 2;
@@ -2994,6 +3005,23 @@ void LLAppViewer::forceQuit()
 	LLApp::setQuitting(); 
 }
 
+//TODO: remove
+void LLAppViewer::fastQuit(S32 error_code)
+{
+	// finish pending transfers
+	flushVFSIO();
+	// let sim know we're logging out
+	sendLogoutRequest();
+	// flush network buffers by shutting down messaging system
+	end_messaging_system();
+	// figure out the error code
+	S32 final_error_code = error_code ? error_code : (S32)isError();
+	// this isn't a crash	
+	removeMarkerFile();
+	// get outta here
+	_exit(final_error_code);	
+}
+
 void LLAppViewer::requestQuit()
 {
 	llinfos << "requestQuit" << llendl;
@@ -3002,6 +3030,13 @@ void LLAppViewer::requestQuit()
 	
 	if( (LLStartUp::getStartupState() < STATE_STARTED) || !region )
 	{
+		// If we have a region, make some attempt to send a logout request first.
+		// This prevents the halfway-logged-in avatar from hanging around inworld for a couple minutes.
+		if(region)
+		{
+			sendLogoutRequest();
+		}
+		
 		// Quit immediately
 		forceQuit();
 		return;
@@ -3066,12 +3101,12 @@ void LLAppViewer::earlyExit(const std::string& name, const LLSD& substitutions)
 	LLNotificationsUtil::add(name, substitutions, LLSD(), finish_early_exit);
 }
 
-void LLAppViewer::forceExit(S32 arg)
+// case where we need the viewer to exit without any need for notifications
+void LLAppViewer::earlyExitNoNotify()
 {
-    removeMarkerFile();
-    
-    // *FIX:Mani - This kind of exit hardly seems appropriate.
-    exit(arg);
+   	llwarns << "app_early_exit with no notification: " << llendl;
+	gDoDisconnect = TRUE;
+	finish_early_exit( LLSD(), LLSD() );
 }
 
 void LLAppViewer::abortQuit()
@@ -3667,6 +3702,18 @@ void LLAppViewer::idle()
 		}
 	}
 
+	// debug setting to quit after N seconds of being AFK - 0 to never do this
+	F32 qas_afk = gSavedSettings.getF32("QuitAfterSecondsOfAFK");
+	if (qas_afk > 0.f)
+	{
+		// idle time is more than setting
+		if ( gAwayTriggerTimer.getElapsedTimeF32() > qas_afk )
+		{
+			// go ahead and just quit gracefully
+			LLAppViewer::instance()->requestQuit();
+		}
+	}
+
 	// Must wait until both have avatar object and mute list, so poll
 	// here.
 	request_initial_instant_messages();
@@ -4103,7 +4150,10 @@ void LLAppViewer::sendLogoutRequest()
 		gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 		mLogoutRequestSent = TRUE;
 		
-		LLVoiceClient::getInstance()->leaveChannel();
+		if(LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->leaveChannel();
+		}
 
 		//Set internal status variables and marker files
 		gLogoutInProgress = TRUE;

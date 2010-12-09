@@ -348,8 +348,6 @@ BOOL LLPanelPlaces::postBuild()
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
-	LLFirstUse::notUsingDestinationGuide(false);
-
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return;
 
