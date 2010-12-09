@@ -12241,6 +12241,7 @@
       <key>Value</key>
       <array>
 	      <string>snapshot</string>
+	      <string>postcard</string>
 	      <string>mini_map</string>
       </array>
     </map>
