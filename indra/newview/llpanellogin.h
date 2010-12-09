@@ -85,8 +85,8 @@ public:
 private:
 	friend class LLPanelLoginListener;
 	void reshapeBrowser();
-	// adds favorites of last logged in user from file to "Start at" combobox.
 	void addFavoritesToStartLocation();
+	void addUsersWithFavoritesToUsername();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 //	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);

@@ -1562,6 +1562,13 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 	if (user_dir.empty()) return;
 
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	llifstream in_file;
+	in_file.open(filename);
+	LLSD fav_llsd;
+	if (in_file.is_open())
+	{
+		LLSDSerialize::fromXML(fav_llsd, in_file);
+	}
 
 	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	LLInventoryModel::cat_array_t cats;
@@ -1579,18 +1586,10 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 		if (slurl_iter != mSLURLs.end())
 		{
 			value["slurl"] = slurl_iter->second;
+			user_llsd[(*it)->getSortField()] = value;
 		}
-		else
-		{
-			llwarns << "Fetching SLURLs for \"Favorites\" is not complete!" << llendl;
-			return;
-		}
-
-		user_llsd[(*it)->getSortField()] = value;
 	}
 
-	LLSD fav_llsd;
-	// this level in LLSD is not needed now and is just a stub, but will be needed later when implementing save of multiple users favorites in one file.
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( gAgentID, &av_name );
 	fav_llsd[av_name.getLegacyName()] = user_llsd;
@@ -1680,6 +1679,11 @@ S32 LLViewerInventoryItem::getSortField() const
 void LLViewerInventoryItem::setSortField(S32 sortField)
 {
 	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+	getSLURL();
+}
+
+void LLViewerInventoryItem::getSLURL()
+{
 	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
 }
 

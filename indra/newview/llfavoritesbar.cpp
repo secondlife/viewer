@@ -611,10 +611,9 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 		LLIsType is_type(LLAssetType::AT_LANDMARK);
 		gInventory.collectDescendentsIf(mFavoriteFolderId, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 		
-		S32 sortField = 0;
 		for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
 		{
-			(*i)->setSortField(++sortField);
+			(*i)->getSLURL();
 		}
 		updateButtons();
 	}
