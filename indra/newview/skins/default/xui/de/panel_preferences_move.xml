@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Bewegen" name="move_panel">
+	<slider label="Sichtwinkel" name="camera_fov"/>
+	<slider label="Abstand" name="camera_offset_scale"/>
+	<text name="heading2">
+		Automatische Position für:
+	</text>
+	<check_box label="Bauen/Bearbeiten" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
+	<check_box label="Aussehen" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
+	<check_box initial_value="true" label="Seitenleiste" name="appearance_sidebar_positioning" tool_tip="Automatische Kameraposition für Seitenleiste verwenden"/>
+	<check_box label="Mich im Mouselook anzeigen" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Mausempfindlichkeit für Mouselook:
+	</text>
+	<check_box label="Umkehren" name="invert_mouse"/>
+	<check_box label="Mit Pfeiltasten bewegen" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Drücken-drücken-halten, um zu rennen" name="tap_tap_hold_to_run"/>
+	<check_box label="Doppelklicken:" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="Teleportieren" name="radio_teleport"/>
+		<radio_item label="Autopilot" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Andere Geräte" name="joystick_setup_button"/>
+</panel>

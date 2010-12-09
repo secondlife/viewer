@@ -385,6 +385,9 @@ Nota: Este procedimento limpa o cache.
 	<notification name="ChangeSkin">
 		Reinicie o [APP_NAME] para ativar a pele nova.
 	</notification>
+	<notification name="ChangeLanguage">
+		Reinicie o [APP_NAME] para exibir o idioma selecionado.
+	</notification>
 	<notification name="GoToAuctionPage">
 		Ir para a página do [SECOND_LIFE] para ver os detalhes do leilão ou fazer um lance?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir para a página"/>
@@ -592,6 +595,10 @@ Esperada [VALIDS]
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		Não pode ser encontrado bloco de dados no cabeçalho WAV:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Pedaço de arquivo WAV de tamanho errado:
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -1315,6 +1322,16 @@ Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e
 
 Salvar na pasta Aplicativos?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Ocorreu um erro de atualização do visualizador. 
+Baixe e instale a versão mais recente do visualizador em 
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DownloadBackground">
+		Foi baixada uma nova versão do [APP_NAME]
+A nova versão será exibida quando o [APP_NAME] for reiniciado.
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Delegar este objeto causará ao grupo:
@@ -2448,8 +2465,8 @@ Cada um pode ver o status do outro (definição padrão).
 		Oferta de amizada aceita.
 	</notification>
 	<notification name="OfferCallingCard">
-		[NAME] estão te oferecendo um cartão de visita.
-Ele colocará um item de inventário, para você possa contatá-lo facilmente.
+		[NOME] está te oferecendo um cartão de visita.
+Ele será um item no seu inventário, para você possa contatá-lo facilmente.
 		<form name="form">
 			<button name="Accept" text="Aceitar"/>
 			<button name="Decline" text="Recusar"/>
