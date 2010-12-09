@@ -1291,6 +1291,9 @@ even though the user gets a free copy.
          name="Object"
          top="16"
          width="295">
+	<panel.string name="None">None</panel.string>
+	<panel.string name="Prim">Prim</panel.string>
+	<panel.string name="Convex Hull">Convex Hull</panel.string>
             <check_box
              height="19"
              label="Locked"
@@ -1516,20 +1519,7 @@ even though the user gets a free copy.
 			   name="Physics Shape Type Combo Ctrl"
 			   tool_tip="Choose the physics shape type"
 			   left_pad="0"
-			   width="108">
-			  <combo_box.item
-				 label="Prim"
-				 name="Prim"
-				 value="Prim" />
-			  <combo_box.item
-				 label="None"
-				 name="None"
-				 value="None" />
-			  <combo_box.item
-				 label="Convex Hull"
-				 name="Convex Hull"
-				 value="Convex Hull" />
-			</combo_box>
+			   width="108"/>
 
             <spinner
              follows="left|top"
