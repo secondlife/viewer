@@ -46,13 +46,18 @@
 	<check_box label="Brugernavne" name="show_slids" tool_tip="Vis brugernavne, som bobsmith123"/>
 	<check_box label="Gruppe titler" name="show_all_title_checkbox1" tool_tip="Vis hgruppetitler, som f.eks. administrator eller medlem"/>
 	<check_box label="Fremhæv venner" name="show_friends" tool_tip="Fremhæv navne-tags for dine venner"/>
-	<text name="effects_color_textbox">
-		Farve til mine effekter:
+	<check_box label="Vis visningsnavne" name="display_names_check" tool_tip="Vælg for at bruge visningsnavne i chat, IM, navne-tags m.v."/>
+	<check_box label="Aktivér UI tips i klient" name="viewer_hints_check"/>
+	<text name="inworld_typing_rg_label">
+		Trykker bogstav taster:
 	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Starter lokal chat" name="radio_start_chat" value="1"/>
+		<radio_item label="Påvirker bevægelse (f.eks. WASD)" name="radio_move" value="0"/>
+	</radio_group>
 	<text name="title_afk_text">
 		Tid inden &quot;væk&quot;:
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Klik for at åbne farvevælger"/>
 	<combo_box label="Timeout før &apos;væk&apos;:" name="afk">
 		<combo_box.item label="2 minutter" name="item0"/>
 		<combo_box.item label="5 minutter" name="item1"/>
@@ -60,7 +65,6 @@
 		<combo_box.item label="30 minutter" name="item3"/>
 		<combo_box.item label="aldrig" name="item4"/>
 	</combo_box>
-	<check_box label="Vis visningsnavne" name="display_names_check" tool_tip="Vælg for at bruge visningsnavne i chat, IM, navne-tags m.v."/>
 	<text name="text_box3">
 		Optaget autosvar:
 	</text>

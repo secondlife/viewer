@@ -1740,11 +1740,8 @@
 	<string name="InvOfferGaveYou">
 		deu a você
 	</string>
-	<string name="InvOfferYouDecline">
-		Você recusa
-	</string>
-	<string name="InvOfferFrom">
-		de
+	<string name="InvOfferDecline">
+		Você recusou um(a) [DESC] de &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total
