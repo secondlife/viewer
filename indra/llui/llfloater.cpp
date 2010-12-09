@@ -1,4 +1,5 @@
 /** 
+
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
@@ -1189,7 +1190,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
-	updateTransparency(this, b ? TT_ACTIVE : TT_INACTIVE);
+	updateTransparency(b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1462,6 +1463,9 @@ void LLFloater::setFrontmost(BOOL take_focus)
 		// there are more than one floater view
 		// so we need to query our parent directly
 		((LLFloaterView*)getParent())->bringToFront(this, take_focus);
+
+		// Make sure to set the appropriate transparency type (STORM-732).
+		updateTransparency(hasFocus() || getIsChrome() ? TT_ACTIVE : TT_INACTIVE);
 	}
 }
 

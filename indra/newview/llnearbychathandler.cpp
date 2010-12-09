@@ -121,7 +121,7 @@ protected:
 		if (!toast) return;
 		LL_DEBUGS("NearbyChat") << "Pooling toast" << llendl;
 		toast->setVisible(FALSE);
-		toast->stopFading();
+		toast->stopTimer();
 		toast->setIsHidden(true);
 
 		// Nearby chat toasts that are hidden, not destroyed. They are collected to the toast pool, so that
@@ -165,20 +165,11 @@ public:
 	:	LLToast(p),
 	 	mNearbyChatScreenChannelp(nc_channelp)
 	{
-		updateTransparency();
-		setMouseEnterCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
-		setMouseLeaveCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
 	}
 
 	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void setBackgroundOpaque(BOOL b);
-
-protected:
-	/*virtual*/ void setTransparentState(bool transparent);
 
 private:
-	void updateTransparency();
-
 	LLNearbyChatScreenChannel*	mNearbyChatScreenChannelp;
 };
 
@@ -305,7 +296,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 			{
 				panel->addMessage(notification);
 				toast->reshapeToPanel();
-				toast->startFading();
+				toast->startTimer();
 	  
 				arrangeToasts();
 				return;
@@ -350,7 +341,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	panel->init(notification);
 
 	toast->reshapeToPanel();
-	toast->startFading();
+	toast->startTimer();
 	
 	m_active_toasts.push_back(toast->getHandle());
 
@@ -604,36 +595,6 @@ void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
 void LLNearbyChatToast::onClose(bool app_quitting)
 {
 	mNearbyChatScreenChannelp->onToastDestroyed(this, app_quitting);
-}
-
-// virtual
-void LLNearbyChatToast::setBackgroundOpaque(BOOL b)
-{
-	// We don't want background changes: transparency is handled differently.
-	LLToast::setBackgroundOpaque(TRUE);
-}
-
-// virtual
-void LLNearbyChatToast::setTransparentState(bool transparent)
-{
-	LLToast::setTransparentState(transparent);
-	updateTransparency();
-}
-
-void LLNearbyChatToast::updateTransparency()
-{
-	ETypeTransparency transparency_type;
-
-	if (isHovered())
-	{
-		transparency_type = TT_ACTIVE;
-	}
-	else
-	{
-		transparency_type = getTransparentState() ? TT_FADING : TT_INACTIVE;
-	}
-
-	LLFloater::updateTransparency(transparency_type);
 }
 
 // EOF

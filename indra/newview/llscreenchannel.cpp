@@ -253,8 +253,8 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
-		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToast, this, new_toast_elem.toast));
-		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToast, this, new_toast_elem.toast));
+		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopToastTimer, this, new_toast_elem.toast));
+		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startToastTimer, this, new_toast_elem.toast));
 	}
 	
 	if(show_toast)
@@ -369,7 +369,7 @@ void LLScreenChannel::loadStoredToastsToChannel()
 	for(it = mStoredToastList.begin(); it != mStoredToastList.end(); ++it)
 	{
 		(*it).toast->setIsHidden(false);
-		(*it).toast->startFading();
+		(*it).toast->startTimer();
 		mToastList.push_back((*it));
 	}
 
@@ -394,7 +394,7 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	}
 
 	toast->setIsHidden(false);
-	toast->startFading();
+	toast->startTimer();
 	mToastList.push_back((*it));
 
 	redrawToasts();
@@ -477,7 +477,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		toast->removeChild(old_panel);
 		delete old_panel;
 		toast->insertPanel(panel);
-		toast->startFading();
+		toast->startTimer();
 		redrawToasts();
 	}
 }
@@ -588,7 +588,7 @@ void LLScreenChannel::showToastsBottom()
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
-			(*it).toast->stopFading();
+			(*it).toast->stopTimer();
 			(*it).toast->setVisible(FALSE);
 			mHiddenToastsNum++;
 		}
@@ -697,15 +697,15 @@ void LLScreenChannel::closeStartUpToast()
 	}
 }
 
-void LLNotificationsUI::LLScreenChannel::stopFadingToast(LLToast* toast)
+void LLNotificationsUI::LLScreenChannel::stopToastTimer(LLToast* toast)
 {
 	if (!toast || toast != mHoveredToast) return;
 
 	// Pause fade timer of the hovered toast.
-	toast->stopFading();
+	toast->stopTimer();
 }
 
-void LLNotificationsUI::LLScreenChannel::startFadingToast(LLToast* toast)
+void LLNotificationsUI::LLScreenChannel::startToastTimer(LLToast* toast)
 {
 	if (!toast || toast == mHoveredToast)
 	{
@@ -713,7 +713,7 @@ void LLNotificationsUI::LLScreenChannel::startFadingToast(LLToast* toast)
 	}
 
 	// Reset its fade timer.
-	toast->startFading();
+	toast->startTimer();
 }
 
 //--------------------------------------------------------------------------
