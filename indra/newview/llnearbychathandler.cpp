@@ -165,20 +165,11 @@ public:
 	:	LLToast(p),
 	 	mNearbyChatScreenChannelp(nc_channelp)
 	{
-		updateTransparency();
-		setMouseEnterCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
-		setMouseLeaveCallback(boost::bind(&LLNearbyChatToast::updateTransparency, this));
 	}
 
 	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void setBackgroundOpaque(BOOL b);
-
-protected:
-	/*virtual*/ void setTransparentState(bool transparent);
 
 private:
-	void updateTransparency();
-
 	LLNearbyChatScreenChannel*	mNearbyChatScreenChannelp;
 };
 
@@ -604,36 +595,6 @@ void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
 void LLNearbyChatToast::onClose(bool app_quitting)
 {
 	mNearbyChatScreenChannelp->onToastDestroyed(this, app_quitting);
-}
-
-// virtual
-void LLNearbyChatToast::setBackgroundOpaque(BOOL b)
-{
-	// We don't want background changes: transparency is handled differently.
-	LLToast::setBackgroundOpaque(TRUE);
-}
-
-// virtual
-void LLNearbyChatToast::setTransparentState(bool transparent)
-{
-	LLToast::setTransparentState(transparent);
-	updateTransparency();
-}
-
-void LLNearbyChatToast::updateTransparency()
-{
-	ETypeTransparency transparency_type;
-
-	if (isHovered())
-	{
-		transparency_type = TT_ACTIVE;
-	}
-	else
-	{
-		transparency_type = getTransparentState() ? TT_FADING : TT_INACTIVE;
-	}
-
-	LLFloater::updateTransparency(transparency_type);
 }
 
 // EOF
