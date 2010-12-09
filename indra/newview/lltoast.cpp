@@ -113,7 +113,7 @@ LLToast::LLToast(const LLToast::Params& p)
 	mHideBtnPressed(false),
 	mIsTip(p.is_tip),
 	mWrapperPanel(NULL),
-	mIsTransparent(false)
+	mIsFading(false)
 {
 	mTimer.reset(new LLToastLifeTimer(this, p.lifetime_secs));
 
@@ -179,7 +179,7 @@ LLToast::~LLToast()
 void LLToast::hide()
 {
 	setVisible(FALSE);
-	setTransparentState(false);
+	setFading(false);
 	mTimer->stop();
 	mIsHidden = true;
 	mOnFadeSignal(this); 
@@ -244,22 +244,24 @@ void LLToast::expire()
 {
 	if (mCanFade)
 	{
-		if (mIsTransparent)
+		if (mIsFading)
 		{
+			// Fade timer expired. Time to hide.
 			hide();
 		}
 		else
 		{
-			setTransparentState(true);
+			// "Life" time has ended. Time to fade.
+			setFading(true);
 			mTimer->restart();
 		}
 	}
 }
 
-void LLToast::setTransparentState(bool transparent)
+void LLToast::setFading(bool transparent)
 {
 	setBackgroundOpaque(!transparent);
-	mIsTransparent = transparent;
+	mIsFading = transparent;
 
 	if (transparent)
 	{
@@ -275,7 +277,7 @@ F32 LLToast::getTimeLeftToLive()
 {
 	F32 time_to_live = mTimer->getRemainingTimeF32();
 
-	if (!mIsTransparent)
+	if (!mIsFading)
 	{
 		time_to_live += mToastFadingTime;
 	}
@@ -445,20 +447,20 @@ void LLToast::setBackgroundOpaque(BOOL b)
 	}
 }
 
-void LLNotificationsUI::LLToast::stopFading()
+void LLNotificationsUI::LLToast::stopTimer()
 {
 	if(mCanFade)
 	{
-		setTransparentState(false);
+		setFading(false);
 		mTimer->stop();
 	}
 }
 
-void LLNotificationsUI::LLToast::startFading()
+void LLNotificationsUI::LLToast::startTimer()
 {
 	if(mCanFade)
 	{
-		setTransparentState(false);
+		setFading(false);
 		mTimer->start();
 	}
 }
