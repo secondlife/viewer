@@ -105,7 +105,7 @@ void LLFloaterBuyCurrencyHTML::handleMediaEvent( LLPluginClassMedia* self, EMedi
 //
 void LLFloaterBuyCurrencyHTML::onClose( bool app_quitting )
 {
-	// update L$ balanace one more time
+	// Update L$ balance one more time
 	LLStatusBar::sendMoneyBalanceRequest();
 
 	destroy();

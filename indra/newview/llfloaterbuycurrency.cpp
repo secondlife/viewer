@@ -261,6 +261,9 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	}
 
 	getChildView("getting_data")->setVisible( !mManager.canBuy() && !hasError);
+
+	// Update L$ balance
+	LLStatusBar::sendMoneyBalanceRequest();
 }
 
 void LLFloaterBuyCurrencyUI::onClickBuy()
