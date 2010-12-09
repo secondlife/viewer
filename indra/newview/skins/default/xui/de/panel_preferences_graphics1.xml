@@ -25,6 +25,7 @@
 		<text name="ShadersText">
 			Shader:
 		</text>
+		<check_box initial_value="true" label="Transparentes Wasser" name="TransparentWater"/>
 		<check_box initial_value="true" label="Bumpmapping und Glanz" name="BumpShiny"/>
 		<check_box initial_value="true" label="Einfache Shader" name="BasicShaders" tool_tip="Deaktivieren Sie diese Option, wenn der Grafikkartentreiber Abstürze verursacht"/>
 		<check_box initial_value="true" label="Atmosphären-Shader" name="WindLightUseAtmosShaders"/>
