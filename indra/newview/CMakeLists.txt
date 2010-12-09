@@ -526,6 +526,7 @@ set(viewer_SOURCE_FILES
     llviewerregion.cpp
     llviewershadermgr.cpp
     llviewerstats.cpp
+    llviewerstatsrecorder.cpp
     llviewertexteditor.cpp
     llviewertexture.cpp
     llviewertextureanim.cpp
@@ -1056,6 +1057,7 @@ set(viewer_HEADER_FILES
     llviewerregion.h
     llviewershadermgr.h
     llviewerstats.h
+    llviewerstatsrecorder.h
     llviewertexteditor.h
     llviewertexture.h
     llviewertextureanim.h

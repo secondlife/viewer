@@ -56,6 +56,7 @@
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llvoavatarself.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
@@ -345,7 +346,13 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	U8 compressed_dpbuffer[2048];
 	LLDataPackerBinaryBuffer compressed_dp(compressed_dpbuffer, 2048);
 	LLDataPacker *cached_dpp = NULL;
-	
+
+#if LL_RECORD_VIEWER_STATS
+	static LLViewerStatsRecorder	stats_recorder;
+	stats_recorder.initStatsRecorder(regionp);
+	stats_recorder.initCachedObjectUpdate(regionp);
+#endif
+
 	for (i = 0; i < num_objects; i++)
 	{
 		LLTimer update_timer;
@@ -369,6 +376,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			else
 			{
+				#if LL_RECORD_VIEWER_STATS
+				stats_recorder.recordCachedObjectEvent(regionp, id, NULL);
+				#endif
+
 				continue; // no data packer, skip this object
 			}
 		}
@@ -540,6 +551,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			objectp->mLocalID = local_id;
 			processUpdateCore(objectp, user_data, i, update_type, cached_dpp, justCreated);
+
+			#if LL_RECORD_VIEWER_STATS
+			stats_recorder.recordCachedObjectEvent(regionp, local_id, objectp);
+			#endif
 		}
 		else
 		{
@@ -550,6 +565,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
 		}
 	}
+
+#if LL_RECORD_VIEWER_STATS
+	stats_recorder.closeCachedObjectUpdate(regionp);
+#endif
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
