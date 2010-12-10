@@ -17,8 +17,10 @@ uniform sampler2D bloomMap;
 
 uniform float depth_cutoff;
 uniform float norm_cutoff;
-uniform float near_focal_distance;
-uniform float far_focal_distance;
+uniform float focal_distance;
+uniform float blur_constant;
+uniform float tan_pixel_angle;
+uniform float magnification;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -39,11 +41,22 @@ void dofSample(inout vec4 diff, inout float w, float fd, float x, float y)
 	vec2 tc = vary_fragcoord.xy+vec2(x,y);
 	float d = getDepth(tc);
 	
-	if (d < fd)
+	float wg = 1.0;
+	//if (d < fd)
+	//{
+	//	diff += texture2DRect(diffuseRect, tc);
+	//	w = 1.0;
+	//}
+	if (d > fd)
 	{
-		diff += texture2DRect(diffuseRect, tc);
-		w += 1.0;
+		wg = max(d/fd, 0.1);
 	}
+	
+	diff += texture2DRect(diffuseRect, tc+vec2(0.5,0.5))*wg*0.25;
+	diff += texture2DRect(diffuseRect, tc+vec2(-0.5,0.5))*wg*0.25;
+	diff += texture2DRect(diffuseRect, tc+vec2(0.5,-0.5))*wg*0.25;
+	diff += texture2DRect(diffuseRect, tc+vec2(-0.5,-0.5))*wg*0.25;
+	w += wg;
 }
 
 void dofSampleNear(inout vec4 diff, inout float w, float x, float y)
@@ -64,22 +77,30 @@ void main()
 	
 	float sc = 0.75;
 	
-	float depth[5];
-	depth[0] = getDepth(tc);
+	float depth;
+	depth = getDepth(tc);
 		
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
-	if (depth[0] < far_focal_distance)
 	{ //pixel is behind far focal plane
 		float w = 1.0;
 		
-		float fd = (depth[0]-far_focal_distance)*0.5+far_focal_distance;
-		float sc = far_focal_distance - depth[0];
-		sc /= near_focal_distance-far_focal_distance;
+		sc = (abs(depth-focal_distance)/-depth)*blur_constant;
 		
-		sc = sqrt(sc);
+		sc /= magnification;
 		
-		sc = min(sc, 8.0);
+		// tan_pixel_angle = pixel_length/-depth;
+		float pixel_length =  tan_pixel_angle*-focal_distance;
+		
+		sc = sc/pixel_length;
+		
+		//diff.r = sc;
+		
+		sc = min(abs(sc), 8.0);
+		
+		//sc = 4.0;
+		
+		float fd = depth*0.5f;
 		
 		while (sc > 1.0)
 		{
@@ -96,41 +117,10 @@ void main()
 			dofSample(diff,w, fd, sc2,0);
 			sc -= 0.5;
 		}
+		
 		diff /= w;
 	}
-	else
-	{
-		float fd = near_focal_distance;
 		
-		if (depth[0] > fd)
-		{ //pixel is in front of near focal plane
-			//diff.r = 1.0;
-			float w = 1.0;
-			float sc = near_focal_distance-depth[0];
-			sc /= near_focal_distance;
-			sc *= 8.0;
-			sc = min(sc, 8.0);
-						
-			fd = depth[0];
-			while (sc > 1.0)
-			{
-				dofSampleNear(diff,w, sc,sc);
-				dofSampleNear(diff,w, -sc,sc);
-				dofSampleNear(diff,w, sc,-sc);
-				dofSampleNear(diff,w, -sc,-sc);
-				
-				sc -= 0.5;
-				float sc2 = sc*1.414;
-				dofSampleNear(diff,w, 0,sc2);
-				dofSampleNear(diff,w, 0,-sc2);
-				dofSampleNear(diff,w, -sc2,0);
-				dofSampleNear(diff,w, sc2,0);
-				sc -= 0.5;
-			}
-			diff /= w;
-		}	
-	}
-	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor = diff + bloom;
 	
