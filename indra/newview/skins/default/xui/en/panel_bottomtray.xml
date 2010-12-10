@@ -5,6 +5,7 @@
  bg_opaque_color="DkGray"
  chrome="true"
  follows="left|bottom|right"
+ focus_root="true" 
  height="33"
  layout="topleft"
  left="0"
