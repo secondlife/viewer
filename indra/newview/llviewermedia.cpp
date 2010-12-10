@@ -52,6 +52,7 @@
 #include "llviewerregion.h"
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llfilepicker.h"
+#include "llnotifications.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -1044,6 +1045,18 @@ bool LLViewerMedia::isParcelAudioPlaying()
 	return (LLViewerMedia::hasParcelAudio() && gAudiop && LLAudioEngine::AUDIO_PLAYING == gAudiop->isInternetStreamPlaying());
 }
 
+void LLViewerMedia::onAuthSubmit(const LLSD& notification, const LLSD& response, LLPluginClassMedia* media)
+{
+	if (response["ok"])
+	{
+		media->sendAuthResponse(true, response["username"], response["password"]);
+	}
+	else
+	{
+		media->sendAuthResponse(false, "", "");
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::clearAllCookies()
@@ -1910,6 +1923,18 @@ void LLViewerMediaImpl::setSize(int width, int height)
 	{
 		mMediaSource->setSize(width, height);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::showNotification(LLNotificationPtr notify)
+{
+	mNotification = notify;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::hideNotification()
+{
+	mNotification.reset();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2976,6 +3001,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_BEGIN, uri is: " << plugin->getNavigateURI() << LL_ENDL;
+			hideNotification();
 
 			if(getNavState() == MEDIANAVSTATE_SERVER_SENT)
 			{
@@ -3067,13 +3093,17 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		}
 		break;
 
+
 		case LLViewerMediaObserver::MEDIA_EVENT_AUTH_REQUEST:
 		{
-			llinfos <<  "MEDIA_EVENT_AUTH_REQUEST, url " << plugin->getAuthURL() << ", realm " << plugin->getAuthRealm() << LL_ENDL;
-			//plugin->sendAuthResponse(false, "", "");
-		}
+			LLNotification::Params auth_request_params;
+			auth_request_params.name = "AuthRequest";
+			auth_request_params.payload = LLSD().with("media_id", mTextureId);
+			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2, plugin);
+			LLNotifications::instance().add(auth_request_params);
+		};
 		break;
-		
+
 		case LLViewerMediaObserver::MEDIA_EVENT_CLOSE_REQUEST:
 		{
 			std::string uuid = plugin->getClickUUID();
@@ -3589,6 +3619,11 @@ bool LLViewerMediaImpl::isInAgentParcel() const
 		}
 	}
 	return result;
+}
+
+LLNotificationPtr LLViewerMediaImpl::getCurrentNotification() const
+{
+	return mNotification;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

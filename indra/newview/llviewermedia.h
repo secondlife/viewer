@@ -37,6 +37,7 @@
 
 #include "llpluginclassmedia.h"
 #include "v4color.h"
+#include "llnotificationptr.h"
 
 #include "llurl.h"
 
@@ -130,6 +131,8 @@ public:
 	static bool isParcelMediaPlaying();
 	static bool isParcelAudioPlaying();
 	
+	static void onAuthSubmit(const LLSD& notification, const LLSD& response, LLPluginClassMedia* media);
+
 	// Clear all cookies for all plugins
 	static void clearAllCookies();
 	
@@ -198,6 +201,9 @@ public:
 	void loadURI();
 	LLPluginClassMedia* getMediaPlugin() { return mMediaSource; }
 	void setSize(int width, int height);
+
+	void showNotification(LLNotificationPtr notify);
+	void hideNotification();
 
 	void play();
 	void stop();
@@ -391,6 +397,9 @@ public:
 	// Is this media in the agent's parcel?
 	bool isInAgentParcel() const;
 
+	// get currently active notification associated with this media instance
+	LLNotificationPtr getCurrentNotification() const;
+
 private:
 	bool isAutoPlayable() const;
 	bool shouldShowBasedOnClass() const;
@@ -448,7 +457,8 @@ private:
 	bool mNavigateSuspendedDeferred;
 	bool mTrustedBrowser;
 	std::string mTarget;
-	
+	LLNotificationPtr mNotification;
+
 private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;

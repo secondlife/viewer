@@ -412,14 +412,9 @@ public:
 	
 	LLControlVariable *findControl(const std::string& name);
 
-    // Moved setValue(), getValue(), setControlValue(), setControlName(),
-    // controlListener() to LLUICtrl because an LLView is NOT assumed to
-    // contain a value. If that's what you want, use LLUICtrl instead.
-//	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
-
 	const child_list_t*	getChildList() const { return &mChildList; }
-	const child_list_const_iter_t	beginChild()  { return mChildList.begin(); }
-	const child_list_const_iter_t	endChild()  { return mChildList.end(); }
+	child_list_const_iter_t	beginChild() const { return mChildList.begin(); }
+	child_list_const_iter_t	endChild() const { return mChildList.end(); }
 
 	// LLMouseHandler functions
 	//  Default behavior is to pass events to children

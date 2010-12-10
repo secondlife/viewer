@@ -823,7 +823,7 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 {
 	LLUICtrl* focus_root = NULL;
 	LLUICtrl* next_view = this;
-	while(next_view)
+	while(next_view && next_view->hasTabStop())
 	{
 		if (next_view->isFocusRoot())
 		{

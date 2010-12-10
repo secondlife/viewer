@@ -31,6 +31,7 @@
 #include "llnotifications.h"
 #include "llmediactrl.h"
 #include "llviewermedia.h"
+#include "llviewermediafocus.h"
 
 using namespace LLNotificationsUI;
 
@@ -39,10 +40,19 @@ bool LLBrowserNotification::processNotification(const LLSD& notify)
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 	if (!notification) return false;
 
-	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(notification->getPayload()["media_id"].asUUID());
+	LLUUID media_id = notification->getPayload()["media_id"].asUUID();
+	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(media_id);
 	if (media_instance)
 	{
 		media_instance->showNotification(notification);
+	}
+	else if (LLViewerMediaFocus::instance().getControlsMediaID() == media_id)
+	{
+		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(media_id);
+		if (impl)
+		{
+			impl->showNotification(notification);
+		}
 	}
 	return false;
 }
