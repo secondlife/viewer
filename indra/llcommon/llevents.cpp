@@ -475,7 +475,7 @@ void LLEventPump::stopListening(const std::string& name)
 *****************************************************************************/
 bool LLEventStream::post(const LLSD& event)
 {
-    if (! mEnabled)
+    if (! mEnabled || !mSignal)
     {
         return false;
     }
