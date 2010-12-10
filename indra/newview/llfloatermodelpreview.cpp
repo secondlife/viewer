@@ -67,7 +67,9 @@
 #include "lleconomy.h"
 #include "llfocusmgr.h"
 #include "llfloaterperms.h"
+#include "lliconctrl.h"
 #include "llmatrix4a.h"
+#include "llmenubutton.h"
 #include "llmeshrepository.h"
 #include "llsdutil_math.h"
 #include "lltextbox.h"
@@ -80,15 +82,19 @@
 #include "llvoavatarself.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
+#include "llviewermenu.h"
 #include "llviewermenufile.h"
 #include "llviewerregion.h"
+#include "llviewertexturelist.h"
 #include "llstring.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
+#include "lltoggleablemenu.h"
 #include "llvfile.h"
 #include "llvfs.h"
+
 
 
 #include "glod/glod.h"
@@ -132,7 +138,7 @@ std::string lod_vertices_name[] =
 	"high_vertices",
 	"I went off the end of the lod_vertices_name array.  Me so smart."
 };
-	
+
 std::string lod_status_name[] =
 {
 	"lowest_status",
@@ -140,6 +146,23 @@ std::string lod_status_name[] =
 	"medium_status",
 	"high_status",
 	"I went off the end of the lod_status_name array.  Me so smart."
+};
+
+std::string lod_icon_name[] = 
+{
+	"status_icon_lowest",
+	"status_icon_low",
+	"status_icon_medium",
+	"status_icon_high",
+	"I went off the end of the lod_status_name array.  Me so smart."
+};
+
+std::string lod_status_image[] = 
+{
+	"ModelImport_Status_Good",
+	"ModelImport_Status_Warning",
+	"ModelImport_Status_Error",
+	"I went off the end of the lod_status_image array.  Me so smart."
 };
 
 std::string lod_label_name[] =
@@ -150,7 +173,6 @@ std::string lod_label_name[] =
 	"high_label",
 	"I went off the end of the lod_label_name array.  Me so smart."
 };
-
 
 
 bool validate_face(const LLVolumeFace& face)
@@ -254,21 +276,28 @@ BOOL LLFloaterModelPreview::postBuild()
 		return FALSE;
 	}
 	
+	setViewOption("show_textures", true);
+	
 	childSetAction("lod_browse", onBrowseLOD, this);
-	childSetCommitCallback("lod_triangle_limit", onTriangleLimitCommit, this);
 	
 	childSetCommitCallback("crease_angle", onGenerateNormalsCommit, this);
 	childSetCommitCallback("generate_normals", onGenerateNormalsCommit, this);
 	
-	childSetCommitCallback("show edges", onShowEdgesCommit, this);
 	childSetCommitCallback("lod_generate", onAutoFillCommit, this);
+
+	childSetCommitCallback("lod_mode", onLODParamCommit, this);
+	childSetCommitCallback("lod_error_threshold", onLODParamCommit, this);
+	childSetCommitCallback("lod_triangle_limit", onLODParamCommit, this);
+	childSetCommitCallback("build_operator", onLODParamCommit, this);
+	childSetCommitCallback("queue_mode", onLODParamCommit, this);
+	childSetCommitCallback("border_mode", onLODParamCommit, this);
+	childSetCommitCallback("share_tolerance", onLODParamCommit, this);
 	
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 	
 	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onUpload, this);
 	
-	childSetAction("consolidate", onConsolidate, this);
 	childSetAction("clear_materials", onClearMaterials, this);
 	
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
@@ -283,7 +312,18 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	childDisable("upload_skin");
 	childDisable("upload_joints");
+
+	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
+
+	mCommitCallbackRegistrar.add("ModelImport.ViewOption.Action", boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _2));
+	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Check", boost::bind(&LLFloaterModelPreview::isViewOptionChecked, this, _2));
+	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Enabled", boost::bind(&LLFloaterModelPreview::isViewOptionEnabled, this, _2));
 	
+	
+
+	mViewOptionMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_model_import_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mViewOptionMenuButton->setMenu(mViewOptionMenu, LLMenuButton::MP_BOTTOM_LEFT);
+
 	initDecompControls();
 	
 	LLView* preview_panel = getChild<LLView>("preview_panel");
@@ -344,21 +384,47 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	}
 }
 
+void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
+{
+	mViewOption[userdata.asString()] = !mViewOption[userdata.asString()];
+	mModelPreview->refresh();
+}
+
+bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
+{
+	return mViewOption[userdata.asString()];
+}
+
+bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
+{
+	return !mViewOptionDisabled[userdata.asString()];
+}
+
+void LLFloaterModelPreview::setViewOptionEnabled(const std::string& option, bool enabled)
+{
+	mViewOptionDisabled[option] = !enabled;
+}
+
+void LLFloaterModelPreview::enableViewOption(const std::string& option)
+{
+	setViewOptionEnabled(option, true);
+}
+
+void LLFloaterModelPreview::disableViewOption(const std::string& option)
+{
+	setViewOptionEnabled(option, false);
+}
+
+void LLFloaterModelPreview::setViewOption(const std::string& option, bool value)
+{
+	mViewOption[option] = value;
+}
+
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
 	mLoading = TRUE;
 	
 	(new LLMeshFilePicker(this, lod))->getFile();
-}
-
-void LLFloaterModelPreview::setLimit(S32 lod, S32 limit)
-{
-	if (limit != mModelPreview->mLimit[lod])
-	{
-		mModelPreview->mLimit[lod] = limit;
-		mModelPreview->genLODs(lod);
-		mModelPreview->setPreviewLOD(lod);
-	}
 }
 
 //static 
@@ -423,44 +489,12 @@ void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 	fp->mModelPreview->setPreviewLOD(which_mode);
 }
 
-//static 
-void LLFloaterModelPreview::setLimit(S32 lod, void* userdata)
-{
-	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
-	
-	if (!fp->mModelPreview)
-	{
-		return;
-	}
-	
-	S32 limit = fp->childGetValue("lod_triangle_limit").asInteger();
-	
-	
-	fp->setLimit(lod, limit);
-}
-
-//static 
-void LLFloaterModelPreview::onTriangleLimitCommit(LLUICtrl* ctrl, void* userdata)
-{
-	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-
-	LLFloaterModelPreview::setLimit(fp->mModelPreview->mPreviewLOD, userdata);
-}
-
 //static
 void LLFloaterModelPreview::onGenerateNormalsCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 	
 	fp->mModelPreview->generateNormals();
-}
-
-//static
-void LLFloaterModelPreview::onShowEdgesCommit(LLUICtrl* ctrl, void* userdata)
-{
-	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	
-	fp->mModelPreview->refresh();
 }
 
 //static
@@ -477,6 +511,15 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 	
 	fp->mModelPreview->genLODs();
+}
+
+//static 
+void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
+{
+	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	fp->mModelPreview->genLODs(fp->mModelPreview->mPreviewLOD);
+	fp->mModelPreview->updateStatusMessages();
+	fp->mModelPreview->refresh();
 }
 
 
@@ -881,7 +924,6 @@ void LLFloaterModelPreview::initDecompControls()
 		
 	childSetCommitCallback("physics_layer", LLFloaterModelPreview::refresh, LLFloaterModelPreview::sInstance);
 	childSetCommitCallback("physics_explode", LLFloaterModelPreview::onExplodeCommit, this);
-	childSetCommitCallback("show physics", LLFloaterModelPreview::refresh, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -1972,12 +2014,14 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp
 	mTextureName = 0;
 	mPreviewLOD = 0;
 	mModelLoader = NULL;
+	mMaxTriangleLimit = 0;
 	mDirty = false;
+	mGenLOD = false;
 	
-	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
-	{
-		mLimit[i] = 0;
-	}
+	mBuildShareTolerance = 0.f;
+	mBuildQueueMode = GLOD_QUEUE_GREEDY;
+	mBuildBorderMode = GLOD_BORDER_UNLOCK;
+	mBuildOperator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
 	
 	mFMP = fmp;
 	
@@ -2256,6 +2300,7 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 		mVertexBuffer[LLModel::LOD_PHYSICS].clear();
 		rebuildUploadData();
 		refresh();
+		updateStatusMessages();
 	}
 }
 
@@ -2304,16 +2349,20 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	
 	if (lod == LLModel::LOD_HIGH)
 	{ //save a copy of the highest LOD for automatic LOD manipulation
+		if (mBaseModel.empty())
+		{ //first time we've loaded a model, auto-gen LoD
+			mGenLOD = true;
+		}
+
 		mBaseModel = mModel[lod];
 		mBaseScene = mScene[lod];
 		mVertexBuffer[5].clear();
-		//mModel[lod] = NULL;
 	}
 	
 	clearIncompatible(lod);
 	
 	mDirty = true;
-	
+		
 	if (lod == LLModel::LOD_HIGH)
 	{
 		resetPreviewTarget();
@@ -2616,11 +2665,6 @@ void LLModelPreview::genLODs(S32 which_lod)
 	
 	S32 limit = -1;
 	
-	if (which_lod != -1)
-	{
-		limit = mLimit[which_lod];
-	}
-	
 	U32 triangle_count = 0;
 	
 	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
@@ -2644,29 +2688,132 @@ void LLModelPreview::genLODs(S32 which_lod)
 		mPatch.clear();
 	}
 	
+	U32 lod_mode = 0;
+	
+	LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+	if (iface)
+	{
+		lod_mode = iface->getFirstSelectedIndex();
+	}
+
+	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold").asReal();
+	
+	if (lod_mode == 0)
+	{
+		lod_mode = GLOD_TRIANGLE_BUDGET;
+		if (which_lod != -1)
+		{
+			limit = mFMP->childGetValue("lod_triangle_limit").asInteger();
+		}
+	}
+	else
+	{
+		lod_mode = GLOD_ERROR_THRESHOLD;
+	}
+
+	U32 build_operator = 0;
+
+	iface = mFMP->childGetSelectionInterface("build_operator");
+	if (iface)
+	{
+		build_operator = iface->getFirstSelectedIndex();
+	}
+
+	if (build_operator == 0)
+	{
+		build_operator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
+	}
+	else
+	{
+		build_operator = GLOD_OPERATOR_EDGE_COLLAPSE;
+	}
+
+	U32 queue_mode;
+	iface = mFMP->childGetSelectionInterface("queue_mode");
+	if (iface)
+	{
+		queue_mode = iface->getFirstSelectedIndex();
+	}
+
+	if (queue_mode == 0)
+	{
+		queue_mode = GLOD_QUEUE_GREEDY;
+	}
+	else if (queue_mode == 1)
+	{
+		queue_mode = GLOD_QUEUE_LAZY;
+	}
+	else
+	{
+		queue_mode = GLOD_QUEUE_INDEPENDENT;
+	}
+
+	U32 border_mode = 0;
+
+	iface = mFMP->childGetSelectionInterface("border_mode");
+	if (iface)
+	{
+		border_mode = iface->getFirstSelectedIndex();
+	}
+
+	if (border_mode == 0)
+	{
+		border_mode = GLOD_BORDER_UNLOCK;
+	}
+	else
+	{
+		border_mode = GLOD_BORDER_LOCK;
+	}
+
+	bool object_dirty = false;
+	if (border_mode != mBuildBorderMode)
+	{
+		mBuildBorderMode = border_mode;
+		object_dirty = true;
+	}
+
+	if (queue_mode != mBuildQueueMode)
+	{
+		mBuildQueueMode = queue_mode;
+		object_dirty = true;
+	}
+
+	if (build_operator != mBuildOperator)
+	{
+		mBuildOperator = build_operator;
+		object_dirty = true;
+	}
+
+	F32 share_tolerance = mFMP->childGetValue("share_tolerance").asReal();
+	if (share_tolerance != mBuildShareTolerance)
+	{
+		mBuildShareTolerance = share_tolerance;
+		object_dirty = true;
+	}
+
 	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
 	{ //build GLOD objects for each model in base model list
 		LLModel* mdl = *iter;
 		if (mGroup[mdl] == 0)
 		{
 			mGroup[mdl] = cur_name++;
+		}
+
+		if (mObject[mdl] == 0 || object_dirty)
+		{
+			if (mObject[mdl] != 0)
+			{
+				glodDeleteObject(mObject[mdl]);
+			}
+
 			mObject[mdl] = cur_name++;
 			
 			glodNewGroup(mGroup[mdl]);
 			stop_gloderror();
 			
-			glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
-			stop_gloderror();		
-			
-			glodGroupParameteri(mGroup[mdl], GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
-			stop_gloderror();
-			
-			glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
-			stop_gloderror();
-			
 			glodNewObject(mObject[mdl], mGroup[mdl], GLOD_DISCRETE);
 			stop_gloderror();
-			
+
 			if (iter == mBaseModel.begin() && !mdl->mSkinWeights.empty())
 			{ //regenerate vertex buffer for skinned models to prevent animation feedback during LOD generation
 				mVertexBuffer[5].clear();
@@ -2689,38 +2836,25 @@ void LLModelPreview::genLODs(S32 which_lod)
 				tri_count += num_indices/3;
 				stop_gloderror();
 			}
+
+			glodObjectParameteri(mObject[mdl], GLOD_BUILD_OPERATOR, build_operator);
+			stop_gloderror();
+
+			glodObjectParameteri(mObject[mdl], GLOD_BUILD_QUEUE_MODE, queue_mode);
+			stop_gloderror();
+
+			glodObjectParameteri(mObject[mdl], GLOD_BUILD_BORDER_MODE, border_mode);
+			stop_gloderror();
+
+			glodObjectParameterf(mObject[mdl], GLOD_BUILD_SHARE_TOLERANCE, share_tolerance);
+			stop_gloderror();
+
+			glodBuildObject(mObject[mdl]);
+			stop_gloderror();
 			
 			//store what percentage of total model (in terms of triangle count) this model makes up
 			mPercentage[mdl] = (F32) tri_count / (F32) base_triangle_count;
-			
-			//build glodobject
-			glodBuildObject(mObject[mdl]);
-			if (stop_gloderror())
-			{
-				glodDeleteGroup(mGroup[mdl]);
-				stop_gloderror();
-				glodDeleteObject(mObject[mdl]);
-				stop_gloderror();
-				
-				mGroup[mdl] = 0;
-				mObject[mdl] = 0;
-				
-				if (which_lod == -1)
-				{
-					mModel[LLModel::LOD_HIGH] = mBaseModel;
-				}
-				
-				return;
-			}
-			
-		}
-		
-		//generating LODs for all entries, or this entry has a triangle budget
-		glodGroupParameteri(mGroup[mdl], GLOD_ADAPT_MODE, GLOD_TRIANGLE_BUDGET);
-		stop_gloderror();		
-		
-		glodGroupParameterf(mGroup[mdl], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, 0.025f);
-		stop_gloderror();
+		}		
 	}
 	
 	
@@ -2732,9 +2866,8 @@ void LLModelPreview::genLODs(S32 which_lod)
 		start = end = which_lod;
 	}
 	
-	LLSpinCtrl* lim = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit", TRUE);
-	lim->setMaxValue(base_triangle_count);
-	
+	mMaxTriangleLimit = base_triangle_count;
+
 	for (S32 lod = start; lod >= end; --lod)
 	{
 		if (which_lod == -1)
@@ -2768,9 +2901,21 @@ void LLModelPreview::genLODs(S32 which_lod)
 				target_count = 4;
 			}
 			
-			glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
+			glodGroupParameteri(mGroup[base], GLOD_ADAPT_MODE, lod_mode);
+			stop_gloderror();		
+		
+			glodGroupParameteri(mGroup[base], GLOD_ADAPT_MODE, lod_mode);
+			stop_gloderror();		
+			
+			glodGroupParameteri(mGroup[base], GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
 			stop_gloderror();
 			
+			glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
+			stop_gloderror();
+		
+			glodGroupParameterf(mGroup[base], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
+			stop_gloderror();
+					
 			glodAdaptGroup(mGroup[base]);
 			stop_gloderror();
 			
@@ -2938,17 +3083,26 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 	
+	if (mMaxTriangleLimit == 0)
+	{
+		mMaxTriangleLimit = total_tris[LLModel::LOD_HIGH];
+	}
+
+
 	mFMP->childSetTextArg("submeshes_info", "[SUBMESHES]", llformat("%d", total_submeshes[LLModel::LOD_HIGH]));
 	
-	std::string mesh_status_good = mFMP->getString("mesh_status_good");
-	std::string mesh_status_bad = mFMP->getString("mesh_status_bad");
 	std::string mesh_status_na = mFMP->getString("mesh_status_na");
-	std::string mesh_status_none = mFMP->getString("mesh_status_none");
+		
+	S32 upload_status[LLModel::LOD_HIGH+1];
 	
 	bool upload_ok = true;
-	
+
 	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
 	{
+		upload_status[lod] = 0;
+
+		std::string message = "mesh_status_good";
+
 		if (total_tris[lod] > 0)
 		{
 			mFMP->childSetText(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
@@ -2956,12 +3110,26 @@ void LLModelPreview::updateStatusMessages()
 		}
 		else
 		{
+			if (lod == LLModel::LOD_HIGH)
+			{
+				upload_status[lod] = 2;
+				message = "mesh_status_missing_lod";
+			}
+			else
+			{
+				for (S32 i = lod-1; i >= 0; --i)
+				{
+					if (total_tris[i] > 0)
+					{
+						upload_status[lod] = 2;
+						message = "mesh_status_missing_lod";
+					}
+				}
+			}
+
 			mFMP->childSetText(lod_triangles_name[lod], mesh_status_na);
 			mFMP->childSetText(lod_vertices_name[lod], mesh_status_na);
 		}
-		
-		
-		std::string message = mesh_status_good;
 		
 		const U32 lod_high = LLModel::LOD_HIGH;
 		
@@ -2969,13 +3137,13 @@ void LLModelPreview::updateStatusMessages()
 		{
 			if (total_submeshes[lod] && total_submeshes[lod] != total_submeshes[lod_high])
 			{ //number of submeshes is different
-				message = mesh_status_bad;
-				upload_ok = false;
+				message = "mesh_status_submesh_mismatch";
+				upload_status[lod] = 2;
 			}
 			else if (!tris[lod].empty() && tris[lod].size() != tris[lod_high].size())
 			{ //number of meshes is different
-				message = mesh_status_bad;
-				upload_ok = false;
+				message = "mesh_status_mesh_mismatch";
+				upload_status[lod] = 2;
 			}
 			else if (!verts[lod].empty())
 			{
@@ -2983,20 +3151,34 @@ void LLModelPreview::updateStatusMessages()
 				{
 					S32 max_verts = i < verts[lod+1].size() ? verts[lod+1][i] : 0;
 					
-					if (verts[lod][i] > max_verts)
-					{ //too many vertices in this lod
-						message = mesh_status_bad;
-						upload_ok = false;
+					if (max_verts > 0)
+					{
+						if (verts[lod][i] > max_verts)
+						{ //too many vertices in this lod
+							message = "mesh_status_too_many_vertices";
+							upload_status[lod] = 2;
+						}
 					}
 				}
 			}
-			else
-			{ //no mesh
-				message = mesh_status_none;
-			}
 		}
 		
-		mFMP->childSetText(lod_status_name[lod], message);
+		LLIconCtrl* icon = mFMP->getChild<LLIconCtrl>(lod_icon_name[lod]);
+		LLUIImagePtr img = LLUI::getUIImage(lod_status_image[upload_status[lod]]);
+		icon->setVisible(true);
+		icon->setImage(img);
+		
+		if (upload_status[lod] >= 2)
+		{
+			upload_ok = false;
+		}
+
+		if (lod == mPreviewLOD)
+		{
+			mFMP->childSetText("lod_status_message_text", mFMP->getString(message));
+			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
+			icon->setImage(img);
+		}
 	}
 	
 	if (upload_ok)
@@ -3069,20 +3251,121 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childSetTextArg("physics_points", "[POINTS]", mesh_status_na);
 	}
 
-	//enable/disable controls based on radio groups
-	if (mFMP->childGetValue("lod_from_file").asBoolean())
-	{ 
-		mFMP->childDisable("lod_triangle_limit");
-		mFMP->childDisable("lod_generate");
-		mFMP->childEnable("lod_file");
-		mFMP->childEnable("lod_browse");
+	if (phys_tris > 0 || phys_hulls > 0)
+	{
+		if (!mFMP->isViewOptionEnabled("show_physics"))
+		{
+			mFMP->enableViewOption("show_physics");
+			mFMP->setViewOption("show_physics", true);
+		}
 	}
 	else
 	{
-		mFMP->childEnable("lod_triangle_limit");
-		mFMP->childEnable("lod_generate");
-		mFMP->childDisable("lod_file");
-		mFMP->childDisable("lod_browse");
+		mFMP->disableViewOption("show_physics");
+		mFMP->setViewOption("show_physics", false);
+	}
+
+	const char* lod_controls[] = 
+	{
+		"lod_mode",
+		"lod_triangle_limit",
+		"lod_error_tolerance",
+		"build_operator_text",
+		"queue_mode_text",
+		"border_mode_text",
+		"share_tolerance_text",
+		"build_operator",
+		"queue_mode",
+		"border_mode",
+		"share_tolerance"
+	};
+	const U32 num_lod_controls = sizeof(lod_controls)/sizeof(char*);
+
+	const char* file_controls[] =
+	{
+		"lod_browse",
+		"lod_file"
+	};
+	const U32 num_file_controls = sizeof(file_controls)/sizeof(char*);
+
+	//enable/disable controls based on radio groups
+	if (mFMP->childGetValue("lod_from_file").asBoolean())
+	{ 
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childEnable(file_controls[i]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childDisable(lod_controls[i]);
+		}
+
+		
+	}
+	else if (mFMP->childGetValue("lod_auto_generate").asBoolean())
+	{
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childDisable(file_controls[i]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childEnable(lod_controls[i]);
+		}
+
+		//if (threshold)
+		{	
+			U32 lod_mode = 0;
+			LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+			if (iface)
+			{
+				lod_mode = iface->getFirstSelectedIndex();
+			}
+
+			LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
+			LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
+
+			limit->setMaxValue(mMaxTriangleLimit);
+			limit->setValue(total_tris[mPreviewLOD]);
+
+			if (lod_mode == 0)
+			{
+				limit->setVisible(true);
+				threshold->setVisible(false);
+
+				limit->setMaxValue(mMaxTriangleLimit);
+			}
+			else
+			{
+				limit->setVisible(false);
+				threshold->setVisible(true);
+			}
+		}
+	}
+	else
+	{ // "None" is chosen
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childDisable(file_controls[i]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childDisable(lod_controls[i]);
+		}
+
+		if (!mModel[mPreviewLOD].empty())
+		{
+			mModel[mPreviewLOD].clear();
+			mScene[mPreviewLOD].clear();
+			mVertexBuffer[mPreviewLOD].clear();
+
+			//this can cause phasing issues with the UI, so reenter this function and return
+			updateStatusMessages();
+			return;
+		}
 	}
 
 	if (mFMP->childGetValue("physics_load_from_file").asBoolean())
@@ -3116,7 +3399,7 @@ void LLModelPreview::clearBuffers()
 	}
 }
 
-void LLModelPreview::genBuffers(S32 lod, bool avatar_preview)
+void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 {
 	U32 tri_count = 0;
 	U32 vertex_count = 0;
@@ -3167,7 +3450,7 @@ void LLModelPreview::genBuffers(S32 lod, bool avatar_preview)
 			
 			LLVertexBuffer* vb = NULL;
 			
-			bool skinned = avatar_preview && !mdl->mSkinWeights.empty();
+			bool skinned = include_skin_weights && !mdl->mSkinWeights.empty();
 			
 			U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 			
@@ -3249,7 +3532,17 @@ void LLModelPreview::update()
 		mDirty = false;
 		mResourceCost = calcResourceCost();
 		refresh();
+		updateStatusMessages();
 	}
+
+	if (mGenLOD)
+	{
+		mGenLOD = false;
+		genLODs();
+		refresh();
+		updateStatusMessages();
+	}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -3260,6 +3553,12 @@ BOOL LLModelPreview::render()
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 	
+	bool edges = mFMP->isViewOptionChecked("show_edges");
+	bool joint_positions = mFMP->isViewOptionChecked("show_joint_positions");
+	bool skin_weight = mFMP->isViewOptionChecked("show_skin_weight");
+	bool textures = mFMP->isViewOptionChecked("show_textures");
+	bool physics = mFMP->isViewOptionChecked("show_physics");
+
 	S32 width = getWidth();
 	S32 height = getHeight();
 	
@@ -3291,7 +3590,7 @@ BOOL LLModelPreview::render()
 		gGL.popMatrix();
 	}
 
-	bool avatar_preview = false;
+	bool has_skin_weights = false;
 	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
 	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
 	
@@ -3303,45 +3602,39 @@ BOOL LLModelPreview::render()
 			LLModel* model = instance.mModel;
 			if (!model->mSkinWeights.empty())
 			{
-				avatar_preview = true;
+				has_skin_weights = true;
 			}
 		}
 	}
-	
-	if (upload_skin && !avatar_preview)
+
+	if (has_skin_weights)
+	{ //model has skin weights, enable view options for skin weights and joint positions
+		mFMP->enableViewOption("show_skin_weight");
+		mFMP->setViewOptionEnabled("show_joint_positions", skin_weight);
+		mFMP->childEnable("upload_skin");
+	}
+	else
 	{
+		mFMP->childDisable("upload_skin");
+		mFMP->setViewOption("show_skin_weight", false);
+		mFMP->disableViewOption("show_skin_weight");
+		mFMP->disableViewOption("show_joint_positions");
+		skin_weight = false;
+	}
+	
+	if (upload_skin && !has_skin_weights)
+	{ //can't upload skin weights if model has no skin weights
 		mFMP->childSetValue("upload_skin", false);
 		upload_skin = false;
 	}
 	
 	if (!upload_skin && upload_joints)
-	{
+	{ //can't upload joints if not uploading skin weights
 		mFMP->childSetValue("upload_joints", false);
 		upload_joints = false;
 	}
 	
-	if (!avatar_preview)
-	{
-		mFMP->childDisable("upload_skin");
-	}
-	else
-	{
-		mFMP->childEnable("upload_skin");
-	}
-	
-	if (!upload_skin)
-	{
-		mFMP->childDisable("upload_joints");
-	}
-	else
-	{
-		mFMP->childEnable("upload_joints");
-	}
-	
-	avatar_preview = avatar_preview && upload_skin;
-	
-	
-	mFMP->childSetEnabled("consolidate", !avatar_preview);
+	mFMP->childSetEnabled("upload_joints", upload_skin);
 	
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 	
@@ -3358,7 +3651,7 @@ BOOL LLModelPreview::render()
 	F32 z_near = 0.001f;
 	F32 z_far = mCameraDistance+mPreviewScale.magVec()+mCameraOffset.magVec();
 	
-	if (avatar_preview)
+	if (skin_weight)
 	{
 		target_pos = gAgentAvatarp->getPositionAgent();
 		z_near = 0.01f;
@@ -3369,6 +3662,7 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 	
+	glLoadIdentity();
 	gPipeline.enableLightsPreview();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
@@ -3393,22 +3687,32 @@ BOOL LLModelPreview::render()
 	
 	if (!mBaseModel.empty() && mVertexBuffer[5].empty())
 	{
-		genBuffers(-1, avatar_preview);
+		genBuffers(-1, skin_weight);
 		//genBuffers(3);
 		//genLODs();
 	}
 	
-	bool physics = mFMP->childGetValue("show physics").asBoolean();
 	S32 physics_idx = mFMP->childGetValue("physics_layer").asInteger();
 	
 	if (!mModel[mPreviewLOD].empty())
 	{
-		if (mVertexBuffer[mPreviewLOD].empty())
+		bool regen = mVertexBuffer[mPreviewLOD].empty();
+		if (!regen)
 		{
-			genBuffers(mPreviewLOD, avatar_preview);
+			const std::vector<LLPointer<LLVertexBuffer> >& vb_vec = mVertexBuffer[mPreviewLOD].begin()->second;
+			if (!vb_vec.empty())
+			{
+				const LLVertexBuffer* buff = vb_vec[0];
+				regen = buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) != skin_weight;
+			}
+		}
+
+		if (regen)
+		{
+			genBuffers(mPreviewLOD, skin_weight);
 		}
 		
-		if (!avatar_preview)
+		if (!skin_weight)
 		{
 			for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
 			{
@@ -3446,7 +3750,7 @@ BOOL LLModelPreview::render()
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 					glColor3f(0.4f, 0.4f, 0.4f);
 							
-					if (mFMP->childGetValue("show edges").asBoolean())
+					if (edges)
 					{
 						glLineWidth(3.f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -3527,7 +3831,7 @@ BOOL LLModelPreview::render()
 									glColor4ubv(hull_colors[i].mV);
 									buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 								
-									if (mFMP->childGetValue("show edges").asBoolean())
+									if (edges)
 									{
 										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 										glLineWidth(3.f);
@@ -3572,7 +3876,7 @@ BOOL LLModelPreview::render()
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							glColor3f(0.4f, 0.4f, 0.4f);
 
-							if (mFMP->childGetValue("show edges").asBoolean() || model == physics_model)
+							if (edges || model == physics_model)
 							{
 								if (model == physics_model)
 								{
@@ -3604,7 +3908,10 @@ BOOL LLModelPreview::render()
 															  LLVector3::z_axis,																	// up
 															  target_pos);											// point of interest
 			
-			avatar->renderCollisionVolumes();
+			if (joint_positions)
+			{
+				avatar->renderCollisionVolumes();
+			}
 			
 			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 			{
@@ -3689,7 +3996,7 @@ BOOL LLModelPreview::render()
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 							glColor3f(0.4f, 0.4f, 0.4f);
 							
-							if (mFMP->childGetValue("show edges").asBoolean())
+							if (edges)
 							{
 								glLineWidth(3.f);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -3770,6 +4077,7 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		}
 	}
 	refresh();
+	updateStatusMessages();
 }
 
 //static 
@@ -3792,12 +4100,6 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->closeFloater(false);
 }
 
-//static 
-void LLFloaterModelPreview::onConsolidate(void* user_data)
-{
-	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
-	mp->mModelPreview->consolidate();
-}
 
 //static 
 void LLFloaterModelPreview::onClearMaterials(void* user_data)

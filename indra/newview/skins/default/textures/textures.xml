@@ -256,6 +256,10 @@ with the same filename but different name
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
+  <texture name="ModelImport_Status_Good" file_name="lag_status_good.tga" preload="false"/>
+  <texture name="ModelImport_Status_Warning" file_name="lag_status_warning.tga" preload="false"/>
+  <texture name="ModelImport_Status_Error" file_name="lag_status_critical.tga" preload="false"/>
+  
   <texture name="MouseLook_View_Off" file_name="bottomtray/MouseLook_view_off.png" preload="false" />
   <texture name="MouseLook_View_On" file_name="bottomtray/MouseLook_view_on.png" preload="false" />
 
