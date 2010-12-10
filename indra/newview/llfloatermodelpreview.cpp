@@ -420,7 +420,7 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 {
 	mModelPreview->mLoading = true;
 	
-	(new LLMeshFilePicker(this, lod))->getFile();
+	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
 //static 
@@ -3268,18 +3268,22 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childSetTextArg("physics_points", "[POINTS]", mesh_status_na);
 	}
 
-	if (phys_tris > 0 || phys_hulls > 0)
+	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+	if (fmp)
 	{
-		if (!mFMP->isViewOptionEnabled("show_physics"))
+		if (phys_tris > 0 || phys_hulls > 0)
 		{
-			mFMP->enableViewOption("show_physics");
-			mFMP->setViewOption("show_physics", true);
+			if (!fmp->isViewOptionEnabled("show_physics"))
+			{
+				fmp->enableViewOption("show_physics");
+				fmp->setViewOption("show_physics", true);
+			}
 		}
-	}
-	else
-	{
-		mFMP->disableViewOption("show_physics");
-		mFMP->setViewOption("show_physics", false);
+		else
+		{
+			fmp->disableViewOption("show_physics");
+			fmp->setViewOption("show_physics", false);
+		}
 	}
 
 	const char* lod_controls[] = 
@@ -3570,11 +3574,21 @@ BOOL LLModelPreview::render()
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 	
-	bool edges = mFMP->isViewOptionChecked("show_edges");
-	bool joint_positions = mFMP->isViewOptionChecked("show_joint_positions");
-	bool skin_weight = mFMP->isViewOptionChecked("show_skin_weight");
-	bool textures = mFMP->isViewOptionChecked("show_textures");
-	bool physics = mFMP->isViewOptionChecked("show_physics");
+	bool edges = false;
+	bool joint_positions = false;
+	bool skin_weight = false;
+	bool textures = false;
+	bool physics = false;
+
+	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+	if (fmp)
+	{
+		edges = fmp->isViewOptionChecked("show_edges");
+		joint_positions = fmp->isViewOptionChecked("show_joint_positions");
+		skin_weight = fmp->isViewOptionChecked("show_skin_weight");
+		textures = fmp->isViewOptionChecked("show_textures");
+		physics = fmp->isViewOptionChecked("show_physics");
+	}
 
 	S32 width = getWidth();
 	S32 height = getHeight();
@@ -3626,16 +3640,22 @@ BOOL LLModelPreview::render()
 
 	if (has_skin_weights)
 	{ //model has skin weights, enable view options for skin weights and joint positions
-		mFMP->enableViewOption("show_skin_weight");
-		mFMP->setViewOptionEnabled("show_joint_positions", skin_weight);
+		if (fmp)
+		{
+			fmp->enableViewOption("show_skin_weight");
+			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
+		}
 		mFMP->childEnable("upload_skin");
 	}
 	else
 	{
 		mFMP->childDisable("upload_skin");
-		mFMP->setViewOption("show_skin_weight", false);
-		mFMP->disableViewOption("show_skin_weight");
-		mFMP->disableViewOption("show_joint_positions");
+		if (fmp)
+		{
+			fmp->setViewOption("show_skin_weight", false);
+			fmp->disableViewOption("show_skin_weight");
+			fmp->disableViewOption("show_joint_positions");
+		}
 		skin_weight = false;
 	}
 	
