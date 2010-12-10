@@ -2408,6 +2408,49 @@ namespace {
 			LLUpdaterService().startChecking(install_if_ready);
 		}
 	}
+	
+	void apply_update_ok_callback(LLSD const & notification, LLSD const & response)
+	{
+		llinfos << "LLUpdate restarting viewer" << llendl;
+		static const bool install_if_ready = true;
+		// *HACK - this lets us launch the installer immediately for now
+		LLUpdaterService().startChecking(install_if_ready);
+	}
+	
+	void on_required_update_downloaded(LLSD const & data)
+	{
+		std::string notification_name;
+		if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
+		{
+			// The user never saw the progress bar.
+			notification_name = "RequiredUpdateDownloadedVerboseDialog";
+		}
+		else
+		{
+			notification_name = "RequiredUpdateDownloadedDialog";
+		}
+		LLSD substitutions;
+		substitutions["VERSION"] = data["version"];
+		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), &apply_update_ok_callback);
+	}
+	
+	void on_optional_update_downloaded(LLSD const & data)
+	{
+		std::string notification_name;
+		if(LLStartUp::getStartupState() < STATE_STARTED)
+		{
+			// CHOP-262 we need to use a different notification
+			// method prior to login.
+			notification_name = "DownloadBackgroundDialog";
+		}
+		else
+		{
+			notification_name = "DownloadBackgroundTip";
+		}
+		LLSD substitutions;
+		substitutions["VERSION"] = data["version"];
+		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_update_callback);
+	}
 
     bool notify_update(LLSD const & evt)
     {
@@ -2415,17 +2458,14 @@ namespace {
 		switch (evt["type"].asInteger())
 		{
 			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				if(LLStartUp::getStartupState() < STATE_STARTED)
+				if(evt["required"].asBoolean())
 				{
-					// CHOP-262 we need to use a different notification
-					// method prior to login.
-					notification_name = "DownloadBackgroundDialog";
+					on_required_update_downloaded(evt);
 				}
 				else
 				{
-					notification_name = "DownloadBackgroundTip";
+					on_optional_update_downloaded(evt);
 				}
-				LLNotificationsUtil::add(notification_name, LLSD(), LLSD(), apply_update_callback);
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
 				LLNotificationsUtil::add("FailedUpdateInstall");

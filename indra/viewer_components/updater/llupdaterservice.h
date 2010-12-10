@@ -90,6 +90,11 @@ public:
 		app_exit_callback_t aecb = callable;
 		setImplAppExitCallback(aecb);
 	}
+	
+	// If an update is or has been downloaded, this method will return the
+	// version string for that update.  An empty string will be returned
+	// otherwise.
+	std::string updatedVersion(void);
 
 private:
 	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;

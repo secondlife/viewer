@@ -122,6 +122,7 @@ public:
 	LLUpdaterService::eUpdaterState getState();
 	
 	void setAppExitCallback(LLUpdaterService::app_exit_callback_t aecb) { mAppExitCallback = aecb;}
+	std::string updatedVersion(void);
 
 	bool checkForInstall(bool launchInstaller); // Test if a local install is ready.
 	bool checkForResume(); // Test for resumeable d/l.
@@ -143,6 +144,8 @@ public:
 	bool onMainLoop(LLSD const & event);
 
 private:
+	std::string mNewVersion;
+	
 	void restartTimer(unsigned int seconds);
 	void setState(LLUpdaterService::eUpdaterState state);
 	void stopTimer();
@@ -254,6 +257,11 @@ LLUpdaterService::eUpdaterState LLUpdaterServiceImpl::getState()
 	return mState;
 }
 
+std::string LLUpdaterServiceImpl::updatedVersion(void)
+{
+	return mNewVersion;
+}
+
 bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 {
 	bool foundInstall = false; // return true if install is found.
@@ -360,6 +368,7 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 										  std::string const & hash)
 {
 	stopTimer();
+	mNewVersion = newVersion;
 	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash, false);
 	
@@ -371,6 +380,7 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 										  std::string const & hash)
 {
 	stopTimer();
+	mNewVersion = newVersion;
 	mIsDownloading = true;
 	mUpdateDownloader.download(uri, hash, true);
 	
@@ -400,6 +410,8 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	event["pump"] = LLUpdaterService::pumpName();
 	LLSD payload;
 	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_COMPLETE);
+	payload["required"] = data["required"];
+	payload["version"] = mNewVersion;
 	event["payload"] = payload;
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 	
@@ -576,6 +588,11 @@ LLUpdaterService::eUpdaterState LLUpdaterService::getState()
 void LLUpdaterService::setImplAppExitCallback(LLUpdaterService::app_exit_callback_t aecb)
 {
 	return mImpl->setAppExitCallback(aecb);
+}
+
+std::string LLUpdaterService::updatedVersion(void)
+{
+	return mImpl->updatedVersion();
 }
 
 

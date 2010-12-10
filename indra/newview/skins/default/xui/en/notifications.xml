@@ -2893,6 +2893,9 @@ http://secondlife.com/download.
    name="UpdaterServiceNotRunning"
    type="alertmodal">
 There is a required update for your Second Life Installation.
+
+You may download this update from http://www.secondlife.com/downloads
+or you can install it now.
     <usetemplate
      name="okcancelbuttons"
      notext="Quit Second Life"
@@ -2903,8 +2906,8 @@ There is a required update for your Second Life Installation.
    icon="notify.tga"
    name="DownloadBackgroundTip"
    type="notify">
-An updated version of [APP_NAME] has been downloaded.
-It will be applied the next time you restart [APP_NAME]
+We have downloaded and update to your [APP_NAME] installation.
+Version [VERSION]
     <usetemplate
      name="okcancelbuttons"
      notext="Wait"
@@ -2915,12 +2918,35 @@ It will be applied the next time you restart [APP_NAME]
  icon="alertmodal.tga"
  name="DownloadBackgroundDialog"
  type="alertmodal">
-    An updated version of [APP_NAME] has been downloaded.
-    It will be applied the next time you restart [APP_NAME]
+We have downloaded and update to your [APP_NAME] installation.
+Version [VERSION]
     <usetemplate
      name="okcancelbuttons"
-     notext="Wait"
-     yestext="Restart Now"/>
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedVerboseDialog"
+ type="alertmodal">
+We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedDialog"
+ type="alertmodal">
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification

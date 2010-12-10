@@ -219,6 +219,7 @@ void LLUpdaterService::startChecking(bool install_if_ready) {}
 void LLUpdaterService::stopChecking() {}
 bool LLUpdaterService::isChecking() { return false; }
 LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
+std::string LLUpdaterService::updatedVersion() { return ""; }
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
