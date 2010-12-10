@@ -2935,8 +2935,10 @@ void LLAppViewer::handleViewerCrash()
 		pApp->removeMarkerFile(false);
 	}
 	
+#if LL_SEND_CRASH_REPORTS
 	// Call to pure virtual, handled by platform specific llappviewer instance.
 	pApp->handleCrashReporting(); 
+#endif
     
 	return;
 }
