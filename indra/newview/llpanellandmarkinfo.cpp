@@ -180,6 +180,9 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 
 	populateFoldersList();
 
+	// Prevent the floater from losing focus (if the sidepanel is undocked).
+	setFocus(TRUE);
+
 	LLPanelPlaceInfo::setInfoType(type);
 }
 
@@ -330,6 +333,9 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 		// when it was enabled/disabled we set the text once again.
 		mNotesEditor->setText(mNotesEditor->getText());
 	}
+
+	// Prevent the floater from losing focus (if the sidepanel is undocked).
+	setFocus(TRUE);
 }
 
 const std::string& LLPanelLandmarkInfo::getLandmarkTitle() const

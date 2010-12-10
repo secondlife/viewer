@@ -195,7 +195,9 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	// If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
+	F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
 	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
@@ -207,19 +209,29 @@ void LLColorSwatchCtrl::draw()
 	// Check state
 	if ( mValid )
 	{
-		// Draw the color swatch
-		gl_rect_2d_checkerboard( interior );
-		gl_rect_2d(interior, mColor, TRUE);
-		LLColor4 opaque_color = mColor;
-		opaque_color.mV[VALPHA] = 1.f;
-		gGL.color4fv(opaque_color.mV);
-		if (mAlphaGradientImage.notNull())
+		if (!mColor.isOpaque())
 		{
-			gGL.pushMatrix();
+			// Draw checker board.
+			gl_rect_2d_checkerboard(interior, alpha);
+		}
+
+		// Draw the color swatch
+		gl_rect_2d(interior, mColor % alpha, TRUE);
+
+		if (!mColor.isOpaque())
+		{
+			// Draw semi-transparent center area in filled with mColor.
+			LLColor4 opaque_color = mColor;
+			opaque_color.mV[VALPHA] = alpha;
+			gGL.color4fv(opaque_color.mV);
+			if (mAlphaGradientImage.notNull())
 			{
-				mAlphaGradientImage->draw(interior, mColor);
+				gGL.pushMatrix();
+				{
+					mAlphaGradientImage->draw(interior, mColor % alpha);
+				}
+				gGL.popMatrix();
 			}
-			gGL.popMatrix();
 		}
 	}
 	else

@@ -121,7 +121,7 @@ protected:
 		if (!toast) return;
 		LL_DEBUGS("NearbyChat") << "Pooling toast" << llendl;
 		toast->setVisible(FALSE);
-		toast->stopFading();
+		toast->stopTimer();
 		toast->setIsHidden(true);
 
 		// Nearby chat toasts that are hidden, not destroyed. They are collected to the toast pool, so that
@@ -296,7 +296,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 			{
 				panel->addMessage(notification);
 				toast->reshapeToPanel();
-				toast->startFading();
+				toast->startTimer();
 	  
 				arrangeToasts();
 				return;
@@ -341,7 +341,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	panel->init(notification);
 
 	toast->reshapeToPanel();
-	toast->startFading();
+	toast->startTimer();
 	
 	m_active_toasts.push_back(toast->getHandle());
 

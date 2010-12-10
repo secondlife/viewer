@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Botão do meio do mouse
-	</panel.string>
-	<slider label="Ângulo de visão" name="camera_fov"/>
-	<slider label="Distância" name="camera_offset_scale"/>
-	<text name="heading2">
-		Posicionamento automático da:
-	</text>
-	<check_box label="Construção/Edição" name="edit_camera_movement" tool_tip="Use o posicionamento automático da câmera quando entrar e sair do modo de edição"/>
-	<check_box label="Aparência" name="appearance_camera_movement" tool_tip="Use o posicionamento automático da câmera quando em modo de edição"/>
-	<check_box initial_value="verdadeiro" label="Barra lateral" name="appearance_sidebar_positioning" tool_tip="Usar posicionamento automático da câmera na barra lateral"/>
-	<check_box label="Mostre-me em visão de mouse" name="first_person_avatar_visible"/>
-	<check_box label="Teclas de seta sempre me movem" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Dê dois toques e pressione para correr" name="tap_tap_hold_to_run"/>
-	<check_box label="Mover os lábios do avatar ao falar" name="enable_lip_sync"/>
-	<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
-	<slider label="Opacidade" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Cor do balão de bate-papo"/>
 	<text name="UI Size:">
-		Interface
+		Interface:
 	</text>
 	<check_box label="Mostrar erros de script" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Bate-papo local" name="0"/>
 		<radio_item label="Janelas separadas" name="1"/>
 	</radio_group>
-	<check_box label="Tecla liga/desliga da minha voz:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Quando em modo de alternância, o microfone só transmite sua voz quando o botão estiver pressionado."/>
-	<line_editor label="Botão apertar e falar" name="modifier_combo"/>
-	<button label="Definir tecla" name="set_voice_hotkey_button"/>
-	<button label="Botão do meio do mouse" name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
-	<button label="Outros dispositivos" name="joystick_setup_button"/>
+	<check_box label="Permitir vários visualizadores" name="allow_multiple_viewer_check"/>
+	<check_box label="Mostrar grade selecionada ao entrar" name="show_grid_selection_check"/>
+	<check_box label="Exibir menu avançado" name="show_advanced_menu_check"/>
+	<check_box label="Exibir menu desenvolvedor" name="show_develop_menu_check"/>
 </panel>

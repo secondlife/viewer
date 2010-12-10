@@ -22,7 +22,7 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 	<tab_container name="tabs">
 		<panel label="PROXIMIDADE" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="nearby_view_sort_btn" tool_tip="Opções"/>
+				<menu_button name="nearby_view_sort_btn" tool_tip="Opções"/>
 				<button name="add_friend_btn" tool_tip="Adicionar o residente selecionado para sua lista de amigos"/>
 			</panel>
 		</panel>
@@ -34,27 +34,27 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 			<panel label="bottom_panel" name="bottom_panel">
 				<layout_stack name="bottom_panel">
 					<layout_panel name="options_gear_btn_panel">
-						<button name="friends_viewsort_btn" tool_tip="Mostrar opções adicionais"/>
+						<menu_button name="friends_viewsort_btn" tool_tip="Mostrar opções adicionais"/>
 					</layout_panel>
 					<layout_panel name="add_btn_panel">
 						<button name="add_btn" tool_tip="Oferecer amizade para um residente"/>
 					</layout_panel>
 					<layout_panel name="trash_btn_panel">
-						<dnd_button name="trash_btn" tool_tip="Remover a pessoa selecionada da sua lista de amigos"/>
+						<dnd_button name="del_btn" tool_tip="Remover a pessoa selecionada da sua lista de amigos"/>
 					</layout_panel>
 				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="MEUS GRUPOS" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="groups_viewsort_btn" tool_tip="Opções"/>
+				<menu_button name="groups_viewsort_btn" tool_tip="Opções"/>
 				<button name="plus_btn" tool_tip="Ingressar em um grupo/Criar novo grupo"/>
 				<button name="activate_btn" tool_tip="Ativar o grupo selecionado"/>
 			</panel>
 		</panel>
 		<panel label="RECENTE" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="recent_viewsort_btn" tool_tip="Opções"/>
+				<menu_button name="recent_viewsort_btn" tool_tip="Opções"/>
 				<button name="add_friend_btn" tool_tip="Adicionar o residente selecionado para sua lista de amigos"/>
 			</panel>
 		</panel>
