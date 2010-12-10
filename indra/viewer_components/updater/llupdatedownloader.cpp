@@ -275,7 +275,7 @@ void LLUpdateDownloader::Implementation::resume(void)
 
 void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
 {
-	if((mBandwidthLimit != bytesPerSecond) && isDownloading()) {
+	if((mBandwidthLimit != bytesPerSecond) && isDownloading() && !mDownloadData["required"].asBoolean()) {
 		llassert(mCurl != 0);
 		mBandwidthLimit = bytesPerSecond;
 		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
@@ -411,8 +411,10 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSFUNCTION, &progress_callback));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSDATA, this));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOPROGRESS, false));
-	if(mBandwidthLimit != 0) {
+	if((mBandwidthLimit != 0) && !mDownloadData["required"].asBoolean()) {
 		throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, mBandwidthLimit));
+	} else {
+		throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, -1));
 	}
 	
 	mDownloadPercent = 0;
