@@ -59,10 +59,14 @@ void LLViewerStatsRecorder::initStatsRecorder(LLViewerRegion *regionp)
 		if (mObjectCacheFile)
 		{	// Write column headers
 			std::ostringstream data_msg;
-			data_msg << "Time, "
-				<< "Hits, "
-				<< "Misses, "
-				<< "Objects "
+			data_msg << "EventTime, "
+				<< "ProcessingTime, "
+				<< "CacheHits, "
+				<< "CacheMisses, "
+				<< "FullUpdates, "
+				<< "TerseUpdates, "
+				<< "CacheMissResponses, "
+				<< "TotalUpdates "
 				<< "\n";
 
 			fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile );
@@ -71,42 +75,71 @@ void LLViewerStatsRecorder::initStatsRecorder(LLViewerRegion *regionp)
 }
 
 
-void LLViewerStatsRecorder::initCachedObjectUpdate(LLViewerRegion *regionp)
+void LLViewerStatsRecorder::initObjectUpdateEvents(LLViewerRegion *regionp)
 {
+	initStatsRecorder(regionp);
 	mObjectCacheHitCount = 0;
 	mObjectCacheMissCount = 0;
+	mObjectFullUpdates = 0;
+	mObjectTerseUpdates = 0;
+	mObjectCacheMissResponses = 0;
+	mProcessingTime = LLTimer::getTotalTime();
 }
 
 
-void LLViewerStatsRecorder::recordCachedObjectEvent(LLViewerRegion *regionp, U32 local_id, LLViewerObject * objectp)
+void LLViewerStatsRecorder::recordObjectUpdateEvent(LLViewerRegion *regionp, U32 local_id, const EObjectUpdateType update_type, BOOL success, LLViewerObject * objectp)
 {
-	if (objectp)
+	if (!objectp)
 	{
-		mObjectCacheHitCount++;
-	}
-	else
-	{	// no object, must be a miss
+		// no object, must be a miss
 		mObjectCacheMissCount++;
 	}
+	else
+	{	
+		switch (update_type)
+		{
+		case OUT_FULL:
+			mObjectFullUpdates++;
+			break;
+		case OUT_TERSE_IMPROVED:
+			mObjectTerseUpdates++;
+			break;
+		case OUT_FULL_COMPRESSED:
+			mObjectCacheMissResponses++;
+			break;
+		case OUT_FULL_CACHED:
+		default:
+			mObjectCacheHitCount++;
+			break;
+		};
+	}
 }
 
-void LLViewerStatsRecorder::closeCachedObjectUpdate(LLViewerRegion *regionp)
+void LLViewerStatsRecorder::closeObjectUpdateEvents(LLViewerRegion *regionp)
 {
-	llinfos << "ILX: " << mObjectCacheHitCount 
-		<< " hits " 
-		<< mObjectCacheMissCount << " misses"
+	llinfos << "ILX: " 
+		<< mObjectCacheHitCount << " hits, " 
+		<< mObjectCacheMissCount << " misses, "
+		<< mObjectFullUpdates << " full updates, "
+		<< mObjectTerseUpdates << " terse updates, "
+		<< mObjectCacheMissResponses << " cache miss responses"
 		<< llendl;
 
-	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCount;
+	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissResponses;;
 	if (mObjectCacheFile != NULL &&
 		total_objects > 0)
 	{
 		std::ostringstream data_msg;
 		F32 now32 = (F32) ((LLTimer::getTotalTime() - mStartTime) / 1000.0);
+		F32 processing32 = (F32) ((LLTimer::getTotalTime() - mProcessingTime) / 1000.0);
 
 		data_msg << now32
+			<< ", " << processing32
 			<< ", " << mObjectCacheHitCount
 			<< ", " << mObjectCacheMissCount
+			<< ", " << mObjectFullUpdates
+			<< ", " << mObjectTerseUpdates
+			<< ", " << mObjectCacheMissResponses
 			<< ", " << total_objects
 			<< "\n";
 

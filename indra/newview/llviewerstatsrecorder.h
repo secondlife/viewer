@@ -37,6 +37,7 @@
 
 #if LL_RECORD_VIEWER_STATS
 #include "llframetimer.h"
+#include "llviewerobject.h"
 
 class LLViewerRegion;
 class LLViewerObject;
@@ -49,17 +50,21 @@ class LLViewerStatsRecorder
 
 	void initStatsRecorder(LLViewerRegion *regionp);
 
-	void initCachedObjectUpdate(LLViewerRegion *regionp);
-	void recordCachedObjectEvent(LLViewerRegion *regionp, U32 local_id, LLViewerObject * objectp);
-	void closeCachedObjectUpdate(LLViewerRegion *regionp);
+	void initObjectUpdateEvents(LLViewerRegion *regionp);
+	void recordObjectUpdateEvent(LLViewerRegion *regionp, U32 local_id, const EObjectUpdateType update_type, BOOL success, LLViewerObject * objectp);
+	void closeObjectUpdateEvents(LLViewerRegion *regionp);
 
 private:
 	 LLFrameTimer	mTimer;
 	 F64			mStartTime;
+	 F64			mProcessingTime;
 
 	 LLFILE *		mObjectCacheFile;		// File to write data into
 	 S32			mObjectCacheHitCount;
 	 S32			mObjectCacheMissCount;
+	 S32			mObjectFullUpdates;
+	 S32			mObjectTerseUpdates;
+	 S32			mObjectCacheMissResponses;
 };
 #endif	// LL_RECORD_VIEWER_STATS
 
