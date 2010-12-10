@@ -348,7 +348,12 @@ void LLViewerAssetStorage::_queueDataRequest(
 		req->mDownCallback = callback;
 		req->mUserData = user_data;
 		req->mIsPriority = is_priority;
-		req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+		if (!duplicate)
+		{
+			// Only collect metrics for non-duplicate requests.  Others 
+			// are piggy-backing and will artificially lower averages.
+			req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+		}
 		
 		mPendingDownloads.push_back(req);
 	

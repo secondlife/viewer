@@ -3036,6 +3036,9 @@ void LLAppViewer::requestQuit()
 		return;
 	}
 
+	// Try to send metrics back to the grid
+	metricsSend(!gDisconnected);
+	
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3053,7 +3056,6 @@ void LLAppViewer::requestQuit()
 	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
 
 	send_stats();
-	metricsSend(!gDisconnected);
 
 	gLogoutTimer.reset();
 	mQuitRequested = true;
