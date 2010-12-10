@@ -189,7 +189,6 @@
          function="Advanced.WebContentTest"
          parameter="http://www.google.com"/>
       </menu_item_call>
-      <menu_item_separator/>
       <menu_item_check
         label="Show Grid Picker"
         name="Show Grid Picker"

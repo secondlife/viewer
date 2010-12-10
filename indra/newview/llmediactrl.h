@@ -167,7 +167,6 @@ public:
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
 		void onPopup(const LLSD& notification, const LLSD& response);
-		void onAuthSubmit(const LLSD& notification, const LLSD& response);
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
