@@ -32,19 +32,8 @@
 
 #include "glod/glod.h"
 
-static BOOL stop_gloderror()
-{
-	GLuint error = glodGetError();
 
-	if (error != GLOD_NO_ERROR)
-	{
-		llwarns << "GLOD error detected: " << std::hex << error << llendl;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
+#if 0 //not used ?
 
 void create_vertex_buffers_from_model(LLModel* model, std::vector<LLPointer <LLVertexBuffer> >& vertex_buffers)
 {
@@ -280,4 +269,4 @@ LLPointer<LLModel> LLMeshReduction::reduce(LLModel* in_model, F32 limit, S32 mod
 	return out_model;
 }
 
-
+#endif
