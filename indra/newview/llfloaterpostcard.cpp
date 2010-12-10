@@ -112,11 +112,14 @@ LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLView
 	// Take the images from the caller
 	// It's now our job to clean them up
 	LLFloaterPostcard* instance = LLFloaterReg::showTypedInstance<LLFloaterPostcard>("postcard", LLSD(img->getID()));
-	
-	instance->mJPEGImage = jpeg;
-	instance->mViewerImage = img;
-	instance->mImageScale = image_scale;
-	instance->mPosTakenGlobal = pos_taken_global;
+
+	if (instance) // may be 0 if we're in mouselook mode
+	{
+		instance->mJPEGImage = jpeg;
+		instance->mViewerImage = img;
+		instance->mImageScale = image_scale;
+		instance->mPosTakenGlobal = pos_taken_global;
+	}
 	
 	return instance;
 }

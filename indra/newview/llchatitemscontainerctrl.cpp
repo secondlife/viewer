@@ -224,7 +224,8 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 				href = LLSLURL("object", mFromID, "inspect").getSLURLString();
 			}
 
-			style_params_name.color(textColor);
+			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+			style_params_name.color(user_name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
 			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);

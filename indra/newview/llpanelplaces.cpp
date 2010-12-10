@@ -331,8 +331,7 @@ BOOL LLPanelPlaces::postBuild()
 	mPlaceProfileBackBtn = mPlaceProfile->getChild<LLButton>("back_btn");
 	mPlaceProfileBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	mLandmarkInfoBackBtn = mLandmarkInfo->getChild<LLButton>("back_btn");
-	mLandmarkInfoBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+	mLandmarkInfo->getChild<LLButton>("back_btn")->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
 	LLLineEditor* title_editor = mLandmarkInfo->getChild<LLLineEditor>("title_editor");
 	title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
@@ -383,12 +382,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 			mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
 
-			// Disabling "Save", "Close" and "Back" buttons to prevent closing "Create Landmark"
-			// panel before created landmark is loaded.
-			// These buttons will be enabled when created landmark is added to inventory.
 			mSaveBtn->setEnabled(FALSE);
-			mCloseBtn->setEnabled(FALSE);
-			mLandmarkInfoBackBtn->setEnabled(FALSE);
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 		{
@@ -496,8 +490,6 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 	mEditBtn->setEnabled(is_landmark_editable);
 	mSaveBtn->setEnabled(is_landmark_editable);
-	mCloseBtn->setEnabled(TRUE);
-	mLandmarkInfoBackBtn->setEnabled(TRUE);
 
 	if (is_landmark_editable)
 	{
@@ -1126,13 +1118,6 @@ void LLPanelPlaces::updateVerbs()
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(have_3d_pos);
-		}
-
-		// Do not enable landmark info Back button when we are waiting
-		// for newly created landmark to load.
-		if (!is_create_landmark_visible)
-		{
-			mLandmarkInfoBackBtn->setEnabled(TRUE);
 		}
 	}
 	else

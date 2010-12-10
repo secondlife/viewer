@@ -12,6 +12,12 @@
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
 		<menu_item_check label="Mi voz" name="ShowVoice"/>
+		<menu label="Movimiento" name="Movement">
+			<menu_item_call label="Sentarte" name="Sit Down Here"/>
+			<menu_item_check label="Volar" name="Fly"/>
+			<menu_item_check label="Correr siempre" name="Always Run"/>
+			<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Mi estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
@@ -47,6 +53,7 @@
 			<menu_item_check label="Propietarios del terreno" name="Land Owners"/>
 			<menu_item_check label="Coordenadas" name="Coordinates"/>
 			<menu_item_check label="Propiedades de la parcela" name="Parcel Properties"/>
+			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
 		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
@@ -123,7 +130,6 @@
 		<menu_item_check label="Permitir consejos" name="Enable Hints"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
-		<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Recargar las texturas" name="Rebake Texture"/>
 		<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
 		<menu_item_call label="Definir el tamaño de la ventana..." name="Set Window Size..."/>
@@ -177,8 +183,7 @@
 			<menu_item_check label="Buscar" name="Search"/>
 			<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
 			<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
-			<menu_item_check label="Correr siempre" name="Always Run"/>
-			<menu_item_check label="Volar" name="Fly"/>
+			<menu_item_check label="Mostrar el menú Avanzado - acceso directo antiguo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Cerrar la ventana" name="Close Window"/>
 			<menu_item_call label="Cerrar todas las ventanas" name="Close All Windows"/>
 			<menu_item_call label="Guardar una foto" name="Snapshot to Disk"/>
@@ -196,7 +201,6 @@
 			<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 			<menu_item_call label="Zoom por defecto" name="Zoom Default"/>
 			<menu_item_call label="Alejar el zoom" name="Zoom Out"/>
-			<menu_item_check label="Mostrar el menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
 		<menu_item_check label="Mostrar el menú &apos;Develop&apos;" name="Debug Mode"/>
@@ -267,16 +271,13 @@
 			<menu_item_call label="Web Browser Test" name="Web Browser Test"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Memory Stats" name="Memory Stats"/>
-			<menu_item_check label="Haz doble clic en Piloto automático" name="Double-ClickAuto-Pilot"/>
-			<menu_item_check label="Teleportar mediante doble clic" name="DoubleClick Teleport"/>
+			<menu_item_check label="Consola de depuración de región" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Reload Color Settings" name="Reload Color Settings"/>
 			<menu_item_call label="Show Font Test" name="Show Font Test"/>
-			<menu_item_call label="Load from XML" name="Load from XML"/>
-			<menu_item_call label="Save to XML" name="Save to XML"/>
 			<menu_item_check label="Show XUI Names" name="Show XUI Names"/>
 			<menu_item_call label="Send Test IMs" name="Send Test IMs"/>
 			<menu_item_call label="Eliminar registros de nombres en caché" name="Flush Names Caches"/>
@@ -303,9 +304,9 @@
 		</menu>
 		<menu_item_check label="HTTP Textures" name="HTTP Textures"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
-		<menu_item_check label="Show Admin Menu" name="View Admin Options"/>
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Leave Admin Status" name="Leave Admin Options"/>
+		<menu_item_check label="Show Admin Menu" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Object">
