@@ -6161,10 +6161,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		subject_distance *= 1000.f;
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
 		const F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
-		//F32 coc_ratio = gSavedSettings.getF32("CameraCoCRatio");
-
-		//F32 coc = coc_ratio/mScreen.getHeight();
-
+		
 		F32 fov = LLViewerCamera::getInstance()->getView();
 		
 		const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
@@ -6177,13 +6174,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		F32 focal_length = dv/(2*tanf(fov/2.f));
 		 
-		//F32 hyperfocal_distance = (focal_length*focal_length)/(fnumber*coc);
-
-		//subject_distance = llmin(hyperfocal_distance, subject_distance);
-
-		//adjust focal length for subject distance
-		//focal_length = llmax(focal_length, 1.f/(1.f/focal_length - 1.f/subject_distance));
-
 		F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
 	
 		// from wikipedia -- c = |s2-s1|/s2 * f^2/(N(S1-f))

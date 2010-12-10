@@ -1392,19 +1392,6 @@
     <real>1.5</real>
   </map>
 
-  <key>CameraCoCRatio</key>
-  <map>
-    <key>Comment</key>
-    <string>Ratio of circle of confusion to vertical resolution for DoF effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>45</real>
-  </map>
-
-
   <key>CertStore</key>
     <map>
       <key>Comment</key>
