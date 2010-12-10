@@ -454,12 +454,13 @@ LLMultiPreview::LLMultiPreview()
 	{
 		// start with a rect in the top-left corner ; will get resized
 		LLRect rect;
-		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 200, 200);
+		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 200, 400);
 		setRect(rect);
 	}
 	setTitle(LLTrans::getString("MultiPreviewTitle"));
 	buildTabContainer();
 	setCanResize(TRUE);
+	mAutoResize = FALSE;
 }
 
 void LLMultiPreview::onOpen(const LLSD& key)
