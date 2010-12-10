@@ -88,7 +88,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     # NOTE: setting -isysroot is NOT adequate: http://lists.apple.com/archives/Xcode-users/2007/Oct/msg00696.html
     # see http://public.kitware.com/Bug/view.php?id=9959 + poppy
-    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.6.sdk)
+    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.4)
   endif (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
 

@@ -67,6 +67,7 @@
 #include "pipeline.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
+#include "llmeshrepository.h"
 //#include "llfirstuse.h"
 
 #include "lldrawpool.h"
@@ -539,8 +540,6 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
-	mComboPhysicsShapeType->setCurrentByIndex(objectp->getPhysicsShapeType());
-	mComboPhysicsShapeType->setEnabled(editable);
 	
 	mSpinPhysicsGravity->set(objectp->getPhysicsGravity());
 	mSpinPhysicsGravity->setEnabled(editable);
@@ -604,6 +603,7 @@ void LLPanelObject::getState( )
 	BOOL enabled = FALSE;
 	BOOL hole_enabled = FALSE;
 	F32 scale_x=1.f, scale_y=1.f;
+	BOOL isMesh = FALSE;
 	
 	if( !objectp || !objectp->getVolume() || !editable || !single_volume)
 	{
@@ -634,10 +634,9 @@ void LLPanelObject::getState( )
 		// Only allowed to change these parameters for objects
 		// that you have permissions on AND are not attachments.
 		enabled = root_objectp->permModify();
-
-		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
-
+		
 		// Volume type
+		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
 		U8 path = volume_params.getPathParams().getCurveType();
 		U8 profile_and_hole = volume_params.getProfileParams().getCurveType();
 		U8 profile	= profile_and_hole & LL_PCODE_PROFILE_MASK;
@@ -868,7 +867,7 @@ void LLPanelObject::getState( )
 		}
 		mSpinSkew->set( skew );
 	}
-
+	
 	// Compute control visibility, label names, and twist range.
 	// Start with defaults.
 	BOOL cut_visible                = TRUE;
@@ -1132,6 +1131,10 @@ void LLPanelObject::getState( )
 	mCtrlSculptInvert->setVisible(sculpt_texture_visible);
 
 
+	// update the physics shape combo to include allowed physics shapes
+	mComboPhysicsShapeType->removeall();
+	mComboPhysicsShapeType->add(getString("None"), LLSD(1));
+	
 	// sculpt texture
 
 	if (selected_item == MI_SCULPT)
@@ -1163,6 +1166,7 @@ void LLPanelObject::getState( )
 			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
 			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
 			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
 			
 			if (mCtrlSculptType)
 			{
@@ -1179,20 +1183,43 @@ void LLPanelObject::getState( )
 			if (mCtrlSculptInvert)
 			{
 				mCtrlSculptInvert->set(sculpt_invert);
-				mCtrlSculptInvert->setEnabled(editable && (sculpt_stitching != LL_SCULPT_TYPE_MESH));
+				mCtrlSculptInvert->setEnabled(editable && (!isMesh));
 			}
 
 			if (mLabelSculptType)
 			{
 				mLabelSculptType->setEnabled(TRUE);
 			}
+			
 		}
 	}
 	else
 	{
-		mSculptTextureRevert = LLUUID::null;
+		mSculptTextureRevert = LLUUID::null;		
 	}
 
+	if(isMesh && objectp)
+	{
+		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
+		LLUUID mesh_id = volume_params.getSculptID();
+		if(gMeshRepo.hasPhysicsShape(mesh_id))
+		{
+			// if a mesh contains an uploaded or decomposed physics mesh,
+			// allow 'Prim'
+			mComboPhysicsShapeType->add(getString("Prim"), LLSD(0));			
+		}
+		// meshes always allow convex hull
+		mComboPhysicsShapeType->add(getString("Convex Hull"), LLSD(2));	
+	}
+	else
+	{
+		// simple prims always allow physics shape prim
+		mComboPhysicsShapeType->add(getString("Prim"), LLSD(0));	
+	}
+	
+	mComboPhysicsShapeType->setValue(LLSD(objectp->getPhysicsShapeType()));
+	mComboPhysicsShapeType->setEnabled(editable);
+										
 	
 	//----------------------------------------------------------------------------
 
@@ -1268,7 +1295,9 @@ public:
 
 void LLPanelObject::sendPhysicsParam()
 {
-	U8 type = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	LLSD physicsType = mComboPhysicsShapeType->getValue();
+	
+	U8 type = physicsType.asInteger();
 	F32 gravity = mSpinPhysicsGravity->get();
 	F32 friction = mSpinPhysicsFriction->get();
 	F32 density = mSpinPhysicsDensity->get();
