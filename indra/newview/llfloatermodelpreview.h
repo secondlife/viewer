@@ -34,6 +34,7 @@
 #include "llmeshrepository.h"
 #include "llmodel.h"
 #include "llthread.h"
+#include "llviewermenufile.h"
 
 class LLComboBox;
 class LLJoint;
@@ -202,7 +203,6 @@ protected:
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	U32				mGLName;
-	BOOL			mLoading;
 	static S32		sUploadAmount;
 	
 	LLPointer<DecompRequest> mCurRequest;
@@ -210,11 +210,23 @@ protected:
 	
 };
 
+class LLMeshFilePicker : public LLFilePickerThread
+{
+public:
+	LLMeshFilePicker(LLModelPreview* mp, S32 lod);
+	virtual void notify(const std::string& filename);
+
+private:
+	LLModelPreview* mMP;
+	S32 mLOD;
+};
+
+
 class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {
  public:
 	
-	 LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp);
+	 LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 
 	void resetPreviewTarget();
@@ -244,15 +256,18 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
+	void setAspect(F32 aspect) { mAspect = aspect; };
+	//void setLoading(bool loading) { mLoading = loading; };
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
  protected:
 	friend class LLFloaterModelPreview;
+	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
 	friend class LLPhysicsDecomp;
 
-	LLFloaterModelPreview* mFMP;
+	LLFloater* mFMP;
 
 	BOOL        mNeedsUpdate;
 	bool		mDirty;
@@ -268,6 +283,8 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	U32			mResourceCost;
 	S32			mLimit[LLModel::NUM_LODS];
 	std::string mLODFile[LLModel::NUM_LODS];
+	F32         mAspect;
+	bool		mLoading;
 
 	LLModelLoader* mModelLoader;
 

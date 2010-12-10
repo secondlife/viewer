@@ -212,24 +212,18 @@ BOOL stop_gloderror()
 	return FALSE;
 }
 
-class LLMeshFilePicker : public LLFilePickerThread
-{
-public:
-	LLFloaterModelPreview* mFMP;
-	S32 mLOD;
 	
-	LLMeshFilePicker(LLFloaterModelPreview* fmp, S32 lod)
+LLMeshFilePicker::LLMeshFilePicker(LLModelPreview* mp, S32 lod)
 	: LLFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
 	{
-		mFMP = fmp;
+		mMP = mp;
 		mLOD = lod;
 	}
-	
-	virtual void notify(const std::string& filename)
-	{
-		mFMP->mModelPreview->loadModel(mFile, mLOD);
-	}
-};
+
+void LLMeshFilePicker::notify(const std::string& filename)
+{
+	mMP->loadModel(mFile, mLOD);
+}
 
 
 //-----------------------------------------------------------------------------
@@ -242,7 +236,6 @@ LLFloater(key)
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mGLName = 0;
-	mLoading = FALSE;
 }
 
 //-----------------------------------------------------------------------------
@@ -294,6 +287,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setAspect((F32) mPreviewRect.getWidth()/mPreviewRect.getHeight());
 	
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -348,9 +342,9 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
-	mLoading = TRUE;
+	 mModelPreview->mLoading = true;
 	
-	(new LLMeshFilePicker(this, lod))->getFile();
+	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
 void LLFloaterModelPreview::setLimit(S32 lod, S32 limit)
@@ -493,7 +487,7 @@ void LLFloaterModelPreview::draw()
 	
 	mModelPreview->update();
 	
-	if (!mLoading)
+	if (!mModelPreview->mLoading)
 	{
 		childSetTextArg("status", "[STATUS]", getString("status_idle"));
 	}
@@ -1966,7 +1960,7 @@ LLColor4 LLModelLoader::getDaeColor(daeElement* element)
 // LLModelPreview
 //-----------------------------------------------------------------------------
 
-LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp) 
+LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp) 
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
 {
 	mNeedsUpdate = TRUE;
@@ -1978,6 +1972,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp
 	mPreviewLOD = 0;
 	mModelLoader = NULL;
 	mDirty = false;
+	mLoading = false;
 	
 	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
 	{
@@ -2216,7 +2211,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 			mFMP->closeFloater(false);
 		}
 		
-		mFMP->mLoading = false;
+		mLoading = false;
 		return;
 	}
 	
@@ -2339,7 +2334,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		resetPreviewTarget();
 	}
 	
-	mFMP->mLoading = FALSE;
+	mLoading = false;
 	refresh();
 }
 
@@ -3369,9 +3364,7 @@ BOOL LLModelPreview::render()
 	
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
-	F32 aspect = (F32) mFMP->mPreviewRect.getWidth()/mFMP->mPreviewRect.getHeight();
-
-	LLViewerCamera::getInstance()->setAspect(aspect);
+	LLViewerCamera::getInstance()->setAspect(mAspect);
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 	
 	LLVector3 offset = mCameraOffset;
