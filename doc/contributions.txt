@@ -356,6 +356,9 @@ Joghert LeSabre
 Jonathan Yap
 	VWR-17801
 	STORM-616
+	STORM-679
+	STORM-596
+	STORM-726
 Kage Pixel
 	VWR-11
 Ken March

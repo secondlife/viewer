@@ -4017,7 +4017,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.65</real>
     </map>
     <key>InBandwidth</key>
     <map>
@@ -12241,6 +12241,7 @@
       <key>Value</key>
       <array>
 	      <string>snapshot</string>
+	      <string>postcard</string>
 	      <string>mini_map</string>
       </array>
     </map>

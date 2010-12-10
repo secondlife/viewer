@@ -21,7 +21,7 @@
 						<button label="Redigér" name="edit_btn" tool_tip="Redigér landemærke information"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="Vis flere valg"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="Vis flere valg"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">

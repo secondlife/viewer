@@ -47,6 +47,7 @@ class LLPlacesParcelObserver;
 class LLRemoteParcelInfoObserver;
 class LLTabContainer;
 class LLToggleableMenu;
+class LLMenuButton;
 
 typedef std::pair<LLUUID, std::string>	folder_pair_t;
 
@@ -116,14 +117,13 @@ private:
 	LLToggleableMenu*			mLandmarkMenu;
 
 	LLButton*					mPlaceProfileBackBtn;
-	LLButton*					mLandmarkInfoBackBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
 	LLButton*					mEditBtn;
 	LLButton*					mSaveBtn;
 	LLButton*					mCancelBtn;
 	LLButton*					mCloseBtn;
-	LLButton*					mOverflowBtn;
+	LLMenuButton*				mOverflowBtn;
 	LLButton*					mPlaceInfoBtn;
 
 	LLPlacesInventoryObserver*	mInventoryObserver;

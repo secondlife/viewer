@@ -10,6 +10,12 @@
 		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mine bevægelser" name="Gestures"/>
 		<menu_item_check label="Min stemme" name="ShowVoice"/>
+		<menu label="Bevægelser" name="Movement">
+			<menu_item_call label="Sid ned" name="Sit Down Here"/>
+			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_check label="Løb altid" name="Always Run"/>
+			<menu_item_call label="Stop animering" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Min status" name="Status">
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
@@ -45,6 +51,7 @@
 			<menu_item_check label="Grundejere" name="Land Owners"/>
 			<menu_item_check label="Koordinater" name="Coordinates"/>
 			<menu_item_check label="Parcel egenskaber" name="Parcel Properties"/>
+			<menu_item_check label="Avanceret menu" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teleport hjem" name="Teleport Home"/>
 		<menu_item_call label="Sæt dette sted som &apos;Hjem&apos;" name="Set Home to Here"/>
@@ -83,6 +90,7 @@
 			<menu_item_call label="Tag kopi" name="Take Copy"/>
 			<menu_item_call label="Opdatér ændringer til beholdning" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Returnér objekt" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Genoversæt scripts (Mono)" name="Mono"/>
@@ -96,6 +104,7 @@
 			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
 			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
 			<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
+			<menu_item_check label="Vis selektions afgrænsning" name="Show Selection Outlines"/>
 			<menu_item_check label="Vis skjulte objekter" name="Show Hidden Selection"/>
 			<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Vis pejlelys for valgte" name="Show Selection Beam"/>
@@ -116,9 +125,9 @@
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
+		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
-		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
 		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
 		<menu_item_call label="Vælg vinduesstørrelse..." name="Set Window Size..."/>
@@ -172,8 +181,7 @@
 			<menu_item_check label="Søg" name="Search"/>
 			<menu_item_call label="Frigør taster" name="Release Keys"/>
 			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
-			<menu_item_check label="Løb altid" name="Always Run"/>
-			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_check label="Vis avanceret menu (gammel genvej)" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Luk vindue" name="Close Window"/>
 			<menu_item_call label="Luk alle vinduer" name="Close All Windows"/>
 			<menu_item_call label="Foto til disk" name="Snapshot to Disk"/>
@@ -191,7 +199,6 @@
 			<menu_item_call label="Zoom ind" name="Zoom In"/>
 			<menu_item_call label="Zoom standard" name="Zoom Default"/>
 			<menu_item_call label="Zoom ud" name="Zoom Out"/>
-			<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Vis debug valg" name="Debug Settings"/>
 		<menu_item_check label="Vis udviklingsmenu" name="Debug Mode"/>
@@ -262,18 +269,16 @@
 			<menu_item_call label="Test web browser" name="Web Browser Test"/>
 			<menu_item_call label="Print info om valgt objekt" name="Print Selected Object Info"/>
 			<menu_item_call label="Hukommelse statistik" name="Memory Stats"/>
-			<menu_item_check label="Dobbeltklik for auto-pilot" name="Double-Click Auto-Pilot"/>
-			<menu_item_check label="Dobeltklik for at teleportere" name="DoubleClick Teleport"/>
+			<menu_item_check label="Debug konsol for region" name="Region Debug Console"/>
 			<menu_item_check label="Debug klik" name="Debug Clicks"/>
 			<menu_item_check label="Debug muse-hændelser" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Genindlæs farveopsætning" name="Reload Color Settings"/>
 			<menu_item_call label="Vis font test" name="Show Font Test"/>
-			<menu_item_call label="Hent fra XML" name="Load from XML"/>
-			<menu_item_call label="Gem til XML" name="Save to XML"/>
 			<menu_item_check label="Vis XUI navne" name="Show XUI Names"/>
 			<menu_item_call label="Send testbeskeder (IM)" name="Send Test IMs"/>
+			<menu_item_call label="Skriv navne-cache til disk" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
@@ -297,9 +302,9 @@
 		</menu>
 		<menu_item_check label="HTTP teksturer" name="HTTP Textures"/>
 		<menu_item_check label="Benyt consol vindue ved næste opstart" name="Console Window"/>
-		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
 		<menu_item_call label="Anmod om administrator status" name="Request Admin Options"/>
 		<menu_item_call label="Forlad administrationsstatus" name="Leave Admin Options"/>
+		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
 	</menu>
 	<menu label="Administrér" name="Admin">
 		<menu label="Object">

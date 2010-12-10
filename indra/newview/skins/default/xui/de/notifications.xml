@@ -395,6 +395,9 @@ Hinweis: Der Cache wird dabei gelöscht/geleert.
 	<notification name="ChangeSkin">
 		Die neue Benutzeroberfläche wird nach einem Neustart von [APP_NAME] angezeigt.
 	</notification>
+	<notification name="ChangeLanguage">
+		Die Sprachänderung tritt nach Neustart von [APP_NAME] in Kraft.
+	</notification>
 	<notification name="GoToAuctionPage">
 		Zur [SECOND_LIFE]-Webseite, um Auktionen anzuzeigen oder ein Gebot abzugeben?
 		<url name="url">
@@ -605,6 +608,10 @@ Erwartet wurde [VALIDS]
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		„Daten“-Chunk in WAV-Header nicht gefunden:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Falsche Chunk-Größe in WAV-Datei:
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -1342,6 +1349,15 @@ Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität soll
 
 In Ihren Anwendungsordner herunterladen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Beim Installieren des Viewer-Updates ist ein Fehler aufgetreten.
+Laden Sie den neuesten Viewer von http://secondlife.com/download herunter und installieren Sie ihn.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DownloadBackground">
+		Eine aktualisierte Version von [APP_NAME] wurde heruntergeladen.
+Sie wird beim nächsten Neustart von [APP_NAME] verwendet.
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Bei Übertragung dieses Objekts erhält die Gruppe:
@@ -2481,8 +2497,8 @@ Versuchen Sie es in einigen Minuten erneut.
 		Ihr Freundschaftsangebot wurde abgelehnt.
 	</notification>
 	<notification name="OfferCallingCard">
-		[NAME] bietet Ihnen ihre/seine Visitenkarte an.
-Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach eine IM schicken können.
+		[NAME] bietet Ihnen eine Visitenkarte an.
+In Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner schnell IMs senden können.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>

@@ -194,10 +194,10 @@ public:
 
 
 	/** Stop fading given toast */
-	virtual void stopFadingToast(LLToast* toast);
+	virtual void stopToastTimer(LLToast* toast);
 
 	/** Start fading given toast */
-	virtual void startFadingToast(LLToast* toast);
+	virtual void startToastTimer(LLToast* toast);
 
 	// get StartUp Toast's state
 	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }

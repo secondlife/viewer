@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Bouton central de la souris
-	</panel.string>
-	<slider label="Angle de vue" name="camera_fov"/>
-	<slider label="Distance" name="camera_offset_scale"/>
-	<text name="heading2">
-		Positionnement automatique pour :
-	</text>
-	<check_box label="Construire/Modifier" name="edit_camera_movement" tool_tip="Utilisez le positionnement automatique de la caméra quand vous accédez au mode de modification et quand vous le quittez"/>
-	<check_box label="Apparence" name="appearance_camera_movement" tool_tip="Utiliser le positionnement automatique de la caméra quand je suis en mode Édition"/>
-	<check_box initial_value="true" label="Panneau latéral" name="appearance_sidebar_positioning" tool_tip="Positionnement auto de la caméra pour le panneau latéral"/>
-	<check_box label="Afficher en vue subjective" name="first_person_avatar_visible"/>
-	<check_box label="Les touches de direction me font toujours me déplacer" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Appuyer deux fois et maintenir enfoncé pour courir" name="tap_tap_hold_to_run"/>
-	<check_box label="Faire bouger les lèvres de l&apos;avatar quand il parle" name="enable_lip_sync"/>
-	<check_box label="Bulles de chat" name="bubble_text_chat"/>
-	<slider label="Opacité" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
 	<text name="UI Size:">
-		Taille de l&apos;interface
+		Taille d&apos;interface :
 	</text>
 	<check_box label="Afficher les erreurs de script dans :" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat près de moi" name="0"/>
 		<radio_item label="Autre fenêtre" name="1"/>
 	</radio_group>
-	<check_box label="Activer/désactiver la fonction Parler quand j&apos;appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que quand vous maintenez la touche de contrôle de la fonction enfoncée."/>
-	<line_editor label="Touche de contrôle de la fonction Appuyer pour parler" name="modifier_combo"/>
-	<button label="Définir la touche" name="set_voice_hotkey_button"/>
-	<button label="Bouton central de la souris" name="set_voice_middlemouse_button" tool_tip="Réinitialiser sur le bouton central de la souris"/>
-	<button label="Autres accessoires" name="joystick_setup_button"/>
+	<check_box label="Clients multiples autorisés" name="allow_multiple_viewer_check"/>
+	<check_box label="Liste de sélection de grille affichée à la connexion" name="show_grid_selection_check"/>
+	<check_box label="Menu Avancé affiché" name="show_advanced_menu_check"/>
+	<check_box label="Menu Développeurs affiché" name="show_develop_menu_check"/>
 </panel>
