@@ -41,6 +41,8 @@ class LLUpdaterService;
 class LLLoginInstance : public LLSingleton<LLLoginInstance>
 {
 public:
+	class Disposable;
+
 	LLLoginInstance();
 	~LLLoginInstance();
 
@@ -106,7 +108,8 @@ private:
 	int mLastExecEvent;
 	UpdaterLauncherCallback mUpdaterLauncher;
 	LLEventDispatcher mDispatcher;
-	LLUpdaterService * mUpdaterService;
+	LLUpdaterService * mUpdaterService;	
+	boost::scoped_ptr<Disposable> mUpdateStateMachine;
 };
 
 #endif

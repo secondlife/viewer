@@ -64,8 +64,15 @@
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
+class LLLoginInstance::Disposable {
+public:
+	virtual ~Disposable() {}
+};
+
 namespace {
-	class MandatoryUpdateMachine {
+	class MandatoryUpdateMachine:
+		public LLLoginInstance::Disposable
+	{
 	public:
 		MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService);
 		
@@ -754,6 +761,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	{
 		gViewerWindow->setShowProgress(false);
 		MandatoryUpdateMachine * machine = new MandatoryUpdateMachine(*this, *mUpdaterService);
+		mUpdateStateMachine.reset(machine);
 		machine->start();
 		return;
 	}
