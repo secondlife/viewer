@@ -1823,8 +1823,8 @@ key llRequestUsername(key id)
 Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
 </string>
 <string name="LSLTipText_llGetDisplayName" translate="false">
-string llGetDisplayName(key id)
-Returns the name of an avatar, iff the avatar is in the current simulator, otherwise the empty string.
+  string llGetDisplayName(key id)
+  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
 </string>
 <string name="LSLTipText_llRequestDisplayName" translate="false">
 key llRequestDisplayName(key id)

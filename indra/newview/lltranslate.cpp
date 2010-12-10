@@ -36,7 +36,7 @@
 
 #include "llbufferstream.h"
 #include "llui.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 
 #include "jsoncpp/reader.h"
@@ -64,11 +64,11 @@ void LLTranslate::translateMessage(LLHTTPClient::ResponderPtr &result, const std
 	getTranslateUrl(url, from_lang, to_lang, mesg);
 
     std::string user_agent = llformat("%s %d.%d.%d (%d)",
-		LL_CHANNEL,
-		LL_VERSION_MAJOR,
-		LL_VERSION_MINOR,
-		LL_VERSION_PATCH,
-		LL_VERSION_BUILD );
+		LLVersionInfo::getChannel().c_str(),
+		LLVersionInfo::getMajor(),
+		LLVersionInfo::getMinor(),
+		LLVersionInfo::getPatch(),
+		LLVersionInfo::getBuild());
 
 	if (!m_Header.size())
 	{

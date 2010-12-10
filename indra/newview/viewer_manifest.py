@@ -247,6 +247,8 @@ class WindowsManifest(ViewerManifest):
         
         self.disable_manifest_check()
 
+        self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
+
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
@@ -572,6 +574,8 @@ class DarwinManifest(ViewerManifest):
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
 
+            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
                 super(DarwinManifest, self).construct()
@@ -743,6 +747,11 @@ class DarwinManifest(ViewerManifest):
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
+            if devfile != '/dev/disk1':
+                # adding more debugging info based upon nat's hunches to the
+                # logs to help track down 'SetFile -a V' failures -brad
+                print "WARNING: 'SetFile -a V' command below is probably gonna fail"
+
             # Copy everything in to the mounted .dmg
 
             if self.default_channel() and not self.default_grid():
@@ -842,6 +851,8 @@ class LinuxManifest(ViewerManifest):
             # recurse
             self.end_prefix("res-sdl")
 
+        self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
+
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
             self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
@@ -870,7 +881,7 @@ class LinuxManifest(ViewerManifest):
 
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
         # Fix access permissions
         self.run_command("""
@@ -897,6 +908,9 @@ class LinuxManifest(ViewerManifest):
                         'dir': self.get_build_prefix(),
                         'inst_name': installer_name,
                         'inst_path':self.build_path_of(installer_name)})
+            else:
+                print "Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                      (installer_name, self.args['buildtype'])
         finally:
             self.run_command("mv %(inst)s %(dst)s" % {
                 'dst': self.get_dst_prefix(),

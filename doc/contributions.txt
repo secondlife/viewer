@@ -355,6 +355,7 @@ Joghert LeSabre
 	VWR-64
 Jonathan Yap
 	VWR-17801
+	STORM-616
 Kage Pixel
 	VWR-11
 Ken March
@@ -767,6 +768,9 @@ WolfPup Lowenhar
 	STORM-102
 	STORM-103
 	STORM-143
+	STORM-535
+	STORM-544
+	STORM-654
 	VWR-20741
 	VWR-20933
 Zai Lynch

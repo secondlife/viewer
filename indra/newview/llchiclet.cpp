@@ -1092,9 +1092,11 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 
 LLChicletPanel::~LLChicletPanel()
 {
-	LLTransientFloaterMgr::getInstance()->removeControlView(mLeftScrollButton);
-	LLTransientFloaterMgr::getInstance()->removeControlView(mRightScrollButton);
-
+	if(LLTransientFloaterMgr::instanceExists())
+	{
+		LLTransientFloaterMgr::getInstance()->removeControlView(mLeftScrollButton);
+		LLTransientFloaterMgr::getInstance()->removeControlView(mRightScrollButton);
+	}
 }
 
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){

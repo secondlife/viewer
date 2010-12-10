@@ -26,6 +26,9 @@
 
 #include "linden_common.h"
 
+#include <boost/format.hpp>
+
+#include <libgen.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -62,6 +65,8 @@ Boolean gCancelled = false;
 const char *gUpdateURL;
 const char *gProductName;
 const char *gBundleID;
+const char *gDmgFile;
+const char *gMarkerPath;
 
 void *updatethreadproc(void*);
 
@@ -334,6 +339,14 @@ int parse_args(int argc, char **argv)
 		{
 			gBundleID = argv[j];
 		}
+		else if ((!strcmp(argv[j], "-dmg")) && (++j < argc)) 
+		{
+			gDmgFile = argv[j];
+		}
+		else if ((!strcmp(argv[j], "-marker")) && (++j < argc)) 
+		{
+			gMarkerPath = argv[j];;
+		}
 	}
 
 	return 0;
@@ -361,10 +374,12 @@ int main(int argc, char **argv)
 	gUpdateURL  = NULL;
 	gProductName = NULL;
 	gBundleID = NULL;
+	gDmgFile = NULL;
+	gMarkerPath = NULL;
 	parse_args(argc, argv);
-	if (!gUpdateURL)
+	if ((gUpdateURL == NULL) && (gDmgFile == NULL))
 	{
-		llinfos << "Usage: mac_updater -url <url> [-name <product_name>] [-program <program_name>]" << llendl;
+		llinfos << "Usage: mac_updater -url <url> | -dmg <dmg file> [-name <product_name>] [-program <program_name>]" << llendl;
 		exit(1);
 	}
 	else
@@ -488,11 +503,18 @@ int main(int argc, char **argv)
 					NULL,
 					&retval_mac);
 		}
-
+		
+		if(gMarkerPath != 0)
+		{
+			// Create a install fail marker that can be used by the viewer to
+			// detect install problems.
+			std::ofstream stream(gMarkerPath);
+			if(stream) stream << -1;
+		}
+		exit(-1);
+	} else {
+		exit(0);
 	}
-	
-	// Don't dispose of things, just exit.  This keeps the update thread from potentially getting hosed.
-	exit(0);
 
 	if(gWindow != NULL)
 	{
@@ -700,17 +722,26 @@ static OSErr findAppBundleOnDiskImage(FSRef *parent, FSRef *app)
 						// Looks promising.  Check to see if it has the right bundle identifier.
 						if(isFSRefViewerBundle(&ref))
 						{
+							llinfos << name << " is the one" << llendl;
 							// This is the one.  Return it.
 							*app = ref;
 							found = true;
+							break;
+						} else {
+							llinfos << name << " is not the bundle we are looking for; move along" << llendl;
 						}
+
 					}
 				}
 			}
 		}
-		while(!err && !found);
+		while(!err);
+		
+		llinfos << "closing the iterator" << llendl;
 		
 		FSCloseIterator(iterator);
+		
+		llinfos << "closed" << llendl;
 	}
 	
 	if(!err && !found)
@@ -921,6 +952,22 @@ void *updatethreadproc(void*)
 
 #endif // 0 *HACK for DEV-11935
 		
+		// Skip downloading the file if the dmg was passed on the command line.
+		std::string dmgName;
+		if(gDmgFile != NULL) {
+			dmgName = basename((char *)gDmgFile);
+			char * dmgDir = dirname((char *)gDmgFile);
+			strncpy(tempDir, dmgDir, sizeof(tempDir));
+			err = FSPathMakeRef((UInt8*)tempDir, &tempDirRef, NULL);
+			if(err != noErr) throw 0;
+			chdir(tempDir);
+			goto begin_install;
+		} else {
+			// Continue on to download file.
+			dmgName = "SecondLife.dmg";
+		}
+
+		
 		strncat(temp, "/SecondLifeUpdate_XXXXXX", (sizeof(temp) - strlen(temp)) - 1);
 		if(mkdtemp(temp) == NULL)
 		{
@@ -979,14 +1026,17 @@ void *updatethreadproc(void*)
 			fclose(downloadFile);
 			downloadFile = NULL;
 		}
-		
+
+	begin_install:
 		sendProgress(0, 0, CFSTR("Mounting image..."));
 		LLFile::mkdir("mnt", 0700);
 		
 		// NOTE: we could add -private at the end of this command line to keep the image from showing up in the Finder,
 		//		but if our cleanup fails, this makes it much harder for the user to unmount the image.
 		std::string mountOutput;
-		FILE* mounter = popen("hdiutil attach SecondLife.dmg -mountpoint mnt", "r");		/* Flawfinder: ignore */
+		boost::format cmdFormat("hdiutil attach %s -mountpoint mnt");
+		cmdFormat % dmgName;
+		FILE* mounter = popen(cmdFormat.str().c_str(), "r");		/* Flawfinder: ignore */
 		
 		if(mounter == NULL)
 		{
@@ -1052,12 +1102,19 @@ void *updatethreadproc(void*)
 			throw 0;
 		}
 
+		sendProgress(0, 0, CFSTR("Searching for the app bundle..."));
 		err = findAppBundleOnDiskImage(&mountRef, &sourceRef);
 		if(err != noErr)
 		{
 			llinfos << "Couldn't find application bundle on mounted disk image." << llendl;
 			throw 0;
 		}
+		else
+		{
+			llinfos << "found the bundle." << llendl;
+		}
+
+		sendProgress(0, 0, CFSTR("Preparing to copy files..."));
 		
 		FSRef asideRef;
 		char aside[MAX_PATH];		/* Flawfinder: ignore */
@@ -1077,7 +1134,11 @@ void *updatethreadproc(void*)
 			// Move aside old version (into work directory)
 			err = FSMoveObject(&targetRef, &tempDirRef, &asideRef);
 			if(err != noErr)
+			{
+				llwarns << "failed to move aside old version (error code " << 
+					err << ")" << llendl;
 				throw 0;
+			}
 
 			// Grab the path for later use.
 			err = FSRefMakePath(&asideRef, (UInt8*)aside, sizeof(aside));
@@ -1175,6 +1236,10 @@ void *updatethreadproc(void*)
 		llinfos << "Moving work directory to the trash." << llendl;
 
 		err = FSMoveObject(&tempDirRef, &trashFolderRef, NULL);
+		if(err != noErr) {
+			llwarns << "failed to move files to trash, (error code " <<
+				err << ")" << llendl;
+		}
 
 //		snprintf(temp, sizeof(temp), "rm -rf '%s'", tempDir);
 //		printf("%s\n", temp);

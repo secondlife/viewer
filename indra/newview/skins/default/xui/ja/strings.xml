@@ -3574,7 +3574,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		このセッションにいるユーザーはあなただけです。
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] はオフラインです。
+		[NAME] はオフラインです。
 	</string>
 	<string name="invite_message">
 		このボイスチャットに応答・接続する場合は、[BUTTON NAME] をクリックしてください。

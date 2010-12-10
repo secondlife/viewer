@@ -6500,16 +6500,6 @@ class LLToggleControl : public view_listener_t
 		std::string control_name = userdata.asString();
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
-
-        // Doubleclick actions - there can be only one
-        if ((control_name == "DoubleClickAutoPilot") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
-        }
-        else if ((control_name == "DoubleClickTeleport") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
-        }
 		return true;
 	}
 };
@@ -7805,6 +7795,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
 
+	// Me > Movement
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// World menu
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -7878,9 +7871,6 @@ void initialize_menus()
 
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
-
-	// Advanced > Shortcuts
-	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");

@@ -70,6 +70,7 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llupdaterservice.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -82,7 +83,6 @@ LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
 
 std::string gLastRunVersion;
-std::string gCurrentVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
@@ -117,7 +117,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
+	// Changing shader also changes the terrain detail to high, reflect that change here
+	if (newvalue.asBoolean())
+	{
+		// shaders enabled, set terrain detail to high
+		gSavedSettings.setS32("RenderTerrainDetail", 1);
+	}
+	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
+	return true;
+}
+
+bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
+{
+	LLWorld::getInstance()->updateWaterObjects();
 	return true;
 }
 
@@ -489,6 +502,18 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
+void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
+{
+    if(new_value.asBoolean())
+    {
+        LLUpdaterService().startChecking();
+    }
+    else
+    {
+        LLUpdaterService().stopChecking();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -636,7 +661,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
+	gSavedSettings.getControl("UpdaterServiceActive")->getSignal()->connect(&toggle_updater_service_active);
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
+	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

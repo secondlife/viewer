@@ -2266,6 +2266,20 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
+	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
+	// no view has keyboard focus, this is a printable character key (and no modifier key is 
+	// pressed except shift), then give focus to nearby chat (STORM-560)
+	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
+	{
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		if (chat_editor)
+		{
+			// passing NULL here, character will be added later when it is handled by character handler.
+			LLBottomTray::getInstance()->getNearbyChatBar()->startChat(NULL);
+			return TRUE;
+		}
+	}
 
 	// give menus a chance to handle unmodified accelerator keys
 	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))

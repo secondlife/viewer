@@ -2440,7 +2440,7 @@ Spróbuj ponowanie za kilka minut.
 		Propozycja znajomości została odrzucona.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] daje Tobie swoją wizytówkę.
+		[NAME] daje Tobie swoją wizytówkę.
 Wizytówka będzie znajdowała się w Szafie i umożliwi szybkie wysłanie IM do tego Rezydenta.
 		<form name="form">
 			<button name="Accept" text="Zaakceptuj"/>
