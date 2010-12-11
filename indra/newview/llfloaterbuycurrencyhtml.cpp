@@ -82,7 +82,7 @@ void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
 	LLStringUtil::format( buy_currency_url, replace );
 
 	// write final URL to debug console
-	llinfos << "Buy currency HTML prased URL is " << buy_currency_url << llendl;
+	llinfos << "Buy currency HTML parsed URL is " << buy_currency_url << llendl;
 
 	// kick off the navigation
 	mBrowser->navigateTo( buy_currency_url, "text/html" );

@@ -261,26 +261,29 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	}
 
 	getChildView("getting_data")->setVisible( !mManager.canBuy() && !hasError);
-
-	// Update L$ balance
-	LLStatusBar::sendMoneyBalanceRequest();
 }
 
 void LLFloaterBuyCurrencyUI::onClickBuy()
 {
 	mManager.buy(getString("buy_currency"));
 	updateUI();
+	// Update L$ balance
+	LLStatusBar::sendMoneyBalanceRequest();
 }
 
 void LLFloaterBuyCurrencyUI::onClickCancel()
 {
 	closeFloater();
+	// Update L$ balance
+	LLStatusBar::sendMoneyBalanceRequest();
 }
 
 void LLFloaterBuyCurrencyUI::onClickErrorWeb()
 {
 	LLWeb::loadURLExternal(mManager.errorURI());
 	closeFloater();
+	// Update L$ balance
+	LLStatusBar::sendMoneyBalanceRequest();
 }
 
 // static
