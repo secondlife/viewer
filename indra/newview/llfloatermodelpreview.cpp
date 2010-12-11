@@ -2905,9 +2905,6 @@ void LLModelPreview::genLODs(S32 which_lod)
 		
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
 		stop_gloderror();		
-	
-		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
-		stop_gloderror();		
 		
 		glodGroupParameteri(mGroup, GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
 		stop_gloderror();
