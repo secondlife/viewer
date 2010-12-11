@@ -73,7 +73,6 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
-#define USE_VIEWER_AUTH 0
 
 const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
@@ -189,10 +188,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	buildFromFile( "panel_login.xml");
 	
-#if USE_VIEWER_AUTH
-	//leave room for the login menu bar
-	setRect(LLRect(0, rect.getHeight()-18, rect.getWidth(), 0)); 
-#endif
 	// Legacy login web page is hidden under the menu bar.
 	// Adjust reg-in-client web browser widget to not be hidden.
 	if (gSavedSettings.getBOOL("RegInClient"))
@@ -204,7 +199,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		reshape(rect.getWidth(), rect.getHeight());
 	}
 
-#if !USE_VIEWER_AUTH
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
@@ -247,7 +241,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
-#endif    
 	
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
@@ -274,15 +267,9 @@ void LLPanelLogin::reshapeBrowser()
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	LLRect rect = gViewerWindow->getWindowRectScaled();
 	LLRect html_rect;
-#if USE_VIEWER_AUTH
-	html_rect.setCenterAndSize( 
-		rect.getCenterX() - 2, rect.getCenterY(), 
-		rect.getWidth() + 6, rect.getHeight());
-#else
 	html_rect.setCenterAndSize(
 		rect.getCenterX() - 2, rect.getCenterY() + 40,
 		rect.getWidth() + 6, rect.getHeight() - 78 );
-#endif
 	web_browser->setRect( html_rect );
 	web_browser->reshape( html_rect.getWidth(), html_rect.getHeight(), TRUE );
 	reshape( rect.getWidth(), rect.getHeight(), 1 );
@@ -305,7 +292,6 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 	else
 	// the site is not available (missing page, server down, other badness)
 	{
-#if !USE_VIEWER_AUTH
 		if ( web_browser )
 		{
 			// hide browser control (revealing default one)
@@ -314,16 +300,6 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 			// mark as unavailable
 			mHtmlAvailable = FALSE;
 		}
-#else
-
-		if ( web_browser )
-		{	
-			web_browser->navigateToLocalPage( "loading-error" , "index.html" );
-
-			// mark as available
-			mHtmlAvailable = TRUE;
-		}
-#endif
 	}
 }
 
@@ -363,7 +339,6 @@ void LLPanelLogin::draw()
 
 		if ( mHtmlAvailable )
 		{
-#if !USE_VIEWER_AUTH
 			if (getChild<LLView>("login_widgets")->getVisible())
 			{
 				// draw a background box in black
@@ -372,7 +347,6 @@ void LLPanelLogin::draw()
 				// just the blue background to the native client UI
 				mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 			}
-#endif
 		}
 		else
 		{
@@ -418,12 +392,6 @@ void LLPanelLogin::setFocus(BOOL b)
 // static
 void LLPanelLogin::giveFocus()
 {
-#if USE_VIEWER_AUTH
-	if (sInstance)
-	{
-		sInstance->setFocus(TRUE);
-	}
-#else
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
@@ -452,7 +420,6 @@ void LLPanelLogin::giveFocus()
 			edit->selectAll();
 		}
 	}
-#endif
 }
 
 // static
@@ -832,73 +799,6 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_grid);
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
-
-
-#if USE_VIEWER_AUTH
-	LLURLSimString::sInstance.parse();
-
-	std::string location;
-	std::string region;
-	std::string password;
-	
-	if (LLURLSimString::parse())
-	{
-		std::ostringstream oRegionStr;
-		location = "specify";
-		oRegionStr << LLURLSimString::sInstance.mSimName << "/" << LLURLSimString::sInstance.mX << "/"
-			 << LLURLSimString::sInstance.mY << "/"
-			 << LLURLSimString::sInstance.mZ;
-		region = oRegionStr.str();
-	}
-	else
-	{
-		location = gSavedSettings.getString("LoginLocation");
-	}
-	
-	std::string username;
-
-    if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
-    {
-        LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
-		username = cmd_line_login[0].asString() + " " + cmd_line_login[1];
-        password = cmd_line_login[2].asString();
-    }
-    	
-	
-	char* curl_region = curl_escape(region.c_str(), 0);
-
-	oStr <<"username=" << username <<
-		 "&location=" << location <<	"&region=" << curl_region;
-	
-	curl_free(curl_region);
-
-	if (!password.empty())
-	{
-		oStr << "&password=" << password;
-	}
-	else if (!(password = load_password_from_disk()).empty())
-	{
-		oStr << "&password=$1$" << password;
-	}
-	if (gAutoLogin)
-	{
-		oStr << "&auto_login=TRUE";
-	}
-	if (gSavedSettings.getBOOL("ShowStartLocation"))
-	{
-		oStr << "&show_start_location=TRUE";
-	}	
-	if (gSavedSettings.getBOOL("RememberPassword"))
-	{
-		oStr << "&remember_password=TRUE";
-	}	
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
-	oStr << "&show_grid=TRUE";
-#else
-	if (gSavedSettings.getBOOL("ForceShowGrid"))
-		oStr << "&show_grid=TRUE";
-#endif
-#endif
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 
