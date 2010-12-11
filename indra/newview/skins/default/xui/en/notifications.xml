@@ -2906,20 +2906,20 @@ or you can install it now.
    icon="notify.tga"
    name="DownloadBackgroundTip"
    type="notify">
-We have downloaded and update to your [APP_NAME] installation.
-Version [VERSION]
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <usetemplate
      name="okcancelbuttons"
-     notext="Wait"
-     yestext="Restart Now"/>
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
   </notification>
 
   <notification
  icon="alertmodal.tga"
  name="DownloadBackgroundDialog"
  type="alertmodal">
-We have downloaded and update to your [APP_NAME] installation.
-Version [VERSION]
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <usetemplate
      name="okcancelbuttons"
      notext="Later..."

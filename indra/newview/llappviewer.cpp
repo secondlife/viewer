@@ -2417,55 +2417,71 @@ namespace {
 		LLUpdaterService().startChecking(install_if_ready);
 	}
 	
-	void on_required_update_downloaded(LLSD const & data)
+	void on_update_downloaded(LLSD const & data)
 	{
 		std::string notification_name;
-		if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
+		void (*apply_callback)(LLSD const &, LLSD const &) = NULL;
+
+		if(data["required"].asBoolean())
 		{
-			// The user never saw the progress bar.
-			notification_name = "RequiredUpdateDownloadedVerboseDialog";
+			apply_callback = &apply_update_ok_callback;
+			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
+			{
+				// The user never saw the progress bar.
+				notification_name = "RequiredUpdateDownloadedVerboseDialog";
+			}
+			else
+			{
+				notification_name = "RequiredUpdateDownloadedDialog";
+			}
 		}
 		else
 		{
-			notification_name = "RequiredUpdateDownloadedDialog";
+			apply_callback = &apply_update_callback;
+			if(LLStartUp::getStartupState() < STATE_STARTED)
+			{
+				// CHOP-262 we need to use a different notification
+				// method prior to login.
+				notification_name = "DownloadBackgroundDialog";
+			}
+			else
+			{
+				notification_name = "DownloadBackgroundTip";
+			}
 		}
+
 		LLSD substitutions;
 		substitutions["VERSION"] = data["version"];
-		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), &apply_update_ok_callback);
+
+		// truncate version at the rightmost '.' 
+		std::string version_short(data["version"]);
+		size_t short_length = version_short.rfind('.');
+		if (short_length != std::string::npos)
+		{
+			version_short.resize(short_length);
+		}
+
+		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
+		relnotes_url.setArg("[VERSION_SHORT]", version_short);
+
+		// *TODO thread the update service's response through to this point
+		std::string const & channel = LLVersionInfo::getChannel();
+		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
+
+		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
+		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
+		substitutions["RELEASE_NOTES_FULL_URL"] = relnotes_url.getString();
+
+		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
 	}
 	
-	void on_optional_update_downloaded(LLSD const & data)
-	{
-		std::string notification_name;
-		if(LLStartUp::getStartupState() < STATE_STARTED)
-		{
-			// CHOP-262 we need to use a different notification
-			// method prior to login.
-			notification_name = "DownloadBackgroundDialog";
-		}
-		else
-		{
-			notification_name = "DownloadBackgroundTip";
-		}
-		LLSD substitutions;
-		substitutions["VERSION"] = data["version"];
-		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_update_callback);
-	}
-
     bool notify_update(LLSD const & evt)
     {
 		std::string notification_name;
 		switch (evt["type"].asInteger())
 		{
 			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				if(evt["required"].asBoolean())
-				{
-					on_required_update_downloaded(evt);
-				}
-				else
-				{
-					on_optional_update_downloaded(evt);
-				}
+				on_update_downloaded(evt);
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
 				LLNotificationsUtil::add("FailedUpdateInstall");
