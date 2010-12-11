@@ -113,10 +113,33 @@ LLViewerAssetStats::PerRegionStats::reset()
 		mRequests[i].mDequeued.reset();
 		mRequests[i].mResponse.reset();
 	}
-
+	mFPS.reset();
+	
 	mTotalTime = 0;
 	mStartTimestamp = LLViewerAssetStatsFF::get_timestamp();
 }
+
+
+void
+LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionStats & src)
+{
+	// mRegionHandle, mTotalTime, mStartTimestamp are left alone.
+	
+	// mFPS
+	if (src.mFPS.getCount() && mFPS.getCount())
+	{
+		mFPS.merge(src.mFPS);
+	}
+
+	// Requests
+	for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
+	{
+		mRequests[i].mEnqueued.merge(src.mRequests[i].mEnqueued);
+		mRequests[i].mDequeued.merge(src.mRequests[i].mDequeued);
+		mRequests[i].mResponse.merge(src.mRequests[i].mResponse);
+	}
+}
+
 
 void
 LLViewerAssetStats::PerRegionStats::accumulateTime(duration_t now)
@@ -133,6 +156,19 @@ LLViewerAssetStats::LLViewerAssetStats()
 	: mRegionHandle(U64(0))
 {
 	reset();
+}
+
+
+LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
+	: mRegionHandle(src.mRegionHandle),
+	  mResetTimestamp(src.mResetTimestamp)
+{
+	const PerRegionContainer::const_iterator it_end(src.mRegionStats.end());
+	for (PerRegionContainer::const_iterator it(src.mRegionStats.begin()); it_end != it; ++it)
+	{
+		mRegionStats[it->first] = new PerRegionStats(*it->second);
+	}
+	mCurRegionStats = mRegionStats[mRegionHandle];
 }
 
 
@@ -215,6 +251,12 @@ LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_htt
 	mCurRegionStats->mRequests[int(eac)].mResponse.record(duration);
 }
 
+void
+LLViewerAssetStats::recordFPS(F32 fps)
+{
+	mCurRegionStats->mFPS.record(fps);
+}
+
 LLSD
 LLViewerAssetStats::asLLSD()
 {
@@ -231,13 +273,19 @@ LLViewerAssetStats::asLLSD()
 			LLSD::String("get_other")
 		};
 
-	// Sub-tags.  If you add or delete from this list, mergeRegionsLLSD() must be updated.
+	// Stats Group Sub-tags.
 	static const LLSD::String enq_tag("enqueued");
 	static const LLSD::String deq_tag("dequeued");
 	static const LLSD::String rcnt_tag("resp_count");
 	static const LLSD::String rmin_tag("resp_min");
 	static const LLSD::String rmax_tag("resp_max");
 	static const LLSD::String rmean_tag("resp_mean");
+
+	// MMM Group Sub-tags.
+	static const LLSD::String cnt_tag("count");
+	static const LLSD::String min_tag("min");
+	static const LLSD::String max_tag("max");
+	static const LLSD::String mean_tag("mean");
 
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
 	mCurRegionStats->accumulateTime(now);
@@ -257,7 +305,7 @@ LLViewerAssetStats::asLLSD()
 		
 		LLSD reg_stat = LLSD::emptyMap();
 		
-		for (int i = 0; i < EVACCount; ++i)
+		for (int i = 0; i < LL_ARRAY_SIZE(tags); ++i)
 		{
 			LLSD & slot = reg_stat[tags[i]];
 			slot = LLSD::emptyMap();
@@ -267,6 +315,15 @@ LLViewerAssetStats::asLLSD()
 			slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin() * 1.0e-6));
 			slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax() * 1.0e-6));
 			slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean() * 1.0e-6));
+		}
+
+		{
+			LLSD & slot = reg_stat["fps"];
+			slot = LLSD::emptyMap();
+			slot[cnt_tag] = LLSD(S32(stats.mFPS.getCount()));
+			slot[min_tag] = LLSD(F64(stats.mFPS.getMin()));
+			slot[max_tag] = LLSD(F64(stats.mFPS.getMax()));
+			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
 
 		reg_stat["duration"] = LLSD::Real(stats.mTotalTime * 1.0e-6);
@@ -284,181 +341,24 @@ LLViewerAssetStats::asLLSD()
 	return ret;
 }
 
-/* static */ void
-LLViewerAssetStats::mergeRegionsLLSD(const LLSD & src, LLSD & dst)
+void
+LLViewerAssetStats::merge(const LLViewerAssetStats & src)
 {
-	// Merge operator definitions
-	static const int MOP_ADD_INT(0);
-	static const int MOP_MIN_REAL(1);
-	static const int MOP_MAX_REAL(2);
-	static const int MOP_MEAN_REAL(3);	// Requires a 'mMergeOpArg' to weight the input terms
+	// mRegionHandle, mCurRegionStats and mResetTimestamp are left untouched.
+	// Just merge the stats bodies
 
-	static const LLSD::String regions_key("regions");
-	static const LLSD::String resp_count_key("resp_count");
-	
-	static const struct
-		{
-			LLSD::String		mName;
-			int					mMergeOp;
-		}
-	key_list[] =
-		{
-			// Order is important below.  We modify the data in-place and
-			// so operations like MOP_MEAN_REAL which need the "resp_count"
-			// value for weighting must be performed before "resp_count"
-			// is modified or the weight will be wrong.  Key list is
-			// defined in asLLSD() and must track it.
-
-			{ "resp_mean", MOP_MEAN_REAL },
-			{ "enqueued", MOP_ADD_INT },
-			{ "dequeued", MOP_ADD_INT },
-			{ "resp_min", MOP_MIN_REAL },
-			{ "resp_max", MOP_MAX_REAL },
-			{ resp_count_key, MOP_ADD_INT }			// Keep last
-		};
-
-	// Trivial checks
-	if (! src.has(regions_key))
+	const PerRegionContainer::const_iterator it_end(src.mRegionStats.end());
+	for (PerRegionContainer::const_iterator it(src.mRegionStats.begin()); it_end != it; ++it)
 	{
-		return;
-	}
-
-	if (! dst.has(regions_key))
-	{
-		dst[regions_key] = src[regions_key];
-		return;
-	}
-	
-	// Non-trivial cases requiring a deep merge.
-	const LLSD & root_src(src[regions_key]);
-	LLSD & root_dst(dst[regions_key]);
-	
-	const LLSD::map_const_iterator it_uuid_end(root_src.endMap());
-	for (LLSD::map_const_iterator it_uuid(root_src.beginMap()); it_uuid_end != it_uuid; ++it_uuid)
-	{
-		if (! root_dst.has(it_uuid->first))
+		PerRegionContainer::iterator dst(mRegionStats.find(it->first));
+		if (mRegionStats.end() == dst)
 		{
-			// src[<region>] without matching dst[<region>]
-			root_dst[it_uuid->first] = it_uuid->second;
+			// Destination is missing data, just make a private copy
+			mRegionStats[it->first] = new PerRegionStats(*it->second);
 		}
 		else
 		{
-			// src[<region>] with matching dst[<region>]
-			// We have matching source and destination regions.
-			// Now iterate over each asset bin in the region status.  Could iterate over
-			// an explicit list but this will do as well.
-			LLSD & reg_dst(root_dst[it_uuid->first]);
-			const LLSD & reg_src(root_src[it_uuid->first]);
-
-			const LLSD::map_const_iterator it_sets_end(reg_src.endMap());
-			for (LLSD::map_const_iterator it_sets(reg_src.beginMap()); it_sets_end != it_sets; ++it_sets)
-			{
-				static const LLSD::String no_touch_1("duration");
-
-				if (no_touch_1 == it_sets->first)
-				{
-					continue;
-				}
-				else if (! reg_dst.has(it_sets->first))
-				{
-					// src[<region>][<asset>] without matching dst[<region>][<asset>]
-					reg_dst[it_sets->first] = it_sets->second;
-				}
-				else
-				{
-					// src[<region>][<asset>] with matching dst[<region>][<asset>]
-					// Matching stats bin in both source and destination regions.
-					// Iterate over those bin keys we know how to merge, leave the remainder untouched.
-					LLSD & bin_dst(reg_dst[it_sets->first]);
-					const LLSD & bin_src(reg_src[it_sets->first]);
-
-					// The "resp_count" value is needed repeatedly in operations.
-					const LLSD::Integer bin_src_count(bin_src[resp_count_key].asInteger());
-					const LLSD::Integer bin_dst_count(bin_dst[resp_count_key].asInteger());
-			
-					for (int key_index(0); key_index < LL_ARRAY_SIZE(key_list); ++key_index)
-					{
-						const LLSD::String & key_name(key_list[key_index].mName);
-						
-						if (! bin_src.has(key_name))
-						{
-							// Missing src[<region>][<asset>][<field>]
-							continue;
-						}
-
-						const LLSD & src_value(bin_src[key_name]);
-				
-						if (! bin_dst.has(key_name))
-						{
-							// src[<region>][<asset>][<field>] without matching dst[<region>][<asset>][<field>]
-							bin_dst[key_name] = src_value;
-						}
-						else
-						{
-							// src[<region>][<asset>][<field>] with matching dst[<region>][<asset>][<field>]
-							LLSD & dst_value(bin_dst[key_name]);
-					
-							switch (key_list[key_index].mMergeOp)
-							{
-							case MOP_ADD_INT:
-								// Simple counts, just add
-								dst_value = dst_value.asInteger() + src_value.asInteger();
-								break;
-						
-							case MOP_MIN_REAL:
-								// Minimum
-								if (bin_src_count)
-								{
-									// If src has non-zero count, it's min is meaningful
-									if (bin_dst_count)
-									{
-										dst_value = llmin(dst_value.asReal(), src_value.asReal());
-									}
-									else
-									{
-										dst_value = src_value;
-									}
-								}
-								break;
-
-							case MOP_MAX_REAL:
-								// Maximum
-								if (bin_src_count)
-								{
-									// If src has non-zero count, it's max is meaningful
-									if (bin_dst_count)
-									{
-										dst_value = llmax(dst_value.asReal(), src_value.asReal());
-									}
-									else
-									{
-										dst_value = src_value;
-									}
-								}
-								break;
-
-							case MOP_MEAN_REAL:
-							    {
-									// Mean
-									F64 src_weight(bin_src_count);
-									F64 dst_weight(bin_dst_count);
-									F64 tot_weight(src_weight + dst_weight);
-									if (tot_weight >= F64(0.5))
-									{
-										dst_value = (((dst_value.asReal() * dst_weight)
-													  + (src_value.asReal() * src_weight))
-													 / tot_weight);
-									}
-								}
-								break;
-						
-							default:
-								break;
-							}
-						}
-					}
-				}
-			}
+			dst->second->merge(*it->second);
 		}
 	}
 }
@@ -526,6 +426,15 @@ record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 	gViewerAssetStatsMain->recordGetServiced(at, with_http, is_temp, duration);
 }
 
+void
+record_fps_main(F32 fps)
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	gViewerAssetStatsMain->recordFPS(fps);
+}
+
 
 // 'thread1' - should be for TextureFetch thread
 
@@ -589,41 +498,6 @@ cleanup()
 	gViewerAssetStatsThread1 = 0;
 }
 
-
-void
-merge_stats(const LLSD & src, LLSD & dst)
-{
-	static const LLSD::String regions_key("regions");
-
-	// Trivial cases first
-	if (! src.isMap())
-	{
-		return;
-	}
-
-	if (! dst.isMap())
-	{
-		dst = src;
-		return;
-	}
-	
-	// Okay, both src and dst are maps at this point.
-	// Collector class know how to merge the regions part.
-	LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-
-	// Now merge non-regions bits manually.
-	const LLSD::map_const_iterator it_end(src.endMap());
-	for (LLSD::map_const_iterator it(src.beginMap()); it_end != it; ++it)
-	{
-		if (regions_key == it->first)
-			continue;
-
-		if (dst.has(it->first))
-			continue;
-
-		dst[it->first] = it->second;
-	}
-}
 
 } // namespace LLViewerAssetStatsFF
 

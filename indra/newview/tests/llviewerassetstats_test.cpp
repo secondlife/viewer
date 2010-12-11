@@ -44,6 +44,7 @@
 static const char * all_keys[] = 
 {
 	"duration",
+	"fps",
 	"get_other",
 	"get_texture_temp_http",
 	"get_texture_temp_udp",
@@ -74,6 +75,19 @@ static const char * sub_keys[] =
 	"resp_max",
 	"resp_min",
 	"resp_mean"
+};
+
+static const char * mmm_resp_keys[] = 
+{
+	"fps"
+};
+
+static const char * mmm_sub_keys[] =
+{
+	"count",
+	"max",
+	"min",
+	"mean"
 };
 
 static const LLUUID region1("4e2d81a3-6263-6ffe-ad5c-8ce04bee07e8");
@@ -170,6 +184,15 @@ namespace tut
 			{
 				std::string line = llformat("Key '%s' has '%s' key", resp_keys[i], sub_keys[j]);
 				ensure(line, sd[resp_keys[i]].has(sub_keys[j]));
+			}
+		}
+
+		for (int i = 0; i < LL_ARRAY_SIZE(mmm_resp_keys); ++i)
+		{
+			for (int j = 0; j < LL_ARRAY_SIZE(mmm_sub_keys); ++j)
+			{
+				std::string line = llformat("Key '%s' has '%s' key", mmm_resp_keys[i], mmm_sub_keys[j]);
+				ensure(line, sd[mmm_resp_keys[i]].has(mmm_sub_keys[j]));
 			}
 		}
 	}
@@ -461,293 +484,395 @@ namespace tut
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 	}
 
-	// Check that the LLSD merger knows what it's doing (basic test)
+
+	// LLViewerAssetStats::merge() basic functions work
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<9>()
 	{
-		LLSD::String reg1_name = region1_handle_str;
-		LLSD::String reg2_name = region2_handle_str;
+		LLViewerAssetStats s1;
+		LLViewerAssetStats s2;
 
-		LLSD reg1_stats = LLSD::emptyMap();
-		LLSD reg2_stats = LLSD::emptyMap();
+		s1.setRegion(region1_handle);
+		s2.setRegion(region1_handle);
 
-		LLSD & tmp_other1 = reg1_stats["get_other"];
-		tmp_other1["enqueued"] = 4;
-		tmp_other1["dequeued"] = 4;
-		tmp_other1["resp_count"] = 8;
-		tmp_other1["resp_max"] = F64(23.2892);
-		tmp_other1["resp_min"] = F64(0.2829);
-		tmp_other1["resp_mean"] = F64(2.298928);
-
-		LLSD & tmp_other2 = reg2_stats["get_other"];
-		tmp_other2["enqueued"] = 8;
-		tmp_other2["dequeued"] = 7;
-		tmp_other2["resp_count"] = 3;
-		tmp_other2["resp_max"] = F64(6.5);
-		tmp_other2["resp_min"] = F64(0.01);
-		tmp_other2["resp_mean"] = F64(4.1);
+		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 5000000);
+		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 6000000);
+		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 8000000);
+		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 7000000);
+		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 9000000);
 		
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
+		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 2000000);
+		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 3000000);
+		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 4000000);
 
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg2_name] = reg2_stats;
-			dst["duration"] = 36;
+		s2.merge(s1);
 
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		LLSD s2_llsd = s2.asLLSD();
 		
-			ensure("region 1 in merged stats", llsd_equals(reg1_stats, dst["regions"][reg1_name]));
-			ensure("region 2 still in merged stats", llsd_equals(reg2_stats, dst["regions"][reg2_name]));
-		}
+		ensure_equals("count after merge", 8, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_count"].asInteger());
+		ensure_approximately_equals("min after merge", 2.0, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_min"].asReal(), 22);
+		ensure_approximately_equals("max after merge", 9.0, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_max"].asReal(), 22);
+		ensure_approximately_equals("max after merge", 5.5, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_mean"].asReal(), 22);
 
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg2_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-
-			ensure("src not ruined", llsd_equals(reg1_stats, src["regions"][reg1_name]));
-			ensure_equals("added enqueued counts", dst["regions"][reg1_name]["get_other"]["enqueued"].asInteger(), 12);
-			ensure_equals("added dequeued counts", dst["regions"][reg1_name]["get_other"]["dequeued"].asInteger(), 11);
-			ensure_equals("added response counts", dst["regions"][reg1_name]["get_other"]["resp_count"].asInteger(), 11);
-			ensure_approximately_equals("min'd minimum response times", dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), 0.01, 20);
-			ensure_approximately_equals("max'd maximum response times", dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), 23.2892, 20);
-			ensure_approximately_equals("weighted mean of means", dst["regions"][reg1_name]["get_other"]["resp_mean"].asReal(), 2.7901295, 20);
-		}
 	}
 
-	// Maximum merges are interesting when one side contributes nothing
+	// LLViewerAssetStats::merge() basic functions work without corrupting source data
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<10>()
 	{
-		LLSD::String reg1_name = region1_handle_str;
-		LLSD::String reg2_name = region2_handle_str;
+		LLViewerAssetStats s1;
+		LLViewerAssetStats s2;
 
-		LLSD reg1_stats = LLSD::emptyMap();
-		LLSD reg2_stats = LLSD::emptyMap();
+		s1.setRegion(region1_handle);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD & tmp_other1 = reg1_stats["get_other"];
-		tmp_other1["enqueued"] = 4;
-		tmp_other1["dequeued"] = 4;
-		tmp_other1["resp_count"] = 7;
-		tmp_other1["resp_max"] = F64(-23.2892);
-		tmp_other1["resp_min"] = F64(-123.2892);
-		tmp_other1["resp_mean"] = F64(-58.28298);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD & tmp_other2 = reg2_stats["get_other"];
-		tmp_other2["enqueued"] = 8;
-		tmp_other2["dequeued"] = 7;
-		tmp_other2["resp_count"] = 0;
-		tmp_other2["resp_max"] = F64(0);
-		tmp_other2["resp_min"] = F64(0);
-		tmp_other2["resp_mean"] = F64(0);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 23289200);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 282900);
+
 		
+		s2.setRegion(region2_handle);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 6500000);
+		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 10000);
+
 		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
+			s2.merge(s1);
+			
+			LLSD src = s1.asLLSD();
+			LLSD dst = s2.asLLSD();
 
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg2_stats;
-			dst["duration"] = 36;
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
+			dst["regions"][region2_handle_str].erase("duration");
 
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum",
-										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+			ensure_equals("merge src has single region", 1, src["regions"].size());
+			ensure_equals("merge dst has dual regions", 2, dst["regions"].size());
+			ensure("result from src is in dst", llsd_equals(src["regions"][region1_handle_str],
+															dst["regions"][region1_handle_str]));
 		}
 
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg2_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg1_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
+		s1.setRegion(region1_handle);
+		s2.setRegion(region1_handle);
+		s1.reset();
+		s2.reset();
 		
-			ensure_approximately_equals("src maximum with count 0 does not contribute to merged maximum",
-										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 23289200);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 282900);
+
+		
+		s2.setRegion(region1_handle);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 6500000);
+		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 10000);
+
+		{
+			s2.merge(s1);
+			
+			LLSD src = s1.asLLSD();
+			LLSD dst = s2.asLLSD();
+
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
+
+			ensure_equals("src counts okay (enq)", 4, src["regions"][region1_handle_str]["get_other"]["enqueued"].asInteger());
+			ensure_equals("src counts okay (deq)", 4, src["regions"][region1_handle_str]["get_other"]["dequeued"].asInteger());
+			ensure_equals("src resp counts okay", 2, src["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			ensure_approximately_equals("src respmin okay", 0.2829, src["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), 20);
+			ensure_approximately_equals("src respmax okay", 23.2892, src["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), 20);
+			
+			ensure_equals("dst counts okay (enq)", 12, dst["regions"][region1_handle_str]["get_other"]["enqueued"].asInteger());
+			ensure_equals("src counts okay (deq)", 11, dst["regions"][region1_handle_str]["get_other"]["dequeued"].asInteger());
+			ensure_equals("dst resp counts okay", 4, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			ensure_approximately_equals("dst respmin okay", 0.010, dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), 20);
+			ensure_approximately_equals("dst respmax okay", 23.2892, dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), 20);
+		}
+	}
+
+
+    // Maximum merges are interesting when one side contributes nothing
+	template<> template<>
+	void tst_viewerassetstats_index_object_t::test<11>()
+	{
+		LLViewerAssetStats s1;
+		LLViewerAssetStats s2;
+
+		s1.setRegion(region1_handle);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		// Want to test negative numbers here but have to work in U64
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+
+		s2.setRegion(region1_handle);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		{
+			s2.merge(s1);
+			
+			LLSD src = s1.asLLSD();
+			LLSD dst = s2.asLLSD();
+
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
+
+			ensure_equals("dst counts come from src only", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+
+			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum",
+										dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), F64(0.0), 20);
+		}
+
+		// Other way around
+		s1.setRegion(region1_handle);
+		s2.setRegion(region1_handle);
+		s1.reset();
+		s2.reset();
+
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		// Want to test negative numbers here but have to work in U64
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
+
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		{
+			s1.merge(s2);
+			
+			LLSD src = s2.asLLSD();
+			LLSD dst = s1.asLLSD();
+
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
+
+			ensure_equals("dst counts come from src only (flipped)", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+
+			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum (flipped)",
+										dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), F64(0.0), 20);
 		}
 	}
 
     // Minimum merges are interesting when one side contributes nothing
 	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<11>()
-	{
-		LLSD::String reg1_name = region1_handle_str;
-		LLSD::String reg2_name = region2_handle_str;
-
-		LLSD reg1_stats = LLSD::emptyMap();
-		LLSD reg2_stats = LLSD::emptyMap();
-
-		LLSD & tmp_other1 = reg1_stats["get_other"];
-		tmp_other1["enqueued"] = 4;
-		tmp_other1["dequeued"] = 4;
-		tmp_other1["resp_count"] = 7;
-		tmp_other1["resp_max"] = F64(123.2892);
-		tmp_other1["resp_min"] = F64(23.2892);
-		tmp_other1["resp_mean"] = F64(58.28298);
-
-		LLSD & tmp_other2 = reg2_stats["get_other"];
-		tmp_other2["enqueued"] = 8;
-		tmp_other2["dequeued"] = 7;
-		tmp_other2["resp_count"] = 0;
-		tmp_other2["resp_max"] = F64(0);
-		tmp_other2["resp_min"] = F64(0);
-		tmp_other2["resp_mean"] = F64(0);
-		
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg2_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum",
-										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
-		}
-
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg2_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg1_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("src minimum with count 0 does not contribute to merged minimum",
-										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
-		}
-	}
-
-    // resp_count missing is taken as '0' for maximum calculation
-	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<12>()
 	{
-		LLSD::String reg1_name = region1_handle_str;
-		LLSD::String reg2_name = region2_handle_str;
+		LLViewerAssetStats s1;
+		LLViewerAssetStats s2;
 
-		LLSD reg1_stats = LLSD::emptyMap();
-		LLSD reg2_stats = LLSD::emptyMap();
+		s1.setRegion(region1_handle);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD & tmp_other1 = reg1_stats["get_other"];
-		tmp_other1["enqueued"] = 4;
-		tmp_other1["dequeued"] = 4;
-		tmp_other1["resp_count"] = 7;
-		tmp_other1["resp_max"] = F64(-23.2892);
-		tmp_other1["resp_min"] = F64(-123.2892);
-		tmp_other1["resp_mean"] = F64(-58.28298);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD & tmp_other2 = reg2_stats["get_other"];
-		tmp_other2["enqueued"] = 8;
-		tmp_other2["dequeued"] = 7;
-		// tmp_other2["resp_count"] = 0;
-		tmp_other2["resp_max"] = F64(0);
-		tmp_other2["resp_min"] = F64(0);
-		tmp_other2["resp_mean"] = F64(0);
-		
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 3800000);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2700000);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2900000);
+
+		s2.setRegion(region1_handle);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
 		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
+			s2.merge(s1);
+			
+			LLSD src = s1.asLLSD();
+			LLSD dst = s2.asLLSD();
 
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg2_stats;
-			dst["duration"] = 36;
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
 
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("dst maximum with undefined count does not contribute to merged maximum",
-										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+			ensure_equals("dst counts come from src only", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+
+			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum",
+										dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), F64(2.7), 20);
 		}
 
+		// Other way around
+		s1.setRegion(region1_handle);
+		s2.setRegion(region1_handle);
+		s1.reset();
+		s2.reset();
+
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 3800000);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2700000);
+		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2900000);
+
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+
 		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
+			s1.merge(s2);
+			
+			LLSD src = s2.asLLSD();
+			LLSD dst = s1.asLLSD();
 
-			src["regions"][reg1_name] = reg2_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg1_stats;
-			dst["duration"] = 36;
+			// Remove time stamps, they're a problem
+			src.erase("duration");
+			src["regions"][region1_handle_str].erase("duration");
+			dst.erase("duration");
+			dst["regions"][region1_handle_str].erase("duration");
 
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("src maximum with undefined count does not contribute to merged maximum",
-										dst["regions"][reg1_name]["get_other"]["resp_max"].asReal(), F64(-23.2892), 20);
+			ensure_equals("dst counts come from src only (flipped)", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+
+			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum (flipped)",
+										dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), F64(2.7), 20);
 		}
 	}
 
-    // resp_count unspecified is taken as 0 for minimum merges
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<13>()
-	{
-		LLSD::String reg1_name = region1.asString();
-		LLSD::String reg2_name = region2.asString();
-
-		LLSD reg1_stats = LLSD::emptyMap();
-		LLSD reg2_stats = LLSD::emptyMap();
-
-		LLSD & tmp_other1 = reg1_stats["get_other"];
-		tmp_other1["enqueued"] = 4;
-		tmp_other1["dequeued"] = 4;
-		tmp_other1["resp_count"] = 7;
-		tmp_other1["resp_max"] = F64(123.2892);
-		tmp_other1["resp_min"] = F64(23.2892);
-		tmp_other1["resp_mean"] = F64(58.28298);
-
-		LLSD & tmp_other2 = reg2_stats["get_other"];
-		tmp_other2["enqueued"] = 8;
-		tmp_other2["dequeued"] = 7;
-		// tmp_other2["resp_count"] = 0;
-		tmp_other2["resp_max"] = F64(0);
-		tmp_other2["resp_min"] = F64(0);
-		tmp_other2["resp_mean"] = F64(0);
-		
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg1_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg2_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("dst minimum with undefined count does not contribute to merged minimum",
-										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
-		}
-
-		{
-			LLSD src = LLSD::emptyMap();
-			LLSD dst = LLSD::emptyMap();
-
-			src["regions"][reg1_name] = reg2_stats;
-			src["duration"] = 24;
-			dst["regions"][reg1_name] = reg1_stats;
-			dst["duration"] = 36;
-
-			LLViewerAssetStats::mergeRegionsLLSD(src, dst);
-		
-			ensure_approximately_equals("src minimum with undefined count does not contribute to merged minimum",
-										dst["regions"][reg1_name]["get_other"]["resp_min"].asReal(), F64(23.2892), 20);
-		}
-	}
 }

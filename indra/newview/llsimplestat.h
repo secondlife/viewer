@@ -62,6 +62,9 @@ public:
 
 	inline void reset()					{ mCount = 0; }
 
+	inline void merge(const LLSimpleStatCounter & src)
+										{ mCount += src.mCount; }
+	
 	inline U32 operator++()				{ return ++mCount; }
 
 	inline U32 getCount() const			{ return mCount; }
@@ -125,6 +128,21 @@ public:
 			++mCount;
 		}
 
+	void merge(const LLSimpleStatMMM<VALUE_T> & src)
+		{
+			if (! mCount)
+			{
+				*this = src;
+			}
+			else if (src.mCount)
+			{
+				mMin = llmin(mMin, src.mMin);
+				mMax = llmax(mMax, src.mMax);
+				mCount += src.mCount;
+				mTotal += src.mTotal;
+			}
+		}
+	
 	inline U32 getCount() const		{ return mCount; }
 	inline Value getMin() const		{ return mMin; }
 	inline Value getMax() const		{ return mMax; }

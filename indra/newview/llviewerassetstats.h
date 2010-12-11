@@ -125,29 +125,48 @@ public:
 			{
 				reset();
 			}
+
+		PerRegionStats(const PerRegionStats & src)
+			: LLRefCount(),
+			  mRegionHandle(src.mRegionHandle),
+			  mTotalTime(src.mTotalTime),
+			  mStartTimestamp(src.mStartTimestamp),
+			  mFPS(src.mFPS)
+			{
+				for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
+				{
+					mRequests[i] = src.mRequests[i];
+				}
+			}
+
 		// Default assignment and destructor are correct.
 		
 		void reset();
 
+		void merge(const PerRegionStats & src);
+		
 		// Apply current running time to total and reset start point.
 		// Return current timestamp as a convenience.
 		void accumulateTime(duration_t now);
 		
 	public:
-		region_handle_t mRegionHandle;
-		duration_t mTotalTime;
-		duration_t mStartTimestamp;
+		region_handle_t		mRegionHandle;
+		duration_t			mTotalTime;
+		duration_t			mStartTimestamp;
+		LLSimpleStatMMM<>	mFPS;
 		
 		struct
 		{
 			LLSimpleStatCounter			mEnqueued;
 			LLSimpleStatCounter			mDequeued;
 			LLSimpleStatMMM<duration_t>	mResponse;
-		} mRequests [EVACCount];
+		}
+		mRequests [EVACCount];
 	};
 
 public:
 	LLViewerAssetStats();
+	LLViewerAssetStats(const LLViewerAssetStats &);
 	// Default destructor is correct.
 	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
 
@@ -165,6 +184,18 @@ public:
 	void recordGetDequeued(LLViewerAssetType::EType at, bool with_http, bool is_temp);
 	void recordGetServiced(LLViewerAssetType::EType at, bool with_http, bool is_temp, duration_t duration);
 
+	// Frames-Per-Second Samples
+	void recordFPS(F32 fps);
+
+	// Merge a source instance into a destination instance.  This is
+	// conceptually an 'operator+=()' method:
+	// - counts are added
+	// - minimums are min'd
+	// - maximums are max'd
+	// - other scalars are ignored ('this' wins)
+	//
+	void merge(const LLViewerAssetStats & src);
+	
 	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Returned LLSD is structured as follows:
 	//
@@ -177,11 +208,19 @@ public:
 	//   resp_mean  : float
 	// }
 	//
+	// &mmm_group = {
+	//   count : int,
+	//   min   : float,
+	//   max   : float,
+	//   mean  : float
+	// }
+	//
 	// {
 	//   duration: int
 	//   regions: {
 	//     $: {			// Keys are strings of the region's handle in hex
 	//       duration:                 : int,
+	//		 fps:					   : &mmm_group,
 	//       get_texture_temp_http     : &stats_group,
 	//       get_texture_temp_udp      : &stats_group,
 	//       get_texture_non_temp_http : &stats_group,
@@ -194,15 +233,6 @@ public:
 	//   }
 	// }
 	LLSD asLLSD();
-
-	// Merges the "regions" maps in two LLSDs structured as per asLLSD().
-	// This takes two LLSDs as returned by asLLSD() and intelligently
-	// merges the metrics contained in the maps indexed by "regions".
-	// The remainder of the top-level map of the LLSDs is left unchanged
-	// in expectation that callers will add other information at this
-	// level.  The "regions" information must be correctly formed or the
-	// final result is undefined (little defensive action).
-	static void mergeRegionsLLSD(const LLSD & src, LLSD & dst);
 
 protected:
 	typedef std::map<region_handle_t, LLPointer<PerRegionStats> > PerRegionContainer;
@@ -278,6 +308,8 @@ void record_dequeue_main(LLViewerAssetType::EType at, bool with_http, bool is_te
 void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_temp,
 						  LLViewerAssetStats::duration_t duration);
 
+void record_fps_main(F32 fps);
+
 
 /**
  * Region context, event and duration loggers for Thread 1.
@@ -290,18 +322,6 @@ void record_dequeue_thread1(LLViewerAssetType::EType at, bool with_http, bool is
 
 void record_response_thread1(LLViewerAssetType::EType at, bool with_http, bool is_temp,
 						  LLViewerAssetStats::duration_t duration);
-
-/**
- * @brief Merge two LLSD reports from different collector instances
- *
- * Use this to merge the LLSD's from two threads.  For top-level,
- * non-region data the destination (dst) is considered authoritative
- * if the key is present in both source and destination.  For
- * regions, a numerical merge is performed when data are present in
- * both source and destination and the 'right thing' is done for
- * counts, minimums, maximums and averages.
- */
-void merge_stats(const LLSD & src, LLSD & dst);
 
 } // namespace LLViewerAssetStatsFF
 

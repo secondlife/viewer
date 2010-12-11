@@ -3804,6 +3804,11 @@ void LLAppViewer::idle()
 				llinfos << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << llendl;
 				gObjectList.mNumUnknownUpdates = 0;
 			}
+
+			// ViewerMetrics FPS piggy-backing on the debug timer.
+			// The 5-second interval is nice for this purpose.  If the object debug
+			// bit moves or is disabled, please give this a suitable home.
+			LLViewerAssetStatsFF::record_fps_main(frame_rate_clamped);
 		}
 	}
 
@@ -4805,23 +4810,17 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 		{
 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
 
-			// *NOTE:  Pay attention here.  LLSD's are not safe for thread sharing
-			// and their ownership is difficult to transfer across threads.  We do
-			// it here by having only one reference (the new'd pointer) to the LLSD
-			// or any subtree of it.  This pointer is then transfered to the other
-			// thread using correct thread logic to do all data ordering.
-			LLSD * envelope = new LLSD(LLSD::emptyMap());
-			{
-				(*envelope) = gViewerAssetStatsMain->asLLSD();
-				(*envelope)["session_id"] = gAgentSessionID;
-				(*envelope)["agent_id"] = gAgentID;
-			}
-		
+			// Make a copy of the main stats to send into another thread.
+			// Receiving thread takes ownership.
+			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
+			
 			// Send a report request into 'thread1' to get the rest of the data
-			// and have it sent to the stats collector.  LLSD ownership transfers
-			// with this call.
-			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url, envelope);
-			envelope = 0;			// transfer noted
+			// and provide some additional parameters while here.
+			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
+														   gAgentSessionID,
+														   gAgentID,
+														   main_stats);
+			main_stats = 0;		// Ownership transferred
 		}
 		else
 		{

@@ -442,18 +442,18 @@ namespace
  *         |           | TE  |                   .        +-------+
  *         |           +--+--+                   .        | Thd1  |
  *         |              |                      .        |       |
- *         |  (llsd)   +-----+                   .        | Stats |
+ *         |           +-----+                   .        | Stats |
  *          `--------->| RSC |                   .        |       |
  *                     +--+--+                   .        | Coll. |
  *                        |                      .        +-------+
  *                     +--+--+                   .            |
  *                     | SME |---.               .            |
  *                     +-----+    \              .            |
- *                        .        \ (llsd)   +-----+         |
+ *                        .        \ (clone)  +-----+         |
  *                        .         `-------->| SM  |         |
  *                        .                   +--+--+         |
  *                        .                      |            |
- *                        .                   +-----+  (llsd) |
+ *                        .                   +-----+         |
  *                        .                   | RSC |<--------'
  *                        .                   +-----+
  *                        .                      |
@@ -472,11 +472,12 @@ namespace
  * SR  - Set Region.  New region UUID is sent to the thread-local
  *       collector.
  * SME - Send Metrics Enqueued.  Enqueue a 'Send Metrics' command
- *       including an ownership transfer of an LLSD.
+ *       including an ownership transfer of a cloned LLViewerAssetStats.
  *       TFReqSendMetrics carries the data.
  * SM  - Send Metrics.  Global metrics reporting operation.  Takes
- *       the remote LLSD from the command, merges it with and LLSD
- *       from the local collector and sends it to the grid.
+ *       the cloned stats from the command, merges it with the
+ *       thread's local stats, converts to LLSD and sends it on
+ *       to the grid.
  * AM  - Agent Moved.  Agent has completed some sort of move to a
  *       new region.
  * TE  - Timer Expired.  Metrics timer has expired (on the order
@@ -485,7 +486,8 @@ namespace
  * MSC - Modify Stats Collector.  State change in the thread-local
  *       collector.  Typically a region change which affects the
  *       global pointers used to find the 'current stats'.
- * RSC - Read Stats Collector.  Extract collector data in LLSD form.
+ * RSC - Read Stats Collector.  Extract collector data cloning it
+ *       (i.e. deep copy) when necessary.
  *
  */
 class TFRequest // : public LLQueuedThread::QueuedRequest
@@ -539,11 +541,12 @@ public:
  *
  * This is the big operation.  The main thread gathers metrics
  * for a period of minutes into LLViewerAssetStats and other
- * objects then builds an LLSD to represent the data.  It uses
- * this command to transfer the LLSD, content *and* ownership,
- * to the TextureFetch thread which adds its own metrics and
- * kicks of an HTTP POST of the resulting data to the currently
- * active metrics collector.
+ * objects then makes a snapshot of the data by cloning the
+ * collector.  This command transfers the clone, along with a few
+ * additional arguments (UUIDs), handing ownership to the
+ * TextureFetch thread.  It then merges its own data into the
+ * cloned copy, converts to LLSD and kicks off an HTTP POST of
+ * the resulting data to the currently active metrics collector.
  *
  * Corresponds to LLTextureFetch::commandSendMetrics()
  */
@@ -558,16 +561,24 @@ public:
 	 *							to receive the data.  Does not have to
 	 *							be associated with a particular region.
 	 *
-	 * @param	report_main		Pointer to LLSD containing main
-	 *							thread metrics.  Ownership transfers
-	 *							to the new thread using very carefully
-	 *							constructed code.
+	 * @param	session_id		UUID of the agent's session.
+	 *
+	 * @param	agent_id		UUID of the agent.  (Being pure here...)
+	 *
+	 * @param	main_stats		Pointer to a clone of the main thread's
+	 *							LLViewerAssetStats data.  Thread1 takes
+	 *							ownership of the copy and disposes of it
+	 *							when done.
 	 */
 	TFReqSendMetrics(const std::string & caps_url,
-					 LLSD * report_main)
+					 const LLUUID & session_id,
+					 const LLUUID & agent_id,
+					 LLViewerAssetStats * main_stats)
 		: TFRequest(),
 		  mCapsURL(caps_url),
-		  mReportMain(report_main)
+		  mSessionID(session_id),
+		  mAgentID(agent_id),
+		  mMainStats(main_stats)
 		{}
 	TFReqSendMetrics & operator=(const TFReqSendMetrics &);	// Not defined
 
@@ -577,7 +588,9 @@ public:
 		
 public:
 	const std::string mCapsURL;
-	LLSD * mReportMain;
+	const LLUUID mSessionID;
+	const LLUUID mAgentID;
+	LLViewerAssetStats * mMainStats;
 };
 
 /*
@@ -2727,9 +2740,11 @@ void LLTextureFetch::commandSetRegion(U64 region_handle)
 }
 
 void LLTextureFetch::commandSendMetrics(const std::string & caps_url,
-										LLSD * report_main)
+										const LLUUID & session_id,
+										const LLUUID & agent_id,
+										LLViewerAssetStats * main_stats)
 {
-	TFReqSendMetrics * req = new TFReqSendMetrics(caps_url, report_main);
+	TFReqSendMetrics * req = new TFReqSendMetrics(caps_url, session_id, agent_id, main_stats);
 
 	cmdEnqueue(req);
 }
@@ -2808,14 +2823,14 @@ TFReqSetRegion::doWork(LLTextureFetch *)
 
 TFReqSendMetrics::~TFReqSendMetrics()
 {
-	delete mReportMain;
-	mReportMain = 0;
+	delete mMainStats;
+	mMainStats = 0;
 }
 
 
 /**
  * Implements the 'Send Metrics' command.  Takes over
- * ownership of the passed LLSD pointer.
+ * ownership of the passed LLViewerAssetStats pointer.
  *
  * Thread:  Thread1 (TextureFetch)
  */
@@ -2893,33 +2908,36 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
     
-	// We've already taken over ownership of the LLSD at this point
-	// and can do normal LLSD sharing operations at this point.  But
-	// still being careful, regardless.
-	LLSD & main_stats = *mReportMain;
+	// We've taken over ownership of the stats copy at this
+	// point.  Get a working reference to it for merging here
+	// but leave it in 'this'.  Destructor will rid us of it.
+	LLViewerAssetStats & main_stats = *mMainStats;
 
-	LLSD thread1_stats = gViewerAssetStatsThread1->asLLSD();			// 'duration' & 'regions' from this LLSD
-	thread1_stats["message"] = "ViewerAssetMetrics";					// Identifies the type of metrics
-	thread1_stats["sequence"] = report_sequence;						// Sequence number
-	thread1_stats["initial"] = ! reporting_started;						// Initial data from viewer
-	thread1_stats["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
+	// Merge existing stats into those from main, convert to LLSD
+	main_stats.merge(*gViewerAssetStatsThread1);
+	LLSD merged_llsd = main_stats.asLLSD();
+
+	// Add some additional meta fields to the content
+	merged_llsd["session_id"] = mSessionID;
+	merged_llsd["agent_id"] = mAgentID;
+	merged_llsd["message"] = "ViewerAssetMetrics";					// Identifies the type of metrics
+	merged_llsd["sequence"] = report_sequence;						// Sequence number
+	merged_llsd["initial"] = ! reporting_started;					// Initial data from viewer
+	merged_llsd["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
 		
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
 
-	// Merge the two LLSDs into a single report
-	LLViewerAssetStatsFF::merge_stats(main_stats, thread1_stats);
-
 	// Limit the size of the stats report if necessary.
-	thread1_stats["truncated"] = truncate_viewer_metrics(10, thread1_stats);
+	merged_llsd["truncated"] = truncate_viewer_metrics(10, merged_llsd);
 
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;
 		fetcher->getCurlRequest().post(mCapsURL,
 									   headers,
-									   thread1_stats,
+									   merged_llsd,
 									   new lcl_responder(report_sequence,
                                                          report_sequence,
                                                          LLTextureFetch::svMetricsDataBreak,
@@ -2933,7 +2951,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("Textures") << thread1_stats << LL_ENDL;
+		LL_INFOS("Textures") << merged_llsd << LL_ENDL;
 	}
 
 	gViewerAssetStatsThread1->reset();

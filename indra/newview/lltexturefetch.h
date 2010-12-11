@@ -40,6 +40,8 @@ class HTTPGetResponder;
 class LLTextureCache;
 class LLImageDecodeThread;
 class LLHost;
+class LLViewerAssetStats;
+
 namespace { class TFRequest; }
 
 // Interface class
@@ -88,7 +90,10 @@ public:
 
 	// Commands available to other threads to control metrics gathering operations.
 	void commandSetRegion(U64 region_handle);
-	void commandSendMetrics(const std::string & caps_url, LLSD * report_main);
+	void commandSendMetrics(const std::string & caps_url,
+							const LLUUID & session_id,
+							const LLUUID & agent_id,
+							LLViewerAssetStats * main_stats);
 	void commandDataBreak();
 
 	LLCurlRequest & getCurlRequest()	{ return *mCurlGetRequest; }

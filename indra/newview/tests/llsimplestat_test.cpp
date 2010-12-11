@@ -425,4 +425,162 @@ namespace tut
 		ensure("Overflowed MMM<U64> has huge max", (bignum == m1.getMax()));
 		ensure("Overflowed MMM<U64> has fetchable mean", (zero == m1.getMean() || true));
 	}
+
+    // Testing LLSimpleStatCounter's merge() method
+	template<> template<>
+	void stat_counter_index_object_t::test<12>()
+	{
+		LLSimpleStatCounter c1;
+		LLSimpleStatCounter c2;
+
+		++c1;
+		++c1;
+		++c1;
+		++c1;
+
+		++c2;
+		++c2;
+		c2.merge(c1);
+		
+		ensure_equals("4 merged into 2 results in 6", 6, c2.getCount());
+
+		ensure_equals("Source of merge is undamaged", 4, c1.getCount());
+	}
+
+    // Testing LLSimpleStatMMM's merge() method
+	template<> template<>
+	void stat_counter_index_object_t::test<13>()
+	{
+		LLSimpleStatMMM<> m1;
+		LLSimpleStatMMM<> m2;
+
+		m1.record(3.5);
+		m1.record(4.5);
+		m1.record(5.5);
+		m1.record(6.5);
+
+		m2.record(5.0);
+		m2.record(7.0);
+		m2.record(9.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p1)", 7, m2.getCount());
+		ensure_approximately_equals("Min after merge (p1)", F32(3.5), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p1)", F32(9.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p1)", F32(41.000/7.000), m2.getMean(), 22);
+		
+
+		ensure_equals("Source count of merge is undamaged (p1)", 4, m1.getCount());
+		ensure_approximately_equals("Source min of merge is undamaged (p1)", F32(3.5), m1.getMin(), 22);
+		ensure_approximately_equals("Source max of merge is undamaged (p1)", F32(6.5), m1.getMax(), 22);
+		ensure_approximately_equals("Source mean of merge is undamaged (p1)", F32(5.0), m1.getMean(), 22);
+
+		m2.reset();
+
+		m2.record(-22.0);
+		m2.record(-1.0);
+		m2.record(30.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p2)", 7, m2.getCount());
+		ensure_approximately_equals("Min after merge (p2)", F32(-22.0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p2)", F32(30.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p2)", F32(27.000/7.000), m2.getMean(), 22);
+
+	}
+
+    // Testing LLSimpleStatMMM's merge() method when src contributes nothing
+	template<> template<>
+	void stat_counter_index_object_t::test<14>()
+	{
+		LLSimpleStatMMM<> m1;
+		LLSimpleStatMMM<> m2;
+
+		m2.record(5.0);
+		m2.record(7.0);
+		m2.record(9.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p1)", 3, m2.getCount());
+		ensure_approximately_equals("Min after merge (p1)", F32(5.0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p1)", F32(9.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p1)", F32(7.000), m2.getMean(), 22);
+
+		ensure_equals("Source count of merge is undamaged (p1)", 0, m1.getCount());
+		ensure_approximately_equals("Source min of merge is undamaged (p1)", F32(0), m1.getMin(), 22);
+		ensure_approximately_equals("Source max of merge is undamaged (p1)", F32(0), m1.getMax(), 22);
+		ensure_approximately_equals("Source mean of merge is undamaged (p1)", F32(0), m1.getMean(), 22);
+
+		m2.reset();
+
+		m2.record(-22.0);
+		m2.record(-1.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p2)", 2, m2.getCount());
+		ensure_approximately_equals("Min after merge (p2)", F32(-22.0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p2)", F32(-1.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p2)", F32(-11.5), m2.getMean(), 22);
+	}
+
+    // Testing LLSimpleStatMMM's merge() method when dst contributes nothing
+	template<> template<>
+	void stat_counter_index_object_t::test<15>()
+	{
+		LLSimpleStatMMM<> m1;
+		LLSimpleStatMMM<> m2;
+
+		m1.record(5.0);
+		m1.record(7.0);
+		m1.record(9.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p1)", 3, m2.getCount());
+		ensure_approximately_equals("Min after merge (p1)", F32(5.0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p1)", F32(9.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p1)", F32(7.000), m2.getMean(), 22);
+
+		ensure_equals("Source count of merge is undamaged (p1)", 3, m1.getCount());
+		ensure_approximately_equals("Source min of merge is undamaged (p1)", F32(5.0), m1.getMin(), 22);
+		ensure_approximately_equals("Source max of merge is undamaged (p1)", F32(9.0), m1.getMax(), 22);
+		ensure_approximately_equals("Source mean of merge is undamaged (p1)", F32(7.0), m1.getMean(), 22);
+
+		m1.reset();
+		m2.reset();
+		
+		m1.record(-22.0);
+		m1.record(-1.0);
+		
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p2)", 2, m2.getCount());
+		ensure_approximately_equals("Min after merge (p2)", F32(-22.0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p2)", F32(-1.0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p2)", F32(-11.5), m2.getMean(), 22);
+	}
+
+    // Testing LLSimpleStatMMM's merge() method when neither dst nor src contributes
+	template<> template<>
+	void stat_counter_index_object_t::test<16>()
+	{
+		LLSimpleStatMMM<> m1;
+		LLSimpleStatMMM<> m2;
+
+		m2.merge(m1);
+
+		ensure_equals("Count after merge (p1)", 0, m2.getCount());
+		ensure_approximately_equals("Min after merge (p1)", F32(0), m2.getMin(), 22);
+		ensure_approximately_equals("Max after merge (p1)", F32(0), m2.getMax(), 22);
+		ensure_approximately_equals("Mean after merge (p1)", F32(0), m2.getMean(), 22);
+
+		ensure_equals("Source count of merge is undamaged (p1)", 0, m1.getCount());
+		ensure_approximately_equals("Source min of merge is undamaged (p1)", F32(0), m1.getMin(), 22);
+		ensure_approximately_equals("Source max of merge is undamaged (p1)", F32(0), m1.getMax(), 22);
+		ensure_approximately_equals("Source mean of merge is undamaged (p1)", F32(0), m1.getMean(), 22);
+	}
 }
