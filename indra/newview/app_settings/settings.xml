@@ -1353,7 +1353,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>11.0</real>
+    <real>9.0</real>
   </map>
 
   <key>CameraFocalLength</key>
@@ -1365,21 +1365,32 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>35</real>
+    <real>50</real>
   </map>
 
-  <key>CameraCoCRatio</key>
+  <key>CameraFieldOfView</key>
   <map>
     <key>Comment</key>
-    <string>Ratio of circle of confusion to vertical resolution for DoF effect.</string>
+    <string>Vertical camera field of view for DoF effect (in degrees)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>54</real>
+    <real>60.0</real>
   </map>
 
+  <key>CameraAspectRatio</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera aspect ratio for DoF effect</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.5</real>
+  </map>
 
   <key>CertStore</key>
     <map>
@@ -6622,9 +6633,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>-0.35</real>
+      <real>-0.75</real>
       <real>1</real>
-      <real>0.7</real>
+      <real>1.0</real>
     </array>
   </map>
 
@@ -6638,9 +6649,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>-1</real>
-      <real>-1</real>
+      <real>0.5</real>
       <real>-0.6</real>
+      <real>0.4</real>
     </array>
   </map>
   
@@ -6654,9 +6665,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>-0.2</real>
+      <real>0.5</real>
       <real>-0.8</real>
-      <real>-0.2</real>
+      <real>0.3</real>
     </array>
   </map>
 
