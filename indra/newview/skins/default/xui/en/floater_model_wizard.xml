@@ -133,7 +133,6 @@
 				Filename:
 			</text>
 			<line_editor
-			 control_name="CacheLocationTopFolder"
 			 border_style="line"
 			 border_thickness="1"
 			 follows="left|top"
@@ -142,7 +141,7 @@
 			 layout="topleft"
 	 left_delta="0"
 			 max_length="4096"
-			 name="cache_location"
+			 name="lod_file"
 			 top_pad="5"
 			 width="220" />
 			<button
@@ -179,7 +178,6 @@
 			  follows="all"
 				   width="150">
 			</panel>
-
 			<text
 			 top_pad="10"
 			 width="130"
@@ -191,28 +189,13 @@
 			</text>
 			<text
 			 top_pad="5"
-			 width="10"
+			 width="150"
 			 height="15"
-			 left_delta="0"
-		 >
-				X:
+			 name="import_dimensions"
+			 left_delta="0">
+				X:  [X] |  Y:  [Y] | Z: [Z]
 			</text>
-			<text
-			 top_delta="0"
-			 width="10"
-			 height="15"
-			 left_pad="25"
-		 >
-				Y:
-			</text>
-			<text
-			 top_delta="0"
-			 width="10"
-			 height="15"
-			 left_pad="25"
-		 >
-				Z:
-			</text>
+			
 			<text
 			 top="100"
 			 width="320"

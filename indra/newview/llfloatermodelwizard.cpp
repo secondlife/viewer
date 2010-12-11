@@ -61,7 +61,6 @@ BOOL LLFloaterModelWizard::postBuild()
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
-	mModelPreview->setAspect((F32) mPreviewRect.getWidth()/mPreviewRect.getHeight());
 
 	center();
 
@@ -75,7 +74,7 @@ void LLFloaterModelWizard::draw()
 	
 	mModelPreview->update();
 
-	if (mModelPreview)
+	if (mModelPreview && mModelPreview->mModelLoader)
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
 		
@@ -97,13 +96,13 @@ void LLFloaterModelWizard::draw()
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mLeft, item_rect.mTop);
+			gGL.vertex2i(item_rect.mLeft, item_rect.mTop);
 			gGL.texCoord2f(0.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mLeft, item_rect.mBottom);
+			gGL.vertex2i(item_rect.mLeft, item_rect.mBottom);
 			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mRight, item_rect.mBottom);
+			gGL.vertex2i(item_rect.mRight, item_rect.mBottom);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mRight, item_rect.mTop);
+			gGL.vertex2i(item_rect.mRight, item_rect.mTop);
 		}
 		gGL.end();
 		

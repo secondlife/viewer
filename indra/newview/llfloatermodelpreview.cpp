@@ -287,7 +287,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
-	mModelPreview->setAspect((F32) mPreviewRect.getWidth()/mPreviewRect.getHeight());
 	
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -3364,7 +3363,11 @@ BOOL LLModelPreview::render()
 	
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
-	LLViewerCamera::getInstance()->setAspect(mAspect);
+	LLRect preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	F32 aspect = (F32) preview_rect.getWidth()/preview_rect.getHeight();
+
+	LLViewerCamera::getInstance()->setAspect(aspect);
+	
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 	
 	LLVector3 offset = mCameraOffset;

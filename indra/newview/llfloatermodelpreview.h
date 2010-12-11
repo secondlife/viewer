@@ -256,8 +256,6 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
-	void setAspect(F32 aspect) { mAspect = aspect; };
-	//void setLoading(bool loading) { mLoading = loading; };
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
@@ -283,7 +281,6 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	U32			mResourceCost;
 	S32			mLimit[LLModel::NUM_LODS];
 	std::string mLODFile[LLModel::NUM_LODS];
-	F32         mAspect;
 	bool		mLoading;
 
 	LLModelLoader* mModelLoader;

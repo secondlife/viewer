@@ -97,7 +97,7 @@
         [X] x [Y] x [Z] m
       </text>
 
-      <text left="10" top_pad="20" follows="top_left" height="15">
+      <text left="10" top_pad="20" follows="top|left" height="15">
         Include:
       </text>
 
