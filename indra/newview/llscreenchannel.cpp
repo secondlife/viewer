@@ -605,10 +605,6 @@ void LLScreenChannel::showToastsBottom()
 			mHiddenToastsNum++;
 		}
 	}
-	else
-	{
-		closeOverflowToastPanel();
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -731,7 +727,6 @@ void LLNotificationsUI::LLScreenChannel::startToastTimer(LLToast* toast)
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
-	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }
