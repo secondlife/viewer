@@ -475,7 +475,7 @@ void LLEventPump::stopListening(const std::string& name)
 *****************************************************************************/
 bool LLEventStream::post(const LLSD& event)
 {
-    if (! mEnabled)
+    if (! mEnabled || !mSignal)
     {
         return false;
     }
@@ -515,6 +515,8 @@ bool LLEventQueue::post(const LLSD& event)
 
 void LLEventQueue::flush()
 {
+	if(!mEnabled || !mSignal) return;
+		
     // Consider the case when a given listener on this LLEventQueue posts yet
     // another event on the same queue. If we loop over mEventQueue directly,
     // we'll end up processing all those events during the same flush() call
