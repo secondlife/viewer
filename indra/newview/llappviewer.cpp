@@ -3808,7 +3808,7 @@ void LLAppViewer::idle()
 			// ViewerMetrics FPS piggy-backing on the debug timer.
 			// The 5-second interval is nice for this purpose.  If the object debug
 			// bit moves or is disabled, please give this a suitable home.
-			LLViewerAssetStatsFF::record_fps_main(frame_rate_clamped);
+			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
 		}
 	}
 

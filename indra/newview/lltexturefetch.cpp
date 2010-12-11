@@ -2915,7 +2915,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 
 	// Merge existing stats into those from main, convert to LLSD
 	main_stats.merge(*gViewerAssetStatsThread1);
-	LLSD merged_llsd = main_stats.asLLSD();
+	LLSD merged_llsd = main_stats.asLLSD(true);
 
 	// Add some additional meta fields to the content
 	merged_llsd["session_id"] = mSessionID;

@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerassetstats.h"
+#include "llregionhandle.h"
 
 #include "stdtypes.h"
 
@@ -258,7 +259,7 @@ LLViewerAssetStats::recordFPS(F32 fps)
 }
 
 LLSD
-LLViewerAssetStats::asLLSD()
+LLViewerAssetStats::asLLSD(bool compact_output)
 {
 	// Top-level tags
 	static const LLSD::String tags[EVACCount] = 
@@ -290,7 +291,7 @@ LLViewerAssetStats::asLLSD()
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
 	mCurRegionStats->accumulateTime(now);
 
-	LLSD regions = LLSD::emptyMap();
+	LLSD regions = LLSD::emptyArray();
 	for (PerRegionContainer::iterator it = mRegionStats.begin();
 		 mRegionStats.end() != it;
 		 ++it)
@@ -307,16 +308,25 @@ LLViewerAssetStats::asLLSD()
 		
 		for (int i = 0; i < LL_ARRAY_SIZE(tags); ++i)
 		{
-			LLSD & slot = reg_stat[tags[i]];
-			slot = LLSD::emptyMap();
-			slot[enq_tag] = LLSD(S32(stats.mRequests[i].mEnqueued.getCount()));
-			slot[deq_tag] = LLSD(S32(stats.mRequests[i].mDequeued.getCount()));
-			slot[rcnt_tag] = LLSD(S32(stats.mRequests[i].mResponse.getCount()));
-			slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin() * 1.0e-6));
-			slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax() * 1.0e-6));
-			slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean() * 1.0e-6));
+			PerRegionStats::prs_group & group(stats.mRequests[i]);
+			
+			if ((! compact_output) ||
+				group.mEnqueued.getCount() ||
+				group.mDequeued.getCount() ||
+				group.mResponse.getCount())
+			{
+				LLSD & slot = reg_stat[tags[i]];
+				slot = LLSD::emptyMap();
+				slot[enq_tag] = LLSD(S32(stats.mRequests[i].mEnqueued.getCount()));
+				slot[deq_tag] = LLSD(S32(stats.mRequests[i].mDequeued.getCount()));
+				slot[rcnt_tag] = LLSD(S32(stats.mRequests[i].mResponse.getCount()));
+				slot[rmin_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMin() * 1.0e-6));
+				slot[rmax_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMax() * 1.0e-6));
+				slot[rmean_tag] = LLSD(F64(stats.mRequests[i].mResponse.getMean() * 1.0e-6));
+			}
 		}
 
+		if ((! compact_output) || stats.mFPS.getCount())
 		{
 			LLSD & slot = reg_stat["fps"];
 			slot = LLSD::emptyMap();
@@ -326,12 +336,12 @@ LLViewerAssetStats::asLLSD()
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
 
-		reg_stat["duration"] = LLSD::Real(stats.mTotalTime * 1.0e-6);
-		std::stringstream reg_handle;
-		reg_handle.width(16);
-		reg_handle.fill('0');
-		reg_handle << std::hex << it->first;
-		regions[reg_handle.str()] = reg_stat;
+		U32 grid_x(0), grid_y(0);
+		grid_from_region_handle(it->first, &grid_x, &grid_y);
+		reg_stat["grid_x"] = LLSD::Integer(grid_x);
+		reg_stat["grid_y"] = LLSD::Integer(grid_y);
+		reg_stat["duration"] = LLSD::Real(stats.mTotalTime * 1.0e-6);		
+		regions.append(reg_stat);
 	}
 
 	LLSD ret = LLSD::emptyMap();

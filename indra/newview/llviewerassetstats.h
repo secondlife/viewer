@@ -155,7 +155,7 @@ public:
 		duration_t			mStartTimestamp;
 		LLSimpleStatMMM<>	mFPS;
 		
-		struct
+		struct prs_group
 		{
 			LLSimpleStatCounter			mEnqueued;
 			LLSimpleStatCounter			mDequeued;
@@ -232,7 +232,13 @@ public:
 	//     }
 	//   }
 	// }
-	LLSD asLLSD();
+	//
+	// @param	compact_output		If true, omits from conversion any mmm_block
+	//								or stats_block that would contain all zero data.
+	//								Useful for transmission when the receiver knows
+	//								what is expected and will assume zero for missing
+	//								blocks.
+	LLSD asLLSD(bool compact_output);
 
 protected:
 	typedef std::map<region_handle_t, LLPointer<PerRegionStats> > PerRegionContainer;

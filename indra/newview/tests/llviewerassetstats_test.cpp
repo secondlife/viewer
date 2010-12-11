@@ -155,7 +155,7 @@ namespace tut
 
 		ensure("Global gViewerAssetStatsMain should still be NULL", (NULL == gViewerAssetStatsMain));
 
-		LLSD sd_full = it->asLLSD();
+		LLSD sd_full = it->asLLSD(false);
 
 		// Default (NULL) region ID doesn't produce LLSD results so should
 		// get an empty map back from output
@@ -163,7 +163,7 @@ namespace tut
 
 		// Once the region is set, we will get a response even with no data collection
 		it->setRegion(region1_handle);
-		sd_full = it->asLLSD();
+		sd_full = it->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd_full, "duration", "regions"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd_full["regions"], region1_handle_str));
 		
@@ -204,7 +204,7 @@ namespace tut
 		LLViewerAssetStats * it = new LLViewerAssetStats();
 		it->setRegion(region1_handle);
 		
-		LLSD sd = it->asLLSD();
+		LLSD sd = it->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
 		sd = sd[region1_handle_str];
@@ -229,7 +229,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD();
+		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
 		sd = sd["regions"][region1_handle_str];
@@ -244,7 +244,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1_handle_str];
+		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -267,9 +267,9 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLSD sd = gViewerAssetStatsThread1->asLLSD();
+		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
-		sd = gViewerAssetStatsMain->asLLSD();
+		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
 		sd = sd["regions"][region1_handle_str];
@@ -284,7 +284,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1_handle_str];
+		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -316,7 +316,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD();
+		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
 		// std::cout << sd << std::endl;
 		
@@ -340,7 +340,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD();
+		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2_handle_str));
 		sd2 = sd["regions"][region2_handle_str];
@@ -388,7 +388,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD();
+		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
 		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
 		ensure("Correct double-key LLSD map regions", is_double_key_map(sd["regions"], region1_handle_str, region2_handle_str));
@@ -410,7 +410,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD();
+		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2_handle_str));
 		sd2 = sd["regions"][region2_handle_str];
@@ -453,9 +453,9 @@ namespace tut
 
 		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD sd = gViewerAssetStatsThread1->asLLSD();
+		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
-		sd = gViewerAssetStatsMain->asLLSD();
+		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
 		sd = sd["regions"][region1_handle_str];
@@ -473,7 +473,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD()["regions"][region1_handle_str];
+		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -507,7 +507,7 @@ namespace tut
 
 		s2.merge(s1);
 
-		LLSD s2_llsd = s2.asLLSD();
+		LLSD s2_llsd = s2.asLLSD(false);
 		
 		ensure_equals("count after merge", 8, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_count"].asInteger());
 		ensure_approximately_equals("min after merge", 2.0, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_min"].asReal(), 22);
@@ -562,8 +562,8 @@ namespace tut
 		{
 			s2.merge(s1);
 			
-			LLSD src = s1.asLLSD();
-			LLSD dst = s2.asLLSD();
+			LLSD src = s1.asLLSD(false);
+			LLSD dst = s2.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
@@ -621,8 +621,8 @@ namespace tut
 		{
 			s2.merge(s1);
 			
-			LLSD src = s1.asLLSD();
-			LLSD dst = s2.asLLSD();
+			LLSD src = s1.asLLSD(false);
+			LLSD dst = s2.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
@@ -689,8 +689,8 @@ namespace tut
 		{
 			s2.merge(s1);
 			
-			LLSD src = s1.asLLSD();
-			LLSD dst = s2.asLLSD();
+			LLSD src = s1.asLLSD(false);
+			LLSD dst = s2.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
@@ -745,8 +745,8 @@ namespace tut
 		{
 			s1.merge(s2);
 			
-			LLSD src = s2.asLLSD();
-			LLSD dst = s1.asLLSD();
+			LLSD src = s2.asLLSD(false);
+			LLSD dst = s1.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
@@ -804,8 +804,8 @@ namespace tut
 		{
 			s2.merge(s1);
 			
-			LLSD src = s1.asLLSD();
-			LLSD dst = s2.asLLSD();
+			LLSD src = s1.asLLSD(false);
+			LLSD dst = s2.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
@@ -859,8 +859,8 @@ namespace tut
 		{
 			s1.merge(s2);
 			
-			LLSD src = s2.asLLSD();
-			LLSD dst = s1.asLLSD();
+			LLSD src = s2.asLLSD(false);
+			LLSD dst = s1.asLLSD(false);
 
 			// Remove time stamps, they're a problem
 			src.erase("duration");
