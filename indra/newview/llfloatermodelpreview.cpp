@@ -2017,7 +2017,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mDirty = false;
 	mGenLOD = false;
 	mLoading = false;
-	
+	mGroup = 0;
 	mBuildShareTolerance = 0.f;
 	mBuildQueueMode = GLOD_QUEUE_GREEDY;
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
@@ -2261,22 +2261,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	
 	mLODFile[lod] = filename;
 
-	if (lod == 3 && !mGroup.empty())
+	if (lod == LLModel::LOD_HIGH)
 	{
-		for (std::map<LLPointer<LLModel>, U32>::iterator iter = mGroup.begin(); iter != mGroup.end(); ++iter)
-		{
-			glodDeleteGroup(iter->second);
-			stop_gloderror();
-		}
-		
-		for (std::map<LLPointer<LLModel>, U32>::iterator iter = mObject.begin(); iter != mObject.end(); ++iter)
-		{
-			glodDeleteObject(iter->second);
-			stop_gloderror();
-		}
-		
-		mGroup.clear();
-		mObject.clear();
+		clearGLODGroup();
 	}
 	
 	mModelLoader = new LLModelLoader(filename, lod, this);
@@ -2334,11 +2321,29 @@ void LLModelPreview::clearIncompatible(S32 lod)
 				if (i == LLModel::LOD_HIGH)
 				{
 					mBaseModel = mModel[lod];
+					clearGLODGroup();
 					mBaseScene = mScene[lod];
 					mVertexBuffer[5].clear();
 				}
 			}
 		}
+	}
+}
+
+void LLModelPreview::clearGLODGroup()
+{
+	if (mGroup)
+	{
+		for (std::map<LLPointer<LLModel>, U32>::iterator iter = mObject.begin(); iter != mObject.end(); ++iter)
+		{
+			glodDeleteObject(iter->second);
+			stop_gloderror();
+		}
+		mObject.clear();
+
+		glodDeleteGroup(mGroup);
+		stop_gloderror();
+		mGroup = 0;
 	}
 }
 
@@ -2370,6 +2375,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		}
 
 		mBaseModel = mModel[lod];
+		clearGLODGroup();
+
 		mBaseScene = mScene[lod];
 		mVertexBuffer[5].clear();
 	}
@@ -2597,6 +2604,7 @@ void LLModelPreview::consolidate()
 	{
 		mBaseScene = new_scene;
 		mBaseModel = new_model;
+		clearGLODGroup();
 		mVertexBuffer[5].clear();
 	}
 	
@@ -2639,6 +2647,7 @@ void LLModelPreview::clearMaterials()
 	{
 		mBaseScene = mScene[mPreviewLOD];
 		mBaseModel = mModel[mPreviewLOD];
+		clearGLODGroup();
 		mVertexBuffer[5].clear();
 	}
 	
@@ -2694,14 +2703,6 @@ void LLModelPreview::genLODs(S32 which_lod)
 	U32 base_triangle_count = triangle_count;
 	
 	U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-	
-	if (mGroup[mBaseModel[0]] == 0)
-	{ //clear LOD maps
-		mGroup.clear();
-		mObject.clear();
-		mPercentage.clear();
-		mPatch.clear();
-	}
 	
 	U32 lod_mode = 0;
 	
@@ -2806,16 +2807,19 @@ void LLModelPreview::genLODs(S32 which_lod)
 		object_dirty = true;
 	}
 
-	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
-	{ //build GLOD objects for each model in base model list
-		LLModel* mdl = *iter;
-		if (mGroup[mdl] == 0)
-		{
-			mGroup[mdl] = cur_name++;
-		}
+	if (mGroup == 0)
+	{
+		object_dirty = true;
+		mGroup = cur_name++;
+		glodNewGroup(mGroup);
+	}
 
-		if (mObject[mdl] == 0 || object_dirty)
-		{
+	if (object_dirty)
+	{
+		for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
+		{ //build GLOD objects for each model in base model list
+			LLModel* mdl = *iter;
+			
 			if (mObject[mdl] != 0)
 			{
 				glodDeleteObject(mObject[mdl]);
@@ -2823,10 +2827,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			mObject[mdl] = cur_name++;
 			
-			glodNewGroup(mGroup[mdl]);
-			stop_gloderror();
-			
-			glodNewObject(mObject[mdl], mGroup[mdl], GLOD_DISCRETE);
+			glodNewObject(mObject[mdl], mGroup, GLOD_DISCRETE);
 			stop_gloderror();
 
 			if (iter == mBaseModel.begin() && !mdl->mSkinWeights.empty())
@@ -2866,10 +2867,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 			glodBuildObject(mObject[mdl]);
 			stop_gloderror();
-			
-			//store what percentage of total model (in terms of triangle count) this model makes up
-			mPercentage[mdl] = (F32) tri_count / (F32) base_triangle_count;
-		}		
+		}
 	}
 	
 	
@@ -2905,34 +2903,27 @@ void LLModelPreview::genLODs(S32 which_lod)
 		U32 actual_verts = 0;
 		U32 submeshes = 0;
 		
+		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
+		stop_gloderror();		
+	
+		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
+		stop_gloderror();		
+		
+		glodGroupParameteri(mGroup, GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
+		stop_gloderror();
+		
+		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count);
+		stop_gloderror();
+	
+		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
+		stop_gloderror();
+				
+		glodAdaptGroup(mGroup);
+		stop_gloderror();
+
 		for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
 		{ 
 			LLModel* base = mBaseModel[mdl_idx];
-			
-			U32 target_count = U32(mPercentage[base]*triangle_count);
-			
-			if (target_count < 4)
-			{ 
-				target_count = 4;
-			}
-			
-			glodGroupParameteri(mGroup[base], GLOD_ADAPT_MODE, lod_mode);
-			stop_gloderror();		
-		
-			glodGroupParameteri(mGroup[base], GLOD_ADAPT_MODE, lod_mode);
-			stop_gloderror();		
-			
-			glodGroupParameteri(mGroup[base], GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
-			stop_gloderror();
-			
-			glodGroupParameteri(mGroup[base], GLOD_MAX_TRIANGLES, target_count);
-			stop_gloderror();
-		
-			glodGroupParameterf(mGroup[base], GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
-			stop_gloderror();
-					
-			glodAdaptGroup(mGroup[base]);
-			stop_gloderror();
 			
 			GLint patch_count = 0;
 			glodGetObjectParameteriv(mObject[base], GLOD_NUM_PATCHES, &patch_count);
@@ -2983,8 +2974,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 				buff->getNormalStrider(norm);
 				buff->getTexCoord0Strider(tc);
 				buff->getIndexStrider(index);
-				
-				
+								
 				target_model->setVolumeFaceData(names[i], pos, norm, tc, index, buff->getNumVerts(), buff->getNumIndices());
 				actual_tris += buff->getNumIndices()/3;
 				actual_verts += buff->getNumVerts();
@@ -3771,14 +3761,21 @@ BOOL LLModelPreview::render()
 							
 					buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
 					
-					glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
-					if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
+					if (textures)
 					{
-						gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
-						if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+						glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+						if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
 						{
-							mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
+							gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
+							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+							{
+								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
+							}
 						}
+					}
+					else
+					{
+						glColor4f(1,1,1,1);
 					}
 					
 					buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
@@ -3897,14 +3894,21 @@ BOOL LLModelPreview::render()
 
 							buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
 							
-							glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
-							if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
+							if (textures)
 							{
-								gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
-								if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+								glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+								if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
 								{
-									mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
+									gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
+									if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+									{
+										mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
+									}
 								}
+							}
+							else
+							{
+								glColor4f(1,1,1,1);
 							}
 							
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);

@@ -268,6 +268,8 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
 	void setAspect(F32 aspect) { mAspect = aspect; };
+	void clearGLODGroup();
+
 	//void setLoading(bool loading) { mLoading = loading; };
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
@@ -313,10 +315,8 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLModelLoader::model_list mModel[LLModel::NUM_LODS];
 	LLModelLoader::model_list mBaseModel;
 
-	std::map<LLPointer<LLModel>, U32> mGroup;
+	U32 mGroup;
 	std::map<LLPointer<LLModel>, U32> mObject;
-	std::map<LLPointer<LLModel>, std::vector<U32> > mPatch;
-	std::map<LLPointer<LLModel>, F32> mPercentage;
 	U32 mMaxTriangleLimit;
 	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
