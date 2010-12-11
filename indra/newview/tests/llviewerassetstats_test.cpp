@@ -40,6 +40,7 @@
 #include "../llviewerassetstats.h"
 #include "lluuid.h"
 #include "llsdutil.h"
+#include "llregionhandle.h"
 
 static const char * all_keys[] = 
 {
@@ -92,10 +93,10 @@ static const char * mmm_sub_keys[] =
 
 static const LLUUID region1("4e2d81a3-6263-6ffe-ad5c-8ce04bee07e8");
 static const LLUUID region2("68762cc8-b68b-4e45-854b-e830734f2d4a");
-static const U64 region1_handle(0x00000401000003f7ULL);
-static const U64 region2_handle(0x000003f800000420ULL);
-static const std::string region1_handle_str("00000401000003f7");
-static const std::string region2_handle_str("000003f800000420");
+static const U64 region1_handle(0x0000040000003f00ULL);
+static const U64 region2_handle(0x0000030000004200ULL);
+static const std::string region1_handle_str("0000040000003f00");
+static const std::string region2_handle_str("0000030000004200");
 
 #if 0
 static bool
@@ -103,13 +104,13 @@ is_empty_map(const LLSD & sd)
 {
 	return sd.isMap() && 0 == sd.size();
 }
-#endif
 
 static bool
 is_single_key_map(const LLSD & sd, const std::string & key)
 {
 	return sd.isMap() && 1 == sd.size() && sd.has(key);
 }
+#endif
 
 static bool
 is_double_key_map(const LLSD & sd, const std::string & key1, const std::string & key2)
@@ -121,6 +122,73 @@ static bool
 is_no_stats_map(const LLSD & sd)
 {
 	return is_double_key_map(sd, "duration", "regions");
+}
+
+static bool
+is_single_slot_array(const LLSD & sd, U64 region_handle)
+{
+	U32 grid_x(0), grid_y(0);
+	grid_from_region_handle(region_handle, &grid_x, &grid_y);
+	
+	return (sd.isArray() &&
+			1 == sd.size() &&
+			sd[0].has("grid_x") &&
+			sd[0].has("grid_y") &&
+			sd[0]["grid_x"].isInteger() &&
+			sd[0]["grid_y"].isInteger() &&
+			grid_x == sd[0]["grid_x"].asInteger() &&
+			grid_y == sd[0]["grid_y"].asInteger());
+}
+
+static bool
+is_double_slot_array(const LLSD & sd, U64 region_handle1, U64 region_handle2)
+{
+	U32 grid_x1(0), grid_y1(0);
+	U32 grid_x2(0), grid_y2(0);
+	grid_from_region_handle(region_handle1, &grid_x1, &grid_y1);
+	grid_from_region_handle(region_handle2, &grid_x2, &grid_y2);
+	
+	return (sd.isArray() &&
+			2 == sd.size() &&
+			sd[0].has("grid_x") &&
+			sd[0].has("grid_y") &&
+			sd[0]["grid_x"].isInteger() &&
+			sd[0]["grid_y"].isInteger() &&
+			sd[1].has("grid_x") &&
+			sd[1].has("grid_y") &&
+			sd[1]["grid_x"].isInteger() &&
+			sd[1]["grid_y"].isInteger() &&
+			((grid_x1 == sd[0]["grid_x"].asInteger() &&
+			  grid_y1 == sd[0]["grid_y"].asInteger() &&
+			  grid_x2 == sd[1]["grid_x"].asInteger() &&
+			  grid_y2 == sd[1]["grid_y"].asInteger()) ||
+			 (grid_x1 == sd[1]["grid_x"].asInteger() &&
+			  grid_y1 == sd[1]["grid_y"].asInteger() &&
+			  grid_x2 == sd[0]["grid_x"].asInteger() &&
+			  grid_y2 == sd[0]["grid_y"].asInteger())));
+}
+
+static LLSD
+get_region(const LLSD & sd, U64 region_handle1)
+{
+	U32 grid_x(0), grid_y(0);
+	grid_from_region_handle(region_handle1, &grid_x, &grid_y);
+
+	for (LLSD::array_const_iterator it(sd["regions"].beginArray());
+		 sd["regions"].endArray() != it;
+		 ++it)
+	{
+		if ((*it).has("grid_x") &&
+			(*it).has("grid_y") &&
+			(*it)["grid_x"].isInteger() &&
+			(*it)["grid_y"].isInteger() &&
+			(*it)["grid_x"].asInteger() == grid_x &&
+			(*it)["grid_y"].asInteger() == grid_y)
+		{
+			return *it;
+		}
+	}
+	return LLSD();
 }
 
 namespace tut
@@ -165,9 +233,9 @@ namespace tut
 		it->setRegion(region1_handle);
 		sd_full = it->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd_full, "duration", "regions"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd_full["regions"], region1_handle_str));
+		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd_full["regions"], region1_handle));
 		
-		LLSD sd = sd_full["regions"][region1_handle_str];
+		LLSD sd = sd_full["regions"][0];
 
 		delete it;
 			
@@ -206,8 +274,8 @@ namespace tut
 		
 		LLSD sd = it->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
-		sd = sd[region1_handle_str];
+		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
+		sd = sd[0];
 		
 		delete it;
 
@@ -231,8 +299,8 @@ namespace tut
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
-		sd = sd["regions"][region1_handle_str];
+		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
+		sd = sd["regions"][0];
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -271,8 +339,8 @@ namespace tut
 		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
-		sd = sd["regions"][region1_handle_str];
+		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
+		sd = sd["regions"][0];
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -284,7 +352,7 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
+		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][0];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -321,16 +389,18 @@ namespace tut
 		// std::cout << sd << std::endl;
 		
 		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
-		ensure("Correct double-key LLSD map regions", is_double_key_map(sd["regions"], region1_handle_str, region2_handle_str));
-		LLSD sd1 = sd["regions"][region1_handle_str];
-		LLSD sd2 = sd["regions"][region2_handle_str];
+		ensure("Correct double-slot LLSD array regions", is_double_slot_array(sd["regions"], region1_handle, region2_handle));
+		LLSD sd1 = get_region(sd, region1_handle);
+		LLSD sd2 = get_region(sd, region2_handle);
+		ensure("Region1 is present in results", sd1.isMap());
+		ensure("Region2 is present in results", sd2.isMap());
 		
 		// Check a few points on the tree for content
-		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd1[get_texture_temp_udp][enqueued] is 0", (0 == sd1["get_texture_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd1[get_texture_non_temp_http][enqueued] is 0", (0 == sd1["get_texture_non_temp_http"]["enqueued"].asInteger()));
-		ensure("sd1[get_texture_temp_http][enqueued] is 0", (0 == sd1["get_texture_temp_http"]["enqueued"].asInteger()));
-		ensure("sd1[get_gesture_udp][dequeued] is 0", (0 == sd1["get_gesture_udp"]["dequeued"].asInteger()));
+		ensure_equals("sd1[get_texture_non_temp_udp][enqueued] is 1", sd1["get_texture_non_temp_udp"]["enqueued"].asInteger(), 1);
+		ensure_equals("sd1[get_texture_temp_udp][enqueued] is 0", sd1["get_texture_temp_udp"]["enqueued"].asInteger(), 0);
+		ensure_equals("sd1[get_texture_non_temp_http][enqueued] is 0", sd1["get_texture_non_temp_http"]["enqueued"].asInteger(), 0);
+		ensure_equals("sd1[get_texture_temp_http][enqueued] is 0", sd1["get_texture_temp_http"]["enqueued"].asInteger(), 0);
+		ensure_equals("sd1[get_gesture_udp][dequeued] is 0", sd1["get_gesture_udp"]["dequeued"].asInteger(), 0);
 
 		// Check a few points on the tree for content
 		ensure("sd2[get_gesture_udp][enqueued] is 4", (4 == sd2["get_gesture_udp"]["enqueued"].asInteger()));
@@ -342,8 +412,8 @@ namespace tut
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2_handle_str));
-		sd2 = sd["regions"][region2_handle_str];
+		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
+		sd2 = sd["regions"][0];
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
@@ -391,9 +461,11 @@ namespace tut
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
 		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
-		ensure("Correct double-key LLSD map regions", is_double_key_map(sd["regions"], region1_handle_str, region2_handle_str));
-		LLSD sd1 = sd["regions"][region1_handle_str];
-		LLSD sd2 = sd["regions"][region2_handle_str];
+		ensure("Correct double-slot LLSD array regions", is_double_slot_array(sd["regions"], region1_handle, region2_handle));
+		LLSD sd1 = get_region(sd, region1_handle);
+		LLSD sd2 = get_region(sd, region2_handle);
+		ensure("Region1 is present in results", sd1.isMap());
+		ensure("Region2 is present in results", sd2.isMap());
 		
 		// Check a few points on the tree for content
 		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
@@ -412,14 +484,15 @@ namespace tut
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region2_handle_str));
-		sd2 = sd["regions"][region2_handle_str];
+		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
+		sd2 = get_region(sd, region2_handle);
+		ensure("Region2 is present in results", sd2.isMap());
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
 
-		ensure("sd2[get_texture_non_temp_udp][enqueued] is reset", (0 == sd2["get_texture_non_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd2[get_gesture_udp][enqueued] is reset", (0 == sd2["get_gesture_udp"]["enqueued"].asInteger()));
+		ensure_equals("sd2[get_texture_non_temp_udp][enqueued] is reset", sd2["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
+		ensure_equals("sd2[get_gesture_udp][enqueued] is reset", sd2["get_gesture_udp"]["enqueued"].asInteger(), 0);
 	}
 
 	// Non-texture assets ignore transport and persistence flags
@@ -457,8 +530,9 @@ namespace tut
 		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
-		ensure("Correct single-key LLSD map regions", is_single_key_map(sd["regions"], region1_handle_str));
-		sd = sd["regions"][region1_handle_str];
+		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
+		sd = get_region(sd, region1_handle);
+		ensure("Region1 is present in results", sd.isMap());
 		
 		// Check a few points on the tree for content
 		ensure("sd[get_gesture_udp][enqueued] is 0", (0 == sd["get_gesture_udp"]["enqueued"].asInteger()));
@@ -473,15 +547,16 @@ namespace tut
 		// Reset and check zeros...
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
+		sd = get_region(gViewerAssetStatsMain->asLLSD(false), region1_handle);
+		ensure("Region1 is present in results", sd.isMap());
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
 		delete gViewerAssetStatsThread1;
 		gViewerAssetStatsThread1 = NULL;
 
-		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
+		ensure_equals("sd[get_texture_non_temp_udp][enqueued] is reset", sd["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
+		ensure_equals("sd[get_gesture_udp][dequeued] is reset", sd["get_gesture_udp"]["dequeued"].asInteger(), 0);
 	}
 
 
@@ -507,13 +582,13 @@ namespace tut
 
 		s2.merge(s1);
 
-		LLSD s2_llsd = s2.asLLSD(false);
+		LLSD s2_llsd = get_region(s2.asLLSD(false), region1_handle);
+		ensure("Region1 is present in results", s2_llsd.isMap());
 		
-		ensure_equals("count after merge", 8, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_count"].asInteger());
-		ensure_approximately_equals("min after merge", 2.0, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_min"].asReal(), 22);
-		ensure_approximately_equals("max after merge", 9.0, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_max"].asReal(), 22);
-		ensure_approximately_equals("max after merge", 5.5, s2_llsd["regions"][region1_handle_str]["get_texture_temp_http"]["resp_mean"].asReal(), 22);
-
+		ensure_equals("count after merge", s2_llsd["get_texture_temp_http"]["resp_count"].asInteger(), 8);
+		ensure_approximately_equals("min after merge", s2_llsd["get_texture_temp_http"]["resp_min"].asReal(), 2.0, 22);
+		ensure_approximately_equals("max after merge", s2_llsd["get_texture_temp_http"]["resp_max"].asReal(), 9.0, 22);
+		ensure_approximately_equals("max after merge", s2_llsd["get_texture_temp_http"]["resp_mean"].asReal(), 5.5, 22);
 	}
 
 	// LLViewerAssetStats::merge() basic functions work without corrupting source data
@@ -565,17 +640,22 @@ namespace tut
 			LLSD src = s1.asLLSD(false);
 			LLSD dst = s2.asLLSD(false);
 
+			ensure_equals("merge src has single region", src["regions"].size(), 1);
+			ensure_equals("merge dst has dual regions", dst["regions"].size(), 2);
+			
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
-			dst["regions"][region2_handle_str].erase("duration");
+			dst["regions"][0].erase("duration");
+			dst["regions"][1].erase("duration");
 
-			ensure_equals("merge src has single region", 1, src["regions"].size());
-			ensure_equals("merge dst has dual regions", 2, dst["regions"].size());
-			ensure("result from src is in dst", llsd_equals(src["regions"][region1_handle_str],
-															dst["regions"][region1_handle_str]));
+			LLSD s1_llsd = get_region(src, region1_handle);
+			ensure("Region1 is present in src", s1_llsd.isMap());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+
+			ensure("result from src is in dst", llsd_equals(s1_llsd, s2_llsd));
 		}
 
 		s1.setRegion(region1_handle);
@@ -624,23 +704,31 @@ namespace tut
 			LLSD src = s1.asLLSD(false);
 			LLSD dst = s2.asLLSD(false);
 
+			ensure_equals("merge src has single region (p2)", src["regions"].size(), 1);
+			ensure_equals("merge dst has single region (p2)", dst["regions"].size(), 1);
+
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
-
-			ensure_equals("src counts okay (enq)", 4, src["regions"][region1_handle_str]["get_other"]["enqueued"].asInteger());
-			ensure_equals("src counts okay (deq)", 4, src["regions"][region1_handle_str]["get_other"]["dequeued"].asInteger());
-			ensure_equals("src resp counts okay", 2, src["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
-			ensure_approximately_equals("src respmin okay", 0.2829, src["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), 20);
-			ensure_approximately_equals("src respmax okay", 23.2892, src["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), 20);
+			dst["regions"][0].erase("duration");
 			
-			ensure_equals("dst counts okay (enq)", 12, dst["regions"][region1_handle_str]["get_other"]["enqueued"].asInteger());
-			ensure_equals("src counts okay (deq)", 11, dst["regions"][region1_handle_str]["get_other"]["dequeued"].asInteger());
-			ensure_equals("dst resp counts okay", 4, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
-			ensure_approximately_equals("dst respmin okay", 0.010, dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), 20);
-			ensure_approximately_equals("dst respmax okay", 23.2892, dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), 20);
+			LLSD s1_llsd = get_region(src, region1_handle);
+			ensure("Region1 is present in src", s1_llsd.isMap());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+
+			ensure_equals("src counts okay (enq)", s1_llsd["get_other"]["enqueued"].asInteger(), 4);
+			ensure_equals("src counts okay (deq)", s1_llsd["get_other"]["dequeued"].asInteger(), 4);
+			ensure_equals("src resp counts okay", s1_llsd["get_other"]["resp_count"].asInteger(), 2);
+			ensure_approximately_equals("src respmin okay", s1_llsd["get_other"]["resp_min"].asReal(), 0.2829, 20);
+			ensure_approximately_equals("src respmax okay", s1_llsd["get_other"]["resp_max"].asReal(), 23.2892, 20);
+			
+			ensure_equals("dst counts okay (enq)", s2_llsd["get_other"]["enqueued"].asInteger(), 12);
+			ensure_equals("src counts okay (deq)", s2_llsd["get_other"]["dequeued"].asInteger(), 11);
+			ensure_equals("dst resp counts okay", s2_llsd["get_other"]["resp_count"].asInteger(), 4);
+			ensure_approximately_equals("dst respmin okay", s2_llsd["get_other"]["resp_min"].asReal(), 0.010, 20);
+			ensure_approximately_equals("dst respmax okay", s2_llsd["get_other"]["resp_max"].asReal(), 23.2892, 20);
 		}
 	}
 
@@ -692,16 +780,22 @@ namespace tut
 			LLSD src = s1.asLLSD(false);
 			LLSD dst = s2.asLLSD(false);
 
+			ensure_equals("merge src has single region", src["regions"].size(), 1);
+			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
+			
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
+			dst["regions"][0].erase("duration");
 
-			ensure_equals("dst counts come from src only", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+			
+			ensure_equals("dst counts come from src only", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
 
 			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum",
-										dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), F64(0.0), 20);
+										s2_llsd["get_other"]["resp_max"].asReal(), F64(0.0), 20);
 		}
 
 		// Other way around
@@ -748,16 +842,22 @@ namespace tut
 			LLSD src = s2.asLLSD(false);
 			LLSD dst = s1.asLLSD(false);
 
+			ensure_equals("merge src has single region", src["regions"].size(), 1);
+			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
+			
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
+			dst["regions"][0].erase("duration");
 
-			ensure_equals("dst counts come from src only (flipped)", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+
+			ensure_equals("dst counts come from src only (flipped)", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
 
 			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum (flipped)",
-										dst["regions"][region1_handle_str]["get_other"]["resp_max"].asReal(), F64(0.0), 20);
+										s2_llsd["get_other"]["resp_max"].asReal(), F64(0.0), 20);
 		}
 	}
 
@@ -807,16 +907,22 @@ namespace tut
 			LLSD src = s1.asLLSD(false);
 			LLSD dst = s2.asLLSD(false);
 
+			ensure_equals("merge src has single region", src["regions"].size(), 1);
+			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
+			
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
+			dst["regions"][0].erase("duration");
 
-			ensure_equals("dst counts come from src only", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+
+			ensure_equals("dst counts come from src only", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
 
 			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum",
-										dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), F64(2.7), 20);
+										s2_llsd["get_other"]["resp_min"].asReal(), F64(2.7), 20);
 		}
 
 		// Other way around
@@ -862,16 +968,22 @@ namespace tut
 			LLSD src = s2.asLLSD(false);
 			LLSD dst = s1.asLLSD(false);
 
+			ensure_equals("merge src has single region", src["regions"].size(), 1);
+			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
+			
 			// Remove time stamps, they're a problem
 			src.erase("duration");
-			src["regions"][region1_handle_str].erase("duration");
+			src["regions"][0].erase("duration");
 			dst.erase("duration");
-			dst["regions"][region1_handle_str].erase("duration");
+			dst["regions"][0].erase("duration");
 
-			ensure_equals("dst counts come from src only (flipped)", 3, dst["regions"][region1_handle_str]["get_other"]["resp_count"].asInteger());
+			LLSD s2_llsd = get_region(dst, region1_handle);
+			ensure("Region1 is present in dst", s2_llsd.isMap());
+
+			ensure_equals("dst counts come from src only (flipped)", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
 
 			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum (flipped)",
-										dst["regions"][region1_handle_str]["get_other"]["resp_min"].asReal(), F64(2.7), 20);
+										s2_llsd["get_other"]["resp_min"].asReal(), F64(2.7), 20);
 		}
 	}
 
