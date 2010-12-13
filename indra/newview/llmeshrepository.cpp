@@ -2622,6 +2622,12 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 	LLPrimitive::sVolumeManager->unrefVolume(volume);
 }
 
+bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
+{
+	LLSD mesh = mThread->getMeshHeader(mesh_id);
+	return mesh.has("physics_shape") && mesh["physics_shape"].has("size") && (mesh["physics_shape"]["size"].asInteger() > 0);
+}
+
 const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
 	return mThread->getMeshHeader(mesh_id);

@@ -458,7 +458,8 @@ public:
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
 	const LLMeshDecomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
-
+	bool hasPhysicsShape(const LLUUID& mesh_id);
+	
 	void buildHull(const LLVolumeParams& params, S32 detail);
 	const LLSD& getMeshHeader(const LLUUID& mesh_id);
 

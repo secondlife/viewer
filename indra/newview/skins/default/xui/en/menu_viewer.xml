@@ -972,6 +972,18 @@
             <menu_item_call.on_visible
             function="File.MeshEnabled"/>
             </menu_item_call>
+			<menu_item_call
+           label="Model Wizard..."
+           layout="topleft"
+           name="Upload Model Wizard">
+				<menu_item_call.on_click
+				 function="Floater.Show"
+				 parameter="upload_model_wizard" />
+				<menu_item_call.on_enable
+				 function="File.EnableUploadModel" />
+				<menu_item_call.on_visible
+				function="File.MeshEnabled"/>
+			</menu_item_call>
             <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
@@ -3141,17 +3153,7 @@
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
         </menu_item_call>
-		<menu_item_call
-           label="HACK Upload Model..."
-           layout="topleft"
-           name="Upload Model">
-          <menu_item_call.on_click
-             function="File.UploadModel"
-             parameter="" />
-          <menu_item_call.on_enable
-             function="File.EnableUploadModel" />
-        </menu_item_call>
-        <menu_item_check
+		    <menu_item_check
          label="Show Admin Menu"
          name="View Admin Options">
             <menu_item_check.on_enable

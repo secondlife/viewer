@@ -2900,7 +2900,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 	LLVolumeParams volume_params = volume->getVolume()->getParams();
 
-	LLPhysicsVolumeParams physics_params(volume->getVolume()->getParams(), 
+	LLPhysicsVolumeParams physics_params(volume_params, 
 		physics_type == LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL); 
 
 	LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification physics_spec;

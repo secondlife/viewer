@@ -520,7 +520,7 @@ void LLPanelPrimMediaControls::updateShape()
 			if(LLPluginClassMediaOwner::MEDIA_LOADING == media_plugin->getStatus())
 			{	
 				mMediaProgressPanel->setVisible(true);
-				mMediaProgressBar->setPercent(media_plugin->getProgressPercent());
+				mMediaProgressBar->setValue(media_plugin->getProgressPercent());
 			}
 			else
 			{
@@ -623,12 +623,12 @@ void LLPanelPrimMediaControls::updateShape()
 		// convert screenspace bbox to pixels (in screen coords)
 		LLRect window_rect = gViewerWindow->getWorldViewRectScaled();
 		LLCoordGL screen_min;
-		screen_min.mX = llround((F32)window_rect.getWidth() * (min.mV[VX] + 1.f) * 0.5f);
-		screen_min.mY = llround((F32)window_rect.getHeight() * (min.mV[VY] + 1.f) * 0.5f);
+		screen_min.mX = llround((F32)window_rect.mLeft + (F32)window_rect.getWidth() * (min.mV[VX] + 1.f) * 0.5f);
+		screen_min.mY = llround((F32)window_rect.mBottom + (F32)window_rect.getHeight() * (min.mV[VY] + 1.f) * 0.5f);
 		
 		LLCoordGL screen_max;
-		screen_max.mX = llround((F32)window_rect.getWidth() * (max.mV[VX] + 1.f) * 0.5f);
-		screen_max.mY = llround((F32)window_rect.getHeight() * (max.mV[VY] + 1.f) * 0.5f);
+		screen_max.mX = llround((F32)window_rect.mLeft + (F32)window_rect.getWidth() * (max.mV[VX] + 1.f) * 0.5f);
+		screen_max.mY = llround((F32)window_rect.mBottom + (F32)window_rect.getHeight() * (max.mV[VY] + 1.f) * 0.5f);
 		
 		// grow panel so that screenspace bounding box fits inside "media_region" element of panel
 		LLRect media_panel_rect;

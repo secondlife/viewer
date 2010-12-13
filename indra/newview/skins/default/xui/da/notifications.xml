@@ -247,6 +247,9 @@ Note: This will clear the cache.
 	<notification name="ChangeSkin">
 		Den nye hud vil blive vist ved næste genstart af [APP_NAME].
 	</notification>
+	<notification name="ChangeLanguage">
+		Ændring af sprog vil først have effekt efter genstart af [APP_NAME].
+	</notification>
 	<notification name="StartRegionEmpty">
 		Ups, din start region er ikke angivet.
 Indtast venligst navn på region i Start lokation feltet eller vælg &quot;Min sidste lokation&quot; eller &quot;Hjem&quot;.
@@ -287,6 +290,10 @@ og du vil miste dem fra din beholdning hvis du forærer dem væk. Er du sikker p
 		[EXTRA]
 
 Gå til [_URL] for information om køb af L$?
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Fejl i WAV fil (chunk size):
+[FILE]
 	</notification>
 	<notification name="CannotEncodeFile">
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
@@ -584,6 +591,16 @@ Download til dit Program bibliotek?
 Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
 
 Download til dit Program bibliotek?
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Der opstod en fejl ved installation af opdatering.
+Hent og installér venligst den nyeste version fra
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DownloadBackground">
+		En opdateret version af [APP_NAME] er hentet.
+Den vil blive anvendt næste gang du genstarter [APP_NAME]
 	</notification>
 	<notification name="DeedObjectToGroup">
 		<usetemplate ignoretext="Bekræft før jeg dedikerer et objekt til en gruppe" name="okcancelignore" notext="Cancel" yestext="Deed"/>
@@ -1370,8 +1387,8 @@ Prøv igen om lidt.
 		Tilbud om venskab afvist.
 	</notification>
 	<notification name="OfferCallingCard">
-		[NAME] tilbyder dig et visitkort.
-Dette vil lave et bogmørke i din beholding, så du hurtigt kan sende en IM til denne beboer.
+		[NAME] tilbyder sit visitkort.
+Dette vil tilføje et bogmærke i din beholdning, så du hurtigt kan sende en personlig besked til denne beboer.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>

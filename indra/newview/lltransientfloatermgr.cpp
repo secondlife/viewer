@@ -38,8 +38,8 @@ LLTransientFloaterMgr::LLTransientFloaterMgr()
 {
 	if(gViewerWindow)
 	{
-		gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(
-			&LLTransientFloaterMgr::leftMouseClickCallback, this, _1, _2, _3));
+		gViewerWindow->getRootView()->getChild<LLUICtrl>("popup_holder")->setMouseDownCallback(boost::bind(
+			&LLTransientFloaterMgr::leftMouseClickCallback, this, _2, _3, _4));
 	}
 
 	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(GLOBAL, std::set<LLView*>()));

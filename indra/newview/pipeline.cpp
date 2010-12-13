@@ -6160,44 +6160,49 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		//convert to mm
 		subject_distance *= 1000.f;
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
-		F32 focal_length = gSavedSettings.getF32("CameraFocalLength");
-		F32 coc_ratio = gSavedSettings.getF32("CameraCoCRatio");
-
-		F32 coc = coc_ratio/mScreen.getHeight();
-
-		F32 hyperfocal_distance = (focal_length*focal_length)/(fnumber*coc);
-
-		subject_distance = llmin(hyperfocal_distance, subject_distance);
-
-		//adjust focal length for subject distance
-		focal_length = llmax(focal_length, 1.f/(1.f/focal_length - 1.f/subject_distance));
-
-		//adjust focal length for zoom
-		F32 fov = LLViewerCamera::getInstance()->getView();
-		focal_length *= 1.f/fov;
-
-		F32 near_focal_distance = hyperfocal_distance*subject_distance/(hyperfocal_distance+subject_distance);
+		const F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
 		
-		//beyond far clip plane is effectively infinity
-		F32 far_focal_distance = 4096.f;
+		F32 fov = LLViewerCamera::getInstance()->getView();
+		
+		const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
+		//const F32 default_aspect_ratio = gSavedSettings.getF32("CameraAspectRatio");
+		
+		//F32 aspect_ratio = (F32) mScreen.getWidth()/(F32)mScreen.getHeight();
+		
+		F32 dv = 2.f*default_focal_length * tanf(default_fov/2.f);
+		//F32 dh = 2.f*default_focal_length * tanf(default_fov*default_aspect_ratio/2.f);
 
-		if (subject_distance < hyperfocal_distance)
-		{
-			far_focal_distance = hyperfocal_distance*subject_distance/(hyperfocal_distance-subject_distance);
-			far_focal_distance /= 1000.f;
-		}
+		F32 focal_length = dv/(2*tanf(fov/2.f));
+		 
+		//F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
+	
+		// from wikipedia -- c = |s2-s1|/s2 * f^2/(N(S1-f))
+		// where	 N = fnumber
+		//			 s2 = dot distance
+		//			 s1 = subject distance
+		//			 f = focal length
+		//	
 
-		near_focal_distance /= 1000.f;
+		F32 blur_constant = focal_length*focal_length/(fnumber*(subject_distance-focal_length));
+		blur_constant /= 1000.f; //convert to meters for shader
+		F32 magnification = focal_length/(subject_distance-focal_length);
 
-		shader->uniform1f("far_focal_distance", -far_focal_distance);
-		shader->uniform1f("near_focal_distance", -near_focal_distance);
+		shader->uniform1f("focal_distance", -subject_distance/1000.f);
+		shader->uniform1f("blur_constant", blur_constant);
+		shader->uniform1f("tan_pixel_angle", tanf(1.f/LLDrawable::sCurPixelAngle));
+		shader->uniform1f("magnification", magnification);
 
 		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0, channel);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 		}
+		//channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_RECT_TEXTURE);
+		//if (channel > -1)
+		//{
+			//gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+		//}
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

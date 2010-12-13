@@ -34,6 +34,7 @@
 #include "llmeshrepository.h"
 #include "llmodel.h"
 #include "llthread.h"
+#include "llviewermenufile.h"
 
 class LLComboBox;
 class LLJoint;
@@ -48,6 +49,8 @@ class domProfile_COMMON;
 class domInstance_geometry;
 class domNode;
 class domTranslate;
+class LLMenuButton;
+class LLToggleableMenu;
 
 class LLModelLoader : public LLThread
 {
@@ -60,6 +63,7 @@ public:
 		GENERATING_VERTEX_BUFFERS,
 		GENERATING_LOD,
 		DONE,
+		ERROR_PARSING, //basically loading failed
 	} eLoadState;
 
 	U32 mState;
@@ -103,7 +107,9 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
-
+	void setLoadState( U32 state ) { mState = state; }
+	U32 getLoadState( void ) { return mState; }
+	
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 };
@@ -142,7 +148,6 @@ public:
 	
 	static void onUpload(void* data);
 	
-	static void onConsolidate(void* data);
 	static void onClearMaterials(void* data);
 	static void onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh);
 	
@@ -152,6 +157,14 @@ public:
 	
 	void			loadModel(S32 lod);
 	
+	void onViewOptionChecked(const LLSD& userdata);
+	bool isViewOptionChecked(const LLSD& userdata);
+	bool isViewOptionEnabled(const LLSD& userdata);
+	void setViewOptionEnabled(const std::string& option, bool enabled);
+	void enableViewOption(const std::string& option);
+	void disableViewOption(const std::string& option);
+	void setViewOption(const std::string& option, bool value);
+
 protected:
 	friend class LLModelPreview;
 	friend class LLMeshFilePicker;
@@ -163,12 +176,10 @@ protected:
 	
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
-	static void		onTriangleLimitCommit(LLUICtrl*,void*);
-	
 	static void		onGenerateNormalsCommit(LLUICtrl*,void*);
 	
 	static void		onAutoFillCommit(LLUICtrl*,void*);
-	static void		onShowEdgesCommit(LLUICtrl*,void*);
+	static void		onLODParamCommit(LLUICtrl*,void*);
 	
 	static void		onExplodeCommit(LLUICtrl*, void*);
 	
@@ -186,9 +197,6 @@ protected:
 	
 	void			draw();
 	
-	static void		setLimit(S32 lod, void* userdata);
-	void			setLimit(S32 lod, S32 limit);
-	
 	void initDecompControls();
 	
 	LLModelPreview*	mModelPreview;
@@ -199,19 +207,37 @@ protected:
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	U32				mGLName;
-	BOOL			mLoading;
 	static S32		sUploadAmount;
 	
 	LLPointer<DecompRequest> mCurRequest;
 	
+	std::map<std::string, bool> mViewOption;
+
+	//use "disabled" as false by default
+	std::map<std::string, bool> mViewOptionDisabled;
+
+	LLMenuButton* mViewOptionMenuButton;
+	LLToggleableMenu* mViewOptionMenu;
 	
 };
+
+class LLMeshFilePicker : public LLFilePickerThread
+{
+public:
+	LLMeshFilePicker(LLModelPreview* mp, S32 lod);
+	virtual void notify(const std::string& filename);
+
+private:
+	LLModelPreview* mMP;
+	S32 mLOD;
+};
+
 
 class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {
  public:
 	
-	 LLModelPreview(S32 width, S32 height, LLFloaterModelPreview* fmp);
+	 LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 
 	void resetPreviewTarget();
@@ -241,18 +267,22 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
+	void clearGLODGroup();
+
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
  protected:
 	friend class LLFloaterModelPreview;
+	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
 	friend class LLPhysicsDecomp;
 
-	LLFloaterModelPreview* mFMP;
+	LLFloater* mFMP;
 
 	BOOL        mNeedsUpdate;
 	bool		mDirty;
+	bool		mGenLOD;
 	U32         mTextureName;
 	F32			mCameraDistance;
 	F32			mCameraYaw;
@@ -263,8 +293,15 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLVector3	mPreviewScale;
 	S32			mPreviewLOD;
 	U32			mResourceCost;
-	S32			mLimit[LLModel::NUM_LODS];
 	std::string mLODFile[LLModel::NUM_LODS];
+	bool		mLoading;
+
+	//GLOD object parameters (must rebuild object if these change)
+	F32 mBuildShareTolerance;
+	U32 mBuildQueueMode;
+	U32 mBuildOperator;
+	U32 mBuildBorderMode;
+	
 
 	LLModelLoader* mModelLoader;
 
@@ -275,11 +312,9 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	LLModelLoader::model_list mModel[LLModel::NUM_LODS];
 	LLModelLoader::model_list mBaseModel;
 
-	std::map<LLPointer<LLModel>, U32> mGroup;
+	U32 mGroup;
 	std::map<LLPointer<LLModel>, U32> mObject;
-	std::map<LLPointer<LLModel>, std::vector<U32> > mPatch;
-	std::map<LLPointer<LLModel>, F32> mPercentage;
-
+	U32 mMaxTriangleLimit;
 	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
 	LLMeshUploadThread::instance_list mUploadData;
