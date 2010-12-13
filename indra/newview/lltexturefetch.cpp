@@ -1844,8 +1844,9 @@ LLTextureFetch::~LLTextureFetch()
 
 	while (! mCommands.empty())
 	{
-		delete mCommands.front();
+		TFRequest * req(mCommands.front());
 		mCommands.erase(mCommands.begin());
+		delete req;
 	}
 	
 	// ~LLQueuedThread() called here
