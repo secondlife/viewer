@@ -6577,7 +6577,7 @@ Mute everyone?
   <notification
   name="AuthRequest"
   type="browser">
-    Enter user name and password to continue.
+The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
     <form name="form">
       <input name="username" type="text" text="User Name"/>
       <input name="password" type="password" text="Password"/>
