@@ -2720,6 +2720,9 @@ void LLViewerFetchedTexture::forceToSaveRawImage(S32 desired_discard, bool from_
 }
 void LLViewerFetchedTexture::destroySavedRawImage()
 {
+	mForceToSaveRawImage  = FALSE ;
+	mSaveRawImage = FALSE ;
+
 	clearCallbackEntryList() ;
 	
 	mSavedRawImage = NULL ;
