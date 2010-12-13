@@ -1090,7 +1090,7 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 	if (response["open"])
 	{
 		// name of default floater to open
-		std::string floater_name = "web_content";
+		std::string floater_name = "media_browser";
 
 		// look for parent floater name
 		if ( gFloaterView )
