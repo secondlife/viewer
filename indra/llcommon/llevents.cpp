@@ -515,7 +515,7 @@ bool LLEventQueue::post(const LLSD& event)
 
 void LLEventQueue::flush()
 {
-	if(!mEnabled || !mSignal) return;
+	if(!mSignal) return;
 		
     // Consider the case when a given listener on this LLEventQueue posts yet
     // another event on the same queue. If we loop over mEventQueue directly,
