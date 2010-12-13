@@ -6165,16 +6165,16 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		F32 fov = LLViewerCamera::getInstance()->getView();
 		
 		const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
-		const F32 default_aspect_ratio = gSavedSettings.getF32("CameraAspectRatio");
+		//const F32 default_aspect_ratio = gSavedSettings.getF32("CameraAspectRatio");
 		
-		F32 aspect_ratio = (F32) mScreen.getWidth()/(F32)mScreen.getHeight();
+		//F32 aspect_ratio = (F32) mScreen.getWidth()/(F32)mScreen.getHeight();
 		
 		F32 dv = 2.f*default_focal_length * tanf(default_fov/2.f);
-		F32 dh = 2.f*default_focal_length * tanf(default_fov*default_aspect_ratio/2.f);
+		//F32 dh = 2.f*default_focal_length * tanf(default_fov*default_aspect_ratio/2.f);
 
 		F32 focal_length = dv/(2*tanf(fov/2.f));
 		 
-		F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
+		//F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
 	
 		// from wikipedia -- c = |s2-s1|/s2 * f^2/(N(S1-f))
 		// where	 N = fnumber
