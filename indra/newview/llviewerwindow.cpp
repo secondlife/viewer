@@ -1437,6 +1437,15 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
 
+	LLCoordScreen scr;
+    mWindow->getSize(&scr);
+
+    if(fullscreen && ( scr.mX!=width || scr.mY!=height))
+    {
+		llwarns << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<llendl;
+		gSavedSettings.setS32("FullScreenWidth",scr.mX);
+		gSavedSettings.setS32("FullScreenHeight",scr.mY);
+    }
 
 	if (NULL == mWindow)
 	{
@@ -1448,7 +1457,7 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
 				<< LL_ENDL;
 #endif
-        LLAppViewer::instance()->forceExit(1);
+        LLAppViewer::instance()->fastQuit(1);
 	}
 	
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
@@ -1615,8 +1624,9 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
-	mPopupView = main_view->findChild<LLPopupView>("popup_holder");
+	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
+	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -1750,7 +1760,7 @@ void LLViewerWindow::initWorldUI()
 	{
 		LLRect hud_rect = full_window;
 		hud_rect.mBottom += 50;
-		if (gMenuBarView)
+		if (gMenuBarView && gMenuBarView->isInVisibleChain())
 		{
 			hud_rect.mTop -= gMenuBarView->getRect().getHeight();
 		}
@@ -1779,6 +1789,20 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setShape(buttons_panel_container->getLocalRect());
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
+
+	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	if (destinations)
+	{
+		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+	}
+
+	if (avatar_picker)
+	{
+		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
+	}
+
 }
 
 // Destroy the UI
@@ -2550,6 +2574,10 @@ void LLViewerWindow::updateUI()
 		{
 			LLFirstUse::notUsingDestinationGuide();
 		}
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("AvatarPickerHintTimeout"))
+		{
+			LLFirstUse::notUsingAvatarPicker();
+		}
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
 		{
 			LLFirstUse::notUsingSidePanel();
@@ -3047,18 +3075,20 @@ void LLViewerWindow::updateKeyboardFocus()
 
 			LLUICtrl* parent = cur_focus->getParentUICtrl();
 			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			bool new_focus_found = false;
 			while(parent)
 			{
-				if (parent->isCtrl() && 
-					(parent->hasTabStop() || parent == focus_root) && 
-					!parent->getIsChrome() && 
-					parent->isInVisibleChain() && 
-					parent->isInEnabledChain())
+				if (parent->isCtrl() 
+					&& (parent->hasTabStop() || parent == focus_root) 
+					&& !parent->getIsChrome() 
+					&& parent->isInVisibleChain() 
+					&& parent->isInEnabledChain())
 				{
 					if (!parent->focusFirstItem())
 					{
 						parent->setFocus(TRUE);
 					}
+					new_focus_found = true;
 					break;
 				}
 				parent = parent->getParentUICtrl();
@@ -3067,7 +3097,7 @@ void LLViewerWindow::updateKeyboardFocus()
 			// if we didn't find a better place to put focus, just release it
 			// hasFocus() will return true if and only if we didn't touch focus since we
 			// are only moving focus higher in the hierarchy
-			if (cur_focus->hasFocus())
+			if (!new_focus_found)
 			{
 				cur_focus->setFocus(FALSE);
 			}
@@ -4366,17 +4396,8 @@ void LLViewerWindow::setup3DRender()
 
 void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-	if (LLRenderTarget::getCurrentBoundTarget() != NULL)
-	{
-		// don't use translation component of mWorldViewRectRaw, as we are already in a properly sized render target
-		gGLViewport[0] = x_offset;
-		gGLViewport[1] = y_offset;
-	}
-	else
-	{
-		gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
-		gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
-	}
+	gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
+	gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
 	gGLViewport[2] = mWorldViewRectRaw.getWidth();
 	gGLViewport[3] = mWorldViewRectRaw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);

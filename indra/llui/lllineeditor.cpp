@@ -1533,6 +1533,8 @@ void LLLineEditor::drawBackground()
 	{
 		image = mBgImage;
 	}
+
+	if (!image) return;
 	
 	F32 alpha = getCurrentTransparency();
 

@@ -61,13 +61,6 @@ public:
 		return *this; 
 	}
 
-	template<typename Subclass>
-	LLHandle<T>& operator =(const LLHandle<Subclass>& other)  
-	{ 
-		mTombStone = other.mTombStone;
-		return *this; 
-	}
-
 	bool isDead() const 
 	{ 
 		return mTombStone->getTarget() == NULL; 
@@ -99,7 +92,6 @@ public:
 	{
 		return lhs.mTombStone > rhs.mTombStone;
 	}
-protected:
 
 protected:
 	LLPointer<LLTombStone<T> > mTombStone;

@@ -2043,7 +2043,7 @@ void LLAgentCamera::resetCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 {
-	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	if (!gSavedSettings.getBOOL("EnableMouselook") || LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		return;
 	}

@@ -100,8 +100,15 @@ void LLFirstUse::useSandbox()
 void LLFirstUse::notUsingDestinationGuide(bool enable)
 {
 	// not doing this yet
-	//firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "left"));
+	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "top"));
 }
+
+void LLFirstUse::notUsingAvatarPicker(bool enable)
+{
+	// not doing this yet
+	firstUseNotification("FirstNotUseAvatarPicker", enable, "HintAvatarPicker", LLSD(), LLSD().with("target", "avatar_picker_btn").with("direction", "top"));
+}
+
 
 // static
 void LLFirstUse::notUsingSidePanel(bool enable)
@@ -113,7 +120,15 @@ void LLFirstUse::notUsingSidePanel(bool enable)
 // static
 void LLFirstUse::notMoving(bool enable)
 {
+	// fire off 2 notifications and rely on filtering to select the relevant one
 	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
+	firstUseNotification("FirstNotMoving", enable, "HintMoveArrows", LLSD(), LLSD().with("target", "bottom_tray").with("direction", "top").with("hint_image", "arrow_keys.png").with("down_arrow", ""));
+}
+
+// static
+void LLFirstUse::viewPopup(bool enable)
+{
+	firstUseNotification("FirstViewPopup", enable, "HintView", LLSD(), LLSD().with("target", "view_popup").with("direction", "right"));
 }
 
 // static

@@ -142,6 +142,10 @@ private:
 		//FILENAME_BUFFER_SIZE = 65536
 		FILENAME_BUFFER_SIZE = 65000
 	};
+
+	// utility function to check if access to local file system via file browser 
+	// is enabled and if not, tidy up and indicate we're not allowed to do this.
+	bool check_local_file_access_enabled();
 	
 #if LL_WINDOWS
 	OPENFILENAMEW mOFN;				// for open and save dialogs

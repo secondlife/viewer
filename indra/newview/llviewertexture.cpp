@@ -1501,57 +1501,56 @@ void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 //virtual
 void LLViewerFetchedTexture::processTextureStats()
 {
-	static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes");
-
 	if(mFullyLoaded)
-	{
-		if(needsToSaveRawImage())//needs to reload
+	{		
+		if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
 		{
+			mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
 			mFullyLoaded = FALSE ;
 		}
-		else
-		{
-			return ;
-		}
-	}
-
-	//updateVirtualSize() ;	
-	
-	if (textures_fullres)
-	{
-		mDesiredDiscardLevel = 0;
-	}
-	else if(!mFullWidth || !mFullHeight)
-	{
-		mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel) ;
 	}
 	else
-	{	
-		if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
+	{
+		updateVirtualSize() ;
+		
+		static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes");
+		
+		if (textures_fullres)
 		{
-			if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			{
-				mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-			}
-			else
-			{
-				mDesiredDiscardLevel = 0;
-			}
+			mDesiredDiscardLevel = 0;
 		}
-		else if(mKnownDrawSizeChanged)//known draw size is set
-		{			
-			mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
-												 log((F32)mFullHeight / mKnownDrawHeight) / log_2) ;
-			mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel()) ;
-			mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
-		}
-		mKnownDrawSizeChanged = FALSE ;
-	
-		if(getDiscardLevel() >= 0 && (getDiscardLevel() <= mDesiredDiscardLevel))
+		else if(!mFullWidth || !mFullHeight)
 		{
-			mFullyLoaded = TRUE ;
+			mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel) ;
 		}
-	}	
+		else
+		{	
+			if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
+			{
+				if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+				{
+					mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+				}
+				else
+				{
+					mDesiredDiscardLevel = 0;
+				}
+			}
+			else if(mKnownDrawSizeChanged)//known draw size is set
+			{			
+				mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
+													 log((F32)mFullHeight / mKnownDrawHeight) / log_2) ;
+				mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel()) ;
+				mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel) ;
+			}
+			mKnownDrawSizeChanged = FALSE ;
+		
+			if(getDiscardLevel() >= 0 && (getDiscardLevel() <= mDesiredDiscardLevel))
+			{
+				mFullyLoaded = TRUE ;
+			}
+		}
+	}
 
 	if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0) //force to refetch the texture.
 	{
