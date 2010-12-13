@@ -350,8 +350,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	LLDataPacker *cached_dpp = NULL;
 
 #if LL_RECORD_VIEWER_STATS
-	static LLViewerStatsRecorder	stats_recorder;
-	stats_recorder.initObjectUpdateEvents(regionp);
+	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(regionp);
 #endif
 
 	for (i = 0; i < num_objects; i++)
@@ -368,7 +367,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
 		
 			// Lookup data packer and add this id to cache miss lists if necessary.
-			cached_dpp = regionp->getDP(id, crc);
+			U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
+			cached_dpp = regionp->getDP(id, crc, cache_miss_type);
 			if (cached_dpp)
 			{
 				// Cache Hit.
@@ -381,8 +381,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				// Cache Miss.
 				#if LL_RECORD_VIEWER_STATS
-				const BOOL success = TRUE;
-				stats_recorder.recordObjectUpdateEvent(regionp, id, update_type, success, NULL);
+				LLViewerStatsRecorder::instance()->recordCacheMissEvent(id, update_type, cache_miss_type);
 				#endif
 
 				continue; // no data packer, skip this object
@@ -503,8 +502,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				{
 					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
-					const BOOL success = FALSE;
-					stats_recorder.recordObjectUpdateEvent(regionp, local_id, update_type, success, NULL);
+					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
 					continue;
 				}
@@ -518,8 +516,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				{
 					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
-					const BOOL success = FALSE;
-					stats_recorder.recordObjectUpdateEvent(regionp, local_id, update_type, success, NULL);
+					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
 					continue;
 				}
@@ -532,8 +529,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				mNumDeadObjectUpdates++;
 				// llinfos << "update for a dead object:" << fullid << llendl;
 				#if LL_RECORD_VIEWER_STATS
-				const BOOL success = FALSE;
-				stats_recorder.recordObjectUpdateEvent(regionp, local_id, update_type, success, NULL);
+				LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 				#endif
 				continue;
 			}
@@ -543,8 +539,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (!objectp)
 			{
 				#if LL_RECORD_VIEWER_STATS
-				const BOOL success = FALSE;
-				stats_recorder.recordObjectUpdateEvent(regionp, local_id, update_type, success, NULL);
+				LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 				#endif
 				continue;
 			}
@@ -584,13 +579,12 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
 		}
 		#if LL_RECORD_VIEWER_STATS
-		const BOOL success = TRUE;
-		stats_recorder.recordObjectUpdateEvent(regionp, local_id, update_type, success, objectp);
+		LLViewerStatsRecorder::instance()->recordObjectUpdateEvent(local_id, update_type, objectp);
 		#endif
 	}
 
 #if LL_RECORD_VIEWER_STATS
-	stats_recorder.closeObjectUpdateEvents(regionp);
+	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
 #endif
 
 	LLVOAvatar::cullAvatarsByPixelArea();

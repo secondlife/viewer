@@ -274,9 +274,16 @@ public:
 
 	void getInfo(LLSD& info);
 
+	typedef enum
+	{
+		CACHE_MISS_TYPE_FULL = 0,
+		CACHE_MISS_TYPE_CRC,
+		CACHE_MISS_TYPE_NONE
+	} eCacheMissType;
+
 	// handle a full update message
 	void cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
-	LLDataPacker *getDP(U32 local_id, U32 crc);
+	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 

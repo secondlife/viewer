@@ -59,6 +59,7 @@
 #include "llurldispatcher.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
+#include "llviewerstatsrecorder.h"
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
 #include "llvocache.h"
@@ -1074,7 +1075,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 
 // Get data packer for this object, if we have cached data
 // AND the CRC matches. JC
-LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
+LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 {
 	llassert(mCacheLoaded);
 
@@ -1087,17 +1088,20 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
 		{
 			// Record a hit
 			entry->recordHit();
+			cache_miss_type = CACHE_MISS_TYPE_NONE;
 			return entry->getDP(crc);
 		}
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
+			cache_miss_type = CACHE_MISS_TYPE_CRC;
 			mCacheMissCRC.put(local_id);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
+		cache_miss_type = CACHE_MISS_TYPE_FULL;
 		mCacheMissFull.put(local_id);
 	}
 	return NULL;
@@ -1118,9 +1122,6 @@ void LLViewerRegion::requestCacheMisses()
 	BOOL start_new_message = TRUE;
 	S32 blocks = 0;
 	S32 i;
-
-	const U8 CACHE_MISS_TYPE_FULL = 0;
-	const U8 CACHE_MISS_TYPE_CRC  = 1;
 
 	// Send full cache miss updates.  For these, we KNOW we don't
 	// have a viewer object.
@@ -1184,6 +1185,11 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
+	#if LL_RECORD_VIEWER_STATS
+	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
+	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
+	#endif
 }
 
 void LLViewerRegion::dumpCache()

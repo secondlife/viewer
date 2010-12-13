@@ -39,6 +39,7 @@
 #include "llframetimer.h"
 #include "llviewerobject.h"
 
+class LLMutex;
 class LLViewerRegion;
 class LLViewerObject;
 
@@ -48,24 +49,41 @@ class LLViewerStatsRecorder
 	LLViewerStatsRecorder();
 	~LLViewerStatsRecorder();
 
+	static void initClass();
+	static void cleanupClass();
+	static LLViewerStatsRecorder* instance() {return sInstance; }
+
 	void initStatsRecorder(LLViewerRegion *regionp);
 
-	void initObjectUpdateEvents(LLViewerRegion *regionp);
-	void recordObjectUpdateEvent(LLViewerRegion *regionp, U32 local_id, const EObjectUpdateType update_type, BOOL success, LLViewerObject * objectp);
-	void closeObjectUpdateEvents(LLViewerRegion *regionp);
+	void beginObjectUpdateEvents(LLViewerRegion *regionp);
+	void recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type);
+	void recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type);
+	void recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp);
+	void recordRequestCacheMissesEvent(S32 count);
+	void endObjectUpdateEvents();
 
 private:
-	 LLFrameTimer	mTimer;
-	 F64			mStartTime;
-	 F64			mProcessingTime;
+	static LLViewerStatsRecorder* sInstance;
 
-	 LLFILE *		mObjectCacheFile;		// File to write data into
-	 S32			mObjectCacheHitCount;
-	 S32			mObjectCacheMissCount;
-	 S32			mObjectFullUpdates;
-	 S32			mObjectTerseUpdates;
-	 S32			mObjectCacheMissResponses;
+	LLFILE *	mObjectCacheFile;		// File to write data into
+	LLFrameTimer	mTimer;
+	LLViewerRegion*	mRegionp;
+	F64			mStartTime;
+	F64			mProcessingTime;
+
+	S32			mObjectCacheHitCount;
+	S32			mObjectCacheMissFullCount;
+	S32			mObjectCacheMissCrcCount;
+	S32			mObjectFullUpdates;
+	S32			mObjectTerseUpdates;
+	S32			mObjectCacheMissRequests;
+	S32			mObjectCacheMissResponses;
+	S32			mObjectUpdateFailures;
+
+
+	void	clearStats();
 };
 #endif	// LL_RECORD_VIEWER_STATS
 
 #endif // LLVIEWERSTATSRECORDER_H
+
