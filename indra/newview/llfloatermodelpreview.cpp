@@ -267,6 +267,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onUpload, this);
+	childDisable("ok_btn");
 	
 	childSetAction("consolidate", onConsolidate, this);
 	childSetAction("clear_materials", onClearMaterials, this);
