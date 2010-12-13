@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_jacket_panel">
 	<panel name="avatar_jacket_color_panel">
-		<texture_picker label="Tissu (haut)" name="Upper Fabric" tool_tip="Cliquez pour sélectionner une image"/>
-		<texture_picker label="Tissu (bas)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image"/>
+		<texture_picker label="Texture (haut)" name="Upper Fabric" tool_tip="Cliquez pour sélectionner une image"/>
+		<texture_picker label="Texture (bas)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image"/>
 		<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="80"/>
 	</panel>
 	<panel name="accordion_panel">

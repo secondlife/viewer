@@ -343,4 +343,9 @@ private:
 	ScopedRegistrar*	mStaticScope;
 };
 
+// helper macro for doing static registration
+#define GLUED_TOKEN(x, y) x ## y
+#define GLUE_TOKENS(x, y) GLUED_TOKEN(x, y)
+#define LLREGISTER_STATIC(REGISTRY, KEY, VALUE) static REGISTRY::StaticRegistrar GLUE_TOKENS(reg, __LINE__)(KEY, VALUE);
+
 #endif

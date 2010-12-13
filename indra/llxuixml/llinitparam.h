@@ -278,6 +278,9 @@ namespace LLInitParam
 		S32	mParseGeneration;
 	};
 
+	// used to indicate no matching value to a given name when parsing
+	struct NoParamValue{};
+
 	class BaseBlock;
 
 	class Param
@@ -303,8 +306,8 @@ namespace LLInitParam
 	private:
 		friend class BaseBlock;
 
-		bool		mIsProvided;
 		U16			mEnclosingBlockOffset;
+		bool		mIsProvided;
 	};
 
 	// various callbacks and constraints associated with an individual param

@@ -312,6 +312,14 @@ namespace LLInitParam
 			}
 		}
 
+		// if no match, and no names left on stack, this is just an existence assertion of this block
+		// verify by calling readValue with NoParamValue type, an inherently unparseable type
+		if (!names_left)
+		{
+			NoParamValue no_value;
+			return p.readValue(no_value);
+		}
+
 		return false;
 	}
 

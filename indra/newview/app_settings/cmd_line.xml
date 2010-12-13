@@ -399,6 +399,5 @@
       <key>map-to</key>
       <string>DisableCrashLogger</string>
     </map>
-
   </map>
 </llsd>

@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Configuration" name="Input panel">
-	<text name="Mouselook:">
-		Vue subjective :
-	</text>
-	<text name=" Mouse Sensitivity">
-		Sensibilité de la souris
-	</text>
-	<check_box label="Inverser" name="invert_mouse"/>
 	<text name="Network:">
 		Réseau :
 	</text>
@@ -46,4 +39,5 @@
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Le nom ou adresse IP du proxy que vous souhaitez utiliser"/>
 	<spinner label="Numéro de port :" label_width="95" name="web_proxy_port" width="170"/>
+	<check_box initial_value="true" label="Télécharger et installer automatiquement les mises à jour [APP_NAME]" name="updater_service_active"/>
 </panel>

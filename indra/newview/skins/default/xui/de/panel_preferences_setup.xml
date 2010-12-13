@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Hardware/Internet" name="Input panel">
-	<text name="Mouselook:">
-		Mouselook:
-	</text>
-	<text name=" Mouse Sensitivity">
-		Mausempfindlichkeit:
-	</text>
-	<check_box label="Umkehren" name="invert_mouse"/>
 	<text name="Network:">
 		Netzwerk:
 	</text>
@@ -46,4 +39,5 @@
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
 	<spinner label="Portnummer:" name="web_proxy_port"/>
+	<check_box initial_value="true" label="Updates für [APP_NAME] automatisch herunterladen und installieren" name="updater_service_active"/>
 </panel>

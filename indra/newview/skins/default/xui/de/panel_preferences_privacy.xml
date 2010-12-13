@@ -10,16 +10,19 @@
 	<check_box label="Nur Freunde und Gruppen wissen, dass ich online bin" name="online_visibility"/>
 	<check_box label="Nur Freunde und Gruppen können mich anrufen oder mir eine IM schicken" name="voice_call_friends_only_check"/>
 	<check_box label="Mikrofon ausschalten, wenn Anrufe beendet werden" name="auto_disengage_mic_check"/>
-	<check_box label="Cookies annehmen" name="cookies_enabled"/>
 	<text name="Logs:">
-		Protokolle:
+		Chatprotokolle:
 	</text>
 	<check_box label="Protokolle von Gesprächen in der Nähe auf meinem Computer speichern" name="log_nearby_chat"/>
 	<check_box label="IM Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
-	<check_box label="Zeitstempel hinzufügen" name="show_timestamps_check_im"/>
+	<check_box label="Zeitstempel zu jeder Zeile im Chatprotokoll hinzufügen" name="show_timestamps_check_im"/>
+	<check_box label="Datumsstempel zu Protokolldateinamen hinzufügen" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Protokolle speichern in:
 	</text>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="log_path_button"/>
 	<button label="Ignorierte Einwohner/Objekte" name="block_list" width="180"/>
+	<text name="block_list_label">
+		(Personen und/oder Objekte, die Sie blockiert haben)
+	</text>
 </panel>

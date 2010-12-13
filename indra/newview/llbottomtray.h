@@ -54,7 +54,9 @@ class LLBottomtrayButton : public LLButton
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Params(){}
+		Optional<bool> can_drag;
+		Params()
+		: can_drag("can_drag", true){}
 	};
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
@@ -62,11 +64,14 @@ public:
 
 protected:
 	LLBottomtrayButton(const Params& p)
-		:	LLButton(p)
+	:	LLButton(p),
+		mCanDrag(p.can_drag)
 	{
 
 	}
 	friend class LLUICtrlFactory;
+
+	bool mCanDrag;
 };
 
 class LLBottomTray 
