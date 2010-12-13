@@ -30,17 +30,17 @@
   </text>
   <combo_box bottom_delta="20" follows="left|top" height="18"
 	     name="preview_lod_combo" width="240" tool_tip="LOD to view in preview render">
-    <combo_item name="lowest">
-      Level of Detail: Lowest
-    </combo_item>
-    <combo_item name="low">
-      Level of Detail: Low
+    <combo_item name="high">
+      Level of Detail: High
     </combo_item>
     <combo_item name="medium">
       Level of Detail: Medium
     </combo_item>
-    <combo_item name="high">
-      Level of Detail: High
+    <combo_item name="low">
+      Level of Detail: Low
+    </combo_item>
+    <combo_item name="lowest">
+      Level of Detail: Lowest
     </combo_item>
   </combo_box>
 
