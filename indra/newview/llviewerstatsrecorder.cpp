@@ -221,10 +221,9 @@ void LLViewerStatsRecorder::endObjectUpdateEvents()
 		total_objects > 0)
 	{
 		std::ostringstream data_msg;
-		F32 now32 = (F32) ((LLTimer::getTotalTime() - mStartTime) / 1000.0);
 		F32 processing32 = (F32) ((LLTimer::getTotalTime() - mProcessingTime) / 1000.0);
 
-		data_msg << now32
+		data_msg << getTimeSinceStart()
 			<< ", " << processing32
 			<< ", " << mObjectCacheHitCount
 			<< ", " << mObjectCacheMissFullCount
@@ -246,5 +245,9 @@ void LLViewerStatsRecorder::endObjectUpdateEvents()
 	clearStats();
 }
 
+F32 LLViewerStatsRecorder::getTimeSinceStart()
+{
+	return (F32) ((LLTimer::getTotalTime() - mStartTime) / 1000.0);
+}
 
 

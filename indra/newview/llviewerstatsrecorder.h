@@ -64,6 +64,8 @@ class LLViewerStatsRecorder
 	void recordRequestCacheMissesEvent(S32 count);
 	void endObjectUpdateEvents();
 
+	F32 getTimeSinceStart();
+
 private:
 	static LLViewerStatsRecorder* sInstance;
 

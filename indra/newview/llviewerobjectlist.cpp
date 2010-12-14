@@ -554,6 +554,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			llwarns << "Dead object " << objectp->mID << " in UUID map 1!" << llendl;
 		}
 
+		bool bCached = false;
 		if (compressed)
 		{
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
@@ -564,6 +565,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
 				LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+				bCached = true;
 				#if LL_RECORD_VIEWER_STATS
 				LLViewerStatsRecorder::instance()->recordCacheFullUpdate(local_id, update_type, result, objectp);
 				#endif
@@ -584,6 +586,36 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		#if LL_RECORD_VIEWER_STATS
 		LLViewerStatsRecorder::instance()->recordObjectUpdateEvent(local_id, update_type, objectp);
+		F32 color_strength = llmin((LLViewerStatsRecorder::instance()->getTimeSinceStart() / 1000.0f) + 64.0f, 255.0f);
+		LLColor4 color;
+		switch (update_type)
+		{
+		case OUT_FULL:
+			color[VGREEN] = color_strength;
+			break;
+		case OUT_TERSE_IMPROVED:
+			color[VGREEN] = color_strength;
+			color[VBLUE] = color_strength;
+			break;
+		case OUT_FULL_COMPRESSED:
+			color[VRED] = color_strength;
+			if (!bCached)
+			{
+				color[VGREEN] = color_strength;
+			}
+			break;
+		case OUT_FULL_CACHED:
+			color[VBLUE] = color_strength;
+			break;
+		default:
+			llwarns << "Unknown update_type " << update_type << llendl;
+			break;
+		};
+		U8 te;
+		for (te = 0; te < objectp->getNumTEs(); ++te)
+		{
+			objectp->setTEColor(te, color);
+		}
 		#endif
 	}
 
