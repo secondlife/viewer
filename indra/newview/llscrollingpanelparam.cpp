@@ -165,12 +165,16 @@ void LLScrollingPanelParam::draw()
 	getChildView("max param text")->setVisible( FALSE );
 	LLPanel::draw();
 
+	// If we're in a focused floater, don't apply the floater's alpha to visual param hint,
+	// making its behavior similar to texture controls'.
+	F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+
 	// Draw the hints over the "less" and "more" buttons.
 	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMin->getRect();
 		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
-		mHintMin->draw();
+		mHintMin->draw(alpha);
 	}
 	gGL.popUIMatrix();
 
@@ -178,7 +182,7 @@ void LLScrollingPanelParam::draw()
 	{
 		const LLRect& r = mHintMax->getRect();
 		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
-		mHintMax->draw();
+		mHintMax->draw(alpha);
 	}
 	gGL.popUIMatrix();
 
