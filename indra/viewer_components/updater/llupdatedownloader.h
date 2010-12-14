@@ -52,7 +52,10 @@ public:
 	void cancel(void);
 	
 	// Start a new download.
-	void download(LLURI const & uri, std::string const & hash, bool required=false);
+	void download(LLURI const & uri,
+				  std::string const & hash, 
+				  std::string const & updateVersion,
+				  bool required=false);
 	
 	// Returns true if a download is in progress.
 	bool isDownloading(void);

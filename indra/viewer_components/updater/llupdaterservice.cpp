@@ -339,6 +339,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 			if(download_info["current_version"].asString() == ll_get_version())
 			{
 				mIsDownloading = true;
+				mNewVersion = download_info["update_version"].asString();
 				mUpdateDownloader.resume();
 				result = true;
 			}
@@ -370,7 +371,7 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash, false);
+	mUpdateDownloader.download(uri, hash, newVersion, false);
 	
 	setState(LLUpdaterService::DOWNLOADING);
 }
@@ -382,7 +383,7 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash, true);
+	mUpdateDownloader.download(uri, hash, newVersion, true);
 	
 	setState(LLUpdaterService::DOWNLOADING);
 }

@@ -48,7 +48,10 @@ public:
 	Implementation(LLUpdateDownloader::Client & client);
 	~Implementation();
 	void cancel(void);
-	void download(LLURI const & uri, std::string const & hash, bool required);
+	void download(LLURI const & uri,
+				  std::string const & hash,
+				  std::string const & updateVersion,
+				  bool required);
 	bool isDownloading(void);
 	size_t onHeader(void * header, size_t size);
 	size_t onBody(void * header, size_t size);
@@ -120,9 +123,12 @@ void LLUpdateDownloader::cancel(void)
 }
 
 
-void LLUpdateDownloader::download(LLURI const & uri, std::string const & hash, bool required)
+void LLUpdateDownloader::download(LLURI const & uri,
+								  std::string const & hash,
+								  std::string const & updateVersion,
+								  bool required)
 {
-	mImplementation->download(uri, hash, required);
+	mImplementation->download(uri, hash, updateVersion, required);
 }
 
 
@@ -208,13 +214,17 @@ void LLUpdateDownloader::Implementation::cancel(void)
 }
 	
 
-void LLUpdateDownloader::Implementation::download(LLURI const & uri, std::string const & hash, bool required)
+void LLUpdateDownloader::Implementation::download(LLURI const & uri,
+												  std::string const & hash,
+												  std::string const & updateVersion,
+												  bool required)
 {
 	if(isDownloading()) mClient.downloadError("download in progress");
 
 	mDownloadRecordPath = downloadMarkerPath();
 	mDownloadData = LLSD();
 	mDownloadData["required"] = required;
+	mDownloadData["update_version"] = updateVersion;
 	try {
 		startDownloading(uri, hash);
 	} catch(DownloadError const & e) {
@@ -260,12 +270,18 @@ void LLUpdateDownloader::Implementation::resume(void)
 				resumeDownloading(fileStatus.st_size);
 			} else if(!validateDownload()) {
 				LLFile::remove(filePath);
-				download(LLURI(mDownloadData["url"].asString()), mDownloadData["hash"].asString(), mDownloadData["required"].asBoolean());
+				download(LLURI(mDownloadData["url"].asString()), 
+						 mDownloadData["hash"].asString(),
+						 mDownloadData["update_version"].asString(),
+						 mDownloadData["required"].asBoolean());
 			} else {
 				mClient.downloadComplete(mDownloadData);
 			}
 		} else {
-			download(LLURI(mDownloadData["url"].asString()), mDownloadData["hash"].asString(), mDownloadData["required"].asBoolean());
+			download(LLURI(mDownloadData["url"].asString()), 
+					 mDownloadData["hash"].asString(),
+					 mDownloadData["update_version"].asString(),
+					 mDownloadData["required"].asBoolean());
 		}
 	} catch(DownloadError & e) {
 		mClient.downloadError(e.what());
