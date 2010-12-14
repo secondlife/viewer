@@ -114,6 +114,17 @@
         <combo_box.commit_callback
           function="WebContent.EnterAddress" />
       </combo_box>
+      <icon
+        name="media_secure_lock_flag"
+        height="16"
+        follows="top|right"
+        image_name="Lock2"
+        layout="topleft"
+        left_delta="656"
+        top_delta="2"
+        visible="false" 
+        tool_tip="Secured Browsing"
+        width="16" />
       <button
         image_overlay="ExternalBrowser_Off"
 		    image_disabled="PushButton_Disabled"
@@ -126,7 +137,7 @@
         layout="topleft"
         name="popexternal"
         right="800"
-        top_delta="0"
+        top_delta="-2"
         width="22">
         <button.commit_callback
           function="WebContent.PopExternal" />

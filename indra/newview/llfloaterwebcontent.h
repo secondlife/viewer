@@ -34,6 +34,7 @@ class LLMediaCtrl;
 class LLComboBox;
 class LLTextBox;
 class LLProgressBar;
+class LLIconCtrl;
 
 class LLFloaterWebContent :
 	public LLFloater,
@@ -69,6 +70,7 @@ private:
 
 	LLMediaCtrl* mWebBrowser;
 	LLComboBox* mAddressCombo;
+	LLIconCtrl *mSecureLockIcon;
 	LLTextBox* mStatusBarText;
 	LLProgressBar* mStatusBarProgress;
 	std::string mCurrentURL;

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llcombobox.h"
+#include "lliconctrl.h"
 #include "llfloaterreg.h"
 #include "lllayoutstack.h"
 #include "llpluginclassmedia.h"
@@ -62,6 +63,9 @@ BOOL LLFloaterWebContent::postBuild()
 	// these buttons are always enabled
 	getChildView("reload")->setEnabled( true );
 	getChildView("popexternal")->setEnabled( true );
+
+	// cache image for secure browsing
+	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
 
 	return TRUE;
 }
@@ -248,6 +252,19 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		// we populate the status bar with URLs as they change so clear it now we're done
 		const std::string end_str = "";
 		mStatusBarText->setText( end_str );
+
+		// decide if secure browsing icon should be displayed
+		std::string prefix =  std::string("https://");
+		std::string test_prefix = mCurrentURL.substr(0, prefix.length());
+		LLStringUtil::toLower(test_prefix);
+		if(test_prefix == prefix)
+		{
+			mSecureLockIcon->setVisible(true);
+		}
+		else
+		{
+			mSecureLockIcon->setVisible(false);
+		}
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
