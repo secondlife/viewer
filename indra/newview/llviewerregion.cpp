@@ -1033,7 +1033,7 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
-void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
 {
 	U32 local_id = objectp->getLocalID();
 	U32 crc = objectp->getCRC();
@@ -1047,6 +1047,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		{
 			// Record a hit
 			entry->recordDupe();
+			return CACHE_UPDATE_DUPE;
 		}
 		else
 		{
@@ -1055,6 +1056,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 			delete entry;
 			entry = new LLVOCacheEntry(local_id, crc, dp);
 			mCacheMap[local_id] = entry;
+			return CACHE_UPDATE_CHANGED;
 		}
 	}
 	else
@@ -1062,15 +1064,18 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		// we haven't seen this object before
 
 		// Create new entry and add to map
+		eCacheUpdateResult result = CACHE_UPDATE_ADDED;
 		if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
 		{
 			mCacheMap.erase(mCacheMap.begin());
+			result = CACHE_UPDATE_REPLACED;
+			
 		}
 		entry = new LLVOCacheEntry(local_id, crc, dp);
 
 		mCacheMap[local_id] = entry;
+		return result;
 	}
-	return ;
 }
 
 // Get data packer for this object, if we have cached data

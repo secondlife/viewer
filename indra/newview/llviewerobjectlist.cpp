@@ -500,7 +500,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
-					// llinfos << "terse update for an unknown object:" << fullid << llendl;
+					llinfos << "terse update for an unknown object (compressed):" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
 					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
@@ -514,7 +514,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type != OUT_FULL)
 				{
-					// llinfos << "terse update for an unknown object:" << fullid << llendl;
+					llinfos << "terse update for an unknown object:" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
 					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
@@ -527,7 +527,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (mDeadObjects.find(fullid) != mDeadObjects.end())
 			{
 				mNumDeadObjectUpdates++;
-				// llinfos << "update for a dead object:" << fullid << llendl;
+				llinfos << "update for a dead object:" << fullid << llendl;
 				#if LL_RECORD_VIEWER_STATS
 				LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 				#endif
@@ -538,6 +538,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			objectp = createObject(pcode, regionp, fullid, local_id, gMessageSystem->getSender());
 			if (!objectp)
 			{
+				llinfos << "createObject failure for object: " << fullid << llendl;
 				#if LL_RECORD_VIEWER_STATS
 				LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 				#endif
@@ -562,7 +563,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, &compressed_dp, justCreated);
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
-				objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+				LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+				#if LL_RECORD_VIEWER_STATS
+				LLViewerStatsRecorder::instance()->recordCacheFullUpdate(local_id, update_type, result, objectp);
+				#endif
 			}
 		}
 		else if (cached) // Cache hit only?

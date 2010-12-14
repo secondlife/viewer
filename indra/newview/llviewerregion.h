@@ -281,8 +281,16 @@ public:
 		CACHE_MISS_TYPE_NONE
 	} eCacheMissType;
 
+	typedef enum
+	{
+		CACHE_UPDATE_DUPE = 0,
+		CACHE_UPDATE_CHANGED,
+		CACHE_UPDATE_ADDED,
+		CACHE_UPDATE_REPLACED
+	} eCacheUpdateResult;
+
 	// handle a full update message
-	void cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
 	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);

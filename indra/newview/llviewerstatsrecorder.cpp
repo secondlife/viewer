@@ -96,6 +96,10 @@ void LLViewerStatsRecorder::initStatsRecorder(LLViewerRegion *regionp)
 				<< "TerseUpdates, "
 				<< "CacheMissRequests, "
 				<< "CacheMissResponses, "
+				<< "CacheUpdateDupes, "
+				<< "CacheUpdateChanges, "
+				<< "CacheUpdateAdds, "
+				<< "CacheUpdateReplacements, "
 				<< "UpdateFailures"
 				<< "\n";
 
@@ -121,6 +125,10 @@ void LLViewerStatsRecorder::clearStats()
 	mObjectTerseUpdates = 0;
 	mObjectCacheMissRequests = 0;
 	mObjectCacheMissResponses = 0;
+	mObjectCacheUpdateDupes = 0;
+	mObjectCacheUpdateChanges = 0;
+	mObjectCacheUpdateAdds = 0;
+	mObjectCacheUpdateReplacements = 0;
 	mObjectUpdateFailures = 0;
 }
 
@@ -156,9 +164,33 @@ void LLViewerStatsRecorder::recordObjectUpdateEvent(U32 local_id, const EObjectU
 		mObjectCacheMissResponses++;
 		break;
 	case OUT_FULL_CACHED:
-	default:
 		mObjectCacheHitCount++;
 		break;
+	default:
+		llwarns << "Unknown update_type" << llendl;
+		break;
+	};
+}
+
+void LLViewerStatsRecorder::recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp)
+{
+	switch (update_result)
+	{
+		case LLViewerRegion::CACHE_UPDATE_DUPE:
+			mObjectCacheUpdateDupes++;
+			break;
+		case LLViewerRegion::CACHE_UPDATE_CHANGED:
+			mObjectCacheUpdateChanges++;
+			break;
+		case LLViewerRegion::CACHE_UPDATE_ADDED:
+			mObjectCacheUpdateAdds++;
+			break;
+		case LLViewerRegion::CACHE_UPDATE_REPLACED:
+			mObjectCacheUpdateReplacements++;
+			break;
+		default:
+			llwarns << "Unknown update_result type" << llendl;
+			break;
 	};
 }
 
@@ -177,10 +209,14 @@ void LLViewerStatsRecorder::endObjectUpdateEvents()
 		<< mObjectTerseUpdates << " terse updates, "
 		<< mObjectCacheMissRequests << " cache miss requests, "
 		<< mObjectCacheMissResponses << " cache miss responses, "
+		<< mObjectCacheUpdateDupes << " cache update dupes, "
+		<< mObjectCacheUpdateChanges << " cache update changes, "
+		<< mObjectCacheUpdateAdds << " cache update adds, "
+		<< mObjectCacheUpdateReplacements << " cache update replacements, "
 		<< mObjectUpdateFailures << " update failures"
 		<< llendl;
 
-	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectUpdateFailures;
+	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectCacheUpdateDupes + mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
 	if (mObjectCacheFile != NULL &&
 		total_objects > 0)
 	{
@@ -197,6 +233,10 @@ void LLViewerStatsRecorder::endObjectUpdateEvents()
 			<< ", " << mObjectTerseUpdates
 			<< ", " << mObjectCacheMissRequests
 			<< ", " << mObjectCacheMissResponses
+			<< ", " << mObjectCacheUpdateDupes
+			<< ", " << mObjectCacheUpdateChanges
+			<< ", " << mObjectCacheUpdateAdds
+			<< ", " << mObjectCacheUpdateReplacements
 			<< ", " << mObjectUpdateFailures
 			<< "\n";
 

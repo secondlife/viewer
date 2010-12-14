@@ -38,6 +38,7 @@
 #if LL_RECORD_VIEWER_STATS
 #include "llframetimer.h"
 #include "llviewerobject.h"
+#include "llviewerregion.h"
 
 class LLMutex;
 class LLViewerRegion;
@@ -59,6 +60,7 @@ class LLViewerStatsRecorder
 	void recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type);
 	void recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type);
 	void recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp);
+	void recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp);
 	void recordRequestCacheMissesEvent(S32 count);
 	void endObjectUpdateEvents();
 
@@ -78,6 +80,10 @@ private:
 	S32			mObjectTerseUpdates;
 	S32			mObjectCacheMissRequests;
 	S32			mObjectCacheMissResponses;
+	S32			mObjectCacheUpdateDupes;
+	S32			mObjectCacheUpdateChanges;
+	S32			mObjectCacheUpdateAdds;
+	S32			mObjectCacheUpdateReplacements;
 	S32			mObjectUpdateFailures;
 
 
