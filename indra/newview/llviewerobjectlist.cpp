@@ -586,7 +586,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		#if LL_RECORD_VIEWER_STATS
 		LLViewerStatsRecorder::instance()->recordObjectUpdateEvent(local_id, update_type, objectp);
-		F32 color_strength = llmin((LLViewerStatsRecorder::instance()->getTimeSinceStart() / 1000.0f) + 64.0f, 255.0f);
+		F32 color_strength = llmin(((LLViewerStatsRecorder::instance()->getTimeSinceStart() / 1000.0f) + 128.0f) / 255.0f, 1.0f);
 		LLColor4 color;
 		switch (update_type)
 		{
