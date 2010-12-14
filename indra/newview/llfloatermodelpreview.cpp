@@ -2751,7 +2751,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 		build_operator = GLOD_OPERATOR_EDGE_COLLAPSE;
 	}
 
-	U32 queue_mode;
+	U32 queue_mode=0;
 	iface = mFMP->childGetSelectionInterface("queue_mode");
 	if (iface)
 	{
