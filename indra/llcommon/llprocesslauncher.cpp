@@ -265,14 +265,7 @@ int LLProcessLauncher::launch(void)
 	delete[] fake_argv;
 	
 	mProcessID = id;
-	
-	// At this point, the child process will have been created (since that's how vfork works -- the child borrowed our execution context until it forked)
-	// If the process doesn't exist at this point, the exec failed.
-	if(!isRunning())
-	{
-		result = -1;
-	}
-	
+
 	return result;
 }
 
