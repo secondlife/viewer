@@ -38,6 +38,7 @@
 #include "llsidetray.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -102,6 +103,13 @@ void LLPanelTopInfoBar::initParcelIcons()
 	mParcelIcon[SCRIPTS_ICON] = getChild<LLIconCtrl>("scripts_icon");
 	mParcelIcon[DAMAGE_ICON] = getChild<LLIconCtrl>("damage_icon");
 
+	mParcelIcon[VOICE_ICON]->setToolTip(LLTrans::getString("LocationCtrlVoiceTooltip"));
+	mParcelIcon[FLY_ICON]->setToolTip(LLTrans::getString("LocationCtrlFlyTooltip"));
+	mParcelIcon[PUSH_ICON]->setToolTip(LLTrans::getString("LocationCtrlPushTooltip"));
+	mParcelIcon[BUILD_ICON]->setToolTip(LLTrans::getString("LocationCtrlBuildTooltip"));
+	mParcelIcon[SCRIPTS_ICON]->setToolTip(LLTrans::getString("LocationCtrlScriptsTooltip"));
+	mParcelIcon[DAMAGE_ICON]->setToolTip(LLTrans::getString("LocationCtrlDamageTooltip"));
+
 	mParcelIcon[VOICE_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, VOICE_ICON));
 	mParcelIcon[FLY_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, FLY_ICON));
 	mParcelIcon[PUSH_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, PUSH_ICON));
@@ -129,6 +137,7 @@ BOOL LLPanelTopInfoBar::postBuild()
 {
 	mInfoBtn = getChild<LLButton>("place_info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLPanelTopInfoBar::onInfoButtonClicked, this));
+	mInfoBtn->setToolTip(LLTrans::getString("LocationCtrlInfoBtnTooltip"));
 
 	mParcelInfoText = getChild<LLTextBox>("parcel_info_text");
 	mDamageText = getChild<LLTextBox>("damage_text");
