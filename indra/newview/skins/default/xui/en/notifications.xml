@@ -6580,7 +6580,7 @@ Mute everyone?
 The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
     <form name="form">
       <input name="username" type="text" text="User Name"/>
-      <input name="password" type="password" text="Password"/>
+      <input name="password" type="password" text="Password    "/>
       <button default="true"
               index="0"
               name="ok"

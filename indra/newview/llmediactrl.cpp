@@ -1144,6 +1144,14 @@ void LLMediaCtrl::showNotification(LLNotificationPtr notify)
 		params.text_color = LLColor4::black;
 	}
 	else
+	//HACK: another one since XUI doesn't support what we need right now
+	if (notify->getName() == "AuthRequest")
+	{
+		params.bg_image.name = "Yellow_Gradient";
+		params.text_color = LLColor4::black;
+		params.can_close = false;
+	}
+	else
 	{
 		//HACK: make this a property of the notification itself, "cancellable"
 		params.can_close = false;
