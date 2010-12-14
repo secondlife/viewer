@@ -244,7 +244,7 @@ public:
     LLEventPump& getCapAPI() { return mCapabilityListener.getCapAPI(); }
 
     /// implements LLCapabilityProvider
-	virtual LLHost	getHost() const				{ return mHost; }
+	/*virtual*/ const LLHost& getHost() const;
 	const U64 		&getHandle() const 			{ return mHandle; }
 
 	LLSurface		&getLand() const			{ return *mLandp; }

@@ -321,6 +321,12 @@ LLViewerRegion::~LLViewerRegion()
 	std::for_each(mObjectPartition.begin(), mObjectPartition.end(), DeletePointer());
 }
 
+/*virtual*/ 
+const LLHost&	LLViewerRegion::getHost() const				
+{ 
+	return mHost; 
+}
+
 void LLViewerRegion::loadObjectCache()
 {
 	if (mCacheLoaded)
