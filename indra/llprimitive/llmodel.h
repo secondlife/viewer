@@ -100,6 +100,7 @@ public:
 	static LLModel* loadModelFromDae(std::string filename);
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
 	static std::string getElementLabel(daeElement* element);
+	std::string getName() const;
 
 	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
 	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
@@ -185,7 +186,8 @@ public:
 	LLMatrix4 mBindShapeMatrix;
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
-	std::string mLabel;
+	std::string mRequestedLabel; // name requested in UI, if any.
+	std::string mLabel; // name computed from dae.
 
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;

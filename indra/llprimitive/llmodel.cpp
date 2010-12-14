@@ -1324,6 +1324,14 @@ LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 	return ret;
 }
 
+std::string LLModel::getName() const
+{
+	if (!mRequestedLabel.empty())
+		return mRequestedLabel;
+	else
+		return mLabel;
+}
+
 //static 
 LLSD LLModel::writeModel(
 	std::string filename,

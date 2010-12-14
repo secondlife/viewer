@@ -2127,7 +2127,10 @@ void LLModelPreview::rebuildUploadData()
 	mTextureSet.clear();
 	
 	//fill uploaddata instance vectors from scene data
+
+	std::string requested_name = mFMP->getChild<LLUICtrl>("description_form")->getValue().asString();
 	
+
 	LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 	
 	if (!scale_spinner)
@@ -2171,6 +2174,10 @@ void LLModelPreview::rebuildUploadData()
 			LLModelInstance instance = *model_iter;
 			
 			LLModel* base_model = instance.mModel;
+			if (base_model)
+			{
+				base_model->mRequestedLabel = requested_name;
+			}
 			
 			S32 idx = 0;
 			for (idx = 0; idx < mBaseModel.size(); ++idx)
@@ -4131,7 +4138,7 @@ void LLFloaterModelPreview::onBrowseLOD(void* data)
 void LLFloaterModelPreview::onUpload(void* user_data)
 {
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
-	
+
 	mp->mModelPreview->rebuildUploadData();
 	
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale, 
