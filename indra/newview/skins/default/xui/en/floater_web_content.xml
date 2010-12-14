@@ -10,7 +10,7 @@
   help_topic="floater_web_content"
   save_rect="true"
   auto_tile="true"
-  title="WEB CONTENT"
+  title=""
   initial_mime_type="text/html"
   width="820">
   <layout_stack
