@@ -136,11 +136,21 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
 	}
 
-	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
-	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
+	// top and bottom set by updateBottom()
+	setRect(LLRect(channel_left, 0, channel_right, 0));
+	updateBottom();
 	setVisible(TRUE);
 }
+
+void	LLScreenChannelBase::updateBottom()
+{
+	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
+	S32 channel_bottom = gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_left = getRect().mLeft;
+	S32 channel_right = getRect().mRight;
+	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
+}
+
 
 //--------------------------------------------------------------------------
 //////////////////////
@@ -511,6 +521,8 @@ void LLScreenChannel::showToastsBottom()
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
 
+	updateBottom();
+
 	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
@@ -583,19 +595,14 @@ void LLScreenChannel::showToastsBottom()
 		}
 	}
 
+	// Dismiss toasts we don't have space for (STORM-391).
 	if(it != mToastList.rend())
 	{
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
-			(*it).toast->stopTimer();
-			(*it).toast->setVisible(FALSE);
-			mHiddenToastsNum++;
+			(*it).toast->hide();
 		}
-	}
-	else
-	{
-		closeOverflowToastPanel();
 	}
 }
 
@@ -719,7 +726,6 @@ void LLNotificationsUI::LLScreenChannel::startToastTimer(LLToast* toast)
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
-	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }
@@ -850,13 +856,7 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
-	LLRect this_rect = getRect();
-
-	if(channel_bottom != this_rect.mBottom)
-	{
-		setRect(LLRect(this_rect.mLeft, this_rect.mTop, this_rect.mRight, channel_bottom));
-	}
+	updateBottom();
 }
 
 //--------------------------------------------------------------------------

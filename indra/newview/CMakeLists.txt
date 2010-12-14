@@ -1325,7 +1325,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
-    app_settings/keys.ini
+    app_settings/keys.xml
     app_settings/keywords.ini
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml

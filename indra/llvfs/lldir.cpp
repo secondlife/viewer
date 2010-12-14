@@ -382,11 +382,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_USER_SKIN:
-		prefix = getOSUserAppDir();
-		prefix += mDirDelimiter;
-		prefix += "user_settings";
-		prefix += mDirDelimiter;
-		prefix += "skins";
+		prefix = getUserSkinDir();
 		break;
 
 	case LL_PATH_SKINS:
