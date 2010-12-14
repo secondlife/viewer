@@ -75,6 +75,7 @@ public:
 	void dump();
 	S32 getNumRequests() ;
 	S32 getNumHTTPRequests() ;
+	U32 getTotalNumHTTPRequests() ;
 	
 	// Public for access by callbacks
 	void lockQueue() { mQueueMutex.lock(); }
@@ -129,6 +130,9 @@ private:
 	LLTextureInfo mTextureInfo;
 
 	U32 mHTTPTextureBits;
+
+	//debug use
+	U32 mTotalHTTPRequests ;
 };
 
 #endif // LL_LLTEXTUREFETCH_H
