@@ -83,7 +83,10 @@ public:
 	LLVector3			agentToLocalBasis(const LLVector3& v) const;
 
 	// Get the smallest possible axis aligned bbox that contains this bbox
-	LLBBox               getAxisAligned() const;
+	LLBBox              getAxisAligned() const;
+
+	// Increases the size to contain other_box
+	void 				join(const LLBBox& other_box);
 
 
 //	friend LLBBox operator*(const LLBBox& a, const LLMatrix4& b);
