@@ -1208,15 +1208,13 @@ void LLPanelObject::getState( )
 			// allow 'Prim'
 			mComboPhysicsShapeType->add(getString("Prim"), LLSD(0));			
 		}
-		// meshes always allow convex hull
-		mComboPhysicsShapeType->add(getString("Convex Hull"), LLSD(2));	
 	}
 	else
 	{
 		// simple prims always allow physics shape prim
 		mComboPhysicsShapeType->add(getString("Prim"), LLSD(0));	
 	}
-	
+	mComboPhysicsShapeType->add(getString("Convex Hull"), LLSD(2));	
 	mComboPhysicsShapeType->setValue(LLSD(objectp->getPhysicsShapeType()));
 	mComboPhysicsShapeType->setEnabled(editable);
 										
