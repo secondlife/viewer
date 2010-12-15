@@ -140,22 +140,25 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	typedef std::vector<observer_multimap_t::iterator> deadlist_t;
 	deadlist_t dead_iters;
 
-	observer_multimap_t::iterator oi;
-	observer_multimap_t::iterator start = observers.lower_bound(parcel_data.parcel_id);
+	observer_multimap_t::iterator oi = observers.lower_bound(parcel_data.parcel_id);
 	observer_multimap_t::iterator end = observers.upper_bound(parcel_data.parcel_id);
 
-	for (oi = start; oi != end; ++oi)
+	while (oi != end)
 	{
-		LLRemoteParcelInfoObserver * observer = oi->second.get();
+		// increment the loop iterator now since it may become invalid below
+		observer_multimap_t::iterator cur_oi = oi++;
+
+		LLRemoteParcelInfoObserver * observer = cur_oi->second.get();
 		if(observer)
 		{
+			// may invalidate cur_oi if the observer removes itself 
 			observer->processParcelInfo(parcel_data);
 		}
 		else
 		{
 			// the handle points to an expired observer, so don't keep it
 			// around anymore
-			dead_iters.push_back(oi);
+			dead_iters.push_back(cur_oi);
 		}
 	}
 
