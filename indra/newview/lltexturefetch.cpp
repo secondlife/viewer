@@ -2974,25 +2974,27 @@ truncate_viewer_metrics(int max_regions, LLSD & metrics)
 	}
 
 	// Build map of region hashes ordered by duration
-	typedef std::multimap<LLSD::Integer, LLSD::String> reg_ordered_list_t;
+	typedef std::multimap<LLSD::Real, int> reg_ordered_list_t;
 	reg_ordered_list_t regions_by_duration;
 
-	LLSD::map_const_iterator it_end(reg_map.endMap());
-	for (LLSD::map_const_iterator it(reg_map.beginMap()); it_end != it; ++it)
+	int ind(0);
+	LLSD::array_const_iterator it_end(reg_map.endArray());
+	for (LLSD::array_const_iterator it(reg_map.beginArray()); it_end != it; ++it, ++ind)
 	{
-		LLSD::Integer duration = (it->second)[duration_tag].asInteger();
-		regions_by_duration.insert(reg_ordered_list_t::value_type(duration, it->first));
+		LLSD::Real duration = (*it)[duration_tag].asReal();
+		regions_by_duration.insert(reg_ordered_list_t::value_type(duration, ind));
 	}
 
-	// Erase excess region reports selecting shortest duration first
-	reg_ordered_list_t::const_iterator it2_end(regions_by_duration.end());
-	reg_ordered_list_t::const_iterator it2(regions_by_duration.begin());
-	int limit(regions_by_duration.size() - max_regions);
-	for (int i(0); i < limit && it2_end != it2; ++i, ++it2)
+	// Build a replacement regions array with the longest-persistence regions
+	LLSD new_region(LLSD::emptyArray());
+	reg_ordered_list_t::const_reverse_iterator it2_end(regions_by_duration.rend());
+	reg_ordered_list_t::const_reverse_iterator it2(regions_by_duration.rbegin());
+	for (int i(0); i < max_regions && it2_end != it2; ++i, ++it2)
 	{
-		reg_map.erase(it2->second);
+		new_region.append(reg_map[it2->second]);
 	}
-
+	reg_map = new_region;
+	
 	return true;
 }
 
