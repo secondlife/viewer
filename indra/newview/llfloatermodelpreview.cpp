@@ -1607,12 +1607,17 @@ void LLModelLoader::run()
 
 bool LLModelLoader::isNodeAJoint( domNode* pNode ) 
 {
+	if ( pNode->getName() == NULL)
+	{
+		return false;
+	}
+
 	if ( mJointMap.find( pNode->getName() )  != mJointMap.end() )
 	{
 		return true;
 	}
 		
-		return false;
+	return false;
 }
 
 void LLModelLoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
