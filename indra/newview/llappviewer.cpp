@@ -81,6 +81,7 @@
 #include "llurlmatch.h"
 #include "lltextutil.h"
 #include "lllogininstance.h"
+#include "llprogressview.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -3138,7 +3139,7 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected)
+	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
