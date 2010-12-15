@@ -306,13 +306,9 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
 {
 	mCurrentURL = url;
 
-	// redirects will navigate momentarily to about:blank, don't add to history
-	if ( mCurrentURL != "about:blank" )
-	{
-		mAddressCombo->remove( mCurrentURL );
-		mAddressCombo->add( mCurrentURL );
-		mAddressCombo->selectByValue( mCurrentURL );
-	}
+	mAddressCombo->remove( mCurrentURL );
+	mAddressCombo->add( mCurrentURL );
+	mAddressCombo->selectByValue( mCurrentURL );
 }
 
 void LLFloaterWebContent::onClickForward()
@@ -327,13 +323,16 @@ void LLFloaterWebContent::onClickBack()
 
 void LLFloaterWebContent::onClickReload()
 {
-	mAddressCombo->remove(0);
 
 	if( mWebBrowser->getMediaPlugin() )
 	{
 		bool ignore_cache = true;
 		mWebBrowser->getMediaPlugin()->browse_reload( ignore_cache );
-	};
+	}
+	else
+	{
+		mWebBrowser->navigateTo(mCurrentURL);
+	}
 }
 
 void LLFloaterWebContent::onClickStop()
