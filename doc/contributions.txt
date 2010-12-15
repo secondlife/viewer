@@ -750,6 +750,7 @@ Thraxis Epsilon
 tiamat bingyi
 	CT-246
 Tofu Buzzard
+	CTS-411
 	STORM-546
 TraductoresAnonimos Alter
 	CT-324

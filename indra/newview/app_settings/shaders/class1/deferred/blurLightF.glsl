@@ -39,42 +39,43 @@ vec4 getPosition(vec2 pos_screen)
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+        vec2 tc = vary_fragcoord.xy;
+	vec3 norm = texture2DRect(normalMap, tc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
-	vec3 pos = getPosition(vary_fragcoord.xy).xyz;
-	vec4 ccol = texture2DRect(lightMap, vary_fragcoord.xy).rgba;
+	vec3 pos = getPosition(tc).xyz;
+	vec4 ccol = texture2DRect(lightMap, tc).rgba;
 	
 	vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
-	
 	dlt /= max(-pos.z*dist_factor, 1.0);
 	
 	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
-	
+
+	// perturb sampling origin slightly in screen-space to hide edge-ghosting artifacts where smoothing radius is quite large
+	tc += ( (int(tc.x+tc.y)%2 - 0.5) * kern[1].z * dlt * 0.5 );
+
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 tc = vary_fragcoord.xy + kern[i].z*dlt;
-	        vec3 samppos = getPosition(tc).xyz; 
+		vec2 samptc = tc + kern[i].z*dlt;
+	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= 0.003)
 		{
-			col += texture2DRect(lightMap, tc)*kern[i].xyxx;
+			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
 		}
 	}
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 tc = vary_fragcoord.xy - kern[i].z*dlt;
-	        vec3 samppos = getPosition(tc).xyz; 
+		vec2 samptc = tc - kern[i].z*dlt;
+	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= 0.003)
 		{
-			col += texture2DRect(lightMap, tc)*kern[i].xyxx;
+			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
 		}
 	}
-
-
 
 	col /= defined_weight.xyxx;
 	
