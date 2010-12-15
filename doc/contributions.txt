@@ -61,6 +61,7 @@ Aimee Trescothick
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
+	SNOW-240
 	SNOW-522
 	SNOW-626
 	SNOW-756
