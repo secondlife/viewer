@@ -4622,6 +4622,35 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 		return;
 	}
 
+	LL_INFOS("eventhost") << "Found lleventhost at '" << dso_path << "'" << LL_ENDL;
+#if ! defined(LL_WINDOWS)
+	{
+		std::string outfile("/tmp/lleventhost.file.out");
+		std::string command("file '" + dso_path + "' > '" + outfile + "' 2>&1");
+		int rc = system(command.c_str());
+		if (rc != 0)
+		{
+			LL_WARNS("eventhost") << command << " ==> " << rc << ':' << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS("eventhost") << command << ':' << LL_ENDL;
+		}
+		{
+			std::ifstream reader(outfile.c_str());
+			std::string line;
+			while (std::getline(reader, line))
+			{
+				size_t len = line.length();
+				if (len && line[len-1] == '\n')
+					line.erase(len-1);
+				LL_INFOS("eventhost") << line << LL_ENDL;
+			}
+		}
+		remove(outfile.c_str());
+	}
+#endif // LL_WINDOWS
+
 	apr_dso_handle_t * eventhost_dso_handle = NULL;
 	apr_pool_t * eventhost_dso_memory_pool = NULL;
 
@@ -4630,13 +4659,13 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
 		dso_path.c_str(),
 		eventhost_dso_memory_pool);
-	ll_apr_assert_status(rv);
+	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
 	llassert_always(eventhost_dso_handle != NULL);
 
 	int (*ll_plugin_start_func)(LLSD const &) = NULL;
 	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
 
-	ll_apr_assert_status(rv);
+	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
 	llassert_always(ll_plugin_start_func != NULL);
 
 	LLSD args;
