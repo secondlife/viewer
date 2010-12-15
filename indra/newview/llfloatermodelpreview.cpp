@@ -1637,6 +1637,12 @@ void LLModelLoader::extractTranslationViaElement( daeElement* pTranslateElement,
 
 void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms )
 {
+	if (pNode->getName() == NULL)
+	{
+		llwarns << "nameless node, can't process" << llendl;
+		return;
+	}
+
 	//llwarns<<"ProcessJointNode# Node:" <<pNode->getName()<<llendl;
 	
 	//1. handle the incoming node - extract out translation via SID or element
