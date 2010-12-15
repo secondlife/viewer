@@ -115,10 +115,15 @@ LLAgentHandler gAgentHandler;
 
 
 //-- LLPanelProfile::ChildStack begins ----------------------------------------
-LLPanelProfile::ChildStack::ChildStack(LLPanel* parent)
-:	mParent(parent)
+LLPanelProfile::ChildStack::ChildStack()
+:	mParent(NULL)
+{
+}
+
+void LLPanelProfile::ChildStack::setParent(LLPanel* parent)
 {
 	llassert_always(parent != NULL);
+	mParent = parent;
 }
 
 /// Save current parent's child views and remove them from the child list.
@@ -209,9 +214,9 @@ void LLPanelProfile::ChildStack::dump()
 LLPanelProfile::LLPanelProfile()
  : LLPanel()
  , mTabCtrl(NULL)
- , mChildStack(this)
  , mAvatarId(LLUUID::null)
 {
+	mChildStack.setParent(this);
 }
 
 BOOL LLPanelProfile::postBuild()

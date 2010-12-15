@@ -75,7 +75,8 @@ private:
 	{
 		LOG_CLASS(LLPanelProfile::ChildStack);
 	public:
-		ChildStack(LLPanel* parent);
+		ChildStack();
+		void setParent(LLPanel* parent);
 
 		bool push();
 		bool pop();
