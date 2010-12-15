@@ -102,20 +102,6 @@ LLBBox LLBBox::getAxisAligned() const
 
 	return aligned;
 }
-// Increases the size to contain other_box
-void LLBBox::join(const LLBBox& other_box)
-{
-	LLVector3 other_min = (other_box.mPosAgent - mPosAgent) - other_box.mMinLocal;
-	mMinLocal.mV[VX] = llmin( other_min.mV[VX], mMinLocal.mV[VX] );
-	mMinLocal.mV[VY] = llmin( other_min.mV[VY], mMinLocal.mV[VY] );
-	mMinLocal.mV[VZ] = llmin( other_min.mV[VZ], mMinLocal.mV[VZ] );
-
-	LLVector3 other_max = (other_box.mPosAgent - mPosAgent) + other_box.mMaxLocal;
-	mMaxLocal.mV[VX] = llmax( other_max.mV[VX], mMaxLocal.mV[VX] );
-	mMaxLocal.mV[VY] = llmax( other_max.mV[VY], mMaxLocal.mV[VY] );
-	mMaxLocal.mV[VZ] = llmax( other_max.mV[VZ], mMaxLocal.mV[VZ] );
-}
-
 
 void LLBBox::expand( F32 delta )
 {

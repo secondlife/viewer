@@ -524,7 +524,7 @@ bool LLViewerObject::isReturnable()
 	{
 		LLViewerObject* child = *iter;
 		LLBBox child_box(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f);
-		bounding_box.join(child_box);
+		bounding_box.addBBoxAgent(child_box);
 	}
 
 	return !isAttachment()
