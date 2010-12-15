@@ -95,6 +95,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbreastmotion.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
@@ -629,6 +630,7 @@ set(viewer_HEADER_FILES
     llbottomtray.h
     llbox.h
     llbreadcrumbview.h
+    llbreastmotion.h
     llbuycurrencyhtml.h
     llcallbacklist.h
     llcallfloater.h

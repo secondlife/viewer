@@ -97,6 +97,7 @@ public:
 		LVIT_SKIRT,
 		LVIT_ALPHA,
 		LVIT_TATTOO,
+		LVIT_PHYSICS,
 		NUM_LIST_VIEW_ITEM_TYPES
 	} EListViewItemType; 
 
