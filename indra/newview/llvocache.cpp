@@ -225,7 +225,8 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 // Format string used to construct filename for the object cache
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
-const U32 NUM_ENTRIES_TO_PURGE = 50;
+// Throw out 1/20 (5%) of our cache entries if we run out of room.
+const U32 ENTRIES_PURGE_FACTOR = 20;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
@@ -592,7 +593,8 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	
 void LLVOCache::purgeEntries()
 {
-	U32 limit = mCacheSize - NUM_ENTRIES_TO_PURGE ;
+	U32 limit = mCacheSize / ENTRIES_PURGE_FACTOR;
+	limit = llclamp(limit, 1, mCacheSize);
 	// Construct a vector of entries out of the map so we can sort by time.
 	std::vector<HeaderEntryInfo*> header_vector;
 	handle_entry_map_t::iterator iter_end = mHandleEntryMap.end();
