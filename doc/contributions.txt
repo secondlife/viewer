@@ -67,6 +67,7 @@ Aleric Inglewood
 	SNOW-756
 	SNOW-764
 	VWR-10001
+	VWR-10579
 	VWR-10759
 	VWR-10837
 	VWR-12691
@@ -215,6 +216,8 @@ Catherine Pfeffer
 Celierra Darling
 	VWR-1274
 	VWR-6975
+Cron Stardust
+	VWR-10579
 Cypren Christenson
 	STORM-417
 Dale Glass
@@ -591,6 +594,7 @@ Robin Cornelius
 	STORM-422
 	VWR-2488
 	VWR-9557
+	VWR-10579
 	VWR-11128
 	VWR-12533
 	VWR-12587
