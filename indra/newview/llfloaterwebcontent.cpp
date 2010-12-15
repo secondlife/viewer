@@ -289,7 +289,11 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAME_CHANGED )
 	{
 		std::string page_title = self->getMediaName();
-		setTitle( page_title );
+		// simulate browser behavior - title is empty, use the current URL
+		if ( page_title.length() > 0 )
+			setTitle( page_title );
+		else
+			setTitle( mCurrentURL );
 	}
 	else if(event == MEDIA_EVENT_LINK_HOVERED )
 	{
