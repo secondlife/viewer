@@ -291,6 +291,7 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	{
 		return ;
 	}
+	mInitialized = TRUE ;
 
 	setDirNames(location);
 	if (!mReadOnly)
@@ -301,8 +302,7 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 			     MAX_NUM_OBJECT_ENTRIES, NUM_ENTRIES_TO_PURGE);
 
 	mMetaInfo.mVersion = cache_version;
-	readCacheHeader();
-	mInitialized = TRUE ;
+	readCacheHeader();	
 
 	if(mMetaInfo.mVersion != cache_version) 
 	{
