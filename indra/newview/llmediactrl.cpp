@@ -1109,14 +1109,15 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 			lldebugs << "No gFloaterView for onPopuup()" << llendl;
 		};
 
-		// open the same kind of floater as parent if possible
-		if ( floater_name == "media_browser" )
+		// (for now) open web content floater if that's our parent, otherwise, open the current media floater
+		// (this will change soon)
+		if ( floater_name == "web_content" )
 		{
-			LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+			LLWeb::loadWebURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 		}
 		else
 		{
-			LLWeb::loadWebURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+			LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 		}
 	}
 	else
