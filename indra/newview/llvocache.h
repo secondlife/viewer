@@ -111,6 +111,7 @@ public:
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) ;
+	void removeEntry(U64 handle) ;
 
 	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
 
@@ -123,10 +124,9 @@ private:
 	void writeCacheHeader();
 	void clearCacheInMemory();
 	void removeCache() ;
+	void removeEntry(HeaderEntryInfo* entry) ;
 	void purgeEntries();
 	BOOL updateEntry(const HeaderEntryInfo* entry);
-	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
-	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
 	
 private:
 	BOOL                 mEnabled;

@@ -388,10 +388,12 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				// There's something bogus in the data that we're unpacking.
 				dp->dumpBufferToLog();
 				llwarns << "Flushing cache files" << llendl;
-				std::string mask;
-				mask = gDirUtilp->getDirDelimiter() + "*.slc";
-				gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), mask);
-// 				llerrs << "Bogus TE data in " << getID() << ", crashing!" << llendl;
+
+				if(LLVOCache::hasInstance() && getRegion())
+				{
+					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
+				}
+				
 				llwarns << "Bogus TE data in " << getID() << llendl;
 			}
 			else 
