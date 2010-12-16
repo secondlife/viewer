@@ -594,7 +594,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 void LLVOCache::purgeEntries()
 {
 	U32 limit = mCacheSize / ENTRIES_PURGE_FACTOR;
-	limit = llclamp(limit, 1, mCacheSize);
+	limit = llclamp(limit, (U32)1, mCacheSize);
 	// Construct a vector of entries out of the map so we can sort by time.
 	std::vector<HeaderEntryInfo*> header_vector;
 	handle_entry_map_t::iterator iter_end = mHandleEntryMap.end();
