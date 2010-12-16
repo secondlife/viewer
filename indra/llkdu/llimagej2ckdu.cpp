@@ -33,11 +33,13 @@
 
 
 class kdc_flow_control {
+	
 public: // Member functions
     kdc_flow_control(kdu_image_in_base *img_in, kdu_codestream codestream);
     ~kdc_flow_control();
     bool advance_components();
     void process_components();
+	
 private: // Data
     
     struct kdc_component_flow_control {
@@ -58,7 +60,7 @@ private: // Data
     kdu_tile tile;
     int num_components;
     kdc_component_flow_control *components;
-    int count_delta; // Holds the minimum of the `vert_subsampling' fields.
+    int count_delta; // Holds the minimum of the `vert_subsampling' fields
     kdu_multi_analysis engine;
     kdu_long max_buffer_memory;
 };
@@ -132,11 +134,11 @@ public:
 void ll_kdu_error( void )
 {
 	// *FIX: This exception is bad, bad, bad. It gets thrown from a
-	// destructor which can lead imediate program termination!
+	// destructor which can lead to immediate program termination!
 	throw "ll_kdu_error() throwing an exception";
 }
-// Stuff for new kdu error handling.
 
+// Stuff for new kdu error handling
 class LLKDUMessageWarning : public kdu_message
 {
 public:
@@ -210,7 +212,6 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	S32 data_size = base.getDataSize();
 	S32 max_bytes = base.getMaxBytes() ? base.getMaxBytes() : data_size;
 
-	//////////////
 	//
 	//  Initialization
 	//
@@ -228,11 +229,10 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 		mCodeStreamp = NULL;
 	}
 
-
 	if (!mInputp)
 	{
 		llassert(base.getData());
-		// The compressed data has been loaded.
+		// The compressed data has been loaded
 		// Setup the source for the codestrea
 		mInputp = new LLKDUMemSource(base.getData(), data_size);
 	}
@@ -243,8 +243,7 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 
 	mCodeStreamp->create(mInputp);
 
-
-	// Set the maximum number of bytes to use from the codestrea
+	// Set the maximum number of bytes to use from the codestream
 	mCodeStreamp->set_max_bytes(max_bytes);
 
 	//    If you want to flip or rotate the image for some reason, change
@@ -257,10 +256,9 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	// can be decompressed multiple times, possibly with different appearance
 	// parameters, you should call "kdu_codestream::set_persistent" here.
 	//    There are a variety of other features which must be enabled at
-	// this point if you want to take advantage of the  See the
+	// this point if you want to take advantage of them.  See the
 	// descriptions appearing with the "kdu_codestream" interface functions
 	// in "kdu_compressed.h" for an itemized account of these capabilities.
-
 
 	switch( mode )
 	{
@@ -338,27 +336,6 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		base.updateRawDiscardLevel();
 		setupCodeStream(base, TRUE, mode);
 
-		/*
-		//
-		// Not being used OpenJPEG doesn't support it, just deprecate it.
-		//
-
-		// Find the Linden Lab comment in the chain of comments
-		kdu_codestream_comment comment;
-		comment = mCodeStreamp->get_comment();
-		while (comment.get_text())
-		{
-			const char* text = comment.get_text();
-			if( text == strstr( text, LINDEN_J2C_COMMENT_PREFIX) )
-			{
-				mCommentText = text;
-				break;
-			}
-			//llinfos << "CS comment: " << comment.get_text() << llendl;
-			comment = mCodeStreamp->get_comment(comment);
-		}
-		*/
-
 		mRawImagep = &raw_image;
 		mCodeStreamp->change_appearance(false, true, false);
 		mCodeStreamp->apply_input_restrictions(first_channel,max_channel_count,base.getRawDiscardLevel(),0,NULL);
@@ -395,7 +372,6 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		return FALSE;
 	}
 
-	
 	return TRUE;
 }
 
@@ -524,10 +500,9 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 	try
 	{
 		// Set up input image files.
-
 		siz_params siz;
+		
 		// Should set rate someplace here.
-
 		LLKDUMemIn mem_in(raw_image.getData(),
 			raw_image.getDataSize(),
 			raw_image.getWidth(),
@@ -596,7 +571,6 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			num_layer_specs = 1;
 			layer_bytes[0] = 0;
 		}
-		
 		else
 		{
 			// Rate is the argument passed into the LLImageJ2C which
@@ -675,7 +649,6 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			delete record_stream;
 		}
 
-
 		// Now that we're done encoding, create the new data buffer for the compressed
 		// image and stick it there.
 
@@ -717,9 +690,7 @@ BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 		base.setLastError( "Unknown J2C error" );
 		return FALSE;
 	}
-
 }
-
 
 void set_default_colour_weights(kdu_params *siz)
 {
@@ -775,7 +746,6 @@ void set_default_colour_weights(kdu_params *siz)
 		"{0.7220},{0.8254},{0.8254},"
 		"{0.8769},{0.9424},{0.9424},{1}");
 }
-
 
 /******************************************************************************/
 /*                              transfer_bytes                                */
@@ -1088,7 +1058,9 @@ bool kdc_flow_control::advance_components()
             }
         }
         if (all_done)
+        {
             return false;
+        }
     }
     return true;
 }

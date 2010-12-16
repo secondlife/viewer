@@ -30,9 +30,8 @@
 #include "llimagej2c.h"
 
 //
-// 
-//
 // KDU core header files
+//
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
@@ -82,7 +81,7 @@ protected:
 #elif LL_LINUX
 # define LLSYMEXPORT __attribute__ ((visibility("default")))
 #else
-# define LLSYMEXPORT /**/
+# define LLSYMEXPORT
 #endif
 
 extern "C" LLSYMEXPORT const char* engineInfoLLImageJ2CKDU();

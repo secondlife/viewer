@@ -27,8 +27,7 @@
 #ifndef LL_LLKDUMEM_H
 #define LL_LLKDUMEM_H
 
-// Support classes for reading and writing from memory buffers
-// for KDU
+// Support classes for reading and writing from memory buffers in KDU
 #include "kdu_image.h"
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
@@ -70,6 +69,7 @@ public: // Member functions
 	{
 		mCurPos = 0;
 	}
+
 private: // Data
 	U8 *mData;
 	U32 mSize;
@@ -107,13 +107,13 @@ public: // Member functions
 		*mOutputSize = mCurPos;
 		return true;
 	}
+	
 private: // Data
 	U8 *mData;
 	U32 mSize;
 	U32 mCurPos;
 	U32 *mOutputSize;
 };
-
 
 class LLKDUMemIn : public kdu_image_in_base
 {
@@ -125,10 +125,11 @@ public: // Member functions
 				U8 in_num_components,
 				siz_params *siz);
     ~LLKDUMemIn();
+
     bool get(int comp_idx, kdu_line_buf &line, int x_tnum);
 
-	const U8 *mData;
 private: // Data
+	const U8 *mData;
     int first_comp_idx;
     int num_components;
     int rows, cols;
@@ -141,28 +142,4 @@ private: // Data
 	U32 mCurPos;
 	U32 mDataSize;
 };
-
-/*
-class LLKDUMemOut : public kdu_image_out_base
-{
-public: // Member functions
-    LLKDUMemOut(U8 *data, siz_params *siz, U8 in_num_components);
-    LLKDUMemOut(siz_params *siz, U8 in_num_components);
-    ~LLKDUMemOut();
-    void put(int comp_idx, kdu_line_buf &line, int x_tnum);
-
-	U8 *mData;
-private: // Data
-    int first_comp_idx;
-    int num_components;
-    int rows, cols;
-    int precision[3];
-    image_line_buf *incomplete_lines; // Each "sample" represents a full pixel
-    image_line_buf *free_lines;
-    int num_unwritten_rows;
-
-	U32 mCurPos;
-	U32 mDataSize;
-};
-*/
 #endif
