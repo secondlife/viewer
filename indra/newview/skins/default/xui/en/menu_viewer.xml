@@ -976,6 +976,29 @@
                  parameter="perm_prefs" />
             </menu_item_call>
         </menu>
+        <menu_item_separator/>
+        <menu_item_call
+         enabled="false"
+         label="Undo"
+         name="Undo"
+         shortcut="control|Z">
+            <on_click
+             function="Edit.Undo"
+             userdata="" />
+            <on_enable
+             function="Edit.EnableUndo" />
+        </menu_item_call>
+        <menu_item_call
+         enabled="false"
+         label="Redo"
+         name="Redo"
+         shortcut="control|Y">
+            <on_click
+             function="Edit.Redo"
+             userdata="" />
+            <on_enable
+             function="Edit.EnableRedo" />
+        </menu_item_call>        
     </menu>
     <menu
      create_jump_keys="true"
