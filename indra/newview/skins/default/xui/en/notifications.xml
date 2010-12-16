@@ -2894,6 +2894,7 @@ http://secondlife.com/download.
    type="alertmodal">
 We were unable to install a required update. 
 You will be unable to log in until [APP_NAME] has been updated.
+
 Please download and install the latest viewer from
 http://secondlife.com/download.
     <usetemplate
