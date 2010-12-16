@@ -1115,7 +1115,6 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 			LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 		}
 		else
-		if ( floater_name == "web_content" )
 		{
 			LLWeb::loadWebURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 		}
