@@ -44,6 +44,8 @@ public:
     LOG_CLASS(LLFloaterWebContent);
 	LLFloaterWebContent(const LLSD& key);
 
+	void initializeURLHistory();
+
 	static void create(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null);
 
 	static void closeRequest(const std::string &uuid);

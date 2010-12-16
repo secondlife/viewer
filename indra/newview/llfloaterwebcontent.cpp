@@ -33,6 +33,7 @@
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
 #include "lltextbox.h"
+#include "llurlhistory.h"
 #include "llviewercontrol.h"
 #include "llweb.h"
 #include "llwindow.h"
@@ -68,7 +69,33 @@ BOOL LLFloaterWebContent::postBuild()
 	// cache image for secure browsing
 	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
 
+	// initialize the URL history using the system URL History manager
+	initializeURLHistory();
+
 	return TRUE;
+}
+
+void LLFloaterWebContent::initializeURLHistory()
+{
+	// start with an empty list
+	LLCtrlListInterface* url_list = childGetListInterface("address");
+	if (url_list)
+	{
+		url_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
+	}
+
+	// Get all of the entries in the "browser" collection
+	LLSD browser_history = LLURLHistory::getURLHistory("browser");
+	LLSD::array_iterator iter_history =
+		browser_history.beginArray();
+	LLSD::array_iterator end_history =
+		browser_history.endArray();
+	for(; iter_history != end_history; ++iter_history)
+	{
+		std::string url = (*iter_history).asString();
+		if(! url.empty())
+			url_list->addSimpleElement(url);
+	}
 }
 
 //static
@@ -306,6 +333,10 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 void LLFloaterWebContent::set_current_url(const std::string& url)
 {
 	mCurrentURL = url;
+
+	// serialize url history into the system URL History manager
+	LLURLHistory::removeURL("browser", mCurrentURL);
+	LLURLHistory::addURL("browser", mCurrentURL);
 
 	mAddressCombo->remove( mCurrentURL );
 	mAddressCombo->add( mCurrentURL );
