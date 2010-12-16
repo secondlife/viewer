@@ -104,6 +104,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
+static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 
 // +=================================================+
 // |        LLInvFVBridge                            |
@@ -2352,6 +2353,10 @@ void LLFolderBridge::pasteFromClipboard()
 	LLInventoryModel* model = getInventoryModel();
 	if(model && isClipboardPasteable())
 	{
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
@@ -2364,7 +2369,14 @@ void LLFolderBridge::pasteFromClipboard()
 			LLInventoryItem *item = model->getItem(item_id);
 			if (item)
 			{
-				if(LLInventoryClipboard::instance().isCutMode())
+				if (move_is_into_current_outfit || move_is_into_outfit)
+				{
+					if (can_move_to_outfit(item, move_is_into_current_outfit))
+					{
+						dropToOutfit(item, move_is_into_current_outfit);
+					}
+				}
+				else if(LLInventoryClipboard::instance().isCutMode())
 				{
 					// move_inventory_item() is not enough,
 					//we have to update inventory locally too
@@ -2392,9 +2404,13 @@ void LLFolderBridge::pasteFromClipboard()
 
 void LLFolderBridge::pasteLinkFromClipboard()
 {
-	const LLInventoryModel* model = getInventoryModel();
+	LLInventoryModel* model = getInventoryModel();
 	if(model)
 	{
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
@@ -2404,7 +2420,15 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			 ++iter)
 		{
 			const LLUUID &object_id = (*iter);
-			if (LLInventoryCategory *cat = model->getCategory(object_id))
+			if (move_is_into_current_outfit || move_is_into_outfit)
+			{
+				LLInventoryItem *item = model->getItem(object_id);
+				if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+				{
+					dropToOutfit(item, move_is_into_current_outfit);
+				}
+			}
+			else if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
 				const std::string empty_description = "";
 				link_inventory_item(
