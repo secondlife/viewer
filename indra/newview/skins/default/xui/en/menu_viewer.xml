@@ -2630,11 +2630,12 @@
                  parameter="http://secondlife.com/app/search/slurls.html"/>
             </menu_item_call>
           <menu_item_call
-           label="Web Content Browser Test"
-           name="Web Content Browser Test">
+           label="Web Content Browser"
+           name="Web Content Browser"
+           shortcut="control|alt|W">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://secondlife.com/app/search/slurls.html"/>
+             parameter="http://google.com"/>
           </menu_item_call>
           <menu_item_call
              label="Dump SelectMgr"
