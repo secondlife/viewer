@@ -75,7 +75,7 @@
 		    image_selected="PushButton_Selected"
 		    image_unselected="PushButton_Off"
         tool_tip="Stop navigation"
-        enabled="false"
+        enabled="true"
         follows="left|top"
         height="22"
         layout="topleft"

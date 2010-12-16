@@ -45,6 +45,7 @@ LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
+	mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
 	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
 	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind( &LLFloaterWebContent::onPopExternal, this ));
 }
@@ -338,7 +339,13 @@ void LLFloaterWebContent::onClickReload()
 void LLFloaterWebContent::onClickStop()
 {
 	if( mWebBrowser->getMediaPlugin() )
-		mWebBrowser->getMediaPlugin()->stop();
+		mWebBrowser->getMediaPlugin()->browse_stop();
+
+	// still should happen when we catch the navigate complete event
+	// but sometimes (don't know why) that event isn't sent from Qt
+	// and we getto a point where the stop button stays active.
+	getChildView("reload")->setVisible( true );
+	getChildView("stop")->setVisible( false );
 }
 
 void LLFloaterWebContent::onEnterAddress()
