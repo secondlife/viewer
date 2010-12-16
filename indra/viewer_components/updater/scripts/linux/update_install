@@ -4,7 +4,7 @@ export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
 bin/linux-updater.bin --file "$1" --dest "$INSTALL_DIR" --name "Second Life Viewer 2" --stringsdir "$INSTALL_DIR/skins/default/xui/en" --stringsfile "strings.xml"
 
 if [ $? -ne 0 ]
-   then touch "$2"
+   then echo $3 >> "$2"
 fi
 
 rm -f "$1"

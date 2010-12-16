@@ -2475,6 +2475,11 @@ namespace {
 
 		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
 	}
+
+	void install_error_callback(LLSD const & notification, LLSD const & response)
+	{
+		LLAppViewer::instance()->forceQuit();
+	}
 	
     bool notify_update(LLSD const & evt)
     {
@@ -2485,7 +2490,11 @@ namespace {
 				on_update_downloaded(evt);
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
-				LLNotificationsUtil::add("FailedUpdateInstall");
+				if(evt["required"].asBoolean()) {
+					LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), &install_error_callback);
+				} else {
+					LLNotificationsUtil::add("FailedUpdateInstall");
+				}
 				break;
 			default:
 				break;

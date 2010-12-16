@@ -25,6 +25,7 @@
 
 #include "linden_common.h"
 #include <apr_file_io.h>
+#include <boost/lexical_cast.hpp>
 #include "llapr.h"
 #include "llprocesslauncher.h"
 #include "llupdateinstaller.h"
@@ -47,7 +48,10 @@ namespace {
 }
 
 
-int ll_install_update(std::string const & script, std::string const & updatePath, LLInstallScriptMode mode)
+int ll_install_update(std::string const & script,
+					  std::string const & updatePath,
+					  bool required,
+					  LLInstallScriptMode mode)
 {
 	std::string actualScriptPath;
 	switch(mode) {
@@ -73,6 +77,7 @@ int ll_install_update(std::string const & script, std::string const & updatePath
 	launcher.setExecutable(actualScriptPath);
 	launcher.addArgument(updatePath);
 	launcher.addArgument(ll_install_failed_marker_path().c_str());
+	launcher.addArgument(boost::lexical_cast<std::string>(required));
 	int result = launcher.launch();
 	launcher.orphan();
 	

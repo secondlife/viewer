@@ -305,6 +305,7 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 
 				int result = ll_install_update(install_script_path(),
 											   update_info["path"].asString(),
+											   update_info["required"].asBoolean(),
 											   install_script_mode());	
 				
 				if((result == 0) && mAppExitCallback)
@@ -489,6 +490,12 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
+			int requiredValue = 0; 
+			{
+				llifstream stream(ll_install_failed_marker_path());
+				stream >> requiredValue;
+				if(!stream) requiredValue = 0;
+			}
 			// TODO: notify the user.
 			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
 			llinfos << "last install attempt failed" << llendl;
@@ -496,6 +503,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			
 			LLSD event;
 			event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
+			event["required"] = LLSD(requiredValue);
 			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(event);
 			
 			setState(LLUpdaterService::TERMINAL);

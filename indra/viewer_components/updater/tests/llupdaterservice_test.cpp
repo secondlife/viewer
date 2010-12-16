@@ -103,7 +103,7 @@ void LLUpdateDownloader::resume(void) {}
 void LLUpdateDownloader::cancel(void) {}
 void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) {}
 
-int ll_install_update(std::string const &, std::string const &, LLInstallScriptMode)
+int ll_install_update(std::string const &, std::string const &, bool, LLInstallScriptMode)
 {
 	return 0;
 }
