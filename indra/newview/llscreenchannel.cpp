@@ -595,19 +595,14 @@ void LLScreenChannel::showToastsBottom()
 		}
 	}
 
+	// Dismiss toasts we don't have space for (STORM-391).
 	if(it != mToastList.rend())
 	{
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
-			(*it).toast->stopTimer();
-			(*it).toast->setVisible(FALSE);
-			mHiddenToastsNum++;
+			(*it).toast->hide();
 		}
-	}
-	else
-	{
-		closeOverflowToastPanel();
 	}
 }
 
@@ -731,7 +726,6 @@ void LLNotificationsUI::LLScreenChannel::startToastTimer(LLToast* toast)
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
-	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }
