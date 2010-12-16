@@ -103,6 +103,45 @@ namespace tut
 		ensure_equals(testname, url, expected);
 	}
 
+	void dummyCallback(const std::string &url, const std::string &label, const std::string& icon)
+	{
+	}
+
+	void testLabel(const std::string &testname, LLUrlEntryBase &entry,
+				   const char *text, const std::string &expected)
+	{
+		boost::regex regex = entry.getPattern();
+		std::string label = "";
+		boost::cmatch result;
+		bool found = boost::regex_search(text, result, regex);
+		if (found)
+		{
+			S32 start = static_cast<U32>(result[0].first - text);
+			S32 end = static_cast<U32>(result[0].second - text);
+			std::string url = std::string(text+start, end-start);
+			label = entry.getLabel(url, dummyCallback);
+		}
+		ensure_equals(testname, label, expected);
+	}
+
+	void testLocation(const std::string &testname, LLUrlEntryBase &entry,
+					  const char *text, const std::string &expected)
+	{
+		boost::regex regex = entry.getPattern();
+		std::string location = "";
+		boost::cmatch result;
+		bool found = boost::regex_search(text, result, regex);
+		if (found)
+		{
+			S32 start = static_cast<U32>(result[0].first - text);
+			S32 end = static_cast<U32>(result[0].second - text);
+			std::string url = std::string(text+start, end-start);
+			location = entry.getLocation(url);
+		}
+		ensure_equals(testname, location, expected);
+	}
+
+
 	template<> template<>
 	void object::test<1>()
 	{
@@ -696,5 +735,115 @@ namespace tut
 		testRegex("<nolink> [5]", url,
 				  "<nolink>My Object</nolink>",
 				  "My Object");
+	}
+
+	template<> template<>
+	void object::test<13>()
+	{
+		//
+		// test LLUrlEntryRegion - secondlife:///app/region/<location> URLs
+		//
+		LLUrlEntryRegion url;
+
+		// Regex tests.
+		testRegex("no valid region", url,
+				  "secondlife:///app/region/",
+				  "");
+
+		testRegex("invalid coords", url,
+				  "secondlife:///app/region/Korea2/a/b/c",
+				  "secondlife:///app/region/Korea2/"); // don't count invalid coords
+
+		testRegex("Ahern (50,50,50) [1]", url,
+				  "secondlife:///app/region/Ahern/50/50/50/",
+				  "secondlife:///app/region/Ahern/50/50/50/");
+
+		testRegex("Ahern (50,50,50) [2]", url,
+				  "XXX secondlife:///app/region/Ahern/50/50/50/ XXX",
+				  "secondlife:///app/region/Ahern/50/50/50/");
+
+		testRegex("Ahern (50,50,50) [3]", url,
+				  "XXX secondlife:///app/region/Ahern/50/50/50 XXX",
+				  "secondlife:///app/region/Ahern/50/50/50");
+
+		testRegex("Ahern (50,50,50) multicase", url,
+				  "XXX secondlife:///app/region/Ahern/50/50/50/ XXX",
+				  "secondlife:///app/region/Ahern/50/50/50/");
+
+		testRegex("Ahern (50,50) [1]", url,
+				  "XXX secondlife:///app/region/Ahern/50/50/ XXX",
+				  "secondlife:///app/region/Ahern/50/50/");
+
+		testRegex("Ahern (50,50) [2]", url,
+				  "XXX secondlife:///app/region/Ahern/50/50 XXX",
+				  "secondlife:///app/region/Ahern/50/50");
+
+		// DEV-21577: In-world SLURLs containing "(" or ")" are not treated as a hyperlink in chat
+		testRegex("Region with brackets", url,
+				  "XXX secondlife:///app/region/Burning%20Life%20(Hyper)/27/210/30 XXX",
+				  "secondlife:///app/region/Burning%20Life%20(Hyper)/27/210/30");
+
+		// DEV-35459: SLURLs and teleport Links not parsed properly
+		testRegex("Region with quote", url,
+				  "XXX secondlife:///app/region/A'ksha%20Oasis/41/166/701 XXX",
+			          "secondlife:///app/region/A%27ksha%20Oasis/41/166/701");
+
+		// Rendering tests.
+		testLabel("Render /app/region/Ahern/50/50/50/", url,
+			"secondlife:///app/region/Ahern/50/50/50/",
+			"Ahern (50,50,50)");
+
+		testLabel("Render /app/region/Ahern/50/50/50", url,
+			"secondlife:///app/region/Ahern/50/50/50",
+			"Ahern (50,50,50)");
+
+		testLabel("Render /app/region/Ahern/50/50/", url,
+			"secondlife:///app/region/Ahern/50/50/",
+			"Ahern (50,50)");
+
+		testLabel("Render /app/region/Ahern/50/50", url,
+			"secondlife:///app/region/Ahern/50/50",
+			"Ahern (50,50)");
+
+		testLabel("Render /app/region/Ahern/50/", url,
+			"secondlife:///app/region/Ahern/50/",
+			"Ahern (50)");
+
+		testLabel("Render /app/region/Ahern/50", url,
+			"secondlife:///app/region/Ahern/50",
+			"Ahern (50)");
+
+		testLabel("Render /app/region/Ahern/", url,
+			"secondlife:///app/region/Ahern/",
+			"Ahern");
+
+		testLabel("Render /app/region/Ahern/ within context", url,
+			"XXX secondlife:///app/region/Ahern/ XXX",
+			"Ahern");
+
+		testLabel("Render /app/region/Ahern", url,
+			"secondlife:///app/region/Ahern",
+			"Ahern");
+
+		testLabel("Render /app/region/Ahern within context", url,
+			"XXX secondlife:///app/region/Ahern XXX",
+			"Ahern");
+
+		testLabel("Render /app/region/Product%20Engine/", url,
+			"secondlife:///app/region/Product%20Engine/",
+			"Product Engine");
+
+		testLabel("Render /app/region/Product%20Engine", url,
+			"secondlife:///app/region/Product%20Engine",
+			"Product Engine");
+
+		// Location parsing texts.
+		testLocation("Location /app/region/Ahern/50/50/50/", url,
+			"secondlife:///app/region/Ahern/50/50/50/",
+			"Ahern");
+
+		testLocation("Location /app/region/Product%20Engine", url,
+			"secondlife:///app/region/Product%20Engine",
+			"Product Engine");
 	}
 }
