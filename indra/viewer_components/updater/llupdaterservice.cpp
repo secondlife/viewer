@@ -494,7 +494,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			{
 				llifstream stream(ll_install_failed_marker_path());
 				stream >> requiredValue;
-				if(!stream) requiredValue = 0;
+				if(stream.fail()) requiredValue = 0;
 			}
 			// TODO: notify the user.
 			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
