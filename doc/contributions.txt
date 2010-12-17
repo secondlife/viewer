@@ -373,6 +373,8 @@ Khyota Wulluf
 Kitty Barnett
 	VWR-19699
 	STORM-288
+	STORM-799
+	STORM-800
 Kunnis Basiat
 	VWR-82
 	VWR-102
