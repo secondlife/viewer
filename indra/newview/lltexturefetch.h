@@ -33,6 +33,7 @@
 #include "llworkerthread.h"
 #include "llcurl.h"
 #include "lltextureinfo.h"
+#include "llapr.h"
 
 class LLViewerTexture;
 class LLTextureFetchWorker;
@@ -41,8 +42,6 @@ class LLTextureCache;
 class LLImageDecodeThread;
 class LLHost;
 class LLViewerAssetStats;
-
-namespace { class TFRequest; }
 
 // Interface class
 class LLTextureFetch : public LLWorkerThread
@@ -54,6 +53,8 @@ public:
 	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
 	~LLTextureFetch();
 
+	class TFRequest;
+	
 	/*virtual*/ S32 update(U32 max_time_ms);	
 	void shutDownTextureCacheThread() ; //called in the main thread after the TextureCacheThread shuts down.
 	void shutDownImageDecodeThread() ;  //called in the main thread after the ImageDecodeThread shuts down.
@@ -99,6 +100,10 @@ public:
 	LLCurlRequest & getCurlRequest()	{ return *mCurlGetRequest; }
 
 	bool isQAMode() const				{ return mQAMode; }
+
+	// Curl POST counter maintenance
+	inline void incrCurlPOSTCount()		{ mCurlPOSTRequestCount++; }
+	inline void decrCurlPOSTCount()		{ mCurlPOSTRequestCount--; }
 
 protected:
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
@@ -187,6 +192,13 @@ private:
 
 	// If true, modifies some behaviors that help with QA tasks.
 	const bool mQAMode;
+
+	// Count of POST requests outstanding.  We maintain the count
+	// indirectly in the CURL request responder's ctor and dtor and
+	// use it when determining whether or not to sleep the thread.  Can't
+	// use the LLCurl module's request counter as it isn't thread compatible.
+	// *NOTE:  Don't mix Atomic and static, apr_initialize must be called first.
+	LLAtomic32<S32> mCurlPOSTRequestCount;
 	
 public:
 	// A probabilistically-correct indicator that the current

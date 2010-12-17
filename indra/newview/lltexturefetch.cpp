@@ -388,9 +388,6 @@ private:
 
 // Cross-thread messaging for asset metrics.
 
-namespace
-{
-
 /**
  * @brief Base class for cross-thread requests made of the fetcher
  *
@@ -490,7 +487,7 @@ namespace
  *       (i.e. deep copy) when necessary.
  *
  */
-class TFRequest // : public LLQueuedThread::QueuedRequest
+class LLTextureFetch::TFRequest // : public LLQueuedThread::QueuedRequest
 {
 public:
 	// Default ctors and assignment operator are correct.
@@ -505,6 +502,8 @@ public:
 	virtual bool doWork(LLTextureFetch * fetcher) = 0;
 };
 
+namespace 
+{
 
 /**
  * @brief Implements a 'Set Region' cross-thread command.
@@ -517,11 +516,11 @@ public:
  *
  * Corresponds to LLTextureFetch::commandSetRegion()
  */
-class TFReqSetRegion : public TFRequest
+class TFReqSetRegion : public LLTextureFetch::TFRequest
 {
 public:
 	TFReqSetRegion(U64 region_handle)
-		: TFRequest(),
+		: LLTextureFetch::TFRequest(),
 		  mRegionHandle(region_handle)
 		{}
 	TFReqSetRegion & operator=(const TFReqSetRegion &);	// Not defined
@@ -550,7 +549,7 @@ public:
  *
  * Corresponds to LLTextureFetch::commandSendMetrics()
  */
-class TFReqSendMetrics : public TFRequest
+class TFReqSendMetrics : public LLTextureFetch::TFRequest
 {
 public:
     /**
@@ -574,7 +573,7 @@ public:
 					 const LLUUID & session_id,
 					 const LLUUID & agent_id,
 					 LLViewerAssetStats * main_stats)
-		: TFRequest(),
+		: LLTextureFetch::TFRequest(),
 		  mCapsURL(caps_url),
 		  mSessionID(session_id),
 		  mAgentID(agent_id),
@@ -592,14 +591,6 @@ public:
 	const LLUUID mAgentID;
 	LLViewerAssetStats * mMainStats;
 };
-
-/*
- * Count of POST requests outstanding.  We maintain the count
- * indirectly in the CURL request responder's ctor and dtor and
- * use it when determining whether or not to sleep the thread.  Can't
- * use the LLCurl module's request counter as it isn't thread compatible.
- */
-LLAtomic32<S32> curl_post_request_count = 0;
 
 /*
  * Examines the merged viewer metrics report and if found to be too long,
@@ -1834,6 +1825,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mCurlGetRequest(NULL),
 	  mQAMode(qa_mode)
 {
+	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
 }
@@ -2149,7 +2141,7 @@ S32 LLTextureFetch::getPending()
         LLMutexLock lock(&mQueueMutex);
         
         res = mRequestQueue.size();
-        res += curl_post_request_count;
+        res += mCurlPOSTRequestCount;
         res += mCommands.size();
     }
 	unlockData();
@@ -2175,7 +2167,7 @@ bool LLTextureFetch::runCondition()
 		have_no_commands = mCommands.empty();
 	}
 	
-    bool have_no_curl_requests(0 == curl_post_request_count);
+    bool have_no_curl_requests(0 == mCurlPOSTRequestCount);
 	
 	return ! (have_no_commands
 			  && have_no_curl_requests
@@ -2769,7 +2761,7 @@ void LLTextureFetch::cmdEnqueue(TFRequest * req)
 	unpause();
 }
 
-TFRequest * LLTextureFetch::cmdDequeue()
+LLTextureFetch::TFRequest * LLTextureFetch::cmdDequeue()
 {
 	TFRequest * ret = 0;
 	
@@ -2856,22 +2848,24 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	class lcl_responder : public LLCurl::Responder
 	{
 	public:
-		lcl_responder(S32 expected_sequence,
+		lcl_responder(LLTextureFetch * fetcher,
+					  S32 expected_sequence,
                       volatile const S32 & live_sequence,
                       volatile bool & reporting_break,
 					  volatile bool & reporting_started)
 			: LLCurl::Responder(),
+			  mFetcher(fetcher),
               mExpectedSequence(expected_sequence),
               mLiveSequence(live_sequence),
 			  mReportingBreak(reporting_break),
 			  mReportingStarted(reporting_started)
 			{
-                curl_post_request_count++;
+                mFetcher->incrCurlPOSTCount();
             }
         
         ~lcl_responder()
             {
-                curl_post_request_count--;
+                mFetcher->decrCurlPOSTCount();
             }
 
 		// virtual
@@ -2896,6 +2890,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 			}
 
 	private:
+		LLTextureFetch * mFetcher;
         S32 mExpectedSequence;
         volatile const S32 & mLiveSequence;
 		volatile bool & mReportingBreak;
@@ -2939,7 +2934,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		fetcher->getCurlRequest().post(mCapsURL,
 									   headers,
 									   merged_llsd,
-									   new lcl_responder(report_sequence,
+									   new lcl_responder(fetcher,
+														 report_sequence,
                                                          report_sequence,
                                                          LLTextureFetch::svMetricsDataBreak,
 														 reporting_started));
