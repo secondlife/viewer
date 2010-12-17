@@ -427,11 +427,13 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSFUNCTION, &progress_callback));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSDATA, this));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOPROGRESS, false));
+#if LL_WINDOWS || LL_DARWIN   // temporary workaround for CHOP-286 (bandwidth limits freeze the downloader thread on linux)
 	if((mBandwidthLimit != 0) && !mDownloadData["required"].asBoolean()) {
 		throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, mBandwidthLimit));
 	} else {
 		throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, -1));
 	}
+#endif // LL_WINDOWS || LL_DARWIN
 	
 	mDownloadPercent = 0;
 }
