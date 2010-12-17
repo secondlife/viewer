@@ -59,6 +59,7 @@
 #include "llurldispatcher.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
+#include "llviewerstatsrecorder.h"
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
 #include "llvocache.h"
@@ -1032,7 +1033,7 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
-void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
 {
 	U32 local_id = objectp->getLocalID();
 	U32 crc = objectp->getCRC();
@@ -1046,6 +1047,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		{
 			// Record a hit
 			entry->recordDupe();
+			return CACHE_UPDATE_DUPE;
 		}
 		else
 		{
@@ -1054,6 +1056,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 			delete entry;
 			entry = new LLVOCacheEntry(local_id, crc, dp);
 			mCacheMap[local_id] = entry;
+			return CACHE_UPDATE_CHANGED;
 		}
 	}
 	else
@@ -1061,20 +1064,23 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		// we haven't seen this object before
 
 		// Create new entry and add to map
+		eCacheUpdateResult result = CACHE_UPDATE_ADDED;
 		if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
 		{
 			mCacheMap.erase(mCacheMap.begin());
+			result = CACHE_UPDATE_REPLACED;
+			
 		}
 		entry = new LLVOCacheEntry(local_id, crc, dp);
 
 		mCacheMap[local_id] = entry;
+		return result;
 	}
-	return ;
 }
 
 // Get data packer for this object, if we have cached data
 // AND the CRC matches. JC
-LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
+LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 {
 	llassert(mCacheLoaded);
 
@@ -1087,17 +1093,20 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
 		{
 			// Record a hit
 			entry->recordHit();
+			cache_miss_type = CACHE_MISS_TYPE_NONE;
 			return entry->getDP(crc);
 		}
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
+			cache_miss_type = CACHE_MISS_TYPE_CRC;
 			mCacheMissCRC.put(local_id);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
+		cache_miss_type = CACHE_MISS_TYPE_FULL;
 		mCacheMissFull.put(local_id);
 	}
 	return NULL;
@@ -1118,9 +1127,6 @@ void LLViewerRegion::requestCacheMisses()
 	BOOL start_new_message = TRUE;
 	S32 blocks = 0;
 	S32 i;
-
-	const U8 CACHE_MISS_TYPE_FULL = 0;
-	const U8 CACHE_MISS_TYPE_CRC  = 1;
 
 	// Send full cache miss updates.  For these, we KNOW we don't
 	// have a viewer object.
@@ -1184,6 +1190,11 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
+	#if LL_RECORD_VIEWER_STATS
+	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
+	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
+	#endif
 }
 
 void LLViewerRegion::dumpCache()
