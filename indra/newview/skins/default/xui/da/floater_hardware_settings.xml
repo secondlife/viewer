@@ -14,6 +14,9 @@
 		<combo_box.item label="8x" name="8x"/>
 		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
+	<text name="antialiasing restart">
+		(kræver genstart af din Second Life klient)
+	</text>
 	<spinner label="Gamma:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
 		(Lysstyrke, lavere er lysere, 0=benyt standard)

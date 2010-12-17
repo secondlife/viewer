@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History">
 	<accordion name="history_accordion">
-		<no_matched_tabs_text name="no_matched_teleports_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/Rechercher [SEARCH_TERM]]."/>
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/[SEARCH_TERM] Rechercher]."/>
 		<no_visible_tabs_text name="no_teleports_msg" value="L&apos;historique des téléportations est vide. Essayez [secondlife:///app/search/places/ Rechercher]."/>
 		<accordion_tab name="today" title="Aujourd&apos;hui"/>
 		<accordion_tab name="yesterday" title="Hier"/>

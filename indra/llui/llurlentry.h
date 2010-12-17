@@ -94,6 +94,8 @@ public:
 
 	virtual LLUUID	getID(const std::string &string) const { return LLUUID::null; }
 
+	bool isLinkDisabled() const;
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;

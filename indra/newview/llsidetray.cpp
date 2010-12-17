@@ -159,8 +159,6 @@ LLSideTrayTab::LLSideTrayTab(const Params& p)
 	mDescription(p.description),
 	mMainPanel(NULL)
 {
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 }
 
 LLSideTrayTab::~LLSideTrayTab()
@@ -917,7 +915,6 @@ void	LLSideTray::createButtons	()
 		}
 	}
 	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
-	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()

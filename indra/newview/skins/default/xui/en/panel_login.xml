@@ -5,6 +5,7 @@ height="600"
 layout="topleft"
 left="0"
 name="panel_login"
+focus_root="true" 
 top="600"
  width="996">
 <panel.string

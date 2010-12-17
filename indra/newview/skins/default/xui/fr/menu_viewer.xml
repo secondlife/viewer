@@ -12,6 +12,12 @@
 		<menu_item_check label="Mon inventaire" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mes gestes" name="Gestures"/>
 		<menu_item_check label="Ma voix" name="ShowVoice"/>
+		<menu label="Déplacement" name="Movement">
+			<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
+			<menu_item_check label="Voler" name="Fly"/>
+			<menu_item_check label="Toujours courir" name="Always Run"/>
+			<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Mon statut" name="Status">
 			<menu_item_call label="Absent" name="Set Away"/>
 			<menu_item_call label="Occupé" name="Set Busy"/>
@@ -47,6 +53,7 @@
 			<menu_item_check label="Propriétaires de terrains" name="Land Owners"/>
 			<menu_item_check label="Coordonnées" name="Coordinates"/>
 			<menu_item_check label="Propriétés de la parcelle" name="Parcel Properties"/>
+			<menu_item_check label="Menu Avancé" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Me téléporter chez moi" name="Teleport Home"/>
 		<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
@@ -123,7 +130,6 @@
 		<menu_item_check label="Activer les astuces" name="Enable Hints"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
-		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
 		<menu_item_call label="Définir la taille de la fenêtre…" name="Set Window Size..."/>
@@ -177,8 +183,7 @@
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
-			<menu_item_check label="Toujours courir" name="Always Run"/>
-			<menu_item_check label="Voler" name="Fly"/>
+			<menu_item_check label="Afficher le menu Avancé - raccourci existant" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Fermer la fenêtre" name="Close Window"/>
 			<menu_item_call label="Fermer toutes les fenêtres" name="Close All Windows"/>
 			<menu_item_call label="Photo sur disque" name="Snapshot to Disk"/>
@@ -196,7 +201,6 @@
 			<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 			<menu_item_call label="Zoom par défaut" name="Zoom Default"/>
 			<menu_item_call label="Zoomer en arrière" name="Zoom Out"/>
-			<menu_item_check label="Afficher le menu Avancé" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Afficher les paramètres de débogage" name="Debug Settings"/>
 		<menu_item_check label="Afficher le menu Développeurs" name="Debug Mode"/>
@@ -311,8 +315,7 @@
 			<menu_item_call label="Imprimer les infos sur l&apos;objet sélectionné" name="Print Selected Object Info"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;avatar" name="Print Agent Info"/>
 			<menu_item_call label="Statistiques de mémoire" name="Memory Stats"/>
-			<menu_item_check label="Pilotage auto par double-clic" name="Double-ClickAuto-Pilot"/>
-			<menu_item_check label="Téléportation par double-clic" name="DoubleClick Teleport"/>
+			<menu_item_check label="Console de débogage de région" name="Region Debug Console"/>
 			<menu_item_check label="Débogage SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Débogage clics" name="Debug Clicks"/>
 			<menu_item_check label="Débogage des vues" name="Debug Views"/>
@@ -324,8 +327,6 @@
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Recharger les paramètres de couleurs" name="Reload Color Settings"/>
 			<menu_item_call label="Afficher le test de police" name="Show Font Test"/>
-			<menu_item_call label="Charger à partir de XML" name="Load from XML"/>
-			<menu_item_call label="Enregistrer en XML" name="Save to XML"/>
 			<menu_item_check label="Afficher les noms XUI" name="Show XUI Names"/>
 			<menu_item_call label="Envoyer des IM tests" name="Send Test IMs"/>
 			<menu_item_call label="Vider les caches de noms" name="Flush Names Caches"/>
@@ -365,9 +366,9 @@
 		<menu_item_call label="Compresser les images" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
-		<menu_item_check label="Afficher le menu Admin" name="View Admin Options"/>
 		<menu_item_call label="Demander le statut Admin" name="Request Admin Options"/>
 		<menu_item_call label="Quitter le statut Admin" name="Leave Admin Options"/>
+		<menu_item_check label="Afficher le menu Admin" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Object">

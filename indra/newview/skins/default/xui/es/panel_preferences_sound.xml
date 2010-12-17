@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sonidos" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Botón medio del ratón
+	</panel.string>
 	<slider label="Volumen general" name="System Volume"/>
 	<check_box initial_value="true" label="Silenciar cuando minimice" name="mute_when_minimized"/>
 	<slider label="Botones" name="UI Volume"/>
@@ -23,6 +26,11 @@
 		<radio_item label="La posición de la cámara" name="0"/>
 		<radio_item label="La posición del avatar" name="1"/>
 	</radio_group>
+	<check_box label="Al hablar, mover los labios del avatar" name="enable_lip_sync"/>
+	<check_box label="Cambiar entre hablar on/off cuando pulse:" name="push_to_talk_toggle_check" tool_tip="En el modo &apos;un toque&apos;, pulsa y suelta el botón UNA VEZ para activar o desactivar el micrófono. Si no estás en el modo &apos;un toque&apos;, el micrófono sólo recogerá tu voz mientras mantengas pulsado el botón."/>
+	<line_editor label="Botón de Apretar para Hablar" name="modifier_combo"/>
+	<button label="Elegir la tecla" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Reconfigurarlo al botón medio del ratón"/>
 	<button label="Dispositivos de entrada y salida" name="device_settings_btn" width="210"/>
 	<panel label="Configuración de dispositivos" name="device_settings_panel">
 		<panel.string name="default_text">

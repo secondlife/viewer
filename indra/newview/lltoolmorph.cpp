@@ -244,13 +244,13 @@ BOOL LLVisualParamHint::render()
 //-----------------------------------------------------------------------------
 // draw()
 //-----------------------------------------------------------------------------
-void LLVisualParamHint::draw()
+void LLVisualParamHint::draw(F32 alpha)
 {
 	if (!mIsVisible) return;
 
 	gGL.getTexUnit(0)->bind(this);
 
-	gGL.color4f(1.f, 1.f, 1.f, 1.f);
+	gGL.color4f(1.f, 1.f, 1.f, alpha);
 
 	LLGLSUIDefault gls_ui;
 	gGL.begin(LLRender::QUADS);

@@ -276,9 +276,6 @@ LLNavigationBar::LLNavigationBar()
 
 	// set a listener function for LoginComplete event
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));
-
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 }
 
 LLNavigationBar::~LLNavigationBar()

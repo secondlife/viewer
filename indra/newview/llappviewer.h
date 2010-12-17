@@ -65,12 +65,14 @@ public:
 	virtual bool mainLoop(); // Override for the application main loop.  Needs to at least gracefully notice the QUITTING state and exit.
 
 	// Application control
+	void flushVFSIO(); // waits for vfs transfers to complete
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+	void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
     void earlyExit(const std::string& name, 
 				   const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
-    void forceExit(S32 arg); // exit() immediately (after some cleanup).
+	void earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
     void abortQuit();  // Called to abort a quit request.
 
     bool quitRequested() { return mQuitRequested; }
