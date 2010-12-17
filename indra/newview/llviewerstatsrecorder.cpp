@@ -26,6 +26,9 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewerstatsrecorder.h"
+
+#if LL_RECORD_VIEWER_STATS
+
 #include "llfile.h"
 #include "llviewerregion.h"
 #include "llviewerobject.h"
@@ -37,7 +40,6 @@
 #else
 	static const std::string STATS_FILE_NAME("/tmp/viewerstats.csv");
 #endif
-
 
 LLViewerStatsRecorder* LLViewerStatsRecorder::sInstance = NULL;
 LLViewerStatsRecorder::LLViewerStatsRecorder() :
@@ -249,5 +251,8 @@ F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
 	return (F32) ((LLTimer::getTotalTime() - mStartTime) / 1000.0);
 }
+
+#endif
+
 
 
