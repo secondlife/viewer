@@ -95,7 +95,12 @@ private:
 	{
 		bool operator()(const HeaderEntryInfo* lhs, const HeaderEntryInfo* rhs) const
 		{
-			return lhs->mTime < rhs->mTime; // older entry in front of queue (set)
+			if(lhs->mTime == rhs->mTime) 
+			{
+				return lhs < rhs ;
+			}
+			
+			return lhs->mTime < rhs->mTime ; // older entry in front of queue (set)
 		}
 	};
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
@@ -119,7 +124,7 @@ private:
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	
 	void getObjectCacheFilename(U64 handle, std::string& filename);
-	void removeFromCache(U64 handle);
+	void removeFromCache(HeaderEntryInfo* entry);
 	void readCacheHeader();
 	void writeCacheHeader();
 	void clearCacheInMemory();

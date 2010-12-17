@@ -225,7 +225,8 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
 const U32 MAX_NUM_OBJECT_ENTRIES = 128 ;
-const U32 NUM_ENTRIES_TO_PURGE = 16 ;
+const U32 MIN_ENTRIES_TO_PURGE = 16 ;
+const U32 INVALID_TIME = 0 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
@@ -298,8 +299,7 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	{
 		LLFile::mkdir(mObjectCacheDirName);
 	}	
-	mCacheSize = llclamp(size,
-			     MAX_NUM_OBJECT_ENTRIES, NUM_ENTRIES_TO_PURGE);
+	mCacheSize = llclamp(size, MIN_ENTRIES_TO_PURGE, MAX_NUM_OBJECT_ENTRIES);
 
 	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();	
@@ -369,14 +369,12 @@ void LLVOCache::removeEntry(HeaderEntryInfo* entry)
 
 	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry) ;
 	if(iter != mHeaderEntryQueue.end())
-	{
-		removeFromCache(entry->mHandle) ;
+	{		
 		mHandleEntryMap.erase(entry->mHandle) ;		
 		mHeaderEntryQueue.erase(iter) ;
+		removeFromCache(entry) ;
 		delete entry ;
 
-		writeCacheHeader() ;
-		readCacheHeader() ;
 		mNumEntries = mHandleEntryMap.size() ;
 	}
 }
@@ -417,7 +415,7 @@ void LLVOCache::getObjectCacheFilename(U64 handle, std::string& filename)
 	return ;
 }
 
-void LLVOCache::removeFromCache(U64 handle)
+void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
 {
 	if(mReadOnly)
 	{
@@ -425,8 +423,11 @@ void LLVOCache::removeFromCache(U64 handle)
 	}
 
 	std::string filename;
-	getObjectCacheFilename(handle, filename);
-	LLAPRFile::remove(filename, mLocalAPRFilePoolp);	
+	getObjectCacheFilename(entry->mHandle, filename);
+	LLAPRFile::remove(filename, mLocalAPRFilePoolp);
+
+	entry->mTime = INVALID_TIME ;
+	updateEntry(entry) ; //update the head file.
 }
 
 void LLVOCache::readCacheHeader()
@@ -449,24 +450,49 @@ void LLVOCache::readCacheHeader()
 		
 		if(success)
 		{
-			HeaderEntryInfo* entry ;
+			HeaderEntryInfo* entry = NULL ;
 			mNumEntries = 0 ;
-			while(mNumEntries < MAX_NUM_OBJECT_ENTRIES)
+			U32 num_read = 0 ;
+			while(num_read++ < MAX_NUM_OBJECT_ENTRIES)
 			{
-				entry = new HeaderEntryInfo() ;
-				success = check_read(&apr_file, entry, sizeof(HeaderEntryInfo));
-				
-				if(!success || !entry->mTime) //failed or end of the cache
+				if(!entry)
 				{
-					delete entry ; 
+					entry = new HeaderEntryInfo() ;
+				}
+				success = check_read(&apr_file, entry, sizeof(HeaderEntryInfo));
+								
+				if(!success) //failed
+				{
+					delete entry ;
+					entry = NULL ;
 					break ;
-				}				
+				}
+				else if(entry->mTime == INVALID_TIME)
+				{
+					continue ; //an empty entry
+				}
 
 				entry->mIndex = mNumEntries++ ;
 				mHeaderEntryQueue.insert(entry) ;
 				mHandleEntryMap[entry->mHandle] = entry ;
+				entry = NULL ;
+			}
+			if(entry)
+			{
+				delete entry ;
 			}
 		}
+
+		//---------
+		//debug code
+		//----------
+		//std::string name ;
+		//for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
+		//{
+		//	getObjectCacheFilename((*iter)->mHandle, name) ;
+		//	llinfos << name << llendl ;
+		//}
+		//-----------
 	}
 	else
 	{
@@ -505,6 +531,7 @@ void LLVOCache::writeCacheHeader()
 		if(success && mNumEntries < MAX_NUM_OBJECT_ENTRIES)
 		{
 			HeaderEntryInfo* entry = new HeaderEntryInfo() ;
+			entry->mTime = INVALID_TIME ;
 			for(S32 i = mNumEntries ; success && i < MAX_NUM_OBJECT_ENTRIES ; i++)
 			{
 				//fill the cache with the default entry.
@@ -594,20 +621,17 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	
 void LLVOCache::purgeEntries()
 {
-	U32 limit = mCacheSize - NUM_ENTRIES_TO_PURGE ;
-	while(mHeaderEntryQueue.size() > limit)
+	while(mHeaderEntryQueue.size() >= mCacheSize)
 	{
 		header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ;
 		HeaderEntryInfo* entry = *iter ;
-		
-		removeFromCache(entry->mHandle) ;
+				
 		mHandleEntryMap.erase(entry->mHandle) ;		
 		mHeaderEntryQueue.erase(iter) ;
+		removeFromCache(entry) ;
 		delete entry ;
 	}
 
-	writeCacheHeader() ;
-	readCacheHeader() ;
 	mNumEntries = mHandleEntryMap.size() ;
 }
 
@@ -623,16 +647,15 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		return ;
 	}
+	if(mNumEntries >= mCacheSize)
+	{
+		purgeEntries() ;
+	}
 
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	if(iter == mHandleEntryMap.end()) //new entry
-	{		
-		if(mNumEntries >= mCacheSize)
-		{
-			purgeEntries() ;
-		}
-		
+	{				
 		entry = new HeaderEntryInfo();
 		entry->mHandle = handle ;
 		entry->mTime = time(NULL) ;
@@ -642,11 +665,12 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	}
 	else
 	{
-		entry = iter->second ;
-		entry->mTime = time(NULL) ;
+		entry = iter->second ;		
 
 		//resort
 		mHeaderEntryQueue.erase(entry) ;
+		
+		entry->mTime = time(NULL) ;
 		mHeaderEntryQueue.insert(entry) ;
 	}
 
