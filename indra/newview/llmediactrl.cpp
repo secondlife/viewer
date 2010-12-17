@@ -1058,8 +1058,8 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LLURL raw_url( self->getAuthURL().c_str() );
 			args["HOST_NAME"] = raw_url.getAuthority();
 			args["REALM"] = self->getAuthRealm();
-
 			auth_request_params.substitutions = args;
+
 			auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
 			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2, mMediaSource->getMediaPlugin());
 			LLNotifications::instance().add(auth_request_params);
