@@ -23,8 +23,9 @@
  * $/LicenseInfo$
  */
 
+#if defined(LL_WINDOWS)
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
-
+#endif
 
 #include "linden_common.h"
 #include <apr_file_io.h>
