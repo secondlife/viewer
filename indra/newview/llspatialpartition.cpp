@@ -2578,6 +2578,20 @@ void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 	gGL.end();
 }
 
+void renderUpdateType(LLDrawable* drawablep)
+{
+	S32 num_faces = drawablep->getNumFaces();
+	if (num_faces)
+	{
+		LLGLEnable blend(GL_BLEND);
+		glColor4f(0,1,1,0.5f);
+		for (S32 i = 0; i < num_faces; ++i)
+		{
+			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+		}
+	}
+}
+
 
 void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 {
@@ -3018,6 +3032,10 @@ public:
 			{
 				renderRaycast(drawable);
 			}
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_UPDATE_TYPE))
+			{
+				renderUpdateType(drawable);
+			}
 
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());
 			
@@ -3180,6 +3198,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_OCCLUSION |
 									  LLPipeline::RENDER_DEBUG_LIGHTS |
 									  LLPipeline::RENDER_DEBUG_BATCH_SIZE |
+									  LLPipeline::RENDER_DEBUG_UPDATE_TYPE |
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
