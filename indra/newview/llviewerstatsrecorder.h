@@ -32,7 +32,7 @@
 // for analysis.
 
 // This is normally 0.  Set to 1 to enable viewer stats recording
-#define LL_RECORD_VIEWER_STATS	1
+#define LL_RECORD_VIEWER_STATS	0
 
 
 #if LL_RECORD_VIEWER_STATS
