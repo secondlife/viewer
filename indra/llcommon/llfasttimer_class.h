@@ -39,7 +39,7 @@ class LLMutex;
 #include "llsd.h"
 
 #if DEBUG_FAST_TIMER_THREADS
-void assert_main_thread();
+LL_COMMON_API void assert_main_thread();
 #endif
 
 class LL_COMMON_API LLFastTimer
