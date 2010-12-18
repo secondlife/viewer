@@ -83,7 +83,6 @@ LLFloaterMap::~LLFloaterMap()
 BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
-	mMap->setScale(gSavedSettings.getF32("MiniMapScale"));
 	mMap->setToolTipMsg(getString("ToolTipMsg"));	
 	sendChildToBack(mMap);
 	
@@ -296,7 +295,6 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 		scale = LLNetMap::MAP_SCALE_MIN;
 	if (scale != 0.0f)
 	{
-		gSavedSettings.setF32("MiniMapScale", scale );
 		mMap->setScale(scale);
 	}
 }
