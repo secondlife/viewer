@@ -1500,13 +1500,13 @@ LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
 											| REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
 
-bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const LLBBox& bbox)
+bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const
 {
 	return (mParcelOverlay != NULL)
 		&& (mParcelOverlay->isOwnedSelf(pos)
 			|| mParcelOverlay->isOwnedGroup(pos)
 			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
-				&& mParcelOverlay->encroachesOwned(bbox)) );
+				&& mParcelOverlay->encroachesOwned(boxes)) );
 }
 
 void LLViewerRegion::showReleaseNotes()

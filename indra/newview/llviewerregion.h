@@ -295,7 +295,7 @@ public:
 
 	LLSpatialPartition* getSpatialPartition(U32 type);
 
-	bool objectIsReturnable(const LLVector3& pos, const LLBBox& bbox);
+	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
 public:
 	struct CompareDistance
 	{

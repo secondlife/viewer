@@ -57,9 +57,9 @@ public:
 	BOOL			isOwnedOther(const LLVector3& pos) const;
 
 	// "encroaches" means the prim hangs over the parcel, but its center
-	// might be in another parcel. for now, we simply test bounding boxes
-	// which isn't perfect, but is close
-	bool 			encroachesOwned(const LLBBox& bbox) const;
+	// might be in another parcel. for now, we simply test axis aligned 
+	// bounding boxes which isn't perfect, but is close
+	bool encroachesOwned(const std::vector<LLBBox>& boxes) const;
 	
 	BOOL			isSoundLocal(const LLVector3& pos) const;
 
