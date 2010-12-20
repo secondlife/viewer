@@ -185,7 +185,7 @@
               </expandable_text>
             </panel>
             <text
-             follows="left|top"
+             follows="left|top|right"
              height="15"
        font.style="BOLD"
        font="SansSerifMedium"
@@ -200,7 +200,7 @@
              use_ellipses="true"
          />
             <text
-             follows="left|top"
+             follows="left|top|right"
            font.style="BOLD"
              height="10"
              layout="topleft"
@@ -213,7 +213,7 @@
             <text_editor
              allow_scroll="false"
              bg_visible="false"
-             follows="left|top"
+             follows="left|top|right"
              h_pad="0"
              height="15"
              layout="topleft"
@@ -226,7 +226,7 @@
              width="300"
              word_wrap="true" />
             <text
-             follows="left|top"
+             follows="left|top|right"
        font.style="BOLD"
              height="15"
              layout="topleft"
@@ -250,7 +250,7 @@
             <text_editor
             allow_scroll="false"
             bg_visible="false"
-            follows="left|top"
+            follows="left|top|right"
             h_pad="0"
             height="28"
             layout="topleft"
@@ -266,7 +266,7 @@
               Linden.
             </text_editor>
             <text
-             follows="left|top"
+             follows="left|top|right"
        font.style="BOLD"
              height="15"
              layout="topleft"
@@ -277,7 +277,7 @@
              value="Partner:"
              width="300" />
             <panel
-             follows="left|top"
+             follows="left|top|right"
              height="15"
              layout="topleft"
              left="10"
@@ -285,7 +285,7 @@
              top_pad="0"
              width="300">
               <text
-               follows="left|top"
+               follows="left|top|right"
                height="10"
                initial_value="(retrieving)"
                layout="topleft"
@@ -297,7 +297,7 @@
            width="300" />
             </panel>
             <text
-             follows="left|top"
+             follows="left|top|right"
        font.style="BOLD"
              height="13"
              layout="topleft"

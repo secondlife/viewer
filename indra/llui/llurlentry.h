@@ -302,6 +302,18 @@ public:
 };
 
 ///
+/// LLUrlEntryRegion Describes a Second Life location Url, e.g.,
+/// secondlife:///app/region/Ahern/128/128/0
+///
+class LLUrlEntryRegion : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryRegion();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getLocation(const std::string &url) const;
+};
+
+///
 /// LLUrlEntryTeleport Describes a Second Life teleport Url, e.g.,
 /// secondlife:///app/teleport/Ahern/50/50/50/
 ///
