@@ -25,7 +25,6 @@
 
 #include "linden_common.h"
 #include <apr_file_io.h>
-#include <boost/lexical_cast.hpp>
 #include "llapr.h"
 #include "llprocesslauncher.h"
 #include "llupdateinstaller.h"
@@ -35,6 +34,7 @@
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
 #endif
+#include <boost/lexical_cast.hpp>
 
 
 namespace {
