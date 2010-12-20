@@ -3001,56 +3001,59 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 					index_offset += face.mNumVertices;
 				}
 
-				LLCDMeshData mesh;
-				mesh.mIndexBase = &index[0];
-				mesh.mVertexBase = pos[0].mV;
-				mesh.mNumVertices = pos.size();
-				mesh.mVertexStrideBytes = 12;
-				mesh.mIndexStrideBytes = 6;
-				mesh.mIndexType = LLCDMeshData::INT_16;
-
-				mesh.mNumTriangles = index.size()/3;
-				
-				LLCDMeshData res;
-
-				LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
-
-				//copy res into phys_volume
-				phys_volume->mHullPoints = (LLVector4a*) malloc(sizeof(LLVector4a)*res.mNumVertices);
-				phys_volume->mNumHullPoints = res.mNumVertices;
-
-				S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
-				phys_volume->mHullIndices = (U16*) malloc(idx_size);
-				phys_volume->mNumHullIndices = res.mNumTriangles*3;
-
-				const F32* v = res.mVertexBase;
-
-				for (S32 i = 0; i < res.mNumVertices; ++i)
+				if (!pos.empty() && !index.empty())
 				{
-					F32* p = (F32*) ((U8*)v+i*res.mVertexStrideBytes);
-					phys_volume->mHullPoints[i].load3(p);
-				}
+					LLCDMeshData mesh;
+					mesh.mIndexBase = &index[0];
+					mesh.mVertexBase = pos[0].mV;
+					mesh.mNumVertices = pos.size();
+					mesh.mVertexStrideBytes = 12;
+					mesh.mIndexStrideBytes = 6;
+					mesh.mIndexType = LLCDMeshData::INT_16;
 
-				if (res.mIndexType == LLCDMeshData::INT_16)
-				{
-					for (S32 i = 0; i < res.mNumTriangles; ++i)
+					mesh.mNumTriangles = index.size()/3;
+					
+					LLCDMeshData res;
+
+					LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
+
+					//copy res into phys_volume
+					phys_volume->mHullPoints = (LLVector4a*) malloc(sizeof(LLVector4a)*res.mNumVertices);
+					phys_volume->mNumHullPoints = res.mNumVertices;
+
+					S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
+					phys_volume->mHullIndices = (U16*) malloc(idx_size);
+					phys_volume->mNumHullIndices = res.mNumTriangles*3;
+
+					const F32* v = res.mVertexBase;
+
+					for (S32 i = 0; i < res.mNumVertices; ++i)
 					{
-						U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
-
-						phys_volume->mHullIndices[i*3+0] = idx[0];
-						phys_volume->mHullIndices[i*3+1] = idx[1];
-						phys_volume->mHullIndices[i*3+2] = idx[2];
+						F32* p = (F32*) ((U8*)v+i*res.mVertexStrideBytes);
+						phys_volume->mHullPoints[i].load3(p);
 					}
-				}
-				else
-				{
-					for (S32 i = 0; i < res.mNumTriangles; ++i)
-					{
-						U32* idx = (U32*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
 
-						phys_volume->mHullIndices[i*3+0] = (U16) idx[0];
-						phys_volume->mHullIndices[i*3+1] = (U16) idx[1];
-						phys_volume->mHullIndices[i*3+2] = (U16) idx[2];
+					if (res.mIndexType == LLCDMeshData::INT_16)
+					{
+						for (S32 i = 0; i < res.mNumTriangles; ++i)
+						{
+							U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+
+							phys_volume->mHullIndices[i*3+0] = idx[0];
+							phys_volume->mHullIndices[i*3+1] = idx[1];
+							phys_volume->mHullIndices[i*3+2] = idx[2];
+						}
+					}
+					else
+					{
+						for (S32 i = 0; i < res.mNumTriangles; ++i)
+						{
+							U32* idx = (U32*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+
+							phys_volume->mHullIndices[i*3+0] = (U16) idx[0];
+							phys_volume->mHullIndices[i*3+1] = (U16) idx[1];
+							phys_volume->mHullIndices[i*3+2] = (U16) idx[2];
+						}
 					}
 				}
 			}

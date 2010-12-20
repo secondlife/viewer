@@ -35,16 +35,20 @@
 #error SSE2 not enabled. LLVector4a and related class will not compile.
 #endif
 
+#if !LL_WINDOWS
+#include <stdint.h>
+#endif
+
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address) 
 { 
 	return reinterpret_cast<T*>(
-		(reinterpret_cast<U32>(address) + 0xF) & ~0xF);
+		(reinterpret_cast<uintptr_t>(address) + 0xF) & ~0xF);
 }
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address) 
 { 
 	return reinterpret_cast<T*>(
-		(reinterpret_cast<U32>(address) + 0x3F) & ~0x3F);
+		(reinterpret_cast<uintptr_t>(address) + 0x3F) & ~0x3F);
 }
 
 #if LL_LINUX || LL_DARWIN

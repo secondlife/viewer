@@ -519,10 +519,6 @@ public:
 
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("Selection Streaming Cost: %.3f ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost()));
-
-			ypos += y_inc;
-
 			addText(xpos, ypos, llformat("Selection Triangle Count: %.3f Ktris ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount()/1000.f));
 
 			ypos += y_inc;

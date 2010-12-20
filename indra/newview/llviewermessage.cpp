@@ -6306,6 +6306,9 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				payload["from_id"] = target_id;
 				payload["SUPPRESS_TOAST"] = true;
 				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+
+				// Add the recepient to the recent people list.
+				LLRecentPeople::instance().add(target_id);
 			}
 		}
 		gAgent.sendReliableMessage();
