@@ -62,6 +62,7 @@ public:
 		Optional<LLUIColor>		caret_color;
 
 		Optional<std::string>	initial_mime_type;
+		Optional<std::string>	media_id;
 		
 		Params();
 	};

@@ -312,7 +312,7 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_PROGRESS_UPDATED )
 	{
 		int percent = (int)self->getProgressPercent();
-		mStatusBarProgress->setPercent( percent );
+		mStatusBarProgress->setValue( percent );
 	}
 	else if(event == MEDIA_EVENT_NAME_CHANGED )
 	{
