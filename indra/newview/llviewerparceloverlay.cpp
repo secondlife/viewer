@@ -148,7 +148,7 @@ BOOL LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
 bool LLViewerParcelOverlay::encroachesOwned(const std::vector<LLBBox>& boxes) const
 {
 	// boxes are expected to already be axis aligned
-	for (S32 i = 0; i < boxes.size(); ++i)
+	for (U32 i = 0; i < boxes.size(); ++i)
 	{
 		LLVector3 min = boxes[i].getMinAgent();
 		LLVector3 max = boxes[i].getMaxAgent();
