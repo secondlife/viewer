@@ -279,7 +279,6 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	friend class LLPhysicsDecomp;
 
 	LLFloater*  mFMP;
-	LLFloater*  getFMP();
 
 	BOOL        mNeedsUpdate;
 	bool		mDirty;
