@@ -506,7 +506,8 @@ void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_v
 {
     if(new_value.asInteger())
     {
-        LLUpdaterService().startChecking();
+		LLUpdaterService update_service;
+		if(!update_service.isChecking()) update_service.startChecking();
     }
     else
     {

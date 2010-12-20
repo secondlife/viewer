@@ -367,10 +367,12 @@
          label="Install automatically"
          name="Install_automatically"
          value="3" />
+      <!--
         <combo_box.item
          label="Ask before installing"
          name="Install_ask"
          value="1" />
+      -->
         <combo_box.item
          label="Download and install updates manually"
          name="Install_manual"
