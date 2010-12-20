@@ -1530,8 +1530,11 @@ void LLLineEditor::drawBackground()
 	{
 		image = mBgImage;
 	}
+
+	if (!image) return;
 	
-	F32 alpha = getDrawContext().mAlpha;
+	F32 alpha = getCurrentTransparency();
+
 	// optionally draw programmatic border
 	if (has_focus)
 	{

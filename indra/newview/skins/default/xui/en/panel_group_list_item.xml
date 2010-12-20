@@ -34,6 +34,7 @@
      mouse_opaque="true"
      left="5"
      top="2"
+     use_draw_context_alpha="false"
      width="20" />
    <text
      parse_urls="false"

@@ -55,6 +55,7 @@ public:
 	void setEditMode(BOOL edit);
 
 	const LLUUID& getObjectID() const;
+	const LLUUID& getItemID() const;
 
 protected:
 	/*virtual*/ void refresh();

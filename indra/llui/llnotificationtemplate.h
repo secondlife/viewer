@@ -158,6 +158,15 @@ struct LLNotificationTemplate
 		{}
 	};
 
+	struct Tag : public LLInitParam::Block<Tag>
+	{
+		Mandatory<std::string>	value;
+
+		Tag()
+		:	value("value")
+		{}
+	};
+
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<std::string>			name;
@@ -175,6 +184,7 @@ struct LLNotificationTemplate
 		Optional<FormRef>				form_ref;
 		Optional<ENotificationPriority, 
 			NotificationPriorityValues> priority;
+		Multiple<Tag>		tags;
 
 
 		Params()
@@ -191,7 +201,8 @@ struct LLNotificationTemplate
 			expire_option("expireOption", -1),
 			url("url"),
 			unique("unique"),
-			form_ref("")
+			form_ref(""),
+			tags("tag")
 		{}
 
 	};
@@ -278,6 +289,8 @@ struct LLNotificationTemplate
 	// this is loaded as a name, but looked up to get the UUID upon template load.
 	// If null, it wasn't specified.
 	LLUUID mSoundEffect;
+	// List of tags that rules can match against.
+	std::list<std::string> mTags;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H

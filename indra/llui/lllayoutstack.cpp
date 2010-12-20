@@ -103,6 +103,8 @@ LLLayoutStack::Params::Params()
 :	orientation("orientation"),
 	animate("animate", true),
 	clip("clip", true),
+	open_time_constant("open_time_constant", 0.02f),
+	close_time_constant("close_time_constant", 0.03f),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {
 	name="stack";
@@ -116,7 +118,9 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mOrientation(p.orientation),
 	mAnimate(p.animate),
 	mAnimatedThisFrame(false),
-	mClip(p.clip)
+	mClip(p.clip),
+	mOpenTimeConstant(p.open_time_constant),
+	mCloseTimeConstant(p.close_time_constant)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -309,9 +313,6 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	S32 total_width = 0;
 	S32 total_height = 0;
 
-	const F32 ANIM_OPEN_TIME = 0.02f;
-	const F32 ANIM_CLOSE_TIME = 0.03f;
-
 	e_panel_list_t::iterator panel_it;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end();	++panel_it)
 	{
@@ -322,7 +323,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
 					if ((*panel_it)->mVisibleAmt > 0.99f)
 					{
 						(*panel_it)->mVisibleAmt = 1.f;
@@ -340,7 +341,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 					if ((*panel_it)->mVisibleAmt < 0.001f)
 					{
 						(*panel_it)->mVisibleAmt = 0.f;
@@ -355,11 +356,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 
 		if ((*panel_it)->mCollapsed)
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 		else
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 
 		if (mOrientation == HORIZONTAL)

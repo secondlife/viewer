@@ -46,7 +46,6 @@
 #include "llviewernetwork.h"		// for gGridChoice
 #include "llbase64.h"
 #include "llviewercontrol.h"
-#include "llkeyboard.h"
 #include "llappviewer.h"	// for gDisconnected, gDisableVoice
 
 // Viewer includes
@@ -326,14 +325,8 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
 
-	mPTTDirty(true),
-	mPTT(true),
-	mUsePTT(true),
-	mPTTIsMiddleMouse(false),
-	mPTTKey(0),
-	mPTTIsToggle(false),
-	mUserPTTState(false),
 	mMuteMic(false),
+	mMuteMicDirty(false),
 	mFriendsListDirty(true),
 
 	mEarLocation(0),
@@ -435,10 +428,6 @@ const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
 void LLVivoxVoiceClient::updateSettings()
 {
 	setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
-	setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
-	std::string keyString = gSavedSettings.getString("PushToTalkButton");
-	setPTTKey(keyString);
-	setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
 	setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
 
 	std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
@@ -950,7 +939,7 @@ void LLVivoxVoiceClient::stateMachine()
 				setState(stateDaemonLaunched);
 				
 				// Dirty the states we'll need to sync with the daemon when it comes up.
-				mPTTDirty = true;
+				mMuteMicDirty = true;
 				mMicVolumeDirty = true;
 				mSpeakerVolumeDirty = true;
 				mSpeakerMuteDirty = true;
@@ -1535,7 +1524,7 @@ void LLVivoxVoiceClient::stateMachine()
 			if(mAudioSession && mAudioSession->mVoiceEnabled)
 			{
 				// Dirty state that may need to be sync'ed with the daemon.
-				mPTTDirty = true;
+				mMuteMicDirty = true;
 				mSpeakerVolumeDirty = true;
 				mSpatialCoordsDirty = true;
 				
@@ -1576,35 +1565,6 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else
 			{
-				
-				// Figure out whether the PTT state needs to change
-				{
-					bool newPTT;
-					if(mUsePTT)
-					{
-						// If configured to use PTT, track the user state.
-						newPTT = mUserPTTState;
-					}
-					else
-					{
-						// If not configured to use PTT, it should always be true (otherwise the user will be unable to speak).
-						newPTT = true;
-					}
-					
-					if(mMuteMic)
-					{
-						// This always overrides any other PTT setting.
-						newPTT = false;
-					}
-					
-					// Dirty if state changed.
-					if(newPTT != mPTT)
-					{
-						mPTT = newPTT;
-						mPTTDirty = true;
-					}
-				}
-				
 				if(!inSpatialChannel())
 				{
 					// When in a non-spatial channel, never send positional updates.
@@ -1626,7 +1586,7 @@ void LLVivoxVoiceClient::stateMachine()
 				// Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
 				// -- the user can only click so fast) or every 10hz, whichever is sooner.
 				// Sending for every volume update causes an excessive flood of messages whenever a volume slider is dragged.
-				if((mAudioSession && mAudioSession->mMuteDirty) || mPTTDirty || mUpdateTimer.hasExpired())
+				if((mAudioSession && mAudioSession->mMuteDirty) || mMuteMicDirty || mUpdateTimer.hasExpired())
 				{
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
@@ -2749,19 +2709,17 @@ void LLVivoxVoiceClient::buildLocalAudioUpdates(std::ostringstream &stream)
 
 	buildSetRenderDevice(stream);
 
-	if(mPTTDirty)
+	if(mMuteMicDirty)
 	{
-		mPTTDirty = false;
+		mMuteMicDirty = false;
 
 		// Send a local mute command.
-		// NOTE that the state of "PTT" is the inverse of "local mute".
-		//   (i.e. when PTT is true, we send a mute command with "false", and vice versa)
 		
-		LL_DEBUGS("Voice") << "Sending MuteLocalMic command with parameter " << (mPTT?"false":"true") << LL_ENDL;
+		LL_DEBUGS("Voice") << "Sending MuteLocalMic command with parameter " << (mMuteMic?"true":"false") << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
-			<< "<Value>" << (mPTT?"false":"true") << "</Value>"
+			<< "<Value>" << (mMuteMic?"true":"false") << "</Value>"
 			<< "</Request>\n\n\n";
 		
 	}
@@ -5238,38 +5196,11 @@ void LLVivoxVoiceClient::leaveChannel(void)
 
 void LLVivoxVoiceClient::setMuteMic(bool muted)
 {
-	mMuteMic = muted;
-}
-
-void LLVivoxVoiceClient::setUserPTTState(bool ptt)
-{
-	mUserPTTState = ptt;
-}
-
-bool LLVivoxVoiceClient::getUserPTTState()
-{
-	return mUserPTTState;
-}
-
-void LLVivoxVoiceClient::inputUserControlState(bool down)
-{
-	if(mPTTIsToggle)
+	if(mMuteMic != muted)
 	{
-		if(down) // toggle open-mic state on 'down'                                                        
-		{
-			toggleUserPTTState();
-		}
+		mMuteMic = muted;
+		mMuteMicDirty = true;
 	}
-	else // set open-mic state as an absolute                                                                  
-	{
-		setUserPTTState(down);
-	}
-}
-
-
-void LLVivoxVoiceClient::toggleUserPTTState(void)
-{
-	mUserPTTState = !mUserPTTState;
 }
 
 void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
@@ -5320,48 +5251,6 @@ BOOL LLVivoxVoiceClient::lipSyncEnabled()
 	}
 }
 
-void LLVivoxVoiceClient::setUsePTT(bool usePTT)
-{
-	if(usePTT && !mUsePTT)
-	{
-		// When the user turns on PTT, reset the current state.
-		mUserPTTState = false;
-	}
-	mUsePTT = usePTT;
-}
-
-void LLVivoxVoiceClient::setPTTIsToggle(bool PTTIsToggle)
-{
-	if(!PTTIsToggle && mPTTIsToggle)
-	{
-		// When the user turns off toggle, reset the current state.
-		mUserPTTState = false;
-	}
-	
-	mPTTIsToggle = PTTIsToggle;
-}
-
-bool LLVivoxVoiceClient::getPTTIsToggle()
-{
-	return mPTTIsToggle;
-}
-
-void LLVivoxVoiceClient::setPTTKey(std::string &key)
-{
-	if(key == "MiddleMouse")
-	{
-		mPTTIsMiddleMouse = true;
-	}
-	else
-	{
-		mPTTIsMiddleMouse = false;
-		if(!LLKeyboard::keyFromString(key, &mPTTKey))
-		{
-			// If the call failed, don't match any key.
-			key = KEY_NONE;
-		}
-	}
-}
 
 void LLVivoxVoiceClient::setEarLocation(S32 loc)
 {
@@ -5399,44 +5288,6 @@ void LLVivoxVoiceClient::setMicGain(F32 volume)
 	{
 		mMicVolume = scaled_volume;
 		mMicVolumeDirty = true;
-	}
-}
-
-void LLVivoxVoiceClient::keyDown(KEY key, MASK mask)
-{	
-	if (gKeyboard->getKeyRepeated(key))
-	{
-		// ignore auto-repeat keys                                                                         
-		return;
-	}
-	
-	if(!mPTTIsMiddleMouse)
-	{
-		bool down = (mPTTKey != KEY_NONE)
-		&& gKeyboard->getKeyDown(mPTTKey);
-		inputUserControlState(down);
-	}
-	
-	
-}
-void LLVivoxVoiceClient::keyUp(KEY key, MASK mask)
-{
-	if(!mPTTIsMiddleMouse)
-	{
-		bool down = (mPTTKey != KEY_NONE)
-		&& gKeyboard->getKeyDown(mPTTKey);
-		inputUserControlState(down);
-	}
-	
-}
-void LLVivoxVoiceClient::middleMouseState(bool down)
-{
-	if(mPTTIsMiddleMouse)
-	{
-        if(mPTTIsMiddleMouse)
-        {
-			inputUserControlState(down);
-        }		
 	}
 }
 
@@ -7015,8 +6866,8 @@ void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
 			<< "<Value>false</Value>"
 		<< "</Request>\n\n\n";
 
-		// Dirty the PTT state so that it will get reset when we finishing previewing
-		mPTTDirty = true;
+		// Dirty the mute mic state so that it will get reset when we finishing previewing
+		mMuteMicDirty = true;
 
 		writeString(stream.str());
 	}
@@ -7030,7 +6881,7 @@ void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
 
 		LL_DEBUGS("Voice") << "Stopping audio capture to buffer." << LL_ENDL;
 
-		// Mute the mic. PTT state was dirtied at recording start, so will be reset when finished previewing.
+		// Mute the mic. Mic mute state was dirtied at recording start, so will be reset when finished previewing.
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
 			<< "<Value>true</Value>"

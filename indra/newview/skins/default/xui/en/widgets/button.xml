@@ -19,10 +19,11 @@
         image_color="ButtonImageColor"
         image_color_disabled="ButtonImageColor"
         flash_color="ButtonFlashBgColor"
-	font="SansSerifSmall"
+        font="SansSerifSmall"
         hover_glow_amount="0.15"
         halign="center"
         pad_bottom="3" 
         height="23"
-        scale_image="true">
+        scale_image="true"
+        use_draw_context_alpha="true">
 </button>

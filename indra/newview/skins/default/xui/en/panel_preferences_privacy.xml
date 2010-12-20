@@ -185,7 +185,7 @@
      layout="topleft"
      left_pad="10"
      mouse_opaque="false"
-     name="cache_size_label_l"
+     name="block_list_label"
      top_delta="3"
      text_color="LtGray_50"
      width="300">

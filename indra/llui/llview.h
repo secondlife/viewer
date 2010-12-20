@@ -116,7 +116,8 @@ public:
 									visible,
 									mouse_opaque,
 									use_bounding_rect,
-									from_xui;
+									from_xui,
+									focus_root;
 
 		Optional<S32>				tab_group,
 									default_tab_group;
@@ -461,12 +462,8 @@ public:
 
 	template <class T> T* getDefaultWidget(const std::string& name) const
 	{
-		default_widget_map_t::const_iterator found_it = getDefaultWidgetMap().find(name);
-		if (found_it == getDefaultWidgetMap().end())
-		{
-			return NULL;
-		}
-		return dynamic_cast<T*>(found_it->second);
+		LLView* widgetp = getDefaultWidgetContainer().findChildView(name);
+		return dynamic_cast<T*>(widgetp);
 	}
 
 	//////////////////////////////////////////////
@@ -580,9 +577,9 @@ private:
 
 	typedef std::map<std::string, LLView*> default_widget_map_t;
 	// allocate this map no demand, as it is rarely needed
-	mutable default_widget_map_t* mDefaultWidgets;
+	mutable LLView* mDefaultWidgets;
 
-	default_widget_map_t& getDefaultWidgetMap() const;
+	LLView& getDefaultWidgetContainer() const;
 
 public:
 	// Depth in view hierarchy during rendering
@@ -649,7 +646,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 				return NULL;
 			}
 
-			getDefaultWidgetMap()[name] = result;
+			getDefaultWidgetContainer().addChild(result);
 		}
 	}
 	return result;

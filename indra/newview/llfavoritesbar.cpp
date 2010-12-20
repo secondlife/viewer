@@ -368,14 +368,15 @@ LLFavoritesBarCtrl::Params::Params()
 LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 :	LLUICtrl(p),
 	mFont(p.font.isProvided() ? p.font() : LLFontGL::getFontSansSerifSmall()),
-	mPopupMenuHandle(),
-	mInventoryItemsPopupMenuHandle(),
+	mOverflowMenuHandle(),
+	mContextMenuHandle(),
 	mImageDragIndication(p.image_drag_indication),
 	mShowDragMarker(FALSE),
 	mLandingTab(NULL),
 	mLastTab(NULL),
 	mTabsHighlightEnabled(TRUE)
   , mUpdateDropDownItems(true)
+,	mRestoreOverflowMenu(false)
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
@@ -402,8 +403,8 @@ LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
 {
 	gInventory.removeObserver(this);
 
-	LLView::deleteViewByHandle(mPopupMenuHandle);
-	LLView::deleteViewByHandle(mInventoryItemsPopupMenuHandle);
+	LLView::deleteViewByHandle(mOverflowMenuHandle);
+	LLView::deleteViewByHandle(mContextMenuHandle);
 }
 
 BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -520,7 +521,7 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 
 	gInventory.saveItemsOrder(mItems);
 
-	LLToggleableMenu* menu = (LLToggleableMenu*) mPopupMenuHandle.get();
+	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
 
 	if (menu && menu->getVisible())
 	{
@@ -776,7 +777,7 @@ void LLFavoritesBarCtrl::updateButtons()
 			mChevronButton->setVisible(TRUE);
 		}
 		// Update overflow menu
-		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mPopupMenuHandle.get());
+		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mOverflowMenuHandle.get());
 		if (overflow_menu && overflow_menu->getVisible())
 		{
 			overflow_menu->setVisible(FALSE);
@@ -850,7 +851,7 @@ BOOL LLFavoritesBarCtrl::postBuild()
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
 	}
 	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
-	mInventoryItemsPopupMenuHandle = menu->getHandle();
+	mContextMenuHandle = menu->getHandle();
 
 	return TRUE;
 }
@@ -881,7 +882,7 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
 
 void LLFavoritesBarCtrl::showDropDownMenu()
 {
-	if (mPopupMenuHandle.isDead())
+	if (mOverflowMenuHandle.isDead())
 	{
 		LLToggleableMenu::Params menu_p;
 		menu_p.name("favorites menu");
@@ -892,10 +893,10 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
 		LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
-		mPopupMenuHandle = menu->getHandle();
+		mOverflowMenuHandle = menu->getHandle();
 	}
 
-	LLToggleableMenu* menu = (LLToggleableMenu*)mPopupMenuHandle.get();
+	LLToggleableMenu* menu = (LLToggleableMenu*)mOverflowMenuHandle.get();
 
 	if (menu)
 	{
@@ -973,10 +974,18 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 {
 	mSelectedItemID = item_id;
 	
-	LLMenuGL* menu = (LLMenuGL*)mInventoryItemsPopupMenuHandle.get();
+	LLMenuGL* menu = (LLMenuGL*)mContextMenuHandle.get();
 	if (!menu)
 	{
 		return;
+	}
+
+	// Remember that the context menu was shown simultaneously with the overflow menu,
+	// so that we can restore the overflow menu when user clicks a context menu item
+	// (which hides the overflow menu).
+	{
+		LLView* overflow_menu = mOverflowMenuHandle.get();
+		mRestoreOverflowMenu = overflow_menu && overflow_menu->getVisible();
 	}
 	
 	// Release mouse capture so hover events go to the popup menu
@@ -1082,8 +1091,8 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 
 	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
 	// See EXT-4217 and STORM-207.
-	LLToggleableMenu* menu = (LLToggleableMenu*) mPopupMenuHandle.get();
-	if (menu && !menu->getVisible())
+	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
+	if (mRestoreOverflowMenu && menu && !menu->getVisible())
 	{
 		showDropDownMenu();
 	}
@@ -1149,11 +1158,11 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 	// EXT-6997 (Fav bar: Pop-up menu for LM in overflow dropdown is kept after LM was dragged away)
-	// mInventoryItemsPopupMenuHandle.get() - is a pop-up menu (of items) in already opened dropdown menu.
+	// mContextMenuHandle.get() - is a pop-up menu (of items) in already opened dropdown menu.
 	// We have to check and set visibility of pop-up menu in such a way instead of using
 	// LLMenuHolderGL::hideMenus() because it will close both menus(dropdown and pop-up), but
 	// we need to close only pop-up menu while dropdown one should be still opened.
-	LLMenuGL* menu = (LLMenuGL*)mInventoryItemsPopupMenuHandle.get();
+	LLMenuGL* menu = (LLMenuGL*)mContextMenuHandle.get();
 	if(menu && menu->getVisible())
 	{
 		menu->setVisible(FALSE);

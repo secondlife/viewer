@@ -139,9 +139,6 @@
      name="AvatarListItemIconVoiceLeftColor"
      reference="AvatarListItemIconOfflineColor" />
     <color
-     name="BackgroundChatColor"
-     reference="White" />
-    <color
      name="ButtonBorderColor"
      reference="Unused?" />
     <color

@@ -58,6 +58,8 @@ public:
 		Optional<S32>			border_size;
 		Optional<bool>			animate,
 								clip;
+		Optional<F32>			open_time_constant,
+								close_time_constant;
 
 		Params();
 	};
@@ -143,6 +145,8 @@ private:
 	bool mAnimatedThisFrame;
 	bool mAnimate;
 	bool mClip;
+	F32 mOpenTimeConstant;
+	F32 mCloseTimeConstant;
 }; // end class LLLayoutStack
 
 class LLLayoutPanel : public LLPanel

@@ -10,6 +10,7 @@
  layout="topleft"
  left="0"
  name="bottom_tray_lite"
+ focus_root="true" 
  tab_stop="true"
  top="28"
  chrome="true"

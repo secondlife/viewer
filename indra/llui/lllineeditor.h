@@ -337,7 +337,7 @@ protected:
 	std::vector<S32> mPreeditPositions;
 	LLPreeditor::standouts_t mPreeditStandouts;
 
-	LLHandle<LLView> mContextMenuHandle;
+	LLHandle<LLContextMenu> mContextMenuHandle;
 
 private:
 	// Instances that by default point to the statics but can be overidden in XML.

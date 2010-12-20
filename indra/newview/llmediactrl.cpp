@@ -73,7 +73,9 @@ LLMediaCtrl::Params::Params()
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
-	trusted_content("trusted_content", false)
+	media_id("media_id"),
+	trusted_content("trusted_content", false),
+	focus_on_click("focus_on_click", true)
 {
 	tab_stop(false);
 }
@@ -89,7 +91,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
 	mMediaSource( 0 ),
-	mTakeFocusOnClick( true ),
+	mTakeFocusOnClick( p.focus_on_click ),
 	mCurrentNavUrl( "" ),
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
@@ -245,14 +247,6 @@ BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 	if (mMediaSource)
 	{
 		mMediaSource->mouseUp(x, y, mask);
-
-		// *HACK: LLMediaImplLLMozLib automatically takes focus on mouseup,
-		// in addition to the onFocusReceived() call below.  Undo this. JC
-		if (!mTakeFocusOnClick)
-		{
-			mMediaSource->focus(false);
-			gViewerWindow->focusClient();
-		}
 	}
 	
 	gFocusMgr.setMouseCapture( NULL );

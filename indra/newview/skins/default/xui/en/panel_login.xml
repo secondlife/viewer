@@ -5,6 +5,7 @@ height="600"
 layout="topleft"
 left="0"
 name="panel_login"
+focus_root="true" 
 top="600"
  width="996">
 <panel.string
@@ -128,7 +129,7 @@ top="20"
  </text>
 <combo_box
 allow_text_entry="true"
-control_name="LoginLocation"
+control_name="NextLoginLocation"
   follows="left|bottom"
   height="23"
 max_chars="128"

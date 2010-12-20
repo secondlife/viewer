@@ -97,7 +97,8 @@ void LLPanelInventoryListItemBase::draw()
 		LLRect separator_rect = getLocalRect();
 		separator_rect.mTop = separator_rect.mBottom;
 		separator_rect.mBottom -= mSeparatorImage->getHeight();
-		mSeparatorImage->draw(separator_rect);
+		F32 alpha = getCurrentTransparency();
+		mSeparatorImage->draw(separator_rect, UI_VERTEX_COLOR % alpha);
 	}
 	
 	LLPanel::draw();

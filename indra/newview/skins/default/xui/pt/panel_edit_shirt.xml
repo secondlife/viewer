@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shirt_panel">
 	<panel name="avatar_shirt_color_panel">
-		<texture_picker label="tecido" name="Fabric" tool_tip="Clique para escolher uma foto"/>
+		<texture_picker label="Textura" name="Fabric" tool_tip="Clique para escolher uma foto"/>
 		<color_swatch label="Cor/Matiz" name="Color/Tint" tool_tip="Clique para abrir o selecionador de cor"/>
 	</panel>
 	<panel name="accordion_panel">
