@@ -2057,7 +2057,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
 	{
-		mFMP->childEnable("ok_btn");
+		getFMP()->childEnable("ok_btn");
 	}
 	
 	U32 cost = 0;
@@ -2065,7 +2065,7 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 	
-	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
+	F32 debug_scale = getFMP()->childGetValue("import_scale").asReal();
 	
 	F32 streaming_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
@@ -2089,8 +2089,8 @@ U32 LLModelPreview::calcResourceCost()
 										   instance.mLOD[1], 
 										   instance.mLOD[0],
 										   decomp,
-										   mFMP->childGetValue("upload_skin").asBoolean(),
-										   mFMP->childGetValue("upload_joints").asBoolean(),
+										   getFMP()->childGetValue("upload_skin").asBoolean(),
+										   getFMP()->childGetValue("upload_joints").asBoolean(),
 										   TRUE);
 			cost += gMeshRepo.calcResourceCost(ret);
 			
@@ -2119,13 +2119,13 @@ U32 LLModelPreview::calcResourceCost()
 		}
 	}
 	
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
-	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
-	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
-	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
+	//getFMP()->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
+	//getFMP()->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));				
+	getFMP()->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost)); 
+	F32 scale = getFMP()->childGetValue("import_scale").asReal()*2.f;
+	getFMP()->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
+	getFMP()->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
+	getFMP()->childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
 	
 	updateStatusMessages();
 	
@@ -2139,10 +2139,10 @@ void LLModelPreview::rebuildUploadData()
 	
 	//fill uploaddata instance vectors from scene data
 
-	std::string requested_name = mFMP->getChild<LLUICtrl>("description_form")->getValue().asString();
+	std::string requested_name = getFMP()->getChild<LLUICtrl>("description_form")->getValue().asString();
 	
 
-	LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
+	LLSpinCtrl* scale_spinner = getFMP()->getChild<LLSpinCtrl>("import_scale");
 	
 	if (!scale_spinner)
 	{
@@ -2158,7 +2158,7 @@ void LLModelPreview::rebuildUploadData()
 	
 	if ( mBaseScene.size() > 0 )
 	{
-		mFMP->childEnable("ok_btn");
+		getFMP()->childEnable("ok_btn");
 	}
 	
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
@@ -2226,7 +2226,7 @@ void LLModelPreview::rebuildUploadData()
 	}
 
 	//refill "layer" combo in physics panel
-	LLComboBox* combo_box = mFMP->getChild<LLComboBox>("physics_layer");
+	LLComboBox* combo_box = getFMP()->getChild<LLComboBox>("physics_layer");
 	if (combo_box)
 	{
 		S32 current = combo_box->getCurrentIndex();
@@ -2270,7 +2270,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 		{
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
-			mFMP->closeFloater(false);
+			getFMP()->closeFloater(false);
 		}
 		
 		mLoading = false;
@@ -2288,25 +2288,25 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	
 	mModelLoader->start();
 	
-	mFMP->childSetTextArg("status", "[STATUS]", mFMP->getString("status_reading_file"));
+	getFMP()->childSetTextArg("status", "[STATUS]", getFMP()->getString("status_reading_file"));
 	
 	setPreviewLOD(lod);
 
 	if ( mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING )
 	{
-		mFMP->childDisable("ok_btn");
+		getFMP()->childDisable("ok_btn");
 	}
 	
 	if (lod == mPreviewLOD)
 	{
-		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
+		getFMP()->childSetText("lod_file", mLODFile[mPreviewLOD]);
 	}
 	else if (lod == LLModel::LOD_PHYSICS)
 	{
-		mFMP->childSetText("physics_file", mLODFile[lod]);
+		getFMP()->childSetText("physics_file", mLODFile[lod]);
 	}
 	
-	mFMP->openFloater();
+	getFMP()->openFloater();
 }
 
 void LLModelPreview::setPhysicsFromLOD(S32 lod)
@@ -2316,7 +2316,7 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 		mModel[LLModel::LOD_PHYSICS] = mModel[lod];
 		mScene[LLModel::LOD_PHYSICS] = mScene[lod];
 		mLODFile[LLModel::LOD_PHYSICS].clear();
-		mFMP->childSetText("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
+		getFMP()->childSetText("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
 		mVertexBuffer[LLModel::LOD_PHYSICS].clear();
 		rebuildUploadData();
 		refresh();
@@ -2363,6 +2363,13 @@ void LLModelPreview::clearGLODGroup()
 		stop_gloderror();
 		mGroup = 0;
 	}
+}
+
+LLFloater* LLModelPreview::getFMP()
+{
+	// Shouldn't be accessing this outside the main UI thread.
+	assert_main_thread();
+	return mFMP;
 }
 
 void LLModelPreview::loadModelCallback(S32 lod)
@@ -2430,7 +2437,7 @@ void LLModelPreview::generateNormals()
 		return;
 	}
 	
-	F32 angle_cutoff = mFMP->childGetValue("crease_angle").asReal();
+	F32 angle_cutoff = getFMP()->childGetValue("crease_angle").asReal();
 	
 	angle_cutoff *= DEG_TO_RAD;
 	
@@ -2724,20 +2731,20 @@ void LLModelPreview::genLODs(S32 which_lod)
 	
 	U32 lod_mode = 0;
 	
-	LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+	LLCtrlSelectionInterface* iface = getFMP()->childGetSelectionInterface("lod_mode");
 	if (iface)
 	{
 		lod_mode = iface->getFirstSelectedIndex();
 	}
 
-	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold").asReal();
+	F32 lod_error_threshold = getFMP()->childGetValue("lod_error_threshold").asReal();
 	
 	if (lod_mode == 0)
 	{
 		lod_mode = GLOD_TRIANGLE_BUDGET;
 		if (which_lod != -1)
 		{
-			limit = mFMP->childGetValue("lod_triangle_limit").asInteger();
+			limit = getFMP()->childGetValue("lod_triangle_limit").asInteger();
 		}
 	}
 	else
@@ -2747,7 +2754,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 	U32 build_operator = 0;
 
-	iface = mFMP->childGetSelectionInterface("build_operator");
+	iface = getFMP()->childGetSelectionInterface("build_operator");
 	if (iface)
 	{
 		build_operator = iface->getFirstSelectedIndex();
@@ -2763,7 +2770,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 	}
 
 	U32 queue_mode=0;
-	iface = mFMP->childGetSelectionInterface("queue_mode");
+	iface = getFMP()->childGetSelectionInterface("queue_mode");
 	if (iface)
 	{
 		queue_mode = iface->getFirstSelectedIndex();
@@ -2784,7 +2791,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 	U32 border_mode = 0;
 
-	iface = mFMP->childGetSelectionInterface("border_mode");
+	iface = getFMP()->childGetSelectionInterface("border_mode");
 	if (iface)
 	{
 		border_mode = iface->getFirstSelectedIndex();
@@ -2818,7 +2825,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 		object_dirty = true;
 	}
 
-	F32 share_tolerance = mFMP->childGetValue("share_tolerance").asReal();
+	F32 share_tolerance = getFMP()->childGetValue("share_tolerance").asReal();
 	if (share_tolerance != mBuildShareTolerance)
 	{
 		mBuildShareTolerance = share_tolerance;
@@ -3109,9 +3116,9 @@ void LLModelPreview::updateStatusMessages()
 	}
 
 
-	mFMP->childSetTextArg("submeshes_info", "[SUBMESHES]", llformat("%d", total_submeshes[LLModel::LOD_HIGH]));
+	getFMP()->childSetTextArg("submeshes_info", "[SUBMESHES]", llformat("%d", total_submeshes[LLModel::LOD_HIGH]));
 	
-	std::string mesh_status_na = mFMP->getString("mesh_status_na");
+	std::string mesh_status_na = getFMP()->getString("mesh_status_na");
 		
 	S32 upload_status[LLModel::LOD_HIGH+1];
 	
@@ -3125,8 +3132,8 @@ void LLModelPreview::updateStatusMessages()
 
 		if (total_tris[lod] > 0)
 		{
-			mFMP->childSetText(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
-			mFMP->childSetText(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
+			getFMP()->childSetText(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
+			getFMP()->childSetText(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
 		}
 		else
 		{
@@ -3147,8 +3154,8 @@ void LLModelPreview::updateStatusMessages()
 				}
 			}
 
-			mFMP->childSetText(lod_triangles_name[lod], mesh_status_na);
-			mFMP->childSetText(lod_vertices_name[lod], mesh_status_na);
+			getFMP()->childSetText(lod_triangles_name[lod], mesh_status_na);
+			getFMP()->childSetText(lod_vertices_name[lod], mesh_status_na);
 		}
 		
 		const U32 lod_high = LLModel::LOD_HIGH;
@@ -3183,7 +3190,7 @@ void LLModelPreview::updateStatusMessages()
 			}
 		}
 		
-		LLIconCtrl* icon = mFMP->getChild<LLIconCtrl>(lod_icon_name[lod]);
+		LLIconCtrl* icon = getFMP()->getChild<LLIconCtrl>(lod_icon_name[lod]);
 		LLUIImagePtr img = LLUI::getUIImage(lod_status_image[upload_status[lod]]);
 		icon->setVisible(true);
 		icon->setImage(img);
@@ -3195,8 +3202,8 @@ void LLModelPreview::updateStatusMessages()
 
 		if (lod == mPreviewLOD)
 		{
-			mFMP->childSetText("lod_status_message_text", mFMP->getString(message));
-			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
+			getFMP()->childSetText("lod_status_message_text", getFMP()->getString(message));
+			icon = getFMP()->getChild<LLIconCtrl>("lod_status_message_icon");
 			icon->setImage(img);
 		}
 	}
@@ -3205,18 +3212,18 @@ void LLModelPreview::updateStatusMessages()
 			
 	if ( upload_ok && !errorStateFromLoader )
 	{
-		mFMP->childEnable("ok_btn");
+		getFMP()->childEnable("ok_btn");
 	}
 	else
 	{
-		mFMP->childDisable("ok_btn");
+		getFMP()->childDisable("ok_btn");
 	}
 
 	//add up physics triangles etc
 	S32 start = 0;
 	S32 end = mModel[LLModel::LOD_PHYSICS].size();
 
-	S32 idx = mFMP->childGetValue("physics_layer").asInteger();
+	S32 idx = getFMP()->childGetValue("physics_layer").asInteger();
 
 	if (idx >= 0 && idx < mModel[LLModel::LOD_PHYSICS].size())
 	{
@@ -3255,22 +3262,22 @@ void LLModelPreview::updateStatusMessages()
 
 	if (phys_tris > 0)
 	{
-		mFMP->childSetTextArg("physics_triangles", "[TRIANGLES]", llformat("%d", phys_tris));
+		getFMP()->childSetTextArg("physics_triangles", "[TRIANGLES]", llformat("%d", phys_tris));
 	}
 	else
 	{
-		mFMP->childSetTextArg("physics_triangles", "[TRIANGLES]", mesh_status_na);
+		getFMP()->childSetTextArg("physics_triangles", "[TRIANGLES]", mesh_status_na);
 	}
 
 	if (phys_hulls > 0)
 	{
-		mFMP->childSetTextArg("physics_hulls", "[HULLS]", llformat("%d", phys_hulls));
-		mFMP->childSetTextArg("physics_points", "[POINTS]", llformat("%d", phys_points));
+		getFMP()->childSetTextArg("physics_hulls", "[HULLS]", llformat("%d", phys_hulls));
+		getFMP()->childSetTextArg("physics_points", "[POINTS]", llformat("%d", phys_points));
 	}
 	else
 	{
-		mFMP->childSetTextArg("physics_hulls", "[HULLS]", mesh_status_na);
-		mFMP->childSetTextArg("physics_points", "[POINTS]", mesh_status_na);
+		getFMP()->childSetTextArg("physics_hulls", "[HULLS]", mesh_status_na);
+		getFMP()->childSetTextArg("physics_points", "[POINTS]", mesh_status_na);
 	}
 
 	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -3315,43 +3322,43 @@ void LLModelPreview::updateStatusMessages()
 	const U32 num_file_controls = sizeof(file_controls)/sizeof(char*);
 
 	//enable/disable controls based on radio groups
-	if (mFMP->childGetValue("lod_from_file").asBoolean())
+	if (getFMP()->childGetValue("lod_from_file").asBoolean())
 	{ 
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childEnable(file_controls[i]);
+			getFMP()->childEnable(file_controls[i]);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childDisable(lod_controls[i]);
+			getFMP()->childDisable(lod_controls[i]);
 		}
 
 		
 	}
-	else if (mFMP->childGetValue("lod_auto_generate").asBoolean())
+	else if (getFMP()->childGetValue("lod_auto_generate").asBoolean())
 	{
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childDisable(file_controls[i]);
+			getFMP()->childDisable(file_controls[i]);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childEnable(lod_controls[i]);
+			getFMP()->childEnable(lod_controls[i]);
 		}
 
 		//if (threshold)
 		{	
 			U32 lod_mode = 0;
-			LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+			LLCtrlSelectionInterface* iface = getFMP()->childGetSelectionInterface("lod_mode");
 			if (iface)
 			{
 				lod_mode = iface->getFirstSelectedIndex();
 			}
 
-			LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
-			LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
+			LLSpinCtrl* threshold = getFMP()->getChild<LLSpinCtrl>("lod_error_threshold");
+			LLSpinCtrl* limit = getFMP()->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 			limit->setMaxValue(mMaxTriangleLimit);
 			limit->setValue(total_tris[mPreviewLOD]);
@@ -3374,12 +3381,12 @@ void LLModelPreview::updateStatusMessages()
 	{ // "None" is chosen
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childDisable(file_controls[i]);
+			getFMP()->childDisable(file_controls[i]);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childDisable(lod_controls[i]);
+			getFMP()->childDisable(lod_controls[i]);
 		}
 
 		if (!mModel[mPreviewLOD].empty())
@@ -3394,17 +3401,17 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	if (mFMP->childGetValue("physics_load_from_file").asBoolean())
+	if (getFMP()->childGetValue("physics_load_from_file").asBoolean())
 	{
-		mFMP->childDisable("physics_lod_combo");
-		mFMP->childEnable("physics_file");
-		mFMP->childEnable("physics_browse");
+		getFMP()->childDisable("physics_lod_combo");
+		getFMP()->childEnable("physics_file");
+		getFMP()->childEnable("physics_browse");
 	}
 	else
 	{
-		mFMP->childEnable("physics_lod_combo");
-		mFMP->childDisable("physics_file");
-		mFMP->childDisable("physics_browse");
+		getFMP()->childEnable("physics_lod_combo");
+		getFMP()->childDisable("physics_file");
+		getFMP()->childDisable("physics_browse");
 	}
 }
 
@@ -3576,6 +3583,8 @@ void LLModelPreview::update()
 //-----------------------------------------------------------------------------
 BOOL LLModelPreview::render()
 {
+	assert_main_thread();
+	
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 	
@@ -3627,8 +3636,8 @@ BOOL LLModelPreview::render()
 	}
 
 	bool has_skin_weights = false;
-	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
-	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
+	bool upload_skin = getFMP()->childGetValue("upload_skin").asBoolean();
+	bool upload_joints = getFMP()->childGetValue("upload_joints").asBoolean();
 	
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 	{
@@ -3650,11 +3659,11 @@ BOOL LLModelPreview::render()
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
 		}
-		mFMP->childEnable("upload_skin");
+		getFMP()->childEnable("upload_skin");
 	}
 	else
 	{
-		mFMP->childDisable("upload_skin");
+		getFMP()->childDisable("upload_skin");
 		if (fmp)
 		{
 			fmp->setViewOption("show_skin_weight", false);
@@ -3666,23 +3675,23 @@ BOOL LLModelPreview::render()
 	
 	if (upload_skin && !has_skin_weights)
 	{ //can't upload skin weights if model has no skin weights
-		mFMP->childSetValue("upload_skin", false);
+		getFMP()->childSetValue("upload_skin", false);
 		upload_skin = false;
 	}
 	
 	if (!upload_skin && upload_joints)
 	{ //can't upload joints if not uploading skin weights
-		mFMP->childSetValue("upload_joints", false);
+		getFMP()->childSetValue("upload_joints", false);
 		upload_joints = false;
 	}
 	
-	mFMP->childSetEnabled("upload_joints", upload_skin);
+	getFMP()->childSetEnabled("upload_joints", upload_skin);
 	
-	F32 explode = mFMP->childGetValue("physics_explode").asReal();
+	F32 explode = getFMP()->childGetValue("physics_explode").asReal();
 	
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
-	LLRect preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	LLRect preview_rect = getFMP()->getChildView("preview_panel")->getRect();
 	F32 aspect = (F32) preview_rect.getWidth()/preview_rect.getHeight();
 
 	LLViewerCamera::getInstance()->setAspect(aspect);
@@ -3736,7 +3745,7 @@ BOOL LLModelPreview::render()
 		//genLODs();
 	}
 	
-	S32 physics_idx = mFMP->childGetValue("physics_layer").asInteger();
+	S32 physics_idx = getFMP()->childGetValue("physics_layer").asInteger();
 	
 	if (!mModel[mPreviewLOD].empty())
 	{
@@ -4116,10 +4125,10 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 	{
 		mPreviewLOD = lod;
 		
-		LLComboBox* combo_box = mFMP->getChild<LLComboBox>("preview_lod_combo");
+		LLComboBox* combo_box = getFMP()->getChild<LLComboBox>("preview_lod_combo");
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-		mFMP->childSetTextArg("lod_table_footer", "[DETAIL]", mFMP->getString(lod_name[mPreviewLOD]));
-		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
+		getFMP()->childSetTextArg("lod_table_footer", "[DETAIL]", getFMP()->getString(lod_name[mPreviewLOD]));
+		getFMP()->childSetText("lod_file", mLODFile[mPreviewLOD]);
 
 		LLColor4 highlight_color = LLUIColorTable::instance().getColor("MeshImportTableHighlightColor");
 		LLColor4 normal_color = LLUIColorTable::instance().getColor("MeshImportTableNormalColor");
@@ -4128,10 +4137,10 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		{
 			const LLColor4& color = (i == lod) ? highlight_color : normal_color;
 
-			mFMP->childSetColor(lod_status_name[i], color);
-			mFMP->childSetColor(lod_label_name[i], color);
-			mFMP->childSetColor(lod_triangles_name[i], color);
-			mFMP->childSetColor(lod_vertices_name[i], color);
+			getFMP()->childSetColor(lod_status_name[i], color);
+			getFMP()->childSetColor(lod_label_name[i], color);
+			getFMP()->childSetColor(lod_triangles_name[i], color);
+			getFMP()->childSetColor(lod_vertices_name[i], color);
 		}
 	}
 	refresh();
