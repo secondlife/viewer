@@ -3095,7 +3095,14 @@ bool process_login_success_response()
 	std::string map_server_url = response["map-server-url"];
 	if(!map_server_url.empty())
 	{
-		gSavedSettings.setString("MapServerURL", map_server_url); 
+		// We got an answer from the grid -> use that for map for the current session
+		gSavedSettings.setString("CurrentMapServerURL", map_server_url); 
+	}
+	else
+	{
+		// No answer from the grid -> use the default setting for current session 
+		map_server_url = gSavedSettings.getString("MapServerURL"); 
+		gSavedSettings.setString("CurrentMapServerURL", map_server_url); 
 	}
 	
 	// Default male and female avatars allowing the user to choose their avatar on first login.
