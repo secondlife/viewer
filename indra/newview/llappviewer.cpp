@@ -195,6 +195,7 @@
 #include "llparcel.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
+#include "llviewerassetstats.h"
 
 // Include for security api initialization
 #include "llsecapi.h"
@@ -337,6 +338,14 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 static std::string gWindowTitle;
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
+
+//----------------------------------------------------------------------------
+// Metrics logging control constants
+//----------------------------------------------------------------------------
+static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
+static const F32 METRICS_INTERVAL_QA = 30.0;
+static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
+static bool app_metrics_qa_mode = false;
 
 void idle_afk_check()
 {
@@ -659,6 +668,21 @@ bool LLAppViewer::init()
     // Called before threads are created.
     LLCurl::initClass();
     LLMachineID::init();
+	
+	{
+		// Viewer metrics initialization
+		static LLCachedControl<bool> metrics_submode(gSavedSettings,
+													 "QAModeMetrics",
+													 false,
+													 "Enables QA features (logging, faster cycling) for metrics collector");
+
+		if (metrics_submode)
+		{
+			app_metrics_qa_mode = true;
+			app_metrics_interval = METRICS_INTERVAL_QA;
+		}
+		LLViewerAssetStatsFF::init();
+	}
 
     initThreads();
     writeSystemInfo();
@@ -1741,6 +1765,8 @@ bool LLAppViewer::cleanup()
 
 	LLWatchdog::getInstance()->cleanup();
 
+	LLViewerAssetStatsFF::cleanup();
+	
 	llinfos << "Shutting down message system" << llendflush;
 	end_messaging_system();
 
@@ -1807,7 +1833,10 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+													sImageDecodeThread,
+													enable_threads && true,
+													app_metrics_qa_mode);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
@@ -3076,6 +3105,9 @@ void LLAppViewer::requestQuit()
 		return;
 	}
 
+	// Try to send metrics back to the grid
+	metricsSend(!gDisconnected);
+	
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3857,6 +3889,11 @@ void LLAppViewer::idle()
 				llinfos << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << llendl;
 				gObjectList.mNumUnknownUpdates = 0;
 			}
+
+			// ViewerMetrics FPS piggy-backing on the debug timer.
+			// The 5-second interval is nice for this purpose.  If the object debug
+			// bit moves or is disabled, please give this a suitable home.
+			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
 		}
 	}
 
@@ -3899,6 +3936,18 @@ void LLAppViewer::idle()
 		gInventory.idleNotifyObservers();
 	}
 	
+	// Metrics logging (LLViewerAssetStats, etc.)
+	{
+		static LLTimer report_interval;
+
+		// *TODO:  Add configuration controls for this
+		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
+		{
+			metricsSend(! gDisconnected);
+			report_interval.reset();
+		}
+	}
+
 	if (gDisconnected)
     {
 		return;
@@ -4806,3 +4855,75 @@ bool LLAppViewer::getMasterSystemAudioMute()
 {
 	return gSavedSettings.getBOOL("MuteAudio");
 }
+
+//----------------------------------------------------------------------------
+// Metrics-related methods (static and otherwise)
+//----------------------------------------------------------------------------
+
+/**
+ * LLViewerAssetStats collects data on a per-region (as defined by the agent's
+ * location) so we need to tell it about region changes which become a kind of
+ * hidden variable/global state in the collectors.  For collectors not running
+ * on the main thread, we need to send a message to move the data over safely
+ * and cheaply (amortized over a run).
+ */
+void LLAppViewer::metricsUpdateRegion(U64 region_handle)
+{
+	if (0 != region_handle)
+	{
+		LLViewerAssetStatsFF::set_region_main(region_handle);
+		if (LLAppViewer::sTextureFetch)
+		{
+			// Send a region update message into 'thread1' to get the new region.
+			LLAppViewer::sTextureFetch->commandSetRegion(region_handle);
+		}
+		else
+		{
+			// No 'thread1', a.k.a. TextureFetch, so update directly
+			LLViewerAssetStatsFF::set_region_thread1(region_handle);
+		}
+	}
+}
+
+
+/**
+ * Attempts to start a multi-threaded metrics report to be sent back to
+ * the grid for consumption.
+ */
+void LLAppViewer::metricsSend(bool enable_reporting)
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	if (LLAppViewer::sTextureFetch)
+	{
+		LLViewerRegion * regionp = gAgent.getRegion();
+
+		if (enable_reporting && regionp)
+		{
+			std::string	caps_url = regionp->getCapability("ViewerMetrics");
+
+			// Make a copy of the main stats to send into another thread.
+			// Receiving thread takes ownership.
+			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
+			
+			// Send a report request into 'thread1' to get the rest of the data
+			// and provide some additional parameters while here.
+			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
+														   gAgentSessionID,
+														   gAgentID,
+														   main_stats);
+			main_stats = 0;		// Ownership transferred
+		}
+		else
+		{
+			LLAppViewer::sTextureFetch->commandDataBreak();
+		}
+	}
+
+	// Reset even if we can't report.  Rather than gather up a huge chunk of
+	// data, we'll keep to our sampling interval and retain the data
+	// resolution in time.
+	gViewerAssetStatsMain->reset();
+}
+
