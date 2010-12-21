@@ -162,8 +162,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mHtmlAvailable( TRUE ),
 	mListener(new LLPanelLoginListener(this))
 {
-	setFocusRoot(TRUE);
-
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
@@ -180,8 +178,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
 
-	// add to front so we are the bottom-most child
-	gViewerWindow->getRootView()->addChildInBack(this);
+	LLView* login_holder = gViewerWindow->getLoginPanelHolder();
+	if (login_holder)
+	{
+		login_holder->addChild(this);
+	}
 
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo");
@@ -730,7 +731,7 @@ void LLPanelLogin::closePanel()
 {
 	if (sInstance)
 	{
-		gViewerWindow->getRootView()->removeChild( LLPanelLogin::sInstance );
+		LLPanelLogin::sInstance->getParent()->removeChild( LLPanelLogin::sInstance );
 
 		delete sInstance;
 		sInstance = NULL;

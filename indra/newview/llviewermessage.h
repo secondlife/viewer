@@ -117,7 +117,6 @@ void process_alert_core(const std::string& message, BOOL modal);
 typedef std::list<LLMeanCollisionData*> mean_collision_list_t;
 extern mean_collision_list_t gMeanCollisionList;
 
-void handle_show_mean_events(void *);
 void process_mean_collision_alert_message(LLMessageSystem* msg, void**);
 
 void process_frozen_message(LLMessageSystem* msg, void**);

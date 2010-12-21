@@ -481,6 +481,7 @@ set(viewer_SOURCE_FILES
     llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
+    llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
     llviewerattachmenu.cpp
@@ -1014,6 +1015,7 @@ set(viewer_HEADER_FILES
     llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
+    llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
     llviewerattachmenu.h
@@ -1325,7 +1327,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
-    app_settings/keys.ini
+    app_settings/keys.xml
     app_settings/keywords.ini
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml
@@ -1954,6 +1956,16 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
      llviewernetwork.cpp
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llsimplestat
+	""
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewerassetstats
+	llviewerassetstats.cpp
     "${test_libs}"
     )
 

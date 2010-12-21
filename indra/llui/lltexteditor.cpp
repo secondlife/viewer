@@ -277,6 +277,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 		mHPad += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
 		updateRects();
 	}
+	
+	mParseOnTheFly = TRUE;
 }
 
 void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
@@ -324,8 +326,10 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str, const LLStyle::Param
 
 	blockUndo();
 	deselect();
-
+	
+	mParseOnTheFly = FALSE;
 	LLTextBase::setText(utf8str, input_params);
+	mParseOnTheFly = TRUE;
 
 	resetDirty();
 }
@@ -1367,6 +1371,7 @@ void LLTextEditor::pastePrimary()
 // paste from primary (itsprimary==true) or clipboard (itsprimary==false)
 void LLTextEditor::pasteHelper(bool is_primary)
 {
+	mParseOnTheFly = FALSE;
 	bool can_paste_it;
 	if (is_primary)
 	{
@@ -1450,6 +1455,7 @@ void LLTextEditor::pasteHelper(bool is_primary)
 	deselect();
 
 	onKeyStroke();
+	mParseOnTheFly = TRUE;
 }
 
 
@@ -2385,7 +2391,7 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 
 void LLTextEditor::updateSegments()
 {
-	if (mReflowIndex < S32_MAX && mKeywords.isLoaded())
+	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
 	{
 		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
 		// HACK:  No non-ascii keywords for now
