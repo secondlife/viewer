@@ -35,24 +35,36 @@ public:
 	virtual ~LLFloaterModelWizard() {};
 	/*virtual*/	BOOL	postBuild();
 	void			draw();
-	void loadModel();
-	//void onSave();
-	//void onReset();
-	//void onCancel();
-	///*virtual*/ void onOpen(const LLSD& key);
 	
 private:
-	
+	enum EWizardState
+	{
+		CHOOSE_FILE = 0,
+		OPTIMIZE,
+		PHYSICS,
+		REVIEW,
+		UPLOAD
+	};
+
+	void setState(int state);
+	void setButtons(int state);
+	void onClickCancel();
+	void onClickBack();
+	void onClickNext();
+	bool onEnableNext();
+	bool onEnableBack();
+	void loadModel();
+	static void	onPreviewLODCommit(LLUICtrl*,void*);
+	void onAccuracyPerformance(const LLSD& data);
+	static void onUpload(void* data);
+
 	LLModelPreview*	mModelPreview;
 	LLRect			mPreviewRect;
+	int mState;
+
+
+
 };
-/*
-namespace LLFloaterDisplayNameUtil
-{
-	// Register with LLFloaterReg
-	void registerFloater();
-}
-*/
 
 
 #endif

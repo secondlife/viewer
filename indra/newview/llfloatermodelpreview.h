@@ -52,6 +52,8 @@ class domTranslate;
 class LLMenuButton;
 class LLToggleableMenu;
 
+const S32 NUM_LOD = 4;
+
 class LLModelLoader : public LLThread
 {
 public:
@@ -258,7 +260,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
-	void genLODs(S32 which_lod = -1);
+	void genLODs(S32 which_lod = -1, U32 decimation = 3);
 	void generateNormals();
 	void consolidate();
 	void clearMaterials();
@@ -278,7 +280,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	friend class LLFloaterModelPreview::DecompRequest;
 	friend class LLPhysicsDecomp;
 
-	LLFloater* mFMP;
+	LLFloater*  mFMP;
 
 	BOOL        mNeedsUpdate;
 	bool		mDirty;

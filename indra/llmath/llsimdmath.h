@@ -35,7 +35,9 @@
 #error SSE2 not enabled. LLVector4a and related class will not compile.
 #endif
 
+#if !LL_WINDOWS
 #include <stdint.h>
+#endif
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address) 
 { 

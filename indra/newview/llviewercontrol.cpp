@@ -128,6 +128,45 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleRenderPerfTestChanged(const LLSD& newvalue)
+{
+       bool status = !newvalue.asBoolean();
+       if (!status)
+       {
+               gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
+                                                                         LLPipeline::RENDER_TYPE_GROUND,
+                                                                        LLPipeline::RENDER_TYPE_TERRAIN,
+                                                                         LLPipeline::RENDER_TYPE_GRASS,
+                                                                         LLPipeline::RENDER_TYPE_TREE,
+                                                                         LLPipeline::RENDER_TYPE_WATER,
+                                                                         LLPipeline::RENDER_TYPE_PASS_GRASS,
+                                                                         LLPipeline::RENDER_TYPE_HUD,
+                                                                         LLPipeline::RENDER_TYPE_PARTICLES,
+                                                                         LLPipeline::RENDER_TYPE_CLOUDS,
+                                                                         LLPipeline::RENDER_TYPE_HUD_PARTICLES,
+                                                                         LLPipeline::END_RENDER_TYPES); 
+               gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, false);
+       }
+       else 
+       {
+               gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_WL_SKY,
+                                                                         LLPipeline::RENDER_TYPE_GROUND,
+                                                                         LLPipeline::RENDER_TYPE_TERRAIN,
+                                                                         LLPipeline::RENDER_TYPE_GRASS,
+                                                                         LLPipeline::RENDER_TYPE_TREE,
+                                                                         LLPipeline::RENDER_TYPE_WATER,
+                                                                         LLPipeline::RENDER_TYPE_PASS_GRASS,
+                                                                         LLPipeline::RENDER_TYPE_HUD,
+                                                                         LLPipeline::RENDER_TYPE_PARTICLES,
+                                                                         LLPipeline::RENDER_TYPE_CLOUDS,
+                                                                         LLPipeline::RENDER_TYPE_HUD_PARTICLES,
+                                                                         LLPipeline::END_RENDER_TYPES);
+               gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_FEATURE_UI, true);
+       }
+
+       return true;
+}
+
 bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
 	LLWorld::getInstance()->updateWaterObjects();
@@ -565,6 +604,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredGI")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
 	gSavedSettings.getControl("AuditTexture")->getSignal()->connect(boost::bind(&handleAuditTextureChanged, _2));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&handleChatFontSizeChanged, _2));

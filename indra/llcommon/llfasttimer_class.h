@@ -31,16 +31,14 @@
 
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
-#define DEBUG_FAST_TIMER_THREADS 0
+#define DEBUG_FAST_TIMER_THREADS 1
 
 class LLMutex;
 
 #include <queue>
 #include "llsd.h"
 
-#if DEBUG_FAST_TIMER_THREADS
-void assert_main_thread();
-#endif
+LL_COMMON_API void assert_main_thread();
 
 class LL_COMMON_API LLFastTimer
 {

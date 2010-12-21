@@ -62,7 +62,7 @@ U32 ll_thread_local sThreadID = 0;
 
 U32 LLThread::sIDIter = 0;
 
-void assert_main_thread()
+LL_COMMON_API void assert_main_thread()
 {
 	static U32 s_thread_id = LLThread::currentID();
 	if (LLThread::currentID() != s_thread_id)

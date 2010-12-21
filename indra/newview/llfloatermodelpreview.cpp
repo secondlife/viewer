@@ -94,8 +94,7 @@
 #include "lltoggleablemenu.h"
 #include "llvfile.h"
 #include "llvfs.h"
-
-
+#include "llcallbacklist.h"
 
 #include "glod/glod.h"
 
@@ -108,7 +107,6 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
-const S32 NUM_LOD = 4;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
@@ -477,12 +475,10 @@ void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 	
 	S32 which_mode = 0;
 	
-	LLCtrlSelectionInterface* iface = fp->childGetSelectionInterface("preview_lod_combo");
-	if (iface)
-	{
-		which_mode = iface->getFirstSelectedIndex();
-	}
-	which_mode = (NUM_LOD-1)-which_mode; // combo box list of lods is in reverse order
+	LLComboBox* combo = (LLComboBox*) ctrl;
+	
+	which_mode = (NUM_LOD-1)-combo->getFirstSelectedIndex(); // combo box list of lods is in reverse order
+
 	fp->mModelPreview->setPreviewLOD(which_mode);
 }
 
@@ -1600,8 +1596,8 @@ void LLModelLoader::run()
 		}
 		
 		processElement(scene);
-		
-		mPreview->loadModelCallback(mLod);
+
+		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
 	}
 }
 
@@ -2053,6 +2049,8 @@ LLModelPreview::~LLModelPreview()
 
 U32 LLModelPreview::calcResourceCost()
 {
+	assert_main_thread();
+	
 	rebuildUploadData();
 
 	if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
@@ -2134,6 +2132,8 @@ U32 LLModelPreview::calcResourceCost()
 
 void LLModelPreview::rebuildUploadData()
 {
+	assert_main_thread();
+	
 	mUploadData.clear();
 	mTextureSet.clear();
 	
@@ -2256,6 +2256,8 @@ void LLModelPreview::clearModel(S32 lod)
 
 void LLModelPreview::loadModel(std::string filename, S32 lod)
 {
+	assert_main_thread();
+	
 	LLMutexLock lock(this);
 	
 	if (mModelLoader)
@@ -2311,6 +2313,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 void LLModelPreview::setPhysicsFromLOD(S32 lod)
 {
+	assert_main_thread();
+	
 	if (lod >= 0 && lod <= 3)
 	{
 		mModel[LLModel::LOD_PHYSICS] = mModel[lod];
@@ -2366,7 +2370,9 @@ void LLModelPreview::clearGLODGroup()
 }
 
 void LLModelPreview::loadModelCallback(S32 lod)
-{ //NOT the main thread
+{
+	assert_main_thread();
+
 	LLMutexLock lock(this);
 	if (!mModelLoader)
 	{
@@ -2421,6 +2427,8 @@ void LLModelPreview::resetPreviewTarget()
 
 void LLModelPreview::generateNormals()
 {
+	assert_main_thread();
+	
 	S32 which_lod = mPreviewLOD;
 	
 	
@@ -2688,7 +2696,7 @@ bool LLModelPreview::containsRiggedAsset( void )
 	}
 	return false;
 }
-void LLModelPreview::genLODs(S32 which_lod)
+void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 {
 	if (mBaseModel.empty())
 	{
@@ -2905,7 +2913,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 		{
 			if (lod < start)
 			{
-				triangle_count /= 3;
+				triangle_count /= decimation;
 			}
 		}
 		else
@@ -3063,6 +3071,8 @@ void LLModelPreview::genLODs(S32 which_lod)
 
 void LLModelPreview::updateStatusMessages()
 {
+	assert_main_thread();
+	
 	//triangle/vertex/submesh count for each mesh asset for each lod
 	std::vector<S32> tris[LLModel::NUM_LODS];
 	std::vector<S32> verts[LLModel::NUM_LODS];
@@ -3576,6 +3586,8 @@ void LLModelPreview::update()
 //-----------------------------------------------------------------------------
 BOOL LLModelPreview::render()
 {
+	assert_main_thread();
+	
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 	
@@ -4141,6 +4153,8 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 //static 
 void LLFloaterModelPreview::onBrowseLOD(void* data)
 {
+	assert_main_thread();
+	
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) data;
 	mp->loadModel(mp->mModelPreview->mPreviewLOD);
 }
@@ -4148,6 +4162,8 @@ void LLFloaterModelPreview::onBrowseLOD(void* data)
 //static
 void LLFloaterModelPreview::onUpload(void* user_data)
 {
+	assert_main_thread();
+	
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 
 	mp->mModelPreview->rebuildUploadData();

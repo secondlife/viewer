@@ -29,7 +29,9 @@
 #include "llmath.h"
 
 #include <set>
+#if !LL_WINDOWS
 #include <stdint.h>
+#endif
 
 #include "llerror.h"
 #include "llmemtype.h"
