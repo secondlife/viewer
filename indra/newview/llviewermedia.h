@@ -131,7 +131,7 @@ public:
 	static bool isParcelMediaPlaying();
 	static bool isParcelAudioPlaying();
 	
-	static void onAuthSubmit(const LLSD& notification, const LLSD& response, LLPluginClassMedia* media);
+	static void onAuthSubmit(const LLSD& notification, const LLSD& response);
 
 	// Clear all cookies for all plugins
 	static void clearAllCookies();

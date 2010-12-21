@@ -1055,7 +1055,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			auth_request_params.substitutions = args;
 
 			auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
-			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2, mMediaSource->getMediaPlugin());
+			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2);
 			LLNotifications::instance().add(auth_request_params);
 		};
 		break;

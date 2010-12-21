@@ -682,7 +682,7 @@ void LLPluginClassMedia::sendPickFileResponse(const std::string &file)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file_response");
 	message.setValue("file", file);
-	if(mPlugin->isBlocked())
+	if(mPlugin && mPlugin->isBlocked())
 	{
 		// If the plugin sent a blocking pick-file request, the response should unblock it.
 		message.setValueBoolean("blocking_response", true);
@@ -696,7 +696,7 @@ void LLPluginClassMedia::sendAuthResponse(bool ok, const std::string &username, 
 	message.setValueBoolean("ok", ok);
 	message.setValue("username", username);
 	message.setValue("password", password);
-	if(mPlugin->isBlocked())
+	if(mPlugin && mPlugin->isBlocked())
 	{
 		// If the plugin sent a blocking pick-file request, the response should unblock it.
 		message.setValueBoolean("blocking_response", true);

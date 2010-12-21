@@ -1046,15 +1046,23 @@ bool LLViewerMedia::isParcelAudioPlaying()
 	return (LLViewerMedia::hasParcelAudio() && gAudiop && LLAudioEngine::AUDIO_PLAYING == gAudiop->isInternetStreamPlaying());
 }
 
-void LLViewerMedia::onAuthSubmit(const LLSD& notification, const LLSD& response, LLPluginClassMedia* media)
+void LLViewerMedia::onAuthSubmit(const LLSD& notification, const LLSD& response)
 {
-	if (response["ok"])
+	LLViewerMediaImpl *impl = LLViewerMedia::getMediaImplFromTextureID(notification["payload"]["media_id"]);
+	if(impl)
 	{
-		media->sendAuthResponse(true, response["username"], response["password"]);
-	}
-	else
-	{
-		media->sendAuthResponse(false, "", "");
+		LLPluginClassMedia* media = impl->getMediaPlugin();
+		if(media)
+		{
+			if (response["ok"])
+			{
+				media->sendAuthResponse(true, response["username"], response["password"]);
+			}
+			else
+			{
+				media->sendAuthResponse(false, "", "");
+			}
+		}
 	}
 }
 
@@ -3108,7 +3116,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			auth_request_params.substitutions = args;
 
 			auth_request_params.payload = LLSD().with("media_id", mTextureId);
-			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2, plugin);
+			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2);
 			LLNotifications::instance().add(auth_request_params);
 		};
 		break;
