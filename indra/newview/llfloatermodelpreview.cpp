@@ -107,7 +107,6 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
-const S32 NUM_LOD = 4;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
@@ -476,12 +475,10 @@ void LLFloaterModelPreview::onPreviewLODCommit(LLUICtrl* ctrl, void* userdata)
 	
 	S32 which_mode = 0;
 	
-	LLCtrlSelectionInterface* iface = fp->childGetSelectionInterface("preview_lod_combo");
-	if (iface)
-	{
-		which_mode = iface->getFirstSelectedIndex();
-	}
-	which_mode = (NUM_LOD-1)-which_mode; // combo box list of lods is in reverse order
+	LLComboBox* combo = (LLComboBox*) ctrl;
+	
+	which_mode = (NUM_LOD-1)-combo->getFirstSelectedIndex(); // combo box list of lods is in reverse order
+
 	fp->mModelPreview->setPreviewLOD(which_mode);
 }
 
@@ -2699,7 +2696,7 @@ bool LLModelPreview::containsRiggedAsset( void )
 	}
 	return false;
 }
-void LLModelPreview::genLODs(S32 which_lod)
+void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 {
 	if (mBaseModel.empty())
 	{
@@ -2916,7 +2913,7 @@ void LLModelPreview::genLODs(S32 which_lod)
 		{
 			if (lod < start)
 			{
-				triangle_count /= 3;
+				triangle_count /= decimation;
 			}
 		}
 		else
