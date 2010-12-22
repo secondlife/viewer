@@ -65,7 +65,7 @@ public:
 class LLTextureUploadData
 {
 public:
-	LLPointer<LLViewerFetchedTexture> mTexture;
+	LLViewerFetchedTexture* mTexture;
 	LLUUID mUUID;
 	std::string mRSVP;
 	std::string mLabel;
@@ -399,7 +399,7 @@ public:
 	std::queue<LLTextureUploadData> mTextureQ;
 	std::queue<LLTextureUploadData> mConfirmedTextureQ;
 
-	std::map<LLPointer<LLViewerFetchedTexture>, LLTextureUploadData> mTextureMap;
+	std::map<LLViewerFetchedTexture*, LLTextureUploadData> mTextureMap;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
 			bool upload_skin, bool upload_joints);
@@ -442,6 +442,7 @@ public:
 
 	void init();
 	void shutdown();
+	S32 update() ;
 
 	//mesh management functions
 	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0);
@@ -505,6 +506,7 @@ public:
 	
 	LLMeshRepoThread* mThread;
 	std::vector<LLMeshUploadThread*> mUploads;
+	std::vector<LLMeshUploadThread*> mUploadWaitList;
 
 	LLPhysicsDecomp* mDecompThread;
 	

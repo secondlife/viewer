@@ -1486,7 +1486,7 @@ void LLMeshUploadThread::run()
 				{
 					textures.insert(material_iter->mDiffuseMap);
 					
-					LLTextureUploadData data(material_iter->mDiffuseMap, material_iter->mDiffuseMapLabel);
+					LLTextureUploadData data(material_iter->mDiffuseMap.get(), material_iter->mDiffuseMapLabel);
 					uploadTexture(data);
 				}
 			}
@@ -2135,6 +2135,24 @@ void LLMeshRepository::shutdown()
 	LLConvexDecomposition::quitSystem();
 }
 
+//called in the main thread.
+S32 LLMeshRepository::update()
+{
+	if(mUploadWaitList.empty())
+	{
+		return 0 ;
+	}
+
+	S32 size = mUploadWaitList.size() ;
+	for (S32 i = 0; i < size; ++i)
+	{
+		mUploads.push_back(mUploadWaitList[i]);
+		mUploadWaitList[i]->start() ;
+	}
+	mUploadWaitList.clear() ;
+
+	return size ;
+}
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
 {
@@ -2654,8 +2672,7 @@ void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3
 									bool upload_skin, bool upload_joints)
 {
 	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints);
-	mUploads.push_back(thread);
-	thread->start();
+	mUploadWaitList.push_back(thread);
 }
 
 S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
@@ -2742,7 +2759,7 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 
 void LLMeshUploadThread::sendCostRequest(LLTextureUploadData& data)
 {
-	if (data.mTexture.notNull() && data.mTexture->getDiscardLevel() >= 0)
+	if (data.mTexture && data.mTexture->getDiscardLevel() >= 0)
 	{
 		LLSD asset_resources = LLSD::emptyMap();
 
