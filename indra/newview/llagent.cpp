@@ -56,7 +56,6 @@
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
-#include "llsidetray.h"
 #include "llsky.h"
 #include "llsmoothstep.h"
 #include "llstartup.h"
@@ -638,6 +637,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
 		}
+
+		// Pass new region along to metrics components that care about this level of detail.
+		LLAppViewer::metricsUpdateRegion(regionp->getHandle());
 	}
 	mRegionp = regionp;
 
@@ -1727,9 +1729,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
-
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -1828,9 +1827,6 @@ void LLAgent::endAnimationUpdateUI()
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
-
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 

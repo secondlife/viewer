@@ -48,13 +48,18 @@
 	<check_box label="Noms d&apos;utilisateur" name="show_slids" tool_tip="Afficher le nom d&apos;utilisateur, comme bobsmith123."/>
 	<check_box label="Titres de groupe" name="show_all_title_checkbox1" tool_tip="Afficher les titres de groupe, comme Officier ou Membre."/>
 	<check_box label="Mettre mes amis en surbrillance" name="show_friends" tool_tip="Mettre en surbrillance l&apos;affichage des noms de vos amis."/>
-	<text name="effects_color_textbox">
-		Mes effets :
+	<check_box label="Voir les noms d&apos;affichage" name="display_names_check" tool_tip="Cocher pour utiliser les noms d&apos;affichage dans les chats, les IM, l&apos;affichage des noms, etc."/>
+	<check_box label="Activer les astuces de l&apos;interface" name="viewer_hints_check"/>
+	<text name="inworld_typing_rg_label">
+		Appuyer sur les touches lettre :
 	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Lance le chat local" name="radio_start_chat" value="1"/>
+		<radio_item label="Affecte le déplacement (ZQSD/WASD)" name="radio_move" value="0"/>
+	</radio_group>
 	<text name="title_afk_text">
 		Me montrer absent après :
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs"/>
 	<combo_box label="Me montrer absent après :" name="afk">
 		<combo_box.item label="2 minutes" name="item0"/>
 		<combo_box.item label="5 minutes" name="item1"/>
@@ -62,7 +67,6 @@
 		<combo_box.item label="30 minutes" name="item3"/>
 		<combo_box.item label="Jamais" name="item4"/>
 	</combo_box>
-	<check_box label="Voir les noms d&apos;affichage" name="display_names_check" tool_tip="Cocher pour utiliser les noms d&apos;affichage dans les chats, les IM, l&apos;affichage des noms, etc."/>
 	<text name="text_box3">
 		Réponse si occupé(e) :
 	</text>

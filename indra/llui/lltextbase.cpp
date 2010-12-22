@@ -1005,6 +1005,7 @@ void LLTextBase::draw()
 
 	if (mBGVisible)
 	{
+		F32 alpha = getCurrentTransparency();
 		// clip background rect against extents, if we support scrolling
 		LLRect bg_rect = mVisibleTextRect;
 		if (mScroller)
@@ -1016,7 +1017,7 @@ void LLTextBase::draw()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(doc_rect, bg_color, TRUE);
+		gl_rect_2d(doc_rect, bg_color % alpha, TRUE);
 	}
 
 	// draw document view

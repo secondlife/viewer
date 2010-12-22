@@ -3347,6 +3347,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 // then this info is news to us.
 void process_teleport_start(LLMessageSystem *msg, void**)
 {
+	// on teleport, don't tell them about destination guide anymore
+	LLFirstUse::notUsingDestinationGuide(false);
 	U32 teleport_flags = 0x0;
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 
@@ -6304,6 +6306,9 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				payload["from_id"] = target_id;
 				payload["SUPPRESS_TOAST"] = true;
 				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+
+				// Add the recepient to the recent people list.
+				LLRecentPeople::instance().add(target_id);
 			}
 		}
 		gAgent.sendReliableMessage();
@@ -6686,6 +6691,8 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
+	if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
+
 	std::string object_name;
 	std::string sim_name;
 	LLVector3 pos;

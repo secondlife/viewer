@@ -46,6 +46,7 @@ public:
 	virtual ~LLInspectToast();
 
 	/*virtual*/ void onOpen(const LLSD& notification_id);
+	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 private:
 	void onToastDestroy(LLToast * toast);
 
@@ -73,6 +74,7 @@ LLInspectToast::~LLInspectToast()
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
+// virtual
 void LLInspectToast::onOpen(const LLSD& notification_id)
 {
 	LLInspect::onOpen(notification_id);
@@ -101,6 +103,15 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 	reshape(panel_rect.getWidth(), panel_rect.getHeight());
 
 	LLUI::positionViewNearMouse(this);
+}
+
+// virtual
+BOOL LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	// We don't like the way LLInspect handles tooltips
+	// (black tooltips look weird),
+	// so force using the default implementation (STORM-511).
+	return LLFloater::handleToolTip(x, y, mask);
 }
 
 void LLInspectToast::onToastDestroy(LLToast * toast)

@@ -183,9 +183,10 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["mac"] = hashed_unique_id_string;
-	request_params["version"] = LLVersionInfo::getVersionAndChannel(); // Includes channel name
+	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
 	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["id0"] = mSerialNumber;
+	request_params["host_id"] = gSavedSettings.getString("HostID");
 
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";

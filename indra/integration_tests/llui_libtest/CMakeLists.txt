@@ -10,6 +10,7 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLImageJ2COJ)   # ugh, needed for images
+include(LLKDU)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
@@ -71,6 +72,11 @@ endif (DARWIN)
 target_link_libraries(llui_libtest
     llui
     llmessage
+    ${LLRENDER_LIBRARIES}
+    ${LLIMAGE_LIBRARIES}
+    ${LLKDU_LIBRARIES}
+    ${KDU_LIBRARY}
+    ${LLIMAGEJ2COJ_LIBRARIES}
     ${OS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )

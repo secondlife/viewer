@@ -117,8 +117,3 @@ void LLFloaterEvent::setEventID(const U32 event_id)
 		
 	}
 }
-
-void LLFloaterEvent::draw()
-{
-	LLPanel::draw();
-}

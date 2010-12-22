@@ -131,6 +131,9 @@ void LLSearchComboBox::focusTextEntry()
 	if (mTextEntry)
 	{
 		gFocusMgr.setKeyboardFocus(mTextEntry);
+
+		// Let the editor handle editing hotkeys (STORM-431).
+		LLEditMenuHandler::gEditMenuHandler = mTextEntry;
 	}
 }
 
