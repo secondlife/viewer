@@ -83,6 +83,8 @@ protected:
 	void		onBtnApply();
 
 	void		onClickBrowserClearCache();
+	void		onLanguageChange();
+	void		onNameTagOpacityChange(const LLSD& newvalue);
 
 	// set value of "BusyResponseChanged" in account settings depending on whether busy response
 	// string differs from default after user changes.
@@ -158,6 +160,7 @@ private:
 	bool mDoubleClickActionDirty;
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
+	bool mLanguageChanged;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;

@@ -167,6 +167,7 @@ BOOL LLCallFloater::postBuild()
 	//chrome="true" hides floater caption 
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
+	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();
 
@@ -203,6 +204,17 @@ void LLCallFloater::draw()
 		mParticipants->updateRecentSpeakersOrder();
 
 	LLTransientDockableFloater::draw();
+}
+
+// virtual
+void LLCallFloater::setFocus( BOOL b )
+{
+	LLTransientDockableFloater::setFocus(b);
+
+	// Force using active floater transparency (STORM-730).
+	// We have to override setFocus() for LLCallFloater because selecting an item
+	// of the voice morphing combobox causes the floater to lose focus and thus become transparent.
+	updateTransparency(TT_ACTIVE);
 }
 
 // virtual

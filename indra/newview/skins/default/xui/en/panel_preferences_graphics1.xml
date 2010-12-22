@@ -181,7 +181,7 @@
 		 label="Transparent Water"
 		 layout="topleft"
 		 left_delta="0"
-		 name="BumpShiny"
+		 name="TransparentWater"
 		 top_pad="7"
 		 width="256" />
 		<check_box

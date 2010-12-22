@@ -90,8 +90,7 @@ public:
 										fading_time_secs; // Number of seconds while a toast is transparent
 
 
-		Optional<toast_callback_t>		on_delete_toast,
-										on_mouse_enter;
+		Optional<toast_callback_t>		on_delete_toast;
 		Optional<bool>					can_fade,
 										can_be_stored,
 										enable_hide_btn,
@@ -115,11 +114,11 @@ public:
 
 	//Fading
 
-	/** Stop fading timer */
-	virtual void stopFading();
+	/** Stop lifetime/fading timer */
+	virtual void stopTimer();
 
-	/** Start fading timer */
-	virtual void startFading();
+	/** Start lifetime/fading timer */
+	virtual void startTimer();
 
 	bool isHovered();
 
@@ -182,7 +181,6 @@ public:
 
 	// Registers signals/callbacks for events
 	toast_signal_t mOnFadeSignal;
-	toast_signal_t mOnMouseEnterSignal;
 	toast_signal_t mOnDeleteToastSignal;
 	toast_signal_t mOnToastDestroyedSignal;
 	boost::signals2::connection setOnFadeCallback(toast_callback_t cb) { return mOnFadeSignal.connect(cb); }
@@ -200,6 +198,9 @@ public:
 
 	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
 
+protected:
+	void updateTransparency();
+
 private:
 
 	void onToastMouseEnter();
@@ -208,7 +209,7 @@ private:
 
 	void expire();
 
-	void setTransparentState(bool transparent);
+	void setFading(bool fading);
 
 	LLUUID				mNotificationID;
 	LLUUID				mSessionID;
@@ -234,7 +235,7 @@ private:
 	bool		mHideBtnPressed;
 	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 	bool		mIsTip;
-	bool		mIsTransparent;
+	bool		mIsFading;
 
 	commit_signal_t mToastMouseEnterSignal;
 	commit_signal_t mToastMouseLeaveSignal;

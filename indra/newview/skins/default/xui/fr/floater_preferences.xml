@@ -5,10 +5,12 @@
 	<tab_container name="pref core">
 		<panel label="Général" name="general"/>
 		<panel label="Graphiques" name="display"/>
-		<panel label="Confidentialité" name="im"/>
 		<panel label="Son et Média" name="audio"/>
 		<panel label="Chat" name="chat"/>
+		<panel label="Affichage/Déplacement" name="move"/>
 		<panel label="Notifications" name="msgs"/>
+		<panel label="Couleurs" name="colors"/>
+		<panel label="Confidentialité" name="im"/>
 		<panel label="Configuration" name="input"/>
 		<panel label="Avancées" name="advanced1"/>
 	</tab_container>

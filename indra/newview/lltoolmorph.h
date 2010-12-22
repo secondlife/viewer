@@ -68,7 +68,7 @@ public:
 	BOOL					render();
 	void					requestUpdate( S32 delay_frames ) {mNeedsUpdate = TRUE; mDelayFrames = delay_frames; }
 	void					setUpdateDelayFrames( S32 delay_frames ) { mDelayFrames = delay_frames; }
-	void					draw();
+	void					draw(F32 alpha);
 	
 	LLViewerVisualParam*	getVisualParam() { return mVisualParam; }
 	F32						getVisualParamWeight() { return mVisualParamWeight; }

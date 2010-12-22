@@ -34,6 +34,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -340,10 +341,11 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::instanceExists())
-		{
-			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
-		}
+	}
+
+	if(LLVoiceClient::instanceExists())
+	{
+		LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
 	}
 }
 
@@ -479,7 +481,6 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
 	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
-	childSetCommitCallback("overflow_btn", boost::bind(&LLPanelAvatarProfile::onOverflowButtonClicked, this), NULL);
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
 	childSetCommitCallback("show_on_map_btn", (boost::bind(
 			&LLPanelAvatarProfile::onMapButtonClick, this)), NULL);
@@ -500,7 +501,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
 	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
 
-	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* profile_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	getChild<LLMenuButton>("overflow_btn")->setMenu(profile_menu, LLMenuButton::MP_TOP_RIGHT);
 
 	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
 
@@ -752,32 +754,16 @@ void LLPanelAvatarProfile::onShareButtonClick()
 	//*TODO not implemented
 }
 
-void LLPanelAvatarProfile::onOverflowButtonClicked()
-{
-	if (!mProfileMenu->toggleVisibility())
-		return;
-
-	LLView* btn = getChild<LLView>("overflow_btn");
-
-	if (mProfileMenu->getButtonRect().isEmpty())
-	{
-		mProfileMenu->setButtonRect(btn);
-	}
-	mProfileMenu->updateParent(LLMenuGL::sMenuContainer);
-
-	LLRect rect = btn->getRect();
-	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
-}
-
 LLPanelAvatarProfile::~LLPanelAvatarProfile()
 {
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::instanceExists())
-		{
-			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
-		}
+	}
+
+	if(LLVoiceClient::instanceExists())
+	{
+		LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
 	}
 }
 

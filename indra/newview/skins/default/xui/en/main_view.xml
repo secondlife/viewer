@@ -8,6 +8,12 @@
  tab_stop="false" 
  name="main_view"
  width="1024">
+  <panel top="0"
+     follows="all"
+     height="768"
+     mouse_opaque="false"
+     name="login_panel_holder"
+     width="1024"/>
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
@@ -120,7 +126,7 @@
                       user_resize="false"
                       visible="false"
                       width="333"/>
-      </layout_stack>
+      </layout_stack>      
       <panel follows="all"
                     height="500"
                     left="0"

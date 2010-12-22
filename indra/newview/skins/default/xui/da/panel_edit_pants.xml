@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_pants_panel">
 	<panel name="avatar_pants_color_panel">
-		<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et bilede"/>
+		<texture_picker label="Tekstur" name="Fabric" tool_tip="Klik for at vælge et bilede"/>
 		<color_swatch label="Farve/Nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
 	</panel>
 	<panel name="accordion_panel">

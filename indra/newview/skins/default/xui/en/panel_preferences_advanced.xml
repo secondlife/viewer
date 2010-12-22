@@ -82,7 +82,7 @@
      control_name="AllowMultipleViewers"
      follows="top|left"
      height="15"
-     label="Allow Multiple Viewer"
+     label="Allow Multiple Viewers"
      layout="topleft"
      left="30"
      name="allow_multiple_viewer_check"
