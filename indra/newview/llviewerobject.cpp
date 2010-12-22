@@ -5402,7 +5402,7 @@ void LLViewerObject::setAttachmentItemID(const LLUUID &id)
 	mAttachmentItemID = id;
 }
 
-EObjectUpdateType LLViewerObject::getLastUpdateType()
+EObjectUpdateType LLViewerObject::getLastUpdateType() const
 {
 	return mLastUpdateType;
 }
@@ -5412,7 +5412,7 @@ void LLViewerObject::setLastUpdateType(EObjectUpdateType last_update_type)
 	mLastUpdateType = last_update_type;
 }
 
-BOOL LLViewerObject::getLastUpdateCached()
+BOOL LLViewerObject::getLastUpdateCached() const
 {
 	return mLastUpdateCached;
 }

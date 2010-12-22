@@ -697,9 +697,9 @@ public:
 	const LLUUID &getAttachmentItemID() const;
 	void setAttachmentItemID(const LLUUID &id);
 	const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
-	EObjectUpdateType getLastUpdateType();
+	EObjectUpdateType getLastUpdateType() const;
 	void setLastUpdateType(EObjectUpdateType last_update_type);
-	BOOL getLastUpdateCached();
+	BOOL getLastUpdateCached() const;
 	void setLastUpdateCached(BOOL last_update_cached);
 
 private:

@@ -1049,33 +1049,29 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 			entry->recordDupe();
 			return CACHE_UPDATE_DUPE;
 		}
-		else
-		{
-			// Update the cache entry
-			mCacheMap.erase(local_id);
-			delete entry;
-			entry = new LLVOCacheEntry(local_id, crc, dp);
-			mCacheMap[local_id] = entry;
-			return CACHE_UPDATE_CHANGED;
-		}
-	}
-	else
-	{
-		// we haven't seen this object before
 
-		// Create new entry and add to map
-		eCacheUpdateResult result = CACHE_UPDATE_ADDED;
-		if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
-		{
-			mCacheMap.erase(mCacheMap.begin());
-			result = CACHE_UPDATE_REPLACED;
-			
-		}
+		// Update the cache entry
+		mCacheMap.erase(local_id);
+		delete entry;
 		entry = new LLVOCacheEntry(local_id, crc, dp);
-
 		mCacheMap[local_id] = entry;
-		return result;
+		return CACHE_UPDATE_CHANGED;
 	}
+
+	// we haven't seen this object before
+
+	// Create new entry and add to map
+	eCacheUpdateResult result = CACHE_UPDATE_ADDED;
+	if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
+	{
+		mCacheMap.erase(mCacheMap.begin());
+		result = CACHE_UPDATE_REPLACED;
+		
+	}
+	entry = new LLVOCacheEntry(local_id, crc, dp);
+
+	mCacheMap[local_id] = entry;
+	return result;
 }
 
 // Get data packer for this object, if we have cached data

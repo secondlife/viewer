@@ -306,7 +306,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	// I don't think this case is ever hit.  TODO* Test this.
 	if (!cached && !compressed && update_type != OUT_FULL)
 	{
-		llinfos << "TEST: !cached && !compressed && update_type != OUT_FULL" << llendl;
+		//llinfos << "TEST: !cached && !compressed && update_type != OUT_FULL" << llendl;
 		gTerseObjectUpdates += num_objects;
 		S32 size;
 		if (mesgsys->getReceiveCompressedSize())
@@ -317,7 +317,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			size = mesgsys->getReceiveSize();
 		}
-		llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		//llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
 	}
 	else
 	{
@@ -403,7 +403,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			// I don't think we ever use this flag from the server.  DK 2010/12/09
 			if (flags & FLAGS_ZLIB_COMPRESSED)
 			{
-				llinfos << "TEST: flags & FLAGS_ZLIB_COMPRESSED" << llendl;
+				//llinfos << "TEST: flags & FLAGS_ZLIB_COMPRESSED" << llendl;
 				compressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compbuffer, 0, i);
 				uncompressed_length = 2048;
@@ -500,7 +500,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
-					llinfos << "terse update for an unknown object (compressed):" << fullid << llendl;
+					// llinfos << "terse update for an unknown object (compressed):" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
 					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
@@ -514,7 +514,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type != OUT_FULL)
 				{
-					llinfos << "terse update for an unknown object:" << fullid << llendl;
+					//llinfos << "terse update for an unknown object:" << fullid << llendl;
 					#if LL_RECORD_VIEWER_STATS
 					LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 					#endif
@@ -527,7 +527,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (mDeadObjects.find(fullid) != mDeadObjects.end())
 			{
 				mNumDeadObjectUpdates++;
-				llinfos << "update for a dead object:" << fullid << llendl;
+				//llinfos << "update for a dead object:" << fullid << llendl;
 				#if LL_RECORD_VIEWER_STATS
 				LLViewerStatsRecorder::instance()->recordObjectUpdateFailure(local_id, update_type);
 				#endif
