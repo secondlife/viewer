@@ -5,6 +5,7 @@ height="600"
 layout="topleft"
 left="0"
 name="panel_login"
+focus_root="true" 
 top="600"
  width="996">
 <panel.string
@@ -91,6 +92,7 @@ follows="left|bottom"
   height="22"
   max_length_bytes="16"
 name="password_edit"
+is_password="true" 
 select_on_focus="true"
   top_pad="0"
   width="135" />

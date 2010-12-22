@@ -784,7 +784,7 @@
 		XML Fil
 	</string>
 	<string name="raw_file">
-		RAW Fil
+		RAW fil
 	</string>
 	<string name="compressed_image_files">
 		Komprimerede billeder
@@ -1737,11 +1737,8 @@
 	<string name="InvOfferGaveYou">
 		gav dig
 	</string>
-	<string name="InvOfferYouDecline">
-		Du afslår
-	</string>
-	<string name="InvOfferFrom">
-		fra
+	<string name="InvOfferDecline">
+		Du afslår [DESC] fra &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total

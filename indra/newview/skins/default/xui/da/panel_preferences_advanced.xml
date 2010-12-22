@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Midterste mus
-	</panel.string>
-	<slider label="Synsvinkel" name="camera_fov"/>
-	<slider label="Distance" name="camera_offset_scale"/>
-	<text name="heading2">
-		Automatisk positionering for:
-	</text>
-	<check_box label="Byg/Redigér" name="edit_camera_movement" tool_tip="Benyt automatisk kamera positionering ved start og slut af editerings modus"/>
-	<check_box label="Udseende" name="appearance_camera_movement" tool_tip="Benyt automatisk kamera positionering ved redigering"/>
-	<check_box initial_value="sand" label="Sidepanel" name="appearance_sidebar_positioning" tool_tip="Benyt automatisk positionering af kamera"/>
-	<check_box label="Vis avatar i førsteperson" name="first_person_avatar_visible"/>
-	<check_box label="Piletaster bruges altid til bevægelse" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Tast-tast-hold for at løbe" name="tap_tap_hold_to_run"/>
-	<check_box label="Bevæg avatarlæber når der tales" name="enable_lip_sync"/>
-	<check_box label="Talebobler" name="bubble_text_chat"/>
-	<slider label="Synlighed" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Vælg farve for talebobler"/>
 	<text name="UI Size:">
-		Brugerflade størrelse
+		UI størrelse:
 	</text>
 	<check_box label="Vis script fejl i:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat" name="0"/>
 		<radio_item label="Separat vindue" name="1"/>
 	</radio_group>
-	<check_box label="Knap til aktiverering af mikrofon:" name="push_to_talk_toggle_check" tool_tip="I walkie-talkie-modus sendes stemme kun når knappen er trykket ned, ellers vil tryk på knap tænde og slukke mikrofon."/>
-	<line_editor label="Brug walkie-talkie modus" name="modifier_combo"/>
-	<button label="Angiv taste" name="set_voice_hotkey_button"/>
-	<button label="Midterste museknap" name="set_voice_middlemouse_button" tool_tip="Nulstil til midterste musetaste"/>
-	<button label="Andre enheder" name="joystick_setup_button"/>
+	<check_box label="Tillad flere åbne klienter" name="allow_multiple_viewer_check"/>
+	<check_box label="Vælg netværk ved login" name="show_grid_selection_check"/>
+	<check_box label="Vælg avanceret menu" name="show_advanced_menu_check"/>
+	<check_box label="Vis udvikler menu" name="show_develop_menu_check"/>
 </panel>

@@ -77,7 +77,7 @@ public:
 	
 	// translate user's busy response message according to current locale if message is default, otherwise do nothing
 	static void initBusyResponse();
-	
+
 	void processProperties( void* pData, EAvatarProcessorType type );
 	void processProfileProperties(const LLAvatarData* pAvatarData );
 	void storeAvatarProperties( const LLAvatarData* pAvatarData );
@@ -90,6 +90,7 @@ protected:
 
 	void		onClickBrowserClearCache();
 	void		onLanguageChange();
+	void		onNameTagOpacityChange(const LLSD& newvalue);
 
 	// set value of "BusyResponseChanged" in account settings depending on whether busy response
 	// string differs from default after user changes.

@@ -41,7 +41,7 @@
        (Locations, images, web, search history)
     </text>
     <check_box
-     height="16"
+	 height="16"
      enabled="true"
      label="Show me in Search results"
      layout="topleft"

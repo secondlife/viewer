@@ -43,7 +43,7 @@ class LLPanelProfile : public LLPanel
 
 public:
 	/*virtual*/ BOOL postBuild();
-
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	virtual void togglePanel(LLPanel*, const LLSD& key = LLSD());
@@ -60,8 +60,6 @@ protected:
 
 	virtual void onTabSelected(const LLSD& param);
 
-	virtual void setAllChildrenVisible(BOOL visible);
-
 	LLTabContainer* getTabCtrl() { return mTabCtrl; }
 
 	const LLUUID& getAvatarId() { return mAvatarId; }
@@ -74,8 +72,34 @@ protected:
 
 private:
 
+	//-- ChildStack begins ----------------------------------------------------
+	class ChildStack
+	{
+		LOG_CLASS(LLPanelProfile::ChildStack);
+	public:
+		ChildStack();
+		void setParent(LLPanel* parent);
+
+		bool push();
+		bool pop();
+		void preParentReshape();
+		void postParentReshape();
+
+	private:
+		void dump();
+
+		typedef LLView::child_list_t view_list_t;
+		typedef std::list<view_list_t> stack_t;
+
+		stack_t		mStack;
+		stack_t		mSavedStack;
+		LLPanel*	mParent;
+	};
+	//-- ChildStack ends ------------------------------------------------------
+
 	LLTabContainer* mTabCtrl;	
 	profile_tabs_t mTabContainer;
+	ChildStack		mChildStack;
 	LLUUID mAvatarId;
 };
 

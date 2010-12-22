@@ -27,6 +27,7 @@
 
 #include "linden_common.h"
 #include "llurlentry.h"
+#include "lluictrl.h"
 #include "lluri.h"
 #include "llurlmatch.h"
 #include "llurlregistry.h"
@@ -165,6 +166,15 @@ void LLUrlEntryBase::callObservers(const std::string &id,
 		delete observer.signal;
 		mObservers.erase(it++);
 	}
+}
+
+/// is this a match for a URL that should not be hyperlinked?
+bool LLUrlEntryBase::isLinkDisabled() const
+{
+	// this allows us to have a global setting to turn off text hyperlink highlighting/action
+	bool globally_disabled = LLUI::sSettingGroups["config"]->getBOOL("DisableTextHyperlinkActions");
+
+	return globally_disabled;
 }
 
 static std::string getStringAfterToken(const std::string str, const std::string token)
@@ -793,6 +803,69 @@ std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 {
 	// return the part of the Url after secondlife:// part
 	return ::getStringAfterToken(url, "://");
+}
+
+//
+// LLUrlEntryRegion Describes secondlife:///app/region/REGION_NAME/X/Y/Z URLs, e.g.
+// secondlife:///app/region/Ahern/128/128/0
+//
+LLUrlEntryRegion::LLUrlEntryRegion()
+{
+	mPattern = boost::regex("secondlife:///app/region/[^/\\s]+(/\\d+)?(/\\d+)?(/\\d+)?/?",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_slurl.xml";
+	mTooltip = LLTrans::getString("TooltipSLURL");
+}
+
+std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	//
+	// we handle SLURLs in the following formats:
+	//   - secondlife:///app/region/Place/X/Y/Z
+	//   - secondlife:///app/region/Place/X/Y
+	//   - secondlife:///app/region/Place/X
+	//   - secondlife:///app/region/Place
+	//
+
+	LLSD path_array = LLURI(url).pathArray();
+	S32 path_parts = path_array.size();
+
+	if (path_parts < 3) // no region name
+	{
+		llwarns << "Failed to parse url [" << url << "]" << llendl;
+		return url;
+	}
+
+	std::string label = unescapeUrl(path_array[2]); // region name
+
+	if (path_parts > 3) // secondlife:///app/region/Place/X
+	{
+		std::string x = path_array[3];
+		label += " (" + x;
+
+		if (path_parts > 4) // secondlife:///app/region/Place/X/Y
+		{
+			std::string y = path_array[4];
+			label += "," + y;
+
+			if (path_parts > 5) // secondlife:///app/region/Place/X/Y/Z
+			{
+				std::string z = path_array[5];
+				label = label + "," + z;
+			}
+		}
+
+		label += ")";
+	}
+
+	return label;
+}
+
+std::string LLUrlEntryRegion::getLocation(const std::string &url) const
+{
+	LLSD path_array = LLURI(url).pathArray();
+	std::string region_name = unescapeUrl(path_array[2]);
+	return region_name;
 }
 
 //

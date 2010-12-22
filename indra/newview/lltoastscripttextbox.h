@@ -30,13 +30,11 @@
 #include "lltoastnotifypanel.h"
 #include "llnotificationptr.h"
 
-class LLButton;
-
 /**
  * Toast panel for scripted llTextbox notifications.
  */
 class LLToastScriptTextbox
-:	public LLToastNotifyPanel
+:	public LLToastPanel
 {
 public:
 	void close();
@@ -46,12 +44,15 @@ public:
 	// Non-transient messages.  You can specify non-default button
 	// layouts (like one for script dialogs) by passing various
 	// numbers in for "layout".
-	LLToastScriptTextbox(LLNotificationPtr& notification);
+	LLToastScriptTextbox(const LLNotificationPtr& notification);
 
 	/*virtual*/ ~LLToastScriptTextbox();
-protected:
-	void onClickSubmit();
+
 private:
+
+	void onClickSubmit();
+	void onClickIgnore();
+
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 };
 

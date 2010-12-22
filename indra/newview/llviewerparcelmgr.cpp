@@ -850,7 +850,7 @@ LLParcel* LLViewerParcelMgr::getCollisionParcel() const
 
 void LLViewerParcelMgr::render()
 {
-	if (mSelected && mRenderSelection)
+	if (mSelected && mRenderSelection && gSavedSettings.getBOOL("RenderParcelSelection"))
 	{
 		// Rendering is done in agent-coordinates, so need to supply
 		// an appropriate offset to the render code.
@@ -1784,8 +1784,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
-	    gSavedSettings.getBOOL("AudioStreamingMedia"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
