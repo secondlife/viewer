@@ -48,6 +48,7 @@ class LLFloaterScriptSearch;
 class LLKeywordToken;
 class LLVFS;
 class LLViewerInventoryItem;
+class LLScriptEdContainer;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
 class LLScriptEdCore : public LLPanel
@@ -56,17 +57,20 @@ class LLScriptEdCore : public LLPanel
 	friend class LLPreviewLSL;
 	friend class LLLiveLSLEditor;
 	friend class LLFloaterScriptSearch;
+	friend class LLScriptEdContainer;
 
-public:
+protected:
+	// Supposed to be invoked only by the container.
 	LLScriptEdCore(
+		LLScriptEdContainer* container,
 		const std::string& sample,
 		const LLHandle<LLFloater>& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
-		void (*edit_callback)(void*),
 		void (*search_replace_callback)(void* userdata),
 		void* userdata,
 		S32 bottom_pad = 0);	// pad below bottom row of buttons
+public:
 	~LLScriptEdCore();
 	
 	void			initMenu();
@@ -74,15 +78,19 @@ public:
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
 	BOOL			canClose();
+	void			setEnableEditing(bool enable);
 
 	void            setScriptText(const std::string& text, BOOL is_valid);
+	bool			loadScriptText(const std::string& filename);
+	bool			writeToFile(const std::string& filename);
+	void			sync();
 	
 	void			doSave( BOOL close_after_save );
 
 	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
 
-	void			onEditButtonClick();
+	void			openInExternalEditor();
 
 	static void		onCheckLock(LLUICtrl*, void*);
 	static void		onHelpComboCommit(LLUICtrl* ctrl, void* userdata);
@@ -118,7 +126,6 @@ private:
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
-	void			(*mEditCallback)(void* userdata);
 	void			(*mSearchReplaceCallback) (void* userdata);
 	void*			mUserdata;
 	LLComboBox		*mFunctions;
@@ -132,11 +139,28 @@ private:
 	S32				mLiveHelpHistorySize;
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
+	LLLiveLSLFile*	mLiveFile;
+
+	LLScriptEdContainer* mContainer; // parent view
 };
 
+class LLScriptEdContainer : public LLPreview
+{
+	friend class LLScriptEdCore;
+
+public:
+	LLScriptEdContainer(const LLSD& key);
+
+protected:
+	std::string		getTmpFileName();
+	bool			onExternalChange(const std::string& filename);
+	virtual void	saveIfNeeded(bool sync = true) = 0;
+
+	LLScriptEdCore*		mScriptEd;
+};
 
 // Used to view and edit a LSL from your inventory.
-class LLPreviewLSL : public LLPreview
+class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
 	LLPreviewLSL(const LLSD& key );
@@ -150,7 +174,7 @@ protected:
 	void closeIfNeeded();
 
 	virtual void loadAsset();
-	void saveIfNeeded();
+	/*virtual*/ void saveIfNeeded(bool sync = true);
 	void uploadAssetViaCaps(const std::string& url,
 							const std::string& filename, 
 							const LLUUID& item_id);
@@ -174,7 +198,6 @@ protected:
 
 protected:
 
-	LLScriptEdCore* mScriptEd;
 	// Can safely close only after both text and bytecode are uploaded
 	S32 mPendingUploads;
 
@@ -182,12 +205,11 @@ protected:
 
 
 // Used to view and edit an LSL that is attached to an object.
-class LLLiveLSLEditor : public LLPreview
+class LLLiveLSLEditor : public LLScriptEdContainer
 {
 	friend class LLLiveLSLFile;
 public: 
 	LLLiveLSLEditor(const LLSD& key);
-	~LLLiveLSLEditor();
 
 
 	static void processScriptRunningReply(LLMessageSystem* msg, void**);
@@ -208,10 +230,7 @@ private:
 
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
-	void saveIfNeeded(bool sync = true);
-	void openExternalEditor();
-	std::string getTmpFileName();
-	bool writeToFile(const std::string& filename);
+	/*virtual*/ void saveIfNeeded(bool sync = true);
 	void uploadAssetViaCaps(const std::string& url,
 							const std::string& filename, 
 							const LLUUID& task_id,
@@ -227,7 +246,6 @@ private:
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
-	static void onEdit(void* userdata);
 
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
@@ -237,7 +255,6 @@ private:
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
- 	bool loadScriptText(const std::string& filename);
 	void loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
@@ -248,7 +265,6 @@ private:
 
 private:
 	bool				mIsNew;
-	LLScriptEdCore*		mScriptEd;
 	//LLUUID mTransmitID;
 	LLCheckBoxCtrl*		mRunningCheckbox;
 	BOOL				mAskedForRunningInfo;
@@ -263,7 +279,6 @@ private:
 	
 	LLCheckBoxCtrl*	mMonoCheckbox;
 	BOOL mIsModifiable;
-	LLLiveLSLFile*		mLiveFile;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H
