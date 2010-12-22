@@ -36,6 +36,8 @@
 #include "llfloatermodelpreview.h"
 #include "llfloaterreg.h"
 #include "llslider.h"
+#include "lltoolmgr.h"
+#include "llviewerwindow.h"
 
 
 static	const std::string stateNames[]={
@@ -124,6 +126,107 @@ bool LLFloaterModelWizard::onEnableBack()
 {
 	return true;
 }
+
+
+//-----------------------------------------------------------------------------
+// handleMouseDown()
+//-----------------------------------------------------------------------------
+BOOL LLFloaterModelWizard::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mPreviewRect.pointInRect(x, y))
+	{
+		bringToFront( x, y );
+		gFocusMgr.setMouseCapture(this);
+		gViewerWindow->hideCursor();
+		mLastMouseX = x;
+		mLastMouseY = y;
+		return TRUE;
+	}
+	
+	return LLFloater::handleMouseDown(x, y, mask);
+}
+
+//-----------------------------------------------------------------------------
+// handleMouseUp()
+//-----------------------------------------------------------------------------
+BOOL LLFloaterModelWizard::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	gFocusMgr.setMouseCapture(FALSE);
+	gViewerWindow->showCursor();
+	return LLFloater::handleMouseUp(x, y, mask);
+}
+
+//-----------------------------------------------------------------------------
+// handleHover()
+//-----------------------------------------------------------------------------
+BOOL LLFloaterModelWizard::handleHover	(S32 x, S32 y, MASK mask)
+{
+	MASK local_mask = mask & ~MASK_ALT;
+	
+	if (mModelPreview && hasMouseCapture())
+	{
+		if (local_mask == MASK_PAN)
+		{
+			// pan here
+			mModelPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
+		}
+		else if (local_mask == MASK_ORBIT)
+		{
+			F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
+			F32 pitch_radians = (F32)(y - mLastMouseY) * 0.02f;
+			
+			mModelPreview->rotate(yaw_radians, pitch_radians);
+		}
+		else 
+		{
+			
+			F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
+			F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
+			
+			mModelPreview->rotate(yaw_radians, 0.f);
+			mModelPreview->zoom(zoom_amt);
+		}
+		
+		
+		mModelPreview->refresh();
+		
+		LLUI::setMousePositionLocal(this, mLastMouseX, mLastMouseY);
+	}
+	
+	if (!mPreviewRect.pointInRect(x, y) || !mModelPreview)
+	{
+		return LLFloater::handleHover(x, y, mask);
+	}
+	else if (local_mask == MASK_ORBIT)
+	{
+		gViewerWindow->setCursor(UI_CURSOR_TOOLCAMERA);
+	}
+	else if (local_mask == MASK_PAN)
+	{
+		gViewerWindow->setCursor(UI_CURSOR_TOOLPAN);
+	}
+	else
+	{
+		gViewerWindow->setCursor(UI_CURSOR_TOOLZOOMIN);
+	}
+	
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// handleScrollWheel()
+//-----------------------------------------------------------------------------
+BOOL LLFloaterModelWizard::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	if (mPreviewRect.pointInRect(x, y) && mModelPreview)
+	{
+		mModelPreview->zoom((F32)clicks * -0.2f);
+		mModelPreview->refresh();
+	}
+	
+	return TRUE;
+}
+
 
 BOOL LLFloaterModelWizard::postBuild()
 {

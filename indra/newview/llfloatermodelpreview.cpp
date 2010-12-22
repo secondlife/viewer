@@ -3339,8 +3339,33 @@ void LLModelPreview::updateStatusMessages()
 
 		
 	}
-	else if (mFMP->childGetValue("lod_auto_generate").asBoolean())
+	else if (mFMP->childGetValue("lod_none").asBoolean())
 	{
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childDisable(file_controls[i]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childDisable(lod_controls[i]);
+		}
+
+		if (!mModel[mPreviewLOD].empty())
+		{
+			mModel[mPreviewLOD].clear();
+			mScene[mPreviewLOD].clear();
+			mVertexBuffer[mPreviewLOD].clear();
+
+			//this can cause phasing issues with the UI, so reenter this function and return
+			updateStatusMessages();
+			return;
+		}
+		
+	
+	}
+	else
+	{	// auto generate, also the default case for wizard which has no radio selection
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
 			mFMP->childDisable(file_controls[i]);
@@ -3378,29 +3403,6 @@ void LLModelPreview::updateStatusMessages()
 				limit->setVisible(false);
 				threshold->setVisible(true);
 			}
-		}
-	}
-	else
-	{ // "None" is chosen
-		for (U32 i = 0; i < num_file_controls; ++i)
-		{
-			mFMP->childDisable(file_controls[i]);
-		}
-
-		for (U32 i = 0; i < num_lod_controls; ++i)
-		{
-			mFMP->childDisable(lod_controls[i]);
-		}
-
-		if (!mModel[mPreviewLOD].empty())
-		{
-			mModel[mPreviewLOD].clear();
-			mScene[mPreviewLOD].clear();
-			mVertexBuffer[mPreviewLOD].clear();
-
-			//this can cause phasing issues with the UI, so reenter this function and return
-			updateStatusMessages();
-			return;
 		}
 	}
 

@@ -208,23 +208,8 @@
 			 left="10"
 			 word_wrap="true">
 				Note:
-				Advanced users familiar with 3d content creation tools may prefer to use the Advanced Mesh Import window.
+Advanced users familiar with 3d content creation tools may prefer to use the Advanced Mesh Import window.
 			</text>
-			<combo_box left_pad="0" top_delta="0"  follows="left|top" list_position="below" height="18"
-  name="preview_lod_combo_2" width="90" tool_tip="LOD to view in preview render">
-				<combo_item name="high">
-					High
-				</combo_item>
-				<combo_item name="medium">
-					Medium
-				</combo_item>
-				<combo_item name="lowest">
-					Lowest
-				</combo_item>
-				<combo_item name="low">
-					Low
-				</combo_item>
-			</combo_box>
 		</panel>
 	</panel>
 
@@ -390,7 +375,7 @@
 		   layout="topleft"
 		   left="220"
 		   max_val="2"
-		   initial_vauel="1"
+		   initial_value="1"
 		   min_val="0"
 		   name="accuracy_slider"
 		   show_text="false"
