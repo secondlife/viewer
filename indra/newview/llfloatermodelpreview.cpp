@@ -89,6 +89,7 @@
 #include "llstring.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
@@ -257,6 +258,12 @@ LLFloater(key)
 	mLastMouseY = 0;
 	mGLName = 0;
 	mStatusLock = new LLMutex(NULL);
+
+	mLODMode[LLModel::LOD_HIGH] = 0;
+	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
+	{
+		mLODMode[i] = 1;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -3310,84 +3317,87 @@ void LLModelPreview::updateStatusMessages()
 	};
 	const U32 num_file_controls = sizeof(file_controls)/sizeof(char*);
 
-	//enable/disable controls based on radio groups
-	if (mFMP->childGetValue("lod_from_file").asBoolean())
+	if (fmp)
 	{
-		for (U32 i = 0; i < num_file_controls; ++i)
-		{
-			mFMP->childEnable(file_controls[i]);
-		}
-
-		for (U32 i = 0; i < num_lod_controls; ++i)
-		{
-			mFMP->childDisable(lod_controls[i]);
-		}
-
-
-	}
-	else if (mFMP->childGetValue("lod_none").asBoolean())
-	{
-		for (U32 i = 0; i < num_file_controls; ++i)
-		{
-			mFMP->childDisable(file_controls[i]);
-		}
-
-		for (U32 i = 0; i < num_lod_controls; ++i)
-		{
-			mFMP->childDisable(lod_controls[i]);
-		}
-
-		if (!mModel[mPreviewLOD].empty())
-		{
-			mModel[mPreviewLOD].clear();
-			mScene[mPreviewLOD].clear();
-			mVertexBuffer[mPreviewLOD].clear();
-
-			//this can cause phasing issues with the UI, so reenter this function and return
-			updateStatusMessages();
-			return;
-		}
-
-
-	}
-	else
-	{	// auto generate, also the default case for wizard which has no radio selection
-		for (U32 i = 0; i < num_file_controls; ++i)
-		{
-			mFMP->childDisable(file_controls[i]);
-		}
-
-		for (U32 i = 0; i < num_lod_controls; ++i)
-		{
-			mFMP->childEnable(lod_controls[i]);
-		}
-
-		//if (threshold)
-		{
-			U32 lod_mode = 0;
-			LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
-			if (iface)
+		//enable/disable controls based on radio groups
+		if (mFMP->childGetValue("lod_from_file").asBoolean())
+		{ 
+			fmp->mLODMode[mPreviewLOD] = 0;
+			for (U32 i = 0; i < num_file_controls; ++i)
 			{
-				lod_mode = iface->getFirstSelectedIndex();
+				mFMP->childEnable(file_controls[i]);
 			}
 
-			LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
-			LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
-
-			limit->setMaxValue(mMaxTriangleLimit);
-			limit->setValue(total_tris[mPreviewLOD]);
-
-			if (lod_mode == 0)
+			for (U32 i = 0; i < num_lod_controls; ++i)
 			{
-				limit->setVisible(true);
-				threshold->setVisible(false);
+				mFMP->childDisable(lod_controls[i]);
+			}
+		}
+		else if (mFMP->childGetValue("lod_none").asBoolean())
+		{
+			fmp->mLODMode[mPreviewLOD] = 2;
+			for (U32 i = 0; i < num_file_controls; ++i)
+			{
+				mFMP->childDisable(file_controls[i]);
+			}
+
+			for (U32 i = 0; i < num_lod_controls; ++i)
+			{
+				mFMP->childDisable(lod_controls[i]);
+			}
+
+			if (!mModel[mPreviewLOD].empty())
+			{
+				mModel[mPreviewLOD].clear();
+				mScene[mPreviewLOD].clear();
+				mVertexBuffer[mPreviewLOD].clear();
+
+				//this can cause phasing issues with the UI, so reenter this function and return
+				updateStatusMessages();
+				return;
+			}
+		}
+		else
+		{	// auto generate, also the default case for wizard which has no radio selection
+			fmp->mLODMode[mPreviewLOD] = 1;
+
+			for (U32 i = 0; i < num_file_controls; ++i)
+			{
+				mFMP->childDisable(file_controls[i]);
+			}
+
+			for (U32 i = 0; i < num_lod_controls; ++i)
+			{
+				mFMP->childEnable(lod_controls[i]);
+			}
+
+			//if (threshold)
+			{	
+				U32 lod_mode = 0;
+				LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+				if (iface)
+				{
+					lod_mode = iface->getFirstSelectedIndex();
+				}
+
+				LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
+				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
-			}
-			else
-			{
-				limit->setVisible(false);
-				threshold->setVisible(true);
+				limit->setValue(total_tris[mPreviewLOD]);
+
+				if (lod_mode == 0)
+				{
+					limit->setVisible(true);
+					threshold->setVisible(false);
+
+					limit->setMaxValue(mMaxTriangleLimit);
+				}
+				else
+				{
+					limit->setVisible(false);
+					threshold->setVisible(true);
+				}
 			}
 		}
 	}
@@ -4092,6 +4102,13 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 			mFMP->childSetColor(lod_label_name[i], color);
 			mFMP->childSetColor(lod_triangles_name[i], color);
 			mFMP->childSetColor(lod_vertices_name[i], color);
+		}
+
+		LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+		if (fmp)
+		{
+			LLRadioGroup* radio = fmp->getChild<LLRadioGroup>("lod_file_or_limit");
+			radio->selectNthItem(fmp->mLODMode[mPreviewLOD]);
 		}
 	}
 	refresh();
