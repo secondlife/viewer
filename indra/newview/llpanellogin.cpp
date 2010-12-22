@@ -212,9 +212,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	//sendChildToBack(getChildView("channel_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
 
-	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
-	if (edit) edit->setDrawAsterixes(TRUE);
-
 	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
 	{
 		LLSLURL slurl(gSavedSettings.getString("LoginLocation"));

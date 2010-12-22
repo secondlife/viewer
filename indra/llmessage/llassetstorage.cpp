@@ -513,6 +513,10 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 
 }
 
+//
+// *NOTE:  Logic here is replicated in LLViewerAssetStorage::_queueDataRequest.
+// Changes here may need to be replicated in the viewer's derived class.
+//
 void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType atype,
 									   LLGetAssetCallback callback,
 									   void *user_data, BOOL duplicate,

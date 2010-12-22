@@ -92,6 +92,7 @@ follows="left|bottom"
   height="22"
   max_length_bytes="16"
 name="password_edit"
+is_password="true" 
 select_on_focus="true"
   top_pad="0"
   width="135" />
