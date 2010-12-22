@@ -981,9 +981,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>d7bd19331996264c1b2b944575fc63f8</string>
+            <string>66c46841825ab4969ec875b5c8f9b24c</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-darwin-qt4.7.1-20101215.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-darwin-qt4.7.1-20101221.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
