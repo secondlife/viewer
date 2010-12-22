@@ -1829,7 +1829,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		}
 
 		// start by assuming the default CA file will be used
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
 	
 		// default turned off so pick up the user specified path
 		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
@@ -1837,7 +1837,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			ca_path = gSavedSettings.getString("BrowserCAFilePath");
 		}
 		// set the path to the CA.pem file
-		media_source->setCertificateFilePath( ca_path );
+		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		

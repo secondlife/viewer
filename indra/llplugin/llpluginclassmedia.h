@@ -203,7 +203,7 @@ public:
 	void proxyWindowOpened(const std::string &target, const std::string &uuid);
 	void proxyWindowClosed(const std::string &uuid);
 	void ignore_ssl_cert_errors(bool ignore);
-	void setCertificateFilePath(const std::string& path);
+	void addCertificateFilePath(const std::string& path);
 	
 	// This is valid after MEDIA_EVENT_NAVIGATE_BEGIN or MEDIA_EVENT_NAVIGATE_COMPLETE
 	std::string	getNavigateURI() const { return mNavigateURI; };
