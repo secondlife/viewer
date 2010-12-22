@@ -199,6 +199,8 @@ protected:
 	
 	void initDecompControls();
 	
+	void setStatusMessage(const std::string& msg);
+
 	LLModelPreview*	mModelPreview;
 	
 	LLPhysicsDecomp::decomp_params mDecompParams;
@@ -209,8 +211,9 @@ protected:
 	U32				mGLName;
 	static S32		sUploadAmount;
 	
-	LLPointer<DecompRequest> mCurRequest;
-	
+	std::set<LLPointer<DecompRequest> > mCurRequest;
+	std::string mStatusMessage;
+
 	std::map<std::string, bool> mViewOption;
 
 	//use "disabled" as false by default
@@ -218,7 +221,7 @@ protected:
 
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
-	
+	LLMutex* mStatusLock;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread

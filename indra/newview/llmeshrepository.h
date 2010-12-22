@@ -157,6 +157,7 @@ public:
 	{
 	public:
 		//input params
+		S32* mDecompID;
 		std::string mStage;
 		std::vector<LLVector3> mPositions;
 		std::vector<U16> mIndices;
@@ -167,8 +168,12 @@ public:
 		std::vector<LLPointer<LLVertexBuffer> > mHullMesh;
 		LLModel::convex_hull_decomposition mHull;
 		
+		//status message callback, called from decomposition thread
 		virtual S32 statusCallback(const char* status, S32 p1, S32 p2) = 0;
+
+		//completed callback, called from the main thread
 		virtual void completed() = 0;
+
 		virtual void setStatusMessage(const std::string& msg);
 	};
 
@@ -193,6 +198,9 @@ public:
 	void doDecompositionSingleHull();
 
 	virtual void run();
+	
+	void completeCurrent();
+	void notifyCompleted();
 
 	std::map<std::string, S32> mStageID;
 
@@ -200,6 +208,8 @@ public:
 	request_queue mRequestQ;
 
 	LLPointer<Request> mCurRequest;
+
+	std::queue<LLPointer<Request> > mCompletedQ;
 
 };
 
