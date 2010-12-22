@@ -256,6 +256,7 @@ LLFloater(key)
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mGLName = 0;
+	mStatusLock = new LLMutex(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -302,6 +303,8 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("lod_file_or_limit", refresh, this);
 	childSetCommitCallback("physics_load_radio", refresh, this);
+	//childSetCommitCallback("physics_optimize", refresh, this);
+	//childSetCommitCallback("physics_use_hull", refresh, this);
 	
 	childDisable("upload_skin");
 	childDisable("upload_joints");
@@ -376,6 +379,9 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	{
 		LLImageGL::deleteTextures(1, &mGLName );
 	}
+
+	delete mStatusLock;
+	mStatusLock = NULL;
 }
 
 void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
@@ -534,9 +540,10 @@ void LLFloaterModelPreview::draw()
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 	
-	if (mCurRequest.notNull())
+	if (!mCurRequest.empty())
 	{
-		childSetTextArg("status", "[STATUS]", mCurRequest->mStatusMessage);
+		LLMutexLock lock(mStatusLock);
+		childSetTextArg("status", "[STATUS]", mStatusMessage);
 	}
 		
 	U32 resource_cost = mModelPreview->mResourceCost*10;
@@ -692,7 +699,22 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 	if (sInstance)
 	{
 		LLCDParam* param = (LLCDParam*) data;
-		sInstance->mDecompParams[param->mName] = ctrl->getValue();
+		std::string name(param->mName);
+		sInstance->mDecompParams[name] = ctrl->getValue();
+
+		if (name == "Simplify Method")
+		{
+			 if (ctrl->getValue().asInteger() == 0)
+			 {
+				sInstance->childSetVisible("Retain%", true);
+				sInstance->childSetVisible("Detail Scale", false);
+			 }
+			else
+			{
+				sInstance->childSetVisible("Retain%", false);
+				sInstance->childSetVisible("Detail Scale", true);
+			}
+		}
 	}
 }
 
@@ -701,11 +723,9 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 {
 	LLCDStageData* stage = (LLCDStageData*) data;
 	
-	LLModel* mdl = NULL;
-	
 	if (sInstance)
 	{
-		if (sInstance->mCurRequest.notNull())
+		if (!sInstance->mCurRequest.empty())
 		{
 			llinfos << "Decomposition request still pending." << llendl;
 			return;
@@ -713,36 +733,15 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 		
 		if (sInstance->mModelPreview)
 		{
-			S32 idx = sInstance->childGetValue("physics_layer").asInteger();
-			if (idx >= 0 && idx < sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS].size())
+			for (S32 i = 0; i < sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS].size(); ++i)
 			{
-				mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][idx];
+				LLModel* mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][i];
+				DecompRequest* request = new DecompRequest(stage->mName, mdl);
+				sInstance->mCurRequest.insert(request);
+				gMeshRepo.mDecompThread->submitRequest(request);
 			}
 		}
 	}
-	
-	if (mdl)
-	{
-		sInstance->mCurRequest = new DecompRequest(stage->mName, mdl);
-		gMeshRepo.mDecompThread->submitRequest(sInstance->mCurRequest);
-	}
-
-	const std::string decompose("Decompose");
-
-	if (decompose == stage->mName)
-	{ //hide decompose panel and show simplify panel
-		sInstance->childSetVisible("physics step 2", false);
-		sInstance->childSetVisible("physics step 3", true);
-	}
-}
-
-//static
-void LLFloaterModelPreview::onPhysicsOptimize(LLUICtrl* ctrl, void *data)
-{
-	//hide step 1 panel and show step 2 panel + info
-	sInstance->childSetVisible("physics step 1", false);
-	sInstance->childSetVisible("physics step 2", true);
-	sInstance->childSetVisible("physics info", true);
 }
 
 //static 
@@ -764,29 +763,16 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
 }
 		
-//static 
-void LLFloaterModelPreview::onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata)
-{
-	//hide step 2 panel and info and show step 1 panel
-	sInstance->childSetVisible("physics step 1", true);
-	sInstance->childSetVisible("physics step 2", false);
-	sInstance->childSetVisible("physics info", false);
-}
-		
-//static 
-void LLFloaterModelPreview::onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata)
-{
-	//hide step 3 panel and show step 2 panel
-	sInstance->childSetVisible("physics step 3", false);
-	sInstance->childSetVisible("physics step 2", true);
-}
-	
 //static
 void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 {
-	if (sInstance && sInstance->mCurRequest.notNull())
+	if (sInstance)
 	{
-		sInstance->mCurRequest->mContinue = 0;
+		for (std::set<LLPointer<DecompRequest> >::iterator iter = sInstance->mCurRequest.begin();
+			iter != sInstance->mCurRequest.end(); ++iter)
+		{
+			(*iter)->mContinue = 0;
+		}
 	}
 }
 		
@@ -797,10 +783,6 @@ void LLFloaterModelPreview::initDecompControls()
 	childSetCommitCallback("cancel_btn", onPhysicsStageCancel, NULL);
 	childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, NULL);
 	childSetCommitCallback("physics_browse", onPhysicsBrowse, NULL);
-	childSetCommitCallback("physics_optimize", onPhysicsOptimize, NULL);
-	childSetCommitCallback("decompose_back", onPhysicsDecomposeBack, NULL);
-	childSetCommitCallback("simplify_back", onPhysicsSimplifyBack, NULL);
-	childSetCommitCallback("physics_layer", refresh, NULL);
 		
 	static const LLCDStageData* stage = NULL;
 	static S32 stage_count = 0;
@@ -915,7 +897,6 @@ void LLFloaterModelPreview::initDecompControls()
 		}
 	}
 		
-	childSetCommitCallback("physics_layer", LLFloaterModelPreview::refresh, LLFloaterModelPreview::sInstance);
 	childSetCommitCallback("physics_explode", LLFloaterModelPreview::onExplodeCommit, this);
 }
 
@@ -2225,20 +2206,6 @@ void LLModelPreview::rebuildUploadData()
 		scale_spinner->setValue(max_import_scale);
 	}
 
-	//refill "layer" combo in physics panel
-	LLComboBox* combo_box = mFMP->getChild<LLComboBox>("physics_layer");
-	if (combo_box)
-	{
-		S32 current = combo_box->getCurrentIndex();
-		combo_box->removeall();
-	
-		for (S32 i = 0; i < mBaseModel.size(); ++i)
-		{
-			LLModel* mdl = mBaseModel[i];
-			combo_box->add(mdl->mLabel, i);
-		}
-		combo_box->setCurrentByIndex(current);
-	}
 }
 
 
@@ -3226,14 +3193,6 @@ void LLModelPreview::updateStatusMessages()
 	S32 start = 0;
 	S32 end = mModel[LLModel::LOD_PHYSICS].size();
 
-	S32 idx = mFMP->childGetValue("physics_layer").asInteger();
-
-	if (idx >= 0 && idx < mModel[LLModel::LOD_PHYSICS].size())
-	{
-		start = idx;
-		end = idx+1;
-	}
-
 	S32 phys_tris = 0;
 	S32 phys_hulls = 0;
 	S32 phys_points = 0;
@@ -3299,6 +3258,32 @@ void LLModelPreview::updateStatusMessages()
 			fmp->disableViewOption("show_physics");
 			fmp->setViewOption("show_physics", false);
 		}
+
+		//bool use_hull = fmp->childGetValue("physics_use_hull").asBoolean();
+
+		//fmp->childSetEnabled("physics_optimize", !use_hull);
+		
+		bool enable = phys_tris > 0 || phys_hulls > 0;
+		//enable = enable && !use_hull && fmp->childGetValue("physics_optimize").asBoolean();
+
+		//enable/disable "analysis" UI
+		LLPanel* panel = fmp->getChild<LLPanel>("physics analysis");
+		LLView* child = panel->getFirstChild();
+		while (child)
+		{
+			child->setEnabled(enable);
+			child = panel->findNextSibling(child);
+		}
+
+		enable = phys_hulls > 0;
+		//enable/disable "simplification" UI
+		panel = fmp->getChild<LLPanel>("physics simplification");
+		child = panel->getFirstChild();
+		while (child)
+		{
+			child->setEnabled(enable);
+			child = panel->findNextSibling(child);
+		}	
 	}
 
 	const char* lod_controls[] = 
@@ -3750,8 +3735,6 @@ BOOL LLModelPreview::render()
 		//genLODs();
 	}
 	
-	S32 physics_idx = mFMP->childGetValue("physics_layer").asInteger();
-	
 	if (!mModel[mPreviewLOD].empty())
 	{
 		bool regen = mVertexBuffer[mPreviewLOD].empty();
@@ -3833,13 +3816,6 @@ BOOL LLModelPreview::render()
 				LLGLEnable blend(GL_BLEND);
 				gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ZERO);
 
-				LLModel* physics_model = NULL;
-				
-				if (physics_idx >= 0 && physics_idx < mModel[LLModel::LOD_PHYSICS].size() )
-				{
-					physics_model = mModel[LLModel::LOD_PHYSICS][physics_idx];
-				}
-
 				for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
 				{
 					LLModelInstance& instance = *iter;
@@ -3867,7 +3843,7 @@ BOOL LLModelPreview::render()
 						std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > >::iterator iter = 
 							mPhysicsMesh.find(model);
 						if (iter != mPhysicsMesh.end())
-						{
+						{ //render hull instead of mesh
 							render_mesh = false;
 							for (U32 i = 0; i < iter->second.size(); ++i)
 							{
@@ -3895,16 +3871,6 @@ BOOL LLModelPreview::render()
 										
 									glColor4ubv(hull_colors[i].mV);
 									buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-								
-									if (edges)
-									{
-										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-										glLineWidth(3.f);
-										glColor4ub(hull_colors[i].mV[0]/2, hull_colors[i].mV[1]/2, hull_colors[i].mV[2]/2, 255);
-										buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-										glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-										glLineWidth(1.f);
-									}	
 								}
 									
 								if (explode > 0.f)
@@ -3927,40 +3893,19 @@ BOOL LLModelPreview::render()
 
 							buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
 							
-							if (textures)
-							{
-								glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
-								if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
-								{
-									gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
-									if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
-									{
-										mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
-									}
-								}
-							}
-							else
-							{
-								glColor4f(1,1,1,1);
-							}
-							
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-							glColor3f(0.4f, 0.4f, 0.4f);
+							glColor4f(0.4f, 0.4f, 0.0f, 0.4f);
+							
+							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 
-							if (edges || model == physics_model)
-							{
-								if (model == physics_model)
-								{
-									glColor3f(1.f, 1.f, 0.f);
-								}
-
-								glLineWidth(3.f);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-								buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-								glLineWidth(1.f);
-							}
+							glColor3f(1.f, 1.f, 0.f);
+								
+							glLineWidth(3.f);
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							glLineWidth(1.f);
 						}
 					}
 				
@@ -4208,6 +4153,7 @@ LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LL
 	mStage = stage;
 	mContinue = 1;
 	mModel = mdl;
+	mDecompID = &mdl->mDecompID;
 	mParams = sInstance->mDecompParams;
 	
 	//copy out positions and indices
@@ -4242,14 +4188,25 @@ LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LL
 	}
 }
 
+void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
+{
+	LLMutexLock lock(mStatusLock);
+	mStatusMessage = msg;
+}
+
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
 {
 	setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
+	if (LLFloaterModelPreview::sInstance)
+	{
+		LLFloaterModelPreview::sInstance->setStatusMessage(mStatusMessage);
+	}
+
 	return mContinue;
 }
 
 void LLFloaterModelPreview::DecompRequest::completed()
-{
+{ //called from the main thread
 	mModel->setConvexHullDecomposition(mHull);
 	
 	if (sInstance) 
@@ -4261,6 +4218,6 @@ void LLFloaterModelPreview::DecompRequest::completed()
 			LLFloaterModelPreview::sInstance->mModelPreview->refresh();
 		}
 		
-		sInstance->mCurRequest = NULL;
+		sInstance->mCurRequest.erase(this);
 	}
 }
