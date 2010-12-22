@@ -194,9 +194,7 @@ protected:
 	static void onPhysicsOptimize(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
-	
-	
-	
+		
 	void			draw();
 	
 	void initDecompControls();
@@ -220,6 +218,12 @@ protected:
 
 	//use "disabled" as false by default
 	std::map<std::string, bool> mViewOptionDisabled;
+	
+	//store which lod mode each LOD is using
+	// 0 - load from file
+	// 1 - auto generate
+	// 2 - None
+	S32 mLODMode[4];
 
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
