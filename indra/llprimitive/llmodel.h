@@ -56,6 +56,8 @@ public:
 	typedef std::vector<LLVector3> hull;
 	
 	LLModel(LLVolumeParams& params, F32 detail);
+	~LLModel();
+
 	static LLSD writeModel(
 		std::string filename,
 		LLModel* physics,
@@ -193,6 +195,7 @@ public:
 	LLVector3 mNormalizedTranslation;
 
 	// convex hull decomposition
+	S32 mDecompID;
 	convex_hull_decomposition mConvexHullDecomp;
 	void setConvexHullDecomposition(
 		const convex_hull_decomposition& decomp);

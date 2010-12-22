@@ -36,6 +36,11 @@ public:
 	/*virtual*/	BOOL	postBuild();
 	void			draw();
 	
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	BOOL handleHover(S32 x, S32 y, MASK mask);
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+
 private:
 	enum EWizardState
 	{
@@ -62,6 +67,8 @@ private:
 	LLRect			mPreviewRect;
 	int mState;
 
+	S32				mLastMouseX;
+	S32				mLastMouseY;
 
 
 };

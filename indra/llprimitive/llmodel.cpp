@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llmodel.h"
+#include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
 
@@ -57,7 +58,15 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
 {
+	mDecompID = -1;
+}
 
+LLModel::~LLModel()
+{
+	if (mDecompID >= 0)
+	{
+		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
+	}
 }
 
 void load_face_from_dom_inputs(LLVolumeFace& face, const domInputLocalOffset_Array& inputs, U32 min_idx, U32 max_idx)
@@ -941,11 +950,10 @@ void LLModel::normalizeVolumeFaces()
 		LLVector4a size;
 		size.setSub(max, min);
 
-		// To make the model fit within
-		// the unit cube with only the largest
-		// dimensions fitting on the surface of the cube,
-		// calculate the largest extent on any axis
-		F32 scale = 1.f/llmax(llmax(size[0], size[1]), size[2]);
+		// Compute scale as reciprocal of size
+		LLVector4a scale;
+		scale.splat(1.f);
+		scale.div(size);
 
 		for (U32 i = 0; i < mVolumeFaces.size(); ++i)
 		{
@@ -974,7 +982,10 @@ void LLModel::normalizeVolumeFaces()
 		// we would need to multiply the model
 		// by to get the original size of the
 		// model instead of the normalized size.
-		mNormalizedScale = LLVector3(1,1,1) / scale;
+		LLVector4a normalized_scale;
+		normalized_scale.splat(1.f);
+		normalized_scale.div(scale);
+		mNormalizedScale.set(normalized_scale.getF32ptr());
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
 	}
