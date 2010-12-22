@@ -54,6 +54,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCONVEXDECOMP_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
@@ -1481,11 +1482,6 @@ if (WINDOWS)
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
 
-    if(LLKDU_LIBRARY)
-      # Configure a var for llkdu which may not exist for all builds.
-      set(LLKDU_DLL_SOURCE ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llkdu.dll)
-    endif(LLKDU_LIBRARY)
-
     if(USE_GOOGLE_PERFTOOLS)
       # Configure a var for tcmalloc location, if used.
       # Note the need to specify multiple names explicitly.
@@ -1502,7 +1498,6 @@ if (WINDOWS)
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${LLKDU_DLL_SOURCE}
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
@@ -1695,7 +1690,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
-    ${LLIMAGEJ2COJ_LIBRARIES}
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
@@ -1733,6 +1727,17 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${TCMALLOC_LIBRARIES}
     )
 
+if (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLKDU_LIBRARIES}
+        ${KDU_LIBRARY}
+        )
+else (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLIMAGEJ2COJ_LIBRARIES}
+        )
+endif (USE_KDU)
+    
 build_version(viewer)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
