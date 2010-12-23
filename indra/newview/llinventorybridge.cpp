@@ -5320,11 +5320,6 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 	menuentry_vec_t disabled_items, items = getMenuItems();
 
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Body Parts")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Clothes")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Note")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Gesture")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Script")), items.end());
 	items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
 
 	hide_context_entries(menu, items, disabled_items);
