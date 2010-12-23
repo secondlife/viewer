@@ -71,6 +71,7 @@
      width="350" />
     <check_box
      control_name="ShowFavoritesOnLogin"
+     enabled="false" 
      height="16"
      label="Show my Favorite Landmarks at Login (via &apos;Start At&apos; drop-down menu)"
      layout="topleft"

@@ -105,6 +105,7 @@
 #include "llteleporthistorystorage.h"
 
 #include "lllogininstance.h"        // to check if logged in yet
+#include "llsdserialize.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -284,7 +285,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
-	mDoubleClickActionDirty(false)
+	mDoubleClickActionDirty(false),
+	mFavoritesRecordMayExist(false)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -330,8 +332,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
-
-	mFavoritesFileMayExist = gSavedSettings.getBOOL("ShowFavoritesOnLogin");
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -492,12 +492,33 @@ void LLFloaterPreference::apply()
 		mDoubleClickActionDirty = false;
 	}
 
-	if (mFavoritesFileMayExist && !gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
+	if (mFavoritesRecordMayExist && !gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
 	{
-		mFavoritesFileMayExist = false;
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-		LLFile::remove(filename);
+		removeFavoritesRecordOfUser();		
 	}
+}
+
+void LLFloaterPreference::removeFavoritesRecordOfUser()
+{
+	mFavoritesRecordMayExist = false;
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	
+	LLAvatarName av_name;
+	LLAvatarNameCache::get( gAgentID, &av_name );
+	if (fav_llsd.has(av_name.getLegacyName()))
+	{
+		fav_llsd.erase(av_name.getLegacyName());
+	}
+	
+	llofstream out_file;
+	out_file.open(filename);
+	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
+
 }
 
 void LLFloaterPreference::cancel()
@@ -580,6 +601,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setVisible( false);
+	}
+
+	if (LLStartUp::getStartupState() == STATE_STARTED)
+	{
+		mFavoritesRecordMayExist = gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
 	}
 
 	// Forget previous language changes.
@@ -1285,6 +1311,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	
 //	getChild<LLUICtrl>("busy_response")->setValue(gSavedSettings.getString("BusyModeResponse2"));
 	
+	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_nearby_chat")->setEnabled(TRUE);
 	getChildView("log_instant_messages")->setEnabled(TRUE);
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);

@@ -1527,7 +1527,7 @@ void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
 void LLFavoritesOrderStorage::destroyClass()
 {
 	LLFavoritesOrderStorage::instance().cleanup();
-	if (gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
+	if (gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
 	{
 		LLFavoritesOrderStorage::instance().saveFavoritesSLURLs();
 	}

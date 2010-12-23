@@ -263,12 +263,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
 
-	// Show last logged in user favorites in "Start at" combo if corresponding option is enabled.
-	if (gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
-	{
-	    addUsersWithFavoritesToUsername();
-		getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
-	}
+	// Show last logged in user favorites in "Start at" combo.
+	addUsersWithFavoritesToUsername();
+	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
 
 	updateLocationCombo(false);
 
@@ -583,10 +580,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	{
 	  sInstance->getChild<LLComboBox>("username_combo")->setLabel(std::string());	
 	}
-	if (gSavedSettings.getBOOL("ShowFavoritesOnLogin"))
-	{
-		sInstance->addFavoritesToStartLocation();
-	}
+	sInstance->addFavoritesToStartLocation();
 	// if the password exists in the credential, set the password field with
 	// a filler to get some stars
 	LLSD authenticator = credential->getAuthenticator();
