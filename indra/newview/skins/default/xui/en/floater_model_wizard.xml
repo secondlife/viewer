@@ -86,7 +86,7 @@
 		 height="388"
 		 top_pad="0"
 		 name="choose_file_panel"
-		 visible="true"
+		 visible="false"
 		 width="530"
 		 left="0">
 		<panel
@@ -123,7 +123,7 @@
 		<panel
 		 top_delta="40"
 		 left="15"
-		 height="240"
+		 height="245"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -132,6 +132,7 @@
 			<text
 			 type="string"
 			 length="1"
+			 text_color="White" 
 			 follows="left|top"
 			 top="10"
 			 height="10"
@@ -159,10 +160,10 @@
 			 label="Browse..."
 			 label_selected="Browse..."
 			 layout="topleft"
-			 left_pad="10"
+			 left_pad="5"
 			 name="browse"
 			 top_delta="-1"
-			 width="75">
+			 width="85">
 			</button>
 			<text
 			 top_delta="-15"
@@ -170,12 +171,13 @@
 			 height="15"
 			 font="SansSerifSmall"
 			 layout="topleft"
-			 left_pad="24">
+			 text_color="White"
+			 left_pad="19">
 				Model Preview:
 			</text>
 			<!-- Placeholder panel for 3D preview render -->
 			<panel
-			 left_delta="-2"
+			 left_delta="0"
 			 top_pad="0"
 			 name="preview_panel"
 			 bevel_style="none"
@@ -190,24 +192,33 @@
 			 width="130"
 			 height="15"
 			 left="340"
+			 text_color="White"
 			 word_wrap="true">
 				Dimensions (meters):
 			</text>
 			<text
-			 top_pad="5"
+			 top_pad="2"
 			 width="160"
 			 height="15"
 			 name="import_dimensions"
 			 left_delta="0">
-				X:  [X] |  Y:  [Y] | Z: [Z]
+				X:  [X] |Y:  [Y] |Z: [Z]
 			</text>
 			<text
 			 top="100"
 			 width="320"
+			 height="15"
+			 left="10"
+			 text_color="White" 
+			 word_wrap="true">
+				Note:
+			</text>
+			<text
+			 top_pad="0"
+			 width="320"
 			 height="40"
 			 left="10"
 			 word_wrap="true">
-				Note:
 Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/floater/upload_model Advanced Mesh Import Window] .
 			</text>
 		</panel>
@@ -218,7 +229,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="optimize_panel"
-		 visible="false"
+		 visible="true"
 		 width="530"
 		 left="0">
 		<panel
@@ -256,7 +267,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 top_delta="40"
 		 visible="false"
 		 left="15"
-		 height="240"
+		 height="245"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -331,13 +342,13 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		<panel
 				 top_delta="0"
 				 left_delta="0"
-				 height="240"
+				 height="245"
 				 width="500"
 				 name="content2"
 				 bg_opaque_color="DkGray2"
 				 background_visible="true"
 				 background_opaque="true">
-			<text top="10" left="10" width="85"  follows="left|top" height="15" name="lod_label">
+			<text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
 				Model Preview:
 			</text>
 			<combo_box left_pad="5" top_delta="-2"  follows="left|top" list_position="below" height="18"
@@ -366,23 +377,49 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 follows="all"
 				 width="175">
 			</panel>
-			<text top="50" left="210"  font="SansSerifSmallBold" width="300" height="4">Performance                            Accuracy</text>
+			<text top="35" left="220" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
+			<text top="55" left="200" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
+			<text top="35" left="380" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
+			<text top="55" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
 
 			<slider
 		   follows="left|top"
 		   height="20"
 		   increment="1"
 		   layout="topleft"
-		   left="220"
+		   left="200"
 		   max_val="2"
 		   initial_value="1"
 		   min_val="0"
 		   name="accuracy_slider"
 		   show_text="false"
 		   top="105"
-		   width="250" />
-			<text font="SansSerifSmall" top_pad="1"  width="300" left_delta="6" height="4">'                                      '                                      '</text>
-
+		   width="290" />
+			<text 
+			font="SansSerifSmall" 
+			top_pad="1"  
+			width="300" 
+			left_delta="6" 
+			height="4">'                                             '                                             '</text>
+			<text top_delta="25" width="100" text_color="White" left_delta="50"  height="20">Resource Cost:</text>
+			<text top_delta="25" width="100" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
+			<text
+			 top_pad="15"
+			 width="130"
+			 height="15"
+			 left="10"
+			 text_color="White"
+			 word_wrap="true">
+				Dimensions (meters):
+			</text>
+			<text
+			 top_pad="0"
+			 width="160"
+			 height="15"
+			 name="import_dimensions"
+			 left_delta="0">
+				X:  [X] |Y:  [Y] |Z: [Z]
+			</text>
 		</panel>
 	</panel>
 
@@ -429,7 +466,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		<panel
 		 top_delta="40"
 		 left="15"
-		 height="240"
+		 height="245"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -479,7 +516,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		<panel
 		 top_delta="40"
 		 left="15"
-		 height="240"
+		 height="245"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -531,7 +568,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		<panel
 		 top_delta="40"
 		 left="15"
-		 height="240"
+		 height="245"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -545,24 +582,24 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 
 
 	<button
-	 top="410"
+	 top="412"
 	 right="-245"
 	 width="90"
-	 height="20"
+	 height="22"
 	 name="back"
 	 label="&lt;&lt; Back" />
 	<button
 	 top_delta="0"
 	 right="-150"
 	 width="90"
-	 height="20"
+	 height="22"
 	 name="next"
 	 label="Next &gt;&gt; " />
 	<button
 	 top_delta="0"
 	 right="-15"
 	 width="90"
-	 height="20"
+	 height="22"
 	 name="cancel"
 	 label="Cancel" />
 	<spinner visible="false" left="10" height="20" follows="top|left" width="80" top_pad="-50" value="1.0" min_val="0.01" max_val="64.0" name="import_scale"/>
