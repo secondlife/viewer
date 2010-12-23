@@ -208,7 +208,7 @@
 			 left="10"
 			 word_wrap="true">
 				Note:
-Advanced users familiar with 3d content creation tools may prefer to use the Advanced Mesh Import window.
+Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/floater/upload_model Advanced Mesh Import Window] .
 			</text>
 		</panel>
 	</panel>
@@ -381,7 +381,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the Adv
 		   show_text="false"
 		   top="105"
 		   width="250" />
-			<text font="SansSerifSmall" top_pad="4"  width="300" left_delta="6" height="4">|                                      |                                      |</text>
+			<text font="SansSerifSmall" top_pad="1"  width="300" left_delta="6" height="4">'                                      '                                      '</text>
 
 		</panel>
 	</panel>
