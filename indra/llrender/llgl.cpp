@@ -1831,7 +1831,7 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& mode
 	mModelview = modelview;
 	mProjection = projection;
 
-	setPlane(p.mV[0], p.mV[1], p.mV[2], p.mV[3]);
+	setPlane(p[0], p[1], p[2], p[3]);
 }
 
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)

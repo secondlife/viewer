@@ -8114,7 +8114,8 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 			const LLPlane& cp = camera.getAgentPlane(j);
 			const LLVector3& v1 = pp[bs[i*2+0]];
 			const LLVector3& v2 = pp[bs[i*2+1]];
-			const LLVector3 n(cp.mV);
+			LLVector3 n;
+			cp.getVector3(n);
 
 			LLVector3 line = v1-v2;
 
@@ -8128,8 +8129,8 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 				LLVector3 intersect = v2+line*t;
 				pp.push_back(intersect);
 			}
-			}
 		}
+	}
 			
 	//camera frustum line segments
 	const U32 fs[] =
@@ -8160,7 +8161,8 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 			const LLVector3& v1 = pp[fs[i*2+0]+8];
 			const LLVector3& v2 = pp[fs[i*2+1]+8];
 			const LLPlane& cp = bp[j];
-			const LLVector3 n(cp.mV);
+			LLVector3 n;
+			cp.getVector3(n);
 
 			LLVector3 line = v1-v2;
 
@@ -8175,7 +8177,7 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 				pp.push_back(intersect);
 			}	
 		}
-				}
+	}
 
 	LLVector3 ext[] = { min-LLVector3(0.05f,0.05f,0.05f),
 		max+LLVector3(0.05f,0.05f,0.05f) };
