@@ -50,7 +50,7 @@
 // Surface id's
 #define LAND  1
 #define WATER 2
-const U32	MAX_OBJECT_CACHE_ENTRIES = 10000;
+const U32	MAX_OBJECT_CACHE_ENTRIES = 20000;
 
 
 class LLEventPoll;
