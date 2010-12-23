@@ -1396,6 +1396,7 @@ LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_mod
 {
 	mStage = "single_hull";
 	mModel = mdl;
+	mDecompID = &mdl->mDecompID;
 	mBaseModel = base_model;
 	mThread = thread;
 	
@@ -1486,7 +1487,7 @@ void LLMeshUploadThread::run()
 				{
 					textures.insert(material_iter->mDiffuseMap);
 					
-					LLTextureUploadData data(material_iter->mDiffuseMap, material_iter->mDiffuseMapLabel);
+					LLTextureUploadData data(material_iter->mDiffuseMap.get(), material_iter->mDiffuseMapLabel);
 					uploadTexture(data);
 				}
 			}
@@ -2135,6 +2136,24 @@ void LLMeshRepository::shutdown()
 	LLConvexDecomposition::quitSystem();
 }
 
+//called in the main thread.
+S32 LLMeshRepository::update()
+{
+	if(mUploadWaitList.empty())
+	{
+		return 0 ;
+	}
+
+	S32 size = mUploadWaitList.size() ;
+	for (S32 i = 0; i < size; ++i)
+	{
+		mUploads.push_back(mUploadWaitList[i]);
+		mUploadWaitList[i]->start() ;
+	}
+	mUploadWaitList.clear() ;
+
+	return size ;
+}
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
 {
@@ -2262,6 +2281,9 @@ void LLMeshRepository::notifyLoadedMeshes()
 			mInventoryQ.pop();
 		}
 	}
+
+	//call completed callbacks on finished decompositions
+	mDecompThread->notifyCompleted();
 	
 	if (!mThread->mWaiting)
 	{ //curl thread is churning, wait for it to go idle
@@ -2654,8 +2676,7 @@ void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3
 									bool upload_skin, bool upload_joints)
 {
 	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints);
-	mUploads.push_back(thread);
-	thread->start();
+	mUploadWaitList.push_back(thread);
 }
 
 S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
@@ -2742,7 +2763,7 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 
 void LLMeshUploadThread::sendCostRequest(LLTextureUploadData& data)
 {
-	if (data.mTexture.notNull() && data.mTexture->getDiscardLevel() >= 0)
+	if (data.mTexture && data.mTexture->getDiscardLevel() >= 0)
 	{
 		LLSD asset_resources = LLSD::emptyMap();
 
@@ -3229,9 +3250,8 @@ void LLPhysicsDecomp::doDecomposition()
 		mCurRequest->mHullMesh.clear();
 
 		mCurRequest->setStatusMessage("FAIL");
-		mCurRequest->completed();
-				
-		mCurRequest = NULL;
+		
+		completeCurrent();
 	}
 	else
 	{
@@ -3282,12 +3302,32 @@ void LLPhysicsDecomp::doDecomposition()
 			LLMutexLock lock(mMutex);
 
 			mCurRequest->setStatusMessage("FAIL");
-			mCurRequest->completed();
-					
-			mCurRequest = NULL;
+			completeCurrent();						
 		}
 	}
 }
+
+void LLPhysicsDecomp::completeCurrent()
+{
+	LLMutexLock lock(mMutex);
+	mCompletedQ.push(mCurRequest);
+	mCurRequest = NULL;
+}
+
+void LLPhysicsDecomp::notifyCompleted()
+{
+	if (!mCompletedQ.empty())
+	{
+		LLMutexLock lock(mMutex);
+		while (!mCompletedQ.empty())
+		{
+			Request* req = mCompletedQ.front();
+			req->completed();
+			mCompletedQ.pop();
+		}
+	}
+}
+
 
 void make_box(LLPhysicsDecomp::Request * request)
 {
@@ -3406,18 +3446,17 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 
 
 	{
-		LLMutexLock lock(mMutex);
-		mCurRequest->completed();
-		mCurRequest = NULL;
+		completeCurrent();
+		
 	}
 }
 
+
 void LLPhysicsDecomp::run()
 {
-	LLConvexDecomposition::getInstance()->initThread();
-	mInited = true;
-
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
+	decomp->initThread();
+	mInited = true;
 
 	static const LLCDStageData* stages = NULL;
 	static S32 num_stages = 0;
@@ -3443,6 +3482,13 @@ void LLPhysicsDecomp::run()
 				mRequestQ.pop();
 			}
 
+			S32& id = *(mCurRequest->mDecompID);
+			if (id == -1)
+			{
+				decomp->genDecomposition(id);
+			}
+			decomp->bindDecomposition(id);
+
 			if (mCurRequest->mStage == "single_hull")
 			{
 				doDecompositionSingleHull();
@@ -3454,7 +3500,7 @@ void LLPhysicsDecomp::run()
 		}
 	}
 
-	LLConvexDecomposition::getInstance()->quitThread();
+	decomp->quitThread();
 	
 	//delete mSignal;
 	delete mMutex;
