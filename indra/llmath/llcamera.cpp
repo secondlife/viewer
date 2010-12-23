@@ -42,7 +42,6 @@ LLCamera::LLCamera() :
 	mPlaneCount(6),
 	mFrustumCornerDist(0.f)
 {
-	alignPlanes();
 	calculateFrustumPlanes();
 } 
 
@@ -53,7 +52,6 @@ LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_p
 	mPlaneCount(6),
 	mFrustumCornerDist(0.f)
 {
-	alignPlanes();
 	mAspect = llclamp(aspect_ratio, MIN_ASPECT_RATIO, MAX_ASPECT_RATIO);
 	mNearPlane = llclamp(near_plane, MIN_NEAR_PLANE, MAX_NEAR_PLANE);
 	if(far_plane < 0) far_plane = DEFAULT_FAR_PLANE;
@@ -65,19 +63,6 @@ LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_p
 LLCamera::~LLCamera()
 {
 
-}
-
-const LLCamera& LLCamera::operator=(const LLCamera& rhs)
-{
-	memcpy(this, &rhs, sizeof(LLCamera));
-	alignPlanes();
-	LLVector4a::memcpyNonAliased16((F32*) mAgentPlanes, (F32*) rhs.mAgentPlanes, 4*7*sizeof(F32));
-	return *this;
-}
-
-void LLCamera::alignPlanes()
-{
-	mAgentPlanes = (LLPlane*) LL_NEXT_ALIGNED_ADDRESS<U8>(mAgentPlaneBuffer);
 }
 
 // ---------------- LLCamera::getFoo() member functions ----------------
@@ -104,7 +89,7 @@ void LLCamera::setUserClipPlane(LLPlane plane)
 {
 	mPlaneCount = 7;
 	mAgentPlanes[6] = plane;
-	mPlaneMask[6] = calcPlaneMask(plane);
+	mPlaneMask[6] = plane.calcPlaneMask();
 }
 
 void LLCamera::disableUserClipPlane()
@@ -190,38 +175,33 @@ S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius)
 	};
 
 	U8 mask = 0;
-	S32 result = 2;
-
+	bool result = false;
+	LLVector4a rscale, maxp, minp;
+	LLSimdScalar d;
 	for (U32 i = 0; i < mPlaneCount; i++)
 	{
 		mask = mPlaneMask[i];
-		if (mask == 0xff)
+		if (mask != 0xff)
 		{
-			continue;
-		}
-
-		const LLPlane& p = mAgentPlanes[i];
-		const LLVector4a& n = reinterpret_cast<const LLVector4a&>(p);
-		float d = p.mV[3];
-		LLVector4a rscale;
-		rscale.setMul(radius, scaler[mask]);
-
-		LLVector4a minp, maxp;
-		minp.setSub(center, rscale);
-		maxp.setAdd(center, rscale);
-
-		if (n.dot3(minp) > -d) 
-		{
-			return 0;
-		}
-	
-		if (n.dot3(maxp) > -d)
-		{
-			result = 1;
+			const LLPlane& p(mAgentPlanes[i]);
+			p.getAt<3>(d);
+			rscale.setMul(radius, scaler[mask]);
+			minp.setSub(center, rscale);
+			d = -d;
+			if (p.dot3(minp).getF32() > d) 
+			{
+				return 0;
+			}
+			
+			if(!result)
+			{
+				maxp.setAdd(center, rscale);
+				result = (p.dot3(maxp).getF32() > d);
+			}
 		}
 	}
 
-	return result;
+	return result?1:2;
 }
 
 
@@ -239,43 +219,33 @@ S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a&
 	};
 
 	U8 mask = 0;
-	S32 result = 2;
-
+	bool result = false;
+	LLVector4a rscale, maxp, minp;
+	LLSimdScalar d;
 	for (U32 i = 0; i < mPlaneCount; i++)
 	{
-		if (i == 5)
-		{
-			continue;
-		}
-
 		mask = mPlaneMask[i];
-		if (mask == 0xff)
+		if ((i != 5) && (mask != 0xff))
 		{
-			continue;
-		}
-
-		const LLPlane& p = mAgentPlanes[i];
-		const LLVector4a& n = reinterpret_cast<const LLVector4a&>(p);
-		float d = p.mV[3];
-		LLVector4a rscale;
-		rscale.setMul(radius, scaler[mask]);
-
-		LLVector4a minp, maxp;
-		minp.setSub(center, rscale);
-		maxp.setAdd(center, rscale);
-
-		if (n.dot3(minp) > -d) 
-		{
-			return 0;
-		}
-	
-		if (n.dot3(maxp) > -d)
-		{
-			result = 1;
+			const LLPlane& p(mAgentPlanes[i]);
+			p.getAt<3>(d);
+			rscale.setMul(radius, scaler[mask]);
+			minp.setSub(center, rscale);
+			d = -d;
+			if (p.dot3(minp).getF32() > d) 
+			{
+				return 0;
+			}
+			
+			if(!result)
+			{
+				maxp.setAdd(center, rscale);
+				result = (p.dot3(maxp).getF32() > d);
+			}
 		}
 	}
 
-	return result;
+	return result?1:2;
 }
 
 int LLCamera::sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius) 
@@ -396,28 +366,22 @@ int LLCamera::sphereInFrustumOld(const LLVector3 &sphere_center, const F32 radiu
 int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) const 
 {
 	// Returns 1 if sphere is in frustum, 0 if not.
-	int res = 2;
+	bool res = false;
 	for (int i = 0; i < 6; i++)
 	{
-		if (mPlaneMask[i] == 0xff)
+		if (mPlaneMask[i] != 0xff)
 		{
-			continue;
-		}
+			float d = mAgentPlanes[i].dist(sphere_center);
 
-		float d = mAgentPlanes[i].dist(sphere_center);
-
-		if (d > radius) 
-		{
-			return 0;
-		}
-
-		if (d > -radius)
-		{
-			res = 1;
+			if (d > radius) 
+			{
+				return 0;
+			}
+			res |= (d > -radius);
 		}
 	}
 
-	return res;
+	return res?1:2;
 }
 
 
@@ -569,25 +533,6 @@ LLPlane planeFromPoints(LLVector3 p1, LLVector3 p2, LLVector3 p3)
 	return LLPlane(p1, n);
 }
 
-U8 LLCamera::calcPlaneMask(const LLPlane& plane)
-{
-	U8 mask = 0;
-	
-	if (plane.mV[0] >= 0)
-	{
-		mask |= 1;
-	}
-	if (plane.mV[1] >= 0)
-	{
-		mask |= 2;
-	}
-	if (plane.mV[2] >= 0)
-	{
-		mask |= 4;
-	}
-
-	return mask;
-}
 
 void LLCamera::ignoreAgentFrustumPlane(S32 idx)
 {
@@ -597,13 +542,12 @@ void LLCamera::ignoreAgentFrustumPlane(S32 idx)
 	}
 
 	mPlaneMask[idx] = 0xff;
-	mAgentPlanes[idx].clearVec();
+	mAgentPlanes[idx].clear();
 }
 
 void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 {
-	alignPlanes();
-
+	
 	for (int i = 0; i < 8; i++)
 	{
 		mAgentFrustum[i] = frust[i];
@@ -636,7 +580,7 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 	//cache plane octant facing mask for use in AABBInFrustum
 	for (U32 i = 0; i < mPlaneCount; i++)
 	{
-		mPlaneMask[i] = calcPlaneMask(mAgentPlanes[i]);
+		mPlaneMask[i] = mAgentPlanes[i].calcPlaneMask();
 	}
 }
 
@@ -689,9 +633,10 @@ void LLCamera::calculateWorldFrustumPlanes()
 	F32 d;
 	LLVector3 center = mOrigin - mXAxis*mNearPlane;
 	mWorldPlanePos = center;
+	LLVector3 pnorm;	
 	for (int p=0; p<4; p++)
 	{
-		LLVector3 pnorm = LLVector3(mLocalPlanes[p]);
+		mLocalPlanes[p].getVector3(pnorm);
 		LLVector3 norm = rotateToAbsolute(pnorm);
 		norm.normVec();
 		d = -(center * norm);
@@ -701,13 +646,15 @@ void LLCamera::calculateWorldFrustumPlanes()
 	LLVector3 zaxis(0, 0, 1.0f);
 	F32 yaw = getYaw();
 	{
-		LLVector3 tnorm = LLVector3(mLocalPlanes[PLANE_LEFT]);
+		LLVector3 tnorm;
+		mLocalPlanes[PLANE_LEFT].getVector3(tnorm);
 		tnorm.rotVec(yaw, zaxis);
 		d = -(mOrigin * tnorm);
 		mHorizPlanes[HORIZ_PLANE_LEFT] = LLPlane(tnorm, d);
 	}
 	{
-		LLVector3 tnorm = LLVector3(mLocalPlanes[PLANE_RIGHT]);
+		LLVector3 tnorm;
+		mLocalPlanes[PLANE_RIGHT].getVector3(tnorm);
 		tnorm.rotVec(yaw, zaxis);
 		d = -(mOrigin * tnorm);
 		mHorizPlanes[HORIZ_PLANE_RIGHT] = LLPlane(tnorm, d);
