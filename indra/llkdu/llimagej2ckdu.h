@@ -50,18 +50,16 @@ public:
 		MODE_RESILIENT = 1,
 		MODE_FUSSY = 2
 	};
-	
-public:
 	LLImageJ2CKDU();
 	virtual ~LLImageJ2CKDU();
-
-public:
+	
+protected:
 	/*virtual*/ BOOL getMetadata(LLImageJ2C &base);
 	/*virtual*/ BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count);
 	/*virtual*/ BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
 								BOOL reversible=FALSE);
 
-protected:
+private:
 	void setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
 	BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count );

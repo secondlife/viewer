@@ -50,7 +50,16 @@ void LLImageRaw::deleteData() { }
 U8* LLImageRaw::reallocateData(S32 ) { return NULL; }
 BOOL LLImageRaw::resize(U16, U16, S8) { return TRUE; } // this method always returns TRUE...
 
-LLImageBase::LLImageBase() : mMemType(LLMemType::MTYPE_IMAGEBASE) { }
+LLImageBase::LLImageBase()
+: mData(NULL),
+mDataSize(0),
+mWidth(0),
+mHeight(0),
+mComponents(0),
+mBadBufferAllocation(false),
+mAllowOverSize(false),
+mMemType(LLMemType::MTYPE_IMAGEBASE)
+{ }
 LLImageBase::~LLImageBase() { }
 U8* LLImageBase::allocateData(S32 ) { return NULL; }
 void LLImageBase::deleteData() { }
@@ -165,6 +174,17 @@ namespace tut
 		// Derived test class
 		class LLTestImageJ2CKDU : public LLImageJ2CKDU
 		{
+		public:
+			// Provides public access to some protected methods for testing
+			BOOL callGetMetadata(LLImageJ2C &base) { return getMetadata(base); }
+			BOOL callDecodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
+			{
+				return decodeImpl(base, raw_image, decode_time, first_channel, max_channel_count);
+			}
+			BOOL callEncodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text)
+			{
+				return encodeImpl(base, raw_image, comment_text);
+			}
 		};
 		// Instance to be tested
 		LLTestImageJ2CKDU* mImage;
@@ -198,7 +218,7 @@ namespace tut
 	void llimagej2ckdu_object_t::test<1>()
 	{
 		LLImageJ2C* image = new LLImageJ2C();
-		BOOL res = mImage->getMetadata(*image);
+		BOOL res = mImage->callGetMetadata(*image);
 		// Trying to set up a data stream with all NIL values will fail and return FALSE
 		ensure("getMetadata() test failed", res == FALSE);
 	}
@@ -209,7 +229,7 @@ namespace tut
 	{
 		LLImageJ2C* image = new LLImageJ2C();
 		LLImageRaw* raw = new LLImageRaw();
-		BOOL res = mImage->decodeImpl(*image, *raw, 0.0, 0, 0);
+		BOOL res = mImage->callDecodeImpl(*image, *raw, 0.0, 0, 0);
 		// Decoding returns TRUE whenever there's nothing else to do, including if decoding failed, so we'll get TRUE here
 		ensure("decodeImpl() test failed", res == TRUE);
 	}
@@ -220,8 +240,8 @@ namespace tut
 	{
 		LLImageJ2C* image = new LLImageJ2C();
 		LLImageRaw* raw = new LLImageRaw();
-		BOOL res = mImage->encodeImpl(*image, *raw, NULL);
-		// Encoding returns TRUE unless and exception was raised, so we'll get TRUE here though nothing really was done
+		BOOL res = mImage->callEncodeImpl(*image, *raw, NULL);
+		// Encoding returns TRUE unless an exception was raised, so we'll get TRUE here though nothing really was done
 		ensure("encodeImpl() test failed", res == TRUE);
 	}
 }
