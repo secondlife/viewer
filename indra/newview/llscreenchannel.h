@@ -81,9 +81,6 @@ public:
 	// show all toasts in a channel
 	virtual void		redrawToasts() {};
 
-	virtual void 		closeOverflowToastPanel() {};
-	virtual void 		hideOverflowToastPanel() {};
-
 	
 	// Channel's behavior-functions
 	// set whether a channel will control hovering inside itself or not

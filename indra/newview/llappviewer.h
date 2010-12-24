@@ -169,6 +169,10 @@ public:
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
 	virtual bool getMasterSystemAudioMute();
+
+	// Metrics policy helper statics.
+	static void metricsUpdateRegion(U64 region_handle);
+	static void metricsSend(bool enable_reporting);
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.

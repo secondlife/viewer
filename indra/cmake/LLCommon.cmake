@@ -13,7 +13,14 @@ set(LLCOMMON_INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS}
     )
 
-set(LLCOMMON_LIBRARIES llcommon)
+if (LINUX)
+    # In order to support using ld.gold on linux, we need to explicitely
+    # specify all libraries that llcommon uses.
+    # llcommon uses `clock_gettime' which is provided by librt on linux.
+    set(LLCOMMON_LIBRARIES llcommon rt)
+else (LINUX)
+    set(LLCOMMON_LIBRARIES llcommon)
+endif (LINUX)
 
 add_definitions(${TCMALLOC_FLAG})
 

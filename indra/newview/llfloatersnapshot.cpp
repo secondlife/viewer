@@ -908,8 +908,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 		}
-
-		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	previewp->getWindow()->decBusyCount();
 	// only show fullscreen preview when in freeze frame mode
@@ -1006,6 +1004,7 @@ void LLSnapshotLivePreview::saveTexture()
 				    LLFloaterPerms::getEveryonePerms(),
 				    "Snapshot : " + pos_string,
 				    callback, expected_upload_cost, userdata);
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
 	{
@@ -1027,6 +1026,10 @@ BOOL LLSnapshotLivePreview::saveLocal()
 	mDataSize = 0;
 	updateSnapshot(FALSE, FALSE);
 
+	if(success)
+	{
+		gViewerWindow->playSnapshotAnimAndSound();
+	}
 	return success;
 }
 
@@ -1046,6 +1049,8 @@ void LLSnapshotLivePreview::saveWeb()
 
 	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
 		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, jpg, metadata, _1, _2, _3, _4));
+
+	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z)

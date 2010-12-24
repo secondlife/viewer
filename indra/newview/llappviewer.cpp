@@ -80,6 +80,8 @@
 #include "llfeaturemanager.h"
 #include "llurlmatch.h"
 #include "lltextutil.h"
+#include "lllogininstance.h"
+#include "llprogressview.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -192,6 +194,7 @@
 #include "llparcel.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
+#include "llviewerassetstats.h"
 
 // Include for security api initialization
 #include "llsecapi.h"
@@ -335,6 +338,14 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 static std::string gWindowTitle;
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
+
+//----------------------------------------------------------------------------
+// Metrics logging control constants
+//----------------------------------------------------------------------------
+static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
+static const F32 METRICS_INTERVAL_QA = 30.0;
+static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
+static bool app_metrics_qa_mode = false;
 
 void idle_afk_check()
 {
@@ -593,10 +604,14 @@ LLAppViewer::LLAppViewer() :
 	setupErrorHandling();
 	sInstance = this;
 	gLoggedInTime.stop();
+	
+	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
 }
 
 LLAppViewer::~LLAppViewer()
 {
+	LLLoginInstance::instance().setUpdaterService(0);
+	
 	destroyMainloopTimeout();
 
 	// If we got to this destructor somehow, the app didn't hang.
@@ -655,6 +670,21 @@ bool LLAppViewer::init()
     // Called before threads are created.
     LLCurl::initClass();
     LLMachineID::init();
+	
+	{
+		// Viewer metrics initialization
+		static LLCachedControl<bool> metrics_submode(gSavedSettings,
+													 "QAModeMetrics",
+													 false,
+													 "Enables QA features (logging, faster cycling) for metrics collector");
+
+		if (metrics_submode)
+		{
+			app_metrics_qa_mode = true;
+			app_metrics_interval = METRICS_INTERVAL_QA;
+		}
+		LLViewerAssetStatsFF::init();
+	}
 
     initThreads();
     writeSystemInfo();
@@ -1717,6 +1747,8 @@ bool LLAppViewer::cleanup()
 
 	LLWatchdog::getInstance()->cleanup();
 
+	LLViewerAssetStatsFF::cleanup();
+	
 	llinfos << "Shutting down message system" << llendflush;
 	end_messaging_system();
 
@@ -1783,7 +1815,10 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+													sImageDecodeThread,
+													enable_threads && true,
+													app_metrics_qa_mode);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
@@ -2403,26 +2438,120 @@ bool LLAppViewer::initConfiguration()
 }
 
 namespace {
-    // *TODO - decide if there's a better place for this function.
+    // *TODO - decide if there's a better place for these functions.
     // do we need a file llupdaterui.cpp or something? -brad
+
+	void apply_update_callback(LLSD const & notification, LLSD const & response)
+	{
+		lldebugs << "LLUpdate user response: " << response << llendl;
+		if(response["OK_okcancelbuttons"].asBoolean())
+		{
+			llinfos << "LLUpdate restarting viewer" << llendl;
+			static const bool install_if_ready = true;
+			// *HACK - this lets us launch the installer immediately for now
+			LLUpdaterService().startChecking(install_if_ready);
+		}
+	}
+	
+	void apply_update_ok_callback(LLSD const & notification, LLSD const & response)
+	{
+		llinfos << "LLUpdate restarting viewer" << llendl;
+		static const bool install_if_ready = true;
+		// *HACK - this lets us launch the installer immediately for now
+		LLUpdaterService().startChecking(install_if_ready);
+	}
+	
+	void on_update_downloaded(LLSD const & data)
+	{
+		std::string notification_name;
+		void (*apply_callback)(LLSD const &, LLSD const &) = NULL;
+
+		if(data["required"].asBoolean())
+		{
+			apply_callback = &apply_update_ok_callback;
+			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
+			{
+				// The user never saw the progress bar.
+				notification_name = "RequiredUpdateDownloadedVerboseDialog";
+			}
+			else
+			{
+				notification_name = "RequiredUpdateDownloadedDialog";
+			}
+		}
+		else
+		{
+			apply_callback = &apply_update_callback;
+			if(LLStartUp::getStartupState() < STATE_STARTED)
+			{
+				// CHOP-262 we need to use a different notification
+				// method prior to login.
+				notification_name = "DownloadBackgroundDialog";
+			}
+			else
+			{
+				notification_name = "DownloadBackgroundTip";
+			}
+		}
+
+		LLSD substitutions;
+		substitutions["VERSION"] = data["version"];
+
+		// truncate version at the rightmost '.' 
+		std::string version_short(data["version"]);
+		size_t short_length = version_short.rfind('.');
+		if (short_length != std::string::npos)
+		{
+			version_short.resize(short_length);
+		}
+
+		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
+		relnotes_url.setArg("[VERSION_SHORT]", version_short);
+
+		// *TODO thread the update service's response through to this point
+		std::string const & channel = LLVersionInfo::getChannel();
+		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
+
+		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
+		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
+		substitutions["RELEASE_NOTES_FULL_URL"] = relnotes_url.getString();
+
+		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
+	}
+
+	void install_error_callback(LLSD const & notification, LLSD const & response)
+	{
+		LLAppViewer::instance()->forceQuit();
+	}
+	
     bool notify_update(LLSD const & evt)
     {
+		std::string notification_name;
 		switch (evt["type"].asInteger())
 		{
 			case LLUpdaterService::DOWNLOAD_COMPLETE:
-				LLNotificationsUtil::add("DownloadBackground");
+				on_update_downloaded(evt);
 				break;
 			case LLUpdaterService::INSTALL_ERROR:
-				LLNotificationsUtil::add("FailedUpdateInstall");
+				if(evt["required"].asBoolean()) {
+					LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), &install_error_callback);
+				} else {
+					LLNotificationsUtil::add("FailedUpdateInstall");
+				}
 				break;
 			default:
-				llinfos << "unhandled update event " << evt << llendl;
 				break;
 		}
 
 		// let others also handle this event by default
         return false;
     }
+	
+	bool on_bandwidth_throttle(LLUpdaterService * updater, LLSD const & evt)
+	{
+		updater->setBandwidthLimit(evt.asInteger() * (1024/8));
+		return false; // Let others receive this event.
+	};
 };
 
 void LLAppViewer::initUpdater()
@@ -2445,7 +2574,10 @@ void LLAppViewer::initUpdater()
 						 channel, 
 						 version);
  	mUpdater->setCheckPeriod(check_period);
-	if(gSavedSettings.getBOOL("UpdaterServiceActive"))
+	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
+	gSavedSettings.getControl("UpdaterMaximumBandwidth")->getSignal()->
+		connect(boost::bind(&on_bandwidth_throttle, mUpdater.get(), _2));
+	if(gSavedSettings.getU32("UpdaterServiceSetting"))
 	{
 		bool install_if_ready = true;
 		mUpdater->startChecking(install_if_ready);
@@ -2872,8 +3004,10 @@ void LLAppViewer::handleViewerCrash()
 		pApp->removeMarkerFile(false);
 	}
 	
+#if LL_SEND_CRASH_REPORTS
 	// Call to pure virtual, handled by platform specific llappviewer instance.
 	pApp->handleCrashReporting(); 
+#endif
     
 	return;
 }
@@ -3045,6 +3179,9 @@ void LLAppViewer::requestQuit()
 		return;
 	}
 
+	// Try to send metrics back to the grid
+	metricsSend(!gDisconnected);
+	
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3081,7 +3218,7 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected)
+	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
@@ -3822,6 +3959,11 @@ void LLAppViewer::idle()
 				llinfos << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << llendl;
 				gObjectList.mNumUnknownUpdates = 0;
 			}
+
+			// ViewerMetrics FPS piggy-backing on the debug timer.
+			// The 5-second interval is nice for this purpose.  If the object debug
+			// bit moves or is disabled, please give this a suitable home.
+			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
 		}
 	}
 
@@ -3864,6 +4006,18 @@ void LLAppViewer::idle()
 		gInventory.idleNotifyObservers();
 	}
 	
+	// Metrics logging (LLViewerAssetStats, etc.)
+	{
+		static LLTimer report_interval;
+
+		// *TODO:  Add configuration controls for this
+		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
+		{
+			metricsSend(! gDisconnected);
+			report_interval.reset();
+		}
+	}
+
 	if (gDisconnected)
     {
 		return;
@@ -4580,6 +4734,35 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 		return;
 	}
 
+	LL_INFOS("eventhost") << "Found lleventhost at '" << dso_path << "'" << LL_ENDL;
+#if ! defined(LL_WINDOWS)
+	{
+		std::string outfile("/tmp/lleventhost.file.out");
+		std::string command("file '" + dso_path + "' > '" + outfile + "' 2>&1");
+		int rc = system(command.c_str());
+		if (rc != 0)
+		{
+			LL_WARNS("eventhost") << command << " ==> " << rc << ':' << LL_ENDL;
+		}
+		else
+		{
+			LL_INFOS("eventhost") << command << ':' << LL_ENDL;
+		}
+		{
+			std::ifstream reader(outfile.c_str());
+			std::string line;
+			while (std::getline(reader, line))
+			{
+				size_t len = line.length();
+				if (len && line[len-1] == '\n')
+					line.erase(len-1);
+				LL_INFOS("eventhost") << line << LL_ENDL;
+			}
+		}
+		remove(outfile.c_str());
+	}
+#endif // LL_WINDOWS
+
 	apr_dso_handle_t * eventhost_dso_handle = NULL;
 	apr_pool_t * eventhost_dso_memory_pool = NULL;
 
@@ -4588,13 +4771,13 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
 		dso_path.c_str(),
 		eventhost_dso_memory_pool);
-	ll_apr_assert_status(rv);
+	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
 	llassert_always(eventhost_dso_handle != NULL);
 
 	int (*ll_plugin_start_func)(LLSD const &) = NULL;
 	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
 
-	ll_apr_assert_status(rv);
+	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
 	llassert_always(ll_plugin_start_func != NULL);
 
 	LLSD args;
@@ -4766,3 +4949,75 @@ bool LLAppViewer::getMasterSystemAudioMute()
 {
 	return gSavedSettings.getBOOL("MuteAudio");
 }
+
+//----------------------------------------------------------------------------
+// Metrics-related methods (static and otherwise)
+//----------------------------------------------------------------------------
+
+/**
+ * LLViewerAssetStats collects data on a per-region (as defined by the agent's
+ * location) so we need to tell it about region changes which become a kind of
+ * hidden variable/global state in the collectors.  For collectors not running
+ * on the main thread, we need to send a message to move the data over safely
+ * and cheaply (amortized over a run).
+ */
+void LLAppViewer::metricsUpdateRegion(U64 region_handle)
+{
+	if (0 != region_handle)
+	{
+		LLViewerAssetStatsFF::set_region_main(region_handle);
+		if (LLAppViewer::sTextureFetch)
+		{
+			// Send a region update message into 'thread1' to get the new region.
+			LLAppViewer::sTextureFetch->commandSetRegion(region_handle);
+		}
+		else
+		{
+			// No 'thread1', a.k.a. TextureFetch, so update directly
+			LLViewerAssetStatsFF::set_region_thread1(region_handle);
+		}
+	}
+}
+
+
+/**
+ * Attempts to start a multi-threaded metrics report to be sent back to
+ * the grid for consumption.
+ */
+void LLAppViewer::metricsSend(bool enable_reporting)
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	if (LLAppViewer::sTextureFetch)
+	{
+		LLViewerRegion * regionp = gAgent.getRegion();
+
+		if (enable_reporting && regionp)
+		{
+			std::string	caps_url = regionp->getCapability("ViewerMetrics");
+
+			// Make a copy of the main stats to send into another thread.
+			// Receiving thread takes ownership.
+			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
+			
+			// Send a report request into 'thread1' to get the rest of the data
+			// and provide some additional parameters while here.
+			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
+														   gAgentSessionID,
+														   gAgentID,
+														   main_stats);
+			main_stats = 0;		// Ownership transferred
+		}
+		else
+		{
+			LLAppViewer::sTextureFetch->commandDataBreak();
+		}
+	}
+
+	// Reset even if we can't report.  Rather than gather up a huge chunk of
+	// data, we'll keep to our sampling interval and retain the data
+	// resolution in time.
+	gViewerAssetStatsMain->reset();
+}
+
