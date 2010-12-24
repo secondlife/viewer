@@ -7859,7 +7859,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		gPipeline.popRenderTypeMask();
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-		LLViewerCamera::getInstance()->setUserClipPlane(LLPlane(-pnorm, -pd));
+		LLPlane npnorm(-pnorm, -pd);
+		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		LLPipeline::sUseOcclusion = occlusion;
 		
 		LLGLState::checkStates();
