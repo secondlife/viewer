@@ -943,7 +943,6 @@ void LLPanelMainInventory::updateListCommands()
 
 void LLPanelMainInventory::onAddButtonClick()
 {
-
 	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
 	mMenuAdd->getChild<LLMenuItemGL>("New Folder")->setEnabled(!recent_active);
 
