@@ -85,7 +85,8 @@ public:
 		Optional<bool>					select_on_focus,
 										revert_on_esc,
 										commit_on_focus_lost,
-										ignore_tab;
+										ignore_tab,
+										is_password;
 
 		// colors
 		Optional<LLUIColor>				cursor_color,

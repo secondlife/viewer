@@ -200,5 +200,5 @@ void LLFloaterSearch::search(const LLSD &key)
 	url = LLWeb::expandURLSubstitutions(url, subs);
 
 	// and load the URL in the web view
-	mBrowser->navigateTo(url);
+	mBrowser->navigateTo(url, "text/html");
 }

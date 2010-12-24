@@ -6,5 +6,5 @@
 #
 
 cd "$(dirname "$0")"
-../Resources/mac-updater.app/Contents/MacOS/mac-updater -dmg "$1" -name "Second Life Viewer 2" -marker "$2" &
+(../Resources/mac-updater.app/Contents/MacOS/mac-updater -dmg "$1" -name "Second Life Viewer 2"; if [ $? -ne 0 ]; then echo $3 >> "$2"; fi;) &
 exit 0
