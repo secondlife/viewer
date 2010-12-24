@@ -943,8 +943,9 @@ void LLPanelMainInventory::updateListCommands()
 
 void LLPanelMainInventory::onAddButtonClick()
 {
-	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
-	mMenuAdd->getChild<LLMenuItemGL>("New Folder")->setEnabled(!recent_active);
+// Gray out the "New Folder" option when the Recent tab is active as new folders will not be displayed
+// unless "Always show folders" is checked in the filter options.
+	mMenuAdd->getChild<LLMenuItemGL>("New Folder")->setEnabled(mActivePanel->getName() != "Recent Items");
 
 	setUploadCostIfNeeded();
 
