@@ -101,7 +101,7 @@
              left_pad="5"
              name="go"
              top_delta="0"
-             width="55">
+             width="50">
 				<button.commit_callback
 				function="MediaBrowser.Go" />
 			</button>

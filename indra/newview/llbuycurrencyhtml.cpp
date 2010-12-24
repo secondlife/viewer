@@ -33,6 +33,7 @@
 #include "llfloaterreg.h"
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
+#include "llstatusbar.h"
 
 // support for secondlife:///app/buycurrencyhtml/{ACTION}/{NEXT_ACTION}/{RETURN_CODE} SLapps
 class LLBuyCurrencyHTMLHandler : 
@@ -156,4 +157,7 @@ void LLBuyCurrencyHTML::closeDialog()
 	{
 		buy_currency_floater->closeFloater();
 	};
+	
+	// Update L$ balance in the status bar in case L$ were purchased
+	LLStatusBar::sendMoneyBalanceRequest();
 }
