@@ -8060,14 +8060,13 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 	}
 
 	//get set of planes on bounding box
-	std::vector<LLPlane> bp;
-		
-	bp.push_back(LLPlane(min, LLVector3(-1,0,0)));
-	bp.push_back(LLPlane(min, LLVector3(0,-1,0)));
-	bp.push_back(LLPlane(min, LLVector3(0,0,-1)));
-	bp.push_back(LLPlane(max, LLVector3(1,0,0)));
-	bp.push_back(LLPlane(max, LLVector3(0,1,0)));
-	bp.push_back(LLPlane(max, LLVector3(0,0,1)));
+	LLPlane bp[] = { 
+		LLPlane(min, LLVector3(-1,0,0)),
+		LLPlane(min, LLVector3(0,-1,0)),
+		LLPlane(min, LLVector3(0,0,-1)),
+		LLPlane(max, LLVector3(1,0,0)),
+		LLPlane(max, LLVector3(0,1,0)),
+		LLPlane(max, LLVector3(0,0,1))};
 	
 	//potential points
 	std::vector<LLVector3> pp;
