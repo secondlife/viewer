@@ -506,8 +506,6 @@ void LLPanelMainInventory::onFilterSelected()
 		return;
 	}
 
-//	getChildView("add_btn_panel")->setVisible(true);
-
 	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
