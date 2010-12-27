@@ -171,6 +171,29 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE	// ControlYourCamera
 };
 
+// Extract channel and version from a string like "SL Web Viewer Beta 10.11.29.215604".
+// (channel: "SL Web Viewer Beta", version: "10.11.29.215604")
+static bool parse_version_info(const std::string& version_info, std::string& channel, std::string& ver)
+{
+	size_t last_space = version_info.rfind(" ");
+	channel = version_info;
+
+	if (last_space != std::string::npos)
+	{
+		try
+		{
+			ver = version_info.substr(last_space + 1);
+			channel.replace(last_space, ver.length() + 1, ""); // strip version
+		}
+		catch (std::out_of_range& e)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -3825,28 +3848,18 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if (!gLastVersionChannel.empty())
 	{
-		// work out the URL for this server's Release Notes
-		std::string url ="http://wiki.secondlife.com/wiki/Release_Notes/";
-		std::string server_version = version_channel;
-		std::vector<std::string> s_vect;
-		boost::algorithm::split(s_vect, server_version, isspace);
-		for(U32 i = 0; i < s_vect.size(); i++)
+		std::string url = regionp->getCapability("ServerReleaseNotes");
+		if (url.empty())
 		{
-			if (i != (s_vect.size() - 1))
-			{
-				if(i != (s_vect.size() - 2))
-				{
-				   url += s_vect[i] + "_";
-				}
-				else
-				{
-					url += s_vect[i] + "/";
-				}
-			}
-			else
-			{
-				url += s_vect[i].substr(0,4);
-			}
+			// The capability hasn't arrived yet or is not supported,
+			// fall back to parsing server version channel.
+			std::string channel, ver;
+			llassert(parse_version_info(version_channel, channel, ver) == true);
+			url = gSavedSettings.getString("ReleaseNotesURL");
+			LLSD args;
+			args["CHANNEL"] = LLWeb::escapeURL(channel);
+			args["VERSION"] = LLWeb::escapeURL(ver);
+			LLStringUtil::format(url, args);
 		}
 
 		LLSD args;
