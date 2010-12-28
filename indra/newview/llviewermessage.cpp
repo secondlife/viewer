@@ -185,7 +185,7 @@ static bool parse_version_info(const std::string& version_info, std::string& cha
 			ver = version_info.substr(last_space + 1);
 			channel.replace(last_space, ver.length() + 1, ""); // strip version
 		}
-		catch (std::out_of_range& e)
+		catch (std::out_of_range)
 		{
 			return false;
 		}
