@@ -189,9 +189,11 @@ static bool parse_version_info(const std::string& version_info, std::string& cha
 		{
 			return false;
 		}
+
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
@@ -3854,7 +3856,11 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			// The capability hasn't arrived yet or is not supported,
 			// fall back to parsing server version channel.
 			std::string channel, ver;
-			llassert(parse_version_info(version_channel, channel, ver) == true);
+			if (!parse_version_info(version_channel, channel, ver))
+			{
+				llwarns << "Failed to parse server version channel (" << version_channel << ")" << llendl;
+			}
+
 			url = gSavedSettings.getString("ReleaseNotesURL");
 			LLSD args;
 			args["CHANNEL"] = LLWeb::escapeURL(channel);
