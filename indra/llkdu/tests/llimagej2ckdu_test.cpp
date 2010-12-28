@@ -154,7 +154,7 @@ bool kdu_codestream_comment::put_text(const char*) { return false; }
 void kdu_customize_warnings(kdu_message*) { }
 void kdu_customize_errors(kdu_message*) { }
 void kdu_convert_ycc_to_rgb(kdu_line_buf&, kdu_line_buf&, kdu_line_buf&, int) { }
-kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, bool, kdu_roi_image*, bool, int, kdu_thread_env*, kdu_thread_queue*, bool ) { kdu_long a; return a; }
+kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, bool, kdu_roi_image*, bool, int, kdu_thread_env*, kdu_thread_queue*, bool ) { kdu_long a = 0; return a; }
 siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
 void siz_params::finalize(bool ) { }
 void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
