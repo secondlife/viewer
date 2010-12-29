@@ -950,7 +950,7 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 }
 
 // Draw gray and white checkerboard with black border
-void gl_rect_2d_checkerboard(const LLRect& rect)
+void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
 	// Initialize the first time this is called.
 	const S32 PIXELS = 32;
@@ -971,11 +971,11 @@ void gl_rect_2d_checkerboard(const LLRect& rect)
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// ...white squares
-	gGL.color3f( 1.f, 1.f, 1.f );
+	gGL.color4f( 1.f, 1.f, 1.f, alpha );
 	gl_rect_2d(rect);
 
 	// ...gray squares
-	gGL.color3f( .7f, .7f, .7f );
+	gGL.color4f( .7f, .7f, .7f, alpha );
 	gGL.flush();
 	glPolygonStipple( checkerboard );
 
@@ -1596,23 +1596,25 @@ void LLUI::initClass(const settings_map_t& settings,
 	sWindow = NULL; // set later in startup
 	LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
+	LLUICtrl::CommitCallbackRegistry::Registrar& reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
+
 	// Callbacks for associating controls with floater visibilty:
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Hide", boost::bind(&LLFloaterReg::hideFloaterInstance, _2));
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.InitToVisibilityControl", boost::bind(&LLFloaterReg::initUICtrlToFloaterVisibilityControl, _1, _2));
+	reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
+	reg.add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
+	reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideFloaterInstance, _2));
+	reg.add("Floater.InitToVisibilityControl", boost::bind(&LLFloaterReg::initUICtrlToFloaterVisibilityControl, _1, _2));
 	
 	// Button initialization callback for toggle buttons
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
+	reg.add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
 	
 	// Button initialization callback for toggle buttons on dockale floaters
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetDockableFloaterToggle", boost::bind(&LLButton::setDockableFloaterToggle, _1, _2));
+	reg.add("Button.SetDockableFloaterToggle", boost::bind(&LLButton::setDockableFloaterToggle, _1, _2));
 
 	// Display the help topic for the current context
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ShowHelp", boost::bind(&LLButton::showHelp, _1, _2));
+	reg.add("Button.ShowHelp", boost::bind(&LLButton::showHelp, _1, _2));
 
 	// Currently unused, but kept for reference:
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
+	reg.add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
 	
 	// Used by menus along with Floater.Toggle to display visibility as a checkmark
 	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::floaterInstanceVisible, _2));
@@ -1620,7 +1622,10 @@ void LLUI::initClass(const settings_map_t& settings,
 
 void LLUI::cleanupClass()
 {
-	sImageProvider->cleanUp();
+	if(sImageProvider)
+	{
+		sImageProvider->cleanUp();
+	}
 }
 
 void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)

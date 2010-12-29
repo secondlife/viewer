@@ -68,7 +68,8 @@
      tool_tip="Back"
      tab_stop="false"
      top="4"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"

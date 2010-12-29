@@ -8,44 +8,10 @@
 		<radio_item label="Mittel" name="radio2" value="1"/>
 		<radio_item label="Groß" name="radio3" value="2"/>
 	</radio_group>
-	<text name="font_colors">
-		Schriftfarben:
-	</text>
-	<color_swatch label="Sie" name="user"/>
-	<text name="text_box1">
-		Ich
-	</text>
-	<color_swatch label="Andere" name="agent"/>
-	<text name="text_box2">
-		Andere
-	</text>
-	<color_swatch label="IM" name="im"/>
-	<text name="text_box3">
-		IM
-	</text>
-	<color_swatch label="System" name="system"/>
-	<text name="text_box4">
-		System
-	</text>
-	<color_swatch label="Skriptfehler" name="script_error"/>
-	<text name="text_box5">
-		Skriptfehler
-	</text>
-	<color_swatch label="Objekte" name="objects"/>
-	<text name="text_box6">
-		Objekte
-	</text>
-	<color_swatch label="Eigentümer" name="owner"/>
-	<text name="text_box7">
-		Eigentümer
-	</text>
-	<color_swatch label="URLs" name="links"/>
-	<text name="text_box9">
-		URLs
-	</text>
 	<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
 	<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
 	<check_box label="Kompakten IM- und Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
+	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
 	<text name="show_ims_in_label">
 		IMs anzeigen in:
 	</text>
@@ -56,6 +22,13 @@
 		<radio_item label="Getrennte Fenster" name="radio" value="0"/>
 		<radio_item label="Registerkarten" name="radio2" value="1"/>
 	</radio_group>
+	<text name="disable_toast_label">
+		Popups für eingehende Chats aktivieren:
+	</text>
+	<check_box label="Gruppen-Chats" name="EnableGroupChatPopups" tool_tip="Markieren, um Popups zu sehen, wenn Gruppen-Chat-Message eintrifft"/>
+	<check_box label="IM-Chats" name="EnableIMChatPopups" tool_tip="Markieren, um Popups zu sehen, wenn Instant Message eintrifft"/>
+	<spinner label="Lebenszeit von Toasts für Chat in der Nähe:" name="nearby_toasts_lifetime"/>
+	<spinner label="Ein-/Ausblenddauer von Toasts für Chat in der Nähe:" name="nearby_toasts_fadingtime"/>
 	<check_box label="Bei Chat Maschinenübersetzung verwenden (Service von Google)" name="translate_chat_checkbox"/>
 	<text name="translate_language_text">
 		Chat übersetzen in:

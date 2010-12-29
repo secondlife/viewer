@@ -1773,11 +1773,8 @@
 	<string name="InvOfferGaveYou">
 		hat Ihnen folgendes übergeben
 	</string>
-	<string name="InvOfferYouDecline">
-		Sie lehnen folgendes ab:
-	</string>
-	<string name="InvOfferFrom">
-		von
+	<string name="InvOfferDecline">
+		Sie lehnen [DESC] von &lt;nolink&gt;[NAME]&lt;/nolink&gt; ab.
 	</string>
 	<string name="GroupMoneyTotal">
 		Gesamtbetrag

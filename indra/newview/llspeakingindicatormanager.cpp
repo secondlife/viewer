@@ -308,7 +308,10 @@ void LLSpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker
 
 void LLSpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator)
 {
-	SpeakingIndicatorManager::instance().unregisterSpeakingIndicator(speaker_id, speaking_indicator);
+	if(SpeakingIndicatorManager::instanceExists())
+	{
+		SpeakingIndicatorManager::instance().unregisterSpeakingIndicator(speaker_id, speaking_indicator);
+	}
 }
 
 // EOF

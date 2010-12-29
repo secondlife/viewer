@@ -83,7 +83,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string filename; 
 	std::string fullpath;
 	S32 result;
-	while (getNextFileInDir(dirname, mask, filename, FALSE))
+	while (getNextFileInDir(dirname, mask, filename))
 	{
 		fullpath = dirname;
 		fullpath += getDirDelimiter();
@@ -382,11 +382,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_USER_SKIN:
-		prefix = getOSUserAppDir();
-		prefix += mDirDelimiter;
-		prefix += "user_settings";
-		prefix += mDirDelimiter;
-		prefix += "skins";
+		prefix = getUserSkinDir();
 		break;
 
 	case LL_PATH_SKINS:

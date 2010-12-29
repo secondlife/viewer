@@ -387,6 +387,9 @@ Remarque : cela videra le cache.
 	<notification name="ChangeSkin">
 		Le nouveau thème apparaîtra après le redémarrage de [APP_NAME].
 	</notification>
+	<notification name="ChangeLanguage">
+		Le changement de langue sera effectué au redémarrage de [APP_NAME].
+	</notification>
 	<notification name="GoToAuctionPage">
 		Aller à la page web de [SECOND_LIFE] pour voir le détail des enchères ou enchérir ?
 		<url name="url">
@@ -597,6 +600,10 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		Impossible de trouver les données dans l&apos;en-tête WAV :
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Taille de fragment incorrecte dans le fichier WAV :
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -1324,6 +1331,16 @@ Cette mise à jour n&apos;est pas requise mais si vous voulez une meilleure perf
 
 Télécharger vers le dossier Applications ?
 		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Télécharger"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Une erreur est survenue lors de l&apos;installation de la mise à jour du client.
+Veuillez télécharger et installer la dernière version du client à la page Web
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DownloadBackground">
+		Une mise à jour de [APP_NAME] a été téléchargée.
+Elle sera appliquée au prochain redémarrage de [APP_NAME].
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Si vous cédez cet objet, le groupe :
@@ -2464,8 +2481,8 @@ Veuillez réessayer dans quelques minutes.
 		Amitié refusée.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] vous offre sa carte de visite.
-Cela ajoute un marque-page dans votre inventaire, ce qui vous permet d&apos;envoyer rapidement un IM à ce résident.
+		[NAME] vous offre sa carte de visite.
+Un signet sera ajouté dans votre inventaire afin que vous puissiez envoyer rapidement un IM à ce résident.
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
 			<button name="Decline" text="Refuser"/>

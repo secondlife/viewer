@@ -45,7 +45,7 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llbuycurrencyhtml.h"
@@ -191,6 +191,8 @@ BOOL is_selection_buy_not_take();
 S32 selection_price();
 BOOL enable_take();
 void handle_take();
+void handle_object_show_inspector();
+void handle_avatar_show_inspector();
 bool confirm_take(const LLSD& notification, const LLSD& response);
 
 void handle_buy_object(LLSaleInfo sale_info);
@@ -839,6 +841,35 @@ class LLAdvancedCheckFeature : public view_listener_t
 
 	return new_value;
 }
+};
+
+void LLDestinationAndAvatarShow(const LLSD& value)
+{
+	S32 panel_idx = value.isDefined() ? value.asInteger() : -1;
+	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+
+	switch(panel_idx)
+	{
+	case 0:
+		container->setVisible(true);
+		destinations->setVisible(true);
+		avatar_picker->setVisible(false);
+		LLFirstUse::notUsingDestinationGuide(false);
+		break;
+	case 1:
+		container->setVisible(true);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(true);
+		LLFirstUse::notUsingAvatarPicker(false);
+		break;
+	default:
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		break;
+	}
 };
 
 
@@ -4294,6 +4325,33 @@ void handle_take()
 	}
 }
 
+void handle_object_show_inspector()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* objectp = selection->getFirstRootObject(TRUE);
+ 	if (!objectp)
+ 	{
+ 		return;
+ 	}
+
+	LLSD params;
+	params["object_id"] = objectp->getID();
+	LLFloaterReg::showInstance("inspect_object", params);
+}
+
+void handle_avatar_show_inspector()
+{
+	LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+	if(avatar)
+	{
+		LLSD params;
+		params["avatar_id"] = avatar->getID();
+		LLFloaterReg::showInstance("inspect_avatar", params);
+	}
+}
+
+
+
 bool confirm_take(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -6500,16 +6558,6 @@ class LLToggleControl : public view_listener_t
 		std::string control_name = userdata.asString();
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
-
-        // Doubleclick actions - there can be only one
-        if ((control_name == "DoubleClickAutoPilot") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
-        }
-        else if ((control_name == "DoubleClickTeleport") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
-        }
 		return true;
 	}
 };
@@ -7175,6 +7223,12 @@ void handle_web_browser_test(const LLSD& param)
 	LLWeb::loadURLInternal(url);
 }
 
+void handle_web_content_test(const LLSD& param)
+{
+	std::string url = param.asString();
+	LLWeb::loadWebURLInternal(url);
+}
+
 void handle_buy_currency_test(void*)
 {
 	std::string url =
@@ -7805,6 +7859,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
 
+	// Me > Movement
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// World menu
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -7878,9 +7935,6 @@ void initialize_menus()
 
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
-
-	// Advanced > Shortcuts
-	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
@@ -7925,7 +7979,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
 
 	// Advanced > UI
-	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));
+	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
+	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
@@ -8056,6 +8111,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+	commit.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
@@ -8083,6 +8139,7 @@ void initialize_menus()
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
+	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
@@ -8142,4 +8199,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+	commit.add("DestinationAndAvatar.show", boost::bind(&LLDestinationAndAvatarShow, _2));
 }

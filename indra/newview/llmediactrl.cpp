@@ -25,7 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
+#include "lltooltip.h"
 
 #include "llmediactrl.h"
 
@@ -54,6 +54,10 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llnotifications.h"
+#include "lllineeditor.h"
+#include "llfloatermediabrowser.h"
+#include "llfloaterwebcontent.h"
+#include "llwindowshade.h"
 
 extern BOOL gRestoreGL;
 
@@ -70,7 +74,8 @@ LLMediaCtrl::Params::Params()
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
 	media_id("media_id"),
-	trusted_content("trusted_content", false)
+	trusted_content("trusted_content", false),
+	focus_on_click("focus_on_click", true)
 {
 	tab_stop(false);
 }
@@ -86,7 +91,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
 	mMediaSource( 0 ),
-	mTakeFocusOnClick( true ),
+	mTakeFocusOnClick( p.focus_on_click ),
 	mCurrentNavUrl( "" ),
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
@@ -97,7 +102,9 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
 	mHomePageMimeType(p.initial_mime_type),
-	mTrusted(p.trusted_content)
+	mTrusted(p.trusted_content),
+	mWindowShade(NULL),
+	mHoverTextChanged(false)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -126,7 +133,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		setTextureSize(screen_width, screen_height);
 	}
 	
-	mMediaTextureID.generate();
+	mMediaTextureID = getKey();
 	
 	// We don't need to create the media source up front anymore unless we have a non-empty home URL to navigate to.
 	if(!mHomePageUrl.empty())
@@ -140,8 +147,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 //	addChild( mBorder );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// note: this is now a singleton and destruction happens via initClass() now
 LLMediaCtrl::~LLMediaCtrl()
 {
 
@@ -181,6 +186,13 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 		mMediaSource->mouseMove(x, y, mask);
 		gViewerWindow->setCursor(mMediaSource->getLastSetCursor());
 	}
+	
+	// TODO: Is this the right way to handle hover text changes driven by the plugin?
+	if(mHoverTextChanged)
+	{
+		mHoverTextChanged = false;
+		handleToolTip(x, y, mask);
+	}
 
 	return TRUE;
 }
@@ -197,6 +209,35 @@ BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//	virtual 
+BOOL LLMediaCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	std::string hover_text;
+	
+	if (mMediaSource && mMediaSource->hasMedia())
+		hover_text = mMediaSource->getMediaPlugin()->getHoverText();
+	
+	if(hover_text.empty())
+	{
+		return FALSE;
+	}
+	else
+	{
+		S32 screen_x, screen_y;
+
+		localPointToScreen(x, y, &screen_x, &screen_y);
+		LLRect sticky_rect_screen;
+		sticky_rect_screen.setCenterAndSize(screen_x, screen_y, 20, 20);
+
+		LLToolTipMgr::instance().show(LLToolTip::Params()
+			.message(hover_text)
+			.sticky_rect(sticky_rect_screen));		
+	}
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //
 BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 {
@@ -206,14 +247,6 @@ BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 	if (mMediaSource)
 	{
 		mMediaSource->mouseUp(x, y, mask);
-
-		// *HACK: LLMediaImplLLMozLib automatically takes focus on mouseup,
-		// in addition to the onFocusReceived() call below.  Undo this. JC
-		if (!mTakeFocusOnClick)
-		{
-			mMediaSource->focus(false);
-			gViewerWindow->focusClient();
-		}
 	}
 	
 	gFocusMgr.setMouseCapture( NULL );
@@ -345,85 +378,6 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
-	LLLayoutStack::Params layout_p;
-	layout_p.name = "notification_stack";
-	layout_p.rect = LLRect(0,getLocalRect().mTop,getLocalRect().mRight, 30);
-	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.mouse_opaque = false;
-	layout_p.orientation = "vertical";
-
-	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
-	addChild(stackp);
-
-	LLLayoutPanel::Params panel_p;
-	panel_p.rect = LLRect(0, 30, 800, 0);
-	panel_p.min_height = 30;
-	panel_p.name = "notification_area";
-	panel_p.visible = false;
-	panel_p.user_resize = false;
-	panel_p.background_visible = true;
-	panel_p.bg_alpha_image.name = "Yellow_Gradient";
-	panel_p.auto_resize = false;
-	LLLayoutPanel* notification_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-	stackp->addChild(notification_panel);
-
-	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
-	panel_p.auto_resize = true;
-	panel_p.mouse_opaque = false;
-	LLLayoutPanel* dummy_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-	stackp->addChild(dummy_panel);
-
-	layout_p = LLUICtrlFactory::getDefaultParams<LLLayoutStack>();
-	layout_p.rect = LLRect(0, 30, 800, 0);
-	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.orientation = "horizontal";
-	stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p);
-	notification_panel->addChild(stackp);
-
-	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
-	panel_p.rect.height = 30;
-	LLLayoutPanel* panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-	stackp->addChild(panel);
-
-	LLIconCtrl::Params icon_p;
-	icon_p.name = "notification_icon";
-	icon_p.rect = LLRect(5, 23, 21, 8);
-	panel->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_p));
-
-	LLTextBox::Params text_p;
-	text_p.rect = LLRect(31, 20, 430, 0);
-	text_p.text_color = LLColor4::black;
-	text_p.font = LLFontGL::getFontSansSerif();
-	text_p.font.style = "BOLD";
-	text_p.name = "notification_text";
-	text_p.use_ellipses = true;
-	panel->addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
-
-	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
-	panel_p.auto_resize = false;
-	panel_p.user_resize = false;
-	panel_p.name="form_elements";
-	panel_p.rect = LLRect(0, 30, 130, 0);
-	LLLayoutPanel* form_elements_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-	stackp->addChild(form_elements_panel);
-
-	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
-	panel_p.auto_resize = false;
-	panel_p.user_resize = false;
-	panel_p.rect = LLRect(0, 30, 25, 0);
-	LLLayoutPanel* close_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-	stackp->addChild(close_panel);
-
-	LLButton::Params button_p;
-	button_p.name = "close_notification";
-	button_p.rect = LLRect(5, 23, 21, 7);
-	button_p.image_color=LLUIColorTable::instance().getColor("DkGray_66");
-    button_p.image_unselected.name="Icon_Close_Foreground";
-	button_p.image_selected.name="Icon_Close_Press";
-	button_p.click_callback.function = boost::bind(&LLMediaCtrl::onCloseNotification, this);
-
-	close_panel->addChild(LLUICtrlFactory::create<LLButton>(button_p));
-
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
 	return TRUE;
 }
@@ -432,13 +386,15 @@ BOOL LLMediaCtrl::postBuild ()
 //
 BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
-	if (LLPanel::handleKeyHere(key, mask)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
 	{
 		result = mMediaSource->handleKeyHere(key, mask);
 	}
+	
+	if ( ! result )
+		result = LLPanel::handleKeyHere(key, mask);
 		
 	return result;
 }
@@ -458,13 +414,15 @@ void LLMediaCtrl::handleVisibilityChange ( BOOL new_visibility )
 //
 BOOL LLMediaCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
-	if (LLPanel::handleUnicodeCharHere(uni_char)) return TRUE;
 	BOOL result = FALSE;
 	
 	if (mMediaSource)
 	{
 		result = mMediaSource->handleUnicodeCharHere(uni_char);
 	}
+
+	if ( ! result )
+		result = LLPanel::handleUnicodeCharHere(uni_char);
 
 	return result;
 }
@@ -921,11 +879,6 @@ void LLMediaCtrl::draw()
 	if ( mBorder && mBorder->getVisible() )
 		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus( this ) );
 
-	if (mCurNotification && !mCurNotification->isActive())
-	{
-		hideNotification();
-	}
-	
 	LLPanel::draw();
 
 	// Restore the previous values
@@ -1033,7 +986,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 			LLNotification::Params notify_params;
 			notify_params.name = "PopupAttempt";
-			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", getKey());
+			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
 			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
 
 			if (mTrusted)
@@ -1088,6 +1041,31 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;
 		}
 		break;
+
+		case MEDIA_EVENT_AUTH_REQUEST:
+		{
+			LLNotification::Params auth_request_params;
+			auth_request_params.name = "AuthRequest";
+
+			// pass in host name and realm for site (may be zero length but will always exist)
+			LLSD args;
+			LLURL raw_url( self->getAuthURL().c_str() );
+			args["HOST_NAME"] = raw_url.getAuthority();
+			args["REALM"] = self->getAuthRealm();
+			auth_request_params.substitutions = args;
+
+			auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
+			auth_request_params.functor.function = boost::bind(&LLViewerMedia::onAuthSubmit, _1, _2);
+			LLNotifications::instance().add(auth_request_params);
+		};
+		break;
+
+		case MEDIA_EVENT_LINK_HOVERED:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << LL_ENDL;
+			mHoverTextChanged = true;
+		};
+		break;
 	};
 
 	// chain all events to any potential observers of this object.
@@ -1105,109 +1083,85 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 {
 	if (response["open"])
 	{
-		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		// name of default floater to open
+		std::string floater_name = "media_browser";
+
+		// look for parent floater name
+		if ( gFloaterView )
+		{
+			if ( gFloaterView->getParentFloater(this) )
+			{
+				floater_name = gFloaterView->getParentFloater(this)->getInstanceName();
+			}
+			else
+			{
+				lldebugs << "No gFloaterView->getParentFloater(this) for onPopuup()" << llendl;
+			};
+		}
+		else
+		{
+			lldebugs << "No gFloaterView for onPopuup()" << llendl;
+		};
+
+		// (for now) open web content floater if that's our parent, otherwise, open the current media floater
+		// (this will change soon)
+		if ( floater_name == "web_content" )
+		{
+			LLWeb::loadWebURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		}
+		else
+		{
+			LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
+		}
 	}
 	else
 	{
 		// Make sure the opening instance knows its window open request was denied, so it can clean things up.
 		LLViewerMedia::proxyWindowClosed(notification["payload"]["uuid"]);
 	}
-
-}
-
-void LLMediaCtrl::onCloseNotification()
-{
-	LLNotifications::instance().cancel(mCurNotification);
-}
-
-void LLMediaCtrl::onClickIgnore(LLUICtrl* ctrl)
-{
-	bool check = ctrl->getValue().asBoolean();
-	if (mCurNotification && mCurNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
-	{
-		// question was "show again" so invert value to get "ignore"
-		check = !check;
-	}
-	mCurNotification->setIgnored(check);
-}
-
-void LLMediaCtrl::onClickNotificationButton(const std::string& name)
-{
-	if (!mCurNotification) return;
-
-	LLSD response = mCurNotification->getResponseTemplate();
-	response[name] = true;
-
-	mCurNotification->respond(response); 
 }
 
 void LLMediaCtrl::showNotification(LLNotificationPtr notify)
 {
-	mCurNotification = notify;
+	delete mWindowShade;
 
-	// add popup here
-	LLSD payload = notify->getPayload();
-
-	LLNotificationFormPtr formp = notify->getForm();
-	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
-	panel.setVisible(true);
-	panel.getChild<LLUICtrl>("notification_icon")->setValue(notify->getIcon());
-	panel.getChild<LLUICtrl>("notification_text")->setValue(notify->getMessage());
-	panel.getChild<LLUICtrl>("notification_text")->setToolTip(notify->getMessage());
-	LLNotificationForm::EIgnoreType ignore_type = formp->getIgnoreType(); 
-	LLLayoutPanel& form_elements = panel.getChildRef<LLLayoutPanel>("form_elements");
-	form_elements.deleteAllChildren();
-
-	const S32 FORM_PADDING_HORIZONTAL = 10;
-	const S32 FORM_PADDING_VERTICAL = 3;
-	S32 cur_x = FORM_PADDING_HORIZONTAL;
-
-	if (ignore_type != LLNotificationForm::IGNORE_NO)
+	LLWindowShade::Params params;
+	params.name = "notification_shade";
+	params.rect = getLocalRect();
+	params.follows.flags = FOLLOWS_ALL;
+	params.notification = notify;
+	params.modal = true;
+	//HACK: don't hardcode this
+	if (notify->getIcon() == "Popup_Caution")
 	{
-		LLCheckBoxCtrl::Params checkbox_p;
-		checkbox_p.name = "ignore_check";
-		checkbox_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
-		checkbox_p.label = formp->getIgnoreMessage();
-		checkbox_p.label_text.text_color = LLColor4::black;
-		checkbox_p.commit_callback.function = boost::bind(&LLMediaCtrl::onClickIgnore, this, _1);
-		checkbox_p.initial_value = formp->getIgnored();
-
-		LLCheckBoxCtrl* check = LLUICtrlFactory::create<LLCheckBoxCtrl>(checkbox_p);
-		check->setRect(check->getBoundingRect());
-		form_elements.addChild(check);
-		cur_x = check->getRect().mRight + FORM_PADDING_HORIZONTAL;
+		params.bg_image.name = "Yellow_Gradient";
+		params.text_color = LLColor4::black;
+	}
+	else
+	//HACK: another one since XUI doesn't support what we need right now
+	if (notify->getName() == "AuthRequest")
+	{
+		params.bg_image.name = "Yellow_Gradient";
+		params.text_color = LLColor4::black;
+		params.can_close = false;
+	}
+	else
+	{
+		//HACK: make this a property of the notification itself, "cancellable"
+		params.can_close = false;
+		params.text_color.control = "LabelTextColor";
 	}
 
-	for (S32 i = 0; i < formp->getNumElements(); i++)
-	{
-		LLSD form_element = formp->getElement(i);
-		if (form_element["type"].asString() == "button")
-		{
-			LLButton::Params button_p;
-			button_p.name = form_element["name"];
-			button_p.label = form_element["text"];
-			button_p.rect = LLRect(cur_x, form_elements.getRect().getHeight() - FORM_PADDING_VERTICAL, cur_x, FORM_PADDING_VERTICAL);
-			button_p.click_callback.function = boost::bind(&LLMediaCtrl::onClickNotificationButton, this, form_element["name"].asString());
-			button_p.auto_resize = true;
+	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
 
-			LLButton* button = LLUICtrlFactory::create<LLButton>(button_p);
-			button->autoResize();
-			form_elements.addChild(button);
-
-			cur_x = button->getRect().mRight + FORM_PADDING_HORIZONTAL;
-		}
-	}
-
-
-	form_elements.reshape(cur_x, form_elements.getRect().getHeight());
-
-	//LLWeb::loadURL(payload["url"], payload["target"]);
+	addChild(mWindowShade);
+	mWindowShade->show();
 }
 
 void LLMediaCtrl::hideNotification()
 {
-	LLLayoutPanel& panel = getChildRef<LLLayoutPanel>("notification_area");
-	panel.setVisible(FALSE);
-
-	mCurNotification.reset();
+	if (mWindowShade)
+	{
+		mWindowShade->hide();
+	}
 }

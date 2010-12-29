@@ -363,8 +363,7 @@
     <map>
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>VersionChannelName</string>
+      <!-- Special case. Not mapped to a setting. -->
     </map>
 
     <key>loginpage</key>
@@ -400,6 +399,5 @@
       <key>map-to</key>
       <string>DisableCrashLogger</string>
     </map>
-
   </map>
 </llsd>

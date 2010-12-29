@@ -60,7 +60,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(),groupData))
 	{
-		llwarns << "Group notice for unkown group: " << payload["group_id"].asUUID() << llendl;
+		llwarns << "Group notice for unknown group: " << payload["group_id"].asUUID() << llendl;
 	}
 
 	//group icon
@@ -77,6 +77,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	from << from_name << "/" << groupData.mName;
 	LLTextBox* pTitleText = getChild<LLTextBox>("title");
 	pTitleText->setValue(from.str());
+	pTitleText->setToolTip(from.str());
 
 	//message subject
 	const std::string& subject = payload["subject"].asString();

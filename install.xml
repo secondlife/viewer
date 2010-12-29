@@ -233,16 +233,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>752e295ccb17f0dcb7c0167db3ad1e69</string>
+            <string>ca8f0134fa5ab6f34a6eeb8d0896c9b0</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-darwin-20100606.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/Darwin/installer/curl-7.21.1-darwin-20101214.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a20e73f2e7d6a032ff25a5161b1b7394</string>
+            <string>9c9b629b62bf874d550c430ad678dc04</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-linux-20100527.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/Linux/installer/curl-7.21.1-linux-20101215.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -254,9 +254,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b28856d3d02ee680353ae440561a6579</string>
+            <string>48691883065a82d53691d73aae81d4c1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-windows-20100611.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/CYGWIN/installer/curl-7.21.1-windows-20101214.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -981,9 +981,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>34d9e4c93678a422cf80521bf0cd7628</string>
+            <string>66c46841825ab4969ec875b5c8f9b24c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100914.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-darwin-qt4.7.1-20101221.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -995,9 +995,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>4b8412833c00f8cdaba26808f0ddb404</string>
+            <string>b678c4d18ea8e4fab42b20f8d0b2629a</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100916.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.7.1-20101221.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1408,7 +1408,7 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>vivox</key>
+      <key>slvoice</key>
       <map>
         <key>copyright</key>
         <string> </string>
@@ -1419,23 +1419,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>aa144917d0e33453d3c2cc2c05c6c47c</string>
+            <string>2f9b3528d4b5f858fb8dcee4b6dd5188</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-darwin-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20101117a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>98f7945755f3ee8e52f685a3eff4d7be</string>
+            <string>cde4728b8a75a76c72a8785815cb769f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-linux-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20101117a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e8fdd46cb026c2ec72c4489eb3bf39c1</string>
+            <string>940ac55a6d0141c958bf2b14939d8474</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20100529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20101117a.tar.bz2</uri>
           </map>
         </map>
       </map>

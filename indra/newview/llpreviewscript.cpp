@@ -34,11 +34,13 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldir.h"
+#include "llexternaleditor.h"
 #include "llfloaterreg.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
+#include "lllivefile.h"
 #include "llhelp.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
@@ -113,6 +115,54 @@ static bool have_script_upload_cap(LLUUID& object_id)
 {
 	LLViewerObject* object = gObjectList.findObject(object_id);
 	return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
+}
+
+/// ---------------------------------------------------------------------------
+/// LLLiveLSLFile
+/// ---------------------------------------------------------------------------
+class LLLiveLSLFile : public LLLiveFile
+{
+public:
+	LLLiveLSLFile(std::string file_path, LLLiveLSLEditor* parent);
+	~LLLiveLSLFile();
+
+	void ignoreNextUpdate() { mIgnoreNextUpdate = true; }
+
+protected:
+	/*virtual*/ bool loadFile();
+
+	LLLiveLSLEditor*	mParent;
+	bool				mIgnoreNextUpdate;
+};
+
+LLLiveLSLFile::LLLiveLSLFile(std::string file_path, LLLiveLSLEditor* parent)
+:	mParent(parent)
+,	mIgnoreNextUpdate(false)
+,	LLLiveFile(file_path, 1.0)
+{
+}
+
+LLLiveLSLFile::~LLLiveLSLFile()
+{
+	LLFile::remove(filename());
+}
+
+bool LLLiveLSLFile::loadFile()
+{
+	if (mIgnoreNextUpdate)
+	{
+		mIgnoreNextUpdate = false;
+		return true;
+	}
+
+	if (!mParent->loadScriptText(filename()))
+	{
+		return false;
+	}
+
+	// Disable sync to avoid recursive load->save->load calls.
+	mParent->saveIfNeeded(false);
+	return true;
 }
 
 /// ---------------------------------------------------------------------------
@@ -281,6 +331,7 @@ LLScriptEdCore::LLScriptEdCore(
 	const LLHandle<LLFloater>& floater_handle,
 	void (*load_callback)(void*),
 	void (*save_callback)(void*, BOOL),
+	void (*edit_callback)(void*),
 	void (*search_replace_callback) (void* userdata),
 	void* userdata,
 	S32 bottom_pad)
@@ -290,6 +341,7 @@ LLScriptEdCore::LLScriptEdCore(
 	mEditor( NULL ),
 	mLoadCallback( load_callback ),
 	mSaveCallback( save_callback ),
+	mEditCallback( edit_callback ),
 	mSearchReplaceCallback( search_replace_callback ),
 	mUserdata( userdata ),
 	mForceClose( FALSE ),
@@ -329,6 +381,7 @@ BOOL LLScriptEdCore::postBuild()
 
 	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
 	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));
+	childSetAction("Edit_btn", boost::bind(&LLScriptEdCore::onEditButtonClick, this));
 
 	initMenu();
 
@@ -809,6 +862,13 @@ void LLScriptEdCore::doSave( BOOL close_after_save )
 	}
 }
 
+void LLScriptEdCore::onEditButtonClick()
+{
+	if (mEditCallback)
+	{
+		mEditCallback(mUserdata);
+	}
+}
 
 void LLScriptEdCore::onBtnUndoChanges()
 {
@@ -949,6 +1009,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   self->getHandle(),
 								   LLPreviewLSL::onLoad,
 								   LLPreviewLSL::onSave,
+								   NULL, // no edit callback
 								   LLPreviewLSL::onSearchReplace,
 								   self,
 								   0);
@@ -1417,6 +1478,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   self->getHandle(),
 								   &LLLiveLSLEditor::onLoad,
 								   &LLLiveLSLEditor::onSave,
+								   &LLLiveLSLEditor::onEdit,
 								   &LLLiveLSLEditor::onSearchReplace,
 								   self,
 								   0);
@@ -1433,6 +1495,7 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 	mCloseAfterSave(FALSE),
 	mPendingUploads(0),
 	mIsModifiable(FALSE),
+	mLiveFile(NULL),
 	mIsNew(false)
 {
 	mFactoryMap["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
@@ -1458,6 +1521,7 @@ BOOL LLLiveLSLEditor::postBuild()
 
 LLLiveLSLEditor::~LLLiveLSLEditor()
 {
+	delete mLiveFile;
 }
 
 // virtual
@@ -1639,38 +1703,39 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	delete xored_id;
 }
 
-// unused
-// void LLLiveLSLEditor::loadScriptText(const std::string& filename)
-// {
-// 	if(!filename)
-// 	{
-// 		llerrs << "Filename is Empty!" << llendl;
-// 		return;
-// 	}
-// 	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
-// 	if(file)
-// 	{
-// 		// read in the whole file
-// 		fseek(file, 0L, SEEK_END);
-// 		long file_length = ftell(file);
-// 		fseek(file, 0L, SEEK_SET);
-// 		char* buffer = new char[file_length+1];
-// 		size_t nread = fread(buffer, 1, file_length, file);
-// 		if (nread < (size_t) file_length)
-// 		{
-// 			llwarns << "Short read" << llendl;
-// 		}
-// 		buffer[nread] = '\0';
-// 		fclose(file);
-// 		mScriptEd->mEditor->setText(LLStringExplicit(buffer));
-// 		mScriptEd->mEditor->makePristine();
-// 		delete[] buffer;
-// 	}
-// 	else
-// 	{
-// 		llwarns << "Error opening " << filename << llendl;
-// 	}
-// }
+ bool LLLiveLSLEditor::loadScriptText(const std::string& filename)
+ {
+ 	if (filename.empty())
+ 	{
+ 		llwarns << "Empty file name" << llendl;
+ 		return false;
+ 	}
+
+ 	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+ 	if (!file)
+ 	{
+ 		llwarns << "Error opening " << filename << llendl;
+ 		return false;
+ 	}
+
+ 	// read in the whole file
+	fseek(file, 0L, SEEK_END);
+	size_t file_length = (size_t) ftell(file);
+	fseek(file, 0L, SEEK_SET);
+	char* buffer = new char[file_length+1];
+	size_t nread = fread(buffer, 1, file_length, file);
+	if (nread < file_length)
+	{
+		llwarns << "Short read" << llendl;
+	}
+	buffer[nread] = '\0';
+	fclose(file);
+	mScriptEd->mEditor->setText(LLStringExplicit(buffer));
+	//mScriptEd->mEditor->makePristine();
+	delete[] buffer;
+
+	return true;
+ }
 
 void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 {
@@ -1825,9 +1890,8 @@ LLLiveLSLSaveData::LLLiveLSLSaveData(const LLUUID& id,
 	mItem = new LLViewerInventoryItem(item);
 }
 
-void LLLiveLSLEditor::saveIfNeeded()
+void LLLiveLSLEditor::saveIfNeeded(bool sync)
 {
-	llinfos << "LLLiveLSLEditor::saveIfNeeded()" << llendl;
 	LLViewerObject* object = gObjectList.findObject(mObjectUUID);
 	if(!object)
 	{
@@ -1877,29 +1941,19 @@ void LLLiveLSLEditor::saveIfNeeded()
 	mItem->setAssetUUID(asset_id);
 	mItem->setTransactionID(tid);
 
-	// write out the data, and store it in the asset database
-	LLFILE* fp = LLFile::fopen(filename, "wb");
-	if(!fp)
+	writeToFile(filename);
+
+	if (sync)
 	{
-		llwarns << "Unable to write to " << filename << llendl;
-
-		LLSD row;
-		row["columns"][0]["value"] = "Error writing to local file. Is your hard drive full?";
-		row["columns"][0]["font"] = "SANSSERIF_SMALL";
-		mScriptEd->mErrorList->addElement(row);
-		return;
+		// Sync with external ed2itor.
+		std::string tmp_file = getTmpFileName();
+		llstat s;
+		if (LLFile::stat(tmp_file, &s) == 0) // file exists
+		{
+			if (mLiveFile) mLiveFile->ignoreNextUpdate();
+			writeToFile(tmp_file);
+		}
 	}
-	std::string utf8text = mScriptEd->mEditor->getText();
-
-	// Special case for a completely empty script - stuff in one space so it can store properly.  See SL-46889
-	if ( utf8text.size() == 0 )
-	{
-		utf8text = " ";
-	}
-
-	fputs(utf8text.c_str(), fp);
-	fclose(fp);
-	fp = NULL;
 	
 	// save it out to asset server
 	std::string url = object->getRegion()->getCapability("UpdateScriptTask");
@@ -1914,6 +1968,83 @@ void LLLiveLSLEditor::saveIfNeeded()
 	{
 		uploadAssetLegacy(filename, object, tid, is_running);
 	}
+}
+
+void LLLiveLSLEditor::openExternalEditor()
+{
+	LLViewerObject* object = gObjectList.findObject(mObjectUUID);
+	if(!object)
+	{
+		LLNotificationsUtil::add("SaveScriptFailObjectNotFound");
+		return;
+	}
+
+	delete mLiveFile; // deletes file
+
+	// Save the script to a temporary file.
+	std::string filename = getTmpFileName();
+	writeToFile(filename);
+
+	// Start watching file changes.
+	mLiveFile = new LLLiveLSLFile(filename, this);
+	mLiveFile->addToEventTimer();
+
+	// Open it in external editor.
+	{
+		LLExternalEditor ed;
+
+		if (!ed.setCommand("LL_SCRIPT_EDITOR"))
+		{
+			std::string msg = "Select an editor by setting the environment variable LL_SCRIPT_EDITOR "
+				"or the ExternalEditor setting"; // *TODO: localize
+			LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", msg));
+			return;
+		}
+
+		ed.run(filename);
+	}
+}
+
+bool LLLiveLSLEditor::writeToFile(const std::string& filename)
+{
+	LLFILE* fp = LLFile::fopen(filename, "wb");
+	if (!fp)
+	{
+		llwarns << "Unable to write to " << filename << llendl;
+
+		LLSD row;
+		row["columns"][0]["value"] = "Error writing to local file. Is your hard drive full?";
+		row["columns"][0]["font"] = "SANSSERIF_SMALL";
+		mScriptEd->mErrorList->addElement(row);
+		return false;
+	}
+
+	std::string utf8text = mScriptEd->mEditor->getText();
+
+	// Special case for a completely empty script - stuff in one space so it can store properly.  See SL-46889
+	if (utf8text.size() == 0)
+	{
+		utf8text = " ";
+	}
+
+	fputs(utf8text.c_str(), fp);
+	fclose(fp);
+	return true;
+}
+
+std::string LLLiveLSLEditor::getTmpFileName()
+{
+	// Take script inventory item id (within the object inventory)
+	// to consideration so that it's possible to edit multiple scripts
+	// in the same object inventory simultaneously (STORM-781).
+	std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
+
+	// Use MD5 sum to make the file name shorter and not exceed maximum path length.
+	char script_id_hash_str[33];               /* Flawfinder: ignore */
+	LLMD5 script_id_hash((const U8 *)script_id.c_str());
+	script_id_hash.hex_digest(script_id_hash_str);
+
+	return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + ".lsl";
 }
 
 void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
@@ -2136,6 +2267,14 @@ void LLLiveLSLEditor::onSave(void* userdata, BOOL close_after_save)
 	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
 	self->mCloseAfterSave = close_after_save;
 	self->saveIfNeeded();
+}
+
+
+// static
+void LLLiveLSLEditor::onEdit(void* userdata)
+{
+	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+	self->openExternalEditor();
 }
 
 // static

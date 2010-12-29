@@ -191,6 +191,9 @@
 	<string name="TooltipAgentUrl">
 		Klik for at se beboers profil
 	</string>
+	<string name="TooltipAgentInspect">
+		Lær mere om denne beboer
+	</string>
 	<string name="TooltipAgentMute">
 		Klik for at slukke for denne beboer
 	</string>
@@ -738,6 +741,12 @@
 	<string name="Estate / Full Region">
 		Estate / Hel region
 	</string>
+	<string name="Estate / Homestead">
+		Estate / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Mainland / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Mainland / Hel region
 	</string>
@@ -775,7 +784,7 @@
 		XML Fil
 	</string>
 	<string name="raw_file">
-		RAW Fil
+		RAW fil
 	</string>
 	<string name="compressed_image_files">
 		Komprimerede billeder
@@ -1728,11 +1737,8 @@
 	<string name="InvOfferGaveYou">
 		gav dig
 	</string>
-	<string name="InvOfferYouDecline">
-		Du afslår
-	</string>
-	<string name="InvOfferFrom">
-		fra
+	<string name="InvOfferDecline">
+		Du afslår [DESC] fra &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total
@@ -3469,7 +3475,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Du er den eneste deltager i denne samtale
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] er ikke logget på.
+		[NAME] er logget af.
 	</string>
 	<string name="invite_message">
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
@@ -3538,7 +3544,10 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] betalte dig L$[AMOUNT]
+		[NAME] betalte dig L$[AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] betalte dig L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Du betalte [NAME] L$[AMOUNT] [REASON].
@@ -3551,6 +3560,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Du betalte L$[AMOUNT] [REASON].
+	</string>
+	<string name="for item">
+		til [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		for en parcel land
@@ -3569,6 +3581,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		for at uploade
+	</string>
+	<string name="to publish a classified ad">
+		til offentliggørelse af annonce
 	</string>
 	<string name="giving">
 		Giver L$ [AMOUNT]

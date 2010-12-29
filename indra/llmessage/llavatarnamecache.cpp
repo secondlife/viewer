@@ -235,27 +235,21 @@ public:
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		// We're going to construct a dummy record and cache it for a while,
-		// either briefly for a 503 Service Unavailable, or longer for other
-		// errors.
-		F64 retry_timestamp = errorRetryTimestamp(status);
+		// If there's an error, it might be caused by PeopleApi,
+		// or when loading textures on startup and using a very slow 
+		// network, this query may time out. Fallback to the legacy
+		// cache. 
 
-		// *NOTE: "??" starts trigraphs in C/C++, escape the question marks.
-		const std::string DUMMY_NAME("\?\?\?");
-		LLAvatarName av_name;
-		av_name.mUsername = DUMMY_NAME;
-		av_name.mDisplayName = DUMMY_NAME;
-		av_name.mIsDisplayNameDefault = false;
-		av_name.mIsDummy = true;
-		av_name.mExpires = retry_timestamp;
+		llwarns << "LLAvatarNameResponder error " << status << " " << reason << llendl;
 
 		// Add dummy records for all agent IDs in this request
 		std::vector<LLUUID>::const_iterator it = mAgentIDs.begin();
 		for ( ; it != mAgentIDs.end(); ++it)
 		{
 			const LLUUID& agent_id = *it;
-			// cache it and fire signals
-			LLAvatarNameCache::processName(agent_id, av_name, true);
+			gCacheName->get(agent_id, false,  // legacy compatibility
+						boost::bind(&LLAvatarNameCache::legacyNameCallback,
+						_1, _2, _3));
 		}
 	}
 
@@ -286,18 +280,8 @@ public:
 		}
 
 		// No information in header, make a guess
-		if (status == 503)
-		{
-			// ...service unavailable, retry soon
-			const F64 SERVICE_UNAVAILABLE_DELAY = 600.0; // 10 min
-			return now + SERVICE_UNAVAILABLE_DELAY;
-		}
-		else
-		{
-			// ...other unexpected error
-			const F64 DEFAULT_DELAY = 3600.0; // 1 hour
-			return now + DEFAULT_DELAY;
-		}
+		const F64 DEFAULT_DELAY = 120.0; // 2 mintues
+		return now + DEFAULT_DELAY;
 	}
 };
 
@@ -367,7 +351,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 		if (url.size() > NAME_URL_SEND_THRESHOLD)
 		{
 			//llinfos << "requestNames " << url << llendl;
-			LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
+			LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));//, LLSD(), 10.0f);
 			url.clear();
 			agent_ids.clear();
 		}
@@ -376,7 +360,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 	if (!url.empty())
 	{
 		//llinfos << "requestNames " << url << llendl;
-		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
+		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));//, LLSD(), 10.0f);
 		url.clear();
 		agent_ids.clear();
 	}

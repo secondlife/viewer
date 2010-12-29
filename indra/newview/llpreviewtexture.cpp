@@ -318,7 +318,7 @@ void LLPreviewTexture::reshape(S32 width, S32 height, BOOL called_from_parent)
 		}
 	}
 
-	mClientRect.setLeftTopAndSize(client_rect.getCenterX() - (client_width / 2), client_rect.getCenterY() +  (client_height / 2), client_width, client_height);	
+	mClientRect.setLeftTopAndSize(client_rect.getCenterX() - (client_width / 2), client_rect.getCenterY() +  (client_height / 2), client_width, client_height);
 
 }
 
@@ -400,7 +400,6 @@ void LLPreviewTexture::updateDimensions()
 	{
 		return;
 	}
-
 	
 	mUpdateDimensions = FALSE;
 
@@ -408,80 +407,12 @@ void LLPreviewTexture::updateDimensions()
 	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
 
 	
-	LLRect dim_rect(getChildView("dimensions")->getRect());
-
-	S32 horiz_pad = 2 * (LLPANEL_BORDER_WIDTH + PREVIEW_PAD) + PREVIEW_RESIZE_HANDLE_SIZE;
-
-	// add space for dimensions and aspect ratio
-	S32 info_height = dim_rect.mTop + CLIENT_RECT_VPAD;
-
-	S32 screen_width = gFloaterView->getSnapRect().getWidth();
-	S32 screen_height = gFloaterView->getSnapRect().getHeight();
-
-	S32 max_image_width = screen_width - 2*horiz_pad;
-	S32 max_image_height = screen_height - (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD) 
-		- (PREVIEW_BORDER + CLIENT_RECT_VPAD + info_height);
-
-	S32 client_width = llmin(max_image_width,mImage->getFullWidth());
-	S32 client_height = llmin(max_image_height,mImage->getFullHeight());
-
-	if (mAspectRatio > 0.f)
-	{
-		if(mAspectRatio > 1.f)
-		{
-			client_height = llceil((F32)client_width / mAspectRatio);
-			if(client_height > max_image_height)
-			{
-				client_height = max_image_height;
-				client_width = llceil((F32)client_height * mAspectRatio);
-			}
-		}
-		else//mAspectRatio < 1.f
-		{
-			client_width = llceil((F32)client_height * mAspectRatio);
-			if(client_width > max_image_width)
-			{
-				client_width = max_image_width;
-				client_height = llceil((F32)client_width / mAspectRatio);
-			}
-		}
-	}
-	else
-	{
-
-		if(client_height > max_image_height)
-		{
-			F32 ratio = (F32)max_image_height/client_height;
-			client_height = max_image_height;
-			client_width = llceil((F32)client_height * ratio);
-		}
-		
-		if(client_width > max_image_width)
-		{
-			F32 ratio = (F32)max_image_width/client_width;
-			client_width = max_image_width;
-			client_height = llceil((F32)client_width * ratio);
-		}
-	}
-
-	//now back to whole floater
-	S32 floater_width = llmax(getMinWidth(),client_width + 2*horiz_pad);
-	S32 floater_height = llmax(getMinHeight(),client_height + (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD)
-		+ (PREVIEW_BORDER + CLIENT_RECT_VPAD + info_height));
-
 	//reshape floater
-	reshape( floater_width, floater_height );
+	reshape(getRect().getWidth(), getRect().getHeight());
+
 	gFloaterView->adjustToFitScreen(this, FALSE);
 
-	//setup image rect...
-	LLRect client_rect(horiz_pad, getRect().getHeight(), getRect().getWidth() - horiz_pad, 0);
-	client_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
-	client_rect.mBottom += PREVIEW_BORDER + CLIENT_RECT_VPAD + info_height ;
-
-	mClientRect.setLeftTopAndSize(client_rect.getCenterX() - (client_width / 2), client_rect.getCenterY() +  (client_height / 2), client_width, client_height);	
-
-	// Hide the aspect ratio label if the window is too narrow
-	// Assumes the label should be to the right of the dimensions
+	LLRect dim_rect(getChildView("dimensions")->getRect());
 	LLRect aspect_label_rect(getChildView("aspect_ratio")->getRect());
 	getChildView("aspect_ratio")->setVisible( dim_rect.mRight < aspect_label_rect.mLeft);
 }

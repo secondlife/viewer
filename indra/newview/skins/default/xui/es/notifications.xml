@@ -385,6 +385,9 @@ Nota: esto vaciará la caché.
 	<notification name="ChangeSkin">
 		Verás la nueva apariencia cuando reinicies [APP_NAME].
 	</notification>
+	<notification name="ChangeLanguage">
+		El cambio de idioma tendrá efecto cuando reinicies [APP_NAME].
+	</notification>
 	<notification name="GoToAuctionPage">
 		¿Ir a la página web de [SECOND_LIFE] para ver los detalles de la subasta
 o hacer una puja?
@@ -597,6 +600,10 @@ Podría ser [VALIDS]
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		No se encontró el fragmento &apos;data&apos; en la cabecera del WAV:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Tamaño de lote erróneo en el archivo WAV:
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -1333,6 +1340,16 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 
 ¿Descargarla a tu carpeta de Programas?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Descargarla"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Se ha producido un error al instalar la actualización del visor.
+Descarga e instala el último visor a través de
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DownloadBackground">
+		Se ha descargado una versión actualizada de [APP_NAME].
+Se aplicará la próxima vez que reinicies [APP_NAME]
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Transferir este objeto al grupo hará que:
@@ -2469,7 +2486,7 @@ Por favor, vuelve a intentarlo en unos momentos.
 		Rehusado el ofrecimiento de amistad.
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] te está ofreciendo su tarjeta de visita.
+		[NAME] te está ofreciendo su tarjeta de visita.
 Esto añadirá un marcador en tu inventario para que puedas enviarle rápidamente un MI.
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>

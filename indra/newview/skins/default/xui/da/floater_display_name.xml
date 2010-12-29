@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="ÆNDRE VISNINGSNAVN">
+	<text name="info_text">
+		Det navn du giver din avatar kaldes dit visningsnavn. Du kan ændre dette en gang om ugen.
+	</text>
+	<text name="lockout_text">
+		Du kan ikke ændre dit visningsnavn før: [TIME].
+	</text>
+	<text name="set_name_label">
+		Nyt visningsnavn:
+	</text>
+	<text name="name_confirm_label">
+		Indtast dit nye navn igen for at bekræfte:
+	</text>
+	<button label="Gem" name="save_btn" tool_tip="Gem dit nye visningsnavn"/>
+	<button label="Nulstil" name="reset_btn" tool_tip="Omdøb visningsnavn til samme som brugernavn"/>
+	<button label="Annullér" name="cancel_btn"/>
+</floater>

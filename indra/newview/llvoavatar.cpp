@@ -2333,8 +2333,19 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 {
-	// disable voice visualizer when in mouselook
-	mVoiceVisualizer->setVoiceEnabled( voice_enabled && !(isSelf() && gAgentCamera.cameraMouselook()) );
+	bool render_visualizer = voice_enabled;
+	
+	// Don't render the user's own voice visualizer when in mouselook, or when opening the mic is disabled.
+	if(isSelf())
+	{
+		if(gAgentCamera.cameraMouselook() || gSavedSettings.getBOOL("VoiceDisableMic"))
+		{
+			render_visualizer = false;
+		}
+	}
+	
+	mVoiceVisualizer->setVoiceEnabled(render_visualizer);
+	
 	if ( voice_enabled )
 	{		
 		//----------------------------------------------------------------
@@ -3024,7 +3035,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				std::deque<LLChat>::iterator chat_iter = mChats.begin();
 				mNameText->clearString();
 
-		LLColor4 new_chat = LLUIColorTable::instance().getColor( "NameTagChat" );
+				LLColor4 new_chat = LLUIColorTable::instance().getColor( isSelf() ? "UserChatColor" : "AgentChatColor" );
 				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
 				LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
 				if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
@@ -7864,6 +7875,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root)
 //virtual
 void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 {
+	LLViewerObject::updateRegion(regionp);
 }
 
 std::string LLVOAvatar::getFullname() const

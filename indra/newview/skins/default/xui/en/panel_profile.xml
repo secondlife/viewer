@@ -59,7 +59,7 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="527"
+         height="400"
          width="317"
          top="0">
           <panel
@@ -432,7 +432,7 @@
 			    user_resize="false" 
 			    auto_resize="false"
 				width="24">
-					<button
+					<menu_button
 			         follows="bottom|left|right"
 			         height="23"
 			         label="▼"

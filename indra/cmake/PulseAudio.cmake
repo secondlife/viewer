@@ -1,7 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(PULSEAUDIO ON CACHE BOOL "Build with PulseAudio support, if available.")
+set(PULSEAUDIO OFF CACHE BOOL "Build with PulseAudio support, if available.")
 
 if (PULSEAUDIO)
   if (STANDALONE)

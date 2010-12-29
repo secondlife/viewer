@@ -32,11 +32,13 @@
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
+#include "lllslconstants.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llscreenchannel.h"
 #include "llsyswellwindow.h"
 #include "lltoastnotifypanel.h"
+#include "lltoastscripttextbox.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llimfloater.h"
@@ -151,10 +153,18 @@ void LLScriptFloater::createForm(const LLUUID& notification_id)
 
 	// create new form
 	LLRect toast_rect = getRect();
-	// LLToastNotifyPanel will fit own content in vertical direction,
-	// but it needs an initial rect to properly calculate  its width
- 	// Use an initial rect of the script floater to make the floater window more configurable.
-	mScriptForm = new LLToastNotifyPanel(notification, toast_rect); 
+	if (isScriptTextbox(notification))
+	{
+		mScriptForm = new LLToastScriptTextbox(notification);
+	}
+	else
+	{
+		// LLToastNotifyPanel will fit own content in vertical direction,
+		// but it needs an initial rect to properly calculate  its width
+		// Use an initial rect of the script floater to make the floater
+		// window more configurable.
+		mScriptForm = new LLToastNotifyPanel(notification, toast_rect); 
+	}
 	addChild(mScriptForm);
 
 	// position form on floater
@@ -562,6 +572,34 @@ void LLScriptFloaterManager::setFloaterVisible(const LLUUID& notification_id, bo
 	{
 		floater->setVisible(visible);
 	}
+}
+
+//////////////////////////////////////////////////////////////////
+
+bool LLScriptFloater::isScriptTextbox(LLNotificationPtr notification)
+{
+	// get a form for the notification
+	LLNotificationFormPtr form(notification->getForm());
+
+	if (form)
+	{
+		// get number of elements in the form
+		int num_options = form->getNumElements();
+	
+		// if ANY of the buttons have the magic lltextbox string as
+		// name, then treat the whole dialog as a simple text entry
+		// box (i.e. mixed button and textbox forms are not supported)
+		for (int i=0; i<num_options; ++i)
+		{
+			LLSD form_element = form->getElement(i);
+			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 // EOF

@@ -13,238 +13,17 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-    <panel.string
-     name="middle_mouse">
-        Middle Mouse
-    </panel.string>
-    <slider
-     can_edit_text="false"
-     control_name="ActiveFloaterTransparency"
-     decimal_digits="2"
-     follows="left|top"
-     height="16"
-     increment="0.01"
-     initial_value="0.8"
-     layout="topleft"
-     label_width="120"
-     label="Active floater opacity:"
-     left="240"
-     max_val="1.00"
-     min_val="0.00"
-     name="active"
-     show_text="true"
-     top="75"
-     width="290" />
-    <slider
-     can_edit_text="false"
-     control_name="InactiveFloaterTransparency"
-     decimal_digits="2"
-     follows="left|top"
-     height="16"
-     increment="0.01"
-     initial_value="0.5"
-     layout="topleft"
-     label_width="120"
-     label="Inctive floater opacity:"
-     left="240"
-     max_val="1.00"
-     min_val="0.00"
-     name="active"
-     show_text="true"
-     top_pad="15"
-     width="290" />
-         <icon
-	 follows="left|top"
-	 height="18"
-	 image_name="Cam_FreeCam_Off"
-         layout="topleft"
-	 name="camera_icon"
-	 mouse_opaque="false"
-	 visible="true"
-	 width="18"
-         left="30"
-         top="10"/>
-    <slider
-     can_edit_text="true"
-     control_name="CameraAngle"
-     decimal_digits="2"
-     follows="left|top"
-     height="16"
-     increment="0.025"
-     initial_value="1.57"
-     layout="topleft"
-     label_width="100"
-     label="View angle"
-     left_pad="30"
-     max_val="2.97"
-     min_val="0.17"
-     name="camera_fov"
-     show_text="false"
-     width="240" />
-    <slider
-     can_edit_text="true"
-     control_name="CameraOffsetScale"
-     decimal_digits="2"
-     follows="left|top"
-     height="16"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     label="Distance"
-     left_delta="0"
-     label_width="100"
-     max_val="3"
-     min_val="0.5"
-     name="camera_offset_scale"
-     show_text="false"
-     width="240"
-     top_pad="5"/>
-     <text
-     follows="left|top"
-     type="string"
-     length="1"
-     height="10"
-     left="80"
-     name="heading2"
-     width="240"
-     top_pad="5">
-Automatic position for:
-	</text>
-        <check_box
-     control_name="EditCameraMovement"
-     height="20"
-     follows="left|top"
-     label="Build/Edit"
-     layout="topleft"
-     left_delta="30"
-     name="edit_camera_movement"
-     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
-     width="280"
-     top_pad="5" />
-    <check_box
-     control_name="AppearanceCameraMovement"
-     follows="left|top"
-     height="16"
-     label="Appearance"
-     layout="topleft"
-     name="appearance_camera_movement"
-     tool_tip="Use automatic camera positioning while in edit mode"
-     width="242" />
-    <check_box
-     control_name="SidebarCameraMovement"
-     follows="left|top"
-     height="16"
-     initial_value="true"
-     label="Sidebar"
-     layout="topleft"
-     name="appearance_sidebar_positioning"
-     tool_tip="Use automatic camera positioning for sidebar"
-     width="242" />
-     	<icon
-	 follows="left|top"
-	 height="18"
-	 image_name="Move_Walk_Off"
-         layout="topleft"
-	 name="avatar_icon"
-	 mouse_opaque="false"
-	 visible="true"
-	 width="18"
-         top_pad="2"
-         left="30"
-         />
-    <check_box
-     control_name="FirstPersonAvatarVisible"
-     follows="left|top"
-     height="20"
-     label="Show me in Mouselook"
-     layout="topleft"
-     left_pad="30"
-     name="first_person_avatar_visible"
-     width="256" />
-   
-    <check_box
-     control_name="ArrowKeysAlwaysMove"
-     follows="left|top"
-     height="20"
-     label="Arrow keys always move me"
-     layout="topleft"
-     left_delta="0"
-     name="arrow_keys_move_avatar_check"
-     width="237"
-     top_pad="0"/>
-    <check_box
-     control_name="AllowTapTapHoldRun"
-     follows="left|top"
-     height="20"
-     label="Tap-tap-hold to run"
-     layout="topleft"
-     left_delta="0"
-     name="tap_tap_hold_to_run"
-     width="237"
-     top_pad="0"/>
-    <check_box
-     control_name="LipSyncEnabled"
-     follows="left|top"
-     height="20"
-     label="Move avatar lips when speaking"
-     layout="topleft"
-     left_delta="0"
-     name="enable_lip_sync"
-     width="237"
-     top_pad="0" />
-        <check_box
-     control_name="UseChatBubbles"
-     follows="left|top"
-     height="16"
-     label="Bubble chat"
-     layout="topleft"
-     left="78"
-     top_pad="6"
-     name="bubble_text_chat"
-     width="150" />
-    <slider
-     control_name="ChatBubbleOpacity"
-     follows="left|top"
-     height="16"
-     increment="0.05"
-     initial_value="1"
-     label="Opacity"
-     layout="topleft"
-     left="80"
-     label_width="156"
-     name="bubble_chat_opacity"
-     top_pad = "10"
-     width="347" />
-    <color_swatch
-     can_apply_immediately="true"
-     color="0 0 0 1"
-     control_name="BackgroundChatColor"
-     follows="left|top"
-     height="50"
-     layout="topleft"
-     left_pad="30"
-     top="190"
-     name="background"
-     tool_tip="Choose color for bubble chat"
-     width="38">
-        <color_swatch.init_callback
-		     function="Pref.getUIColor"
-		     parameter="BackgroundChatColor" />
-		    <color_swatch.commit_callback
-		     function="Pref.applyUIColor"
-		     parameter="BackgroundChatColor" />
-    </color_swatch>
   <text
    type="string"
    length="1"
    follows="left|top"
    height="12"
    layout="topleft"
-   left="80"
+   left="33"
    name="UI Size:"
    top_pad="25"
-   width="160">
-    UI size
+   width="100">
+    UI size:
   </text>
   <slider
    control_name="UIScaleFactor"
@@ -259,7 +38,7 @@ Automatic position for:
    min_val="0.75"
    name="ui_scale_slider"
    top_pad="-14"
-   width="180" />
+   width="250" />
     <check_box
      control_name="ShowScriptErrors"
      follows="left|top"
@@ -298,65 +77,45 @@ Automatic position for:
          top_delta="0"
          width="315" />
     </radio_group>
-     <check_box
+
+    <check_box
+     control_name="AllowMultipleViewers"
      follows="top|left"
-     enabled_control="EnableVoiceChat"
-     control_name="PushToTalkToggle"
      height="15"
-     label="Toggle speak on/off when I press:"
+     label="Allow Multiple Viewers"
      layout="topleft"
      left="30"
-     name="push_to_talk_toggle_check"
-     width="237"
-     tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
-    <line_editor
+     name="allow_multiple_viewer_check"
+     top_pad="20"
+     width="237"/>
+    <check_box
+     control_name="ForceShowGrid"
      follows="top|left"
-     control_name="PushToTalkButton"
-     enabled="false"
-     enabled_control="EnableVoiceChat"
-     height="23"
-     left="80"
-     max_length_bytes="200"
-     name="modifier_combo"
-     label="Push-to-Speak trigger"
+     height="15"
+     label="Show Grid Selection at login"
+     layout="topleft"
+     left="30"
+     name="show_grid_selection_check"
      top_pad="5"
-     width="200" />
-    <button
-     layout="topleft" 
+     width="237"/>
+    <check_box
+     control_name="UseDebugMenus"
      follows="top|left"
-     enabled_control="EnableVoiceChat"
-     height="23"
-     label="Set Key"
-     left_pad="5"
-     name="set_voice_hotkey_button"
-     width="100">
-          <button.commit_callback
-          function="Pref.VoiceSetKey" />
-    </button>
-  <button
-   enabled_control="EnableVoiceChat"
+     height="15"
+     label="Show Advanced Menu"
+     layout="topleft"
+     left="30"
+     name="show_advanced_menu_check"
+     top_pad="5"
+     width="237"/>
+    <check_box
+     control_name="QAMode"
      follows="top|left"
-     halign="center"
-     height="23"
-     image_overlay="Refresh_Off"
-   layout="topleft" 
-     tool_tip="Reset to Middle Mouse Button"
-     mouse_opaque="true"
-     name="set_voice_middlemouse_button"
-     left_pad="5"
-     width="25">
-          <button.commit_callback
-          function="Pref.VoiceSetMiddleMouse" />
-    </button>
-  <button
- height="23"
- label="Other Devices"
- left="30"
- name="joystick_setup_button"
- top_pad="27"
- width="155">
-    <button.commit_callback
-     function="Floater.Show"
-     parameter="pref_joystick" />
-  </button>
+     height="15"
+     label="Show Developer Menu"
+     layout="topleft"
+     left="30"
+     name="show_develop_menu_check"
+     top_pad="5"
+     width="237"/>
 </panel>

@@ -470,7 +470,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 }
 
 //static
-bool LLIMFloater::resetAllowedRectPadding(const LLSD& newvalue)
+bool LLIMFloater::resetAllowedRectPadding()
 {
 	//reset allowed rect right padding if "SidebarCameraMovement" option 
 	//or sidebar state changed
@@ -482,10 +482,10 @@ void LLIMFloater::getAllowedRect(LLRect& rect)
 {
 	if (sAllowedRectRightPadding == RECT_PADDING_NOT_INIT) //wasn't initialized
 	{
-		gSavedSettings.getControl("SidebarCameraMovement")->getSignal()->connect(boost::bind(&LLIMFloater::resetAllowedRectPadding, _2));
+		gSavedSettings.getControl("SidebarCameraMovement")->getSignal()->connect(boost::bind(&LLIMFloater::resetAllowedRectPadding));
 
 		LLSideTray*	side_bar = LLSideTray::getInstance();
-		side_bar->getCollapseSignal().connect(boost::bind(&LLIMFloater::resetAllowedRectPadding, _2));
+		side_bar->setVisibleWidthChangeCallback(boost::bind(&LLIMFloater::resetAllowedRectPadding));
 		sAllowedRectRightPadding = RECT_PADDING_NEED_RECALC;
 	}
 
@@ -500,10 +500,7 @@ void LLIMFloater::getAllowedRect(LLRect& rect)
 
 		if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE)
 		{
-			LLSideTray*	side_bar = LLSideTray::getInstance();
-
-			if (side_bar->getVisible() && !side_bar->getCollapsed())
-				sAllowedRectRightPadding += side_bar->getRect().getWidth();
+			sAllowedRectRightPadding += LLSideTray::getInstance()->getVisibleWidth();
 		}
 	}
 	rect.mRight -= sAllowedRectRightPadding;
@@ -680,8 +677,6 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
-
 		LLSD chat_args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
 

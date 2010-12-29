@@ -173,25 +173,9 @@ public:
 	virtual void setVoiceEnabled(bool enabled);
 	virtual BOOL lipSyncEnabled();	
 	virtual void setLipSyncEnabled(BOOL enabled);
-	virtual void setMuteMic(bool muted);		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
+	virtual void setMuteMic(bool muted);		// Set the mute state of the local mic.
 	//@}
-	
-	////////////////////////
-	/// @name PTT
-	//@{
-	virtual void setUserPTTState(bool ptt);
-	virtual bool getUserPTTState();
-	virtual void setUsePTT(bool usePTT);
-	virtual void setPTTIsToggle(bool PTTIsToggle);
-	virtual bool getPTTIsToggle();
-	virtual void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs	
-	virtual void toggleUserPTTState(void);
-	
-	virtual void keyDown(KEY key, MASK mask);
-	virtual void keyUp(KEY key, MASK mask);
-	virtual void middleMouseState(bool down);
-	//@}
-	
+		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
@@ -534,9 +518,6 @@ protected:
 										// Use this to determine whether to show a "no speech" icon in the menu bar.
 		
 	
-	// PTT
-	void setPTTKey(std::string &key);
-	
 	/////////////////////////////
 	// Recording controls
 	void recordingLoopStart(int seconds = 3600, int deltaFramesPerControlFrame = 200);
@@ -800,15 +781,8 @@ private:
 	LLVector3	mAvatarVelocity;
 	LLMatrix3	mAvatarRot;
 	
-	bool		mPTTDirty;
-	bool		mPTT;
-	
-	bool		mUsePTT;
-	bool		mPTTIsMiddleMouse;
-	KEY			mPTTKey;
-	bool		mPTTIsToggle;
-	bool		mUserPTTState;
 	bool		mMuteMic;
+	bool		mMuteMicDirty;
 			
 	// Set to true when the friends list is known to have changed.
 	bool		mFriendsListDirty;

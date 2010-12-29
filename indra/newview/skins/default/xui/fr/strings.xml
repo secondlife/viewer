@@ -1036,10 +1036,10 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/ Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/ Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1089,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value="depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
@@ -1773,11 +1773,8 @@
 	<string name="InvOfferGaveYou">
 		vous a donné
 	</string>
-	<string name="InvOfferYouDecline">
-		Vous avez refusé
-	</string>
-	<string name="InvOfferFrom">
-		de la part de
+	<string name="InvOfferDecline">
+		Vous refusez l&apos;offre [DESC] de &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total
