@@ -2905,12 +2905,21 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 {
 	// base cost of each prim should be 10 points
 	static const U32 ARC_PRIM_COST = 10;
-	
-	// get access to params we'll need at various points
-	LLVolumeParams volume_params = getVolume()->getParams();
-	LLPathParams path_params = volume_params.getPathParams();
-	LLProfileParams profile_params = volume_params.getProfileParams();
 
+	// Get access to params we'll need at various points.  
+	// Skip if this is object doesn't have a volume (e.g. is an avatar).
+	const BOOL has_volume = (getVolume() != NULL);
+	LLVolumeParams volume_params;
+	LLPathParams path_params;
+	LLProfileParams profile_params;
+
+	if (has_volume)
+	{
+		volume_params = getVolume()->getParams();
+		path_params = volume_params.getPathParams();
+		profile_params = volume_params.getProfileParams();
+	}
+	
 	// per-prim costs
 	static const U32 ARC_INVISI_COST = 1;
 	static const U32 ARC_PARTICLE_COST = 100;
