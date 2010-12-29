@@ -64,7 +64,7 @@
 
   <text bottom_delta="25" left="25" width="100" follows="bottom|left">Upload Details</text>
   <panel top_pad="5" border="true" left="15" width="290" height="70" follows="bottom|left"
-          bevel_style="in" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
+          bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
     <text left="25" follows="bottom|left" width="140" height="15" name="streaming cost">
       Resource Cost: [COST]
     </text>
@@ -222,30 +222,25 @@
       label="Physics"
       name="physics_panel">
 
-      <!-- PHYSICS STEP ONE-->
+      <!-- PHYSICS GEOMETRY-->
       <panel
         follows="top|left"
-        name="physics step 1"
+        name="physics geometry"
         left="0"
         top="0"
-        width="260"
-        height="450"
-        visible="true">
+        width="300"
+        height="80"
+        visible="true"
+        border="true"
+        bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-        <text follows="left|top" bottom="40" height="30" left="10" font="SansSerifBig">
-          Step 1: Geometry
-        </text>
-
-        <radio_group follows="top|left" top_pad="5" width="240" height="70" name="physics_load_radio" value="physics_load_from_file">
-          <radio_item bottom="50" name="physics_load_from_file" label="Load from file"/>
-          <radio_item bottom="0" name="physics_use_lod" label="Use Level of Detail"/>
+        <radio_group follows="top|left" top="10" width="240" height="40" name="physics_load_radio" value="physics_load_from_file">
+          <radio_item bottom="0" name="physics_load_from_file" label="File:"/>
+          <radio_item bottom="23" name="physics_use_lod" label="Use Level of Detail:"/>
         </radio_group>
 
-        <line_editor follows="left|top" bottom_delta="-25" width="140" left="30" value="" name="physics_file" height="20"/>
-        <button bottom_delta="3" name="physics_browse" label="Browse..." left_pad="5" follows="left|top" width="70" height="25"/>
-
-        <combo_box left="30" bottom_delta="40" follows="left|top" height="18"
-	        name="physics_lod_combo" width="90" tool_tip="LOD to use for physics shape">
+        <combo_box left="180" top="10" follows="left|top" height="18"
+	        name="physics_lod_combo" width="110" tool_tip="LOD to use for physics shape">
           <combo_item name="physics_lowest">
             Lowest
           </combo_item>
@@ -260,120 +255,103 @@
           </combo_item>
         </combo_box>
 
+        <line_editor follows="left|top" top_pad="5" width="140" left="60" value="" name="physics_file" height="20"/>
+        <button left_pad="10" name="physics_browse" label="Browse..." follows="left|top" width="70" height="20"/>
+
         <!--
-        <text follows="top|left" name="physics_triangles" top_pad="15" height="15" left="10">
-          Triangles:  [TRIANGLES]
-        </text>
-        <text follows="top|left" name="physics_hulls" top_pad="5" height="15">
-          Hulls:      [HULLS]
-        </text>
-        <text follows="top|left" name="physics_points" top_pad="5" height="15">
-          Points:     [POINTS]
-        </text>
-
-        <text follows="top|left" left="140" width="100"  bottom_delta="-40" height="15">
-          Layer:
-        </text>
-        <combo_box name="physics_layer" follows="top|left" width="100" height="20" top_pad="5"/>
-         -->
-
-        <button bottom="440" left="180" width="80" follows="bottom|right" label="Optimize" name="physics_optimize" height="20"/>
-        
-      </panel>
+        <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
+        <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/>
+        -->
+     </panel>
 
 
-      <!-- PHYSICS STEP 2-->
+      <!-- PHYSICS ANALYSIS-->
       <panel
        follows="top|left"
-       name="physics step 2"
+       name="physics analysis"
+       top_pad="0"
        left="0"
-       top="0"
-       width="260"
-       height="450"
-       visible="false">
+       width="300"
+       height="130"
+       visible="true"
+       border="true"
+       bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
         <text follows="left|top" bottom="40" height="30" left="10" font="SansSerifBig">
-          Step 2: Decompose
+          Step 1: Analysis
         </text>
         
-        <text top_pad="100" follows="top|left" height="15">
-          Decompose Method:
+        <text top_pad="5" width="50" follows="top|left" height="15">
+          Method:
         </text>
-        <combo_box name="Method" follows="top|left" top_pad="5" height="20" width="100"/>
-        <text top_pad="10" follows="top|left" height="15">
+        <combo_box name="Method" follows="top|left" left_pad="5" bottom_delta="2" height="20" width="80"/>
+        <text left="160" bottom_delta="-2" width="50" follows="top|left" height="15">
           Quality:
         </text>
-        <combo_box name="Decompose Quality" follows="top|left" top_pad="5" height="20" width="100"/>
+        <combo_box name="Decompose Quality" bottom_delta="2" follows="top|left" left_pad="5" height="20" width="80"/>
 
-        <check_box name="Simplify Coplanar" follows="top|left" top_pad="10" height="15" label="Simplify Coplaner"/>
+        <slider name="Smooth" left="10" width="280" follows="top|left" top_pad="10" height="20" label="Smooth:"/>
+
         <check_box name="Close Holes (Slow)" follows="top|left" top_pad="10" height="15" label="Close Holes (slow)"/>
-        <slider name="Cosine%" width="240" follows="top|left" top_pad="10" height="20" label="Cosine %"/>
-
-        <text follows="top|left" top_pad="20" height="30" width="260">
-          "Note: Only models that have been Decomposed"
-          "can be made Physical or used as Vehicles."
-        </text>
-
-        <button bottom="440" left="90" width="80" follows="bottom|right" label="&lt;&lt; Back" name="decompose_back" height="20"/>
-        <button left_pad="5" width="90" follows="bottom|right" label="Decompose" name="Decompose" height="20"/>
+                
+        <button left="200" bottom_delta="0" width="90" follows="top|left" label="Analyze" name="Decompose" height="20"/>
       </panel>
       
 
-      <!-- PHYSICS STEP 3 -->
-      <panel
+      <!-- PHYSICS SIMPLIFICATION -->
+     <panel
        follows="top|left"
-       name="physics step 3"
+       name="physics simplification"
        left="0"
-       top="0"
-       width="260"
-       height="450"
-       visible="false">
+       top_pad="0"
+       width="300"
+       height="150"
+       visible="true"
+       border="true"
+       bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
         <text follows="left|top" bottom="40" height="30" left="10" font="SansSerifBig">
-          Step 3: Simplify
+          Step 2: Simplification
         </text>
 
-        <text left="10" top_pad="100" height="15" width="240" follows="top|left">
-          Simplify Method:
+        <text left="10" top_pad="5" height="15" width="140" follows="top|left">
+          Method:
         </text>
         
-        <combo_box top_pad="5" height="20" width="100" follows="top|left" name="Simplify Method"/>
+        <combo_box left_pad="5" height="20" width="120" follows="top|left" name="Simplify Method"/>
 
-        <slider name="Combine Quality" label="Combine Quality:" label_width="100" width="260" follows="top|left" top_pad="10" height="20"/>
-        <slider name="Detail Scale" label="Detail Scale:" label_width="100" width="260" follows="top|left" top_pad="10" height="20"/>
-        <slider name="Retain%" label="Retain %:" label_width="100" width="260" follows="top|left" top_pad="10" height="20"/>
-        
-        <button bottom="440" left="90" width="80" follows="bottom|right" label="&lt;&lt; Back" name="simplify_back" height="20"/>
-        <button left_pad="5" width="90" follows="bottom|right" label="Simplify" name="Simplify" height="20"/>
+        <slider left="10" name="Combine Quality" label="Passes:" label_width="120" width="270" follows="top|left" top_pad="10" height="20"/>
+        <slider name="Detail Scale" label="Detail Scale:" label_width="120" width="270" follows="top|left" top_pad="10" height="20"/>
+        <slider name="Retain%" label="Retain:" label_width="120" width="270" follows="top|left" bottom_delta="0" left_delta="0" visible="false" height="20"/>
+        <button left="190" width="90" follows="top|left" label="Simplify" name="Simplify" height="20"/>
         
       </panel>
 
       <!-- INFO PANEL -->
       <panel
         left="0"
-        top="35"
-        width="260"
+        top_pad="0"
+        width="300"
         height="100"
         follows="left|top"
         name="physics info"
-        visible="false">
+        visible="true"
+        border="true" 
+        bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-        <text follows="top|left" name="physics_triangles" top_pad="15" height="15" left="10">
-          Triangles:  [TRIANGLES]
-        </text>
-        <text follows="top|left" name="physics_hulls" top_pad="5" height="15">
-          Hulls:      [HULLS]
+        <slider name="physics_explode" follows="top|left" top="10" left="10" label="Preview Spread:" min_val="0.0" max_val="3.0" height="20" width="280"/>
+        
+        <text follows="top|left" name="physics_triangles" top_pad="10" height="15" left="10">
+          Triangles: [TRIANGLES]
         </text>
         <text follows="top|left" name="physics_points" top_pad="5" height="15">
-          Points:     [POINTS]
+          Vertices: [POINTS]
+        </text>
+        <text follows="top|left" name="physics_hulls" top_pad="5" height="15">
+          Hulls: [HULLS]
         </text>
 
-        <text follows="top|left" left="140" width="100"  bottom_delta="-40" height="15">
-          Layer:
-        </text>
-        <combo_box name="physics_layer" follows="top|left" width="100" height="20" top_pad="5"/>
 
-        <slider name="physics_explode" follows="top|left" top_pad="25" left="10" label="Explode" min_val="0.0" max_val="3.0" height="20" width="240"/>
       </panel>
     </panel>
 

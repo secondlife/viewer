@@ -7,129 +7,139 @@
  bg_opaque_image_overlay="0.5 0.5 0.5 1"
  height="450"
  save_rect="true"
- title="UPLOAD MODEL WIZARD" 
+ title="UPLOAD MODEL WIZARD"
  width="530">
+	<button
+	 top="30"
+	 tab_stop="false"
+	 left="410"
+	 height="32"
+	 name="upload_btn"
+	 enabled="false"
+	 label="5. Upload"
+	 border="false"
+	 image_unselected="model_wizard/middle_button_off.png"
+	 image_selected="model_wizard/middle_button_press.png"
+	 image_hover_unselected="model_wizard/middle_button_over.png"
+	 image_disabled="model_wizard/middle_button_disabled.png"
+	 image_disabled_selected="model_wizard/middle_button_disabled.png"
+	 width="110"/>
+	<button
+	 top="30"
+	 left="310"
+	 height="32"
+	 tab_stop="false"
+	 name="review_btn"
+	 label="4. Review"
+	 enabled="false"
+	 border="false"
+	 image_unselected="model_wizard/middle_button_off.png"
+	 image_selected="model_wizard/middle_button_press.png"
+	 image_hover_unselected="model_wizard/middle_button_over.png"
+	 image_disabled="model_wizard/middle_button_disabled.png"
+	 image_disabled_selected="model_wizard/middle_button_disabled.png"
+	 width="110"/>
+	<button
+	 top="30"
+	 left="210"
+	 height="32"
+	 name="physics_btn"
+	 label="3. Physics"
+	 tab_stop="false"
+	 enabled="false"
+	 border="false"
+	 image_unselected="model_wizard/middle_button_off.png"
+	 image_selected="model_wizard/middle_button_press.png"
+	 image_hover_unselected="model_wizard/middle_button_over.png"
+	 image_disabled="model_wizard/middle_button_disabled.png"
+	 image_disabled_selected="model_wizard/middle_button_disabled.png"
+	 width="110"/>
+	<button
+	 top="30"
+	 left="115"
+	 name="optimize_btn"
+	 label="2. Optimize"
+	 tab_stop="false"
+	 height="32"
+	 border="false"
+	 image_unselected="model_wizard/middle_button_off.png"
+	 image_selected="model_wizard/middle_button_press.png"
+	 image_hover_unselected="model_wizard/middle_button_over.png"
+	 image_disabled="model_wizard/middle_button_disabled.png"
+	 image_disabled_selected="model_wizard/middle_button_disabled.png"
+	 width="110"/>
+	<button
+	 top="30"
+	 left="15"
+	 name="choose_file_btn"
+	 tab_stop="false"
+	 enabled="false"
+	 label="1. Choose File"
+	 height="32"
+	 image_unselected="model_wizard/left_button_off.png"
+	 image_selected="model_wizard/left_button_press.png"
+	 image_hover_unselected="model_wizard/left_button_over.png"
+	 image_disabled="model_wizard/left_button_disabled.png"
+	 image_disabled_selected="model_wizard/left_button_disabled.png"
+	 width="110"/>
 	<panel
-		   height="600">
-		<button
-	     top="30"
-		 left="410"
-		 height="32"
-		 name="upload" 
-		 enabled="false" 
-		 label="5. Upload" 
-		 border="false" 
-		 image_unselected="model_wizard/middle_button_off.png"
-		 image_selected="model_wizard/middle_button_press.png"
-		image_hover_unselected="model_wizard/middle_button_over.png"
-		image_disabled="model_wizard/middle_button_disabled.png"
-		image_disabled_selected="model_wizard/middle_button_disabled.png"
-		 width="110"/>
-		<button
-	     top="30"
-		 left="310"
-		 height="32"
-		  tab_stop="false"
-		 name="review"
-		 label="4. Review"
-		 enabled="false"
-		 border="false"
-		 image_unselected="model_wizard/middle_button_off.png"
-		 image_selected="model_wizard/middle_button_press.png"
-		image_hover_unselected="model_wizard/middle_button_over.png"
-		image_disabled="model_wizard/middle_button_disabled.png"
-		image_disabled_selected="model_wizard/middle_button_disabled.png"
-		 width="110"/>
-		<button
-	     top="30"
-		 left="210"
-		 height="32"
-		 name="physics"
-		 label="3. Physics"
-		 tab_stop="false"
-		 enabled="false"
-		 border="false"
-		 image_unselected="model_wizard/middle_button_off.png"
-		 image_selected="model_wizard/middle_button_press.png"
-		image_hover_unselected="model_wizard/middle_button_over.png"
-		image_disabled="model_wizard/middle_button_disabled.png"
-		image_disabled_selected="model_wizard/middle_button_disabled.png"
-		 width="110"/>
-		<button
-	     top="30"
-		 left="115"
-		 name="optimize"
-		 label="2. Optimize"
-		  tab_stop="false"
-		 height="32"
-		 border="false"
-		 image_unselected="model_wizard/middle_button_off.png"
-		 image_selected="model_wizard/middle_button_press.png"
-		image_hover_unselected="model_wizard/middle_button_over.png"
-		image_disabled="model_wizard/middle_button_disabled.png"
-		image_disabled_selected="model_wizard/middle_button_disabled.png"
-		 width="110"/>
-		<button
-	     top="30"
-		 left="15"
-		 name="choose_file"
-		 enabled="false"
-		 label="1. Choose File"
-		 height="32"
-		 image_unselected="model_wizard/left_button_off.png"
-		 image_selected="model_wizard/left_button_press.png"
-		image_hover_unselected="model_wizard/left_button_over.png"
-		image_disabled="model_wizard/left_button_disabled.png"
-		image_disabled_selected="model_wizard/left_button_disabled.png"
-		 width="110"/>
+		 height="388"
+		 top_pad="0"
+		 name="choose_file_panel"
+		 visible="false"
+		 width="530"
+		 left="0">
 		<panel
-		 top_pad="20"
 		 height="20"
-		 width="500" 
+		 top_pad="20"
+		 width="500"
+		 name="header_panel"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
-		 background_opaque="true" 
+		 background_opaque="true"
 		 left="20">
-		<text
-		 width="200"
-		 left="10" 
-		 top="2" 
-		 height="10"
-		 font="SansSerifBig"
-		 layout="topleft"
-		 >
-			  Upload Model
-		</text></panel>
+			<text
+			 width="200"
+			 left="10"
+			 top="2"
+			 name="header_text"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Upload Model
+			</text>
+		</panel>
 		<text
 		 top_pad="14"
 		 width="460"
 		 height="20"
+		 name="description"
 		 font="SansSerifSmall"
 		 layout="topleft"
 		 word_wrap="true"
 		 left_delta="0">
 			This wizard will help you import mesh models to Second Life.  First specify a file containing the model you wish to import.  Second Life supports COLLADA (.dae) files.
 		</text>
-
 		<panel
-			top_delta="40"
-			left="15"
-		 height="240"
+		 top_delta="40"
+		 left="15"
+		 height="245"
 		 width="500"
+		 name="content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
-
 			<text
-	 type="string"
-	 length="1"
-	 follows="left|top"
-	 top="10" 
-	 height="10"
-	 layout="topleft"
-	 left_delta="10"
-	 name="Cache location"
-	 width="300">
+			 type="string"
+			 length="1"
+			 text_color="White" 
+			 follows="left|top"
+			 top="10"
+			 height="10"
+			 layout="topleft"
+			 left_delta="10"
+			 name="Cache location"
+			 width="300">
 				Filename:
 			</text>
 			<line_editor
@@ -139,7 +149,7 @@
 			 font="SansSerifSmall"
 			 height="20"
 			 layout="topleft"
-	 left_delta="0"
+			 left_delta="0"
 			 max_length="4096"
 			 name="lod_file"
 			 top_pad="5"
@@ -150,81 +160,465 @@
 			 label="Browse..."
 			 label_selected="Browse..."
 			 layout="topleft"
-			 left_pad="10"
+			 left_pad="5"
 			 name="browse"
 			 top_delta="-1"
-			 width="75">
+			 width="85">
 			</button>
 			<text
-	top_delta="-15"
-	width="200"
-	height="15"
-	font="SansSerifSmall"
-	layout="topleft"
-	left_pad="24">
+			 top_delta="-15"
+			 width="200"
+			 height="15"
+			 font="SansSerifSmall"
+			 layout="topleft"
+			 text_color="White"
+			 left_pad="19">
 				Model Preview:
 			</text>
-
 			<!-- Placeholder panel for 3D preview render -->
-			
 			<panel
-					left_delta="-2"
-				   top_pad="0"
-					name="preview_panel"
-					bevel_style="none"
-				   border_style="line"
-					border="true"
-				   height="150"
-			  follows="all"
-				   width="150">
+			 left_delta="0"
+			 top_pad="0"
+			 name="preview_panel"
+			 bevel_style="none"
+			 border_style="line"
+			 border="true"
+			 height="150"
+			 follows="all"
+			 width="150">
 			</panel>
 			<text
 			 top_pad="10"
 			 width="130"
 			 height="15"
 			 left="340"
-			 word_wrap="true"
-		 >
+			 text_color="White"
+			 word_wrap="true">
 				Dimensions (meters):
 			</text>
 			<text
-			 top_pad="5"
-			 width="150"
+			 top_pad="2"
+			 width="160"
 			 height="15"
 			 name="import_dimensions"
 			 left_delta="0">
-				X:  [X] |  Y:  [Y] | Z: [Z]
+				X:  [X] |Y:  [Y] |Z: [Z]
 			</text>
-			
 			<text
 			 top="100"
 			 width="320"
+			 height="15"
+			 left="10"
+			 text_color="White" 
+			 word_wrap="true">
+				Note:
+			</text>
+			<text
+			 top_pad="0"
+			 width="320"
 			 height="40"
 			 left="10"
-			 word_wrap="true"
-		 >
-				Note:
-Advanced users familiar with 3d content creation tools may prefer to use the Advanced Mesh Import window.
+			 word_wrap="true">
+Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/floater/upload_model Advanced Mesh Import Window] .
 			</text>
 		</panel>
-		<button
-		 top="410"
-		 right="-175" 
-		 width="80"
-		 height="20"
-		 label="&lt;&lt; Back" />
-		<button
-		 top="410"
-		 right="-92"
-		 width="80"
-		 height="20"
-		 label="Next &gt;&gt; " />
-		<button
-		 top="410"
-		 right="-15"
-		 width="70"
-		 height="20"
-		 label="Cancel" />
 	</panel>
+
+
+	<panel
+		 height="388"
+		 top_delta="0"
+		 name="optimize_panel"
+		 visible="true"
+		 width="530"
+		 left="0">
+		<panel
+		 height="20"
+		 top_pad="20"
+		 name="header_panel"
+		 width="500"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"
+		 left="20">
+			<text
+			 width="200"
+			 left="10"
+			 name="header_text"
+			 top="2"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Optimize
+			</text>
+		</panel>
+		<text
+		 top_pad="14"
+		 width="460"
+		 height="20"
+		 font="SansSerifSmall"
+		 layout="topleft"
+		 name="description"
+		 word_wrap="true"
+		 left_delta="0">
+			This wizard is optimizing your model. This may take several minutes. To stop the process click the back button
+		</text>
+		<panel
+		 top_delta="40"
+		 visible="false"
+		 left="15"
+		 height="245"
+		 width="500"
+		 name="content"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true">
+			<text
+			 top="20"
+			 width="300"
+			 height="12"
+			 font="SansSerifBold"
+			 left="112">Generating Level of Detail</text>
+			<progress_bar
+			  name="optimize_progress_bar"
+              image_fill="model_wizard\progress_light.png"
+			  color_bg="1 1 1 1"
+			  color_bar="1 1 1 0.96"
+			  follows="left|right|top"
+			  width="260"
+			  height="16"
+			  image_bar="model_wizard\progress_bar_bg.png"
+			  top_pad="14"
+			  left="110"/>
+			<icon
+			 top_pad="10"
+			 left_delta="0"
+			 width="13"
+			 height="12"
+			 image_name="model_wizard\check_mark.png"/>
+			<text
+			 top_delta="0"
+			 left_delta="18"
+			 name="high_detail_text"
+			 width="200"
+			 height="14">Generate Level of Detail: High</text>
+			<icon
+			 top_pad="10"
+			 left_delta="-18"
+			 width="13"
+			 height="12"
+			 image_name="model_wizard\check_mark.png"/>
+			<text
+			 top_delta="0"
+			 left_delta="18"
+			 name="medium_detail_text"
+			 width="200"
+			 height="14">Generate Level of Detail: Medium</text>
+			<icon
+			 top_pad="10"
+			 left_delta="-18"
+			 width="13"
+			 height="12"
+			 image_name="model_wizard\check_mark.png"/>
+			<text
+			 top_delta="0"
+			 left_delta="18"
+			 name="low_detail_text"
+			 width="200"
+			 height="14">Generate Level of Detail: Low</text>
+			<icon
+			 top_pad="10"
+			 left_delta="-18"
+			 width="13"
+			 height="12"
+			 image_name="model_wizard\check_mark.png"/>
+			<text
+			 top_delta="0"
+			 left_delta="18"
+			 name="lowest_detail_text"
+			 width="200"
+			 height="14">Generate Level of Detail: Lowest</text>
+		</panel>
+		<panel
+				 top_delta="0"
+				 left_delta="0"
+				 height="245"
+				 width="500"
+				 name="content2"
+				 bg_opaque_color="DkGray2"
+				 background_visible="true"
+				 background_opaque="true">
+			<text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
+				Model Preview:
+			</text>
+			<combo_box left_pad="5" top_delta="-2"  follows="left|top" list_position="below" height="18"
+	     name="preview_lod_combo" width="90" tool_tip="LOD to view in preview render">
+				<combo_item name="high">
+					High
+				</combo_item>
+				<combo_item name="medium">
+					Medium
+				</combo_item>
+				<combo_item name="lowest">
+					Lowest
+				</combo_item>
+				<combo_item name="low">
+					Low
+				</combo_item>
+			</combo_box>
+			<panel
+				 left="10"
+				 top_pad="5"
+				 name="preview_panel"
+				 bevel_style="none"
+				 border_style="line"
+				 border="true"
+				 height="175"
+				 follows="all"
+				 width="175">
+			</panel>
+			<text top="35" left="220" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
+			<text top="55" left="200" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
+			<text top="35" left="380" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
+			<text top="55" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
+
+			<slider
+		   follows="left|top"
+		   height="20"
+		   increment="1"
+		   layout="topleft"
+		   left="200"
+		   max_val="2"
+		   initial_value="1"
+		   min_val="0"
+		   name="accuracy_slider"
+		   show_text="false"
+		   top="105"
+		   width="290" />
+			<text 
+			font="SansSerifSmall" 
+			top_pad="1"  
+			width="300" 
+			left_delta="6" 
+			height="4">'                                             '                                             '</text>
+			<text top_delta="25" width="100" text_color="White" left_delta="50"  height="20">Resource Cost:</text>
+			<text top_delta="25" width="100" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
+			<text
+			 top_pad="15"
+			 width="130"
+			 height="15"
+			 left="10"
+			 text_color="White"
+			 word_wrap="true">
+				Dimensions (meters):
+			</text>
+			<text
+			 top_pad="0"
+			 width="160"
+			 height="15"
+			 name="import_dimensions"
+			 left_delta="0">
+				X:  [X] |Y:  [Y] |Z: [Z]
+			</text>
+		</panel>
+	</panel>
+
+
+
+	<panel
+		 height="388"
+		 top_delta="0"
+		 name="physics_panel"
+		 visible="false"
+		 width="530"
+		 left="0">
+		<panel
+		 height="20"
+		 top_pad="20"
+		 name="header_panel"
+		 width="500"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"
+		 left="20">
+			<text
+			 width="200"
+			 left="10"
+			 name="header_text"
+			 top="2"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Physics
+			</text>
+		</panel>
+		<text
+		 top_pad="14"
+		 width="460"
+		 height="20"
+		 font="SansSerifSmall"
+		 layout="topleft"
+		 name="description"
+		 word_wrap="true"
+		 left_delta="0">
+			The wizard will create a physical shape, which determines how the object interacts with other objects and avatars. Set the slider to the detail level most appropriate for how your object will be used:
+		</text>
+		<panel
+		 top_delta="40"
+		 left="15"
+		 height="245"
+		 width="500"
+		 name="content"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"/>
+	</panel>
+
+
+	<panel
+		 height="388"
+		 top_delta="0"
+		 name="review_panel"
+		 visible="false"
+		 width="530"
+		 left="0">
+		<panel
+		 height="20"
+		 top_pad="20"
+		 name="header_panel"
+		 width="500"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"
+		 left="20">
+			<text
+			 width="200"
+			 left="10"
+			 name="header_text"
+			 top="2"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Review
+			</text>
+		</panel>
+		<text
+		 top_pad="14"
+		 width="460"
+		 height="20"
+		 font="SansSerifSmall"
+		 layout="topleft"
+		 name="description"
+		 word_wrap="true"
+		 left_delta="0">
+			Review the details below then click. Upload to upload your model. Your L$ balance will be charged when you click Upload.
+		</text>
+		<panel
+		 top_delta="40"
+		 left="15"
+		 height="245"
+		 width="500"
+		 name="content"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"/>
+	</panel>
+
+
+
+
+	<panel
+		 height="388"
+		 top_delta="0"
+		 name="upload_panel"
+		 visible="false"
+		 width="530"
+		 left="0">
+		<panel
+		 height="20"
+		 top_pad="20"
+		 name="header_panel"
+		 width="500"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"
+		 left="20">
+			<text
+			 width="200"
+			 left="10"
+			 name="header_text"
+			 top="2"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Upload Complete!
+			</text>
+		</panel>
+		<text
+		 top_pad="14"
+		 width="460"
+		 height="20"
+		 font="SansSerifSmall"
+		 layout="topleft"
+		 name="description"
+		 word_wrap="true"
+		 left_delta="0">
+			Congratulations! Your model has been sucessfully uploaded.  You will find the model in the Objects folder in your inventory.
+		</text>
+		<panel
+		 top_delta="40"
+		 left="15"
+		 height="245"
+		 width="500"
+		 name="content"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true">
+			<button top="10" follows="top|left" height="20" label="Upload"
+				   left="15" width="80" name="ok_btn" tool_tip="Upload to simulator"/>
+		</panel>
+	</panel>
+
+
+
+	<button
+	 top="412"
+	 right="-245"
+	 width="90"
+	 height="22"
+	 name="back"
+	 label="&lt;&lt; Back" />
+	<button
+	 top_delta="0"
+	 right="-150"
+	 width="90"
+	 height="22"
+	 name="next"
+	 label="Next &gt;&gt; " />
+	<button
+	 top_delta="0"
+	 right="-15"
+	 width="90"
+	 height="22"
+	 name="cancel"
+	 label="Cancel" />
 	<spinner visible="false" left="10" height="20" follows="top|left" width="80" top_pad="-50" value="1.0" min_val="0.01" max_val="64.0" name="import_scale"/>
+
+	<string name="status_idle">Idle</string>
+	<string name="status_reading_file">Loading...</string>
+	<string name="status_generating_meshes">Generating Meshes...</string>
+	<string name="high">High</string>
+	<string name="medium">Medium</string>
+	<string name="low">Low</string>
+	<string name="lowest">Lowest</string>
+	<string name="mesh_status_good">Ship it!</string>
+	<string name="mesh_status_na">N/A</string>
+	<string name="mesh_status_none">None</string>
+	<string name="mesh_status_submesh_mismatch">Levels of detail have a different number of textureable faces.</string>
+	<string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
+	<string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
+	<string name="mesh_status_missing_lod">Missing required level of detail.</string>
+	<string name="layer_all">All</string>
+	<!-- Text to display in physics layer combo box for "all layers" -->
+
 </floater>

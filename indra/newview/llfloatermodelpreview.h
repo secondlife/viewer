@@ -52,6 +52,8 @@ class domTranslate;
 class LLMenuButton;
 class LLToggleableMenu;
 
+const S32 NUM_LOD = 4;
+
 class LLModelLoader : public LLThread
 {
 public:
@@ -192,13 +194,13 @@ protected:
 	static void onPhysicsOptimize(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
-	
-	
-	
+		
 	void			draw();
 	
 	void initDecompControls();
 	
+	void setStatusMessage(const std::string& msg);
+
 	LLModelPreview*	mModelPreview;
 	
 	LLPhysicsDecomp::decomp_params mDecompParams;
@@ -209,16 +211,23 @@ protected:
 	U32				mGLName;
 	static S32		sUploadAmount;
 	
-	LLPointer<DecompRequest> mCurRequest;
-	
+	std::set<LLPointer<DecompRequest> > mCurRequest;
+	std::string mStatusMessage;
+
 	std::map<std::string, bool> mViewOption;
 
 	//use "disabled" as false by default
 	std::map<std::string, bool> mViewOptionDisabled;
+	
+	//store which lod mode each LOD is using
+	// 0 - load from file
+	// 1 - auto generate
+	// 2 - None
+	S32 mLODMode[4];
 
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
-	
+	LLMutex* mStatusLock;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread
@@ -258,7 +267,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
-	void genLODs(S32 which_lod = -1);
+	void genLODs(S32 which_lod = -1, U32 decimation = 3);
 	void generateNormals();
 	void consolidate();
 	void clearMaterials();
