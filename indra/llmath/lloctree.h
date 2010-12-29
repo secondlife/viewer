@@ -33,11 +33,7 @@
 #include <vector>
 #include <set>
 
-#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
-#define OCT_ERRS LL_ERRS("OctreeErrors")
-#else
 #define OCT_ERRS LL_WARNS("OctreeErrors")
-#endif
 
 #define LL_OCTREE_PARANOIA_CHECK 0
 #if LL_DARWIN
