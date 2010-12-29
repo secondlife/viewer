@@ -85,7 +85,6 @@ const U32 REGION_FLAGS_ALLOW_PARCEL_CHANGES		= (1 << 26);
 
 // Deprecated. Phoeinx 2009-12-11
 // REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER is unused beyond viewer-1.23
-// but we leave uncommented because viewer-1.23 still uses it
 //const U32 REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER = (1 << 27);
 
 const U32 REGION_FLAGS_ALLOW_VOICE = (1 << 28);

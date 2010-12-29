@@ -165,7 +165,7 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-		
+
 		mRegion->setCapabilitiesReceived(true);
 
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
