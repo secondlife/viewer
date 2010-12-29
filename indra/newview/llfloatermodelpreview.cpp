@@ -2879,6 +2879,13 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 	{
 		start = end = which_lod;
 	}
+	else
+	{
+		//SH-632 -- incremenet triangle count to avoid removing any triangles from
+		//highest LoD when auto-generating LoD
+		triangle_count++;
+	}
+
 
 	mMaxTriangleLimit = base_triangle_count;
 
