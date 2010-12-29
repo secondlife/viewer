@@ -315,7 +315,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 			std::string agent_name = LLCacheName::buildUsername(full_name);
 			llinfos << "opening web profile for " << agent_name << llendl;		
 			std::string url = getProfileURL(agent_name);
-			LLWeb::loadURLInternal(url);
+			LLWeb::loadWebURLInternal(url);
 		}
 		else
 		{
