@@ -231,13 +231,13 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 
 	if (!mInputp)
 	{
-		llassert(base.getData());
+		llassert_always(base.getData());
 		// The compressed data has been loaded
 		// Setup the source for the codestrea
 		mInputp = new LLKDUMemSource(base.getData(), data_size);
 	}
 
-	llassert(mInputp);
+	llassert_always(mInputp);
 	mInputp->reset();
 	mCodeStreamp = new kdu_codestream;
 

@@ -219,7 +219,7 @@ namespace tut
 	{
 		LLImageJ2C* image = new LLImageJ2C();
 		BOOL res = mImage->callGetMetadata(*image);
-		// Trying to set up a data stream with all NIL values will fail and return FALSE
+		// Trying to set up a data stream with all NIL values will throw an exception that will be caught and will return FALSE
 		ensure("getMetadata() test failed", res == FALSE);
 	}
 
