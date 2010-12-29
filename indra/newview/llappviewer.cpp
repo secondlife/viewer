@@ -1262,6 +1262,7 @@ bool LLAppViewer::mainLoop()
 						break;
 					}
 				}
+				gMeshRepo.update() ;
 
 				if(!total_work_pending) //pause texture fetching threads if nothing to process.
 				{

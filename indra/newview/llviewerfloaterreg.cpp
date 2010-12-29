@@ -123,9 +123,33 @@
 #include "llsyswellwindow.h"
 #include "llscriptfloater.h"
 #include "llfloatermodelpreview.h"
+#include "llcommandhandler.h"
 
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
+// handle secondlife:///app/floater/{NAME} URLs
+class LLFloaterOpenHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLFloaterOpenHandler() : LLCommandHandler("floater", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+				LLMediaCtrl* web)
+	{
+		if (params.size() != 1)
+		{
+			return false;
+		}
+
+		const std::string floater_name = LLURI::unescape(params[0].asString());
+		LLFloaterReg::showInstance(floater_name);
+
+		return true;
+	}
+};
+
+LLFloaterOpenHandler gFloaterOpenHandler;
 
 void LLViewerFloaterReg::registerFloaters()
 {
@@ -252,7 +276,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 	LLFloaterReg::add("upload_model", "floater_model_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelPreview>, "upload");
-	LLFloaterReg::add("upload_model_wizard", "floater_model_wizard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelWizard>, "upload");
+	LLFloaterReg::add("upload_model_wizard", "floater_model_wizard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelWizard>);
 
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	LLFloaterReg::add("voice_effect", "floater_voice_effect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceEffect>);
