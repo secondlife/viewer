@@ -83,11 +83,10 @@ bool  LLScreenChannelBase::isHovering()
 	return mHoveredToast->isHovered();
 }
 
-bool LLScreenChannelBase::resetPositionAndSize(const LLSD& newvalue)
+void LLScreenChannelBase::resetPositionAndSize()
 {
 	LLRect rc = gViewerWindow->getWorldViewRectScaled();
 	updatePositionAndSize(rc, rc);
-	return true;
 }
 
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
@@ -99,10 +98,7 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE
 		&& LLSideTray::instanceCreated	())
 	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
+		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
 	}
 
 
@@ -133,7 +129,7 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 	if(LLSideTray::instanceCreated())
 	{
 		LLSideTray*	side_bar = LLSideTray::getInstance();
-		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
+		side_bar->setVisibleWidthChangeCallback(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this));
 	}
 
 	// top and bottom set by updateBottom()
@@ -214,10 +210,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE 
 		&& LLSideTray::instanceCreated	())
 	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
+		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
 	}
 
 
@@ -495,7 +488,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
-	if(mToastList.size() == 0 || isHovering())
+	if(mToastList.size() == 0)
 		return;
 
 	switch(mToastAlignment)
@@ -841,8 +834,7 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 		}
 	}
 
-	if(!isHovering())
-		redrawToasts();
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------

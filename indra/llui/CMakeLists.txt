@@ -111,6 +111,7 @@ set(llui_SOURCE_FILES
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
+    llwindowshade.cpp
     )
     
 set(llui_HEADER_FILES
@@ -210,6 +211,7 @@ set(llui_HEADER_FILES
     llviewmodel.h
     llview.h
     llviewquery.h
+    llwindowshade.h
     )
 
 set_source_files_properties(${llui_HEADER_FILES}

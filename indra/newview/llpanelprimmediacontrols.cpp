@@ -59,6 +59,7 @@
 #include "llvovolume.h"
 #include "llweb.h"
 #include "llwindow.h"
+#include "llwindowshade.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
 
@@ -91,7 +92,8 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mTargetObjectNormal(LLVector3::zero),
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
-	mVolumeSliderVisible(0)
+	mVolumeSliderVisible(0),
+	mWindowShade(NULL)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -206,6 +208,9 @@ BOOL LLPanelPrimMediaControls::postBuild()
 		
 	mMediaAddress->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
 	
+	LLWindowShade::Params window_shade_params;
+	window_shade_params.name = "window_shade";
+
 	mCurrentZoom = ZOOM_NONE;
 	// clicks on buttons do not remove keyboard focus from media
 	setIsChrome(TRUE);
@@ -701,6 +706,24 @@ void LLPanelPrimMediaControls::updateShape()
 /*virtual*/
 void LLPanelPrimMediaControls::draw()
 {
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
+	if (impl)
+	{
+		LLNotificationPtr notification = impl->getCurrentNotification();
+		if (notification != mActiveNotification)
+		{
+			mActiveNotification = notification;
+			if (notification)
+			{
+				showNotification(notification);
+			}
+			else
+			{
+				hideNotification();
+			}
+		}
+	}
+
 	F32 alpha = getDrawContext().mAlpha;
 	if(mFadeTimer.getStarted())
 	{
@@ -1297,4 +1320,39 @@ void LLPanelPrimMediaControls::hideVolumeSlider()
 bool LLPanelPrimMediaControls::shouldVolumeSliderBeVisible()
 {
 	return mVolumeSliderVisible > 0;
+}
+
+void LLPanelPrimMediaControls::showNotification(LLNotificationPtr notify)
+{
+	delete mWindowShade;
+	LLWindowShade::Params params;
+	params.rect = mMediaRegion->getLocalRect();
+	params.follows.flags = FOLLOWS_ALL;
+	params.notification = notify;
+
+	//HACK: don't hardcode this
+	if (notify->getIcon() == "Popup_Caution")
+	{
+		params.bg_image.name = "Yellow_Gradient";
+		params.text_color = LLColor4::black;
+	}
+	else
+	{
+		//HACK: make this a property of the notification itself, "cancellable"
+		params.can_close = false;
+		params.text_color.control = "LabelTextColor";
+	}
+
+	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
+
+	mMediaRegion->addChild(mWindowShade);
+	mWindowShade->show();
+}
+
+void LLPanelPrimMediaControls::hideNotification()
+{
+	if (mWindowShade)
+	{
+		mWindowShade->hide();
+	}
 }
