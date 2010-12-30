@@ -36,6 +36,7 @@
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
+#include "message.h"
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
@@ -740,6 +741,13 @@ std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
 	return LLUrlEntryBase::getLocation(url);
 }
 
+// LLUrlEntryParcel statics.
+LLUUID	LLUrlEntryParcel::sAgentID(LLUUID::null);
+LLUUID	LLUrlEntryParcel::sSessionID(LLUUID::null);
+LLHost	LLUrlEntryParcel::sRegionHost(LLHost::invalid);
+bool	LLUrlEntryParcel::sDisconnected(false);
+std::set<LLUrlEntryParcel*> LLUrlEntryParcel::sParcelInfoObservers;
+
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
@@ -751,11 +759,86 @@ LLUrlEntryParcel::LLUrlEntryParcel()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_parcel.xml";
 	mTooltip = LLTrans::getString("TooltipParcelUrl");
+
+	sParcelInfoObservers.insert(this);
+}
+
+LLUrlEntryParcel::~LLUrlEntryParcel()
+{
+	sParcelInfoObservers.erase(this);
 }
 
 std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
+	LLSD path_array = LLURI(url).pathArray();
+	S32 path_parts = path_array.size();
+
+	if (path_parts < 3) // no parcel id
+	{
+		llwarns << "Failed to parse url [" << url << "]" << llendl;
+		return url;
+	}
+
+	std::string parcel_id_string = unescapeUrl(path_array[2]); // parcel id
+
+	// Add an observer to call LLUrlLabelCallback when we have parcel name.
+	addObserver(parcel_id_string, url, cb);
+
+	LLUUID parcel_id(parcel_id_string);
+
+	sendParcelInfoRequest(parcel_id);
+
 	return unescapeUrl(url);
+}
+
+void LLUrlEntryParcel::sendParcelInfoRequest(const LLUUID& parcel_id)
+{
+	if (sRegionHost == LLHost::invalid || sDisconnected) return;
+
+	LLMessageSystem *msg = gMessageSystem;
+	msg->newMessage("ParcelInfoRequest");
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, sAgentID );
+	msg->addUUID("SessionID", sSessionID);
+	msg->nextBlock("Data");
+	msg->addUUID("ParcelID", parcel_id);
+	msg->sendReliable(sRegionHost);
+}
+
+void LLUrlEntryParcel::onParcelInfoReceived(const std::string &id, const std::string &label)
+{
+	callObservers(id, label.empty() ? LLTrans::getString("RegionInfoError") : label, mIcon);
+}
+
+// static
+void LLUrlEntryParcel::processParcelInfo(const LLParcelData& parcel_data)
+{
+	std::string label(LLStringUtil::null);
+	if (!parcel_data.name.empty())
+	{
+		label = parcel_data.name;
+	}
+	// If parcel name is empty use Sim_name (x, y, z) for parcel label.
+	else if (!parcel_data.sim_name.empty())
+	{
+		S32 region_x = llround(parcel_data.global_x) % REGION_WIDTH_UNITS;
+		S32 region_y = llround(parcel_data.global_y) % REGION_WIDTH_UNITS;
+		S32 region_z = llround(parcel_data.global_z);
+
+		label = llformat("%s (%d, %d, %d)",
+				parcel_data.sim_name.c_str(), region_x, region_y, region_z);
+	}
+
+	for (std::set<LLUrlEntryParcel*>::iterator iter = sParcelInfoObservers.begin();
+			iter != sParcelInfoObservers.end();
+			++iter)
+	{
+		LLUrlEntryParcel* url_entry = *iter;
+		if (url_entry)
+		{
+			url_entry->onParcelInfoReceived(parcel_data.parcel_id.asString(), label);
+		}
+	}
 }
 
 //
