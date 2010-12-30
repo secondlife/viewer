@@ -229,16 +229,17 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 		mCodeStreamp = NULL;
 	}
 
-	if (!mInputp)
+	if (!mInputp && base.getData())
 	{
-		llassert(base.getData());
 		// The compressed data has been loaded
-		// Setup the source for the codestrea
+		// Setup the source for the codestream
 		mInputp = new LLKDUMemSource(base.getData(), data_size);
 	}
 
-	llassert(mInputp);
-	mInputp->reset();
+	if (mInputp)
+	{
+		mInputp->reset();
+	}
 	mCodeStreamp = new kdu_codestream;
 
 	mCodeStreamp->create(mInputp);
@@ -1017,7 +1018,7 @@ kdc_flow_control::kdc_flow_control (kdu_image_in_base *img_in, kdu_codestream co
         comp->ratio_counter = 0;
         comp->remaining_lines = comp->initial_lines = dims.size.y;
     }
-    assert(num_components > 0);
+    assert(num_components >= 0);
     
     tile.set_components_of_interest(num_components);
     max_buffer_memory = engine.create(codestream,tile,false,NULL,false,1,NULL,NULL,false);
