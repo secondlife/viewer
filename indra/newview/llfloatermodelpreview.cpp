@@ -1562,11 +1562,23 @@ void LLModelLoader::run()
 
 									//add instance to scene for this model
 
-									LLMatrix4 transform;
+									LLMatrix4 transformation = mTransform;
+									// adjust the transformation to compensate for mesh normalization
+									
+									LLMatrix4 mesh_translation;
+									mesh_translation.setTranslation(mesh_translation_vector);
+									mesh_translation *= transformation;
+									transformation = mesh_translation;
+
+									LLMatrix4 mesh_scale;
+									mesh_scale.initScale(mesh_scale_vector);
+									mesh_scale *= transformation;
+									transformation = mesh_scale;
+
 									std::vector<LLImportMaterial> materials;
 									materials.resize(model->getNumVolumeFaces());
-									mScene[transform].push_back(LLModelInstance(model, transform, materials));
-									stretch_extents(model, transform, mExtents[0], mExtents[1], mFirstTransform);
+									mScene[transformation].push_back(LLModelInstance(model, transformation, materials));
+									stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 								}
 							}
 						}
