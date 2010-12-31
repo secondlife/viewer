@@ -79,8 +79,6 @@ public:
 	{
 		*this = rhs;
 	}
-
-	const LLCamera& operator=(const LLCamera& rhs);
 	
 	enum {
 		PLANE_LEFT = 0,
@@ -119,6 +117,9 @@ public:
 	};
 
 private:
+	LLPlane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	U8 mPlaneMask[8];         // 8 for alignment	
+	
 	F32 mView;					// angle between top and bottom frustum planes in radians.
 	F32 mAspect;				// width/height
 	S32 mViewHeightInPixels;	// for ViewHeightInPixels() only
@@ -131,10 +132,6 @@ private:
 	
 	LLPlane mWorldPlanes[PLANE_NUM];
 	LLPlane mHorizPlanes[HORIZ_PLANE_NUM];
-
-	LLPlane* mAgentPlanes;  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
-	U8 mAgentPlaneBuffer[sizeof(LLPlane)*8];
-	U8 mPlaneMask[7];
 
 	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
 
@@ -149,11 +146,9 @@ public:
 	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
 	virtual ~LLCamera();
 	
-	void alignPlanes();
 
-	void setUserClipPlane(LLPlane plane);
+	void setUserClipPlane(LLPlane& plane);
 	void disableUserClipPlane();
-	U8 calcPlaneMask(const LLPlane& plane);
 	virtual void setView(F32 vertical_fov_rads);
 	void setViewHeightInPixels(S32 height);
 	void setAspect(F32 new_aspect);

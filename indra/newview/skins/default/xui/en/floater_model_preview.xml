@@ -69,7 +69,7 @@
       Resource Cost: [COST]
     </text>
     <text left="25" top_pad="5" width="140" follows="bottom|left" height="15" name="physics cost">
-      Physics Cost: Unknown
+      Physics Cost: [COST]
     </text>
     <text left="25" top_pad="5" follows="bottom|left" height="15" name="upload fee">
       Upload Fee: N/A
