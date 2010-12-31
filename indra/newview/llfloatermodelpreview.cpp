@@ -2055,6 +2055,7 @@ U32 LLModelPreview::calcResourceCost()
 	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
 
 	F32 streaming_cost = 0.f;
+	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
@@ -2109,6 +2110,7 @@ U32 LLModelPreview::calcResourceCost()
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
 	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
 	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
 	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));

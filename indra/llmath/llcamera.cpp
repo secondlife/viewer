@@ -377,7 +377,7 @@ int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) 
 			{
 				return 0;
 			}
-			res |= (d > -radius);
+			res = res || (d > -radius);
 		}
 	}
 
