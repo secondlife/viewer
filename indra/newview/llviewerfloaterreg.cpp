@@ -60,6 +60,7 @@
 #include "llfloaterhardwaresettings.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloatermediabrowser.h"
+#include "llfloaterwebcontent.h"
 #include "llfloatermediasettings.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
@@ -281,6 +282,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	LLFloaterReg::add("voice_effect", "floater_voice_effect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceEffect>);
 
+	LLFloaterReg::add("web_content", "floater_web_content.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWebContent>);	
 	LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);	
 	LLFloaterWindowSizeUtil::registerFloater();
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	

@@ -1878,21 +1878,57 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}
 	else
 	{  //no exact match found, get closest point
-		iter = mSkinWeights.begin();
-		weight_map::iterator best = iter;
+		const F32 epsilon = 2.f/65536;
+		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
+		weight_map::iterator iter_down = ++iter_up;
+
+		weight_map::iterator best = iter_up;
 
 		F32 min_dist = (iter->first - pos).magVecSquared();
 
-		while (++iter != mSkinWeights.end())
-		{
-			F32 dist = (iter->first - pos).magVecSquared();
-			if (dist < min_dist)
+		bool done = false;
+		while (!done)
+		{ //search up and down mSkinWeights from lower bound of pos until a 
+		  //match is found within epsilon.  If no match is found within epsilon,
+		  //return closest match
+			done = true;
+			if (iter_up != mSkinWeights.end() && ++iter_up != mSkinWeights.end())
 			{
-				best = iter;
-				min_dist = dist;
+				done = false;
+				F32 dist = (iter_up->first - pos).magVecSquared();
+
+				if (dist < epsilon)
+				{
+					return iter_up->second;
+				}
+
+				if (dist < min_dist)
+				{
+					best = iter_up;
+					min_dist = dist;
+				}
+			}
+
+			if (iter_down != mSkinWeights.begin() && --iter_down != mSkinWeights.begin())
+			{
+				done = false;
+
+				F32 dist = (iter_down->first - pos).magVecSquared();
+
+				if (dist < epsilon)
+				{
+					return iter_down->second;
+				}
+
+				if (dist < min_dist)
+				{
+					best = iter_down;
+					min_dist = dist;
+				}
+
 			}
 		}
-
+		
 		return best->second;
 	}					
 }

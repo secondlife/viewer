@@ -67,7 +67,7 @@ public:
 		extern const LLVector4a LL_V4A_ZERO;
 		return LL_V4A_ZERO;
 	}
-
+	
 	// Return a vector of all epsilon, where epsilon is a small float suitable for approximate equality checks
 	static inline const LLVector4a& getEpsilon()
 	{

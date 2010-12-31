@@ -544,9 +544,10 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 
 void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
 {
-    if(new_value.asBoolean())
+    if(new_value.asInteger())
     {
-        LLUpdaterService().startChecking();
+		LLUpdaterService update_service;
+		if(!update_service.isChecking()) update_service.startChecking();
     }
     else
     {
@@ -701,7 +702,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
-	gSavedSettings.getControl("UpdaterServiceActive")->getSignal()->connect(&toggle_updater_service_active);
+	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(&toggle_updater_service_active);
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 }

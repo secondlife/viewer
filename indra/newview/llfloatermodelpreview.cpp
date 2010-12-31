@@ -1569,11 +1569,23 @@ void LLModelLoader::run()
 
 									//add instance to scene for this model
 
-									LLMatrix4 transform;
+									LLMatrix4 transformation = mTransform;
+									// adjust the transformation to compensate for mesh normalization
+									
+									LLMatrix4 mesh_translation;
+									mesh_translation.setTranslation(mesh_translation_vector);
+									mesh_translation *= transformation;
+									transformation = mesh_translation;
+
+									LLMatrix4 mesh_scale;
+									mesh_scale.initScale(mesh_scale_vector);
+									mesh_scale *= transformation;
+									transformation = mesh_scale;
+
 									std::vector<LLImportMaterial> materials;
 									materials.resize(model->getNumVolumeFaces());
-									mScene[transform].push_back(LLModelInstance(model, transform, materials));
-									stretch_extents(model, transform, mExtents[0], mExtents[1], mFirstTransform);
+									mScene[transformation].push_back(LLModelInstance(model, transformation, materials));
+									stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 								}
 							}
 						}
@@ -2064,6 +2076,7 @@ U32 LLModelPreview::calcResourceCost()
 	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
 
 	F32 streaming_cost = 0.f;
+	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
@@ -2118,6 +2131,7 @@ U32 LLModelPreview::calcResourceCost()
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
 	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
 	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
 	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
@@ -2888,6 +2902,13 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 	{
 		start = end = which_lod;
 	}
+	else
+	{
+		//SH-632 -- incremenet triangle count to avoid removing any triangles from
+		//highest LoD when auto-generating LoD
+		triangle_count++;
+	}
+
 
 	mMaxTriangleLimit = base_triangle_count;
 

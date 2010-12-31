@@ -2901,12 +2901,80 @@ http://secondlife.com/download.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
   <notification
-   icon="notifytip.tga"
-   name="DownloadBackground"
-   type="notifytip">
-An updated version of [APP_NAME] has been downloaded.
-It will be applied the next time you restart [APP_NAME]
+   icon="alertmodal.tga"
+   name="FailedRequiredUpdateInstall"
+   type="alertmodal">
+We were unable to install a required update. 
+You will be unable to log in until [APP_NAME] has been updated.
+
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="Quit"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UpdaterServiceNotRunning"
+   type="alertmodal">
+There is a required update for your Second Life Installation.
+
+You may download this update from http://www.secondlife.com/downloads
+or you can install it now.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Quit Second Life"
+     yestext="Download and install now"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="DownloadBackgroundTip"
+   type="notify">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="DownloadBackgroundDialog"
+ type="alertmodal">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedVerboseDialog"
+ type="alertmodal">
+We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedDialog"
+ type="alertmodal">
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -5014,7 +5082,7 @@ If you want to view streaming media on parcels that support it you should go to 
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
     <unique>
-      <context key="[MIME_TYPE]"/>
+      <context>MIME_TYPE</context>
     </unique>
 
   </notification>
@@ -5943,7 +6011,7 @@ You may only select up to [MAX_SELECT] items from this list.
 [NAME] is inviting you to a Voice Chat call.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -5992,8 +6060,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a Voice Chat call with the group [GROUP].
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
-      <context key="GROUP"/>
+      <context>NAME</context>
+      <context>GROUP</context>
     </unique>
     <form name="form">
       <button
@@ -6018,7 +6086,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a voice chat call with a conference chat.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -6043,7 +6111,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] is inviting you to a conference chat.
 Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -6067,7 +6135,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    type="notifytip">
 The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6085,7 +6153,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    type="notifytip">
 You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6095,7 +6163,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6105,7 +6173,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6115,7 +6183,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6125,7 +6193,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6211,7 +6279,7 @@ Cannot enter parcel, you are not on the access list.
    type="notifytip">
 You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6221,7 +6289,7 @@ You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
    type="notifytip">
 An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6643,6 +6711,23 @@ Mute everyone?
               index="0"
               name="open"
               text="Open pop-up window"/>
+    </form>
+  </notification>
+
+  <notification
+  name="AuthRequest"
+  type="browser">
+The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
+    <form name="form">
+      <input name="username" type="text" text="User Name"/>
+      <input name="password" type="password" text="Password    "/>
+      <button default="true"
+              index="0"
+              name="ok"
+              text="Submit"/>
+      <button index="1"
+              name="cancel"
+              text="Cancel"/>
     </form>
   </notification>
 

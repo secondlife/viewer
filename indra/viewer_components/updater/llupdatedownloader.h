@@ -52,13 +52,19 @@ public:
 	void cancel(void);
 	
 	// Start a new download.
-	void download(LLURI const & uri, std::string const & hash);
+	void download(LLURI const & uri,
+				  std::string const & hash, 
+				  std::string const & updateVersion,
+				  bool required=false);
 	
 	// Returns true if a download is in progress.
 	bool isDownloading(void);
 	
 	// Resume a partial download.
 	void resume(void);
+	
+	// Set a limit on the dowload rate.
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
@@ -76,6 +82,7 @@ public:
 	// url - source (remote) location
 	// hash - the md5 sum that should match the installer file.
 	// path - destination (local) location
+	// required - boolean indicating if this is a required update.
 	// size - the size of the installer in bytes
 	virtual void downloadComplete(LLSD const & data) = 0;
 	

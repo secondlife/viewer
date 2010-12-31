@@ -753,6 +753,11 @@ void LLPanelPlaces::onOverflowButtonClicked()
 		// there is no landmark already pointing to that parcel in agent's inventory.
 		menu->getChild<LLMenuItemCallGL>("landmark")->setEnabled(is_agent_place_info_visible &&
 																 !LLLandmarkActions::landmarkAlreadyExists());
+		// STORM-411
+		// Creating landmarks for remote locations is impossible.
+		// So hide menu item "Make a Landmark" in "Teleport History Profile" panel.
+		menu->setItemVisible("landmark", mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE);
+		menu->arrangeAndClear();
 	}
 	else if (mPlaceInfoType == LANDMARK_INFO_TYPE && mLandmarkMenu != NULL)
 	{
