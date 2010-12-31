@@ -187,6 +187,7 @@ protected:
 	
 	static void onPhysicsParamCommit(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageExecute(LLUICtrl* ctrl, void* userdata);
+	static void onCancel(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageCancel(LLUICtrl* ctrl, void* userdata);
 	
 	static void onPhysicsBrowse(LLUICtrl* ctrl, void* userdata);

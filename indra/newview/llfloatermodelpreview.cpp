@@ -280,6 +280,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetAction("lod_browse", onBrowseLOD, this);
 
+	childSetCommitCallback("cancel_btn", onCancel, this);
 	childSetCommitCallback("crease_angle", onGenerateNormalsCommit, this);
 	childSetCommitCallback("generate_normals", onGenerateNormalsCommit, this);
 
@@ -552,7 +553,14 @@ void LLFloaterModelPreview::draw()
 		LLMutexLock lock(mStatusLock);
 		childSetTextArg("status", "[STATUS]", mStatusMessage);
 	}
-
+	else
+	{
+		childSetVisible("Simplify", true);
+		childSetVisible("simplify_cancel", false);
+		childSetVisible("Decompose", true);
+		childSetVisible("decompose_cancel", false);
+	}
+	
 	U32 resource_cost = mModelPreview->mResourceCost*10;
 
 	if (childGetValue("upload_textures").asBoolean())
@@ -728,7 +736,8 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 //static
 void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 {
-	LLCDStageData* stage = (LLCDStageData*) data;
+	LLCDStageData* stage_data = (LLCDStageData*) data;
+	std::string stage = stage_data->mName;
 
 	if (sInstance)
 	{
@@ -743,10 +752,21 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 			for (S32 i = 0; i < sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS].size(); ++i)
 			{
 				LLModel* mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][i];
-				DecompRequest* request = new DecompRequest(stage->mName, mdl);
+				DecompRequest* request = new DecompRequest(stage, mdl);
 				sInstance->mCurRequest.insert(request);
 				gMeshRepo.mDecompThread->submitRequest(request);
 			}
+		}
+
+		if (stage == "Decompose")
+		{
+			sInstance->childSetVisible("Decompose", false);
+			sInstance->childSetVisible("decompose_cancel", true);
+		}
+		else if (stage == "Simplify")
+		{
+			sInstance->childSetVisible("Simplify", false);
+			sInstance->childSetVisible("simplify_cancel", true);
 		}
 	}
 }
@@ -770,6 +790,15 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
 }
 
+//static 
+void LLFloaterModelPreview::onCancel(LLUICtrl* ctrl, void* data)
+{
+	if (sInstance)
+	{
+		sInstance->closeFloater(false);
+	}
+}
+
 //static
 void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 {
@@ -788,7 +817,9 @@ void LLFloaterModelPreview::initDecompControls()
 {
 	LLSD key;
 
-	childSetCommitCallback("cancel_btn", onPhysicsStageCancel, NULL);
+	childSetCommitCallback("simplify_cancel", onPhysicsStageCancel, NULL);
+	childSetCommitCallback("decompose_cancel", onPhysicsStageCancel, NULL);
+
 	childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, NULL);
 	childSetCommitCallback("physics_browse", onPhysicsBrowse, NULL);
 
@@ -2029,7 +2060,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mBuildShareTolerance = 0.f;
 	mBuildQueueMode = GLOD_QUEUE_GREEDY;
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
-	mBuildOperator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
+	mBuildOperator = GLOD_OPERATOR_EDGE_COLLAPSE;
 
 	mFMP = fmp;
 
@@ -2732,7 +2763,9 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 		lod_mode = GLOD_TRIANGLE_BUDGET;
 		if (which_lod != -1)
 		{
-			limit = mFMP->childGetValue("lod_triangle_limit").asInteger();
+			//SH-632 take budget as supplied limit+1 to prevent GLOD from creating a smaller
+			//decimation when the given decimation is possible
+			limit = mFMP->childGetValue("lod_triangle_limit").asInteger(); //+1;
 		}
 	}
 	else
@@ -2750,11 +2783,11 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 
 	if (build_operator == 0)
 	{
-		build_operator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
+		build_operator = GLOD_OPERATOR_EDGE_COLLAPSE;
 	}
 	else
 	{
-		build_operator = GLOD_OPERATOR_EDGE_COLLAPSE;
+		build_operator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
 	}
 
 	U32 queue_mode=0;
@@ -4248,11 +4281,14 @@ void LLFloaterModelPreview::DecompRequest::completed()
 
 	if (sInstance)
 	{
-		if (sInstance->mModelPreview)
+		if (mContinue)
 		{
-			sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
-			sInstance->mModelPreview->mDirty = true;
-			LLFloaterModelPreview::sInstance->mModelPreview->refresh();
+			if (sInstance->mModelPreview)
+			{
+				sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
+				sInstance->mModelPreview->mDirty = true;
+				LLFloaterModelPreview::sInstance->mModelPreview->refresh();
+			}
 		}
 
 		sInstance->mCurRequest.erase(this);
