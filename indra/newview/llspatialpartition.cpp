@@ -1516,31 +1516,37 @@ void LLSpatialGroup::checkOcclusion()
 		}
 		else if (isOcclusionState(QUERY_PENDING))
 		{	//otherwise, if a query is pending, read it back
-			GLuint res = 1;
-			if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
-			{
-				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &res);	
-			}
 
-			if (isOcclusionState(DISCARD_QUERY))
-			{
-				res = 2;
-			}
+			GLuint available = 0;
+			glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			if (available)
+			{ //result is available, read it back, otherwise wait until next frame
+				GLuint res = 1;
+				if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+				{
+					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &res);	
+				}
 
-			if (res > 0)
-			{
-				assert_states_valid(this);
-				clearOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
-				assert_states_valid(this);
-			}
-			else
-			{
-				assert_states_valid(this);
-				setOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
-				assert_states_valid(this);
-			}
+				if (isOcclusionState(DISCARD_QUERY))
+				{
+					res = 2;
+				}
 
-			clearOcclusionState(QUERY_PENDING | DISCARD_QUERY);
+				if (res > 0)
+				{
+					assert_states_valid(this);
+					clearOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
+					assert_states_valid(this);
+				}
+				else
+				{
+					assert_states_valid(this);
+					setOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
+					assert_states_valid(this);
+				}
+
+				clearOcclusionState(QUERY_PENDING | DISCARD_QUERY);
+			}
 		}
 		else if (mSpatialPartition->isOcclusionEnabled() && isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{	//check occlusion has been issued for occluded node that has not had a query issued
@@ -1566,7 +1572,8 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		}
 		else
 		{
-			{
+			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
+			{ //no query pending, or previous query to be discarded
 				LLFastTimer t(FTM_RENDER_OCCLUSION);
 
 				if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
@@ -1590,7 +1597,10 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					glEnable(GL_DEPTH_CLAMP);
 				}
 				
-				glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+				U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
+
+				glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+				
 				glVertexPointer(3, GL_FLOAT, 16, mOcclusionVerts);
 				if (camera->getOrigin().isExactlyZero())
 				{ //origin is invalid, draw entire box
@@ -1604,7 +1614,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 								GL_UNSIGNED_BYTE, get_box_fan_indices(camera, mBounds[0]));
 				}
-				glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+				glEndQueryARB(mode);
 				
 				if (use_depth_clamp)
 				{
