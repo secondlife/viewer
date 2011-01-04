@@ -4057,55 +4057,54 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 	if (duplicate_count < DUP_MSGS && !gDisconnected)
 	{
-		if (LLStartUp::getStartupState() >= STATE_STARTED)
-		{
-			LLFastTimer t(FTM_AGENT_UPDATE_SEND);
-			// Build the message
-			msg->newMessageFast(_PREHASH_AgentUpdate);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->addQuatFast(_PREHASH_BodyRotation, body_rotation);
-			msg->addQuatFast(_PREHASH_HeadRotation, head_rotation);
-			msg->addU8Fast(_PREHASH_State, render_state);
-			msg->addU8Fast(_PREHASH_Flags, flags);
+		LLFastTimer t(FTM_AGENT_UPDATE_SEND);
+		// Build the message
+		msg->newMessageFast(_PREHASH_AgentUpdate);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->addQuatFast(_PREHASH_BodyRotation, body_rotation);
+		msg->addQuatFast(_PREHASH_HeadRotation, head_rotation);
+		msg->addU8Fast(_PREHASH_State, render_state);
+		msg->addU8Fast(_PREHASH_Flags, flags);
 
 //		if (camera_pos_agent.mV[VY] > 255.f)
 //		{
 //			LL_INFOS("Messaging") << "Sending camera center " << camera_pos_agent << LL_ENDL;
 //		}
 		
-			msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
-			msg->addVector3Fast(_PREHASH_CameraAtAxis, LLViewerCamera::getInstance()->getAtAxis());
-			msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
-			msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
-			msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
+		msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
+		msg->addVector3Fast(_PREHASH_CameraAtAxis, LLViewerCamera::getInstance()->getAtAxis());
+		msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
+		msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
+		msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
 		
-			msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
+		msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
 
-			if (gDebugClicks)
+		if (gDebugClicks)
+		{
+			if (control_flags & AGENT_CONTROL_LBUTTON_DOWN)
 			{
-				if (control_flags & AGENT_CONTROL_LBUTTON_DOWN)
-				{
-					LL_INFOS("Messaging") << "AgentUpdate left button down" << LL_ENDL;
-				}
-
-				if (control_flags & AGENT_CONTROL_LBUTTON_UP)
-				{
-					LL_INFOS("Messaging") << "AgentUpdate left button up" << LL_ENDL;
-				}
+				LL_INFOS("Messaging") << "AgentUpdate left button down" << LL_ENDL;
 			}
 
-			gAgent.enableControlFlagReset();
-			if (!send_reliable)
+			if (control_flags & AGENT_CONTROL_LBUTTON_UP)
 			{
-				gAgent.sendMessage();
-			}
-			else
-			{
-				gAgent.sendReliableMessage();
+				LL_INFOS("Messaging") << "AgentUpdate left button up" << LL_ENDL;
 			}
 		}
+
+		gAgent.enableControlFlagReset();
+
+		if (!send_reliable)
+		{
+			gAgent.sendMessage();
+		}
+		else
+		{
+			gAgent.sendReliableMessage();
+		}
+
 //		LL_DEBUGS("Messaging") << "agent " << avatar_pos_agent << " cam " << camera_pos_agent << LL_ENDL;
 
 		// Copy the old data 
