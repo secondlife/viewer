@@ -2736,12 +2736,13 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_CALLINGCARD:
 		case DAD_LANDMARK:
 		case DAD_SCRIPT:
+		case DAD_CLOTHING:
 		case DAD_OBJECT:
 		case DAD_NOTECARD:
-		case DAD_CLOTHING:
 		case DAD_BODYPART:
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
+		case DAD_MESH:
 			accept = dragItemIntoFolder(inv_item, drop);
 			break;
 		case DAD_LINK:
@@ -2771,7 +2772,11 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 				accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data, drop);
 			}
 			break;
+		case DAD_ROOT_CATEGORY:
+		case DAD_NONE:
+			break;
 		default:
+			llwarns << "Unhandled cargo type for drag&drop " << cargo_type << llendl;
 			break;
 	}
 	return accept;
