@@ -97,6 +97,7 @@ public:
 
 	virtual void run();
 	
+	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
@@ -325,7 +326,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
 	LLMeshUploadThread::instance_list mUploadData;
-	std::set<LLPointer<LLViewerFetchedTexture> > mTextureSet;
+	std::set<LLViewerFetchedTexture* > mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
 	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
