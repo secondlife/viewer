@@ -276,7 +276,10 @@ BOOL LLFloaterModelPreview::postBuild()
 		return FALSE;
 	}
 
-	setViewOption("show_textures", true);
+
+
+
+
 
 	childSetAction("lod_browse", onBrowseLOD, this);
 
@@ -393,13 +396,22 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 
 void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
 {
-	mViewOption[userdata.asString()] = !mViewOption[userdata.asString()];
-	mModelPreview->refresh();
+	if (mModelPreview)
+	{
+		mModelPreview->mViewOption[userdata.asString()] = !mModelPreview->mViewOption[userdata.asString()];
+		
+		mModelPreview->refresh();
+	}
 }
 
 bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
 {
-	return mViewOption[userdata.asString()];
+	if (mModelPreview)
+	{
+		return mModelPreview->mViewOption[userdata.asString()];
+	}
+
+	return false;
 }
 
 bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
@@ -420,11 +432,6 @@ void LLFloaterModelPreview::enableViewOption(const std::string& option)
 void LLFloaterModelPreview::disableViewOption(const std::string& option)
 {
 	setViewOptionEnabled(option, false);
-}
-
-void LLFloaterModelPreview::setViewOption(const std::string& option, bool value)
-{
-	mViewOption[option] = value;
 }
 
 void LLFloaterModelPreview::loadModel(S32 lod)
@@ -1562,11 +1569,23 @@ void LLModelLoader::run()
 
 									//add instance to scene for this model
 
-									LLMatrix4 transform;
+									LLMatrix4 transformation = mTransform;
+									// adjust the transformation to compensate for mesh normalization
+									
+									LLMatrix4 mesh_translation;
+									mesh_translation.setTranslation(mesh_translation_vector);
+									mesh_translation *= transformation;
+									transformation = mesh_translation;
+
+									LLMatrix4 mesh_scale;
+									mesh_scale.initScale(mesh_scale_vector);
+									mesh_scale *= transformation;
+									transformation = mesh_scale;
+
 									std::vector<LLImportMaterial> materials;
 									materials.resize(model->getNumVolumeFaces());
-									mScene[transform].push_back(LLModelInstance(model, transform, materials));
-									stretch_extents(model, transform, mExtents[0], mExtents[1], mFirstTransform);
+									mScene[transformation].push_back(LLModelInstance(model, transformation, materials));
+									stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 								}
 							}
 						}
@@ -2019,6 +2038,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
 	mBuildOperator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
 
+	mViewOption["show_textures"] = false;
+
 	mFMP = fmp;
 
 	glodInit();
@@ -2055,6 +2076,7 @@ U32 LLModelPreview::calcResourceCost()
 	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
 
 	F32 streaming_cost = 0.f;
+	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
@@ -2109,6 +2131,7 @@ U32 LLModelPreview::calcResourceCost()
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
 	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
 	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
 	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
@@ -3265,13 +3288,14 @@ void LLModelPreview::updateStatusMessages()
 			if (!fmp->isViewOptionEnabled("show_physics"))
 			{
 				fmp->enableViewOption("show_physics");
-				fmp->setViewOption("show_physics", true);
+				mViewOption["show_physics"] = true;
 			}
 		}
 		else
 		{
 			fmp->disableViewOption("show_physics");
-			fmp->setViewOption("show_physics", false);
+			mViewOption["show_physics"] = false;
+
 		}
 
 		//bool use_hull = fmp->childGetValue("physics_use_hull").asBoolean();
@@ -3596,21 +3620,11 @@ BOOL LLModelPreview::render()
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 
-	bool edges = false;
-	bool joint_positions = false;
-	bool skin_weight = false;
-	bool textures = false;
-	bool physics = false;
-
-	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-	if (fmp)
-	{
-		edges = fmp->isViewOptionChecked("show_edges");
-		joint_positions = fmp->isViewOptionChecked("show_joint_positions");
-		skin_weight = fmp->isViewOptionChecked("show_skin_weight");
-		textures = fmp->isViewOptionChecked("show_textures");
-		physics = fmp->isViewOptionChecked("show_physics");
-	}
+	bool edges = mViewOption["show_edges"];
+	bool joint_positions = mViewOption["show_joint_positions"];
+	bool skin_weight = mViewOption["show_skin_weight"];
+	bool textures = mViewOption["show_textures"];
+	bool physics = mViewOption["show_physics"];
 
 	S32 width = getWidth();
 	S32 height = getHeight();
@@ -3643,6 +3657,8 @@ BOOL LLModelPreview::render()
 		gGL.popMatrix();
 	}
 
+	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+	
 	bool has_skin_weights = false;
 	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
 	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
@@ -3674,7 +3690,7 @@ BOOL LLModelPreview::render()
 		mFMP->childDisable("upload_skin");
 		if (fmp)
 		{
-			fmp->setViewOption("show_skin_weight", false);
+			mViewOption["show_skin_weight"] = false;
 			fmp->disableViewOption("show_skin_weight");
 			fmp->disableViewOption("show_joint_positions");
 		}

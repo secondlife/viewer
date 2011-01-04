@@ -4384,12 +4384,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			LLFastTimer t(FTM_VOLUME_GEOM_PARTIAL);
 			LLDrawable* drawablep = *drawable_iter;
 
-			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
-			{
-				continue;
-			}
-
-			if (drawablep->isState(LLDrawable::REBUILD_ALL))
+			if (!drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) )
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();

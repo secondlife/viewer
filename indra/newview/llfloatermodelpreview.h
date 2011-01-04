@@ -151,7 +151,6 @@ public:
 	static void onUpload(void* data);
 	
 	static void onClearMaterials(void* data);
-	static void onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh);
 	
 	static void refresh(LLUICtrl* ctrl, void* data);
 	
@@ -165,7 +164,6 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
-	void setViewOption(const std::string& option, bool value);
 
 protected:
 	friend class LLModelPreview;
@@ -213,8 +211,6 @@ protected:
 	
 	std::set<LLPointer<DecompRequest> > mCurRequest;
 	std::string mStatusMessage;
-
-	std::map<std::string, bool> mViewOption;
 
 	//use "disabled" as false by default
 	std::map<std::string, bool> mViewOptionDisabled;
@@ -305,15 +301,15 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 
+	std::map<std::string, bool> mViewOption;
+
 	//GLOD object parameters (must rebuild object if these change)
 	F32 mBuildShareTolerance;
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
 	
-
 	LLModelLoader* mModelLoader;
-
 
 	LLModelLoader::scene mScene[LLModel::NUM_LODS];
 	LLModelLoader::scene mBaseScene;
