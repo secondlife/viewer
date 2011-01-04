@@ -30,6 +30,7 @@
 #include "llfloaternamedesc.h"
 
 #include "lldynamictexture.h"
+#include "llfloatermodelwizard.h"
 #include "llquaternion.h"
 #include "llmeshrepository.h"
 #include "llmodel.h"
@@ -281,6 +282,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	friend class LLFloaterModelPreview;
 	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
+	friend class LLFloaterModelWizard::DecompRequest;
 	friend class LLPhysicsDecomp;
 
 	LLFloater*  mFMP;
