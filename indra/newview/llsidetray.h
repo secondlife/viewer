@@ -165,9 +165,18 @@ public:
 	void		reshape			(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 
-	void		updateSidetrayVisibility();
+	/**
+	 * @return side tray width if it's visible and expanded, 0 otherwise.
+	 *
+	 * Not that width of the tab buttons is not included.
+	 *
+	 * @see setVisibleWidthChangeCallback()
+	 */
+	S32			getVisibleWidth();
 
-	commit_signal_t& getCollapseSignal() { return mCollapseSignal; }
+	void		setVisibleWidthChangeCallback(const commit_signal_t::slot_type& cb);
+
+	void		updateSidetrayVisibility();
 
 	void		handleLoginComplete();
 
@@ -216,7 +225,7 @@ private:
 	tab_order_vector_t				mOriginalTabOrder;
 	LLSideTrayTab*					mActiveTab;	
 	
-	commit_signal_t					mCollapseSignal;
+	commit_signal_t					mVisibleWidthChangeSignal;
 
 	LLButton*						mCollapseButton;
 	bool							mCollapsed;
