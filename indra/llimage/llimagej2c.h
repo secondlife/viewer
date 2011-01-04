@@ -72,8 +72,6 @@ public:
 	static S32 calcHeaderSizeJ2C();
 	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = 0.f);
 
-	static void openDSO();
-	static void closeDSO();
 	static std::string getEngineInfo();
 
 protected:

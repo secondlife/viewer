@@ -94,7 +94,7 @@
      left_pad="2"
      name="cancel_button"
      top_delta="0"
-     width="70" />
+     width="65" />
 	 <string 
 	 name="GroupInvitation">
 	 Group Invitation

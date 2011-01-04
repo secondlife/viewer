@@ -33,6 +33,61 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "lltransfersourceasset.h"
+#include "lltransfertargetvfile.h"
+#include "llviewerassetstats.h"
+
+///----------------------------------------------------------------------------
+/// LLViewerAssetRequest
+///----------------------------------------------------------------------------
+
+/**
+ * @brief Local class to encapsulate asset fetch requests with a timestamp.
+ *
+ * Derived from the common LLAssetRequest class, this is currently used
+ * only for fetch/get operations and its only function is to wrap remote
+ * asset fetch requests so that they can be timed.
+ */
+class LLViewerAssetRequest : public LLAssetRequest
+{
+public:
+	LLViewerAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
+		: LLAssetRequest(uuid, type),
+		  mMetricsStartTime(0)
+		{
+		}
+	
+	LLViewerAssetRequest & operator=(const LLViewerAssetRequest &);	// Not defined
+	// Default assignment operator valid
+	
+	// virtual
+	~LLViewerAssetRequest()
+		{
+			recordMetrics();
+		}
+
+protected:
+	void recordMetrics()
+		{
+			if (mMetricsStartTime)
+			{
+				// Okay, it appears this request was used for useful things.  Record
+				// the expected dequeue and duration of request processing.
+				LLViewerAssetStatsFF::record_dequeue_main(mType, false, false);
+				LLViewerAssetStatsFF::record_response_main(mType, false, false,
+														   (LLViewerAssetStatsFF::get_timestamp()
+															- mMetricsStartTime));
+				mMetricsStartTime = 0;
+			}
+		}
+	
+public:
+	LLViewerAssetStats::duration_t		mMetricsStartTime;
+};
+
+///----------------------------------------------------------------------------
+/// LLViewerAssetStorage
+///----------------------------------------------------------------------------
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 										   LLVFS *vfs, LLVFS *static_vfs, 
@@ -258,3 +313,77 @@ void LLViewerAssetStorage::storeAssetData(
 		}
 	}
 }
+
+
+/**
+ * @brief Allocate and queue an asset fetch request for the viewer
+ *
+ * This is a nearly-verbatim copy of the base class's implementation
+ * with the following changes:
+ *  -  Use a locally-derived request class
+ *  -  Start timing for metrics when request is queued
+ *
+ * This is an unfortunate implementation choice but it's forced by
+ * current conditions.  A refactoring that might clean up the layers
+ * of responsibility or introduce factories or more virtualization
+ * of methods would enable a more attractive solution.
+ *
+ * If LLAssetStorage::_queueDataRequest changes, this must change
+ * as well.
+ */
+
+// virtual
+void LLViewerAssetStorage::_queueDataRequest(
+	const LLUUID& uuid,
+	LLAssetType::EType atype,
+	LLGetAssetCallback callback,
+	void *user_data,
+	BOOL duplicate,
+	BOOL is_priority)
+{
+	if (mUpstreamHost.isOk())
+	{
+		// stash the callback info so we can find it after we get the response message
+		LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype);
+		req->mDownCallback = callback;
+		req->mUserData = user_data;
+		req->mIsPriority = is_priority;
+		if (!duplicate)
+		{
+			// Only collect metrics for non-duplicate requests.  Others 
+			// are piggy-backing and will artificially lower averages.
+			req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+		}
+		
+		mPendingDownloads.push_back(req);
+	
+		if (!duplicate)
+		{
+			// send request message to our upstream data provider
+			// Create a new asset transfer.
+			LLTransferSourceParamsAsset spa;
+			spa.setAsset(uuid, atype);
+
+			// Set our destination file, and the completion callback.
+			LLTransferTargetParamsVFile tpvf;
+			tpvf.setAsset(uuid, atype);
+			tpvf.setCallback(downloadCompleteCallback, req);
+
+			llinfos << "Starting transfer for " << uuid << llendl;
+			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
+			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
+
+			LLViewerAssetStatsFF::record_enqueue_main(atype, false, false);
+		}
+	}
+	else
+	{
+		// uh-oh, we shouldn't have gotten here
+		llwarns << "Attempt to move asset data request upstream w/o valid upstream provider" << llendl;
+		if (callback)
+		{
+			callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+		}
+	}
+}
+
