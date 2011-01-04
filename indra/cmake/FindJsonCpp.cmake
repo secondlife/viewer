@@ -21,7 +21,12 @@ EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
             OUTPUT_STRIP_TRAILING_WHITESPACE
             )
 
+# Try to find a library that was compiled with the same compiler version as we currently use.
 SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson_linux-gcc-${_gcc_COMPILER_VERSION}_libmt.so)
+IF (STANDALONE)
+	# On standalone, assume that the system installed library was compiled with the used compiler.
+	SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson.so)
+ENDIF (STANDALONE)
 FIND_LIBRARY(JSONCPP_LIBRARY
   NAMES ${JSONCPP_NAMES}
   PATHS /usr/lib /usr/local/lib

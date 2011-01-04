@@ -1004,6 +1004,7 @@ void LLSnapshotLivePreview::saveTexture()
 				    LLFloaterPerms::getEveryonePerms(),
 				    "Snapshot : " + pos_string,
 				    callback, expected_upload_cost, userdata);
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
 	{
@@ -1025,6 +1026,10 @@ BOOL LLSnapshotLivePreview::saveLocal()
 	mDataSize = 0;
 	updateSnapshot(FALSE, FALSE);
 
+	if(success)
+	{
+		gViewerWindow->playSnapshotAnimAndSound();
+	}
 	return success;
 }
 
@@ -1044,6 +1049,8 @@ void LLSnapshotLivePreview::saveWeb()
 
 	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
 		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, jpg, metadata, _1, _2, _3, _4));
+
+	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z)
@@ -1533,8 +1540,6 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	if (previewp && view)
 	{
 		previewp->updateSnapshot(TRUE);
-
-		gViewerWindow->playSnapshotAnimAndSound();
 	}
 }
 
@@ -2206,8 +2211,6 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
-
-	gViewerWindow->playSnapshotAnimAndSound();
 }
 
 void LLFloaterSnapshot::onClose(bool app_quitting)

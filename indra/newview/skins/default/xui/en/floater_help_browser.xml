@@ -36,7 +36,8 @@
          user_resize="false"
          width="620">
             <web_browser
-              trusted_content="true" 
+             trusted_content="true" 
+             initial_mime_type="text/html" 
              bottom="-25"
              follows="left|right|top|bottom"
              layout="topleft"

@@ -827,7 +827,7 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 {
 	LLUICtrl* focus_root = NULL;
 	LLUICtrl* next_view = this;
-	while(next_view)
+	while(next_view && next_view->hasTabStop())
 	{
 		if (next_view->isFocusRoot())
 		{
@@ -943,6 +943,10 @@ F32 LLUICtrl::getCurrentTransparency()
 
 	case TT_INACTIVE:
 		alpha = sInactiveControlTransparency;
+		break;
+
+	case TT_FADING:
+		alpha = sInactiveControlTransparency / 2;
 		break;
 	}
 

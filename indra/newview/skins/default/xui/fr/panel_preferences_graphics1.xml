@@ -25,6 +25,7 @@
 		<text name="ShadersText">
 			Effets :
 		</text>
+		<check_box initial_value="true" label="Eau transparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
 		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
 		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
@@ -42,8 +43,8 @@
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Nombre de particules max. :" label_width="147" name="MaxParticleCount"/>
-		<slider label="Nb max d&apos;avatars non éloignés en 2D :" name="MaxNumberAvatarDrawn"/>
+		<slider label="Nb max. de particules :" label_width="147" name="MaxParticleCount"/>
+		<slider label="Avatars max. non éloignés en 2D :" name="MaxNumberAvatarDrawn"/>
 		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Détails des rendus :

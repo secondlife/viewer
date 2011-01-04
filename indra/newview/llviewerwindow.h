@@ -186,11 +186,6 @@ public:
 	/*virtual*/ std::string translateString(const char* tag,
 					const std::map<std::string, std::string>& args);
 	
-	// signal on bottom tray width changed
-	typedef boost::function<void (void)> bottom_tray_callback_t;
-	typedef boost::signals2::signal<void (void)> bottom_tray_signal_t;
-	bottom_tray_signal_t mOnBottomTrayWidthChanged;
-	boost::signals2::connection setOnBottomTrayWidthChanged(bottom_tray_callback_t cb) { return mOnBottomTrayWidthChanged.connect(cb); }
 	// signal on update of WorldView rect
 	typedef boost::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
 	typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
@@ -288,6 +283,7 @@ public:
 	LLView*			getNonSideTrayView() { return mNonSideTrayView.get(); }
 	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
 	LLView*			getHintHolder() { return mHintHolder.get(); }
+	LLView*			getLoginPanelHolder() { return mLoginPanelHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
@@ -447,6 +443,7 @@ protected:
 	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
 	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
 	LLHandle<LLView> mHintHolder;			// container for hints
+	LLHandle<LLView> mLoginPanelHolder;		// container for login panel
 	LLPopupView*	mPopupView;			// container for transient popups
 	
 	class LLDebugText* mDebugText; // Internal class for debug text

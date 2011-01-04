@@ -42,27 +42,5 @@ public:
 	LLRootView(const Params& p)
 	:	LLView(p)
 	{}
-
-	// added to provide possibility to handle mouse click event inside all application
-	// window without creating any floater
-	typedef boost::signals2::signal<void(S32 x, S32 y, MASK mask)>
-			mouse_signal_t;
-
-	private:
-		mouse_signal_t mMouseDownSignal;
-
-	public:
-	/*virtual*/
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask)
-	{
-		mMouseDownSignal(x, y, mask);
-		return LLView::handleMouseDown(x, y, mask);
-	}
-
-	boost::signals2::connection addMouseDownCallback(
-			const mouse_signal_t::slot_type& cb)
-	{
-		return mMouseDownSignal.connect(cb);
-	}
 };
 #endif //LL_LLROOTVIEW_H

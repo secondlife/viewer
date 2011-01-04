@@ -123,8 +123,9 @@ public:
 	enum ETypeTransparency
 	{
 		TT_DEFAULT,
-		TT_ACTIVE,
-		TT_INACTIVE
+		TT_ACTIVE,		// focused floater
+		TT_INACTIVE,	// other floaters
+		TT_FADING,		// fading toast
 	};
 	/*virtual*/ ~LLUICtrl();
 

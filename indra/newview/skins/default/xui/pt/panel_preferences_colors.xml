@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Cores" name="colors_panel">
+	<text name="effects_color_textbox">
+		Meus efeitos (raio de seleção):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Selecionar a cor"/>
+	<text name="font_colors">
+		Cores no bate-papo:
+	</text>
+	<text name="text_box1">
+		Eu
+	</text>
+	<text name="text_box2">
+		Outros
+	</text>
+	<text name="text_box3">
+		Objetos
+	</text>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<text name="text_box5">
+		Erros
+	</text>
+	<text name="text_box7">
+		Proprietário
+	</text>
+	<text name="text_box9">
+		URLs
+	</text>
+	<text name="bubble_chat">
+		Fundo do balão:
+	</text>
+	<color_swatch name="background" tool_tip="Escolha a cor do balão de bate-papo"/>
+	<slider label="Opacidade:" name="bubble_chat_opacity"/>
+	<text name="floater_opacity">
+		Opacidade:
+	</text>
+	<slider label="Ativo:" name="active"/>
+	<slider label="Inativo:" name="inactive"/>
+</panel>
