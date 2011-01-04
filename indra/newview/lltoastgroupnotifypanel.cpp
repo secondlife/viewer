@@ -77,6 +77,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	from << from_name << "/" << groupData.mName;
 	LLTextBox* pTitleText = getChild<LLTextBox>("title");
 	pTitleText->setValue(from.str());
+	pTitleText->setToolTip(from.str());
 
 	//message subject
 	const std::string& subject = payload["subject"].asString();

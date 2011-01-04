@@ -179,7 +179,7 @@ public:
 	void waitOnPending();
 	void printQueueStats();
 
-	S32 getPending();
+	virtual S32 getPending();
 	bool getThreaded() { return mThreaded ? true : false; }
 
 	// Request accessors

@@ -90,6 +90,12 @@ void info_callback(const char* msg, void*)
 	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
 }
 
+// Divide a by 2 to the power of b and round upwards
+int ceildivpow2(int a, int b)
+{
+	return (a + (1 << b) - 1) >> b;
+}
+
 
 LLImageJ2COJ::LLImageJ2COJ()
 	: LLImageJ2CImpl()

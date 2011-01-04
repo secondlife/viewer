@@ -315,6 +315,7 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
+	bool			mParseOnTheFly;
 
 	LLUUID			mSourceID;
 
