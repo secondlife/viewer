@@ -59,10 +59,11 @@ pre_build()
     -t $variant \
     -G "$cmake_generator" \
    configure \
-	-DGRID:STRING="$viewer_grid" \
+    -DGRID:STRING="$viewer_grid" \
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \
+    -DRELEASE_CRASH_REPORTING:BOOL=ON \
     -DLOCALIZESETUP:BOOL=ON \
     -DPACKAGE:BOOL=ON \
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE
