@@ -95,6 +95,8 @@ public:
 		U32  getBufferSize()const {return mBufferSize;}
 		char* getBuffer() const {return mBuffer;}
 
+		//debug use
+		void resetBitMap() ;
 	private:
 		char* mBuffer;
 		U32   mSlotSize ; //when the block is not initialized, it is the buffer size.
@@ -108,6 +110,14 @@ public:
 		LLMemoryBlock* mPrev ;
 		LLMemoryBlock* mNext ;
 		LLMemoryBlock* mSelf ;
+
+		struct CompareAddress
+		{
+			bool operator()(const LLMemoryBlock* const& lhs, const LLMemoryBlock* const& rhs)
+			{
+				return (U32)lhs->getBuffer() < (U32)rhs->getBuffer();
+			}
+		};
 	};
 
 	class LL_COMMON_API LLMemoryChunk //is divided into memory blocks.
@@ -126,19 +136,26 @@ public:
 
 		const char* getBuffer() const {return mBuffer;}
 		U32 getBufferSize() const {return mBufferSize;}
+		U32 getAllocatedSize() const {return mAlloatedSize;}
+
+		bool containsAddress(const char* addr) const;
 
 		static U32 getMaxOverhead(U32 data_buffer_size, U32 min_page_size) ;
 	
+		void dump() ;
+
 	private:
+		U32 getPageIndex(U32 addr) ;
 		U32 getBlockLevel(U32 size) ;
-		U32 getPageLevel(U32 size) ;
+		U16 getPageLevel(U32 size) ;
 		LLMemoryBlock* addBlock(U32 blk_idx) ;
 		void popAvailBlockList(U32 blk_idx) ;
 		void addToFreeSpace(LLMemoryBlock* blk) ;
 		void removeFromFreeSpace(LLMemoryBlock* blk) ;
 		void removeBlock(LLMemoryBlock* blk) ;
 		void addToAvailBlockList(LLMemoryBlock* blk) ;
-		LLMemoryBlock* createNewBlock(LLMemoryBlock** cur_idxp, U32 buffer_size, U32 slot_size, U32 blk_idx) ;
+		U32  calcBlockSize(U32 slot_size);
+		LLMemoryBlock* createNewBlock(LLMemoryBlock* blk, U32 buffer_size, U32 slot_size, U32 blk_idx) ;
 
 	private:
 		LLMemoryBlock** mAvailBlockList ;//256 by mMinSlotSize
@@ -150,18 +167,21 @@ public:
 		char* mDataBuffer ;
 		char* mMetaBuffer ;
 		U32   mMinBlockSize ;
-		U32   mMaxBlockSize;
 		U32   mMinSlotSize ;
+		U32   mMaxSlotSize ;
 		U32   mAlloatedSize ;
 		U16   mBlockLevels;
 		U16   mPartitionLevels;
+
+		//debug use
+		std::set<LLMemoryBlock*> mActiveBlockList ; 
 
 	public:
 		//form a linked list
 		LLMemoryChunk* mNext ;
 		LLMemoryChunk* mPrev ;
 
-		U32 mKey ; //= mBuffer
+		LLMemoryChunk* mHashNext ;
 	} ;
 
 public:
@@ -170,22 +190,22 @@ public:
 
 	char *allocate(U32 size) ;
 	void  free(void* addr) ;
+	
 	void  dump() ;
+	U32   getTotalAllocatedSize() ;
 
 private:
 	void lock() ;
 	void unlock() ;	
 	S32 getChunkIndex(U32 size) ;
 	LLMemoryChunk*  addChunk(S32 chunk_index) ;
-	void removeChunk(LLMemoryChunk* chunk) ;
-	U16  findChunk(const char* addr) ;
+	void checkSize(U32 asked_size) ;
+	void removeChunk(LLMemoryChunk* chunk, U16 key) ;
+	U16  findHashKey(const char* addr);
+	LLMemoryChunk* findChunk(const char* addr, U16& key) ;
 	void destroyPool() ;
 
-private:
-	LLMutex* mMutexp ;
-	U32  mMaxPoolSize;
-	U32  mReservedPoolSize ;
-	
+public:
 	enum
 	{
 		SMALL_ALLOCATION = 0, //from 8 bytes to 2KB(exclusive), page size 2KB, max chunk size is 4MB.
@@ -194,10 +214,14 @@ private:
 		SUPER_ALLOCATION      //allocation larger than 4MB.
 	};
 
+private:
+	LLMutex* mMutexp ;
+	U32  mMaxPoolSize;
+	U32  mReservedPoolSize ;	
+
 	LLMemoryChunk* mChunkList[SUPER_ALLOCATION] ; //all memory chunks reserved by this pool, sorted by address
-	std::vector<LLMemoryChunk*> mChunks ;
+	std::vector<LLMemoryChunk*> mChunkHashList ;
 	U16 mNumOfChunks ;
-	U16 mChunkVectorCapacity ;
 };
 
 //
