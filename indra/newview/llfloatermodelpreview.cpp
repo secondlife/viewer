@@ -1590,6 +1590,35 @@ void LLModelLoader::run()
 	}
 }
 
+//called in the main thread
+void LLModelLoader::loadTextures()
+{
+	BOOL is_paused = isPaused() ;
+	pause() ; //pause the loader 
+
+	for(scene::iterator iter = mScene.begin(); iter != mScene.end(); ++iter)
+	{
+		for(U32 i = 0 ; i < iter->second.size(); i++)
+		{
+			for(U32 j = 0 ; j < iter->second[i].mMaterial.size() ; j++)
+			{
+				if(!iter->second[i].mMaterial[j].mDiffuseMapFilename.empty())
+				{
+					iter->second[i].mMaterial[j].mDiffuseMap = 
+						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + iter->second[i].mMaterial[j].mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
+					iter->second[i].mMaterial[j].mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
+					iter->second[i].mMaterial[j].mDiffuseMap->forceToSaveRawImage();
+				}
+			}
+		}
+	}
+
+	if(!is_paused)
+	{
+		unpause() ;
+	}
+}
+
 bool LLModelLoader::isNodeAJoint( domNode* pNode )
 {
 	if ( pNode->getName() == NULL)
@@ -1895,14 +1924,8 @@ LLImportMaterial LLModelLoader::profileToMaterial(domProfile_COMMON* material)
 								// we only support init_from now - embedded data will come later
 								domImage::domInit_from* init = image->getInit_from();
 								if (init)
-								{
-									std::string filename = cdom::uriToNativePath(init->getValue().str());
-
-									mat.mDiffuseMap = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + filename, TRUE, LLViewerTexture::BOOST_PREVIEW);
-									mat.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, this->mPreview, NULL, FALSE);
-
-									mat.mDiffuseMap->forceToSaveRawImage();
-									mat.mDiffuseMapFilename = filename;
+								{									
+									mat.mDiffuseMapFilename = cdom::uriToNativePath(init->getValue().str());
 									mat.mDiffuseMapLabel = getElementLabel(material);
 								}
 							}
@@ -2354,6 +2377,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		return;
 	}
 
+	mModelLoader->loadTextures() ;
 	mModel[lod] = mModelLoader->mModelList;
 	mScene[lod] = mModelLoader->mScene;
 	mVertexBuffer[lod].clear();
@@ -3803,7 +3827,7 @@ BOOL LLModelPreview::render()
 							gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
 							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
 							{
-								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap);
+								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap.get());
 							}
 						}
 					}
