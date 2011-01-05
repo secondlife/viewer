@@ -49,17 +49,420 @@
 #include "llnotifications.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
+#include "llprogressview.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
 #include "llsecapi.h"
 #include "llstartup.h"
 #include "llmachineid.h"
+#include "llupdaterservice.h"
+#include "llevents.h"
+#include "llnotificationsutil.h"
+#include "llappviewer.h"
+
+#include <boost/scoped_ptr.hpp>
+#include <sstream>
+
+class LLLoginInstance::Disposable {
+public:
+	virtual ~Disposable() {}
+};
+
+namespace {
+	class MandatoryUpdateMachine:
+		public LLLoginInstance::Disposable
+	{
+	public:
+		MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService);
+		
+		void start(void);
+		
+	private:
+		class State;
+		class CheckingForUpdate;
+		class Error;
+		class ReadyToInstall; 
+		class StartingUpdaterService;
+		class WaitingForDownload;
+		
+		LLLoginInstance & mLoginInstance;
+		boost::scoped_ptr<State> mState;
+		LLUpdaterService & mUpdaterService;
+		
+		void setCurrentState(State * newState);
+	};
+
+	
+	class MandatoryUpdateMachine::State {
+	public:
+		virtual ~State() {}
+		virtual void enter(void) {}
+		virtual void exit(void) {}
+	};
+	
+	
+	class MandatoryUpdateMachine::CheckingForUpdate:
+	public MandatoryUpdateMachine::State
+	{
+	public:
+		CheckingForUpdate(MandatoryUpdateMachine & machine);
+		
+		virtual void enter(void);
+		virtual void exit(void);
+		
+	private:
+		LLTempBoundListener mConnection;
+		MandatoryUpdateMachine & mMachine;
+		LLProgressView * mProgressView;
+		
+		bool onEvent(LLSD const & event);
+	};
+	
+	
+	class MandatoryUpdateMachine::Error:
+	public MandatoryUpdateMachine::State
+	{
+	public:
+		Error(MandatoryUpdateMachine & machine);
+		
+		virtual void enter(void);
+		virtual void exit(void);
+		void onButtonClicked(const LLSD &, const LLSD &);
+		
+	private:
+		MandatoryUpdateMachine & mMachine;
+	};
+	
+	
+	class MandatoryUpdateMachine::ReadyToInstall:
+	public MandatoryUpdateMachine::State
+	{
+	public:
+		ReadyToInstall(MandatoryUpdateMachine & machine);
+		
+		virtual void enter(void);
+		virtual void exit(void);
+		
+	private:
+		MandatoryUpdateMachine & mMachine;
+	};
+	
+	
+	class MandatoryUpdateMachine::StartingUpdaterService:
+	public MandatoryUpdateMachine::State
+	{
+	public:
+		StartingUpdaterService(MandatoryUpdateMachine & machine);
+		
+		virtual void enter(void);
+		virtual void exit(void);
+		void onButtonClicked(const LLSD & uiform, const LLSD & result);
+	private:
+		MandatoryUpdateMachine & mMachine;
+	};
+	
+	
+	class MandatoryUpdateMachine::WaitingForDownload:
+		public MandatoryUpdateMachine::State
+	{
+	public:
+		WaitingForDownload(MandatoryUpdateMachine & machine);
+		
+		virtual void enter(void);
+		virtual void exit(void);
+		
+	private:
+		LLTempBoundListener mConnection;
+		MandatoryUpdateMachine & mMachine;
+		LLProgressView * mProgressView;
+		
+		bool onEvent(LLSD const & event);
+	};
+}
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
 
 std::string construct_start_string();
+
+
+
+// MandatoryUpdateMachine
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService):
+	mLoginInstance(loginInstance),
+	mUpdaterService(updaterService)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::start(void)
+{
+	llinfos << "starting manditory update machine" << llendl;
+	
+	if(mUpdaterService.isChecking()) {
+		switch(mUpdaterService.getState()) {
+			case LLUpdaterService::UP_TO_DATE:
+				mUpdaterService.stopChecking();
+				mUpdaterService.startChecking();
+				// Fall through.
+			case LLUpdaterService::INITIAL:
+			case LLUpdaterService::CHECKING_FOR_UPDATE:
+				setCurrentState(new CheckingForUpdate(*this));
+				break;
+			case LLUpdaterService::DOWNLOADING:
+				setCurrentState(new WaitingForDownload(*this));
+				break;
+			case LLUpdaterService::TERMINAL:
+				if(LLUpdaterService::updateReadyToInstall()) {
+					setCurrentState(new ReadyToInstall(*this));
+				} else {
+					setCurrentState(new Error(*this));
+				}
+				break;
+			case LLUpdaterService::FAILURE:
+				setCurrentState(new Error(*this));
+				break;
+			default:
+				llassert(!"unpossible case");
+				break;
+		}
+	} else {
+		setCurrentState(new StartingUpdaterService(*this));
+	}
+}
+
+
+void MandatoryUpdateMachine::setCurrentState(State * newStatePointer)
+{
+	{
+		boost::scoped_ptr<State> newState(newStatePointer);
+		if(mState != 0) mState->exit();
+		mState.swap(newState);
+		
+		// Old state will be deleted on exit from this block before the new state
+		// is entered.
+	}
+	if(mState != 0) mState->enter();
+}
+
+
+
+// MandatoryUpdateMachine::CheckingForUpdate
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::CheckingForUpdate::CheckingForUpdate(MandatoryUpdateMachine & machine):
+	mMachine(machine)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::CheckingForUpdate::enter(void)
+{
+	llinfos << "entering checking for update" << llendl;
+	
+	mProgressView = gViewerWindow->getProgressView();
+	mProgressView->setMessage("Looking for update...");
+	mProgressView->setText("There is a required update for your Second Life installation.");
+	mProgressView->setPercent(0);
+	mProgressView->setVisible(true);
+	mConnection = LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).
+		listen("MandatoryUpdateMachine::CheckingForUpdate", boost::bind(&MandatoryUpdateMachine::CheckingForUpdate::onEvent, this, _1));
+}
+
+
+void MandatoryUpdateMachine::CheckingForUpdate::exit(void)
+{
+}
+
+
+bool MandatoryUpdateMachine::CheckingForUpdate::onEvent(LLSD const & event)
+{
+	if(event["type"].asInteger() == LLUpdaterService::STATE_CHANGE) {
+		switch(event["state"].asInteger()) {
+			case LLUpdaterService::DOWNLOADING:
+				mMachine.setCurrentState(new WaitingForDownload(mMachine));
+				break;
+			case LLUpdaterService::UP_TO_DATE:
+			case LLUpdaterService::TERMINAL:
+			case LLUpdaterService::FAILURE:
+				mProgressView->setVisible(false);
+				mMachine.setCurrentState(new Error(mMachine));
+				break;
+			case LLUpdaterService::INSTALLING:
+				llassert(!"can't possibly be installing");
+				break;
+			default:
+				break;
+		}
+	} else {
+		; // Ignore.
+	}
+	
+	return false;
+}
+
+
+
+// MandatoryUpdateMachine::Error
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::Error::Error(MandatoryUpdateMachine & machine):
+	mMachine(machine)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::Error::enter(void)
+{
+	llinfos << "entering error" << llendl;
+	LLNotificationsUtil::add("FailedUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
+}
+
+
+void MandatoryUpdateMachine::Error::exit(void)
+{
+	LLAppViewer::instance()->forceQuit();
+}
+
+
+void MandatoryUpdateMachine::Error::onButtonClicked(const LLSD &, const LLSD &)
+{
+	mMachine.setCurrentState(0);
+}
+
+
+
+// MandatoryUpdateMachine::ReadyToInstall
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::ReadyToInstall::ReadyToInstall(MandatoryUpdateMachine & machine):
+	mMachine(machine)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::ReadyToInstall::enter(void)
+{
+	llinfos << "entering ready to install" << llendl;
+	// Open update ready dialog.
+}
+
+
+void MandatoryUpdateMachine::ReadyToInstall::exit(void)
+{
+	// Restart viewer.
+}
+
+
+
+// MandatoryUpdateMachine::StartingUpdaterService
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::StartingUpdaterService::StartingUpdaterService(MandatoryUpdateMachine & machine):
+	mMachine(machine)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::StartingUpdaterService::enter(void)
+{
+	llinfos << "entering start update service" << llendl;
+	LLNotificationsUtil::add("UpdaterServiceNotRunning", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked, this, _1, _2));
+}
+
+
+void MandatoryUpdateMachine::StartingUpdaterService::exit(void)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked(const LLSD & uiform, const LLSD & result)
+{
+	if(result["OK_okcancelbuttons"].asBoolean()) {
+		mMachine.mUpdaterService.startChecking(false);
+		mMachine.setCurrentState(new CheckingForUpdate(mMachine));
+	} else {
+		LLAppViewer::instance()->forceQuit();
+	}
+}
+
+
+
+// MandatoryUpdateMachine::WaitingForDownload
+//-----------------------------------------------------------------------------
+
+
+MandatoryUpdateMachine::WaitingForDownload::WaitingForDownload(MandatoryUpdateMachine & machine):
+	mMachine(machine),
+	mProgressView(0)
+{
+	; // No op.
+}
+
+
+void MandatoryUpdateMachine::WaitingForDownload::enter(void)
+{
+	llinfos << "entering waiting for download" << llendl;
+	mProgressView = gViewerWindow->getProgressView();
+	mProgressView->setMessage("Downloading update...");
+	std::ostringstream stream;
+	stream << "There is a required update for your Second Life installation." << std::endl <<
+		"Version " << mMachine.mUpdaterService.updatedVersion();
+	mProgressView->setText(stream.str());
+	mProgressView->setPercent(0);
+	mProgressView->setVisible(true);
+	mConnection = LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).
+		listen("MandatoryUpdateMachine::CheckingForUpdate", boost::bind(&MandatoryUpdateMachine::WaitingForDownload::onEvent, this, _1));
+}
+
+
+void MandatoryUpdateMachine::WaitingForDownload::exit(void)
+{
+	mProgressView->setVisible(false);
+}
+
+
+bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
+{
+	switch(event["type"].asInteger()) {
+		case LLUpdaterService::DOWNLOAD_COMPLETE:
+			mMachine.setCurrentState(new ReadyToInstall(mMachine));
+			break;
+		case LLUpdaterService::DOWNLOAD_ERROR:
+			mMachine.setCurrentState(new Error(mMachine));
+			break;
+		case LLUpdaterService::PROGRESS: {
+			double downloadSize = event["download_size"].asReal();
+			double bytesDownloaded = event["bytes_downloaded"].asReal();
+			mProgressView->setPercent(100. * bytesDownloaded / downloadSize);
+			break;
+		}
+		default:
+			break;
+	}
+
+	return false;
+}
+
+
+
+// LLLoginInstance
+//-----------------------------------------------------------------------------
+
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
@@ -69,7 +472,8 @@ LLLoginInstance::LLLoginInstance() :
 	mSkipOptionalUpdate(false),
 	mAttemptComplete(false),
 	mTransferRate(0.0f),
-	mDispatcher("LLLoginInstance", "change")
+	mDispatcher("LLLoginInstance", "change"),
+	mUpdaterService(0)
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
@@ -354,6 +758,15 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 
 void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 {
+	if(mandatory)
+	{
+		gViewerWindow->setShowProgress(false);
+		MandatoryUpdateMachine * machine = new MandatoryUpdateMachine(*this, *mUpdaterService);
+		mUpdateStateMachine.reset(machine);
+		machine->start();
+		return;
+	}
+	
 	// store off config state, as we might quit soon
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
 	LLUIColorTable::instance().saveUserSettings();

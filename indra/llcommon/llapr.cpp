@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 #include "llapr.h"
+#include "apr_dso.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.
@@ -279,14 +280,31 @@ bool ll_apr_warn_status(apr_status_t status)
 {
 	if(APR_SUCCESS == status) return false;
 	char buf[MAX_STRING];	/* Flawfinder: ignore */
-	apr_strerror(status, buf, MAX_STRING);
+	apr_strerror(status, buf, sizeof(buf));
 	LL_WARNS("APR") << "APR: " << buf << LL_ENDL;
 	return true;
 }
 
+bool ll_apr_warn_status(apr_status_t status, apr_dso_handle_t *handle)
+{
+    bool result = ll_apr_warn_status(status);
+    // Despite observed truncation of actual Mac dylib load errors, increasing
+    // this buffer to more than MAX_STRING doesn't help: it appears that APR
+    // stores the output in a fixed 255-character internal buffer. (*sigh*)
+    char buf[MAX_STRING];           /* Flawfinder: ignore */
+    apr_dso_error(handle, buf, sizeof(buf));
+    LL_WARNS("APR") << "APR: " << buf << LL_ENDL;
+    return result;
+}
+
 void ll_apr_assert_status(apr_status_t status)
 {
-	llassert(ll_apr_warn_status(status) == false);
+	llassert(! ll_apr_warn_status(status));
+}
+
+void ll_apr_assert_status(apr_status_t status, apr_dso_handle_t *handle)
+{
+    llassert(! ll_apr_warn_status(status, handle));
 }
 
 //---------------------------------------------------------------------

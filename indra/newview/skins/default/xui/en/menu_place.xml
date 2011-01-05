@@ -24,26 +24,4 @@
          function="Places.OverflowMenu.Enable"
          parameter="can_create_pick" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft"/>
-    <menu_item_call
-     enabled="false"
-     label="Buy Pass"
-     layout="topleft"
-     name="pass">
-        <menu_item_call.on_click
-         function="Places.OverflowMenu.Action"
-         parameter="pass" />
-    </menu_item_call>
-    <menu_item_separator
-     layout="topleft"/>
-    <menu_item_call
-     enabled="false"
-     label="Edit"
-     layout="topleft"
-     name="edit">
-        <menu_item_call.on_click
-         function="Places.OverflowMenu.Action"
-         parameter="edit" />
-    </menu_item_call>
 </toggleable_menu>

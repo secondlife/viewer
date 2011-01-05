@@ -2612,7 +2612,7 @@
       <key>Value</key>
       <string>http://www.secondlife.com</string>
     </map>
-    <key>DisableCameraConstraints</key>
+  <key>DisableCameraConstraints</key>
     <map>
       <key>Comment</key>
       <string>Disable the normal bounds put on the camera by avatar position</string>
@@ -3950,7 +3950,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>  
+      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -4790,6 +4790,17 @@
       <string>String</string>
       <key>Value</key>
       <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+    </map>
+    <key>CurrentMapServerURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Current Session World map URL</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
     </map>
     <key>MapShowEvents</key>
     <map>
@@ -10035,6 +10046,17 @@
       <key>Value</key>
       <real>500.0</real>
     </map>
+    <key>UpdaterMaximumBandwidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum allowable downstream bandwidth for updater service (kilo bits per second)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>500.0</real>
+    </map>
     <key>ToolTipDelay</key>
     <map>
       <key>Comment</key>
@@ -11135,16 +11157,16 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-    <key>UpdaterServiceActive</key>
+    <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
-      <string>Enable or disable the updater service.</string>
+      <string>Configure updater service.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>U32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>3</integer>
     </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
@@ -12422,6 +12444,17 @@
       <string>String</string>
       <key>Value</key>
       <string>name</string>
+    </map>
+    <key>ReleaseNotesURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Release notes URL template</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://secondlife.com/app/releasenotes/?channel=[CHANNEL]&amp;version=[VERSION]</string>
     </map>
 </map>
 </llsd>
