@@ -43,12 +43,27 @@ public:
 	// Name of the event pump through which update events will be delivered.
 	static std::string const & pumpName(void);
 	
+	// Returns true if an update has been completely downloaded and is now ready to install.
+	static bool updateReadyToInstall(void);
+	
 	// Type codes for events posted by this service.  Stored the event's 'type' element.
-	enum eUpdateEvent {
+	enum eUpdaterEvent {
 		INVALID,
 		DOWNLOAD_COMPLETE,
 		DOWNLOAD_ERROR,
-		INSTALL_ERROR
+		INSTALL_ERROR,
+		PROGRESS,
+		STATE_CHANGE
+	};
+	
+	enum eUpdaterState {
+		INITIAL,
+		CHECKING_FOR_UPDATE,
+		DOWNLOADING,
+		INSTALLING,
+		UP_TO_DATE,
+		TERMINAL,
+		FAILURE
 	};
 
 	LLUpdaterService();
@@ -61,10 +76,12 @@ public:
 				    const std::string& version);
 
 	void setCheckPeriod(unsigned int seconds);
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
 	void startChecking(bool install_if_ready = false);
 	void stopChecking();
 	bool isChecking();
+	eUpdaterState getState();
 
 	typedef boost::function<void (void)> app_exit_callback_t;
 	template <typename F>
@@ -73,6 +90,11 @@ public:
 		app_exit_callback_t aecb = callable;
 		setImplAppExitCallback(aecb);
 	}
+	
+	// If an update is or has been downloaded, this method will return the
+	// version string for that update.  An empty string will be returned
+	// otherwise.
+	std::string updatedVersion(void);
 
 private:
 	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;

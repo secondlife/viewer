@@ -132,9 +132,10 @@ void LLFloaterHelpBrowser::onClickOpenWebBrowser(void* user_data)
 
 void LLFloaterHelpBrowser::openMedia(const std::string& media_url)
 {
-	mBrowser->setHomePageUrl(media_url);
-	//mBrowser->navigateTo("data:text/html;charset=utf-8,I'd really love to be going to:<br><b>" + media_url + "</b>"); // tofu HACK for debugging =:)
-	mBrowser->navigateTo(media_url);
+	// explicitly make the media mime type for this floater since it will
+	// only ever display one type of content (Web).
+	mBrowser->setHomePageUrl(media_url, "text/html");
+	mBrowser->navigateTo(media_url, "text/html");
 	setCurrentURL(media_url);
 }
 
