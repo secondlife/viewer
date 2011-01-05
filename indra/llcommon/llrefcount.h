@@ -52,12 +52,12 @@ public:
 	void ref() const ;
 	S32 unref() const ;
 #else
-	inline void LLRefCount::ref() const
+	void LLRefCount::ref() const
 	{ 
 		mRef++; 
 	} 
 
-	inline S32 LLRefCount::unref() const
+	S32 LLRefCount::unref() const
 	{
 		llassert(mRef >= 1);
 		if (0 == --mRef) 
