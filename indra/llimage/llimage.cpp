@@ -52,13 +52,11 @@ LLMutex* LLImage::sMutex = NULL;
 void LLImage::initClass()
 {
 	sMutex = new LLMutex(NULL);
-	LLImageJ2C::openDSO();
 }
 
 //static
 void LLImage::cleanupClass()
 {
-	LLImageJ2C::closeDSO();
 	delete sMutex;
 	sMutex = NULL;
 }

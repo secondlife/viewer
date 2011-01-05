@@ -54,6 +54,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCONVEXDECOMP_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
@@ -231,6 +232,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
+    llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterwindowsize.cpp
@@ -773,6 +775,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoiceeffect.h
     llfloaterwater.h
+    llfloaterwebcontent.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterwindowsize.h
@@ -1481,11 +1484,6 @@ if (WINDOWS)
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
 
-    if(LLKDU_LIBRARY)
-      # Configure a var for llkdu which may not exist for all builds.
-      set(LLKDU_DLL_SOURCE ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llkdu.dll)
-    endif(LLKDU_LIBRARY)
-
     if(USE_GOOGLE_PERFTOOLS)
       # Configure a var for tcmalloc location, if used.
       # Note the need to specify multiple names explicitly.
@@ -1502,7 +1500,6 @@ if (WINDOWS)
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${LLKDU_DLL_SOURCE}
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
@@ -1695,7 +1692,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
-    ${LLIMAGEJ2COJ_LIBRARIES}
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
@@ -1733,6 +1729,17 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${TCMALLOC_LIBRARIES}
     )
 
+if (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLKDU_LIBRARIES}
+        ${KDU_LIBRARY}
+        )
+else (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLIMAGEJ2COJ_LIBRARIES}
+        )
+endif (USE_KDU)
+    
 build_version(viewer)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
@@ -1880,29 +1887,31 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
-  if(CMAKE_CFG_INTDIR STREQUAL ".")
+  if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
+    if(CMAKE_CFG_INTDIR STREQUAL ".")
       set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-  else(CMAKE_CFG_INTDIR STREQUAL ".")
+    else(CMAKE_CFG_INTDIR STREQUAL ".")
       # set LLBUILD_CONFIG to be a shell variable evaluated at build time
       # reflecting the configuration we are currently building.
       set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-  endif(CMAKE_CFG_INTDIR STREQUAL ".")
-  add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-    COMMAND "${PYTHON_EXECUTABLE}"
-    ARGS
-      "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
-      "${LLBUILD_CONFIG}"
-      "${VIEWER_DIST_DIR}"
-      "${VIEWER_EXE_GLOBS}"
-      "${VIEWER_LIB_GLOB}"
-      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
-      "${VIEWER_SYMBOL_FILE}"
-    DEPENDS generate_breakpad_symbols.py
-    VERBATIM
-  )
-  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-  add_dependencies(package generate_breakpad_symbols)
+    endif(CMAKE_CFG_INTDIR STREQUAL ".")
+    add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+      COMMAND "${PYTHON_EXECUTABLE}"
+      ARGS
+        "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+        "${LLBUILD_CONFIG}"
+        "${VIEWER_DIST_DIR}"
+        "${VIEWER_EXE_GLOBS}"
+        "${VIEWER_LIB_GLOB}"
+        "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+        "${VIEWER_SYMBOL_FILE}"
+        DEPENDS generate_breakpad_symbols.py
+        VERBATIM)
+
+    add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
+    add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+    add_dependencies(package generate_breakpad_symbols)
+  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 
 if (LL_TESTS)

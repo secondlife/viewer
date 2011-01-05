@@ -431,6 +431,7 @@ public:
 
 	bool finished() { return mFinished; }
 	virtual void run();
+	void preStart();
 	
 };
 

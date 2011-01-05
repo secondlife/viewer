@@ -69,7 +69,7 @@
       Resource Cost: [COST]
     </text>
     <text left="25" top_pad="5" width="140" follows="bottom|left" height="15" name="physics cost">
-      Physics Cost: Unknown
+      Physics Cost: [COST]
     </text>
     <text left="25" top_pad="5" follows="bottom|left" height="15" name="upload fee">
       Upload Fee: N/A
@@ -169,11 +169,11 @@
         Queue Mode:
       </text>
       <combo_box follows="top|left" name="build_operator" top_pad="5" left="45" width="100" height="20">
-        <combo_item name="half_edge_collapse">
-          Half Edge Collapse
-        </combo_item>
         <combo_item name="edge_collapse">
           Edge Collapse
+        </combo_item>
+        <combo_item name="half_edge_collapse">
+          Half Edge Collapse
         </combo_item>
       </combo_box>
 
@@ -205,7 +205,7 @@
           Lock
         </combo_item>
       </combo_box>
-      <spinner follows="left|top" name="share_tolerance" left_pad="5" width="100" height="20"/>
+      <spinner follows="left|top" name="share_tolerance" left_pad="5" width="100" decimal_digits="5" initial_value="0.00001" height="20"/>
              
       <text left="10" top_pad="35" follows="top|left" width="240" height="15">
         Generate Normals
@@ -295,6 +295,7 @@
         <check_box name="Close Holes (Slow)" follows="top|left" top_pad="10" height="15" label="Close Holes (slow)"/>
                 
         <button left="200" bottom_delta="0" width="90" follows="top|left" label="Analyze" name="Decompose" height="20"/>
+        <button left="200" bottom_delta="0" width="90" follows="top|left" label="Cancel" name="decompose_cancel" visble="false" height="20"/>
       </panel>
       
 
@@ -324,6 +325,7 @@
         <slider name="Detail Scale" label="Detail Scale:" label_width="120" width="270" follows="top|left" top_pad="10" height="20"/>
         <slider name="Retain%" label="Retain:" label_width="120" width="270" follows="top|left" bottom_delta="0" left_delta="0" visible="false" height="20"/>
         <button left="190" width="90" follows="top|left" label="Simplify" name="Simplify" height="20"/>
+        <button left="190" bottom_delta="0" width="90" follows="top|left" label="Cancel" name="simplify_cancel" height="20"/>
         
       </panel>
 

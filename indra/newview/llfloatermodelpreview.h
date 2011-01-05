@@ -30,6 +30,7 @@
 #include "llfloaternamedesc.h"
 
 #include "lldynamictexture.h"
+#include "llfloatermodelwizard.h"
 #include "llquaternion.h"
 #include "llmeshrepository.h"
 #include "llmodel.h"
@@ -96,6 +97,7 @@ public:
 
 	virtual void run();
 	
+	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
@@ -151,7 +153,6 @@ public:
 	static void onUpload(void* data);
 	
 	static void onClearMaterials(void* data);
-	static void onModelDecompositionComplete(LLModel* model, std::vector<LLPointer<LLVertexBuffer> >& physics_mesh);
 	
 	static void refresh(LLUICtrl* ctrl, void* data);
 	
@@ -165,7 +166,6 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
-	void setViewOption(const std::string& option, bool value);
 
 protected:
 	friend class LLModelPreview;
@@ -187,6 +187,7 @@ protected:
 	
 	static void onPhysicsParamCommit(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageExecute(LLUICtrl* ctrl, void* userdata);
+	static void onCancel(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsStageCancel(LLUICtrl* ctrl, void* userdata);
 	
 	static void onPhysicsBrowse(LLUICtrl* ctrl, void* userdata);
@@ -213,8 +214,6 @@ protected:
 	
 	std::set<LLPointer<DecompRequest> > mCurRequest;
 	std::string mStatusMessage;
-
-	std::map<std::string, bool> mViewOption;
 
 	//use "disabled" as false by default
 	std::map<std::string, bool> mViewOptionDisabled;
@@ -285,6 +284,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	friend class LLFloaterModelPreview;
 	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
+	friend class LLFloaterModelWizard::DecompRequest;
 	friend class LLPhysicsDecomp;
 
 	LLFloater*  mFMP;
@@ -305,15 +305,15 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 
+	std::map<std::string, bool> mViewOption;
+
 	//GLOD object parameters (must rebuild object if these change)
 	F32 mBuildShareTolerance;
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
 	
-
 	LLModelLoader* mModelLoader;
-
 
 	LLModelLoader::scene mScene[LLModel::NUM_LODS];
 	LLModelLoader::scene mBaseScene;
@@ -327,7 +327,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
 
 	LLMeshUploadThread::instance_list mUploadData;
-	std::set<LLPointer<LLViewerFetchedTexture> > mTextureSet;
+	std::set<LLViewerFetchedTexture* > mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
 	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
