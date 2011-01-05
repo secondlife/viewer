@@ -117,7 +117,7 @@
      name="map_button"
      top_delta="-4"
      left_pad="0"
-     width="60"
+     width="57"
      enabled="false" />
     <text
      type="string"

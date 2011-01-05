@@ -34,17 +34,11 @@ class LLImageJ2COJ : public LLImageJ2CImpl
 public:
 	LLImageJ2COJ();
 	virtual ~LLImageJ2COJ();
-
 protected:
 	/*virtual*/ BOOL getMetadata(LLImageJ2C &base);
 	/*virtual*/ BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count);
 	/*virtual*/ BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
 								BOOL reversible = FALSE);
-	int ceildivpow2(int a, int b)
-	{
-		// Divide a by b to the power of 2 and round upwards.
-		return (a + (1 << b) - 1) >> b;
-	}
 };
 
 #endif

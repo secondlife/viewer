@@ -42,4 +42,14 @@ list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 if (USE_KDU)
   add_library (${LLKDU_LIBRARIES} ${llkdu_SOURCE_FILES})
   
+  # Add tests
+  if (LL_TESTS)
+    include(LLAddBuildTest)
+    include(Tut)
+    SET(llkdu_TEST_SOURCE_FILES
+      llimagej2ckdu.cpp
+      )
+    LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
+  endif (LL_TESTS)
+
 endif (USE_KDU)

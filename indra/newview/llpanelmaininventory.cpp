@@ -506,9 +506,6 @@ void LLPanelMainInventory::onFilterSelected()
 		return;
 	}
 
-	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
-	getChildView("add_btn_panel")->setVisible( !recent_active);
-
 	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
@@ -953,6 +950,11 @@ void LLPanelMainInventory::updateListCommands()
 
 void LLPanelMainInventory::onAddButtonClick()
 {
+// Gray out the "New Folder" option when the Recent tab is active as new folders will not be displayed
+// unless "Always show folders" is checked in the filter options.
+	bool recent_active = ("Recent Items" == mActivePanel->getName());
+	mMenuAdd->getChild<LLMenuItemGL>("New Folder")->setEnabled(!recent_active);
+
 	setUploadCostIfNeeded();
 
 	showActionMenu(mMenuAdd,"add_btn");
