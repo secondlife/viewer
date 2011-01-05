@@ -4136,11 +4136,12 @@ void LLPipeline::renderDebug()
 					gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
 					gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
 					gGL.end();
-					}
-
+				}
 			}
 
-			/*for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			/*gGL.flush();
+			glLineWidth(16-i*2);
+			for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 					iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 			{
 				LLViewerRegion* region = *iter;
@@ -4155,7 +4156,9 @@ void LLPipeline::renderDebug()
 						}
 					}
 				}
-			}*/
+			}
+			gGL.flush();
+			glLineWidth(1.f);*/
 		}
 	}
 
@@ -7993,6 +7996,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	gGL.setColorMask(false, false);
 	
 	//glCullFace(GL_FRONT);
+
+	LLVertexBuffer::unbind();
 
 	{
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
