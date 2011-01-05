@@ -111,11 +111,16 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
+	bool doesJointArrayContainACompleteRig( const std::vector<std::string> &modelJointList );
+	bool checkForCompleteRig(  const std::vector<std::string> &jointListFromModel );
+	
 	void setLoadState( U32 state ) { mState = state; }
 	U32 getLoadState( void ) { return mState; }
 	
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
+	std::deque<std::string> mMasterJointList;
+	bool mResetJoints;
 };
 
 class LLFloaterModelPreview : public LLFloater
