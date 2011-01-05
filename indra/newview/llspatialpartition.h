@@ -59,7 +59,8 @@ S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVe
 void pushVerts(LLFace* face, U32 mask);
 
 // get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
-U8* get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
+U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
+U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center);
 
 class LLDrawInfo : public LLRefCount 
 {
@@ -393,7 +394,7 @@ public:
 	LLSpatialPartition* mSpatialPartition;
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLVector4a*				mOcclusionVerts;
+	LLPointer<LLVertexBuffer> mOcclusionVerts;
 	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 	U32 mBufferUsage;

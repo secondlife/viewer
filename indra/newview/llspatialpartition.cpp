@@ -222,7 +222,17 @@ static U8 sOcclusionIndices[] =
 		b000, b110, b100, b101, b001, b011, b010, b110,
 };
 
-U8* get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
+U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
+{
+	LLVector4a origin;
+	origin.load3(camera->getOrigin().mV);
+
+	S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
+	
+	return cypher*8;
+}
+
+U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 {
 	LLVector4a origin;
 	origin.load3(camera->getOrigin().mV);
@@ -231,12 +241,21 @@ U8* get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
 	
 	return sOcclusionIndices+cypher*8;
 }
-						
+
+
 void LLSpatialGroup::buildOcclusion()
 {
-	if (!mOcclusionVerts)
+	if (mOcclusionVerts.isNull())
 	{
-		mOcclusionVerts = new LLVector4a[8];
+		mOcclusionVerts = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_DYNAMIC_DRAW_ARB);
+		mOcclusionVerts->allocateBuffer(8, 64, true);
+	
+		LLStrider<U16> idx;
+		mOcclusionVerts->getIndexStrider(idx);
+		for (U32 i = 0; i < 64; i++)
+		{
+			*idx++ = sOcclusionIndices[i];
+		}
 	}
 
 	LLVector4a fudge;
@@ -251,7 +270,12 @@ void LLSpatialGroup::buildOcclusion()
 
 	r.setMin(r, r2);
 
-	LLVector4a* v = mOcclusionVerts;
+	LLStrider<LLVector3> pos;
+	
+	mOcclusionVerts->getVertexStrider(pos);
+
+	LLVector4a* v = (LLVector4a*) pos.get();
+
 	const LLVector4a& c = mBounds[0];
 	const LLVector4a& s = r;
 	
@@ -275,10 +299,13 @@ void LLSpatialGroup::buildOcclusion()
 	
 	for (S32 i = 0; i < 8; ++i)
 	{
-		v[i] = s;
-		v[i].mul(octant[i]);
-		v[i].add(c);
+		LLVector4a p;
+		p.setMul(s, octant[i]);
+		p.add(c);
+		v[i] = p;
 	}
+	
+	mOcclusionVerts->setBuffer(0);
 
 	clearState(LLSpatialGroup::OCCLUSION_DIRTY);
 }
@@ -339,7 +366,6 @@ LLSpatialGroup::~LLSpatialGroup()
 		sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 	}
 
-	delete [] mOcclusionVerts;
 	mOcclusionVerts = NULL;
 
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
@@ -881,12 +907,9 @@ void LLSpatialGroup::shift(const LLVector4a &offset)
 		gPipeline.markRebuild(this, TRUE);
 	}
 
-	if (mOcclusionVerts)
+	if (mOcclusionVerts.notNull())
 	{
-		for (U32 i = 0; i < 8; i++)
-		{
-			mOcclusionVerts[i].add(offset);
-		}
+		setState(OCCLUSION_DIRTY);
 	}
 }
 
@@ -1423,7 +1446,6 @@ void LLSpatialGroup::destroyGL()
 		}
 	}
 
-	delete [] mOcclusionVerts;
 	mOcclusionVerts = NULL;
 
 	for (LLSpatialGroup::element_iter i = getData().begin(); i != getData().end(); ++i)
@@ -1573,57 +1595,58 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		else
 		{
 			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
-			{ //no query pending, or previous query to be discarded
-				LLFastTimer t(FTM_RENDER_OCCLUSION);
+			{
+				{ //no query pending, or previous query to be discarded
+					LLFastTimer t(FTM_RENDER_OCCLUSION);
 
-				if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
-				{
-					mOcclusionQuery[LLViewerCamera::sCurCameraID] = sQueryPool.allocate();
+					if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
+					{
+						mOcclusionQuery[LLViewerCamera::sCurCameraID] = sQueryPool.allocate();
+					}
+
+					if (mOcclusionVerts.isNull() || isState(LLSpatialGroup::OCCLUSION_DIRTY))
+					{
+						buildOcclusion();
+					}
+					
+					// Depth clamp all water to avoid it being culled as a result of being
+					// behind the far clip plane, and in the case of edge water to avoid
+					// it being culled while still visible.
+					bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
+												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
+												mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
+					if (use_depth_clamp)
+					{
+						glEnable(GL_DEPTH_CLAMP);
+					}
+					
+					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
+
+					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+					
+					mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
+					if (camera->getOrigin().isExactlyZero())
+					{ //origin is invalid, draw entire box
+						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+					}
+					else
+					{
+						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+					}
+
+					glEndQueryARB(mode);
+					
+					if (use_depth_clamp)
+					{
+						glDisable(GL_DEPTH_CLAMP);
+					}
 				}
 
-				if (!mOcclusionVerts || isState(LLSpatialGroup::OCCLUSION_DIRTY))
-				{
-					buildOcclusion();
-				}
-				
-				// Depth clamp all water to avoid it being culled as a result of being
-				// behind the far clip plane, and in the case of edge water to avoid
-				// it being culled while still visible.
-				bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
-											(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
-											mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
-				if (use_depth_clamp)
-				{
-					glEnable(GL_DEPTH_CLAMP);
-				}
-				
-				U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
-
-				glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
-				
-				glVertexPointer(3, GL_FLOAT, 16, mOcclusionVerts);
-				if (camera->getOrigin().isExactlyZero())
-				{ //origin is invalid, draw entire box
-					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-												GL_UNSIGNED_BYTE, sOcclusionIndices);
-					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-							GL_UNSIGNED_BYTE, sOcclusionIndices+b111*8);
-				}
-				else
-				{
-					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-								GL_UNSIGNED_BYTE, get_box_fan_indices(camera, mBounds[0]));
-				}
-				glEndQueryARB(mode);
-				
-				if (use_depth_clamp)
-				{
-					glDisable(GL_DEPTH_CLAMP);
-				}
+				setOcclusionState(LLSpatialGroup::QUERY_PENDING);
+				clearOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			}
-
-			setOcclusionState(LLSpatialGroup::QUERY_PENDING);
-			clearOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 		}
 	}
 }
@@ -2617,17 +2640,17 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			gGL.color4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
-		else if (camera && group->mOcclusionVerts)
+		else if (camera && group->mOcclusionVerts.notNull())
 		{
 			LLVertexBuffer::unbind();
-			glVertexPointer(3, GL_FLOAT, 16, group->mOcclusionVerts);
-
+			group->mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
+			
 			glColor4f(1.0f, 0.f, 0.f, 0.5f);
-			glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8, GL_UNSIGNED_BYTE, get_box_fan_indices(camera, group->mBounds[0]));
+			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			
 			glColor4f(1.0f, 1.f, 1.f, 1.0f);
-			glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8, GL_UNSIGNED_BYTE, get_box_fan_indices(camera, group->mBounds[0]));
+			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
