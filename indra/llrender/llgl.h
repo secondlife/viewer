@@ -89,6 +89,7 @@ public:
 	BOOL mHasVertexShader;
 	BOOL mHasFragmentShader;
 	BOOL mHasOcclusionQuery;
+	BOOL mHasOcclusionQuery2;
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
 	BOOL mHasDepthClamp;
