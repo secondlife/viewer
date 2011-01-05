@@ -477,6 +477,7 @@ LLPanelAvatarProfile::LLPanelAvatarProfile()
 
 BOOL LLPanelAvatarProfile::postBuild()
 {
+	childSetCommitCallback("see_profile_btn",(boost::bind(&LLPanelAvatarProfile::onSeeProfileBtnClick,this)),NULL);
 	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriendButtonClick,this)),NULL);
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
@@ -624,6 +625,24 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 	getChild<LLUICtrl>("sl_groups")->setValue(groups);
 }
 
+void LLPanelAvatarProfile::got_full_name_callback( const LLUUID& id, const std::string& full_name, bool is_group )
+{
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = full_name;
+
+	std::string linden_name = getString("name_text_args", args);
+	getChild<LLUICtrl>("name_descr_text")->setValue(linden_name);
+}
+
+void LLPanelAvatarProfile::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	LLStringUtil::format_map_t args;
+	args["[DISPLAY_NAME]"] = av_name.mDisplayName;
+
+	std::string display_name = getString("display_name_text_args", args);
+	getChild<LLUICtrl>("display_name_descr_text")->setValue(display_name);
+}
+
 void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 {
 	//remove avatar id from cache to get fresh info
@@ -635,6 +654,24 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 		LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) avatar_data->born_on.secondsSinceEpoch()));
 		args["[REG_DATE]"] = birth_date;
 	}
+
+	// ask (asynchronously) for the avatar name
+	std::string full_name;
+	if (gCacheName->getFullName(avatar_data->agent_id, full_name))
+	{
+		// name in cache, call callback directly
+		got_full_name_callback( avatar_data->agent_id, full_name, false );
+	}
+	else
+	{
+		// not in cache, lookup name 
+		gCacheName->get(avatar_data->agent_id, false, boost::bind( &LLPanelAvatarProfile::got_full_name_callback, this, _1, _2, _3 ));
+	}
+
+	// get display name
+	LLAvatarNameCache::get(avatar_data->avatar_id,
+		boost::bind(&LLPanelAvatarProfile::onNameCache, this, _1, _2));
+
 	args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
 	std::string register_date = getString("RegisterDateFormat", args);
 	getChild<LLUICtrl>("register_date")->setValue(register_date );
@@ -732,6 +769,11 @@ void LLPanelAvatarProfile::csr()
 void LLPanelAvatarProfile::onAddFriendButtonClick()
 {
 	LLAvatarActions::requestFriendshipDialog(getAvatarId());
+}
+
+void LLPanelAvatarProfile::onSeeProfileBtnClick()
+{
+	LLAvatarActions::showProfile(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onIMButtonClick()
