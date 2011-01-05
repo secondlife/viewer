@@ -1450,17 +1450,21 @@ void LLMeshUploadThread::DecompRequest::completed()
 	mThread->mHullMap[mBaseModel] = mHull[0];
 }
 
-void LLMeshUploadThread::run()
+//called in the main thread.
+void LLMeshUploadThread::preStart()
 {
-	mCurlRequest = new LLCurlRequest();
-
 	//build map of LLModel refs to instances for callbacks
 	for (instance_list::iterator iter = mInstanceList.begin(); iter != mInstanceList.end(); ++iter)
 	{
 		mInstance[iter->mModel].push_back(*iter);
 	}
+}
 
-	std::set<LLPointer<LLViewerTexture> > textures;
+void LLMeshUploadThread::run()
+{
+	mCurlRequest = new LLCurlRequest();	
+
+	std::set<LLViewerTexture* > textures;
 
 	//populate upload queue with relevant models
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
@@ -1483,9 +1487,9 @@ void LLMeshUploadThread::run()
 				material_iter != instance.mMaterial.end(); ++material_iter)
 			{
 
-				if (textures.find(material_iter->mDiffuseMap) == textures.end())
+				if (textures.find(material_iter->mDiffuseMap.get()) == textures.end())
 				{
-					textures.insert(material_iter->mDiffuseMap);
+					textures.insert(material_iter->mDiffuseMap.get());
 					
 					LLTextureUploadData data(material_iter->mDiffuseMap.get(), material_iter->mDiffuseMapLabel);
 					uploadTexture(data);
@@ -2148,6 +2152,7 @@ S32 LLMeshRepository::update()
 	for (S32 i = 0; i < size; ++i)
 	{
 		mUploads.push_back(mUploadWaitList[i]);
+		mUploadWaitList[i]->preStart() ;
 		mUploadWaitList[i]->start() ;
 	}
 	mUploadWaitList.clear() ;

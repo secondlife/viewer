@@ -860,6 +860,9 @@ U64 LLFastTimer::getCPUClockCount64()
 	}
     return ret_val;
 }
+
+std::string LLFastTimer::sClockType = "rdtsc";
+
 #else
 //LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
 // These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
@@ -872,6 +875,8 @@ U64 LLFastTimer::getCPUClockCount64()
 {
 	return get_clock_count();
 }
+
+std::string LLFastTimer::sClockType = "QueryPerformanceCounter";
 #endif
 
 #endif
@@ -904,6 +909,9 @@ U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(LLFastTimer::getCPUClockCount64() >> 8);
 }
+
+std::string LLFastTimer::sClockType = "clock_gettime";
+
 #endif // (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
 
 
@@ -923,23 +931,7 @@ U64 LLFastTimer::getCPUClockCount64()
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
 	return x;
 }
-#endif
 
-
-#if ( LL_DARWIN && !(defined(__i386__) || defined(__amd64__)))
-//
-// Mac PPC (deprecated) implementation of CPU clock
-//
-// Just use gettimeofday implementation for now
-
-U32 LLFastTimer::getCPUClockCount32()
-{
-	return (U32)(get_clock_count()>>8);
-}
-
-U64 LLFastTimer::getCPUClockCount64()
-{
-	return get_clock_count();
-}
+std::string LLFastTimer::sClockType = "rdtsc";
 #endif
 
