@@ -1619,7 +1619,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					{
 						glEnable(GL_DEPTH_CLAMP);
 					}
-					
+#if !LL_DARWIN					
 					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
 
 					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
@@ -1637,7 +1637,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					}
 
 					glEndQueryARB(mode);
-					
+#endif					
 					if (use_depth_clamp)
 					{
 						glDisable(GL_DEPTH_CLAMP);
