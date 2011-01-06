@@ -1248,13 +1248,18 @@ S32  LLPrivateMemoryPool::getChunkIndex(U32 size)
 void  LLPrivateMemoryPool::destroyPool()
 {
 	lock() ;
-	for(U32 i = 0 ; i < mHashFactor; i++)
+	if(mNumOfChunks > 0)
 	{
-		while(mChunkHashList[i])
+		for(U32 i = 0 ; i < mHashFactor; i++)
 		{
-			removeChunk(mChunkHashList[i]) ;
+			while(mChunkHashList[i])
+			{
+				removeChunk(mChunkHashList[i]) ;
+			}
 		}
 	}
+	mChunkHashList.clear() ;
+	mHashFactor = 1 ;
 	llassert_always(mNumOfChunks == 0) ;
 	llassert_always(mReservedPoolSize == 0) ;
 
