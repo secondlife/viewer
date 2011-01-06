@@ -229,7 +229,7 @@
         left="0"
         top="0"
         width="300"
-        height="80"
+        height="65"
         visible="true"
         border="true"
         bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
