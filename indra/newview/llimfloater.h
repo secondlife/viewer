@@ -156,7 +156,7 @@ private:
 
 	static void closeHiddenIMToasts();
 
-	static bool resetAllowedRectPadding(const LLSD& newvalue);
+	static bool resetAllowedRectPadding();
 	//need to keep this static for performance issues
 	static S32 sAllowedRectRightPadding;
 

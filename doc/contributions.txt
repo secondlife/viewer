@@ -364,12 +364,13 @@ JB Kraft
 Joghert LeSabre
 	VWR-64
 Jonathan Yap
-	VWR-17801
+	STORM-596
 	STORM-523
 	STORM-616
 	STORM-679
-	STORM-596
+	STORM-737
 	STORM-726
+	VWR-17801
 	STORM-785
 Kage Pixel
 	VWR-11
@@ -748,6 +749,8 @@ Tue Torok
 	CT-74
 Twisted Laws
 	SNOW-352
+	STORM-466
+	STORM-467
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
@@ -796,6 +799,7 @@ WolfPup Lowenhar
 	STORM-654
 	STORM-674
 	STORM-776
+	STORM-825
 	VWR-20741
 	VWR-20933
 Zai Lynch
