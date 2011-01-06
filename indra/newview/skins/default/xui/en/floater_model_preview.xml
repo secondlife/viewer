@@ -23,7 +23,7 @@
     Name:
   </text>
   <line_editor bottom_delta="20" follows="top|left|right" height="19" 
-	     name="description_form" width="290" />
+	     name="description_form" prevalidate_callback="ascii" width="290" />
   
   <text bottom_delta="20" left="15" follows="left|top" height="15" name="lod_label">
     Preview:
