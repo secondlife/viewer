@@ -136,9 +136,9 @@
       </text>
 
       <icon height="16" width="16" left="20" follows="left|top" name="lod_status_message_icon"/>
-      <text left_pad="5" width="200" height="15" follows="left|top" name="lod_status_message_text"/>
-        
-      <text top_pad="10" left="10" height="15" follows="left|top">
+      <text left_pad="5" width="200" height="28" follows="left|top" top_pad="-15" wrap="true" name="lod_status_message_text"/>
+
+      <text top_pad="-3" left="10" height="15" follows="left|top">
         Mesh
       </text>
 
