@@ -173,9 +173,6 @@ public:
 		U16   mBlockLevels;
 		U16   mPartitionLevels;
 
-		//debug use
-		std::set<LLMemoryBlock*> mActiveBlockList ; 
-
 	public:
 		//form a linked list
 		LLMemoryChunk* mNext ;
@@ -200,9 +197,13 @@ private:
 	S32 getChunkIndex(U32 size) ;
 	LLMemoryChunk*  addChunk(S32 chunk_index) ;
 	void checkSize(U32 asked_size) ;
-	void removeChunk(LLMemoryChunk* chunk, U16 key) ;
+	void removeChunk(LLMemoryChunk* chunk) ;
 	U16  findHashKey(const char* addr);
-	LLMemoryChunk* findChunk(const char* addr, U16& key) ;
+	void addToHashTable(LLMemoryChunk* chunk) ;
+	void removeFromHashTable(LLMemoryChunk* chunk) ;
+	void rehash() ;
+	LLMemoryChunk* findChunk(const char* addr) ;
+
 	void destroyPool() ;
 
 public:
@@ -222,6 +223,7 @@ private:
 	LLMemoryChunk* mChunkList[SUPER_ALLOCATION] ; //all memory chunks reserved by this pool, sorted by address
 	std::vector<LLMemoryChunk*> mChunkHashList ;
 	U16 mNumOfChunks ;
+	U16 mHashFactor ;
 };
 
 //
@@ -245,6 +247,7 @@ private:
 	void fragmentationtest() ;
 
 	void test(U32 min_size, U32 max_size, U32 stride, U32 times, bool random_deletion, bool output_statistics) ;
+	void testAndTime(U32 size, U32 times) ;
 
 public:
 	void* operator new(size_t size)
