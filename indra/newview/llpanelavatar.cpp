@@ -628,7 +628,18 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 void LLPanelAvatarProfile::got_full_name_callback( const LLUUID& id, const std::string& full_name, bool is_group )
 {
 	LLStringUtil::format_map_t args;
-	args["[NAME]"] = full_name;
+
+	std::string name;
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		name = LLCacheName::buildUsername(full_name);
+	}
+	else
+	{
+		name = full_name;
+	}
+
+	args["[NAME]"] = name;
 
 	std::string linden_name = getString("name_text_args", args);
 	getChild<LLUICtrl>("name_descr_text")->setValue(linden_name);
