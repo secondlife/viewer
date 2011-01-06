@@ -73,6 +73,8 @@ private:
 //
 class LL_COMMON_API LLPrivateMemoryPool
 {
+	friend class LLPrivateMemoryPoolManager ;
+
 public:
 	class LL_COMMON_API LLMemoryBlock //each block is devided into slots uniformly
 	{
@@ -181,15 +183,17 @@ public:
 		LLMemoryChunk* mHashNext ;
 	} ;
 
-public:
+private:
 	LLPrivateMemoryPool(U32 max_size, bool threaded) ;
 	~LLPrivateMemoryPool() ;
 
+public:
 	char *allocate(U32 size) ;
 	void  free(void* addr) ;
 	
 	void  dump() ;
 	U32   getTotalAllocatedSize() ;
+	U32   getTotalReservedSize() {return mReservedPoolSize;}
 
 private:
 	void lock() ;
@@ -202,6 +206,7 @@ private:
 	void addToHashTable(LLMemoryChunk* chunk) ;
 	void removeFromHashTable(LLMemoryChunk* chunk) ;
 	void rehash() ;
+	bool fillHashTable(U16 start, U16 end, LLMemoryChunk* chunk) ;
 	LLMemoryChunk* findChunk(const char* addr) ;
 
 	void destroyPool() ;
@@ -224,6 +229,31 @@ private:
 	std::vector<LLMemoryChunk*> mChunkHashList ;
 	U16 mNumOfChunks ;
 	U16 mHashFactor ;
+};
+
+class LL_COMMON_API LLPrivateMemoryPoolManager
+{
+private:
+	LLPrivateMemoryPoolManager() ;
+	~LLPrivateMemoryPoolManager() ;
+
+public:
+	static LLPrivateMemoryPoolManager* getInstance() ;
+	static void destroyClass() ;
+
+	LLPrivateMemoryPool* newPool(U32 max_size, bool threaded) ;
+	void deletePool(LLPrivateMemoryPool* pool) ;
+
+private:
+	static LLPrivateMemoryPoolManager* sInstance ;
+	std::set<LLPrivateMemoryPool*> mPoolList ;
+
+public:
+	//debug and statistics info.
+	void updateStatistics() ;
+
+	U32 mTotalReservedSize ;
+	U32 mTotalAllocatedSize ;
 };
 
 //

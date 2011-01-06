@@ -1404,14 +1404,10 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 			return; //already inserted.
 		}
 		
-		need_rehash = mChunkHashList[start_key]->mHashNext != NULL ;
-		if(!need_rehash)
-		{
-			llassert_always(!chunk->mHashNext) ;
+		llassert_always(!chunk->mHashNext) ;
 
-			chunk->mHashNext = mChunkHashList[start_key] ;
-			mChunkHashList[start_key] = chunk ;
-		}
+		chunk->mHashNext = mChunkHashList[start_key] ;
+		mChunkHashList[start_key] = chunk ;
 	}
 	else
 	{
@@ -1440,52 +1436,15 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 	{
 		if(end_key < start_key)
 		{
-			for(U16 i = start_key + 1 ; i < mHashFactor; i++)
-			{
-				if(mChunkHashList[i])
-				{
-					llassert_always(mChunkHashList[i] != chunk) ;
-					need_rehash = true ;
-					break ;
-				}
-				else
-				{
-					mChunkHashList[i] = chunk ;
-				}
-			}
-
+			need_rehash = fillHashTable(start_key + 1, mHashFactor, chunk) ;
 			if(!need_rehash)
 			{
-				for(U16 i = 0 ; i < end_key; i++)
-				{
-					if(mChunkHashList[i])
-					{
-						llassert_always(mChunkHashList[i] != chunk) ;
-						need_rehash = true ;
-						break ;
-					}
-					else
-					{
-						mChunkHashList[i] = chunk ;
-					}
-				}
+				need_rehash = fillHashTable(0, end_key, chunk) ;
 			}
 		}
 		else
 		{
-			for(i = start_key + 1; i < end_key; i++)
-			{
-				if(mChunkHashList[i])
-				{
-					llassert_always(mChunkHashList[i] != chunk) ;
-					need_rehash = true ;
-					break ;
-				}
-				else
-				{
-					mChunkHashList[i] = chunk ;
-				}
-			}
+			need_rehash = fillHashTable(start_key + 1, end_key, chunk) ;
 		}
 	}
 	
@@ -1495,7 +1454,7 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 		while(HASH_FACTORS[i] <= mHashFactor) i++;
 
 		mHashFactor = HASH_FACTORS[i] ;
-		llassert_always(mHashFactor != 0xFFFF) ;//stop point of the recursive calls
+		llassert_always(mHashFactor != 0xFFFF) ;//stop point to prevent endlessly recursive calls
 
 		rehash() ;
 	}
@@ -1540,6 +1499,8 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 
 void LLPrivateMemoryPool::rehash()
 {
+	llinfos << "new hash factor: " << mHashFactor << llendl ;
+
 	mChunkHashList.clear() ;
 	mChunkHashList.resize(mHashFactor, NULL) ;
 
@@ -1556,8 +1517,100 @@ void LLPrivateMemoryPool::rehash()
 	}
 }
 
+bool LLPrivateMemoryPool::fillHashTable(U16 start, U16 end, LLMemoryChunk* chunk)
+{
+	for(U16 i = start; i < end; i++)
+	{
+		if(mChunkHashList[i]) //the slot is occupied.
+		{
+			llassert_always(mChunkHashList[i] != chunk) ;
+			return true ;
+		}
+		else
+		{
+			mChunkHashList[i] = chunk ;
+		}
+	}
+
+	return false ;
+}
+
+//--------------------------------------------------------------------
+//class LLPrivateMemoryPoolManager
+//--------------------------------------------------------------------
+LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
+
+LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager() 
+{
+}
+
+LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager() 
+{
+	//all private pools should be released by their owners before reaching here.
+	llassert_always(mPoolList.empty()) ;
+
+#if 0
+	if(!mPoolList.empty())
+	{
+		for(std::set<LLPrivateMemoryPool*>::iterator iter = mPoolList.begin(); iter != mPoolList.end(); ++iter)
+		{
+			delete *iter;
+		}
+		mPoolList.clear() ;
+	}
+#endif
+}
+
+//static 
+LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::getInstance() 
+{
+	if(!sInstance)
+	{
+		sInstance = new LLPrivateMemoryPoolManager() ;
+	}
+	return sInstance ;
+}
+	
+//static 
+void LLPrivateMemoryPoolManager::destroyClass() 
+{
+	if(sInstance)
+	{
+		delete sInstance ;
+		sInstance = NULL ;
+	}
+}
+
+LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(U32 max_size, bool threaded) 
+{
+	LLPrivateMemoryPool* pool = new LLPrivateMemoryPool(max_size, threaded) ;
+	mPoolList.insert(pool) ;
+
+	return pool ;
+}
+
+void LLPrivateMemoryPoolManager::deletePool(LLPrivateMemoryPool* pool) 
+{
+	mPoolList.erase(pool) ;
+	delete pool;
+}
+
+//debug
+void LLPrivateMemoryPoolManager::updateStatistics()
+{
+	mTotalReservedSize = 0 ;
+	mTotalAllocatedSize = 0 ;
+
+	for(std::set<LLPrivateMemoryPool*>::iterator iter = mPoolList.begin(); iter != mPoolList.end(); ++iter)
+	{
+		mTotalReservedSize += (*iter)->getTotalReservedSize() ;
+		mTotalAllocatedSize += (*iter)->getTotalAllocatedSize() ;
+	}
+}
+
 //--------------------------------------------------------------------
 //class LLPrivateMemoryPoolTester
+//--------------------------------------------------------------------
 LLPrivateMemoryPoolTester* LLPrivateMemoryPoolTester::sInstance = NULL ;
 LLPrivateMemoryPool* LLPrivateMemoryPoolTester::sPool = NULL ;
 LLPrivateMemoryPoolTester::LLPrivateMemoryPoolTester()
@@ -1589,7 +1642,7 @@ void LLPrivateMemoryPoolTester::destroy()
 
 	if(sPool)
 	{
-		::delete sPool ;
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPool) ;
 		sPool = NULL ;
 	}
 }
@@ -1600,9 +1653,9 @@ void LLPrivateMemoryPoolTester::run(bool threaded)
 	
 	if(sPool)
 	{
-		::delete sPool ;
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPool) ;
 	}
-	sPool = ::new LLPrivateMemoryPool(max_pool_size, threaded) ;
+	sPool = LLPrivateMemoryPoolManager::getInstance()->newPool(max_pool_size, threaded) ;
 
 	//run the test
 	correctnessTest() ;
@@ -1610,7 +1663,7 @@ void LLPrivateMemoryPoolTester::run(bool threaded)
 	//fragmentationtest() ;
 
 	//release pool.
-	::delete sPool ;
+	LLPrivateMemoryPoolManager::getInstance()->deletePool(sPool) ;
 	sPool = NULL ;
 }
 
