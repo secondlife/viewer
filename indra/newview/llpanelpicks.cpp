@@ -158,7 +158,14 @@ public:
 		}
 
 		// open the edit side tray for this pick
-		editPick(pick_info);
+		if (pick_info->creator_id == gAgent.getID())
+		{
+			editPick(pick_info);
+		}
+		else
+		{
+			llwarns << "Can't edit a pick you did not create" << llendl;
+		}
 
 		// remove our observer now that we're done
 		mPickIds.erase(pick_info->pick_id);
@@ -254,14 +261,21 @@ public:
 		}
 		else if (mRequestVerb == "edit")
 		{
-			llwarns << "edit in progress" << llendl;
-			// open the new classified panel on the Me > Picks sidetray
-			LLSD params;
-			params["id"] = gAgent.getID();
-			params["open_tab_name"] = "panel_picks";
-			params["show_tab_panel"] = "edit_classified";
-			params["classified_id"] = c_info->classified_id;
-			LLSideTray::getInstance()->showPanel("panel_me", params);
+			if (c_info->creator_id == gAgent.getID())
+			{
+				llwarns << "edit in progress" << llendl;
+				// open the new classified panel on the Me > Picks sidetray
+				LLSD params;
+				params["id"] = gAgent.getID();
+				params["open_tab_name"] = "panel_picks";
+				params["show_tab_panel"] = "edit_classified";
+				params["classified_id"] = c_info->classified_id;
+				LLSideTray::getInstance()->showPanel("panel_me", params);
+			}
+			else
+			{
+				llwarns << "Can't edit a classified you did not create" << llendl;
+			}
 		}
 	}
 
