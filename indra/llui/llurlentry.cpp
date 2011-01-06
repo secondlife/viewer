@@ -684,8 +684,8 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 LLStyle::Params LLUrlEntryGroup::getStyle() const
 {
 	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("GroupLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("GroupLinkColor");
+	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 	return style_params;
 }
 
