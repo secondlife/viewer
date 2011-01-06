@@ -1159,10 +1159,15 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 				const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
 				if ( pSkinData )
 				{
-					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
-					if ( bindCnt > 0 )
+					const int jointCnt = pSkinData->mJointNames.size();
+					bool fullRig = ( jointCnt>=20 ) ? true : false;
+					if ( fullRig )
 					{
-						LLVOAvatar::resetJointPositionsToDefault();
+						const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
+						if ( bindCnt > 0 )
+						{
+							LLVOAvatar::resetJointPositionsToDefault();
+						}
 					}
 				}				
 			}
