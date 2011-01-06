@@ -76,13 +76,24 @@ L$30,000
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
+  <icon
+   name="secure_browsing"
+   image_name="Lock"
+   left="0"
+   visible="false"
+   width="18"
+   height="18"
+   top="103"
+   tool_tip="Secure Browsing"
+   follows="left|top" />
    <text
    follows="all"
    font="SansSerifSmall"
    height="13"
    name="object_media_url"
-   width="220"
-   top_pad="0"
+   width="207"
+   left_pad="2"
+   top_delta="0"
    max_length = "50"
    use_ellipses="true">
    http://www.superdupertest.com
@@ -135,16 +146,6 @@ L$30,000
    name="open_btn"
    top_delta="0"
    width="80" />
-  <icon
-   name="secure_browsing"
-   image_name="Lock"
-   left_delta="80"
-   visible="false"
-   width="18"
-   height="18"
-   top_delta="0"
-   tool_tip="Secure Browsing"
-   follows="left|top" />
 
  <!--  non-overlapping buttons here -->
      <button
@@ -153,7 +154,7 @@ L$30,000
      label="More"
      layout="topleft"
      name="more_info_btn"
-     left_delta="10"
+     left_pad="10"
      top_delta="0"
      tab_stop="false"
      width="80" />
