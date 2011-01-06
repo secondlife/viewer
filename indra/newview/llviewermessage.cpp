@@ -2746,6 +2746,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["slurl"] = location;
 				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
+
+				// Look for IRC-style emotes here so object name formatting is correct
+				std::string prefix = message.substr(0, 4);
+				if (prefix == "/me " || prefix == "/me'")
+				{
+					chat.mChatStyle = CHAT_STYLE_IRC;
+				}
+
 				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 			}
 
