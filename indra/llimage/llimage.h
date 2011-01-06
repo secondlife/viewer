@@ -29,7 +29,6 @@
 
 #include "lluuid.h"
 #include "llstring.h"
-//#include "llmemory.h"
 #include "llthread.h"
 #include "llmemtype.h"
 
@@ -56,6 +55,7 @@ const S32 MAX_IMG_PACKET_SIZE = 1000;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
+class LLPrivateMemoryPool;
 
 typedef enum e_image_codec
 {
@@ -127,7 +127,7 @@ public:
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
-	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }
+	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }	
 	
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -138,6 +138,11 @@ public:
 
 	static EImageCodec getCodecFromExtension(const std::string& exten);
 	
+	static void createPrivatePool() ;
+	static void destroyPrivatePool() ;
+	static char* allocateMemory(S32 size) ;
+	static void  deleteMemory(void* p) ;	
+
 private:
 	U8 *mData;
 	S32 mDataSize;
@@ -149,6 +154,8 @@ private:
 
 	bool mBadBufferAllocation ;
 	bool mAllowOverSize ;
+
+	static LLPrivateMemoryPool* sPrivatePoolp ;
 public:
 	LLMemType::DeclareMemType& mMemType; // debug
 };
@@ -172,7 +179,7 @@ public:
 	
 	BOOL resize(U16 width, U16 height, S8 components);
 
-	U8 * getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const;
+	//U8 * getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const;
 	BOOL setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 					 const U8 *data, U32 stride = 0, BOOL reverse_y = FALSE);
 
@@ -184,7 +191,7 @@ public:
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
 	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
-	BOOL scaleDownWithoutBlending( S32 new_width, S32 new_height) ;
+	//BOOL scaleDownWithoutBlending( S32 new_width, S32 new_height) ;
 
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );

@@ -471,14 +471,14 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	}
 	else
 	{
-		U8 *data = new U8[file_size];
+		U8 *data = (U8*)allocateMemory(file_size);
 		apr_size_t bytes_read = file_size;
 		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
 		infile.close() ;
 
 		if (s != APR_SUCCESS || (S32)bytes_read != file_size)
 		{
-			delete[] data;
+			deleteMemory(data);
 			setLastError("Unable to read entire file");
 			res = FALSE;
 		}

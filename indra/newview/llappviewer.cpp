@@ -1797,6 +1797,9 @@ bool LLAppViewer::cleanup()
 		llinfos << "File launched." << llendflush;
 	}
 
+	//release all private memory pools.
+	LLPrivateMemoryPoolManager::destroyClass() ;
+
 	ll_close_fail_log();
 
     llinfos << "Goodbye!" << llendflush;
