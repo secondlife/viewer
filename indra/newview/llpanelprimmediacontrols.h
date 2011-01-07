@@ -59,6 +59,7 @@ public:
 	void showNotification(LLNotificationPtr notify);
 	void hideNotification();
 
+
 	enum EZoomLevel
 	{
 		ZOOM_NONE = 0,
@@ -136,7 +137,11 @@ private:
 	LLPluginClassMedia* getTargetMediaPlugin();
 	
 private:
-	
+
+	void clearFaceOnFade();
+
+	void onMouselookModeIn();
+
 	LLView *mMediaRegion;
 	LLUICtrl *mBackCtrl;
 	LLUICtrl *mFwdCtrl;
@@ -185,6 +190,7 @@ private:
 	bool mPauseFadeout;
 	bool mUpdateSlider;
 	bool mClearFaceOnFade;
+	bool mHideImmediately;
 
 	LLMatrix4 mLastCameraMat;
 	EZoomLevel mCurrentZoom;

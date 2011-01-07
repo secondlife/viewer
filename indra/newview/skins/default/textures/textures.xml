@@ -553,10 +553,10 @@ with the same filename but different name
 
   <texture name="Wearables_Divider" file_name="windows/Wearables_Divider.png" preload="false" />
 
+  <texture name="Web_Profile_Off" file_name="icons/Web_Profile_Off.png" preload="false" />
+
   <texture name="WellButton_Lit" file_name="bottomtray/WellButton_Lit.png"  preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="WellButton_Lit_Selected" file_name="bottomtray/WellButton_Lit_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-
-
 
   <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true"
            scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />

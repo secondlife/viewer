@@ -527,7 +527,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
-			&& gSavedSettings.getBOOL("UseChatBubbles") ) )
+			&& gSavedSettings.getBOOL("UseChatBubbles") )
+		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// Handle irc styled messages for toast panel

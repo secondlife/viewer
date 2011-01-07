@@ -25,13 +25,16 @@
  * $/LicenseInfo$
  */
 
-// Precompiled header: almost always required for newview cpp files
-#include "../llviewerprecompiledheaders.h"
+// Dependencies
+#include "linden_common.h"
+#include "llapr.h"
+#include "llsingleton.h"
+#include "lltrans.h"
+#include "lluistring.h"
+#include "../llviewertexture.h"
+#include "../llworldmapmessage.h"
 // Class to test
 #include "../llworldmap.h"
-// Dependencies
-#include "../llviewerimagelist.h"
-#include "../llworldmapmessage.h"
 // Tut header
 #include "../test/lltut.h"
 
@@ -44,34 +47,29 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 // Stub image calls
-LLViewerImageList::LLViewerImageList() { }
-LLViewerImageList::~LLViewerImageList() { }
-LLViewerImageList gImageList;
-LLViewerImage* LLViewerImageList::getImage(const LLUUID &image_id,
-												   BOOL usemipmaps,
-												   BOOL level_immediate,
-												   LLGLint internal_format,
-												   LLGLenum primary_format,
-												   LLHost request_from_host)
-{ return NULL; }
-void LLViewerImage::setBoostLevel(S32 level) { }
-void LLImageGL::setAddressMode(LLTexUnit::eTextureAddressMode mode) { }
+void LLViewerTexture::setBoostLevel(S32 ) { }
+void LLViewerTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, BOOL, LLViewerTexture::EBoostLevel, S8,
+																  LLGLint, LLGLenum, LLHost ) { return NULL; }
 
 // Stub related map calls
 LLWorldMapMessage::LLWorldMapMessage() { }
 LLWorldMapMessage::~LLWorldMapMessage() { }
 void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle) { }
 void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent) { }
+
 LLWorldMipmap::LLWorldMipmap() { }
 LLWorldMipmap::~LLWorldMipmap() { }
 void LLWorldMipmap::reset() { }
 void LLWorldMipmap::dropBoostLevels() { }
 void LLWorldMipmap::equalizeBoostLevels() { }
-LLPointer<LLViewerImage> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load)
-{ return NULL; }
+LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return NULL; }
 
 // Stub other stuff
-BOOL gPacificDaylightTime;
+std::string LLTrans::getString(const std::string &, const LLStringUtil::format_map_t& ) { return std::string("test_trans"); }
+void LLUIString::updateResult() const { }
+void LLUIString::setArg(const std::string& , const std::string& ) { }
+void LLUIString::assign(const std::string& ) { }
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------
@@ -237,7 +235,7 @@ namespace tut
 		// Test 9 : setLandForSaleImage() / getLandForSaleImage()
 		LLUUID id;
 		mSim->setLandForSaleImage(id);
-		LLPointer<LLViewerImage> image = mSim->getLandForSaleImage();
+		LLPointer<LLViewerFetchedTexture> image = mSim->getLandForSaleImage();
 		ensure("LLSimInfo::getLandForSaleImage() test failed", image.isNull());
 		// Test 10 : isPG()
 		mSim->setAccess(SIM_ACCESS_PG);
@@ -370,7 +368,7 @@ namespace tut
  		}
 		// Test 7 : getObjectsTile()
 		try {
-			LLPointer<LLViewerImage> image = mWorld->getObjectsTile((U32)(X_WORLD_TEST/REGION_WIDTH_METERS), (U32)(Y_WORLD_TEST/REGION_WIDTH_METERS), 1);
+			LLPointer<LLViewerFetchedTexture> image = mWorld->getObjectsTile((U32)(X_WORLD_TEST/REGION_WIDTH_METERS), (U32)(Y_WORLD_TEST/REGION_WIDTH_METERS), 1);
 			ensure("LLWorldMap::getObjectsTile() failed", image.isNull());
 		} catch (...) {
 			fail("LLWorldMap::getObjectsTile() test failed with exception");

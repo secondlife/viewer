@@ -106,6 +106,11 @@ public:
 	// teleport to the tracked item, if there is one
 	void			teleport();
 	void			onChangeMaturity();
+	
+	
+	//Slapp instigated avatar tracking
+	void			avatarTrackFromSlapp( const LLUUID& id ); 
+
 protected:	
 	void			onGoHome();
 

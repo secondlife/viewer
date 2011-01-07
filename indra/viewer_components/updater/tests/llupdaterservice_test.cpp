@@ -48,7 +48,7 @@ void LLUpdateChecker::check(std::string const & protocolVersion, std::string con
 								  std::string const & servicePath, std::string channel, std::string version)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & , std::string const &){}
+void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, bool){}
 
 class LLDir_Mock : public LLDir
 {
@@ -101,8 +101,9 @@ std::string LLUpdateDownloader::downloadMarkerPath(void)
 
 void LLUpdateDownloader::resume(void) {}
 void LLUpdateDownloader::cancel(void) {}
+void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) {}
 
-int ll_install_update(std::string const &, std::string const &, LLInstallScriptMode)
+int ll_install_update(std::string const &, std::string const &, bool, LLInstallScriptMode)
 {
 	return 0;
 }

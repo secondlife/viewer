@@ -253,6 +253,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FavoritesOnLogin"
+   type="alertmodal">    
+    Note: When you turn on this option, anyone who uses this computer can see your list of favorite locations.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
@@ -2901,12 +2911,80 @@ http://secondlife.com/download.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
   <notification
-   icon="notifytip.tga"
-   name="DownloadBackground"
-   type="notifytip">
-An updated version of [APP_NAME] has been downloaded.
-It will be applied the next time you restart [APP_NAME]
+   icon="alertmodal.tga"
+   name="FailedRequiredUpdateInstall"
+   type="alertmodal">
+We were unable to install a required update. 
+You will be unable to log in until [APP_NAME] has been updated.
+
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="Quit"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UpdaterServiceNotRunning"
+   type="alertmodal">
+There is a required update for your Second Life Installation.
+
+You may download this update from http://www.secondlife.com/downloads
+or you can install it now.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Quit Second Life"
+     yestext="Download and install now"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="DownloadBackgroundTip"
+   type="notify">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="DownloadBackgroundDialog"
+ type="alertmodal">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedVerboseDialog"
+ type="alertmodal">
+We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedDialog"
+ type="alertmodal">
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
