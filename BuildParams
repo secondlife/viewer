@@ -14,6 +14,9 @@ public_build = true
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = true
 
+# Limit extent of codeticket updates to revisions after...
+codeticket_since = 2.2.0-release
+
 # ========================================
 # Viewer Development
 # ========================================
@@ -205,6 +208,30 @@ tofu_viewer-development-staging.email = tofu.linden@lindenlab.com
 viewer-tut-teamcity.email = enus@lindenlab.com
 viewer-tut-teamcity.build_server = false
 viewer-tut-teamcity.build_server_tests = false
+
+# ========================================
+# experience
+# ========================================
+viewer-experience.public_build = false
+viewer-experience.viewer_channel = "Second Life SkyLight Viewer"
+viewer-experience.login_channel = "Second Life SkyLight Viewer"
+
+# =================================================================
+# asset delivery 2010 projects
+# =================================================================
+viewer-asset-delivery.viewer_channel = "Second Life Development"
+viewer-asset-delivery.login_channel = "Second Life Development"
+viewer-asset-delivery.build_viewer_update_version_manager = false
+viewer-asset-delivery.email = monty@lindenlab.com
+viewer-asset-delivery.build_server = false
+viewer-asset-delivery.build_server_tests = false
+
+viewer-asset-delivery-metrics.viewer_channel = "Second Life Development"
+viewer-asset-delivery-metrics.login_channel = "Second Life Development"
+viewer-asset-delivery-metrics.build_viewer_update_version_manager = false
+viewer-asset-delivery-metrics.email = monty@lindenlab.com
+viewer-asset-delivery-metrics.build_server = false
+viewer-asset-delivery-metrics.build_server_tests = false
 
 
 # eof

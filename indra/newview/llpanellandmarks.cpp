@@ -520,9 +520,6 @@ void LLLandmarksPanel::setParcelID(const LLUUID& parcel_id)
 {
 	if (!parcel_id.isNull())
 	{
-        //ext-4655, defensive. remove now incase this gets called twice without a remove
-        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(parcel_id, this);
-        
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(parcel_id, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
 	}

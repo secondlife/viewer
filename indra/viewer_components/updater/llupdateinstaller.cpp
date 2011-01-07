@@ -31,6 +31,12 @@
 #include "lldir.h"
 
 
+#if defined(LL_WINDOWS)
+#pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
+#endif
+#include <boost/lexical_cast.hpp>
+
+
 namespace {
 	class RelocateError {};
 	
@@ -47,7 +53,10 @@ namespace {
 }
 
 
-int ll_install_update(std::string const & script, std::string const & updatePath, LLInstallScriptMode mode)
+int ll_install_update(std::string const & script,
+					  std::string const & updatePath,
+					  bool required,
+					  LLInstallScriptMode mode)
 {
 	std::string actualScriptPath;
 	switch(mode) {
@@ -73,6 +82,7 @@ int ll_install_update(std::string const & script, std::string const & updatePath
 	launcher.setExecutable(actualScriptPath);
 	launcher.addArgument(updatePath);
 	launcher.addArgument(ll_install_failed_marker_path().c_str());
+	launcher.addArgument(boost::lexical_cast<std::string>(required));
 	int result = launcher.launch();
 	launcher.orphan();
 	

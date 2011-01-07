@@ -62,7 +62,7 @@
      name="avatar_name"
      top="6"
      use_ellipses="true"
-     value="Unknown"
+     value="(loading)"
      width="180" />
     <text
      follows="right"
@@ -134,7 +134,7 @@
     <button
      follows="right"
      height="20"
-     image_overlay="ForwardArrow_Off"
+     image_overlay="Web_Profile_Off"
      layout="topleft"
      left_pad="5"
      right="-28"

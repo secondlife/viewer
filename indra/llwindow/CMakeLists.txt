@@ -59,12 +59,13 @@ set(viewer_HEADER_FILES
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-if (NOT LINUX OR VIEWER)
+if (LINUX AND VIEWER)
   set(llwindow_LINK_LIBRARIES
       ${UI_LIBRARIES}     # for GTK
       ${SDL_LIBRARY}
+      fontconfig          # For FCInit and other FC* functions.
       )
-endif (NOT LINUX OR VIEWER)
+endif (LINUX AND VIEWER)
 
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES

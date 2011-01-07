@@ -94,6 +94,8 @@ public:
 
 	virtual LLUUID	getID(const std::string &string) const { return LLUUID::null; }
 
+	bool isLinkDisabled() const;
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
@@ -295,6 +297,18 @@ class LLUrlEntryPlace : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryPlace();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getLocation(const std::string &url) const;
+};
+
+///
+/// LLUrlEntryRegion Describes a Second Life location Url, e.g.,
+/// secondlife:///app/region/Ahern/128/128/0
+///
+class LLUrlEntryRegion : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryRegion();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getLocation(const std::string &url) const;
 };

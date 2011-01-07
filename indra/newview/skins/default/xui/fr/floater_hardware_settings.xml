@@ -14,6 +14,9 @@
 		<combo_box.item label="8x" name="8x"/>
 		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
+	<text name="antialiasing restart">
+		(redémarrage du client requis)
+	</text>
 	<spinner label="Gamma :" name="gamma"/>
 	<text left="217" name="(brightness, lower is brighter)">
 		(0 = défaut, valeur faible = plus lumineux)

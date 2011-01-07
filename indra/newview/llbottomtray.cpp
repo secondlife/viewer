@@ -65,31 +65,42 @@ LLDefaultChildRegistry::Register<LLBottomtrayButton> bottomtray_button("bottomtr
 // virtual
 BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass hover to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
-	return FALSE;
+		return TRUE;
+	}
+	else
+	{
+		return LLButton::handleHover(x, y, mask);
+	}
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonMouseUp(this, screenX, screenY);
-	LLButton::handleMouseUp(x, y, mask);
-	return FALSE;
+	}
+	return LLButton::handleMouseUp(x, y, mask);
 }
 //virtual
 BOOL LLBottomtrayButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	if (mCanDrag)
+	{
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
 	// pass mouse up to bottomtray
 	LLBottomTray::getInstance()->onDraggableButtonMouseDown(this, screenX, screenY);
-	LLButton::handleMouseDown(x, y, mask);
-	return FALSE;
+	}
+	return LLButton::handleMouseDown(x, y, mask);
 }
 
 static void update_build_button_enable_state()
@@ -150,8 +161,6 @@ public:
 	{
 		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 		buildFromFile("panel_bottomtray_lite.xml");
-		// Necessary for focus movement among child controls
-		setFocusRoot(TRUE);
 	}
 
 	BOOL postBuild()
@@ -217,9 +226,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
 	//destroyed LLBottomTray requires some subsystems that are long gone
 	//LLUI::getRootView()->addChild(this);
-
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 
 	{
 		mBottomTrayLite = new LLBottomTrayLite();
@@ -513,6 +519,9 @@ void LLBottomTray::toggleCameraControls()
 
 BOOL LLBottomTray::postBuild()
 {
+	LLHints::registerHintTarget("bottom_tray", LLView::getHandle());
+	LLHints::registerHintTarget("dest_guide_btn", getChild<LLUICtrl>("destination_btn")->getHandle());
+	LLHints::registerHintTarget("avatar_picker_btn", getChild<LLUICtrl>("avatar_btn")->getHandle());
 
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("NearbyChatBar.Action", boost::bind(&LLBottomTray::onContextMenuItemClicked, this, _2));
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("NearbyChatBar.EnableMenuItem", boost::bind(&LLBottomTray::onContextMenuItemEnabled, this, _2));
@@ -1365,20 +1374,33 @@ void LLBottomTray::processExtendButtons(S32& available_width)
 		processExtendButton(*it, available_width);
 	}
 
+	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
+	static const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
+	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
+
 	// then try to extend Speak button
-	if (available_width > 0)
+	if (available_width > 0 || available_width_chiclet > 0)
 	{
 		S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
 		S32 panel_width = mSpeakPanel->getRect().getWidth();
 		S32 possible_extend_width = panel_max_width - panel_width;
-		if (possible_extend_width >= 0 && possible_extend_width <= available_width)  // HACK: this button doesn't change size so possible_extend_width will be 0
+
+		if (possible_extend_width >= 0 && possible_extend_width <= available_width + available_width_chiclet)  // HACK: this button doesn't change size so possible_extend_width will be 0
 		{
 			mSpeakBtn->setLabelVisible(true);
 			mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
 			log(mSpeakBtn, "speak button is extended");
 
-			available_width -= possible_extend_width;
-
+			if( available_width > possible_extend_width)
+			{
+				available_width -= possible_extend_width;
+			}
+			else
+			{
+				S32 required_width = possible_extend_width - available_width;
+				available_width = 0;
+				mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_width, mChicletPanel->getParent()->getRect().getHeight());
+			}
 			lldebugs << "Extending Speak button panel: " << mSpeakPanel->getName()
 				<< ", extended width: " << possible_extend_width
 				<< ", rest width to process: " << available_width

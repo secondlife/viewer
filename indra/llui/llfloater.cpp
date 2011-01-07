@@ -1,4 +1,5 @@
 /** 
+
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
@@ -60,10 +61,6 @@
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
-
-// static
-F32 LLFloater::sActiveFloaterTransparency = 0.0f;
-F32 LLFloater::sInactiveFloaterTransparency = 0.0f;
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
@@ -208,14 +205,14 @@ void LLFloater::initClass()
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
-		sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+		updateActiveFloaterTransparency();
 	}
 
 	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
-		sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+		updateInactiveFloaterTransparency();
 	}
 
 }
@@ -225,7 +222,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
-	mDragHandle(NULL),
+ 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
@@ -368,13 +365,13 @@ void LLFloater::layoutDragHandle()
 // static
 void LLFloater::updateActiveFloaterTransparency()
 {
-	sActiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+	sActiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
 }
 
 // static
 void LLFloater::updateInactiveFloaterTransparency()
 {
-	sInactiveFloaterTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+	sInactiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -1193,6 +1190,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
+	updateTransparency(b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1465,6 +1463,9 @@ void LLFloater::setFrontmost(BOOL take_focus)
 		// there are more than one floater view
 		// so we need to query our parent directly
 		((LLFloaterView*)getParent())->bringToFront(this, take_focus);
+
+		// Make sure to set the appropriate transparency type (STORM-732).
+		updateTransparency(hasFocus() || getIsChrome() ? TT_ACTIVE : TT_INACTIVE);
 	}
 }
 
@@ -1652,7 +1653,7 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	mCurrentTransparency = hasFocus() ? sActiveFloaterTransparency : sInactiveFloaterTransparency;
+	const F32 alpha = getCurrentTransparency();
 
 	// draw background
 	if( isBackgroundVisible() )
@@ -1684,12 +1685,12 @@ void LLFloater::draw()
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), overlay_color % mCurrentTransparency);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
 			// We're not using images, use old-school flat colors
-			gl_rect_2d( left, top, right, bottom, color % mCurrentTransparency );
+			gl_rect_2d( left, top, right, bottom, color % alpha );
 
 			// draw highlight on title bar to indicate focus.  RDW
 			if(hasFocus() 
@@ -1701,7 +1702,7 @@ void LLFloater::draw()
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
 				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
-					titlebar_focus_color % mCurrentTransparency, 0, TRUE);
+					titlebar_focus_color % alpha, 0, TRUE);
 			}
 		}
 	}
@@ -1767,8 +1768,30 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % mCurrentTransparency,
+		shadow_color % getCurrentTransparency(),
 		llround(shadow_offset));
+}
+
+void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
+{
+	child_list_t children = *view->getChildList();
+	child_list_t::iterator it = children.begin();
+
+	LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(view);
+	if (ctrl)
+	{
+		ctrl->setTransparencyType(transparency_type);
+	}
+
+	for(; it != children.end(); ++it)
+	{
+		updateTransparency(*it, transparency_type);
+	}
+}
+
+void LLFloater::updateTransparency(ETypeTransparency transparency_type)
+{
+	updateTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
@@ -2887,7 +2910,9 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	params.from_xui = true;
 	applyXUILayout(params, parent);
  	initFromParams(params);
-	
+	// chrome floaters don't take focus at all
+	setFocusRoot(!getIsChrome());
+
 	initFloater(params);
 	
 	LLMultiFloater* last_host = LLFloater::getFloaterHost();

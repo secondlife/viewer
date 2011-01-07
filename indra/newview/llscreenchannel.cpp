@@ -83,11 +83,10 @@ bool  LLScreenChannelBase::isHovering()
 	return mHoveredToast->isHovered();
 }
 
-bool LLScreenChannelBase::resetPositionAndSize(const LLSD& newvalue)
+void LLScreenChannelBase::resetPositionAndSize()
 {
 	LLRect rc = gViewerWindow->getWorldViewRectScaled();
 	updatePositionAndSize(rc, rc);
-	return true;
 }
 
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
@@ -99,10 +98,7 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE
 		&& LLSideTray::instanceCreated	())
 	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
+		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
 	}
 
 
@@ -133,14 +129,24 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 	if(LLSideTray::instanceCreated())
 	{
 		LLSideTray*	side_bar = LLSideTray::getInstance();
-		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
+		side_bar->setVisibleWidthChangeCallback(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this));
 	}
 
-	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
-	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
+	// top and bottom set by updateBottom()
+	setRect(LLRect(channel_left, 0, channel_right, 0));
+	updateBottom();
 	setVisible(TRUE);
 }
+
+void	LLScreenChannelBase::updateBottom()
+{
+	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
+	S32 channel_bottom = gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_left = getRect().mLeft;
+	S32 channel_right = getRect().mRight;
+	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
+}
+
 
 //--------------------------------------------------------------------------
 //////////////////////
@@ -204,10 +210,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE 
 		&& LLSideTray::instanceCreated	())
 	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
+		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
 	}
 
 
@@ -253,8 +256,8 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
-		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToast, this, new_toast_elem.toast));
-		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToast, this, new_toast_elem.toast));
+		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopToastTimer, this, new_toast_elem.toast));
+		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startToastTimer, this, new_toast_elem.toast));
 	}
 	
 	if(show_toast)
@@ -369,7 +372,7 @@ void LLScreenChannel::loadStoredToastsToChannel()
 	for(it = mStoredToastList.begin(); it != mStoredToastList.end(); ++it)
 	{
 		(*it).toast->setIsHidden(false);
-		(*it).toast->startFading();
+		(*it).toast->startTimer();
 		mToastList.push_back((*it));
 	}
 
@@ -394,7 +397,7 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	}
 
 	toast->setIsHidden(false);
-	toast->startFading();
+	toast->startTimer();
 	mToastList.push_back((*it));
 
 	redrawToasts();
@@ -477,7 +480,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		toast->removeChild(old_panel);
 		delete old_panel;
 		toast->insertPanel(panel);
-		toast->startFading();
+		toast->startTimer();
 		redrawToasts();
 	}
 }
@@ -485,7 +488,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
-	if(mToastList.size() == 0 || isHovering())
+	if(mToastList.size() == 0)
 		return;
 
 	switch(mToastAlignment)
@@ -510,6 +513,8 @@ void LLScreenChannel::showToastsBottom()
 	S32		bottom = getRect().mBottom - gFloaterView->getRect().mBottom;
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
+
+	updateBottom();
 
 	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
@@ -583,19 +588,14 @@ void LLScreenChannel::showToastsBottom()
 		}
 	}
 
+	// Dismiss toasts we don't have space for (STORM-391).
 	if(it != mToastList.rend())
 	{
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
-			(*it).toast->stopFading();
-			(*it).toast->setVisible(FALSE);
-			mHiddenToastsNum++;
+			(*it).toast->hide();
 		}
-	}
-	else
-	{
-		closeOverflowToastPanel();
 	}
 }
 
@@ -697,15 +697,15 @@ void LLScreenChannel::closeStartUpToast()
 	}
 }
 
-void LLNotificationsUI::LLScreenChannel::stopFadingToast(LLToast* toast)
+void LLNotificationsUI::LLScreenChannel::stopToastTimer(LLToast* toast)
 {
 	if (!toast || toast != mHoveredToast) return;
 
 	// Pause fade timer of the hovered toast.
-	toast->stopFading();
+	toast->stopTimer();
 }
 
-void LLNotificationsUI::LLScreenChannel::startFadingToast(LLToast* toast)
+void LLNotificationsUI::LLScreenChannel::startToastTimer(LLToast* toast)
 {
 	if (!toast || toast == mHoveredToast)
 	{
@@ -713,13 +713,12 @@ void LLNotificationsUI::LLScreenChannel::startFadingToast(LLToast* toast)
 	}
 
 	// Reset its fade timer.
-	toast->startFading();
+	toast->startTimer();
 }
 
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
-	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }
@@ -835,8 +834,7 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 		}
 	}
 
-	if(!isHovering())
-		redrawToasts();
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------
@@ -850,13 +848,7 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
-	LLRect this_rect = getRect();
-
-	if(channel_bottom != this_rect.mBottom)
-	{
-		setRect(LLRect(this_rect.mLeft, this_rect.mTop, this_rect.mRight, channel_bottom));
-	}
+	updateBottom();
 }
 
 //--------------------------------------------------------------------------

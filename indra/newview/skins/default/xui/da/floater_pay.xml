@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Person"/>
 	<text name="payee_name">
-		Test Name That Is Extremely Long To Check Clipping
+		Test navn der er meget lang for at checke afkortning
 	</text>
 	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
 	<button label="L$5" label_selected="L$5" name="fastpay 5"/>

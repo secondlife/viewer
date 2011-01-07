@@ -586,7 +586,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	LLLayoutStack::Params layout_p;
 	layout_p.rect = stack_rect;
 	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.orientation = "vertical";
+	layout_p.orientation = LLLayoutStack::VERTICAL;
 	layout_p.mouse_opaque = false;
 	
 	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p, this);
@@ -789,24 +789,22 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
-				link_params.color.control = "HTMLLinkColor";
+				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+				link_params.color = link_color;
+				link_params.readonly_color = link_color;
 				link_params.is_link = true;
 				link_params.link_href = url;
+
 				mEditor->appendText(chat.mFromName + delimiter,
 									false, link_params);
 			}
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
-
-				// Setting is_link = true for agent SLURL to avoid applying default style to it.
-				// See LLTextBase::appendTextImpl().
-				link_params.is_link = true;
-				link_params.link_href = LLSLURL("agent", chat.mFromID, "inspect").getSLURLString();
+				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
 				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(chat.mFromName, false, link_params);
-				mEditor->appendText(delimiter, false, style_params);
+				mEditor->appendText(std::string(link_params.link_href) + delimiter, false, link_params);
 			}
 			else
 			{

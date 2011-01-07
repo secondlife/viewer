@@ -63,9 +63,6 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	// Set thread state to running
-	threadp->mStatus = RUNNING;
-
 	// Run the user supplied function
 	threadp->run();
 
@@ -167,10 +164,25 @@ void LLThread::shutdown()
 
 void LLThread::start()
 {
-	apr_thread_create(&mAPRThreadp, NULL, staticRun, (void *)this, mAPRPoolp);	
+	llassert(isStopped());
+	
+	// Set thread state to running
+	mStatus = RUNNING;
 
-	// We won't bother joining
-	apr_thread_detach(mAPRThreadp);
+	apr_status_t status =
+		apr_thread_create(&mAPRThreadp, NULL, staticRun, (void *)this, mAPRPoolp);
+	
+	if(status == APR_SUCCESS)
+	{	
+		// We won't bother joining
+		apr_thread_detach(mAPRThreadp);
+	}
+	else
+	{
+		mStatus = STOPPED;
+		llwarns << "failed to start thread " << mName << llendl;
+		ll_apr_warn_status(status);
+	}
 }
 
 //============================================================================

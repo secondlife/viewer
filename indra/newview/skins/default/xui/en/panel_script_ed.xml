@@ -180,6 +180,7 @@
      name="Save_btn"
      width="81" />
     <button
+     enabled="false"
      follows="right|bottom"
      height="23"
      label="Edit..."
