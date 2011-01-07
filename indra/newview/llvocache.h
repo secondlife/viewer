@@ -128,8 +128,8 @@ private:
 	void removeCache() ;
 	void purgeEntries();
 	BOOL updateEntry(const HeaderEntryInfo* entry);
-	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
-	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
+	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error = true) ;
+	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error = true) ;
 	
 private:
 	BOOL                 mEnabled;

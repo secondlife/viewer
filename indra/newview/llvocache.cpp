@@ -307,7 +307,6 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 
 	mCacheSize = size;
 
-	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();
 	mInitialized = TRUE ;
 
@@ -336,6 +335,7 @@ void LLVOCache::removeCache(ELLPath location)
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
+	llinfos << "Removing cache at " << cache_dir << llendl;
 	gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
 	LLFile::rmdir(cache_dir);
 
@@ -354,6 +354,7 @@ void LLVOCache::removeCache()
 
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
+	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 
 	clearCacheInMemory() ;
@@ -390,22 +391,28 @@ void LLVOCache::removeFromCache(U64 handle)
 	LLAPRFile::remove(filename, mLocalAPRFilePoolp);	
 }
 
-BOOL LLVOCache::checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) 
+BOOL LLVOCache::checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error)
 {
 	if(!check_read(apr_file, src, n_bytes))
 	{
-		removeCache() ;
+		if (remove_cache_on_error)
+		{
+			removeCache() ;
+		}
 		return FALSE ;
 	}
 
 	return TRUE ;
 }
 
-BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) 
+BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error) 
 {
 	if(!check_write(apr_file, src, n_bytes))
 	{
-		removeCache() ;
+		if (remove_cache_on_error)
+		{
+			removeCache() ;
+		}
 		return FALSE ;
 	}
 
@@ -428,7 +435,8 @@ void LLVOCache::readCacheHeader()
 		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);		
 		
 		//read the meta element
-		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
+		bool remove_cache_on_error = false;
+		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo), remove_cache_on_error))
 		{
 			llwarns << "Error reading meta information from cache header." << llendl;
 			delete apr_file;
@@ -439,7 +447,7 @@ void LLVOCache::readCacheHeader()
 		for(U32 entry_index = 0; entry_index < mCacheSize; ++entry_index)
 		{
 			entry = new HeaderEntryInfo() ;
-			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo)))
+			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo), remove_cache_on_error))
 			{
 				llwarns << "Error reading cache header entry. (entry_index=" << entry_index << ")" << llendl;
 				delete entry ;			
