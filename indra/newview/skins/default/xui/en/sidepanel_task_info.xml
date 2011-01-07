@@ -533,7 +533,7 @@
 		     left="5"
 		     name="open_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
 	    <button
 		     follows="bottom|left"
 		     height="23"
@@ -542,7 +542,7 @@
 		     left_pad="5"
 		     name="pay_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
 	    <button
 		     follows="bottom|left"
 		     height="23"
@@ -551,17 +551,16 @@
 		     left_pad="5"
 		     name="buy_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
         <button
 		     follows="bottom|left"
 		     height="23"
 		     label="Details"
 		     layout="topleft"
-		     left="5"
+		     left_pad="5"
 		     name="details_btn"
 		     top="0"
-		     width="100"
-			 visible="false" />
+		     width="74" />
 
 	</panel>
 </panel>

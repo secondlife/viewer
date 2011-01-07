@@ -3932,6 +3932,17 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
+    <key>WebProfileURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Web Profiles</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://my.secondlife.com/[AGENT_NAME]</string>
+    </map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
