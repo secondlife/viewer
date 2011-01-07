@@ -142,7 +142,8 @@ public:
 
 		bool containsAddress(const char* addr) const;
 
-		static U32 getMaxOverhead(U32 data_buffer_size, U32 min_page_size) ;
+		static U32 getMaxOverhead(U32 data_buffer_size, U32 min_slot_size, 
+													   U32 max_slot_size, U32 min_block_size, U32 max_block_size) ;
 	
 		void dump() ;
 

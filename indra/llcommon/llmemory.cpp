@@ -393,8 +393,6 @@ LLPrivateMemoryPool::LLMemoryBlock::~LLMemoryBlock()
 //create and initialize a memory block
 void LLPrivateMemoryPool::LLMemoryBlock::init(char* buffer, U32 buffer_size, U32 slot_size)
 {
-	llassert_always(buffer_size >= slot_size) ;
-
 	mBuffer = buffer ;
 	mBufferSize = buffer_size ;
 	mSlotSize = slot_size ;
@@ -590,12 +588,18 @@ void LLPrivateMemoryPool::LLMemoryChunk::init(char* buffer, U32 buffer_size, U32
 }
 
 //static 
-U32 LLPrivateMemoryPool::LLMemoryChunk::getMaxOverhead(U32 data_buffer_size, U32 min_page_size) 
+U32 LLPrivateMemoryPool::LLMemoryChunk::getMaxOverhead(U32 data_buffer_size, U32 min_slot_size, 
+													   U32 max_slot_size, U32 min_block_size, U32 max_block_size)
 {
 	//for large allocations, reserve some extra memory for meta data to avoid wasting much 
-	if(data_buffer_size / min_page_size < 64) //large allocations
+	if(data_buffer_size / min_slot_size < 64) //large allocations
 	{
-		return 4096 ; //4KB
+		U32 overhead = sizeof(LLMemoryChunk) + (data_buffer_size / min_block_size) * sizeof(LLMemoryBlock) +
+			sizeof(LLMemoryBlock*) * (max_slot_size / min_slot_size) + sizeof(LLMemoryBlock*) * (max_block_size / min_block_size + 1) ;
+
+		//round to integer times of min_block_size
+		overhead = ((overhead + min_block_size - 1) / min_block_size) * min_block_size ;
+		return overhead ;
 	}
 	else
 	{
@@ -1290,12 +1294,14 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_inde
 	if(chunk_index < LARGE_ALLOCATION)
 	{
 		preferred_size = CHUNK_SIZE ; //4MB
-		overhead = LLMemoryChunk::getMaxOverhead(preferred_size, MIN_BLOCK_SIZES[chunk_index]) ;
+		overhead = LLMemoryChunk::getMaxOverhead(preferred_size, MIN_SLOT_SIZES[chunk_index],
+			MAX_SLOT_SIZES[chunk_index], MIN_BLOCK_SIZES[chunk_index], MAX_BLOCK_SIZES[chunk_index]) ;
 	}
 	else
 	{
 		preferred_size = LARGE_CHUNK_SIZE ; //16MB
-		overhead = LLMemoryChunk::getMaxOverhead(preferred_size, MIN_BLOCK_SIZES[chunk_index]) ;
+		overhead = LLMemoryChunk::getMaxOverhead(preferred_size, MIN_SLOT_SIZES[chunk_index], 
+			MAX_SLOT_SIZES[chunk_index], MIN_BLOCK_SIZES[chunk_index], MAX_BLOCK_SIZES[chunk_index]) ;
 	}
 
 	checkSize(preferred_size + overhead) ;
@@ -1306,20 +1312,28 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_inde
 	{
 		return NULL ;
 	}
-	memset(buffer, 0, preferred_size + overhead) ;
-
+	
 	LLMemoryChunk* chunk = new (buffer) LLMemoryChunk() ;
 	chunk->init(buffer, preferred_size + overhead, MIN_SLOT_SIZES[chunk_index],
 		MAX_SLOT_SIZES[chunk_index], MIN_BLOCK_SIZES[chunk_index], MAX_BLOCK_SIZES[chunk_index]) ;
 
-	//add to the head of the linked list
-	chunk->mNext = mChunkList[chunk_index] ;
-	if(mChunkList[chunk_index])
+	//add to the tail of the linked list
 	{
-		mChunkList[chunk_index]->mPrev = chunk ;
+		if(!mChunkList[chunk_index])
+		{
+			mChunkList[chunk_index] = chunk ;
+		}
+		else
+		{
+			LLMemoryChunk* cur = mChunkList[chunk_index] ;
+			while(cur->mNext)
+			{
+				cur = cur->mNext ;
+			}
+			cur->mNext = chunk ;
+			chunk->mPrev = cur ;
+		}
 	}
-	chunk->mPrev = NULL ;
-	mChunkList[chunk_index] = chunk ;
 
 	//insert into the hash table
 	addToHashTable(chunk) ;
@@ -1425,7 +1439,7 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 		{
 			llassert_always(mChunkHashList[end_key] != chunk)
 			
-			need_rehash =  mChunkHashList[end_key]->mHashNext != NULL ;
+			need_rehash =  mChunkHashList[end_key]->mHashNext != NULL || mChunkHashList[end_key] == chunk->mHashNext;
 			if(!need_rehash)
 			{
 				mChunkHashList[end_key]->mHashNext = chunk ;
