@@ -4068,39 +4068,44 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				{
 					LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
 					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId );
-				
+					
 					if ( pSkinData )
 					{
 						const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
-							for ( int i=0; i<jointCnt; ++i )
+							bool fullRig = (jointCnt>=20) ? true : false;
+							if ( fullRig )
 							{
-								std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-								LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
-								if ( pJoint && pJoint->getId() != currentId )
-								{   									
-									pJoint->setId( currentId );
-									const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-									//If joint is a pelvis then handle by setting avPos+offset								
-									if ( lookingForJoint == "mPelvis" )
-									{	
-										//Apply av pos + offset 
-										if ( !pAvatarVO->hasPelvisOffset() )
-										{										
-											pAvatarVO->setPelvisOffset( true, jointPos );
-											//Trigger to rebuild viewer AV
-											pelvisGotSet = true;											
-										}										
+								for ( int i=0; i<jointCnt; ++i )
+								{
+									std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+									//llinfos<<"joint name "<<lookingForJoint.c_str()<<llendl;
+									LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
+									if ( pJoint && pJoint->getId() != currentId )
+									{   									
+										pJoint->setId( currentId );
+										const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+										//If joint is a pelvis then handle by setting avPos+offset								
+										if ( lookingForJoint == "mPelvis" )
+										{	
+											//Apply av pos + offset 
+											if ( !pAvatarVO->hasPelvisOffset() )
+											{										
+												pAvatarVO->setPelvisOffset( true, jointPos );
+												//Trigger to rebuild viewer AV
+												pelvisGotSet = true;											
+											}										
+										}
+										else
+										{
+											//Straight set for ALL joints except pelvis
+											pJoint->storeCurrentXform( jointPos );																					
+										}									
 									}
-									else
-									{
-										//Straight set for ALL joints except pelvis
-										pJoint->storeCurrentXform( jointPos );																					
-									}									
 								}
-							}
+							}							
 						}
 					}
 				}

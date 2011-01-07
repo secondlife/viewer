@@ -169,6 +169,7 @@ public:
 	
 	void					resetJointPositions( void );
 	void					resetJointPositionsToDefault( void );
+	void					resetSpecificJointPosition( const std::string& name );
 	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
 	virtual const LLUUID&   getID();

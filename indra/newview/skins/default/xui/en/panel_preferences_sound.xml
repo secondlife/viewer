@@ -296,6 +296,7 @@
 	<check_box
 		name="media_auto_play_btn"
 		control_name="ParcelMediaAutoPlayEnable"
+		enabled_control="AudioStreamingMedia"
 		value="true"
 		follows="left|bottom|right"
 		height="15"

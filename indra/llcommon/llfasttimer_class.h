@@ -180,7 +180,9 @@ public:
 		sTimerCycles += timer_end - timer_start;
 #endif
 #if DEBUG_FAST_TIMER_THREADS
+#if !LL_RELEASE
 		assert_main_thread();
+#endif
 #endif
 	}
 
@@ -251,6 +253,7 @@ public:
 		U32				mChildTime;
 	};
 	static CurTimerData		sCurTimerData;
+	static std::string sClockType;
 
 private:
 	static U32 getCPUClockCount32();
