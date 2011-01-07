@@ -425,7 +425,7 @@ void LLVOCache::readCacheHeader()
 
 	if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
 	{
-		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);		
+		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);		
 		
 		//read the meta element
 		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
@@ -477,7 +477,7 @@ void LLVOCache::writeCacheHeader()
 		return;
 	}
 
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
 
 	//write the meta element
 	if(!checkWrite(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
@@ -525,7 +525,7 @@ void LLVOCache::writeCacheHeader()
 
 BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 {
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_WRITE|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
 	apr_file->seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
 	BOOL result = checkWrite(apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
@@ -551,7 +551,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 
 	std::string filename;
 	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
 
 	LLUUID cache_id ;
 	if(!checkRead(apr_file, cache_id.mData, UUID_BYTES))
@@ -636,14 +636,16 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 		return ;
 	}
 
+	U32 num_handle_entries = mHandleEntryMap.size();
+	
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
-	U32 num_handle_entries = mHandleEntryMap.size();
 	if(iter == mHandleEntryMap.end()) //new entry
 	{
 		if(num_handle_entries >= mCacheSize)
 		{
 			purgeEntries() ;
+			num_handle_entries = mHandleEntryMap.size();
 		}
 		
 		entry = new HeaderEntryInfo();
@@ -675,7 +677,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	//write to cache file
 	std::string filename;
 	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
 	
 	if(!checkWrite(apr_file, (void*)id.mData, UUID_BYTES))
 	{
