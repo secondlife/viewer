@@ -103,7 +103,6 @@ LLBBox LLBBox::getAxisAligned() const
 	return aligned;
 }
 
-
 void LLBBox::expand( F32 delta )
 {
 	mMinLocal.mV[VX] -= delta;
