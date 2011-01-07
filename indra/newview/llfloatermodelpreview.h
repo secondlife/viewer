@@ -146,6 +146,8 @@ public:
 	
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
+
+	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	
 	static void onBrowseLOD(void* data);
 	
@@ -240,9 +242,10 @@ private:
 
 
 class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
-{
- public:
-	
+{	
+	typedef boost::signals2::signal<void (F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)> details_signal_t;
+ 
+public:
 	 LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 
@@ -275,9 +278,10 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	bool containsRiggedAsset( void );
 	void clearGLODGroup();
 
-
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
-
+	
+	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
+	
  protected:
 	friend class LLFloaterModelPreview;
 	friend class LLFloaterModelWizard;
@@ -329,6 +333,8 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
 	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
+
+	details_signal_t mDetailsSignal;
 };
 
 

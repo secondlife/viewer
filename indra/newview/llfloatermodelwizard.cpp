@@ -30,6 +30,7 @@
 
 #include "llbutton.h"
 #include "lldrawable.h"
+#include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfloater.h"
 #include "llfloatermodelwizard.h"
@@ -71,8 +72,15 @@ void LLFloaterModelWizard::setState(int state)
 		}
 	}
 
+	if (state == CHOOSE_FILE)
+	{
+		getChildView("back")->setEnabled(false);
+	}
+
 	if (state == OPTIMIZE)
 	{
+		getChildView("back")->setEnabled(true);
+		//mModelPreview->mModel[lod].clear();
 		mModelPreview->genLODs(-1);
 		mModelPreview->mViewOption["show_physics"] = false;
 	}
@@ -423,6 +431,7 @@ BOOL LLFloaterModelWizard::postBuild()
 	childSetValue("import_scale", (F32) 0.67335826);
 
 	getChild<LLUICtrl>("browse")->setCommitCallback(boost::bind(&LLFloaterModelWizard::loadModel, this));
+	//getChild<LLUICtrl>("lod_file")->setCommitCallback(boost::bind(&LLFloaterModelWizard::loadModel, this));
 	getChild<LLUICtrl>("cancel")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickCancel, this));
 	getChild<LLUICtrl>("close")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickCancel, this));
 	getChild<LLUICtrl>("back")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickBack, this));
@@ -441,6 +450,8 @@ BOOL LLFloaterModelWizard::postBuild()
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelWizard::setDetails, this, _1, _2, _3, _4, _5));
+
 
 	center();
 
@@ -454,6 +465,25 @@ BOOL LLFloaterModelWizard::postBuild()
 
 	return TRUE;
 }
+
+
+void LLFloaterModelWizard::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
+{
+	// iterate through all the panels, setting the dimensions
+	for(size_t t=0; t<LL_ARRAY_SIZE(stateNames); ++t)
+	{
+		LLPanel *panel = getChild<LLPanel>(stateNames[t]+"_panel");
+		if (panel) 
+		{
+			panel->childSetText("dimension_x", llformat("%.1f", x));
+			panel->childSetText("dimension_y", llformat("%.1f", y));
+			panel->childSetText("dimension_z", llformat("%.1f", z));
+			panel->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+			panel->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
+		}
+	}
+}
+
 
 void LLFloaterModelWizard::onUpload()
 {	
@@ -492,8 +522,30 @@ void LLFloaterModelWizard::onPreviewLODCommit(LLUICtrl* ctrl)
 	mModelPreview->setPreviewLOD(which_mode);
 }
 
+void LLFloaterModelWizard::refresh()
+{
+	if (mState == CHOOSE_FILE)
+	{
+		bool model_loaded = false;
+
+		if (mModelPreview && mModelPreview->mModelLoader && mModelPreview->mModelLoader->getLoadState() == LLModelLoader::DONE)
+		{
+			model_loaded = true;
+		}
+		
+		getChildView("next")->setEnabled(model_loaded);
+	}
+	if (mState == REVIEW)
+	{
+		getChildView("upload")->setEnabled(getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean());
+	}
+
+}
+
 void LLFloaterModelWizard::draw()
 {
+	refresh();
+
 	LLFloater::draw();
 	LLRect r = getRect();
 	

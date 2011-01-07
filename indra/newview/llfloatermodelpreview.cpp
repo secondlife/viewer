@@ -339,6 +339,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -1603,6 +1604,8 @@ void LLModelLoader::run()
 			return;
 		}
 
+		setLoadState( DONE );
+
 		processElement(scene);
 
 		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
@@ -2130,16 +2133,22 @@ U32 LLModelPreview::calcResourceCost()
 
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
-	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
-	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
+
+	mDetailsSignal(mPreviewScale[0]*scale, mPreviewScale[1]*scale, mPreviewScale[2]*scale, streaming_cost, physics_cost);
 
 	updateStatusMessages();
 
 	return cost;
+}
+
+void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
+{
+	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
+	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
+	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
+	childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
 void LLModelPreview::rebuildUploadData()

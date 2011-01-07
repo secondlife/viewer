@@ -190,20 +190,48 @@
 			<text
 			 top_pad="10"
 			 width="130"
-			 height="15"
+			 height="14"
 			 left="340"
 			 text_color="White"
 			 word_wrap="true">
 				Dimensions (meters):
 			</text>
 			<text
-			 top_pad="2"
+			 top_pad="0"
 			 width="160"
 			 height="15"
-			 name="import_dimensions"
+			 font="SansSerifSmallBold" 
+			 text_color="White"
+			 name="dimensions"
 			 left_delta="0">
-				X:  [X] |Y:  [Y] |Z: [Z]
+				X:         Y:         Z: 
 			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_dividers"
+			 left_delta="41">
+				 |               |   
+			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_x"
+			 left="356"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_y"
+			 left="403"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_z"
+			 left="450"/>
 			<text
 			 top="100"
 			 width="320"
@@ -397,29 +425,66 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		   width="290" />
 			<text 
 			font="SansSerifSmall" 
-			top_pad="1"  
+			top_pad="0"  
 			width="300" 
 			left_delta="6" 
 			height="4">'                                             '                                             '</text>
-			<text top_delta="25" width="100" text_color="White" left_delta="50"  height="20">Resource Cost:</text>
+
+
+			<icon
+				 top_pad="10"
+				 left_delta="0"
+				 width="280"
+				 height="2"
+				 image_name="model_wizard\divider_line.png"/>
+	
+			<text top_delta="25" width="200" text_color="White" left_delta="50" name="streaming cost"  height="20">Resource Cost:    [COST]</text>
 			<text top_delta="25" width="100" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
 			<text
-			 top_pad="15"
-			 width="130"
-			 height="15"
-			 left="10"
-			 text_color="White"
-			 word_wrap="true">
+						 top_pad="5"
+						 width="130"
+						 height="14"
+						 left="10"
+						 text_color="White"
+						 word_wrap="true">
 				Dimensions (meters):
 			</text>
 			<text
 			 top_pad="0"
 			 width="160"
 			 height="15"
-			 name="import_dimensions"
+			 font="SansSerifSmallBold"
+			 text_color="White"
+			 name="dimensions"
 			 left_delta="0">
-				X:  [X] |Y:  [Y] |Z: [Z]
+				X:         Y:         Z:
 			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_dividers"
+			 left_delta="41">
+				|               |
+			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_x"
+			 left_delta="-25"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_y"
+			 left_delta="46"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_z"
+			 left_delta="46"/>
 		</panel>
 	</panel>
 
@@ -466,7 +531,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
     <panel
 		 top_delta="40"
 		 left="15"
-		 height="245"
+		 height="265"
 		 width="500"
 		 name="content"
 		 bg_opaque_color="DkGray2"
@@ -499,9 +564,18 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
       <text top_pad="10" width="110" halign="center" word_wrap="true" left="25"  height="40">Recommended for solid objects</text>
       <text top_delta="0" width="110" halign="center" word_wrap="true" left="190"  height="40">Recommended for buildings</text>
       <text top_delta="0" width="110" halign="center" word_wrap="true" left="350"  height="40">Recommended for vehicles</text>
-      <text top_delta="60" width="100" text_color="White" left="160"  height="20">Resource Cost:</text>
-      <text top_delta="20" width="100" text_color="White" left_delta="0"  height="20">Physics Cost:</text>
-      <text top_delta="20" width="100" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
+
+
+		<icon
+			 top_pad="5"
+			 left="15"
+			 width="470"
+			 height="2"
+			 image_name="model_wizard\divider_line.png"/>
+		
+	<text top_delta="20" width="180" text_color="White" left="160" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
+      <text top_delta="26" width="180" text_color="White" left_delta="0" name="physics cost"  height="20">Physics Cost:           [COST]</text>
+      <text top_delta="26" width="180" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
  
     </panel>
 	</panel>
@@ -511,7 +585,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="review_panel"
-		 visible="false"
+		 visible="true"
 		 width="530"
 		 left="0">
 		<panel
@@ -538,7 +612,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		<text
 		 top_pad="14"
 		 width="460"
-		 height="20"
+		 height="24"
 		 font="SansSerifSmall"
 		 layout="topleft"
 		 name="description"
@@ -546,8 +620,14 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 left_delta="10">
 			Review the details below then click. Upload to upload your model. Your L$ balance will be charged when you click Upload.
 		</text>
+		<icon
+			 top_pad="10"
+			 left="20"
+			 width="495"
+			 height="2"
+			 image_name="model_wizard\divider_line.png"/>
     <panel
-		 top_delta="40"
+		 top_pad="5"
 		 left="15"
 		 height="245"
 		 width="500"
@@ -555,7 +635,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
       <text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
         Model Preview:
       </text>
-      <combo_box left_pad="5" top_delta="-2"  follows="left|top" list_position="below" height="18"
+      <combo_box left_pad="5" top_delta="-5"  follows="left|top" list_position="below" height="22"
 	     name="preview_lod_combo" width="90" tool_tip="LOD to view in preview render">
         <combo_item name="high">
           High
@@ -580,32 +660,61 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 height="190"
 				 follows="all"
 				 width="190">
-			</panel>			
-      <text
-			 top_pad="8"
-			 width="130"
-			 height="15"
-			 left="10"
-			 text_color="White"
-			 word_wrap="true">
-				Dimensions (meters):
-			</text>
-      <text
-			 top_pad="0"
-			 width="160"
-			 height="15"
-			 name="import_dimensions"
-			 left_delta="0">
-        X:  [X] |Y:  [Y] |Z: [Z]
-      </text>
+			</panel>
+		<text
+					 top_pad="8"
+					 width="130"
+					 height="14"
+					 left="10"
+					 text_color="White"
+					 word_wrap="true">
+			Dimensions (meters):
+		</text>
+		<text
+		 top_pad="0"
+		 width="160"
+		 height="15"
+		 font="SansSerifSmallBold"
+		 text_color="White"
+		 name="dimensions"
+		 left_delta="0">
+			X:         Y:         Z:
+		</text>
+		<text
+		 top_delta="0"
+		 width="160"
+		 height="15"
+		 name="dimension_dividers"
+		 left_delta="41">
+			|               |
+		</text>
+		<text
+		 top_delta="0"
+		 width="160"
+		 height="15"
+		 name="dimension_x"
+		 left_delta="-25"/>
+		<text
+		 top_delta="0"
+		 width="160"
+		 height="15"
+		 name="dimension_y"
+		 left_delta="46"/>
+		<text
+		 top_delta="0"
+		 width="160"
+		 height="15"
+		 name="dimension_z"
+		 left_delta="46"/>
       </panel>
     <text
-      width="200"
+      width="300"
       height="12"
       top="125" 
+	  name="streaming cost" 
       left="230" 
       font="SansSerifSmallBold" 
-      text_color="White">Resource Cost:</text>
+      text_color="White">Resource Cost:         [COST]</text>
     <text
       width="285"
       height="30"
@@ -614,12 +723,13 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
       word_wrap="true"
       font="SansSerifItalic">This is the cost to your Region's prim/object limit, at default scale</text>
 	<text
-	 width="200"
+	 width="300"
 	 height="12"
+	 name="physics cost" 
 	 top_pad="10"
 		 left_delta="0"
 	 font="SansSerifSmallBold"
-	 text_color="White">Physics Cost:</text>
+	 text_color="White">Physics Cost:        [COST]</text>
 	<text
 	  width="285"
 	  height="30"
@@ -663,7 +773,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="upload_panel"
-		 visible="true"
+		 visible="false"
 		 width="530"
 		 left="0">
 		<panel
