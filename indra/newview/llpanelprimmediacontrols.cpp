@@ -92,7 +92,8 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
 	mVolumeSliderVisible(0),
-	mWindowShade(NULL)
+	mWindowShade(NULL),
+	mHideImmediately(false)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -207,6 +208,8 @@ BOOL LLPanelPrimMediaControls::postBuild()
 		
 	mMediaAddress->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
 	
+	gAgent.setMouselookModeInCallback(boost::bind(&LLPanelPrimMediaControls::onMouselookModeIn, this));
+
 	LLWindowShade::Params window_shade_params;
 	window_shade_params.name = "window_shade";
 
@@ -722,26 +725,22 @@ void LLPanelPrimMediaControls::draw()
 	}
 
 	F32 alpha = getDrawContext().mAlpha;
-	if(mFadeTimer.getStarted())
+	if(mHideImmediately)
+	{
+		//hide this panel
+		clearFaceOnFade();
+
+		mHideImmediately = false;
+	}
+	else if(mFadeTimer.getStarted())
 	{
 		F32 time = mFadeTimer.getElapsedTimeF32();
 		alpha *= llmax(lerp(1.0, 0.0, time / mControlFadeTime), 0.0f);
 
 		if(time >= mControlFadeTime)
 		{
-			if(mClearFaceOnFade)
-			{
-				// Hiding this object makes scroll events go missing after it fades out 
-				// (see DEV-41755 for a full description of the train wreck).
-				// Only hide the controls when we're untargeting.
-				setVisible(FALSE);
-
-				mClearFaceOnFade = false;
-				mVolumeSliderVisible = 0;
-				mTargetImplID = LLUUID::null;
-				mTargetObjectID = LLUUID::null;
-				mTargetObjectFace = 0;
-			}
+			//hide this panel
+			clearFaceOnFade();
 		}
 	}
 	
@@ -1317,6 +1316,30 @@ void LLPanelPrimMediaControls::hideVolumeSlider()
 bool LLPanelPrimMediaControls::shouldVolumeSliderBeVisible()
 {
 	return mVolumeSliderVisible > 0;
+}
+
+
+void LLPanelPrimMediaControls::clearFaceOnFade()
+{
+	if(mClearFaceOnFade)
+	{
+		// Hiding this object makes scroll events go missing after it fades out
+		// (see DEV-41755 for a full description of the train wreck).
+		// Only hide the controls when we're untargeting.
+		setVisible(FALSE);
+
+		mClearFaceOnFade = false;
+		mVolumeSliderVisible = 0;
+		mTargetImplID = LLUUID::null;
+		mTargetObjectID = LLUUID::null;
+		mTargetObjectFace = 0;
+	}
+}
+
+void LLPanelPrimMediaControls::onMouselookModeIn()
+{
+	LLViewerMediaFocus::getInstance()->clearHover();
+	mHideImmediately = true;
 }
 
 void LLPanelPrimMediaControls::showNotification(LLNotificationPtr notify)
