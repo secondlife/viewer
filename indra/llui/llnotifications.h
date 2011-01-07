@@ -195,6 +195,7 @@ public:
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
 		Optional<S32>			max_length_chars;
+		Optional<std::string>	text;
 
 		Optional<std::string>	value;
 		FormInput();
@@ -269,6 +270,11 @@ struct LLNotificationTemplate;
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
 typedef boost::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
+
+
+struct LLNotificationVisibilityRule;
+
+typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
 
 /**
  * @class LLNotification
@@ -506,7 +512,7 @@ public:
 	std::string getLabel() const;
 	std::string getURL() const;
 	S32 getURLOption() const;
-	S32 getURLOpenExternally() const;
+    S32 getURLOpenExternally() const;
 	
 	const LLNotificationFormPtr getForm();
 
@@ -577,6 +583,8 @@ public:
 	std::string summarize() const;
 
 	bool hasUniquenessConstraints() const;
+
+	bool matchesTag(const std::string& tag);
 
 	virtual ~LLNotification() {}
 };
@@ -859,6 +867,10 @@ public:
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
 	
+	// load visibility rules from file; 
+	// OK to call more than once because it will reload
+	bool loadVisibilityRules();  
+	
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
 	
@@ -904,6 +916,8 @@ public:
 	// test for existence
 	bool templateExists(const std::string& name);
 
+	typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
+	
 	void forceResponse(const LLNotification::Params& params, S32 option);
 
 	void createDefaultChannels();
@@ -919,6 +933,8 @@ public:
 	void setIgnoreAllNotifications(bool ignore);
 	bool getIgnoreAllNotifications();
 
+	bool isVisibleByRules(LLNotificationPtr pNotification);
+	
 private:
 	// we're a singleton, so we don't have a public constructor
 	LLNotifications();
@@ -937,6 +953,8 @@ private:
 	// put your template in
 	bool addTemplate(const std::string& name, LLNotificationTemplatePtr theTemplate);
 	TemplateMap mTemplates;
+
+	VisibilityRuleList mVisibilityRules;
 
 	std::string mFileName;
 	

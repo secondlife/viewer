@@ -5,17 +5,14 @@ height="600"
 layout="topleft"
 left="0"
 name="panel_login"
+focus_root="true" 
 top="600"
  width="996">
 <panel.string
      name="create_account_url">
        http://join.secondlife.com/
 </panel.string>
-<panel.string
-     name="real_url" translate="false">
-       http://secondlife.com/app/login/
-</panel.string>
-    <string name="reg_in_client_url" translate="false">
+<string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
 </string>
 <panel.string
@@ -96,6 +93,7 @@ follows="left|bottom"
   height="22"
   max_length_bytes="16"
 name="password_edit"
+is_password="true" 
 select_on_focus="true"
   top_pad="0"
   width="135" />

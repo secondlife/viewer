@@ -10,17 +10,20 @@
 	<check_box label="Sólo saben si estoy conectado mis amigos y grupos" name="online_visibility"/>
 	<check_box label="Sólo pueden llamarme o mandarme un MI mis amigos y grupos" name="voice_call_friends_only_check"/>
 	<check_box label="Desconectar el micrófono cuando finalicen las llamadas" name="auto_disengage_mic_check"/>
-	<check_box label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
 	<text name="Logs:">
-		Registros:
+		Registros de chat:
 	</text>
 	<check_box label="Guardar en mi ordenador registros del chat" name="log_nearby_chat"/>
 	<check_box label="Guardar en mi ordenador registros de los MI" name="log_instant_messages"/>
-	<check_box label="Añadir fecha y hora" name="show_timestamps_check_im"/>
+	<check_box label="Añadir fecha y hora a todas las líneas del registro de chat" name="show_timestamps_check_im"/>
+	<check_box label="Añadir la fecha al nombre del archivo del registro." name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Ruta de los registros:
 	</text>
 	<line_editor left="278" name="log_path_string" right="-20"/>
 	<button label="Elegir" label_selected="Elegir" name="log_path_button" width="120"/>
 	<button label="Lista de ignorados" name="block_list"/>
+	<text name="block_list_label">
+		(Gente u objetos que has bloqueado)
+	</text>
 </panel>

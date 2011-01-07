@@ -26,10 +26,8 @@
  */
 
 // Precompiled header: almost always required for newview cpp files
-#include <list>
-#include <map>
-#include <algorithm>
-// Class to test
+#include "linden_common.h"
+// Class to test 
 #include "../llimageworker.h"
 // For timer class
 #include "../llcommon/lltimer.h"
@@ -44,7 +42,17 @@
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
-LLImageBase::LLImageBase() {}
+LLImageBase::LLImageBase() 
+: mData(NULL),
+mDataSize(0),
+mWidth(0),
+mHeight(0),
+mComponents(0),
+mBadBufferAllocation(false),
+mAllowOverSize(false),
+mMemType(LLMemType::MTYPE_IMAGEBASE)
+{
+}
 LLImageBase::~LLImageBase() {}
 void LLImageBase::dump() { }
 void LLImageBase::sanityCheck() { }

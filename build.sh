@@ -59,10 +59,11 @@ pre_build()
     -t $variant \
     -G "$cmake_generator" \
    configure \
-	-DGRID:STRING="$viewer_grid" \
+    -DGRID:STRING="$viewer_grid" \
     -DVIEWER_CHANNEL:STRING="$viewer_channel" \
     -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
     -DINSTALL_PROPRIETARY:BOOL=ON \
+    -DRELEASE_CRASH_REPORTING:BOOL=ON \
     -DLOCALIZESETUP:BOOL=ON \
     -DPACKAGE:BOOL=ON \
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE
@@ -169,13 +170,7 @@ do
   mkdir -p "$build_dir"
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
-    if $build_link_parallel
-    then
-      begin_section BuildParallel
-      ( build "$variant" "$build_dir" > "$build_dir/build.log" 2>&1 ) &
-      build_processes="$build_processes $!"
-      end_section BuildParallel
-    elif $build_coverity
+    if $build_coverity
     then
       mkdir -p "$build_dir/cvbuild"
       coverity_config=`cygpath --windows "$coverity_dir/config/coverity_config.xml"`
@@ -197,7 +192,6 @@ do
         begin_section CovAnalyze\
          &&\
         "$coverity_dir"/bin/cov-analyze\
-           --cxx\
            --security\
            --concurrency\
            --dir "$coverity_tmpdir"\
@@ -208,14 +202,14 @@ do
         begin_section CovCommit\
          &&\
         "$coverity_dir"/bin/cov-commit-defects\
-           --product "$coverity_product"\
+           --stream "$coverity_product"\
            --dir "$coverity_tmpdir"\
-           --remote "$coverity_server"\
+           --host "$coverity_server"\
            --strip-path "$coverity_root"\
            --target "$branch/$arch"\
            --version "$revision"\
            --description "$repo: $variant $revision"\
-           --user admin --password admin\
+           --user admin --password coverity\
           >> "$build_log" 2>&1\
           || record_failure "Coverity Build Failed"
         # since any step could have failed, rely on the enclosing block to close any pending sub-blocks
@@ -226,6 +220,12 @@ do
       then
         upload_item log "$build_dir"/cvbuild/build-log.txt text/plain
       fi
+    elif $build_link_parallel
+    then
+      begin_section BuildParallel
+      ( build "$variant" "$build_dir" > "$build_dir/build.log" 2>&1 ) &
+      build_processes="$build_processes $!"
+      end_section BuildParallel
     else
       begin_section "Build$variant"
       build "$variant" "$build_dir" >> "$build_log" 2>&1

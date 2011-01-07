@@ -15,11 +15,6 @@
 	<panel.string name="Title">
 		Script : [NAME]
 	</panel.string>
-	<text_editor name="Script Editor">
-		Chargement...
-	</text_editor>
-	<button label="Enregistrer" label_selected="Enregistrer" name="Save_btn"/>
-	<combo_box label="Insérer..." name="Insert..."/>
 	<menu_bar name="script_menu">
 		<menu label="Fichier" name="File">
 			<menu_item_call label="Enregistrer" name="Save"/>
@@ -40,4 +35,10 @@
 			<menu_item_call label="Aide par mots-clés..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
+	<text_editor name="Script Editor">
+		Chargement...
+	</text_editor>
+	<combo_box label="Insérer..." name="Insert..."/>
+	<button label="Enregistrer" label_selected="Enregistrer" name="Save_btn"/>
+	<button label="Modifier..." name="Edit_btn"/>
 </panel>

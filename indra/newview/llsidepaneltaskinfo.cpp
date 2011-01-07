@@ -1120,17 +1120,17 @@ void LLSidepanelTaskInfo::updateVerbs()
 	*/
 
 	LLSafeHandle<LLObjectSelection> object_selection = LLSelectMgr::getInstance()->getSelection();
-	const BOOL multi_select = (object_selection->getNumNodes() > 1);
+	const BOOL any_selected = (object_selection->getNumNodes() > 0);
 
-	mOpenBtn->setVisible(!multi_select);
-	mPayBtn->setVisible(!multi_select);
-	mBuyBtn->setVisible(!multi_select);
-	mDetailsBtn->setVisible(multi_select);
-	mDetailsBtn->setEnabled(multi_select);
+	mOpenBtn->setVisible(true);
+	mPayBtn->setVisible(true);
+	mBuyBtn->setVisible(true);
+	mDetailsBtn->setVisible(true);
 
 	mOpenBtn->setEnabled(enable_object_open());
 	mPayBtn->setEnabled(enable_pay_object());
 	mBuyBtn->setEnabled(enable_buy_object());
+	mDetailsBtn->setEnabled(any_selected);
 }
 
 void LLSidepanelTaskInfo::onOpenButtonClicked()

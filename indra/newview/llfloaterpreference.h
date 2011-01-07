@@ -34,6 +34,7 @@
 #define LL_LLFLOATERPREFERENCE_H
 
 #include "llfloater.h"
+#include "llavatarpropertiesprocessor.h"
 
 class LLPanelPreference;
 class LLPanelLCD;
@@ -55,7 +56,7 @@ typedef enum
 
 
 // Floater to control preferences (display, audio, bandwidth, general.
-class LLFloaterPreference : public LLFloater
+class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver
 {
 public: 
 	LLFloaterPreference(const LLSD& key);
@@ -77,6 +78,11 @@ public:
 	// translate user's busy response message according to current locale if message is default, otherwise do nothing
 	static void initBusyResponse();
 
+	void processProperties( void* pData, EAvatarProcessorType type );
+	void processProfileProperties(const LLAvatarData* pAvatarData );
+	void storeAvatarProperties( const LLAvatarData* pAvatarData );
+	void saveAvatarProperties( void );
+
 protected:	
 	void		onBtnOK();
 	void		onBtnCancel();
@@ -84,6 +90,7 @@ protected:
 
 	void		onClickBrowserClearCache();
 	void		onLanguageChange();
+	void		onNameTagOpacityChange(const LLSD& newvalue);
 
 	// set value of "BusyResponseChanged" in account settings depending on whether busy response
 	// string differs from default after user changes.
@@ -167,6 +174,8 @@ private:
 	// Record of current user's favorites may be stored in file on disk.
 	bool mFavoritesRecordMayExist;
 	std::string mDirectoryVisibility;
+	
+	LLAvatarData mAvatarProperties;
 };
 
 class LLPanelPreference : public LLPanel

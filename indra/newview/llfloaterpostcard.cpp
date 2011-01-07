@@ -112,11 +112,14 @@ LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLView
 	// Take the images from the caller
 	// It's now our job to clean them up
 	LLFloaterPostcard* instance = LLFloaterReg::showTypedInstance<LLFloaterPostcard>("postcard", LLSD(img->getID()));
-	
-	instance->mJPEGImage = jpeg;
-	instance->mViewerImage = img;
-	instance->mImageScale = image_scale;
-	instance->mPosTakenGlobal = pos_taken_global;
+
+	if (instance) // may be 0 if we're in mouselook mode
+	{
+		instance->mJPEGImage = jpeg;
+		instance->mViewerImage = img;
+		instance->mImageScale = image_scale;
+		instance->mPosTakenGlobal = pos_taken_global;
+	}
 	
 	return instance;
 }
@@ -363,7 +366,9 @@ void LLFloaterPostcard::sendPostcard()
 	{
 		gAssetStorage->storeAssetData(mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)this, FALSE);
 	}
-
+	
+	// give user feedback of the event
+	gViewerWindow->playSnapshotAnimAndSound();
 	LLUploadDialog::modalUploadDialog(getString("upload_message"));
 
 	// don't destroy the window until the upload is done

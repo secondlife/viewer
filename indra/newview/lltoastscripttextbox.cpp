@@ -46,10 +46,15 @@
 
 const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT= 7;
 
-LLToastScriptTextbox::LLToastScriptTextbox(LLNotificationPtr& notification)
-:	LLToastNotifyPanel(notification)
+LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification)
+:	LLToastPanel(notification)
 {
 	buildFromFile( "panel_notify_textbox.xml");
+
+	LLTextEditor* text_editorp = getChild<LLTextEditor>("text_editor_box");
+	text_editorp->setValue(notification->getMessage());
+
+	getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));
 
 	const LLSD& payload = notification->getPayload();
 
@@ -106,4 +111,11 @@ void LLToastScriptTextbox::onClickSubmit()
 		close();
 		llwarns << response << llendl;
 	}
+}
+
+void LLToastScriptTextbox::onClickIgnore()
+{
+	LLSD response = mNotification->getResponseTemplate();
+	mNotification->respond(response);
+	close();
 }

@@ -159,8 +159,6 @@ LLSideTrayTab::LLSideTrayTab(const Params& p)
 	mDescription(p.description),
 	mMainPanel(NULL)
 {
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 }
 
 LLSideTrayTab::~LLSideTrayTab()
@@ -563,7 +561,7 @@ BOOL LLSideTray::postBuild()
 	{
 		if ((*it).channel)
 		{
-			getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel, _2));
+			setVisibleWidthChangeCallback(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel));
 		}
 	}
 
@@ -917,7 +915,6 @@ void	LLSideTray::createButtons	()
 		}
 	}
 	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
-	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()
@@ -983,9 +980,6 @@ void LLSideTray::reflectCollapseChange()
 	}
 
 	gFloaterView->refresh();
-	
-	LLSD new_value = mCollapsed;
-	mCollapseSignal(this,new_value);
 }
 
 void LLSideTray::arrange()
@@ -1265,9 +1259,29 @@ bool		LLSideTray::isPanelActive(const std::string& panel_name)
 void	LLSideTray::updateSidetrayVisibility()
 {
 	// set visibility of parent container based on collapsed state
-	if (getParent())
+	LLView* parent = getParent();
+	if (parent)
 	{
-		getParent()->setVisible(!mCollapsed && !gAgentCamera.cameraMouselook());
+		bool old_visibility = parent->getVisible();
+		bool new_visibility = !mCollapsed && !gAgentCamera.cameraMouselook();
+
+		if (old_visibility != new_visibility)
+		{
+			parent->setVisible(new_visibility);
+
+			// Signal change of visible width.
+			llinfos << "Visible: " << new_visibility << llendl;
+			mVisibleWidthChangeSignal(this, new_visibility);
+		}
 	}
 }
 
+S32 LLSideTray::getVisibleWidth()
+{
+	return (isInVisibleChain() && !mCollapsed) ? getRect().getWidth() : 0;
+}
+
+void LLSideTray::setVisibleWidthChangeCallback(const commit_signal_t::slot_type& cb)
+{
+	mVisibleWidthChangeSignal.connect(cb);
+}

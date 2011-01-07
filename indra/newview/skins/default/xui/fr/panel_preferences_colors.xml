@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Couleurs" name="colors_panel">
+	<text name="effects_color_textbox">
+		Mes effets (faisceau de sélection lumineux) :
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs."/>
+	<text name="font_colors">
+		Couleurs de la police du chat :
+	</text>
+	<text name="text_box1">
+		Moi
+	</text>
+	<text name="text_box2">
+		Autres résidents
+	</text>
+	<text name="text_box3">
+		Objets
+	</text>
+	<text name="text_box4">
+		Système
+	</text>
+	<text name="text_box5">
+		Erreurs
+	</text>
+	<text name="text_box7">
+		Propriétaire
+	</text>
+	<text name="text_box9">
+		URL
+	</text>
+	<text name="bubble_chat">
+		Arrière-plan des bulles de chat :
+	</text>
+	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat."/>
+	<slider label="Opacité :" name="bubble_chat_opacity"/>
+	<text name="floater_opacity">
+		Opacité des fenêtres flottantes :
+	</text>
+	<slider label="Actives :" name="active"/>
+	<slider label="Inactives :" name="inactive"/>
+</panel>

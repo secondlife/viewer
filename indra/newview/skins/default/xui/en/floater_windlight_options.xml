@@ -594,6 +594,7 @@
              left_delta="14"
              top_pad="10"
              name="SkyDayCycle"
+             use_draw_context_alpha="false"
              width="148" />
             <slider
              control_name="WLSunAngle"

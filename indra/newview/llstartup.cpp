@@ -233,6 +233,8 @@ static LLHost gFirstSim;
 static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
+static bool mLoginStatePastUI = false;
+
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -706,7 +708,15 @@ bool idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
-		
+
+		// if we've gone backwards in the login state machine, to this state where we show the UI
+		// AND the debug setting to exit in this case is true, then go ahead and bail quickly
+		if ( mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated") )
+		{
+			// no requirement for notification here - just exit
+			LLAppViewer::instance()->earlyExitNoNotify();
+		}
+
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
 		timeout_count = 0;
@@ -784,6 +794,11 @@ bool idle_startup()
 
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
+		// when we get to this state, we've already been past the login UI
+		// (possiblely automatically) - flag this so we can test in the 
+		// STATE_LOGIN_SHOW state if we've gone backwards
+		mLoginStatePastUI = true;
+
 		// Don't do anything.  Wait for the login view to call the login_callback,
 		// which will push us to the next state.
 
@@ -809,6 +824,11 @@ bool idle_startup()
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
 		}
+
+		// when we get to this state, we've already been past the login UI
+		// (possiblely automatically) - flag this so we can test in the 
+		// STATE_LOGIN_SHOW state if we've gone backwards
+		mLoginStatePastUI = true;
 
 		// save the credentials                                                                                        
 		std::string userid = "unknown";                                                                                
@@ -3075,7 +3095,16 @@ bool process_login_success_response()
 	std::string map_server_url = response["map-server-url"];
 	if(!map_server_url.empty())
 	{
-		gSavedSettings.setString("MapServerURL", map_server_url); 
+		// We got an answer from the grid -> use that for map for the current session
+		gSavedSettings.setString("CurrentMapServerURL", map_server_url); 
+		LL_INFOS("LLStartup") << "map-server-url : we got an answer from the grid : " << map_server_url << LL_ENDL;
+	}
+	else
+	{
+		// No answer from the grid -> use the default setting for current session 
+		map_server_url = gSavedSettings.getString("MapServerURL"); 
+		gSavedSettings.setString("CurrentMapServerURL", map_server_url); 
+		LL_INFOS("LLStartup") << "map-server-url : no map-server-url answer, we use the default setting for the map : " << map_server_url << LL_ENDL;
 	}
 	
 	// Default male and female avatars allowing the user to choose their avatar on first login.

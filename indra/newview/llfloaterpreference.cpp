@@ -288,6 +288,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mDoubleClickActionDirty(false),
 	mFavoritesRecordMayExist(false)
 {
+	
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
 	static bool registered_dialog = false;
@@ -324,15 +325,60 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
+	
+	sSkin = gSavedSettings.getString("SkinCurrent");
+
 	mCommitCallbackRegistrar.add("Pref.CommitDoubleClickChekbox",	boost::bind(&LLFloaterPreference::onDoubleClickCheckBox, this, _1));
 	mCommitCallbackRegistrar.add("Pref.CommitRadioDoubleClick",	boost::bind(&LLFloaterPreference::onDoubleClickRadio, this));
 
-	sSkin = gSavedSettings.getString("SkinCurrent");
-	
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
+
+	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 }
+
+void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
+{
+	if ( APT_PROPERTIES == type )
+	{
+		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
+		if( pAvatarData && gAgent.getID() == pAvatarData->avatar_id )
+		{
+			storeAvatarProperties( pAvatarData );
+			processProfileProperties( pAvatarData );
+		}
+	}	
+}
+
+void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData )
+{
+	mAvatarProperties.avatar_id		= gAgent.getID();
+	mAvatarProperties.image_id		= pAvatarData->image_id;
+	mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
+	mAvatarProperties.about_text	= pAvatarData->about_text;
+	mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
+	mAvatarProperties.profile_url   = pAvatarData->profile_url;
+	mAvatarProperties.flags		    = pAvatarData->flags;
+	mAvatarProperties.allow_publish	= pAvatarData->flags & AVATAR_ALLOW_PUBLISH;
+}
+
+void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarData )
+{
+	getChild<LLUICtrl>("online_searchresults")->setValue( (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH) );	
+}
+
+void LLFloaterPreference::saveAvatarProperties( void )
+{
+	mAvatarProperties.allow_publish = getChild<LLUICtrl>("online_searchresults")->getValue();
+	if ( mAvatarProperties.allow_publish )
+	{
+		mAvatarProperties.flags |= AVATAR_ALLOW_PUBLISH;
+	}
+	
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
+}
+
 
 BOOL LLFloaterPreference::postBuild()
 {
@@ -343,6 +389,8 @@ BOOL LLFloaterPreference::postBuild()
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
+
+	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
@@ -415,6 +463,8 @@ void LLFloaterPreference::saveSettings()
 
 void LLFloaterPreference::apply()
 {
+	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
+	
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (sSkin != gSavedSettings.getString("SkinCurrent"))
 	{
@@ -486,6 +536,8 @@ void LLFloaterPreference::apply()
 		}
 	}
 
+	saveAvatarProperties();
+
 	if (mDoubleClickActionDirty)
 	{
 		updateDoubleClickSettings();
@@ -555,6 +607,7 @@ void LLFloaterPreference::cancel()
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
+	
 	// this variable and if that follows it are used to properly handle busy mode response message
 	static bool initialized = FALSE;
 	// if user is logged in and we haven't initialized busy_response yet, do it
@@ -581,7 +634,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		(gAgent.isMature() || gAgent.isGodlike());
 	
 	LLComboBox* maturity_combo = getChild<LLComboBox>("maturity_desired_combobox");
-	
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest( gAgent.getID() );
 	if (can_choose_maturity)
 	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
@@ -777,6 +830,16 @@ void LLFloaterPreference::onLanguageChange()
 	{
 		LLNotificationsUtil::add("ChangeLanguage");
 		mLanguageChanged = true;
+	}
+}
+
+void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
+{
+	LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>("background");
+	if (color_swatch)
+	{
+		LLColor4 new_color = color_swatch->get();
+		color_swatch->set( new_color.setAlpha(newvalue.asReal()) );
 	}
 }
 

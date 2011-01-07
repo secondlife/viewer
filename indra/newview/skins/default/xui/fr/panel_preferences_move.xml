@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Déplacement" name="move_panel">
+	<slider label="Angle de vue" name="camera_fov"/>
+	<slider label="Distance" name="camera_offset_scale"/>
+	<text name="heading2">
+		Positionnement automatique pour :
+	</text>
+	<check_box label="Construire/Modifier" name="edit_camera_movement" tool_tip="Utiliser le positionnement automatique de la caméra lorsque vous entrez en mode de modification et le quittez."/>
+	<check_box label="Apparence" name="appearance_camera_movement" tool_tip="Utiliser le positionnement automatique de la caméra en mode de modification."/>
+	<check_box initial_value="true" label="Panneau latéral" name="appearance_sidebar_positioning" tool_tip="Utiliser le positionnement automatique de la caméra pour le panneau latéral."/>
+	<check_box label="Afficher en vue subjective" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Sensibilité de la souris en vue subjective :
+	</text>
+	<check_box label="Inverser" name="invert_mouse"/>
+	<check_box label="Les touches de direction me font toujours me déplacer" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Appuyer deux fois et maintenir enfoncé pour courir" name="tap_tap_hold_to_run"/>
+	<check_box label="Double-cliquer pour :" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="Téléportation" name="radio_teleport"/>
+		<radio_item label="Pilotage auto" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Autres accessoires" name="joystick_setup_button"/>
+</panel>

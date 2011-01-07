@@ -88,6 +88,7 @@ LLLineEditor::Params::Params()
 	revert_on_esc("revert_on_esc", true),
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
+	is_password("is_password", false),
 	cursor_color("cursor_color"),
 	text_color("text_color"),
 	text_readonly_color("text_readonly_color"),
@@ -129,7 +130,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBorderThickness( 0 ),
 	mIgnoreArrowKeys( FALSE ),
 	mIgnoreTab( p.ignore_tab ),
-	mDrawAsterixes( FALSE ),
+	mDrawAsterixes( p.is_password ),
 	mSelectAllonFocusReceived( p.select_on_focus ),
 	mPassDelete(FALSE),
 	mReadOnly(FALSE),
@@ -1529,6 +1530,8 @@ void LLLineEditor::drawBackground()
 	{
 		image = mBgImage;
 	}
+
+	if (!image) return;
 	
 	F32 alpha = getCurrentTransparency();
 

@@ -61,6 +61,7 @@
 #include "llviewermessage.h"
 #include "llsidepanelappearance.h"
 #include "llavatarnamecache.h"
+#include "llavataractions.h"
 #include "lllogininstance.h"
 
 ///----------------------------------------------------------------------------
@@ -213,6 +214,7 @@ public:
 	}
 };
 LLInventoryHandler gInventoryHandler;
+
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem
