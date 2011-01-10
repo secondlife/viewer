@@ -1789,7 +1789,25 @@ void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMat
 		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
 		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
 		{
-			llwarns<< "The found element is not a translate node" <<llendl;
+			//llwarns<< "The found element is not a translate node" <<llendl;
+			daeSIDResolver jointResolver( pNode, "./matrix" );
+			domMatrix* pMatrix = daeSafeCast<domMatrix>( jointResolver.getElement() );
+			if ( pMatrix )
+			{
+				//llinfos<<"A matrix SID was however found!"<<llendl;
+				domFloat4x4 domArray = pMatrix->getValue();									
+				for ( int i = 0; i < 4; i++ )
+				{
+					for( int j = 0; j < 4; j++ )
+					{
+						workingTransform.mMatrix[i][j] = domArray[i + j*4];
+					}
+				}
+			}
+			else
+			{
+				llwarns<< "The found element is not translate or matrix node - most likely a corrupt export!" <<llendl;
+			}
 		}
 		else
 		{
