@@ -7705,7 +7705,6 @@
     <key>Value</key>
     <real>0.01</real>
   </map>
-
   <key>RenderShadowBiasError</key>
   <map>
     <key>Comment</key>
@@ -8963,7 +8962,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125f</real>
+    <real>0.125</real>
   </map>
   <key>MeshThreadCount</key>
   <map>
@@ -11934,7 +11933,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>3.0</integer>
+      <real>3.0</real>
     </map>
     <key>InterpolationPhaseOut</key>
     <map>
@@ -11945,7 +11944,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>1.0</integer>
+      <real>1.0</real>
     </map>
     <key>VerboseLogs</key>
     <map>
