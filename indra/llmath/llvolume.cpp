@@ -2429,6 +2429,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 	}
 
 	mSculptLevel = 0;  // success!
+
+	cacheOptimize();
+
 	return true;
 }
 
@@ -2589,6 +2592,15 @@ void LLVolume::copyVolumeFaces(const LLVolume* volume)
 	mSculptLevel = 0;
 	mIsTetrahedron = FALSE;
 }
+
+void LLVolume::cacheOptimize()
+{
+	for (S32 i = 0; i < mVolumeFaces.size(); ++i)
+	{
+		mVolumeFaces[i].cacheOptimize();
+	}
+}
+
 
 S32	LLVolume::getNumFaces() const
 {
@@ -5481,6 +5493,443 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	swapData(new_face);
 }
 
+class LLVCacheTriangleData;
+
+class LLVCacheVertexData
+{
+public:
+	S32 mIdx;
+	S32 mCacheTag;
+	F32 mScore;
+	U32 mActiveTriangles;
+	std::vector<LLVCacheTriangleData*> mTriangles;
+
+	LLVCacheVertexData()
+	{
+		mCacheTag = -1;
+		mScore = 0.f;
+		mActiveTriangles = 0;
+		mIdx = -1;
+	}
+};
+
+class LLVCacheTriangleData
+{
+public:
+	bool mActive;
+	F32 mScore;
+	LLVCacheVertexData* mVertex[3];
+
+	LLVCacheTriangleData()
+	{
+		mActive = true;
+		mScore = 0.f;
+		mVertex[0] = mVertex[1] = mVertex[2] = NULL;
+	}
+
+	void complete()
+	{
+		mActive = false;
+		for (S32 i = 0; i < 3; ++i)
+		{
+			if (mVertex[i])
+			{
+				llassert_always(mVertex[i]->mActiveTriangles > 0);
+				mVertex[i]->mActiveTriangles--;
+			}
+		}
+	}
+
+	bool operator<(const LLVCacheTriangleData& rhs) const
+	{ //highest score first
+		return rhs.mScore < mScore;
+	}
+};
+
+const F32 FindVertexScore_CacheDecayPower = 1.5f;
+const F32 FindVertexScore_LastTriScore = 0.75f;
+const F32 FindVertexScore_ValenceBoostScale = 2.0f;
+const F32 FindVertexScore_ValenceBoostPower = 0.5f;
+const U32 MaxSizeVertexCache = 32;
+
+F32 find_vertex_score(LLVCacheVertexData& data)
+{
+	if (data.mActiveTriangles == 0)
+	{ //no triangle references this vertex
+		return -1.f;
+	}
+
+	F32 score = 0.f;
+
+	S32 cache_idx = data.mCacheTag;
+
+	if (cache_idx < 0)
+	{
+		//not in cache
+	}
+	else
+	{
+		if (cache_idx < 3)
+		{ //vertex was in the last triangle
+			score = FindVertexScore_LastTriScore;
+		}
+		else
+		{ //more points for being higher in the cache
+			F32 scaler = 1.f/(MaxSizeVertexCache-3);
+			score = 1.f-((cache_idx-3)*scaler);
+			score = powf(score, FindVertexScore_CacheDecayPower);
+		}
+	}
+
+	//bonus points for having low valence
+	F32 valence_boost = powf(data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+	score += FindVertexScore_ValenceBoostScale * valence_boost;
+
+	return score;
+}
+
+class LLVCacheFIFO
+{
+public:
+	LLVCacheVertexData* mCache[MaxSizeVertexCache];
+	U32 mMisses;
+
+	LLVCacheFIFO()
+	{
+		mMisses = 0;
+		for (U32 i = 0; i < MaxSizeVertexCache; ++i)
+		{
+			mCache[i] = NULL;
+		}
+	}
+
+	void addVertex(LLVCacheVertexData* data)
+	{
+		if (data->mCacheTag == -1)
+		{
+			mMisses++;
+
+			S32 end = MaxSizeVertexCache-1;
+
+			if (mCache[end])
+			{
+				mCache[end]->mCacheTag = -1;
+			}
+
+			for (S32 i = end; i > 0; --i)
+			{
+				mCache[i] = mCache[i-1];
+				if (mCache[i])
+				{
+					mCache[i]->mCacheTag = i;
+				}
+			}
+
+			mCache[0] = data;
+			data->mCacheTag = 0;
+		}
+	}
+};
+
+class LLVCacheLRU
+{
+public:
+	LLVCacheVertexData* mCache[MaxSizeVertexCache+3];
+
+	LLVCacheTriangleData* mBestTriangle;
+	
+	U32 mMisses;
+
+	LLVCacheLRU()
+	{
+		for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
+		{
+			mCache[i] = NULL;
+		}
+
+		mBestTriangle = NULL;
+		mMisses = 0;
+	}
+
+	void addVertex(LLVCacheVertexData* data)
+	{
+		S32 end = MaxSizeVertexCache+2;
+		if (data->mCacheTag != -1)
+		{ //just moving a vertex to the front of the cache
+			end = data->mCacheTag;
+		}
+		else
+		{
+			mMisses++;
+			if (mCache[end])
+			{ //adding a new vertex, vertex at end of cache falls off
+				mCache[end]->mCacheTag = -1;
+			}
+		}
+
+		for (S32 i = end; i > 0; --i)
+		{ //adjust cache pointers and tags
+			mCache[i] = mCache[i-1];
+
+			if (mCache[i])
+			{
+				mCache[i]->mCacheTag = i;			
+			}
+		}
+
+		mCache[0] = data;
+		mCache[0]->mCacheTag = 0;
+	}
+
+	void addTriangle(LLVCacheTriangleData* data)
+	{
+		addVertex(data->mVertex[0]);
+		addVertex(data->mVertex[1]);
+		addVertex(data->mVertex[2]);
+	}
+
+	void updateScores()
+	{
+		for (U32 i = MaxSizeVertexCache; i < MaxSizeVertexCache+3; ++i)
+		{ //trailing 3 vertices aren't actually in the cache for scoring purposes
+			if (mCache[i])
+			{
+				mCache[i]->mCacheTag = -1;
+			}
+		}
+
+		for (U32 i = 0; i < MaxSizeVertexCache; ++i)
+		{ //update scores of vertices in cache
+			if (mCache[i])
+			{
+				mCache[i]->mScore = find_vertex_score(*(mCache[i]));
+				llassert_always(mCache[i]->mCacheTag == i);
+			}
+		}
+
+		mBestTriangle = NULL;
+		//update triangle scores
+		for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
+		{
+			if (mCache[i])
+			{
+				for (U32 j = 0; j < mCache[i]->mTriangles.size(); ++j)
+				{
+					LLVCacheTriangleData* tri = mCache[i]->mTriangles[j];
+					if (tri->mActive)
+					{
+						tri->mScore = tri->mVertex[0]->mScore;
+						tri->mScore += tri->mVertex[1]->mScore;
+						tri->mScore += tri->mVertex[2]->mScore;
+
+						if (!mBestTriangle || mBestTriangle->mScore < tri->mScore)
+						{
+							mBestTriangle = tri;
+						}
+					}
+				}
+			}
+		}
+
+		//knock trailing 3 vertices off the cache
+		for (U32 i = MaxSizeVertexCache; i < MaxSizeVertexCache+3; ++i)
+		{
+			if (mCache[i])
+			{
+				llassert_always(mCache[i]->mCacheTag == -1);
+				mCache[i] = NULL;
+			}
+		}
+	}
+};
+
+
+void LLVolumeFace::cacheOptimize()
+{ //optimize for vertex cache according to Forsyth method: 
+  // http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
+	
+	LLVCacheLRU cache;
+	
+	//mapping of vertices to triangles and indices
+	std::vector<LLVCacheVertexData> vertex_data;
+
+	//mapping of triangles do vertices
+	std::vector<LLVCacheTriangleData> triangle_data;
+
+	triangle_data.resize(mNumIndices/3);
+	vertex_data.resize(mNumVertices);
+
+	for (U32 i = 0; i < mNumIndices; i++)
+	{ //populate vertex data and triangle data arrays
+		U16 idx = mIndices[i];
+		U16 tri_idx = i/3;
+
+		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
+		vertex_data[idx].mIdx = idx;
+		triangle_data[tri_idx].mVertex[i%3] = &(vertex_data[idx]);
+	}
+
+	/*F32 pre_acmr = 1.f;
+	//measure cache misses from before rebuild
+	{
+		LLVCacheFIFO test_cache;
+		for (U32 i = 0; i < mNumIndices; ++i)
+		{
+			test_cache.addVertex(&vertex_data[mIndices[i]]);
+		}
+
+		for (U32 i = 0; i < mNumVertices; i++)
+		{
+			vertex_data[i].mCacheTag = -1;
+		}
+
+		pre_acmr = (F32) test_cache.mMisses/(mNumIndices/3);
+	}*/
+
+	for (U32 i = 0; i < mNumVertices; i++)
+	{ //initialize score values (no cache -- might try a fifo cache here)
+		vertex_data[i].mScore = find_vertex_score(vertex_data[i]);
+		vertex_data[i].mActiveTriangles = vertex_data[i].mTriangles.size();
+
+		for (U32 j = 0; j < vertex_data[i].mTriangles.size(); ++j)
+		{
+			vertex_data[i].mTriangles[j]->mScore += vertex_data[i].mScore;
+		}
+	}
+
+	//sort triangle data by score
+	std::sort(triangle_data.begin(), triangle_data.end());
+
+	std::vector<U16> new_indices;
+
+	LLVCacheTriangleData* tri;
+
+	//prime pump by adding first triangle to cache;
+	tri = &(triangle_data[0]);
+	cache.addTriangle(tri);
+	new_indices.push_back(tri->mVertex[0]->mIdx);
+	new_indices.push_back(tri->mVertex[1]->mIdx);
+	new_indices.push_back(tri->mVertex[2]->mIdx);
+	tri->complete();
+
+	U32 breaks = 0;
+	for (U32 i = 1; i < mNumIndices/3; ++i)
+	{
+		cache.updateScores();
+		tri = cache.mBestTriangle;
+		if (!tri)
+		{
+			breaks++;
+			for (U32 j = 0; j < triangle_data.size(); ++j)
+			{
+				if (triangle_data[j].mActive)
+				{
+					tri = &(triangle_data[j]);
+					break;
+				}
+			}
+		}	
+		
+		cache.addTriangle(tri);
+		new_indices.push_back(tri->mVertex[0]->mIdx);
+		new_indices.push_back(tri->mVertex[1]->mIdx);
+		new_indices.push_back(tri->mVertex[2]->mIdx);
+		tri->complete();
+	}
+
+	for (U32 i = 0; i < mNumIndices; ++i)
+	{
+		mIndices[i] = new_indices[i];
+	}
+
+	/*F32 post_acmr = 1.f;
+	//measure cache misses from after rebuild
+	{
+		LLVCacheFIFO test_cache;
+		for (U32 i = 0; i < mNumVertices; i++)
+		{
+			vertex_data[i].mCacheTag = -1;
+		}
+
+		for (U32 i = 0; i < mNumIndices; ++i)
+		{
+			test_cache.addVertex(&vertex_data[mIndices[i]]);
+		}
+		
+		post_acmr = (F32) test_cache.mMisses/(mNumIndices/3);
+	}*/
+
+	//optimize for pre-TnL cache
+	
+	//allocate space for new buffer
+	S32 num_verts = mNumVertices;
+	LLVector4a* pos = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	LLVector4a* norm = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
+	LLVector2* tc = (LLVector2*) malloc(size);
+
+	LLVector4a* wght = NULL;
+	if (mWeights)
+	{
+		wght = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	}
+
+	LLVector4a* binorm = NULL;
+	if (mBinormals)
+	{
+		binorm = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	}
+
+	//allocate mapping of old indices to new indices
+	std::vector<S32> new_idx;
+	new_idx.resize(mNumVertices, -1);
+
+	S32 cur_idx = 0;
+	for (U32 i = 0; i < mNumIndices; ++i)
+	{
+		U16 idx = mIndices[i];
+		if (new_idx[idx] == -1)
+		{ //this vertex hasn't been added yet
+			new_idx[idx] = cur_idx;
+
+			//copy vertex data
+			pos[cur_idx] = mPositions[idx];
+			norm[cur_idx] = mNormals[idx];
+			tc[cur_idx] = mTexCoords[idx];
+			if (mWeights)
+			{
+				wght[cur_idx] = mWeights[idx];
+			}
+			if (mBinormals)
+			{
+				binorm[cur_idx] = mBinormals[idx];
+			}
+
+			cur_idx++;
+		}
+	}
+
+	for (U32 i = 0; i < mNumIndices; ++i)
+	{
+		mIndices[i] = new_idx[mIndices[i]];
+	}
+	
+	free(mPositions);
+	free(mNormals);
+	free(mTexCoords);
+	free(mWeights);
+	free(mBinormals);
+
+	mPositions = pos;
+	mNormals = norm;
+	mTexCoords = tc;
+	mWeights = wght;
+	mBinormals = binorm;
+
+	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
+	//llinfos << result << llendl;
+
+}
 
 void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVector4a& size)
 {

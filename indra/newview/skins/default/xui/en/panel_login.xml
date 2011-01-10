@@ -61,23 +61,28 @@ left="20"
 width="150">
 Username:
 </text>
-<line_editor
+<combo_box
+allow_text_entry="true"
 follows="left|bottom"
 height="22"
-label="bobsmith12 or Steller Sunshine"
 left_delta="0"
-max_length_bytes="63"
-name="username_edit"
-prevalidate_callback="ascii" 
+max_chars="128"
+prevalidate_callback="ascii"
 select_on_focus="true"
 tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 top_pad="0"
-width="150" />
+name="username_combo"
+width="178">
+  <combo_box.combo_button
+   visible ="false"/>
+  <combo_box.drop_down_button
+   visible ="false"/>
+</combo_box>
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="15"
-left_pad="8"
+left_pad="-19"
 name="password_text"
 top="20"
     width="150">

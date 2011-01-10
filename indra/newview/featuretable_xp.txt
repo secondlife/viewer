@@ -132,7 +132,7 @@ RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderObjectBump			1	1
-RenderReflectionDetail		1	2
+RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1

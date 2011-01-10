@@ -380,7 +380,8 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
 
-	if ( mModelPreview->mModelLoader->mResetJoints )
+	const LLModelLoader *model_loader = mModelPreview->mModelLoader;
+	if (model_loader && model_loader->mResetJoints)
 	{
 		gAgentAvatarp->resetJointPositions();
 	}
@@ -1792,7 +1793,25 @@ void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMat
 		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
 		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
 		{
-			llwarns<< "The found element is not a translate node" <<llendl;
+			//llwarns<< "The found element is not a translate node" <<llendl;
+			daeSIDResolver jointResolver( pNode, "./matrix" );
+			domMatrix* pMatrix = daeSafeCast<domMatrix>( jointResolver.getElement() );
+			if ( pMatrix )
+			{
+				//llinfos<<"A matrix SID was however found!"<<llendl;
+				domFloat4x4 domArray = pMatrix->getValue();									
+				for ( int i = 0; i < 4; i++ )
+				{
+					for( int j = 0; j < 4; j++ )
+					{
+						workingTransform.mMatrix[i][j] = domArray[i + j*4];
+					}
+				}
+			}
+			else
+			{
+				llwarns<< "The found element is not translate or matrix node - most likely a corrupt export!" <<llendl;
+			}
 		}
 		else
 		{
@@ -2382,11 +2401,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	LLMutexLock lock(this);
 
-	if (mModelLoader)
-	{
-		delete mModelLoader;
-		mModelLoader = NULL;
-	}
+	// This triggers if you bring up the file picker and then hit CANCEL.
+	// Just use the previous model (if any) and ignore that you brought up
+	// the file picker.
 
 	if (filename.empty())
 	{
@@ -2395,10 +2412,15 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
 			mFMP->closeFloater(false);
+			mLoading = false;
 		}
-
-		mLoading = false;
 		return;
+	}
+
+	if (mModelLoader)
+	{
+		delete mModelLoader;
+		mModelLoader = NULL;
 	}
 
 	mLODFile[lod] = filename;

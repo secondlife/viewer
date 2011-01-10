@@ -228,6 +228,7 @@ void LLAssetUploadResponder::error(U32 statusNum, const std::string& reason)
 			break;
 	}
 	LLUploadDialog::modalUploadFinished();
+	LLFilePicker::instance().reset();  // unlock file picker when bulk upload fails
 }
 
 //virtual 

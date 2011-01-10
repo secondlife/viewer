@@ -32,6 +32,8 @@
 
 class LLTabContainer;
 
+std::string getProfileURL(const std::string& agent_name);
+
 /**
 * Base class for Profile View and My Profile.
 */

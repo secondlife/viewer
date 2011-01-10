@@ -1,8 +1,8 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llshareavatarhandler.cpp
+ * @brief slapp to handle sharing with an avatar
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,18 +24,36 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#include "llviewerprecompiledheaders.h"
+#include "llcommandhandler.h"
+#include "llavataractions.h"
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 6;
-const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 0;
-
-const char * const LL_CHANNEL = "Second Life Developer";
-
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
-
-#endif
+class LLShareWithAvatarHandler : public LLCommandHandler
+{
+public: 
+	// requires trusted browser to trigger
+	LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
+	{ 
+	}
+	
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		//Make sure we have some parameters
+		if (params.size() == 0)
+		{
+			return false;
+		}
+		
+		//Get the ID
+		LLUUID id;
+		if (!id.set( params[0], FALSE ))
+		{
+			return false;
+		}
+		
+		//instigate share with this avatar
+		LLAvatarActions::share( id );		
+		return true;
+	}
+};
+LLShareWithAvatarHandler gShareWithAvatar;
