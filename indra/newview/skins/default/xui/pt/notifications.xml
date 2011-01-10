@@ -2714,7 +2714,7 @@ O botão será exibido quando houver espaço suficente.
 	<notification name="ShareItemsConfirmation">
 		Tem certeza de que quer compartilhar os items abaixo?
 
-[ITENS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Com os seguintes residentes:
 
