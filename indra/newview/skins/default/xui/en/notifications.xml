@@ -253,6 +253,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FavoritesOnLogin"
+   type="alertmodal">    
+    Note: When you turn on this option, anyone who uses this computer can see your list of favorite locations.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.

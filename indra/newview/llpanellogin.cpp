@@ -253,9 +253,65 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	gResponsePtr = LLIamHereLogin::build( this );
 
 	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
-	
+
+	// Show last logged in user favorites in "Start at" combo.
+	addUsersWithFavoritesToUsername();
+	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+
 	updateLocationCombo(false);
 
+}
+
+void LLPanelLogin::addUsersWithFavoritesToUsername()
+{
+	LLComboBox* combo = getChild<LLComboBox>("username_combo");
+	if (!combo) return;
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		combo->add(iter->first);
+	}
+}
+
+void LLPanelLogin::addFavoritesToStartLocation()
+{
+	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
+	if (!combo) return;
+	int num_items = combo->getItemCount();
+	for (int i = num_items - 1; i > 2; i--)
+	{
+		combo->remove(i);
+	}
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		if(iter->first != getChild<LLComboBox>("username_combo")->getSimple()) continue;
+		combo->addSeparator();
+		LLSD user_llsd = iter->second;
+		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
+			iter1 != user_llsd.endArray(); ++iter1)
+		{
+			std::string label = (*iter1)["name"].asString();
+			std::string value = (*iter1)["slurl"].asString();
+			if(label != "" && value != "")
+			{
+				combo->add(label, value);
+			}
+		}
+		break;
+	}
 }
 
 // force the size to be correct (XML doesn't seem to be sufficient to do this)
@@ -393,13 +449,14 @@ void LLPanelLogin::giveFocus()
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 		std::string pass = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
 		BOOL have_username = !username.empty();
 		BOOL have_pass = !pass.empty();
 
 		LLLineEditor* edit = NULL;
+		LLComboBox* combo = NULL;
 		if (have_username && !have_pass)
 		{
 			// User saved his name but not his password.  Move
@@ -409,13 +466,17 @@ void LLPanelLogin::giveFocus()
 		else
 		{
 			// User doesn't have a name, so start there.
-			edit = sInstance->getChild<LLLineEditor>("username_edit");
+			combo = sInstance->getChild<LLComboBox>("username_combo");
 		}
 
 		if (edit)
 		{
 			edit->setFocus(TRUE);
 			edit->selectAll();
+		}
+		else if (combo)
+		{
+			combo->setFocus(TRUE);
 		}
 	}
 }
@@ -431,8 +492,8 @@ void LLPanelLogin::showLoginWidgets()
 	// *TODO: Append all the usual login parameters, like first_login=Y etc.
 	std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
 	web_browser->navigateTo( splash_screen_url, "text/html" );
-	LLUICtrl* username_edit = sInstance->getChild<LLUICtrl>("username_edit");
-	username_edit->setFocus(TRUE);
+	LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
+	username_combo->setFocus(TRUE);
 }
 
 // static
@@ -476,16 +537,17 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 		    login_id += " ";
 		    login_id += lastname;
 	    }
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue(login_id);	
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);	
 	}
 	else if((std::string)identifier["type"] == "account")
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["account_name"]);		
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel((std::string)identifier["account_name"]);		
 	}
 	else
 	{
-	  sInstance->getChild<LLUICtrl>("username_edit")->setValue(std::string());	
+	  sInstance->getChild<LLComboBox>("username_combo")->setLabel(std::string());	
 	}
+	sInstance->addFavoritesToStartLocation();
 	// if the password exists in the credential, set the password field with
 	// a filler to get some stars
 	LLSD authenticator = credential->getAuthenticator();
@@ -533,7 +595,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		authenticator = credential->getAuthenticator();
 	}
 
-	std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+	std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 	LLStringUtil::trim(username);
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
@@ -625,15 +687,15 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 	}
 	else
 	{
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 		LLStringUtil::trim(username);
 		std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
-		LLLineEditor* ctrl = sInstance->getChild<LLLineEditor>("username_edit");
-		if(ctrl && ctrl->isDirty())
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("username_combo");
+		if(combo && combo->isDirty())
 		{
 			return true;
 		}
-		ctrl = sInstance->getChild<LLLineEditor>("password_edit");
+		LLLineEditor* ctrl = sInstance->getChild<LLLineEditor>("password_edit");
 		if(ctrl && ctrl->isDirty()) 
 		{
 			return true;
@@ -873,7 +935,7 @@ void LLPanelLogin::onClickConnect(void *)
 			return;
 		}
 		updateStartSLURL();
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 
 		
 		if(username.empty())
