@@ -1469,8 +1469,7 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning up Objects" << llendflush;
 	
 	LLViewerObject::cleanupVOClasses();
-
-	LLWaterParamManager::cleanupClass();
+	
 	LLPostProcess::cleanupClass();
 
 	LLTracker::cleanupInstance();

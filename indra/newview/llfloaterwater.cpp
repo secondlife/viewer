@@ -59,6 +59,8 @@
 
 #undef max
 
+LLFloaterWater* LLFloaterWater::sWater = NULL;
+
 std::set<std::string> LLFloaterWater::sDefaultPresets;
 LLEnvKey::EScope LLFloaterWater::sScope;
 std::string LLFloaterWater::sOriginalTitle;

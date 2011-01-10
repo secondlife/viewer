@@ -107,8 +107,8 @@ public:
 
 private:
 	static std::set<std::string> sDefaultPresets;
-        static LLEnvKey::EScope sScope;
-        static std::string sOriginalTitle;
+	static LLEnvKey::EScope sScope;
+	static std::string sOriginalTitle;
 
 	static LLFloaterWater* sWater;
 };

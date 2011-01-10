@@ -78,11 +78,6 @@ LLWaterParamManager::~LLWaterParamManager()
 {
 }
 
-LLWaterParamManager::cleanupClass()
-{
-	// TODO: what needs to be cleaned up?
-}
-
 void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 {
 	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", ""));

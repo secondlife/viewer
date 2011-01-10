@@ -355,8 +355,6 @@ public:
 	// If visible from mainland, allowed agent and allowed groups
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
-
-	virtual void close(bool app_quitting = false);
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback

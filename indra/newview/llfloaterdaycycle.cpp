@@ -58,7 +58,7 @@
 #include "llwlparammanager.h"
 #include "llpostprocess.h"
 #include "llfloaterwindlight.h"
-#include "llwindlightscrubbers.h"
+//#include "llwindlightscrubbers.h" // *HACK commented out since this code isn't released (yet)
 #include "llenvmanager.h"
 #include "llfloaterreg.h"
 
@@ -73,8 +73,9 @@ LLFloaterDayCycle::LLFloaterDayCycle(const LLSD &key) : LLFloater(key)
 {
 	sOriginalTitle = getTitle();
 
-	llassert(LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue() &&
-		     LLWLPacketScrubber::MAX_REGION_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue());
+	// *HACK commented out since this code isn't released (yet)
+	//llassert(LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue() &&
+	//	     LLWLPacketScrubber::MAX_REGION_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue());
 
 	// add the time slider
 	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLTimeSlider");
@@ -530,10 +531,10 @@ void LLFloaterDayCycle::onAddKey(void* userData)
 	switch(sScope)
 	{
 		case LLEnvKey::SCOPE_LOCAL:
-			max_sliders = LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES;
+			max_sliders = 20; // *HACK this should be LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES;
 			break;
 		case LLEnvKey::SCOPE_REGION:
-			max_sliders = LLWLPacketScrubber::MAX_REGION_KEY_FRAMES;
+			max_sliders = 12; // *HACK this should be LLWLPacketScrubber::MAX_REGION_KEY_FRAMES;
 			break;
 		default:
 			max_sliders = (S32)kSldr->getMaxValue();

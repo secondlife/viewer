@@ -44,7 +44,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llfloaterregioninfo.h"
-#include "llwindlightscrubbers.h"
+//#include "llwindlightscrubbers.h" // *HACK commented out since this code isn't released (yet)
 #include "llwlhandlers.h"
 #include "llnotifications.h"
 
@@ -269,11 +269,16 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 	updateUIFromEditability();
 
 	// Validate
-	std::set<std::string> empty_set;
-	LLWLPacketScrubber scrubber(scope, empty_set);
-	LLSD windlight_llsd = scrubber.scrub(unvalidated_content);
+	//std::set<std::string> empty_set;
+	//LLWLPacketScrubber scrubber(scope, empty_set);
+	//LLSD windlight_llsd = scrubber.scrub(unvalidated_content);
 
-	bool valid = windlight_llsd.isDefined(); // successful scrub
+	//bool valid = windlight_llsd.isDefined(); // successful scrub
+
+	// *HACK - Don't have the validator, so just use content without validating.  Should validate here for third-party grids.
+	LLSD windlight_llsd(unvalidated_content);
+	bool valid = true;
+	// end HACK
 
 	mLastReceivedID = unvalidated_content[0]["messageID"].asUUID();		// if the message was valid, grab the UUID from it and save it for next outbound update message
 

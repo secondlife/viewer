@@ -235,9 +235,6 @@ public:
 	/// Update shader uniforms that have changed.
 	void updateShaderUniforms(LLGLSLShader * shader);
 
-	// Cleanup of global data that's only inited once per class.
-	static void cleanupClass();
-
 	/// add a param to the list
 	bool addParamSet(const std::string& name, LLWaterParamSet& param);
 
