@@ -97,10 +97,11 @@ void LLAudioEngine::setDefaults()
 	}
 
 	mMasterGain = 1.f;
-	// Setting mInternalGain to a very low but non-zero value fixes the issue reported in STORM-830.
+	// Setting mInternalGain to an out of range value fixes the issue reported in STORM-830.
 	// There is an edge case in setMasterGain during startup which prevents setInternalGain from 
-	// being called if the master volume setting and mInternalGain both equal 0.
-	mInternalGain = 0.0000000001f;
+	// being called if the master volume setting and mInternalGain both equal 0, so using -1 forces
+	// the if statement in setMasterGain to execute when the viewer starts up.
+	mInternalGain = -1.f;
 	mNextWindUpdate = 0.f;
 
 	mStreamingAudioImpl = NULL;
