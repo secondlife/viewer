@@ -33,6 +33,7 @@
 // linden library includes
 #include "llcontrol.h"		// LLControlGroup
 #include "lldir.h"
+#include "lldiriterator.h"
 #include "llerrorcontrol.h"
 #include "llfloater.h"
 #include "llfontfreetype.h"
@@ -174,7 +175,9 @@ void export_test_floaters()
 	std::string delim = gDirUtilp->getDirDelimiter();
 	std::string xui_dir = get_xui_dir() + "en" + delim;
 	std::string filename;
-	while (gDirUtilp->getNextFileInDir(xui_dir, "floater_test_*.xml", filename))
+
+	LLDirIterator iter(xui_dir, "floater_test_*.xml");
+	while (iter.next(filename))
 	{
 		if (filename.find("_new.xml") != std::string::npos)
 		{
