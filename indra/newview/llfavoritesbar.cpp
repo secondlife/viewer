@@ -607,6 +607,15 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 	}	
 	else
 	{
+		LLInventoryModel::item_array_t items;
+		LLInventoryModel::cat_array_t cats;
+		LLIsType is_type(LLAssetType::AT_LANDMARK);
+		gInventory.collectDescendentsIf(mFavoriteFolderId, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+		
+		for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+		{
+			(*i)->getSLURL();
+		}
 		updateButtons();
 	}
 }

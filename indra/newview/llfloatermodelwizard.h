@@ -57,13 +57,15 @@ public:
 	virtual ~LLFloaterModelWizard();
 	/*virtual*/	BOOL	postBuild();
 	void			draw();
+	void            refresh();
 	
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 
-	
+	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
+
 	void initDecompControls();
 	
 	LLPhysicsDecomp::decomp_params mDecompParams;
