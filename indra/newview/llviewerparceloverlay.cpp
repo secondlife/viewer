@@ -159,13 +159,17 @@ bool LLViewerParcelOverlay::encroachesOwned(const std::vector<LLBBox>& boxes) co
 		S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
 	
 		for (S32 row = top; row <= bottom; row++)
+		{
 			for (S32 column = left; column <= right; column++)
 			{
 				U8 type = ownership(row, column);
-				if (PARCEL_SELF == type
-					|| PARCEL_GROUP == type )
+				if ((PARCEL_SELF == type)
+					|| (PARCEL_GROUP == type))
+				{
 					return true;
+				}
 			}
+		}
 	}
 	return false;
 }

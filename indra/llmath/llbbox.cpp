@@ -91,7 +91,7 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
 
 LLBBox LLBBox::getAxisAligned() const
 {
-	// no rotiation = axis aligned rotation
+	// no rotation = axis aligned rotation
 	LLBBox aligned(mPosAgent, LLQuaternion(), LLVector3(), LLVector3());
 
 	// add the center point so that it's not empty
