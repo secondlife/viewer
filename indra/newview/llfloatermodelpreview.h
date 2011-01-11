@@ -187,6 +187,7 @@ protected:
 	
 	static void		onAutoFillCommit(LLUICtrl*,void*);
 	static void		onLODParamCommit(LLUICtrl*,void*);
+	static void		onLODParamCommitTriangleLimit(LLUICtrl*,void*);
 	
 	static void		onExplodeCommit(LLUICtrl*, void*);
 	
@@ -232,6 +233,7 @@ protected:
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
+
 };
 
 class LLMeshFilePicker : public LLFilePickerThread
@@ -247,6 +249,7 @@ private:
 
 
 class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
+
 {
  public:
 	
@@ -271,7 +274,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
-	void genLODs(S32 which_lod = -1, U32 decimation = 3);
+	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
 	void consolidate();
 	void clearMaterials();
@@ -281,6 +284,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
 	void clearGLODGroup();
+	void onLODParamCommit(bool enforce_tri_limit);
 
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
