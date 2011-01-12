@@ -977,7 +977,7 @@ void LLAppViewer::initMaxHeapSize()
 void LLAppViewer::checkMemory()
 {
 	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
-	const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
+	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
 	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
 	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
 	static void* last_reserved_address = NULL ;

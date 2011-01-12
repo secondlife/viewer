@@ -398,7 +398,7 @@ void LLPrivateMemoryPool::LLMemoryBlock::init(char* buffer, U32 buffer_size, U32
 	mSlotSize = slot_size ;
 	mTotalSlots = buffer_size / mSlotSize ;	
 	
-	llassert_always(mTotalSlots < 256) ; //max number is 256
+	llassert_always(buffer_size / mSlotSize < 256) ; //max number is 256
 	
 	mAllocatedSlots = 0 ;
 
@@ -1137,7 +1137,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 	LLMemoryChunk* chunk = mChunkList[chunk_idx];
 	while(chunk)
 	{
-		if(p = chunk->allocate(size))
+		if((p = chunk->allocate(size)))
 		{
 			break ;
 		}
@@ -1152,7 +1152,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 			chunk = mChunkList[chunk_idx];
 			while(chunk)
 			{
-				if(p = chunk->allocate(size))
+				if((p = chunk->allocate(size)))
 				{
 					break ;
 				}
@@ -1185,7 +1185,7 @@ void LLPrivateMemoryPool::free(void* addr)
 	
 	if(!chunk)
 	{
-		delete[] addr ; //release from heap
+		delete[] (char*)addr ; //release from heap
 	}
 	else
 	{

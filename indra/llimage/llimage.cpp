@@ -148,7 +148,7 @@ void  LLImageBase::deleteMemory(void* p)
 	}
 	else
 	{
-		delete[] p ;
+		delete[] (char*)p ;
 	}
 }
 
