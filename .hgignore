@@ -11,7 +11,7 @@ syntax: glob
 *.DS_Store
 LICENSES
 indra/.distcc
-indra/build-darwin-*
+build-darwin-*
 indra/build-vc[0-9]*
 indra/CMakeFiles
 indra/lib/mono/1.0/*.dll
