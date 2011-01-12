@@ -1150,28 +1150,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
 	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
-		//If a VO has a skin that we'll reset the joint positions to their default
-		if ( viewer_object->mDrawable )
-		{
-			LLVOVolume* pVObj = viewer_object->mDrawable->getVOVolume();
-			if ( pVObj )
-			{
-				const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
-				if ( pSkinData )
-				{
-					const int jointCnt = pSkinData->mJointNames.size();
-					bool fullRig = ( jointCnt>=20 ) ? true : false;
-					if ( fullRig )
-					{
-						const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
-						if ( bindCnt > 0 )
-						{
-							LLVOAvatar::resetJointPositionsToDefault();
-						}
-					}
-				}				
-			}
-		}
+		LLVOAvatar::cleanupAttachedMesh( viewer_object );
 		
 		// the simulator should automatically handle permission revocation
 		
