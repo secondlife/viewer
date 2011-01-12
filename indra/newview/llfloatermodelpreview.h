@@ -189,6 +189,7 @@ protected:
 	
 	static void		onAutoFillCommit(LLUICtrl*,void*);
 	static void		onLODParamCommit(LLUICtrl*,void*);
+	static void		onLODParamCommitTriangleLimit(LLUICtrl*,void*);
 	
 	static void		onExplodeCommit(LLUICtrl*, void*);
 	
@@ -234,6 +235,7 @@ protected:
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
+
 };
 
 class LLMeshFilePicker : public LLFilePickerThread
@@ -254,7 +256,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	typedef boost::signals2::signal<void (void)> model_loaded_signal_t;
 
 public:
-	 LLModelPreview(S32 width, S32 height, LLFloater* fmp);
+	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 
 	void resetPreviewTarget();
@@ -275,7 +277,7 @@ public:
 	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod);
 	void loadModelCallback(S32 lod);
-	void genLODs(S32 which_lod = -1, U32 decimation = 3);
+	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
 	void consolidate();
 	void clearMaterials();
@@ -285,6 +287,7 @@ public:
 	void updateStatusMessages();
 	bool containsRiggedAsset( void );
 	void clearGLODGroup();
+	void onLODParamCommit(bool enforce_tri_limit);
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	

@@ -291,7 +291,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("lod_mode", onLODParamCommit, this);
 	childSetCommitCallback("lod_error_threshold", onLODParamCommit, this);
-	childSetCommitCallback("lod_triangle_limit", onLODParamCommit, this);
+	childSetCommitCallback("lod_triangle_limit", onLODParamCommitTriangleLimit, this);
 	childSetCommitCallback("build_operator", onLODParamCommit, this);
 	childSetCommitCallback("queue_mode", onLODParamCommit, this);
 	childSetCommitCallback("border_mode", onLODParamCommit, this);
@@ -533,9 +533,14 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	fp->mModelPreview->genLODs(fp->mModelPreview->mPreviewLOD);
-	fp->mModelPreview->updateStatusMessages();
-	fp->mModelPreview->refresh();
+	fp->mModelPreview->onLODParamCommit(false);
+}
+
+//static
+void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
+{
+	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	fp->mModelPreview->onLODParamCommit(true);
 }
 
 
@@ -2843,7 +2848,7 @@ bool LLModelPreview::containsRiggedAsset( void )
 	}
 	return false;
 }
-void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
+void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
 	if (mBaseModel.empty())
 	{
@@ -3074,7 +3079,17 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 		}
 		else
 		{
-			triangle_count = limit;
+			if (enforce_tri_limit)
+			{
+				triangle_count = limit;
+			}
+			else
+			{
+				for (S32 j=LLModel::LOD_HIGH; j>which_lod; --j)
+				{
+					triangle_count /= decimation;
+				}
+			}
 		}
 
 		mModel[lod].clear();
@@ -4338,6 +4353,13 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
+}
+
+void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
+{
+	genLODs(mPreviewLOD, 3, enforce_tri_limit);
+	updateStatusMessages();
+	refresh();
 }
 
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)
