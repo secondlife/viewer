@@ -52,7 +52,14 @@ static	const std::string stateNames[]={
 LLFloaterModelWizard::LLFloaterModelWizard(const LLSD& key)
 	: LLFloater(key)
 {
+	mLastEnabledState = CHOOSE_FILE;
 	sInstance = this;
+
+	mCommitCallbackRegistrar.add("Wizard.Choose", boost::bind(&LLFloaterModelWizard::setState, this, CHOOSE_FILE));
+	mCommitCallbackRegistrar.add("Wizard.Optimize", boost::bind(&LLFloaterModelWizard::setState, this, OPTIMIZE));
+	mCommitCallbackRegistrar.add("Wizard.Physics", boost::bind(&LLFloaterModelWizard::setState, this, PHYSICS));
+	mCommitCallbackRegistrar.add("Wizard.Review", boost::bind(&LLFloaterModelWizard::setState, this, REVIEW));
+	mCommitCallbackRegistrar.add("Wizard.Upload", boost::bind(&LLFloaterModelWizard::setState, this, UPLOAD));
 }
 LLFloaterModelWizard::~LLFloaterModelWizard()
 {
@@ -60,12 +67,12 @@ LLFloaterModelWizard::~LLFloaterModelWizard()
 }
 void LLFloaterModelWizard::setState(int state)
 {
+
 	mState = state;
-	setButtons(state);
 
 	for(size_t t=0; t<LL_ARRAY_SIZE(stateNames); ++t)
 	{
-		LLView *view = getChild<LLView>(stateNames[t]+"_panel");
+		LLView *view = getChildView(stateNames[t]+"_panel");
 		if (view) 
 		{
 			view->setVisible(state == (int) t ? TRUE : FALSE);
@@ -74,60 +81,101 @@ void LLFloaterModelWizard::setState(int state)
 
 	if (state == CHOOSE_FILE)
 	{
+		mModelPreview->mViewOption["show_physics"] = false;
+
+		getChildView("close")->setVisible(false);
+		getChildView("back")->setVisible(true);
 		getChildView("back")->setEnabled(false);
+		getChildView("next")->setVisible(true);
+		getChildView("upload")->setVisible(false);
+		getChildView("cancel")->setVisible(true);
 	}
 
 	if (state == OPTIMIZE)
 	{
-		getChildView("back")->setEnabled(true);
-		//mModelPreview->mModel[lod].clear();
-		mModelPreview->genLODs(-1);
+		if (mLastEnabledState < state)
+		{			
+			mModelPreview->genLODs(-1);
+		}
+
 		mModelPreview->mViewOption["show_physics"] = false;
+
+		getChildView("back")->setVisible(true);
+		getChildView("back")->setEnabled(true);
+		getChildView("close")->setVisible(false);
+		getChildView("next")->setVisible(true);
+		getChildView("upload")->setVisible(false);
+		getChildView("cancel")->setVisible(true);
 	}
 
 	if (state == PHYSICS)
 	{
-		mModelPreview->setPhysicsFromLOD(1);
+		if (mLastEnabledState < state)
+		{
+			mModelPreview->setPhysicsFromLOD(1);
+		}
+
 		mModelPreview->mViewOption["show_physics"] = true;
 
-		getChild<LLView>("next")->setVisible(true);
-		getChild<LLView>("upload")->setVisible(false);
+		getChildView("next")->setVisible(true);
+		getChildView("upload")->setVisible(false);
+		getChildView("close")->setVisible(false);
+		getChildView("back")->setVisible(true);
+		getChildView("back")->setEnabled(true);
+		getChildView("cancel")->setVisible(true);
 	}
 
 	if (state == REVIEW)
 	{
-		executePhysicsStage("Decompose");
-		getChild<LLView>("close")->setVisible(false);
-		getChild<LLView>("next")->setVisible(false);
-		getChild<LLView>("back")->setVisible(true);
-		getChild<LLView>("upload")->setVisible(true);
-		getChild<LLView>("cancel")->setVisible(true);
+		if (mLastEnabledState < state)
+		{
+			executePhysicsStage("Decompose");
+		}
+		
+		mModelPreview->mViewOption["show_physics"] = true;
+
+		getChildView("close")->setVisible(false);
+		getChildView("next")->setVisible(false);
+		getChildView("back")->setVisible(true);
+		getChildView("back")->setEnabled(true);
+		getChildView("upload")->setVisible(true);
+		getChildView("cancel")->setVisible(true);
 	}
 
 	if (state == UPLOAD)
 	{
-		getChild<LLView>("close")->setVisible(true);
-		getChild<LLView>("back")->setVisible(false);
-		getChild<LLView>("upload")->setVisible(false);
-		getChild<LLView>("cancel")->setVisible(false);
+		getChildView("close")->setVisible(true);
+		getChildView("next")->setVisible(false);
+		getChildView("back")->setVisible(false);
+		getChildView("upload")->setVisible(false);
+		getChildView("cancel")->setVisible(false);
 	}
+
+	updateButtons();
 }
 
-void LLFloaterModelWizard::setButtons(int state)
+
+
+void LLFloaterModelWizard::updateButtons()
 {
+	if (mLastEnabledState < mState)
+	{
+		mLastEnabledState = mState;
+	}
+
 	for(size_t i=0; i<LL_ARRAY_SIZE(stateNames); ++i)
 	{
 		LLButton *button = getChild<LLButton>(stateNames[i]+"_btn");
 
-		if (i < state)
-		{
-			button->setEnabled(TRUE);
-			button->setToggleState(FALSE);
-		}
-		else if (i == state)
+		if (i == mState)
 		{
 			button->setEnabled(TRUE);
 			button->setToggleState(TRUE);
+		}
+		else if (i <= mLastEnabledState)
+		{
+			button->setEnabled(TRUE);
+			button->setToggleState(FALSE);
 		}
 		else
 		{
@@ -426,7 +474,7 @@ void LLFloaterModelWizard::DecompRequest::completed()
 
 BOOL LLFloaterModelWizard::postBuild()
 {
-	LLView* preview_panel = getChild<LLView>("preview_panel");
+	LLView* preview_panel = getChildView("preview_panel");
 
 	childSetValue("import_scale", (F32) 0.67335826);
 
@@ -439,19 +487,20 @@ BOOL LLFloaterModelWizard::postBuild()
 	getChild<LLUICtrl>("preview_lod_combo")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
 	getChild<LLUICtrl>("accuracy_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onAccuracyPerformance, this, _2));
 	getChild<LLUICtrl>("upload")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onUpload, this));
-	
+	getChild<LLUICtrl>("physics_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPhysicsChanged, this));
+
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
 	enable_registrar.add("Next.OnEnable", boost::bind(&LLFloaterModelWizard::onEnableNext, this));
 	enable_registrar.add("Back.OnEnable", boost::bind(&LLFloaterModelWizard::onEnableBack, this));
 
-	
+
 	mPreviewRect = preview_panel->getRect();
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelWizard::setDetails, this, _1, _2, _3, _4, _5));
-
+	mModelPreview->setModelLoadedCallback(boost::bind(&LLFloaterModelWizard::modelLoadedCallback, this));
 
 	center();
 
@@ -484,6 +533,18 @@ void LLFloaterModelWizard::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F
 	}
 }
 
+void LLFloaterModelWizard::modelLoadedCallback()
+{
+	mLastEnabledState = CHOOSE_FILE;
+	getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
+	updateButtons();
+}
+
+void LLFloaterModelWizard::onPhysicsChanged()
+{
+	mLastEnabledState = PHYSICS;
+	updateButtons();
+}
 
 void LLFloaterModelWizard::onUpload()
 {	
@@ -496,7 +557,6 @@ void LLFloaterModelWizard::onUpload()
 	
 }
 
-
 void LLFloaterModelWizard::onAccuracyPerformance(const LLSD& data)
 {
 	int val = (int) data.asInteger();
@@ -505,6 +565,7 @@ void LLFloaterModelWizard::onAccuracyPerformance(const LLSD& data)
 
 	mModelPreview->refresh();
 }
+
 
 void LLFloaterModelWizard::onPreviewLODCommit(LLUICtrl* ctrl)
 {
@@ -557,8 +618,8 @@ void LLFloaterModelWizard::draw()
 		
 		gGL.getTexUnit(0)->bind(mModelPreview);
 		
-		LLView *view = getChild<LLView>(stateNames[mState]+"_panel");
-		LLView* preview_panel = view->getChild<LLView>("preview_panel");
+		LLView *view = getChildView(stateNames[mState]+"_panel");
+		LLView* preview_panel = view->getChildView("preview_panel");
 
 		LLRect rect = preview_panel->getRect();
 		if (rect != mPreviewRect)

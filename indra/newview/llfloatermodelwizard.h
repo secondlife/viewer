@@ -65,7 +65,8 @@ public:
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
-
+	void modelLoadedCallback();
+	void onPhysicsChanged();
 	void initDecompControls();
 	
 	LLPhysicsDecomp::decomp_params mDecompParams;
@@ -84,7 +85,7 @@ private:
 	};
 
 	void setState(int state);
-	void setButtons(int state);
+	void updateButtons();
 	void onClickCancel();
 	void onClickBack();
 	void onClickNext();
@@ -101,6 +102,8 @@ private:
 
 	S32				mLastMouseX;
 	S32				mLastMouseY;
+
+	U32			    mLastEnabledState;
 
 
 };

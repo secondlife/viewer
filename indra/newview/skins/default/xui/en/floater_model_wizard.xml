@@ -18,12 +18,15 @@
 	 enabled="false"
 	 label="5. Upload"
 	 border="false"
-	 image_unselected="model_wizard/middle_button_off.png"
-	 image_selected="model_wizard/middle_button_press.png"
-	 image_hover_unselected="model_wizard/middle_button_over.png"
-	 image_disabled="model_wizard/middle_button_disabled.png"
-	 image_disabled_selected="model_wizard/middle_button_disabled.png"
-	 width="110"/>
+	 image_unselected="BreadCrumbBtn_Right_Off"
+	 image_selected="BreadCrumbBtn_Right_Press"
+	 image_hover_unselected="BreadCrumbBtn_Right_Over"
+	 image_disabled="BreadCrumbBtn_Right_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Right_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Upload"/>
+	</button>
 	<button
 	 top="32"
 	 left="310"
@@ -33,12 +36,15 @@
 	 label="4. Review"
 	 enabled="false"
 	 border="false"
-	 image_unselected="model_wizard/middle_button_off.png"
-	 image_selected="model_wizard/middle_button_press.png"
-	 image_hover_unselected="model_wizard/middle_button_over.png"
-	 image_disabled="model_wizard/middle_button_disabled.png"
-	 image_disabled_selected="model_wizard/middle_button_disabled.png"
-	 width="110"/>
+	 image_unselected="BreadCrumbBtn_Middle_Off"
+	 image_selected="BreadCrumbBtn_Middle_Press"
+	 image_hover_unselected="BreadCrumbBtn_Middle_Over"
+	 image_disabled="BreadCrumbBtn_Middle_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Middle_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Review"/>
+	</button>
 	<button
 	 top="32"
 	 left="210"
@@ -48,12 +54,15 @@
 	 tab_stop="false"
 	 enabled="false"
 	 border="false"
-	 image_unselected="model_wizard/middle_button_off.png"
-	 image_selected="model_wizard/middle_button_press.png"
-	 image_hover_unselected="model_wizard/middle_button_over.png"
-	 image_disabled="model_wizard/middle_button_disabled.png"
-	 image_disabled_selected="model_wizard/middle_button_disabled.png"
-	 width="110"/>
+	 image_unselected="BreadCrumbBtn_Middle_Off"
+	 image_selected="BreadCrumbBtn_Middle_Press"
+	 image_hover_unselected="BreadCrumbBtn_Middle_Over"
+	 image_disabled="BreadCrumbBtn_Middle_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Middle_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Physics"/>
+	</button>
 	<button
 	 top="32"
 	 left="115"
@@ -62,12 +71,15 @@
 	 tab_stop="false"
 	 height="32"
 	 border="false"
-	 image_unselected="model_wizard/middle_button_off.png"
-	 image_selected="model_wizard/middle_button_press.png"
-	 image_hover_unselected="model_wizard/middle_button_over.png"
-	 image_disabled="model_wizard/middle_button_disabled.png"
-	 image_disabled_selected="model_wizard/middle_button_disabled.png"
-	 width="110"/>
+	 image_unselected="BreadCrumbBtn_Middle_Off"
+	 image_selected="BreadCrumbBtn_Middle_Press"
+	 image_hover_unselected="BreadCrumbBtn_Middle_Over"
+	 image_disabled="BreadCrumbBtn_Middle_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Middle_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Optimize"/>
+	</button>
 	<button
 	 top="32"
 	 left="15"
@@ -76,12 +88,15 @@
 	 enabled="false"
 	 label="1. Choose File"
 	 height="32"
-	 image_unselected="model_wizard/left_button_off.png"
-	 image_selected="model_wizard/left_button_press.png"
-	 image_hover_unselected="model_wizard/left_button_over.png"
-	 image_disabled="model_wizard/left_button_disabled.png"
-	 image_disabled_selected="model_wizard/left_button_disabled.png"
-	 width="110"/>
+	 image_unselected="BreadCrumbBtn_Left_Off"
+	 image_selected="BreadCrumbBtn_Left_Press"
+	 image_hover_unselected="BreadCrumbBtn_Left_Over"
+	 image_disabled="BreadCrumbBtn_Left_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Left_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Choose"/>
+	</button>
 	<panel
 		 height="388"
 		 top_pad="0"
