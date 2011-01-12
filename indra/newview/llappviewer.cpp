@@ -93,6 +93,7 @@
 #include "llmemory.h"
 #include "llprimitive.h"
 #include "llurlaction.h"
+#include "llurlentry.h"
 #include "llvfile.h"
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
@@ -4567,6 +4568,10 @@ void LLAppViewer::disconnectViewer()
 
 	cleanup_xfer_manager();
 	gDisconnected = TRUE;
+
+	// Pass the connection state to LLUrlEntryParcel not to attempt
+	// parcel info requests while disconnected.
+	LLUrlEntryParcel::setDisconnected(gDisconnected);
 }
 
 void LLAppViewer::forceErrorLLError()
