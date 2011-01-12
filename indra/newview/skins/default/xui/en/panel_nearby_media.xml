@@ -69,7 +69,7 @@
 		width="66"
 		height="22"
 		label="More &gt;&gt;"
-		label_selected="Less &lt;&lt;">
+		label_selected="More &gt;&gt;">
 	  <button.commit_callback
 		  function="MediaListCtrl.MoreLess" />
 	</button>
@@ -81,8 +81,8 @@
 		right="-8"
 		width="66"
 		height="22"
-		label="More &gt;&gt;"
-		label_selected="Less &lt;&lt;">
+		label="&lt;&lt; Less"
+		label_selected="&lt;&lt; Less">
       <button.commit_callback
         function="MediaListCtrl.MoreLess" />
   </button>
