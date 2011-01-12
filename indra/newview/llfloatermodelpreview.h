@@ -279,7 +279,6 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	void rebuildUploadData();
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
-	bool containsRiggedAsset( void );
 	void clearGLODGroup();
 
 
