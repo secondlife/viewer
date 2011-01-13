@@ -12,7 +12,6 @@ include_directories(
 
 set(llvfs_SOURCE_FILES
     lldir.cpp
-    lldiriterator.cpp
     lllfsthread.cpp
     llpidlock.cpp
     llvfile.cpp
@@ -25,7 +24,6 @@ set(llvfs_HEADER_FILES
 
     lldir.h
     lldirguard.h
-    lldiriterator.h
     lllfsthread.h
     llpidlock.h
     llvfile.h
@@ -61,11 +59,6 @@ set_source_files_properties(${llvfs_HEADER_FILES}
 list(APPEND llvfs_SOURCE_FILES ${llvfs_HEADER_FILES})
 
 add_library (llvfs ${llvfs_SOURCE_FILES})
-
-target_link_libraries(llvfs
-    ${BOOST_FILESYSTEM_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    )
 
 if (DARWIN)
   include(CMakeFindFrameworks)
