@@ -2895,10 +2895,8 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				}
 				
 	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
-	mNameText->setPositionAgent(name_position);
-				
-	idleUpdateNameTagText(new_name);
-			
+	mNameText->setPositionAgent(name_position);				
+	idleUpdateNameTagText(new_name);			
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
@@ -3184,8 +3182,9 @@ void LLVOAvatar::invalidateNameTags()
 		if (avatar->isDead()) continue;
 
 		avatar->clearNameTag();
-				}
-			}
+
+	}
+}
 
 // Compute name tag position during idle update
 LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
@@ -3204,12 +3203,14 @@ LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	local_camera_up.scaleVec(mBodySize * 0.5f);
 	local_camera_at.scaleVec(mBodySize * 0.5f);
 
-	LLVector3 name_position = mRoot.getWorldPosition() + 
-		(local_camera_up * root_rot) -
-		(projected_vec(local_camera_at * root_rot, camera_to_av));
+	LLVector3 name_position = mRoot.getWorldPosition();
+	name_position[VZ] -= mPelvisToFoot;
+	name_position[VZ] += (mBodySize[VZ]* 0.55f);
+	name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));	
 	name_position += pixel_up_vec * 15.f;
+
 	return name_position;
-		}
+}
 
 void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 {
@@ -6026,6 +6027,34 @@ void LLVOAvatar::rebuildRiggedAttachments( void )
 	}
 }
 //-----------------------------------------------------------------------------
+// cleanupAttachedMesh()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
+{
+	//If a VO has a skin that we'll reset the joint positions to their default
+	if ( pVO && pVO->mDrawable )
+	{
+		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
+		if ( pVObj )
+		{
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
+			if ( pSkinData )
+			{
+				const int jointCnt = pSkinData->mJointNames.size();
+				bool fullRig = ( jointCnt>=20 ) ? true : false;
+				if ( fullRig )
+				{
+					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
+					if ( bindCnt > 0 )
+					{
+						LLVOAvatar::resetJointPositionsToDefault();
+					}
+				}
+			}				
+		}
+	}	
+}
+//-----------------------------------------------------------------------------
 // detachObject()
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
@@ -6035,9 +6064,10 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		 ++iter)
 	{
 		LLViewerJointAttachment* attachment = iter->second;
-
+		
 		if (attachment->isObjectAttached(viewer_object))
 		{
+			cleanupAttachedMesh( viewer_object );
 			attachment->removeObject(viewer_object);
 			lldebugs << "Detaching object " << viewer_object->mID << " from " << attachment->getName() << llendl;
 			return TRUE;

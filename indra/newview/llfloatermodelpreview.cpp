@@ -291,7 +291,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("lod_mode", onLODParamCommit, this);
 	childSetCommitCallback("lod_error_threshold", onLODParamCommit, this);
-	childSetCommitCallback("lod_triangle_limit", onLODParamCommit, this);
+	childSetCommitCallback("lod_triangle_limit", onLODParamCommitTriangleLimit, this);
 	childSetCommitCallback("build_operator", onLODParamCommit, this);
 	childSetCommitCallback("queue_mode", onLODParamCommit, this);
 	childSetCommitCallback("border_mode", onLODParamCommit, this);
@@ -340,6 +340,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -532,9 +533,14 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	fp->mModelPreview->genLODs(fp->mModelPreview->mPreviewLOD);
-	fp->mModelPreview->updateStatusMessages();
-	fp->mModelPreview->refresh();
+	fp->mModelPreview->onLODParamCommit(false);
+}
+
+//static
+void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
+{
+	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	fp->mModelPreview->onLODParamCommit(true);
 }
 
 
@@ -1665,6 +1671,8 @@ void LLModelLoader::run()
 			setLoadState( ERROR_PARSING );
 			return;
 		}
+		setLoadState( DONE );
+
 		processElement(scene);
 		
 		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
@@ -2264,16 +2272,22 @@ U32 LLModelPreview::calcResourceCost()
 
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
 	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
-	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
-	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
+
+	mDetailsSignal(mPreviewScale[0]*scale, mPreviewScale[1]*scale, mPreviewScale[2]*scale, streaming_cost, physics_cost);
 
 	updateStatusMessages();
 
 	return cost;
+}
+
+void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
+{
+	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
+	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
+	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
+	childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
 void LLModelPreview::rebuildUploadData()
@@ -2552,6 +2566,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mLoading = false;
 	refresh();
+
+	mModelLoadedSignal();
 }
 
 void LLModelPreview::resetPreviewTarget()
@@ -2817,7 +2833,7 @@ void LLModelPreview::clearMaterials()
 	refresh();
 }
 
-void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
+void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
 	if (mBaseModel.empty())
 	{
@@ -3048,7 +3064,17 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 		}
 		else
 		{
-			triangle_count = limit;
+			if (enforce_tri_limit)
+			{
+				triangle_count = limit;
+			}
+			else
+			{
+				for (S32 j=LLModel::LOD_HIGH; j>which_lod; --j)
+				{
+					triangle_count /= decimation;
+				}
+			}
 		}
 
 		mModel[lod].clear();
@@ -4312,6 +4338,13 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
+}
+
+void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
+{
+	genLODs(mPreviewLOD, 3, enforce_tri_limit);
+	updateStatusMessages();
+	refresh();
 }
 
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)
