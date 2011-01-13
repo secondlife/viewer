@@ -602,6 +602,12 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				}
 
 				mMorphData.insert(morph_data);
+				/*
+				if (std::string(morphName) == "Breast_Gravity")
+				{
+					LLPolyMorphData *morph_data_clone = new LLPolyMorphData(std::string(morphName));
+				}
+				*/
 			}
 
 			S32 numRemaps;

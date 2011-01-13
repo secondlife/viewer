@@ -193,18 +193,26 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 {
 	if (new_visibility["visible"].asBoolean())
 	{
-		bool is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();
-		bool is_wearable_edit_visible = mEditWearable && mEditWearable->getVisible();
+		const BOOL is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();
+		const BOOL is_wearable_edit_visible = mEditWearable && mEditWearable->getVisible();
 
 		if (is_outfit_edit_visible || is_wearable_edit_visible)
 		{
-			if (!gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
+			const LLWearable *wearable_ptr = mEditWearable->getWearable();
+			if (!wearable_ptr)
+			{
+				llwarns << "Visibility change to invalid wearable" << llendl;
+				return;
+			}
+			const BOOL disable_camera_motion = LLWearableType::getDisableCameraSwitch(wearable_ptr->getType());
+			if (!gAgentCamera.cameraCustomizeAvatar() && 
+				!disable_camera_motion &&
+				gSavedSettings.getBOOL("AppearanceCameraMovement"))
 			{
 				gAgentCamera.changeCameraToCustomizeAvatar();
 			}
 			if (is_wearable_edit_visible)
 			{
-				LLWearable *wearable_ptr = mEditWearable->getWearable();
 				if (gAgentWearables.getWearableIndex(wearable_ptr) == LLAgentWearables::MAX_CLOTHING_PER_TYPE)
 				{
 					// we're no longer wearing the wearable we were last editing, switch back to outfit editor
@@ -289,7 +297,7 @@ void LLSidepanelAppearance::showOutfitsInventoryPanel()
 {
 	toggleWearableEditPanel(FALSE);
 	toggleOutfitEditPanel(FALSE);
-	togglMyOutfitsPanel(TRUE);
+	toggleMyOutfitsPanel(TRUE);
 }
 
 void LLSidepanelAppearance::showOutfitEditPanel()
@@ -305,19 +313,19 @@ void LLSidepanelAppearance::showOutfitEditPanel()
 		mOutfitEdit->resetAccordionState();
 	}
 
-	togglMyOutfitsPanel(FALSE);
+	toggleMyOutfitsPanel(FALSE);
 	toggleWearableEditPanel(FALSE, NULL, TRUE); // don't switch out of edit appearance mode
 	toggleOutfitEditPanel(TRUE);
 }
 
-void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/)
+void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/, BOOL disable_camera_switch)
 {
-	togglMyOutfitsPanel(FALSE);
+	toggleMyOutfitsPanel(FALSE);
 	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
-	toggleWearableEditPanel(TRUE, wearable);
+	toggleWearableEditPanel(TRUE, wearable, disable_camera_switch);
 }
 
-void LLSidepanelAppearance::togglMyOutfitsPanel(BOOL visible)
+void LLSidepanelAppearance::toggleMyOutfitsPanel(BOOL visible)
 {
 	if (!mPanelOutfitsInventory || mPanelOutfitsInventory->getVisible() == visible)
 	{
@@ -390,7 +398,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
-		mEditWearable->setWearable(wearable);
+		mEditWearable->setWearable(wearable, disable_camera_switch);
 		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
 	else
@@ -434,14 +442,14 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 }
 
 //static
-void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data)
+void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch)
 {
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance");
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)
 	{
-		panel->showWearableEditPanel(wearable);
+		panel->showWearableEditPanel(wearable, disable_camera_switch);
 	}
 }
 
