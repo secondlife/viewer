@@ -21,4 +21,5 @@
  tear_off_pressed_image="tearoff_pressed.tga"
  dock_pressed_image="Icon_Dock_Press"
  help_pressed_image="Icon_Help_Press"
+ focus_root="true"
   />

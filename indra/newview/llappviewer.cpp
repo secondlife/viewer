@@ -90,10 +90,12 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
+#include "lldiriterator.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
 #include "llurlaction.h"
+#include "llurlentry.h"
 #include "llvfile.h"
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
@@ -3301,7 +3303,9 @@ void LLAppViewer::migrateCacheDirectory()
 			S32 file_count = 0;
 			std::string file_name;
 			std::string mask = delimiter + "*.*";
-			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name))
+
+			LLDirIterator iter(old_cache_dir, mask);
+			while (iter.next(file_name))
 			{
 				if (file_name == "." || file_name == "..") continue;
 				std::string source_path = old_cache_dir + delimiter + file_name;
@@ -3520,7 +3524,8 @@ bool LLAppViewer::initCache()
 		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
 
 		std::string found_file;
-		if (gDirUtilp->getNextFileInDir(dir, mask, found_file))
+		LLDirIterator iter(dir, mask);
+		if (iter.next(found_file))
 		{
 			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
 
@@ -4578,6 +4583,10 @@ void LLAppViewer::disconnectViewer()
 
 	cleanup_xfer_manager();
 	gDisconnected = TRUE;
+
+	// Pass the connection state to LLUrlEntryParcel not to attempt
+	// parcel info requests while disconnected.
+	LLUrlEntryParcel::setDisconnected(gDisconnected);
 }
 
 void LLAppViewer::forceErrorLLError()

@@ -2747,7 +2747,7 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	<notification name="ShareItemsConfirmation">
 		Möchten Sie diese Objekte wirklich für andere freigeben:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Für folgende Einwohner:
 

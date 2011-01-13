@@ -33,6 +33,7 @@
 
 #include "lldarray.h"
 #include "llwind.h"
+#include "llbbox.h"
 #include "llcloud.h"
 #include "llstat.h"
 #include "v3dmath.h"
@@ -308,6 +309,8 @@ public:
 	std::string getHttpUrl() const { return mHttpUrl ;}
 
 	LLSpatialPartition* getSpatialPartition(U32 type);
+
+	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
 public:
 	struct CompareDistance
 	{

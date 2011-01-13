@@ -498,8 +498,8 @@ private:
 
 LLSideTray::Params::Params()
 :	collapsed("collapsed",false),
-	tab_btn_image_normal("tab_btn_image",LLUI::getUIImage("sidebar_tab_left.tga")),
-	tab_btn_image_selected("tab_btn_image_selected",LLUI::getUIImage("button_enabled_selected_32x128.tga")),
+	tab_btn_image_normal("tab_btn_image",LLUI::getUIImage("taskpanel/TaskPanel_Tab_Off.png")),
+	tab_btn_image_selected("tab_btn_image_selected",LLUI::getUIImage("taskpanel/TaskPanel_Tab_Selected.png")),
 	default_button_width("tab_btn_width",32),
 	default_button_height("tab_btn_height",32),
 	default_button_margin("tab_btn_margin",0)

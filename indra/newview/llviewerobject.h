@@ -227,12 +227,9 @@ public:
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
-	// the agent.
-	BOOL isOverAgentOwnedLand() const;
-
-	// True if over land owned by group of which the agent is
-	// either officer or member.
-	BOOL isOverGroupOwnedLand() const;
+	// the agent, one of its groups, or it encroaches and 
+	// anti-encroachment is enabled
+	bool isReturnable();
 
 	/*
 	// This method will scan through this object, and then query the

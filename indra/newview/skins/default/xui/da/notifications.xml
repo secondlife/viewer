@@ -1636,7 +1636,7 @@ Knappen vil blive vist når der er nok plads til den.
 	<notification name="ShareItemsConfirmation">
 		Er du sikker på at du vil dele følgende genstande:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Med følgende beboere:
 
