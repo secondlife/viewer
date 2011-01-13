@@ -980,7 +980,6 @@ bool idle_startup()
 			login->setSkipOptionalUpdate(true);
 		}
 
-		login->setUserInteraction(show_connect_box);
 		login->setSerialNumber(LLAppViewer::instance()->getSerialNumber());
 		login->setLastExecEvent(gLastExecEvent);
 		login->setUpdaterLauncher(boost::bind(&LLAppViewer::launchUpdater, LLAppViewer::instance()));
