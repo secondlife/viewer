@@ -5,6 +5,7 @@
 # VisualStudio.
 
 include(CMakeCopyIfDifferent)
+include(Linking)
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
@@ -135,14 +136,10 @@ elseif(DARWIN)
         libvivoxplatform.dylib
         libvivoxsdk.dylib
        )
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
        )
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libapr-1.0.3.7.dylib
         libapr-1.dylib

@@ -379,8 +379,8 @@ endif (DARWIN OR WINDOWS)
 
 if (DARWIN)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
   )
 endif (DARWIN)
 

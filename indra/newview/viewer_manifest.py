@@ -566,7 +566,7 @@ class DarwinManifest(ViewerManifest):
             self.path("Info-SecondLife.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+            self.path("../packages/lib/release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -616,7 +616,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
-                libdir = "../../libraries/universal-darwin/lib_release"
+                libdir = "../packages/lib/release"
                 dylibs = {}
 
                 # Need to get the llcommon dll from any of the build directories as well
@@ -685,7 +685,7 @@ class DarwinManifest(ViewerManifest):
                 if self.prefix(src="", dst="llplugin"):
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
-                    self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
+                    self.path("../packages/lib/release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
 
                     self.end_prefix("llplugin")
 

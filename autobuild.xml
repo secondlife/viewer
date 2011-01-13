@@ -853,6 +853,18 @@
         <string>kdu</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>408f1375f5a4d864cfb47b36c8ab6052</string>
+              <key>url</key>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20110112.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -970,9 +982,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54e179ff85bce44b65f4f186bf4c14b1</string>
+              <string>d3890220418a66607569fe406ebe24c7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6%2bcookies-darwin-20101013.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-darwin-20110113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1265,7 +1277,7 @@
           </map>
         </map>
       </map>
-      <key>vivox</key>
+      <key>slvoice</key>
       <map>
         <key>license_file</key>
         <string>LICENSES/apr_suite.txt</string>
@@ -1296,6 +1308,28 @@
             </map>
             <key>name</key>
             <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>tut</key>
+      <map>
+        <key>license_file</key>
+        <string>LICENSES/tut.txt</string>
+        <key>name</key>
+        <string>tut</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5c6d3e606f027e78f056cb77b20f228e</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tut-2008-11-30-common-20101001.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
           </map>
         </map>
       </map>
