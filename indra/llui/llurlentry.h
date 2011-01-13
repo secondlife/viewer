@@ -31,6 +31,9 @@
 #include "lluuid.h"
 #include "lluicolor.h"
 #include "llstyle.h"
+
+#include "llhost.h" // for resolving parcel name by parcel id
+
 #include <boost/signals2.hpp>
 #include <boost/regex.hpp>
 #include <string>
@@ -285,8 +288,44 @@ private:
 class LLUrlEntryParcel : public LLUrlEntryBase
 {
 public:
+	struct LLParcelData
+	{
+		LLUUID		parcel_id;
+		std::string	name;
+		std::string	sim_name;
+		F32			global_x;
+		F32			global_y;
+		F32			global_z;
+	};
+
 	LLUrlEntryParcel();
+	~LLUrlEntryParcel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+
+	// Sends a parcel info request to sim.
+	void sendParcelInfoRequest(const LLUUID& parcel_id);
+
+	// Calls observers of certain parcel id providing them with parcel label.
+	void onParcelInfoReceived(const std::string &id, const std::string &label);
+
+	// Processes parcel label and triggers notifying observers.
+	static void processParcelInfo(const LLParcelData& parcel_data);
+
+	// Next 4 setters are used to update agent and viewer connection information
+	// upon events like user login, viewer disconnect and user changing region host.
+	// These setters are made public to be accessible from newview and should not be
+	// used in other cases.
+	static void setAgentID(const LLUUID& id) { sAgentID = id; }
+	static void setSessionID(const LLUUID& id) { sSessionID = id; }
+	static void setRegionHost(const LLHost& host) { sRegionHost = host; }
+	static void setDisconnected(bool disconnected) { sDisconnected = disconnected; }
+
+private:
+	static LLUUID						sAgentID;
+	static LLUUID						sSessionID;
+	static LLHost						sRegionHost;
+	static bool							sDisconnected;
+	static std::set<LLUrlEntryParcel*>	sParcelInfoObservers;
 };
 
 ///
