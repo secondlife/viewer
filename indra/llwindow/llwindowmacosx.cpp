@@ -1273,7 +1273,7 @@ BOOL LLWindowMacOSX::setSize(const LLCoordScreen size)
 
 void LLWindowMacOSX::swapBuffers()
 {
-	glFlush();
+	glFinish();
 	aglSwapBuffers(mContext);
 }
 

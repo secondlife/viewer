@@ -985,7 +985,7 @@ void LLWindowSDL::swapBuffers()
 {
 	if (mWindow)
 	{	
-		glFlush();
+		glFinish();
 		SDL_GL_SwapBuffers();
 	}
 }

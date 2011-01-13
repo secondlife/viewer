@@ -2858,7 +2858,7 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-	glFlush();
+	glFinish();
 	SwapBuffers(mhDC);
 }
 
