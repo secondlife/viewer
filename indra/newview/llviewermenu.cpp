@@ -4204,9 +4204,9 @@ class LLObjectEnableReturn : public view_listener_t
 					{
 						virtual bool apply(LLViewerObject* obj)
 						{
-							return (obj->isOverAgentOwnedLand() ||
-									obj->isOverGroupOwnedLand() ||
-									obj->permModify());
+							return 
+								obj->permModify() ||
+								obj->isReturnable();
 						}
 					} func;
 					const bool firstonly = true;

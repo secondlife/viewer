@@ -1637,6 +1637,10 @@ LLMenuScrollItem::LLMenuScrollItem(const Params& p)
 	}
 
 	LLButton::Params bparams;
+
+	// Disabled the Return key handling by LLMenuScrollItem instead of
+	// passing the key press to the currently selected menu item. See STORM-385.
+	bparams.commit_on_return(false);
 	bparams.mouse_opaque(true);
 	bparams.scale_image(false);
 	bparams.click_callback(p.scroll_callback);

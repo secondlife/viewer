@@ -89,7 +89,7 @@
          visibility_control="VoiceMorphingEnabled">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="voice_effect" />
+             Parameter="voice_effect" />
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="voice_effect" />
@@ -2771,7 +2771,7 @@
                  function="Floater.Toggle"
                  parameter="region_debug_console" />
             </menu_item_check>
- 
+            <menu_item_check
            <menu_item_separator />
 
             <menu_item_check
@@ -2786,6 +2786,10 @@
                  function="Floater.Toggle"
                  parameter="region_debug_console" />
             </menu_item_check>
+
+            <menu_item_separator />
+
+            <menu_item_check
 
             <menu_item_separator />
 
