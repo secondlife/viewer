@@ -1379,11 +1379,12 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
-	capabilityNames.append("FetchInventory");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
-	capabilityNames.append("FetchLib");
-	capabilityNames.append("FetchLibDescendents");
+	capabilityNames.append("FetchLib2");
+	capabilityNames.append("FetchLibDescendents2");
+	capabilityNames.append("FetchInventory2");
+	capabilityNames.append("FetchInventoryDescendents2");
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetTexture");
 	capabilityNames.append("GroupProposalBallot");
@@ -1423,7 +1424,6 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	capabilityNames.append("WebFetchInventoryDescendents");
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 
