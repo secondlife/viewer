@@ -40,8 +40,6 @@
 #include "lltimer.h"	// ms_sleep()
 #include "lluuid.h"
 
-#include "lldiriterator.h"
-
 #if LL_WINDOWS
 #include "lldir_win32.h"
 LLDir_Win32 gDirUtil;
@@ -85,9 +83,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string filename; 
 	std::string fullpath;
 	S32 result;
-
-	LLDirIterator iter(dirname, mask);
-	while (iter.next(filename))
+	while (getNextFileInDir(dirname, mask, filename))
 	{
 		fullpath = dirname;
 		fullpath += getDirDelimiter();
