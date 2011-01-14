@@ -648,7 +648,6 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
-	U32 num_handle_entries = mHandleEntryMap.size();
 	if(iter == mHandleEntryMap.end()) //new entry
 	{
 		if(num_handle_entries >= mCacheSize)
