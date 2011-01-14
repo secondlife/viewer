@@ -12,6 +12,7 @@ syntax: glob
 LICENSES
 indra/.distcc
 build-darwin-*
+build-vc80/
 indra/build-vc[0-9]*
 indra/CMakeFiles
 indra/lib/mono/1.0/*.dll

@@ -299,6 +299,9 @@ class WindowsManifest(ViewerManifest):
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
 
+            # For use in crash reporting (generates minidumps)
+            self.path("dbghelp.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -313,9 +316,6 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
-
-        # For use in crash reporting (generates minidumps)
-        self.path("dbghelp.dll")
 
         self.enable_no_crt_manifest_check()
         
@@ -336,7 +336,7 @@ class WindowsManifest(ViewerManifest):
 
 
         if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'debug'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'debug'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcored4.dll")
@@ -367,7 +367,7 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
         else:
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'release'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcore4.dll")

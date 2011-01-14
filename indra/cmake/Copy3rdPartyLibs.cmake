@@ -17,7 +17,7 @@ if(WINDOWS)
 
     #*******************************
     # VIVOX - *NOTE: no debug version
-    set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
+    set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice.exe
         libsndfile-1.dll
@@ -31,9 +31,7 @@ if(WINDOWS)
     #*******************************
     # Misc shared libs 
 
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
         openjpegd.dll
         libapr-1.dll
@@ -41,14 +39,13 @@ if(WINDOWS)
         libapriconv-1.dll
         )
 
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjpeg.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        dbghelp.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)

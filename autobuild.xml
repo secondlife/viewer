@@ -404,9 +404,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>651dd6d4c057e89f989ce0eda447c441</string>
+              <string>b9fa0ef683657090ae66663863ebba74</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20101008.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/merov_fmod-autobuild/rev/219050/arch/CYGWIN/installer/fmod-3.75-windows-20110113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -870,9 +870,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f43ffb2217628a38d6004bdad792e7d2</string>
+              <string>0c7b5596c27f511d4957abe35f7f8dee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-4.2.1-windows-20100930b.tar.bz2</string>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20110113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1006,9 +1006,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8bb26542f86cb469b2b56d42258e1bad</string>
+              <string>5af0f88e298ea8b6041e29928f520eda</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20101001a.tar.bz2</string>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llqtwebkit-4.7.1-windows-20110113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
