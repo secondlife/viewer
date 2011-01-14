@@ -225,7 +225,8 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 // Format string used to construct filename for the object cache
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
-const U32 NUM_ENTRIES_TO_PURGE = 50;
+// Throw out 1/20 (5%) of our cache entries if we run out of room.
+const U32 ENTRIES_PURGE_FACTOR = 20;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
@@ -306,7 +307,6 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 
 	mCacheSize = size;
 
-	mMetaInfo.mVersion = cache_version;
 	readCacheHeader();
 	mInitialized = TRUE ;
 
@@ -335,6 +335,7 @@ void LLVOCache::removeCache(ELLPath location)
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
+	llinfos << "Removing cache at " << cache_dir << llendl;
 	gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
 	LLFile::rmdir(cache_dir);
 
@@ -353,6 +354,7 @@ void LLVOCache::removeCache()
 
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
+	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 
 	clearCacheInMemory() ;
@@ -389,22 +391,28 @@ void LLVOCache::removeFromCache(U64 handle)
 	LLAPRFile::remove(filename, mLocalAPRFilePoolp);	
 }
 
-BOOL LLVOCache::checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) 
+BOOL LLVOCache::checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error)
 {
 	if(!check_read(apr_file, src, n_bytes))
 	{
-		removeCache() ;
+		if (remove_cache_on_error)
+		{
+			removeCache() ;
+		}
 		return FALSE ;
 	}
 
 	return TRUE ;
 }
 
-BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) 
+BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error) 
 {
 	if(!check_write(apr_file, src, n_bytes))
 	{
-		removeCache() ;
+		if (remove_cache_on_error)
+		{
+			removeCache() ;
+		}
 		return FALSE ;
 	}
 
@@ -424,10 +432,11 @@ void LLVOCache::readCacheHeader()
 
 	if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
 	{
-		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);		
+		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);		
 		
 		//read the meta element
-		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
+		bool remove_cache_on_error = false;
+		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo), remove_cache_on_error))
 		{
 			llwarns << "Error reading meta information from cache header." << llendl;
 			delete apr_file;
@@ -438,7 +447,7 @@ void LLVOCache::readCacheHeader()
 		for(U32 entry_index = 0; entry_index < mCacheSize; ++entry_index)
 		{
 			entry = new HeaderEntryInfo() ;
-			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo)))
+			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo), remove_cache_on_error))
 			{
 				llwarns << "Error reading cache header entry. (entry_index=" << entry_index << ")" << llendl;
 				delete entry ;			
@@ -476,7 +485,7 @@ void LLVOCache::writeCacheHeader()
 		return;
 	}
 
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
 
 	//write the meta element
 	if(!checkWrite(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
@@ -524,7 +533,7 @@ void LLVOCache::writeCacheHeader()
 
 BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 {
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_WRITE|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
 	apr_file->seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
 	BOOL result = checkWrite(apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
@@ -550,7 +559,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 
 	std::string filename;
 	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
 
 	LLUUID cache_id ;
 	if(!checkRead(apr_file, cache_id.mData, UUID_BYTES))
@@ -592,7 +601,8 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	
 void LLVOCache::purgeEntries()
 {
-	U32 limit = mCacheSize - NUM_ENTRIES_TO_PURGE ;
+	U32 limit = mCacheSize - (mCacheSize / ENTRIES_PURGE_FACTOR);
+	limit = llclamp(limit, (U32)1, mCacheSize);
 	// Construct a vector of entries out of the map so we can sort by time.
 	std::vector<HeaderEntryInfo*> header_vector;
 	handle_entry_map_t::iterator iter_end = mHandleEntryMap.end();
@@ -634,6 +644,8 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 		return ;
 	}
 
+	U32 num_handle_entries = mHandleEntryMap.size();
+	
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	U32 num_handle_entries = mHandleEntryMap.size();
@@ -642,6 +654,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 		if(num_handle_entries >= mCacheSize)
 		{
 			purgeEntries() ;
+			num_handle_entries = mHandleEntryMap.size();
 		}
 		
 		entry = new HeaderEntryInfo();
@@ -673,7 +686,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	//write to cache file
 	std::string filename;
 	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
 	
 	if(!checkWrite(apr_file, (void*)id.mData, UUID_BYTES))
 	{

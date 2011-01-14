@@ -30,7 +30,6 @@
 
 #include "llcommandlineparser.h"
 
-#include "lldiriterator.h"
 #include "llmemtype.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
 #include "llviewernetwork.h"
@@ -505,9 +504,7 @@ std::string LLAppViewerLinux::generateSerialNumber()
 
 	// trawl /dev/disk/by-uuid looking for a good-looking UUID to grab
 	std::string this_name;
-
-	LLDirIterator iter(uuiddir, "*");
-	while (iter.next(this_name))
+	while (gDirUtilp->getNextFileInDir(uuiddir, "*", this_name))
 	{
 		if (this_name.length() > best.length() ||
 		    (this_name.length() == best.length() &&

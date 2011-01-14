@@ -241,13 +241,12 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
-	mObjectCost(0.f),
-	mLinksetCost(0.f),
-	mPhysicsCost(0.f),
 	mLinksetPhysicsCost(0.f),
 	mCostStale(true),
 	mPhysicsShapeUnknown(true),
-	mAttachmentItemID(LLUUID::null)
+	mAttachmentItemID(LLUUID::null),
+	mLastUpdateType(OUT_UNKNOWN),
+	mLastUpdateCached(FALSE)
 {
 	if (!is_global)
 	{
@@ -5617,6 +5616,15 @@ const LLUUID &LLViewerObject::extractAttachmentItemID()
 	return getAttachmentItemID();
 }
 
+EObjectUpdateType LLViewerObject::getLastUpdateType() const
+{
+	return mLastUpdateType;
+}
+
+void LLViewerObject::setLastUpdateType(EObjectUpdateType last_update_type)
+{
+	mLastUpdateType = last_update_type;
+}
 
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const

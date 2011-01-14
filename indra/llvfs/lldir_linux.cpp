@@ -242,6 +242,68 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
 	return (file_count);
 }
 
+// get the next file in the directory
+BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
+{
+	glob_t g;
+	BOOL result = FALSE;
+	fname = "";
+	
+	if(!(dirname == mCurrentDir))
+	{
+		// different dir specified, close old search
+		mCurrentDirIndex = -1;
+		mCurrentDirCount = -1;
+		mCurrentDir = dirname;
+	}
+	
+	std::string tmp_str;
+	tmp_str = dirname;
+	tmp_str += mask;
+
+	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
+	{
+		if(g.gl_pathc > 0)
+		{
+			if((int)g.gl_pathc != mCurrentDirCount)
+			{
+				// Number of matches has changed since the last search, meaning a file has been added or deleted.
+				// Reset the index.
+				mCurrentDirIndex = -1;
+				mCurrentDirCount = g.gl_pathc;
+			}
+	
+			mCurrentDirIndex++;
+	
+			if(mCurrentDirIndex < (int)g.gl_pathc)
+			{
+//				llinfos << "getNextFileInDir: returning number " << mCurrentDirIndex << ", path is " << g.gl_pathv[mCurrentDirIndex] << llendl;
+
+				// The API wants just the filename, not the full path.
+				//fname = g.gl_pathv[mCurrentDirIndex];
+
+				char *s = strrchr(g.gl_pathv[mCurrentDirIndex], '/');
+				
+				if(s == NULL)
+					s = g.gl_pathv[mCurrentDirIndex];
+				else if(s[0] == '/')
+					s++;
+					
+				fname = s;
+				
+				result = TRUE;
+			}
+		}
+		
+		globfree(&g);
+	}
+	
+	return(result);
+}
+
+
+
+
 std::string LLDir_Linux::getCurPath()
 {
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 

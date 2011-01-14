@@ -77,6 +77,7 @@ typedef enum e_object_update_type
 	OUT_TERSE_IMPROVED,
 	OUT_FULL_COMPRESSED,
 	OUT_FULL_CACHED,
+	OUT_UNKNOWN,
 } EObjectUpdateType;
 
 
@@ -743,8 +744,15 @@ public:
 	const LLUUID &getAttachmentItemID() const;
 	void setAttachmentItemID(const LLUUID &id);
 	const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
+	EObjectUpdateType getLastUpdateType() const;
+	void setLastUpdateType(EObjectUpdateType last_update_type);
+	BOOL getLastUpdateCached() const;
+	void setLastUpdateCached(BOOL last_update_cached);
+
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
+	EObjectUpdateType	mLastUpdateType;
+	BOOL	mLastUpdateCached;
 };
 
 ///////////////////

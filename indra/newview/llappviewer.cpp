@@ -44,6 +44,7 @@
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llmd5.h"
 #include "llmeshrepository.h"
 #include "llpumpio.h"
@@ -92,7 +93,6 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
-#include "lldiriterator.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -672,6 +672,10 @@ bool LLAppViewer::init()
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
+#if LL_RECORD_VIEWER_STATS
+	LLViewerStatsRecorder::initClass();
+#endif
+
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
@@ -994,6 +998,8 @@ bool LLAppViewer::init()
 	}
 
 	LLAgentLanguage::init();
+
+
 
 	return true;
 }
@@ -1735,6 +1741,10 @@ bool LLAppViewer::cleanup()
 	}	
 
 	LLMetricPerformanceTesterBasic::cleanClass() ;
+
+#if LL_RECORD_VIEWER_STATS
+	LLViewerStatsRecorder::cleanupClass();
+#endif
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -3326,9 +3336,7 @@ void LLAppViewer::migrateCacheDirectory()
 			S32 file_count = 0;
 			std::string file_name;
 			std::string mask = delimiter + "*.*";
-
-			LLDirIterator iter(old_cache_dir, mask);
-			while (iter.next(file_name))
+			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name))
 			{
 				if (file_name == "." || file_name == "..") continue;
 				std::string source_path = old_cache_dir + delimiter + file_name;
@@ -3547,8 +3555,7 @@ bool LLAppViewer::initCache()
 		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
 
 		std::string found_file;
-		LLDirIterator iter(dir, mask);
-		if (iter.next(found_file))
+		if (gDirUtilp->getNextFileInDir(dir, mask, found_file))
 		{
 			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
 
