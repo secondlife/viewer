@@ -6450,7 +6450,7 @@ Select residents to share with.
    type="alertmodal">
 Are you sure you want to share the following items:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 With the following Residents:
 
