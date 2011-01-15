@@ -220,7 +220,7 @@ public:
 			av_name.mUsername = DUMMY_NAME;
 			av_name.mDisplayName = DUMMY_NAME;
 			av_name.mIsDisplayNameDefault = false;
-			av_name.mIsDummy = true;
+			av_name.mIsTemporaryName = true;
 			av_name.mExpires = expires;
 
 			it = unresolved_agents.beginArray();
@@ -449,7 +449,7 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 	{
 		const LLUUID& agent_id = it->first;
 		const LLAvatarName& av_name = it->second;
-		if (!av_name.mIsDummy)
+		if (!av_name.mIsTemporaryName)
 		{
 			// key must be a string
 			agents[agent_id.asString()] = av_name.asLLSD();
@@ -489,12 +489,6 @@ void LLAvatarNameCache::idle()
 	// No longer deleting expired entries, just re-requesting in the get
 	// this way first synchronous get call on an expired entry won't return
 	// legacy name.  LF
-
-	//const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
-	//if (sEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
-	//{
-	//	eraseExpired();
-	//}
 
 	if (sAskQueue.empty())
 	{
@@ -550,7 +544,7 @@ void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
 	av_name->mUsername = "";
 	av_name->mDisplayName = full_name;
 	av_name->mIsDisplayNameDefault = true;
-	av_name->mIsDummy = true;
+	av_name->mIsTemporaryName = true;
 	av_name->mExpires = F64_MAX;
 }
 
