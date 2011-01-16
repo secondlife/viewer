@@ -68,24 +68,12 @@
 		right="-8"
 		width="66"
 		height="22"
+		is_toggle="true"
 		label="More &gt;&gt;"
-		label_selected="More &gt;&gt;">
+		label_selected="&lt;&lt; Less">
 	  <button.commit_callback
 		  function="MediaListCtrl.MoreLess" />
 	</button>
-  <button
-		name="less_btn"
-		follows="right"
-		tool_tip="Advanced Controls"
-		top_delta="0"
-		right="-8"
-		width="66"
-		height="22"
-		label="&lt;&lt; Less"
-		label_selected="&lt;&lt; Less">
-      <button.commit_callback
-        function="MediaListCtrl.MoreLess" />
-  </button>
   </panel>
   <panel
 	  name="nearby_media_panel"
