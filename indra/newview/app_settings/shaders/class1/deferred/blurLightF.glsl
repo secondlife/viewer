@@ -51,6 +51,9 @@ void main()
 	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
 
+	// relax tolerance according to distance to avoid speckling artifacts, as angles and distances are a lot more abrupt within a small screen area at larger distances
+	float pointplanedist_tolerance_pow2 = pos.z*pos.z*0.00005;
+
 	// perturb sampling origin slightly in screen-space to hide edge-ghosting artifacts where smoothing radius is quite large
 	tc += ( (int(tc.x+tc.y)%2 - 0.5) * kern[1].z * dlt * 0.5 );
 
@@ -59,7 +62,7 @@ void main()
 		vec2 samptc = tc + kern[i].z*dlt;
 	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
-		if (d*d <= 0.003)
+		if (d*d <= pointplanedist_tolerance_pow2)
 		{
 			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
@@ -70,7 +73,7 @@ void main()
 		vec2 samptc = tc - kern[i].z*dlt;
 	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
-		if (d*d <= 0.003)
+		if (d*d <= pointplanedist_tolerance_pow2)
 		{
 			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
