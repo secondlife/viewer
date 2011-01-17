@@ -59,6 +59,12 @@ class LLDir_Mock : public LLDir
 		return 0;
 	}
 
+	BOOL getNextFileInDir(const std::string &dirname, 
+						  const std::string &mask, 
+						  std::string &fname) 
+	{
+		return false;
+	}
 	void getRandomFileInDir(const std::string &dirname, 
 							const std::string &mask, 
 							std::string &fname) {}
