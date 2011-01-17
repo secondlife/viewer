@@ -203,8 +203,8 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 {
 	if (!items_llsd.size() || gDisconnected) return;
 	LLSD body;
-	body[0]["cap_name"] = "FetchInventory";
-	body[1]["cap_name"] = "FetchLib";
+	body[0]["cap_name"] = "FetchInventory2";
+	body[1]["cap_name"] = "FetchLib2";
 	for (S32 i=0; i<items_llsd.size();i++)
 	{
 		if (items_llsd[i]["owner_id"].asString() == gAgent.getID().asString())
