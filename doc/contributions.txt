@@ -393,6 +393,7 @@ Kitty Barnett
 	STORM-288
 	STORM-799
 	STORM-800
+    VWR-24217
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -736,6 +737,7 @@ Thickbrick Sleaford
 	VWR-9287
 	VWR-13483
 	VWR-13947
+	VWR-24420
 Thraxis Epsilon
 	SVC-371
 	VWR-383
