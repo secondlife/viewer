@@ -52,7 +52,7 @@ pre_build()
   local variant="$1"
   begin_section "Pre$variant"
   "$AUTOBUILD" install --skip-license-check
-  "$AUTOBUILD" configure -c $variant
+  "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON
   end_section "Pre$variant"
 }
 
