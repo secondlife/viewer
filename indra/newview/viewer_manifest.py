@@ -300,7 +300,8 @@ class WindowsManifest(ViewerManifest):
             self.path("vivoxoal.dll")
 
             # For use in crash reporting (generates minidumps)
-            self.path("dbghelp.dll")
+            if self.args['configuration'].lower() != 'debug':
+                self.path("dbghelp.dll")
 
             # For google-perftools tcmalloc allocator.
             try:
