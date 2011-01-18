@@ -2623,9 +2623,6 @@ Clicca su Accetta per unirti alla chat oppure su Declina per declinare l&apos;in
 	<notification name="VoiceCallGenericError">
 		Si è verificato un errore durante il tentativo di collegarti a una voice chat con [VOICE_CHANNEL_NAME].  Riprova più tardi.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Sei appena entrato in una regione che usa una versione differente del server: ciò potrebbe incidere sule prestazioni. [[URL] Visualizza le note sulla versione.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Lo SLurl su cui hai cliccato non è valido.
 	</notification>

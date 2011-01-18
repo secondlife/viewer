@@ -2658,9 +2658,6 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 	<notification name="VoiceCallGenericError">
 		Ocorreu um erro enquanto você tentava se conectar à conversa de voz de [VOICE_CHANNEL_NAME].  Favor tentar novamente mais tarde.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Você chegou a uma região com uma versão diferente de servidor, que pode afetar o desempenho.  [[URL] Consultar notas da versão.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		O SLurl no qual você clicou não é suportado.
 	</notification>
