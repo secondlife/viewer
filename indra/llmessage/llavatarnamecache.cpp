@@ -38,7 +38,6 @@
 
 #include <map>
 #include <set>
-#include <unistd.h>
 
 namespace LLAvatarNameCache
 {
