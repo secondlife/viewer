@@ -462,24 +462,24 @@ void LLAvatarNameCache::importFile(std::istream& istr)
 		av_name.fromLLSD( it->second );
 		sCache[agent_id] = av_name;
 	}
+    LL_INFOS("AvNameCache") << "loaded " << sCache.size() << LL_ENDL;
+
 	// Some entries may have expired since the cache was stored,
-	// but next time they are read that will be checked.
-	// Expired entries are filtered out when the cache is stored,
-    // or in eraseUnrefreshed
-	LL_INFOS("AvNameCache") << "loaded " << sCache.size() << LL_ENDL;
+    // but they will be flushed in the first call to eraseUnrefreshed
+    // from LLAvatarNameResponder::idle
 }
 
 void LLAvatarNameCache::exportFile(std::ostream& ostr)
 {
 	LLSD agents;
-	F64 now = LLFrameTimer::getTotalSeconds();
+	F64 max_unrefreshed = LLFrameTimer::getTotalSeconds() - MAX_UNREFRESHED_TIME;
 	cache_t::const_iterator it = sCache.begin();
 	for ( ; it != sCache.end(); ++it)
 	{
 		const LLUUID& agent_id = it->first;
 		const LLAvatarName& av_name = it->second;
 		// Do not write temporary or expired entries to the stored cache
-		if (!av_name.mIsTemporaryName && av_name.mExpires >= now)
+		if (!av_name.mIsTemporaryName && av_name.mExpires >= max_unrefreshed)
 		{
 			// key must be a string
 			agents[agent_id.asString()] = av_name.asLLSD();
