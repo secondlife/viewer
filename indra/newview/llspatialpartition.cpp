@@ -2465,7 +2465,6 @@ void renderOctree(LLSpatialGroup* group)
 {
 	//render solid object bounding box, color
 	//coded by buffer usage and activity
-	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
 	if (group->mBuilt > 0.f)
@@ -2557,7 +2556,10 @@ void renderOctree(LLSpatialGroup* group)
 	size.mul(1.01f);
 	size.add(fudge);
 
-	drawBox(group->mObjectBounds[0], fudge);
+	{
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+		drawBox(group->mObjectBounds[0], fudge);
+	}
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 

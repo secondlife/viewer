@@ -7978,14 +7978,14 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	glLoadMatrixf(proj.m);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glLoadMatrixf(view.m);
+	glLoadMatrixd(gGLModelView);
 
 	stop_glerror();
 	gGLLastMatrix = NULL;
 
 	{
-		LLGLDepthTest depth(GL_TRUE);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		//LLGLDepthTest depth(GL_TRUE);
+		//glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -9018,7 +9018,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		mShadow[j].bindTarget();
 		mShadow[j].getViewport(gGLViewport);
-
+		mShadow[j].clear();
+		
 		{
 			static LLCullResult result[4];
 
@@ -9159,6 +9160,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			mShadow[i+4].bindTarget();
 			mShadow[i+4].getViewport(gGLViewport);
+			mShadow[i+4].clear();
 
 			static LLCullResult result[2];
 

@@ -931,9 +931,9 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool unique_volume)
+BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
-	LLVolumeParams volume_params = params;
+	LLVolumeParams volume_params = params_in;
 
 	S32 lod = mLOD;
 
@@ -945,7 +945,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 		{ //meshes might not have all LODs, get the force detail to best existing LOD
 
-			LLUUID mesh_id = params.getSculptID();
+			LLUUID mesh_id = volume_params.getSculptID();
 
 			//profile and path params don't matter for meshes
 			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
@@ -1019,6 +1019,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 						LLPrimitive::setVolume(volume_params, available_lod);
 					}
 				}
+				
 			}
 			else // otherwise is sculptie
 			{
@@ -1031,6 +1032,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 
 		return TRUE;
 	}
+
 	return FALSE;
 }
 

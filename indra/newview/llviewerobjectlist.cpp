@@ -1376,7 +1376,7 @@ void LLViewerObjectList::updateObjectCost(const LLUUID& object_id, F32 object_co
 
 void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 {
-	llwarns << "Failed to fetch object cost for object: " << object_id << llendl;
+	//llwarns << "Failed to fetch object cost for object: " << object_id << llendl;
 	mPendingObjectCost.erase(object_id);
 }
 
@@ -1415,7 +1415,7 @@ void LLViewerObjectList::updatePhysicsProperties(const LLUUID& object_id,
 
 void LLViewerObjectList::onPhysicsFlagsFetchFailure(const LLUUID& object_id)
 {
-	llwarns << "Failed to fetch physics flags for object: " << object_id << llendl;
+	//llwarns << "Failed to fetch physics flags for object: " << object_id << llendl;
 	mPendingPhysicsFlags.erase(object_id);
 }
 
