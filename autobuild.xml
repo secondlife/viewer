@@ -583,6 +583,30 @@
           </map>
         </map>
       </map>
+      <key>google</key>
+      <map>
+        <key>name</key>
+        <string>google</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7d9d1b6d32ee273df164f7b7d5f29848</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-0.0.0-linux-20110114.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.0.0</string>
+      </map>
       <key>google-perftools</key>
       <map>
         <key>license_file</key>
@@ -1187,6 +1211,32 @@
           </map>
         </map>
       </map>
+      <key>openal_soft</key>
+      <map>
+        <key>license_file</key>
+        <string>LICENSES/OPENAL.txt</string>
+        <key>name</key>
+        <string>openal_soft</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3ad86a1c</string>
+      </map>
       <key>openjpeg</key>
       <map>
         <key>license_file</key>
@@ -1614,7 +1664,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>..\indra</string>
+                  <string>../indra</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -1634,7 +1684,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>..\indra</string>
+                  <string>../indra</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -1653,7 +1703,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>..\indra</string>
+                  <string>../indra</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -1663,6 +1713,14 @@
               </map>
               <key>name</key>
               <string>Release</string>
+            </map>
+            <key>default</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>name</key>
+              <string>default</string>
             </map>
           </map>
           <key>name</key>
