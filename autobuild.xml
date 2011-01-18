@@ -1490,15 +1490,6 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>--build</string>
-                  <string>.</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1522,15 +1513,6 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>--build</string>
-                  <string>.</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1554,15 +1536,6 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>--build</string>
-                  <string>.</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1594,6 +1567,16 @@
           <map>
             <key>Debug</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>xcodebuild</string>
+                <key>options</key>
+                <array>
+                  <string>-configuration Debug</string>
+                  <string>-project SecondLife.xcodeproj</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
@@ -1613,6 +1596,13 @@
             <map>
               <key>build</key>
               <map>
+                <key>command</key>
+                <string>xcodebuild</string>
+                <key>options</key>
+                <array>
+                  <string>-configuration RelWithDebInfo</string>
+                  <string>-project SecondLife.xcodeproj</string>
+                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1633,6 +1623,16 @@
             </map>
             <key>Release</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>xcodebuild</string>
+                <key>options</key>
+                <array>
+                  <string>-configuration Release</string>
+                  <string>-project SecondLife.xcodeproj</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
@@ -1660,6 +1660,15 @@
           <map>
             <key>Debug</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>make</string>
+                <key>options</key>
+                <array>
+                  <string>-j 12</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
@@ -1679,6 +1688,12 @@
             <map>
               <key>build</key>
               <map>
+                <key>command</key>
+                <string>make</string>
+                <key>options</key>
+                <array>
+                  <string>-j 12</string>
+                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1699,6 +1714,15 @@
             </map>
             <key>Release</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>make</string>
+                <key>options</key>
+                <array>
+                  <string>-j 12</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
@@ -1734,6 +1758,20 @@
           <map>
             <key>Debug</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>BuildConsole</string>
+                <key>options</key>
+                <array>
+                  <string>/build</string>
+                  <string>"/cfg=Debug|Win32"</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
@@ -1753,6 +1791,17 @@
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>BuildConsole</string>
+                <key>options</key>
+                <array>
+                  <string>/build</string>
+                  <string>"/cfg=RelWithDebInfo|Win32"</string>
+                </array>
               </map>
               <key>configure</key>
               <map>
@@ -1773,6 +1822,20 @@
             </map>
             <key>Release</key>
             <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>BuildConsole</string>
+                <key>options</key>
+                <array>
+                  <string>/build</string>
+                  <string>"/cfg=Release|Win32"</string>
+                </array>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
