@@ -1569,6 +1569,13 @@
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>|</string>
+                  <string>grep</string>
+                  <string>-v</string>
+                  <string>setenv</string>
+                </array>
                 <key>command</key>
                 <string>xcodebuild</string>
                 <key>options</key>
@@ -1596,6 +1603,13 @@
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>|</string>
+                  <string>grep</string>
+                  <string>-v</string>
+                  <string>setenv</string>
+                </array>
                 <key>command</key>
                 <string>xcodebuild</string>
                 <key>options</key>
@@ -1625,6 +1639,13 @@
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>|</string>
+                  <string>grep</string>
+                  <string>-v</string>
+                  <string>setenv</string>
+                </array>
                 <key>command</key>
                 <string>xcodebuild</string>
                 <key>options</key>
