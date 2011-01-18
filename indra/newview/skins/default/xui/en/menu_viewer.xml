@@ -1917,6 +1917,16 @@
                  function="ToggleControl"
                  parameter="DebugShowRenderInfo" />
             </menu_item_check>
+			<menu_item_check
+             label="Show Texture Info"
+             name="Show Texture Info">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowTextureInfo" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowTextureInfo" />
+            </menu_item_check>
             <menu_item_check
              label="Show Matrices"
              name="Show Matrices">
