@@ -901,6 +901,18 @@
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ed3e58899a424684dad49c94ba3813e7</string>
+              <key>url</key>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101124.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
         </map>
       </map>
       <key>libpng</key>
