@@ -50,8 +50,6 @@ LLPngWrapper::LLPngWrapper()
 	  mCompressionType( 0 ),
 	  mFilterMethod( 0 ),
 	  mFinalSize( 0 ),
-	  mHasBKGD(false),
-	  mBackgroundColor(),
 	  mGamma(0.f)
 {
 }
@@ -111,9 +109,9 @@ void LLPngWrapper::writeFlush(png_structp png_ptr)
 }
 
 // Read the PNG file using the libpng.  The low-level interface is used here
-// because we want to do various transformations (including setting the
-// matte background if any, and applying gama) which can't be done with
-// the high-level interface. The scanline also begins at the bottom of
+// because we want to do various transformations (including applying gama)
+// which can't be done with the high-level interface.
+// The scanline also begins at the bottom of
 // the image (per SecondLife conventions) instead of at the top, so we
 // must assign row-pointers in "reverse" order.
 BOOL LLPngWrapper::readPng(U8* src, LLImageRaw* rawImage, ImageInfo *infop)
@@ -201,8 +199,7 @@ void LLPngWrapper::normalizeImage()
 	//		2. Convert grayscales to RGB
 	//		3. Create alpha layer from transparency
 	//		4. Ensure 8-bpp for all images
-	//		5. Apply background matte if any
-	//		6. Set (or guess) gamma
+	//		5. Set (or guess) gamma
 
 	if (mColorType == PNG_COLOR_TYPE_PALETTE)
 	{
@@ -228,12 +225,6 @@ void LLPngWrapper::normalizeImage()
 	else if (mBitDepth == 16)
 	{
 		png_set_strip_16(mReadPngPtr);
-	}
-	mHasBKGD = png_get_bKGD(mReadPngPtr, mReadInfoPtr, &mBackgroundColor);
-	if (mHasBKGD)
-	{
-		png_set_background(mReadPngPtr, mBackgroundColor,
-			PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
 	}
 
 #if LL_DARWIN
@@ -261,7 +252,6 @@ void LLPngWrapper::updateMetaData()
     mBitDepth = png_get_bit_depth(mReadPngPtr, mReadInfoPtr);
     mColorType = png_get_color_type(mReadPngPtr, mReadInfoPtr);
 	mChannels = png_get_channels(mReadPngPtr, mReadInfoPtr);
-	mHasBKGD = png_get_bKGD(mReadPngPtr, mReadInfoPtr, &mBackgroundColor);
 }
 
 // Method to write raw image into PNG at dest. The raw scanline begins
