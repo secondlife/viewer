@@ -231,6 +231,10 @@ void	LLComboBox::resetDirty()
 	}
 }
 
+bool LLComboBox::itemExists(const std::string& name)
+{
+	return mList->getItemByLabel(name);
+}
 
 // add item "name" to menu
 LLScrollListItem* LLComboBox::add(const std::string& name, EAddPosition pos, BOOL enabled)

@@ -463,6 +463,13 @@ void LLFloaterTools::refresh()
 	childSetEnabled("linked_set_cost", have_selection);
 	childSetEnabled("object_cost", have_selection);
 
+	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled");
+
+	getChildView("linked_set_count")->setVisible(enable_mesh);
+	getChildView("linked_set_cost")->setVisible(enable_mesh);
+	getChildView("object_count")->setVisible(enable_mesh);
+	getChildView("object_cost")->setVisible(enable_mesh);
+
 	// Refresh child tabs
 	mPanelPermissions->refresh();
 	mPanelObject->refresh();
