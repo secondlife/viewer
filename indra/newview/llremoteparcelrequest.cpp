@@ -33,6 +33,7 @@
 #include "llpanel.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
+#include "llurlentry.h"
 #include "llviewerregion.h"
 #include "llview.h"
 
@@ -168,6 +169,18 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	{
 		observers.erase(*i);
 	}
+
+	LLUrlEntryParcel::LLParcelData url_data;
+	url_data.parcel_id = parcel_data.parcel_id;
+	url_data.name = parcel_data.name;
+	url_data.sim_name = parcel_data.sim_name;
+	url_data.global_x = parcel_data.global_x;
+	url_data.global_y = parcel_data.global_y;
+	url_data.global_z = parcel_data.global_z;
+
+	// Pass the parcel data to LLUrlEntryParcel to render
+	// human readable parcel name.
+	LLUrlEntryParcel::processParcelInfo(url_data);
 }
 
 void LLRemoteParcelInfoProcessor::sendParcelInfoRequest(const LLUUID& parcel_id)

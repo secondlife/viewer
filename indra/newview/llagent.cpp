@@ -64,6 +64,7 @@
 #include "lltool.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
 #include "llviewerjoystick.h"
@@ -648,6 +649,10 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		LLAppViewer::metricsUpdateRegion(regionp->getHandle());
 	}
 	mRegionp = regionp;
+
+	// Pass the region host to LLUrlEntryParcel to resolve parcel name
+	// with a server request.
+	LLUrlEntryParcel::setRegionHost(getRegionHost());
 
 	// Must shift hole-covering water object locations because local
 	// coordinate frame changed.
