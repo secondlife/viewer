@@ -642,9 +642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3b520488b4f444e20838ba5e570dbfd</string>
+              <string>5937f12de19ce4fa394048f22557b6c5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20101004.tar.bz2</string>
+              <string> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20110119.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -654,9 +654,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>70def6f5eb4cc1f55f0a18c620405f37</string>
+              <string>aa48259e567b8a55e932570e975201e0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20100929.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20110119.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -666,9 +666,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd8fb6814297a073788b58c010e0184d</string>
+              <string>506c870d37b3f7696171e4180c8bf821</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-windows-20101018.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-windows-20110119.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
