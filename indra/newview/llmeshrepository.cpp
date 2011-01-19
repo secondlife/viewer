@@ -2299,7 +2299,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 	if (gAgent.getRegion())
 	{ //update capability url 
-		if (gAgent.getRegion()->getName() != region_name)
+		if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 		{
 			region_name = gAgent.getRegion()->getName();
 		

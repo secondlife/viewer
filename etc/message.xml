@@ -685,20 +685,17 @@
 			<key>EstateChangeInfo</key>
 			<boolean>true</boolean>
 		
-			<key>FetchInventoryDescendents</key>
+			<key>FetchInventoryDescendents2</key>
 			<boolean>false</boolean>
 		
-			<key>WebFetchInventoryDescendents</key>
-			<boolean>true</boolean>
+			<key>FetchInventory2</key>
+			<boolean>false</boolean>
 		
-			<key>FetchInventory</key>
-			<boolean>true</boolean>
+			<key>FetchLibDescendents2</key>
+			<boolean>false</boolean>
 		
-			<key>FetchLibDescendents</key>
-			<boolean>true</boolean>
-		
-			<key>FetchLib</key>
-			<boolean>true</boolean>
+			<key>FetchLib2</key>
+			<boolean>false</boolean>
 
 			<key>UploadBakedTexture</key>
 			<boolean>true</boolean>

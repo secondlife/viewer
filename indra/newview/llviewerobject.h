@@ -77,6 +77,7 @@ typedef enum e_object_update_type
 	OUT_TERSE_IMPROVED,
 	OUT_FULL_COMPRESSED,
 	OUT_FULL_CACHED,
+	OUT_UNKNOWN,
 } EObjectUpdateType;
 
 
@@ -228,12 +229,9 @@ public:
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
-	// the agent.
-	BOOL isOverAgentOwnedLand() const;
-
-	// True if over land owned by group of which the agent is
-	// either officer or member.
-	BOOL isOverGroupOwnedLand() const;
+	// the agent, one of its groups, or it encroaches and 
+	// anti-encroachment is enabled
+	bool isReturnable();
 
 	/*
 	// This method will scan through this object, and then query the
@@ -746,8 +744,15 @@ public:
 	const LLUUID &getAttachmentItemID() const;
 	void setAttachmentItemID(const LLUUID &id);
 	const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
+	EObjectUpdateType getLastUpdateType() const;
+	void setLastUpdateType(EObjectUpdateType last_update_type);
+	BOOL getLastUpdateCached() const;
+	void setLastUpdateCached(BOOL last_update_cached);
+
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
+	EObjectUpdateType	mLastUpdateType;
+	BOOL	mLastUpdateCached;
 };
 
 ///////////////////
