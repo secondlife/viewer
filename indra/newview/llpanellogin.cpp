@@ -35,6 +35,7 @@
 #include "llsecondlifeurls.h"
 #include "v4color.h"
 
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcommandhandler.h"		// for secondlife:///app/login/
@@ -859,6 +860,13 @@ void LLPanelLogin::loadLoginPage()
 	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLabel().c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);
+	
+	// add OS info
+	char * os_info = curl_escape(LLAppViewer::instance()->getOSInfo().getOSStringSimple().c_str(), 0);
+	oStr << "&os=" << os_info;
+	curl_free(os_info);
+	
+	
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
 	
