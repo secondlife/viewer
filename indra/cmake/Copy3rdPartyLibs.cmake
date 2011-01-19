@@ -155,9 +155,9 @@ elseif(DARWIN)
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...
-    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/debug")
+    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}")
-    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/release")
+    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}")
 
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
@@ -170,12 +170,12 @@ elseif(LINUX)
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_release_client")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
         libapr-1.so.0
