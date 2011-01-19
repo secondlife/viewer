@@ -609,14 +609,6 @@ class DarwinManifest(ViewerManifest):
                 self.path("uk.lproj")
                 self.path("zh-Hans.lproj")
 
-                # SLVoice and vivox lols
-                self.path("vivox-runtime/universal-darwin/libsndfile.dylib", "libsndfile.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxoal.dylib", "libvivoxoal.dylib")
-                self.path("vivox-runtime/universal-darwin/libortp.dylib", "libortp.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
-                self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
-
                 libdir = "../packages/lib/release"
                 dylibs = {}
 
@@ -644,6 +636,11 @@ class DarwinManifest(ViewerManifest):
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
+                # SLVoice and vivox lols
+                for libfile in ('libsndfile.dylib', 'libvivoxoal.dylib', 'libortp.dylib', \
+                    'libvivoxsdk.dylib', 'libvivoxplatform.dylib', 'SLVoice') :
+                     self.path(os.path.join(libdir, libfile), libfile)
+                
                 try:
                     # FMOD for sound
                     self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
