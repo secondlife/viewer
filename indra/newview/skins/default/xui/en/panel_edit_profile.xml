@@ -328,17 +328,6 @@
        name="homepage_edit"
        width="272">
       </line_editor>
-      <check_box
-       follows="left|top"
-       font="SansSerifSmall"
-       label="Show me in Search results"
-       layout="topleft"
-       left="8"
-       name="show_in_search_checkbox"
-       height="15"
-       label_text.text_color="white"
-       top_pad="12"
-       width="100" />
       <text
          follows="left|top"
          font="SansSerifSmall"

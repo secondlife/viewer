@@ -2,4 +2,5 @@
 <group_icon
  default_icon_name="Generic_Group"
  image_name="Generic_Group"
- name="group_icon" />
+ name="group_icon"
+ use_draw_context_alpha="false" />
