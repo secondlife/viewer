@@ -1870,7 +1870,7 @@ if (PACKAGE)
       "${VIEWER_DIST_DIR}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
-      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+      "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
       "${VIEWER_SYMBOL_FILE}"
     DEPENDS generate_breakpad_symbols.py
         VERBATIM)
