@@ -122,7 +122,7 @@ public:
 	U32			getPacketsLost() const;
 	TPACKETID	getPacketOutID() const;
 	BOOL		getTrusted() const;
-	F32 getAgeInSeconds() const;
+	F32			getAgeInSeconds() const;
 	S32			getUnackedPacketCount() const	{ return mUnackedPacketCount; }
 	S32			getUnackedPacketBytes() const	{ return mUnackedPacketBytes; }
 	F64         getNextPingSendTime() const { return mNextPingSendTime; }
@@ -130,6 +130,7 @@ public:
                     { return mOutOfOrderRate.meanValue(scale); }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
+	F64			getLastPacketInTime() const		{ return mLastPacketInTime;	}
 
 	LLThrottleGroup &getThrottleGroup()		{	return mThrottles; }
 
@@ -248,6 +249,7 @@ protected:
 	S32										mUnackedPacketCount;
 	S32										mUnackedPacketBytes;
 
+	F64										mLastPacketInTime;		// Time of last packet arrival
 
 	LLUUID									mLocalEndPointID;
 
