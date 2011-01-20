@@ -135,23 +135,24 @@ BOOL	LLPanelObject::postBuild()
 	
 	// PhysicsShapeType combobox
 	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
-	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsParam, this);
-
+	mComboPhysicsShapeType->setCommitCallback(boost::bind(&LLPanelObject::sendPhysicsShapeType, this, _1, mComboPhysicsShapeType));
+	
 	// PhysicsGravity
 	mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
-	childSetCommitCallback("Physics Gravity", onCommitPhysicsParam, this);
+	mSpinPhysicsGravity->setCommitCallback(boost::bind(&LLPanelObject::sendPhysicsGravity, this, _1, mSpinPhysicsGravity));
 
 	// PhysicsFriction
 	mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
-	childSetCommitCallback("Physics Friction", onCommitPhysicsParam, this);
-	
+	mSpinPhysicsFriction->setCommitCallback(boost::bind(&LLPanelObject::sendPhysicsFriction, this, _1, mSpinPhysicsFriction));
+
 	// PhysicsDensity
 	mSpinPhysicsDensity = getChild<LLSpinCtrl>("Physics Density");
-	childSetCommitCallback("Physics Density", onCommitPhysicsParam, this);
+	mSpinPhysicsDensity->setCommitCallback(boost::bind(&LLPanelObject::sendPhysicsDensity, this, _1, mSpinPhysicsDensity));
 
 	// PhysicsRestitution
 	mSpinPhysicsRestitution = getChild<LLSpinCtrl>("Physics Restitution");
-	childSetCommitCallback("Physics Restitution", onCommitPhysicsParam, this);
+	mSpinPhysicsRestitution->setCommitCallback(boost::bind(&LLPanelObject::sendPhysicsRestitution, this, _1, mSpinPhysicsRestitution));
+
 
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -1281,35 +1282,46 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
-#include "llsdutil.h"
-class CostResponder : public LLHTTPClient::Responder
+void LLPanelObject::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)
 {
-public:
-	CostResponder(U32 id) { mID = id; }
-	virtual void result(const LLSD& content) { llinfos << ll_pretty_print_sd(content) << llendl; }
+	U8 type = ctrl->getValue().asInteger();
+	LLSelectMgr::getInstance()->selectionSetPhysicsType(type);
 
-	U32 mID;
-};
+	refreshCost();
+}
 
-void LLPanelObject::sendPhysicsParam()
+void LLPanelObject::sendPhysicsGravity(LLUICtrl* ctrl, void* userdata)
 {
-	LLSD physicsType = mComboPhysicsShapeType->getValue();
-	
-	U8 type = physicsType.asInteger();
-	F32 gravity = mSpinPhysicsGravity->get();
-	F32 friction = mSpinPhysicsFriction->get();
-	F32 density = mSpinPhysicsDensity->get();
-	F32 restitution = mSpinPhysicsRestitution->get();
-	
-	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, friction, 
-																density, restitution);
+	F32 val = ctrl->getValue().asReal();
+	LLSelectMgr::getInstance()->selectionSetGravity(val);
+}
 
-	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
-	LLSD body = LLSD::emptyArray();
+void LLPanelObject::sendPhysicsFriction(LLUICtrl* ctrl, void* userdata)
+{
+	F32 val = ctrl->getValue().asReal();
+	LLSelectMgr::getInstance()->selectionSetFriction(val);
+}
+
+void LLPanelObject::sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata)
+{
+	F32 val = ctrl->getValue().asReal();
+	LLSelectMgr::getInstance()->selectionSetRestitution(val);
+}
+
+void LLPanelObject::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
+{
+	F32 val = ctrl->getValue().asReal();
+	LLSelectMgr::getInstance()->selectionSetDensity(val);
+}
+
+void LLPanelObject::refreshCost()
+{
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 	
-	body.append(LLSelectMgr::getInstance()->getSelection()->getFirstObject()->getID());
-	
-	LLHTTPClient::post( url, body, new CostResponder(body[0].asInteger()) );
+	if (obj)
+	{
+		obj->getObjectCost();
+	}
 }
 
 void LLPanelObject::sendCastShadows()
@@ -2118,13 +2130,6 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
-}
-
-// static
-void LLPanelObject::onCommitPhysicsParam(LLUICtrl* ctrl, void* userdata )
-{
-	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendPhysicsParam();
 }
 
 // static
