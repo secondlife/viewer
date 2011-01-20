@@ -281,15 +281,15 @@ namespace tut
 		llmat_obj.orthogonalize();
 
 		ensure("LLMatrix3::orthogonalize failed ",
-		       is_approx_equal(0.19611613f, llmat_obj.mMatrix[0][0]) &&
+		       is_approx_equal(0.19611614f, llmat_obj.mMatrix[0][0]) &&
 		       is_approx_equal(0.78446454f, llmat_obj.mMatrix[0][1]) &&
-		       is_approx_equal(0.58834839f, llmat_obj.mMatrix[0][2]) &&
-		       is_approx_equal(0.47628206f, llmat_obj.mMatrix[1][0]) &&
-		       is_approx_equal(0.44826555f, llmat_obj.mMatrix[1][1]) &&
-		       is_approx_equal(-0.75644791f, llmat_obj.mMatrix[1][2]) &&
-		       is_approx_equal(-0.85714287f, llmat_obj.mMatrix[2][0]) &&
+		       is_approx_equal(0.58834841f, llmat_obj.mMatrix[0][2]) &&
+		       is_approx_equal(0.47628204f, llmat_obj.mMatrix[1][0]) &&
+		       is_approx_equal(0.44826545f, llmat_obj.mMatrix[1][1]) &&
+		       is_approx_equal(-0.75644795f, llmat_obj.mMatrix[1][2]) &&
+		       is_approx_equal(-0.85714286f, llmat_obj.mMatrix[2][0]) &&
 		       is_approx_equal(0.42857143f, llmat_obj.mMatrix[2][1]) &&
-		       is_approx_equal(-0.28571427f, llmat_obj.mMatrix[2][2]));
+		       is_approx_equal(-0.28571429f, llmat_obj.mMatrix[2][2]));
 	}
 
 	//test case for adjointTranspose() fn.
