@@ -1969,12 +1969,12 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 
 	if(drawablep && !drawablep->isDead())
 	{
-	if (drawablep->isSpatialBridge())
-	{
+		if (drawablep->isSpatialBridge())
+		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
 			if (root && //  // this test may not be needed, see above
-			    root->getVObj()->isAttachment())
+					root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
 				if (rootparent) // this IS sometimes NULL
@@ -1982,24 +1982,24 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 					LLViewerObject *vobj = rootparent->getVObj();
 					llassert(vobj); // trying to catch a bad assumption
 					if (vobj) // this test may not be needed, see above
-		{
+					{
 						const LLVOAvatar* av = vobj->asAvatar();
-			if (av && av->isImpostor())
-			{
-				return;
-			}
-		}
+						if (av && av->isImpostor())
+						{
+							return;
+						}
+					}
 				}
 			}
-		sCull->pushBridge((LLSpatialBridge*) drawablep);
-	}
-	else
-	{
-		sCull->pushDrawable(drawablep);
-	}
+			sCull->pushBridge((LLSpatialBridge*) drawablep);
+		}
+		else
+		{
+			sCull->pushDrawable(drawablep);
+		}
 
-	drawablep->setVisible(camera);
-}
+		drawablep->setVisible(camera);
+	}
 }
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)

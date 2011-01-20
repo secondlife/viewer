@@ -1205,12 +1205,15 @@ void LLViewerFetchedTexture::cleanup()
 
 void LLViewerFetchedTexture::setForSculpt()
 {
+	static const S32 MAX_INTERVAL = 8 ; //frames
+
 	mForSculpt = TRUE ;
 	if(isForSculptOnly() && !getBoundRecently())
 	{
 		destroyGLTexture() ; //sculpt image does not need gl texture.
 	}
 	checkCachedRawSculptImage() ;
+	setMaxVirtualSizeResetInterval(MAX_INTERVAL) ;
 }
 
 BOOL LLViewerFetchedTexture::isForSculptOnly() const
