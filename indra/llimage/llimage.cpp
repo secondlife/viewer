@@ -276,11 +276,11 @@ LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
 	++sRawImageCount;
 }
 
-LLImageRaw::LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only)
-	: LLImageBase()
-{
-	createFromFile(filename, j2c_lowest_mip_only);
-}
+//LLImageRaw::LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only)
+//	: LLImageBase()
+//{
+//	createFromFile(filename, j2c_lowest_mip_only);
+//}
 
 LLImageRaw::~LLImageRaw()
 {
@@ -1180,7 +1180,7 @@ file_extensions[] =
 	{ "png", IMG_CODEC_PNG }
 };
 #define NUM_FILE_EXTENSIONS LL_ARRAY_SIZE(file_extensions)
-
+#if 0
 static std::string find_file(std::string &name, S8 *codec)
 {
 	std::string tname;
@@ -1198,7 +1198,7 @@ static std::string find_file(std::string &name, S8 *codec)
 	}
 	return std::string("");
 }
-
+#endif
 EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
 	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
@@ -1208,7 +1208,7 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 	}
 	return IMG_CODEC_INVALID;
 }
-
+#if 0
 bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip_only)
 {
 	std::string name = filename;
@@ -1315,7 +1315,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 
 	return true;
 }
-
+#endif
 //---------------------------------------------------------------------------
 // LLImageFormatted
 //---------------------------------------------------------------------------
