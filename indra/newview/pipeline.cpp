@@ -2495,11 +2495,6 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_REBUILD);
 
-	if (drawablep)
-	{
-		LLVOVolume* volume = drawablep->getVOVolume();
-	}
-
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		if (!drawablep->isState(LLDrawable::BUILT))
