@@ -950,6 +950,25 @@ void LLModel::normalizeVolumeFaces()
 		LLVector4a size;
 		size.setSub(max, min);
 
+		// Prevent division by zero.
+		F32 x = size[0];
+		F32 y = size[1];
+		F32 z = size[2];
+		F32 w = size[3];
+		if (fabs(x)<F_APPROXIMATELY_ZERO)
+		{
+			x = 1.0;
+		}
+		if (fabs(y)<F_APPROXIMATELY_ZERO)
+		{
+			y = 1.0;
+		}
+		if (fabs(z)<F_APPROXIMATELY_ZERO)
+		{
+			z = 1.0;
+		}
+		size.set(x,y,z,w);
+
 		// Compute scale as reciprocal of size
 		LLVector4a scale;
 		scale.splat(1.f);
