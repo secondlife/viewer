@@ -5306,11 +5306,6 @@ void LLViewerObject::updateFlags()
 	gMessageSystem->addF32("Restitution", getPhysicsRestitution() );
 	gMessageSystem->addF32("GravityMultiplier", getPhysicsGravity() );
 	gMessageSystem->sendReliable( regionp->getHost() );
-
-	if (getPhysicsShapeType() != 0)
-	{
-		llwarns << "sent non default physics rep " << (S32) getPhysicsShapeType() << llendl;
-	}
 }
 
 BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
@@ -5346,6 +5341,7 @@ void LLViewerObject::setPhysicsShapeType(U8 type)
 {
 	mPhysicsShapeUnknown = false;
 	mPhysicsShapeType = type;
+	mCostStale = true;
 }
 
 void LLViewerObject::setPhysicsGravity(F32 gravity)
