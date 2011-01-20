@@ -309,8 +309,6 @@ NVIDIA Quadro FX 1400				.*Quadro.*FX.*1400.*			1		1
 NVIDIA Quadro FX 1500				.*Quadro.*FX.*1500.*			1		1
 NVIDIA Quadro FX 1700				.*Quadro.*FX.*1700.*			2		1
 NVIDIA Quadro FX 1800				.*Quadro.*FX.*1800.*			2		1
-NVIDIA Quadro FX 3700				.*Quadro.*FX.*3700.*			2		1
-NVIDIA Quadro FX 3800				.*Quadro.*FX.*3800.*			2		1
 NVIDIA Quadro FX 3400				.*Quadro.*FX.*3400.*			1		1
 NVIDIA Quadro FX 3450				.*Quadro.*FX.*3450.*			1		1
 NVIDIA Quadro FX 3500				.*Quadro.*FX.*3500.*			1		1
