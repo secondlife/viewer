@@ -1344,7 +1344,7 @@
         <key>license_file</key>
         <string>LICENSES/slvoice.txt</string>
         <key>name</key>
-        <string>vivox</string>
+        <string>slvoice</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1352,9 +1352,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8f517d790d2ec9888c5688e9950fc2d5</string>
+              <string>e19576af3c0affc71293d8f0bcce2606</string>
               <key>url</key>
-              <string>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/vivox-3.1.0001.8821-darwin-20101018.tar.bz2</string>
+              <string> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
