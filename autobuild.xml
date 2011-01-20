@@ -654,9 +654,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa48259e567b8a55e932570e975201e0</string>
+              <string>239e5be637bb6282a297a8636ef3c77e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20110119.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20110119a.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
