@@ -222,9 +222,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab6246b72141f39804c67f4536f1cece</string>
+              <string>74bfe7b46705f4d5f82abe08e1aeef28</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/Darwin/installer/curl-7.21.1-darwin-20110107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a9b82d81b483f5e40a3058d165f1aff2</string>
+              <string>ea3c7ca3ea58ffce52e1551def78e077</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/Linux/installer/curl-7.21.1-linux-20110107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3494e2560b7fe32b25cb19041ba4e2a</string>
+              <string>0677e39648cae1bd3c1f158a942187aa</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/CYGWIN/installer/curl-7.21.1-windows-20110107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
