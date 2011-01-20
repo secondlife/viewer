@@ -214,9 +214,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>72e6e2eff5d146a107f3059b6c31fb95</string>
+            <string>40b204f6769ee383db35a0585ca035a6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20100630.tar.bz2</uri>
+            <uri>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/palange_3p-test-lib/rev/219285/arch/CYGWIN/installer/boost-1.45.0-windows-20110119.tar.bz2</uri>
           </map>
         </map>
       </map>
