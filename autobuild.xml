@@ -222,9 +222,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>74bfe7b46705f4d5f82abe08e1aeef28</string>
+              <string>445c558d312a195f015eab324af5aba9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/Darwin/installer/curl-7.21.1-darwin-20110107.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/Darwin/installer/curl-7.21.1-darwin-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ea3c7ca3ea58ffce52e1551def78e077</string>
+              <string>f862e4a9f65f2d57c7bd0815302b021c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/Linux/installer/curl-7.21.1-linux-20110107.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/Linux/installer/curl-7.21.1-linux-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0677e39648cae1bd3c1f158a942187aa</string>
+              <string>f57a98c83ae6f62655c78f158ee93fc6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/218645/arch/CYGWIN/installer/curl-7.21.1-windows-20110107.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/CYGWIN/installer/curl-7.21.1-windows-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
