@@ -3734,6 +3734,7 @@ void LLAppViewer::loadNameCache()
 	// display names cache
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	LL_INFOS("AvNameCache") << filename << LL_ENDL;
 	llifstream name_cache_stream(filename);
 	if(name_cache_stream.is_open())
 	{
