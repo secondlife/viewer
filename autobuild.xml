@@ -1364,9 +1364,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>827ebbcddb31516e7e40a37374a52ebf</string>
+              <string>53fefed8120d7c6a0eb6778edae6fa32</string>
               <key>url</key>
-              <string>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/vivox-3.1.0001.8821-linux-20101018.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
