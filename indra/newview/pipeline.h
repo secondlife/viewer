@@ -506,7 +506,6 @@ public:
 	static BOOL				sRenderAttachedLights;
 	static BOOL				sRenderAttachedParticles;
 	static BOOL				sRenderDeferred;
-	static BOOL             sAllowRebuildPriorityGroup;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 

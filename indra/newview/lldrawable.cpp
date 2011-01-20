@@ -763,7 +763,7 @@ void LLDrawable::updateTexture()
 
 	if (getVOVolume())
 	{
-		if (isActive())
+		/*if (isActive())
 		{
 			if (isRoot())
 			{
@@ -773,7 +773,7 @@ void LLDrawable::updateTexture()
 			{
 				getParent()->mQuietCount = 0;
 			}
-		}
+		}*/
 				
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_MATERIAL, TRUE);
 	}

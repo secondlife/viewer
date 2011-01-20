@@ -284,7 +284,6 @@ BOOL	LLPipeline::sRenderFrameTest = FALSE;
 BOOL	LLPipeline::sRenderAttachedLights = TRUE;
 BOOL	LLPipeline::sRenderAttachedParticles = TRUE;
 BOOL	LLPipeline::sRenderDeferred = FALSE;
-BOOL    LLPipeline::sAllowRebuildPriorityGroup = FALSE ;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 
@@ -2112,12 +2111,6 @@ void LLPipeline::updateGL()
 
 void LLPipeline::rebuildPriorityGroups()
 {
-	if(!sAllowRebuildPriorityGroup)
-	{
-		return ;
-	}
-	sAllowRebuildPriorityGroup = FALSE ;
-
 	LLTimer update_timer;
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	
@@ -2502,6 +2495,11 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_REBUILD);
 
+	if (drawablep)
+	{
+		LLVOVolume* volume = drawablep->getVOVolume();
+	}
+
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		if (!drawablep->isState(LLDrawable::BUILT))
@@ -2635,7 +2633,7 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_STATE_SORT);
-	if (!sShadowRender && bridge->getSpatialGroup()->changeLOD())
+	if (bridge->getSpatialGroup()->changeLOD())
 	{
 		bool force_update = false;
 		bridge->updateDistance(camera, force_update);
@@ -6138,7 +6136,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
-
 
 		//depth of field focal plane calculations
 

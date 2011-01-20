@@ -857,7 +857,8 @@ void LLVOVolume::updateTextureVirtualSize()
 
 BOOL LLVOVolume::isActive() const
 {
-	return !mStatic || mTextureAnimp || (mVolumeImpl && mVolumeImpl->isActive());
+	return !mStatic || mTextureAnimp || (mVolumeImpl && mVolumeImpl->isActive()) || 
+		(mDrawable.notNull() && mDrawable->isActive());
 }
 
 BOOL LLVOVolume::setMaterial(const U8 material)
@@ -3281,28 +3282,6 @@ F32 LLVOVolume::getBinRadius()
 	
 	F32 scale = 1.f;
 
-	if (isSculpted())
-	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-		LLUUID id =  sculpt_params->getSculptTexture();
-		U8 sculpt_type = sculpt_params->getSculptType();
-
-		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
-			// mesh is a mesh
-		{
-			LLVolume* volume = getVolume();
-			U32 vert_count = 0;
-
-			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
-			{
-				const LLVolumeFace& face = volume->getVolumeFace(i);
-				vert_count += face.mNumVertices;
-			}
-
-			scale = 1.f/llmax(vert_count/1024.f, 1.f);
-		}
-	}
-
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
 	BOOL shrink_wrap = mDrawable->isAnimating();
@@ -4395,6 +4374,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
+
 				LLVolume* volume = vobj->getVolume();
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
