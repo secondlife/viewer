@@ -5762,7 +5762,7 @@ void LLVolumeFace::cacheOptimize()
 	for (U32 i = 0; i < mNumIndices; i++)
 	{ //populate vertex data and triangle data arrays
 		U16 idx = mIndices[i];
-		U16 tri_idx = i/3;
+		U32 tri_idx = i/3;
 
 		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
 		vertex_data[idx].mIdx = idx;
