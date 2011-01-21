@@ -1843,7 +1843,8 @@ bool LLPanelGroupRolesSubTab::apply(std::string& mesg)
 {
 	lldebugs << "LLPanelGroupRolesSubTab::apply()" << llendl;
 
-	saveRoleChanges();
+	saveRoleChanges(true);
+
 	LLGroupMgr::getInstance()->sendGroupRoleChanges(mGroupID);
 
 	notifyObservers();
@@ -2022,7 +2023,7 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 		return;
 	}
 
-	saveRoleChanges();
+	saveRoleChanges(false);
 
 	// Check if there is anything selected.
 	LLScrollListItem* item = mRolesList->getFirstSelected();
@@ -2385,7 +2386,7 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 	notifyObservers();
 }
 
-void LLPanelGroupRolesSubTab::saveRoleChanges()
+void LLPanelGroupRolesSubTab::saveRoleChanges(bool select_saved_role)
 {
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
@@ -2400,13 +2401,23 @@ void LLPanelGroupRolesSubTab::saveRoleChanges()
 		rd.mRoleDescription = mRoleDescription->getText();
 		rd.mRoleTitle = mRoleTitle->getText();
 
+		S32 role_members_count = 0;
+		if (mSelectedRole.isNull())
+		{
+			role_members_count = gdatap->mMemberCount;
+		}
+		else if(LLGroupRoleData* grd = get_ptr_in_map(gdatap->mRoles, mSelectedRole))
+		{
+			role_members_count = grd->getTotalMembersInRole();
+		}
+
 		gdatap->setRoleData(mSelectedRole,rd);
 
 		mRolesList->deleteSingleItem(mRolesList->getItemIndex(mSelectedRole));
 		
-		LLSD row = createRoleItem(mSelectedRole,rd.mRoleName,rd.mRoleTitle,0);
+		LLSD row = createRoleItem(mSelectedRole,rd.mRoleName,rd.mRoleTitle,role_members_count);
 		LLScrollListItem* item = mRolesList->addElement(row, ADD_BOTTOM, this);
-		item->setSelected(TRUE);
+		item->setSelected(select_saved_role);
 
 		mHasRoleChange = FALSE;
 	}

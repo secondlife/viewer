@@ -1,8 +1,8 @@
-/** 
- * @file llversionviewer.h
- * @brief
+ /** 
+ * @file llvoicecallhandler.cpp
+ * @brief slapp to handle avatar to avatar voice call.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,18 +24,38 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#include "llviewerprecompiledheaders.h"
+#include "llcommandhandler.h" 
+#include "llavataractions.h"
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 6;
-const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 0;
+class LLVoiceCallAvatarHandler : public LLCommandHandler
+{
+public: 
+	// requires trusted browser to trigger
+	LLVoiceCallAvatarHandler() : LLCommandHandler("voicecallavatar", UNTRUSTED_THROTTLE) 
+	{ 
+	}
+	
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		//Make sure we have some parameters
+		if (params.size() == 0)
+		{
+			return false;
+		}
+		
+		//Get the ID
+		LLUUID id;
+		if (!id.set( params[0], FALSE ))
+		{
+			return false;
+		}
+		
+		//instigate call with this avatar
+		LLAvatarActions::startCall( id );		
+		return true;
+	}
+};
 
-const char * const LL_CHANNEL = "Second Life Developer";
+LLVoiceCallAvatarHandler gVoiceCallAvatarHandler;
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
-
-#endif

@@ -569,6 +569,7 @@ static void update_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, 
 	if (color_swatch_ctrl)
 	{
 		color_swatch_ctrl->set(self->getWearable()->getClothesColor(entry->mTextureIndex));
+		color_swatch_ctrl->closeFloaterColorPicker();
 	}
 }
 

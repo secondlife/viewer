@@ -72,6 +72,7 @@ Aleric Inglewood
 	VWR-10837
 	VWR-12691
 	VWR-12984
+	VWR-13040
 	VWR-13996
 	VWR-14426
 	VWR-24247
@@ -79,6 +80,10 @@ Aleric Inglewood
 	VWR-24252
 	VWR-24254
 	VWR-24261
+	VWR-24315
+	VWR-24317
+	VWR-24320
+ 	VWR-24354
 	SNOW-84
 	SNOW-477
 	SNOW-744
@@ -219,6 +224,8 @@ Catherine Pfeffer
 Celierra Darling
 	VWR-1274
 	VWR-6975
+Coaldust Numbers
+    VWR-1095
 Cron Stardust
 	VWR-10579
 Cypren Christenson
@@ -364,13 +371,19 @@ JB Kraft
 Joghert LeSabre
 	VWR-64
 Jonathan Yap
-	VWR-17801
 	STORM-523
+	STORM-596
+	STORM-615
 	STORM-616
 	STORM-679
-	STORM-596
+	STORM-723
 	STORM-726
+	STORM-737
+	STORM-869
 	STORM-785
+	STORM-812
+	VWR-17801
+	STORM-844
 Kage Pixel
 	VWR-11
 Ken March
@@ -387,6 +400,7 @@ Kitty Barnett
 	STORM-288
 	STORM-799
 	STORM-800
+    VWR-24217
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -730,6 +744,7 @@ Thickbrick Sleaford
 	VWR-9287
 	VWR-13483
 	VWR-13947
+	VWR-24420
 Thraxis Epsilon
 	SVC-371
 	VWR-383
@@ -748,6 +763,9 @@ Tue Torok
 	CT-74
 Twisted Laws
 	SNOW-352
+	STORM-466
+	STORM-467
+	STORM-844
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
@@ -796,6 +814,7 @@ WolfPup Lowenhar
 	STORM-654
 	STORM-674
 	STORM-776
+	STORM-825
 	VWR-20741
 	VWR-20933
 Zai Lynch

@@ -253,6 +253,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FavoritesOnLogin"
+   type="alertmodal">    
+    Note: When you turn on this option, anyone who uses this computer can see your list of favorite locations.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
@@ -6294,15 +6304,6 @@ An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_N
   </notification>
 
   <notification
-   duration="10"
-   icon="notifytip.tga"
-   name="ServerVersionChanged"
-   priority="high"
-   type="notifytip">
-You just entered a region using a different server version, which may affect performance. [[URL] View the release notes.]
-  </notification>
-
-  <notification
    icon="notifytip.tga"
    name="UnsupportedCommandSLURL"
    priority="high"
@@ -6421,7 +6422,7 @@ Select residents to share with.
    type="alertmodal">
 Are you sure you want to share the following items:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 With the following Residents:
 

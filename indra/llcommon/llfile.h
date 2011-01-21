@@ -71,6 +71,8 @@ public:
 	static	LLFILE*	fopen(const std::string& filename,const char* accessmode);	/* Flawfinder: ignore */
 	static	LLFILE*	_fsopen(const std::string& filename,const char* accessmode,int	sharingFlag);
 
+	static	int		close(LLFILE * file);
+
 	// perms is a permissions mask like 0777 or 0700.  In most cases it will
 	// be overridden by the user's umask.  It is ignored on Windows.
 	static	int		mkdir(const std::string& filename, int perms = 0700);

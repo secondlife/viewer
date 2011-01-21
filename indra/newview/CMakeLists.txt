@@ -405,6 +405,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llshareavatarhandler.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
     llsidepanelinventorysubpanel.cpp
@@ -529,6 +530,7 @@ set(viewer_SOURCE_FILES
     llviewerregion.cpp
     llviewershadermgr.cpp
     llviewerstats.cpp
+    llviewerstatsrecorder.cpp
     llviewertexteditor.cpp
     llviewertexture.cpp
     llviewertextureanim.cpp
@@ -546,6 +548,7 @@ set(viewer_SOURCE_FILES
     llvoclouds.cpp
     llvograss.cpp
     llvoground.cpp
+    llvoicecallhandler.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
@@ -1061,6 +1064,7 @@ set(viewer_HEADER_FILES
     llviewerregion.h
     llviewershadermgr.h
     llviewerstats.h
+    llviewerstatsrecorder.h
     llviewertexteditor.h
     llviewertexture.h
     llviewertextureanim.h
@@ -1714,6 +1718,17 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 if (LINUX)
   set(product SecondLife-${ARCH}-${viewer_VERSION})
 
+  # These are the generated targets that are copied to package/
+  set(COPY_INPUT_DEPENDENCIES
+	${VIEWER_BINARY_NAME}
+	linux-crash-logger
+	linux-updater
+	SLPlugin
+	media_plugin_webkit
+	media_plugin_gstreamer010
+	llcommon
+	)
+
   add_custom_command(
       OUTPUT ${product}.tar.bz2
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1731,17 +1746,10 @@ if (LINUX)
         --login_channel=${VIEWER_LOGIN_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-      DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        ${COPY_INPUT_DEPENDENCIES}
       )
-
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_gstreamer010 media_plugin_webkit)
-
-  if (PACKAGE)
-    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
-    add_dependencies(package linux-crash-logger-target)
-    add_dependencies(package linux-updater-target)
-    check_message_template(package)
-  endif (PACKAGE)
 
   add_custom_command(
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
@@ -1762,9 +1770,15 @@ if (LINUX)
       ${COPY_INPUT_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
-    
+
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
-  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}" linux-crash-logger-target linux-updater-target)
+
+  if (PACKAGE)
+    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
+    # Make sure we don't run two instances of viewer_manifest.py at the same time.
+    add_dependencies(package copy_l_viewer_manifest)
+    check_message_template(package)
+  endif (PACKAGE)
 endif (LINUX)
 
 if (DARWIN)
@@ -1853,29 +1867,29 @@ if (PACKAGE)
   endif (LINUX)
 
   if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
-    if(CMAKE_CFG_INTDIR STREQUAL ".")
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
       set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-    else(CMAKE_CFG_INTDIR STREQUAL ".")
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
       # set LLBUILD_CONFIG to be a shell variable evaluated at build time
       # reflecting the configuration we are currently building.
       set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-    endif(CMAKE_CFG_INTDIR STREQUAL ".")
-    add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-      COMMAND "${PYTHON_EXECUTABLE}"
-      ARGS
-        "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
-        "${LLBUILD_CONFIG}"
-        "${VIEWER_DIST_DIR}"
-        "${VIEWER_EXE_GLOBS}"
-        "${VIEWER_LIB_GLOB}"
-        "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
-        "${VIEWER_SYMBOL_FILE}"
-        DEPENDS generate_breakpad_symbols.py
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
+  add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+    COMMAND "${PYTHON_EXECUTABLE}"
+    ARGS
+      "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${LLBUILD_CONFIG}"
+      "${VIEWER_DIST_DIR}"
+      "${VIEWER_EXE_GLOBS}"
+      "${VIEWER_LIB_GLOB}"
+      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+      "${VIEWER_SYMBOL_FILE}"
+    DEPENDS generate_breakpad_symbols.py
         VERBATIM)
 
-    add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-    add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-    add_dependencies(package generate_breakpad_symbols)
+  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_dependencies(package generate_breakpad_symbols)
   endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 

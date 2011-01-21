@@ -56,9 +56,11 @@
 #include "llmutelist.h"
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
 #include "llpaneloutfitedit.h"
+#include "llpanelprofile.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
@@ -306,6 +308,20 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		params["id"] = id;
 		params["open_tab_name"] = "panel_profile";
 
+		// PROFILES: open in webkit window
+		std::string full_name;
+		if (gCacheName->getFullName(id,full_name))
+		{
+			std::string agent_name = LLCacheName::buildUsername(full_name);
+			llinfos << "opening web profile for " << agent_name << llendl;		
+			std::string url = getProfileURL(agent_name);
+			LLWeb::loadWebURLInternal(url);
+		}
+		else
+		{
+			llwarns << "no name info for agent id " << id << llendl;
+		}
+#if 0
 		//Show own profile
 		if(gAgent.getID() == id)
 		{
@@ -316,6 +332,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		{
 			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
 		}
+#endif
 	}
 }
 

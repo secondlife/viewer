@@ -33,9 +33,40 @@
 #include "llcommandhandler.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
+#include "llviewercontrol.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 static const std::string PANEL_PROFILE = "panel_profile";
+
+std::string getProfileURL(const std::string& agent_name)
+{
+	std::string url = gSavedSettings.getString("WebProfileURL");
+	LLSD subs;
+	subs["AGENT_NAME"] = agent_name;
+	url = LLWeb::expandURLSubstitutions(url,subs);
+	LLStringUtil::toLower(url);
+	return url;
+}
+
+class LLProfileHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLProfileHandler() : LLCommandHandler("profile", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLMediaCtrl* web)
+	{
+		if (params.size() < 1) return false;
+		std::string agent_name = params[0];
+		llinfos << "Profile, agent_name " << agent_name << llendl;
+		std::string url = getProfileURL(agent_name);
+		LLWeb::loadWebURLInternal(url);
+
+		return true;
+	}
+};
+LLProfileHandler gProfileHandler;
 
 class LLAgentHandler : public LLCommandHandler
 {
@@ -279,6 +310,36 @@ void LLPanelProfile::onOpen(const LLSD& key)
 				params.erase("show_tab_panel");
 				params.erase("open_tab_name");
 				picks->openClassifiedInfo(params);
+			}
+		}
+		else if (panel == "edit_classified")
+		{
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				LLSD params = key;
+				params.erase("show_tab_panel");
+				params.erase("open_tab_name");
+				picks->openClassifiedEdit(params);
+			}
+		}
+		else if (panel == "create_pick")
+		{
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				picks->createNewPick();
+			}
+		}
+		else if (panel == "edit_pick")
+		{
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				LLSD params = key;
+				params.erase("show_tab_panel");
+				params.erase("open_tab_name");
+				picks->openPickEdit(params);
 			}
 		}
 	}
