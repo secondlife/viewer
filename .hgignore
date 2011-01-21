@@ -11,6 +11,7 @@ syntax: glob
 *.DS_Store
 LICENSES
 indra/.distcc
+build-linux-*
 build-darwin-*
 build-vc80/
 indra/build-vc[0-9]*

@@ -51,7 +51,6 @@ pre_build()
 {
   local variant="$1"
   begin_section "Pre$variant"
-  "$AUTOBUILD" install --skip-license-check
   "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON
   end_section "Pre$variant"
 }
@@ -62,7 +61,7 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    if "$AUTOBUILD" build -c $variant
+    if "$AUTOBUILD" build -c $variant --no-configure
     then
       echo true >"$build_dir"/build_ok
     else
@@ -141,6 +140,9 @@ fi
 
 # load autbuild provided shell functions and variables
 eval "$("$AUTOBUILD" source_environment)"
+
+# Install packages.
+"$AUTOBUILD" install --skip-license-check
 
 # Now run the build
 succeeded=true
