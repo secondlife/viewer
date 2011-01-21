@@ -42,6 +42,7 @@
 #include <boost/regex/v4/match_results.hpp>
 
 #if LL_MSVC
+#pragma warning(push)  
 // disable warning about boost::lexical_cast unreachable code
 // when it fails to parse the string
 #pragma warning (disable:4702)
