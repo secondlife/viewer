@@ -81,6 +81,7 @@ void main()
 	}
 
 	col /= defined_weight.xyxx;
+	col.y *= col.y;
 	
 	gl_FragColor = col;
 }
