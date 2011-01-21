@@ -1918,10 +1918,21 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>DebugShowTextureInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Show inertested texture info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>DebugShowTime</key>
     <map>
       <key>Comment</key>
-      <string>Show depth buffer contents</string>
+      <string>Show time info</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
