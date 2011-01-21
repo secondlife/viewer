@@ -7306,7 +7306,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.40</real>
+      <real>0.70</real>
       <real>1.00</real>
       <real>0.00</real>
     </array>
@@ -8063,7 +8063,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.1</real>
+    <real>0</real>
   </map>
 
   <key>RenderGIAmbiance</key>
