@@ -8283,9 +8283,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.299</real>
-        <real>0.587</real>
-        <real>0.114</real>
+        <real>1</real>
+        <real>0</real>
+        <real>0</real>
       </array>
     </map>
     <key>RenderGlowMaxExtractAlpha</key>
@@ -8297,7 +8297,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.065</real>
+      <real>0.25</real>
     </map>
     <key>RenderGlowMinLuminance</key>
     <map>
@@ -8308,7 +8308,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>2.5</real>
+      <real>0.74</real>
     </map>
     <key>RenderGlowResolutionPow</key>
     <map>
