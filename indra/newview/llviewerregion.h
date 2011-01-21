@@ -51,7 +51,7 @@
 // Surface id's
 #define LAND  1
 #define WATER 2
-const U32	MAX_OBJECT_CACHE_ENTRIES = 10000;
+const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 
 
 class LLEventPoll;
@@ -275,9 +275,24 @@ public:
 
 	void getInfo(LLSD& info);
 
+	typedef enum
+	{
+		CACHE_MISS_TYPE_FULL = 0,
+		CACHE_MISS_TYPE_CRC,
+		CACHE_MISS_TYPE_NONE
+	} eCacheMissType;
+
+	typedef enum
+	{
+		CACHE_UPDATE_DUPE = 0,
+		CACHE_UPDATE_CHANGED,
+		CACHE_UPDATE_ADDED,
+		CACHE_UPDATE_REPLACED
+	} eCacheUpdateResult;
+
 	// handle a full update message
-	void cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
-	LLDataPacker *getDP(U32 local_id, U32 crc);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
+	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 

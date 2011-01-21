@@ -30,6 +30,7 @@
 #include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lluuid.h"
+#include "message.h"
 
 #include <string>
 
@@ -191,3 +192,20 @@ LLFontGL* LLFontGL::getFontDefault()
 {
 	return NULL; 
 }
+
+char* _PREHASH_AgentData = "AgentData";
+char* _PREHASH_AgentID = "AgentID";
+
+LLHost LLHost::invalid(INVALID_PORT,INVALID_HOST_IP_ADDRESS);
+
+LLMessageSystem* gMessageSystem = NULL;
+
+//
+// Stub implementation for LLMessageSystem
+//
+void LLMessageSystem::newMessage(const char *name) { }
+void LLMessageSystem::nextBlockFast(const char *blockname) { }
+void LLMessageSystem::nextBlock(const char *blockname) { }
+void LLMessageSystem::addUUIDFast( const char *varname, const LLUUID& uuid) { }
+void LLMessageSystem::addUUID( const char *varname, const LLUUID& uuid) { }
+S32 LLMessageSystem::sendReliable(const LLHost &host) { return 0; }
