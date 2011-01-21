@@ -294,10 +294,8 @@ public:
 		//is it here?
 		if (isInside(data->getPositionGroup()))
 		{
-			if (getElementCount() < LL_OCTREE_MAX_CAPACITY &&
-				(contains(data->getBinRadius()) ||
-				(data->getBinRadius() > getSize()[0] &&
-				parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY))) 
+			if ((getElementCount() < LL_OCTREE_MAX_CAPACITY && contains(data->getBinRadius()) ||
+				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY))) 
 			{ //it belongs here
 #if LL_OCTREE_PARANOIA_CHECK
 				//if this is a redundant insertion, error out (should never happen)
@@ -359,7 +357,7 @@ public:
 				//make sure no existing node matches this position
 				for (U32 i = 0; i < getChildCount(); i++)
 				{
-					if (mChild[i]->getCenter().equal3(center))
+					if (mChild[i]->getCenter().equals3(center))
 					{
 						OCT_ERRS << "Octree detected duplicate child center and gave up." << llendl;
 						return false;
@@ -488,18 +486,18 @@ public:
 	{
 #if LL_OCTREE_PARANOIA_CHECK
 
-		if (child->getSize().equal3(getSize()))
+		if (child->getSize().equals3(getSize()))
 		{
 			OCT_ERRS << "Child size is same as parent size!" << llendl;
 		}
 
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
-			if(!mChild[i]->getSize().equal3(child->getSize())) 
+			if(!mChild[i]->getSize().equals3(child->getSize())) 
 			{
 				OCT_ERRS <<"Invalid octree child size." << llendl;
 			}
-			if (mChild[i]->getCenter().equal3(child->getCenter()))
+			if (mChild[i]->getCenter().equals3(child->getCenter()))
 			{
 				OCT_ERRS <<"Duplicate octree child position." << llendl;
 			}
