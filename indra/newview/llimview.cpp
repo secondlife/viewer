@@ -279,7 +279,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
-	if (av_name.mIsDummy)
+	if (av_name.mIsTemporaryName)
 	{
 		S32 separator_index = mName.rfind(" ");
 		std::string name = mName.substr(0, separator_index);

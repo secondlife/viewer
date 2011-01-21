@@ -6304,15 +6304,6 @@ An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_N
   </notification>
 
   <notification
-   duration="10"
-   icon="notifytip.tga"
-   name="ServerVersionChanged"
-   priority="high"
-   type="notifytip">
-You just entered a region using a different server version, which may affect performance. [[URL] View the release notes.]
-  </notification>
-
-  <notification
    icon="notifytip.tga"
    name="UnsupportedCommandSLURL"
    priority="high"

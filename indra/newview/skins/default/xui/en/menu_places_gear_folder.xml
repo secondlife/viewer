@@ -25,6 +25,14 @@
          function="Places.LandmarksGear.Enable"
          parameter="category" />
     </menu_item_call>
+    <menu_item_call
+     label="Restore Item"
+     layout="topleft"
+     name="restore_item">
+        <menu_item_call.on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="restore" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
