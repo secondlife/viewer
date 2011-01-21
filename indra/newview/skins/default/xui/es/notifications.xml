@@ -2678,9 +2678,6 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 	<notification name="VoiceCallGenericError">
 		Se ha producido un error al intentar conectarte al [VOICE_CHANNEL_NAME]. Por favor, inténtalo más tarde.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Acabas de entrar en una región que usa un servidor con una versión distinta, y esto puede influir en el funcionamiento. [[URL] Ver las notas de desarrollo].
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		No se admite el formato de la SLurl que has pulsado.
 	</notification>
