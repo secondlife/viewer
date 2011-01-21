@@ -2635,9 +2635,6 @@ Wybierz Zaakceptuj żeby zacząć czat albo Odmów żeby nie przyjąć zaproszen
 	<notification name="VoiceCallGenericError">
 		Błąd podczas łączenia z rozmową [VOICE_CHANNEL_NAME]. Spróbuj póżniej.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Ten region używa innej wersji symulatora. Kliknij na tą wiadomość żeby uzyskać więcej informacji: [[URL] View the release notes.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Nie można otworzyć wybranego SLurl.
 	</notification>

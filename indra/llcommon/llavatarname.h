@@ -79,7 +79,7 @@ public:
 	// Under error conditions, we may insert "dummy" records with
 	// names like "???" into caches as placeholders.  These can be
 	// shown in UI, but are not serialized.
-	bool mIsDummy;
+	bool mIsTemporaryName;
 
 	// Names can change, so need to keep track of when name was
 	// last checked.

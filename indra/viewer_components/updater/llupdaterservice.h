@@ -59,6 +59,7 @@ public:
 	enum eUpdaterState {
 		INITIAL,
 		CHECKING_FOR_UPDATE,
+		TEMPORARY_ERROR,
 		DOWNLOADING,
 		INSTALLING,
 		UP_TO_DATE,
