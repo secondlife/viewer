@@ -61,7 +61,7 @@ if (WINDOWS)
       /Oy-
       )
      
-  if(MSVC80 OR MSVC90)
+  if(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
@@ -69,7 +69,7 @@ if (WINDOWS)
     add_definitions(
       /Zc:wchar_t-
       )
-  endif (MSVC80 OR MSVC90)
+  endif (MSVC)
   
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)

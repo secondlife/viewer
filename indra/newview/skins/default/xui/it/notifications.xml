@@ -2679,7 +2679,7 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 	<notification name="ShareItemsConfirmation">
 		Sei sicuro di volere condividere gli oggetti
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Con i seguenti residenti?
 

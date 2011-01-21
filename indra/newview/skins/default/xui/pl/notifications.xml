@@ -2691,7 +2691,7 @@ Przycisk zostanie wyświetlony w przypadku dostatecznej ilości przestrzeni.
 	<notification name="ShareItemsConfirmation">
 		Jesteś pewien/pewna, że chcesz udostępnić następujące obiekty:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 następującym Rezydentom:
 

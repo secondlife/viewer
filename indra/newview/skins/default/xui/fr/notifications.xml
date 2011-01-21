@@ -2730,7 +2730,7 @@ Le bouton sera affiché quand il y aura suffisamment de place.
 	<notification name="ShareItemsConfirmation">
 		Voulez-vous vraiment partager les articles suivants :
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 avec les résidents suivants :
 

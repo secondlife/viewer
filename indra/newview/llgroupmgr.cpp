@@ -52,6 +52,7 @@
 #include <boost/regex.hpp>
 
 #if LL_MSVC
+#pragma warning(push)   
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
 #endif
