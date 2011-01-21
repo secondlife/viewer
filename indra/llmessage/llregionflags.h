@@ -42,9 +42,6 @@ const U32 REGION_FLAGS_RESET_HOME_ON_TELEPORT	= (1 << 3);
 // Does the sun move?
 const U32 REGION_FLAGS_SUN_FIXED				= (1 << 4);
 
-// Tax free zone (no taxes on objects, land, etc.)
-const U32 REGION_FLAGS_TAX_FREE					= (1 << 5);
-
 // Can't change the terrain heightfield, even on owned parcels,
 // but can plant trees and grass.
 const U32 REGION_FLAGS_BLOCK_TERRAFORM			= (1 << 6);
@@ -54,17 +51,12 @@ const U32 REGION_FLAGS_BLOCK_LAND_RESELL		= (1 << 7);
 
 // All content wiped once per night
 const U32 REGION_FLAGS_SANDBOX					= (1 << 8);
-const U32 REGION_FLAGS_NULL_LAYER				= (1 << 9);
-// const U32 REGION_FLAGS_SKIP_AGENT_ACTION		= (1 << 10);
-const U32 REGION_FLAGS_HARD_ALLOW_LAND_TRANSFER	= (1 << 10);	// Region allows land reselling
-// const U32 REGION_FLAGS_SKIP_UPDATE_INTEREST_LIST= (1 << 11);
-const U32 REGION_FLAGS_HARD_ALLOW_POST_CLASSIFIED	= (1 << 11);	// Region allows posting of classified ads
 const U32 REGION_FLAGS_SKIP_COLLISIONS			= (1 << 12); // Pin all non agent rigid bodies
 const U32 REGION_FLAGS_SKIP_SCRIPTS				= (1 << 13);
 const U32 REGION_FLAGS_SKIP_PHYSICS				= (1 << 14); // Skip all physics
 const U32 REGION_FLAGS_EXTERNALLY_VISIBLE		= (1 << 15);
-//const U32 REGION_FLAGS_MAINLAND_VISIBLE			= (1 << 16);
-const U32 REGION_FLAGS_PUBLIC_ALLOWED			= (1 << 17);
+const U32 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT = (1 << 16);
+const U32 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT = (1 << 17);
 const U32 REGION_FLAGS_BLOCK_DWELL				= (1 << 18);
 
 // Is flight allowed?
@@ -81,18 +73,13 @@ const U32 REGION_FLAGS_ESTATE_SKIP_SCRIPTS		= (1 << 21);
 const U32 REGION_FLAGS_RESTRICT_PUSHOBJECT		= (1 << 22);
 
 const U32 REGION_FLAGS_DENY_ANONYMOUS			= (1 << 23);
-// const U32 REGION_FLAGS_DENY_IDENTIFIED			= (1 << 24);
-// const U32 REGION_FLAGS_DENY_TRANSACTED			= (1 << 25);
 
 const U32 REGION_FLAGS_ALLOW_PARCEL_CHANGES		= (1 << 26);
-
-// const U32 REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER = (1 << 27); // We no longer support ELAR
 
 const U32 REGION_FLAGS_ALLOW_VOICE = (1 << 28);
 
 const U32 REGION_FLAGS_BLOCK_PARCEL_SEARCH = (1 << 29);
 const U32 REGION_FLAGS_DENY_AGEUNVERIFIED	= (1 << 30);
-const U32 REGION_FLAGS_SKIP_MONO_SCRIPTS	= (1 << 31);
 
 const U32 REGION_FLAGS_DEFAULT = REGION_FLAGS_ALLOW_LANDMARK |
 								 REGION_FLAGS_ALLOW_SET_HOME |
@@ -105,7 +92,6 @@ const U32 REGION_FLAGS_PRELUDE_UNSET = REGION_FLAGS_ALLOW_LANDMARK
 									   | REGION_FLAGS_ALLOW_SET_HOME;
 
 const U32 REGION_FLAGS_ESTATE_MASK = REGION_FLAGS_EXTERNALLY_VISIBLE
-									 | REGION_FLAGS_PUBLIC_ALLOWED	
 									 | REGION_FLAGS_SUN_FIXED
 									 | REGION_FLAGS_DENY_ANONYMOUS
 									 | REGION_FLAGS_DENY_AGEUNVERIFIED;

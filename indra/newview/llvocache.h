@@ -95,10 +95,13 @@ private:
 	{
 		bool operator()(const HeaderEntryInfo* lhs, const HeaderEntryInfo* rhs) const
 		{
-			return lhs->mTime < rhs->mTime; // older entry in front of queue (set)
+			if (lhs->mTime == rhs->mTime)
+			{
+				return lhs->mHandle < rhs->mHandle;
+			}
+			return lhs->mTime < rhs->mTime; // older entry in front
 		}
 	};
-	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 private:
 	LLVOCache() ;
@@ -125,8 +128,8 @@ private:
 	void removeCache() ;
 	void purgeEntries();
 	BOOL updateEntry(const HeaderEntryInfo* entry);
-	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
-	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
+	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error = true) ;
+	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error = true) ;
 	
 private:
 	BOOL                 mEnabled;
@@ -134,11 +137,9 @@ private:
 	BOOL                 mReadOnly ;
 	HeaderMetaInfo       mMetaInfo;
 	U32                  mCacheSize;
-	U32                  mNumEntries;
 	std::string          mHeaderFileName ;
 	std::string          mObjectCacheDirName;
 	LLVolatileAPRPool*   mLocalAPRFilePoolp ; 	
-	header_entry_queue_t mHeaderEntryQueue;
 	handle_entry_map_t   mHandleEntryMap;	
 
 	static LLVOCache* sInstance ;
