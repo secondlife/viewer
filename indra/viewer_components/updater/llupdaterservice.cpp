@@ -361,6 +361,7 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 {
 	if(mIsChecking)
 	{
+		setState(LLUpdaterService::TEMPORARY_ERROR);
 		restartTimer(mCheckPeriod);
 	}
 }

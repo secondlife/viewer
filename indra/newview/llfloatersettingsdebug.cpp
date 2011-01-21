@@ -178,7 +178,7 @@ void LLFloaterSettingsDebug::onClickDefault()
 
 	if (controlp)
 	{
-		controlp->resetToDefault();
+		controlp->resetToDefault(true);
 		updateControl(controlp);
 	}
 }
