@@ -1452,9 +1452,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>698449073dbc108e046fef15ce30b1f5</string>
+              <string>44f84b3b45f7067a104a7c34d50d62f0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20101011.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20110120.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
