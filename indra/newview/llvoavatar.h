@@ -50,6 +50,7 @@
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
+extern const LLUUID ANIM_AGENT_BREAST_MOTION;
 extern const LLUUID ANIM_AGENT_EDITING;
 extern const LLUUID ANIM_AGENT_EYE;
 extern const LLUUID ANIM_AGENT_FLY_ADJUST;
@@ -240,6 +241,7 @@ public:
 	static BOOL		sDebugInvisible;
 	static BOOL		sShowAttachmentPoints;
 	static F32		sLODFactor; // user-settable LOD factor
+	static F32		sPhysicsLODFactor; // user-settable physics LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
 	static BOOL		sDebugAvatarRotation;
 
