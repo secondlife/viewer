@@ -1718,6 +1718,17 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 if (LINUX)
   set(product SecondLife-${ARCH}-${viewer_VERSION})
 
+  # These are the generated targets that are copied to package/
+  set(COPY_INPUT_DEPENDENCIES
+	${VIEWER_BINARY_NAME}
+	linux-crash-logger
+	linux-updater
+	SLPlugin
+	media_plugin_webkit
+	media_plugin_gstreamer010
+	llcommon
+	)
+
   add_custom_command(
       OUTPUT ${product}.tar.bz2
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1735,17 +1746,10 @@ if (LINUX)
         --login_channel=${VIEWER_LOGIN_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-      DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        ${COPY_INPUT_DEPENDENCIES}
       )
-
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_gstreamer010 media_plugin_webkit)
-
-  if (PACKAGE)
-    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
-    add_dependencies(package linux-crash-logger-target)
-    add_dependencies(package linux-updater-target)
-    check_message_template(package)
-  endif (PACKAGE)
 
   add_custom_command(
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
@@ -1766,9 +1770,15 @@ if (LINUX)
       ${COPY_INPUT_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
-    
+
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
-  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}" linux-crash-logger-target linux-updater-target)
+
+  if (PACKAGE)
+    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
+    # Make sure we don't run two instances of viewer_manifest.py at the same time.
+    add_dependencies(package copy_l_viewer_manifest)
+    check_message_template(package)
+  endif (PACKAGE)
 endif (LINUX)
 
 if (DARWIN)
