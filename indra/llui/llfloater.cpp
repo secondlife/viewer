@@ -272,9 +272,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	
 	initFromParams(p);
 	
-	// chrome floaters don't take focus at all
-	setFocusRoot(!getIsChrome());
-
 	initFloater(p);
 }
 
@@ -2910,7 +2907,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	params.from_xui = true;
 	applyXUILayout(params, parent);
  	initFromParams(params);
-	
+
 	initFloater(params);
 	
 	LLMultiFloater* last_host = LLFloater::getFloaterHost();

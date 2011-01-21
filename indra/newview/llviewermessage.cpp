@@ -3823,37 +3823,6 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		return;
 	}
 
-	if (!gLastVersionChannel.empty())
-	{
-		// work out the URL for this server's Release Notes
-		std::string url ="http://wiki.secondlife.com/wiki/Release_Notes/";
-		std::string server_version = version_channel;
-		std::vector<std::string> s_vect;
-		boost::algorithm::split(s_vect, server_version, isspace);
-		for(U32 i = 0; i < s_vect.size(); i++)
-		{
-			if (i != (s_vect.size() - 1))
-			{
-				if(i != (s_vect.size() - 2))
-				{
-				   url += s_vect[i] + "_";
-				}
-				else
-				{
-					url += s_vect[i] + "/";
-				}
-			}
-			else
-			{
-				url += s_vect[i].substr(0,4);
-			}
-		}
-
-		LLSD args;
-		args["URL"] = url;
-		LLNotificationsUtil::add("ServerVersionChanged", args);
-	}
-
 	gLastVersionChannel = version_channel;
 }
 
@@ -6306,6 +6275,9 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				payload["from_id"] = target_id;
 				payload["SUPPRESS_TOAST"] = true;
 				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+
+				// Add the recepient to the recent people list.
+				LLRecentPeople::instance().add(target_id);
 			}
 		}
 		gAgent.sendReliableMessage();

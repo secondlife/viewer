@@ -115,6 +115,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mSGBandwidth(NULL),
 	mSGPacketLoss(NULL),
 	mBtnVolume(NULL),
+	mBoxBalance(NULL),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
@@ -167,6 +168,9 @@ BOOL LLStatusBar::postBuild()
 	
 	getChild<LLUICtrl>("buyL")->setCommitCallback(
 		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+
+	mBoxBalance = getChild<LLTextBox>("balance");
+	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
@@ -304,6 +308,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
 	getChild<LLUICtrl>("balance_bg")->setVisible(visible);
+	mBoxBalance->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
@@ -330,16 +335,15 @@ void LLStatusBar::setBalance(S32 balance)
 
 	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
-	LLTextBox* balance_box = getChild<LLTextBox>("balance");
 	LLStringUtil::format_map_t string_args;
 	string_args["[AMT]"] = llformat("%s", money_str.c_str());
 	std::string label_str = getString("buycurrencylabel", string_args);
-	balance_box->setValue(label_str);
+	mBoxBalance->setValue(label_str);
 
 	// Resize the L$ balance background to be wide enough for your balance plus the buy button
 	{
 		const S32 HPAD = 24;
-		LLRect balance_rect = balance_box->getTextBoundingRect();
+		LLRect balance_rect = mBoxBalance->getTextBoundingRect();
 		LLRect buy_rect = getChildView("buyL")->getRect();
 		LLView* balance_bg_view = getChildView("balance_bg");
 		LLRect balance_bg_rect = balance_bg_view->getRect();
@@ -503,6 +507,14 @@ static void onClickVolume(void* data)
 	// toggle the master mute setting
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio);	
+}
+
+//static 
+void LLStatusBar::onClickBalance(void* )
+{
+	// Force a balance request message:
+	LLStatusBar::sendMoneyBalanceRequest();
+	// The refresh of the display (call to setBalance()) will be done by process_money_balance_reply()
 }
 
 //static 

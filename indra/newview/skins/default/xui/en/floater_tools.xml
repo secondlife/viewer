@@ -872,12 +872,13 @@
              length="1"
              follows="left|top"
              left_pad="0"
-             height="30"
+             height="20"
              layout="topleft"
              name="Creator Name"
              top_delta="0"
              width="190"
-             word_wrap="true">
+             word_wrap="true"
+             use_ellipses="ture">
                 Mrs. Esbee Linden (esbee.linden)
             </text>
             <text
@@ -888,7 +889,7 @@
              height="19"
              layout="topleft"
              name="Owner:"
-             top_pad="3"
+             top_pad="13"
              width="90">
                 Owner:
             </text>
@@ -897,13 +898,14 @@
              type="string"
              length="1"
              follows="left|top"
-             height="30"
+             height="20"
              layout="topleft"
              name="Owner Name"
              left_pad="0"
              top_delta="0"
              width="190"
-             word_wrap="true">
+             word_wrap="true"
+             use_ellipses="true">
                 Mrs. Erica "Moose" Linden (erica.linden)
             </text>
            <text
@@ -914,7 +916,7 @@
              left="10"
              height="18"
              name="Group:"
-             top_pad="7"
+             top_pad="17"
              width="75">
                 Group:
             </text>

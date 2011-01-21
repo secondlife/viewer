@@ -33,6 +33,7 @@
 #include "llpanel.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
+#include "llurlentry.h"
 #include "llviewerregion.h"
 #include "llview.h"
 
@@ -140,22 +141,25 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	typedef std::vector<observer_multimap_t::iterator> deadlist_t;
 	deadlist_t dead_iters;
 
-	observer_multimap_t::iterator oi;
-	observer_multimap_t::iterator start = observers.lower_bound(parcel_data.parcel_id);
+	observer_multimap_t::iterator oi = observers.lower_bound(parcel_data.parcel_id);
 	observer_multimap_t::iterator end = observers.upper_bound(parcel_data.parcel_id);
 
-	for (oi = start; oi != end; ++oi)
+	while (oi != end)
 	{
-		LLRemoteParcelInfoObserver * observer = oi->second.get();
+		// increment the loop iterator now since it may become invalid below
+		observer_multimap_t::iterator cur_oi = oi++;
+
+		LLRemoteParcelInfoObserver * observer = cur_oi->second.get();
 		if(observer)
 		{
+			// may invalidate cur_oi if the observer removes itself 
 			observer->processParcelInfo(parcel_data);
 		}
 		else
 		{
 			// the handle points to an expired observer, so don't keep it
 			// around anymore
-			dead_iters.push_back(oi);
+			dead_iters.push_back(cur_oi);
 		}
 	}
 
@@ -165,6 +169,18 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	{
 		observers.erase(*i);
 	}
+
+	LLUrlEntryParcel::LLParcelData url_data;
+	url_data.parcel_id = parcel_data.parcel_id;
+	url_data.name = parcel_data.name;
+	url_data.sim_name = parcel_data.sim_name;
+	url_data.global_x = parcel_data.global_x;
+	url_data.global_y = parcel_data.global_y;
+	url_data.global_z = parcel_data.global_z;
+
+	// Pass the parcel data to LLUrlEntryParcel to render
+	// human readable parcel name.
+	LLUrlEntryParcel::processParcelInfo(url_data);
 }
 
 void LLRemoteParcelInfoProcessor::sendParcelInfoRequest(const LLUUID& parcel_id)

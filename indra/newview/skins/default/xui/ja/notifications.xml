@@ -2675,9 +2675,6 @@ M キーを押して変更します。
 	<notification name="VoiceCallGenericError">
 		[VOICE_CHANNEL_NAME] のボイスチャットに接続中に、エラーが発生しました。後でもう一度お試しください。
 	</notification>
-	<notification name="ServerVersionChanged">
-		サーバーのバージョンが異なるリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
 	</notification>
@@ -2731,7 +2728,7 @@ M キーを押して変更します。
 	<notification name="ShareItemsConfirmation">
 		次のアイテムを共有しますか：
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 次の住人と共有しますか：
 

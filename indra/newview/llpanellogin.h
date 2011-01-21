@@ -85,6 +85,8 @@ public:
 private:
 	friend class LLPanelLoginListener;
 	void reshapeBrowser();
+	void addFavoritesToStartLocation();
+	void addUsersWithFavoritesToUsername();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 //	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);

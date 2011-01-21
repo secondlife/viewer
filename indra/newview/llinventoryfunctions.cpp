@@ -686,6 +686,12 @@ bool LLFindWearablesEx::operator()(LLInventoryCategory* cat, LLInventoryItem* it
 		return false;
 	}
 
+	// Skip broken links.
+	if (vitem->getIsBrokenLink())
+	{
+		return false;
+	}
+
 	return (bool) get_is_item_worn(item->getUUID()) == mIsWorn;
 }
 

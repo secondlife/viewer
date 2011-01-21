@@ -94,6 +94,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
+	mTextChangedCallback(p.text_changed_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1),
 	mLabel(p.label)
@@ -834,6 +835,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 			mList->deselectAllItems();
 			mLastSelectedIndex = -1;
 		}
+		if (mTextChangedCallback != NULL)
+		{
+			(mTextChangedCallback)(line_editor, LLSD());
+		}
 		return;
 	}
 
@@ -877,6 +882,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 	{
 		// RN: presumably text entry
 		updateSelection();
+	}
+	if (mTextChangedCallback != NULL)
+	{
+		(mTextChangedCallback)(line_editor, LLSD());
 	}
 }
 

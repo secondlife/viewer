@@ -63,7 +63,7 @@
     <button
      follows="right"
      height="20"
-     image_overlay="ForwardArrow_Off"
+     image_overlay="Web_Profile_Off"
      layout="topleft"
      left_pad="5"
      right="-3"

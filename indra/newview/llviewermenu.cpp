@@ -557,7 +557,7 @@ class LLAdvancedCheckConsole : public view_listener_t
 			new_value = get_visibility( (void*)gDebugView->mMemoryView );
 		}
 #endif
-
+		
 		return new_value;
 	}
 };
@@ -905,6 +905,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("render batches" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
+	}
+	else if ("update type" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_UPDATE_TYPE;
 	}
 	else if ("texture anim" == info_display)
 	{
@@ -4197,9 +4201,9 @@ class LLObjectEnableReturn : public view_listener_t
 					{
 						virtual bool apply(LLViewerObject* obj)
 						{
-							return (obj->isOverAgentOwnedLand() ||
-									obj->isOverGroupOwnedLand() ||
-									obj->permModify());
+							return 
+								obj->permModify() ||
+								obj->isReturnable();
 						}
 					} func;
 					const bool firstonly = true;
@@ -7223,6 +7227,12 @@ void handle_web_browser_test(const LLSD& param)
 	LLWeb::loadURLInternal(url);
 }
 
+void handle_web_content_test(const LLSD& param)
+{
+	std::string url = param.asString();
+	LLWeb::loadWebURLInternal(url);
+}
+
 void handle_buy_currency_test(void*)
 {
 	std::string url =
@@ -7973,7 +7983,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
 
 	// Advanced > UI
-	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));
+	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
+	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");

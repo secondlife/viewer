@@ -25,10 +25,11 @@
 
 #include "linden_common.h"
 
+#include "llupdaterservice.h"
+
 #include "llupdatedownloader.h"
 #include "llevents.h"
 #include "lltimer.h"
-#include "llupdaterservice.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
 #include "llversionviewer.h"
@@ -98,6 +99,8 @@ class LLUpdaterServiceImpl :
 
 	LLUpdaterService::app_exit_callback_t mAppExitCallback;
 	
+	LLUpdaterService::eUpdaterState mState;
+	
 	LOG_CLASS(LLUpdaterServiceImpl);
 	
 public:
@@ -111,12 +114,15 @@ public:
 				   const std::string& version);
 	
 	void setCheckPeriod(unsigned int seconds);
+	void setBandwidthLimit(U64 bytesPerSecond);
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
 	bool isChecking();
+	LLUpdaterService::eUpdaterState getState();
 	
 	void setAppExitCallback(LLUpdaterService::app_exit_callback_t aecb) { mAppExitCallback = aecb;}
+	std::string updatedVersion(void);
 
 	bool checkForInstall(bool launchInstaller); // Test if a local install is ready.
 	bool checkForResume(); // Test for resumeable d/l.
@@ -138,7 +144,10 @@ public:
 	bool onMainLoop(LLSD const & event);
 
 private:
+	std::string mNewVersion;
+	
 	void restartTimer(unsigned int seconds);
+	void setState(LLUpdaterService::eUpdaterState state);
 	void stopTimer();
 };
 
@@ -149,7 +158,8 @@ LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
 	mIsDownloading(false),
 	mCheckPeriod(0),
 	mUpdateChecker(*this),
-	mUpdateDownloader(*this)
+	mUpdateDownloader(*this),
+	mState(LLUpdaterService::INITIAL)
 {
 }
 
@@ -183,6 +193,11 @@ void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 	mCheckPeriod = seconds;
 }
 
+void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond)
+{
+	mUpdateDownloader.setBandwidthLimit(bytesPerSecond);
+}
+
 void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 {
 	if(mUrl.empty() || mChannel.empty() || mVersion.empty())
@@ -201,10 +216,16 @@ void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 
 		if(!mIsDownloading)
 		{
+			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+			
 			// Checking can only occur during the mainloop.
 			// reset the timer to 0 so that the next mainloop event 
 			// triggers a check;
 			restartTimer(0); 
+		} 
+		else
+		{
+			setState(LLUpdaterService::DOWNLOADING);
 		}
 	}
 }
@@ -222,11 +243,23 @@ void LLUpdaterServiceImpl::stopChecking()
         mUpdateDownloader.cancel();
 		mIsDownloading = false;
     }
+	
+	setState(LLUpdaterService::TERMINAL);
 }
 
 bool LLUpdaterServiceImpl::isChecking()
 {
 	return mIsChecking;
+}
+
+LLUpdaterService::eUpdaterState LLUpdaterServiceImpl::getState()
+{
+	return mState;
+}
+
+std::string LLUpdaterServiceImpl::updatedVersion(void)
+{
+	return mNewVersion;
 }
 
 bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
@@ -266,10 +299,13 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 		{
 			if(launchInstaller)
 			{
+				setState(LLUpdaterService::INSTALLING);
+				
 				LLFile::remove(update_marker_path());
 
 				int result = ll_install_update(install_script_path(),
 											   update_info["path"].asString(),
+											   update_info["required"].asBoolean(),
 											   install_script_mode());	
 				
 				if((result == 0) && mAppExitCallback)
@@ -304,6 +340,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 			if(download_info["current_version"].asString() == ll_get_version())
 			{
 				mIsDownloading = true;
+				mNewVersion = download_info["update_version"].asString();
 				mUpdateDownloader.resume();
 				result = true;
 			}
@@ -324,6 +361,7 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 {
 	if(mIsChecking)
 	{
+		setState(LLUpdaterService::TEMPORARY_ERROR);
 		restartTimer(mCheckPeriod);
 	}
 }
@@ -333,8 +371,11 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 										  std::string const & hash)
 {
 	stopTimer();
+	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash);
+	mUpdateDownloader.download(uri, hash, newVersion, false);
+	
+	setState(LLUpdaterService::DOWNLOADING);
 }
 
 void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
@@ -342,8 +383,11 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 										  std::string const & hash)
 {
 	stopTimer();
+	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash);
+	mUpdateDownloader.download(uri, hash, newVersion, true);
+	
+	setState(LLUpdaterService::DOWNLOADING);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)
@@ -352,6 +396,8 @@ void LLUpdaterServiceImpl::upToDate(void)
 	{
 		restartTimer(mCheckPeriod);
 	}
+	
+	setState(LLUpdaterService::UP_TO_DATE);
 }
 
 void LLUpdaterServiceImpl::downloadComplete(LLSD const & data) 
@@ -367,8 +413,12 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	event["pump"] = LLUpdaterService::pumpName();
 	LLSD payload;
 	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_COMPLETE);
+	payload["required"] = data["required"];
+	payload["version"] = mNewVersion;
 	event["payload"] = payload;
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
+	
+	setState(LLUpdaterService::TERMINAL);
 }
 
 void LLUpdaterServiceImpl::downloadError(std::string const & message) 
@@ -390,6 +440,8 @@ void LLUpdaterServiceImpl::downloadError(std::string const & message)
 	payload["message"] = message;
 	event["payload"] = payload;
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
+
+	setState(LLUpdaterService::FAILURE);
 }
 
 void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
@@ -400,6 +452,28 @@ void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 	mTimer.setTimerExpirySec(seconds);
 	LLEventPumps::instance().obtain("mainloop").listen(
 		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
+}
+
+void LLUpdaterServiceImpl::setState(LLUpdaterService::eUpdaterState state)
+{
+	if(state != mState)
+	{
+		mState = state;
+		
+		LLSD event;
+		event["pump"] = LLUpdaterService::pumpName();
+		LLSD payload;
+		payload["type"] = LLSD(LLUpdaterService::STATE_CHANGE);
+		payload["state"] = state;
+		event["payload"] = payload;
+		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
+		
+		LL_INFOS("UpdaterService") << "setting state to " << state << LL_ENDL;
+	}
+	else 
+	{
+		; // State unchanged; noop.
+	}
 }
 
 void LLUpdaterServiceImpl::stopTimer()
@@ -417,6 +491,12 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
+			int requiredValue = 0; 
+			{
+				llifstream stream(ll_install_failed_marker_path());
+				stream >> requiredValue;
+				if(stream.fail()) requiredValue = 0;
+			}
 			// TODO: notify the user.
 			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
 			llinfos << "last install attempt failed" << llendl;
@@ -424,11 +504,15 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			
 			LLSD event;
 			event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
+			event["required"] = LLSD(requiredValue);
 			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(event);
+			
+			setState(LLUpdaterService::TERMINAL);
 		}
 		else
 		{
 			mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
+			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
 		}
 	} 
 	else 
@@ -447,6 +531,11 @@ std::string const & LLUpdaterService::pumpName(void)
 {
 	static std::string name("updater_service");
 	return name;
+}
+
+bool LLUpdaterService::updateReadyToInstall(void)
+{
+	return LLFile::isfile(update_marker_path());
 }
 
 LLUpdaterService::LLUpdaterService()
@@ -480,6 +569,11 @@ void LLUpdaterService::setCheckPeriod(unsigned int seconds)
 {
 	mImpl->setCheckPeriod(seconds);
 }
+
+void LLUpdaterService::setBandwidthLimit(U64 bytesPerSecond)
+{
+	mImpl->setBandwidthLimit(bytesPerSecond);
+}
 	
 void LLUpdaterService::startChecking(bool install_if_ready)
 {
@@ -496,9 +590,19 @@ bool LLUpdaterService::isChecking()
 	return mImpl->isChecking();
 }
 
+LLUpdaterService::eUpdaterState LLUpdaterService::getState()
+{
+	return mImpl->getState();
+}
+
 void LLUpdaterService::setImplAppExitCallback(LLUpdaterService::app_exit_callback_t aecb)
 {
 	return mImpl->setAppExitCallback(aecb);
+}
+
+std::string LLUpdaterService::updatedVersion(void)
+{
+	return mImpl->updatedVersion();
 }
 
 

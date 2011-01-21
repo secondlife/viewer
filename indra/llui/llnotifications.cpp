@@ -82,6 +82,7 @@ LLNotificationForm::FormButton::FormButton()
 
 LLNotificationForm::FormInput::FormInput()
 :	type("type"),
+	text("text"),
 	max_length_chars("max_length_chars"),
 	width("width", 0),
 	value("value")
@@ -421,7 +422,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		it != end_it;
 		++it)
 	{
-		mUniqueContext.push_back(it->key);
+		mUniqueContext.push_back(it->value);
 	}
 	
 	lldebugs << "notification \"" << mName << "\": tag count is " << p.tags.size() << llendl;
@@ -792,13 +793,19 @@ bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
 	{
 		const LLSD& these_substitutions = this->getSubstitutions();
 		const LLSD& those_substitutions = that->getSubstitutions();
+		const LLSD& this_payload = this->getPayload();
+		const LLSD& that_payload = that->getPayload();
 
 		// highlander bit sez there can only be one of these
 		for (std::vector<std::string>::const_iterator it = mTemplatep->mUniqueContext.begin(), end_it = mTemplatep->mUniqueContext.end();
 			it != end_it;
 			++it)
 		{
-			if (these_substitutions.get(*it).asString() != those_substitutions.get(*it).asString())
+			// if templates differ in either substitution strings or payload with the given field name
+			// then they are considered inequivalent
+			// use of get() avoids converting the LLSD value to a map as the [] operator would
+			if (these_substitutions.get(*it).asString() != those_substitutions.get(*it).asString()
+				|| this_payload.get(*it).asString() != that_payload.get(*it).asString())
 			{
 				return false;
 			}
@@ -1360,7 +1367,6 @@ LLNotifications::TemplateNames LLNotifications::getTemplateNames() const
 typedef std::map<std::string, std::string> StringMap;
 void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 {
-	//llwarns << "replaceSubstitutionStrings" << llendl;
 	// walk the list of attributes looking for replacements
 	for (LLXMLAttribList::iterator it=node->mAttributes.begin();
 		 it != node->mAttributes.end(); ++it)
@@ -1374,13 +1380,12 @@ void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 			if (found != replacements.end())
 			{
 				replacement = found->second;
-				//llwarns << "replaceSubstituionStrings: value: " << value << " repl: " << replacement << llendl;
-
+				lldebugs << "replaceSubstitutionStrings: value: \"" << value << "\" repl: \"" << replacement << "\"." << llendl;
 				it->second->setValue(replacement);
 			}
 			else
 			{
-				llwarns << "replaceSubstituionStrings FAILURE: value: " << value << " repl: " << replacement << llendl;
+				llwarns << "replaceSubstitutionStrings FAILURE: could not find replacement \"" << value << "\"." << llendl;
 			}
 		}
 	}

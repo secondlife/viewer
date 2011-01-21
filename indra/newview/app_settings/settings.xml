@@ -686,6 +686,39 @@
       <key>Value</key>
       <string>http://www.secondlife.com</string>
     </map>
+    <key>BrowserIgnoreSSLCertErrors</key>
+    <map>
+      <key>Comment</key>
+      <string>FOR TESTING ONLY: Tell the built-in web browser to ignore SSL cert errors.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BrowserUseDefaultCAFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Tell the built-in web browser to use the CA.pem file shipped with the client.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BrowserCAFilePath</key>
+    <map>
+      <key>Comment</key>
+      <string>Tell the built-in web browser the path to an alternative CA.pem file (only used if BrowserUseDefaultCAFile is false).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>  
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
@@ -3844,6 +3877,17 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
+    <key>WebProfileURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Web Profiles</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://my.secondlife.com/[AGENT_NAME]</string>
+    </map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4691,6 +4735,17 @@
       <string>String</string>
       <key>Value</key>
       <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+    </map>
+    <key>CurrentMapServerURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Current Session World map URL</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
     </map>
     <key>MapShowEvents</key>
     <map>
@@ -6506,7 +6561,18 @@
     <key>MediaBrowserWindowLimit</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of media brower windows that can be open at once (0 for no limit)</string>
+      <string>Maximum number of media brower windows that can be open at once in the media browser floater (0 for no limit)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>WebContentWindowLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of web brower windows that can be open at once in the Web content floater (0 for no limit)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9914,6 +9980,17 @@
       <key>Value</key>
       <real>500.0</real>
     </map>
+    <key>UpdaterMaximumBandwidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum allowable downstream bandwidth for updater service (kilo bits per second)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>500.0</real>
+    </map>
     <key>ToolTipDelay</key>
     <map>
       <key>Comment</key>
@@ -11014,16 +11091,16 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-    <key>UpdaterServiceActive</key>
+    <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
-      <string>Enable or disable the updater service.</string>
+      <string>Configure updater service.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>U32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>3</integer>
     </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
