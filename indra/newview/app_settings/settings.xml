@@ -12445,16 +12445,5 @@
       <key>Value</key>
       <string>name</string>
     </map>
-    <key>ReleaseNotesURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Release notes URL template</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://secondlife.com/app/releasenotes/?channel=[CHANNEL]&amp;version=[VERSION]</string>
-    </map>
 </map>
 </llsd>

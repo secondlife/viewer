@@ -82,6 +82,9 @@ namespace LLAvatarNameCache
 
 	void erase(const LLUUID& agent_id);
 
+    /// Provide some fallback for agents that return errors
+	void handleAgentError(const LLUUID& agent_id);
+
 	// Force a re-fetch of the most recent data, but keep the current
 	// data in cache
 	void fetch(const LLUUID& agent_id);
