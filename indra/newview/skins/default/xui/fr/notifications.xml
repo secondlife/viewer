@@ -2674,9 +2674,6 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="VoiceCallGenericError">
 		Une erreur est survenue pendant la connexion au chat vocal pour [VOICE_CHANNEL_NAME]. Veuillez réessayer ultérieurement.
 	</notification>
-	<notification name="ServerVersionChanged">
-		La région dans laquelle vous avez pénétré utilise une version de serveur différente, ce qui peut avoir un impact sur votre performance. [[URL] Consultez les notes de version.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		La SLurl que vous avez saisie n&apos;est pas prise en charge.
 	</notification>
