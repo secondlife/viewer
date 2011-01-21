@@ -1547,7 +1547,7 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qtwcodecsd4.dll
       SLPlugin
       media_plugin_quicktime
-      media_plugin_webkit
+      #media_plugin_webkit
       winmm_shim
       windows-crash-logger
       windows-updater
