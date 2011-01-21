@@ -5,6 +5,8 @@
     <map>
       <key>GL</key>
       <map>
+        <key>license</key>
+        <string>GL</string>
         <key>license_file</key>
         <string>LICENSES/GL.txt</string>
         <key>name</key>
@@ -51,6 +53,8 @@
       </map>
       <key>SDL</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/SDL.txt</string>
         <key>name</key>
@@ -73,6 +77,8 @@
       </map>
       <key>apr_suite</key>
       <map>
+        <key>license</key>
+        <string>apache</string>
         <key>license_file</key>
         <string>LICENSES/apr_suite.txt</string>
         <key>name</key>
@@ -119,6 +125,8 @@
       </map>
       <key>ares</key>
       <map>
+        <key>license</key>
+        <string>c-ares</string>
         <key>license_file</key>
         <string>LICENSES/ares.txt</string>
         <key>name</key>
@@ -165,6 +173,8 @@
       </map>
       <key>boost</key>
       <map>
+        <key>license</key>
+        <string>boost</string>
         <key>license_file</key>
         <string>LICENSES/boost.txt</string>
         <key>name</key>
@@ -211,6 +221,8 @@
       </map>
       <key>curl</key>
       <map>
+        <key>license</key>
+        <string>curl</string>
         <key>license_file</key>
         <string>LICENSES/curl.txt</string>
         <key>name</key>
@@ -257,6 +269,8 @@
       </map>
       <key>dbghelp</key>
       <map>
+        <key>license</key>
+        <string>MSDTW</string>
         <key>license_file</key>
         <string>LICENSES/dbghelp.txt</string>
         <key>name</key>
@@ -279,6 +293,8 @@
       </map>
       <key>dbusglib</key>
       <map>
+        <key>license</key>
+        <string>AFL2.1</string>
         <key>license_file</key>
         <string>LICENSES/dbusglib.txt</string>
         <key>name</key>
@@ -301,6 +317,8 @@
       </map>
       <key>elfio</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/elfio.txt</string>
         <key>name</key>
@@ -323,6 +341,8 @@
       </map>
       <key>expat</key>
       <map>
+        <key>license</key>
+        <string>mit</string>
         <key>license_file</key>
         <string>LICENSES/expat.txt</string>
         <key>name</key>
@@ -369,6 +389,8 @@
       </map>
       <key>fmod</key>
       <map>
+        <key>license</key>
+        <string>fmod</string>
         <key>license_file</key>
         <string>LICENSES/fmod.txt</string>
         <key>name</key>
@@ -415,6 +437,8 @@
       </map>
       <key>fontconfig</key>
       <map>
+        <key>license</key>
+        <string>mit</string>
         <key>license_file</key>
         <string>LICENSES/fontconfig.txt</string>
         <key>name</key>
@@ -437,6 +461,8 @@
       </map>
       <key>freeglut</key>
       <map>
+        <key>license</key>
+        <string>mit</string>
         <key>license_file</key>
         <string>LICENSES/freeglut.txt</string>
         <key>name</key>
@@ -459,6 +485,8 @@
       </map>
       <key>freetype</key>
       <map>
+        <key>license</key>
+        <string>freetype</string>
         <key>license_file</key>
         <string>LICENSES/freetype.txt</string>
         <key>name</key>
@@ -505,6 +533,8 @@
       </map>
       <key>glh_linear</key>
       <map>
+        <key>license</key>
+        <string>glh_linear</string>
         <key>license_file</key>
         <string>LICENSES/glh_linear.txt</string>
         <key>name</key>
@@ -551,6 +581,8 @@
       </map>
       <key>glui</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/glui.txt</string>
         <key>name</key>
@@ -585,6 +617,8 @@
       </map>
       <key>google</key>
       <map>
+        <key>license</key>
+        <string>mit</string>
         <key>name</key>
         <string>google</string>
         <key>platforms</key>
@@ -609,6 +643,8 @@
       </map>
       <key>google-perftools</key>
       <map>
+        <key>license</key>
+        <string>bsd</string>
         <key>license_file</key>
         <string>LICENSES/google.txt</string>
         <key>name</key>
@@ -631,6 +667,8 @@
       </map>
       <key>google_breakpad</key>
       <map>
+        <key>license</key>
+        <string>bsd</string>
         <key>license_file</key>
         <string>LICENSES/google_breakpad.txt</string>
         <key>name</key>
@@ -677,6 +715,8 @@
       </map>
       <key>googlemock</key>
       <map>
+        <key>license</key>
+        <string>bsd</string>
         <key>license_file</key>
         <string>LICENSES/googlemock.txt</string>
         <key>name</key>
@@ -723,6 +763,8 @@
       </map>
       <key>gstreamer</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/gstreamer.txt</string>
         <key>name</key>
@@ -745,6 +787,8 @@
       </map>
       <key>gtk-atk-pango-glib</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/gtk.txt</string>
         <key>name</key>
@@ -779,6 +823,8 @@
       </map>
       <key>jpeglib</key>
       <map>
+        <key>license</key>
+        <string>jpeglib</string>
         <key>license_file</key>
         <string>LICENSES/jpeglib.txt</string>
         <key>name</key>
@@ -825,6 +871,8 @@
       </map>
       <key>jsoncpp</key>
       <map>
+        <key>license</key>
+        <string>jsoncpp</string>
         <key>license_file</key>
         <string>LICENSES/jsoncpp.txt</string>
         <key>name</key>
@@ -871,6 +919,8 @@
       </map>
       <key>kdu</key>
       <map>
+        <key>license</key>
+        <string>kdu</string>
         <key>license_file</key>
         <string>LICENSES/kdu.txt</string>
         <key>name</key>
@@ -917,6 +967,8 @@
       </map>
       <key>libpng</key>
       <map>
+        <key>license</key>
+        <string>libpng</string>
         <key>license_file</key>
         <string>LICENSES/libpng.txt</string>
         <key>name</key>
@@ -963,6 +1015,8 @@
       </map>
       <key>libuuid</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/libuuid.txt</string>
         <key>name</key>
@@ -985,6 +1039,8 @@
       </map>
       <key>libxml</key>
       <map>
+        <key>license</key>
+        <string>mit</string>
         <key>license_file</key>
         <string>LICENSES/libxml.txt</string>
         <key>name</key>
@@ -1007,6 +1063,8 @@
       </map>
       <key>llqtwebkit</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/llqtwebkit.txt</string>
         <key>name</key>
@@ -1053,6 +1111,8 @@
       </map>
       <key>mesa</key>
       <map>
+        <key>license</key>
+        <string>mesa</string>
         <key>license_file</key>
         <string>LICENSES/mesa.txt</string>
         <key>name</key>
@@ -1087,6 +1147,8 @@
       </map>
       <key>ndofdev</key>
       <map>
+        <key>license</key>
+        <string>linden</string>
         <key>license_file</key>
         <string>LICENSES/ndofdev.txt</string>
         <key>name</key>
@@ -1133,6 +1195,8 @@
       </map>
       <key>ogg-vorbis</key>
       <map>
+        <key>license</key>
+        <string>ogg-vorbis</string>
         <key>license_file</key>
         <string>LICENSES/ogg.txt</string>
         <key>name</key>
@@ -1179,6 +1243,8 @@
       </map>
       <key>openSSL</key>
       <map>
+        <key>license</key>
+        <string>openSSL</string>
         <key>license_file</key>
         <string>LICENSES/openSSL.txt</string>
         <key>name</key>
@@ -1225,6 +1291,8 @@
       </map>
       <key>openal_soft</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/OPENAL.txt</string>
         <key>name</key>
@@ -1251,6 +1319,8 @@
       </map>
       <key>openjpeg</key>
       <map>
+        <key>license</key>
+        <string>openjpeg</string>
         <key>license_file</key>
         <string>LICENSES/openjpeg.txt</string>
         <key>name</key>
@@ -1297,6 +1367,8 @@
       </map>
       <key>pth</key>
       <map>
+        <key>license</key>
+        <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/pth.txt</string>
         <key>name</key>
@@ -1319,6 +1391,8 @@
       </map>
       <key>quicktime</key>
       <map>
+        <key>license</key>
+        <string>quicktime</string>
         <key>license_file</key>
         <string>LICENSES/quicktime.txt</string>
         <key>name</key>
@@ -1341,6 +1415,8 @@
       </map>
       <key>slvoice</key>
       <map>
+        <key>license</key>
+        <string>vivox</string>
         <key>license_file</key>
         <string>LICENSES/slvoice.txt</string>
         <key>name</key>
@@ -1387,6 +1463,8 @@
       </map>
       <key>tut</key>
       <map>
+        <key>license</key>
+        <string>bsd</string>
         <key>license_file</key>
         <string>LICENSES/tut.txt</string>
         <key>name</key>
@@ -1409,6 +1487,8 @@
       </map>
       <key>xmlrpc-epi</key>
       <map>
+        <key>license</key>
+        <string>xmlrpc-epi</string>
         <key>license_file</key>
         <string>LICENSES/xmlrpc.txt</string>
         <key>name</key>
@@ -1455,6 +1535,8 @@
       </map>
       <key>zlib</key>
       <map>
+        <key>license</key>
+        <string>zlib</string>
         <key>license_file</key>
         <string>LICENSES/zlib.txt</string>
         <key>name</key>
