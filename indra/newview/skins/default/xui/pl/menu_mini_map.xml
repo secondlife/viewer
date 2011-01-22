@@ -3,6 +3,7 @@
 	<menu_item_call label="Zoom blisko" name="Zoom Close"/>
 	<menu_item_call label="Zoom średnio" name="Zoom Medium"/>
 	<menu_item_call label="Zoom daleko" name="Zoom Far"/>
+	<menu_item_call label="Zoom domyślny" name="Zoom Default"/>
 	<menu_item_check label="Obróć mapę" name="Rotate Map"/>
 	<menu_item_check label="Autocentrowanie" name="Auto Center"/>
 	<menu_item_call label="Zatrzymaj" name="Stop Tracking"/>
