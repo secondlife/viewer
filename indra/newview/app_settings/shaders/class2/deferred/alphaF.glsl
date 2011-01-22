@@ -14,7 +14,6 @@ uniform sampler2DRectShadow shadowMap0;
 uniform sampler2DRectShadow shadowMap1;
 uniform sampler2DRectShadow shadowMap2;
 uniform sampler2DRectShadow shadowMap3;
-uniform sampler2D noiseMap;
 uniform sampler2DRect depthMap;
 
 uniform mat4 shadow_matrix[6];
@@ -69,8 +68,6 @@ void main()
 {
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 	frag *= screen_res;
-	
-	vec3 samp_pos = getPosition(frag).xyz;
 	
 	float shadow = 1.0;
 	vec4 pos = vec4(vary_position, 1.0);
