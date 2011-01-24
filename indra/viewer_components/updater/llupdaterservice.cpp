@@ -373,13 +373,8 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
+	setState(LLUpdaterService::DOWNLOADING);
 	mUpdateDownloader.download(uri, hash, newVersion, false);
-	
-	if(getState() != LLUpdaterService::FAILURE) {
-		setState(LLUpdaterService::DOWNLOADING);
-	} else {
-		; // Download failed snynchronously; we are done.
-	}
 }
 
 void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
@@ -389,13 +384,8 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
+	setState(LLUpdaterService::DOWNLOADING);
 	mUpdateDownloader.download(uri, hash, newVersion, true);
-	
-	if(getState() != LLUpdaterService::FAILURE) {
-		setState(LLUpdaterService::DOWNLOADING);
-	} else {
-		; // Download failed snynchronously; we are done.
-	}
 }
 
 void LLUpdaterServiceImpl::upToDate(void)
