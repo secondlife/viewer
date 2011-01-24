@@ -22,7 +22,7 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo build-linux-i686-$(echo $1 | tr A-Z a-z)
+  echo build-linux-i686
 }
 
 build_dir_CYGWIN()
