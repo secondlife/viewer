@@ -388,10 +388,12 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				// There's something bogus in the data that we're unpacking.
 				dp->dumpBufferToLog();
 				llwarns << "Flushing cache files" << llendl;
-				std::string mask;
-				mask = gDirUtilp->getDirDelimiter() + "*.slc";
-				gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), mask);
-// 				llerrs << "Bogus TE data in " << getID() << ", crashing!" << llendl;
+
+				if(LLVOCache::hasInstance() && getRegion())
+				{
+					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
+				}
+				
 				llwarns << "Bogus TE data in " << getID() << llendl;
 			}
 			else 
@@ -667,11 +669,32 @@ void LLVOVolume::updateTextures()
 	}
 }
 
+BOOL LLVOVolume::isVisible() const 
+{
+	if(mDrawable.notNull() && mDrawable->isVisible())
+	{
+		return TRUE ;
+	}
+
+	if(isAttachment())
+	{
+		LLViewerObject* objp = (LLViewerObject*)getParent() ;
+		while(objp && !objp->isAvatar())
+		{
+			objp = (LLViewerObject*)objp->getParent() ;
+		}
+
+		return objp && objp->mDrawable.notNull() && objp->mDrawable->isVisible() ;
+	}
+
+	return FALSE ;
+}
+
 void LLVOVolume::updateTextureVirtualSize()
 {
 	// Update the pixel area of all faces
 
-	if(mDrawable.isNull() || !mDrawable->isVisible())
+	if(!isVisible())
 	{
 		return ;
 	}
@@ -2738,14 +2761,7 @@ void LLVOVolume::updateRadius()
 
 BOOL LLVOVolume::isAttachment() const
 {
-	if (mState == 0)
-	{
-		return FALSE;
-	}
-	else
-	{
-		return TRUE;
-	}
+	return mState != 0 ;
 }
 
 BOOL LLVOVolume::isHUDAttachment() const
