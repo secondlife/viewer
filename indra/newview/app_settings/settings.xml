@@ -1179,7 +1179,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>20000</integer>
+      <integer>128</integer>
     </map>
     <key>CacheSize</key>
     <map>

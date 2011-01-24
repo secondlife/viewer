@@ -517,6 +517,11 @@ void LLVOCache::readCacheHeader()
 	{
 		removeCache() ; //failed to read header, clear the cache
 	}
+	else if(mNumEntries >= mCacheSize)
+	{
+		purgeEntries(mCacheSize) ;
+	}
+
 	return ;
 }
 
@@ -644,9 +649,9 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	return ;
 }
 	
-void LLVOCache::purgeEntries()
+void LLVOCache::purgeEntries(U32 size)
 {
-	while(mHeaderEntryQueue.size() >= mCacheSize)
+	while(mHeaderEntryQueue.size() >= size)
 	{
 		header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ;
 		HeaderEntryInfo* entry = *iter ;			
@@ -671,16 +676,17 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		llwarns << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << llendl;
 		return ;
-	}
-	if(mNumEntries >= mCacheSize)
-	{
-		purgeEntries() ;
-	}
+	}	
 
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	if(iter == mHandleEntryMap.end()) //new entry
 	{				
+		if(mNumEntries >= mCacheSize - 1)
+		{
+			purgeEntries(mCacheSize - 1) ;
+		}
+
 		entry = new HeaderEntryInfo();
 		entry->mHandle = handle ;
 		entry->mTime = time(NULL) ;

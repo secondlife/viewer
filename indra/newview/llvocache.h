@@ -130,7 +130,7 @@ private:
 	void clearCacheInMemory();
 	void removeCache() ;
 	void removeEntry(HeaderEntryInfo* entry) ;
-	void purgeEntries();
+	void purgeEntries(U32 size);
 	BOOL updateEntry(const HeaderEntryInfo* entry);
 	
 private:
