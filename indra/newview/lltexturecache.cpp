@@ -1592,7 +1592,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	if (validate)
 	{
 		validate_idx = gSavedSettings.getU32("CacheValidateCounter");
-		U32 next_idx = (++validate_idx) % 256;
+		U32 next_idx = (validate_idx + 1) % 256;
 		gSavedSettings.setU32("CacheValidateCounter", next_idx);
 		LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Validating: " << validate_idx << LL_ENDL;
 	}
