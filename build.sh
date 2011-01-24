@@ -61,7 +61,7 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    if "$AUTOBUILD" build -c $variant --no-configure
+    if "$AUTOBUILD" build -c $variant
     then
       echo true >"$build_dir"/build_ok
     else
