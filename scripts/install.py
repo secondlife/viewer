@@ -486,7 +486,7 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
         for filename in remove_file_list:
             print "rm",filename
             if not self._dryrun:
-                if os.path.exists(filename):
+                if os.path.lexists(filename):
                     remove_dir_set.add(os.path.dirname(filename))
                     try:
                         os.remove(filename)

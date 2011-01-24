@@ -397,6 +397,15 @@ public:
 	static const std::string ARROW_UP;
 	static const std::string ARROW_DOWN;
 
+	// for scrollable menus
+	typedef enum e_scrolling_direction
+	{
+		SD_UP = 0,
+		SD_DOWN = 1,
+		SD_BEGIN = 2,
+		SD_END = 3
+	} EScrollingDirection;
+
 protected:
 	LLMenuGL(const LLMenuGL::Params& p);
 	friend class LLUICtrlFactory;
@@ -503,8 +512,7 @@ public:
 
 	S32 getShortcutPad() { return mShortcutPad; }
 
-	void scrollItemsUp();
-	void scrollItemsDown();
+	bool scrollItems(EScrollingDirection direction);
 	BOOL isScrollable() const { return mScrollable; }
 
 	static class LLMenuHolderGL* sMenuContainer;
@@ -670,9 +678,12 @@ public:
 
 			BOOL	appendContextSubMenu(LLContextMenu *menu);
 
+			LLHandle<LLContextMenu> getHandle() { mHandle.bind(this); return mHandle; }
+
 protected:
-	BOOL			mHoveredAnyItem;
-	LLMenuItemGL*	mHoverItem;
+	BOOL						mHoveredAnyItem;
+	LLMenuItemGL*				mHoverItem;
+	LLRootHandle<LLContextMenu>	mHandle;
 };
 
 

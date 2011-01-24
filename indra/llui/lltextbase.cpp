@@ -1005,6 +1005,7 @@ void LLTextBase::draw()
 
 	if (mBGVisible)
 	{
+		F32 alpha = getCurrentTransparency();
 		// clip background rect against extents, if we support scrolling
 		LLRect bg_rect = mVisibleTextRect;
 		if (mScroller)
@@ -1016,7 +1017,7 @@ void LLTextBase::draw()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(doc_rect, bg_color, TRUE);
+		gl_rect_2d(doc_rect, bg_color % alpha, TRUE);
 	}
 
 	// draw document view
@@ -1591,7 +1592,10 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
 	// appendText modifies mCursorPos...
 	appendText(text, false, input_params);
 	// ...so move cursor to top after appending text
-	startOfDoc();
+	if (!mTrackEnd)
+	{
+		startOfDoc();
+	}
 
 	onValueChange(0, getLength());
 }
@@ -1622,7 +1626,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	style_params.fillFrom(getDefaultStyleParams());
 
 	S32 part = (S32)LLTextParser::WHOLE;
-	if(mParseHTML)
+	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
 		S32 start=0,end=0;
 		LLUrlMatch match;
@@ -2214,19 +2218,39 @@ bool LLTextBase::scrolledToEnd()
 	return mScroller->isAtBottom();
 }
 
-
 bool LLTextBase::setCursor(S32 row, S32 column)
 {
-	if (0 <= row && row < (S32)mLineInfoList.size())
-	{
-		S32 doc_pos = mLineInfoList[row].mDocIndexStart;
-		column = llclamp(column, 0, mLineInfoList[row].mDocIndexEnd - mLineInfoList[row].mDocIndexStart - 1);
-		doc_pos += column;
-		updateCursorXPos();
+	if (row < 0 || column < 0) return false;
 
+	S32 n_lines = mLineInfoList.size();
+	for (S32 line = row; line < n_lines; ++line)
+	{
+		const line_info& li = mLineInfoList[line];
+
+		if (li.mLineNum < row)
+		{
+			continue;
+		}
+		else if (li.mLineNum > row)
+		{
+			break; // invalid column specified
+		}
+
+		// Found the given row.
+		S32 line_length = li.mDocIndexEnd - li.mDocIndexStart;;
+		if (column >= line_length)
+		{
+			column -= line_length;
+			continue;
+		}
+
+		// Found the given column.
+		updateCursorXPos();
+		S32 doc_pos = li.mDocIndexStart + column;
 		return setCursorPos(doc_pos);
 	}
-	return false;
+
+	return false; // invalid row or column specified
 }
 
 

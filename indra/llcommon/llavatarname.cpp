@@ -48,7 +48,7 @@ LLAvatarName::LLAvatarName()
 	mLegacyFirstName(),
 	mLegacyLastName(),
 	mIsDisplayNameDefault(false),
-	mIsDummy(false),
+	mIsTemporaryName(false),
 	mExpires(F64_MAX),
 	mNextUpdate(0.0)
 { }

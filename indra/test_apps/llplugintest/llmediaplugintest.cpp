@@ -2220,6 +2220,21 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 				<< ", height = " << self->getGeometryHeight() 
 				<< std::endl;
 		break;
+
+		case MEDIA_EVENT_AUTH_REQUEST:
+		{
+			//std::cerr <<  "Media event:  MEDIA_EVENT_AUTH_REQUEST, url " << self->getAuthURL() ", realm " << self->getAuthRealm() << std::endl;
+
+			// TODO: display an auth dialog
+			self->sendAuthResponse(false, "", "");
+		}
+		break;
+
+		case MEDIA_EVENT_LINK_HOVERED:
+		{
+			std::cerr <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << std::endl;
+		};
+		break;
 	}
 }
 

@@ -56,9 +56,9 @@
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
-#include "llsidetray.h"
 #include "llsky.h"
 #include "llsmoothstep.h"
+#include "llstartup.h"
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
@@ -218,7 +218,10 @@ LLAgent::LLAgent() :
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
 
-	mAppearanceSerialNum(0)
+	mAppearanceSerialNum(0),
+
+	mMouselookModeInSignal(NULL),
+	mMouselookModeOutSignal(NULL)
 {
 	for (U32 i = 0; i < TOTAL_CONTROLS; i++)
 	{
@@ -268,6 +271,9 @@ void LLAgent::cleanup()
 LLAgent::~LLAgent()
 {
 	cleanup();
+
+	delete mMouselookModeInSignal;
+	delete mMouselookModeOutSignal;
 
 	// *Note: this is where LLViewerCamera::getInstance() used to be deleted.
 }
@@ -637,6 +643,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
 		}
+
+		// Pass new region along to metrics components that care about this level of detail.
+		LLAppViewer::metricsUpdateRegion(regionp->getHandle());
 	}
 	mRegionp = regionp;
 
@@ -1726,14 +1735,16 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
-
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
 		LLFloaterCamera::onLeavingMouseLook();
+
+		if (mMouselookModeOutSignal)
+		{
+			(*mMouselookModeOutSignal)();
+		}
 
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
@@ -1828,9 +1839,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
 
-		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
-		LLSideTray::getInstance()->updateSidetrayVisibility();
-
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
@@ -1842,6 +1850,11 @@ void LLAgent::endAnimationUpdateUI()
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
 		mViewsPushed = TRUE;
+
+		if (mMouselookModeInSignal)
+		{
+			(*mMouselookModeInSignal)();
+		}
 
 		// hide all floaters except the mini map
 
@@ -1902,7 +1915,6 @@ void LLAgent::endAnimationUpdateUI()
 				}
 			}
 		}
-
 	}
 	else if (gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
@@ -1932,6 +1944,18 @@ void LLAgent::endAnimationUpdateUI()
 	// Don't let this be called more than once if the camera
 	// mode hasn't changed.  --JC
 	gAgentCamera.updateLastCamera();
+}
+
+boost::signals2::connection LLAgent::setMouselookModeInCallback( const camera_signal_t::slot_type& cb )
+{
+	if (!mMouselookModeInSignal) mMouselookModeInSignal = new camera_signal_t();
+	return mMouselookModeInSignal->connect(cb);
+}
+
+boost::signals2::connection LLAgent::setMouselookModeOutCallback( const camera_signal_t::slot_type& cb )
+{
+	if (!mMouselookModeOutSignal) mMouselookModeOutSignal = new camera_signal_t();
+	return mMouselookModeOutSignal->connect(cb);
 }
 
 //-----------------------------------------------------------------------------
@@ -2452,7 +2476,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < MAX_AGENT_GROUPS;
+	return mGroups.count() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()

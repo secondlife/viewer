@@ -1,4 +1,5 @@
 /** 
+
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
@@ -60,7 +61,6 @@
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
-
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
@@ -200,6 +200,21 @@ void LLFloater::initClass()
 	{
 		sButtonToolTips[i] = LLTrans::getString( sButtonToolTipsIndex[i] );
 	}
+
+	LLControlVariable* ctrl = LLUI::sSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
+		updateActiveFloaterTransparency();
+	}
+
+	ctrl = LLUI::sSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
+		updateInactiveFloaterTransparency();
+	}
+
 }
 
 // defaults for floater param block pulled from widgets/floater.xml
@@ -207,7 +222,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
-	mDragHandle(NULL),
+ 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
@@ -345,6 +360,18 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setShape(rect);
 	updateTitleButtons();
+}
+
+// static
+void LLFloater::updateActiveFloaterTransparency()
+{
+	sActiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+}
+
+// static
+void LLFloater::updateInactiveFloaterTransparency()
+{
+	sInactiveControlTransparency = LLUI::sSettingGroups["config"]->getF32("InactiveFloaterTransparency");
 }
 
 void LLFloater::addResizeCtrls()
@@ -1163,6 +1190,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->setFocus(TRUE);
 		}
 	}
+	updateTransparency(b ? TT_ACTIVE : TT_INACTIVE);
 }
 
 // virtual
@@ -1435,6 +1463,9 @@ void LLFloater::setFrontmost(BOOL take_focus)
 		// there are more than one floater view
 		// so we need to query our parent directly
 		((LLFloaterView*)getParent())->bringToFront(this, take_focus);
+
+		// Make sure to set the appropriate transparency type (STORM-732).
+		updateTransparency(hasFocus() || getIsChrome() ? TT_ACTIVE : TT_INACTIVE);
 	}
 }
 
@@ -1622,7 +1653,8 @@ void	LLFloater::onClickCloseBtn()
 // virtual
 void LLFloater::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	const F32 alpha = getCurrentTransparency();
+
 	// draw background
 	if( isBackgroundVisible() )
 	{
@@ -1720,7 +1752,6 @@ void LLFloater::draw()
 
 void	LLFloater::drawShadow(LLPanel* panel)
 {
-	F32 alpha = panel->getDrawContext().mAlpha;
 	S32 left = LLPANEL_BORDER_WIDTH;
 	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
@@ -1737,8 +1768,30 @@ void	LLFloater::drawShadow(LLPanel* panel)
 		shadow_color.mV[VALPHA] *= 0.5f;
 	}
 	gl_drop_shadow(left, top, right, bottom, 
-		shadow_color % alpha, 
+		shadow_color % getCurrentTransparency(),
 		llround(shadow_offset));
+}
+
+void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
+{
+	child_list_t children = *view->getChildList();
+	child_list_t::iterator it = children.begin();
+
+	LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(view);
+	if (ctrl)
+	{
+		ctrl->setTransparencyType(transparency_type);
+	}
+
+	for(; it != children.end(); ++it)
+	{
+		updateTransparency(*it, transparency_type);
+	}
+}
+
+void LLFloater::updateTransparency(ETypeTransparency transparency_type)
+{
+	updateTransparency(this, transparency_type);
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
@@ -2857,7 +2910,9 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	params.from_xui = true;
 	applyXUILayout(params, parent);
  	initFromParams(params);
-	
+	// chrome floaters don't take focus at all
+	setFocusRoot(!getIsChrome());
+
 	initFloater(params);
 	
 	LLMultiFloater* last_host = LLFloater::getFloaterHost();

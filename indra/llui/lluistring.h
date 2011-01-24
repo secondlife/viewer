@@ -58,9 +58,10 @@ class LLUIString
 public:
 	// These methods all perform appropriate argument substitution
 	// and modify mOrig where appropriate
-        LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
+	LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
 	LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
 	LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
+	~LLUIString() { delete mArgs; }
 
 	void assign(const std::string& instring);
 	LLUIString& operator=(const std::string& s) { assign(s); return *this; }
@@ -81,14 +82,14 @@ public:
 
 	void clear();
 	void clearArgs() { if (mArgs) mArgs->clear(); }
-	
+
 	// These utility functions are included for text editing.
 	// They do not affect mOrig and do not perform argument substitution
 	void truncate(S32 maxchars);
 	void erase(S32 charidx, S32 len);
 	void insert(S32 charidx, const LLWString& wchars);
 	void replace(S32 charidx, llwchar wc);
-	
+
 private:
 	// something changed, requiring reformatting of strings
 	void dirty();
@@ -100,7 +101,7 @@ private:
 	void updateResult() const;
 	void updateWResult() const;
 	LLStringUtil::format_map_t& getArgs();
-	
+
 	std::string mOrig;
 	mutable std::string mResult;
 	mutable LLWString mWResult; // for displaying

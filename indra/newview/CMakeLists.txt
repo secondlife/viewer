@@ -50,6 +50,7 @@ include_directories(
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
@@ -64,6 +65,7 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
+    ${UPDATER_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -143,6 +145,7 @@ set(viewer_SOURCE_FILES
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
+    llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
@@ -200,6 +203,7 @@ set(viewer_SOURCE_FILES
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
+    llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterscriptdebug.cpp
@@ -219,6 +223,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
     llfloaterwater.cpp
+    llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterwindowsize.cpp
@@ -282,6 +287,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -290,7 +296,6 @@ set(viewer_SOURCE_FILES
     llmediadataclient.cpp
     llmemoryview.cpp
     llmenucommands.cpp
-    llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -400,6 +405,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llshareavatarhandler.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
     llsidepanelinventorysubpanel.cpp
@@ -444,6 +450,7 @@ set(viewer_SOURCE_FILES
     lltoastimpanel.cpp
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
+    lltoastscripttextbox.cpp
     lltool.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
@@ -477,6 +484,7 @@ set(viewer_SOURCE_FILES
     llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
+    llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
     llviewerattachmenu.cpp
@@ -539,6 +547,7 @@ set(viewer_SOURCE_FILES
     llvoclouds.cpp
     llvograss.cpp
     llvoground.cpp
+    llvoicecallhandler.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
@@ -675,6 +684,7 @@ set(viewer_HEADER_FILES
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
+    llexternaleditor.h
     llface.h
     llfasttimerview.h
     llfavoritesbar.h
@@ -732,6 +742,7 @@ set(viewer_HEADER_FILES
     llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
+    llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterscriptdebug.h
@@ -751,6 +762,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoiceeffect.h
     llfloaterwater.h
+    llfloaterwebcontent.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterwindowsize.h
@@ -814,6 +826,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -822,7 +835,6 @@ set(viewer_HEADER_FILES
     llmediadataclient.h
     llmemoryview.h
     llmenucommands.h
-    llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
@@ -973,6 +985,7 @@ set(viewer_HEADER_FILES
     lltoastimpanel.h
     lltoastnotifypanel.h
     lltoastpanel.h
+    lltoastscripttextbox.h
     lltool.h
     lltoolbrush.h
     lltoolcomp.h
@@ -1007,6 +1020,7 @@ set(viewer_HEADER_FILES
     llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
+    llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
     llviewerattachmenu.h
@@ -1318,7 +1332,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
-    app_settings/keys.ini
+    app_settings/keys.xml
     app_settings/keywords.ini
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml
@@ -1446,11 +1460,6 @@ if (WINDOWS)
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
 
-    if(LLKDU_LIBRARY)
-      # Configure a var for llkdu which may not exist for all builds.
-      set(LLKDU_DLL_SOURCE ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llkdu.dll)
-    endif(LLKDU_LIBRARY)
-
     if(USE_GOOGLE_PERFTOOLS)
       # Configure a var for tcmalloc location, if used.
       # Note the need to specify multiple names explicitly.
@@ -1467,7 +1476,6 @@ if (WINDOWS)
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${LLKDU_DLL_SOURCE}
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
@@ -1642,11 +1650,17 @@ if (WINDOWS)
     endif (PACKAGE)
 endif (WINDOWS)
 
+# *NOTE - this list is very sensitive to ordering, test carefully on all
+# platforms if you change the releative order of the entries here.
+# In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
+# appears to sometimes de-duplicate redundantly listed dependencies improperly.
+# To work around this, higher level modules should be listed before the modules
+# that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${UPDATER_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
-    ${LLIMAGEJ2COJ_LIBRARIES}
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
@@ -1682,6 +1696,17 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
+if (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLKDU_LIBRARIES}
+        ${KDU_LIBRARY}
+        )
+else (USE_KDU)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${LLIMAGEJ2COJ_LIBRARIES}
+        )
+endif (USE_KDU)
+    
 build_version(viewer)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
@@ -1829,21 +1854,31 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
+  if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
+  if(CMAKE_CFG_INTDIR STREQUAL ".")
+      set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
+  else(CMAKE_CFG_INTDIR STREQUAL ".")
+      # set LLBUILD_CONFIG to be a shell variable evaluated at build time
+      # reflecting the configuration we are currently building.
+      set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
+  endif(CMAKE_CFG_INTDIR STREQUAL ".")
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS
       "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${LLBUILD_CONFIG}"
       "${VIEWER_DIST_DIR}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
       "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
       "${VIEWER_SYMBOL_FILE}"
     DEPENDS generate_breakpad_symbols.py
-    VERBATIM
-  )
-  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+        VERBATIM)
+
+  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
   add_dependencies(package generate_breakpad_symbols)
+  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 
 if (LL_TESTS)
@@ -1855,7 +1890,11 @@ if (LL_TESTS)
     lldateutil.cpp
     llmediadataclient.cpp
     lllogininstance.cpp
+    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
+    llversioninfo.cpp
+    llworldmap.cpp
+    llworldmipmap.cpp
   )
 
   ##################################################
@@ -1931,10 +1970,18 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
+  LL_ADD_INTEGRATION_TEST(llsimplestat
+	""
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewerassetstats
+	llviewerassetstats.cpp
+    "${test_libs}"
+    )
+
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-  #ADD_VIEWER_BUILD_TEST(llworldmap viewer)
-  #ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)

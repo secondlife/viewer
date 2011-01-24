@@ -48,6 +48,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llviewercontrol.h"
+#include "llversioninfo.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
 #include "llfasttimerview.h"
@@ -558,7 +559,7 @@ F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
 U32		gTotalWorldBytes = 0, gTotalObjectBytes = 0, gTotalTextureBytes = 0, gSimPingCount = 0;
 U32		gObjectBits = 0;
 F32		gAvgSimPing = 0.f;
-
+U32     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -749,7 +750,7 @@ void send_stats()
 
 	// send fps only for time app spends in foreground
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
-	agent["version"] = gCurrentVersion;
+	agent["version"] = LLVersionInfo::getChannelAndVersion();
 	std::string language = LLUI::getLanguage();
 	agent["language"] = language;
 	

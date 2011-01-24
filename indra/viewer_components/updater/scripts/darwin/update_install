@@ -1,0 +1,10 @@
+#! /bin/bash
+
+#
+# The first argument contains the path to the installer app.  The second a path
+# to a marker file which should be created if the installer fails.q
+#
+
+cd "$(dirname "$0")"
+(../Resources/mac-updater.app/Contents/MacOS/mac-updater -dmg "$1" -name "Second Life Viewer 2"; if [ $? -ne 0 ]; then echo $3 >> "$2"; fi;) &
+exit 0
