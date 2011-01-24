@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de5559c2c497544b3d0da533390175dc</string>
+              <string>98be22c8833aa2bca184b9fa09fbb82b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/219456/arch/CYGWIN/installer/boost-1.45.0-windows-20110124.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1880,7 +1880,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc80</string>
+          <string>build-vc100</string>
           <key>configurations</key>
           <map>
             <key>Debug</key>
@@ -1908,7 +1908,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                 </array>
               </map>
               <key>name</key>
@@ -1939,7 +1939,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                 </array>
               </map>
               <key>default</key>
@@ -1972,7 +1972,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                 </array>
               </map>
               <key>name</key>
