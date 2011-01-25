@@ -3580,6 +3580,8 @@ void renderRaycast(LLDrawable* drawablep)
 
 			if (volume)
 			{
+				LLVector3 trans = drawablep->getRegion()->getOriginAgent();
+				
 				for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 				{
 					const LLVolumeFace& face = volume->getVolumeFace(i);
@@ -3589,6 +3591,7 @@ void renderRaycast(LLDrawable* drawablep)
 					}
 
 					gGL.pushMatrix();
+					glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);					
 					glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
 
 					LLVector3 start, end;
@@ -3613,7 +3616,7 @@ void renderRaycast(LLDrawable* drawablep)
 
 					LLRenderOctreeRaycast render(starta, dir, &t);
 					gGL.flush();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
 
 					{
 						//render face positions
@@ -3672,7 +3675,7 @@ void renderRaycast(LLDrawable* drawablep)
 
 			LLGLDepthTest depth(GL_FALSE, GL_TRUE);
 			gGL.color4f(0,0.5f,0.5f,1);
-			drawBoxOutline(pos, size);
+			drawBoxOutline(pos, size);		
 		}
 	}
 }
