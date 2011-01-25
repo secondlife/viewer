@@ -9,7 +9,7 @@ else (STANDALONE)
   use_prebuilt_binary(freetype)
   if (LINUX)
     set(FREETYPE_INCLUDE_DIRS
-        ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include)
+        ${LIBS_PREBUILT_DIR}/include)
   else (LINUX)
     set(FREETYPE_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
   endif (LINUX)
