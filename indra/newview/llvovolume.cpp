@@ -1075,7 +1075,6 @@ void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
-	dirtySpatialGroup(TRUE);
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1608,6 +1607,17 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 					regenFaces();
 				}
 				genBBoxes(FALSE);
+
+				if (mSculptChanged)
+				{ //changes in sculpt maps can thrash an object bounding box without 
+				  //triggering a spatial group bounding box update -- force spatial group
+				  //to update bounding boxes
+					LLSpatialGroup* group = mDrawable->getSpatialGroup();
+					if (group)
+					{
+						group->unbound();
+					}
+				}
 			}
 		}
 	}
@@ -1632,7 +1642,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
-
+	
 	return LLViewerObject::updateGeometry(drawable);
 }
 
