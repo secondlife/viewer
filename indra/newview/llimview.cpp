@@ -3231,7 +3231,6 @@ public:
 				std::string((char*)&bin_bucket[0]),
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),
-				message_params["estate_id"].asInteger(),
 				message_params["region_id"].asUUID(),
 				ll_vector3_from_sd(message_params["position"]),
 				true);

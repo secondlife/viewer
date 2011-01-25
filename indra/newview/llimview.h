@@ -335,7 +335,6 @@ public:
 					const std::string& session_name = LLStringUtil::null,
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					U32 parent_estate_id = 0,
-					U32 estate_id = 0,
 					const LLUUID& region_id = LLUUID::null,
 					const LLVector3& position = LLVector3::zero,
 					bool link_name = false);
