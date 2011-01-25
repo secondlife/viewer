@@ -4831,6 +4831,20 @@ Insufficient permissions to rez object.
 
   <notification
    icon="notifytip.tga"
+   name="IMAcrossParentEstates"
+   type="notifytip">
+Unable to send IM across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="TransferInventoryAcrossParentEstates"
+   type="notifytip">
+Unable to transfer inventory across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="UnableToLoadNotecard"
    type="notifytip">
 Unable to load notecard.
