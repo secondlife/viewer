@@ -2202,6 +2202,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	std::string name;
 	std::string message;
 	U32 parent_estate_id = 0;
+	U32 estate_id = 0;
 	LLUUID region_id;
 	LLVector3 position;
 	U8 binary_bucket[MTUBYTES];
@@ -2221,6 +2222,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, name);
 	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message,		message);
 	msg->getU32Fast(_PREHASH_MessageBlock, _PREHASH_ParentEstateID, parent_estate_id);
+	if (msg->getNumberOfBlocks(_PREHASH_EstateBlock) > 0)
+	{
+		msg->getU32Fast(_PREHASH_EstateBlock, _PREHASH_EstateID, estate_id);
+	}
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_RegionID, region_id);
 	msg->getVector3Fast(_PREHASH_MessageBlock, _PREHASH_Position, position);
 	msg->getBinaryDataFast(  _PREHASH_MessageBlock, _PREHASH_BinaryBucket, binary_bucket, 0, 0, MTUBYTES);
@@ -2321,6 +2326,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLStringUtil::null,
 				dialog,
 				parent_estate_id,
+				estate_id,
 				region_id,
 				position,
 				true);
@@ -2366,6 +2372,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					LLStringUtil::null,
 					dialog,
 					parent_estate_id,
+					estate_id,
 					region_id,
 					position,
 					true);
@@ -2683,6 +2690,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			ll_safe_string((char*)binary_bucket),
 			IM_SESSION_INVITE,
 			parent_estate_id,
+			estate_id,
 			region_id,
 			position,
 			true);
