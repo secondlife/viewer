@@ -625,7 +625,6 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 		mScreenp->updateWorldMatrixChildren();
 		resetHUDAttachments();
 	}
-	LLVOAvatar::rebuildRiggedAttachments();
 	return LLVOAvatar::updateCharacter(agent);
 }
 
