@@ -351,6 +351,14 @@ public:
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
 		}
 		
+#if LL_WINDOWS
+		if (gSavedSettings.getBOOL("DebugShowMemory"))
+		{
+			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getWorkingSetSize() / 1024)); 
+			ypos += y_inc;
+		}
+#endif
+
 		if (gDisplayCameraPos)
 		{
 			std::string camera_view_text;

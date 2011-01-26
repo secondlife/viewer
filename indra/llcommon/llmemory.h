@@ -26,7 +26,7 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
-
+#include "llmemtype.h"
 
 extern S32 gTotalDAlloc;
 extern S32 gTotalDAUse;
@@ -44,9 +44,53 @@ public:
 	// Return the resident set size of the current process, in bytes.
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
+	static U32 getWorkingSetSize();
 private:
 	static char* reserveMem;
 };
+
+//----------------------------------------------------------------------------
+#if MEM_TRACK_MEM
+class LLMutex ;
+class LL_COMMON_API LLMemTracker
+{
+private:
+	LLMemTracker() ;
+	~LLMemTracker() ;
+
+public:
+	static void release() ;
+	static LLMemTracker* getInstance() ;
+
+	void track(const char* function, const int line) ;
+	void preDraw() ;
+	void postDraw() ;
+	const char* getNextLine() ;
+
+private:
+	static LLMemTracker* sInstance ;
+	
+	char**     mStringBuffer ;
+	S32        mCapacity ;
+	U32        mLastAllocatedMem ;
+	S32        mCurIndex ;
+	S32        mCounter;
+	S32        mDrawnIndex;
+	S32        mNumOfDrawn;
+	LLMutex*   mMutexp ;
+};
+
+#define MEM_TRACK_RELEASE LLMemTracker::release() ;
+#define MEM_TRACK         LLMemTracker::getInstance()->track(__FUNCTION__, __LINE__) ;
+
+#else // MEM_TRACK_MEM
+
+#define MEM_TRACK_RELEASE
+#define MEM_TRACK
+
+#endif // MEM_TRACK_MEM
+
+//----------------------------------------------------------------------------
 
 // LLRefCount moved to llrefcount.h
 

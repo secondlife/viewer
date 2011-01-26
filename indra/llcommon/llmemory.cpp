@@ -26,6 +26,12 @@
 
 #include "linden_common.h"
 
+#include "llmemory.h"
+
+#if MEM_TRACK_MEM
+#include "llthread.h"
+#endif
+
 #if defined(LL_WINDOWS)
 # include <windows.h>
 # include <psapi.h>
@@ -36,8 +42,6 @@
 #elif LL_LINUX || LL_SOLARIS
 # include <unistd.h>
 #endif
-
-#include "llmemory.h"
 
 //----------------------------------------------------------------------------
 
@@ -105,6 +109,20 @@ U64 LLMemory::getCurrentRSS()
 	return counters.WorkingSetSize;
 }
 
+//static 
+U32 LLMemory::getWorkingSetSize()
+{
+    PROCESS_MEMORY_COUNTERS pmc ;
+	U32 ret = 0 ;
+
+    if (GetProcessMemoryInfo( GetCurrentProcess(), &pmc, sizeof(pmc)) )
+	{
+		ret = pmc.WorkingSetSize ;
+	}
+
+	return ret ;
+}
+
 #elif defined(LL_DARWIN)
 
 /* 
@@ -151,6 +169,11 @@ U64 LLMemory::getCurrentRSS()
 	return residentSize;
 }
 
+U32 LLMemory::getWorkingSetSize()
+{
+	return 0 ;
+}
+
 #elif defined(LL_LINUX)
 
 U64 LLMemory::getCurrentRSS()
@@ -185,6 +208,11 @@ bail:
 	return rss;
 }
 
+U32 LLMemory::getWorkingSetSize()
+{
+	return 0 ;
+}
+
 #elif LL_SOLARIS
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -213,6 +241,12 @@ U64 LLMemory::getCurrentRSS()
 
 	return((U64)proc_psinfo.pr_rssize * 1024);
 }
+
+U32 LLMemory::getWorkingSetSize()
+{
+	return 0 ;
+}
+
 #else
 
 U64 LLMemory::getCurrentRSS()
@@ -220,4 +254,136 @@ U64 LLMemory::getCurrentRSS()
 	return 0;
 }
 
+U32 LLMemory::getWorkingSetSize()
+{
+	return 0 ;
+}
+
 #endif
+
+//--------------------------------------------------------------------------------------------------
+#if MEM_TRACK_MEM
+#include "llframetimer.h"
+
+//static 
+LLMemTracker* LLMemTracker::sInstance = NULL ;
+
+LLMemTracker::LLMemTracker()
+{
+	mLastAllocatedMem = LLMemory::getWorkingSetSize() ;
+	mCapacity = 128 ;	
+	mCurIndex = 0 ;
+	mCounter = 0 ;
+	mDrawnIndex = 0 ;
+
+	mMutexp = new LLMutex(NULL) ;
+	mStringBuffer = new char*[128] ;
+	mStringBuffer[0] = new char[mCapacity * 128] ;
+	for(S32 i = 1 ; i < mCapacity ; i++)
+	{
+		mStringBuffer[i] = mStringBuffer[i-1] + 128 ;
+	}
+}
+
+LLMemTracker::~LLMemTracker()
+{
+	delete[] mStringBuffer[0] ;
+	delete[] mStringBuffer;
+	delete mMutexp ;
+}
+
+//static 
+LLMemTracker* LLMemTracker::getInstance()
+{
+	if(!sInstance)
+	{
+		sInstance = new LLMemTracker() ;
+	}
+	return sInstance ;
+}
+
+//static 
+void LLMemTracker::release() 
+{
+	if(sInstance)
+	{
+		delete sInstance ;
+		sInstance = NULL ;
+	}
+}
+
+//static
+void LLMemTracker::track(const char* function, const int line)
+{
+	static const S32 MIN_ALLOCATION = 1024 ; //1KB
+
+	U32 allocated_mem = LLMemory::getWorkingSetSize() ;
+
+	LLMutexLock lock(mMutexp) ;
+
+	if(allocated_mem <= mLastAllocatedMem)
+	{
+		return ; //occupied memory does not grow
+	}
+
+	S32 delta_mem = allocated_mem - mLastAllocatedMem ;
+	mLastAllocatedMem = allocated_mem ;
+	if(delta_mem < MIN_ALLOCATION)
+	{
+		return ;
+	}
+		
+	char* buffer = mStringBuffer[mCurIndex++] ;
+	F32 time = (F32)LLFrameTimer::getElapsedSeconds() ;
+	S32 hours = (S32)(time / (60*60));
+	S32 mins = (S32)((time - hours*(60*60)) / 60);
+	S32 secs = (S32)((time - hours*(60*60) - mins*60));
+	strcpy(buffer, function) ;
+	sprintf(buffer + strlen(function), " line: %d DeltaMem: %d (bytes) Time: %d:%02d:%02d", line, delta_mem, hours,mins,secs) ;
+
+	if(mCounter < mCapacity)
+	{
+		mCounter++ ;
+	}
+	if(mCurIndex >= mCapacity)
+	{
+		mCurIndex = 0 ;		
+	}
+}
+
+
+//static 
+void LLMemTracker::preDraw() 
+{
+	mMutexp->lock() ;
+
+	mDrawnIndex = mCurIndex - 1;
+	mNumOfDrawn = 0 ;
+}
+	
+//static 
+void LLMemTracker::postDraw() 
+{
+	mMutexp->unlock() ;
+}
+
+//static 
+const char* LLMemTracker::getNextLine() 
+{
+	if(mNumOfDrawn >= mCounter)
+	{
+		return NULL ;
+	}
+	mNumOfDrawn++;
+
+	if(mDrawnIndex < 0)
+	{
+		mDrawnIndex = mCapacity - 1 ;
+	}
+
+	return mStringBuffer[mDrawnIndex--] ;
+}
+
+#endif //MEM_TRACK_MEM
+//--------------------------------------------------------------------------------------------------
+

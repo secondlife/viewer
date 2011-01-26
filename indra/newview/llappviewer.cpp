@@ -1057,6 +1057,8 @@ bool LLAppViewer::mainLoop()
 		//clear call stack records
 		llclearcallstacks;
 
+		MEM_TRACK
+
 		//check memory availability information
 		{
 			if(memory_check_interval < memCheckTimer.getElapsedTimeF32())
@@ -1101,6 +1103,8 @@ bool LLAppViewer::mainLoop()
 			}
 			
 #endif
+			MEM_TRACK
+
 			//memory leaking simulation
 			LLFloaterMemLeak* mem_leak_instance =
 				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1162,6 +1166,8 @@ bool LLAppViewer::mainLoop()
 					resumeMainloopTimeout();
 				}
  
+				MEM_TRACK
+
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
 				{
 					pauseMainloopTimeout();
@@ -1182,6 +1188,8 @@ bool LLAppViewer::mainLoop()
 				}
 
 			}
+
+			MEM_TRACK
 
 			pingMainloopTimeout("Main:Sleep");
 			
@@ -1296,7 +1304,10 @@ bool LLAppViewer::mainLoop()
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
-			}			
+			}	
+
+			MEM_TRACK
+
 		}
 		catch(std::bad_alloc)
 		{			
@@ -1778,6 +1789,8 @@ bool LLAppViewer::cleanup()
 	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
+
+	MEM_TRACK_RELEASE
 
     llinfos << "Goodbye!" << llendflush;
 
