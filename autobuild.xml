@@ -1102,7 +1102,7 @@
               <key>hash</key>
               <string>5af0f88e298ea8b6041e29928f520eda</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llqtwebkit-4.7.1-windows-20110113.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
