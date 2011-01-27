@@ -8168,7 +8168,7 @@ BOOL LLVOAvatar::updateLOD()
 	return res;
 }
 
-void LLVOAvatar::updateLODRiggedAttacmhments( void )
+void LLVOAvatar::updateLODRiggedAttachments( void )
 {
 	updateLOD();
 	rebuildRiggedAttachments();
