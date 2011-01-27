@@ -1923,7 +1923,8 @@ void LLPanelObject::refresh()
 		mRootObject = NULL;
 	}
 	
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled");
+	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
+					   !gAgent.getRegion()->getCapability("GetMesh").empty();
 
 	getChildView("label physicsshapetype")->setVisible(enable_mesh);
 	getChildView("Physics Shape Type Combo Ctrl")->setVisible(enable_mesh);
