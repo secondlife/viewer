@@ -52,6 +52,7 @@ class LLIconCtrl;
 class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
+class LLInvPanelComplObserver;
 
 class LLInventoryPanel : public LLPanel
 {
@@ -167,9 +168,11 @@ public:
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
+	void onItemsCompletion();			// called when selected items are complete
 
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
+	LLInvPanelComplObserver*	mCompletionObserver;
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 

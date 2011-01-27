@@ -1737,11 +1737,8 @@
 	<string name="InvOfferGaveYou">
 		oddany Tobie
 	</string>
-	<string name="InvOfferYouDecline">
-		Odrzucony przez Ciebie
-	</string>
-	<string name="InvOfferFrom">
-		od
+	<string name="InvOfferDecline">
+		Odrzucono [DESC] od &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Suma

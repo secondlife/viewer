@@ -109,6 +109,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		Leute, die nicht auf Ihrer Freundesliste stehen, werden nicht wissen, dass Sie deren Anrufe oder Sofortnachrichten ignoriert haben.
 		<usetemplate name="okbutton" yestext="Ja"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		Hinweis: Bei Aktivierung dieser Option sehen alle Personen, die diesen Computer benutzen, Ihre Lieblingsorte.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Wenn Sie einem anderen Einwohner Änderungsrechte gewähren, dann kann dieser JEDES Objekt, das Sie inworld besitzen, ändern, löschen oder an sich nehmen. Seien Sie daher beim Gewähren dieser Rechte sehr vorsichtig!
 Möchten Sie [NAME] Änderungsrechte gewähren?
@@ -957,7 +961,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<input name="message">
 				[DESC] (neu)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
@@ -967,7 +971,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<input name="message">
 				[DESC] (neu)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
@@ -977,7 +981,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
@@ -1355,9 +1359,39 @@ In Ihren Anwendungsordner herunterladen?
 Laden Sie den neuesten Viewer von http://secondlife.com/download herunter und installieren Sie ihn.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="DownloadBackground">
-		Eine aktualisierte Version von [APP_NAME] wurde heruntergeladen.
-Sie wird beim nächsten Neustart von [APP_NAME] verwendet.
+	<notification name="FailedRequiredUpdateInstall">
+		Ein erforderliches Update konnte nicht installiert werden. 
+Sie können sich erst anmelden, wenn [APP_NAME] aktualisiert wurde.
+
+Laden Sie den neuesten Viewer von http://secondlife.com/download herunter und installieren Sie ihn.
+		<usetemplate name="okbutton" yestext="Beenden"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		Für Ihre SecondLife-Installation ist ein Update erforderlich.
+
+Sie können dieses Update von http://www.secondlife.com/downloads herunterladen oder jetzt installieren.
+		<usetemplate name="okcancelbuttons" notext="Second Life beenden" yestext="Jetzt herunterladen und installieren"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informationen zu diesem Update]
+		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informationen zu diesem Update]
+		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		Ein erforderliches Softwareupdate wurde heruntergeladen.
+Version [VERSION]
+
+Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Bei Übertragung dieses Objekts erhält die Gruppe:
@@ -2225,14 +2259,6 @@ Wählen Sie eine kleinere Landfläche.
 	<notification name="NoContentToSearch">
 		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Generell, Moderat oder Adult).
 	</notification>
-	<notification name="GroupVote">
-		[NAME] hat eine Abstimmung vorgeschlagen über:
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="Abstimmen"/>
-			<button name="Later" text="Später"/>
-		</form>
-	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
@@ -2691,9 +2717,6 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 	<notification name="VoiceCallGenericError">
 		Fehler beim Versuch, eine Voice-Chat-Verbindung zu [VOICE_CHANNEL_NAME] herzustellen.  Bitte versuchen Sie es erneut.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Sie haben eine Region betreten, die eine andere Server-Version verwendet. Dies kann sich auf die Leistung auswirken. [[URL] Versionshinweise anzeigen.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Die SLurl, auf die Sie geklickt haben, wird nicht unterstützt.
 	</notification>
@@ -2796,9 +2819,7 @@ Avatar &apos;[NAME]&apos; hat Modus „Aussehen bearbeiten&quot; verlassen.
 	<notification name="NoConnect">
 		Es gibt Probleme mit der Verbindung mit [PROTOCOL] [HOSTID].
 Bitte überprüfen Sie Ihre Netzwerk- und Firewalleinstellungen.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		Verbindung mit Voice-Server ist leider nicht möglich:
@@ -2807,9 +2828,7 @@ Bitte überprüfen Sie Ihre Netzwerk- und Firewalleinstellungen.
 
 Voice-Kommunikation ist leider nicht verfügbar.
 Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		(Seit [EXISTENCE] Sekunden inworld )
@@ -2844,6 +2863,9 @@ Alle stummschalten?
 	<notification label="Welt erkunden" name="HintDestinationGuide">
 		Im Reiseführer finden Sie Tausende von interessanten Orten. Wählen Sie einfach einen Ort aus und klicken Sie auf „Teleportieren“.
 	</notification>
+	<notification label="Aussehen ändern" name="HintAvatarPicker">
+		Möchten Sie einen neuen Look ausprobieren? Klicken Sie auf die Schaltfläche unten, um mehr Avatare zu sehen.
+	</notification>
 	<notification label="Seitenleiste" name="HintSidePanel">
 		In der Seitenleiste können Sie schnell auf Ihr Inventar, Ihre Outfits, Ihre Profile u. ä. zugreifen.
 	</notification>
@@ -2852,6 +2874,12 @@ Alle stummschalten?
 	</notification>
 	<notification label="Anzeigename" name="HintDisplayName">
 		Hier können Sie Ihren anpassbaren Anzeigenamen festlegen. Der Anzeigename unterscheidet sich von Ihrem eindeutigen Benutzernamen, der nicht geändert werden kann. In den Einstellungen können Sie festlegen, welcher Name von anderen Einwohnern angezeigt wird.
+	</notification>
+	<notification label="Bewegen" name="HintMoveArrows">
+		Verwenden Sie zum Gehen die Pfeiltasten auf Ihrer Tastatur. Drücken Sie die Nach-oben-Taste zweimal, um zu rennen.
+	</notification>
+	<notification label="Ansicht" name="HintView">
+		Um die Kameraansicht zu ändern, verwenden Sie die Schwenk- und Kreissteuerungen. Um die Ansicht zurückzusetzen, drücken Sie die Esc-Taste oder laufen Sie einfach.
 	</notification>
 	<notification label="Inventar" name="HintInventory">
 		In Ihrem Inventar befinden sich verschiedene Objekte. Die neuesten Objekte finden Sie in der Registerkarte „Aktuell“.
@@ -2864,6 +2892,15 @@ Alle stummschalten?
 		<form name="form">
 			<ignore name="ignore" text="Alle Popups aktivieren"/>
 			<button name="open" text="Popup-Fenster öffnen"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		Für die Site „&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;“ in der Domäne „[REALM]“ ist ein Benutzername und Kennwort erforderlich.
+		<form name="form">
+			<input name="username" text="Benutzername"/>
+			<input name="password" text="Kennwort"/>
+			<button name="ok" text="Senden"/>
+			<button name="cancel" text="Abbrechen"/>
 		</form>
 	</notification>
 	<global name="UnsupportedCPU">

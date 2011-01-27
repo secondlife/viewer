@@ -257,7 +257,7 @@ public:
 	static void onDeleteRole(void*);
 	void handleDeleteRole();
 
-	void saveRoleChanges();
+	void saveRoleChanges(bool select_saved_role);
 
 	virtual void setGroupID(const LLUUID& id);
 protected:
