@@ -2474,9 +2474,13 @@ namespace {
 				// The user never saw the progress bar.
 				notification_name = "RequiredUpdateDownloadedVerboseDialog";
 			}
-			else
+			else if(LLStartUp::getStartupState() < STATE_WORLD_INIT)
 			{
 				notification_name = "RequiredUpdateDownloadedDialog";
+			}
+			else
+			{
+				; // Do nothing because user is already logged in.
 			}
 		}
 		else
