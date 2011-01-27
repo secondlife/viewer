@@ -950,39 +950,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>BulkChangeIncludeAnimations</key>
-    <map>
-      <key>Comment</key>
-      <string>Bulk permission changes affect animations</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>BulkChangeIncludeAnimations</key>
-    <map>
-      <key>Comment</key>
-      <string>Bulk permission changes affect animations</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>BulkChangeIncludeAnimations</key>
-    <map>
-      <key>Comment</key>
-      <string>Bulk permission changes affect animations</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>BulkChangeIncludeBodyParts</key>
     <map>
       <key>Comment</key>
@@ -1195,18 +1162,7 @@
     <key>CacheLocationTopFolder</key>
     <map>
       <key>Comment</key>
-      <string>Controls the top folder location of the local disk cache</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string />
-    </map>	
-    <key>CacheLocationTopFolder</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls the location of the local disk cache</string>
+      <string>Controls the top folder location of the the local disk cache</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1223,7 +1179,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>20000</integer>
+      <integer>128</integer>
     </map>
     <key>CacheSize</key>
     <map>
@@ -1918,10 +1874,21 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>DebugShowTextureInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Show inertested texture info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>DebugShowTime</key>
     <map>
       <key>Comment</key>
-      <string>Show depth buffer contents</string>
+      <string>Show time info</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3117,17 +3084,6 @@
         <string>String</string>
         <key>Value</key>
         <string>http://viewer-settings.secondlife.com</string>
-    </map>
-    <key>FPSLogFrequency</key>
-    <map>
-      <key>Comment</key>
-      <string>Seconds between display of FPS in log (0 for never)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>60.0</real>
     </map>
     <key>FPSLogFrequency</key>
         <map>
@@ -6080,17 +6036,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>OutBandwidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Expand render stats display</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>OutBandwidth</key>
     <map>
@@ -11452,8 +11397,6 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
-      <map>
-      </map>
     </map>
     <key>VFSOldSize</key>
     <map>
@@ -11597,17 +11540,6 @@
       <string>String</string>
       <key>Value</key>
       <string>-1</string>
-    </map>
-    <key>VivoxDebugSIPURIHostName</key>
-    <map>
-      <key>Comment</key>
-      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
     </map>
     <key>VivoxDebugSIPURIHostName</key>
     <map>
@@ -12444,17 +12376,6 @@
       <string>String</string>
       <key>Value</key>
       <string>name</string>
-    </map>
-    <key>ReleaseNotesURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Release notes URL template</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://secondlife.com/app/releasenotes/?channel=[CHANNEL]&amp;version=[VERSION]</string>
     </map>
 </map>
 </llsd>

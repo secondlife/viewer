@@ -121,13 +121,15 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Rückgängig" name="Undo"/>
+		<menu_item_call label="Wiederholen" name="Redo"/>
 	</menu>
 	<menu label="Hilfe" name="Help">
 		<menu_item_call label="[SECOND_LIFE]-Hilfe" name="Second Life Help"/>
+		<menu_item_check label="Hinweise aktivieren" name="Enable Hints"/>
 		<menu_item_call label="Missbrauch melden" name="Report Abuse"/>
 		<menu_item_call label="Fehler melden" name="Report Bug"/>
 		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
-		<menu_item_check label="Hinweise aktivieren" name="Enable Hints"/>
 	</menu>
 	<menu label="Erweitert" name="Advanced">
 		<menu_item_call label="Textur neu laden" name="Rebake Texture"/>
@@ -308,7 +310,8 @@
 			<menu_item_call label="Regionsobjekt-Cache ausgeben" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Web-Browser-Test" name="Web Browser Test"/>
+			<menu_item_call label="Test Medienbrowser" name="Web Browser Test"/>
+			<menu_item_call label="Webinhaltsbrowser" name="Web Content Browser"/>
 			<menu_item_call label="SelectMgr ausgeben" name="Dump SelectMgr"/>
 			<menu_item_call label="Inventarinfo ausgeben" name="Dump Inventory"/>
 			<menu_item_call label="Timer ausgeben" name="Dump Timers"/>

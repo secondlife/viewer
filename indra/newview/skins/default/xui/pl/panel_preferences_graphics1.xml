@@ -26,6 +26,7 @@
 		<text name="ShadersText">
 			Cieniowanie pixeli (shadery):
 		</text>
+		<check_box initial_value="prawda" label="Przeźroczystość wody" name="TransparentWater"/>
 		<check_box initial_value="true" label="Mapowanie wypukłości i połysk" name="BumpShiny"/>
 		<check_box initial_value="true" label="Podstawowe shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych."/>
 		<check_box initial_value="true" label="Shadery atmosfery" name="WindLightUseAtmosShaders"/>

@@ -29,10 +29,10 @@
 		URL
 	</text>
 	<text name="bubble_chat">
-		Fondo de los bocadillos del chat:
+		Color de fondo de la etiqueta del nombre (afectará también a los bocadillos del chat):
 	</text>
-	<color_swatch name="background" tool_tip="Elegir el color de los bocadillos del chat"/>
-	<slider label="Opacidad:" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Seleccionar el color de la etiqueta del nombre"/>
+	<slider label="Opacidad:" name="bubble_chat_opacity" tool_tip="Seleccionar opacidad de la etiqueta del nombre"/>
 	<text name="floater_opacity">
 		Opacidad de la ventana:
 	</text>

@@ -29,10 +29,10 @@
 		URLs
 	</text>
 	<text name="bubble_chat">
-		Hintergrund für Blasen-Chat:
+		Hintergrundfarbe für Avatarnamen (wirkt sich auch auf Blasen-Chat aus):
 	</text>
-	<color_swatch name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
-	<slider label="Deckkraft:" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Farbe für Avatarnamen auswählen"/>
+	<slider label="Deckkraft:" name="bubble_chat_opacity" tool_tip="Deckkraft für Avatarnamen auswählen"/>
 	<text name="floater_opacity">
 		Floater-Deckkraft:
 	</text>

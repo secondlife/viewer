@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ustawienia" name="Input panel">
-	<text name="Mouselook:">
-		Widok panoramiczny:
-	</text>
-	<text name=" Mouse Sensitivity">
-		Czułość myszki
-	</text>
-	<slider name="mouse_sensitivity"/>
-	<check_box label="Zmień klawisze myszki" name="invert_mouse"/>
 	<text name="Network:">
 		Sieć:
 	</text>
@@ -47,4 +39,11 @@
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
 	<spinner label="Numer portu:" name="web_proxy_port"/>
+	<text name="Software updates:">
+		Aktualizaje oprogramowania:
+	</text>
+	<combo_box name="updater_service_combobox">
+		<combo_box.item label="Zainstauj automatycznie" name="Install_automatically"/>
+		<combo_box.item label="Pobierz i zainstaluj aktualizacje ręcznie" name="Install_manual"/>
+	</combo_box>
 </panel>

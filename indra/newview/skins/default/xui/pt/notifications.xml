@@ -108,6 +108,10 @@ Por favor, selecione apenas um objeto e tente novamente.
 		Residentes que não são amigos não veem que você decidiu ignorar ligações e MIs deles.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		Nota: Ao ativar esta opção, qualquer pessoa que utilizar este computador poderá ver a sua lista de lugares preferidos.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Conceder direitos de modificação a outros residentes vai autorizá-los a mudar, apagar ou pegar TODOS os seus objetos. Seja MUITO cuidadoso ao conceder esta autorização.
 Deseja dar direitos de modificação a [NAME]?
@@ -938,7 +942,7 @@ Oferecer amizade para [NAME]?
 			<input name="message">
 				[DESC] (novo)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -948,7 +952,7 @@ Oferecer amizade para [NAME]?
 			<input name="message">
 				[DESC] (novo)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -958,7 +962,7 @@ Oferecer amizade para [NAME]?
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -1329,9 +1333,41 @@ Baixe e instale a versão mais recente do visualizador em
 http://secondlife.com/download.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="DownloadBackground">
-		Foi baixada uma nova versão do [APP_NAME]
-A nova versão será exibida quando o [APP_NAME] for reiniciado.
+	<notification name="FailedRequiredUpdateInstall">
+		Não foi possível instalar uma atualização necessária. 
+Não será possível acessar a sua conta até que você atualize o [APP_NAME].
+
+Baixe e instale a versão mais recente do visualizador em 
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="Sair"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		A instalação do Second Life requer uma atualização.
+
+Baixe a atualização em http://www.secondlife.com/downloads
+ou você pode instalar a instalação agora.
+		<usetemplate name="okcancelbuttons" notext="Sair do Second Life" yestext="Baixar e instalar agora"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		Baixamos uma atualização para a instalação do [APP_NAME].
+Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
+		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		Baixamos uma atualização para a instalação do [APP_NAME].
+Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
+		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		O software requer uma atualização que já foi baixada.
+Versão [VERSION]
+
+Para instalar a atualização, será preciso reiniciar o [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Delegar este objeto causará ao grupo:
@@ -2198,14 +2234,6 @@ Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do p
 	<notification name="NoContentToSearch">
 		Por favor, selecione ao menos um tipo de conteúdo para a busca (PG, Mature ou Adult).
 	</notification>
-	<notification name="GroupVote">
-		[NAME] propõe que você vote:
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="Vote agora"/>
-			<button name="Later" text="Depois"/>
-		</form>
-	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
@@ -2658,9 +2686,6 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 	<notification name="VoiceCallGenericError">
 		Ocorreu um erro enquanto você tentava se conectar à conversa de voz de [VOICE_CHANNEL_NAME].  Favor tentar novamente mais tarde.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Você chegou a uma região com uma versão diferente de servidor, que pode afetar o desempenho.  [[URL] Consultar notas da versão.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		O SLurl no qual você clicou não é suportado.
 	</notification>
@@ -2763,9 +2788,7 @@ Avatar &apos;[NAME]&apos; sair do modo aparecer.
 	<notification name="NoConnect">
 		Detectamos um problema de conexão com [PROTOCOL] [HOSTID].
 Verifique a configuração da sua rede e firewall.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		Estamos tendo problemas de conexão com o seu servidor de voz:
@@ -2774,9 +2797,7 @@ Verifique a configuração da sua rede e firewall.
 
 Talvez não seja possível se comunicar via voz.
 Verifique a configuração da sua rede e firewall.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] segundos de vida )
@@ -2811,6 +2832,9 @@ Silenciar todos?
 	<notification label="Explore o mundo" name="HintDestinationGuide">
 		O Guia de Destinos traz milhares de lugares novos para você explorar e conhecer. Selecione um lugar, clique em Teletransportar e comece suas descobertas.
 	</notification>
+	<notification label="Troque o visual" name="HintAvatarPicker">
+		Que tal mudar o visual? Clique o botão abaixo para ver Avatares diferentes.
+	</notification>
 	<notification label="Painel lateral" name="HintSidePanel">
 		Acesse rapidamente seu inventário, roupas, looks, perfis e mais no painel lateral.
 	</notification>
@@ -2819,6 +2843,12 @@ Silenciar todos?
 	</notification>
 	<notification label="Nome de tela" name="HintDisplayName">
 		Defina seu nome de tela personalizável. O nome de tele é separado do seu nome de usuário, que não pode ser modificado. Você pode mudar a visualização dos nomes de outras pessoas nas suas preferências.
+	</notification>
+	<notification label="Movimentar" name="HintMoveArrows">
+		Para andar, use as setas do teclado. Para correr, pressione a seta para cima duas vezes.
+	</notification>
+	<notification label="Exibir" name="HintView">
+		Para mudar o ângulo de visualização, use os controles Órbita e Pan. Volte à visualização normal pressionando a tecla Escape ou começando a andar.
 	</notification>
 	<notification label="Inventário" name="HintInventory">
 		Você encontrará seus pertences no inventário.  Os itens mais novos também ficam na guia Itens recentes.
@@ -2831,6 +2861,15 @@ Silenciar todos?
 		<form name="form">
 			<ignore name="ignore" text="Ativar todos os pop-ups"/>
 			<button name="open" text="Abrir pop-up"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		O site em &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; em &apos;[REALM]&apos; requer nome e senha.
+		<form name="form">
+			<input name="username" text="Nome de usuário"/>
+			<input name="password" text="Senha:"/>
+			<button name="ok" text="Enviar"/>
+			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
 	<global name="UnsupportedCPU">
