@@ -164,7 +164,7 @@ public:
 	LLImageRaw(U16 width, U16 height, S8 components);
 	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
 	// Construct using createFromFile (used by tools)
-	LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
+	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
 	/*virtual*/ void deleteData();
 	/*virtual*/ U8* allocateData(S32 size = -1);
@@ -226,7 +226,7 @@ public:
 
 protected:
 	// Create an image from a local file (generally used in tools)
-	bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);
+	//bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);
 
 	void copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
 	void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
