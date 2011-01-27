@@ -9,7 +9,7 @@
 	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>
 	<slider label="Flux musical" name="Music Volume"/>
-	<check_box label="Activé" name="music_enabled"/>
+	<check_box label="Activé" name="enable_music"/>
 	<slider label="Média" name="Media Volume"/>
 	<check_box label="Activé" name="enable_media"/>
 	<slider label="Chat vocal" name="Voice Volume"/>
