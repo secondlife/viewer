@@ -32,6 +32,7 @@
 
 #include "../llagent.h"
 #include "message.h"
+#include "llurlentry.h"
 
 namespace {
 	LLControlGroup s_saved_settings("dummy_settings");
@@ -72,6 +73,7 @@ LLUIColor::LLUIColor(void) { }
 LLAgentAccess::LLAgentAccess(LLControlGroup & settings) : mSavedSettings(settings) { }
 LLControlGroup::LLControlGroup(std::string const & name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
 LLControlGroup::~LLControlGroup(void) { }
+void LLUrlEntryParcel::processParcelInfo(const LLUrlEntryParcel::LLParcelData& parcel_data) { }
 
 namespace tut
 {

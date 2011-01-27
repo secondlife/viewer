@@ -26,6 +26,7 @@ viewer-development.show_changes_since = last_sprint
 
 # Build Settings
 viewer-development_coverity.coverity_product = viewer
+viewer-development_coverity.run_tests = false
 viewer-development.build_debug_release_separately = true
 
 # Notifications - to configure email notices, add a setting like this:
