@@ -41,6 +41,7 @@
 
 LLMemoryView::LLMemoryView(const LLMemoryView::Params& p)
 :	LLView(p),
+	mPaused(FALSE),
 	//mDelay(120),
     mAlloc(NULL)
 {
@@ -60,6 +61,7 @@ BOOL LLMemoryView::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
+		mPaused = !mPaused;
 	}
 	return TRUE;
 }
@@ -172,7 +174,7 @@ void LLMemoryView::draw()
 	}
 
 #else
-	LLMemTracker::getInstance()->preDraw() ;
+	LLMemTracker::getInstance()->preDraw(mPaused) ;
 
 	{
 		F32 x_pos = MARGIN_AMT ;

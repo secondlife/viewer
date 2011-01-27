@@ -63,7 +63,7 @@ public:
 	static LLMemTracker* getInstance() ;
 
 	void track(const char* function, const int line) ;
-	void preDraw() ;
+	void preDraw(BOOL pause) ;
 	void postDraw() ;
 	const char* getNextLine() ;
 
@@ -77,6 +77,7 @@ private:
 	S32        mCounter;
 	S32        mDrawnIndex;
 	S32        mNumOfDrawn;
+	BOOL       mPaused;
 	LLMutex*   mMutexp ;
 };
 

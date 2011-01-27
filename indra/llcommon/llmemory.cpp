@@ -275,6 +275,7 @@ LLMemTracker::LLMemTracker()
 	mCurIndex = 0 ;
 	mCounter = 0 ;
 	mDrawnIndex = 0 ;
+	mPaused = FALSE ;
 
 	mMutexp = new LLMutex(NULL) ;
 	mStringBuffer = new char*[128] ;
@@ -315,19 +316,25 @@ void LLMemTracker::release()
 //static
 void LLMemTracker::track(const char* function, const int line)
 {
-	static const S32 MIN_ALLOCATION = 1024 ; //1KB
+	static const S32 MIN_ALLOCATION = 0 ; //1KB
+
+	if(mPaused)
+	{
+		return ;
+	}
 
 	U32 allocated_mem = LLMemory::getWorkingSetSize() ;
 
 	LLMutexLock lock(mMutexp) ;
 
-	if(allocated_mem <= mLastAllocatedMem)
+	S32 delta_mem = allocated_mem - mLastAllocatedMem ;
+	mLastAllocatedMem = allocated_mem ;
+
+	if(delta_mem <= 0)
 	{
 		return ; //occupied memory does not grow
 	}
 
-	S32 delta_mem = allocated_mem - mLastAllocatedMem ;
-	mLastAllocatedMem = allocated_mem ;
 	if(delta_mem < MIN_ALLOCATION)
 	{
 		return ;
@@ -353,10 +360,11 @@ void LLMemTracker::track(const char* function, const int line)
 
 
 //static 
-void LLMemTracker::preDraw() 
+void LLMemTracker::preDraw(BOOL pause) 
 {
 	mMutexp->lock() ;
 
+	mPaused = pause ;
 	mDrawnIndex = mCurIndex - 1;
 	mNumOfDrawn = 0 ;
 }
