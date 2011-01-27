@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_gear_default">
+<toggleable_menu name="menu_gear_default">
 	<menu_item_call label="Nowe okno Szafy" name="new_window"/>
-	<menu_item_call label="Porządkuj według nazwy" name="sort_by_name"/>
-	<menu_item_call label="Porządkuj według daty" name="sort_by_recent"/>
+	<menu_item_check label="Porządkuj według nazwy" name="sort_by_name"/>
+	<menu_item_check label="Porządkuj według daty" name="sort_by_recent"/>
+	<menu_item_check label="Posortuj foldery systemowe od góry" name="sort_system_folders_to_top"/>
 	<menu_item_call label="Pokaż filtry" name="show_filters"/>
 	<menu_item_call label="Zresetuj filtry" name="reset_filters"/>
 	<menu_item_call label="Zamknij wszystkie foldery" name="close_folders"/>
@@ -12,4 +13,4 @@
 	<menu_item_call label="Znajdź oryginał" name="Find Original"/>
 	<menu_item_call label="Znajdź wszystkie linki" name="Find All Links"/>
 	<menu_item_call label="Opróżnij Kosz" name="empty_trash"/>
-</menu>
+</toggleable_menu>

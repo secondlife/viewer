@@ -39,5 +39,11 @@
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
 	<spinner label="Portnummer:" name="web_proxy_port"/>
-	<check_box initial_value="true" label="Updates für [APP_NAME] automatisch herunterladen und installieren" name="updater_service_active"/>
+	<text name="Software updates:">
+		Softwareupdates:
+	</text>
+	<combo_box name="updater_service_combobox">
+		<combo_box.item label="Automatisch installieren" name="Install_automatically"/>
+		<combo_box.item label="Updates manuell herunterladen und installieren" name="Install_manual"/>
+	</combo_box>
 </panel>

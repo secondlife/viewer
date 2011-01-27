@@ -7,9 +7,11 @@
 	<text name="cache_size_label_l">
 		(Locações, imagens, web, histórico de busca)
 	</text>
+	<check_box label="Mostrar nos resultados de busca" name="online_searchresults"/>
 	<check_box label="Apenas amigos e grupos sabem que estou online" name="online_visibility"/>
 	<check_box label="Apenas amigos e grupos podem me chamar ou enviar MI" name="voice_call_friends_only_check"/>
 	<check_box label="Desligar o microfone quando terminar chamadas" name="auto_disengage_mic_check"/>
+	<check_box label="Mostrar meus marcos preferidos na página de login (menu &apos;Começar em&apos;:)" name="favorites_on_login_check"/>
 	<text name="Logs:">
 		Registro de bate-papos:
 	</text>

@@ -7,19 +7,24 @@
 	<text name="cache_size_label_l">
 		(Miejsca, obrazy, przeglądarka internetowa, wyszukiwarka historii)
 	</text>
+	<check_box label="Pokaż mój profil w wynikach wyszukiwarki" name="online_searchresults"/>
 	<check_box label="Mój status online jest dostępny tylko dla znajomych i grup do których należę" name="online_visibility"/>
 	<check_box label="Możliwość wysyłania wiadomości prywatnej (IM) oraz rozmowy głosowej tylko dla znajomych i grup do których należę" name="voice_call_friends_only_check"/>
 	<check_box label="Wyłącz mikrofon po zakończeniu rozmowy głosowej" name="auto_disengage_mic_check"/>
-	<check_box label="Akceptuj ciasteczka" name="cookies_enabled"/>
+	<check_box label="Pokaż moje ulubione landmarki przy logowaniu (w rozwijanym menu &apos;Rozpocznij w&apos;)" name="favorites_on_login_check"/>
 	<text name="Logs:">
-		Logi:
+		Logi rozmów:
 	</text>
 	<check_box label="Zapisz logi rozmów ogólnych na moim komputerze" name="log_nearby_chat"/>
 	<check_box label="Zapisuj logi wiadomości prywatnych (IM) na moim komputerze" name="log_instant_messages"/>
-	<check_box label="Pokazuj czas" name="show_timestamps_check_im"/>
+	<check_box label="Dodaj znacznik czasu do każdej linii w logu rozmów." name="show_timestamps_check_im"/>
+	<check_box label="Dodaj znacznik czasu do nazwy pliku z zapisem rozmów." name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Lokalizacja zapisu:
 	</text>
 	<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button"/>
 	<button label="Lista zablokowanych" name="block_list"/>
+	<text name="block_list_label">
+		(Ludzie i/lub obiekty zablokowane)
+	</text>
 </panel>

@@ -108,6 +108,10 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		Quienes no sean tus amigos no sabrán que has elegido ignorar sus llamadas y mensajes instantáneos.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		Nota: Al activar esta opción, cualquiera que utilice este ordenador podrá ver tu lista de lugares favoritos.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
 ¿Quieres conceder permisos de modificación a [NAME]?
@@ -946,7 +950,7 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 			<input name="message">
 				[DESC] (nuevo)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -956,7 +960,7 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 			<input name="message">
 				[DESC] (nuevo)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -966,7 +970,7 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
@@ -1347,9 +1351,41 @@ Descarga e instala el último visor a través de
 http://secondlife.com/download.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="DownloadBackground">
-		Se ha descargado una versión actualizada de [APP_NAME].
-Se aplicará la próxima vez que reinicies [APP_NAME]
+	<notification name="FailedRequiredUpdateInstall">
+		No hemos podido instalar una actualización necesaria. 
+No podrás iniciar sesión hasta que [APP_NAME] se haya actualizado.
+
+Descarga e instala el último visor a través de
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="Salir"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		Hay una actualización necesaria para la instalación de Second Life.
+
+Puedes descargar esta actualización de http://www.secondlife.com/downloads
+o instalarla ahora.
+		<usetemplate name="okcancelbuttons" notext="Salir de Second Life" yestext="Descargar e instalar ahora"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		Hemos descargado una actualización para la instalación de [APP_NAME].
+Versión [VERSION] [[RELEASE_NOTES_FULL_URL]; información acerca de esta actualización]
+		<usetemplate name="okcancelbuttons" notext="Más tarde..." yestext="Instalar ahora y reiniciar [NOMBRE_APL]"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		Hemos descargado una actualización para la instalación de [APP_NAME].
+Versión [VERSION] [[RELEASE_NOTES_FULL_URL]; información acerca de esta actualización]
+		<usetemplate name="okcancelbuttons" notext="Más tarde..." yestext="Instalar ahora y reiniciar [APP_NAME]"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		Hemos descargado una actualización de software necesaria.
+Versión [VERSION]
+
+Debemos reiniciar [APP_NAME] para instalar la actualización.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		Debemos reiniciar [APP_NAME] para instalar la actualización.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Transferir este objeto al grupo hará que:
@@ -2217,14 +2253,6 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 	<notification name="NoContentToSearch">
 		Por favor, elige al menos un tipo de contenido a buscar (&apos;PG&apos;, &apos;Mature&apos;, o &apos;Adult&apos;).
 	</notification>
-	<notification name="GroupVote">
-		[NAME] ha propuesto votar:
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="Votar ahora"/>
-			<button name="Later" text="Más tarde"/>
-		</form>
-	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
@@ -2783,9 +2811,7 @@ El avatar &apos;[NAME]&apos; desactivó el modo de apariencia.
 	<notification name="NoConnect">
 		Tenemos problemas de conexión con [PROTOCOL] [HOSTID].
 Comprueba la configuración de la red y del servidor de seguridad.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		Tenemos problemas de conexión con tu servidor de voz:
@@ -2794,9 +2820,7 @@ Comprueba la configuración de la red y del servidor de seguridad.
 
 No podrás establecer comunicaciones de voz.
 Comprueba la configuración de la red y del servidor de seguridad.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] segundos vivo)
@@ -2830,6 +2854,9 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Explora el mundo" name="HintDestinationGuide">
 		La Guía de destinos contiene miles de nuevos lugares por descubrir. Selecciona una ubicación y elige Teleportarme para iniciar la exploración.
 	</notification>
+	<notification label="Cambiar de apariencia" name="HintAvatarPicker">
+		¿Te gustaría cambiar de apariencia? Haz clic en el botón que aparece a continuación para ver más avatares.
+	</notification>
 	<notification label="Panel lateral" name="HintSidePanel">
 		Accede de manera rápida a tu inventario, así como a tu ropa, los perfiles y el resto de la información disponible en el panel lateral.
 	</notification>
@@ -2838,6 +2865,12 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	</notification>
 	<notification label="Nombre mostrado" name="HintDisplayName">
 		Configura y personaliza aquí tu nombre mostrado. Esto se añadirá a tu nombre de usuario personal, que no puedes modificar. Puedes cambiar la manera en que ves los nombres de otras personas en tus preferencias.
+	</notification>
+	<notification label="Mover" name="HintMoveArrows">
+		Para caminar, utiliza las flechas de dirección del teclado. Para correr, pulsa dos veces la flecha hacia arriba.
+	</notification>
+	<notification label="Visión" name="HintView">
+		Para cambiar la vista de la cámara, utiliza los controles Orbital y Panorámica. Para restablecer tu vista, pulsa Esc o camina.
 	</notification>
 	<notification label="Inventario" name="HintInventory">
 		Accede a tu inventario para buscar ítems. Los ítems más recientes se pueden encontrar fácilmente en la pestaña Recientes.
@@ -2850,6 +2883,15 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 		<form name="form">
 			<ignore name="ignore" text="Permitir todas las ventanas emergentes"/>
 			<button name="open" text="Abrir ventana emergente"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		El sitio en &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; de la plataforma &apos;[REALM]&apos; requiere un nombre de usuario y una contraseña.
+		<form name="form">
+			<input name="username" text="Nombre de usuario"/>
+			<input name="password" text="Contraseña"/>
+			<button name="ok" text="Enviar"/>
+			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
 	<global name="UnsupportedCPU">
