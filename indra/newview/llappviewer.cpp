@@ -2484,7 +2484,7 @@ namespace {
 			{
 				// The user is already logged in; treat like an optional update.
 				apply_callback = &apply_update_callback;
-				notification_name = "DownloadBackgroundDialog";
+				notification_name = "DownloadBackgroundTip";
 			}
 		}
 		else
