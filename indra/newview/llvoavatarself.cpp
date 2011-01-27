@@ -1139,7 +1139,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 		// Clear any pending requests once the attachment arrives.
 		removeAttachmentRequest(attachment_id);
-		updateLODRiggedAttacmhments();		
+		updateLODRiggedAttachments();		
 	}
 
 	return attachment;
