@@ -2573,14 +2573,14 @@ void LLViewerWindow::updateUI()
 
 	LLView::sMouseHandlerMessage.clear();
 
-	S32 x = mCurrentMousePoint.mX;
-	S32 y = mCurrentMousePoint.mY;
-	MASK mask = gKeyboard->currentMask(TRUE);
-
 	if (gNoRender)
 	{
 		return;
 	}
+
+	S32 x = mCurrentMousePoint.mX;
+	S32 y = mCurrentMousePoint.mY;
+	MASK mask = gKeyboard->currentMask(TRUE);
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 	{

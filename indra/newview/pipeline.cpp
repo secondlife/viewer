@@ -419,6 +419,12 @@ LLPipeline::~LLPipeline()
 
 void LLPipeline::cleanup()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 
 	mGroupQ1.clear() ;
@@ -515,6 +521,12 @@ static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Textur
 
 void LLPipeline::resizeScreenTexture()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
@@ -640,6 +652,12 @@ void LLPipeline::updateRenderDeferred()
 
 void LLPipeline::releaseGLBuffers()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 	
 	if (mNoiseMap)
@@ -694,6 +712,12 @@ void LLPipeline::releaseGLBuffers()
 
 void LLPipeline::createGLBuffers()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_CREATE_BUFFERS);
 	assertInitialized();
 
@@ -816,6 +840,12 @@ void LLPipeline::createGLBuffers()
 
 void LLPipeline::restoreGL() 
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_RESTORE_GL);
 	assertInitialized();
 
@@ -842,6 +872,12 @@ void LLPipeline::restoreGL()
 
 BOOL LLPipeline::canUseVertexShaders()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return FALSE;
+	}
+
 	if (sDisableShaders ||
 		!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
@@ -908,6 +944,12 @@ S32 LLPipeline::getMaxLightingDetail() const
 
 S32 LLPipeline::setLightingDetail(S32 level)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return 0;
+	}
+
 	LLMemType mt_ld(LLMemType::MTYPE_PIPELINE_LIGHTING_DETAIL);
 	assertInitialized();
 
@@ -973,6 +1015,12 @@ public:
 // Called when a texture changes # of channels (causes faces to move to alpha pool)
 void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 
 	// *TODO: This is inefficient and causes frame spikes; need a better way to do this
@@ -1005,6 +1053,12 @@ void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>
 
 LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return NULL;
+	}
+
 	assertInitialized();
 
 	LLDrawPool *poolp = NULL;
@@ -1132,6 +1186,11 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 
 void LLPipeline::addPool(LLDrawPool *new_poolp)
 {
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt_a(LLMemType::MTYPE_PIPELINE_ADD_POOL);
 	assertInitialized();
 	mPools.insert(new_poolp);
@@ -1159,6 +1218,12 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLFastTimer t(FTM_PIPELINE);
 
 	assertInitialized();
@@ -1308,6 +1373,12 @@ void LLPipeline::createObject(LLViewerObject* vobj)
 
 void LLPipeline::resetFrameStats()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
@@ -2175,6 +2246,12 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 
 void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag, BOOL priority)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_REBUILD);
 
 	if (drawablep && !drawablep->isDead() && assertInitialized())
@@ -3807,6 +3884,12 @@ void LLPipeline::renderDebug()
 
 void LLPipeline::rebuildPools()
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_REBUILD_POOLS);
 
 	assertInitialized();
@@ -3847,6 +3930,12 @@ void LLPipeline::rebuildPools()
 
 void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_QUICK_LOOKUP);
 
 	assertInitialized();
@@ -4341,6 +4430,11 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 
 	// Ambient
@@ -4521,6 +4615,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 void LLPipeline::enableLights(U32 mask)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 
 	if (mLightingDetail == 0)
@@ -4621,6 +4721,12 @@ void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 
 void LLPipeline::enableLightsFullbright(const LLColor4& color)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	assertInitialized();
 	U32 mask = 0x1000; // Non-0 mask, set ambient
 	enableLights(mask);
@@ -5381,6 +5487,12 @@ static LLFastTimer::DeclareTimer FTM_RENDER_BLOOM("Bloom");
 
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
 	if (!(gPipeline.canUseVertexShaders() &&
 		sRenderGlow))
@@ -7036,7 +7148,13 @@ inline float sgn(float a)
 }
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
-{	
+{
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
 		BOOL skip_avatar_update = FALSE;
@@ -8617,6 +8735,12 @@ void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL textu
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
+	// KWA FIXME reevaluate once MESA llwindow is working when headless
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLMemType mt_gi(LLMemType::MTYPE_PIPELINE_GENERATE_IMPOSTOR);
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();

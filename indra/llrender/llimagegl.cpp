@@ -1100,6 +1100,12 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 //the texture is assiciate with some image by calling glTexImage outside LLImageGL
 BOOL LLImageGL::createGLTexture()
 {
+	// KWA FIXME remove this when MESA llwindow works in the viewer.
+	if (gNoRender)
+	{
+		return FALSE;
+	}
+
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -1128,6 +1134,12 @@ BOOL LLImageGL::createGLTexture()
 
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
+	// KWA FIXME remove this when MESA llwindow works in the viewer.
+	if (gNoRender)
+	{
+		return FALSE;
+	}
+
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -1202,6 +1214,12 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
+	// KWA FIXME remove this when MESA llwindow works in the viewer.
+	if (gNoRender)
+	{
+		return FALSE;
+	}
+
 	llassert(data_in);
 
 	if (discard_level < 0)

@@ -538,9 +538,24 @@ void LLGLManager::setToDebugGPU()
 
 void LLGLManager::getGLInfo(LLSD& info)
 {
-	info["GLInfo"]["GLVendor"] = std::string((const char *)glGetString(GL_VENDOR));
-	info["GLInfo"]["GLRenderer"] = std::string((const char *)glGetString(GL_RENDERER));
-	info["GLInfo"]["GLVersion"] = std::string((const char *)glGetString(GL_VERSION));
+	// KWA FIXME: Disabling this for now if we are headless. Will revert
+	// this after MESA implementation of llwindow is working for the
+	// headless viewer.
+	if (gNoRender)
+	{
+		info["GLInfo"]["GLVendor"] = "";
+		info["GLInfo"]["GLRenderer"] = "";
+		info["GLInfo"]["GLVersion"] = "";
+	}
+	else
+	{
+		info["GLInfo"]["GLVendor"] =
+			std::string((const char *)glGetString(GL_VENDOR));
+		info["GLInfo"]["GLRenderer"] =
+			std::string((const char *)glGetString(GL_RENDERER));
+		info["GLInfo"]["GLVersion"] =
+			std::string((const char *)glGetString(GL_VERSION));
+	}
 
 #if !LL_MESA_HEADLESS
 	std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
@@ -573,12 +588,25 @@ std::string LLGLManager::getGLInfoString()
 
 void LLGLManager::printGLInfoString()
 {
+	// KWA FIXME remove this when mesa implementation of llwindow is
+	// working.
+	if (gNoRender)
+	{
+		return;
+	}
+
 	std::string info_str;
 	std::string all_exts, line;
-	
-	LL_INFOS("RenderInit") << "GL_VENDOR:     " << ((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
-	LL_INFOS("RenderInit") << "GL_RENDERER:   " << ((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
-	LL_INFOS("RenderInit") << "GL_VERSION:    " << ((const char *)glGetString(GL_VERSION)) << LL_ENDL;
+
+	LL_INFOS("RenderInit") << "GL_VENDOR:     "
+			       << ((const char *)glGetString(GL_VENDOR))
+			       << LL_ENDL;
+	LL_INFOS("RenderInit") << "GL_RENDERER:   "
+			       << ((const char *)glGetString(GL_RENDERER))
+			       << LL_ENDL;
+	LL_INFOS("RenderInit") << "GL_VERSION:    "
+			       << ((const char *)glGetString(GL_VERSION))
+			       << LL_ENDL;
 
 #if !LL_MESA_HEADLESS
 	all_exts = std::string(gGLHExts.mSysExts);

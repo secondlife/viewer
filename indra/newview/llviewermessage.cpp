@@ -3936,7 +3936,16 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
-	MASK	key_mask = gKeyboard->currentMask(TRUE);
+
+	// KWA FIXME: We should wire this up to the event system so we can
+	// send keyboard events via lleventhost. For now if we are headless,
+	// just don't ask for input.
+	MASK key_mask = MASK_NONE;
+	if (!gNoRender)
+	{
+		key_mask = gKeyboard->currentMask(TRUE);
+	}
+
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{
 		control_flags &= ~(	AGENT_CONTROL_LBUTTON_DOWN |

@@ -981,6 +981,13 @@ BOOL LLWearable::isOnTop() const
 
 void LLWearable::createLayers(S32 te)
 {
+	// KWA FIXME: this is wrong. We should still be setting up these layers.
+	// why the hell isn't it working?
+	if (gNoRender)
+	{
+		return;
+	}
+
 	LLTexLayerSet *layer_set = gAgentAvatarp->getLayerSet((ETextureIndex)te);
 	if (layer_set)
 	{
