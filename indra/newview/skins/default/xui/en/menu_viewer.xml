@@ -970,7 +970,7 @@
             <menu_item_call.on_enable
              function="File.EnableUploadModel" />
             <menu_item_call.on_visible
-            function="File.MeshEnabled"/>
+            function="File.VisibleUploadModel"/>
             </menu_item_call>
 			<menu_item_call
            label="Model Wizard..."
@@ -982,7 +982,7 @@
 				<menu_item_call.on_enable
 				 function="File.EnableUploadModel" />
 				<menu_item_call.on_visible
-				function="File.MeshEnabled"/>
+				function="File.VisibleUploadModel"/>
 			</menu_item_call>
             <menu_item_call
              label="Bulk (L$[COST] per file)..."

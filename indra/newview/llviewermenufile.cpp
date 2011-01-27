@@ -53,6 +53,7 @@
 #include "llvfs.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
@@ -99,6 +100,14 @@ class LLMeshEnabled : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		return gSavedSettings.getBOOL("MeshEnabled");
+	}
+};
+
+class LLMeshUploadVisible : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLViewerParcelMgr::getInstance()->allowAgentBuild() && !gAgent.getRegion()->getCapability("ObjectAdd").empty();
 	}
 };
 
@@ -1390,6 +1399,7 @@ void init_menu_file()
 	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
 	view_listener_t::addEnable(new LLFileEnableUploadModel(), "File.EnableUploadModel");
 	view_listener_t::addMenu(new LLMeshEnabled(), "File.MeshEnabled");
+	view_listener_t::addMenu(new LLMeshUploadVisible(), "File.VisibleUploadModel");
 
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }
