@@ -8163,7 +8163,7 @@ BOOL LLVOAvatar::updateLOD()
 		mNeedsSkin = TRUE;
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
 	}
-	
+	rebuildRiggedAttachments();
 	updateVisibility();
 
 	return res;
