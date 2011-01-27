@@ -522,7 +522,7 @@ BOOL LLSpatialGroup::isRecentlyVisible() const
 
 BOOL LLSpatialGroup::isVisible() const
 {
-	return mVisible[LLViewerCamera::sCurCameraID] == LLDrawable::getCurrentFrame() ? TRUE : FALSE;
+	return mVisible[LLViewerCamera::sCurCameraID] >= LLDrawable::getCurrentFrame() ? TRUE : FALSE;
 }
 
 void LLSpatialGroup::setVisible()
@@ -1345,7 +1345,8 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 	}
 	else
 	{
-		return (gFrameTimeSeconds - mLastUpdateTime+4.f)/mDistance;
+		F32 time = gFrameTimeSeconds-mLastUpdateTime+4.f;
+		return time + (mObjectBounds[1].dot3(mObjectBounds[1]).getF32()+1.f)/mDistance;
 	}
 }
 
@@ -1356,8 +1357,8 @@ BOOL LLSpatialGroup::needsUpdate()
 
 BOOL LLSpatialGroup::changeLOD()
 {
-	if (isState(ALPHA_DIRTY))
-	{ ///an alpha sort is going to happen, update distance and LOD
+	if (isState(ALPHA_DIRTY | OBJECT_DIRTY))
+	{ ///a rebuild is going to happen, update distance and LoD
 		return TRUE;
 	}
 
@@ -1370,7 +1371,7 @@ BOOL LLSpatialGroup::changeLOD()
 			return TRUE;
 		}
 
-		if (mDistance > mRadius)
+		if (mDistance > mRadius*2.f)
 		{
 			return FALSE;
 		}
@@ -4100,7 +4101,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
-									  LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
+									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA)) 
 	{
 		return;
@@ -4140,7 +4141,7 @@ void LLSpatialGroup::drawObjectBox(LLColor4 col)
 {
 	gGL.color4fv(col.mV);
 	LLVector4a size;
-	size = mObjectBounds[0];
+	size = mObjectBounds[1];
 	size.mul(1.01f);
 	size.add(LLVector4a(0.001f));
 	drawBox(mObjectBounds[0], size);

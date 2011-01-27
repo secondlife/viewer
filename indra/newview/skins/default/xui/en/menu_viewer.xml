@@ -2258,6 +2258,16 @@
            parameter="face area" />
         </menu_item_check>
         <menu_item_check
+         label="Build Queue"
+         name="Build Queue">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="build queue" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="build queue" />
+        </menu_item_check>
+        <menu_item_check
          label="Lights"
          name="Lights">
           <menu_item_check.on_check

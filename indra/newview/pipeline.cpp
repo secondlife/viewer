@@ -330,6 +330,8 @@ LLPipeline::LLPipeline() :
 	mRenderDebugFeatureMask(0),
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
+	mGroupQ1Locked(false),
+	mGroupQ2Locked(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
 	mSkyPool(NULL),
@@ -2118,6 +2120,7 @@ void LLPipeline::rebuildPriorityGroups()
 
 	gMeshRepo.notifyLoadedMeshes();
 
+	mGroupQ1Locked = true;
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
@@ -2128,11 +2131,18 @@ void LLPipeline::rebuildPriorityGroups()
 	}
 
 	mGroupQ1.clear();
+	mGroupQ1Locked = false;
 
 }
 		
 void LLPipeline::rebuildGroups()
 {
+	if (mGroupQ2.empty())
+	{
+		return;
+	}
+
+	mGroupQ2Locked = true;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
@@ -2142,33 +2152,30 @@ void LLPipeline::rebuildGroups()
 	std::sort(mGroupQ2.begin(), mGroupQ2.end(), LLSpatialGroup::CompareUpdateUrgency());
 
 	LLSpatialGroup::sg_vector_t::iterator iter;
+	LLSpatialGroup::sg_vector_t::iterator last_iter = mGroupQ2.begin();
+
 	for (iter = mGroupQ2.begin();
-		 iter != mGroupQ2.end(); ++iter)
+		 iter != mGroupQ2.end() && count <= min_count; ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+		last_iter = iter;
 
-		if (group->isDead())
+		if (!group->isDead())
 		{
-			continue;
-		}
-
-		group->rebuildGeom();
-		
-		if (group->mSpatialPartition->mRenderByGroup)
-		{
-			count++;
-		}
+			group->rebuildGeom();
 			
-		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-
-		if (count > min_count)
-		{
-			++iter;
-			break;
+			if (group->mSpatialPartition->mRenderByGroup)
+			{
+				count++;
+			}
 		}
+
+		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
 	}	
 
-	mGroupQ2.erase(mGroupQ2.begin(), iter);
+	mGroupQ2.erase(mGroupQ2.begin(), ++last_iter);
+
+	mGroupQ2Locked = false;
 
 	updateMovedList(mMovedBridge);
 }
@@ -2463,6 +2470,8 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 		{
 			if (!group->isState(LLSpatialGroup::IN_BUILD_Q1))
 			{
+				llassert_always(!mGroupQ1Locked);
+
 				mGroupQ1.push_back(group);
 				group->setState(LLSpatialGroup::IN_BUILD_Q1);
 
@@ -2479,11 +2488,7 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 		}
 		else if (!group->isState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
 		{
-			//llerrs << "Non-priority updates not yet supported!" << llendl;
-			if (std::find(mGroupQ2.begin(), mGroupQ2.end(), group) != mGroupQ2.end())
-			{
-				llerrs << "WTF?" << llendl;
-			}
+			llassert_always(!mGroupQ2Locked);
 			mGroupQ2.push_back(group);
 			group->setState(LLSpatialGroup::IN_BUILD_Q2);
 
@@ -2563,6 +2568,42 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
+
+	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
+	{
+		LLSpatialGroup* last_group = NULL;
+		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+		{
+			LLCullResult::bridge_list_t::iterator cur_iter = i;
+			LLSpatialBridge* bridge = *cur_iter;
+			LLSpatialGroup* group = bridge->getSpatialGroup();
+
+			if (last_group == NULL)
+			{
+				last_group = group;
+			}
+
+			if (!bridge->isDead() && group && !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+			{
+				stateSort(bridge, camera);
+			}
+
+			if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD &&
+				last_group != group && last_group->changeLOD())
+			{
+				last_group->mLastUpdateDistance = last_group->mDistance;
+			}
+
+			last_group = group;
+		}
+
+		if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD &&
+			last_group && last_group->changeLOD())
+		{
+			last_group->mLastUpdateDistance = last_group->mDistance;
+		}
+	}
+
 	for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -2578,19 +2619,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 	
-	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
-	{
-		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
-		{
-			LLCullResult::bridge_list_t::iterator cur_iter = i;
-			LLSpatialBridge* bridge = *cur_iter;
-			LLSpatialGroup* group = bridge->getSpatialGroup();
-			if (!bridge->isDead() && group && !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
-			{
-				stateSort(bridge, camera);
-			}
-		}
-	}
 	{
 		LLFastTimer ftm(FTM_STATESORT_DRAWABLE);
 		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList();
@@ -2620,6 +2648,11 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 		{
 			LLDrawable* drawablep = *i;
 			stateSort(drawablep, camera);
+		}
+
+		if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
+		{ //avoid redundant stateSort calls
+			group->mLastUpdateDistance = group->mDistance;
 		}
 	}
 
@@ -2687,21 +2720,17 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
-		LLSpatialGroup* group = drawablep->getSpatialGroup();
-		if (!group || group->changeLOD())
+		if (drawablep->isVisible())
 		{
-			if (drawablep->isVisible())
+			if (!drawablep->isActive())
 			{
-				if (!drawablep->isActive())
-				{
-					bool force_update = false;
-					drawablep->updateDistance(camera, force_update);
-				}
-				else if (drawablep->isAvatar())
-				{
-					bool force_update = false;
-					drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
-				}
+				bool force_update = false;
+				drawablep->updateDistance(camera, force_update);
+			}
+			else if (drawablep->isAvatar())
+			{
+				bool force_update = false;
+				drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
 			}
 		}
 	}
@@ -4191,13 +4220,19 @@ void LLPipeline::renderDebug()
 	if (mRenderDebugMask & LLPipeline::RENDER_DEBUG_BUILD_QUEUE)
 	{
 		U32 count = 0;
-		U32 size = mBuildQ2.size();
+		U32 size = mGroupQ2.size();
 		LLColor4 col;
 
+		LLVertexBuffer::unbind();
 		LLGLEnable blend(GL_BLEND);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 		
+		gGL.pushMatrix();
+		glLoadMatrixd(gGLModelView);
+		gGLLastMatrix = NULL;
+
 		for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin(); iter != mGroupQ2.end(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
@@ -4219,7 +4254,7 @@ void LLPipeline::renderDebug()
 				glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
 			}
 
-			F32 alpha = (F32) (size-count)/size;
+			F32 alpha = llclamp((F32) (size-count)/size, 0.f, 1.f);
 
 			
 			LLVector2 c(1.f-alpha, alpha);
@@ -4227,7 +4262,7 @@ void LLPipeline::renderDebug()
 
 			
 			++count;
-			col.set(c.mV[0], c.mV[1], 0, alpha*0.5f+0.1f);
+			col.set(c.mV[0], c.mV[1], 0, alpha*0.5f+0.5f);
 			group->drawObjectBox(col);
 
 			if (bridge)
@@ -4237,6 +4272,7 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+	gGL.popMatrix();
 	gGL.flush();
 
 	gPipeline.renderPhysicsDisplay();

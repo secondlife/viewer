@@ -1227,7 +1227,7 @@ BOOL LLVOVolume::updateLOD()
 		mLODChanged = TRUE;
 	}
 
-	lod_changed |= LLViewerObject::updateLOD();
+	lod_changed = lod_changed || LLViewerObject::updateLOD();
 	
 	return lod_changed;
 }
