@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_underpants_panel">
 	<panel name="avatar_underpants_color_panel">
-		<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij aby wybrać kolor"/>
+		<texture_picker label="Tekstura" name="Fabric" tool_tip="Kliknij aby wybrać kolor"/>
 		<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 	</panel>
 	<panel name="accordion_panel">

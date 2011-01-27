@@ -17,7 +17,8 @@
 		<menu_item_call label="Fenstergröße einstellen..." name="Set Window Size..."/>
 		<menu_item_call label="Servicebedingungen anzeigen" name="TOS"/>
 		<menu_item_call label="Wichtige Meldung anzeigen" name="Critical"/>
-		<menu_item_call label="Web-Browser-Test" name="Web Browser Test"/>
+		<menu_item_call label="Test Medienbrowser" name="Web Browser Test"/>
+		<menu_item_call label="Test Webinhalt-Floater" name="Web Content Floater Test"/>
 		<menu_item_check label="Grid-Auswahl anzeigen" name="Show Grid Picker"/>
 		<menu_item_call label="Benachrichtigungs-Konsole anzeigen" name="Show Notifications Console"/>
 	</menu>
