@@ -72,7 +72,7 @@ struct TestCapabilityProvider: public LLCapabilityProvider
     {
         mCaps[cap] = url;
     }
-    LLHost getHost() const { return mHost; }
+    const LLHost& getHost() const { return mHost; }
     std::string getDescription() const { return "TestCapabilityProvider"; }
 
     LLHost mHost;

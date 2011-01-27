@@ -1436,9 +1436,12 @@ void LLViewerMedia::proxyWindowClosed(const std::string &uuid)
 // static
 void LLViewerMedia::createSpareBrowserMediaSource()
 {
-	if(!sSpareBrowserMediaSource)
+	// If we don't have a spare browser media source, create one.
+	// However, if PluginAttachDebuggerToPlugins is set then don't spawn a spare
+	// SLPlugin process in order to not be confused by an unrelated gdb terminal
+	// popping up at the moment we start a media plugin.
+	if (!sSpareBrowserMediaSource && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
-		// If we don't have a spare browser media source, create one.
 		// The null owner will keep the browser plugin from fully initializing 
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change, 
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
@@ -1694,7 +1697,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	LLPluginClassMedia* media_source = NULL;
 	
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
-	if(plugin_basename == "media_plugin_webkit")
+	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
+	if(plugin_basename == "media_plugin_webkit" && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
 		media_source = LLViewerMedia::getSpareBrowserMediaSource();
 		if(media_source)
