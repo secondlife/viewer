@@ -481,7 +481,7 @@ Para aumentar a qualidade do vídeo, vá para Preferências &gt; Vídeo.
 	</notification>
 	<notification name="CannotCopyWarning">
 		Você não tem autorização para copiar os itens abaixo:
-[ITENS]
+[ITEMS]
 ao dá-los, você ficará sem eles no seu inventário. Deseja realmente dar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
@@ -2686,9 +2686,6 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 	<notification name="VoiceCallGenericError">
 		Ocorreu um erro enquanto você tentava se conectar à conversa de voz de [VOICE_CHANNEL_NAME].  Favor tentar novamente mais tarde.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Você chegou a uma região com uma versão diferente de servidor, que pode afetar o desempenho.  [[URL] Consultar notas da versão.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		O SLurl no qual você clicou não é suportado.
 	</notification>
@@ -2742,7 +2739,7 @@ O botão será exibido quando houver espaço suficente.
 	<notification name="ShareItemsConfirmation">
 		Tem certeza de que quer compartilhar os items abaixo?
 
-[ITENS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Com os seguintes residentes:
 

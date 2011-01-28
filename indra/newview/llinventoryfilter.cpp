@@ -393,18 +393,22 @@ void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
 
 void LLInventoryFilter::setFilterSubString(const std::string& string)
 {
-	if (mFilterSubString != string)
+	std::string filter_sub_string_new = string;
+	mFilterSubStringOrig = string;
+	LLStringUtil::trimHead(filter_sub_string_new);
+	LLStringUtil::toUpper(filter_sub_string_new);
+
+	if (mFilterSubString != filter_sub_string_new)
 	{
 		// hitting BACKSPACE, for example
-		const BOOL less_restrictive = mFilterSubString.size() >= string.size() && !mFilterSubString.substr(0, string.size()).compare(string);
+		const BOOL less_restrictive = mFilterSubString.size() >= filter_sub_string_new.size()
+			&& !mFilterSubString.substr(0, filter_sub_string_new.size()).compare(filter_sub_string_new);
 
 		// appending new characters
-		const BOOL more_restrictive = mFilterSubString.size() < string.size() && !string.substr(0, mFilterSubString.size()).compare(mFilterSubString);
+		const BOOL more_restrictive = mFilterSubString.size() < filter_sub_string_new.size()
+			&& !filter_sub_string_new.substr(0, mFilterSubString.size()).compare(mFilterSubString);
 
-		mFilterSubStringOrig = string;
-		LLStringUtil::trimHead(mFilterSubStringOrig);
-		mFilterSubString = mFilterSubStringOrig;
-		LLStringUtil::toUpper(mFilterSubString);
+		mFilterSubString = filter_sub_string_new;
 		if (less_restrictive)
 		{
 			setModified(FILTER_LESS_RESTRICTIVE);

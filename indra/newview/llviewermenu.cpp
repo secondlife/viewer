@@ -557,7 +557,7 @@ class LLAdvancedCheckConsole : public view_listener_t
 			new_value = get_visibility( (void*)gDebugView->mMemoryView );
 		}
 #endif
-
+		
 		return new_value;
 	}
 };
@@ -905,6 +905,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("render batches" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
+	}
+	else if ("update type" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_UPDATE_TYPE;
 	}
 	else if ("texture anim" == info_display)
 	{
@@ -4197,9 +4201,9 @@ class LLObjectEnableReturn : public view_listener_t
 					{
 						virtual bool apply(LLViewerObject* obj)
 						{
-							return (obj->isOverAgentOwnedLand() ||
-									obj->isOverGroupOwnedLand() ||
-									obj->permModify());
+							return 
+								obj->permModify() ||
+								obj->isReturnable();
 						}
 					} func;
 					const bool firstonly = true;
