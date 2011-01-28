@@ -32,6 +32,7 @@
 #include "llcoord.h"
 //#include "llgl.h"
 
+#include "llagent.h"
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -463,7 +464,8 @@ void LLFloaterTools::refresh()
 	childSetEnabled("linked_set_cost", have_selection);
 	childSetEnabled("object_cost", have_selection);
 
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled");
+	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
+					   !gAgent.getRegion()->getCapability("GetMesh").empty();
 
 	getChildView("linked_set_count")->setVisible(enable_mesh);
 	getChildView("linked_set_cost")->setVisible(enable_mesh);
