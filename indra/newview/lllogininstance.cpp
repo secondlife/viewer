@@ -214,6 +214,9 @@ void MandatoryUpdateMachine::start(void)
 			case LLUpdaterService::CHECKING_FOR_UPDATE:
 				setCurrentState(new CheckingForUpdate(*this));
 				break;
+			case LLUpdaterService::TEMPORARY_ERROR:
+				setCurrentState(new Error(*this));
+				break;
 			case LLUpdaterService::DOWNLOADING:
 				setCurrentState(new WaitingForDownload(*this));
 				break;
@@ -289,6 +292,7 @@ bool MandatoryUpdateMachine::CheckingForUpdate::onEvent(LLSD const & event)
 			case LLUpdaterService::DOWNLOADING:
 				mMachine.setCurrentState(new WaitingForDownload(mMachine));
 				break;
+			case LLUpdaterService::TEMPORARY_ERROR:
 			case LLUpdaterService::UP_TO_DATE:
 			case LLUpdaterService::TERMINAL:
 			case LLUpdaterService::FAILURE:
@@ -324,7 +328,7 @@ MandatoryUpdateMachine::Error::Error(MandatoryUpdateMachine & machine):
 void MandatoryUpdateMachine::Error::enter(void)
 {
 	llinfos << "entering error" << llendl;
-	LLNotificationsUtil::add("FailedUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
+	LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
 }
 
 

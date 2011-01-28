@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="real_url">
-		http://secondlife.com/app/login/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
@@ -11,7 +8,7 @@
 			<text name="username_text">
 				Użytkownik:
 			</text>
-			<line_editor label="bobsmith12 lub Steller Sunshine" name="username_edit" tool_tip="Nazwę użytkownika wybierasz podczas rejestracji, np: like bobsmith12 lub Steller Sunshine"/>
+			<combo_box name="username_combo" tool_tip="Nazwę użytkownika wybierasz przy rejestracji, np. bobsmith12 lub Steller Sunshine"/>
 			<text name="password_text">
 				Hasło:
 			</text>
