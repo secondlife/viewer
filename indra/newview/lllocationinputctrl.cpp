@@ -547,6 +547,10 @@ void LLLocationInputCtrl::onFocusLost()
 {
 	LLUICtrl::onFocusLost();
 	refreshLocation();
+
+	// Setting cursor to 0  to show the left edge of the text. See STORM-370.
+	mTextEntry->setCursor(0);
+
 	if(mTextEntry->hasSelection()){
 		mTextEntry->deselect();
 	}

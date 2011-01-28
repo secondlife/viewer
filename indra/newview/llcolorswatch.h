@@ -100,7 +100,7 @@ public:
 	/*virtual*/ void	setEnabled( BOOL enabled );
 
 	static void		onColorChanged ( void* data, EColorPickOp pick_op = COLOR_CHANGE );
-	void			onParentFloaterClosed();
+	void			closeFloaterColorPicker();
 
 protected:
 	BOOL			mValid;
