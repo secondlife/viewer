@@ -284,6 +284,9 @@ public:
 	// singleton pattern implementation
 	static LLWaterParamManager * instance();
 
+private:
+	void initOverrides();
+
 public:
 
 	LLWaterParamSet mCurParams;
@@ -313,6 +316,9 @@ public:
 private:
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
+
+	LLColor4	mPrevFogColor;
+	F32			mPrevFogDensity;
 
 	// our parameter manager singleton instance
 	static LLWaterParamManager * sInstance;
