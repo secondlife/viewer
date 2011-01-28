@@ -1404,9 +1404,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>045618341689fdc3a5560b75a9890a78</string>
+              <string>52e49ab6937b09882389da0dbaec17f5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-sdk-windows-7.3-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-7.3-windows-20110127.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
