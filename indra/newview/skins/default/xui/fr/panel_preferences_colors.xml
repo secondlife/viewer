@@ -29,10 +29,10 @@
 		URL
 	</text>
 	<text name="bubble_chat">
-		Arrière-plan des bulles de chat :
+		Couleur de fond des noms (bulles de chat comprises) :
 	</text>
-	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat."/>
-	<slider label="Opacité :" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Choisir une couleur pour les noms."/>
+	<slider label="Opacité :" name="bubble_chat_opacity" tool_tip="Choisir une opacité pour les noms."/>
 	<text name="floater_opacity">
 		Opacité des fenêtres flottantes :
 	</text>

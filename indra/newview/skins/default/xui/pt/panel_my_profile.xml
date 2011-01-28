@@ -5,30 +5,27 @@
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="scroll_content_panel">
 					<panel name="second_life_image_panel">
-						<icon label="" name="2nd_life_edit_icon" tool_tip="Clique no botão Editar para trocar a imagem"/>
-						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+						<text name="display_name_descr_text">
+							Nome de usuário
+						</text>
+						<text name="name_descr_text">
+							Nome de tela
+						</text>
+						<button label="Perfil" name="see_profile_btn" tool_tip="Ver o perfil deste avatar"/>
 					</panel>
-					<panel name="first_life_image_panel">
-						<icon label="" name="real_world_edit_icon" tool_tip="Clique no botão Editar para trocar a imagem"/>
-						<text name="title_rw_descr_text" value="Mundo real:"/>
-					</panel>
-					<text name="title_member_text" value="Residente desde:"/>
-					<text name="title_acc_status_text" value="Conta:"/>
-					<text name="title_partner_text" value="Parceiro(a):"/>
-					<panel name="partner_data_panel">
-						<name_box initial_value="(pesquisando)" name="partner_text"/>
-					</panel>
-					<text name="title_groups_text" value="Grupos:"/>
 				</panel>
 			</scroll_container>
 		</layout_panel>
 	</layout_stack>
-	<panel name="profile_me_buttons_panel">
-		<button label="Editar perfil" name="edit_profile_btn" tool_tip="Editar dados pessoais"/>
-	</panel>
 </panel>
