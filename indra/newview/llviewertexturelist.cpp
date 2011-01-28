@@ -1161,6 +1161,8 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 // static
 void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_data)
 {
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receive image header, copy into image object and decompresses 
@@ -1171,14 +1173,16 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	char ip_string[256];
 	u32_to_ip_string(msg->getSenderIP(),ip_string);
 	
+	U32 received_size ;
 	if (msg->getReceiveCompressedSize())
 	{
-		gTextureList.sTextureBits += msg->getReceiveCompressedSize() * 8;
+		received_size = msg->getReceiveCompressedSize() ;		
 	}
 	else
 	{
-		gTextureList.sTextureBits += msg->getReceiveSize() * 8;
+		received_size = msg->getReceiveSize() ;		
 	}
+	gTextureList.sTextureBits += received_size * 8;
 	gTextureList.sTexturePackets++;
 	
 	U8 codec;
@@ -1213,6 +1217,11 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
+	if(log_texture_traffic)
+	{
+		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
+	}
+
 	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImageHeader(msg->getSender(), id, codec, packets, totalbytes, data_size, data);
 	if (!res)
@@ -1224,6 +1233,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_data)
 {
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 	LLMemType mt1(LLMemType::MTYPE_APPFMTIMAGE);
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
@@ -1236,14 +1247,16 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 	char ip_string[256];
 	u32_to_ip_string(msg->getSenderIP(),ip_string);
 	
+	U32 received_size ;
 	if (msg->getReceiveCompressedSize())
 	{
-		gTextureList.sTextureBits += msg->getReceiveCompressedSize() * 8;
+		received_size = msg->getReceiveCompressedSize() ;
 	}
 	else
 	{
-		gTextureList.sTextureBits += msg->getReceiveSize() * 8;
+		received_size = msg->getReceiveSize() ;		
 	}
+	gTextureList.sTextureBits += received_size * 8;
 	gTextureList.sTexturePackets++;
 	
 	//llprintline("Start decode, image header...");
@@ -1277,6 +1290,11 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
+	if(log_texture_traffic)
+	{
+		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
+	}
+
 	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImagePacket(msg->getSender(), id, packet_num, data_size, data);
 	if (!res)
@@ -1513,41 +1531,44 @@ bool LLUIImageList::initFromFile()
 		return false;
 	}
 
-	std::vector<std::string> paths;
-	// path to current selected skin
-	paths.push_back(gDirUtilp->getSkinDir() 
-			+ gDirUtilp->getDirDelimiter() 
-			+ "textures"
-			+ gDirUtilp->getDirDelimiter()
-			+ "textures.xml");
-	// path to user overrides on current skin
-	paths.push_back(gDirUtilp->getUserSkinDir() 
-			+ gDirUtilp->getDirDelimiter() 
-			+ "textures"
-			+ gDirUtilp->getDirDelimiter()
-			+ "textures.xml");
-
-	// apply skinned xml files incrementally
-	for(std::vector<std::string>::iterator path_it = paths.begin();
-		path_it != paths.end();
-		++path_it)
-	{
-		// don't reapply base file to itself
-		if (!path_it->empty() && (*path_it) != base_file_path)
-		{
-			LLXMLNodePtr update_root;
-			if (LLXMLNode::parseFile(*path_it, update_root, NULL))
-			{
-				LLXMLNode::updateNode(root, update_root);
-			}
-		}
-	}
-
 	UIImageDeclarations images;
 	LLXUIParser parser;
 	parser.readXUI(root, images, base_file_path);
 
+	// add components defined in current skin
+	std::string skin_update_path = gDirUtilp->getSkinDir() 
+									+ gDirUtilp->getDirDelimiter() 
+									+ "textures"
+									+ gDirUtilp->getDirDelimiter()
+									+ "textures.xml";
+	LLXMLNodePtr update_root;
+	if (skin_update_path != base_file_path
+		&& LLXMLNode::parseFile(skin_update_path, update_root, NULL))
+	{
+		parser.readXUI(update_root, images, skin_update_path);
+	}
+
+	// add components defined in user override of current skin
+	skin_update_path = gDirUtilp->getUserSkinDir() 
+						+ gDirUtilp->getDirDelimiter() 
+						+ "textures"
+						+ gDirUtilp->getDirDelimiter()
+						+ "textures.xml";
+	if (skin_update_path != base_file_path
+		&& LLXMLNode::parseFile(skin_update_path, update_root, NULL))
+	{
+		parser.readXUI(update_root, images, skin_update_path);
+	}
+
 	if (!images.validateBlock()) return false;
+
+	std::map<std::string, UIImageDeclaration> merged_declarations;
+	for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures.begin();
+		image_it != images.textures.end();
+		++image_it)
+	{
+		merged_declarations[image_it->name].overwriteFrom(*image_it);
+	}
 
 	enum e_decode_pass
 	{
@@ -1558,19 +1579,20 @@ bool LLUIImageList::initFromFile()
 
 	for (S32 cur_pass = PASS_DECODE_NOW; cur_pass < NUM_PASSES; cur_pass++)
 	{
-		for (LLInitParam::ParamIterator<UIImageDeclaration>::const_iterator image_it = images.textures.begin();
-			image_it != images.textures.end();
+		for (std::map<std::string, UIImageDeclaration>::const_iterator image_it = merged_declarations.begin();
+			image_it != merged_declarations.end();
 			++image_it)
 		{
-			std::string file_name = image_it->file_name.isProvided() ? image_it->file_name() : image_it->name();
+			const UIImageDeclaration& image = image_it->second;
+			std::string file_name = image.file_name.isProvided() ? image.file_name() : image.name();
 
 			// load high priority textures on first pass (to kick off decode)
-			enum e_decode_pass decode_pass = image_it->preload ? PASS_DECODE_NOW : PASS_DECODE_LATER;
+			enum e_decode_pass decode_pass = image.preload ? PASS_DECODE_NOW : PASS_DECODE_LATER;
 			if (decode_pass != cur_pass)
 			{
 				continue;
 			}
-			preloadUIImage(image_it->name, file_name, image_it->use_mips, image_it->scale);
+			preloadUIImage(image.name, file_name, image.use_mips, image.scale);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))

@@ -306,6 +306,8 @@ public:
 
 	void update()
 	{
+		static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+
 		std::string wind_vel_text;
 		std::string wind_vector_text;
 		std::string rwind_vel_text;
@@ -579,6 +581,23 @@ public:
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+		}
+		if(log_texture_traffic)
+		{	
+			U32 old_y = ypos ;
+			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
+			{
+				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				{
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					ypos += y_inc;
+				}
+			}
+			if(ypos != old_y)
+			{
+				addText(xpos, ypos, "Network traffic for textures:");
 				ypos += y_inc;
 			}
 		}
@@ -1348,6 +1367,15 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
 
+	LLCoordScreen scr;
+    mWindow->getSize(&scr);
+
+    if(fullscreen && ( scr.mX!=width || scr.mY!=height))
+    {
+		llwarns << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<llendl;
+		gSavedSettings.setS32("FullScreenWidth",scr.mX);
+		gSavedSettings.setS32("FullScreenHeight",scr.mY);
+    }
 
 	if (NULL == mWindow)
 	{
@@ -1359,7 +1387,7 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
 				<< LL_ENDL;
 #endif
-        LLAppViewer::instance()->forceExit(1);
+        LLAppViewer::instance()->fastQuit(1);
 	}
 	
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
@@ -1404,6 +1432,11 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 
+	if (!gGLManager.mHasDepthClamp)
+	{
+		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
+	}
+	
 	// If we crashed while initializng GL stuff last time, disable certain features
 	if (gSavedSettings.getBOOL("RenderInitError"))
 	{
@@ -1521,8 +1554,9 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
-	mPopupView = main_view->findChild<LLPopupView>("popup_holder");
+	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
+	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -1656,7 +1690,7 @@ void LLViewerWindow::initWorldUI()
 	{
 		LLRect hud_rect = full_window;
 		hud_rect.mBottom += 50;
-		if (gMenuBarView)
+		if (gMenuBarView && gMenuBarView->isInVisibleChain())
 		{
 			hud_rect.mTop -= gMenuBarView->getRect().getHeight();
 		}
@@ -1685,6 +1719,20 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setShape(buttons_panel_container->getLocalRect());
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
+
+	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	if (destinations)
+	{
+		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+	}
+
+	if (avatar_picker)
+	{
+		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
+	}
+
 }
 
 // Destroy the UI
@@ -1838,6 +1886,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		{
 			return;
 		}
+
+		gWindowResized = TRUE;
 
 		// update our window rectangle
 		mWindowRectRaw.mRight = mWindowRectRaw.mLeft + width;
@@ -2240,6 +2290,20 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
+	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
+	// no view has keyboard focus, this is a printable character key (and no modifier key is 
+	// pressed except shift), then give focus to nearby chat (STORM-560)
+	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
+	{
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		if (chat_editor)
+		{
+			// passing NULL here, character will be added later when it is handled by character handler.
+			LLBottomTray::getInstance()->getNearbyChatBar()->startChat(NULL);
+			return TRUE;
+		}
+	}
 
 	// give menus a chance to handle unmodified accelerator keys
 	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
@@ -2439,6 +2503,10 @@ void LLViewerWindow::updateUI()
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
 		{
 			LLFirstUse::notUsingDestinationGuide();
+		}
+		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("AvatarPickerHintTimeout"))
+		{
+			LLFirstUse::notUsingAvatarPicker();
 		}
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
 		{
@@ -2935,18 +3003,20 @@ void LLViewerWindow::updateKeyboardFocus()
 
 			LLUICtrl* parent = cur_focus->getParentUICtrl();
 			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			bool new_focus_found = false;
 			while(parent)
 			{
-				if (parent->isCtrl() && 
-					(parent->hasTabStop() || parent == focus_root) && 
-					!parent->getIsChrome() && 
-					parent->isInVisibleChain() && 
-					parent->isInEnabledChain())
+				if (parent->isCtrl() 
+					&& (parent->hasTabStop() || parent == focus_root) 
+					&& !parent->getIsChrome() 
+					&& parent->isInVisibleChain() 
+					&& parent->isInEnabledChain())
 				{
 					if (!parent->focusFirstItem())
 					{
 						parent->setFocus(TRUE);
 					}
+					new_focus_found = true;
 					break;
 				}
 				parent = parent->getParentUICtrl();
@@ -2955,7 +3025,7 @@ void LLViewerWindow::updateKeyboardFocus()
 			// if we didn't find a better place to put focus, just release it
 			// hasFocus() will return true if and only if we didn't touch focus since we
 			// are only moving focus higher in the hierarchy
-			if (cur_focus->hasFocus())
+			if (!new_focus_found)
 			{
 				cur_focus->setFocus(FALSE);
 			}
@@ -3985,30 +4055,19 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		{
 			gDisplaySwapBuffers = FALSE;
 			gDepthDirty = TRUE;
-			if (type == SNAPSHOT_TYPE_OBJECT_ID)
-			{
-				glClearColor(0.f, 0.f, 0.f, 0.f);
-				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-				LLViewerCamera::getInstance()->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));
-				setup3DRender();
-				gObjectList.renderPickList(gViewerWindow->getWindowRectScaled(), FALSE, FALSE);
+			const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+
+			if (LLPipeline::sRenderDeferred)
+			{
+					display(do_rebuild, scale_factor, subfield, TRUE);
 			}
 			else
 			{
-				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					display(do_rebuild, scale_factor, subfield, TRUE);
-				}
-				else
-				{
-					display(do_rebuild, scale_factor, subfield, TRUE);
+				display(do_rebuild, scale_factor, subfield, TRUE);
 					// Required for showing the GUI in snapshots and performing bloom composite overlay
 					// Call even if show_ui is FALSE
-					render_ui(scale_factor, subfield);
-				}
+				render_ui(scale_factor, subfield);
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4031,7 +4090,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
 				}
 				
-				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
+				if (type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,
@@ -4252,17 +4311,8 @@ void LLViewerWindow::setup3DRender()
 
 void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-	if (LLRenderTarget::getCurrentBoundTarget() != NULL)
-	{
-		// don't use translation component of mWorldViewRectRaw, as we are already in a properly sized render target
-		gGLViewport[0] = x_offset;
-		gGLViewport[1] = y_offset;
-	}
-	else
-	{
-		gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
-		gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
-	}
+	gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
+	gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
 	gGLViewport[2] = mWorldViewRectRaw.getWidth();
 	gGLViewport[3] = mWorldViewRectRaw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
@@ -4415,6 +4465,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
+		gWindowResized = TRUE;
 
 		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
 		{

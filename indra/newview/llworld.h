@@ -89,7 +89,7 @@ public:
 
 	// Return the lowest allowed Z point to prevent objects from being moved
 	// underground.
-	F32 getMinAllowedZ(LLViewerObject* object);
+	F32 getMinAllowedZ(LLViewerObject* object, const LLVector3d &global_pos);
 
 	// takes a line segment defined by point_a and point_b, then
 	// determines the closest (to point_a) point of intersection that is
@@ -137,6 +137,7 @@ public:
 
 	LLViewerTexture *getDefaultWaterTexture();
 	void updateWaterObjects();
+	void waterHeightRegionInfo(std::string const& sim_name, F32 water_height);
 	void shiftRegions(const LLVector3& offset);
 
 	void setSpaceTimeUSec(const U64 space_time_usec);

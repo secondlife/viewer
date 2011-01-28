@@ -70,6 +70,111 @@ static const std::string CLASSIFIED_NAME("classified_name");
 
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
+class LLPickHandler : public LLCommandHandler,
+					  public LLAvatarPropertiesObserver
+{
+public:
+
+	std::set<LLUUID> mPickIds;
+	
+	// requires trusted browser to trigger
+	LLPickHandler() : LLCommandHandler("pick", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLMediaCtrl* web)
+	{
+		// handle app/classified/create urls first
+		if (params.size() == 1 && params[0].asString() == "create")
+		{
+			createPick();
+			return true;
+		}
+
+		// then handle the general app/pick/{UUID}/{CMD} urls
+		if (params.size() < 2)
+		{
+			return false;
+		}
+
+		// get the ID for the pick_id
+		LLUUID pick_id;
+		if (!pick_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		// edit the pick in the side tray.
+		// need to ask the server for more info first though...
+		const std::string verb = params[1].asString();
+		if (verb == "edit")
+		{		
+			mPickIds.insert(pick_id);
+			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+			LLAvatarPropertiesProcessor::getInstance()->sendPickInfoRequest(gAgent.getID(),pick_id);
+			return true;
+		}
+		else
+		{
+			llwarns << "unknown verb " << verb << llendl;
+			return false;
+		}
+	}
+
+	void createPick()
+	{
+		LLSD params;
+		params["id"] = gAgent.getID();
+		params["open_tab_name"] = "panel_picks";
+		params["show_tab_panel"] = "create_pick";
+		LLSideTray::getInstance()->showPanel("panel_me", params);
+	}
+
+	void editPick(LLPickData* pick_info)
+	{
+		LLSD params;
+		params["open_tab_name"] = "panel_picks";
+		params["show_tab_panel"] = "edit_pick";
+		params["pick_id"] = pick_info->pick_id;
+		params["avatar_id"] = pick_info->creator_id;
+		params["snapshot_id"] = pick_info->snapshot_id;
+		params["pick_name"] = pick_info->name;
+		params["pick_desc"] = pick_info->desc;
+		
+		LLSideTray::getInstance()->showPanel("panel_me", params);
+	}
+	
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
+	{
+		if (APT_PICK_INFO != type)
+		{
+			return;
+		}
+
+		// is this the pick that we asked for?
+		LLPickData* pick_info = static_cast<LLPickData*>(data);
+		if (!pick_info || mPickIds.find(pick_info->pick_id) == mPickIds.end())
+		{
+			return;
+		}
+
+		// open the edit side tray for this pick
+		if (pick_info->creator_id == gAgent.getID())
+		{
+			editPick(pick_info);
+		}
+		else
+		{
+			llwarns << "Can't edit a pick you did not create" << llendl;
+		}
+
+		// remove our observer now that we're done
+		mPickIds.erase(pick_info->pick_id);
+		LLAvatarPropertiesProcessor::getInstance()->removeObserver(LLUUID(), this);
+	}
+};
+
+LLPickHandler gPickHandler;
+
 class LLClassifiedHandler :
 	public LLCommandHandler,
 	public LLAvatarPropertiesObserver
@@ -80,6 +185,8 @@ public:
 
 	std::set<LLUUID> mClassifiedIds;
 
+	std::string mRequestVerb;
+	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
 		// handle app/classified/create urls first
@@ -107,6 +214,15 @@ public:
 		const std::string verb = params[1].asString();
 		if (verb == "about")
 		{
+			mRequestVerb = verb;
+			mClassifiedIds.insert(classified_id);
+			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+			LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
+			return true;
+		}
+		else if (verb == "edit")
+		{
+			mRequestVerb = verb;
 			mClassifiedIds.insert(classified_id);
 			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
 			LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
@@ -128,18 +244,39 @@ public:
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
 	{
-		// open the classified info panel on the Me > Picks sidetray
-		LLSD params;
-		params["id"] = c_info->creator_id;
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "classified_details";
-		params["classified_id"] = c_info->classified_id;
-		params["classified_creator_id"] = c_info->creator_id;
-		params["classified_snapshot_id"] = c_info->snapshot_id;
-		params["classified_name"] = c_info->name;
-		params["classified_desc"] = c_info->description;
-		params["from_search"] = true;
-		LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+		if (mRequestVerb == "about")
+		{
+			// open the classified info panel on the Me > Picks sidetray
+			LLSD params;
+			params["id"] = c_info->creator_id;
+			params["open_tab_name"] = "panel_picks";
+			params["show_tab_panel"] = "classified_details";
+			params["classified_id"] = c_info->classified_id;
+			params["classified_creator_id"] = c_info->creator_id;
+			params["classified_snapshot_id"] = c_info->snapshot_id;
+			params["classified_name"] = c_info->name;
+			params["classified_desc"] = c_info->description;
+			params["from_search"] = true;
+			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+		}
+		else if (mRequestVerb == "edit")
+		{
+			if (c_info->creator_id == gAgent.getID())
+			{
+				llwarns << "edit in progress" << llendl;
+				// open the new classified panel on the Me > Picks sidetray
+				LLSD params;
+				params["id"] = gAgent.getID();
+				params["open_tab_name"] = "panel_picks";
+				params["show_tab_panel"] = "edit_classified";
+				params["classified_id"] = c_info->classified_id;
+				LLSideTray::getInstance()->showPanel("panel_me", params);
+			}
+			else
+			{
+				llwarns << "Can't edit a classified you did not create" << llendl;
+			}
+		}
 	}
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
@@ -212,7 +349,8 @@ void LLPanelPicks::updateData()
 		mNoPicks = false;
 		mNoClassifieds = false;
 
-		getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+		mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+		mNoItemsLabel->setVisible(TRUE);
 
 		mPicksList->clear();
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
@@ -298,7 +436,10 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				pick_value.insert(CLASSIFIED_ID, c_data.classified_id);
 				pick_value.insert(CLASSIFIED_NAME, c_data.name);
 
-				mClassifiedsList->addItem(c_item, pick_value);
+				if (!findClassifiedById(c_data.classified_id))
+				{
+					mClassifiedsList->addItem(c_item, pick_value);
+				}
 
 				c_item->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickClassifiedItem, this, _1));
 				c_item->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
@@ -314,15 +455,17 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		mNoClassifieds = !mClassifiedsList->size();
 	}
 
-	if (mNoPicks && mNoClassifieds)
+	bool no_data = mNoPicks && mNoClassifieds;
+	mNoItemsLabel->setVisible(no_data);
+	if (no_data)
 	{
 		if(getAvatarId() == gAgentID)
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoPicksClassifiedsText"));
+			mNoItemsLabel->setValue(LLTrans::getString("NoPicksClassifiedsText"));
 		}
 		else
 		{
-			getChild<LLUICtrl>("picks_panel_text")->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
+			mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
 		}
 	}
 }
@@ -358,6 +501,8 @@ BOOL LLPanelPicks::postBuild()
 
 	mPicksList->setNoItemsCommentText(getString("no_picks"));
 	mClassifiedsList->setNoItemsCommentText(getString("no_classifieds"));
+
+	mNoItemsLabel = getChild<LLUICtrl>("picks_panel_text");
 
 	childSetAction(XML_BTN_NEW, boost::bind(&LLPanelPicks::onClickPlusBtn, this));
 	childSetAction(XML_BTN_DELETE, boost::bind(&LLPanelPicks::onClickDelete, this));
@@ -771,6 +916,13 @@ void LLPanelPicks::openClassifiedInfo(const LLSD &params)
 	getProfilePanel()->openPanel(mPanelClassifiedInfo, params);
 }
 
+void LLPanelPicks::openClassifiedEdit(const LLSD& params)
+{
+	LLUUID classified_id = params["classified_id"].asUUID();;
+	llinfos << "opening classified " << classified_id << " for edit" << llendl;
+	editClassified(classified_id);
+}
+
 void LLPanelPicks::showAccordion(const std::string& name, bool show)
 {
 	LLAccordionCtrlTab* tab = getChild<LLAccordionCtrlTab>(name);
@@ -781,7 +933,7 @@ void LLPanelPicks::showAccordion(const std::string& name, bool show)
 
 void LLPanelPicks::onPanelPickClose(LLPanel* panel)
 {
-	panel->setVisible(FALSE);
+	getProfilePanel()->closePanel(panel);
 }
 
 void LLPanelPicks::onPanelPickSave(LLPanel* panel)
@@ -940,6 +1092,12 @@ void LLPanelPicks::createPickEditPanel()
 // 	getProfilePanel()->openPanel(mPanelPickInfo, params);
 // }
 
+void LLPanelPicks::openPickEdit(const LLSD& params)
+{
+	createPickEditPanel();
+	getProfilePanel()->openPanel(mPanelPickEdit, params);
+}
+
 void LLPanelPicks::onPanelPickEdit()
 {
 	LLSD selected_value = mPicksList->getSelectedValue();
@@ -971,6 +1129,35 @@ void LLPanelPicks::onPanelClassifiedEdit()
 	llassert(c_item);
 	if (!c_item)
 	{
+		return;
+	}
+	editClassified(c_item->getClassifiedId());
+}
+
+LLClassifiedItem *LLPanelPicks::findClassifiedById(const LLUUID& classified_id)
+{
+	// HACK - find item by classified id.  Should be a better way.
+	std::vector<LLPanel*> items;
+	mClassifiedsList->getItems(items);
+	LLClassifiedItem* c_item = NULL;
+	for(std::vector<LLPanel*>::iterator it = items.begin(); it != items.end(); ++it)
+	{
+		LLClassifiedItem *test_item = dynamic_cast<LLClassifiedItem*>(*it);
+		if (test_item && test_item->getClassifiedId() == classified_id)
+		{
+			c_item = test_item;
+			break;
+		}
+	}
+	return c_item;
+}
+
+void LLPanelPicks::editClassified(const LLUUID&  classified_id)
+{
+	LLClassifiedItem* c_item = findClassifiedById(classified_id);
+	if (!c_item)
+	{
+		llwarns << "item not found for classified_id " << classified_id << llendl;
 		return;
 	}
 

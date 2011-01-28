@@ -94,10 +94,12 @@ LLNetMap::LLNetMap (const Params & p)
 	mToolTipMsg()
 {
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
+	setScale(gSavedSettings.getF32("MiniMapScale"));
 }
 
 LLNetMap::~LLNetMap()
 {
+	gSavedSettings.setF32("MiniMapScale", mScale);
 }
 
 void LLNetMap::setScale( F32 scale )

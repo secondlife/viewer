@@ -133,13 +133,13 @@ void LLProgressView::setVisible(BOOL visible)
 		mFadeTimer.start();
 	}
 	// showing progress view
-	else if (!getVisible() && visible)
+	else if (visible && (!getVisible() || mFadeTimer.getStarted()))
 	{
 		setFocus(TRUE);
 		mFadeTimer.stop();
 		mProgressTimer.start();
 		LLPanel::setVisible(TRUE);
-	}
+	} 
 }
 
 
@@ -207,7 +207,7 @@ void LLProgressView::setText(const std::string& text)
 
 void LLProgressView::setPercent(const F32 percent)
 {
-	mProgressBar->setPercent(percent);
+	mProgressBar->setValue(percent);
 }
 
 void LLProgressView::setMessage(const std::string& msg)

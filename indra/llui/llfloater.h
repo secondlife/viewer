@@ -284,6 +284,8 @@ public:
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
+
+	void			updateTransparency(ETypeTransparency transparency_type);
 		
 protected:
 
@@ -340,6 +342,10 @@ private:
 	void			enableResizeCtrls(bool enable);
 	void 			addDragHandle();
 	void			layoutDragHandle();		// repair layout
+
+	static void		updateActiveFloaterTransparency();
+	static void		updateInactiveFloaterTransparency();
+	void			updateTransparency(LLView* view, ETypeTransparency transparency_type);
 
 public:
 	// Called when floater is opened, passes mKey

@@ -3,12 +3,13 @@
 project(llimage)
 
 include(00-Common)
-include(LLAddBuildTest)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
 include(LLVFS)
 include(ZLIB)
+include(LLAddBuildTest)
+include(Tut)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -57,11 +58,18 @@ add_library (llimage ${llimage_SOURCE_FILES})
 # Sort by high-level to low-level
 target_link_libraries(llimage
     llcommon
-    llimagej2coj        # *HACK: In theory a noop for KDU builds?
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     )
 
 # Add tests
-#ADD_BUILD_TEST(llimageworker llimage)
+if (LL_TESTS)
+  SET(llimage_TEST_SOURCE_FILES
+    llimageworker.cpp
+    )
+  LL_ADD_PROJECT_UNIT_TESTS(llimage "${llimage_TEST_SOURCE_FILES}")
+endif (LL_TESTS)
+
+
+

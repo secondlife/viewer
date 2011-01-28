@@ -43,6 +43,8 @@
 #include "lldraghandle.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
+#include "llfloaterworldmap.h"
+#include "llagent.h"
 
 //
 // Constants
@@ -81,7 +83,6 @@ LLFloaterMap::~LLFloaterMap()
 BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
-	mMap->setScale(gSavedSettings.getF32("MiniMapScale"));
 	mMap->setToolTipMsg(getString("ToolTipMsg"));	
 	sendChildToBack(mMap);
 	
@@ -122,11 +123,36 @@ BOOL LLFloaterMap::postBuild()
 	return TRUE;
 }
 
-BOOL LLFloaterMap::handleDoubleClick( S32 x, S32 y, MASK mask )
+BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
-	std::string floater_to_show = this->isMinimized() ? "mini_map" : "world_map";
-	LLFloaterReg::showInstance(floater_to_show);
+	if (isMinimized())
+	{
+		setMinimized(FALSE);
+		return TRUE;
+	}
+
+	LLVector3d pos_global = mMap->viewPosToGlobal(x, y);
+	
+	// If we're not tracking a beacon already, double-click will set one 
+	if (!LLTracker::isTracking(NULL))
+	{
+		LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
+		if (world_map)
+		{
+			world_map->trackLocation(pos_global);
+		}
+	}
+	
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
+		gAgent.teleportViaLocationLookAt(pos_global);
+	}
+	else 
+	{
+		LLFloaterReg::showInstance("world_map");
+	}
 	return TRUE;
 }
 
@@ -261,7 +287,16 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 	std::string level = userdata.asString();
 	
 	F32 scale = 0.0f;
-	if (level == std::string("close"))
+	if (level == std::string("default"))
+	{
+		LLControlVariable *pvar = gSavedSettings.getControl("MiniMapScale");
+		if(pvar)
+		{
+			pvar->resetToDefault();
+			scale = gSavedSettings.getF32("MiniMapScale");
+		}
+	}
+	else if (level == std::string("close"))
 		scale = LLNetMap::MAP_SCALE_MAX;
 	else if (level == std::string("medium"))
 		scale = LLNetMap::MAP_SCALE_MID;
@@ -269,7 +304,6 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 		scale = LLNetMap::MAP_SCALE_MIN;
 	if (scale != 0.0f)
 	{
-		gSavedSettings.setF32("MiniMapScale", scale );
 		mMap->setScale(scale);
 	}
 }

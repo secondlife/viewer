@@ -204,9 +204,6 @@ void LLPanelPickInfo::sendParcelInfoRequest()
 {
 	if (mParcelId != mRequestedId)
 	{
-        //ext-4655, remove now incase this gets called twice without a remove
-        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mRequestedId, this);
-        
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(mParcelId, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(mParcelId);
 

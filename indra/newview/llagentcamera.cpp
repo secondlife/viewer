@@ -296,8 +296,11 @@ void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 			LLSelectMgr::getInstance()->deselectAll();
 		}
 
-		// Hide all popup menus
-		gMenuHolder->hideMenus();
+		if (gMenuHolder != NULL)
+		{
+			// Hide all popup menus
+			gMenuHolder->hideMenus();
+		}
 	}
 
 	if (change_camera && !gSavedSettings.getBOOL("FreezeTime"))
@@ -2038,7 +2041,7 @@ void LLAgentCamera::resetCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 {
-	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	if (!gSavedSettings.getBOOL("EnableMouselook") || LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		return;
 	}
@@ -2692,6 +2695,9 @@ void LLAgentCamera::lookAtLastChat()
 		new_camera_pos -= delta_pos * 0.4f;
 		new_camera_pos += left * 0.3f;
 		new_camera_pos += up * 0.2f;
+
+		setFocusOnAvatar(FALSE, FALSE);
+
 		if (chatter_av->mHeadp)
 		{
 			setFocusGlobal(gAgent.getPosGlobalFromAgent(chatter_av->mHeadp->getWorldPosition()), gAgent.getLastChatter());
@@ -2702,7 +2708,6 @@ void LLAgentCamera::lookAtLastChat()
 			setFocusGlobal(chatter->getPositionGlobal(), gAgent.getLastChatter());
 			mCameraFocusOffsetTarget = gAgent.getPosGlobalFromAgent(new_camera_pos) - chatter->getPositionGlobal();
 		}
-		setFocusOnAvatar(FALSE, TRUE);
 	}
 	else
 	{
@@ -2722,9 +2727,10 @@ void LLAgentCamera::lookAtLastChat()
 		new_camera_pos += left * 0.3f;
 		new_camera_pos += up * 0.2f;
 
+		setFocusOnAvatar(FALSE, FALSE);
+
 		setFocusGlobal(chatter->getPositionGlobal(), gAgent.getLastChatter());
 		mCameraFocusOffsetTarget = gAgent.getPosGlobalFromAgent(new_camera_pos) - chatter->getPositionGlobal();
-		setFocusOnAvatar(FALSE, TRUE);
 	}
 }
 

@@ -64,6 +64,18 @@ public:
 	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) 
 	{
 		mStopProcessing = false;
+
+		LLControlVariable* ctrl = gSavedSettings.getControl("NearbyToastLifeTime").get();
+		if (ctrl)
+		{
+			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastsLifetime, this));
+		}
+
+		ctrl = gSavedSettings.getControl("NearbyToastFadingTime").get();
+		if (ctrl)
+		{
+			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastFadingTime, this));
+		}
 	}
 
 	void addNotification	(LLSD& notification);
@@ -111,10 +123,23 @@ protected:
 		toast->setVisible(FALSE);
 		toast->stopTimer();
 		toast->setIsHidden(true);
+
+		// Nearby chat toasts that are hidden, not destroyed. They are collected to the toast pool, so that
+		// they can be used next time, this is done for performance. But if the toast lifetime was changed
+		// (from preferences floater (STORY-36)) while it was shown (at this moment toast isn't in the pool yet)
+		// changes don't take affect.
+		// So toast's lifetime should be updated each time it's added to the pool. Otherwise viewer would have
+		// to be restarted so that changes take effect.
+		toast->setLifetime(gSavedSettings.getS32("NearbyToastLifeTime"));
+		toast->setFadingTime(gSavedSettings.getS32("NearbyToastFadingTime"));
 		m_toast_pool.push_back(toast->getHandle());
 	}
 
 	void	createOverflowToast(S32 bottom, F32 timer);
+
+	void 	updateToastsLifetime();
+
+	void	updateToastFadingTime();
 
 	create_toast_panel_callback_t m_create_toast_panel_callback_t;
 
@@ -205,6 +230,27 @@ void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
 	arrangeToasts();
 }
 
+void LLNearbyChatScreenChannel::updateToastsLifetime()
+{
+	S32 seconds = gSavedSettings.getS32("NearbyToastLifeTime");
+	toast_list_t::iterator it;
+
+	for(it = m_toast_pool.begin(); it != m_toast_pool.end(); ++it)
+	{
+		(*it).get()->setLifetime(seconds);
+	}
+}
+
+void LLNearbyChatScreenChannel::updateToastFadingTime()
+{
+	S32 seconds = gSavedSettings.getS32("NearbyToastFadingTime");
+	toast_list_t::iterator it;
+
+	for(it = m_toast_pool.begin(); it != m_toast_pool.end(); ++it)
+	{
+		(*it).get()->setFadingTime(seconds);
+	}
+}
 
 bool	LLNearbyChatScreenChannel::createPoolToast()
 {
@@ -250,7 +296,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 			{
 				panel->addMessage(notification);
 				toast->reshapeToPanel();
-				toast->resetTimer();
+				toast->startTimer();
 	  
 				arrangeToasts();
 				return;
@@ -295,7 +341,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	panel->init(notification);
 
 	toast->reshapeToPanel();
-	toast->resetTimer();
+	toast->startTimer();
 	
 	m_active_toasts.push_back(toast->getHandle());
 
@@ -325,9 +371,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
-	F32 v1 = first.get()->getTimer()->getEventTimer().getElapsedTimeF32();
-	F32 v2 = second.get()->getTimer()->getEventTimer().getElapsedTimeF32();
-	return v1 < v2;
+	F32 v1 = first.get()->getTimeLeftToLive();
+	F32 v2 = second.get()->getTimeLeftToLive();
+	return v1 > v2;
 }
 
 void LLNearbyChatScreenChannel::showToastsBottom()
@@ -336,7 +382,10 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 		return;
 
 	LLRect	toast_rect;	
-	S32		bottom = getRect().mBottom;
+	updateBottom();
+	S32 channel_bottom = getRect().mBottom;
+
+	S32		bottom = channel_bottom;
 	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	//sort active toasts
@@ -468,9 +517,18 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	}
 
 	nearby_chat->addMessage(chat_msg, true, args);
+
+	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 
+		&& chat_msg.mFromID.notNull() 
+		&& chat_msg.mFromID != gAgentID)
+	{
+ 		LLFirstUse::otherAvatarChatFirst();
+	}
+
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
-			&& gSavedSettings.getBOOL("UseChatBubbles") ) )
+			&& gSavedSettings.getBOOL("UseChatBubbles") )
+		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// Handle irc styled messages for toast panel
@@ -527,13 +585,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
 		channel->addNotification(notification);	
 	}
-	
-	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 
-		&& chat_msg.mFromID.notNull() 
-		&& chat_msg.mFromID != gAgentID)
-	{
- 		LLFirstUse::otherAvatarChatFirst();
-	}
+
 }
 
 void LLNearbyChatHandler::onDeleteToast(LLToast* toast)

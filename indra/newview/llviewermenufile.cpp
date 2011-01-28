@@ -507,7 +507,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
 				short_name.c_str());
 		args["FILE"] = short_name;
- 		upload_error(error_message, "NofileExtension", filename, args);
+ 		upload_error(error_message, "NoFileExtension", filename, args);
 		return;
 	}
 	else if( exten == "bmp")

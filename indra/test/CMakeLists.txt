@@ -27,6 +27,7 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${GOOGLEMOCK_INCLUDE_DIRS}
+    ${TUT_INCLUDE_DIR}
     )
 
 set(test_SOURCE_FILES

@@ -45,7 +45,7 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llbuycurrencyhtml.h"
@@ -191,6 +191,8 @@ BOOL is_selection_buy_not_take();
 S32 selection_price();
 BOOL enable_take();
 void handle_take();
+void handle_object_show_inspector();
+void handle_avatar_show_inspector();
 bool confirm_take(const LLSD& notification, const LLSD& response);
 
 void handle_buy_object(LLSaleInfo sale_info);
@@ -221,8 +223,6 @@ BOOL check_show_xui_names(void *);
 // Debug UI
 
 void handle_buy_currency_test(void*);
-void handle_save_to_xml(void*);
-void handle_load_from_xml(void*);
 
 void handle_god_mode(void*);
 
@@ -843,6 +843,35 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
+void LLDestinationAndAvatarShow(const LLSD& value)
+{
+	S32 panel_idx = value.isDefined() ? value.asInteger() : -1;
+	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
+	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
+	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+
+	switch(panel_idx)
+	{
+	case 0:
+		container->setVisible(true);
+		destinations->setVisible(true);
+		avatar_picker->setVisible(false);
+		LLFirstUse::notUsingDestinationGuide(false);
+		break;
+	case 1:
+		container->setVisible(true);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(true);
+		LLFirstUse::notUsingAvatarPicker(false);
+		break;
+	default:
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		break;
+	}
+};
+
 
 //////////////////
 // INFO DISPLAY //
@@ -1383,37 +1412,6 @@ class LLAdvancedCheckDebugWindowProc : public view_listener_t
 };
 
 // ------------------------------XUI MENU ---------------------------
-
-//////////////////////
-// LOAD UI FROM XML //
-//////////////////////
-
-
-class LLAdvancedLoadUIFromXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_load_from_xml(NULL);
-		return true;
-}
-};
-
-
-
-////////////////////
-// SAVE UI TO XML //
-////////////////////
-
-
-class LLAdvancedSaveUIToXML : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_save_to_xml(NULL);
-		return true;
-}
-};
-
 
 class LLAdvancedSendTestIms : public view_listener_t
 {
@@ -1994,6 +1992,16 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 // VIEW ADMIN OPTIONS //
 ////////////////////////
 
+class LLAdvancedEnableViewAdminOptions : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		// Don't enable in god mode since the admin menu is shown anyway.
+		// Only enable if the user has set the appropriate debug setting.
+		bool new_value = !gAgent.getAgentAccess().isGodlikeWithoutAdminMenuFakery() && gSavedSettings.getBOOL("AdminMenu");
+		return new_value;
+	}
+};
 
 class LLAdvancedToggleViewAdminOptions : public view_listener_t
 {
@@ -2008,7 +2016,7 @@ class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = check_admin_override(NULL);
+		bool new_value = check_admin_override(NULL) || gAgent.isGodlike();
 		return new_value;
 	}
 };
@@ -4160,6 +4168,11 @@ class LLObjectEnableReturn : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		{
+			// Do not enable if nothing selected
+			return false;
+		}
 #ifdef HACKED_GODLIKE_VIEWER
 		bool new_value = true;
 #else
@@ -4311,6 +4324,33 @@ void handle_take()
 		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
+
+void handle_object_show_inspector()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* objectp = selection->getFirstRootObject(TRUE);
+ 	if (!objectp)
+ 	{
+ 		return;
+ 	}
+
+	LLSD params;
+	params["object_id"] = objectp->getID();
+	LLFloaterReg::showInstance("inspect_object", params);
+}
+
+void handle_avatar_show_inspector()
+{
+	LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+	if(avatar)
+	{
+		LLSD params;
+		params["avatar_id"] = avatar->getID();
+		LLFloaterReg::showInstance("inspect_avatar", params);
+	}
+}
+
+
 
 bool confirm_take(const LLSD& notification, const LLSD& response)
 {
@@ -6518,16 +6558,6 @@ class LLToggleControl : public view_listener_t
 		std::string control_name = userdata.asString();
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
-
-        // Doubleclick actions - there can be only one
-        if ((control_name == "DoubleClickAutoPilot") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
-        }
-        else if ((control_name == "DoubleClickTeleport") && !checked)
-        {
-			gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
-        }
 		return true;
 	}
 };
@@ -7183,44 +7213,6 @@ const LLRect LLViewerMenuHolderGL::getMenuRect() const
 	return LLRect(0, getRect().getHeight() - MENU_BAR_HEIGHT, getRect().getWidth(), STATUS_BAR_HEIGHT);
 }
 
-void handle_save_to_xml(void*)
-{
-	LLFloater* frontmost = gFloaterView->getFrontmost();
-	if (!frontmost)
-	{
-        LLNotificationsUtil::add("NoFrontmostFloater");
-		return;
-	}
-
-	std::string default_name = "floater_";
-	default_name += frontmost->getTitle();
-	default_name += ".xml";
-
-	LLStringUtil::toLower(default_name);
-	LLStringUtil::replaceChar(default_name, ' ', '_');
-	LLStringUtil::replaceChar(default_name, '/', '_');
-	LLStringUtil::replaceChar(default_name, ':', '_');
-	LLStringUtil::replaceChar(default_name, '"', '_');
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getSaveFile(LLFilePicker::FFSAVE_XML, default_name))
-	{
-		std::string filename = picker.getFirstFile();
-		LLUICtrlFactory::getInstance()->saveToXML(frontmost, filename);
-	}
-}
-
-void handle_load_from_xml(void*)
-{
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
-	{
-		std::string filename = picker.getFirstFile();
-		LLFloater* floater = new LLFloater(LLSD());
-		floater->buildFromFile(filename);
-	}
-}
-
 void handle_web_browser_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -7229,6 +7221,12 @@ void handle_web_browser_test(const LLSD& param)
 		url = "about:blank";
 	}
 	LLWeb::loadURLInternal(url);
+}
+
+void handle_web_content_test(const LLSD& param)
+{
+	std::string url = param.asString();
+	LLWeb::loadWebURLInternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7861,6 +7859,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
 
+	// Me > Movement
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// World menu
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -7934,9 +7935,6 @@ void initialize_menus()
 
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
-
-	// Advanced > Shortcuts
-	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
@@ -7981,7 +7979,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
 
 	// Advanced > UI
-	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));
+	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
+	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
@@ -8006,8 +8005,6 @@ void initialize_menus()
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
-	view_listener_t::addMenu(new LLAdvancedLoadUIFromXML(), "Advanced.LoadUIFromXML");
-	view_listener_t::addMenu(new LLAdvancedSaveUIToXML(), "Advanced.SaveUIToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
@@ -8068,6 +8065,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
 	view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
+	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
@@ -8113,6 +8111,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+	commit.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
@@ -8140,6 +8139,7 @@ void initialize_menus()
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
+	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
@@ -8199,4 +8199,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+	commit.add("DestinationAndAvatar.show", boost::bind(&LLDestinationAndAvatarShow, _2));
 }

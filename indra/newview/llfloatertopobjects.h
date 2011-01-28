@@ -29,10 +29,7 @@
 
 #include "llfloater.h"
 
-class LLAvatarName;
 class LLUICtrl;
-
-#include <boost/signals2.hpp>	// boost::signals2::trackable
 
 class LLFloaterTopObjects : public LLFloater
 {
@@ -53,8 +50,6 @@ public:
 	void onRefresh();
 
 	static void setMode(U32 mode);
-
-	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name, LLSD element);
 
 private:
 	LLFloaterTopObjects(const LLSD& key);

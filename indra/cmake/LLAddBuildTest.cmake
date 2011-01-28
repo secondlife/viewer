@@ -129,7 +129,15 @@ INCLUDE(GoogleMock)
     ENDIF(LL_TEST_VERBOSE)
     # Add to project
     TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${alltest_DEP_TARGETS} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
-    
+    # Compile-time Definitions
+    GET_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
+     IF(NOT ${name}_test_additional_CFLAGS MATCHES NOTFOUND)
+       SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name} PROPERTIES COMPILE_FLAGS ${${name}_test_additional_CFLAGS} )
+       IF(LL_TEST_VERBOSE)
+         MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
+       ENDIF(LL_TEST_VERBOSE)
+     ENDIF(NOT ${name}_test_additional_CFLAGS MATCHES NOTFOUND)
+     
     #
     # Setup test targets
     #
@@ -197,6 +205,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   endif(TEST_DEBUG)
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
   SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
+  if(STANDALONE)
+    SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
+  endif(STANDALONE)
 
   # Add link deps to the executable
   if(TEST_DEBUG)

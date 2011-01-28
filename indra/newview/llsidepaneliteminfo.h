@@ -54,6 +54,9 @@ public:
 	void setItemID(const LLUUID& item_id);
 	void setEditMode(BOOL edit);
 
+	const LLUUID& getObjectID() const;
+	const LLUUID& getItemID() const;
+
 protected:
 	/*virtual*/ void refresh();
 	/*virtual*/ void save();

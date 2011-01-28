@@ -33,6 +33,7 @@
 #include "llview.h"
 
 #include "llviewerwindow.h"
+#include "llviewercontrol.h"
 #include "lltoolcomp.h"
 #include "lltoolfocus.h"
 #include "llfocusmgr.h"
@@ -190,9 +191,12 @@ LLTool* LLTool::getOverrideTool(MASK mask)
 	{
 		return NULL;
 	}
-	if (mask & MASK_ALT)
+	if (gSavedSettings.getBOOL("EnableAltZoom"))
 	{
-		return LLToolCamera::getInstance();
+		if (mask & MASK_ALT)
+		{
+			return LLToolCamera::getInstance();
+		}
 	}
 	return NULL;
 }
