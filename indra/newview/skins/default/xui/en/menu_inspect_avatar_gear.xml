@@ -78,7 +78,7 @@
     <menu_item_call.on_click
      function="InspectAvatar.Freeze"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleFreezeEject"/>
+     function="InspectAvatar.VisibleFreeze"/>
   </menu_item_call>
   <menu_item_call
    label="Eject"
@@ -86,7 +86,23 @@
     <menu_item_call.on_click
      function="InspectAvatar.Eject"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleFreezeEject"/>
+     function="InspectAvatar.VisibleEject"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Kick"
+   name="kick">
+    <menu_item_call.on_click
+     function="InspectAvatar.Kick"/>
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableGod"/>
+  </menu_item_call>
+  <menu_item_call
+  label="CSR"
+  name="csr">
+    <menu_item_call.on_click
+     function="InspectAvatar.CSR" />
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableGod" />
   </menu_item_call>
   <menu_item_call
    label="Debug Textures"
