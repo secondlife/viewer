@@ -6737,6 +6737,12 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
 - Your CPU speed does not meet the minimum requirements.
   </global>
 
+  <global name="UnsupportedCPUSSE2">
+Your CPU does not seem to have the required support for SSE2 operations.
+
+Please see http://www.secondlife.com/corporate/sysreqs.php for information about system requirements.
+  </global>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
