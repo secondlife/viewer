@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # @file generate_breakpad_symbols.py
 # @author Brad Kittenbrink <brad@lindenlab.com>
 # @brief Simple tool for generating google_breakpad symbol information

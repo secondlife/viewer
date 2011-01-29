@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # @file test_win32_manifest.py
 # @brief Test an assembly binding version and uniqueness in a windows dll or exe.  
 #
