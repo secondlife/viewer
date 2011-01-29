@@ -40,8 +40,6 @@
 #include "lltimer.h"	// ms_sleep()
 #include "lluuid.h"
 
-#include "lldiriterator.h"
-
 #if LL_WINDOWS
 #include "lldir_win32.h"
 LLDir_Win32 gDirUtil;
@@ -85,9 +83,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string filename; 
 	std::string fullpath;
 	S32 result;
-
-	LLDirIterator iter(dirname, mask);
-	while (iter.next(filename))
+	while (getNextFileInDir(dirname, mask, filename))
 	{
 		fullpath = dirname;
 		fullpath += getDirDelimiter();
@@ -105,10 +101,18 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 		{
 			if (0 != LLFile::remove(fullpath))
 			{
+				retry_count++;
 				result = errno;
 				llwarns << "Problem removing " << fullpath << " - errorcode: "
 						<< result << " attempt " << retry_count << llendl;
-				ms_sleep(1000);
+
+				if(retry_count >= 5)
+				{
+					llwarns << "Failed to remove " << fullpath << llendl ;
+					return count ;
+				}
+
+				ms_sleep(100);
 			}
 			else
 			{
@@ -117,8 +121,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 					llwarns << "Successfully removed " << fullpath << llendl;
 				}
 				break;
-			}
-			retry_count++;
+			}			
 		}
 		count++;
 	}

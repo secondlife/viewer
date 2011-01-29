@@ -3012,9 +3012,6 @@ Klik Accepteren om deel te nemen aan de chat of Afwijzen om de uitnodiging af te
 	<notification name="VoiceCallGenericError">
 		Er is een fout opgetreden tijdens het verbinden met voice chat voor [VOICE_CHANNEL_NAME]. Probeert u het later alstublieft opnieuw.
 	</notification>
-	<notification name="ServerVersionChanged">
-		De regio die u bent binnengetreden wordt onder een andere simulatorversie uitgevoerd. Klik dit bericht voor meer details.
-	</notification>
 	<notification name="UnableToOpenCommandURL">
 		De URL die u heeft geklikt kan niet binnen deze webbrowser worden geopend.
 	</notification>

@@ -22,7 +22,7 @@
 		[AMT] L$
 	</panel.string>
 	<panel name="balance_bg">
-		<text name="balance" tool_tip="Mi saldo" value="20 L$"/>
+		<text name="balance" tool_tip="Haz clic para actualizar tu saldo en L$" value="20 L$"/>
 		<button label="COMPRAR L$" name="buyL" tool_tip="Pulsa para comprar más L$"/>
 	</panel>
 	<text name="TimeText" tool_tip="Hora actual (Pacífico)">
