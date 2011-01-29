@@ -138,4 +138,192 @@ template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 	return dest;
 }
 
+/*****************************************************************************
+*   LLSDArray
+*****************************************************************************/
+/**
+ * Construct an LLSD::Array inline, with implicit conversion to LLSD. Usage:
+ *
+ * @code
+ * void somefunc(const LLSD&);
+ * ...
+ * somefunc(LLSDArray("text")(17)(3.14));
+ * @endcode
+ *
+ * For completeness, LLSDArray() with no args constructs an empty array, so
+ * <tt>LLSDArray()("text")(17)(3.14)</tt> produces an array equivalent to the
+ * above. But for most purposes, LLSD() is already equivalent to an empty
+ * array, and if you explicitly want an empty isArray(), there's
+ * LLSD::emptyArray(). However, supporting a no-args LLSDArray() constructor
+ * follows the principle of least astonishment.
+ */
+class LLSDArray
+{
+public:
+    LLSDArray():
+        _data(LLSD::emptyArray())
+    {}
+    LLSDArray(const LLSD& value):
+        _data(LLSD::emptyArray())
+    {
+        _data.append(value);
+    }
+
+    LLSDArray& operator()(const LLSD& value)
+    {
+        _data.append(value);
+        return *this;
+    }
+
+    operator LLSD() const { return _data; }
+    LLSD get() const { return _data; }
+
+private:
+    LLSD _data;
+};
+
+/*****************************************************************************
+*   LLSDMap
+*****************************************************************************/
+/**
+ * Construct an LLSD::Map inline, with implicit conversion to LLSD. Usage:
+ *
+ * @code
+ * void somefunc(const LLSD&);
+ * ...
+ * somefunc(LLSDMap("alpha", "abc")("number", 17)("pi", 3.14));
+ * @endcode
+ *
+ * For completeness, LLSDMap() with no args constructs an empty map, so
+ * <tt>LLSDMap()("alpha", "abc")("number", 17)("pi", 3.14)</tt> produces a map
+ * equivalent to the above. But for most purposes, LLSD() is already
+ * equivalent to an empty map, and if you explicitly want an empty isMap(),
+ * there's LLSD::emptyMap(). However, supporting a no-args LLSDMap()
+ * constructor follows the principle of least astonishment.
+ */
+class LLSDMap
+{
+public:
+    LLSDMap():
+        _data(LLSD::emptyMap())
+    {}
+    LLSDMap(const LLSD::String& key, const LLSD& value):
+        _data(LLSD::emptyMap())
+    {
+        _data[key] = value;
+    }
+
+    LLSDMap& operator()(const LLSD::String& key, const LLSD& value)
+    {
+        _data[key] = value;
+        return *this;
+    }
+
+    operator LLSD() const { return _data; }
+    LLSD get() const { return _data; }
+
+private:
+    LLSD _data;
+};
+
+/*****************************************************************************
+*   LLSDParam
+*****************************************************************************/
+/**
+ * LLSDParam is a customization point for passing LLSD values to function
+ * parameters of more or less arbitrary type. LLSD provides a small set of
+ * native conversions; but if a generic algorithm explicitly constructs an
+ * LLSDParam object in the function's argument list, a consumer can provide
+ * LLSDParam specializations to support more different parameter types than
+ * LLSD's native conversions.
+ *
+ * Usage:
+ *
+ * @code
+ * void somefunc(const paramtype&);
+ * ...
+ * somefunc(..., LLSDParam<paramtype>(someLLSD), ...);
+ * @endcode
+ */
+template <typename T>
+class LLSDParam
+{
+public:
+    /**
+     * Default implementation converts to T on construction, saves converted
+     * value for later retrieval
+     */
+    LLSDParam(const LLSD& value):
+        _value(value)
+    {}
+
+    operator T() const { return _value; }
+
+private:
+    T _value;
+};
+
+/**
+ * LLSDParam<const char*> is an example of the kind of conversion you can
+ * support with LLSDParam beyond native LLSD conversions. Normally you can't
+ * pass an LLSD object to a function accepting const char* -- but you can
+ * safely pass an LLSDParam<const char*>(yourLLSD).
+ */
+template <>
+class LLSDParam<const char*>
+{
+private:
+    // The difference here is that we store a std::string rather than a const
+    // char*. It's important that the LLSDParam object own the std::string.
+    std::string _value;
+    // We don't bother storing the incoming LLSD object, but we do have to
+    // distinguish whether _value is an empty string because the LLSD object
+    // contains an empty string or because it's isUndefined().
+    bool _undefined;
+
+public:
+    LLSDParam(const LLSD& value):
+        _value(value),
+        _undefined(value.isUndefined())
+    {}
+
+    // The const char* we retrieve is for storage owned by our _value member.
+    // That's how we guarantee that the const char* is valid for the lifetime
+    // of this LLSDParam object. Constructing your LLSDParam in the argument
+    // list should ensure that the LLSDParam object will persist for the
+    // duration of the function call.
+    operator const char*() const
+    {
+        if (_undefined)
+        {
+            // By default, an isUndefined() LLSD object's asString() method
+            // will produce an empty string. But for a function accepting
+            // const char*, it's often important to be able to pass NULL, and
+            // isUndefined() seems like the best way. If you want to pass an
+            // empty string, you can still pass LLSD(""). Without this special
+            // case, though, no LLSD value could pass NULL.
+            return NULL;
+        }
+        return _value.c_str();
+    }
+};
+
+/**
+ * LLSDParam<float> resolves conversion ambiguity. g++ considers F64, S32 and
+ * bool equivalent candidates for implicit conversion to float. (/me rolls eyes)
+ */
+template <>
+class LLSDParam<float>
+{
+private:
+    float _value;
+
+public:
+    LLSDParam(const LLSD& value):
+        _value(value.asReal())
+    {}
+
+    operator float() const { return _value; }
+};
+
 #endif // LL_LLSDUTIL_H
