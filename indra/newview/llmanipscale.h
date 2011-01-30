@@ -39,6 +39,9 @@
 #include "llviewerobject.h"
 #include "llbbox.h"
 
+
+F32 get_default_max_prim_scale();
+
 class LLToolComposite;
 class LLColor4;
 

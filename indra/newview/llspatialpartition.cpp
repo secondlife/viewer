@@ -64,6 +64,12 @@ const F32 SG_OCCLUSION_FUDGE = 0.25f;
 
 static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
+
+#define LL_TRACK_PENDING_OCCLUSION_QUERIES 0
+
+std::set<GLuint> LLSpatialGroup::sPendingQueries;
+
+
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
 static F32 sLastMaxTexPriority = 1.f;
@@ -81,6 +87,9 @@ protected:
 
 	virtual void releaseName(GLuint name)
 	{
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+		LLSpatialGroup::sPendingQueries.erase(name);
+#endif
 		glDeleteQueriesARB(1, &name);
 	}
 };
@@ -361,9 +370,15 @@ LLSpatialGroup::~LLSpatialGroup()
 	
 	sNodeCount--;
 
-	if (gGLManager.mHasOcclusionQuery && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+	if (gGLManager.mHasOcclusionQuery)
 	{
-		sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+		for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; ++i)
+		{
+			if (mOcclusionQuery[i])
+			{
+				sQueryPool.release(mOcclusionQuery[i]);
+			}
+		}
 	}
 
 	mOcclusionVerts = NULL;
@@ -507,7 +522,7 @@ BOOL LLSpatialGroup::isRecentlyVisible() const
 
 BOOL LLSpatialGroup::isVisible() const
 {
-	return mVisible[LLViewerCamera::sCurCameraID] == LLDrawable::getCurrentFrame() ? TRUE : FALSE;
+	return mVisible[LLViewerCamera::sCurCameraID] >= LLDrawable::getCurrentFrame() ? TRUE : FALSE;
 }
 
 void LLSpatialGroup::setVisible()
@@ -1096,12 +1111,23 @@ void LLSpatialGroup::setOcclusionState(U32 state, S32 mode)
 			for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 			{
 				mOcclusionState[i] |= state;
+
+				if ((state & DISCARD_QUERY) && mOcclusionQuery[i])
+				{
+					sQueryPool.release(mOcclusionQuery[i]);
+					mOcclusionQuery[i] = 0;
+				}
 			}
 		}
 	}
 	else
 	{
 		mOcclusionState[LLViewerCamera::sCurCameraID] |= state;
+		if ((state & DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+		{
+			sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+			mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+		}
 	}
 }
 
@@ -1319,7 +1345,8 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 	}
 	else
 	{
-		return (gFrameTimeSeconds - mLastUpdateTime+4.f)/mDistance;
+		F32 time = gFrameTimeSeconds-mLastUpdateTime+4.f;
+		return time + (mObjectBounds[1].dot3(mObjectBounds[1]).getF32()+1.f)/mDistance;
 	}
 }
 
@@ -1330,8 +1357,8 @@ BOOL LLSpatialGroup::needsUpdate()
 
 BOOL LLSpatialGroup::changeLOD()
 {
-	if (isState(ALPHA_DIRTY))
-	{ ///an alpha sort is going to happen, update distance and LOD
+	if (isState(ALPHA_DIRTY | OBJECT_DIRTY))
+	{ ///a rebuild is going to happen, update distance and LoD
 		return TRUE;
 	}
 
@@ -1344,7 +1371,7 @@ BOOL LLSpatialGroup::changeLOD()
 			return TRUE;
 		}
 
-		if (mDistance > mRadius)
+		if (mDistance > mRadius*2.f)
 		{
 			return FALSE;
 		}
@@ -1540,15 +1567,31 @@ void LLSpatialGroup::checkOcclusion()
 		{	//otherwise, if a query is pending, read it back
 
 			GLuint available = 0;
-			glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+			{
+				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			}
+			else
+			{
+				available = 1;
+			}
+
 			if (available)
 			{ //result is available, read it back, otherwise wait until next frame
 				GLuint res = 1;
 				if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
 				{
 					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &res);	
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
 				}
-
+				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+				{ //delete the query to avoid holding onto hundreds of pending queries
+					sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+					mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+				}
+				
 				if (isOcclusionState(DISCARD_QUERY))
 				{
 					res = 2;
@@ -1621,6 +1664,13 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					}
 #if !LL_DARWIN					
 					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
+#else
+					U32 mode = GL_SAMPLES_PASSED_ARB;
+#endif
+					
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
 
 					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
 					
@@ -1637,7 +1687,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					}
 
 					glEndQueryARB(mode);
-#endif					
+
 					if (use_depth_clamp)
 					{
 						glDisable(GL_DEPTH_CLAMP);
@@ -4051,7 +4101,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
-									  LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
+									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA)) 
 	{
 		return;
@@ -4091,7 +4141,7 @@ void LLSpatialGroup::drawObjectBox(LLColor4 col)
 {
 	gGL.color4fv(col.mV);
 	LLVector4a size;
-	size = mObjectBounds[0];
+	size = mObjectBounds[1];
 	size.mul(1.01f);
 	size.add(LLVector4a(0.001f));
 	drawBox(mObjectBounds[0], size);

@@ -897,6 +897,18 @@ bool LLAppViewer::init()
 		return 0;
 	}
 
+	// Without SSE2 support we will crash almost immediately, warn here.
+	if (!gSysCPU.hasSSE2())
+	{	
+		// can't use an alert here since we're exiting and
+		// all hell breaks lose.
+		OSMessageBox(
+			LLNotifications::instance().getGlobalString("UnsupportedCPUSSE2"),
+			LLStringUtil::null,
+			OSMB_OK);
+		return 0;
+	}
+
 	// alert the user if they are using unsupported hardware
 	if(!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
 	{
