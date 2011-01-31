@@ -112,6 +112,19 @@ public:
              const LLSD& required=LLSD());
 
     /**
+     * The case of a free function (or static method) accepting(const LLSD&)
+     * could also be intercepted by the arbitrary-args overload below. Ensure
+     * that it's directed to the Callable overload above instead.
+     */
+    void add(const std::string& name,
+             const std::string& desc,
+             void (*f)(const LLSD&),
+             const LLSD& required=LLSD())
+    {
+        add(name, desc, Callable(f), required);
+    }
+
+    /**
      * Special case: a subclass of this class can pass an unbound member
      * function pointer (of an LLEventDispatcher subclass) without explicitly
      * specifying the <tt>boost::bind()</tt> expression. The passed @a method
@@ -137,19 +150,6 @@ public:
         addMethod<CLASS>(name, desc, method, required);
     }
 
-/*==========================================================================*|
-    /// Convenience: for LLEventDispatcher, not every callable needs a
-    /// documentation string. The passed @a callable accepts a single LLSD
-    /// value, presumably containing other parameters.
-    template <typename CALLABLE>
-    void add(const std::string& name,
-             CALLABLE callable,
-             const LLSD& required=LLSD())
-    {
-        add(name, "", callable, required);
-    }
-|*==========================================================================*/
-
     //@}
 
     /// @name Register functions with arbitrary param lists
@@ -158,6 +158,10 @@ public:
     /**
      * Register a free function with arbitrary parameters. (This also works
      * for static class methods.)
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
@@ -170,6 +174,10 @@ public:
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * To cover cases such as a method on an LLSingleton we don't yet want to
      * instantiate, instead of directly storing an instance pointer, accept a
@@ -192,6 +200,10 @@ public:
      * Register a free function with arbitrary parameters. (This also works
      * for static class methods.)
      *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
+     *
      * Pass an LLSD::Array of parameter names, and optionally another
      * LLSD::Array of default parameter values, a la LLSDArgsMapper.
      *
@@ -209,6 +221,10 @@ public:
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * To cover cases such as a method on an LLSingleton we don't yet want to
      * instantiate, instead of directly storing an instance pointer, accept a
