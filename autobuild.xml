@@ -908,9 +908,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>53f1e3ff386daa25ff1e88df4b5c6941</string>
+              <string>a668a4ddfe20a078d720d7a4fca205bd</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110131.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110131a.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
