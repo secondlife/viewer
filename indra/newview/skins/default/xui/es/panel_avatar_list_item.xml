@@ -21,7 +21,7 @@
 	<string name="FormatYears">
 		[COUNT] año/s
 	</string>
-	<text name="avatar_name" value="Desconocido"/>
+	<text name="avatar_name" value="(cargando...)"/>
 	<icon name="permission_edit_theirs_icon" tool_tip="Puedes editar los objetos de este amigo"/>
 	<icon name="permission_edit_mine_icon" tool_tip="Este amigo puede editar, eliminar o manipular tus objetos"/>
 	<icon name="permission_map_icon" tool_tip="Este amigo puede encontrarte en el mapa"/>

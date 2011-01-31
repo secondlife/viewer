@@ -42,6 +42,15 @@
     </text>
     <check_box
 	 height="16"
+     enabled="true"
+     label="Show me in Search results"
+     layout="topleft"
+     left="30"
+     name="online_searchresults"
+     top_pad="20"
+     width="350" />
+    <check_box
+	 height="16"
 	 enabled="false"
      label="Only friends and groups know I'm online"
      layout="topleft"
@@ -69,6 +78,16 @@
      name="auto_disengage_mic_check"
      top_pad="10"
      width="350" />
+    <check_box
+     control_name="ShowFavoritesOnLogin"
+     enabled="false" 
+     height="16"
+     label="Show my Favorite Landmarks at Login (via &apos;Start At&apos; drop-down menu)"
+     layout="topleft"
+     left="30"
+     name="favorites_on_login_check"
+     top_pad="10"
+     width="350" />
 	<text
       type="string"
     length="1"
@@ -78,7 +97,7 @@
      left="30"
      mouse_opaque="false"
      name="Logs:"
-     top_pad="30"
+     top_pad="20"
      width="350">
         Chat Logs:
     </text>
@@ -170,7 +189,7 @@
      layout="topleft"
      left="30"
      name="block_list"
-     top_pad="35"
+     top_pad="28"
      width="145">
         <!--<button.commit_callback
          function="SideTray.ShowPanel"-->

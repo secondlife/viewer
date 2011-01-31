@@ -29,10 +29,10 @@
 		URLs
 	</text>
 	<text name="bubble_chat">
-		Fundo do balão:
+		Cor de fundo do nome (e do balão do bate-papo):
 	</text>
-	<color_swatch name="background" tool_tip="Escolha a cor do balão de bate-papo"/>
-	<slider label="Opacidade:" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Selecionar cor do nome"/>
+	<slider label="Opacidade:" name="bubble_chat_opacity" tool_tip="Selecionar cor do nome"/>
 	<text name="floater_opacity">
 		Opacidade:
 	</text>

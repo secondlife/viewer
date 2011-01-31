@@ -31,6 +31,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "llvoiceclient.h"
+#include "llavatarnamecache.h"
 
 class LLComboBox;
 class LLLineEditor;
@@ -200,7 +201,7 @@ protected:
 	bool enableUnblock();
 	bool enableGod();
 
-
+	void onSeeProfileBtnClick();
 	void onAddFriendButtonClick();
 	void onIMButtonClick();
 	void onCallButtonClick();
@@ -208,6 +209,8 @@ protected:
 	void onShareButtonClick();
 
 private:
+	void got_full_name_callback( const LLUUID& id, const std::string& full_name, bool is_group );
+	void onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	typedef std::map< std::string,LLUUID>	group_map_t;
 	group_map_t 			mGroups;

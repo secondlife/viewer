@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ruch" name="move_panel">
+	<slider label="Kąt widoku kamery" name="camera_fov"/>
+	<slider label="Dystans kamery" name="camera_offset_scale"/>
+	<text name="heading2">
+		Automatyczna pozycja dla:
+	</text>
+	<check_box label="Budowanie/Edycja" name="edit_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas włączania i wyłączania trybu edycji."/>
+	<check_box label="Wygląd" name="appearance_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas trybu edycji"/>
+	<check_box initial_value="prawda" label="Schowek" name="appearance_sidebar_positioning" tool_tip="Używaj automatycznego pozycjonowania kamery dla panelu bocznego"/>
+	<check_box label="Awatar widoczny w trybie panoramicznym" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Czułość myszki w widoku panoramicznym:
+	</text>
+	<check_box label="Zmień klawisze myszki" name="invert_mouse"/>
+	<check_box label="Przyciski ze strzałkami zawsze poruszają awatarem" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Wciśnij-wciśnij-przytrzymaj aby biec" name="tap_tap_hold_to_run"/>
+	<check_box label="Podwójnie kliknij aby:" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="teleportować się" name="radio_teleport"/>
+		<radio_item label="włączyć auto-pilota" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Inne urządzenia" name="joystick_setup_button"/>
+</panel>

@@ -87,6 +87,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPingDelayAveraged((F32)INITIAL_PING_VALUE_MSEC), 
 	mUnackedPacketCount(0),
 	mUnackedPacketBytes(0),
+	mLastPacketInTime(0.0),
 	mLocalEndPointID(),
 	mPacketsOut(0),
 	mPacketsIn(0), 
@@ -667,6 +668,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 		mHighestPacketID = llmax(mHighestPacketID, id);
 	}
 
+	// Save packet arrival time
+	mLastPacketInTime = LLMessageSystem::getMessageTimeSeconds();
 
 	// Have we received anything on this circuit yet?
 	if (0 == mPacketsIn)

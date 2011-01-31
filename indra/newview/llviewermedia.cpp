@@ -1436,9 +1436,12 @@ void LLViewerMedia::proxyWindowClosed(const std::string &uuid)
 // static
 void LLViewerMedia::createSpareBrowserMediaSource()
 {
-	if(!sSpareBrowserMediaSource)
+	// If we don't have a spare browser media source, create one.
+	// However, if PluginAttachDebuggerToPlugins is set then don't spawn a spare
+	// SLPlugin process in order to not be confused by an unrelated gdb terminal
+	// popping up at the moment we start a media plugin.
+	if (!sSpareBrowserMediaSource && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
-		// If we don't have a spare browser media source, create one.
 		// The null owner will keep the browser plugin from fully initializing 
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change, 
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
@@ -1694,7 +1697,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	LLPluginClassMedia* media_source = NULL;
 	
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
-	if(plugin_basename == "media_plugin_webkit")
+	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
+	if(plugin_basename == "media_plugin_webkit" && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
 		media_source = LLViewerMedia::getSpareBrowserMediaSource();
 		if(media_source)
@@ -1828,16 +1832,17 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// start by assuming the default CA file will be used
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
-	
-		// default turned off so pick up the user specified path
-		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
-		{
-			ca_path = gSavedSettings.getString("BrowserCAFilePath");
-		}
-		// set the path to the CA.pem file
-		media_source->addCertificateFilePath( ca_path );
+		// NOTE: Removed as per STORM-927 - SSL handshake failed - setting local self-signed certs like this 
+		//       seems to screw things up big time. For now, devs will need to add these certs locally and Qt will pick them up.
+//		// start by assuming the default CA file will be used
+//		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
+//		// default turned off so pick up the user specified path
+//		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
+//		{
+//			ca_path = gSavedSettings.getString("BrowserCAFilePath");
+//		}
+//		// set the path to the CA.pem file
+//		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		

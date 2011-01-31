@@ -2,26 +2,26 @@
 <floater
   legacy_header_height="18"
   can_resize="true"
-  height="440"
+  height="775"
   layout="topleft"
-  min_height="140"
-  min_width="467"
+  min_height="400"
+  min_width="500"
   name="floater_web_content"
   help_topic="floater_web_content"
   save_rect="true"
   auto_tile="true"
   title=""
   initial_mime_type="text/html"
-  width="820">
+  width="780">
   <layout_stack
-    bottom="440"
+    bottom="775"
     follows="left|right|top|bottom"
     layout="topleft"
     left="5"
     name="stack1"
     orientation="vertical"
     top="20"
-    width="810">
+    width="770">
     <layout_panel
       auto_resize="false"
       default_tab_group="1"
@@ -32,7 +32,7 @@
       name="nav_controls"
       top="400"
       user_resize="false"
-      width="800">
+      width="770">
       <button
         image_overlay="Arrow_Left_Off"
 		    image_disabled="PushButton_Disabled"
@@ -115,7 +115,7 @@
         combo_editor.select_on_focus="true"
         tool_tip="Enter URL here"
         top_delta="0"
-        width="702">
+        width="672">
         <combo_box.commit_callback
           function="WebContent.EnterAddress" />
       </combo_box>
@@ -125,7 +125,7 @@
         follows="top|right"
         image_name="Lock2"
         layout="topleft"
-        left_delta="656"
+        left_delta="620"
         top_delta="2"
         visible="false" 
         tool_tip="Secured Browsing"
@@ -142,7 +142,7 @@
         height="22"
         layout="topleft"
         name="popexternal"
-        right="800"
+        right="770"
         top_delta="-2"
         width="22">
         <button.commit_callback
@@ -156,7 +156,7 @@
       name="external_controls"
       top_delta="0"
       user_resize="false"
-      width="540">
+      width="585">
       <web_browser
         bottom="-22"
         follows="all"
@@ -166,16 +166,16 @@
         top="0"/>
       <text
         type="string"
-        length="100"
+        length="200"
         follows="bottom|left"
         height="20"
         layout="topleft"
         left_delta="0"
         name="statusbartext"
         parse_urls="false"
-        text_color="0.4 0.4 0.4 1" 
+        text_color="0.4 0.4 0.4 1"
         top_pad="5"
-        width="452"/>
+        width="495"/>
       <progress_bar
         color_bar="0.3 1.0 0.3 1"
         follows="bottom|right"
