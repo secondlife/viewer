@@ -287,6 +287,9 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	addWidgetToRightSide("btn_lock");
 	addWidgetToRightSide("btn_edit_panel");
 
+	setWidgetsVisible(false);
+	reshapeWidgets();
+
 	return TRUE;
 }
 

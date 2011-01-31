@@ -1990,6 +1990,16 @@
                  function="ToggleControl"
                  parameter="DebugShowColor" />
             </menu_item_check>
+            <menu_item_check
+               label="Show Memory"
+               name="Show Memory">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="DebugShowMemory" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="DebugShowMemory" />
+            </menu_item_check>
 
             <menu_item_separator/>
 
