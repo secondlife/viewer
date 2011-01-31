@@ -16,7 +16,8 @@
 		<menu_item_call label="Definir tamanho da janela:" name="Set Window Size..."/>
 		<menu_item_call label="Mostrar TOS" name="TOS"/>
 		<menu_item_call label="Mostrar mensagem crítica" name="Critical"/>
-		<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
+		<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
+		<menu_item_call label="Teste de conteúdo web" name="Web Content Floater Test"/>
 		<menu_item_check label="Exibir seletor da grade" name="Show Grid Picker"/>
 		<menu_item_call label="Exibir painel de notificações" name="Show Notifications Console"/>
 	</menu>

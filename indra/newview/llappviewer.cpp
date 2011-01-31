@@ -1296,7 +1296,7 @@ bool LLAppViewer::mainLoop()
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
-			}			
+			}	
 		}
 		catch(std::bad_alloc)
 		{			
@@ -1778,6 +1778,8 @@ bool LLAppViewer::cleanup()
 	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
+
+	MEM_TRACK_RELEASE
 
     llinfos << "Goodbye!" << llendflush;
 
