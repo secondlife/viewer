@@ -2295,7 +2295,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
 			if (root && //  // this test may not be needed, see above
-			    root->getVObj()->isAttachment())
+					root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
 				if (rootparent) // this IS sometimes NULL

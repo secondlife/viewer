@@ -83,6 +83,7 @@ Aleric Inglewood
 	VWR-24315
 	VWR-24317
 	VWR-24320
+    VWR-24321
  	VWR-24354
 	VWR-24519
 	SNOW-84
@@ -385,9 +386,11 @@ Jonathan Yap
 	STORM-869
 	STORM-785
 	STORM-812
+	STORM-829
 	VWR-17801
 	VWR-24347
 	STORM-844
+	STORM-643
 Kage Pixel
 	VWR-11
 Ken March
@@ -770,6 +773,7 @@ Twisted Laws
 	STORM-466
 	STORM-467
 	STORM-844
+	STORM-643
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
