@@ -178,6 +178,8 @@ void LLAgentPilot::stopPlayback()
 	}
 }
 
+#define SKIP_PILOT_LOGGING 1
+
 void LLAgentPilot::updateTarget()
 {
 	if (mPlaying)
@@ -195,7 +197,9 @@ void LLAgentPilot::updateTarget()
 				{
 					if (!mStarted)
 					{
+#if SKIP_PILOT_LOGGING
 						llinfos << "At start, beginning playback" << llendl;
+#endif
 						mTimer.reset();
 						mStarted = TRUE;
 					}
@@ -218,17 +222,23 @@ void LLAgentPilot::updateTarget()
 					{
 						if ((mNumRuns < 0) || (mNumRuns > 0))
 						{
+#if SKIP_PILOT_LOGGING
 							llinfos << "Looping, restarting playback" << llendl;
+#endif
 							startPlayback();
 						}
 						else if (mQuitAfterRuns)
 						{
+#if SKIP_PILOT_LOGGING
 							llinfos << "Done with all runs, quitting viewer!" << llendl;
+#endif
 							LLAppViewer::instance()->forceQuit();
 						}
 						else
 						{
+#if SKIP_PILOT_LOGGING
 							llinfos << "Done with all runs, disabling pilot" << llendl;
+#endif
 							stopPlayback();
 						}
 					}

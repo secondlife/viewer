@@ -936,6 +936,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 {
 	LLVolumeParams volume_params = params_in;
 
+	S32 last_lod = mVolumep.notNull() ? LLVolumeLODGroup::getVolumeDetailFromScale(mVolumep->getDetail()) : -1;
 	S32 lod = mLOD;
 
 	BOOL is404 = FALSE;
@@ -1014,7 +1015,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod);
+					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod, last_lod);
 					if (available_lod != lod)
 					{
 						LLPrimitive::setVolume(volume_params, available_lod);
