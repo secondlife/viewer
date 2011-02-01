@@ -22,7 +22,11 @@
      name="ToolTipMsg">
         [REGION](Double-click to open Map, shift-drag to pan)
     </floater.string>
-    <floater.string name="mini_map_caption">
+	<floater.string
+     name="AltToolTipMsg">
+		[REGION](Double-click to teleport, shift-drag to pan)
+	</floater.string>
+	<floater.string name="mini_map_caption">
 	MINIMAP
     </floater.string>
     <net_map

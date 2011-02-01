@@ -326,6 +326,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 	// First state / stage : find out if the file is local
 	if (mState == INIT)
 	{
+#if 0
 		std::string filename = mCache->getLocalFileName(mID);	
 		// Is it a JPEG2000 file? 
 		{
@@ -360,6 +361,11 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 		// Determine the next stage: if we found a file, then LOCAL else CACHE
 		mState = (local_size > 0 ? LOCAL : CACHE);
+
+		llassert_always(mState == CACHE) ;
+#else
+		mState = CACHE;
+#endif
 	}
 
 	// Second state / stage : if the file is local, load it and leave
@@ -1592,7 +1598,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	if (validate)
 	{
 		validate_idx = gSavedSettings.getU32("CacheValidateCounter");
-		U32 next_idx = (++validate_idx) % 256;
+		U32 next_idx = (validate_idx + 1) % 256;
 		gSavedSettings.setU32("CacheValidateCounter", next_idx);
 		LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Validating: " << validate_idx << LL_ENDL;
 	}

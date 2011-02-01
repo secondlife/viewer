@@ -10,6 +10,12 @@
 		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Moje gesturki" name="Gestures"/>
 		<menu_item_check label="Mój głos" name="ShowVoice"/>
+		<menu label="Ruch" name="Movement">
+			<menu_item_call label="Usiądź" name="Sit Down Here"/>
+			<menu_item_check label="Zacznij latać" name="Fly"/>
+			<menu_item_check label="Zawsze biegnij" name="Always Run"/>
+			<menu_item_call label="Zatrzymaj animacje" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Mój Status" name="Status">
 			<menu_item_call label="Tryb oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb pracy" name="Set Busy"/>
@@ -45,6 +51,7 @@
 			<menu_item_check label="Właściciele posiadłości" name="Land Owners"/>
 			<menu_item_check label="Współrzędne" name="Coordinates"/>
 			<menu_item_check label="Właściwości posiadłości" name="Parcel Properties"/>
+			<menu_item_check label="Menu Zaawansowane" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
 		<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
@@ -112,16 +119,17 @@
 			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Cofnij" name="Undo"/>
+		<menu_item_call label="Ponów" name="Redo"/>
 	</menu>
 	<menu label="Pomoc" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Portal Pomocy" name="Second Life Help"/>
+		<menu_item_check label="Włącz podpowiedzi" name="Enable Hints"/>
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś błędy klienta" name="Report Bug"/>
 		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
-		<menu_item_check label="Włącz podpowiedzi" name="Enable Hints"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
-		<menu_item_call label="Zatrzymaj wszystkie animacje" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Odswież wyświetlanie tekstur" name="Rebake Texture"/>
 		<menu_item_call label="Domyślne ustawienia rozmiaru interfejsu" name="Set UI Size to Default"/>
 		<menu_item_call label="Ustaw rozmiar interfejsu..." name="Set Window Size..."/>
@@ -175,8 +183,7 @@
 			<menu_item_check label="Szukaj" name="Search"/>
 			<menu_item_call label="Zwolnij klawisze" name="Release Keys"/>
 			<menu_item_call label="Domyślne ustawienia rozmiaru interfejsu" name="Set UI Size to Default"/>
-			<menu_item_check label="Biegnij" name="Always Run"/>
-			<menu_item_check label="Zacznij latać" name="Fly"/>
+			<menu_item_check label="Pokaż menu Zaawansowane - skrót" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Zamknij okno" name="Close Window"/>
 			<menu_item_call label="Zamknij wszystkie okna" name="Close All Windows"/>
 			<menu_item_call label="Zapisz zdjęcie na dysk twardy" name="Snapshot to Disk"/>
@@ -194,7 +201,6 @@
 			<menu_item_call label="Przybliż" name="Zoom In"/>
 			<menu_item_call label="Domyślne przybliżenie" name="Zoom Default"/>
 			<menu_item_call label="Oddal" name="Zoom Out"/>
-			<menu_item_check label="Pokaż menu Zaawansowane" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Pokaż ustawienia debugowania" name="Debug Settings"/>
 		<menu_item_check label="Pokaż menu progresu" name="Debug Mode"/>
@@ -262,19 +268,17 @@
 			<menu_item_call label="Zachowaj bufor pamięci obiektów regionu" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Test przeglądarki internetowej" name="Web Browser Test"/>
+			<menu_item_call label="Test przeglądarki mediów" name="Web Browser Test"/>
+			<menu_item_call label="Przeglądarka zawartości strony" name="Web Content Browser"/>
 			<menu_item_call label="Drukuj zaznaczone informacje o obiekcie" name="Print Selected Object Info"/>
 			<menu_item_call label="Statystyki pamięci" name="Memory Stats"/>
-			<menu_item_check label="Auto-pilot na podwójne kliknięcie" name="Double-ClickAuto-Pilot"/>
-			<menu_item_check label="Podwójne kliknięcie - Teleportuj" name="DoubleClick Teleport"/>
+			<menu_item_check label="Konsola debugowania regionu" name="Region Debug Console"/>
 			<menu_item_check label="Debugowanie zdarzeń klikania" name="Debug Clicks"/>
 			<menu_item_check label="Debugowanie zdarzeń myszy" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Załaduj ustawienia koloru" name="Reload Color Settings"/>
 			<menu_item_call label="Pokaż test czcionki" name="Show Font Test"/>
-			<menu_item_call label="Załaduj z XML" name="Load from XML"/>
-			<menu_item_call label="Zapisz jako XML" name="Save to XML"/>
 			<menu_item_check label="Pokaż nazwy XUI" name="Show XUI Names"/>
 			<menu_item_call label="Wyślij wiadomość (IM) testową" name="Send Test IMs"/>
 			<menu_item_call label="Wyczyść bufor pamięci nazw" name="Flush Names Caches"/>
@@ -301,9 +305,9 @@
 		</menu>
 		<menu_item_check label="Tekstury HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Aktywacja okna konsoli podczas następnego uruchomienia" name="Console Window"/>
-		<menu_item_check label="Pokaż menu administratora" name="View Admin Options"/>
 		<menu_item_call label="Uzyskaj status administratora" name="Request Admin Options"/>
 		<menu_item_call label="Opuść status administratora" name="Leave Admin Options"/>
+		<menu_item_check label="Pokaż menu administratora" name="View Admin Options"/>
 	</menu>
 	<menu label="Administrator" name="Admin">
 		<menu label="Object">

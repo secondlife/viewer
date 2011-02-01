@@ -83,7 +83,8 @@ LLFloaterMap::~LLFloaterMap()
 BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
-	mMap->setToolTipMsg(getString("ToolTipMsg"));	
+	mMap->setToolTipMsg(gSavedSettings.getBOOL("DoubleClickTeleport") ? 
+		getString("AltToolTipMsg") : getString("ToolTipMsg"));
 	sendChildToBack(mMap);
 	
 	mTextBoxNorth = getChild<LLTextBox> ("floater_map_north");

@@ -656,7 +656,6 @@ protected:
 	F64				mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64				mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
-	U32				mCircuitPacketCount;			// Packet tracking for early detection of a stopped simulator circuit
 
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
