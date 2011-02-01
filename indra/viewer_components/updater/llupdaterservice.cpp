@@ -373,9 +373,8 @@ void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash, newVersion, false);
-	
 	setState(LLUpdaterService::DOWNLOADING);
+	mUpdateDownloader.download(uri, hash, newVersion, false);
 }
 
 void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
@@ -385,9 +384,8 @@ void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
 	stopTimer();
 	mNewVersion = newVersion;
 	mIsDownloading = true;
-	mUpdateDownloader.download(uri, hash, newVersion, true);
-	
 	setState(LLUpdaterService::DOWNLOADING);
+	mUpdateDownloader.download(uri, hash, newVersion, true);
 }
 
 void LLUpdaterServiceImpl::upToDate(void)
