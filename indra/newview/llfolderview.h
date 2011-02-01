@@ -269,7 +269,10 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
+	void updateMenu();
+
 private:
+	void updateMenuOptions(LLMenuGL* menu);
 	void updateRenamerPosition();
 
 protected:

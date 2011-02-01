@@ -121,13 +121,15 @@
 			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Volume (L$[COST] por arquivo)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Desfazer" name="Undo"/>
+		<menu_item_call label="Repetir" name="Redo"/>
 	</menu>
 	<menu label="Ajuda" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Ajuda" name="Second Life Help"/>
+		<menu_item_check label="Ativar dicas" name="Enable Hints"/>
 		<menu_item_call label="Denunciar abuso" name="Report Abuse"/>
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
-		<menu_item_check label="Ativar dicas" name="Enable Hints"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
 		<menu_item_call label="Recarregar texturas" name="Rebake Texture"/>
@@ -268,7 +270,8 @@
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interface" name="UI">
-			<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
+			<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
+			<menu_item_call label="Navegador de conteúdo web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Dados de memória" name="Memory Stats"/>
 			<menu_item_check label="Console de depuração de região" name="Region Debug Console"/>
