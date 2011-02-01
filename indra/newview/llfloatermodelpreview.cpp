@@ -2205,9 +2205,12 @@ U32 LLModelPreview::calcResourceCost()
 
 	rebuildUploadData();
 
-	if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+	if (mFMP && mModelLoader)
 	{
-		mFMP->childEnable("ok_btn");
+		if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+		{
+			mFMP->childEnable("ok_btn");
+		}
 	}
 
 	U32 cost = 0;
@@ -2215,7 +2218,7 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 
-	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
+	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
 
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;
@@ -2270,9 +2273,7 @@ U32 LLModelPreview::calcResourceCost()
 		}
 	}
 
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
-	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
+	F32 scale = mFMP ? mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
 
 	mDetailsSignal(mPreviewScale[0]*scale, mPreviewScale[1]*scale, mPreviewScale[2]*scale, streaming_cost, physics_cost);
 

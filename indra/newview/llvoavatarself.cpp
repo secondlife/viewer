@@ -625,7 +625,7 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 		mScreenp->updateWorldMatrixChildren();
 		resetHUDAttachments();
 	}
-	LLVOAvatar::rebuildRiggedAttachments();
+	
 	return LLVOAvatar::updateCharacter(agent);
 }
 
@@ -1139,6 +1139,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 		// Clear any pending requests once the attachment arrives.
 		removeAttachmentRequest(attachment_id);
+		updateLODRiggedAttachments();		
 	}
 
 	return attachment;

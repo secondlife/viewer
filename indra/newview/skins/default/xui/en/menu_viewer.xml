@@ -970,7 +970,7 @@
             <menu_item_call.on_enable
              function="File.EnableUploadModel" />
             <menu_item_call.on_visible
-            function="File.MeshEnabled"/>
+            function="File.VisibleUploadModel"/>
             </menu_item_call>
 			<menu_item_call
            label="Model Wizard..."
@@ -982,7 +982,7 @@
 				<menu_item_call.on_enable
 				 function="File.EnableUploadModel" />
 				<menu_item_call.on_visible
-				function="File.MeshEnabled"/>
+				function="File.VisibleUploadModel"/>
 			</menu_item_call>
             <menu_item_call
              label="Bulk (L$[COST] per file)..."
@@ -2256,6 +2256,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="face area" />
+        </menu_item_check>
+        <menu_item_check
+         label="Build Queue"
+         name="Build Queue">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="build queue" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="build queue" />
         </menu_item_check>
         <menu_item_check
          label="Lights"

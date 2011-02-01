@@ -936,6 +936,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 {
 	LLVolumeParams volume_params = params_in;
 
+	S32 last_lod = mVolumep.notNull() ? LLVolumeLODGroup::getVolumeDetailFromScale(mVolumep->getDetail()) : -1;
 	S32 lod = mLOD;
 
 	BOOL is404 = FALSE;
@@ -1014,7 +1015,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod);
+					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod, last_lod);
 					if (available_lod != lod)
 					{
 						LLPrimitive::setVolume(volume_params, available_lod);
@@ -1075,7 +1076,6 @@ void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
-	dirtySpatialGroup(TRUE);
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1228,7 +1228,7 @@ BOOL LLVOVolume::updateLOD()
 		mLODChanged = TRUE;
 	}
 
-	lod_changed |= LLViewerObject::updateLOD();
+	lod_changed = lod_changed || LLViewerObject::updateLOD();
 	
 	return lod_changed;
 }
@@ -1608,6 +1608,17 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 					regenFaces();
 				}
 				genBBoxes(FALSE);
+
+				if (mSculptChanged)
+				{ //changes in sculpt maps can thrash an object bounding box without 
+				  //triggering a spatial group bounding box update -- force spatial group
+				  //to update bounding boxes
+					LLSpatialGroup* group = mDrawable->getSpatialGroup();
+					if (group)
+					{
+						group->unbound();
+					}
+				}
 			}
 		}
 	}
@@ -1632,7 +1643,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
-
+	
 	return LLViewerObject::updateGeometry(drawable);
 }
 

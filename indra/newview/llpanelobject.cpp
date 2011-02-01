@@ -1923,7 +1923,8 @@ void LLPanelObject::refresh()
 		mRootObject = NULL;
 	}
 	
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled");
+	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
+					   !gAgent.getRegion()->getCapability("GetMesh").empty();
 
 	getChildView("label physicsshapetype")->setVisible(enable_mesh);
 	getChildView("Physics Shape Type Combo Ctrl")->setVisible(enable_mesh);
@@ -1933,10 +1934,10 @@ void LLPanelObject::refresh()
 	getChildView("Physics Density")->setVisible(enable_mesh);
 	getChildView("Physics Restitution")->setVisible(enable_mesh);
 
-	// if mesh isn't enabled we want to the scale max to be 10
-	getChild<LLSpinCtrl>("Scale X")->setMaxValue(enable_mesh ? 64 : 10);
-	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(enable_mesh ? 64 : 10);
-	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(enable_mesh ? 64 : 10);
+	F32 max_scale = DEFAULT_MAX_PRIM_SCALE_NO_MESH;
+	getChild<LLSpinCtrl>("Scale X")->setMaxValue(max_scale);
+	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
+	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
 
 	LLComboBox* sculpt_combo = getChild<LLComboBox>("sculpt type control");
 	BOOL found = sculpt_combo->itemExists("Mesh");
