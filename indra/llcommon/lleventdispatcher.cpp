@@ -443,7 +443,8 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
     {
         LLSD array(LLSD::emptyArray());
         // Resize to number of arguments required
-        array[mArity - 1] = LLSD();
+        if (mArity)
+            array[mArity - 1] = LLSD();
         llassert_always(array.size() == mArity);
         meta["required"] = array;
         return meta;
