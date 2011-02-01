@@ -901,7 +901,7 @@ public:
 
 	LLVector4a* mExtents; //minimum and maximum point of face
 	LLVector4a* mCenter;
-	LLVector2 mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
+	LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
 	S32 mNumVertices;
 	S32 mNumIndices;
@@ -909,7 +909,7 @@ public:
 	LLVector4a* mPositions;
 	LLVector4a* mNormals;
 	LLVector4a* mBinormals;
-	LLVector2* mTexCoords;
+	LLVector2*  mTexCoords;
 	U16* mIndices;
 
 	std::vector<S32>	mEdge;
