@@ -2717,9 +2717,6 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 	<notification name="VoiceCallGenericError">
 		Fehler beim Versuch, eine Voice-Chat-Verbindung zu [VOICE_CHANNEL_NAME] herzustellen.  Bitte versuchen Sie es erneut.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Sie haben eine Region betreten, die eine andere Server-Version verwendet. Dies kann sich auf die Leistung auswirken. [[URL] Versionshinweise anzeigen.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Die SLurl, auf die Sie geklickt haben, wird nicht unterstützt.
 	</notification>
@@ -2773,7 +2770,7 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	<notification name="ShareItemsConfirmation">
 		Möchten Sie diese Objekte wirklich für andere freigeben:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Für folgende Einwohner:
 

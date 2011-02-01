@@ -1155,7 +1155,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		if (rebuild_tcoord)
 		{
 			LLVector2 tc = vf.mVertices[i].mTexCoord;
-		
+		   
 			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{
 				LLVector3 vec = vf.mVertices[i].mPosition; 
@@ -1331,7 +1331,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mTexExtents[0].setVec(0,0);
 		mTexExtents[1].setVec(1,1);
 		xform(mTexExtents[0], cos_ang, sin_ang, os, ot, ms, mt);
-		xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);		
+		xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);
+		
+		F32 es = vf.mTexCoordExtents[1].mV[0] - vf.mTexCoordExtents[0].mV[0] ;
+		F32 et = vf.mTexCoordExtents[1].mV[1] - vf.mTexCoordExtents[0].mV[1] ;
+		mTexExtents[0][0] *= es ;
+		mTexExtents[1][0] *= es ;
+		mTexExtents[0][1] *= et ;
+		mTexExtents[1][1] *= et ;
 	}
 
 	mLastVertexBuffer = mVertexBuffer;
