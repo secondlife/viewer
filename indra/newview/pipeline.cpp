@@ -2295,7 +2295,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
 			if (root && //  // this test may not be needed, see above
-			    root->getVObj()->isAttachment())
+					root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
 				if (rootparent) // this IS sometimes NULL
@@ -3141,7 +3141,7 @@ void render_hud_elements()
 	gGL.color4f(1,1,1,1);
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
-		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
 		// Draw the tracking overlays
@@ -3385,7 +3385,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	glMatrixMode(GL_MODELVIEW);
 
 	LLGLSPipeline gls_pipeline;
-	LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+	LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 
 	LLGLState gls_color_material(GL_COLOR_MATERIAL, mLightingDetail < 2);
 				
@@ -3625,7 +3625,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 		}
 	}
 
-	LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+	LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 
 	LLVertexBuffer::unbind();
 
@@ -3714,7 +3714,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 	LLGLEnable cull(GL_CULL_FACE);
 
-	LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+	LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 
 	calcNearbyLights(camera);
 	setupHWLights(NULL);
@@ -6298,7 +6298,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGL.getTexUnit(1)->bind(&mScreen);
 		gGL.getTexUnit(1)->activate();
 		
-		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		
 		buff->setBuffer(mask);
 		buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
@@ -6763,7 +6763,7 @@ void LLPipeline::renderDeferredLighting()
 							0, 0, mDeferredDepth.getWidth(), mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
 		}
 
-		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{

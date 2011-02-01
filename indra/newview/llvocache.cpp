@@ -225,8 +225,9 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 // Format string used to construct filename for the object cache
 static const char OBJECT_CACHE_FILENAME[] = "objects_%d_%d.slc";
 
-// Throw out 1/20 (5%) of our cache entries if we run out of room.
-const U32 ENTRIES_PURGE_FACTOR = 20;
+const U32 MAX_NUM_OBJECT_ENTRIES = 128 ;
+const U32 MIN_ENTRIES_TO_PURGE = 16 ;
+const U32 INVALID_TIME = 0 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
@@ -261,6 +262,7 @@ void LLVOCache::destroyClass()
 LLVOCache::LLVOCache():
 	mInitialized(FALSE),
 	mReadOnly(TRUE),
+	mNumEntries(0),
 	mCacheSize(1)
 {
 	mEnabled = gSavedSettings.getBOOL("ObjectCacheEnabled");
@@ -298,17 +300,16 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 		llwarns << "Cache already initialized." << llendl;
 		return ;
 	}
+	mInitialized = TRUE ;
 
 	setDirNames(location);
 	if (!mReadOnly)
 	{
 		LLFile::mkdir(mObjectCacheDirName);
 	}
-
-	mCacheSize = size;
-
-	readCacheHeader();
-	mInitialized = TRUE ;
+	mCacheSize = llclamp(size, MIN_ENTRIES_TO_PURGE, MAX_NUM_OBJECT_ENTRIES);
+	mMetaInfo.mVersion = cache_version;
+	readCacheHeader();	
 
 	if(mMetaInfo.mVersion != cache_version) 
 	{
@@ -332,6 +333,8 @@ void LLVOCache::removeCache(ELLPath location)
 		return ;
 	}
 
+	llinfos << "about to remove the object cache due to settings." << llendl ;
+
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
@@ -352,6 +355,8 @@ void LLVOCache::removeCache()
 		return ;
 	}
 
+	llinfos << "about to remove the object cache due to some error." << llendl ;
+
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string mask = delem + "*";
 	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
@@ -361,10 +366,54 @@ void LLVOCache::removeCache()
 	writeCacheHeader();
 }
 
+void LLVOCache::removeEntry(HeaderEntryInfo* entry) 
+{
+	llassert_always(mInitialized) ;
+	if(mReadOnly)
+	{
+		return ;
+	}
+	if(!entry)
+	{
+		return ;
+	}
+
+	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry) ;
+	if(iter != mHeaderEntryQueue.end())
+	{		
+		mHandleEntryMap.erase(entry->mHandle) ;		
+		mHeaderEntryQueue.erase(iter) ;
+		removeFromCache(entry) ;
+		delete entry ;
+
+		mNumEntries = mHandleEntryMap.size() ;
+	}
+}
+
+void LLVOCache::removeEntry(U64 handle) 
+{
+	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
+	if(iter == mHandleEntryMap.end()) //no cache
+	{
+		return ;
+	}
+	HeaderEntryInfo* entry = iter->second ;
+	removeEntry(entry) ;
+}
+
 void LLVOCache::clearCacheInMemory()
 {
-	std::for_each(mHandleEntryMap.begin(), mHandleEntryMap.end(), DeletePairedPointer());
-	mHandleEntryMap.clear();
+	if(!mHeaderEntryQueue.empty()) 
+	{
+		for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin(); iter != mHeaderEntryQueue.end(); ++iter)
+		{
+			delete *iter ;
+		}
+		mHeaderEntryQueue.clear();
+		mHandleEntryMap.clear();
+		mNumEntries = 0 ;
+	}
+
 }
 
 void LLVOCache::getObjectCacheFilename(U64 handle, std::string& filename) 
@@ -378,45 +427,19 @@ void LLVOCache::getObjectCacheFilename(U64 handle, std::string& filename)
 	return ;
 }
 
-void LLVOCache::removeFromCache(U64 handle)
+void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
 {
 	if(mReadOnly)
 	{
-		llwarns << "Not removing cache for handle " << handle << ": Cache is currently in read-only mode." << llendl;
+		llwarns << "Not removing cache for handle " << entry->mHandle << ": Cache is currently in read-only mode." << llendl;
 		return ;
 	}
 
 	std::string filename;
-	getObjectCacheFilename(handle, filename);
-	LLAPRFile::remove(filename, mLocalAPRFilePoolp);	
-}
-
-BOOL LLVOCache::checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error)
-{
-	if(!check_read(apr_file, src, n_bytes))
-	{
-		if (remove_cache_on_error)
-		{
-			removeCache() ;
-		}
-		return FALSE ;
-	}
-
-	return TRUE ;
-}
-
-BOOL LLVOCache::checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes, bool remove_cache_on_error) 
-{
-	if(!check_write(apr_file, src, n_bytes))
-	{
-		if (remove_cache_on_error)
-		{
-			removeCache() ;
-		}
-		return FALSE ;
-	}
-
-	return TRUE ;
+	getObjectCacheFilename(entry->mHandle, filename);
+	LLAPRFile::remove(filename, mLocalAPRFilePoolp);
+	entry->mTime = INVALID_TIME ;
+	updateEntry(entry) ; //update the head file.
 }
 
 void LLVOCache::readCacheHeader()
@@ -430,45 +453,76 @@ void LLVOCache::readCacheHeader()
 	//clear stale info.
 	clearCacheInMemory();	
 
+	bool success = true ;
 	if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
 	{
-		LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);		
+		LLAPRFile apr_file(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);		
 		
 		//read the meta element
-		bool remove_cache_on_error = false;
-		if(!checkRead(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo), remove_cache_on_error))
+		success = check_read(&apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
+		
+		if(success)
 		{
-			llwarns << "Error reading meta information from cache header." << llendl;
-			delete apr_file;
-			return;
-		}
-
-		HeaderEntryInfo* entry ;
-		for(U32 entry_index = 0; entry_index < mCacheSize; ++entry_index)
-		{
-			entry = new HeaderEntryInfo() ;
-			if(!checkRead(apr_file, entry, sizeof(HeaderEntryInfo), remove_cache_on_error))
+			HeaderEntryInfo* entry = NULL ;
+			mNumEntries = 0 ;
+			U32 num_read = 0 ;
+			while(num_read++ < MAX_NUM_OBJECT_ENTRIES)
 			{
-				llwarns << "Error reading cache header entry. (entry_index=" << entry_index << ")" << llendl;
-				delete entry ;			
-				break;
+				if(!entry)
+				{
+					entry = new HeaderEntryInfo() ;
+				}
+				success = check_read(&apr_file, entry, sizeof(HeaderEntryInfo));
+								
+				if(!success) //failed
+				{
+					llwarns << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << llendl;
+					delete entry ;
+					entry = NULL ;
+					break ;
+				}
+				else if(entry->mTime == INVALID_TIME)
+				{
+					continue ; //an empty entry
+				}
+
+				entry->mIndex = mNumEntries++ ;
+				mHeaderEntryQueue.insert(entry) ;
+				mHandleEntryMap[entry->mHandle] = entry ;
+				entry = NULL ;
 			}
-			else if(!entry->mTime) //end of the cache.
+			if(entry)
 			{
 				delete entry ;
-				break;
 			}
-
-			entry->mIndex = entry_index;
-			mHandleEntryMap[entry->mHandle] = entry;
 		}
 
-		delete apr_file ;
+		//---------
+		//debug code
+		//----------
+		//std::string name ;
+		//for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
+		//{
+		//	getObjectCacheFilename((*iter)->mHandle, name) ;
+		//	llinfos << name << llendl ;
+		//}
+		//-----------
 	}
 	else
 	{
 		writeCacheHeader() ;
 	}
+
+	if(!success)
+	{
+		removeCache() ; //failed to read header, clear the cache
+	}
+	else if(mNumEntries >= mCacheSize)
+	{
+		purgeEntries(mCacheSize) ;
+	}
+
+	return ;
 }
 
 void LLVOCache::writeCacheHeader()
@@ -485,60 +539,50 @@ void LLVOCache::writeCacheHeader()
 		return;
 	}
 
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
-
-	//write the meta element
-	if(!checkWrite(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)))
+	bool success = true ;
 	{
-		llwarns << "Error writing meta information to cache header." << llendl;
-		delete apr_file;
-		return;
-	}
+		LLAPRFile apr_file(mHeaderFileName, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
 
-	U32 entry_index = 0;
-	handle_entry_map_t::iterator iter_end = mHandleEntryMap.end();
-	for(handle_entry_map_t::iterator iter = mHandleEntryMap.begin();
-		iter != iter_end;
-		++iter)
-	{
-		HeaderEntryInfo* entry = iter->second;
-		entry->mIndex = entry_index++;
-		if(!checkWrite(apr_file, (void*)entry, sizeof(HeaderEntryInfo)))
+		//write the meta element
+		success = check_write(&apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
+
+
+		mNumEntries = 0 ;	
+		for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
 		{
-			llwarns << "Failed to write cache header for entry " << entry->mHandle << " (entry_index = " << entry_index << ")" << llendl;
-			delete apr_file;
-			return;
+			(*iter)->mIndex = mNumEntries++ ;
+			success = check_write(&apr_file, (void*)*iter, sizeof(HeaderEntryInfo));
 		}
-	}
-
-	// Why do we need to fill the cache header with default entries?  DK 2010-12-14
-	// It looks like we currently rely on the file being pre-allocated so we can seek during updateEntry().
-	if(entry_index < mCacheSize)
-	{
-		HeaderEntryInfo* entry = new HeaderEntryInfo() ;
-		for(; entry_index < mCacheSize; ++entry_index)
+	
+		mNumEntries = mHeaderEntryQueue.size() ;
+		if(success && mNumEntries < MAX_NUM_OBJECT_ENTRIES)
 		{
-			//fill the cache with the default entry.
-			if(!checkWrite(apr_file, entry, sizeof(HeaderEntryInfo)))
+			HeaderEntryInfo* entry = new HeaderEntryInfo() ;
+			entry->mTime = INVALID_TIME ;
+			for(S32 i = mNumEntries ; success && i < MAX_NUM_OBJECT_ENTRIES ; i++)
 			{
-				llwarns << "Failed to fill cache header with default entries (entry_index = " << entry_index << ").  Switching to read-only mode." << llendl;
-				mReadOnly = TRUE ; //disable the cache.
-				break;
+				//fill the cache with the default entry.
+				success = check_write(&apr_file, entry, sizeof(HeaderEntryInfo)) ;			
+
 			}
+			delete entry ;
 		}
-		delete entry ;
 	}
-	delete apr_file ;
+
+	if(!success)
+	{
+		clearCacheInMemory() ;
+		mReadOnly = TRUE ; //disable the cache.
+	}
+	return ;
 }
 
 BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 {
-	LLAPRFile* apr_file = new LLAPRFile(mHeaderFileName, APR_FOPEN_WRITE|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
-	apr_file->seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
+	LLAPRFile apr_file(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	apr_file.seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
-	BOOL result = checkWrite(apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
-	delete apr_file;
-	return result;
+	return check_write(&apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
 }
 
 void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) 
@@ -557,76 +601,66 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 		return ;
 	}
 
-	std::string filename;
-	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_READ|APR_FOPEN_BINARY, mLocalAPRFilePoolp);
+	bool success = true ;
+	{
+		std::string filename;
+		getObjectCacheFilename(handle, filename);
+		LLAPRFile apr_file(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
+	
+		LLUUID cache_id ;
+		success = check_read(&apr_file, cache_id.mData, UUID_BYTES) ;
+	
+		if(success)
+		{		
+			if(cache_id != id)
+			{
+				llinfos << "Cache ID doesn't match for this region, discarding"<< llendl;
+				success = false ;
+			}
 
-	LLUUID cache_id ;
-	if(!checkRead(apr_file, cache_id.mData, UUID_BYTES))
-	{
-		llwarns << "Error reading cache_id from " << filename << llendl;
-		delete apr_file;
-		return ;
-	}
-	if(cache_id != id)
-	{
-		llwarns << "Cache ID (" << cache_id << ") doesn't match id for this region (" << id << "), discarding.  handle = " << handle << llendl;
-		delete apr_file ;
-		return ;
-	}
-
-	S32 num_entries;
-	if(!checkRead(apr_file, &num_entries, sizeof(S32)))
-	{
-		llwarns << "Error reading num_entries from " << filename << llendl;
-		delete apr_file;
-		return ;
+			if(success)
+			{
+				S32 num_entries;
+				success = check_read(&apr_file, &num_entries, sizeof(S32)) ;
+	
+				for (S32 i = 0; success && i < num_entries; i++)
+				{
+					LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
+					if (!entry->getLocalID())
+					{
+						llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
+						delete entry ;
+						success = false ;
+					}
+					cache_entry_map[entry->getLocalID()] = entry;
+				}
+			}
+		}		
 	}
 	
-	for (S32 i = 0; i < num_entries; i++)
+	if(!success)
 	{
-		LLVOCacheEntry* entry = new LLVOCacheEntry(apr_file);
-		if (!entry->getLocalID())
+		if(cache_entry_map.empty())
 		{
-			llwarns << "Aborting cache file load for " << filename << ", cache file corruption! (entry number = " << i << ")" << llendl;
-			delete entry ;
-			break;
+			removeEntry(iter->second) ;
 		}
-		cache_entry_map[entry->getLocalID()] = entry;
 	}
 
-	delete apr_file ;
 	return ;
 }
 	
-void LLVOCache::purgeEntries()
+void LLVOCache::purgeEntries(U32 size)
 {
-	U32 limit = mCacheSize - (mCacheSize / ENTRIES_PURGE_FACTOR);
-	limit = llclamp(limit, (U32)1, mCacheSize);
-	// Construct a vector of entries out of the map so we can sort by time.
-	std::vector<HeaderEntryInfo*> header_vector;
-	handle_entry_map_t::iterator iter_end = mHandleEntryMap.end();
-	for (handle_entry_map_t::iterator iter = mHandleEntryMap.begin();
-		iter != iter_end;
-		++iter)
+	while(mHeaderEntryQueue.size() >= size)
 	{
-		header_vector.push_back(iter->second);
-	}
-	// Sort by time, oldest first.
-	std::sort(header_vector.begin(), header_vector.end(), header_entry_less());
-	while(header_vector.size() > limit)
-	{
-		HeaderEntryInfo* entry = header_vector.front();
-		
-		removeFromCache(entry->mHandle);
+		header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ;
+		HeaderEntryInfo* entry = *iter ;			
 		mHandleEntryMap.erase(entry->mHandle);
-		header_vector.erase(header_vector.begin());
+		mHeaderEntryQueue.erase(iter) ;
+		removeFromCache(entry) ;
 		delete entry;
 	}
-
-	writeCacheHeader() ;
-	// *TODO: Verify that we can avoid re-reading the cache header.  DK 2010-12-14
-	readCacheHeader() ;
+	mNumEntries = mHandleEntryMap.size() ;
 }
 
 void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) 
@@ -642,31 +676,34 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		llwarns << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << llendl;
 		return ;
-	}
+	}	
 
-	U32 num_handle_entries = mHandleEntryMap.size();
-	
 	HeaderEntryInfo* entry;
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	if(iter == mHandleEntryMap.end()) //new entry
-	{
-		if(num_handle_entries >= mCacheSize)
+	{				
+		if(mNumEntries >= mCacheSize - 1)
 		{
-			purgeEntries() ;
-			num_handle_entries = mHandleEntryMap.size();
+			purgeEntries(mCacheSize - 1) ;
 		}
-		
+
 		entry = new HeaderEntryInfo();
 		entry->mHandle = handle ;
 		entry->mTime = time(NULL) ;
-		entry->mIndex = num_handle_entries++;
+		entry->mIndex = mNumEntries++;
+		mHeaderEntryQueue.insert(entry) ;
 		mHandleEntryMap[handle] = entry ;
 	}
 	else
 	{
 		// Update access time.
-		entry = iter->second ;
+		entry = iter->second ;		
+
+		//resort
+		mHeaderEntryQueue.erase(entry) ;
+		
 		entry->mTime = time(NULL) ;
+		mHeaderEntryQueue.insert(entry) ;
 	}
 
 	//update cache header
@@ -683,37 +720,33 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	}
 
 	//write to cache file
-	std::string filename;
-	getObjectCacheFilename(handle, filename);
-	LLAPRFile* apr_file = new LLAPRFile(filename, APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_BINARY|APR_FOPEN_TRUNCATE, mLocalAPRFilePoolp);
+	bool success = true ;
+	{
+		std::string filename;
+		getObjectCacheFilename(handle, filename);
+		LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
 	
-	if(!checkWrite(apr_file, (void*)id.mData, UUID_BYTES))
-	{
-		llwarns << "Error writing id to " << filename << llendl;
-		delete apr_file;
-		return ;
-	}
+		success = check_write(&apr_file, (void*)id.mData, UUID_BYTES) ;
 
-	S32 num_entries = cache_entry_map.size() ;
-	if(!checkWrite(apr_file, &num_entries, sizeof(S32)))
-	{
-		llwarns << "Error writing num_entries to " << filename << llendl;
-		delete apr_file;
-		return ;
-	}
-
-	for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); iter != cache_entry_map.end(); ++iter)
-	{
-		if(!iter->second->writeToFile(apr_file))
+	
+		if(success)
 		{
-			llwarns << "Aborting cache file write for " << filename << ", error writing to file!" << llendl;
-			//failed
-			removeCache() ;
-			break;
+			S32 num_entries = cache_entry_map.size() ;
+			success = check_write(&apr_file, &num_entries, sizeof(S32));
+	
+			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
+			{
+				success = iter->second->writeToFile(&apr_file) ;
+			}
 		}
 	}
 
-	delete apr_file ;
+	if(!success)
+	{
+		removeEntry(entry) ;
+
+	}
+
 	return ;
 }
 

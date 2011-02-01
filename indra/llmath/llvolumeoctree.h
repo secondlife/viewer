@@ -34,6 +34,41 @@
 #include "llvolume.h"
 #include "llvector4a.h"
 
+class LLVolumeTriangle : public LLRefCount
+{
+public:
+	LLVolumeTriangle()
+	{
+		
+	}
+
+	LLVolumeTriangle(const LLVolumeTriangle& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLVolumeTriangle& operator=(const LLVolumeTriangle& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
+	~LLVolumeTriangle()
+	{
+	
+	}
+
+	LLVector4a mPositionGroup;
+
+	const LLVector4a* mV[3];
+	U16 mIndex[3];
+
+	F32 mRadius;
+
+	virtual const LLVector4a& getPositionGroup() const;
+	virtual const F32& getBinRadius() const;
+};
+
 class LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
 {
 public:
@@ -89,41 +124,6 @@ public:
 	void traverse(const LLOctreeNode<LLVolumeTriangle>* node);
 
 	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* node);
-};
-
-class LLVolumeTriangle : public LLRefCount
-{
-public:
-	LLVolumeTriangle()
-	{
-		
-	}
-
-	LLVolumeTriangle(const LLVolumeTriangle& rhs)
-	{
-		*this = rhs;
-	}
-
-	const LLVolumeTriangle& operator=(const LLVolumeTriangle& rhs)
-	{
-		llerrs << "Illegal operation!" << llendl;
-		return *this;
-	}
-
-	~LLVolumeTriangle()
-	{
-	
-	}
-
-	LLVector4a mPositionGroup;
-
-	const LLVector4a* mV[3];
-	U16 mIndex[3];
-
-	F32 mRadius;
-
-	virtual const LLVector4a& getPositionGroup() const;
-	virtual const F32& getBinRadius() const;
 };
 
 class LLVolumeOctreeValidate : public LLOctreeTraveler<LLVolumeTriangle>

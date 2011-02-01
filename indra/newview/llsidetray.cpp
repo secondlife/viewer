@@ -141,6 +141,8 @@ public:
 	
 	void			toggleTabDocked();
 
+	BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
+
 	LLPanel *getPanel();
 private:
 	std::string mTabTitle;
@@ -267,6 +269,15 @@ void LLSideTrayTab::toggleTabDocked()
 	// Open/close the floater *after* we reparent the tab panel,
 	// so that it doesn't receive redundant visibility change notifications.
 	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
+}
+
+BOOL LLSideTrayTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	// Let children handle the event
+	LLUICtrl::handleScrollWheel(x, y, clicks);
+
+	// and then eat it to prevent in-world scrolling (STORM-351).
+	return TRUE;
 }
 
 void LLSideTrayTab::dock(LLFloater* floater_tab)

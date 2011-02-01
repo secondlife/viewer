@@ -5490,13 +5490,15 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
-
+	
 	BOOL is_hud_object = objectp->isHUDAttachment();
 
 	if (!is_hud_object)
 	{
 		glLoadIdentity();
 		glMultMatrixd(gGLModelView);
+		LLVector3 trans = objectp->getRegion()->getOriginAgent();		
+		glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
 	}
 	
 	if (drawable->isActive())
