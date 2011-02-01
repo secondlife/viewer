@@ -141,7 +141,6 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
                                                                          LLPipeline::RENDER_TYPE_WATER,
                                                                          LLPipeline::RENDER_TYPE_PASS_GRASS,
                                                                          LLPipeline::RENDER_TYPE_HUD,
-                                                                         LLPipeline::RENDER_TYPE_PARTICLES,
                                                                          LLPipeline::RENDER_TYPE_CLOUDS,
                                                                          LLPipeline::RENDER_TYPE_HUD_PARTICLES,
                                                                          LLPipeline::END_RENDER_TYPES); 
@@ -157,7 +156,6 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
                                                                          LLPipeline::RENDER_TYPE_WATER,
                                                                          LLPipeline::RENDER_TYPE_PASS_GRASS,
                                                                          LLPipeline::RENDER_TYPE_HUD,
-                                                                         LLPipeline::RENDER_TYPE_PARTICLES,
                                                                          LLPipeline::RENDER_TYPE_CLOUDS,
                                                                          LLPipeline::RENDER_TYPE_HUD_PARTICLES,
                                                                          LLPipeline::END_RENDER_TYPES);
