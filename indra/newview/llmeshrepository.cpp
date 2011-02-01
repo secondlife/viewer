@@ -2160,7 +2160,7 @@ S32 LLMeshRepository::update()
 	return size ;
 }
 
-S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
+S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
 	if (detail < 0 || detail > 4)
 	{
@@ -2201,7 +2201,19 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 		if (group)
 		{
-			//first see what the next lowest LOD available might be
+			//first, see if last_lod is available (don't transition down to avoid funny popping a la SH-641)
+			if (last_lod >= 0)
+			{
+				LLVolume* lod = group->refLOD(last_lod);
+				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
+				{
+					group->derefLOD(lod);
+					return last_lod;
+				}
+				group->derefLOD(lod);
+			}
+
+			//next, see what the next lowest LOD available might be
 			for (S32 i = detail-1; i >= 0; --i)
 			{
 				LLVolume* lod = group->refLOD(i);
