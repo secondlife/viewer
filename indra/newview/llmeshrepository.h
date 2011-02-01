@@ -456,7 +456,7 @@ public:
 	S32 update() ;
 
 	//mesh management functions
-	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0);
+	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
 	
 	void notifyLoadedMeshes();
 	void notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume);
