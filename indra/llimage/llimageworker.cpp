@@ -38,6 +38,12 @@ LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 	mCreationMutex = new LLMutex(getAPRPool());
 }
 
+//virtual 
+LLImageDecodeThread::~LLImageDecodeThread()
+{
+	delete mCreationMutex ;
+}
+
 // MAIN THREAD
 // virtual
 S32 LLImageDecodeThread::update(U32 max_time_ms)

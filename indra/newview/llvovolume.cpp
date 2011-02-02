@@ -2165,7 +2165,7 @@ void LLVOVolume::removeMediaImpl(S32 texture_index)
 	}
 
 	//make the face referencing to mMediaImplList[texture_index] to point back to the old texture.
-	if(mDrawable)
+	if(mDrawable && texture_index < mDrawable->getNumFaces())
 	{
 		LLFace* facep = mDrawable->getFace(texture_index) ;
 		if(facep)
