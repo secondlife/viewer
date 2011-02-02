@@ -956,7 +956,7 @@ namespace tut
             LLSD names((*gi)[0]);
             LLSD required((*gi)[1][0]);
             LLSD optional((*gi)[1][1]);
-            std::cout << "For " << names << ",\n" << "required:\n" << required << "\noptional:\n" << optional << std::endl;
+            cout << "For " << names << ",\n" << "required:\n" << required << "\noptional:\n" << optional << std::endl;
 
             // Loop through 'names'
             for (LLSD::array_const_iterator ni(names.beginArray()), nend(names.endArray());
@@ -968,6 +968,92 @@ namespace tut
                 ensure_equals("required mismatch", metadata["required"], required);
                 ensure_equals("optional mismatch", metadata["optional"], optional);
             }
+        }
+    }
+
+    template<> template<>
+    void object::test<13>()
+    {
+        set_test_name("try_call()");
+        ensure("try_call(bogus name, LLSD()) returned true", ! work.try_call("freek", LLSD()));
+        ensure("try_call(bogus name) returned true", ! work.try_call(LLSDMap("op", "freek")));
+        ensure("try_call(real name, LLSD()) returned false", work.try_call("free0_array", LLSD()));
+        ensure("try_call(real name) returned false", work.try_call(LLSDMap("op", "free0_map")));
+    }
+
+    template<> template<>
+    void object::test<14>()
+    {
+        set_test_name("call with bad name");
+        call_exc("freek", LLSD(), "not found");
+        // We don't have a comparable helper function for the one-arg
+        // operator() method, and it's not worth building one just for this
+        // case. Write it out.
+        std::string threw;
+        try
+        {
+            work(LLSDMap("op", "freek"));
+        }
+        catch (const std::runtime_error& e)
+        {
+            cout << "*** " << e.what() << "\n";
+            threw = e.what();
+        }
+        ensure_has(threw, "bad");
+        ensure_has(threw, "op");
+        ensure_has(threw, "freek");
+    }
+
+    template<> template<>
+    void object::test<15>()
+    {
+        set_test_name("call with event key");
+        // We don't need a separate test for operator()(string, LLSD) with
+        // valid name, because all the rest of the tests exercise that case.
+        // The one we don't exercise elsewhere is operator()(LLSD) with valid
+        // name, so here it is.
+        work(LLSDMap("op", "free0_map"));
+        ensure_equals(g.i, 17);
+    }
+
+    // Cannot be defined inside function body... remind me again why we use C++...  :-P
+    struct Triple
+    {
+        std::string name, name_req;
+        LLSD& llsd;
+    };
+
+    template<> template<>
+    void object::test<16>()
+    {
+        set_test_name("call Callables");
+        Triple tests[] =
+        {
+            { "free1",     "free1_req",     g.llsd },
+            { "Dmethod1",  "Dmethod1_req",  work.llsd },
+            { "Dcmethod1", "Dcmethod1_req", work.llsd },
+            { "method1",   "method1_req",   v.llsd }
+        };
+        // Arbitrary LLSD value that we should be able to pass to Callables
+        // without 'required', but should not be able to pass to Callables
+        // with 'required'.
+        LLSD answer(42);
+        // LLSD value matching 'required' according to llsd_matches() rules.
+        LLSD matching(LLSDMap("d", 3.14)("array", LLSDArray("answer")(true)(answer)));
+        // Okay, walk through 'tests'.
+        for (const Triple *ti(boost::begin(tests)), *tend(boost::end(tests)); ti != tend; ++ti)
+        {
+            // Should be able to pass 'answer' to Callables registered
+            // without 'required'.
+            work(ti->name, answer);
+            ensure_equals("answer mismatch", ti->llsd, answer);
+            // Should NOT be able to pass 'answer' to Callables registered
+            // with 'required'.
+            call_exc(ti->name_req, answer, "bad request");
+            // But SHOULD be able to pass 'matching' to Callables registered
+            // with 'required'.
+            work(ti->name_req, matching);
+            ensure_equals("matching mismatch", ti->llsd, matching);
         }
     }
 } // namespace tut
