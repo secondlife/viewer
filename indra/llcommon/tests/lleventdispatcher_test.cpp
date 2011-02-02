@@ -1017,7 +1017,7 @@ namespace tut
     }
 
     // Cannot be defined inside function body... remind me again why we use C++...  :-P
-    struct Triple
+    struct CallablesTriple
     {
         std::string name, name_req;
         LLSD& llsd;
@@ -1027,7 +1027,7 @@ namespace tut
     void object::test<16>()
     {
         set_test_name("call Callables");
-        Triple tests[] =
+        CallablesTriple tests[] =
         {
             { "free1",     "free1_req",     g.llsd },
             { "Dmethod1",  "Dmethod1_req",  work.llsd },
@@ -1041,7 +1041,8 @@ namespace tut
         // LLSD value matching 'required' according to llsd_matches() rules.
         LLSD matching(LLSDMap("d", 3.14)("array", LLSDArray("answer")(true)(answer)));
         // Okay, walk through 'tests'.
-        for (const Triple *ti(boost::begin(tests)), *tend(boost::end(tests)); ti != tend; ++ti)
+        for (const CallablesTriple *ti(boost::begin(tests)), *tend(boost::end(tests));
+             ti != tend; ++ti)
         {
             // Should be able to pass 'answer' to Callables registered
             // without 'required'.
@@ -1075,5 +1076,41 @@ namespace tut
         std::string map_exc("needs a map");
         call_exc("free0_map", 17, map_exc);
         call_exc("free0_map", LLSDArray("a")("b"), map_exc);
+    }
+
+    struct FunctionsTriple
+    {
+        std::string name_array, name_map;
+        Vars& vars;
+    };
+
+    template<> template<>
+    void object::test<18>()
+    {
+        set_test_name("call no-args functions");
+        FunctionsTriple tests[] =
+        {
+            { "free0_array",    "free0_map",    g },
+            { "smethod0_array", "smethod0_map", g },
+            { "method0_array",  "method0_map",  v }
+        };
+        for (const FunctionsTriple *ti(boost::begin(tests)), *tend(boost::end(tests));
+             ti != tend; ++ti)
+        {
+            // Both the global and stack Vars instances are automatically
+            // cleared at the start of each test<n> method. But since we're
+            // calling these things several different times in the same
+            // test<n> method, manually reset the Vars between each.
+            ti->vars = Vars();
+            ensure_equals(ti->vars.i, 0);
+            // array-style call with empty array (or LLSD(), should be equivalent)
+            work(ti->name_array, LLSD());
+            ensure_equals(ti->vars.i, 17);
+            
+            ti->vars = Vars();
+            // map-style call with empty map (or LLSD(), should be equivalent)
+            work(ti->name_map, LLSD());
+            ensure_equals(ti->vars.i, 17);
+        }
     }
 } // namespace tut
