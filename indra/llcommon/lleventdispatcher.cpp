@@ -524,9 +524,9 @@ void LLEventDispatcher::addArrayParamsDispatchEntry(const std::string& name,
                                                     const invoker_function& invoker,
                                                     LLSD::Integer arity)
 {
-    // Peculiar to me that boost::ptr_map() accepts std::auto_ptr but not dumb ptr
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new ArrayParamsDispatchEntry(desc, invoker, arity)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new ArrayParamsDispatchEntry(desc, invoker, arity))));
 }
 
 void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
@@ -535,16 +535,18 @@ void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
                                                   const LLSD& params,
                                                   const LLSD& defaults)
 {
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new MapParamsDispatchEntry(name, desc, invoker, params, defaults)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new MapParamsDispatchEntry(name, desc, invoker, params, defaults))));
 }
 
 /// Register a callable by name
 void LLEventDispatcher::add(const std::string& name, const std::string& desc,
                             const Callable& callable, const LLSD& required)
 {
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new LLSDDispatchEntry(desc, callable, required)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new LLSDDispatchEntry(desc, callable, required))));
 }
 
 void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const

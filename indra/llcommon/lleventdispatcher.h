@@ -57,7 +57,7 @@ static const int& nil(nil_);
 #endif
 
 #include <string>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -286,40 +286,35 @@ private:
     struct DispatchEntry
     {
         DispatchEntry(const std::string& desc);
+        virtual ~DispatchEntry() {} // suppress MSVC warning, sigh
 
         std::string mDesc;
 
         virtual void call(const std::string& desc, const LLSD& event) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
     };
-    typedef boost::ptr_map<std::string, DispatchEntry> DispatchMap;
+    // Tried using boost::ptr_map<std::string, DispatchEntry>, but ptr_map<>
+    // wants its value type to be "clonable," even just to dereference an
+    // iterator. I don't want to clone entries -- if I have to copy an entry
+    // around, I want it to continue pointing to the same DispatchEntry
+    // subclass object. However, I definitely want DispatchMap to destroy
+    // DispatchEntry if no references are outstanding at the time an entry is
+    // removed. This looks like a job for boost::shared_ptr.
+    typedef std::map<std::string, boost::shared_ptr<DispatchEntry> > DispatchMap;
 
 public:
     /// We want the flexibility to redefine what data we store per name,
     /// therefore our public interface doesn't expose DispatchMap iterators,
     /// or DispatchMap itself, or DispatchEntry. Instead we explicitly
     /// transform each DispatchMap item to NameDesc on dereferencing.
-    typedef boost::transform_iterator<NameDesc(*)(DispatchMap::value_type), DispatchMap::iterator> const_iterator;
+    typedef boost::transform_iterator<NameDesc(*)(const DispatchMap::value_type&), DispatchMap::const_iterator> const_iterator;
     const_iterator begin() const
     {
-        // Originally we used DispatchMap::const_iterator, which Just Worked
-        // when DispatchMap was a std::map. Now that it's a boost::ptr_map,
-        // using DispatchMap::const_iterator doesn't work so well: it
-        // dereferences to a pair<string, const T*>, whereas
-        // DispatchMap::value_type is just pair<string, T*>. Trying to pass a
-        // dereferenced iterator to the value_type didn't work because the
-        // compiler won't let you convert from const T* to plain T*. Changing
-        // our const_iterator definition above to be based on non-const
-        // DispatchMap::iterator works better, but of course we have to cast
-        // away the constness of mDispatch to use non-const iterator. (Sigh.)
-        return boost::make_transform_iterator(const_cast<DispatchMap&>(mDispatch).begin(),
-                                              makeNameDesc);
+        return boost::make_transform_iterator(mDispatch.begin(), makeNameDesc);
     }
     const_iterator end() const
     {
-        // see begin() comments
-        return boost::make_transform_iterator(const_cast<DispatchMap&>(mDispatch).end(),
-                                              makeNameDesc);
+        return boost::make_transform_iterator(mDispatch.end(), makeNameDesc);
     }
     //@}
 
@@ -349,7 +344,7 @@ private:
     std::string mDesc, mKey;
     DispatchMap mDispatch;
 
-    static NameDesc makeNameDesc(DispatchMap::value_type item)
+    static NameDesc makeNameDesc(const DispatchMap::value_type& item)
     {
         return NameDesc(item.first, item.second->mDesc);
     }
