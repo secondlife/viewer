@@ -16,7 +16,8 @@
 		<menu_item_call label="Sæt vinduesstørrelse" name="Set Window Size..."/>
 		<menu_item_call label="Vis betingelser" name="TOS"/>
 		<menu_item_call label="Vis vigtig besked" name="Critical"/>
-		<menu_item_call label="Test i web browser" name="Web Browser Test"/>
+		<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
+		<menu_item_call label="Web Content Floater Test" name="Web Content Floater Test"/>
 		<menu_item_check label="Vis gitter vælger" name="Show Grid Picker"/>
 		<menu_item_call label="Vis notifikationskonsol" name="Show Notifications Console"/>
 	</menu>
