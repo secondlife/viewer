@@ -1056,4 +1056,24 @@ namespace tut
             ensure_equals("matching mismatch", ti->llsd, matching);
         }
     }
+
+    template<> template<>
+    void object::test<17>()
+    {
+        set_test_name("passing wrong args to (map | array)-style registrations");
+
+        // Pass scalar/map to array-style functions, scalar/array to map-style
+        // functions. As that validation happens well before we engage the
+        // argument magic, it seems pointless to repeat this with every
+        // variation: (free function | non-static method), (no | arbitrary)
+        // args. We should only need to engage it for one map-style
+        // registration and one array-style registration.
+        std::string array_exc("needs an args array");
+        call_exc("free0_array", 17, array_exc);
+        call_exc("free0_array", LLSDMap("pi", 3.14), array_exc);
+
+        std::string map_exc("needs a map");
+        call_exc("free0_map", 17, map_exc);
+        call_exc("free0_map", LLSDArray("a")("b"), map_exc);
+    }
 } // namespace tut
