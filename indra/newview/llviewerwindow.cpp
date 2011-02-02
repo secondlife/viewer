@@ -4001,18 +4001,26 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::sShowHUDAttachments = FALSE;
 	}
 
+	// if not showing ui, use full window to render world view
+	updateWorldViewRect(!show_ui);
+
 	// Copy screen to a buffer
 	// crop sides or top and bottom, if taking a snapshot of different aspect ratio
 	// from window
-	S32 snapshot_width = mWindowRectRaw.getWidth();
-	S32 snapshot_height =  mWindowRectRaw.getHeight();
-	// SNAPSHOT
-	S32 window_width = mWindowRectRaw.getWidth();
-	S32 window_height = mWindowRectRaw.getHeight();	
-	LLRect window_rect = mWindowRectRaw;
-	BOOL use_fbo = FALSE;
+	LLRect window_rect = show_ui ? getWindowRectRaw() : getWorldViewRectRaw(); 
 
-	LLRenderTarget target;
+	S32 snapshot_width = window_rect.getWidth();
+	S32 snapshot_height = window_rect.getHeight();
+	// SNAPSHOT
+	S32 window_width = snapshot_width;
+	S32 window_height = snapshot_height;
+	
+	if (show_ui)
+	{
+		image_width = llmin(image_width, window_width);
+		image_height = llmin(image_height, window_height);
+	}
+
 	F32 scale_factor = 1.0f ;
 	if(!keep_window_aspect) //image cropping
 	{		
@@ -4025,45 +4033,24 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		if(image_width > window_width || image_height > window_height) //need to enlarge the scene
 		{
-			if (!LLPipeline::sRenderDeferred && gGLManager.mHasFramebufferObject && !show_ui)
-			{
-				GLint max_size = 0;
-				glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
-		
-				if (image_width <= max_size && image_height <= max_size) //re-project the scene
-				{
-					use_fbo = TRUE;
-					
-					snapshot_width = image_width;
-					snapshot_height = image_height;
-					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
-					window_width = snapshot_width;
-					window_height = snapshot_height;
-					scale_factor = 1.f;
-					mWindowRectRaw.set(0, snapshot_height, snapshot_width, 0);
-					target.bindTarget();			
-				}
-			}
-
-			if(!use_fbo) //no re-projection, so tiling the scene
-			{
-				F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-				snapshot_width = (S32)(ratio * image_width) ;
-				snapshot_height = (S32)(ratio * image_height) ;
-				scale_factor = llmax(1.0f, 1.0f / ratio) ;	
-			}
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;	
 		}
-		//else: keep the current scene scale, re-scale it if necessary after reading out.
 	}
 	
-	// if not showing ui, use full window to render world view
-	updateWorldViewRect(!show_ui);
+	if (show_ui && scale_factor > 1.f)
+	{
+		llwarns << "over scaling UI not supported." << llendl;
+	}
 
 	S32 buffer_x_offset = llfloor(((window_width - snapshot_width) * scale_factor) / 2.f);
 	S32 buffer_y_offset = llfloor(((window_height - snapshot_height) * scale_factor) / 2.f);
 
 	S32 image_buffer_x = llfloor(snapshot_width*scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height *scale_factor) ;
+
 	if(image_buffer_x > max_size || image_buffer_y > max_size) //boundary check to avoid memory overflow
 	{
 		scale_factor *= llmin((F32)max_size / image_buffer_x, (F32)max_size / image_buffer_y) ;
@@ -4072,7 +4059,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	if(image_buffer_x > 0 && image_buffer_y > 0)
 	{
-	raw->resize(image_buffer_x, image_buffer_y, 3);
+		raw->resize(image_buffer_x, image_buffer_y, 3);
 	}
 	else
 	{
@@ -4084,12 +4071,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 
 	BOOL high_res = scale_factor >= 2.f; // Font scaling is slow, only do so if rez is much higher
-	if (high_res)
+	if (high_res && show_ui)
 	{
-		send_agent_pause();
+		llwarns << "High res UI snapshot not supported. " << llendl;
+		/*send_agent_pause();
 		//rescale fonts
 		initFonts(scale_factor);
-		LLHUDObject::reshapeAll();
+		LLHUDObject::reshapeAll();*/
 	}
 
 	S32 output_buffer_offset_y = 0;
@@ -4185,12 +4173,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		output_buffer_offset_y += subimage_y_offset;
 	}
 
-	if (use_fbo)
-	{
-		mWindowRectRaw = window_rect;
-		target.flush();
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	}
 	gDisplaySwapBuffers = FALSE;
 	gDepthDirty = TRUE;
 
@@ -4205,11 +4187,11 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::sShowHUDAttachments = TRUE;
 	}
 
-	if (high_res)
+	/*if (high_res)
 	{
 		initFonts(1.f);
 		LLHUDObject::reshapeAll();
-	}
+	}*/
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
 	// Note: this formula depends on the number of components being 3.  Not obvious, but it's correct.	
