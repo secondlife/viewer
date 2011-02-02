@@ -1932,7 +1932,7 @@ Only large parcels can be listed in search.
              name="public_access"
              top_pad="5"
              label_text.valign="center"
-             label_text.v_pad="-7" 
+             label_text.v_pad="-2" 
              width="278" />
             <text
              type="string"
