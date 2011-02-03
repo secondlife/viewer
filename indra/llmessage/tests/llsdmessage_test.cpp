@@ -61,6 +61,7 @@ namespace tut
         llsdmessage_data():
             httpPump(pumps.obtain("LLHTTPClient"))
         {
+            LLCurl::initClass();
             LLSDMessage::link();
         }
     };
