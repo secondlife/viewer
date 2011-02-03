@@ -761,8 +761,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		mCenterLocal.set(t.getF32ptr());
 		
 		t.setSub(newMax,newMin);
-		t.mul(0.5f);
-		mBoundingSphereRadius = t.getLength3().getF32();
+		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
 		updateCenterAgent();
 	}
