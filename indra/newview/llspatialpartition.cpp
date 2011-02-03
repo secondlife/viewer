@@ -2948,10 +2948,10 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 		{
 			buff->setBuffer(data_mask);
 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		/*	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glColor4fv(line_color.mV);
 			buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 
 			{
 				glColor4fv(color.mV);
@@ -2979,9 +2979,13 @@ void render_hull(LLVertexBuffer* buff, U32 data_mask, const LLColor4& color, con
 	glColor4fv(color.mV);
 	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 
+	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonOffset(3.f, 3.f);
+	glLineWidth(3.f);
 	glColor4fv(line_color.mV);
 	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
