@@ -1949,7 +1949,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 
 	<!-- Gestures labels -->
     <!-- use value="" because they have preceding spaces -->
-    <string name="Chat"          value=" Chat : " />
+    <string name="Chat Message"  value=" Chat : " />
     <string name="Sound"         value=" Sound : " />
 	<string name="Wait"          value=" --- Wait : " />
 	<string name="AnimFlagStop"  value=" Stop Animation :    " />
