@@ -1098,7 +1098,7 @@ namespace tut
             // array-style call with empty array (or LLSD(), should be equivalent)
             work(tr.name1, LLSD());
             ensure_equals(tr.vars.i, 17);
-            
+
             tr.vars = Vars();
             // map-style call with empty map (or LLSD(), should be equivalent)
             work(tr.name2, LLSD());
@@ -1106,20 +1106,27 @@ namespace tut
         }
     }
 
-    template<> template<>
-    void object::test<19>()
+    // Break out function to return this data because we use it in a couple
+    // different tests.
+    std::vector<FunctionsTriple> array_funcs(Vars& v)
     {
-        set_test_name("call array-style functions with too-short arrays");
         FunctionsTriple tests[] =
         {
             { "freena_array",    "freenb_array",    g },
             { "smethodna_array", "smethodnb_array", g },
             { "methodna_array",  "methodnb_array",  v }
         };
+        return std::vector<FunctionsTriple>(boost::begin(tests), boost::end(tests));
+    }
+
+    template<> template<>
+    void object::test<19>()
+    {
+        set_test_name("call array-style functions with too-short arrays");
         // Could have two different too-short arrays, one for *na and one for
         // *nb, but since they both take 5 params...
         LLSD tooshort(LLSDArray("this")("array")("too")("short"));
-        foreach(const FunctionsTriple& tr, tests)
+        foreach(const FunctionsTriple& tr, array_funcs(v))
         {
             call_exc(tr.name1, tooshort, "requires more arguments");
             call_exc(tr.name2, tooshort, "requires more arguments");
