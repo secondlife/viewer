@@ -30,6 +30,8 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/range.hpp>
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
 
 #include <boost/lambda/lambda.hpp>
 
@@ -48,6 +50,52 @@ using std::cout;
 #else
 static std::ostringstream cout;
 #endif
+
+/*****************************************************************************
+*   BOOST_FOREACH() helpers for LLSD
+*****************************************************************************/
+/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+class inArray
+{
+public:
+    inArray(const LLSD& array):
+        _array(array)
+    {}
+
+    typedef LLSD::array_const_iterator const_iterator;
+    typedef LLSD::array_iterator iterator;
+
+    iterator begin() { return _array.beginArray(); }
+    iterator end()   { return _array.endArray(); }
+    const_iterator begin() const { return _array.beginArray(); }
+    const_iterator end()   const { return _array.endArray(); }
+
+private:
+    LLSD _array;
+};
+
+/// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
+typedef std::pair<const LLSD::String, LLSD> MapEntry;
+
+/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+class inMap
+{
+public:
+    inMap(const LLSD& map):
+        _map(map)
+    {}
+
+    typedef LLSD::map_const_iterator const_iterator;
+    typedef LLSD::map_iterator iterator;
+
+    iterator begin() { return _map.beginMap(); }
+    iterator end()   { return _map.endMap(); }
+    const_iterator begin() const { return _map.beginMap(); }
+    const_iterator end()   const { return _map.endMap(); }
+
+private:
+    LLSD _map;
+};
 
 /*****************************************************************************
 *   Example data, functions, classes
@@ -198,9 +246,9 @@ struct Vars
     void methodnb(NPARAMSb)
     {
         std::ostringstream vbin;
-        for (size_t ix = 0, ixend = bin.size(); ix < ixend; ++ix)
+        foreach(U8 byte, bin)
         {
-            vbin << std::hex << std::setfill('0') << std::setw(2) << bin[ix];
+            vbin << std::hex << std::setfill('0') << std::setw(2) << byte;
         }
 
         cout << "methodnb(" << "'" << s << "'"
@@ -425,12 +473,11 @@ namespace tut
                                  (LLSDArray(paramsb)(dftb_array_full)));
 //            std::cout << "zipped:\n" << zipped << '\n';
             LLSD dft_maps_full, dft_maps_partial;
-            for (LLSD::array_const_iterator ai(zipped.beginArray()), aend(zipped.endArray());
-                 ai != aend; ++ai)
+            foreach(LLSD ae, inArray(zipped))
             {
                 LLSD dft_map_full;
-                LLSD params((*ai)[0]);
-                LLSD dft_array_full((*ai)[1]);
+                LLSD params(ae[0]);
+                LLSD dft_array_full(ae[1]);
 //                std::cout << "params:\n" << params << "\ndft_array_full:\n" << dft_array_full << '\n';
                 for (LLSD::Integer ix = 0, ixend = params.size(); ix < ixend; ++ix)
                 {
@@ -566,16 +613,20 @@ namespace tut
         {
             // Copy funcs to a temp map of same type.
             FuncMap forgotten(funcs.begin(), funcs.end());
-            for (LLEventDispatcher::const_iterator edi(work.begin()), edend(work.end());
-                 edi != edend; ++edi)
+            // LLEventDispatcher intentionally provides only const_iterator:
+            // since dereferencing that iterator generates values on the fly,
+            // it's meaningless to have a modifiable iterator. But since our
+            // 'work' object isn't const, by default BOOST_FOREACH() wants to
+            // use non-const iterators. Persuade it to use the const_iterator.
+            foreach(LLEventDispatcher::NameDesc nd, const_cast<const Dispatcher&>(work))
             {
-                FuncMap::iterator found = forgotten.find(edi->first);
-                ensure(STRINGIZE("LLEventDispatcher records function '" << edi->first
+                FuncMap::iterator found = forgotten.find(nd.first);
+                ensure(STRINGIZE("LLEventDispatcher records function '" << nd.first
                                  << "' we didn't enter"),
                        found != forgotten.end());
-                ensure_equals(STRINGIZE("LLEventDispatcher desc '" << edi->second <<
+                ensure_equals(STRINGIZE("LLEventDispatcher desc '" << nd.second <<
                                         "' doesn't match what we entered: '" << found->second << "'"),
-                              edi->second, found->second);
+                              nd.second, found->second);
                 // found in our map the name from LLEventDispatcher, good, erase
                 // our map entry
                 forgotten.erase(found);
@@ -585,10 +636,9 @@ namespace tut
                 std::ostringstream out;
                 out << "LLEventDispatcher failed to report";
                 const char* delim = ": ";
-                for (FuncMap::const_iterator fmi(forgotten.begin()), fmend(forgotten.end());
-                     fmi != fmend; ++fmi)
+                foreach(const FuncMap::value_type& fme, forgotten)
                 {
-                    out << delim << fmi->first;
+                    out << delim << fme.first;
                     delim = ", ";
                 }
                 ensure(out.str(), false);
@@ -630,10 +680,11 @@ namespace tut
     // Call cases:
     // - (try_call | call) (explicit name | event key) (real | bogus) name
     // - Callable with args that (do | do not) match required
-    // - (Free function | non-static method) array style with
+    // - (Free function | non-static method), no args, (array | map) style
+    // - (Free function | non-static method), arbitrary args, array style with
     //   (scalar | map | array (too short | too long | just right))
     //   [trap LL_WARNS for too-long case?]
-    // - (Free function | non-static method) map style with
+    // - (Free function | non-static method), arbitrary args, map style with
     //   (scalar | array | map (all | too many | holes (with | without) defaults))
     // - const char* param gets ("" | NULL)
 
@@ -651,13 +702,12 @@ namespace tut
         set_test_name("map-style registration with non-array params");
         // Pass "param names" as scalar or as map
         LLSD attempts(LLSDArray(17)(LLSDMap("pi", 3.14)("two", 2)));
-        for (LLSD::array_const_iterator ai(attempts.beginArray()), aend(attempts.endArray());
-             ai != aend; ++ai)
+        foreach(LLSD ae, inArray(attempts))
         {
             std::string threw;
             try
             {
-                work.add("freena_err", "freena", freena, *ai);
+                work.add("freena_err", "freena", freena, ae);
             }
             catch (const std::exception& e)
             {
@@ -751,16 +801,15 @@ namespace tut
     {
         set_test_name("query Callables with/out required params");
         LLSD names(LLSDArray("free1")("Dmethod1")("Dcmethod1")("method1"));
-        for (LLSD::array_const_iterator ai(names.beginArray()), aend(names.endArray());
-             ai != aend; ++ai)
+        foreach(LLSD ae, inArray(names))
         {
-            LLSD metadata(getMetadata(*ai));
-            ensure_equals("name mismatch", metadata["name"], *ai);
-            ensure_equals(metadata["desc"].asString(), funcs[*ai]);
+            LLSD metadata(getMetadata(ae));
+            ensure_equals("name mismatch", metadata["name"], ae);
+            ensure_equals(metadata["desc"].asString(), funcs[ae]);
             ensure("should not have required structure", metadata["required"].isUndefined());
             ensure("should not have optional", metadata["optional"].isUndefined());
 
-            std::string name_req(ai->asString() + "_req");
+            std::string name_req(ae.asString() + "_req");
             metadata = getMetadata(name_req);
             ensure_equals(metadata["name"].asString(), name_req);
             ensure_equals(metadata["desc"].asString(), funcs[name_req]);
@@ -781,21 +830,19 @@ namespace tut
                        (5)(LLSDArray("freena_array")("smethodna_array")("methodna_array")))
                       (LLSDArray
                        (5)(LLSDArray("freenb_array")("smethodnb_array")("methodnb_array"))));
-        for (LLSD::array_const_iterator ai(expected.beginArray()), aend(expected.endArray());
-             ai != aend; ++ai)
+        foreach(LLSD ae, inArray(expected))
         {
-            LLSD::Integer arity((*ai)[0].asInteger());
-            LLSD names((*ai)[1]);
+            LLSD::Integer arity(ae[0].asInteger());
+            LLSD names(ae[1]);
             LLSD req(LLSD::emptyArray());
             if (arity)
                 req[arity - 1] = LLSD();
-            for (LLSD::array_const_iterator ni(names.beginArray()), nend(names.endArray());
-                 ni != nend; ++ni)
+            foreach(LLSD nm, inArray(names))
             {
-                LLSD metadata(getMetadata(*ni));
-                ensure_equals("name mismatch", metadata["name"], *ni);
-                ensure_equals(metadata["desc"].asString(), funcs[*ni]);
-                ensure_equals(STRINGIZE("mismatched required for " << ni->asString()),
+                LLSD metadata(getMetadata(nm));
+                ensure_equals("name mismatch", metadata["name"], nm);
+                ensure_equals(metadata["desc"].asString(), funcs[nm]);
+                ensure_equals(STRINGIZE("mismatched required for " << nm.asString()),
                               metadata["required"], req);
                 ensure("should not have optional", metadata["optional"].isUndefined());
             }
@@ -809,12 +856,11 @@ namespace tut
         // - (Free function | non-static method), map style, no params (ergo
         //   no defaults)
         LLSD names(LLSDArray("free0_map")("smethod0_map")("method0_map"));
-        for (LLSD::array_const_iterator ni(names.beginArray()), nend(names.endArray());
-             ni != nend; ++ni)
+        foreach(LLSD nm, inArray(names))
         {
-            LLSD metadata(getMetadata(*ni));
-            ensure_equals("name mismatch", metadata["name"], *ni);
-            ensure_equals(metadata["desc"].asString(), funcs[*ni]);
+            LLSD metadata(getMetadata(nm));
+            ensure_equals("name mismatch", metadata["name"], nm);
+            ensure_equals(metadata["desc"].asString(), funcs[nm]);
             ensure("should not have required",
                    (metadata["required"].isUndefined() || metadata["required"].size() == 0));
             ensure("should not have optional", metadata["optional"].isUndefined());
@@ -840,12 +886,10 @@ namespace tut
                           (LLSDArray("smethodnb_map_adft")("smethodnb_map_mdft"))
                           (LLSDArray("methodna_map_adft")("methodna_map_mdft"))
                           (LLSDArray("methodnb_map_adft")("methodnb_map_mdft")));
-        for (LLSD::array_const_iterator
-                 ei(equivalences.beginArray()), eend(equivalences.endArray());
-             ei != eend; ++ei)
+        foreach(LLSD eq, inArray(equivalences))
         {
-            LLSD adft((*ei)[0]);
-            LLSD mdft((*ei)[1]);
+            LLSD adft(eq[0]);
+            LLSD mdft(eq[1]);
             // We can't just compare the results of the two getMetadata()
             // calls, because they contain ["name"], which are different. So
             // capture them, verify that each ["name"] is as expected, then
@@ -899,17 +943,13 @@ namespace tut
         // Generate maps containing parameter names not provided by the
         // dft[ab]_map_partial maps.
         LLSD skipreqa(allreqa), skipreqb(allreqb);
-        for (LLSD::map_const_iterator mi(dfta_map_partial.beginMap()),
-                                      mend(dfta_map_partial.endMap());
-             mi != mend; ++mi)
+        foreach(const MapEntry& me, inMap(dfta_map_partial))
         {
-            skipreqa.erase(mi->first);
+            skipreqa.erase(me.first);
         }
-        for (LLSD::map_const_iterator mi(dftb_map_partial.beginMap()),
-                                      mend(dftb_map_partial.endMap());
-             mi != mend; ++mi)
+        foreach(const MapEntry& me, inMap(dftb_map_partial))
         {
-            skipreqb.erase(mi->first);
+            skipreqb.erase(me.first);
         }
 
         LLSD groups(LLSDArray       // array of groups
@@ -949,22 +989,20 @@ namespace tut
                      (LLSDArray("freenb_map_mdft")("smethodnb_map_mdft")("methodnb_map_mdft"))
                      (LLSDArray(LLSD::emptyMap())(dftb_map_full)))); // required, optional
 
-        for (LLSD::array_const_iterator gi(groups.beginArray()), gend(groups.endArray());
-             gi != gend; ++gi)
+        foreach(LLSD grp, inArray(groups))
         {
             // Internal structure of each group in 'groups':
-            LLSD names((*gi)[0]);
-            LLSD required((*gi)[1][0]);
-            LLSD optional((*gi)[1][1]);
+            LLSD names(grp[0]);
+            LLSD required(grp[1][0]);
+            LLSD optional(grp[1][1]);
             cout << "For " << names << ",\n" << "required:\n" << required << "\noptional:\n" << optional << std::endl;
 
             // Loop through 'names'
-            for (LLSD::array_const_iterator ni(names.beginArray()), nend(names.endArray());
-                 ni != nend; ++ni)
+            foreach(LLSD nm, inArray(names))
             {
-                LLSD metadata(getMetadata(*ni));
-                ensure_equals("name mismatch", metadata["name"], *ni);
-                ensure_equals(metadata["desc"].asString(), funcs[*ni]);
+                LLSD metadata(getMetadata(nm));
+                ensure_equals("name mismatch", metadata["name"], nm);
+                ensure_equals(metadata["desc"].asString(), funcs[nm]);
                 ensure_equals("required mismatch", metadata["required"], required);
                 ensure_equals("optional mismatch", metadata["optional"], optional);
             }
@@ -1041,20 +1079,19 @@ namespace tut
         // LLSD value matching 'required' according to llsd_matches() rules.
         LLSD matching(LLSDMap("d", 3.14)("array", LLSDArray("answer")(true)(answer)));
         // Okay, walk through 'tests'.
-        for (const CallablesTriple *ti(boost::begin(tests)), *tend(boost::end(tests));
-             ti != tend; ++ti)
+        foreach(const CallablesTriple& tr, tests)
         {
             // Should be able to pass 'answer' to Callables registered
             // without 'required'.
-            work(ti->name, answer);
-            ensure_equals("answer mismatch", ti->llsd, answer);
+            work(tr.name, answer);
+            ensure_equals("answer mismatch", tr.llsd, answer);
             // Should NOT be able to pass 'answer' to Callables registered
             // with 'required'.
-            call_exc(ti->name_req, answer, "bad request");
+            call_exc(tr.name_req, answer, "bad request");
             // But SHOULD be able to pass 'matching' to Callables registered
             // with 'required'.
-            work(ti->name_req, matching);
-            ensure_equals("matching mismatch", ti->llsd, matching);
+            work(tr.name_req, matching);
+            ensure_equals("matching mismatch", tr.llsd, matching);
         }
     }
 
@@ -1080,7 +1117,7 @@ namespace tut
 
     struct FunctionsTriple
     {
-        std::string name_array, name_map;
+        std::string name1, name2;
         Vars& vars;
     };
 
@@ -1094,23 +1131,42 @@ namespace tut
             { "smethod0_array", "smethod0_map", g },
             { "method0_array",  "method0_map",  v }
         };
-        for (const FunctionsTriple *ti(boost::begin(tests)), *tend(boost::end(tests));
-             ti != tend; ++ti)
+        foreach(const FunctionsTriple& tr, tests)
         {
             // Both the global and stack Vars instances are automatically
             // cleared at the start of each test<n> method. But since we're
             // calling these things several different times in the same
             // test<n> method, manually reset the Vars between each.
-            ti->vars = Vars();
-            ensure_equals(ti->vars.i, 0);
+            tr.vars = Vars();
+            ensure_equals(tr.vars.i, 0);
             // array-style call with empty array (or LLSD(), should be equivalent)
-            work(ti->name_array, LLSD());
-            ensure_equals(ti->vars.i, 17);
+            work(tr.name1, LLSD());
+            ensure_equals(tr.vars.i, 17);
             
-            ti->vars = Vars();
+            tr.vars = Vars();
             // map-style call with empty map (or LLSD(), should be equivalent)
-            work(ti->name_map, LLSD());
-            ensure_equals(ti->vars.i, 17);
+            work(tr.name2, LLSD());
+            ensure_equals(tr.vars.i, 17);
+        }
+    }
+
+    template<> template<>
+    void object::test<19>()
+    {
+        set_test_name("call array-style functions with too-short arrays");
+        FunctionsTriple tests[] =
+        {
+            { "freena_array",    "freenb_array",    g },
+            { "smethodna_array", "smethodnb_array", g },
+            { "methodna_array",  "methodnb_array",  v }
+        };
+        // Could have two different too-short arrays, one for *na and one for
+        // *nb, but since they both take 5 params...
+        LLSD tooshort(LLSDArray("this")("array")("too")("short"));
+        foreach(const FunctionsTriple& tr, tests)
+        {
+            call_exc(tr.name1, tooshort, "requires more arguments");
+            call_exc(tr.name2, tooshort, "requires more arguments");
         }
     }
 } // namespace tut
