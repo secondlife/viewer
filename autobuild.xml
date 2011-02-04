@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1135a4afc4328c68368f550ede28b4dd</string>
+              <string>ba33d49b86528e1897b9857f245176fb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.3.6-windows-freeglut-20101001b.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs//glui-2.36-windows-20110203.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1066,7 +1066,7 @@
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/llqtwebkit.txt</string>
+        <string>LICENSES/LLQTWEBKIT_LICENSE.txt</string>
         <key>name</key>
         <string>llqtwebkit</string>
         <key>platforms</key>
@@ -1100,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>77889b3d6aae9419ee973b326337738b</string>
+              <string>5744e07b1b775afd259f3916a436c54c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110127a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1386,6 +1386,30 @@
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+        </map>
+      </map>
+      <key>qt</key>
+      <map>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/qt.txt</string>
+        <key>name</key>
+        <string>qt</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5ebf518be8ca8913265d791096e21445</string>
+              <key>url</key>
+              <string>file:///cygwin/home/Alain/projects/qt/qt-4.7.1-windows-20110203.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
       </map>
