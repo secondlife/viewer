@@ -1074,7 +1074,7 @@ namespace tut
     struct FunctionsTriple
     {
         std::string name1, name2;
-        Vars& vars;
+        Vars* vars;
     };
 
     template<> template<>
@@ -1083,9 +1083,9 @@ namespace tut
         set_test_name("call no-args functions");
         FunctionsTriple tests[] =
         {
-            { "free0_array",    "free0_map",    g },
-            { "smethod0_array", "smethod0_map", g },
-            { "method0_array",  "method0_map",  v }
+            { "free0_array",    "free0_map",    &g },
+            { "smethod0_array", "smethod0_map", &g },
+            { "method0_array",  "method0_map",  &v }
         };
         foreach(const FunctionsTriple& tr, tests)
         {
@@ -1093,16 +1093,16 @@ namespace tut
             // cleared at the start of each test<n> method. But since we're
             // calling these things several different times in the same
             // test<n> method, manually reset the Vars between each.
-            tr.vars = Vars();
-            ensure_equals(tr.vars.i, 0);
+            *tr.vars = Vars();
+            ensure_equals(tr.vars->i, 0);
             // array-style call with empty array (or LLSD(), should be equivalent)
             work(tr.name1, LLSD());
-            ensure_equals(tr.vars.i, 17);
+            ensure_equals(tr.vars->i, 17);
 
-            tr.vars = Vars();
+            *tr.vars = Vars();
             // map-style call with empty map (or LLSD(), should be equivalent)
             work(tr.name2, LLSD());
-            ensure_equals(tr.vars.i, 17);
+            ensure_equals(tr.vars->i, 17);
         }
     }
 
@@ -1112,9 +1112,9 @@ namespace tut
     {
         FunctionsTriple tests[] =
         {
-            { "freena_array",    "freenb_array",    g },
-            { "smethodna_array", "smethodnb_array", g },
-            { "methodna_array",  "methodnb_array",  v }
+            { "freena_array",    "freenb_array",    &g },
+            { "smethodna_array", "smethodnb_array", &g },
+            { "methodna_array",  "methodnb_array",  &v }
         };
         return std::vector<FunctionsTriple>(boost::begin(tests), boost::end(tests));
     }
