@@ -9,7 +9,7 @@
 	<slider label="Otoczenie" name="Wind Volume"/>
 	<slider label="Efekty dźwiękowe" name="SFX Volume"/>
 	<slider label="Muzyka strumieniowa" name="Music Volume"/>
-	<check_box label="Odtwarzaj media audio" name="music_enabled"/>
+	<check_box label="Odtwarzaj media audio" name="enable_music"/>
 	<slider label="Media" name="Media Volume"/>
 	<check_box label="Odtwarzaj media" name="enable_media"/>
 	<slider label="Komunikacja głosowa" name="Voice Volume"/>
