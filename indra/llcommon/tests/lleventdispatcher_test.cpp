@@ -42,6 +42,8 @@ using boost::lambda::constant;
 using boost::lambda::constant_ref;
 using boost::lambda::var;
 
+using namespace llsd;
+
 /*****************************************************************************
 *   Output control
 *****************************************************************************/
@@ -427,7 +429,7 @@ namespace tut
                                  (LLSDArray(paramsb)(dftb_array_full)));
 //            std::cout << "zipped:\n" << zipped << '\n';
             LLSD dft_maps_full, dft_maps_partial;
-            foreach(LLSD ae, llsd::inArray(zipped))
+            foreach(LLSD ae, inArray(zipped))
             {
                 LLSD dft_map_full;
                 LLSD params(ae[0]);
@@ -656,7 +658,7 @@ namespace tut
         set_test_name("map-style registration with non-array params");
         // Pass "param names" as scalar or as map
         LLSD attempts(LLSDArray(17)(LLSDMap("pi", 3.14)("two", 2)));
-        foreach(LLSD ae, llsd::inArray(attempts))
+        foreach(LLSD ae, inArray(attempts))
         {
             std::string threw;
             try
@@ -755,7 +757,7 @@ namespace tut
     {
         set_test_name("query Callables with/out required params");
         LLSD names(LLSDArray("free1")("Dmethod1")("Dcmethod1")("method1"));
-        foreach(LLSD ae, llsd::inArray(names))
+        foreach(LLSD ae, inArray(names))
         {
             LLSD metadata(getMetadata(ae));
             ensure_equals("name mismatch", metadata["name"], ae);
@@ -784,14 +786,14 @@ namespace tut
                        (5)(LLSDArray("freena_array")("smethodna_array")("methodna_array")))
                       (LLSDArray
                        (5)(LLSDArray("freenb_array")("smethodnb_array")("methodnb_array"))));
-        foreach(LLSD ae, llsd::inArray(expected))
+        foreach(LLSD ae, inArray(expected))
         {
             LLSD::Integer arity(ae[0].asInteger());
             LLSD names(ae[1]);
             LLSD req(LLSD::emptyArray());
             if (arity)
                 req[arity - 1] = LLSD();
-            foreach(LLSD nm, llsd::inArray(names))
+            foreach(LLSD nm, inArray(names))
             {
                 LLSD metadata(getMetadata(nm));
                 ensure_equals("name mismatch", metadata["name"], nm);
@@ -810,7 +812,7 @@ namespace tut
         // - (Free function | non-static method), map style, no params (ergo
         //   no defaults)
         LLSD names(LLSDArray("free0_map")("smethod0_map")("method0_map"));
-        foreach(LLSD nm, llsd::inArray(names))
+        foreach(LLSD nm, inArray(names))
         {
             LLSD metadata(getMetadata(nm));
             ensure_equals("name mismatch", metadata["name"], nm);
@@ -840,7 +842,7 @@ namespace tut
                           (LLSDArray("smethodnb_map_adft")("smethodnb_map_mdft"))
                           (LLSDArray("methodna_map_adft")("methodna_map_mdft"))
                           (LLSDArray("methodnb_map_adft")("methodnb_map_mdft")));
-        foreach(LLSD eq, llsd::inArray(equivalences))
+        foreach(LLSD eq, inArray(equivalences))
         {
             LLSD adft(eq[0]);
             LLSD mdft(eq[1]);
@@ -897,11 +899,11 @@ namespace tut
         // Generate maps containing parameter names not provided by the
         // dft[ab]_map_partial maps.
         LLSD skipreqa(allreqa), skipreqb(allreqb);
-        foreach(const llsd::MapEntry& me, llsd::inMap(dfta_map_partial))
+        foreach(const MapEntry& me, inMap(dfta_map_partial))
         {
             skipreqa.erase(me.first);
         }
-        foreach(const llsd::MapEntry& me, llsd::inMap(dftb_map_partial))
+        foreach(const MapEntry& me, inMap(dftb_map_partial))
         {
             skipreqb.erase(me.first);
         }
@@ -943,7 +945,7 @@ namespace tut
                      (LLSDArray("freenb_map_mdft")("smethodnb_map_mdft")("methodnb_map_mdft"))
                      (LLSDArray(LLSD::emptyMap())(dftb_map_full)))); // required, optional
 
-        foreach(LLSD grp, llsd::inArray(groups))
+        foreach(LLSD grp, inArray(groups))
         {
             // Internal structure of each group in 'groups':
             LLSD names(grp[0]);
@@ -952,7 +954,7 @@ namespace tut
             cout << "For " << names << ",\n" << "required:\n" << required << "\noptional:\n" << optional << std::endl;
 
             // Loop through 'names'
-            foreach(LLSD nm, llsd::inArray(names))
+            foreach(LLSD nm, inArray(names))
             {
                 LLSD metadata(getMetadata(nm));
                 ensure_equals("name mismatch", metadata["name"], nm);
