@@ -2933,44 +2933,32 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // children, and cost should only be increased for unique textures  -Nyx
 U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 {
-	// base cost of each prim should be 10 points
-	static const U32 ARC_PRIM_COST = 10;
-
 	// Get access to params we'll need at various points.  
 	// Skip if this is object doesn't have a volume (e.g. is an avatar).
-	const BOOL has_volume = (getVolume() != NULL);
+	BOOL has_volume = (getVolume() != NULL);
 	LLVolumeParams volume_params;
 	LLPathParams path_params;
 	LLProfileParams profile_params;
 
-	if (has_volume)
-	{
-		volume_params = getVolume()->getParams();
-		path_params = volume_params.getPathParams();
-		profile_params = volume_params.getProfileParams();
-	}
-	
+	U32 num_triangles = 0;
+
 	// per-prim costs
-	static const U32 ARC_INVISI_COST = 1;
 	static const U32 ARC_PARTICLE_COST = 100;
-	static const U32 ARC_CUT_COST = 1;
 	static const U32 ARC_TEXTURE_COST = 5;
 
 	// per-prim multipliers
-	static const U32 ARC_HOLLOW_MULT = 2;
-	static const U32 ARC_CIRC_PROF_MULT = 2;
-	static const U32 ARC_CIRC_PATH_MULT = 2;
-	static const U32 ARC_GLOW_MULT = 2;
-	static const U32 ARC_BUMP_MULT = 2;
-	static const U32 ARC_FLEXI_MULT = 4;
-	static const U32 ARC_SHINY_MULT = 2;
+	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
+	static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
+	static const F32 ARC_FLEXI_MULT = 4;
+	static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
+	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
+	static const F32 ARC_WEIGHTED_MESH = 1.2f; 
 
-	// per-face costs
-	static const U32 ARC_PLANAR_COST = 1;
-	static const U32 ARC_ANIM_TEX_COST = 4;
-	static const U32 ARC_ALPHA_COST = 4;
+	static const F32 ARC_PLANAR_COST = 1.2f; // 1.2x max
+	static const F32 ARC_ANIM_TEX_COST = 1.4f; // 1.4x max
+	static const F32 ARC_ALPHA_COST = 4.f; // 4x max
 
-	U32 shame = ARC_PRIM_COST;
+	F32 shame = 0;
 
 	U32 invisi = 0;
 	U32 shiny = 0;
@@ -2981,18 +2969,41 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 particles = 0;
 	U32 bump = 0;
 	U32 planar = 0;
-	U32 cuts = 0;
-	U32 hollow = 0;
-	U32 circular_profile = 0;
-	U32 circular_path = 0;
+	U32 weighted_mesh = 0;
 
 	// these multipliers are variable and can be floating point
 	F32 scale = 0.f;
-	F32 twist = 0.f; 
-	F32 revolutions = 0.f;
-
 
 	const LLDrawable* drawablep = mDrawable;
+	U32 num_faces = drawablep->getNumFaces();
+
+	if (has_volume)
+	{
+		volume_params = getVolume()->getParams();
+		path_params = volume_params.getPathParams();
+		profile_params = volume_params.getProfileParams();
+
+		F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
+		S32 default_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);
+		if (default_detail == getLOD())
+		{
+			num_triangles = getTriangleCount();
+		}
+		else
+		{
+			LLVolume* default_volume = LLPrimitive::getVolumeManager()->refVolume(volume_params, default_detail);
+			if(default_volume != NULL)
+			{
+				num_triangles = default_volume->getNumTriangles();
+				LLPrimitive::getVolumeManager()->unrefVolume(default_volume);
+				default_volume = NULL;
+			}
+			else
+			{
+				has_volume = false;
+			}
+		}
+	}
 
 	if (isSculpted())
 	{
@@ -3003,21 +3014,17 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
 			if ( size > 0)
 			{
+				num_triangles = (U32)(size / 10.f); // avg 1 triangle per 10 bytes
 				if (gMeshRepo.getSkinInfo(volume_params.getSculptID()))
 				{
 					// weighted attachment - 1 point for every 3 bytes
-					shame = (U32)(size / 3.f);
-				}
-				else
-				{
-					// non-weighted attachment - 1 point for every 4 bytes
-					shame = (U32)(size / 4.f);
+					weighted_mesh = 1;
 				}
 
-				if (shame == 0)
+				if (num_triangles == 0)
 				{
-					// someone made a really tiny mesh. 
-					shame = 1;
+					// someone made a really tiny mesh. Approximate with a tetrahedron.
+					num_triangles = 4;
 				}
 			}
 			else
@@ -3052,70 +3059,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	}
 
 	const LLVector3& sc = getScale();
-	scale += sc.mV[0] + sc.mV[1] + sc.mV[2];
-	if (scale > 4.f)
-	{
-		// scale is a multiplier, cap it at 4.
-		scale = 4.f;
-	}
+	scale += (sc.mV[0] + sc.mV[1] + sc.mV[2]) / 4.f; // scale to 1/4 the sum of the size
+	// enforce scale multiplier to be in the range [1,7] (7 was determined to experimentally be a reasonable max)
+	scale = scale > 7.f ? 7.f : scale;
+	scale = scale < 1.f ? 1.f : scale;
 
-	// add points for cut prims
-	if (path_params.getBegin() != 0.f || path_params.getEnd() != 1.f)
-	{
-		++cuts;
-	}
-
-	if (profile_params.getBegin() != 0.f || profile_params.getEnd() != 1.f)
-	{
-		++cuts;
-	}
-
-	// double cost for hollow prims / sculpties
-	if (volume_params.getHollow() != 0.f)
-	{
-		hollow = 1;
-	}
-
-	F32 twist_mag = path_params.getTwistBegin() - path_params.getTwistEnd();
-	if (twist_mag < 0)
-	{
-		twist_mag *= -1.f;
-	}
-
-	// note magnitude of twist is [-1.f, 1.f]. which translates to [-180, 180] degrees.
-	// scale to degrees / 90 by multiplying by 2.
-	twist = twist_mag * 2.f;
-
-	// multiply by the number of revolutions in the prim. cap at 4.
-	revolutions = path_params.getRevolutions();
-	if (revolutions > 4.f)
-	{
-		revolutions = 4.f;
-	}
-
-	// double cost for circular profiles / sculpties
-	if (profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE ||
-		profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE_HALF)
-	{
-		circular_profile = 1;
-	}
-
-	// double cost for circular paths / sculpties
-	if (path_params.getCurveType() == LL_PCODE_PATH_CIRCLE ||
-		path_params.getCurveType() == LL_PCODE_PATH_CIRCLE2)
-	{
-		circular_path = 1;
-	}
-
-	// treat sculpties as hollow prims with circular paths & profiles
-	if (isSculpted() && !isMesh())
-	{
-		hollow = 1;
-		circular_profile = 1;
-		circular_path = 1;
-	}
-
-	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+	for (S32 i = 0; i < num_faces; ++i)
 	{
 		const LLFace* face = drawablep->getFace(i);
 		const LLTextureEntry* te = face->getTextureEntry();
@@ -3132,11 +3081,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
 		{
-			alpha++;
+			alpha = 1;
 		}
 		else if (img && img->getPrimaryFormat() == GL_ALPHA)
 		{
-			invisi++;
+			invisi = 1;
 		}
 
 		if (te)
@@ -3158,38 +3107,41 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			}
 			if (face->mTextureMatrix != NULL)
 			{
-				animtex++;
+				animtex = 1;
 			}
 			if (te->getTexGen())
 			{
-				planar++;
+				planar = 1;
 			}
 		}
 	}
 
-	// shame currently has the "base" cost of 10 for normal prims, variable for mesh
+	// shame currently has the "base" cost of 1 point per 50 triangles, min 2.
+	shame = num_triangles / 50.f;
+	shame = shame < 2.f ? 2.f : shame;
 
-	// add modifier settings
-	shame += cuts * ARC_CUT_COST;
-	shame += planar * ARC_PLANAR_COST;
-	shame += animtex * ARC_ANIM_TEX_COST;
-	shame += alpha * ARC_ALPHA_COST;
-	shame += invisi * ARC_INVISI_COST;
+	// factor in scale
+	shame *= scale;
 
-	// multiply shame by multipliers
-	if (hollow)
+	// multiply by per-face modifiers
+	if (planar)
 	{
-		shame *= hollow * ARC_HOLLOW_MULT;
+		shame *= planar * ARC_PLANAR_COST;
 	}
 
-	if (circular_profile)
+	if (animtex)
 	{
-		shame *= circular_profile * ARC_CIRC_PROF_MULT;
+		shame *= animtex * ARC_ANIM_TEX_COST;
 	}
 
-	if (circular_path)
+	if (alpha)
 	{
-		shame *= circular_path * ARC_CIRC_PATH_MULT;
+		shame *= alpha * ARC_ALPHA_COST;
+	}
+
+	if(invisi)
+	{
+		shame *= invisi * ARC_INVISI_COST;
 	}
 
 	if (glow)
@@ -3202,35 +3154,28 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame *= bump * ARC_BUMP_MULT;
 	}
 
-	if (flexi)
-	{
-		shame *= flexi * ARC_FLEXI_MULT;
-	}
-
 	if (shiny)
 	{
 		shame *= shiny * ARC_SHINY_MULT;
 	}
 
-	if (twist > 1.f)
+
+	// multiply shame by multipliers
+	if (weighted_mesh)
 	{
-		shame = (U32)(shame * twist);
+		shame *= weighted_mesh * ARC_WEIGHTED_MESH;
 	}
 
-	if (scale > 1.f)
+	if (flexi)
 	{
-		shame = (U32)(shame *scale);
+		shame *= flexi * ARC_FLEXI_MULT;
 	}
 
-	if (revolutions > 1.f)
-	{
-		shame = (U32)(shame * revolutions);
-	}
 
 	// add additional costs
 	shame += particles * ARC_PARTICLE_COST;
 
-	return shame;
+	return (U32)shame;
 }
 
 F32 LLVOVolume::getStreamingCost()
@@ -3247,16 +3192,13 @@ F32 LLVOVolume::getStreamingCost()
 	return 0.f;
 }
 
-U32 LLVOVolume::getTriangleCount()
+U32 LLVOVolume::getTriangleCount() const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
 	if (volume)
 	{
-		for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
-		{
-			count += volume->getVolumeFace(i).mNumIndices/3;
-		}
+		count = volume->getNumTriangles();
 	}
 
 	return count;
