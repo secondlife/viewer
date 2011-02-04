@@ -368,4 +368,55 @@ public:
     }
 };
 
+namespace llsd
+{
+
+/*****************************************************************************
+*   BOOST_FOREACH() helpers for LLSD
+*****************************************************************************/
+/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+class inArray
+{
+public:
+    inArray(const LLSD& array):
+        _array(array)
+    {}
+
+    typedef LLSD::array_const_iterator const_iterator;
+    typedef LLSD::array_iterator iterator;
+
+    iterator begin() { return _array.beginArray(); }
+    iterator end()   { return _array.endArray(); }
+    const_iterator begin() const { return _array.beginArray(); }
+    const_iterator end()   const { return _array.endArray(); }
+
+private:
+    LLSD _array;
+};
+
+/// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
+typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
+
+/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+class inMap
+{
+public:
+    inMap(const LLSD& map):
+        _map(map)
+    {}
+
+    typedef LLSD::map_const_iterator const_iterator;
+    typedef LLSD::map_iterator iterator;
+
+    iterator begin() { return _map.beginMap(); }
+    iterator end()   { return _map.endMap(); }
+    const_iterator begin() const { return _map.beginMap(); }
+    const_iterator end()   const { return _map.endMap(); }
+
+private:
+    LLSD _map;
+};
+
+} // namespace llsd
+
 #endif // LL_LLSDUTIL_H
