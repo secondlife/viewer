@@ -72,7 +72,6 @@ LLWaterParamManager::LLWaterParamManager() :
 	mWave1Dir(.5f, .5f, "wave1Dir"),
 	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mDensitySliderValue(1.0f),
-	mPrevFogDensity(16.0f), // 2^4
 	mWaterFogKS(1.0f)
 {
 }
@@ -265,20 +264,6 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	
 	// update the shaders and the menu
 	propagateParameters();
-
-	// If water fog color has been changed, save it.
-	if (mPrevFogColor != mFogColor)
-	{
-		gSavedSettings.setColor4("WaterFogColor", mFogColor);
-		mPrevFogColor = mFogColor;
-	}
-
-	// If water fog density has been changed, save it.
-	if (mPrevFogDensity != mFogDensity)
-	{
-		gSavedSettings.setF32("WaterFogDensity", mFogDensity);
-		mPrevFogDensity = mFogDensity;
-	}
 	
 	// sync menus if they exist
 	LLFloaterWater* waterfloater = LLFloaterReg::findTypedInstance<LLFloaterWater>("env_water");
@@ -464,20 +449,7 @@ LLWaterParamManager * LLWaterParamManager::instance()
 		sInstance->loadAllPresets(LLStringUtil::null);
 
 		sInstance->getParamSet("Default", sInstance->mCurParams);
-		sInstance->initOverrides();
 	}
 
 	return sInstance;
-}
-
-void LLWaterParamManager::initOverrides()
-{
-	// Override fog color from the current preset with the saved setting.
-	LLColor4 fog_color_override = gSavedSettings.getColor4("WaterFogColor");
-	mCurParams.set("waterFogColor", mPrevFogColor = mFogColor = fog_color_override);
-
-	// Do the same with fog density.
-	F32 fog_density = gSavedSettings.getF32("WaterFogDensity");
-	mCurParams.set("waterFogDensity", mPrevFogDensity = mFogDensity = fog_density);
-	setDensitySliderValue(mFogDensity.mExp);
 }

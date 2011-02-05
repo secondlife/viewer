@@ -11849,33 +11849,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>WaterFogColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog color</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>22</real>
-        <real>43</real>
-        <real>54</real>
-        <real>0</real>
-    </array>
-    </map>
-    <key>WaterFogDensity</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog density</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>16.0</real>
-    </map>
     <key>WaterGLFogDensityScale</key>
     <map>
       <key>Comment</key>
