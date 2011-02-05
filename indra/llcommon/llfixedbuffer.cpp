@@ -30,8 +30,7 @@
 
 LLFixedBuffer::LLFixedBuffer(const U32 max_lines)
 	: LLLineBuffer(),
-	  mMaxLines(max_lines),
-	  mMutex(NULL)
+	  mMaxLines(max_lines)
 {
 	mTimer.reset();
 }
