@@ -628,6 +628,26 @@ namespace tut
             ensure(STRINGIZE("No metadata for " << name), meta.isDefined());
             return meta;
         }
+
+        // If I call this ensure_equals(), it blocks visibility of all other
+        // ensure_equals() overloads. Normally I could say 'using
+        // baseclass::ensure_equals;' and fix that, but I don't know what the
+        // base class is!
+        void ensure_llsd(const std::string& msg, const LLSD& actual, const LLSD& expected, U32 bits)
+        {
+            std::ostringstream out;
+            if (! msg.empty())
+            {
+                out << msg << ": ";
+            }
+            out << "expected " << expected << ", actual " << actual;
+            ensure(out.str(), llsd_equals(actual, expected, bits));
+        }
+
+        void ensure_llsd(const LLSD& actual, const LLSD& expected, U32 bits)
+        {
+            ensure_llsd("", actual, expected, bits);
+        }
     };
     typedef test_group<lleventdispatcher_data> lleventdispatcher_group;
     typedef lleventdispatcher_group::object object;
@@ -1132,4 +1152,54 @@ namespace tut
             call_exc(tr.name2, tooshort, "requires more arguments");
         }
     }
+
+    template<> template<>
+    void object::test<20>()
+    {
+        set_test_name("call array-style functions with (just right | too long) arrays");
+        std::vector<U8> binary;
+        for (size_t h(0x01), i(0); i < 5; h+= 0x22, ++i)
+        {
+            binary.push_back(h);
+        }
+        LLSD argsa(LLSDArray(true)(17)(3.14)(123.456)("char*"));
+        LLSD argsb(LLSDArray("string")(LLUUID("01234567-89ab-cdef-0123-456789abcdef"))
+                   (LLDate("2011-02-03T15:07:00Z"))(LLURI("http://secondlife.com"))(binary));
+        LLSD argsaplus(argsa), argsbplus(argsb);
+        argsaplus.append("bogus");
+        argsbplus.append("bogus");
+        LLSD expecta, expectb;
+        for (LLSD::Integer i(0), iend(paramsa.size()); i < iend; ++i)
+        {
+            expecta[paramsa[i].asString()] = argsa[i];
+        }
+        for (LLSD::Integer i(0), iend(paramsb.size()); i < iend; ++i)
+        {
+            expectb[paramsb[i].asString()] = argsb[i];
+        }
+        cout << "expecta: " << expecta << "\nexpectb: " << expectb << '\n';
+        foreach(const FunctionsTriple& tr, array_funcs(v))
+        {
+            *tr.vars = Vars();
+            work(tr.name1, argsa);
+            ensure_llsd(STRINGIZE(tr.name1 << ": expecta mismatch"),
+                        tr.vars->inspect(), expecta, 7);
+
+            *tr.vars = Vars();
+            work(tr.name2, argsb);
+            ensure_llsd(STRINGIZE(tr.name2 << ": expectb mismatch"),
+                        tr.vars->inspect(), expectb, 7);
+
+            // TODO: argsaplus, argsbplus, check LL_WARNS output?
+        }
+    }
+
+    // TODO:
+    // - refactor params-related data as {'a':arraya, 'b':arrayb}
+    // - function to build a map from keys array, values array (or
+    //   vice-versa?)
+    // - Vars formatting for char* and for binary should be done in setter
+    //   method, storing each as std::string. We should NOT NOT NOT store
+    //   char*! The string data we receive through the param list will be gone
+    //   by the time we try to inspect()!
 } // namespace tut
