@@ -90,13 +90,8 @@ void check_curl_code(CURLcode code)
 	if (code != CURLE_OK)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
-		// at a pretty random time (when enabling cookies). Making curl errors non-asserts
-		// for non-windows platforms for now. - Nyx
-		#if LL_WINDOWS
-			llerrs << "curl error detected: " << curl_easy_strerror(code) << llendl;
-		#else
-			llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
-		#endif
+		// at a pretty random time (when enabling cookies).
+		llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
 	}
 }
 
@@ -105,13 +100,8 @@ void check_curl_multi_code(CURLMcode code)
 	if (code != CURLM_OK)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
-		// at a pretty random time (when enabling cookies). Making curl errors non-asserts
-		// for non-windows platforms for now. - Nyx
-		#if LL_WINDOWS
-			llerrs << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
-		#else 
-			llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
-		#endif
+		// at a pretty random time (when enabling cookies).
+		llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
 	}
 }
 

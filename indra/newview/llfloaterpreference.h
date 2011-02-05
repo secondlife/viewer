@@ -189,6 +189,10 @@ public:
 	void setControlFalse(const LLSD& user_data);
 	virtual void setHardwareDefaults(){};
 
+	// Disables "Allow Media to auto play" check box only when both
+	// "Streaming Music" and "Media" are unchecked. Otherwise enables it.
+	void updateMediaAutoPlayCheckbox(LLUICtrl* ctrl);
+
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
 	virtual void saveSettings();
