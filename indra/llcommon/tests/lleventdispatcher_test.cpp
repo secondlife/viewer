@@ -98,7 +98,13 @@ struct Vars
     int i;
     float f;
     double d;
-    const char* cp;
+    // Capture param passed as char*. But merely storing a char* received from
+    // our caller, possibly the .c_str() from a concatenation expression,
+    // would be Bad: the pointer will be invalidated long before we can query
+    // it. We could allocate a new chunk of memory, copy the string data and
+    // point to that instead -- but hey, guess what, we already have a class
+    // that does that!
+    std::string cp;
     std::string s;
     LLUUID uuid;
     LLDate date;
@@ -111,8 +117,7 @@ struct Vars
         b(false),
         i(0),
         f(0),
-        d(0),
-        cp(NULL)
+        d(0)
     {}
 
     // Detect any non-default values for convenient testing
@@ -130,7 +135,7 @@ struct Vars
             result["f"] = f;
         if (d)
             result["d"] = d;
-        if (cp)
+        if (! cp.empty())
             result["cp"] = cp;
         if (! s.empty())
             result["s"] = s;
@@ -179,6 +184,11 @@ struct Vars
     /*-------- Arbitrary-params (non-const, const, static) methods ---------*/
     void methodna(NPARAMSa)
     {
+        // Because our const char* param cp might be NULL, and because we
+        // intend to capture the value in a std::string, have to distinguish
+        // between the NULL value and any non-NULL value. Use a convention
+        // easy for a human reader: enclose any non-NULL value in single
+        // quotes, reserving the unquoted string "NULL" to represent a NULL ptr.
         std::string vcp;
         if (cp == NULL)
             vcp = "NULL";
@@ -196,7 +206,7 @@ struct Vars
         this->i = i;
         this->f = f;
         this->d = d;
-        this->cp = cp;
+        this->cp = vcp;
     }
 
     void methodnb(NPARAMSb)
@@ -1177,6 +1187,8 @@ namespace tut
         {
             expectb[paramsb[i].asString()] = argsb[i];
         }
+        // Adjust expecta["cp"] for special Vars::cp treatment.
+        expecta["cp"] = std::string("'") + expecta["cp"].asString() + "'";
         cout << "expecta: " << expecta << "\nexpectb: " << expectb << '\n';
         foreach(const FunctionsTriple& tr, array_funcs(v))
         {
@@ -1198,8 +1210,4 @@ namespace tut
     // - refactor params-related data as {'a':arraya, 'b':arrayb}
     // - function to build a map from keys array, values array (or
     //   vice-versa?)
-    // - Vars formatting for char* and for binary should be done in setter
-    //   method, storing each as std::string. We should NOT NOT NOT store
-    //   char*! The string data we receive through the param list will be gone
-    //   by the time we try to inspect()!
 } // namespace tut
