@@ -27,10 +27,10 @@
 
 #include "linden_common.h"
 // Class to test 
-#include "../llimagej2ckdu.h"
-#include "../llkdumem.h"
+#include "llimagej2ckdu.h"
+#include "llkdumem.h"
 // Tut header
-#include "../test/lltut.h"
+#include "lltut.h"
 
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested

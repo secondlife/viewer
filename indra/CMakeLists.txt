@@ -103,7 +103,7 @@ if (VIEWER)
 endif (VIEWER)
 
 # Linux builds the viewer and server in 2 separate projects
-# In order for ./develop.py build server to work on linux, 
+# In order for build server to work on linux, 
 # the viewer project needs a server target.
 # This is not true for mac and windows.
 if (LINUX) 
