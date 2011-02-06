@@ -1186,19 +1186,34 @@ namespace tut
         // Adjust expect["a"]["cp"] for special Vars::cp treatment.
         expect["a"]["cp"] = std::string("'") + expect["a"]["cp"].asString() + "'";
         cout << "expect: " << expect << '\n';
-        foreach(const FunctionsTriple& tr, array_funcs(v))
+
+        // Use substantially the same logic for args and argsplus
+        LLSD argsarrays(LLSDArray(args)(argsplus));
+        // So i==0 selects 'args', i==1 selects argsplus
+        for (LLSD::Integer i(0), iend(argsarrays.size()); i < iend; ++i)
         {
-            *tr.vars = Vars();
-            work(tr.name1, args["a"]);
-            ensure_llsd(STRINGIZE(tr.name1 << ": expect[\"a\"] mismatch"),
-                        tr.vars->inspect(), expect["a"], 7); // 7 bits ~= 2 decimal digits
+            foreach(const FunctionsTriple& tr, array_funcs(v))
+            {
+                // Get tr.name1 and tr.name2 into a map keyed by ["a"] and ["b"]
+                LLSD funcs(LLSDMap("a", tr.name1)("b", tr.name2));
 
-            *tr.vars = Vars();
-            work(tr.name2, args["b"]);
-            ensure_llsd(STRINGIZE(tr.name2 << ": expect[\"b\"] mismatch"),
-                        tr.vars->inspect(), expect["b"], 7);
+                // So now we can call tr.name1 (as funcs["a"]) with the "a"
+                // params, etc.
+                foreach(LLSD::String a, ab)
+                {
+                    // Reset the Vars instance before each call
+                    *tr.vars = Vars();
+                    work(funcs[a], argsarrays[i][a]);
+                    ensure_llsd(STRINGIZE(funcs[a].asString() <<
+                                          ": expect[\"" << a << "\"] mismatch"),
+                                tr.vars->inspect(), expect[a], 7); // 7 bits ~= 2 decimal digits
 
-            // TODO: argsplus, check LL_WARNS output?
+                    // TODO: in the i==1 or argsplus case, intercept LL_WARNS
+                    // output? Even without that, using argsplus verifies that
+                    // passing too many args isn't fatal; it works -- but
+                    // would be nice to notice the warning too.
+                }
+            }
         }
     }
 
