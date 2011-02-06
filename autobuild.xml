@@ -2432,13 +2432,13 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>"RelWithDebInfo|Win32"</string>
                 </array>
                 <key>command</key>
                 <string>vcbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>RelWithDebInfo</string>
+                  <string>"RelWithDebInfo|Win32"</string>
                 </array>
               </map>
               <key>configure</key>
