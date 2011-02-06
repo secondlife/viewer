@@ -2438,7 +2438,7 @@
                 <string>vcbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>"RelWithDebInfo|Win32"</string>
+                  <string>SecondLife.sln</string>
                 </array>
               </map>
               <key>configure</key>
