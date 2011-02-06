@@ -321,15 +321,18 @@ namespace tut
         // Required structure for Callables with requirements
         LLSD required;
         // Parameter names for freena(), freenb()
-        LLSD paramsa, paramsb;
+        LLSD params;
         // Full defaults arrays for params for freena(), freenb()
-        LLSD dfta_array_full, dftb_array_full;
+        LLSD dft_array_full;
         // Start index of partial defaults arrays
         const LLSD::Integer partial_offset;
         // Full defaults maps for params for freena(), freenb()
-        LLSD dfta_map_full, dftb_map_full;
+        LLSD dft_map_full;
         // Partial defaults maps for params for freena(), freenb()
-        LLSD dfta_map_partial, dftb_map_partial;
+        LLSD dft_map_partial;
+        // Most of the above are indexed by "a" or "b". Useful to have an
+        // array containing those strings for iterating.
+        std::vector<LLSD::String> ab;
 
         lleventdispatcher_data():
             work("test dispatcher", "op"),
@@ -341,6 +344,9 @@ namespace tut
             // This object is reconstructed for every test<n> method. But
             // clear global variables every time too.
             ::clear();
+
+            const char* abs[] = { "a", "b" };
+            ab.assign(boost::begin(abs), boost::end(abs));
 
             // Registration cases:
             // - (Callable | subclass const method | subclass non-const method |
@@ -412,66 +418,59 @@ namespace tut
 
             /*---------------- Arbitrary params, map style -----------------*/
 
-            // freena(), methodna(), cmethodna(), smethodna() all take same param list
-            paramsa = LLSDArray("b")("i")("f")("d")("cp");
-            // same for freenb() et al.
-            paramsb = LLSDArray("s")("uuid")("date")("uri")("bin");
-            // Full defaults arrays.
-            dfta_array_full = LLSDArray(true)(17)(3.14)(123456.78)("classic");
+            // We lay out each params list as an array, also each array of
+            // default values we'll register. We'll zip these into
+            // (param=value) maps. Why not define them as maps and just
+            // extract the keys and values to arrays? Because that wouldn't
+            // give us the right params-list order.
+
+            // freena(), methodna(), cmethodna(), smethodna() all take same param list.
+            // Same for freenb() et al.
+            params = LLSDMap("a", LLSDArray("b")("i")("f")("d")("cp"))
+                            ("b", LLSDArray("s")("uuid")("date")("uri")("bin"));
+            cout << "params:\n" << params << "\nparams[\"a\"]:\n" << params["a"] << "\nparams[\"b\"]:\n" << params["b"] << std::endl;
             // default LLSD::Binary value   
             std::vector<U8> binary;
             for (size_t ix = 0, h = 0xaa; ix < 6; ++ix, h += 0x11)
             {
                 binary.push_back(h);
             }
-            // We actually don't care what the LLUUID or LLDate values are, as
-            // long as they're non-default.
-            dftb_array_full = LLSDArray("string")(LLUUID::generateNewID())(LLDate::now())
-                                       (LLURI("http://www.ietf.org/rfc/rfc3986.txt"))(binary);
+            // Full defaults arrays. We actually don't care what the LLUUID or
+            // LLDate values are, as long as they're different from the
+            // LLUUID() and LLDate() default values so inspect() will report
+            // them.
+            dft_array_full = LLSDMap("a", LLSDArray(true)(17)(3.14)(123456.78)("classic"))
+                                    ("b", LLSDArray("string")
+                                                   (LLUUID::generateNewID())
+                                                   (LLDate::now())
+                                                   (LLURI("http://www.ietf.org/rfc/rfc3986.txt"))
+                                                   (binary));
+            cout << "dft_array_full:\n" << dft_array_full << std::endl;
             // Partial defaults arrays.
-            LLSD dfta_array_partial(llsd_copy_array(dfta_array_full.beginArray() + partial_offset,
-                                                    dfta_array_full.endArray()));
-            LLSD dftb_array_partial(llsd_copy_array(dftb_array_full.beginArray() + partial_offset,
-                                                    dftb_array_full.endArray()));
+            LLSD dft_array_partial(
+                LLSDMap("a", llsd_copy_array(dft_array_full["a"].beginArray() + partial_offset,
+                                             dft_array_full["a"].endArray()))
+                       ("b", llsd_copy_array(dft_array_full["b"].beginArray() + partial_offset,
+                                             dft_array_full["b"].endArray())));
+            cout << "dft_array_partial:\n" << dft_array_partial << std::endl;
 
-            // Generate full defaults maps by zipping (params, dftx_array_full).
-            LLSD zipped(LLSDArray(LLSDArray(paramsa)(dfta_array_full))
-                                 (LLSDArray(paramsb)(dftb_array_full)));
-//            std::cout << "zipped:\n" << zipped << '\n';
-            LLSD dft_maps_full, dft_maps_partial;
-            foreach(LLSD ae, inArray(zipped))
+            // Generate full defaults maps by zipping (params, dft_array_full).
+            foreach(LLSD::String a, ab)
             {
-                LLSD dft_map_full;
-                LLSD params(ae[0]);
-                LLSD dft_array_full(ae[1]);
-//                std::cout << "params:\n" << params << "\ndft_array_full:\n" << dft_array_full << '\n';
-                for (LLSD::Integer ix = 0, ixend = params.size(); ix < ixend; ++ix)
+                for (LLSD::Integer ix = 0, ixend = params[a].size(); ix < ixend; ++ix)
                 {
-                    dft_map_full[params[ix].asString()] = dft_array_full[ix];
+                    dft_map_full[a][params[a][ix].asString()] = dft_array_full[a][ix];
                 }
-//                std::cout << "dft_map_full:\n" << dft_map_full << '\n';
                 // Generate partial defaults map by zipping alternate entries from
                 // (params, dft_array_full). Part of the point of using map-style
                 // defaults is to allow any subset of the target function's
                 // parameters to be optional, not just the rightmost.
-                LLSD dft_map_partial;
-                for (LLSD::Integer ix = 0, ixend = params.size(); ix < ixend; ix += 2)
+                for (LLSD::Integer ix = 0, ixend = params[a].size(); ix < ixend; ix += 2)
                 {
-                    dft_map_partial[params[ix].asString()] = dft_array_full[ix];
+                    dft_map_partial[a][params[a][ix].asString()] = dft_array_full[a][ix];
                 }
-//                std::cout << "dft_map_partial:\n" << dft_map_partial << '\n';
-                dft_maps_full.append(dft_map_full);
-                dft_maps_partial.append(dft_map_partial);
             }
-//            std::cout << "dft_maps_full:\n" << dft_maps_full << "\ndft_maps_partial:\n" << dft_maps_partial << '\n';
-            dfta_map_full = dft_maps_full[0];
-            dftb_map_full = dft_maps_full[1];
-            dfta_map_partial = dft_maps_partial[0];
-            dftb_map_partial = dft_maps_partial[1];
-//            std::cout << "dfta_map_full:\n" << dfta_map_full
-//                      << "\ndftb_map_full:\n" << dftb_map_full
-//                      << "\ndfta_map_partial:\n" << dfta_map_partial
-//                      << "\ndftb_map_partial:\n" << dftb_map_partial << '\n';
+            cout << "dft_map_full:\n" << dft_map_full << "\ndft_map_partial:\n" << dft_map_partial << '\n';
 
             // (Free function | static method) with (no | arbitrary) params,
             // map style, no (empty array) defaults
@@ -480,21 +479,21 @@ namespace tut
             addf("smethod0_map", "smethod0");
             work.add(name, desc, &Vars::smethod0, LLSD::emptyArray());
             addf("freena_map_allreq", "freena");
-            work.add(name, desc, freena, paramsa);
+            work.add(name, desc, freena, params["a"]);
             addf("freenb_map_allreq", "freenb");
-            work.add(name, desc, freenb, paramsb);
+            work.add(name, desc, freenb, params["b"]);
             addf("smethodna_map_allreq", "smethodna");
-            work.add(name, desc, &Vars::smethodna, paramsa);
+            work.add(name, desc, &Vars::smethodna, params["a"]);
             addf("smethodnb_map_allreq", "smethodnb");
-            work.add(name, desc, &Vars::smethodnb, paramsb);
+            work.add(name, desc, &Vars::smethodnb, params["b"]);
             // Non-static method with (no | arbitrary) params, map style, no
             // (empty array) defaults
             addf("method0_map", "method0");
             work.add(name, desc, &Vars::method0, var(v), LLSD::emptyArray());
             addf("methodna_map_allreq", "methodna");
-            work.add(name, desc, &Vars::methodna, var(v), paramsa);
+            work.add(name, desc, &Vars::methodna, var(v), params["a"]);
             addf("methodnb_map_allreq", "methodnb");
-            work.add(name, desc, &Vars::methodnb, var(v), paramsb);
+            work.add(name, desc, &Vars::methodnb, var(v), params["b"]);
 
             // Except for the "more (array | map) defaults than params" error
             // cases, tested separately below, the (partial | full)(array |
@@ -504,60 +503,60 @@ namespace tut
             // (Free function | static method) with arbitrary params, map
             // style, partial (array | map) defaults
             addf("freena_map_leftreq", "freena");
-            work.add(name, desc, freena, paramsa, dfta_array_partial);
+            work.add(name, desc, freena, params["a"], dft_array_partial["a"]);
             addf("freenb_map_leftreq", "freenb");
-            work.add(name, desc, freenb, paramsb, dftb_array_partial);
+            work.add(name, desc, freenb, params["b"], dft_array_partial["b"]);
             addf("smethodna_map_leftreq", "smethodna");
-            work.add(name, desc, &Vars::smethodna, paramsa, dfta_array_partial);
+            work.add(name, desc, &Vars::smethodna, params["a"], dft_array_partial["a"]);
             addf("smethodnb_map_leftreq", "smethodnb");
-            work.add(name, desc, &Vars::smethodnb, paramsb, dftb_array_partial);
+            work.add(name, desc, &Vars::smethodnb, params["b"], dft_array_partial["b"]);
             addf("freena_map_skipreq", "freena");
-            work.add(name, desc, freena, paramsa, dfta_map_partial);
+            work.add(name, desc, freena, params["a"], dft_map_partial["a"]);
             addf("freenb_map_skipreq", "freenb");
-            work.add(name, desc, freenb, paramsb, dftb_map_partial);
+            work.add(name, desc, freenb, params["b"], dft_map_partial["b"]);
             addf("smethodna_map_skipreq", "smethodna");
-            work.add(name, desc, &Vars::smethodna, paramsa, dfta_map_partial);
+            work.add(name, desc, &Vars::smethodna, params["a"], dft_map_partial["a"]);
             addf("smethodnb_map_skipreq", "smethodnb");
-            work.add(name, desc, &Vars::smethodnb, paramsb, dftb_map_partial);
+            work.add(name, desc, &Vars::smethodnb, params["b"], dft_map_partial["b"]);
             // Non-static method with arbitrary params, map style, partial
             // (array | map) defaults
             addf("methodna_map_leftreq", "methodna");
-            work.add(name, desc, &Vars::methodna, var(v), paramsa, dfta_array_partial);
+            work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_array_partial["a"]);
             addf("methodnb_map_leftreq", "methodnb");
-            work.add(name, desc, &Vars::methodnb, var(v), paramsb, dftb_array_partial);
+            work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_array_partial["b"]);
             addf("methodna_map_skipreq", "methodna");
-            work.add(name, desc, &Vars::methodna, var(v), paramsa, dfta_map_partial);
+            work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_map_partial["a"]);
             addf("methodnb_map_skipreq", "methodnb");
-            work.add(name, desc, &Vars::methodnb, var(v), paramsb, dftb_map_partial);
+            work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_map_partial["b"]);
 
             // (Free function | static method) with arbitrary params, map
             // style, full (array | map) defaults
             addf("freena_map_adft", "freena");
-            work.add(name, desc, freena, paramsa, dfta_array_full);
+            work.add(name, desc, freena, params["a"], dft_array_full["a"]);
             addf("freenb_map_adft", "freenb");
-            work.add(name, desc, freenb, paramsb, dftb_array_full);
+            work.add(name, desc, freenb, params["b"], dft_array_full["b"]);
             addf("smethodna_map_adft", "smethodna");
-            work.add(name, desc, &Vars::smethodna, paramsa, dfta_array_full);
+            work.add(name, desc, &Vars::smethodna, params["a"], dft_array_full["a"]);
             addf("smethodnb_map_adft", "smethodnb");
-            work.add(name, desc, &Vars::smethodnb, paramsb, dftb_array_full);
+            work.add(name, desc, &Vars::smethodnb, params["b"], dft_array_full["b"]);
             addf("freena_map_mdft", "freena");
-            work.add(name, desc, freena, paramsa, dfta_map_full);
+            work.add(name, desc, freena, params["a"], dft_map_full["a"]);
             addf("freenb_map_mdft", "freenb");
-            work.add(name, desc, freenb, paramsb, dftb_map_full);
+            work.add(name, desc, freenb, params["b"], dft_map_full["b"]);
             addf("smethodna_map_mdft", "smethodna");
-            work.add(name, desc, &Vars::smethodna, paramsa, dfta_map_full);
+            work.add(name, desc, &Vars::smethodna, params["a"], dft_map_full["a"]);
             addf("smethodnb_map_mdft", "smethodnb");
-            work.add(name, desc, &Vars::smethodnb, paramsb, dftb_map_full);
+            work.add(name, desc, &Vars::smethodnb, params["b"], dft_map_full["b"]);
             // Non-static method with arbitrary params, map style, full
             // (array | map) defaults
             addf("methodna_map_adft", "methodna");
-            work.add(name, desc, &Vars::methodna, var(v), paramsa, dfta_array_full);
+            work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_array_full["a"]);
             addf("methodnb_map_adft", "methodnb");
-            work.add(name, desc, &Vars::methodnb, var(v), paramsb, dftb_array_full);
+            work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_array_full["b"]);
             addf("methodna_map_mdft", "methodna");
-            work.add(name, desc, &Vars::methodna, var(v), paramsa, dfta_map_full);
+            work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_map_full["a"]);
             addf("methodnb_map_mdft", "methodnb");
-            work.add(name, desc, &Vars::methodnb, var(v), paramsb, dftb_map_full);
+            work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_map_full["b"]);
 
             // All the above are expected to succeed, and are setup for the
             // tests to follow. Registration error cases are exercised as
@@ -787,15 +786,15 @@ namespace tut
     {
         set_test_name("query Callables with/out required params");
         LLSD names(LLSDArray("free1")("Dmethod1")("Dcmethod1")("method1"));
-        foreach(LLSD ae, inArray(names))
+        foreach(LLSD nm, inArray(names))
         {
-            LLSD metadata(getMetadata(ae));
-            ensure_equals("name mismatch", metadata["name"], ae);
-            ensure_equals(metadata["desc"].asString(), funcs[ae]);
+            LLSD metadata(getMetadata(nm));
+            ensure_equals("name mismatch", metadata["name"], nm);
+            ensure_equals(metadata["desc"].asString(), funcs[nm]);
             ensure("should not have required structure", metadata["required"].isUndefined());
             ensure("should not have optional", metadata["optional"].isUndefined());
 
-            std::string name_req(ae.asString() + "_req");
+            std::string name_req(nm.asString() + "_req");
             metadata = getMetadata(name_req);
             ensure_equals(metadata["name"].asString(), name_req);
             ensure_equals(metadata["desc"].asString(), funcs[name_req]);
@@ -902,78 +901,71 @@ namespace tut
         // Generate maps containing all parameter names for cases in which all
         // params are required. Also maps containing left requirements for
         // partial defaults arrays. Also defaults maps from defaults arrays.
-        LLSD allreqa, allreqb, leftreqa, leftreqb, rightdfta, rightdftb;
-        for (LLSD::Integer pi(0), pend(std::min(partial_offset, paramsa.size()));
-             pi < pend; ++pi)
+        LLSD allreq, leftreq, rightdft;
+        foreach(LLSD::String a, ab)
         {
-            allreqa[paramsa[pi].asString()] = LLSD();
-            leftreqa[paramsa[pi].asString()] = LLSD();
+            for (LLSD::Integer pi(0), pend(std::min(partial_offset, params[a].size()));
+                 pi < pend; ++pi)
+            {
+                allreq [a][params[a][pi].asString()] = LLSD();
+                leftreq[a][params[a][pi].asString()] = LLSD();
+            }
+            for (LLSD::Integer pi(partial_offset), pend(params[a].size()); pi < pend; ++pi)
+            {
+                allreq  [a][params[a][pi].asString()] = LLSD();
+                rightdft[a][params[a][pi].asString()] = dft_array_full[a][pi];
+            }
         }
-        for (LLSD::Integer pi(partial_offset), pend(paramsa.size()); pi < pend; ++pi)
-        {
-            allreqa[paramsa[pi].asString()] = LLSD();
-            rightdfta[paramsa[pi].asString()] = dfta_array_full[pi];
-        }
-        for (LLSD::Integer pi(0), pend(std::min(partial_offset, paramsb.size()));
-             pi < pend; ++pi)
-        {
-            allreqb[paramsb[pi].asString()] = LLSD();
-            leftreqb[paramsb[pi].asString()] = LLSD();
-        }
-        for (LLSD::Integer pi(partial_offset), pend(paramsb.size()); pi < pend; ++pi)
-        {
-            allreqb[paramsb[pi].asString()] = LLSD();
-            rightdftb[paramsb[pi].asString()] = dftb_array_full[pi];
-        }
+        cout << "allreq:\n" << allreq << "\nleftreq:\n" << leftreq << "\nrightdft:\n" << rightdft << std::endl;
 
         // Generate maps containing parameter names not provided by the
-        // dft[ab]_map_partial maps.
-        LLSD skipreqa(allreqa), skipreqb(allreqb);
-        foreach(const MapEntry& me, inMap(dfta_map_partial))
+        // dft_map_partial maps.
+        LLSD skipreq(allreq);
+        foreach(LLSD::String a, ab)
         {
-            skipreqa.erase(me.first);
+            foreach(const MapEntry& me, inMap(dft_map_partial[a]))
+            {
+                skipreq[a].erase(me.first);
+            }
         }
-        foreach(const MapEntry& me, inMap(dftb_map_partial))
-        {
-            skipreqb.erase(me.first);
-        }
+        cout << "skipreq:\n" << skipreq << std::endl;
 
         LLSD groups(LLSDArray       // array of groups
 
                     (LLSDArray      // group
                      (LLSDArray("freena_map_allreq")("smethodna_map_allreq")("methodna_map_allreq"))
-                     (LLSDArray(allreqa)(LLSD()))) // required, optional
+                     (LLSDArray(allreq["a"])(LLSD()))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freenb_map_allreq")("smethodnb_map_allreq")("methodnb_map_allreq"))
-                     (LLSDArray(allreqb)(LLSD()))) // required, optional
+                     (LLSDArray(allreq["b"])(LLSD()))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freena_map_leftreq")("smethodna_map_leftreq")("methodna_map_leftreq"))
-                     (LLSDArray(leftreqa)(rightdfta))) // required, optional
+                     (LLSDArray(leftreq["a"])(rightdft["a"]))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freenb_map_leftreq")("smethodnb_map_leftreq")("methodnb_map_leftreq"))
-                     (LLSDArray(leftreqb)(rightdftb))) // required, optional
+                     (LLSDArray(leftreq["b"])(rightdft["b"]))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freena_map_skipreq")("smethodna_map_skipreq")("methodna_map_skipreq"))
-                     (LLSDArray(skipreqa)(dfta_map_partial))) // required, optional
+                     (LLSDArray(skipreq["a"])(dft_map_partial["a"]))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freenb_map_skipreq")("smethodnb_map_skipreq")("methodnb_map_skipreq"))
-                     (LLSDArray(skipreqb)(dftb_map_partial))) // required, optional
+                     (LLSDArray(skipreq["b"])(dft_map_partial["b"]))) // required, optional
 
                     // We only need mention the full-map-defaults ("_mdft" suffix)
                     // registrations, having established their equivalence with the
                     // full-array-defaults ("_adft" suffix) registrations in another test.
                     (LLSDArray        // group
                      (LLSDArray("freena_map_mdft")("smethodna_map_mdft")("methodna_map_mdft"))
-                     (LLSDArray(LLSD::emptyMap())(dfta_map_full))) // required, optional
+                     (LLSDArray(LLSD::emptyMap())(dft_map_full["a"]))) // required, optional
 
                     (LLSDArray        // group
                      (LLSDArray("freenb_map_mdft")("smethodnb_map_mdft")("methodnb_map_mdft"))
-                     (LLSDArray(LLSD::emptyMap())(dftb_map_full)))); // required, optional
+                     (LLSDArray(LLSD::emptyMap())(dft_map_full["b"])))); // required, optional
 
         foreach(LLSD grp, inArray(groups))
         {
@@ -988,9 +980,11 @@ namespace tut
             {
                 LLSD metadata(getMetadata(nm));
                 ensure_equals("name mismatch", metadata["name"], nm);
-                ensure_equals(metadata["desc"].asString(), funcs[nm]);
-                ensure_equals("required mismatch", metadata["required"], required);
-                ensure_equals("optional mismatch", metadata["optional"], optional);
+                ensure_equals(nm.asString(), metadata["desc"].asString(), funcs[nm]);
+                ensure_equals(STRINGIZE(nm << " required mismatch"),
+                              metadata["required"], required);
+                ensure_equals(STRINGIZE(nm << " optional mismatch"),
+                              metadata["optional"], optional);
             }
         }
     }
@@ -1172,42 +1166,43 @@ namespace tut
         {
             binary.push_back(h);
         }
-        LLSD argsa(LLSDArray(true)(17)(3.14)(123.456)("char*"));
-        LLSD argsb(LLSDArray("string")(LLUUID("01234567-89ab-cdef-0123-456789abcdef"))
-                   (LLDate("2011-02-03T15:07:00Z"))(LLURI("http://secondlife.com"))(binary));
-        LLSD argsaplus(argsa), argsbplus(argsb);
-        argsaplus.append("bogus");
-        argsbplus.append("bogus");
-        LLSD expecta, expectb;
-        for (LLSD::Integer i(0), iend(paramsa.size()); i < iend; ++i)
+        LLSD args(LLSDMap("a", LLSDArray(true)(17)(3.14)(123.456)("char*"))
+                         ("b", LLSDArray("string")
+                                        (LLUUID("01234567-89ab-cdef-0123-456789abcdef"))
+                                        (LLDate("2011-02-03T15:07:00Z"))
+                                        (LLURI("http://secondlife.com"))
+                                        (binary)));
+        LLSD argsplus(args);
+        argsplus["a"].append("bogus");
+        argsplus["b"].append("bogus");
+        LLSD expect;
+        foreach(LLSD::String a, ab)
         {
-            expecta[paramsa[i].asString()] = argsa[i];
+            for (LLSD::Integer i(0), iend(params[a].size()); i < iend; ++i)
+            {
+                expect[a][params[a][i].asString()] = args[a][i];
+            }
         }
-        for (LLSD::Integer i(0), iend(paramsb.size()); i < iend; ++i)
-        {
-            expectb[paramsb[i].asString()] = argsb[i];
-        }
-        // Adjust expecta["cp"] for special Vars::cp treatment.
-        expecta["cp"] = std::string("'") + expecta["cp"].asString() + "'";
-        cout << "expecta: " << expecta << "\nexpectb: " << expectb << '\n';
+        // Adjust expect["a"]["cp"] for special Vars::cp treatment.
+        expect["a"]["cp"] = std::string("'") + expect["a"]["cp"].asString() + "'";
+        cout << "expect: " << expect << '\n';
         foreach(const FunctionsTriple& tr, array_funcs(v))
         {
             *tr.vars = Vars();
-            work(tr.name1, argsa);
-            ensure_llsd(STRINGIZE(tr.name1 << ": expecta mismatch"),
-                        tr.vars->inspect(), expecta, 7);
+            work(tr.name1, args["a"]);
+            ensure_llsd(STRINGIZE(tr.name1 << ": expect[\"a\"] mismatch"),
+                        tr.vars->inspect(), expect["a"], 7); // 7 bits ~= 2 decimal digits
 
             *tr.vars = Vars();
-            work(tr.name2, argsb);
-            ensure_llsd(STRINGIZE(tr.name2 << ": expectb mismatch"),
-                        tr.vars->inspect(), expectb, 7);
+            work(tr.name2, args["b"]);
+            ensure_llsd(STRINGIZE(tr.name2 << ": expect[\"b\"] mismatch"),
+                        tr.vars->inspect(), expect["b"], 7);
 
-            // TODO: argsaplus, argsbplus, check LL_WARNS output?
+            // TODO: argsplus, check LL_WARNS output?
         }
     }
 
     // TODO:
-    // - refactor params-related data as {'a':arraya, 'b':arrayb}
     // - function to build a map from keys array, values array (or
     //   vice-versa?)
 } // namespace tut
