@@ -322,14 +322,12 @@ namespace tut
         LLSD required;
         // Parameter names for freena(), freenb()
         LLSD params;
-        // Full defaults arrays for params for freena(), freenb()
-        LLSD dft_array_full;
+        // Full, partial defaults arrays for params for freena(), freenb()
+        LLSD dft_array_full, dft_array_partial;
         // Start index of partial defaults arrays
         const LLSD::Integer partial_offset;
-        // Full defaults maps for params for freena(), freenb()
-        LLSD dft_map_full;
-        // Partial defaults maps for params for freena(), freenb()
-        LLSD dft_map_partial;
+        // Full, partial defaults maps for params for freena(), freenb()
+        LLSD dft_map_full, dft_map_partial;
         // Most of the above are indexed by "a" or "b". Useful to have an
         // array containing those strings for iterating.
         std::vector<LLSD::String> ab;
@@ -447,20 +445,20 @@ namespace tut
                                                    (binary));
             cout << "dft_array_full:\n" << dft_array_full << std::endl;
             // Partial defaults arrays.
-            LLSD dft_array_partial(
-                LLSDMap("a", llsd_copy_array(dft_array_full["a"].beginArray() + partial_offset,
-                                             dft_array_full["a"].endArray()))
-                       ("b", llsd_copy_array(dft_array_full["b"].beginArray() + partial_offset,
-                                             dft_array_full["b"].endArray())));
-            cout << "dft_array_partial:\n" << dft_array_partial << std::endl;
-
-            // Generate full defaults maps by zipping (params, dft_array_full).
             foreach(LLSD::String a, ab)
             {
-                for (LLSD::Integer ix = 0, ixend = params[a].size(); ix < ixend; ++ix)
-                {
-                    dft_map_full[a][params[a][ix].asString()] = dft_array_full[a][ix];
-                }
+                LLSD::Integer partition(std::min(partial_offset, dft_array_full[a].size()));
+                dft_array_partial[a] =
+                    llsd_copy_array(dft_array_full[a].beginArray() + partition,
+                                    dft_array_full[a].endArray());
+            }
+            cout << "dft_array_partial:\n" << dft_array_partial << std::endl;
+
+            foreach(LLSD::String a, ab)
+            {
+                // Generate full defaults maps by zipping (params, dft_array_full).
+                dft_map_full[a] = zipmap(params[a], dft_array_full[a]);
+
                 // Generate partial defaults map by zipping alternate entries from
                 // (params, dft_array_full). Part of the point of using map-style
                 // defaults is to allow any subset of the target function's
@@ -636,6 +634,20 @@ namespace tut
             LLSD meta(work.getMetadata(name));
             ensure(STRINGIZE("No metadata for " << name), meta.isDefined());
             return meta;
+        }
+
+        // From two related LLSD arrays, e.g. a param-names array and a values
+        // array, zip them together into an LLSD map.
+        LLSD zipmap(const LLSD& keys, const LLSD& values)
+        {
+            LLSD map;
+            for (LLSD::Integer i = 0, iend = keys.size(); i < iend; ++i)
+            {
+                // Have to select asString() since you can index an LLSD
+                // object with either String or Integer.
+                map[keys[i].asString()] = values[i];
+            }
+            return map;
         }
 
         // If I call this ensure_equals(), it blocks visibility of all other
@@ -904,17 +916,21 @@ namespace tut
         LLSD allreq, leftreq, rightdft;
         foreach(LLSD::String a, ab)
         {
-            for (LLSD::Integer pi(0), pend(std::min(partial_offset, params[a].size()));
-                 pi < pend; ++pi)
-            {
-                allreq [a][params[a][pi].asString()] = LLSD();
-                leftreq[a][params[a][pi].asString()] = LLSD();
-            }
-            for (LLSD::Integer pi(partial_offset), pend(params[a].size()); pi < pend; ++pi)
-            {
-                allreq  [a][params[a][pi].asString()] = LLSD();
-                rightdft[a][params[a][pi].asString()] = dft_array_full[a][pi];
-            }
+            // The map in which all params are required uses params[a] as
+            // keys, with all isUndefined() as values. We can accomplish that
+            // by passing zipmap() an empty values array.
+            allreq[a] = zipmap(params[a], LLSD::emptyArray());
+            // Same for leftreq, save that we use the subset of the params not
+            // supplied by dft_array_partial[a].
+            LLSD::Integer partition(params[a].size() - dft_array_partial[a].size());
+            leftreq[a] = zipmap(llsd_copy_array(params[a].beginArray(),
+                                                params[a].beginArray() + partition),
+                                LLSD::emptyArray());
+            // Generate map pairing dft_array_partial[a] values with their
+            // param names.
+            rightdft[a] = zipmap(llsd_copy_array(params[a].beginArray() + partition,
+                                                 params[a].endArray()),
+                                 dft_array_partial[a]);
         }
         cout << "allreq:\n" << allreq << "\nleftreq:\n" << leftreq << "\nrightdft:\n" << rightdft << std::endl;
 
@@ -1178,10 +1194,7 @@ namespace tut
         LLSD expect;
         foreach(LLSD::String a, ab)
         {
-            for (LLSD::Integer i(0), iend(params[a].size()); i < iend; ++i)
-            {
-                expect[a][params[a][i].asString()] = args[a][i];
-            }
+            expect[a] = zipmap(params[a], args[a]);
         }
         // Adjust expect["a"]["cp"] for special Vars::cp treatment.
         expect["a"]["cp"] = std::string("'") + expect["a"]["cp"].asString() + "'";
@@ -1216,8 +1229,4 @@ namespace tut
             }
         }
     }
-
-    // TODO:
-    // - function to build a map from keys array, values array (or
-    //   vice-versa?)
 } // namespace tut
