@@ -1229,4 +1229,18 @@ namespace tut
             }
         }
     }
+
+    template<> template<>
+    void object::test<21>()
+    {
+        set_test_name("verify that passing LLSD() to const char* sends NULL");
+
+        ensure_equals("Vars::cp init", v.cp, "");
+        work("methodna_map_mdft", LLSDMap("cp", LLSD()));
+        ensure_equals("passing LLSD()", v.cp, "NULL");
+        work("methodna_map_mdft", LLSDMap("cp", ""));
+        ensure_equals("passing \"\"", v.cp, "''");
+        work("methodna_map_mdft", LLSDMap("cp", "non-NULL"));
+        ensure_equals("passing \"non-NULL\"", v.cp, "'non-NULL'");
+    }
 } // namespace tut
