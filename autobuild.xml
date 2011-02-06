@@ -1658,6 +1658,29 @@
               <key>name</key>
               <string>OpenSourceRelWithDebInfo</string>
             </map>
+            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
+            <key>VCexpressRelWithDebInfo</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DUNATTENDED:BOOL=OFF</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VCexpressRelWithDebInfo</string>
+            </map>
+            <!-- OPEN-1 WORKAROUND end -->
             <key>OpenSourceRelease</key>
             <map>
               <key>configure</key>
@@ -2402,6 +2425,37 @@
               <key>name</key>
               <string>OpenSourceRelWithDebInfo</string>
             </map>
+            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
+            <key>VCexpressRelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>vcbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>RelWithDebInfo</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio Express 8 2005"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VCexpressRelWithDebInfo</string>
+            </map>
+            <!-- OPEN-1 WORKAROUND end -->
             <key>OpenSourceRelease</key>
             <map>
               <key>build</key>
