@@ -316,8 +316,12 @@ namespace tut
         Dispatcher work;
         Vars v;
         std::string name, desc;
-        typedef std::map<std::string, std::string> FuncMap;
-        FuncMap funcs;
+        // Capture our own copy of all registered functions' descriptions
+        typedef std::map<std::string, std::string> DescMap;
+        DescMap descs;
+        // Capture the Vars instance on which we expect each function to operate
+        typedef std::map<std::string, Vars*> VarsMap;
+        VarsMap funcvars;
         // Required structure for Callables with requirements
         LLSD required;
         // Parameter names for freena(), freenb()
@@ -371,47 +375,47 @@ namespace tut
             /*------------------------- Callables --------------------------*/
 
             // Arbitrary Callable with/out required params
-            addf("free1", "free1");
+            addf("free1", "free1", &g);
             work.add(name, desc, free1);
-            addf("free1_req", "free1");
+            addf("free1_req", "free1", &g);
             work.add(name, desc, free1, required);
             // Subclass non-const method with/out required params
-            addf("Dmethod1", "method1");
+            addf("Dmethod1", "method1", NULL);
             work.add(name, desc, &Dispatcher::method1);
-            addf("Dmethod1_req", "method1");
+            addf("Dmethod1_req", "method1", NULL);
             work.add(name, desc, &Dispatcher::method1, required);
             // Subclass const method with/out required params
-            addf("Dcmethod1", "cmethod1");
+            addf("Dcmethod1", "cmethod1", NULL);
             work.add(name, desc, &Dispatcher::cmethod1);
-            addf("Dcmethod1_req", "cmethod1");
+            addf("Dcmethod1_req", "cmethod1", NULL);
             work.add(name, desc, &Dispatcher::cmethod1, required);
             // Non-subclass method with/out required params
-            addf("method1", "method1");
+            addf("method1", "method1", &v);
             work.add(name, desc, boost::bind(&Vars::method1, boost::ref(v), _1));
-            addf("method1_req", "method1");
+            addf("method1_req", "method1", &v);
             work.add(name, desc, boost::bind(&Vars::method1, boost::ref(v), _1), required);
 
             /*--------------- Arbitrary params, array style ----------------*/
 
             // (Free function | static method) with (no | arbitrary) params, array style
-            addf("free0_array", "free0");
+            addf("free0_array", "free0", &g);
             work.add(name, desc, free0);
-            addf("freena_array", "freena");
+            addf("freena_array", "freena", &g);
             work.add(name, desc, freena);
-            addf("freenb_array", "freenb");
+            addf("freenb_array", "freenb", &g);
             work.add(name, desc, freenb);
-            addf("smethod0_array", "smethod0");
+            addf("smethod0_array", "smethod0", &g);
             work.add(name, desc, &Vars::smethod0);
-            addf("smethodna_array", "smethodna");
+            addf("smethodna_array", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna);
-            addf("smethodnb_array", "smethodnb");
+            addf("smethodnb_array", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb);
             // Non-static method with (no | arbitrary) params, array style
-            addf("method0_array", "method0");
+            addf("method0_array", "method0", &v);
             work.add(name, desc, &Vars::method0, boost::lambda::var(v));
-            addf("methodna_array", "methodna");
+            addf("methodna_array", "methodna", &v);
             work.add(name, desc, &Vars::methodna, boost::lambda::var(v));
-            addf("methodnb_array", "methodnb");
+            addf("methodnb_array", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, boost::lambda::var(v));
 
             /*---------------- Arbitrary params, map style -----------------*/
@@ -472,25 +476,25 @@ namespace tut
 
             // (Free function | static method) with (no | arbitrary) params,
             // map style, no (empty array) defaults
-            addf("free0_map", "free0");
+            addf("free0_map", "free0", &g);
             work.add(name, desc, free0, LLSD::emptyArray());
-            addf("smethod0_map", "smethod0");
+            addf("smethod0_map", "smethod0", &g);
             work.add(name, desc, &Vars::smethod0, LLSD::emptyArray());
-            addf("freena_map_allreq", "freena");
+            addf("freena_map_allreq", "freena", &g);
             work.add(name, desc, freena, params["a"]);
-            addf("freenb_map_allreq", "freenb");
+            addf("freenb_map_allreq", "freenb", &g);
             work.add(name, desc, freenb, params["b"]);
-            addf("smethodna_map_allreq", "smethodna");
+            addf("smethodna_map_allreq", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna, params["a"]);
-            addf("smethodnb_map_allreq", "smethodnb");
+            addf("smethodnb_map_allreq", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb, params["b"]);
             // Non-static method with (no | arbitrary) params, map style, no
             // (empty array) defaults
-            addf("method0_map", "method0");
+            addf("method0_map", "method0", &v);
             work.add(name, desc, &Vars::method0, var(v), LLSD::emptyArray());
-            addf("methodna_map_allreq", "methodna");
+            addf("methodna_map_allreq", "methodna", &v);
             work.add(name, desc, &Vars::methodna, var(v), params["a"]);
-            addf("methodnb_map_allreq", "methodnb");
+            addf("methodnb_map_allreq", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, var(v), params["b"]);
 
             // Except for the "more (array | map) defaults than params" error
@@ -500,60 +504,60 @@ namespace tut
 
             // (Free function | static method) with arbitrary params, map
             // style, partial (array | map) defaults
-            addf("freena_map_leftreq", "freena");
+            addf("freena_map_leftreq", "freena", &g);
             work.add(name, desc, freena, params["a"], dft_array_partial["a"]);
-            addf("freenb_map_leftreq", "freenb");
+            addf("freenb_map_leftreq", "freenb", &g);
             work.add(name, desc, freenb, params["b"], dft_array_partial["b"]);
-            addf("smethodna_map_leftreq", "smethodna");
+            addf("smethodna_map_leftreq", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna, params["a"], dft_array_partial["a"]);
-            addf("smethodnb_map_leftreq", "smethodnb");
+            addf("smethodnb_map_leftreq", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb, params["b"], dft_array_partial["b"]);
-            addf("freena_map_skipreq", "freena");
+            addf("freena_map_skipreq", "freena", &g);
             work.add(name, desc, freena, params["a"], dft_map_partial["a"]);
-            addf("freenb_map_skipreq", "freenb");
+            addf("freenb_map_skipreq", "freenb", &g);
             work.add(name, desc, freenb, params["b"], dft_map_partial["b"]);
-            addf("smethodna_map_skipreq", "smethodna");
+            addf("smethodna_map_skipreq", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna, params["a"], dft_map_partial["a"]);
-            addf("smethodnb_map_skipreq", "smethodnb");
+            addf("smethodnb_map_skipreq", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb, params["b"], dft_map_partial["b"]);
             // Non-static method with arbitrary params, map style, partial
             // (array | map) defaults
-            addf("methodna_map_leftreq", "methodna");
+            addf("methodna_map_leftreq", "methodna", &v);
             work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_array_partial["a"]);
-            addf("methodnb_map_leftreq", "methodnb");
+            addf("methodnb_map_leftreq", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_array_partial["b"]);
-            addf("methodna_map_skipreq", "methodna");
+            addf("methodna_map_skipreq", "methodna", &v);
             work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_map_partial["a"]);
-            addf("methodnb_map_skipreq", "methodnb");
+            addf("methodnb_map_skipreq", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_map_partial["b"]);
 
             // (Free function | static method) with arbitrary params, map
             // style, full (array | map) defaults
-            addf("freena_map_adft", "freena");
+            addf("freena_map_adft", "freena", &g);
             work.add(name, desc, freena, params["a"], dft_array_full["a"]);
-            addf("freenb_map_adft", "freenb");
+            addf("freenb_map_adft", "freenb", &g);
             work.add(name, desc, freenb, params["b"], dft_array_full["b"]);
-            addf("smethodna_map_adft", "smethodna");
+            addf("smethodna_map_adft", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna, params["a"], dft_array_full["a"]);
-            addf("smethodnb_map_adft", "smethodnb");
+            addf("smethodnb_map_adft", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb, params["b"], dft_array_full["b"]);
-            addf("freena_map_mdft", "freena");
+            addf("freena_map_mdft", "freena", &g);
             work.add(name, desc, freena, params["a"], dft_map_full["a"]);
-            addf("freenb_map_mdft", "freenb");
+            addf("freenb_map_mdft", "freenb", &g);
             work.add(name, desc, freenb, params["b"], dft_map_full["b"]);
-            addf("smethodna_map_mdft", "smethodna");
+            addf("smethodna_map_mdft", "smethodna", &g);
             work.add(name, desc, &Vars::smethodna, params["a"], dft_map_full["a"]);
-            addf("smethodnb_map_mdft", "smethodnb");
+            addf("smethodnb_map_mdft", "smethodnb", &g);
             work.add(name, desc, &Vars::smethodnb, params["b"], dft_map_full["b"]);
             // Non-static method with arbitrary params, map style, full
             // (array | map) defaults
-            addf("methodna_map_adft", "methodna");
+            addf("methodna_map_adft", "methodna", &v);
             work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_array_full["a"]);
-            addf("methodnb_map_adft", "methodnb");
+            addf("methodnb_map_adft", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_array_full["b"]);
-            addf("methodna_map_mdft", "methodna");
+            addf("methodna_map_mdft", "methodna", &v);
             work.add(name, desc, &Vars::methodna, var(v), params["a"], dft_map_full["a"]);
-            addf("methodnb_map_mdft", "methodnb");
+            addf("methodnb_map_mdft", "methodnb", &v);
             work.add(name, desc, &Vars::methodnb, var(v), params["b"], dft_map_full["b"]);
 
             // All the above are expected to succeed, and are setup for the
@@ -561,21 +565,23 @@ namespace tut
             // tests rather than as test setup.
         }
 
-        void addf(const std::string& n, const std::string& d)
+        void addf(const std::string& n, const std::string& d, Vars* v)
         {
-            // This method is to capture in our own FuncMap the name and
+            // This method is to capture in our own DescMap the name and
             // description of every registered function, for metadata query
             // testing.
-            funcs[n] = d;
+            descs[n] = d;
+            // Also capture the Vars instance on which each function should operate.
+            funcvars[n] = v;
             // See constructor for rationale for setting these instance vars.
             this->name = n;
             this->desc = d;
         }
 
-        void verify_funcs()
+        void verify_descs()
         {
-            // Copy funcs to a temp map of same type.
-            FuncMap forgotten(funcs.begin(), funcs.end());
+            // Copy descs to a temp map of same type.
+            DescMap forgotten(descs.begin(), descs.end());
             // LLEventDispatcher intentionally provides only const_iterator:
             // since dereferencing that iterator generates values on the fly,
             // it's meaningless to have a modifiable iterator. But since our
@@ -583,7 +589,7 @@ namespace tut
             // use non-const iterators. Persuade it to use the const_iterator.
             foreach(LLEventDispatcher::NameDesc nd, const_cast<const Dispatcher&>(work))
             {
-                FuncMap::iterator found = forgotten.find(nd.first);
+                DescMap::iterator found = forgotten.find(nd.first);
                 ensure(STRINGIZE("LLEventDispatcher records function '" << nd.first
                                  << "' we didn't enter"),
                        found != forgotten.end());
@@ -599,13 +605,21 @@ namespace tut
                 std::ostringstream out;
                 out << "LLEventDispatcher failed to report";
                 const char* delim = ": ";
-                foreach(const FuncMap::value_type& fme, forgotten)
+                foreach(const DescMap::value_type& fme, forgotten)
                 {
                     out << delim << fme.first;
                     delim = ", ";
                 }
                 ensure(out.str(), false);
             }
+        }
+
+        Vars* varsfor(const std::string& name)
+        {
+            VarsMap::const_iterator found = funcvars.find(name);
+            ensure(STRINGIZE("No Vars* for " << name), found != funcvars.end());
+            ensure(STRINGIZE("NULL Vars* for " << name), found->second);
+            return found->second;
         }
 
         void ensure_has(const std::string& outer, const std::string& inner)
@@ -772,7 +786,7 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("query all");
-        verify_funcs();
+        verify_descs();
     }
 
     template<> template<>
@@ -781,9 +795,9 @@ namespace tut
         set_test_name("query all with remove()");
         ensure("remove('bogus') returned true", ! work.remove("bogus"));
         ensure("remove('real') returned false", work.remove("free1"));
-        // Of course, remove that from 'funcs' too...
-        funcs.erase("free1");
-        verify_funcs();
+        // Of course, remove that from 'descs' too...
+        descs.erase("free1");
+        verify_descs();
     }
 
     template<> template<>
@@ -802,14 +816,14 @@ namespace tut
         {
             LLSD metadata(getMetadata(nm));
             ensure_equals("name mismatch", metadata["name"], nm);
-            ensure_equals(metadata["desc"].asString(), funcs[nm]);
+            ensure_equals(metadata["desc"].asString(), descs[nm]);
             ensure("should not have required structure", metadata["required"].isUndefined());
             ensure("should not have optional", metadata["optional"].isUndefined());
 
             std::string name_req(nm.asString() + "_req");
             metadata = getMetadata(name_req);
             ensure_equals(metadata["name"].asString(), name_req);
-            ensure_equals(metadata["desc"].asString(), funcs[name_req]);
+            ensure_equals(metadata["desc"].asString(), descs[name_req]);
             ensure_equals("required mismatch", required, metadata["required"]);
             ensure("should not have optional", metadata["optional"].isUndefined());
         }
@@ -838,7 +852,7 @@ namespace tut
             {
                 LLSD metadata(getMetadata(nm));
                 ensure_equals("name mismatch", metadata["name"], nm);
-                ensure_equals(metadata["desc"].asString(), funcs[nm]);
+                ensure_equals(metadata["desc"].asString(), descs[nm]);
                 ensure_equals(STRINGIZE("mismatched required for " << nm.asString()),
                               metadata["required"], req);
                 ensure("should not have optional", metadata["optional"].isUndefined());
@@ -857,7 +871,7 @@ namespace tut
         {
             LLSD metadata(getMetadata(nm));
             ensure_equals("name mismatch", metadata["name"], nm);
-            ensure_equals(metadata["desc"].asString(), funcs[nm]);
+            ensure_equals(metadata["desc"].asString(), descs[nm]);
             ensure("should not have required",
                    (metadata["required"].isUndefined() || metadata["required"].size() == 0));
             ensure("should not have optional", metadata["optional"].isUndefined());
@@ -996,7 +1010,7 @@ namespace tut
             {
                 LLSD metadata(getMetadata(nm));
                 ensure_equals("name mismatch", metadata["name"], nm);
-                ensure_equals(nm.asString(), metadata["desc"].asString(), funcs[nm]);
+                ensure_equals(nm.asString(), metadata["desc"].asString(), descs[nm]);
                 ensure_equals(STRINGIZE(nm << " required mismatch"),
                               metadata["required"], required);
                 ensure_equals(STRINGIZE(nm << " optional mismatch"),
@@ -1113,53 +1127,35 @@ namespace tut
 //      call_exc("free0_map", LLSDArray("a")("b"), map_exc);
     }
 
-    struct FunctionsTriple
-    {
-        std::string name1, name2;
-        Vars* vars;
-    };
-
     template<> template<>
     void object::test<18>()
     {
         set_test_name("call no-args functions");
-        FunctionsTriple tests[] =
+        LLSD names(LLSDArray
+                   ("free0_array")("free0_map")
+                   ("smethod0_array")("smethod0_map")
+                   ("method0_array")("method0_map"));
+        foreach(LLSD name, inArray(names))
         {
-            { "free0_array",    "free0_map",    &g },
-            { "smethod0_array", "smethod0_map", &g },
-            { "method0_array",  "method0_map",  &v }
-        };
-        foreach(const FunctionsTriple& tr, tests)
-        {
+            // Look up the Vars instance for this function.
+            Vars* vars(varsfor(name));
             // Both the global and stack Vars instances are automatically
             // cleared at the start of each test<n> method. But since we're
             // calling these things several different times in the same
             // test<n> method, manually reset the Vars between each.
-            *tr.vars = Vars();
-            ensure_equals(tr.vars->i, 0);
-            // array-style call with empty array (or LLSD(), should be equivalent)
-            work(tr.name1, LLSD());
-            ensure_equals(tr.vars->i, 17);
-
-            *tr.vars = Vars();
-            // map-style call with empty map (or LLSD(), should be equivalent)
-            work(tr.name2, LLSD());
-            ensure_equals(tr.vars->i, 17);
+            *vars = Vars();
+            ensure_equals(vars->i, 0);
+            // call function with empty array (or LLSD(), should be equivalent)
+            work(name, LLSD());
+            ensure_equals(vars->i, 17);
         }
     }
 
-    // Break out function to return this data because we use it in a couple
-    // different tests.
-    std::vector<FunctionsTriple> array_funcs(Vars& v)
-    {
-        FunctionsTriple tests[] =
-        {
-            { "freena_array",    "freenb_array",    &g },
-            { "smethodna_array", "smethodnb_array", &g },
-            { "methodna_array",  "methodnb_array",  &v }
-        };
-        return std::vector<FunctionsTriple>(boost::begin(tests), boost::end(tests));
-    }
+    // Break out this data because we use it in a couple different tests.
+    LLSD array_funcs(LLSDArray
+                     (LLSDMap("a", "freena_array")   ("b", "freenb_array"))
+                     (LLSDMap("a", "smethodna_array")("b", "smethodnb_array"))
+                     (LLSDMap("a", "methodna_array") ("b", "methodnb_array")));
 
     template<> template<>
     void object::test<19>()
@@ -1168,10 +1164,12 @@ namespace tut
         // Could have two different too-short arrays, one for *na and one for
         // *nb, but since they both take 5 params...
         LLSD tooshort(LLSDArray("this")("array")("too")("short"));
-        foreach(const FunctionsTriple& tr, array_funcs(v))
+        foreach(const LLSD& funcsab, inArray(array_funcs))
         {
-            call_exc(tr.name1, tooshort, "requires more arguments");
-            call_exc(tr.name2, tooshort, "requires more arguments");
+            foreach(const llsd::MapEntry& e, inMap(funcsab))
+            {
+                call_exc(e.second, tooshort, "requires more arguments");
+            }
         }
     }
 
@@ -1207,21 +1205,17 @@ namespace tut
         // So i==0 selects 'args', i==1 selects argsplus
         for (LLSD::Integer i(0), iend(argsarrays.size()); i < iend; ++i)
         {
-            foreach(const FunctionsTriple& tr, array_funcs(v))
+            foreach(const LLSD& funcsab, inArray(array_funcs))
             {
-                // Get tr.name1 and tr.name2 into a map keyed by ["a"] and ["b"]
-                LLSD funcs(LLSDMap("a", tr.name1)("b", tr.name2));
-
-                // So now we can call tr.name1 (as funcs["a"]) with the "a"
-                // params, etc.
                 foreach(LLSD::String a, ab)
                 {
                     // Reset the Vars instance before each call
-                    *tr.vars = Vars();
-                    work(funcs[a], argsarrays[i][a]);
-                    ensure_llsd(STRINGIZE(funcs[a].asString() <<
+                    Vars* vars(varsfor(funcsab[a]));
+                    *vars = Vars();
+                    work(funcsab[a], argsarrays[i][a]);
+                    ensure_llsd(STRINGIZE(funcsab[a].asString() <<
                                           ": expect[\"" << a << "\"] mismatch"),
-                                tr.vars->inspect(), expect[a], 7); // 7 bits ~= 2 decimal digits
+                                vars->inspect(), expect[a], 7); // 7 bits ~= 2 decimal digits
 
                     // TODO: in the i==1 or argsplus case, intercept LL_WARNS
                     // output? Even without that, using argsplus verifies that
