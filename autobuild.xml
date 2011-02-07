@@ -1280,9 +1280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c5862027b93eafceeaae9e4cef4cfa8</string>
+              <string>3e1847f7c38b4c78d8f594d269e96340</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8j-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220197/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110202.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
