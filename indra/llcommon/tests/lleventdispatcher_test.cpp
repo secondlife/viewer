@@ -682,7 +682,7 @@ namespace tut
     //   (scalar | map | array (too short | too long | just right))
     //   [trap LL_WARNS for too-long case?]
     // - (Free function | non-static method), arbitrary args, map style with
-    //   (scalar | array | map (all | too many | holes (with | without) defaults))
+    //   (scalar | (array | map) (all | too many | holes (with | without) defaults))
     // - const char* param gets ("" | NULL)
 
     // Query cases:
@@ -1108,7 +1108,9 @@ namespace tut
 
         std::string map_exc("needs a map");
         call_exc("free0_map", 17, map_exc);
-        call_exc("free0_map", LLSDArray("a")("b"), map_exc);
+        // Passing an array to a map-style function works now! No longer an
+        // error case!
+//      call_exc("free0_map", LLSDArray("a")("b"), map_exc);
     }
 
     struct FunctionsTriple
