@@ -474,9 +474,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88c29e73df61ff87c111d55d1b48f12c</string>
+              <string>6315d27fdea14a99cdb40ac7f0259916</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.4.0-windows-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.6.0-windows-20110204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba33d49b86528e1897b9857f245176fb</string>
+              <string>a34cf9a671fc33607748ba23eecb612d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs//glui-2.36-windows-20110203.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-windows-20110204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1404,9 +1404,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5ebf518be8ca8913265d791096e21445</string>
+              <string>d2c2377438d96a2635ea08fda243f8ab</string>
               <key>url</key>
-              <string>file:///cygwin/home/Alain/projects/qt/qt-4.7.1-windows-20110203.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-qt/rev/220364/arch/CYGWIN/installer/qt-4.7.1-windows-20110204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
