@@ -745,6 +745,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("OpenGLPre15");
 	}
+	if (gGLManager.mGLVersion < 3.f)
+	{
+		maskFeatures("OpenGLPre30");
+	}
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
