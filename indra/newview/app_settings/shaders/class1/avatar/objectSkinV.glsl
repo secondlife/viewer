@@ -9,7 +9,7 @@
 
 attribute vec4 object_weight;  
 
-uniform mat4 matrixPalette[64];
+uniform mat4 matrixPalette[32];
 
 mat4 getObjectSkinnedTransform()
 {
