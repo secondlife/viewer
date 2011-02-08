@@ -420,9 +420,9 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 		{
 			wcsncpy( mFilesW,L"untitled.jpeg", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
-		mOFN.lpstrDefExt = L"jpeg";
+		mOFN.lpstrDefExt = L"jpg";
 		mOFN.lpstrFilter =
-			L"JPEG Images (*.jpeg)\0*.jpeg\0" \
+			L"JPEG Images (*.jpg *.jpeg)\0*.jpg;*.jpeg\0" \
 			L"\0";
 		break;
 	case FFSAVE_AVI:
