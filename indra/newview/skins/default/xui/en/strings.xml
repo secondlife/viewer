@@ -1853,6 +1853,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
+  <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
   <string name="none">none</string>
   
@@ -1868,6 +1869,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="skirt_not_worn">Skirt not worn</string>
 	<string name="alpha_not_worn">Alpha not worn</string>
 	<string name="tattoo_not_worn">Tattoo not worn</string>
+  <string name="physics_not_worn">Physics not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
 	<!-- Create new wearable of the specified type -->
@@ -1886,6 +1888,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="create_new_skirt">Create new skirt</string>
 	<string name="create_new_alpha">Create new alpha</string>
 	<string name="create_new_tattoo">Create new tattoo</string>
+  <string name="create_new_physics">Create new physics</string>
 	<string name="create_new_invalid">invalid</string>
 
   <!-- Wearable List-->
@@ -2507,6 +2510,21 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Bulbous">Bulbous</string>
 <string name="Bulbous Nose">Bulbous Nose</string>
 
+<string name="Breast Physics Mass">Breast Mass</string>
+<string name="Breast Physics Smoothing">Breast Smoothing</string>
+<string name="Breast Physics Gravity">Breast Gravity</string>
+
+<string name="Breast Physics Side Spring">Breast Side Spring</string>
+<string name="Breast Physics Side Gain">Breast Side Gain</string>
+<string name="Breast Physics Side Damping">Breast Side Damping</string>
+<string name="Breast Physics Side Drag">Breast Side Drag</string>
+<string name="Breast Physics Side Max Speed">Breast Side Max Speed</string>
+
+<string name="Breast Physics UpDown Spring">Breast UpDown Spring</string>
+<string name="Breast Physics UpDown Gain">Breast UpDown Gain</string>
+<string name="Breast Physics UpDown Damping">Breast UpDown Damping</string>
+<string name="Breast Physics UpDown Drag">Breast UpDown Drag</string>
+<string name="Breast Physics UpDown Max Speed">Breast UpDown Max Speed</string>
 
 <string name="Bushy Eyebrows">Bushy Eyebrows</string>
 <string name="Bushy Hair">Bushy Hair</string>
@@ -3214,6 +3232,7 @@ Abuse Report</string>
   <string name="New Skirt">New Skirt</string>
   <string name="New Alpha">New Alpha</string>
   <string name="New Tattoo">New Tattoo</string>
+  <string name="New Physics">New Physics</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
   <string name="New Script">New Script</string>
