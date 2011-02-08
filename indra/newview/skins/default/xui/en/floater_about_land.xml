@@ -1405,6 +1405,10 @@ Only large parcels can be listed in search.
                  name="item11"
                  value="shopping" />
                 <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
+                <combo_box.item
                  label="Other"
                  name="item12"
                  value="other" />
@@ -1461,6 +1465,10 @@ Only large parcels can be listed in search.
                  label="Shopping"
                  name="item11"
                  value="shopping" />
+                <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
                 <combo_box.item
                  label="Other"
                  name="item12"
