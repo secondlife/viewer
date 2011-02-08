@@ -174,6 +174,9 @@ class WindowsManifest(ViewerManifest):
             return ''.join(self.channel().split()) + '.exe'
 
     def test_msvcrt_and_copy_action(self, src, dst):
+        # Skip this test as of VS2010
+        return
+    
         # This is used to test a dll manifest.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
@@ -193,6 +196,9 @@ class WindowsManifest(ViewerManifest):
             print "Doesn't exist:", src
 
     def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
+        # Skip this test as of VS2010
+        return
+
         # This is used to test that no manifest for the msvcrt exists.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
@@ -282,13 +288,11 @@ class WindowsManifest(ViewerManifest):
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
-                self.path("msvcr80d.dll")
-                self.path("msvcp80d.dll")
-                self.path("Microsoft.VC80.DebugCRT.manifest")
+                 self.path("msvcr100d.dll")
+                 self.path("msvcp80d.dll")
             else:
-                self.path("msvcr80.dll")
-                self.path("msvcp80.dll")
-                self.path("Microsoft.VC80.CRT.manifest")
+                 self.path("msvcr100.dll")
+                 self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -390,12 +394,12 @@ class WindowsManifest(ViewerManifest):
                     self.end_prefix()
 
                 # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-                if self.prefix(src="codecs", dst="codecs"):
-                    self.path("qcncodecs4.dll")
-                    self.path("qjpcodecs4.dll")
-                    self.path("qkrcodecs4.dll")
-                    self.path("qtwcodecs4.dll")
-                    self.end_prefix()
+#                if self.prefix(src="codecs", dst="codecs"):
+#                    self.path("qcncodecs4.dll")
+#                    self.path("qjpcodecs4.dll")
+#                    self.path("qkrcodecs4.dll")
+#                    self.path("qtwcodecs4.dll")
+#                    self.end_prefix()
 
                 self.end_prefix()
 
