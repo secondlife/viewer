@@ -53,7 +53,7 @@
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llfilepicker.h"
 #include "llnotifications.h"
-
+#include "lldir_win32.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
@@ -1766,7 +1766,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			
 			media_source->setTarget(target);
 			
-			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
+			const std::string plugin_dir = gDirUtilp->getLLPluginDir();
+			if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}
