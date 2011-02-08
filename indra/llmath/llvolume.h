@@ -986,7 +986,6 @@ public:
 
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, 
 									std::vector<LLVector3> &normals, 
-									std::vector<S32> &segments, 
 									const LLVector3& view_vec,
 									const LLMatrix4& mat,
 									const LLMatrix3& norm_mat,
