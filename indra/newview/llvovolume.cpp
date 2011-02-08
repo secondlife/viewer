@@ -2931,39 +2931,17 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
 // children, and cost should only be increased for unique textures  -Nyx
-U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
+U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 {
 	// base cost of each prim should be 10 points
 	static const U32 ARC_PRIM_COST = 10;
-
-	// Get access to params we'll need at various points.  
-	// Skip if this is object doesn't have a volume (e.g. is an avatar).
-	const BOOL has_volume = (getVolume() != NULL);
-	LLVolumeParams volume_params;
-	LLPathParams path_params;
-	LLProfileParams profile_params;
-
-	if (has_volume)
-	{
-		volume_params = getVolume()->getParams();
-		path_params = volume_params.getPathParams();
-		profile_params = volume_params.getProfileParams();
-	}
-	
 	// per-prim costs
 	static const U32 ARC_INVISI_COST = 1;
-	static const U32 ARC_PARTICLE_COST = 100;
-	static const U32 ARC_CUT_COST = 1;
-	static const U32 ARC_TEXTURE_COST = 5;
-
-	// per-prim multipliers
-	static const U32 ARC_HOLLOW_MULT = 2;
-	static const U32 ARC_CIRC_PROF_MULT = 2;
-	static const U32 ARC_CIRC_PATH_MULT = 2;
-	static const U32 ARC_GLOW_MULT = 2;
-	static const U32 ARC_BUMP_MULT = 2;
-	static const U32 ARC_FLEXI_MULT = 4;
-	static const U32 ARC_SHINY_MULT = 2;
+	static const U32 ARC_SHINY_COST = 1;
+	static const U32 ARC_GLOW_COST = 1;
+	static const U32 ARC_FLEXI_COST = 8;
+	static const U32 ARC_PARTICLE_COST = 16;
+	static const U32 ARC_BUMP_COST = 4;
 
 	// per-face costs
 	static const U32 ARC_PLANAR_COST = 1;
@@ -2979,68 +2957,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 flexi = 0;
 	U32 animtex = 0;
 	U32 particles = 0;
+	U32 scale = 0;
 	U32 bump = 0;
 	U32 planar = 0;
-	U32 cuts = 0;
-	U32 hollow = 0;
-	U32 circular_profile = 0;
-	U32 circular_path = 0;
-
-	// these multipliers are variable and can be floating point
-	F32 scale = 0.f;
-	F32 twist = 0.f; 
-	F32 revolutions = 0.f;
-
-
-	const LLDrawable* drawablep = mDrawable;
-
-	if (isSculpted())
-	{
-		if (isMesh())
-		{
-			// base cost is dependent on mesh complexity
-			// note that 3 is the highest LOD as of the time of this coding.
-			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
-			if ( size > 0)
-			{
-				if (gMeshRepo.getSkinInfo(volume_params.getSculptID()))
-				{
-					// weighted attachment - 1 point for every 3 bytes
-					shame = (U32)(size / 3.f);
-				}
-				else
-				{
-					// non-weighted attachment - 1 point for every 4 bytes
-					shame = (U32)(size / 4.f);
-				}
-
-				if (shame == 0)
-				{
-					// someone made a really tiny mesh. 
-					shame = 1;
-				}
-			}
-			else
-			{
-				// something went wrong - user should know their content isn't render-free
-				return 0;
-			}
-		}
-		else
-		{
-			const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-			LLUUID sculpt_id = sculpt_params->getSculptTexture();
-			if (textures.find(sculpt_id) == textures.end())
-			{
-				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
-				if (texture)
-				{
-					S32 texture_cost = (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f + 1));
-					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
-				}
-			}
-		}
-	}
 
 	if (isFlexible())
 	{
@@ -3052,67 +2971,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	}
 
 	const LLVector3& sc = getScale();
-	scale += sc.mV[0] + sc.mV[1] + sc.mV[2];
-	if (scale > 4.f)
-	{
-		// scale is a multiplier, cap it at 4.
-		scale = 4.f;
-	}
+	scale += (U32) sc.mV[0] + (U32) sc.mV[1] + (U32) sc.mV[2];
 
-	// add points for cut prims
-	if (path_params.getBegin() != 0.f || path_params.getEnd() != 1.f)
-	{
-		++cuts;
-	}
+	const LLDrawable* drawablep = mDrawable;
 
-	if (profile_params.getBegin() != 0.f || profile_params.getEnd() != 1.f)
+	if (isSculpted())
 	{
-		++cuts;
-	}
-
-	// double cost for hollow prims / sculpties
-	if (volume_params.getHollow() != 0.f)
-	{
-		hollow = 1;
-	}
-
-	F32 twist_mag = path_params.getTwistBegin() - path_params.getTwistEnd();
-	if (twist_mag < 0)
-	{
-		twist_mag *= -1.f;
-	}
-
-	// note magnitude of twist is [-1.f, 1.f]. which translates to [-180, 180] degrees.
-	// scale to degrees / 90 by multiplying by 2.
-	twist = twist_mag * 2.f;
-
-	// multiply by the number of revolutions in the prim. cap at 4.
-	revolutions = path_params.getRevolutions();
-	if (revolutions > 4.f)
-	{
-		revolutions = 4.f;
-	}
-
-	// double cost for circular profiles / sculpties
-	if (profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE ||
-		profile_params.getCurveType() == LL_PCODE_PROFILE_CIRCLE_HALF)
-	{
-		circular_profile = 1;
-	}
-
-	// double cost for circular paths / sculpties
-	if (path_params.getCurveType() == LL_PCODE_PATH_CIRCLE ||
-		path_params.getCurveType() == LL_PCODE_PATH_CIRCLE2)
-	{
-		circular_path = 1;
-	}
-
-	// treat sculpties as hollow prims with circular paths & profiles
-	if (isSculpted() && !isMesh())
-	{
-		hollow = 1;
-		circular_profile = 1;
-		circular_path = 1;
+		const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID sculpt_id = sculpt_params->getSculptTexture();
+		textures.insert(sculpt_id);
 	}
 
 	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
@@ -3123,11 +2990,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 		if (img)
 		{
-			if (textures.find(img->getID()) == textures.end())
-			{
-				S32 texture_cost = (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f + 1));
-				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
-			}
+			textures.insert(img->getID());
 		}
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
@@ -3136,24 +2999,21 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 		else if (img && img->getPrimaryFormat() == GL_ALPHA)
 		{
-			invisi++;
+			invisi = 1;
 		}
 
 		if (te)
 		{
 			if (te->getBumpmap())
 			{
-				// bump is a multiplier, don't add per-face
 				bump = 1;
 			}
 			if (te->getShiny())
 			{
-				// shiny is a multiplier, don't add per-face
 				shiny = 1;
 			}
 			if (te->getGlow() > 0.f)
 			{
-				// glow is a multiplier, don't add per-face
 				glow = 1;
 			}
 			if (face->mTextureMatrix != NULL)
@@ -3167,70 +3027,37 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 	}
 
-	// shame currently has the "base" cost of 10 for normal prims, variable for mesh
 
-	// add modifier settings
-	shame += cuts * ARC_CUT_COST;
-	shame += planar * ARC_PLANAR_COST;
-	shame += animtex * ARC_ANIM_TEX_COST;
-	shame += alpha * ARC_ALPHA_COST;
 	shame += invisi * ARC_INVISI_COST;
-
-	// multiply shame by multipliers
-	if (hollow)
-	{
-		shame *= hollow * ARC_HOLLOW_MULT;
-	}
-
-	if (circular_profile)
-	{
-		shame *= circular_profile * ARC_CIRC_PROF_MULT;
-	}
-
-	if (circular_path)
-	{
-		shame *= circular_path * ARC_CIRC_PATH_MULT;
-	}
-
-	if (glow)
-	{
-		shame *= glow * ARC_GLOW_MULT;
-	}
-
-	if (bump)
-	{
-		shame *= bump * ARC_BUMP_MULT;
-	}
-
-	if (flexi)
-	{
-		shame *= flexi * ARC_FLEXI_MULT;
-	}
-
-	if (shiny)
-	{
-		shame *= shiny * ARC_SHINY_MULT;
-	}
-
-	if (twist > 1.f)
-	{
-		shame = (U32)(shame * twist);
-	}
-
-	if (scale > 1.f)
-	{
-		shame = (U32)(shame *scale);
-	}
-
-	if (revolutions > 1.f)
-	{
-		shame = (U32)(shame * revolutions);
-	}
-
-	// add additional costs
+	shame += shiny * ARC_SHINY_COST;
+	shame += glow * ARC_GLOW_COST;
+	shame += alpha * ARC_ALPHA_COST;
+	shame += flexi * ARC_FLEXI_COST;
+	shame += animtex * ARC_ANIM_TEX_COST;
 	shame += particles * ARC_PARTICLE_COST;
+	shame += bump * ARC_BUMP_COST;
+	shame += planar * ARC_PLANAR_COST;
+	shame += scale;
+
+	LLViewerObject::const_child_list_t& child_list = getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); 
+		 ++iter)
+	{
+		const LLViewerObject* child_objectp = *iter;
+		const LLDrawable* child_drawablep = child_objectp->mDrawable;
+		if (child_drawablep)
+		{
+			const LLVOVolume* child_volumep = child_drawablep->getVOVolume();
+			if (child_volumep)
+			{
+				shame += child_volumep->getRenderCost(textures);
+			}
+		}
+	}
 
 	return shame;
+
 }
 
 F32 LLVOVolume::getStreamingCost()
@@ -3247,16 +3074,13 @@ F32 LLVOVolume::getStreamingCost()
 	return 0.f;
 }
 
-U32 LLVOVolume::getTriangleCount()
+U32 LLVOVolume::getTriangleCount() const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
 	if (volume)
 	{
-		for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
-		{
-			count += volume->getVolumeFace(i).mNumIndices/3;
-		}
+		count = volume->getNumTriangles();
 	}
 
 	return count;
