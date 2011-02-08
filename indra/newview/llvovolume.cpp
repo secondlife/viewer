@@ -2943,7 +2943,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 num_triangles = 0;
 
 	// per-prim costs
-	static const U32 ARC_PARTICLE_COST = 100;
+	static const U32 ARC_PARTICLE_COST = 1;
+	static const U32 ARC_PARTICLE_MAX = 2048;
 	static const U32 ARC_TEXTURE_COST = 5;
 
 	// per-prim multipliers
@@ -3173,7 +3174,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 
 	// add additional costs
-	shame += particles * ARC_PARTICLE_COST;
+	if (particles)
+	{
+		const LLPartSysData *part_sys_data = &(mPartSourcep->mPartSysData);
+		const LLPartData *part_data = &(part_sys_data->mPartData);
+		U32 num_particles = (U32)(part_sys_data->mBurstPartCount * llceil( part_data->mMaxAge / part_sys_data->mBurstRate));
+		num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
+		F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
+		shame += num_particles * part_size * ARC_PARTICLE_COST;
+	}
 
 	return (U32)shame;
 }
