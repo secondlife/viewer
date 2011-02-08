@@ -451,8 +451,7 @@ void LLFloaterTools::refresh()
 	if (sShowObjectCost)
 	{
 		std::string prim_cost_string;
-		S32 cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
-		LLResMgr::getInstance()->getIntegerString(prim_cost_string, cost);
+  		LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
 		getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
 	}
 
@@ -1009,6 +1008,35 @@ void LLFloaterTools::onClickGridOptions()
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
 }
+
+S32 LLFloaterTools::calcRenderCost()
+{
+       S32 cost = 0;
+       std::set<LLUUID> textures;
+
+       for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
+                 selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
+                 ++selection_iter)
+       {
+               LLSelectNode *select_node = *selection_iter;
+               if (select_node)
+               {
+                       LLViewerObject *vobj = select_node->getObject();
+                       if (vobj->getVolume())
+                       {
+                               LLVOVolume* volume = (LLVOVolume*) vobj;
+
+                               cost += volume->getRenderCost(textures);
+							   cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
+							   textures.clear();
+                       }
+               }
+       }
+
+
+       return cost;
+}
+
 
 // static
 void LLFloaterTools::setEditTool(void* tool_pointer)
