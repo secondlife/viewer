@@ -1888,34 +1888,34 @@
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		Vers l&apos;avant
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		Gauche
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		Droite
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Arrière
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Nord
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Sud
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		Ouest
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Est
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		Haut
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		Bas
 	</string>
 	<string name="Any Category">
