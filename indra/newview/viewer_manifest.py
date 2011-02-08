@@ -302,6 +302,10 @@ class WindowsManifest(ViewerManifest):
             self.path("zlib1.dll")
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
+            
+            # Security
+            self.path("ssleay32.dll")
+            self.path("libeay32.dll")
 
             # For use in crash reporting (generates minidumps)
             if self.args['configuration'].lower() != 'debug':
@@ -394,12 +398,12 @@ class WindowsManifest(ViewerManifest):
                     self.end_prefix()
 
                 # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-#                if self.prefix(src="codecs", dst="codecs"):
-#                    self.path("qcncodecs4.dll")
-#                    self.path("qjpcodecs4.dll")
-#                    self.path("qkrcodecs4.dll")
-#                    self.path("qtwcodecs4.dll")
-#                    self.end_prefix()
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecs4.dll")
+                    self.path("qjpcodecs4.dll")
+                    self.path("qkrcodecs4.dll")
+                    self.path("qtwcodecs4.dll")
+                    self.end_prefix()
 
                 self.end_prefix()
 

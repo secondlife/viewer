@@ -37,6 +37,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        ssleay32.dll
+        libeay32.dll
         )
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -46,6 +48,8 @@ if(WINDOWS)
         libaprutil-1.dll
         libapriconv-1.dll
         dbghelp.dll
+        ssleay32.dll
+        libeay32.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
