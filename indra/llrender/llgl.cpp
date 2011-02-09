@@ -2071,11 +2071,14 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P)
+LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
 {
+
+	F32 depth = 0.99999f - 0.0001f * layer;
+
 	for (U32 i = 0; i < 4; i++)
 	{
-		P.element(2, i) = P.element(3, i) * 0.99999f;
+		P.element(2, i) = P.element(3, i) * depth;
 	}
 
 	glMatrixMode(GL_PROJECTION);
