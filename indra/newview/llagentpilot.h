@@ -56,6 +56,11 @@ public:
 	void startPlayback();
 	void stopPlayback();
 
+
+	bool isRecording() { return mRecording; }
+	bool isPlaying() { return mPlaying; }
+	bool getOverrideCamera() { return mOverrideCamera; }
+	
 	void updateTarget();
 
 	static void startRecord(void *);
@@ -78,6 +83,8 @@ private:
 	BOOL	mPlaying;
 	S32		mCurrentAction;
 
+	BOOL	mOverrideCamera;
+
 	class Action
 	{
 	public:
@@ -85,10 +92,17 @@ private:
 		EActionType		mType;
 		LLVector3d		mTarget;
 		F64				mTime;
+		F32				mCameraView;
+		LLVector3		mCameraOrigin;
+		LLVector3		mCameraXAxis;
+		LLVector3		mCameraYAxis;
+		LLVector3		mCameraZAxis;
 	};
 
 	LLDynamicArray<Action>	mActions;
 	LLTimer					mTimer;
+
+	void moveCamera(Action& action);
 };
 
 extern LLAgentPilot gAgentPilot;

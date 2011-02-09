@@ -4221,8 +4221,15 @@ void LLAppViewer::idle()
 	}
 
 	if (LLViewerJoystick::getInstance()->getOverrideCamera())
-	{
-		LLViewerJoystick::getInstance()->moveFlycam();
+	{ 
+		if (gAgentPilot.isPlaying() && gAgentPilot.getOverrideCamera())
+		{
+			// camera positioning handled inside gAgentPilot.
+		}
+		else
+		{
+			LLViewerJoystick::getInstance()->moveFlycam();
+		}
 	}
 	else
 	{
