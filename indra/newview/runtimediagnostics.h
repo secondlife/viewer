@@ -1,7 +1,4 @@
- once
-
-
-
+#pragma once
 #include <atlbase.h>
 
 
