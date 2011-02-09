@@ -66,6 +66,7 @@ Aleric Inglewood
 	SNOW-626
 	SNOW-756
 	SNOW-764
+	SNOW-800
 	VWR-10001
 	VWR-10579
 	VWR-10759
@@ -91,6 +92,7 @@ Aleric Inglewood
 	SNOW-744
 	SNOW-766
 	STORM-163
+	STORM-955
 	STORM-960
 Ales Beaumont
 	VWR-9352
