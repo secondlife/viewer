@@ -1670,7 +1670,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 
 					if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
 					{
-						LLGLSquashToFarClip squash(glh_get_current_projection());
+						LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
 						if (camera->getOrigin().isExactlyZero())
 						{ //origin is invalid, draw entire box
 							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
