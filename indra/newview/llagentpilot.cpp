@@ -60,8 +60,6 @@ LLAgentPilot::~LLAgentPilot()
 {
 }
 
-#define CAM_FIELDS 0
-
 void LLAgentPilot::load()
 {
 	std::string txt_filename = gSavedSettings.getString("StatsPilotFile");
@@ -101,6 +99,7 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 		llinfos << "Opening pilot file " << filename << llendl;
 	}
 
+	mActions.reset();
 	S32 num_actions;
 
 	file >> num_actions;
@@ -111,24 +110,6 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 		Action new_action;
 		file >> new_action.mTime >> action_type;
 		file >> new_action.mTarget.mdV[VX] >> new_action.mTarget.mdV[VY] >> new_action.mTarget.mdV[VZ];
-#if CAM_FIELDS
-		file >> new_action.mCameraView;
-		file >> new_action.mCameraOrigin.mV[VX]
-			 >> new_action.mCameraOrigin.mV[VY]
-			 >> new_action.mCameraOrigin.mV[VZ];
-
-		file >> new_action.mCameraXAxis.mV[VX]
-			 >> new_action.mCameraXAxis.mV[VY]
-			 >> new_action.mCameraXAxis.mV[VZ];
-
-		file >> new_action.mCameraYAxis.mV[VX]
-			 >> new_action.mCameraYAxis.mV[VY]
-			 >> new_action.mCameraYAxis.mV[VZ];
-
-		file >> new_action.mCameraZAxis.mV[VX]
-			 >> new_action.mCameraZAxis.mV[VY]
-			 >> new_action.mCameraZAxis.mV[VZ];
-#endif
 		new_action.mType = (EActionType)action_type;
 		mActions.put(new_action);
 	}
@@ -158,6 +139,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
 		llinfos << "Opening pilot file " << filename << llendl;
 	}
 
+	mActions.reset();
 	LLSD record;
 	while (!file.eof() && LLSDSerialize::fromXML(record, file))
 	{
@@ -201,25 +183,6 @@ void LLAgentPilot::saveTxt(const std::string& filename)
 	{
 		file << mActions[i].mTime << "\t" << mActions[i].mType << "\t";
 		file << std::setprecision(32) << mActions[i].mTarget.mdV[VX] << "\t" << mActions[i].mTarget.mdV[VY] << "\t" << mActions[i].mTarget.mdV[VZ];
-#if CAM_FIELDS
-		file << "\t" << mActions[i].mCameraView;
-
-		file << "\t" << mActions[i].mCameraOrigin[VX]
-			 << "\t" << mActions[i].mCameraOrigin[VY]
-			 << "\t" << mActions[i].mCameraOrigin[VZ];
-
-		file << "\t" << mActions[i].mCameraXAxis[VX]
-			 << "\t" << mActions[i].mCameraXAxis[VY]
-			 << "\t" << mActions[i].mCameraXAxis[VZ];
-
-		file << "\t" << mActions[i].mCameraYAxis[VX]
-			 << "\t" << mActions[i].mCameraYAxis[VY]
-			 << "\t" << mActions[i].mCameraYAxis[VZ];
-
-		file << "\t" << mActions[i].mCameraZAxis[VX]
-			 << "\t" << mActions[i].mCameraZAxis[VY]
-			 << "\t" << mActions[i].mCameraZAxis[VZ];
-#endif
 		file << '\n';
 	}
 
