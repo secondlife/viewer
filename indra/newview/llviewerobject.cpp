@@ -3009,6 +3009,8 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 		{
 			if (!mOnMap)
 			{
+				llassert_always(LLWorld::getInstance()->getRegionFromHandle(getRegion()->getHandle()));
+
 				gObjectList.addToMap(this);
 				mOnMap = TRUE;
 			}
