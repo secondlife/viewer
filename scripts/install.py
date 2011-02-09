@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file install.py
 @author Phoenix

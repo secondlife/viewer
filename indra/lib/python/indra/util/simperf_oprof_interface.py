@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file simperf_oprof_interface.py
 @brief Manage OProfile data collection on a host

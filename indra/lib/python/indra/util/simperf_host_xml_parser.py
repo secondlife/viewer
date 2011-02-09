@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file simperf_host_xml_parser.py
 @brief Digest collector's XML dump and convert to simple dict/list structure

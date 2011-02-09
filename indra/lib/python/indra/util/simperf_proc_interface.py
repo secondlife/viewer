@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file simperf_proc_interface.py
 @brief Utility to extract log messages from *.<pid>.llsd files containing performance statistics.
