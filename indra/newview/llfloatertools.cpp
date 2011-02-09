@@ -431,13 +431,6 @@ void LLFloaterTools::refresh()
 			getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
 		}
 		
-		getChildView("linked_set_count")->setVisible(false);
-		getChildView("linked_set_cost")->setVisible(false);
-		getChildView("object_count")->setVisible(false);
-		getChildView("object_cost")->setVisible(false);
-		getChildView("obj_count")->setVisible(true);
-		getChildView("prim_count")->setVisible(true);
-
 		// disable the object and prim counts if nothing selected
 		bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
 		getChildView("obj_count")->setEnabled(have_selection);
@@ -495,13 +488,6 @@ void LLFloaterTools::refresh()
 		childSetEnabled("linked_set_cost", have_selection);
 		childSetEnabled("object_cost", have_selection);
 		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
-
-		getChildView("linked_set_count")->setVisible(true);
-		getChildView("linked_set_cost")->setVisible(true);
-		getChildView("object_count")->setVisible(true);
-		getChildView("object_cost")->setVisible(true);
-		getChildView("obj_count")->setVisible(false);
-		getChildView("prim_count")->setVisible(false);
 	}
 
 
@@ -787,20 +773,16 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		getChildView("Strength:")->setVisible( land_visible);
 	}
 
-	if (gAgent.getRegion()->getCapability("GetMesh").empty())
-	{
-		getChildView("obj_count")->setVisible( !land_visible);
-		getChildView("prim_count")->setVisible( !land_visible);
-		getChildView("RenderingCost")->setVisible( !land_visible && sShowObjectCost);
-	}
-	else
-	{
-		getChildView("linked_set_count")->setVisible( !land_visible);
-		getChildView("linked_set_cost")->setVisible( !land_visible);
-		getChildView("object_count")->setVisible( !land_visible);
-		getChildView("object_cost")->setVisible( !land_visible);
-		getChildView("RenderingCost")->setVisible( !land_visible && sShowObjectCost);
-	}
+	bool show_mesh_cost = !gAgent.getRegion()->getCapability("GetMesh").empty() && gSavedSettings.getBOOL("MeshEnabled");
+
+	getChildView("obj_count")->setVisible( !land_visible && !show_mesh_cost);
+	getChildView("prim_count")->setVisible( !land_visible && !show_mesh_cost);
+	getChildView("linked_set_count")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("linked_set_cost")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("object_count")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("object_cost")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("RenderingCost")->setVisible( !land_visible && sShowObjectCost);
+	
 	mTab->setVisible(!land_visible);
 	mPanelLandInfo->setVisible(land_visible);
 }
