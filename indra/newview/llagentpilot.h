@@ -46,8 +46,12 @@ public:
 	LLAgentPilot();
 	virtual ~LLAgentPilot();
 
-	void load(const std::string& filename);
-	void save(const std::string& filename);
+	void load();
+	void loadTxt(const std::string& filename);
+	void loadXML(const std::string& filename);
+	void save();
+	void saveTxt(const std::string& filename);
+	void saveXML(const std::string& filename);
 
 	void startRecord();
 	void stopRecord();

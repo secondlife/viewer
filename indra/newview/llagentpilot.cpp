@@ -36,6 +36,8 @@
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llviewerjoystick.h"
+#include "llsdserialize.h"
+#include "llsdutil_math.h"
 
 LLAgentPilot gAgentPilot;
 
@@ -58,9 +60,28 @@ LLAgentPilot::~LLAgentPilot()
 {
 }
 
-#define CAM_FIELDS 1
+#define CAM_FIELDS 0
 
-void LLAgentPilot::load(const std::string& filename)
+void LLAgentPilot::load()
+{
+	std::string txt_filename = gSavedSettings.getString("StatsPilotFile");
+	std::string xml_filename = gSavedSettings.getString("StatsPilotXMLFile");
+	if (LLFile::isfile(xml_filename))
+	{
+		loadXML(xml_filename);
+	}
+	else if (LLFile::isfile(txt_filename))
+	{
+		loadTxt(txt_filename);
+	}
+	else
+	{
+		lldebugs << "no autopilot file found" << llendl;
+		return;
+	}
+}
+
+void LLAgentPilot::loadTxt(const std::string& filename)
 {
 	if(filename.empty())
 	{
@@ -112,12 +133,58 @@ void LLAgentPilot::load(const std::string& filename)
 		mActions.put(new_action);
 	}
 
-	mOverrideCamera = true;
+	mOverrideCamera = false;
 	
 	file.close();
 }
 
-void LLAgentPilot::save(const std::string& filename)
+void LLAgentPilot::loadXML(const std::string& filename)
+{
+	if(filename.empty())
+	{
+		return;
+	}
+	
+	llifstream file(filename);
+
+	if (!file)
+	{
+		lldebugs << "Couldn't open " << filename
+			<< ", aborting agentpilot load!" << llendl;
+		return;
+	}
+	else
+	{
+		llinfos << "Opening pilot file " << filename << llendl;
+	}
+
+	LLSD record;
+	while (!file.eof() && LLSDSerialize::fromXML(record, file))
+	{
+		Action action;
+		action.mTime = record["time"].asReal();
+		action.mType = (EActionType)record["type"].asInteger();
+		action.mCameraView = record["camera_view"].asReal();
+		action.mTarget = ll_vector3d_from_sd(record["target"]);
+		action.mCameraOrigin = ll_vector3_from_sd(record["camera_origin"]);
+		action.mCameraXAxis = ll_vector3_from_sd(record["camera_xaxis"]);
+		action.mCameraYAxis = ll_vector3_from_sd(record["camera_yaxis"]);
+		action.mCameraZAxis = ll_vector3_from_sd(record["camera_zaxis"]);
+		mActions.put(action);
+	}
+	mOverrideCamera = true;
+	file.close();
+}
+
+void LLAgentPilot::save()
+{
+	std::string txt_filename = gSavedSettings.getString("StatsPilotFile");
+	std::string xml_filename = gSavedSettings.getString("StatsPilotXMLFile");
+	saveTxt(txt_filename);
+	saveXML(xml_filename);
+}
+
+void LLAgentPilot::saveTxt(const std::string& filename)
 {
 	llofstream file;
 	file.open(filename);
@@ -159,6 +226,34 @@ void LLAgentPilot::save(const std::string& filename)
 	file.close();
 }
 
+void LLAgentPilot::saveXML(const std::string& filename)
+{
+	llofstream file;
+	file.open(filename);
+
+	if (!file)
+	{
+		llinfos << "Couldn't open " << filename << ", aborting agentpilot save!" << llendl;
+	}
+
+	S32 i;
+	for (i = 0; i < mActions.count(); i++)
+	{
+		Action& action = mActions[i];
+		LLSD record;
+		record["time"] = (LLSD::Real)action.mTime;
+		record["type"] = (LLSD::Integer)action.mType;
+		record["camera_view"] = (LLSD::Real)action.mCameraView;
+		record["target"] = ll_sd_from_vector3d(action.mTarget);
+		record["camera_origin"] = ll_sd_from_vector3(action.mCameraOrigin);
+		record["camera_xaxis"] = ll_sd_from_vector3(action.mCameraXAxis);
+		record["camera_yaxis"] = ll_sd_from_vector3(action.mCameraYAxis);
+		record["camera_zaxis"] = ll_sd_from_vector3(action.mCameraZAxis);
+		LLSDSerialize::toXML(record, file);
+	}
+	file.close();
+}
+
 void LLAgentPilot::startRecord()
 {
 	mActions.reset();
@@ -170,7 +265,7 @@ void LLAgentPilot::startRecord()
 void LLAgentPilot::stopRecord()
 {
 	gAgentPilot.addAction(STRAIGHT);
-	gAgentPilot.save(gSavedSettings.getString("StatsPilotFile"));
+	gAgentPilot.save();
 	mRecording = FALSE;
 }
 
@@ -202,7 +297,8 @@ void LLAgentPilot::startPlayback()
 		if (mActions.count())
 		{
 			llinfos << "Starting playback, moving to waypoint 0" << llendl;
-			if (!LLViewerJoystick::getInstance()->getOverrideCamera())	
+			if (getOverrideCamera() &&
+				!LLViewerJoystick::getInstance()->getOverrideCamera())	
 			{
 				LLViewerJoystick::getInstance()->toggleFlycam();
 			}
@@ -236,6 +332,9 @@ void LLAgentPilot::stopPlayback()
 
 void LLAgentPilot::moveCamera(Action& action)
 {
+	if (!getOverrideCamera())
+		return;
+	
 	LLViewerCamera::getInstance()->setView(action.mCameraView);
 	LLViewerCamera::getInstance()->setOrigin(action.mCameraOrigin);
 	LLViewerCamera::getInstance()->mXAxis = LLVector3(action.mCameraXAxis);

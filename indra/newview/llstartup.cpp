@@ -424,7 +424,7 @@ bool idle_startup()
 		//
 
 		// Load autopilot and stats stuff
-		gAgentPilot.load(gSavedSettings.getString("StatsPilotFile"));
+		gAgentPilot.load();
 
 		//gErrorStream.setTime(gSavedSettings.getBOOL("LogTimestamps"));
 
