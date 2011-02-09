@@ -1448,7 +1448,7 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 	LLViewerObject *old_instance = findObject(id);
 	if (old_instance)
 	{
-		cleanupReferences(old_instance);
+		//cleanupReferences(old_instance);
 		old_instance->markDead();
 		
 		return createObject(pcode, regionp, id, old_instance->getLocalID(), LLHost());

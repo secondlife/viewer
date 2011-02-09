@@ -3538,8 +3538,8 @@ void LLViewerObject::setPositionParent(const LLVector3 &pos_parent, BOOL damped)
 	// Set position relative to parent, if no parent, relative to region
 	if (!isRoot())
 	{
-		LLViewerObject::setPosition(pos_parent);
-		updateDrawable(damped);
+		LLViewerObject::setPosition(pos_parent, damped);
+		//updateDrawable(damped);
 	}
 	else
 	{
@@ -3580,6 +3580,7 @@ void LLViewerObject::setPositionEdit(const LLVector3 &pos_edit, BOOL damped)
 		LLVector3 position_offset = getPosition() * getParent()->getRotation();
 
 		((LLViewerObject *)getParent())->setPositionEdit(pos_edit - position_offset);
+		updateDrawable(damped);
 	}
 	else if (isJointChild())
 	{
@@ -3588,15 +3589,14 @@ void LLViewerObject::setPositionEdit(const LLVector3 &pos_edit, BOOL damped)
 		LLQuaternion inv_parent_rot = parent->getRotation();
 		inv_parent_rot.transQuat();
 		LLVector3 pos_parent = (pos_edit - parent->getPositionRegion()) * inv_parent_rot;
-		LLViewerObject::setPosition(pos_parent);
+		LLViewerObject::setPosition(pos_parent, damped);
 	}
 	else
 	{
-		LLViewerObject::setPosition(pos_edit);
+		LLViewerObject::setPosition(pos_edit, damped);
 		mPositionRegion = pos_edit;
 		mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
-	}
-	updateDrawable(damped);
+	}	
 }
 
 
