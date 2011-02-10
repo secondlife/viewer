@@ -425,6 +425,11 @@ void LLCondition::wait()
 	if (!isLocked())
 	{ //mAPRMutexp MUST be locked before calling apr_thread_cond_wait
 		apr_thread_mutex_lock(mAPRMutexp);
+#if MUTEX_DEBUG
+		// avoid asserts on destruction in non-release builds
+		U32 id = LLThread::currentID();
+		mIsLocked[id] = TRUE;
+#endif
 	}
 	apr_thread_cond_wait(mAPRCondp, mAPRMutexp);
 }
