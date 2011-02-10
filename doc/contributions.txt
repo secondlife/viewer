@@ -66,6 +66,7 @@ Aleric Inglewood
 	SNOW-626
 	SNOW-756
 	SNOW-764
+	SNOW-800
 	VWR-10001
 	VWR-10579
 	VWR-10759
@@ -91,11 +92,14 @@ Aleric Inglewood
 	SNOW-744
 	SNOW-766
 	STORM-163
+	STORM-955
+	STORM-960
 Ales Beaumont
 	VWR-9352
 	SNOW-240
 Alexandrea Fride
     STORM-255
+	STORM-960
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -392,6 +396,10 @@ Jonathan Yap
 	STORM-869
 	VWR-17801
 	VWR-24347
+	STORM-844
+	STORM-643
+	STORM-960
+	STORM-953
 Kage Pixel
 	VWR-11
 Ken March
@@ -619,6 +627,7 @@ Robin Cornelius
 	SNOW-599
 	SNOW-747
 	STORM-422
+	STORM-960
 	VWR-2488
 	VWR-9557
 	VWR-10579
@@ -667,6 +676,8 @@ Sergen Davies
 	CT-321
 Shawn Kaufmat
 	SNOW-240
+Siana Gearz
+	STORM-960
 SignpostMarv Martin
 	VWR-153
 	VWR-154

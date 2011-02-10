@@ -27,7 +27,7 @@
 #ifndef LL_METRICPERFORMANCETESTER_H 
 #define LL_METRICPERFORMANCETESTER_H 
 
-const std::string DEFAULT_METRIC_NAME("metric");
+char const* const DEFAULT_METRIC_NAME = "metric";
 
 /**
  * @class LLMetricPerformanceTesterBasic

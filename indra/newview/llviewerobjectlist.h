@@ -103,6 +103,7 @@ public:
 
 	void shiftObjects(const LLVector3 &offset);
 
+	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
 	void renderObjectsForMap(LLNetMap &netmap);
 	void renderObjectBounds(const LLVector3 &center);
 
