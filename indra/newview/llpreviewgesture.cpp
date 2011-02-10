@@ -1597,7 +1597,7 @@ std::string LLPreviewGesture::getLabel(std::vector<std::string> labels)
 	
 	if(v_labels[0]=="Chat")
 	{
-		result=LLTrans::getString("Chat");
+		result=LLTrans::getString("Chat Message");
 	}
     else if(v_labels[0]=="Sound")	
 	{

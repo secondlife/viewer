@@ -320,7 +320,7 @@ private:
 class LLGLSquashToFarClip
 {
 public:
-	LLGLSquashToFarClip(glh::matrix4f projection);
+	LLGLSquashToFarClip(glh::matrix4f projection, U32 layer = 0);
 	~LLGLSquashToFarClip();
 };
 

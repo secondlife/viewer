@@ -1949,7 +1949,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 
 	<!-- Gestures labels -->
     <!-- use value="" because they have preceding spaces -->
-    <string name="Chat"          value=" Chat : " />
+    <string name="Chat Message"  value=" Chat : " />
     <string name="Sound"         value=" Sound : " />
 	<string name="Wait"          value=" --- Wait : " />
 	<string name="AnimFlagStop"  value=" Stop Animation :    " />
@@ -2323,9 +2323,6 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-alt">Alt+</string>
 	<string name="accel-win-shift">Shift+</string>
 
-	<string name="Esc">Esc</string>
-	<string name="Home">Home</string>
-
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>
 	<string name="Receiving">Receiving</string>
@@ -2337,16 +2334,16 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">PDT</string>
 
 	<!-- Directions, HUD -->
-	<string name="Forward">Forward</string>
-	<string name="Left">Left</string>
-	<string name="Right">Right</string>
-	<string name="Back">Back</string>
-	<string name="North">North</string>
-	<string name="South">South</string>
-	<string name="West">West</string>
-	<string name="East">East</string>
-	<string name="Up">Up</string>
-	<string name="Down">Down</string>
+	<string name="Direction_Forward">Forward</string>
+	<string name="Direction_Left">Left</string>
+	<string name="Direction_Right">Right</string>
+	<string name="Direction_Back">Back</string>
+	<string name="Direction_North">North</string>
+	<string name="Direction_South">South</string>
+	<string name="Direction_West">West</string>
+	<string name="Direction_East">East</string>
+	<string name="Direction_Up">Up</string>
+	<string name="Direction_Down">Down</string>
 
     <!-- Search Category Strings -->
 	<string name="Any Category">Any Category</string>
@@ -3314,5 +3311,120 @@ Abuse Report</string>
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+
+  <!-- Key names begin -->
+  <string name="Esc">Esc</string>
+  <string name="Space">Space</string>
+  <string name="Enter">Enter</string>
+  <string name="Tab">Tab</string>
+  <string name="Ins">Ins</string>
+  <string name="Del">Del</string>
+  <string name="Backsp">Backsp</string>
+  <string name="Shift">Shift</string>
+  <string name="Ctrl">Ctrl</string>
+  <string name="Alt">Alt</string>
+  <string name="CapsLock">CapsLock</string>
+  <string name="Left">Left</string>
+  <string name="Right">Right</string>
+  <string name="Up">Up</string>
+  <string name="Down">Down</string>
+  <string name="Home">Home</string>
+  <string name="End">End</string>
+  <string name="PgUp">PgUp</string>
+  <string name="PgDn">PgDn</string>
+
+  <string name="F1">F1</string>
+  <string name="F2">F2</string>
+  <string name="F3">F3</string>
+  <string name="F4">F4</string>
+  <string name="F5">F5</string>
+  <string name="F6">F6</string>
+  <string name="F7">F7</string>
+  <string name="F8">F8</string>
+  <string name="F9">F9</string>
+  <string name="F10">F10</string>
+  <string name="F11">F11</string>
+  <string name="F12">F12</string>
+
+  <string name="Add">Add</string>
+  <string name="Subtract">Subtract</string>
+  <string name="Multiply">Multiply</string>
+  <string name="Divide">Divide</string>
+  <string name="PAD_DIVIDE">PAD_DIVIDE</string>
+  <string name="PAD_LEFT">PAD_LEFT</string>
+  <string name="PAD_RIGHT">PAD_RIGHT</string>
+  <string name="PAD_DOWN">PAD_DOWN</string>
+  <string name="PAD_UP">PAD_UP</string>
+  <string name="PAD_HOME">PAD_HOME</string>
+  <string name="PAD_END">PAD_END</string>
+  <string name="PAD_PGUP">PAD_PGUP</string>
+  <string name="PAD_PGDN">PAD_PGDN</string>
+  <string name="PAD_CENTER">PAD_CENTER</string>
+  <string name="PAD_INS">PAD_INS</string>
+  <string name="PAD_DEL">PAD_DEL</string>
+  <string name="PAD_Enter">PAD_Enter</string>
+  <string name="PAD_BUTTON0">PAD_BUTTON0</string>
+  <string name="PAD_BUTTON1">PAD_BUTTON1</string>
+  <string name="PAD_BUTTON2">PAD_BUTTON2</string>
+  <string name="PAD_BUTTON3">PAD_BUTTON3</string>
+  <string name="PAD_BUTTON4">PAD_BUTTON4</string>
+  <string name="PAD_BUTTON5">PAD_BUTTON5</string>
+  <string name="PAD_BUTTON6">PAD_BUTTON6</string>
+  <string name="PAD_BUTTON7">PAD_BUTTON7</string>
+  <string name="PAD_BUTTON8">PAD_BUTTON8</string>
+  <string name="PAD_BUTTON9">PAD_BUTTON9</string>
+  <string name="PAD_BUTTON10">PAD_BUTTON10</string>
+  <string name="PAD_BUTTON11">PAD_BUTTON11</string>
+  <string name="PAD_BUTTON12">PAD_BUTTON12</string>
+  <string name="PAD_BUTTON13">PAD_BUTTON13</string>
+  <string name="PAD_BUTTON14">PAD_BUTTON14</string>
+  <string name="PAD_BUTTON15">PAD_BUTTON15</string>
+
+  <string name="-">-</string>
+  <string name="=">=</string>
+  <string name="`">`</string>
+  <string name=";">;</string>
+  <string name="[">[</string>
+  <string name="]">]</string>
+  <string name="\">\</string>
+
+  <string name="0">0</string>
+  <string name="1">1</string>
+  <string name="2">2</string>
+  <string name="3">3</string>
+  <string name="4">4</string>
+  <string name="5">5</string>
+  <string name="6">6</string>
+  <string name="7">7</string>
+  <string name="8">8</string>
+  <string name="9">9</string>
+
+  <string name="A">A</string>
+  <string name="B">B</string>
+  <string name="C">C</string>
+  <string name="D">D</string>
+  <string name="E">E</string>
+  <string name="F">F</string>
+  <string name="G">G</string>
+  <string name="H">H</string>
+  <string name="I">I</string>
+  <string name="J">J</string>
+  <string name="K">K</string>
+  <string name="L">L</string>
+  <string name="M">M</string>
+  <string name="N">N</string>
+  <string name="O">O</string>
+  <string name="P">P</string>
+  <string name="Q">Q</string>
+  <string name="R">R</string>
+  <string name="S">S</string>
+  <string name="T">T</string>
+  <string name="U">U</string>
+  <string name="V">V</string>
+  <string name="W">W</string>
+  <string name="X">X</string>
+  <string name="Y">Y</string>
+  <string name="Z">Z</string>
+  <!-- Key names end -->
 
   </strings>

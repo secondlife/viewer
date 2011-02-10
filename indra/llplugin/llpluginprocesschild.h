@@ -92,6 +92,7 @@ private:
 	LLSocket::ptr_t mSocket;
 	
 	std::string mPluginFile;
+	std::string mPluginDir;
 
 	LLPluginInstance *mInstance;
 

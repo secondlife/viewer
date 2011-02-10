@@ -1,4 +1,4 @@
-version 25
+version 26
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -274,6 +274,9 @@ RenderObjectBump			0	0
 //
 list OpenGLPre15
 RenderVBOEnable				1	0
+
+list OpenGLPre30
+RenderDeferred				0	0
 
 list Intel
 RenderAnisotropic			1	0
@@ -561,3 +564,4 @@ list NVIDIA_GeForce_Go_7800
 RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_Go_7900
 RenderShaderLightingMaxLevel	1	2
+

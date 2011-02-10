@@ -1843,34 +1843,34 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		Fremad
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		Venstre
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		Højre
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Bagud
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Nord
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Syd
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		Vest
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Øst
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		Op
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		Ned
 	</string>
 	<string name="Any Category">

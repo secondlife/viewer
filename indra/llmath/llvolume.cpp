@@ -4179,7 +4179,6 @@ S32 LLVolume::getNumTriangles() const
 //-----------------------------------------------------------------------------
 void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  std::vector<LLVector3> &normals,
-										  std::vector<S32> &segments,
 										  const LLVector3& obj_cam_vec_in,
 										  const LLMatrix4& mat_in,
 										  const LLMatrix3& norm_mat_in,
@@ -4198,7 +4197,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 	vertices.clear();
 	normals.clear();
-	segments.clear();
 
 	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 	{
@@ -4399,8 +4397,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 						norm_mat.rotate(n[v2], t);
 						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
-
-						segments.push_back(vertices.size());
 					}
 				}		
 			}

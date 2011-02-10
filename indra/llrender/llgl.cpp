@@ -671,7 +671,15 @@ void LLGLManager::initExtensions()
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
 	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
+#ifdef GL_ARB_framebuffer_object
 	mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
+#else
+	mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_framebuffer_blit", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
+#endif
+	
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
 	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
@@ -2063,11 +2071,14 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P)
+LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
 {
+
+	F32 depth = 0.99999f - 0.0001f * layer;
+
 	for (U32 i = 0; i < 4; i++)
 	{
-		P.element(2, i) = P.element(3, i) * 0.99999f;
+		P.element(2, i) = P.element(3, i) * depth;
 	}
 
 	glMatrixMode(GL_PROJECTION);
