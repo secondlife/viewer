@@ -214,7 +214,7 @@ struct Vars
         std::ostringstream vbin;
         foreach(U8 byte, bin)
         {
-            vbin << std::hex << std::setfill('0') << std::setw(2) << byte;
+            vbin << std::hex << std::setfill('0') << std::setw(2) << unsigned(byte);
         }
 
         cout << "methodnb(" << "'" << s << "'"
@@ -692,11 +692,13 @@ namespace tut
     // - (try_call | call) (explicit name | event key) (real | bogus) name
     // - Callable with args that (do | do not) match required
     // - (Free function | non-static method), no args, (array | map) style
+    // - (Free function | non-static method), arbitrary args,
+    //   (array style with (scalar | map) | map style with scalar)
     // - (Free function | non-static method), arbitrary args, array style with
-    //   (scalar | map | array (too short | too long | just right))
+    //   array (too short | too long | just right)
     //   [trap LL_WARNS for too-long case?]
     // - (Free function | non-static method), arbitrary args, map style with
-    //   (scalar | (array | map) (all | too many | holes (with | without) defaults))
+    //   (array | map) (all | too many | holes (with | without) defaults)
     // - const char* param gets ("" | NULL)
 
     // Query cases:
@@ -1238,5 +1240,85 @@ namespace tut
         ensure_equals("passing \"\"", v.cp, "''");
         work("methodna_map_mdft", LLSDMap("cp", "non-NULL"));
         ensure_equals("passing \"non-NULL\"", v.cp, "'non-NULL'");
+    }
+
+    template<> template<>
+    void object::test<22>()
+    {
+        set_test_name("call map-style functions with (full | oversized) (arrays | maps)");
+        const char binary[] = "\x99\x88\x77\x66\x55";
+        LLSD array_full(LLSDMap
+                        ("a", LLSDArray(false)(255)(98.6)(1024.5)("pointer"))
+                        ("b", LLSDArray("object")(LLUUID::generateNewID())(LLDate::now())(LLURI("http://wiki.lindenlab.com/wiki"))(LLSD::Binary(boost::begin(binary), boost::end(binary)))));
+        LLSD array_overfull(array_full);
+        foreach(LLSD::String a, ab)
+        {
+            array_overfull[a].append("bogus");
+        }
+        cout << "array_full: " << array_full << "\narray_overfull: " << array_overfull << std::endl;
+        // We rather hope that LLDate::now() will generate a timestamp
+        // distinct from the one it generated in the constructor, moments ago.
+        ensure_not_equals("Timestamps too close",
+                          array_full["b"][2].asDate(), dft_array_full["b"][2].asDate());
+        // We /insist/ that LLUUID::generateNewID() do so.
+        ensure_not_equals("UUID collision",
+                          array_full["b"][1].asUUID(), dft_array_full["b"][1].asUUID());
+        LLSD map_full, map_overfull;
+        foreach(LLSD::String a, ab)
+        {
+            map_full[a] = zipmap(params[a], array_full[a]);
+            map_overfull[a] = map_full[a];
+            map_overfull[a]["extra"] = "ignore";
+        }
+        cout << "map_full: " << map_full << "\nmap_overfull: " << map_overfull << std::endl;
+        LLSD expect(map_full);
+        // Twiddle the const char* param.
+        expect["a"]["cp"] = std::string("'") + expect["a"]["cp"].asString() + "'";
+        // Another adjustment. For each data type, we're trying to distinguish
+        // three values: the Vars member's initial value (member wasn't
+        // stored; control never reached the set function), the registered
+        // default param value from dft_array_full, and the array_full value
+        // in this test. But bool can only distinguish two values. In this
+        // case, we want to differentiate the local array_full value from the
+        // dft_array_full value, so we use 'false'. However, that means
+        // Vars::inspect() doesn't differentiate it from the initial value,
+        // so won't bother returning it. Predict that behavior to match the
+        // LLSD values.
+        expect["a"].erase("b");
+        cout << "expect: " << expect << std::endl;
+        // For this test, calling functions registered with different sets of
+        // parameter defaults should make NO DIFFERENCE WHATSOEVER. Every call
+        // should pass all params.
+        LLSD names(LLSDMap
+                   ("a", LLSDArray
+                         ("freena_map_allreq") ("smethodna_map_allreq") ("methodna_map_allreq")
+                         ("freena_map_leftreq")("smethodna_map_leftreq")("methodna_map_leftreq")
+                         ("freena_map_skipreq")("smethodna_map_skipreq")("methodna_map_skipreq")
+                         ("freena_map_adft")   ("smethodna_map_adft")   ("methodna_map_adft")
+                         ("freena_map_mdft")   ("smethodna_map_mdft")   ("methodna_map_mdft"))
+                   ("b", LLSDArray
+                         ("freenb_map_allreq") ("smethodnb_map_allreq") ("methodnb_map_allreq")
+                         ("freenb_map_leftreq")("smethodnb_map_leftreq")("methodnb_map_leftreq")
+                         ("freenb_map_skipreq")("smethodnb_map_skipreq")("methodnb_map_skipreq")
+                         ("freenb_map_adft")   ("smethodnb_map_adft")   ("methodnb_map_adft")
+                         ("freenb_map_mdft")   ("smethodnb_map_mdft")   ("methodnb_map_mdft")));
+        // Treat (full | overfull) (array | map) the same.
+        LLSD argssets(LLSDArray(array_full)(array_overfull)(map_full)(map_overfull));
+        foreach(const LLSD& args, inArray(argssets))
+        {
+            foreach(LLSD::String a, ab)
+            {
+                foreach(LLSD::String name, inArray(names[a]))
+                {
+                    // Reset the Vars instance
+                    Vars* vars(varsfor(name));
+                    *vars = Vars();
+                    work(name, args[a]);
+                    ensure_llsd(STRINGIZE(name << ": expect[\"" << a << "\"] mismatch"),
+                                vars->inspect(), expect[a], 7); // 7 bits, 2 decimal digits
+                    // intercept LL_WARNS for the two overfull cases?
+                }
+            }
+        }
     }
 } // namespace tut
