@@ -722,6 +722,33 @@
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
+	<text
+	 text_color="LtGray_50"
+	  type="string"
+	  length="1"
+	  height="10"
+	  follows="left|top"
+	  halign="right"
+	  layout="topleft"
+	  right="-10"
+	  name="obj_count"
+	  top_pad="5"
+	  width="143">
+		Objects: [COUNT]
+	</text>
+	<text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+	height="10" 
+     follows="left|top"
+     halign="right"
+     layout="topleft"
+     right="-10"
+     name="prim_count"
+     width="143">
+		Prims: [COUNT]
+	</text>
     <text
     text_color="LtGray_50"
      type="string"
@@ -732,7 +759,7 @@
      layout="topleft"
      right="-100"
      name="linked_set_count"
-     top_pad="5"
+     top="144"
      width="80">
         Linked Sets: [COUNT]
     </text>

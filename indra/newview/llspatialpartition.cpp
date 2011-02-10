@@ -273,12 +273,6 @@ void LLSpatialGroup::buildOcclusion()
 	LLVector4a r;
 	r.setAdd(mBounds[1], fudge);
 
-	LLVector4a r2;
-	r2.splat(0.25f);
-	r2.add(mBounds[1]);
-
-	r.setMin(r, r2);
-
 	LLStrider<LLVector3> pos;
 	
 	mOcclusionVerts->getVertexStrider(pos);
@@ -1627,8 +1621,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
-		if ((mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER && !gGLManager.mHasDepthClamp) ||
-			earlyFail(camera, this))
+		if (earlyFail(camera, this))
 		{
 			setOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			assert_states_valid(this);
@@ -1656,12 +1649,11 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					// behind the far clip plane, and in the case of edge water to avoid
 					// it being culled while still visible.
 					bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
-												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
+												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||						
 												mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
-					if (use_depth_clamp)
-					{
-						glEnable(GL_DEPTH_CLAMP);
-					}
+
+					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);				
+						
 #if !LL_DARWIN					
 					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
 #else
@@ -1676,22 +1668,33 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					
 					mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-					if (camera->getOrigin().isExactlyZero())
-					{ //origin is invalid, draw entire box
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+					if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
+					{
+						LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
+						if (camera->getOrigin().isExactlyZero())
+						{ //origin is invalid, draw entire box
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+						}
+						else
+						{
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						}
 					}
 					else
 					{
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						if (camera->getOrigin().isExactlyZero())
+						{ //origin is invalid, draw entire box
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+						}
+						else
+						{
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						}
 					}
 
 					glEndQueryARB(mode);
-
-					if (use_depth_clamp)
-					{
-						glDisable(GL_DEPTH_CLAMP);
-					}
 				}
 
 				setOcclusionState(LLSpatialGroup::QUERY_PENDING);
