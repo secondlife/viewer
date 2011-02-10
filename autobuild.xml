@@ -2438,6 +2438,7 @@
                 <string>vcbuild.exe</string>
                 <key>options</key>
                 <array>
+                  <string>/u</string>
                   <string>SecondLife.sln</string>
                 </array>
               </map>
