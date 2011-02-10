@@ -468,8 +468,8 @@ static void settings_to_globals()
 	LLSelectMgr::sRenderHiddenSelections = gSavedSettings.getBOOL("RenderHiddenSelections");
 	LLSelectMgr::sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
 
-	gAgentPilot.mNumRuns		= gSavedSettings.getS32("StatsNumRuns");
-	gAgentPilot.mQuitAfterRuns	= gSavedSettings.getBOOL("StatsQuitAfterRuns");
+	gAgentPilot.setNumRuns(gSavedSettings.getS32("StatsNumRuns"));
+	gAgentPilot.setQuitAfterRuns(gSavedSettings.getBOOL("StatsQuitAfterRuns"));
 	gAgent.setHideGroupTitle(gSavedSettings.getBOOL("RenderHideGroupTitle"));
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
@@ -2289,7 +2289,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("replaysession"))
 	{
-		LLAgentPilot::sReplaySession = TRUE;
+		gAgentPilot.setReplaySession(TRUE);
 	}
 
 	if (clp.hasOption("nonotifications"))
@@ -4224,7 +4224,7 @@ void LLAppViewer::idle()
 	{ 
 		if (gAgentPilot.isPlaying() && gAgentPilot.getOverrideCamera())
 		{
-			// camera positioning handled inside gAgentPilot.
+			gAgentPilot.moveCamera();
 		}
 		else
 		{

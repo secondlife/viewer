@@ -1901,19 +1901,20 @@ class LLAdvancedAgentPilot : public view_listener_t
 		std::string command = userdata.asString();
 		if ("start playback" == command)
 		{
-			LLAgentPilot::startPlayback(NULL);
+			gAgentPilot.setNumRuns(-1);
+			gAgentPilot.startPlayback();
 		}
 		else if ("stop playback" == command)
 		{
-			LLAgentPilot::stopPlayback(NULL);
+			gAgentPilot.stopPlayback();
 		}
 		else if ("start record" == command)
 		{
-			LLAgentPilot::startRecord(NULL);
+			gAgentPilot.startRecord();
 		}
 		else if ("stop record" == command)
 		{
-			LLAgentPilot::saveRecord(NULL);
+			gAgentPilot.stopRecord();
 		}
 
 		return true;
@@ -1931,7 +1932,7 @@ class LLAdvancedToggleAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentPilot::sLoop = !(LLAgentPilot::sLoop);
+		gAgentPilot.setLoop(!gAgentPilot.getLoop());
 		return true;
 	}
 };
@@ -1940,7 +1941,7 @@ class LLAdvancedCheckAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLAgentPilot::sLoop;
+		bool new_value = gAgentPilot.getLoop();
 		return new_value;
 	}
 };

@@ -41,9 +41,6 @@
 
 LLAgentPilot gAgentPilot;
 
-BOOL LLAgentPilot::sLoop = TRUE;
-BOOL LLAgentPilot::sReplaySession = FALSE;
-
 LLAgentPilot::LLAgentPilot() :
 	mNumRuns(-1),
 	mQuitAfterRuns(FALSE),
@@ -52,7 +49,9 @@ LLAgentPilot::LLAgentPilot() :
 	mStarted(FALSE),
 	mPlaying(FALSE),
 	mCurrentAction(0),
-	mOverrideCamera(FALSE)
+	mOverrideCamera(FALSE),
+	mLoop(TRUE),
+	mReplaySession(FALSE)
 {
 }
 
@@ -266,7 +265,7 @@ void LLAgentPilot::startPlayback()
 				LLViewerJoystick::getInstance()->toggleFlycam();
 			}
 			gAgent.startAutoPilotGlobal(mActions[0].mTarget);
-			moveCamera(mActions[0]);
+			moveCamera();
 			mStarted = FALSE;
 		}
 		else
@@ -287,22 +286,51 @@ void LLAgentPilot::stopPlayback()
 		gAgent.stopAutoPilot();
 	}
 
-	if (sReplaySession)
+	if (mReplaySession)
 	{
 		LLAppViewer::instance()->forceQuit();
 	}
 }
 
-void LLAgentPilot::moveCamera(Action& action)
+void LLAgentPilot::moveCamera()
 {
 	if (!getOverrideCamera())
 		return;
+
+	if (mCurrentAction<mActions.count())
+	{
+		S32 start_index = llmax(mCurrentAction-1,0);
+		S32 end_index = mCurrentAction;
+		F32 t = 0.0;
+		F32 timedelta = mActions[end_index].mTime - mActions[start_index].mTime;
+		F32 tickelapsed = mTimer.getElapsedTimeF32()-mActions[start_index].mTime;
+		if (timedelta > 0.0)
+		{
+			t = tickelapsed/timedelta;
+		}
+
+		if ((t<0.0)||(t>1.0))
+		{
+			llwarns << "mCurrentAction is invalid, t = " << t << llendl;
+			return;
+		}
+		
+		Action& start = mActions[start_index];
+		Action& end = mActions[end_index];
+
+		F32 view = lerp(start.mCameraView, end.mCameraView, t);
+		LLVector3 origin = lerp(start.mCameraOrigin, end.mCameraOrigin, t);
+		LLQuaternion start_quat(start.mCameraXAxis, start.mCameraYAxis, start.mCameraZAxis);
+		LLQuaternion end_quat(end.mCameraXAxis, end.mCameraYAxis, end.mCameraZAxis);
+		LLQuaternion quat = nlerp(t, start_quat, end_quat);
+		LLMatrix3 mat(quat);
 	
-	LLViewerCamera::getInstance()->setView(action.mCameraView);
-	LLViewerCamera::getInstance()->setOrigin(action.mCameraOrigin);
-	LLViewerCamera::getInstance()->mXAxis = LLVector3(action.mCameraXAxis);
-	LLViewerCamera::getInstance()->mYAxis = LLVector3(action.mCameraYAxis);
-	LLViewerCamera::getInstance()->mZAxis = LLVector3(action.mCameraZAxis);
+		LLViewerCamera::getInstance()->setView(view);
+		LLViewerCamera::getInstance()->setOrigin(origin);
+		LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+		LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+		LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+	}
 }
 
 void LLAgentPilot::updateTarget()
@@ -336,13 +364,13 @@ void LLAgentPilot::updateTarget()
 				if (mCurrentAction < mActions.count())
 				{
 					gAgent.startAutoPilotGlobal(mActions[mCurrentAction].mTarget);
-					moveCamera(mActions[mCurrentAction]);
+					moveCamera();
 				}
 				else
 				{
 					stopPlayback();
 					mNumRuns--;
-					if (sLoop)
+					if (mLoop)
 					{
 						if ((mNumRuns < 0) || (mNumRuns > 0))
 						{
@@ -377,29 +405,8 @@ void LLAgentPilot::updateTarget()
 	}
 }
 
-// static
-void LLAgentPilot::startRecord(void *)
+void LLAgentPilot::addWaypoint()
 {
-	gAgentPilot.startRecord();
+	addAction(STRAIGHT);
 }
 
-void LLAgentPilot::saveRecord(void *)
-{
-	gAgentPilot.stopRecord();
-}
-
-void LLAgentPilot::addWaypoint(void *)
-{
-	gAgentPilot.addAction(STRAIGHT);
-}
-
-void LLAgentPilot::startPlayback(void *)
-{
-	gAgentPilot.mNumRuns = -1;
-	gAgentPilot.startPlayback();
-}
-
-void LLAgentPilot::stopPlayback(void *)
-{
-	gAgentPilot.stopPlayback();
-}

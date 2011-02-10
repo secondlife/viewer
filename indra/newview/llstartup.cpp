@@ -1989,7 +1989,7 @@ bool idle_startup()
 		}
 		
 		// Start automatic replay if the flag is set.
-		if (gSavedSettings.getBOOL("StatsAutoRun") || LLAgentPilot::sReplaySession)
+		if (gSavedSettings.getBOOL("StatsAutoRun") || gAgentPilot.getReplaySession())
 		{
 			LLUUID id;
 			LL_DEBUGS("AppInit") << "Starting automatic playback" << LL_ENDL;
