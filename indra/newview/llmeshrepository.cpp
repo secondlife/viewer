@@ -470,7 +470,12 @@ LLMeshRepoThread::LLMeshRepoThread()
 
 LLMeshRepoThread::~LLMeshRepoThread()
 {
-	
+	delete mMutex;
+	mMutex = NULL;
+	delete mHeaderMutex;
+	mHeaderMutex = NULL;
+	delete mSignal;
+	mSignal = NULL;
 }
 
 void LLMeshRepoThread::run()
@@ -573,6 +578,11 @@ void LLMeshRepoThread::run()
 		}
 	}
 	
+	if (mSignal->isLocked())
+	{ //make sure to let go of the mutex associated with the given signal before shutting down
+		mSignal->unlock();
+	}
+
 	res = LLConvexDecomposition::quitThread();
 	if (res != LLCD_OK)
 	{
@@ -580,7 +590,7 @@ void LLMeshRepoThread::run()
 	}
 
 	delete mCurlRequest;
-	delete mMutex;
+	mCurlRequest = NULL;
 }
 
 void LLMeshRepoThread::loadMeshSkinInfo(const LLUUID& mesh_id)
@@ -2115,13 +2125,24 @@ void LLMeshRepository::init()
 
 void LLMeshRepository::shutdown()
 {
-	mThread->mSignal->signal();
+	llinfos << "Shutting down mesh repository." << llendl;
 
+	mThread->mSignal->signal();
+	
+	while (!mThread->isStopped())
+	{
+		apr_sleep(10);
+	}
 	delete mThread;
 	mThread = NULL;
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
+		llinfos << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << llendl;
+		while (!mUploads[i]->isStopped())
+		{
+			apr_sleep(10);
+		}
 		delete mUploads[i];
 	}
 
@@ -2130,9 +2151,11 @@ void LLMeshRepository::shutdown()
 	delete mMeshMutex;
 	mMeshMutex = NULL;
 
+	llinfos << "Shutting down decomposition system." << llendl;
+
 	if (mDecompThread)
 	{
-		mDecompThread->shutdown();
+		mDecompThread->shutdown();		
 		delete mDecompThread;
 		mDecompThread = NULL;
 	}
@@ -3130,6 +3153,11 @@ LLPhysicsDecomp::LLPhysicsDecomp()
 LLPhysicsDecomp::~LLPhysicsDecomp()
 {
 	shutdown();
+
+	delete mSignal;
+	mSignal = NULL;
+	delete mMutex;
+	mMutex = NULL;
 }
 
 void LLPhysicsDecomp::shutdown()
@@ -3139,9 +3167,9 @@ void LLPhysicsDecomp::shutdown()
 		mQuitting = true;
 		mSignal->signal();
 
-		while (!mDone)
+		while (!isStopped())
 		{
-			apr_sleep(100);
+			apr_sleep(10);
 		}
 	}
 }
@@ -3519,10 +3547,11 @@ void LLPhysicsDecomp::run()
 
 	//decomp->quitThread();
 	
-	//delete mSignal;
-	delete mMutex;
-	mSignal = NULL;
-	mMutex = NULL;
+	if (mSignal->isLocked())
+	{ //let go of mSignal's associated mutex
+		mSignal->unlock();
+	}
+
 	mDone = true;
 }
 
