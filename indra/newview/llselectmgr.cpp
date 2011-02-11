@@ -5492,7 +5492,12 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	
 	BOOL is_hud_object = objectp->isHUDAttachment();
 
-	if (!is_hud_object)
+	if (drawable->isActive())
+	{
+		glLoadMatrixd(gGLModelView);
+		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+	}
+	else if (!is_hud_object)
 	{
 		glLoadIdentity();
 		glMultMatrixd(gGLModelView);
@@ -5500,11 +5505,6 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
 	}
 	
-	if (drawable->isActive())
-	{
-		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
-	}
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())

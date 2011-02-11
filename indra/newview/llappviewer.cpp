@@ -4220,16 +4220,13 @@ void LLAppViewer::idle()
 		LLWorld::getInstance()->updateParticles();
 	}
 
-	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	if (gAgentPilot.isPlaying() && gAgentPilot.getOverrideCamera())
+	{
+		gAgentPilot.moveCamera();
+	}
+	else if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{ 
-		if (gAgentPilot.isPlaying() && gAgentPilot.getOverrideCamera())
-		{
-			gAgentPilot.moveCamera();
-		}
-		else
-		{
-			LLViewerJoystick::getInstance()->moveFlycam();
-		}
+		LLViewerJoystick::getInstance()->moveFlycam();
 	}
 	else
 	{
