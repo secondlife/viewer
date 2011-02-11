@@ -53,7 +53,7 @@
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llfilepicker.h"
 #include "llnotifications.h"
-#include "lldir_win32.h"
+#include "lldir.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
