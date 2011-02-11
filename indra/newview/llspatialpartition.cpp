@@ -64,6 +64,12 @@ const F32 SG_OCCLUSION_FUDGE = 0.25f;
 
 static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
+
+#define LL_TRACK_PENDING_OCCLUSION_QUERIES 0
+
+std::set<GLuint> LLSpatialGroup::sPendingQueries;
+
+
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
 static F32 sLastMaxTexPriority = 1.f;
@@ -81,6 +87,9 @@ protected:
 
 	virtual void releaseName(GLuint name)
 	{
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+		LLSpatialGroup::sPendingQueries.erase(name);
+#endif
 		glDeleteQueriesARB(1, &name);
 	}
 };
@@ -264,12 +273,6 @@ void LLSpatialGroup::buildOcclusion()
 	LLVector4a r;
 	r.setAdd(mBounds[1], fudge);
 
-	LLVector4a r2;
-	r2.splat(0.25f);
-	r2.add(mBounds[1]);
-
-	r.setMin(r, r2);
-
 	LLStrider<LLVector3> pos;
 	
 	mOcclusionVerts->getVertexStrider(pos);
@@ -361,9 +364,15 @@ LLSpatialGroup::~LLSpatialGroup()
 	
 	sNodeCount--;
 
-	if (gGLManager.mHasOcclusionQuery && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+	if (gGLManager.mHasOcclusionQuery)
 	{
-		sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+		for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; ++i)
+		{
+			if (mOcclusionQuery[i])
+			{
+				sQueryPool.release(mOcclusionQuery[i]);
+			}
+		}
 	}
 
 	mOcclusionVerts = NULL;
@@ -507,7 +516,7 @@ BOOL LLSpatialGroup::isRecentlyVisible() const
 
 BOOL LLSpatialGroup::isVisible() const
 {
-	return mVisible[LLViewerCamera::sCurCameraID] == LLDrawable::getCurrentFrame() ? TRUE : FALSE;
+	return mVisible[LLViewerCamera::sCurCameraID] >= LLDrawable::getCurrentFrame() ? TRUE : FALSE;
 }
 
 void LLSpatialGroup::setVisible()
@@ -1096,12 +1105,23 @@ void LLSpatialGroup::setOcclusionState(U32 state, S32 mode)
 			for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 			{
 				mOcclusionState[i] |= state;
+
+				if ((state & DISCARD_QUERY) && mOcclusionQuery[i])
+				{
+					sQueryPool.release(mOcclusionQuery[i]);
+					mOcclusionQuery[i] = 0;
+				}
 			}
 		}
 	}
 	else
 	{
 		mOcclusionState[LLViewerCamera::sCurCameraID] |= state;
+		if ((state & DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+		{
+			sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+			mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+		}
 	}
 }
 
@@ -1319,7 +1339,8 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 	}
 	else
 	{
-		return (gFrameTimeSeconds - mLastUpdateTime+4.f)/mDistance;
+		F32 time = gFrameTimeSeconds-mLastUpdateTime+4.f;
+		return time + (mObjectBounds[1].dot3(mObjectBounds[1]).getF32()+1.f)/mDistance;
 	}
 }
 
@@ -1330,8 +1351,8 @@ BOOL LLSpatialGroup::needsUpdate()
 
 BOOL LLSpatialGroup::changeLOD()
 {
-	if (isState(ALPHA_DIRTY))
-	{ ///an alpha sort is going to happen, update distance and LOD
+	if (isState(ALPHA_DIRTY | OBJECT_DIRTY))
+	{ ///a rebuild is going to happen, update distance and LoD
 		return TRUE;
 	}
 
@@ -1344,7 +1365,7 @@ BOOL LLSpatialGroup::changeLOD()
 			return TRUE;
 		}
 
-		if (mDistance > mRadius)
+		if (mDistance > mRadius*2.f)
 		{
 			return FALSE;
 		}
@@ -1540,15 +1561,31 @@ void LLSpatialGroup::checkOcclusion()
 		{	//otherwise, if a query is pending, read it back
 
 			GLuint available = 0;
-			glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+			{
+				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			}
+			else
+			{
+				available = 1;
+			}
+
 			if (available)
 			{ //result is available, read it back, otherwise wait until next frame
 				GLuint res = 1;
 				if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
 				{
 					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &res);	
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
 				}
-
+				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+				{ //delete the query to avoid holding onto hundreds of pending queries
+					sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+					mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+				}
+				
 				if (isOcclusionState(DISCARD_QUERY))
 				{
 					res = 2;
@@ -1584,8 +1621,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
-		if ((mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER && !gGLManager.mHasDepthClamp) ||
-			earlyFail(camera, this))
+		if (earlyFail(camera, this))
 		{
 			setOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			assert_states_valid(this);
@@ -1613,35 +1649,52 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					// behind the far clip plane, and in the case of edge water to avoid
 					// it being culled while still visible.
 					bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
-												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
+												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||						
 												mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
-					if (use_depth_clamp)
-					{
-						glEnable(GL_DEPTH_CLAMP);
-					}
+
+					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);				
+						
 #if !LL_DARWIN					
 					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
+#else
+					U32 mode = GL_SAMPLES_PASSED_ARB;
+#endif
+					
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
 
 					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
 					
 					mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-					if (camera->getOrigin().isExactlyZero())
-					{ //origin is invalid, draw entire box
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+					if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
+					{
+						LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
+						if (camera->getOrigin().isExactlyZero())
+						{ //origin is invalid, draw entire box
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+						}
+						else
+						{
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						}
 					}
 					else
 					{
-						mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						if (camera->getOrigin().isExactlyZero())
+						{ //origin is invalid, draw entire box
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+						}
+						else
+						{
+							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+						}
 					}
 
 					glEndQueryARB(mode);
-#endif					
-					if (use_depth_clamp)
-					{
-						glDisable(GL_DEPTH_CLAMP);
-					}
 				}
 
 				setOcclusionState(LLSpatialGroup::QUERY_PENDING);
@@ -2465,7 +2518,6 @@ void renderOctree(LLSpatialGroup* group)
 {
 	//render solid object bounding box, color
 	//coded by buffer usage and activity
-	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
 	if (group->mBuilt > 0.f)
@@ -2557,7 +2609,10 @@ void renderOctree(LLSpatialGroup* group)
 	size.mul(1.01f);
 	size.add(fudge);
 
-	drawBox(group->mObjectBounds[0], fudge);
+	{
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+		drawBox(group->mObjectBounds[0], fudge);
+	}
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
@@ -2669,6 +2724,49 @@ void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 		gGL.vertex3fv((position + LLVector3(0.f, 0.f, size)).mV);
 	}
 	gGL.end();
+}
+
+void renderUpdateType(LLDrawable* drawablep)
+{
+	LLViewerObject* vobj = drawablep->getVObj();
+	if (!vobj || OUT_UNKNOWN == vobj->getLastUpdateType())
+	{
+		return;
+	}
+	LLGLEnable blend(GL_BLEND);
+	switch (vobj->getLastUpdateType())
+	{
+	case OUT_FULL:
+		glColor4f(0,1,0,0.5f);
+		break;
+	case OUT_TERSE_IMPROVED:
+		glColor4f(0,1,1,0.5f);
+		break;
+	case OUT_FULL_COMPRESSED:
+		if (vobj->getLastUpdateCached())
+		{
+			glColor4f(1,0,0,0.5f);
+		}
+		else
+		{
+			glColor4f(1,1,0,0.5f);
+		}
+		break;
+	case OUT_FULL_CACHED:
+		glColor4f(0,0,1,0.5f);
+		break;
+	default:
+		llwarns << "Unknown update_type " << vobj->getLastUpdateType() << llendl;
+		break;
+	};
+	S32 num_faces = drawablep->getNumFaces();
+	if (num_faces)
+	{
+		for (S32 i = 0; i < num_faces; ++i)
+		{
+			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+		}
+	}
 }
 
 
@@ -2853,10 +2951,10 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 		{
 			buff->setBuffer(data_mask);
 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		/*	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glColor4fv(line_color.mV);
 			buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 
 			{
 				glColor4fv(color.mV);
@@ -2884,9 +2982,13 @@ void render_hull(LLVertexBuffer* buff, U32 data_mask, const LLColor4& color, con
 	glColor4fv(color.mV);
 	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 
+	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonOffset(3.f, 3.f);
+	glLineWidth(3.f);
 	glColor4fv(line_color.mV);
 	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -3535,6 +3637,8 @@ void renderRaycast(LLDrawable* drawablep)
 
 			if (volume)
 			{
+				LLVector3 trans = drawablep->getRegion()->getOriginAgent();
+				
 				for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 				{
 					const LLVolumeFace& face = volume->getVolumeFace(i);
@@ -3544,6 +3648,7 @@ void renderRaycast(LLDrawable* drawablep)
 					}
 
 					gGL.pushMatrix();
+					glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);					
 					glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
 
 					LLVector3 start, end;
@@ -3568,7 +3673,7 @@ void renderRaycast(LLDrawable* drawablep)
 
 					LLRenderOctreeRaycast render(starta, dir, &t);
 					gGL.flush();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
 
 					{
 						//render face positions
@@ -3627,7 +3732,7 @@ void renderRaycast(LLDrawable* drawablep)
 
 			LLGLDepthTest depth(GL_FALSE, GL_TRUE);
 			gGL.color4f(0,0.5f,0.5f,1);
-			drawBoxOutline(pos, size);
+			drawBoxOutline(pos, size);		
 		}
 	}
 }
@@ -3773,6 +3878,10 @@ public:
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 			{
 				renderRaycast(drawable);
+			}
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_UPDATE_TYPE))
+			{
+				renderUpdateType(drawable);
 			}
 
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());
@@ -3990,6 +4099,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_OCCLUSION |
 									  LLPipeline::RENDER_DEBUG_LIGHTS |
 									  LLPipeline::RENDER_DEBUG_BATCH_SIZE |
+									  LLPipeline::RENDER_DEBUG_UPDATE_TYPE |
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
@@ -3998,7 +4108,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
-									  LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
+									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA)) 
 	{
 		return;
@@ -4038,7 +4148,7 @@ void LLSpatialGroup::drawObjectBox(LLColor4 col)
 {
 	gGL.color4fv(col.mV);
 	LLVector4a size;
-	size = mObjectBounds[0];
+	size = mObjectBounds[1];
 	size.mul(1.01f);
 	size.add(LLVector4a(0.001f));
 	drawBox(mObjectBounds[0], size);

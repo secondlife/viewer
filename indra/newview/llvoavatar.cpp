@@ -63,6 +63,7 @@
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
+#include "llmanipscale.h"  // for get_default_max_prim_scale()
 #include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llmoveview.h"
@@ -601,16 +602,16 @@ F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
 
-const LLUUID LLVOAvatar::sStepSoundOnLand = LLUUID("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
+const LLUUID LLVOAvatar::sStepSoundOnLand("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
 const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
 {
-	LLUUID(SND_STONE_RUBBER),
-	LLUUID(SND_METAL_RUBBER),
-	LLUUID(SND_GLASS_RUBBER),
-	LLUUID(SND_WOOD_RUBBER),
-	LLUUID(SND_FLESH_RUBBER),
-	LLUUID(SND_RUBBER_PLASTIC),
-	LLUUID(SND_RUBBER_RUBBER)
+	SND_STONE_RUBBER,
+	SND_METAL_RUBBER,
+	SND_GLASS_RUBBER,
+	SND_WOOD_RUBBER,
+	SND_FLESH_RUBBER,
+	SND_RUBBER_PLASTIC,
+	SND_RUBBER_RUBBER
 };
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
@@ -1383,7 +1384,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	newMin.setSub(pos, buffer);
 	newMax.setAdd(pos, buffer);
 
-	float max_attachment_span = DEFAULT_MAX_PRIM_SCALE * 5.0f;
+	float max_attachment_span = get_default_max_prim_scale() * 5.0f;
 	
 	//stretch bounding box by joint positions
 	for (polymesh_map_t::iterator i = mMeshes.begin(); i != mMeshes.end(); ++i)
@@ -2128,31 +2129,6 @@ void LLVOAvatar::computeBodySize()
 			gAgent.sendAgentSetAppearance();
 		}
 	}
-
-/* debug spam
-	std::cout << "skull = " << skull << std::endl;				// adebug
-	std::cout << "head = " << head << std::endl;				// adebug
-	std::cout << "head_scale = " << head_scale << std::endl;	// adebug
-	std::cout << "neck = " << neck << std::endl;				// adebug
-	std::cout << "neck_scale = " << neck_scale << std::endl;	// adebug
-	std::cout << "chest = " << chest << std::endl;				// adebug
-	std::cout << "chest_scale = " << chest_scale << std::endl;	// adebug
-	std::cout << "torso = " << torso << std::endl;				// adebug
-	std::cout << "torso_scale = " << torso_scale << std::endl;	// adebug
-	std::cout << std::endl;	// adebug
-
-	std::cout << "pelvis_scale = " << pelvis_scale << std::endl;// adebug
-	std::cout << std::endl;	// adebug
-
-	std::cout << "hip = " << hip << std::endl;					// adebug
-	std::cout << "hip_scale = " << hip_scale << std::endl;		// adebug
-	std::cout << "ankle = " << ankle << std::endl;				// adebug
-	std::cout << "ankle_scale = " << ankle_scale << std::endl;	// adebug
-	std::cout << "foot = " << foot << std::endl;				// adebug
-	std::cout << "mBodySize = " << mBodySize << std::endl;		// adebug
-	std::cout << "mPelvisToFoot = " << mPelvisToFoot << std::endl;	// adebug
-	std::cout << std::endl;		// adebug
-*/
 }
 
 //------------------------------------------------------------------------
@@ -2446,9 +2422,19 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		// here we get the approximate head position and set as sound source for the voice symbol
 		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
 		//--------------------------------------------------------------------------------------------
-		LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
-		mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot.getWorldPosition() + headOffset );
 		
+		if ( mIsSitting )
+		{
+			LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
+			mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot.getWorldPosition() + headOffset );
+		}
+		else 
+		{
+			LLVector3 tagPos = mRoot.getWorldPosition();
+			tagPos[VZ] -= mPelvisToFoot;
+			tagPos[VZ] += ( mBodySize[VZ] + 0.125f );
+			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
+		}
 	}//if ( voiceEnabled )
 }		
 
@@ -2895,10 +2881,8 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				}
 				
 	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
-	mNameText->setPositionAgent(name_position);
-				
-	idleUpdateNameTagText(new_name);
-			
+	mNameText->setPositionAgent(name_position);				
+	idleUpdateNameTagText(new_name);			
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
@@ -3184,8 +3168,9 @@ void LLVOAvatar::invalidateNameTags()
 		if (avatar->isDead()) continue;
 
 		avatar->clearNameTag();
-				}
-			}
+
+	}
+}
 
 // Compute name tag position during idle update
 LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
@@ -3204,12 +3189,14 @@ LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	local_camera_up.scaleVec(mBodySize * 0.5f);
 	local_camera_at.scaleVec(mBodySize * 0.5f);
 
-	LLVector3 name_position = mRoot.getWorldPosition() + 
-		(local_camera_up * root_rot) -
-		(projected_vec(local_camera_at * root_rot, camera_to_av));
+	LLVector3 name_position = mRoot.getWorldPosition();
+	name_position[VZ] -= mPelvisToFoot;
+	name_position[VZ] += (mBodySize[VZ]* 0.55f);
+	name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));	
 	name_position += pixel_up_vec * 15.f;
+
 	return name_position;
-		}
+}
 
 void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 {
@@ -6026,6 +6013,34 @@ void LLVOAvatar::rebuildRiggedAttachments( void )
 	}
 }
 //-----------------------------------------------------------------------------
+// cleanupAttachedMesh()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
+{
+	//If a VO has a skin that we'll reset the joint positions to their default
+	if ( pVO && pVO->mDrawable )
+	{
+		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
+		if ( pVObj )
+		{
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
+			if ( pSkinData )
+			{
+				const int jointCnt = pSkinData->mJointNames.size();
+				bool fullRig = ( jointCnt>=20 ) ? true : false;
+				if ( fullRig )
+				{
+					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
+					if ( bindCnt > 0 )
+					{
+						LLVOAvatar::resetJointPositionsToDefault();
+					}
+				}
+			}				
+		}
+	}	
+}
+//-----------------------------------------------------------------------------
 // detachObject()
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
@@ -6035,9 +6050,10 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		 ++iter)
 	{
 		LLViewerJointAttachment* attachment = iter->second;
-
+		
 		if (attachment->isObjectAttached(viewer_object))
 		{
+			cleanupAttachedMesh( viewer_object );
 			attachment->removeObject(viewer_object);
 			lldebugs << "Detaching object " << viewer_object->mID << " from " << attachment->getName() << llendl;
 			return TRUE;
@@ -8148,12 +8164,16 @@ BOOL LLVOAvatar::updateLOD()
 		mNeedsSkin = TRUE;
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
 	}
-	
 	updateVisibility();
 
 	return res;
 }
 
+void LLVOAvatar::updateLODRiggedAttachments( void )
+{
+	updateLOD();
+	rebuildRiggedAttachments();
+}
 U32 LLVOAvatar::getPartitionType() const
 { 
 	// Avatars merely exist as drawables in the bridge partition
@@ -8221,7 +8241,7 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
-	static const U32 ARC_BODY_PART_COST = 200;
+	static const U32 ARC_BODY_PART_COST = 20;
 	static const U32 ARC_LIMIT = 2048;
 
 	static std::set<LLUUID> all_textures;
@@ -8232,7 +8252,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 	}
 
 	U32 cost = 0;
-	LLVOVolume::texture_cost_t textures;
+	std::set<LLUUID> textures;
 
 	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 	{
@@ -8273,21 +8293,15 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 	}
 
-	for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
-	{
-		// add the cost of each individual texture in the linkset
-		cost += iter->second;
-	}
-
 	// Diagnostic output to identify all avatar-related textures.
 	// Does not affect rendering cost calculation.
 	// Could be wrapped in a debug option if output becomes problematic.
 	if (isSelf())
 	{
 		// print any attachment textures we didn't already know about.
-		for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
+		for (std::set<LLUUID>::iterator it = textures.begin(); it != textures.end(); ++it)
 		{
-			LLUUID image_id = it->first;
+			LLUUID image_id = *it;
 			if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
 				continue;
 			if (all_textures.find(image_id) == all_textures.end())
@@ -8318,6 +8332,8 @@ void LLVOAvatar::idleUpdateRenderCost()
 			}
 		}
 	}
+
+	cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
 
 	setDebugText(llformat("%d", cost));
 	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);

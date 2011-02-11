@@ -709,11 +709,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		if (volume)
 		{
 			pos.set(getPositionGroup().getF32ptr());
-			if (isStatic())
-			{
-				pos += volume->getRegion()->getOriginAgent();
-			}
-
+			
 			if (isState(LLDrawable::HAS_ALPHA))
 			{
 				for (S32 i = 0; i < getNumFaces(); i++)
@@ -733,7 +729,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 						facep->mDistance = v * camera.getAtAxis();
 					}
 				}
-			}
+			}	
 		}
 		else
 		{
@@ -763,7 +759,7 @@ void LLDrawable::updateTexture()
 
 	if (getVOVolume())
 	{
-		if (isActive())
+		/*if (isActive())
 		{
 			if (isRoot())
 			{
@@ -773,7 +769,7 @@ void LLDrawable::updateTexture()
 			{
 				getParent()->mQuietCount = 0;
 			}
-		}
+		}*/
 				
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_MATERIAL, TRUE);
 	}

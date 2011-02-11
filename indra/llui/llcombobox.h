@@ -73,7 +73,8 @@ public:
 											allow_new_values;
 		Optional<S32>						max_chars;
 		Optional<commit_callback_t> 		prearrange_callback,
-											text_entry_callback;
+											text_entry_callback,
+											text_changed_callback;
 
 		Optional<EPreferredPosition, PreferredPositionValues>	list_position;
 		
@@ -133,6 +134,7 @@ public:
 	LLScrollListItem*	addSeparator(EAddPosition pos = ADD_BOTTOM);
 	BOOL			remove( S32 index );	// remove item by index, return TRUE if found and removed
 	void			removeall() { clearRows(); }
+	bool			itemExists(const std::string& name);
 
 	void			sortByName(BOOL ascending = TRUE); // Sort the entries in the combobox by name
 
@@ -190,6 +192,7 @@ public:
 
 	void			setPrearrangeCallback( commit_callback_t cb ) { mPrearrangeCallback = cb; }
 	void			setTextEntryCallback( commit_callback_t cb ) { mTextEntryCallback = cb; }
+	void			setTextChangedCallback( commit_callback_t cb ) { mTextChangedCallback = cb; }
 
 	void			setButtonVisible(BOOL visible);
 
@@ -220,6 +223,7 @@ private:
 	BOOL				mTextEntryTentative;
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
+	commit_callback_t	mTextChangedCallback;
 	commit_callback_t	mSelectionCallback;
 	boost::signals2::connection mTopLostSignalConnection;
 	S32                 mLastSelectedIndex;

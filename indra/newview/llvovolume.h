@@ -116,6 +116,7 @@ public:
 				void	animateTextures();
 	/*virtual*/ BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
+	            BOOL    isVisible() const ;
 	/*virtual*/ BOOL	isActive() const;
 	/*virtual*/ BOOL	isAttachment() const;
 	/*virtual*/ BOOL	isRootEdit() const; // overridden for sake of attachments treating themselves as a root object
@@ -128,10 +129,9 @@ public:
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
-				typedef std::map<LLUUID, S32> texture_cost_t;
-				U32 	getRenderCost(texture_cost_t &textures) const;
+				U32 	getRenderCost(std::set<LLUUID> &textures) const;
 	/*virtual*/	F32		getStreamingCost();
-	/*virtual*/ U32		getTriangleCount();
+	/*virtual*/ U32		getTriangleCount() const;
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
@@ -357,6 +357,8 @@ public:
 		
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
+
+	static const U32 ARC_TEXTURE_COST = 5;
 
 protected:
 	static S32 sNumLODChanges;

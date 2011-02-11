@@ -115,9 +115,6 @@
      name="AlertCautionTextColor"
      reference="LtYellow" />
     <color
-     name="AgentLinkColor"
-     reference="EmphasisColor" />
-    <color
      name="AlertTextColor"
      value="0.58 0.66 0.84 1" />
     <color
@@ -348,9 +345,6 @@
     <color
      name="GridlineShadowColor"
      value="0 0 0 0.31" />
-    <color
-     name="GroupLinkColor"
-     reference="White" />
     <color
      name="GroupNotifyBoxColor"
      value="0.3344 0.5456 0.5159 1" />

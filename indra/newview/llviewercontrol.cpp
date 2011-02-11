@@ -370,6 +370,12 @@ static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleRenderLocalLightsChanged(const LLSD& newvalue)
+{
+	gPipeline.setLightingDetail(-1);
+	return true;
+}
+
 static bool handleRenderDeferredChanged(const LLSD& newvalue)
 {
 	LLRenderTarget::sUseFBO = newvalue.asBoolean();
@@ -378,6 +384,7 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 		gPipeline.updateRenderDeferred();
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
+		gPipeline.resetVertexBuffers();
 		if (LLPipeline::sRenderDeferred && LLRenderTarget::sUseFBO)
 		{
 			LLViewerShaderMgr::instance()->setShaders();
@@ -589,6 +596,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderFogRatio")->getSignal()->connect(boost::bind(&handleFogRatioChanged, _2));
 	gSavedSettings.getControl("RenderMaxPartCount")->getSignal()->connect(boost::bind(&handleMaxPartCountChanged, _2));
 	gSavedSettings.getControl("RenderDynamicLOD")->getSignal()->connect(boost::bind(&handleRenderDynamicLODChanged, _2));
+	gSavedSettings.getControl("RenderLocalLights")->getSignal()->connect(boost::bind(&handleRenderLocalLightsChanged, _2));
 	gSavedSettings.getControl("RenderDebugTextureBind")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaNonDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));

@@ -445,8 +445,9 @@ public:
 		RENDER_DEBUG_AVATAR_VOLUME      = 0x0100000,
 		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
 		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
-		RENDER_DEBUG_PHYSICS_SHAPES     = 0x0800000,
-		RENDER_DEBUG_NORMALS	        = 0x1000000,
+		RENDER_DEBUG_UPDATE_TYPE		= 0x0800000,
+		RENDER_DEBUG_PHYSICS_SHAPES     = 0x1000000,
+		RENDER_DEBUG_NORMALS	        = 0x2000000,
 	};
 
 public:
@@ -505,7 +506,6 @@ public:
 	static BOOL				sRenderAttachedLights;
 	static BOOL				sRenderAttachedParticles;
 	static BOOL				sRenderDeferred;
-	static BOOL             sAllowRebuildPriorityGroup;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 
@@ -632,6 +632,8 @@ protected:
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
+	bool mGroupQ2Locked;
+	bool mGroupQ1Locked;
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		

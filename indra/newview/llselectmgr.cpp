@@ -1889,6 +1889,103 @@ BOOL LLSelectMgr::selectionGetGlow(F32 *glow)
 	return identical;
 }
 
+
+void LLSelectMgr::selectionSetPhysicsType(U8 type)
+{
+	struct f : public LLSelectedObjectFunctor
+	{
+		U8 mType;
+		f(const U8& t) : mType(t) {}
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->setPhysicsShapeType(mType);
+				object->updateFlags();
+			}
+			return true;
+		}
+	} sendfunc(type);
+	getSelection()->applyToObjects(&sendfunc);
+}
+
+void LLSelectMgr::selectionSetFriction(F32 friction)
+{
+	struct f : public LLSelectedObjectFunctor
+	{
+		F32 mFriction;
+		f(const F32& friction) : mFriction(friction) {}
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->setPhysicsFriction(mFriction);
+				object->updateFlags();
+			}
+			return true;
+		}
+	} sendfunc(friction);
+	getSelection()->applyToObjects(&sendfunc);
+}
+
+void LLSelectMgr::selectionSetGravity(F32 gravity )
+{
+	struct f : public LLSelectedObjectFunctor
+	{
+		F32 mGravity;
+		f(const F32& gravity) : mGravity(gravity) {}
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->setPhysicsGravity(mGravity);
+				object->updateFlags();
+			}
+			return true;
+		}
+	} sendfunc(gravity);
+	getSelection()->applyToObjects(&sendfunc);
+}
+
+void LLSelectMgr::selectionSetDensity(F32 density )
+{
+	struct f : public LLSelectedObjectFunctor
+	{
+		F32 mDensity;
+		f(const F32& density ) : mDensity(density) {}
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->setPhysicsDensity(mDensity);
+				object->updateFlags();
+			}
+			return true;
+		}
+	} sendfunc(density);
+	getSelection()->applyToObjects(&sendfunc);
+}
+
+void LLSelectMgr::selectionSetRestitution(F32 restitution)
+{
+	struct f : public LLSelectedObjectFunctor
+	{
+		F32 mRestitution;
+		f(const F32& restitution ) : mRestitution(restitution) {}
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->setPhysicsRestitution(mRestitution);
+				object->updateFlags();
+			}
+			return true;
+		}
+	} sendfunc(restitution);
+	getSelection()->applyToObjects(&sendfunc);
+}
+
+
 //-----------------------------------------------------------------------------
 // selectionSetMaterial()
 //-----------------------------------------------------------------------------
@@ -3936,45 +4033,6 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
-struct LLSelectMgrApplyPhysicsParam : public LLSelectedObjectFunctor
-{
-	LLSelectMgrApplyPhysicsParam(U8 type, F32 gravity, F32 friction, 
-									F32 density, F32 restitution) :
-		mType(type),
-		mGravity(gravity),
-		mFriction(friction),
-		mDensity(density),
-		mRestitution(restitution)
-	{}
-	U8 mType;
-	F32 mGravity;
-	F32 mFriction;
-	F32 mDensity;
-	F32 mRestitution;
-	virtual bool apply(LLViewerObject* object)
-	{
-		if ( object->permModify() ) 	// preemptive permissions check
-		{
-			object->setPhysicsShapeType( mType );
-			object->setPhysicsGravity(mGravity);
-			object->setPhysicsFriction(mFriction);
-			object->setPhysicsDensity(mDensity);
-			object->setPhysicsRestitution(mRestitution);
-			object->updateFlags();
-		}
-		return true;
-	}
-};
-
-
-void LLSelectMgr::selectionUpdatePhysicsParam(U8 type, F32 gravity, F32 friction, 
-											  F32 density, F32 restitution)
-{
-	llwarns << "physics shape type ->" << (U32)type << llendl;
-	LLSelectMgrApplyPhysicsParam func(type, gravity, friction, density, restitution);
-	getSelection()->applyToObjects(&func);	
-}
-
 //----------------------------------------------------------------------
 // Helpful packing functions for sendObjectMessage()
 //----------------------------------------------------------------------
@@ -5146,7 +5204,6 @@ LLSelectNode::LLSelectNode(const LLSelectNode& nodep)
 
 	mSilhouetteVertices = nodep.mSilhouetteVertices;
 	mSilhouetteNormals = nodep.mSilhouetteNormals;
-	mSilhouetteSegments = nodep.mSilhouetteSegments;
 	mSilhouetteExists = nodep.mSilhouetteExists;
 	mObject = nodep.mObject;
 
@@ -5432,20 +5489,22 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
-
+	
 	BOOL is_hud_object = objectp->isHUDAttachment();
 
-	if (!is_hud_object)
+	if (drawable->isActive())
+	{
+		glLoadMatrixd(gGLModelView);
+		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+	}
+	else if (!is_hud_object)
 	{
 		glLoadIdentity();
 		glMultMatrixd(gGLModelView);
+		LLVector3 trans = objectp->getRegion()->getOriginAgent();		
+		glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
 	}
 	
-	if (drawable->isActive())
-	{
-		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
-	}
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
@@ -5568,17 +5627,15 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 			gGL.begin(LLRender::LINES);
 			{
-				S32 i = 0;
-				for (S32 seg_num = 0; seg_num < (S32)mSilhouetteSegments.size(); seg_num++)
+				for(S32 i = 0; i < mSilhouetteVertices.size(); i += 2)
 				{
-					for(; i < mSilhouetteSegments[seg_num]; i++)
-					{
-						u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
-
-						gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
-						gGL.texCoord2f( u_coord, v_coord );
-						gGL.vertex3fv( mSilhouetteVertices[i].mV );
-					}
+					u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
+					gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+					gGL.texCoord2f( u_coord, v_coord );
+					gGL.vertex3fv( mSilhouetteVertices[i].mV);
+					u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
+					gGL.texCoord2f( u_coord, v_coord );
+					gGL.vertex3fv(mSilhouetteVertices[i+1].mV);
 				}
 			}
             gGL.end();
@@ -5589,51 +5646,50 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.begin(LLRender::TRIANGLES);
 		{
-			S32 i = 0;
-			for (S32 seg_num = 0; seg_num < (S32)mSilhouetteSegments.size(); seg_num++)
+			for(S32 i = 0; i < mSilhouetteVertices.size(); i+=2)
 			{
-				S32 first_i = i;
-				LLVector3 v;
-				LLVector2 t;
-
-				for(; i < mSilhouetteSegments[seg_num]; i++)
-				{
-
-					if (i == first_i) {
-					    LLVector3 vert = (mSilhouetteNormals[i]) * silhouette_thickness;
-						vert += mSilhouetteVertices[i];
-
-						gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-						gGL.texCoord2f( u_coord, v_coord + LLSelectMgr::sHighlightVScale );
-						gGL.vertex3fv( vert.mV ); 
-						
-						u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
-
-						gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
-						gGL.texCoord2f( u_coord, v_coord );
-						gGL.vertex3fv( mSilhouetteVertices[i].mV );
-
-						v = mSilhouetteVertices[i];
-						t = LLVector2(u_coord, v_coord);
-					}
-					else {
-                        LLVector3 vert = (mSilhouetteNormals[i]) * silhouette_thickness;
-						vert += mSilhouetteVertices[i];
-
-						gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-						gGL.texCoord2f( u_coord, v_coord + LLSelectMgr::sHighlightVScale );
-						gGL.vertex3fv( vert.mV ); 
-						gGL.vertex3fv( vert.mV ); 
-						
-						gGL.texCoord2fv(t.mV);
-						u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
-						gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
-						gGL.vertex3fv(v.mV);
-						gGL.texCoord2f( u_coord, v_coord );
-						gGL.vertex3fv( mSilhouetteVertices[i].mV );
-
-					}
+				if (!mSilhouetteNormals[i].isFinite() ||
+					!mSilhouetteNormals[i+1].isFinite())
+				{ //skip skewed segments
+					continue;
 				}
+
+				LLVector3 v[4];
+				LLVector2 tc[4];
+				v[0] = mSilhouetteVertices[i] + (mSilhouetteNormals[i] * silhouette_thickness);
+				tc[0].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+
+				v[1] = mSilhouetteVertices[i];
+				tc[1].set(u_coord, v_coord);
+
+				u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
+
+				v[2] = mSilhouetteVertices[i+1] + (mSilhouetteNormals[i+1] * silhouette_thickness);
+				tc[2].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+				
+				v[3] = mSilhouetteVertices[i+1];
+				tc[3].set(u_coord,v_coord);
+
+				gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
+				gGL.texCoord2fv(tc[0].mV);
+				gGL.vertex3fv( v[0].mV ); 
+				
+				gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+				gGL.texCoord2fv( tc[1].mV );
+				gGL.vertex3fv( v[1].mV );
+
+				gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
+				gGL.texCoord2fv( tc[2].mV );
+				gGL.vertex3fv( v[2].mV );
+
+				gGL.vertex3fv( v[2].mV );
+
+				gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+				gGL.texCoord2fv( tc[1].mV );
+				gGL.vertex3fv( v[1].mV );
+
+				gGL.texCoord2fv( tc[3].mV );
+				gGL.vertex3fv( v[3].mV );			
 			}
 		}
 		gGL.end();
@@ -6335,7 +6391,7 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount()
 	return count;
 }
 
-S32 LLObjectSelection::getSelectedObjectRenderCost()
+/*S32 LLObjectSelection::getSelectedObjectRenderCost()
 {
        S32 cost = 0;
        LLVOVolume::texture_cost_t textures;
@@ -6359,7 +6415,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 
 
        return cost;
-}
+}*/
 
 
 //-----------------------------------------------------------------------------

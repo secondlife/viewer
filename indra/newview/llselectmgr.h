@@ -182,7 +182,6 @@ public:
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
 	std::vector<LLVector3>	mSilhouetteNormals;	// array of normals to render silhouette of object
-	std::vector<S32>		mSilhouetteSegments;	// array of normals to render silhouette of object
 	BOOL					mSilhouetteExists;	// need to generate silhouette?
 
 protected:
@@ -236,7 +235,7 @@ public:
 	{
 		bool operator()(LLSelectNode* node);
 	};
-	typedef boost::filter_iterator<is_root, list_t::iterator > valid_root_iterator;
+	typedef boost::filter_iterator<is_valid_root, list_t::iterator > valid_root_iterator;
 	valid_root_iterator valid_root_begin() { return valid_root_iterator(mList.begin(), mList.end()); }
 	valid_root_iterator valid_root_end() { return valid_root_iterator(mList.end(), mList.end()); }
 	
@@ -489,8 +488,6 @@ public:
 	void saveSelectedObjectTextures();
 
 	void selectionUpdatePhysics(BOOL use_physics);
-	void selectionUpdatePhysicsParam(U8 type, F32 gravity, F32 friction, 
-										F32 density, F32 restitution);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
 	void selectionUpdateCastShadows(BOOL cast_shadows);
@@ -501,6 +498,11 @@ public:
 	bool selectionGetIncludeInSearch(bool* include_in_search_out); // true if all selected objects have same
 	BOOL selectionGetGlow(F32 *glow);
 
+	void selectionSetPhysicsType(U8 type);
+	void selectionSetGravity(F32 gravity);
+	void selectionSetFriction(F32 friction);
+	void selectionSetDensity(F32 density);
+	void selectionSetRestitution(F32 restitution);
 	void selectionSetMaterial(U8 material);
 	void selectionSetImage(const LLUUID& imageid); // could be item or asset id
 	void selectionSetColor(const LLColor4 &color);

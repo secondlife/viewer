@@ -105,6 +105,7 @@
 #include "llteleporthistorystorage.h"
 
 #include "lllogininstance.h"        // to check if logged in yet
+#include "llsdserialize.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -284,7 +285,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
-	mDoubleClickActionDirty(false)
+	mDoubleClickActionDirty(false),
+	mFavoritesRecordMayExist(false)
 {
 	
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
@@ -541,6 +543,34 @@ void LLFloaterPreference::apply()
 		updateDoubleClickSettings();
 		mDoubleClickActionDirty = false;
 	}
+
+	if (mFavoritesRecordMayExist && !gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
+	{
+		removeFavoritesRecordOfUser();		
+	}
+}
+
+void LLFloaterPreference::removeFavoritesRecordOfUser()
+{
+	mFavoritesRecordMayExist = false;
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	
+	LLAvatarName av_name;
+	LLAvatarNameCache::get( gAgentID, &av_name );
+	if (fav_llsd.has(av_name.getLegacyName()))
+	{
+		fav_llsd.erase(av_name.getLegacyName());
+	}
+	
+	llofstream out_file;
+	out_file.open(filename);
+	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
+
 }
 
 void LLFloaterPreference::cancel()
@@ -624,6 +654,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setVisible( false);
+	}
+
+	if (LLStartUp::getStartupState() == STATE_STARTED)
+	{
+		mFavoritesRecordMayExist = gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
 	}
 
 	// Forget previous language changes.
@@ -1001,8 +1036,10 @@ void LLFloaterPreference::refreshEnabledState()
 
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		shaders)
+	
+	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
+		shaders && 
+		gGLManager.mHasFramebufferObject)
 	{
 		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;
 
@@ -1085,7 +1122,8 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 
 	// disabled deferred
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
+		!gGLManager.mHasFramebufferObject)
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
@@ -1338,6 +1376,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	
 //	getChild<LLUICtrl>("busy_response")->setValue(gSavedSettings.getString("BusyModeResponse2"));
 	
+	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_nearby_chat")->setEnabled(TRUE);
 	getChildView("log_instant_messages")->setEnabled(TRUE);
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
@@ -1502,6 +1541,7 @@ LLPanelPreference::LLPanelPreference()
 : LLPanel()
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
+	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
 }
 
 //virtual
@@ -1552,6 +1592,10 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("voice_call_friends_only_check"))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+	if (hasChild("favorites_on_login_check"))
+	{
+		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
 	}
 
 	// Panel Advanced
@@ -1620,6 +1664,14 @@ void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& v
 	}
 }
 
+void LLPanelPreference::showFavoritesOnLoginWarning(LLUICtrl* checkbox, const LLSD& value)
+{
+	if (checkbox && checkbox->getValue())
+	{
+		LLNotificationsUtil::add("FavoritesOnLogin");
+	}
+}
+
 void LLPanelPreference::cancel()
 {
 	for (control_values_map_t::iterator iter =  mSavedValues.begin();
@@ -1649,6 +1701,21 @@ void LLPanelPreference::setControlFalse(const LLSD& user_data)
 	
 	if (control)
 		control->set(LLSD(FALSE));
+}
+
+void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
+{
+	std::string name = ctrl->getName();
+
+	// Disable "Allow Media to auto play" only when both
+	// "Streaming Music" and "Media" are unchecked. STORM-513.
+	if ((name == "enable_music") || (name == "enable_media"))
+	{
+		bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
+		bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
+
+		getChild<LLCheckBoxCtrl>("media_auto_play_btn")->setEnabled(music_enabled || media_enabled);
+	}
 }
 
 static LLRegisterPanelClassWrapper<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");

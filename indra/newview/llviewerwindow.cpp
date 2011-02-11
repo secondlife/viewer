@@ -298,13 +298,15 @@ private:
 	line_list_t mLineList;
 	LLColor4 mTextColor;
 	
-public:
-	LLDebugText(LLViewerWindow* window) : mWindow(window) {}
-	
 	void addText(S32 x, S32 y, const std::string &text) 
 	{
 		mLineList.push_back(Line(text, x, y));
 	}
+	
+	void clearText() { mLineList.clear(); }
+	
+public:
+	LLDebugText(LLViewerWindow* window) : mWindow(window) {}
 
 	void update()
 	{
@@ -325,6 +327,8 @@ public:
 		U32 ypos = 64;
 		const U32 y_inc = 20;
 
+		clearText();
+		
 		if (gSavedSettings.getBOOL("DebugShowTime"))
 		{
 			const U32 y_inc2 = 15;
@@ -349,6 +353,14 @@ public:
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
 		}
 		
+#if LL_WINDOWS
+		if (gSavedSettings.getBOOL("DebugShowMemory"))
+		{
+			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getWorkingSetSize() / 1024)); 
+			ypos += y_inc;
+		}
+#endif
+
 		if (gDisplayCameraPos)
 		{
 			std::string camera_view_text;
@@ -497,6 +509,12 @@ public:
 			
 			ypos += y_inc;
 
+			if (!LLSpatialGroup::sPendingQueries.empty())
+			{
+				addText(xpos,ypos, llformat("%d Queries pending", LLSpatialGroup::sPendingQueries.size()));
+				ypos += y_inc;
+			}
+
 
 			addText(xpos,ypos, llformat("%d Avatars visible", LLVOAvatar::sNumVisibleAvatars));
 			
@@ -506,18 +524,21 @@ public:
 			
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.3f MB Mesh Data Received", LLMeshRepository::sBytesReceived/(1024.f*1024.f)));
-			
-			ypos += y_inc;
-			
-			addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
-				LLMeshRepository::sHTTPRetryCount));
-			
-			ypos += y_inc;
+			if (gSavedSettings.getBOOL("MeshEnabled"))
+			{
+				addText(xpos, ypos, llformat("%.3f MB Mesh Data Received", LLMeshRepository::sBytesReceived/(1024.f*1024.f)));
+				
+				ypos += y_inc;
+				
+				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
+					LLMeshRepository::sHTTPRetryCount));
+				
+				ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
+				addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
 
-			ypos += y_inc;
+				ypos += y_inc;
+			}
 
 			addText(xpos, ypos, llformat("Selection Triangle Count: %.3f Ktris ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount()/1000.f));
 
@@ -666,6 +687,50 @@ public:
 												LLMeshRepoThread::sActiveLODRequests, lod));
 
 			ypos += y_inc;
+		}
+		
+		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
+		{
+			LLViewerObject* objectp = NULL ;
+			//objectp = = gAgentCamera.getFocusObject();
+			
+			LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
+			if (nodep)
+			{
+				objectp = nodep->getObject();			
+			}
+			if (objectp && !objectp->isDead())
+			{
+				S32 num_faces = objectp->mDrawable->getNumFaces() ;
+				
+				for(S32 i = 0 ; i < num_faces; i++)
+				{
+					LLFace* facep = objectp->mDrawable->getFace(i) ;
+					if(facep)
+					{
+						//addText(xpos, ypos, llformat("ts_min: %.3f ts_max: %.3f tt_min: %.3f tt_max: %.3f", facep->mTexExtents[0].mV[0], facep->mTexExtents[1].mV[0],
+						//		facep->mTexExtents[0].mV[1], facep->mTexExtents[1].mV[1]));
+						//ypos += y_inc;
+						
+						addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
+						ypos += y_inc;
+						
+						//const LLTextureEntry *tep = facep->getTextureEntry();
+						//if(tep)
+						//{
+						//	addText(xpos, ypos, llformat("scale_s: %.3f:  scale_t: %.3f", tep->mScaleS, tep->mScaleT)) ;
+						//	ypos += y_inc;
+						//}
+						
+						LLViewerTexture* tex = facep->getTexture() ;
+						if(tex)
+						{
+							addText(xpos, ypos, llformat("ID: %s v_size: %.3f", tex->getID().asString().c_str(), tex->getMaxVirtualSize()));
+							ypos += y_inc;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -4026,18 +4091,26 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::sShowHUDAttachments = FALSE;
 	}
 
+	// if not showing ui, use full window to render world view
+	updateWorldViewRect(!show_ui);
+
 	// Copy screen to a buffer
 	// crop sides or top and bottom, if taking a snapshot of different aspect ratio
 	// from window
-	S32 snapshot_width = mWindowRectRaw.getWidth();
-	S32 snapshot_height =  mWindowRectRaw.getHeight();
-	// SNAPSHOT
-	S32 window_width = mWindowRectRaw.getWidth();
-	S32 window_height = mWindowRectRaw.getHeight();	
-	LLRect window_rect = mWindowRectRaw;
-	BOOL use_fbo = FALSE;
+	LLRect window_rect = show_ui ? getWindowRectRaw() : getWorldViewRectRaw(); 
 
-	LLRenderTarget target;
+	S32 snapshot_width = window_rect.getWidth();
+	S32 snapshot_height = window_rect.getHeight();
+	// SNAPSHOT
+	S32 window_width = snapshot_width;
+	S32 window_height = snapshot_height;
+	
+	if (show_ui)
+	{
+		image_width = llmin(image_width, window_width);
+		image_height = llmin(image_height, window_height);
+	}
+
 	F32 scale_factor = 1.0f ;
 	if(!keep_window_aspect) //image cropping
 	{		
@@ -4050,45 +4123,24 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		if(image_width > window_width || image_height > window_height) //need to enlarge the scene
 		{
-			if (!LLPipeline::sRenderDeferred && gGLManager.mHasFramebufferObject && !show_ui)
-			{
-				GLint max_size = 0;
-				glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
-		
-				if (image_width <= max_size && image_height <= max_size) //re-project the scene
-				{
-					use_fbo = TRUE;
-					
-					snapshot_width = image_width;
-					snapshot_height = image_height;
-					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
-					window_width = snapshot_width;
-					window_height = snapshot_height;
-					scale_factor = 1.f;
-					mWindowRectRaw.set(0, snapshot_height, snapshot_width, 0);
-					target.bindTarget();			
-				}
-			}
-
-			if(!use_fbo) //no re-projection, so tiling the scene
-			{
-				F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-				snapshot_width = (S32)(ratio * image_width) ;
-				snapshot_height = (S32)(ratio * image_height) ;
-				scale_factor = llmax(1.0f, 1.0f / ratio) ;	
-			}
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;	
 		}
-		//else: keep the current scene scale, re-scale it if necessary after reading out.
 	}
 	
-	// if not showing ui, use full window to render world view
-	updateWorldViewRect(!show_ui);
+	if (show_ui && scale_factor > 1.f)
+	{
+		llwarns << "over scaling UI not supported." << llendl;
+	}
 
 	S32 buffer_x_offset = llfloor(((window_width - snapshot_width) * scale_factor) / 2.f);
 	S32 buffer_y_offset = llfloor(((window_height - snapshot_height) * scale_factor) / 2.f);
 
 	S32 image_buffer_x = llfloor(snapshot_width*scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height *scale_factor) ;
+
 	if(image_buffer_x > max_size || image_buffer_y > max_size) //boundary check to avoid memory overflow
 	{
 		scale_factor *= llmin((F32)max_size / image_buffer_x, (F32)max_size / image_buffer_y) ;
@@ -4097,7 +4149,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	if(image_buffer_x > 0 && image_buffer_y > 0)
 	{
-	raw->resize(image_buffer_x, image_buffer_y, 3);
+		raw->resize(image_buffer_x, image_buffer_y, 3);
 	}
 	else
 	{
@@ -4109,12 +4161,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 
 	BOOL high_res = scale_factor >= 2.f; // Font scaling is slow, only do so if rez is much higher
-	if (high_res)
+	if (high_res && show_ui)
 	{
-		send_agent_pause();
+		llwarns << "High res UI snapshot not supported. " << llendl;
+		/*send_agent_pause();
 		//rescale fonts
 		initFonts(scale_factor);
-		LLHUDObject::reshapeAll();
+		LLHUDObject::reshapeAll();*/
 	}
 
 	S32 output_buffer_offset_y = 0;
@@ -4210,12 +4263,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		output_buffer_offset_y += subimage_y_offset;
 	}
 
-	if (use_fbo)
-	{
-		mWindowRectRaw = window_rect;
-		target.flush();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
 	gDisplaySwapBuffers = FALSE;
 	gDepthDirty = TRUE;
 
@@ -4230,11 +4277,11 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::sShowHUDAttachments = TRUE;
 	}
 
-	if (high_res)
+	/*if (high_res)
 	{
 		initFonts(1.f);
 		LLHUDObject::reshapeAll();
-	}
+	}*/
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
 	// Note: this formula depends on the number of components being 3.  Not obvious, but it's correct.	

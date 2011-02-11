@@ -46,8 +46,12 @@ public:
 	LLAgentPilot();
 	virtual ~LLAgentPilot();
 
-	void load(const std::string& filename);
-	void save(const std::string& filename);
+	void load();
+	void loadTxt(const std::string& filename);
+	void loadXML(const std::string& filename);
+	void save();
+	void saveTxt(const std::string& filename);
+	void saveXML(const std::string& filename);
 
 	void startRecord();
 	void stopRecord();
@@ -56,19 +60,34 @@ public:
 	void startPlayback();
 	void stopPlayback();
 
+	bool isRecording() { return mRecording; }
+	bool isPlaying() { return mPlaying; }
+	bool getOverrideCamera() { return mOverrideCamera; }
+	
 	void updateTarget();
 
-	static void startRecord(void *);
-	static void addWaypoint(void *);
-	static void saveRecord(void *);
-	static void startPlayback(void *);
-	static void stopPlayback(void *);
-	static BOOL	sLoop;
-	static BOOL sReplaySession;
+	void addWaypoint();
+	void moveCamera();
+
+	void setReplaySession(BOOL new_val) { mReplaySession = new_val; }
+	BOOL getReplaySession() { return mReplaySession; }
+
+	void setLoop(BOOL new_val) { mLoop = new_val; }
+	BOOL getLoop() { return mLoop; }
+
+	void setQuitAfterRuns(BOOL quit_val) { mQuitAfterRuns = quit_val; }
+	void setNumRuns(S32 num_runs) { mNumRuns = num_runs; }
+	
+private:
+
+
+
+	BOOL	mLoop;
+	BOOL 	mReplaySession;
 
 	S32		mNumRuns;
 	BOOL	mQuitAfterRuns;
-private:
+
 	void setAutopilotTarget(const S32 id);
 
 	BOOL	mRecording;
@@ -78,6 +97,8 @@ private:
 	BOOL	mPlaying;
 	S32		mCurrentAction;
 
+	BOOL	mOverrideCamera;
+
 	class Action
 	{
 	public:
@@ -85,10 +106,16 @@ private:
 		EActionType		mType;
 		LLVector3d		mTarget;
 		F64				mTime;
+		F32				mCameraView;
+		LLVector3		mCameraOrigin;
+		LLVector3		mCameraXAxis;
+		LLVector3		mCameraYAxis;
+		LLVector3		mCameraZAxis;
 	};
 
 	LLDynamicArray<Action>	mActions;
 	LLTimer					mTimer;
+
 };
 
 extern LLAgentPilot gAgentPilot;

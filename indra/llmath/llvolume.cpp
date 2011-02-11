@@ -4179,7 +4179,6 @@ S32 LLVolume::getNumTriangles() const
 //-----------------------------------------------------------------------------
 void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  std::vector<LLVector3> &normals,
-										  std::vector<S32> &segments,
 										  const LLVector3& obj_cam_vec_in,
 										  const LLMatrix4& mat_in,
 										  const LLMatrix3& norm_mat_in,
@@ -4198,7 +4197,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 	vertices.clear();
 	normals.clear();
-	segments.clear();
 
 	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 	{
@@ -4399,8 +4397,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 						norm_mat.rotate(n[v2], t);
 						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
-
-						segments.push_back(vertices.size());
 					}
 				}		
 			}
@@ -5393,19 +5389,53 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 	delete mOctree;
 	mOctree = NULL;
 
+	BOOL ret = FALSE ;
 	if (mTypeMask & CAP_MASK)
 	{
-		return createCap(volume, partial_build);
+		ret = createCap(volume, partial_build);
 	}
 	else if ((mTypeMask & END_MASK) || (mTypeMask & SIDE_MASK))
 	{
-		return createSide(volume, partial_build);
+		ret = createSide(volume, partial_build);
 	}
 	else
 	{
 		llerrs << "Unknown/uninitialized face type!" << llendl;
-		return FALSE;
 	}
+
+	//update the range of the texture coordinates
+	if(ret)
+	{
+		mTexCoordExtents[0].setVec(1.f, 1.f) ;
+		mTexCoordExtents[1].setVec(0.f, 0.f) ;
+
+		for(U32 i = 0 ; i < mNumVertices ; i++)
+		{
+			if(mTexCoordExtents[0].mV[0] > mTexCoords[i].mV[0])
+			{
+				mTexCoordExtents[0].mV[0] = mTexCoords[i].mV[0] ;
+			}
+			if(mTexCoordExtents[1].mV[0] < mTexCoords[i].mV[0])
+			{
+				mTexCoordExtents[1].mV[0] = mTexCoords[i].mV[0] ;
+			}
+
+			if(mTexCoordExtents[0].mV[1] > mTexCoords[i].mV[1])
+			{
+				mTexCoordExtents[0].mV[1] = mTexCoords[i].mV[1] ;
+			}
+			if(mTexCoordExtents[1].mV[1] < mTexCoords[i].mV[1])
+			{
+				mTexCoordExtents[1].mV[1] = mTexCoords[i].mV[1] ;
+			}			
+		}
+		mTexCoordExtents[0].mV[0] = llmax(0.f, mTexCoordExtents[0].mV[0]) ;
+		mTexCoordExtents[0].mV[1] = llmax(0.f, mTexCoordExtents[0].mV[1]) ;
+		mTexCoordExtents[1].mV[0] = llmin(1.f, mTexCoordExtents[1].mV[0]) ;
+		mTexCoordExtents[1].mV[1] = llmin(1.f, mTexCoordExtents[1].mV[1]) ;
+	}
+
+	return ret ;
 }
 
 void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
@@ -5762,7 +5792,7 @@ void LLVolumeFace::cacheOptimize()
 	for (U32 i = 0; i < mNumIndices; i++)
 	{ //populate vertex data and triangle data arrays
 		U16 idx = mIndices[i];
-		U16 tri_idx = i/3;
+		U32 tri_idx = i/3;
 
 		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
 		vertex_data[idx].mIdx = idx;

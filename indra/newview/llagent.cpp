@@ -64,6 +64,7 @@
 #include "lltool.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
 #include "llviewerjoystick.h"
@@ -649,6 +650,10 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	}
 	mRegionp = regionp;
 
+	// Pass the region host to LLUrlEntryParcel to resolve parcel name
+	// with a server request.
+	LLUrlEntryParcel::setRegionHost(getRegionHost());
+
 	// Must shift hole-covering water object locations because local
 	// coordinate frame changed.
 	LLWorld::getInstance()->updateWaterObjects();
@@ -1208,7 +1213,13 @@ BOOL LLAgent::getBusy() const
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
 //-----------------------------------------------------------------------------
-void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::string& behavior_name, const LLQuaternion *target_rotation, void (*finish_callback)(BOOL, void *),  void *callback_data, F32 stop_distance, F32 rot_threshold)
+void LLAgent::startAutoPilotGlobal(
+	const LLVector3d &target_global,
+	const std::string& behavior_name,
+	const LLQuaternion *target_rotation,
+	void (*finish_callback)(BOOL, void *),
+	void *callback_data,
+	F32 stop_distance, F32 rot_threshold)
 {
 	if (!isAgentAvatarValid())
 	{

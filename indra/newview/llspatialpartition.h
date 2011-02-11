@@ -187,6 +187,7 @@ public:
 		return *this;
 	}
 
+	static std::set<GLuint> sPendingQueries; //pending occlusion queries
 	static U32 sNodeCount;
 	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 

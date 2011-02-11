@@ -913,6 +913,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
 	}
+	else if ("update type" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_UPDATE_TYPE;
+	}
 	else if ("texture anim" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXTURE_ANIM;
@@ -932,6 +936,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("face area" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_FACE_AREA;
+	}
+	else if ("build queue" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
 	}
 	else if ("lights" == info_display)
 	{
@@ -1893,19 +1901,20 @@ class LLAdvancedAgentPilot : public view_listener_t
 		std::string command = userdata.asString();
 		if ("start playback" == command)
 		{
-			LLAgentPilot::startPlayback(NULL);
+			gAgentPilot.setNumRuns(-1);
+			gAgentPilot.startPlayback();
 		}
 		else if ("stop playback" == command)
 		{
-			LLAgentPilot::stopPlayback(NULL);
+			gAgentPilot.stopPlayback();
 		}
 		else if ("start record" == command)
 		{
-			LLAgentPilot::startRecord(NULL);
+			gAgentPilot.startRecord();
 		}
 		else if ("stop record" == command)
 		{
-			LLAgentPilot::saveRecord(NULL);
+			gAgentPilot.stopRecord();
 		}
 
 		return true;
@@ -1923,7 +1932,7 @@ class LLAdvancedToggleAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentPilot::sLoop = !(LLAgentPilot::sLoop);
+		gAgentPilot.setLoop(!gAgentPilot.getLoop());
 		return true;
 	}
 };
@@ -1932,7 +1941,7 @@ class LLAdvancedCheckAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLAgentPilot::sLoop;
+		bool new_value = gAgentPilot.getLoop();
 		return new_value;
 	}
 };
@@ -4204,9 +4213,9 @@ class LLObjectEnableReturn : public view_listener_t
 					{
 						virtual bool apply(LLViewerObject* obj)
 						{
-							return (obj->isOverAgentOwnedLand() ||
-									obj->isOverGroupOwnedLand() ||
-									obj->permModify());
+							return 
+								obj->permModify() ||
+								obj->isReturnable();
 						}
 					} func;
 					const bool firstonly = true;

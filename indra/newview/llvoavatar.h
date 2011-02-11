@@ -122,6 +122,7 @@ public:
 	virtual BOOL   	 	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	virtual BOOL   	 	 	updateLOD();
 	BOOL  	 	 	 	 	updateJointLODs();
+	void					updateLODRiggedAttachments( void );
 	virtual BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
 	virtual void   	 	 	updateTextures();
 	virtual S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
@@ -687,6 +688,7 @@ public:
 	void 				clampAttachmentPositions();
 	virtual const LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
 	virtual BOOL 		detachObject(LLViewerObject *viewer_object);
+	void				cleanupAttachedMesh( LLViewerObject* pVO );
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 protected:
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);

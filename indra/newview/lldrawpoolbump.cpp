@@ -145,12 +145,7 @@ void LLStandardBumpmap::addstandard()
 // 		llinfos << "Loading bumpmap: " << bump_image_id << " from viewerart" << llendl;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
-			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id),
-										TRUE, 
-										LLViewerTexture::BOOST_NONE, 
-										LLViewerTexture::LOD_TEXTURE,
-										0, 
-										0);									
+			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id));	
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL, NULL );
 		LLStandardBumpmap::sStandardBumpmapCount++;

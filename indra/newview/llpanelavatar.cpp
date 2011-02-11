@@ -625,8 +625,13 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 	getChild<LLUICtrl>("sl_groups")->setValue(groups);
 }
 
-void LLPanelAvatarProfile::got_full_name_callback( const LLUUID& id, const std::string& full_name, bool is_group )
+static void got_full_name_callback( LLHandle<LLPanel> profile_panel_handle, const std::string& full_name )
 {
+	if (profile_panel_handle.isDead() ) return;
+
+	LLPanelAvatarProfile* profile_panel = dynamic_cast<LLPanelAvatarProfile*>(profile_panel_handle.get());
+	if ( ! profile_panel ) return;
+
 	LLStringUtil::format_map_t args;
 
 	std::string name;
@@ -641,8 +646,8 @@ void LLPanelAvatarProfile::got_full_name_callback( const LLUUID& id, const std::
 
 	args["[NAME]"] = name;
 
-	std::string linden_name = getString("name_text_args", args);
-	getChild<LLUICtrl>("name_descr_text")->setValue(linden_name);
+	std::string linden_name = profile_panel->getString("name_text_args", args);
+	profile_panel->getChild<LLUICtrl>("name_descr_text")->setValue(linden_name);
 }
 
 void LLPanelAvatarProfile::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
@@ -667,16 +672,17 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 	}
 
 	// ask (asynchronously) for the avatar name
+	LLHandle<LLPanel> profile_panel_handle = getHandle();
 	std::string full_name;
 	if (gCacheName->getFullName(avatar_data->agent_id, full_name))
 	{
 		// name in cache, call callback directly
-		got_full_name_callback( avatar_data->agent_id, full_name, false );
+		got_full_name_callback( profile_panel_handle, full_name );
 	}
 	else
 	{
 		// not in cache, lookup name 
-		gCacheName->get(avatar_data->agent_id, false, boost::bind( &LLPanelAvatarProfile::got_full_name_callback, this, _1, _2, _3 ));
+		gCacheName->get(avatar_data->agent_id, false, boost::bind( got_full_name_callback, profile_panel_handle, _2 ));
 	}
 
 	// get display name

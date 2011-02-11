@@ -279,7 +279,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
-	if (av_name.mIsDummy)
+	if (av_name.mIsTemporaryName)
 	{
 		S32 separator_index = mName.rfind(" ");
 		std::string name = mName.substr(0, separator_index);
@@ -2719,6 +2719,15 @@ void LLIMMgr::inviteToSession(
 		{
 			LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 		}
+		
+		// Add the caller to the Recent List here (at this point 
+		// "incoming_call" floater is shown and the recipient can
+		// reject the call), because even if a recipient will reject
+		// the call, the caller should be added to the recent list
+		// anyway. STORM-507.
+		if(type == IM_SESSION_P2P_INVITE)
+			LLRecentPeople::instance().add(caller_id);
+		
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
 }

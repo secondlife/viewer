@@ -291,7 +291,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("lod_mode", onLODParamCommit, this);
 	childSetCommitCallback("lod_error_threshold", onLODParamCommit, this);
-	childSetCommitCallback("lod_triangle_limit", onLODParamCommit, this);
+	childSetCommitCallback("lod_triangle_limit", onLODParamCommitTriangleLimit, this);
 	childSetCommitCallback("build_operator", onLODParamCommit, this);
 	childSetCommitCallback("queue_mode", onLODParamCommit, this);
 	childSetCommitCallback("border_mode", onLODParamCommit, this);
@@ -340,6 +340,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -379,7 +380,8 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
 
-	if ( mModelPreview->mModelLoader->mResetJoints )
+	const LLModelLoader *model_loader = mModelPreview->mModelLoader;
+	if (model_loader && model_loader->mResetJoints)
 	{
 		gAgentAvatarp->resetJointPositions();
 	}
@@ -531,9 +533,14 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	fp->mModelPreview->genLODs(fp->mModelPreview->mPreviewLOD);
-	fp->mModelPreview->updateStatusMessages();
-	fp->mModelPreview->refresh();
+	fp->mModelPreview->onLODParamCommit(false);
+}
+
+//static
+void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
+{
+	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	fp->mModelPreview->onLODParamCommit(true);
 }
 
 
@@ -1664,6 +1671,8 @@ void LLModelLoader::run()
 			setLoadState( ERROR_PARSING );
 			return;
 		}
+		setLoadState( DONE );
+
 		processElement(scene);
 		
 		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
@@ -1789,7 +1798,25 @@ void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMat
 		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
 		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
 		{
-			llwarns<< "The found element is not a translate node" <<llendl;
+			//llwarns<< "The found element is not a translate node" <<llendl;
+			daeSIDResolver jointResolver( pNode, "./matrix" );
+			domMatrix* pMatrix = daeSafeCast<domMatrix>( jointResolver.getElement() );
+			if ( pMatrix )
+			{
+				//llinfos<<"A matrix SID was however found!"<<llendl;
+				domFloat4x4 domArray = pMatrix->getValue();									
+				for ( int i = 0; i < 4; i++ )
+				{
+					for( int j = 0; j < 4; j++ )
+					{
+						workingTransform.mMatrix[i][j] = domArray[i + j*4];
+					}
+				}
+			}
+			else
+			{
+				llwarns<< "The found element is not translate or matrix node - most likely a corrupt export!" <<llendl;
+			}
 		}
 		else
 		{
@@ -2178,9 +2205,12 @@ U32 LLModelPreview::calcResourceCost()
 
 	rebuildUploadData();
 
-	if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+	if (mFMP && mModelLoader)
 	{
-		mFMP->childEnable("ok_btn");
+		if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+		{
+			mFMP->childEnable("ok_btn");
+		}
 	}
 
 	U32 cost = 0;
@@ -2188,7 +2218,7 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 
-	F32 debug_scale = mFMP->childGetValue("import_scale").asReal();
+	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
 
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;
@@ -2243,18 +2273,22 @@ U32 LLModelPreview::calcResourceCost()
 		}
 	}
 
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[HULLS]", llformat("%d",num_hulls));
-	//mFMP->childSetTextArg(info_name[LLModel::LOD_PHYSICS], "[POINTS]", llformat("%d",num_points));
-	mFMP->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-	mFMP->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
-	F32 scale = mFMP->childGetValue("import_scale").asReal()*2.f;
-	mFMP->childSetTextArg("import_dimensions", "[X]", llformat("%.3f", mPreviewScale[0]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", mPreviewScale[1]*scale));
-	mFMP->childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", mPreviewScale[2]*scale));
+	F32 scale = mFMP ? mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
+
+	mDetailsSignal(mPreviewScale[0]*scale, mPreviewScale[1]*scale, mPreviewScale[2]*scale, streaming_cost, physics_cost);
 
 	updateStatusMessages();
 
 	return cost;
+}
+
+void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
+{
+	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
+	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
+	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
+	childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
+	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
 void LLModelPreview::rebuildUploadData()
@@ -2373,11 +2407,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	LLMutexLock lock(this);
 
-	if (mModelLoader)
-	{
-		delete mModelLoader;
-		mModelLoader = NULL;
-	}
+	// This triggers if you bring up the file picker and then hit CANCEL.
+	// Just use the previous model (if any) and ignore that you brought up
+	// the file picker.
 
 	if (filename.empty())
 	{
@@ -2386,10 +2418,15 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
 			mFMP->closeFloater(false);
+			mLoading = false;
 		}
-
-		mLoading = false;
 		return;
+	}
+
+	if (mModelLoader)
+	{
+		delete mModelLoader;
+		mModelLoader = NULL;
 	}
 
 	mLODFile[lod] = filename;
@@ -2530,6 +2567,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mLoading = false;
 	refresh();
+
+	mModelLoadedSignal();
 }
 
 void LLModelPreview::resetPreviewTarget()
@@ -2795,22 +2834,7 @@ void LLModelPreview::clearMaterials()
 	refresh();
 }
 
-bool LLModelPreview::containsRiggedAsset( void )
-{
-	//loop through the models and determine if any of them contained a rigged asset, and if so
-	//return true.
-	//This is used to cleanup the joint positions after a preview.
-	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
-	{
-		LLModel* pModel = *iter;
-		if ( pModel->mAlternateBindMatrix.size() > 0 )
-		{
-			return true;
-		}
-	}
-	return false;
-}
-void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
+void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
 	if (mBaseModel.empty())
 	{
@@ -3041,7 +3065,17 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation)
 		}
 		else
 		{
-			triangle_count = limit;
+			if (enforce_tri_limit)
+			{
+				triangle_count = limit;
+			}
+			else
+			{
+				for (S32 j=LLModel::LOD_HIGH; j>which_lod; --j)
+				{
+					triangle_count /= decimation;
+				}
+			}
 		}
 
 		mModel[lod].clear();
@@ -4305,6 +4339,13 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
+}
+
+void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
+{
+	genLODs(mPreviewLOD, 3, enforce_tri_limit);
+	updateStatusMessages();
+	refresh();
 }
 
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)

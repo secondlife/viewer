@@ -78,11 +78,11 @@ class LLFirstUse
 public:
 
 	// Add a config variable to be reset on resetFirstUse()
-	static void addConfigVariable(const std::string& var);
+	//static void addConfigVariable(const std::string& var);
 	
 	// Sets all controls back to show the dialogs.
-	static void disableFirstUse();
-	static void resetFirstUse();
+	//static void disableFirstUse();
+	//static void resetFirstUse();
 
 	static void otherAvatarChatFirst(bool enable = true);
 	static void sit(bool enable = true);
@@ -98,7 +98,8 @@ public:
 	
 protected:
 	static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
-	static std::set<std::string> sConfigVariables;
+	//static std::set<std::string> sConfigVariables;
+	static std::set<std::string> sConfigVariablesEnabled;
 
 	static void init();
 	static bool processNotification(const LLSD& notify);

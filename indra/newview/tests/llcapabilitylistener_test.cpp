@@ -72,7 +72,7 @@ struct TestCapabilityProvider: public LLCapabilityProvider
     {
         mCaps[cap] = url;
     }
-    LLHost getHost() const { return mHost; }
+    const LLHost& getHost() const { return mHost; }
     std::string getDescription() const { return "TestCapabilityProvider"; }
 
     LLHost mHost;
@@ -114,6 +114,7 @@ namespace tut
             regionListener("testCapabilityListener", NULL, provider, LLUUID(), LLUUID()),
             regionPump(regionListener.getCapAPI())
         {
+            LLCurl::initClass();
             provider.setCapability("good", server + "capability-test");
             provider.setCapability("fail", server + "fail");
         }
