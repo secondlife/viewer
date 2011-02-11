@@ -51,7 +51,7 @@ public:
 	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
-	BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname);
+	BOOL getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname);
 	
 	void* mDirSearch_h;
 	llutf16string mCurrentDir;
