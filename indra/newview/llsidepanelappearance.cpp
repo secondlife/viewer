@@ -185,7 +185,7 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 {
 	LLSD visibility;
 	visibility["visible"] = new_visibility.asBoolean();
-	visibility["reset_accordion"] = true;
+	visibility["reset_accordion"] = false;
 	updateToVisibility(visibility);
 }
 

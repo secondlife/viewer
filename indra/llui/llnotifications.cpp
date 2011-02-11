@@ -1367,7 +1367,6 @@ LLNotifications::TemplateNames LLNotifications::getTemplateNames() const
 typedef std::map<std::string, std::string> StringMap;
 void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 {
-	//llwarns << "replaceSubstitutionStrings" << llendl;
 	// walk the list of attributes looking for replacements
 	for (LLXMLAttribList::iterator it=node->mAttributes.begin();
 		 it != node->mAttributes.end(); ++it)
@@ -1381,13 +1380,12 @@ void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 			if (found != replacements.end())
 			{
 				replacement = found->second;
-				//llwarns << "replaceSubstituionStrings: value: " << value << " repl: " << replacement << llendl;
-
+				lldebugs << "replaceSubstitutionStrings: value: \"" << value << "\" repl: \"" << replacement << "\"." << llendl;
 				it->second->setValue(replacement);
 			}
 			else
 			{
-				llwarns << "replaceSubstituionStrings FAILURE: value: " << value << " repl: " << replacement << llendl;
+				llwarns << "replaceSubstitutionStrings FAILURE: could not find replacement \"" << value << "\"." << llendl;
 			}
 		}
 	}

@@ -139,6 +139,7 @@
 #include "lltrans.h"
 #include "llui.h"
 #include "llurldispatcher.h"
+#include "llurlentry.h"
 #include "llslurl.h"
 #include "llurlhistory.h"
 #include "llurlwhitelist.h"
@@ -980,7 +981,6 @@ bool idle_startup()
 			login->setSkipOptionalUpdate(true);
 		}
 
-		login->setUserInteraction(show_connect_box);
 		login->setSerialNumber(LLAppViewer::instance()->getSerialNumber());
 		login->setLastExecEvent(gLastExecEvent);
 		login->setUpdaterLauncher(boost::bind(&LLAppViewer::launchUpdater, LLAppViewer::instance()));
@@ -2882,9 +2882,17 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	
+	// Agent id needed for parcel info request in LLUrlEntryParcel
+	// to resolve parcel name.
+	LLUrlEntryParcel::setAgentID(gAgentID);
+
 	text = response["session_id"].asString();
 	if(!text.empty()) gAgentSessionID.set(text);
 	gDebugInfo["SessionID"] = text;
+
+	// Session id needed for parcel info request in LLUrlEntryParcel
+	// to resolve parcel name.
+	LLUrlEntryParcel::setSessionID(gAgentSessionID);
 	
 	text = response["secure_session_id"].asString();
 	if(!text.empty()) gAgent.mSecureSessionID.set(text);

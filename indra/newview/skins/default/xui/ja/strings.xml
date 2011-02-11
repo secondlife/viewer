@@ -1882,34 +1882,34 @@
 	<string name="PDT">
 		太平洋夏時間
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		前
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		左
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		右
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		後ろ
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		北
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		南
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		西
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		東
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		上
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		下
 	</string>
 	<string name="Any Category">
