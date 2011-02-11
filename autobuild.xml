@@ -128,7 +128,7 @@
         <key>license</key>
         <string>c-ares</string>
         <key>license_file</key>
-        <string>LICENSES/ares.txt</string>
+        <string>LICENSES/c-ares.txt</string>
         <key>name</key>
         <string>ares</string>
         <key>platforms</key>
@@ -162,9 +162,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2318e9eef0ea020878759d974a5945df</string>
+              <string>1dcec6babd249a2597114d4ac226c461</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/CYGWIN/installer/ares-1.7.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -258,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f57a98c83ae6f62655c78f158ee93fc6</string>
+              <string>fea96aa2a7d513397317194f3d6c979b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/CYGWIN/installer/curl-7.21.1-windows-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/220996/arch/CYGWIN/installer/curl-7.21.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1280,9 +1280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3e1847f7c38b4c78d8f594d269e96340</string>
+              <string>774c7f0a0312bee3054757a623e227bc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220197/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110202.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1572,9 +1572,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1015a07ce0aa9aeeadc6a126cdcdf9f</string>
+              <string>5852192646681817fc3c3a8c95e91c1e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/CYGWIN/installer/zlib-1.2.5-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
