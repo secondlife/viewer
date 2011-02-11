@@ -3335,13 +3335,21 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	if (visible && !isSelf() && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a size;
+		size.setSub(ext[1],ext[0]);
+		F32 mag = size.getLength3().getF32()*0.5f;
+
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (LLMuteList::getInstance()->isMuted(getID()))
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible)
+		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible ||
+			mDrawable->mDistanceWRTCamera < 1.f + mag)
 		{ //first 25% of max visible avatars are not impostored
+			//also, don't impostor avatars whose bounding box may be penetrating the 
+			//impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
 		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 4)

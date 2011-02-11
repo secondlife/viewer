@@ -9352,10 +9352,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	//glh::matrix4f ortho = gl_ortho(-tdim.mV[0], tdim.mV[0], -tdim.mV[1], tdim.mV[1], 1.0, 256.0);
+	
 	F32 distance = (pos-camera.getOrigin()).length();
 	F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
-	F32 aspect = tdim.mV[0]/tdim.mV[1]; //128.f/256.f;
+	F32 aspect = tdim.mV[0]/tdim.mV[1];
 	glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);
 	glh_set_current_projection(persp);
 	glLoadMatrixf(persp.m);
@@ -9374,7 +9374,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	gGL.setColorMask(true, true);
 	glStencilMask(0xFFFFFFFF);
 	glClearStencil(0);
-
+	
 	// get the number of pixels per angle
 	F32 pa = gViewerWindow->getWindowHeightRaw() / (RAD_TO_DEG * viewer_camera->getView());
 
@@ -9424,9 +9424,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glStencilFunc(GL_EQUAL, 1, 0xFFFFFF);
 
 	{ //create alpha mask based on stencil buffer (grey out if muted)
-		LLVector3 left = camera.getLeftAxis()*tdim.mV[0]*2.f;
-		LLVector3 up = camera.getUpAxis()*tdim.mV[1]*2.f;
-
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0_EXT;
@@ -9449,16 +9446,25 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-		gGL.color4f(1,1,1,1);
+		gGL.flush();
+
+		glPushMatrix();
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
 		gGL.color4ub(64,64,64,255);
 		gGL.begin(LLRender::QUADS);
-		gGL.vertex3fv((pos+left-up).mV);
-		gGL.vertex3fv((pos-left-up).mV);
-		gGL.vertex3fv((pos-left+up).mV);
-		gGL.vertex3fv((pos+left+up).mV);
+		gGL.vertex2f(-1, -1);
+		gGL.vertex2f(1, -1);
+		gGL.vertex2f(1, 1);
+		gGL.vertex2f(-1, 1);
 		gGL.end();
 		gGL.flush();
 
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
 
