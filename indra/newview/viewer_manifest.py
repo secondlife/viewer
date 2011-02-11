@@ -289,7 +289,7 @@ class WindowsManifest(ViewerManifest):
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
                  self.path("msvcr100d.dll")
-                 self.path("msvcp80d.dll")
+                 self.path("msvcp100d.dll")
             else:
                  self.path("msvcr100.dll")
                  self.path("msvcp100.dll")

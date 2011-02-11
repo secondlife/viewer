@@ -908,9 +908,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a668a4ddfe20a078d720d7a4fca205bd</string>
+              <string>afff2018e6a887c281b072eecdd9343e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110131a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/220579/arch/CYGWIN/installer/jsoncpp-0.5.0-windows-20110208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1066,7 +1066,7 @@
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/LLQTWEBKIT_LICENSE.txt</string>
+        <string>LICENSES/llqtwebkit.txt</string>
         <key>name</key>
         <string>llqtwebkit</string>
         <key>platforms</key>
@@ -1100,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5744e07b1b775afd259f3916a436c54c</string>
+              <string>7865b9c3a5d9f9424af56d5d05b82de9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110204.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/alain_llqtwebkit/rev/220864/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110210.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1386,30 +1386,6 @@
             </map>
             <key>name</key>
             <string>darwin</string>
-          </map>
-        </map>
-      </map>
-      <key>qt</key>
-      <map>
-        <key>license</key>
-        <string>LGPL</string>
-        <key>license_file</key>
-        <string>LICENSES/qt.txt</string>
-        <key>name</key>
-        <string>qt</string>
-        <key>platforms</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ad536aebb28e578164f58e3f7b53bbb1</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-qt/rev/220494/arch/CYGWIN/installer/qt-4.7.1-windows-20110207.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
           </map>
         </map>
       </map>

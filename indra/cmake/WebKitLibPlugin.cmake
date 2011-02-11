@@ -35,7 +35,6 @@ else (STANDALONE)
 endif (STANDALONE)
 
 if (WINDOWS)
-  use_prebuilt_binary(qt)
   set(WEBKIT_PLUGIN_LIBRARIES
       debug llqtwebkitd
       debug QtWebKitd4
