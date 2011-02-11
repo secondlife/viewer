@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if !LL_DARWIN
+#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
+#endif // !LL_DARWIN
+
 #ifndef LL_LLDIR_MAC_H
 #define LL_LLDIR_MAC_H
 

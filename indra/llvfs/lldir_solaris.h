@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if !LL_SOLARIS
+#error This header must not be included when compiling for any target other than Solaris. Consider including lldir.h instead.
+#endif // !LL_SOLARIS
+
 #ifndef LL_LLDIR_SOLARIS_H
 #define LL_LLDIR_SOLARIS_H
 
