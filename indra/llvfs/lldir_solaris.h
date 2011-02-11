@@ -54,7 +54,7 @@ private:
 	DIR *mDirp;
 	int mCurrentDirIndex;
 	int mCurrentDirCount;
-	std::string mCurrentDir;	
+	std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_SOLARIS_H

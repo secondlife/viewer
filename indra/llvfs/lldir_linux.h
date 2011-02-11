@@ -1,6 +1,6 @@
 /** 
  * @file lldir_linux.h
- * @brief Definition of directory utilities class for linux 
+ * @brief Definition of directory utilities class for linux
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -57,7 +57,7 @@ private:
 	DIR *mDirp;
 	int mCurrentDirIndex;
 	int mCurrentDirCount;
-	std::string mCurrentDir;	
+	std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_LINUX_H

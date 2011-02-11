@@ -52,7 +52,7 @@ public:
 
 private:
 	BOOL getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname);
-	
+
 	void* mDirSearch_h;
 	llutf16string mCurrentDir;
 };
