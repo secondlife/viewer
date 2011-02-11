@@ -129,7 +129,8 @@ public:
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
-				U32 	getRenderCost(std::set<LLUUID> &textures) const;
+				typedef std::map<LLUUID, S32> texture_cost_t;
+				U32 	getRenderCost(texture_cost_t &textures) const;
 	/*virtual*/	F32		getStreamingCost();
 	/*virtual*/ U32		getTriangleCount() const;
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
@@ -357,8 +358,6 @@ public:
 		
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
-
-	static const U32 ARC_TEXTURE_COST = 5;
 
 protected:
 	static S32 sNumLODChanges;
