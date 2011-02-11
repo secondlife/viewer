@@ -57,7 +57,7 @@
 
 #include "llcommandlineparser.h"
 #include "lltrans.h"
-#include "runtimediagnostics.h"
+
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #include "llwindebug.h"
 #endif
@@ -110,7 +110,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-	RuntimeDiagnostics::CheckPauseOnStartupOption();
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 
 	const S32 MAX_HEAPS = 255;
