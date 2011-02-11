@@ -181,7 +181,7 @@ const S32 OBJECT_GROUP = 7;
 const S32 OBJECT_CREATOR = 8;
 
 // llTextBox() magic token string - yes this is a hack.  sue me.
-const std::string TEXTBOX_MAGIC_TOKEN = "!!llTextBox!!";
+char const* const TEXTBOX_MAGIC_TOKEN = "!!llTextBox!!";
 
 // changed() event flags
 const U32	CHANGED_NONE = 0x0;

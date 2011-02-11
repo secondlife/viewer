@@ -563,7 +563,17 @@ void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_paren
 	height = rc.getHeight();
 	width = rc.getWidth();
 
+	bool is_width_changed = width != getRect().getWidth();
+
 	LLToastPanel::reshape(width, height, called_from_parent);
+
+	// Notification height required to display the text message depends on
+	// the width of the text box thus if panel width is changed the text box
+	// width is also changed then reshape() is called to adjust proper height.
+	if (is_width_changed)
+	{
+		reshape(width, height, called_from_parent);
+	}
 }
 
 // EOF
