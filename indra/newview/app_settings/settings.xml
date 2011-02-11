@@ -10207,6 +10207,17 @@
       <key>Value</key>
       <string>pilot.txt</string>
     </map>
+    <key>StatsPilotXMLFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Filename for stats logging extended autopilot path</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>pilot.xml</string>
+    </map>
     <key>StatsQuitAfterRuns</key>
     <map>
       <key>Comment</key>
