@@ -1149,7 +1149,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mShaderFiles.clear();
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
+
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
+		{ //if using SSAO, take screen space light map into account as if shadows are enabled
+			gDeferredSoftenProgram.mShaderLevel = llmax(gDeferredSoftenProgram.mShaderLevel, 2);
+		}
+				
 		success = gDeferredSoftenProgram.createShader(NULL, NULL);
 	}
 
