@@ -43,7 +43,7 @@ public:
 
 	/*virtual*/ void initAppDirs(const std::string &app_name,
 		const std::string& app_read_only_data_dir);
-public:	
+
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
