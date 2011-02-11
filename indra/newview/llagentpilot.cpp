@@ -35,7 +35,6 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
-#include "llviewerjoystick.h"
 #include "llsdserialize.h"
 #include "llsdutil_math.h"
 
@@ -259,11 +258,6 @@ void LLAgentPilot::startPlayback()
 		if (mActions.count())
 		{
 			llinfos << "Starting playback, moving to waypoint 0" << llendl;
-			if (getOverrideCamera() &&
-				!LLViewerJoystick::getInstance()->getOverrideCamera())	
-			{
-				LLViewerJoystick::getInstance()->toggleFlycam();
-			}
 			gAgent.startAutoPilotGlobal(mActions[0].mTarget);
 			moveCamera();
 			mStarted = FALSE;
