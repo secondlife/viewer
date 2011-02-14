@@ -60,6 +60,11 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Ask to toggle the state of the floater specified in [\"name\"]",
         &LLFloaterRegListener::toggleInstance,
         requiredName);
+    add("instanceVisible",
+        "Return on [\"reply\"] an event whose [\"visible\"] indicates the visibility "
+        "of the floater specified in [\"name\"]",
+        &LLFloaterRegListener::instanceVisible,
+        requiredName);
     LLSD requiredNameButton;
     requiredNameButton["name"] = LLSD();
     requiredNameButton["button"] = LLSD();
@@ -102,6 +107,14 @@ void LLFloaterRegListener::hideInstance(const LLSD& event) const
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
     LLFloaterReg::toggleInstance(event["name"], event["key"]);
+}
+
+void LLFloaterRegListener::instanceVisible(const LLSD& event) const
+{
+    LLReqID reqID(event);
+    LLSD reply(reqID.makeResponse());
+    reply["visible"] = LLFloaterReg::instanceVisible(event["name"], event["key"]);
+    LLEventPumps::instance().obtain(event["reply"]).post(reply);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const
