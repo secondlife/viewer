@@ -23,9 +23,7 @@
 			<text name="Owner:">
 				Eigenaar:
 			</text>
-			<text name="OwnerText" left="102" width="242">
-				Leyla Linden
-			</text>
+			<text name="OwnerText" left="102" width="242"/>
 			<button label="Profiel" name="Profile..."/>
 			<text name="Group:">
 				Groep:

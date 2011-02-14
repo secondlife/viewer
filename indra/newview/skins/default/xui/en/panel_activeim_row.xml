@@ -65,6 +65,7 @@
     speaker.visible="false">
   </chiclet_im_adhoc>
 	<text
+	    translate="false"
 		type="string"
 		name="contact_name"
 		layout="topleft"
@@ -76,7 +77,7 @@
 		follows="right|left"
 		use_ellipses="true"
 		font="SansSerifBold">
-    Grumpity ProductEngine
+    TestString PleaseIgnore
   </text>
   <button
     top="10"

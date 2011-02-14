@@ -65,8 +65,9 @@
          name="user_name"
          text_color="white"
          top="8"
+         translate="false"
          use_ellipses="true"
-         value="Erica Vader"
+         value="TestString PleaseIgnore"
          width="205" />
 	 <!-- TIME STAMP -->
         <text

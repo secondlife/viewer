@@ -10,8 +10,6 @@
 	<string name="Details">
 		[PERFIL_SL]
 	</string>
-	<text name="user_name_small" value="Grumpity ProductEngine with a long name"/>
-	<text name="user_slid" value="james.linden"/>
 	<text name="user_details">
 		This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
 	</text>

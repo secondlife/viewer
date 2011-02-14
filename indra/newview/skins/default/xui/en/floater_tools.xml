@@ -876,10 +876,11 @@
              layout="topleft"
              name="Creator Name"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Esbee Linden (esbee.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
             <text
              type="string"
@@ -903,10 +904,11 @@
              name="Owner Name"
              left_pad="0"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Erica "Moose" Linden (erica.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
            <text
              type="string"

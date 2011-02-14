@@ -87,14 +87,8 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="Owner:">
 				Ejer:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Gruppe:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Vælg" name="Set..."/>
 			<check_box label="Tillad dedikering til gruppe" name="check deed" tool_tip="En gruppe administrator kan dedikere denne jord til gruppen, så det vil blive støttet af gruppen&apos;s jord tildeling."/>

@@ -220,9 +220,10 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
+             translate="false"
              use_ellipses="true" 
              width="360">
-                Leyla Linden
+                TestString PleaseIgnore
             </text>
              <button
      follows="right"
@@ -260,8 +261,10 @@
              left_pad="2"
              layout="topleft"
              name="GroupText"
+             translate="false"
              width="240">
-Leyla Linden               </text>
+                TestString PleaseIgnore
+            </text>
                  <button
      follows="right"
      height="23"
