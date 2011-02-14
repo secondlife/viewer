@@ -1199,10 +1199,7 @@ void LLCurl::cleanupClass()
 
 	Easy::sFreeHandles.clear();
 
-	if (!Easy::sActiveHandles.empty())
-	{
-		llerrs << "CURL easy handles not cleaned up on shutdown!" << llendl;
-	}
+	llassert(Easy::sActiveHandles.empty());
 }
 
 const unsigned int LLCurl::MAX_REDIRECTS = 5;
