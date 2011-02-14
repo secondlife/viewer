@@ -5,6 +5,7 @@
 # VisualStudio.
 
 include(CMakeCopyIfDifferent)
+include(Linking)
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
@@ -16,7 +17,7 @@ if(WINDOWS)
 
     #*******************************
     # VIVOX - *NOTE: no debug version
-    set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
+    set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice.exe
         libsndfile-1.dll
@@ -30,9 +31,7 @@ if(WINDOWS)
     #*******************************
     # Misc shared libs 
 
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
         openjpegd.dll
         libapr-1.dll
@@ -40,14 +39,13 @@ if(WINDOWS)
         libapriconv-1.dll
         )
 
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjpeg.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        dbghelp.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
@@ -128,7 +126,7 @@ elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release/Resources")
 
-    set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/universal-darwin")
+    set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice
         libsndfile.dylib
@@ -137,14 +135,10 @@ elseif(DARWIN)
         libvivoxplatform.dylib
         libvivoxsdk.dylib
        )
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
        )
-    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libapr-1.0.3.7.dylib
         libapr-1.dylib
@@ -167,7 +161,7 @@ elseif(LINUX)
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}")
 
-    set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
+    set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         libsndfile.so.1
         libortp.so
@@ -178,12 +172,12 @@ elseif(LINUX)
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_debug")
+    set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_release_client")
+    set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
         libapr-1.so.0

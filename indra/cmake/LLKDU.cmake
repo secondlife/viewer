@@ -1,7 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-# USE_KDU can be set when launching cmake or develop.py as an option using the argument -DUSE_KDU:BOOL=ON
+# USE_KDU can be set when launching cmake as an option using the argument -DUSE_KDU:BOOL=ON
 # When building using proprietary binaries though (i.e. having access to LL private servers), we always build with KDU
 if (INSTALL_PROPRIETARY AND NOT STANDALONE)
   set(USE_KDU ON)
@@ -14,7 +14,7 @@ if (USE_KDU)
   else (WINDOWS)
     set(KDU_LIBRARY libkdu.a)
   endif (WINDOWS)
-  set(KDU_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/kdu)
+  set(KDU_INCLUDE_DIR ${AUTOBUILD_INSTALL_DIR}/include/kdu)
   set(LLKDU_INCLUDE_DIRS ${LIBS_OPEN_DIR}/llkdu)
   set(LLKDU_LIBRARIES llkdu)
 endif (USE_KDU)

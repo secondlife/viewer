@@ -234,5 +234,8 @@ viewer-asset-delivery-metrics.email = monty@lindenlab.com
 viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
 
-
+#==============================================================================
+# viewer-autobuild
+#==============================================================================
+viewer-autobuild.build_link_parallel = false
 # eof

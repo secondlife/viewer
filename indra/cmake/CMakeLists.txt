@@ -85,7 +85,6 @@ source_group("Shared Rules" FILES ${cmake_SOURCE_FILES})
 
 set(master_SOURCE_FILES
     ../CMakeLists.txt
-    ../develop.py
     )
 
 if (SERVER)
