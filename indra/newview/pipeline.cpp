@@ -9372,8 +9372,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	gGL.setColorMask(true, true);
-	glStencilMask(0xFFFFFFFF);
-	glClearStencil(0);
 	
 	// get the number of pixels per angle
 	F32 pa = gViewerWindow->getWindowHeightRaw() / (RAD_TO_DEG * viewer_camera->getView());
@@ -9385,7 +9383,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	if (!avatar->mImpostor.isComplete() || resX != avatar->mImpostor.getWidth() ||
 		resY != avatar->mImpostor.getHeight())
 	{
-		avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE,TRUE);
+		avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE,FALSE);
 		
 		if (LLPipeline::sRenderDeferred)
 		{
@@ -9397,40 +9395,30 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 
-	LLGLEnable stencil(GL_STENCIL_TEST);
-	glStencilMask(0xFFFFFFFF);
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	avatar->mImpostor.bindTarget();
 
-	{
-		LLGLEnable scissor(GL_SCISSOR_TEST);
-		glScissor(0, 0, resX, resY);
-		avatar->mImpostor.bindTarget();
-		avatar->mImpostor.clear();
-	}
-	
 	if (LLPipeline::sRenderDeferred)
 	{
-		stop_glerror();
+		avatar->mImpostor.clear();
 		renderGeomDeferred(camera);
 		renderGeomPostDeferred(camera);
 	}
 	else
 	{
+		LLGLEnable scissor(GL_SCISSOR_TEST);
+		glScissor(0, 0, resX, resY);
+		avatar->mImpostor.clear();
 		renderGeom(camera);
 	}
 	
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glStencilFunc(GL_EQUAL, 1, 0xFFFFFF);
-
-	{ //create alpha mask based on stencil buffer (grey out if muted)
+	{ //create alpha mask based on depth buffer (grey out if muted)
 		if (LLPipeline::sRenderDeferred)
 		{
-			GLuint buff = GL_COLOR_ATTACHMENT0_EXT;
+			GLuint buff = GL_COLOR_ATTACHMENT0;
 			glDrawBuffersARB(1, &buff);
 		}
 
-		LLGLEnable blend(muted ? 0 : GL_BLEND);
+		LLGLDisable blend(GL_BLEND);
 
 		if (muted)
 		{
@@ -9441,33 +9429,33 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			gGL.setColorMask(false, true);
 		}
 		
-		gGL.setSceneBlendType(LLRender::BT_ADD);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 
 		gGL.flush();
 
 		glPushMatrix();
 		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
 		glLoadIdentity();
+
+		static const F32 clip_plane = 0.99999f;
 
 		gGL.color4ub(64,64,64,255);
 		gGL.begin(LLRender::QUADS);
-		gGL.vertex2f(-1, -1);
-		gGL.vertex2f(1, -1);
-		gGL.vertex2f(1, 1);
-		gGL.vertex2f(-1, 1);
+		gGL.vertex3f(-1, -1, clip_plane);
+		gGL.vertex3f(1, -1, clip_plane);
+		gGL.vertex3f(1, 1, clip_plane);
+		gGL.vertex3f(-1, 1, clip_plane);
 		gGL.end();
 		gGL.flush();
 
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
-
 
 	avatar->mImpostor.flush();
 
