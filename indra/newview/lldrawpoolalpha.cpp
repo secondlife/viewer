@@ -103,7 +103,14 @@ void LLDrawPoolAlpha::renderDeferred(S32 pass)
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
-	return 2; 
+	if (LLPipeline::sImpostorRender)
+	{ //skip depth buffer filling pass when rendering impostors
+		return 1;
+	}
+	else
+	{
+		return 2; 
+	}
 }
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
@@ -137,8 +144,13 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
 { 
-	gPipeline.mDeferredDepth.flush();
-	gPipeline.mScreen.bindTarget();
+
+	if (pass == 1)
+	{
+		gPipeline.mDeferredDepth.flush();
+		gPipeline.mScreen.bindTarget();
+	}
+
 	deferred_render = FALSE;
 	endRenderPass(pass);
 }
