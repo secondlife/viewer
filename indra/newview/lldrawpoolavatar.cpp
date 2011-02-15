@@ -494,7 +494,7 @@ void LLDrawPoolAvatar::render(S32 pass)
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	if (LLPipeline::sImpostorRender)
 	{
-		renderAvatars(NULL, 2);
+		renderAvatars(NULL, pass+2);
 		return;
 	}
 
