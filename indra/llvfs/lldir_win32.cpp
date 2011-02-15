@@ -249,7 +249,7 @@ BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string
 	if (pathname != mCurrentDir)
 	{
 		// different dir specified, close old search
-		if (mCurrentDir[0])
+		if (!mCurrentDir.empty())
 		{
 			FindClose(mDirSearch_h);
 		}
