@@ -397,7 +397,9 @@ void LLViewerShaderMgr::setShaders()
 		S32 deferred_class = 0;
 		
 		if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		    gSavedSettings.getBOOL("RenderDeferred"))
+		    gSavedSettings.getBOOL("RenderDeferred") &&
+			gSavedSettings.getBOOL("RenderAvatarVP") &&
+			gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 		{
 			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{
@@ -416,10 +418,10 @@ void LLViewerShaderMgr::setShaders()
 			}
 
 			//make sure hardware skinning is enabled
-			gSavedSettings.setBOOL("RenderAvatarVP", TRUE);
+			//gSavedSettings.setBOOL("RenderAvatarVP", TRUE);
 			
 			//make sure atmospheric shaders are enabled
-			gSavedSettings.setBOOL("WindLightUseAtmosShaders", TRUE);
+			//gSavedSettings.setBOOL("WindLightUseAtmosShaders", TRUE);
 		}
 
 
@@ -505,9 +507,14 @@ void LLViewerShaderMgr::setShaders()
 			{ //hardware skinning not possible, neither is deferred rendering
 				mVertexShaderLevel[SHADER_AVATAR] = 0;
 				mVertexShaderLevel[SHADER_DEFERRED] = 0;
-				gSavedSettings.setBOOL("RenderDeferred", FALSE);
-				gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-				gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+
+				if (gSavedSettings.getBOOL("RenderAvatarVP"))
+				{
+					gSavedSettings.setBOOL("RenderDeferred", FALSE);
+					gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
+					gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+				}
+
 				loadShadersAvatar(); // unloads
 				loadShadersObject();
 			}

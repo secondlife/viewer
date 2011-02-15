@@ -1037,26 +1037,25 @@ void LLFloaterPreference::refreshEnabledState()
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	
-	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
-		shaders && 
-		gGLManager.mHasFramebufferObject)
-	{
-		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;
+	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
+						shaders && 
+						gGLManager.mHasFramebufferObject &&
+						gSavedSettings.getBOOL("RenderAvatarVP") &&
+						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
-		ctrl_deferred->setEnabled(enabled);
+	ctrl_deferred->setEnabled(enabled);
 	
-		LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-		LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
 
-		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
 		
-		ctrl_ssao->setEnabled(enabled);
+	ctrl_ssao->setEnabled(enabled);
 
-		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
 
-		ctrl_shadow->setEnabled(enabled);
-	}
-
+	ctrl_shadow->setEnabled(enabled);
+	
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
