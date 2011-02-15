@@ -80,7 +80,7 @@ public:
 
 	static BOOL	sUseStreamDraw;
 
-	static void initClass(bool use_vbo);
+	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
  	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
@@ -152,6 +152,11 @@ public:
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
 		
+	void preUpdate() ;
+	void postUpdate() const ;
+	void freeClientBuffer() ;
+	void dirty() {mDirty = TRUE;}
+
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
 	// example:
@@ -216,6 +221,7 @@ protected:
 	S32		mOffsets[TYPE_MAX];
 	BOOL	mResized;		// if TRUE, client buffer has been resized and GL buffer has not
 	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
+	mutable BOOL    mDirty ;
 
 	class DirtyRegion
 	{
@@ -240,13 +246,14 @@ public:
 	static std::vector<U32> sDeleteList;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
+	static BOOL sDisableVBOMapping; //disable glMapBufferARB
 	static BOOL sEnableVBOs;
+	static BOOL sVBOActive;
+	static BOOL sIBOActive;
 	static S32 sTypeOffsets[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
-	static U32 sGLRenderIndices;
-	static BOOL sVBOActive;
-	static BOOL sIBOActive;
+	static U32 sGLRenderIndices;	
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
 	static U32 sBindCount;
