@@ -8451,6 +8451,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderVBOMappingDisable</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable VBO glMapBufferARB</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>RenderUseStreamVBO</key>
   <map>
     <key>Comment</key>
