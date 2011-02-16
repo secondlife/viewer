@@ -50,6 +50,7 @@ LLJoint::LLJoint()
 	mUpdateXform = TRUE;
 	mJointNum = -1;
 	touch();
+	mResetAfterRestoreOldXform = false;
 }
 
 
@@ -250,6 +251,7 @@ void LLJoint::setDefaultFromCurrentXform( void )
 void LLJoint::storeCurrentXform( const LLVector3& pos )
 {
 	mOldXform = mXform;
+	mResetAfterRestoreOldXform = true;
 	setPosition( pos );
 }
 //--------------------------------------------------------------------
@@ -257,6 +259,7 @@ void LLJoint::storeCurrentXform( const LLVector3& pos )
 //--------------------------------------------------------------------
 void LLJoint::restoreOldXform( void )
 {
+	mResetAfterRestoreOldXform = false;
 	mXform = mOldXform;
 }
 //--------------------------------------------------------------------
@@ -556,3 +559,4 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 }
 
 // End
+
