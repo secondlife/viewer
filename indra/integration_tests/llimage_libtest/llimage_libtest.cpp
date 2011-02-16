@@ -41,15 +41,19 @@
 // system libraries
 #include <iostream>
 
+// doc string provided when invoking the program with --help 
 static const char USAGE[] = "\n"
 "usage:\tllimage_libtest [options]\n"
 "\n"
 " --help                         print this help\n"
+" --in <file1> <file2>...        list of image files to load and convert\n"
+" --out <file1> <file2>...       list of image files to create (assumes same order as --in files)\n"
 "\n";
 
-LLPointer<LLImageRaw> load_image(const std::string &src_filename)
+// Create an empty formatted image instance of the correct type from the filename
+LLPointer<LLImageFormatted> create_image(const std::string &filename)
 {
-	std::string exten = gDirUtilp->getExtension(src_filename);
+	std::string exten = gDirUtilp->getExtension(filename);
 	U32 codec = LLImageBase::getCodecFromExtension(exten);
 	
 	LLPointer<LLImageFormatted> image;
@@ -73,6 +77,14 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename)
 		default:
 			return NULL;
 	}
+	
+	return image;
+}
+
+// Load an image from file and return a raw (decompressed) instance of its data
+LLPointer<LLImageRaw> load_image(const std::string &src_filename)
+{
+	LLPointer<LLImageFormatted> image = create_image(src_filename);
 
 	if (!image->load(src_filename))
 	{
@@ -94,79 +106,100 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename)
 	return raw_image;
 }
 
-bool save_image(const std::string &filepath, LLPointer<LLImageRaw> raw_image)
+// Save a raw image instance into a file
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image)
 {
-	std::string exten = gDirUtilp->getExtension(filepath);
-	U32 codec = LLImageBase::getCodecFromExtension(exten);
-
-	LLPointer<LLImageFormatted> image;
-	switch (codec)
-	{
-		case IMG_CODEC_BMP:
-			image = new LLImageBMP();
-			break;
-		case IMG_CODEC_TGA:
-			image = new LLImageTGA();
-			break;
-		case IMG_CODEC_JPEG:
-			image = new LLImageJPEG();
-			break;
-		case IMG_CODEC_J2C:
-			image = new LLImageJ2C();
-			break;
-		case IMG_CODEC_PNG:
-			image = new LLImagePNG();
-			break;
-		default:
-			return NULL;
-	}
+	LLPointer<LLImageFormatted> image = create_image(dest_filename);
 	
 	if (!image->encode(raw_image, 0.0f))
 	{
 		return false;
 	}
 	
-	return image->save(filepath);
+	return image->save(dest_filename);
 }
 
 int main(int argc, char** argv)
 {
+	// List of input and output files
+	std::list<std::string> input_filenames;
+	std::list<std::string> output_filenames;
+
 	// Init whatever is necessary
 	ll_init_apr();
 	LLImage::initClass();
 
 	// Analyze command line arguments
-	for (int arg=1; arg<argc; ++arg)
+	for (int arg = 1; arg < argc; ++arg)
 	{
 		if (!strcmp(argv[arg], "--help"))
 		{
-            // always send the usage to standard out
+            // Send the usage to standard out
             std::cout << USAGE << std::endl;
 			return 0;
 		}
-		
+		else if (!strcmp(argv[arg], "--in") && arg < argc-1)
+		{
+			std::string file_name = argv[arg+1];
+			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
+			{
+				input_filenames.push_back(file_name);	// Add file name to the list
+				arg += 1;					// Skip that arg now we know it's a file name
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+				file_name = argv[arg+1];	// Next argument and loop over
+			}
+		}		
+		else if (!strcmp(argv[arg], "--out") && arg < argc-1)
+		{
+			std::string file_name = argv[arg+1];
+			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
+			{
+				output_filenames.push_back(file_name);	// Add file name to the list
+				arg += 1;					// Skip that arg now we know it's a file name
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+				file_name = argv[arg+1];	// Next argument and loop over
+			}
+		}		
 	}
 		
-	// List of (input,output) files
+	// Analyze the list of (input,output) files
+	if (input_filenames.size() == 0)
+	{
+		std::cout << "No input file, nothing to do -> exit" << std::endl;
+		return 0;
+	}
+	// TODO: For the moment, we simply convert each input file to something. This needs to evolve...
+	if (input_filenames.size() != output_filenames.size())
+	{
+		std::cout << "Number of output and input files different -> exit" << std::endl;
+		return 0;
+	}
+
+	std::list<std::string>::iterator in_file  = input_filenames.begin();
+	std::list<std::string>::iterator out_file = output_filenames.begin();
+	std::list<std::string>::iterator end = input_filenames.end();
+	for (; in_file != end; ++in_file, ++out_file)
+	{
+		// Load file
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file);
+		if (!raw_image)
+		{
+			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
+			continue;
+		}
 	
-	// Load file
-	LLPointer<LLImageRaw> raw_image = load_image("lolcat-monorail.jpg");
-	if (raw_image)
-	{
-		std::cout << "Image loaded\n" << std::endl;
+		// Save file
+		if (!save_image(*out_file, raw_image))
+		{
+			std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
+			continue;
+		}
+		std::cout << *in_file << " -> " << *out_file << std::endl;
+
+		// Output stats on each file
 	}
-	else
-	{
-		std::cout << "Image not found\n" << std::endl;
-	}
-	
-	// Save file
-	if (raw_image)
-	{
-		save_image("monorail.png",raw_image);
-	}
-		
-	// Output stats on each file
 	
 	// Cleanup and exit
 	LLImage::cleanupClass();
