@@ -53,11 +53,9 @@ if (DARWIN)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
   set(OS_LIBRARIES ${COREFOUNDATION_LIBRARY})
 elseif (WINDOWS)
-  #ll_stack_trace needs this now...
-  list(APPEND WINDOWS_LIBRARIES dbghelp)
-  set(OS_LIBRARIES ${WINDOWS_LIBRARIES})
+#  set(OS_LIBRARIES)
 elseif (LINUX)
-  set(OS_LIBRARIES)
+#  set(OS_LIBRARIES)
 else (DARWIN)
   message(FATAL_ERROR "Unknown platform")
 endif (DARWIN)
@@ -106,12 +104,15 @@ if (DARWIN)
   add_custom_command(TARGET llimage_libtest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libapr-1.0.3.7.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libapr-1.0.3.7.dylib
-  add_custom_command(TARGET llimage_libtest POST_BUILD
+  )
+ add_custom_command(TARGET llimage_libtest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libaprutil-1.0.3.8.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libaprutil-1.0.3.8.dylib
+  )
   add_custom_command(TARGET llimage_libtest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libexception_handler.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libexception_handler.dylib
+  )
   add_custom_command(TARGET llimage_libtest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libexpat.0.5.0.dylib ${LLIMAGE_LIBTEST_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libexpat.0.5.0.dylib
