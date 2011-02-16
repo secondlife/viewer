@@ -3335,13 +3335,21 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	if (visible && !isSelf() && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a size;
+		size.setSub(ext[1],ext[0]);
+		F32 mag = size.getLength3().getF32()*0.5f;
+
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (LLMuteList::getInstance()->isMuted(getID()))
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible)
+		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible ||
+			mDrawable->mDistanceWRTCamera < 1.f + mag)
 		{ //first 25% of max visible avatars are not impostored
+			//also, don't impostor avatars whose bounding box may be penetrating the 
+			//impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
 		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
@@ -4955,7 +4963,7 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 {
 	LLJoint* pJoint = mRoot.findJoint( name );
 	
-	if ( pJoint )
+	if ( pJoint  && pJoint->doesJointNeedToBeReset() )
 	{
 		pJoint->restoreOldXform();
 		pJoint->setId( LLUUID::null );
@@ -4993,11 +5001,15 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	for( S32 i = 0; i < (S32)mNumJoints; ++i )
 	{
 		LLJoint* pJoint = (LLJoint*)&mSkeleton[i];
-		pJoint->setId( LLUUID::null );
-		//restore joints to default positions, however skip over the pelvis
-		if ( pJoint && pPelvis != pJoint )
+		if ( pJoint->doesJointNeedToBeReset() )
 		{
-			pJoint->restoreOldXform();
+
+			pJoint->setId( LLUUID::null );
+			//restore joints to default positions, however skip over the pelvis
+			if ( pJoint && pPelvis != pJoint )
+			{
+				pJoint->restoreOldXform();
+			}
 		}
 	}
 	//make sure we don't apply the joint offset
