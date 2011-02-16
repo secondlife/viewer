@@ -427,7 +427,8 @@ void LLFloaterTools::refresh()
 		if (sShowObjectCost)
 		{
 			std::string prim_cost_string;
-			LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+			S32 cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
+			LLResMgr::getInstance()->getIntegerString(prim_cost_string, cost);
 			getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
 		}
 		

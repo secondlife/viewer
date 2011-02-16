@@ -2945,7 +2945,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	// per-prim costs
 	static const U32 ARC_PARTICLE_COST = 1;
 	static const U32 ARC_PARTICLE_MAX = 2048;
-	static const U32 ARC_TEXTURE_COST = 5;
+	static const U32 ARC_TEXTURE_COST = 32;
 
 	// per-prim multipliers
 	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
@@ -3043,7 +3043,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
 				if (texture)
 				{
-					S32 texture_cost = (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f + 1));
+					S32 texture_cost = 512 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
 					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
 				}
 			}
@@ -3075,7 +3075,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			if (textures.find(img->getID()) == textures.end())
 			{
-				S32 texture_cost = (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f + 1));
+				S32 texture_cost = 512 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
 				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
 			}
 		}
