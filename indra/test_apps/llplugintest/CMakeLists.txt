@@ -1,5 +1,4 @@
 # -*- cmake -*-
-if(LL_TESTS)
 project(llplugintest)
 
 include(00-Common)
@@ -537,4 +536,3 @@ if(WINDOWS)
 endif(WINDOWS)
 
 ll_deploy_sharedlibs_command(llmediaplugintest) 
-endif(LL_TESTS)
