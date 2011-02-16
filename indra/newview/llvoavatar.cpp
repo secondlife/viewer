@@ -4963,7 +4963,7 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 {
 	LLJoint* pJoint = mRoot.findJoint( name );
 	
-	if ( pJoint )
+	if ( pJoint  && pJoint->doesJointNeedToBeReset() )
 	{
 		pJoint->restoreOldXform();
 		pJoint->setId( LLUUID::null );
@@ -5001,11 +5001,15 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	for( S32 i = 0; i < (S32)mNumJoints; ++i )
 	{
 		LLJoint* pJoint = (LLJoint*)&mSkeleton[i];
-		pJoint->setId( LLUUID::null );
-		//restore joints to default positions, however skip over the pelvis
-		if ( pJoint && pPelvis != pJoint )
+		if ( pJoint->doesJointNeedToBeReset() )
 		{
-			pJoint->restoreOldXform();
+
+			pJoint->setId( LLUUID::null );
+			//restore joints to default positions, however skip over the pelvis
+			if ( pJoint && pPelvis != pJoint )
+			{
+				pJoint->restoreOldXform();
+			}
 		}
 	}
 	//make sure we don't apply the joint offset
