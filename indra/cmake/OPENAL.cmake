@@ -15,7 +15,7 @@ if (OPENAL)
     pkg_check_modules(OPENAL_LIB REQUIRED openal)
     pkg_check_modules(FREEALUT_LIB REQUIRED freealut)
   else (STANDALONE)
-    use_prebuilt_binary(openal-soft)
+    use_prebuilt_binary(openal_soft)
   endif (STANDALONE)
   set(OPENAL_LIBRARIES 
     openal

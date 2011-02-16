@@ -299,6 +299,10 @@ class WindowsManifest(ViewerManifest):
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
 
+            # For use in crash reporting (generates minidumps)
+            if self.args['configuration'].lower() != 'debug':
+                self.path("dbghelp.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -313,9 +317,6 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
-
-        # For use in crash reporting (generates minidumps)
-        self.path("dbghelp.dll")
 
         self.enable_no_crt_manifest_check()
         
@@ -336,7 +337,7 @@ class WindowsManifest(ViewerManifest):
 
 
         if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'debug'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'debug'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcored4.dll")
@@ -367,7 +368,7 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
         else:
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'release'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcore4.dll")
@@ -566,7 +567,7 @@ class DarwinManifest(ViewerManifest):
             self.path("Info-SecondLife.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+            self.path("../packages/lib/release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -608,15 +609,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("uk.lproj")
                 self.path("zh-Hans.lproj")
 
-                # SLVoice and vivox lols
-                self.path("vivox-runtime/universal-darwin/libsndfile.dylib", "libsndfile.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxoal.dylib", "libvivoxoal.dylib")
-                self.path("vivox-runtime/universal-darwin/libortp.dylib", "libortp.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
-                self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
-
-                libdir = "../../libraries/universal-darwin/lib_release"
+                libdir = "../packages/lib/release"
                 dylibs = {}
 
                 # Need to get the llcommon dll from any of the build directories as well
@@ -643,6 +636,11 @@ class DarwinManifest(ViewerManifest):
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
+                # SLVoice and vivox lols
+                for libfile in ('libsndfile.dylib', 'libvivoxoal.dylib', 'libortp.dylib', \
+                    'libvivoxsdk.dylib', 'libvivoxplatform.dylib', 'SLVoice') :
+                     self.path(os.path.join(libdir, libfile), libfile)
+                
                 try:
                     # FMOD for sound
                     self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
@@ -685,7 +683,7 @@ class DarwinManifest(ViewerManifest):
                 if self.prefix(src="", dst="llplugin"):
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
-                    self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
+                    self.path("../packages/lib/release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
 
                     self.end_prefix("llplugin")
 
@@ -925,7 +923,7 @@ class Linux_i686Manifest(LinuxManifest):
     def construct(self):
         super(Linux_i686Manifest, self).construct()
 
-        if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
+        if self.prefix("../packages/lib/release", dst="lib"):
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")
             self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
@@ -949,10 +947,10 @@ class Linux_i686Manifest(LinuxManifest):
             self.end_prefix("lib")
 
             # Vivox runtimes
-            if self.prefix(src="vivox-runtime/i686-linux", dst="bin"):
+            if self.prefix(src="../packages/lib/release", dst="bin"):
                     self.path("SLVoice")
                     self.end_prefix()
-            if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
+            if self.prefix(src="../packages/lib/release", dst="lib"):
                     self.path("libortp.so")
                     self.path("libsndfile.so.1")
                     #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
