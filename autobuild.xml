@@ -378,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2af1798aa38dce1b941ef8207f1beb50</string>
+              <string>e72db1bda49b205ebdf4945d4ed2b8f8</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221208/arch/CYGWIN/installer/expat-2.0.1-windows-20110215.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -474,9 +474,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6315d27fdea14a99cdb40ac7f0259916</string>
+              <string>825d5a9bafcc5bfe28dc4c1c4f87c576</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.6.0-windows-20110204.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freeglut/rev/221064/arch/CYGWIN/installer/freeglut-2.6.0-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a34cf9a671fc33607748ba23eecb612d</string>
+              <string>e006635a741420a15f40bbdac13bd8d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-windows-20110204.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glui/rev/221069/arch/CYGWIN/installer/glui-2.36-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
