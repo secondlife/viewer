@@ -1967,12 +1967,12 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 
 	if(drawablep && !drawablep->isDead())
 	{
-	if (drawablep->isSpatialBridge())
-	{
+		if (drawablep->isSpatialBridge())
+		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
 			if (root && //  // this test may not be needed, see above
-			    root->getVObj()->isAttachment())
+					root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
 				if (rootparent) // this IS sometimes NULL
@@ -1980,24 +1980,24 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 					LLViewerObject *vobj = rootparent->getVObj();
 					llassert(vobj); // trying to catch a bad assumption
 					if (vobj) // this test may not be needed, see above
-		{
+					{
 						const LLVOAvatar* av = vobj->asAvatar();
-			if (av && av->isImpostor())
-			{
-				return;
-			}
-		}
+						if (av && av->isImpostor())
+						{
+							return;
+						}
+					}
 				}
 			}
-		sCull->pushBridge((LLSpatialBridge*) drawablep);
-	}
-	else
-	{
-		sCull->pushDrawable(drawablep);
-	}
+			sCull->pushBridge((LLSpatialBridge*) drawablep);
+		}
+		else
+		{
+			sCull->pushDrawable(drawablep);
+		}
 
-	drawablep->setVisible(camera);
-}
+		drawablep->setVisible(camera);
+	}
 }
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
@@ -5432,7 +5432,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
 
-	if (for_snapshot)
+	/*if (for_snapshot)
 	{
 		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		{
@@ -5443,14 +5443,21 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			// If the snapshot is constructed from tiles, calculate which
 			// tile we're in.
-			const S32 num_horizontal_tiles = llceil(zoom_factor);
-			const LLVector2 tile(subfield % num_horizontal_tiles,
-								 (S32)(subfield / num_horizontal_tiles));
-			llassert(zoom_factor > 0.0); // Non-zero, non-negative.
-			const F32 tile_size = 1.0/zoom_factor;
-			
-			tc1 = tile*tile_size; // Top left texture coordinates
-			tc2 = (tile+LLVector2(1,1))*tile_size; // Bottom right texture coordinates
+
+			//from LLViewerCamera::setPerpsective
+			if (zoom_factor > 1.f)
+			{
+				int pos_y = subfield / llceil(zoom_factor);
+				int pos_x = subfield - (pos_y*llceil(zoom_factor));
+				F32 size = 1.f/zoom_factor;
+
+				tc1.set(pos_x*size, pos_y*size);
+				tc2 = tc1 + LLVector2(size,size);
+			}
+			else
+			{
+				tc2.set(1,1);
+			}
 			
 			LLGLEnable blend(GL_BLEND);
 			gGL.setSceneBlendType(LLRender::BT_ADD);
@@ -5483,7 +5490,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		glPopMatrix();
 
 		return;
-	}
+	}*/
 	
 	{
 		{

@@ -209,7 +209,6 @@ protected:
 	void onShareButtonClick();
 
 private:
-	void got_full_name_callback( const LLUUID& id, const std::string& full_name, bool is_group );
 	void onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	typedef std::map< std::string,LLUUID>	group_map_t;

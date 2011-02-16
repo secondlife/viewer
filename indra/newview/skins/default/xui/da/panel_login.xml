@@ -3,9 +3,6 @@
 	<panel.string name="create_account_url">
 		http://join.secondlife.com/
 	</panel.string>
-	<panel.string name="real_url">
-		http://secondlife.com/app/login/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
@@ -14,7 +11,7 @@
 			<text name="username_text">
 				Brugernavn:
 			</text>
-			<line_editor label="bobsmith12 eller Steller Sunshine" name="username_edit" tool_tip="Det brugernavn du valgte da du registrerede, som f.eks. bobsmith12 eller Steller Sunshine"/>
+			<combo_box name="username_combo" tool_tip="Brugernavnet du valgte da du registrerde dig, som f.eks. bobsmith12 or Steller Sunshine"/>
 			<text name="password_text">
 				Password:
 			</text>
