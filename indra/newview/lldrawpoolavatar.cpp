@@ -1030,6 +1030,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 	sVertexProgram->bind();
 	
+	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	enable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
 
 	gGL.getTexUnit(0)->activate();
@@ -1041,6 +1042,8 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
 	sVertexProgram->unbind();
+
+	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
 	sShaderLevel = mVertexShaderLevel;
 
