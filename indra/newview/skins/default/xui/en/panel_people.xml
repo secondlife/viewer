@@ -54,7 +54,13 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
     <string
      name="no_groups_msg"
      value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
-    <filter_editor
+	<string
+	 name="MiniMapToolTipMsg"
+	 value="[REGION](Double-click to open Map, shift-drag to pan)"/>
+	<string
+	 name="AltMiniMapToolTipMsg"
+	 value="[REGION](Double-click to teleport, shift-drag to pan)"/>
+	<filter_editor
      follows="left|top|right"
      height="23"
      layout="topleft"
@@ -93,16 +99,26 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="nearby_panel"
          top="0"
          width="313">
-            <avatar_list
+			<net_map
+			 bg_color="NetMapBackgroundColor"
+			 follows="top|left|right"
+			 layout="topleft"
+			 left="3"
+			 mouse_opaque="false"
+			 name="Net Map"
+			 width="307"
+			 height="140"
+			 top="0"/>
+			<avatar_list
              allow_select="true"
-             follows="all"
-             height="356"
+             follows="top|left|bottom|right"
+             height="216"
              ignore_online_status="true"
              layout="topleft"
              left="3"
              multi_select="true"
              name="avatar_list"
-             top="0"
+             top="145"
              width="307" />
             <panel
              background_visible="true"

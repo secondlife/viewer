@@ -281,6 +281,8 @@ void LLWorld::removeRegion(const LLHost &host)
 	delete regionp;
 
 	updateWaterObjects();
+
+	llassert_always(!gObjectList.hasMapObjectInRegion(regionp)) ;
 }
 
 

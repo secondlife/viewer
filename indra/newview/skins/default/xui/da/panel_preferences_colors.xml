@@ -29,10 +29,10 @@
 		URL&apos;er
 	</text>
 	<text name="bubble_chat">
-		Chat-boble baggrund:
+		Baggrundsfarve til navne-skilt (berører også Bubble Chat):
 	</text>
-	<color_swatch name="background" tool_tip="Vælg farve til chat-boble"/>
-	<slider label="Uigennemsigtighed:" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Vælg farve til navne-skilt"/>
+	<slider label="Uigennemsigtighed:" name="bubble_chat_opacity" tool_tip="Vælg gennemsigtighed for navneskilt"/>
 	<text name="floater_opacity">
 		Vindue uigennemsigtighed:
 	</text>

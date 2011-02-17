@@ -229,3 +229,4 @@ char const * LLMemType::getNameFromID(S32 id)
 	return DeclareMemType::mNameList[id];
 }
 
+//--------------------------------------------------------------------------------------------------

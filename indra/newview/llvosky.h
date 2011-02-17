@@ -292,23 +292,6 @@ LL_FORCE_INLINE LLColor3 refr_ind_calc(const LLColor3 &wave_length)
 }
 
 
-LL_FORCE_INLINE LLColor3 calc_air_sca_sea_level()
-{
-	const static LLColor3 WAVE_LEN(675, 520, 445);
-	const static LLColor3 refr_ind = refr_ind_calc(WAVE_LEN);
-	const static LLColor3 n21 = refr_ind * refr_ind - LLColor3(1, 1, 1);
-	const static LLColor3 n4 = n21 * n21;
-	const static LLColor3 wl2 = WAVE_LEN * WAVE_LEN * 1e-6f;
-	const static LLColor3 wl4 = wl2 * wl2;
-	const static LLColor3 mult_const = fsigma * 2.0f/ 3.0f * 1e24f * (F_PI * F_PI) * n4;
-	const static F32 dens_div_N = F32( ATM_SEA_LEVEL_NDENS / Ndens2);
-	return dens_div_N * color_div ( mult_const, wl4 );
-}
-
-const LLColor3 gAirScaSeaLevel = calc_air_sca_sea_level();
-const F32 AIR_SCA_INTENS = color_intens(gAirScaSeaLevel);	
-const F32 AIR_SCA_AVG = AIR_SCA_INTENS / 3.f;
-
 class LLHaze
 {
 public:
@@ -316,17 +299,14 @@ public:
 	LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) : 
 			mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0.f)
 	{
-		mAbsCoef = color_intens(mSigSca) / AIR_SCA_INTENS;
+		mAbsCoef = color_intens(mSigSca) / sAirScaIntense;
 	}
 
 	LLHaze(const F32 g, const F32 sca, const F32 fo = 2.f) : mG(g),
 			mSigSca(0.25f/F_PI * LLColor3(sca, sca, sca)), mFalloff(fo)
 	{
-		mAbsCoef = 0.01f * sca / AIR_SCA_AVG;
+		mAbsCoef = 0.01f * sca / sAirScaAvg;
 	}
-
-	static void initClass();
-
 
 	F32 getG() const				{ return mG; }
 
@@ -343,12 +323,12 @@ public:
 	void setSigSca(const LLColor3& s)
 	{
 		mSigSca = s;
-		mAbsCoef = 0.01f * color_intens(mSigSca) / AIR_SCA_INTENS;
+		mAbsCoef = 0.01f * color_intens(mSigSca) / sAirScaIntense;
 	}
 
 	void setSigSca(const F32 s0, const F32 s1, const F32 s2)
 	{
-		mSigSca = AIR_SCA_AVG * LLColor3 (s0, s1, s2);
+		mSigSca = sAirScaAvg * LLColor3 (s0, s1, s2);
 		mAbsCoef = 0.01f * (s0 + s1 + s2) / 3;
 	}
 
@@ -392,10 +372,11 @@ public:
 
 	static inline LLColor3 calcAirSca(const F32 h);
 	static inline void calcAirSca(const F32 h, LLColor3 &result);
-	static LLColor3 calcAirScaSeaLevel()			{ return gAirScaSeaLevel; }
-	static const LLColor3 &getAirScaSeaLevel()		{ return sAirScaSeaLevel; }
-public:
-	static LLColor3 sAirScaSeaLevel;
+
+private:
+	static LLColor3 const sAirScaSeaLevel;
+	static F32 const sAirScaIntense;
+	static F32 const sAirScaAvg;
 
 protected:
 	F32			mG;
@@ -473,7 +454,6 @@ public:
 	LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
 	// Initialize/delete data that's only inited once per class.
-	static void initClass();
 	void init();
 	void initCubeMap();
 	void initEmpty();
@@ -654,14 +634,12 @@ F32 color_norm_pow(LLColor3& col, F32 e, BOOL postmultiply = FALSE);
 
 inline LLColor3 LLHaze::calcAirSca(const F32 h)
 {
-	static const LLColor3 air_sca_sea_level = calcAirScaSeaLevel();
-	return calcFalloff(h) * air_sca_sea_level;
+	return calcFalloff(h) * sAirScaSeaLevel;
 }
 
 inline void LLHaze::calcAirSca(const F32 h, LLColor3 &result)
 {
-	static const LLColor3 air_sca_sea_level = calcAirScaSeaLevel();
-	result = air_sca_sea_level;
+	result = sAirScaSeaLevel;
 	result *= calcFalloff(h);
 }
 
