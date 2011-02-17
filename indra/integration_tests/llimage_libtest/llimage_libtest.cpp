@@ -233,13 +233,6 @@ int main(int argc, char** argv)
 					break;
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
-			// DEBUG output
-			std::list<std::string>::iterator in_file  = input_filenames.begin();
-			std::list<std::string>::iterator end = input_filenames.end();
-			for (; in_file != end; ++in_file)
-			{
-				std::cout << "input file : " << *in_file << std::endl;
-			}
 		}
 		else if (!strcmp(argv[arg], "--out") && arg < argc-1)
 		{
@@ -253,13 +246,6 @@ int main(int argc, char** argv)
 					break;
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
-			// DEBUG output
-			std::list<std::string>::iterator out_file  = output_filenames.begin();
-			std::list<std::string>::iterator end = output_filenames.end();
-			for (; out_file != end; ++out_file)
-			{
-				std::cout << "output file : " << *out_file << std::endl;
-			}
 		}		
 	}
 		
@@ -270,10 +256,12 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	// Perform action on each input file
 	std::list<std::string>::iterator in_file  = input_filenames.begin();
 	std::list<std::string>::iterator out_file = output_filenames.begin();
-	std::list<std::string>::iterator end = input_filenames.end();
-	for (; in_file != end; ++in_file, ++out_file)
+	std::list<std::string>::iterator in_end = input_filenames.end();
+	std::list<std::string>::iterator out_end = output_filenames.end();
+	for (; in_file != in_end; ++in_file)
 	{
 		// Load file
 		LLPointer<LLImageRaw> raw_image = load_image(*in_file);
@@ -284,15 +272,23 @@ int main(int argc, char** argv)
 		}
 	
 		// Save file
-		if (!save_image(*out_file, raw_image))
+		if (out_file != out_end)
 		{
-			std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
-			continue;
+			if (!save_image(*out_file, raw_image))
+			{
+				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
+			}
+			else
+			{
+				std::cout << *in_file << " -> " << *out_file << std::endl;
+			}
+			++out_file;
 		}
-		std::cout << *in_file << " -> " << *out_file << std::endl;
 
 		// Output stats on each file
 	}
+	
+	// Output perf data if required by user
 	
 	// Cleanup and exit
 	LLImage::cleanupClass();
