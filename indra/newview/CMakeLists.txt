@@ -1488,15 +1488,12 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/Microsoft.VC80.DebugCRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr100d.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp100d.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
