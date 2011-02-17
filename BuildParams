@@ -145,6 +145,7 @@ media.build_viewer_update_version_manager = false
 # ================
 
 L-oz_viewer-autobuild.build_link_parallel=false
+L-oz_viewer-autobuildvs2010.build_link_parallel=false
 
 # ========================================
 # enus
