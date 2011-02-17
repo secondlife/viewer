@@ -1608,9 +1608,6 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 	<notification name="VoiceCallGenericError">
 		En fejl er opstået under forsøget på at koble sig på stemme chatten [VOICE_CHANNEL_NAME].  Pråv venligst senere.
 	</notification>
-	<notification name="ServerVersionChanged">
-		Du er netop ankommet til en region der benytter en anden server version, hvilket kan influere på hastigheden. [[URL] For at se yderligere.]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Den SLurl du klikkede på understøttes ikke.
 	</notification>
@@ -1664,7 +1661,7 @@ Knappen vil blive vist når der er nok plads til den.
 	<notification name="ShareItemsConfirmation">
 		Er du sikker på at du vil dele følgende genstande:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Med følgende beboere:
 

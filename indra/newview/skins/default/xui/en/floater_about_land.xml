@@ -1905,7 +1905,7 @@ Only large parcels can be listed in search.
 			</panel.string>
       <panel.string
        name="allow_public_access">
-        Allow Public Access ([MATURITY])
+        Allow Public Access ([MATURITY]) (Note: Unchecking this will create ban lines)
       </panel.string>
             <panel.string
              name="estate_override">
@@ -1932,7 +1932,7 @@ Only large parcels can be listed in search.
              name="public_access"
              top_pad="5"
              label_text.valign="center"
-             label_text.v_pad="-7" 
+             label_text.v_pad="-2" 
              width="278" />
             <text
              type="string"

@@ -1960,6 +1960,16 @@
                  function="ToggleControl"
                  parameter="DebugShowRenderInfo" />
             </menu_item_check>
+			<menu_item_check
+             label="Show Texture Info"
+             name="Show Texture Info">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowTextureInfo" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowTextureInfo" />
+            </menu_item_check>
             <menu_item_check
              label="Show Matrices"
              name="Show Matrices">
@@ -1979,6 +1989,16 @@
                 <menu_item_check.on_click
                  function="ToggleControl"
                  parameter="DebugShowColor" />
+            </menu_item_check>
+            <menu_item_check
+               label="Show Memory"
+               name="Show Memory">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="DebugShowMemory" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="DebugShowMemory" />
             </menu_item_check>
 
             <menu_item_separator/>
@@ -2151,6 +2171,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="render batches" />
+        </menu_item_check>
+        <menu_item_check
+         label="Update Type"
+         name="Update Type">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="update type" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="update type" />
         </menu_item_check>
         <menu_item_check
          label="Texture Anim"
