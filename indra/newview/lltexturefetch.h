@@ -79,6 +79,7 @@ public:
 	void dump();
 	S32 getNumRequests() ;
 	S32 getNumHTTPRequests() ;
+	U32 getTotalNumHTTPRequests() ;
 	
 	// Public for access by callbacks
     S32 getPending();
@@ -182,6 +183,9 @@ private:
 	LLTextureInfo mTextureInfo;
 
 	U32 mHTTPTextureBits;
+
+	//debug use
+	U32 mTotalHTTPRequests ;
 
 	// Out-of-band cross-thread command queue.  This command queue
 	// is logically tied to LLQueuedThread's list of

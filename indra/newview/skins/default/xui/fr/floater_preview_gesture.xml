@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
 	<floater.string name="step_anim">
-		Animation à jouer :
+		Animation à exécuter :
 	</floater.string>
 	<floater.string name="step_sound">
 		Son à lire :

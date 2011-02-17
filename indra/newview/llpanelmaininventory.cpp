@@ -118,18 +118,6 @@ LLPanelMainInventory::LLPanelMainInventory()
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars));
 
-	// Controls
-	// *TODO: Just use persistant settings for each of these
-	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER);
-	BOOL sort_by_name = ! ( sort_order & LLInventoryFilter::SO_DATE );
-	BOOL sort_folders_by_name = ( sort_order & LLInventoryFilter::SO_FOLDERS_BY_NAME );
-	BOOL sort_system_folders_to_top = ( sort_order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP );
-	
-	gSavedSettings.declareBOOL("Inventory.SortByName", sort_by_name, "Declared in code", FALSE);
-	gSavedSettings.declareBOOL("Inventory.SortByDate", !sort_by_name, "Declared in code", FALSE);
-	gSavedSettings.declareBOOL("Inventory.FoldersAlwaysByName", sort_folders_by_name, "Declared in code", FALSE);
-	gSavedSettings.declareBOOL("Inventory.SystemFoldersToTop", sort_system_folders_to_top, "Declared in code", FALSE);
-	
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 }
@@ -325,67 +313,41 @@ void LLPanelMainInventory::resetFilters()
 
 void LLPanelMainInventory::setSortBy(const LLSD& userdata)
 {
-	std::string sort_field = userdata.asString();
-	if (sort_field == "name")
+	U32 sort_order_mask = getActivePanel()->getSortOrder();
+	std::string sort_type = userdata.asString();
+	if (sort_type == "name")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		order &= ~LLInventoryFilter::SO_DATE;
-
-		getActivePanel()->setSortOrder( order );
-
-		gSavedSettings.setU32("InventorySortOrder", order);
-
-		gSavedSettings.setBOOL("Inventory.SortByName", TRUE );
-		gSavedSettings.setBOOL("Inventory.SortByDate", FALSE );
+		sort_order_mask &= ~LLInventoryFilter::SO_DATE;
 	}
-	else if (sort_field == "date")
+	else if (sort_type == "date")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		order |= LLInventoryFilter::SO_DATE;
-
-		getActivePanel()->setSortOrder( order );
-
-		gSavedSettings.setU32("InventorySortOrder", order);
-
-		gSavedSettings.setBOOL("Inventory.SortByName", FALSE );
-		gSavedSettings.setBOOL("Inventory.SortByDate", TRUE );
+		sort_order_mask |= LLInventoryFilter::SO_DATE;
 	}
-	else if (sort_field == "foldersalwaysbyname")
+	else if (sort_type == "foldersalwaysbyname")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		if ( order & LLInventoryFilter::SO_FOLDERS_BY_NAME )
+		if ( sort_order_mask & LLInventoryFilter::SO_FOLDERS_BY_NAME )
 		{
-			order &= ~LLInventoryFilter::SO_FOLDERS_BY_NAME;
-
-			gSavedSettings.setBOOL("Inventory.FoldersAlwaysByName", FALSE );
+			sort_order_mask &= ~LLInventoryFilter::SO_FOLDERS_BY_NAME;
 		}
 		else
 		{
-			order |= LLInventoryFilter::SO_FOLDERS_BY_NAME;
-
-			gSavedSettings.setBOOL("Inventory.FoldersAlwaysByName", TRUE );
+			sort_order_mask |= LLInventoryFilter::SO_FOLDERS_BY_NAME;
 		}
-		getActivePanel()->setSortOrder( order );
 	}
-	else if (sort_field == "systemfolderstotop")
+	else if (sort_type == "systemfolderstotop")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		if ( order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP )
+		if ( sort_order_mask & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP )
 		{
-			order &= ~LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
-
-			gSavedSettings.setBOOL("Inventory.SystemFoldersToTop", FALSE );
+			sort_order_mask &= ~LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
 		}
 		else
 		{
-			order |= LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
-
-			gSavedSettings.setBOOL("Inventory.SystemFoldersToTop", TRUE );
+			sort_order_mask |= LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
 		}
-		getActivePanel()->setSortOrder( order );
-
-		gSavedSettings.setU32("InventorySortOrder", order);
 	}
+
+	getActivePanel()->setSortOrder(sort_order_mask);
+	gSavedSettings.setU32("InventorySortOrder", sort_order_mask);
 }
 
 // static
@@ -1013,6 +975,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		const LLSD arg = "date";
 		setSortBy(arg);
 	}
+	if (command_name == "sort_folders_by_name")
+	{
+		const LLSD arg = "foldersalwaysbyname";
+		setSortBy(arg);
+	}
 	if (command_name == "sort_system_folders_to_top")
 	{
 		const LLSD arg = "systemfolderstotop";
@@ -1193,24 +1160,26 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 {
+	U32 sort_order_mask = getActivePanel()->getSortOrder();
 	const std::string command_name = userdata.asString();
-
 	if (command_name == "sort_by_name")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		return ~order & LLInventoryFilter::SO_DATE;
+		return ~sort_order_mask & LLInventoryFilter::SO_DATE;
 	}
 
 	if (command_name == "sort_by_recent")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		return order & LLInventoryFilter::SO_DATE;
+		return sort_order_mask & LLInventoryFilter::SO_DATE;
+	}
+
+	if (command_name == "sort_folders_by_name")
+	{
+		return sort_order_mask & LLInventoryFilter::SO_FOLDERS_BY_NAME;
 	}
 
 	if (command_name == "sort_system_folders_to_top")
 	{
-		U32 order = getActivePanel()->getSortOrder();
-		return order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
+		return sort_order_mask & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
 	}
 
 	return FALSE;

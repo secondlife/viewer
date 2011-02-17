@@ -77,9 +77,6 @@ static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 LLUUID gSunTextureID = IMG_SUN;
 LLUUID gMoonTextureID = IMG_MOON;
 
-//static 
-LLColor3 LLHaze::sAirScaSeaLevel;
-
 class LLFastLn
 {
 public:
@@ -182,6 +179,23 @@ inline void color_gamma_correct(LLColor3 &col)
 	}
 }
 
+static LLColor3 calc_air_sca_sea_level()
+{
+	static LLColor3 WAVE_LEN(675, 520, 445);
+	static LLColor3 refr_ind = refr_ind_calc(WAVE_LEN);
+	static LLColor3 n21 = refr_ind * refr_ind - LLColor3(1, 1, 1);
+	static LLColor3 n4 = n21 * n21;
+	static LLColor3 wl2 = WAVE_LEN * WAVE_LEN * 1e-6f;
+	static LLColor3 wl4 = wl2 * wl2;
+	static LLColor3 mult_const = fsigma * 2.0f/ 3.0f * 1e24f * (F_PI * F_PI) * n4;
+	static F32 dens_div_N = F32( ATM_SEA_LEVEL_NDENS / Ndens2);
+	return dens_div_N * color_div ( mult_const, wl4 );
+}
+
+// static constants.
+LLColor3 const LLHaze::sAirScaSeaLevel = calc_air_sca_sea_level();
+F32 const LLHaze::sAirScaIntense = color_intens(LLHaze::sAirScaSeaLevel);	
+F32 const LLHaze::sAirScaAvg = LLHaze::sAirScaIntense / 3.f;
 
 
 /***************************************
@@ -393,12 +407,6 @@ LLVOSky::~LLVOSky()
 
 	mCubeMap = NULL;
 }
-
-void LLVOSky::initClass()
-{
-	LLHaze::initClass();
-}
-
 
 void LLVOSky::init()
 {
@@ -2147,17 +2155,8 @@ void LLVOSky::updateFog(const F32 distance)
 	stop_glerror();
 }
 
-// static
-void LLHaze::initClass()
-{
-	sAirScaSeaLevel = LLHaze::calcAirScaSeaLevel();
-}
-
-
 
 // Functions used a lot.
-
-
 F32 color_norm_pow(LLColor3& col, F32 e, BOOL postmultiply)
 {
 	F32 mv = color_max(col);
