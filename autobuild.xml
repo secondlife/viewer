@@ -128,7 +128,7 @@
         <key>license</key>
         <string>c-ares</string>
         <key>license_file</key>
-        <string>LICENSES/ares.txt</string>
+        <string>LICENSES/c-ares.txt</string>
         <key>name</key>
         <string>ares</string>
         <key>platforms</key>
@@ -162,9 +162,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2318e9eef0ea020878759d974a5945df</string>
+              <string>1dcec6babd249a2597114d4ac226c461</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/CYGWIN/installer/ares-1.7.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de5559c2c497544b3d0da533390175dc</string>
+              <string>98be22c8833aa2bca184b9fa09fbb82b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/219456/arch/CYGWIN/installer/boost-1.45.0-windows-20110124.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -258,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f57a98c83ae6f62655c78f158ee93fc6</string>
+              <string>fea96aa2a7d513397317194f3d6c979b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/CYGWIN/installer/curl-7.21.1-windows-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/220996/arch/CYGWIN/installer/curl-7.21.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -378,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2af1798aa38dce1b941ef8207f1beb50</string>
+              <string>e72db1bda49b205ebdf4945d4ed2b8f8</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221208/arch/CYGWIN/installer/expat-2.0.1-windows-20110215.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -474,9 +474,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88c29e73df61ff87c111d55d1b48f12c</string>
+              <string>825d5a9bafcc5bfe28dc4c1c4f87c576</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.4.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freeglut/rev/221064/arch/CYGWIN/installer/freeglut-2.6.0-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1135a4afc4328c68368f550ede28b4dd</string>
+              <string>e006635a741420a15f40bbdac13bd8d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.3.6-windows-freeglut-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glui/rev/221069/arch/CYGWIN/installer/glui-2.36-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -704,9 +704,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>506c870d37b3f7696171e4180c8bf821</string>
+              <string>320972cefe728e668b0dc6356eeda58f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-windows-20110119.tar.bz2</string>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/google_breakpad-0.0.0-rev599-windows-20110128.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -884,9 +884,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c10c28118c578d0674c1fbe59002d0ab</string>
+              <string>de8b96120c274e052abb4f692861be46</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/220079/arch/Darwin/installer/jsoncpp-0.5.0-darwin-20110131.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -896,9 +896,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e6b2fc7ad4e12d94d01cc49c22c6f67</string>
+              <string>db7826354e60fb4ae14bf40258c088af</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/220079/arch/Linux/installer/jsoncpp-0.5.0-linux-20110131.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -908,9 +908,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac06a8981cf7df3522362850ffb3a531</string>
+              <string>afff2018e6a887c281b072eecdd9343e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20101011.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/220579/arch/CYGWIN/installer/jsoncpp-0.5.0-windows-20110208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1100,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5af0f88e298ea8b6041e29928f520eda</string>
+              <string>7865b9c3a5d9f9424af56d5d05b82de9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110113.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/alain_llqtwebkit/rev/220864/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110210.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1280,9 +1280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c5862027b93eafceeaae9e4cef4cfa8</string>
+              <string>774c7f0a0312bee3054757a623e227bc</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8j-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1404,9 +1404,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>045618341689fdc3a5560b75a9890a78</string>
+              <string>52e49ab6937b09882389da0dbaec17f5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-sdk-windows-7.3-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-7.3-windows-20110127.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1572,9 +1572,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1015a07ce0aa9aeeadc6a126cdcdf9f</string>
+              <string>5852192646681817fc3c3a8c95e91c1e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/CYGWIN/installer/zlib-1.2.5-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2332,7 +2332,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc80</string>
+          <string>build-vc100</string>
           <key>configurations</key>
           <map>
             <key>Debug</key>
@@ -2416,7 +2416,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2598,7 +2598,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=OFF</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DFMOD=TRUE</string>
@@ -2630,7 +2630,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=OFF</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DFMOD=TRUE</string>

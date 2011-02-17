@@ -12,6 +12,7 @@ include(LLSharedLibs)
 include(GoogleBreakpad)
 include(GooglePerfTools)
 include(Copy3rdPartyLibs)
+include(ZLIB)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
