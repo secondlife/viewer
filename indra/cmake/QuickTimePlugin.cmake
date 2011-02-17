@@ -33,7 +33,7 @@ elseif (WINDOWS)
   endif (DEBUG_QUICKTIME_LIBRARY AND RELEASE_QUICKTIME_LIBRARY)
   
   include_directories(
-    ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include/quicktime
+    ${LIBS_PREBUILT_DIR}/include/quicktime
     "${QUICKTIME_SDK_DIR}\\CIncludes"
     )
 endif (DARWIN)

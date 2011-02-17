@@ -38,21 +38,15 @@ else (STANDALONE)
       set(APR_selector     "a")
       set(APRUTIL_selector "a")
     endif (LLCOMMON_LINK_SHARED)
-    set(APR_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapr-1.${APR_selector}
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.${APR_selector}
-      )
-    set(APRUTIL_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/libaprutil-1.${APRUTIL_selector}
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.${APRUTIL_selector}
-      )
+    set(APR_LIBRARIES libapr-1.${APR_selector})
+    set(APRUTIL_LIBRARIES libaprutil-1.${APRUTIL_selector})
     set(APRICONV_LIBRARIES iconv)
   else (WINDOWS)
     set(APR_LIBRARIES apr-1)
     set(APRUTIL_LIBRARIES aprutil-1)
     set(APRICONV_LIBRARIES iconv)
   endif (WINDOWS)
-  set(APR_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include/apr-1)
+  set(APR_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/apr-1)
 
   if (LINUX)
     if (VIEWER)
