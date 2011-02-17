@@ -1332,14 +1332,26 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
+		//Rebase the pelvis position if the avatar contains a pelvis offset
 		if ( mHasPelvisOffset )
 		{
 			LLVector3 returnVec( mDrawable->getPositionAgent() );	
-			//1. Move the pelvis down by the old amount
-			returnVec[VZ] -= (mLastPelvisToFoot);
-			//2. Now move the pelvis up by the new amount
-			returnVec[VZ] += mPelvisToFoot;
-			//3. Return the fixed up pelvis position
+			if ( mLastPelvisToFoot > mPelvisToFoot )
+			{
+				F32 diff = mLastPelvisToFoot - mPelvisToFoot;
+				//1. Move the pelvis down by the difference of the old amount and the new pelvis to foot amount
+				returnVec[VZ] -= (diff);
+				//2. Now move the pelvis up by the new pelvis to foot amount
+				returnVec[VZ] += mPelvisToFoot;				
+			}
+			else
+			{
+				//1. Move the pelvis down by the old pelvis to foot amount
+				returnVec[VZ] -= (mLastPelvisToFoot);
+				//2. Now move the pelvis up by the new pelvis to foot amount
+				returnVec[VZ] += mPelvisToFoot;
+			}
+			//Return the fixed up pelvis position
 			return returnVec;
 		}
 		else
