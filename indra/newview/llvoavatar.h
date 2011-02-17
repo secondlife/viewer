@@ -298,7 +298,7 @@ public:
 
 	bool				mHasPelvisOffset;
 	LLVector3			mPelvisOffset;
-
+	F32					mLastPelvisToFoot;
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;
@@ -805,6 +805,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	void 		resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos, LLVector3 &outNorm);
+	bool		distanceToGround( const LLVector3d &startPoint, LLVector3d &collisionPoint, F32 distToIntersectionAlongRay );
 	void 		resolveHeightAgent(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
 	void 		resolveRayCollisionAgent(const LLVector3d start_pt, const LLVector3d end_pt, LLVector3d &out_pos, LLVector3 &out_norm);
 	void 		slamPosition(); // Slam position to transmitted position (for teleport);

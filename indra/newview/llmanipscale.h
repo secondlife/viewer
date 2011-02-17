@@ -40,7 +40,7 @@
 #include "llbbox.h"
 
 
-F32 get_default_max_prim_scale();
+F32 get_default_max_prim_scale(bool is_flora = false);
 
 class LLToolComposite;
 class LLColor4;

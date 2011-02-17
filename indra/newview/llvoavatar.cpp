@@ -760,6 +760,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
+	mLastPelvisToFoot = 0.0f;
 }
 
 //------------------------------------------------------------------------
@@ -1331,7 +1332,32 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		return mDrawable->getPositionAgent();
+		//Rebase the pelvis position if the avatar contains a pelvis offset
+		if ( mHasPelvisOffset )
+		{
+			LLVector3 returnVec( mDrawable->getPositionAgent() );	
+			if ( mLastPelvisToFoot > mPelvisToFoot )
+			{
+				F32 diff = mLastPelvisToFoot - mPelvisToFoot;
+				//1. Move the pelvis down by the difference of the old amount and the new pelvis to foot amount
+				returnVec[VZ] -= (diff);
+				//2. Now move the pelvis up by the new pelvis to foot amount
+				returnVec[VZ] += mPelvisToFoot;				
+			}
+			else
+			{
+				//1. Move the pelvis down by the old pelvis to foot amount
+				returnVec[VZ] -= (mLastPelvisToFoot);
+				//2. Now move the pelvis up by the new pelvis to foot amount
+				returnVec[VZ] += mPelvisToFoot;
+			}
+			//Return the fixed up pelvis position
+			return returnVec;
+		}
+		else
+		{
+			return mDrawable->getPositionAgent();
+		}
 	}
 	else
 	{
@@ -3454,20 +3480,13 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		if (isSelf())
 		{
-			if ( !mHasPelvisOffset )
-			{
-				gAgent.setPositionAgent(getRenderPosition());
-			}
-			else 
-			{
-				gAgent.setPositionAgent( getRenderPosition() + mPelvisOffset );
-			}
+			gAgent.setPositionAgent(getRenderPosition());
 		}
 
 		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
 
 		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
-		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);
+		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
 		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
 						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
 
@@ -3479,22 +3498,21 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
-		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-
+		if ( !mHasPelvisOffset )
+		{
+			root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		}
+		else
+		{
+			root_pos.mdV[VZ] -= (0.65f * mBodySize.mV[VZ]) - mPelvisToFoot;		
+		}
+	
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
 		if (newPosition != mRoot.getXform()->getWorldPosition())
 		{		
-			if ( !mHasPelvisOffset )
-			{
-				mRoot.touch();
-				mRoot.setWorldPosition( newPosition ); // regular update				
-			}
-			else 
-			{
-				mRoot.touch();
-				mRoot.setWorldPosition( newPosition + mPelvisOffset ); 
-			}
+			mRoot.touch();
+			mRoot.setWorldPosition( newPosition ); // regular update				
 		}
 
 
@@ -3770,7 +3788,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	return TRUE;
 }
-
 //-----------------------------------------------------------------------------
 // updateHeadOffset()
 //-----------------------------------------------------------------------------
@@ -3803,6 +3820,7 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount 
 	mHasPelvisOffset = hasOffset;
 	if ( mHasPelvisOffset )
 	{
+		mLastPelvisToFoot = mPelvisToFoot;
 		mPelvisOffset = offsetAmount;
 	}
 }
@@ -3810,9 +3828,10 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount 
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
 void LLVOAvatar::postPelvisSetRecalc( void )
-{
+{	
 	computeBodySize(); 
-	mRoot.updateWorldMatrixChildren();
+	mRoot.touch();
+	mRoot.updateWorldMatrixChildren();	
 	dirtyMesh();
 	updateHeadOffset();
 }
@@ -4542,7 +4561,6 @@ void LLVOAvatar::resolveRayCollisionAgent(const LLVector3d start_pt, const LLVec
 	LLViewerObject *obj;
 	LLWorld::getInstance()->resolveStepHeightGlobal(this, start_pt, end_pt, out_pos, out_norm, &obj);
 }
-
 
 void LLVOAvatar::resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos, LLVector3 &outNorm)
 {

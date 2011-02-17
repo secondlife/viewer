@@ -3919,22 +3919,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 									{   									
 										pJoint->setId( currentId );
 										const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-										//If joint is a pelvis then handle by setting avPos+offset								
+										//Set the joint position
+										pJoint->storeCurrentXform( jointPos );																																
+										//If joint is a pelvis then handle old/new pelvis to foot values
 										if ( lookingForJoint == "mPelvis" )
 										{	
-											//Apply av pos + offset 
+											pJoint->storeCurrentXform( jointPos );																																
 											if ( !pAvatarVO->hasPelvisOffset() )
 											{										
 												pAvatarVO->setPelvisOffset( true, jointPos );
 												//Trigger to rebuild viewer AV
 												pelvisGotSet = true;											
 											}										
-										}
-										else
-										{
-											//Straight set for ALL joints except pelvis
-											pJoint->storeCurrentXform( jointPos );																					
-										}									
+										}										
 									}
 								}
 							}							
