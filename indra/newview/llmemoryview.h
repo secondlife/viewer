@@ -55,6 +55,7 @@ public:
 private:
     std::vector<LLWString> mLines;
 	LLAllocator* mAlloc;
+	BOOL mPaused ;
 
 };
 

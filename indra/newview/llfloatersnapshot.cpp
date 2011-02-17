@@ -1363,6 +1363,36 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	floater->getChildView("auto_snapshot_check")->setVisible(		is_advance);
 	floater->getChildView("image_quality_slider")->setVisible(	is_advance && show_slider);
 
+	if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+	{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
+
+		LLSpinCtrl* width_ctrl = floater->getChild<LLSpinCtrl>("snapshot_width");
+		LLSpinCtrl* height_ctrl = floater->getChild<LLSpinCtrl>("snapshot_height");
+
+		S32 width = gViewerWindow->getWindowWidthRaw();
+		S32 height = gViewerWindow->getWindowHeightRaw();
+
+		width_ctrl->setMaxValue(width);
+		
+		height_ctrl->setMaxValue(height);
+
+		if (width_ctrl->getValue().asInteger() > width)
+		{
+			width_ctrl->forceSetValue(width);
+		}
+		if (height_ctrl->getValue().asInteger() > height)
+		{
+			height_ctrl->forceSetValue(height);
+		}
+	}
+	else
+	{ 
+		LLSpinCtrl* width = floater->getChild<LLSpinCtrl>("snapshot_width");
+		width->setMaxValue(6016);
+		LLSpinCtrl* height = floater->getChild<LLSpinCtrl>("snapshot_height");
+		height->setMaxValue(6016);
+	}
+		
 	LLSnapshotLivePreview* previewp = getPreviewView(floater);
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
@@ -1810,6 +1840,13 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		previewp->getSize(width, height);
 	
+		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
+			width = llmin(width, gViewerWindow->getWindowWidthRaw());
+			height = llmin(height, gViewerWindow->getWindowHeightRaw());
+		}
+
+		
 		if(checkImageSize(previewp, width, height, TRUE, previewp->getMaxImageSize()))
 		{
 			resetSnapshotSizeOnUI(view, width, height) ;

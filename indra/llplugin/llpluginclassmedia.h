@@ -45,6 +45,7 @@ public:
 
 	// local initialization, called by the media manager when creating a source
 	virtual bool init(const std::string &launcher_filename, 
+					  const std::string &plugin_dir, 
 					  const std::string &plugin_filename, 
 					  bool debug);
 
