@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<notification_visibility>
+  <respond name="UserGiveItem" response="Discard"/>
+  <respond name="JoinGroup" response="Decline"/>
+  <respond name="VoiceInviteP2P" response="Decline"/>
+  <respond name="VoiceInviteAdHoc" response="Decline"/>
+  <respond name="OfferFriendship" response="Decline"/>
+  <respond name="OfferFriendshipNoMessage" response="Decline"/>
+  <respond name="TeleportOffered" response="Cancel"/>
+  <respond name="ObjectGiveItem" response="Discard"/>
+  <respond name="VoiceInviteGroup" response="Decline"/>
+  <respond name="ConfirmQuit" response="OK_okcancelignore"/>
+  <respond name="YouHaveBeenLoggedOut" response="Cancel_okcancelbuttons"/>
+  <hide name="HintInventory"/>
+  <hide name="HintLindenDollar"/>
+  <hide name="HintMove"/>
+  <hide name="ClothingLoading"/>
+  <hide name="NotAgeVerified"/>
+  <hide name="RegionEntryAccessBlocked_Change"/>
+  <hide name="LandBuyPass"/>
+  <hide name="LoginPacketNeverReceived"/>
+  <hide name="RegionEntryAccessBlocked_KB"/>
+  <hide name="RegionTPAccessBlocked"/>
+  <hide name="RegionEntryAccessBlocked"/>
+  <show name="RegionRestartMinutes"/>
+  <show name="RegionRestartSeconds"/>
+  <show tag="fail"/>
+  <show type="hint"/>
+  <show type="notifytoast"/>
+  <hide/>
+</notification_visibility>
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="left|bottom|right|top"
+ height="768"
+ layout="topleft"
+ left="0"
+ name="login_progress_panel"
+ background_visible="true"
+ background_opaque="true"
+ bg_opaque_image="login_teleport_background.jpg"
+ top="768"
+ width="1024">
+  <progress_bar
+   bottom="35"
+   color_bar="1 1 1 0.96"
+   height="16"
+   left="220"
+   name="login_progress_bar"
+   follows="left|right|bottom"
+   right="-220" />
+</panel>
