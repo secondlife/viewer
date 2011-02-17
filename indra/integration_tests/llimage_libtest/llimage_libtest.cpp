@@ -45,9 +45,10 @@
 static const char USAGE[] = "\n"
 "usage:\tllimage_libtest [options]\n"
 "\n"
-" --help                         print this help\n"
-" --in <file1> <file2>...        list of image files to load and convert\n"
-" --out <file1> <file2>...       list of image files to create (assumes same order as --in files)\n"
+" --help                           print this help\n"
+" --in <file1 .. file2>            list of image files to load and convert, patterns can be used\n"
+" --out <file1 .. file2> OR <type> list of image files to create (assumes same order as --in files)\n"
+"                                  OR 3 letters file type extension to convert each input file into\n"
 "\n";
 
 // Create an empty formatted image instance of the correct type from the filename
@@ -119,6 +120,88 @@ bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_imag
 	return image->save(dest_filename);
 }
 
+void store_input_file(std::list<std::string> &input_filenames, const std::string &path)
+{
+	// Break the incoming path in its components
+	std::string dir = gDirUtilp->getDirName(path);
+	std::string name = gDirUtilp->getBaseFileName(path);
+	std::string exten = gDirUtilp->getExtension(path);
+
+	// std::cout << "store_input_file : " << path << ", dir : " << dir << ", name : " << name << ", exten : " << exten << std::endl;
+	
+	// If extension is not an image type or "*", exit
+	// Note: we don't support complex patterns for the extension like "j??"
+	// Note: on most shells, the pattern expansion is done by the shell so that pattern matching limitation is actually not a problem
+	if ((exten.compare("*") != 0) && (LLImageBase::getCodecFromExtension(exten) == IMG_CODEC_INVALID))
+	{
+		return;
+	}
+
+	if ((name.find('*') != -1) || ((name.find('?') != -1)))
+	{
+		// If file name is a pattern, iterate to get each file name and store
+		std::string next_name;
+		while (gDirUtilp->getNextFileInDir(dir,name,next_name))
+		{
+			std::string file_name = dir + gDirUtilp->getDirDelimiter() + next_name;
+			input_filenames.push_back(file_name);
+		}
+	}
+	else
+	{
+		// Verify that the file does exist before storing 
+		if (gDirUtilp->fileExists(path))
+		{
+			input_filenames.push_back(path);
+		}
+		else
+		{
+			std::cout << "store_input_file : the file " << path << " could not be found" << std::endl;
+		}
+	}	
+}
+
+void store_output_file(std::list<std::string> &output_filenames, std::list<std::string> &input_filenames, const std::string &path)
+{
+	// Break the incoming path in its components
+	std::string dir = gDirUtilp->getDirName(path);
+	std::string name = gDirUtilp->getBaseFileName(path);
+	std::string exten = gDirUtilp->getExtension(path);
+	
+	// std::cout << "store_output_file : " << path << ", dir : " << dir << ", name : " << name << ", exten : " << exten << std::endl;
+	
+	if (dir.empty() && exten.empty())
+	{
+		// If dir and exten are empty, we interpret the name as a file extension type name and will iterate through input list to populate the output list
+		exten = name;
+		// Make sure the extension is an image type
+		if (LLImageBase::getCodecFromExtension(exten) == IMG_CODEC_INVALID)
+		{
+			return;
+		}
+		std::string delim = gDirUtilp->getDirDelimiter();
+		std::list<std::string>::iterator in_file  = input_filenames.begin();
+		std::list<std::string>::iterator end = input_filenames.end();
+		for (; in_file != end; ++in_file)
+		{
+			dir = gDirUtilp->getDirName(*in_file);
+			name = gDirUtilp->getBaseFileName(*in_file,true);
+			std::string file_name = dir + delim + name + "." + exten;
+			output_filenames.push_back(file_name);
+		}
+	}
+	else
+	{
+		// Make sure the extension is an image type
+		if (LLImageBase::getCodecFromExtension(exten) == IMG_CODEC_INVALID)
+		{
+			return;
+		}
+		// Store the path
+		output_filenames.push_back(path);
+	}
+}
+
 int main(int argc, char** argv)
 {
 	// List of input and output files
@@ -143,23 +226,39 @@ int main(int argc, char** argv)
 			std::string file_name = argv[arg+1];
 			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
 			{
-				input_filenames.push_back(file_name);	// Add file name to the list
+				// std::cout << "input file name : " << file_name << std::endl;				
+				store_input_file(input_filenames, file_name);
 				arg += 1;					// Skip that arg now we know it's a file name
 				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
 					break;
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
-		}		
+			// DEBUG output
+			std::list<std::string>::iterator in_file  = input_filenames.begin();
+			std::list<std::string>::iterator end = input_filenames.end();
+			for (; in_file != end; ++in_file)
+			{
+				std::cout << "input file : " << *in_file << std::endl;
+			}
+		}
 		else if (!strcmp(argv[arg], "--out") && arg < argc-1)
 		{
 			std::string file_name = argv[arg+1];
 			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
 			{
-				output_filenames.push_back(file_name);	// Add file name to the list
+				// std::cout << "output file name : " << file_name << std::endl;				
+				store_output_file(output_filenames, input_filenames, file_name);
 				arg += 1;					// Skip that arg now we know it's a file name
 				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
 					break;
 				file_name = argv[arg+1];	// Next argument and loop over
+			}
+			// DEBUG output
+			std::list<std::string>::iterator out_file  = output_filenames.begin();
+			std::list<std::string>::iterator end = output_filenames.end();
+			for (; out_file != end; ++out_file)
+			{
+				std::cout << "output file : " << *out_file << std::endl;
 			}
 		}		
 	}
@@ -168,12 +267,6 @@ int main(int argc, char** argv)
 	if (input_filenames.size() == 0)
 	{
 		std::cout << "No input file, nothing to do -> exit" << std::endl;
-		return 0;
-	}
-	// TODO: For the moment, we simply convert each input file to something. This needs to evolve...
-	if (input_filenames.size() != output_filenames.size())
-	{
-		std::cout << "Number of output and input files different -> exit" << std::endl;
 		return 0;
 	}
 
