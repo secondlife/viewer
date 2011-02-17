@@ -1934,7 +1934,8 @@ void LLPanelObject::refresh()
 	getChildView("Physics Density")->setVisible(enable_mesh);
 	getChildView("Physics Restitution")->setVisible(enable_mesh);
 
-	F32 max_scale = DEFAULT_MAX_PRIM_SCALE_NO_MESH;
+	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
+
 	getChild<LLSpinCtrl>("Scale X")->setMaxValue(max_scale);
 	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
 	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
