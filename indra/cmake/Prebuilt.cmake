@@ -1,33 +1,45 @@
 # -*- cmake -*-
 
-include(Python)
-include(FindSCP)
+include(FindAutobuild)
 
 macro (use_prebuilt_binary _binary)
-  if (NOT STANDALONE)
+  if (NOT DEFINED STANDALONE_${_binary})
+    set(STANDALONE_${_binary} ${STANDALONE})
+  endif (NOT DEFINED STANDALONE_${_binary})
+
+  if (NOT STANDALONE_${_binary})
     if(${CMAKE_BINARY_DIR}/temp/sentinel_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/${_binary}_installed)
       if(INSTALL_PROPRIETARY)
         include(FindSCP)
         if(DEBUG_PREBUILT)
-          message("cd ${SCRIPTS_DIR} && ${PYTHON_EXECUTABLE} install.py --install-dir=${CMAKE_SOURCE_DIR}/.. --scp=${SCP_EXECUTABLE} ${_binary}")
+          message("cd ${CMAKE_SOURCE_DIR} && ${AUTOBUILD_EXECUTABLE} install
+          --install-dir=${AUTOBUILD_INSTALL_DIR}
+          #--scp="${SCP_EXECUTABLE}"
+          --skip-license-check
+          ${_binary} ")
         endif(DEBUG_PREBUILT)
-        execute_process(COMMAND ${PYTHON_EXECUTABLE}
-          install.py 
-          --install-dir=${CMAKE_SOURCE_DIR}/..
-          --scp=${SCP_EXECUTABLE}
+        execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
+          install
+          --install-dir=${AUTOBUILD_INSTALL_DIR}
+          #--scp="${SCP_EXECUTABLE}"
+          --skip-license-check
           ${_binary}
-          WORKING_DIRECTORY ${SCRIPTS_DIR}
+          WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
           RESULT_VARIABLE ${_binary}_installed
           )
       else(INSTALL_PROPRIETARY)
         if(DEBUG_PREBUILT)
-          message("cd ${SCRIPTS_DIR} && ${PYTHON_EXECUTABLE} install.py --install-dir=${CMAKE_SOURCE_DIR}/.. ${_binary}")
+          message("cd ${CMAKE_SOURCE_DIR} && ${AUTOBUILD_EXECUTABLE} install
+          --install-dir=${AUTOBUILD_INSTALL_DIR}
+          --skip-license-check
+          ${_binary} ")
         endif(DEBUG_PREBUILT)
-        execute_process(COMMAND ${PYTHON_EXECUTABLE}
-          install.py 
-          --install-dir=${CMAKE_SOURCE_DIR}/..
+        execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
+          install
+          --install-dir=${AUTOBUILD_INSTALL_DIR}
+          --skip-license-check
           ${_binary}
-          WORKING_DIRECTORY ${SCRIPTS_DIR}
+          WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
           RESULT_VARIABLE ${_binary}_installed
           )
       endif(INSTALL_PROPRIETARY)
@@ -40,5 +52,5 @@ macro (use_prebuilt_binary _binary)
               "Failed to download or unpack prebuilt '${_binary}'."
               " Process returned ${${_binary}_installed}.")
     endif (NOT ${_binary}_installed EQUAL 0)
-  endif (NOT STANDALONE)
+  endif (NOT STANDALONE_${_binary})
 endmacro (use_prebuilt_binary _binary)
