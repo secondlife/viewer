@@ -51,7 +51,7 @@ pre_build()
 {
   local variant="$1"
   begin_section "Pre$variant"
-  "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON
+  "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE
   end_section "Pre$variant"
 }
 
@@ -106,7 +106,7 @@ eval '$build_'"$arch" || pass
 # File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
 if test -f scripts/update_version_files.py ; then
   begin_section UpdateVer
-  scripts/update_version_files.py \
+  python scripts/update_version_files.py \
           --channel="$viewer_channel" \
           --server_channel="$server_channel" \
           --revision=$revision \
@@ -117,7 +117,7 @@ fi
 
 # Now retrieve the version for use in the version manager
 # First three parts only, $revision will be appended automatically.
-build_viewer_update_version_manager_version=`scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
+build_viewer_update_version_manager_version=`python scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
 
 export autobuild_dir="$here/../../../autobuild/bin/"
 if [ -d "$autobuild_dir" ]
