@@ -132,6 +132,7 @@ public:
 
 	// various useful matrix functions
 	const LLMatrix4& setIdentity();					// Load identity matrix
+	bool isIdentity() const;
 	const LLMatrix4& setZero();						// Clears matrix to all zeros.
 
 	const LLMatrix4& initRotation(const F32 angle, const F32 x, const F32 y, const F32 z);	// Calculate rotation matrix by rotating angle radians about (x, y, z)
@@ -260,6 +261,30 @@ inline const LLMatrix4&	LLMatrix4::setIdentity()
 	mMatrix[3][2] = 0.f;
 	mMatrix[3][3] = 1.f;
 	return (*this);
+}
+
+inline bool LLMatrix4::isIdentity() const
+{
+	return
+		mMatrix[0][0] == 1.f &&
+		mMatrix[0][1] == 0.f &&
+		mMatrix[0][2] == 0.f &&
+		mMatrix[0][3] == 0.f &&
+
+		mMatrix[1][0] == 0.f &&
+		mMatrix[1][1] == 1.f &&
+		mMatrix[1][2] == 0.f &&
+		mMatrix[1][3] == 0.f &&
+
+		mMatrix[2][0] == 0.f &&
+		mMatrix[2][1] == 0.f &&
+		mMatrix[2][2] == 1.f &&
+		mMatrix[2][3] == 0.f &&
+
+		mMatrix[3][0] == 0.f &&
+		mMatrix[3][1] == 0.f &&
+		mMatrix[3][2] == 0.f &&
+		mMatrix[3][3] == 1.f;
 }
 
 

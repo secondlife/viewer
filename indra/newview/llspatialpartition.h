@@ -148,6 +148,17 @@ public:
 
 	};
 
+	struct CompareMatrixTexturePtr
+	{
+		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs)	
+		{
+			return lhs.get() != rhs.get() 
+				&& (lhs.isNull() || (rhs.notNull() && (lhs->mModelMatrix > rhs->mModelMatrix ||
+													   (lhs->mModelMatrix == rhs->mModelMatrix && lhs->mTexture.get() > rhs->mTexture.get()))));
+		}
+
+	};
+
 	struct CompareBump
 	{
 		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs) 
@@ -532,6 +543,7 @@ public:
 	sg_list_t::iterator beginAlphaGroups();
 	sg_list_t::iterator endAlphaGroups();
 
+	bool hasOcclusionGroups() { return mOcclusionGroupsSize > 0; }
 	sg_list_t::iterator beginOcclusionGroups();
 	sg_list_t::iterator endOcclusionGroups();
 

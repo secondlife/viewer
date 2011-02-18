@@ -507,6 +507,11 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
 
+	if (pass == 0)
+	{ //make sure no stale colors are left over from a previous render
+		glColor4f(1,1,1,1);
+	}
+
 	if (LLPipeline::sImpostorRender)
 	{ //impostor render does not have impostors or rigid rendering
 		pass += 2;
@@ -1128,8 +1133,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{ //don't draw foot shadows under water
 		return;
 	}
-
-    LLOverrideFaceColor color(this, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (pass == 0)
 	{
