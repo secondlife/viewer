@@ -34,8 +34,10 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llviewerwindow.h" // to get root view
 #include "lluictrl.h"
 #include "llerror.h"
+
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
@@ -78,9 +80,38 @@ void LLUIListener::call(const LLSD& event) const
     }
 }
 
-const LLUICtrl* resolve_path(const LLUICtrl* base, const std::string path) 
+const LLView* resolve_path(const LLView* context, const std::string path) 
 {
-    // *TODO: walk the path
+	std::vector<std::string> parts;
+	const std::string delims("/");
+	LLStringUtilBase<char>::getTokens(path, parts, delims);
+	
+	bool recurse = false;
+	for (std::vector<std::string>::iterator it = parts.begin();
+		 it != parts.end() && context; it++) 
+    {
+		std::string part = *it;
+		
+		if (part.length() == 0) 
+        {
+			// Allow "foo//bar" meaning "descendant named bar"
+			recurse = true;
+        }
+		else
+        {
+			const LLView* found = context->findChildView(part, recurse);
+			if (!found) 
+            {
+				return NULL;
+            }
+			else 
+            {
+				context = found;
+            }
+			recurse = false;
+        }
+    }
+	
     return NULL;
 }
 
@@ -88,9 +119,10 @@ void LLUIListener::getValue(const LLSD&event) const
 {
     LLSD reply;
     
-    const LLUICtrl* root = NULL; // *TODO: look this up
-    const LLUICtrl* ctrl = resolve_path(root, event["path"].asString());
-    
+    const LLView* root = (LLView*)(gViewerWindow->getRootView());
+    const LLView* view = resolve_path(root, event["path"].asString());
+    const LLUICtrl* ctrl(dynamic_cast<const LLUICtrl*>(view));
+
     if (ctrl) 
     {
         reply["value"] = ctrl->getValue();
