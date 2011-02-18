@@ -37,6 +37,7 @@
 #include "v2math.h"
 #include "v3math.h"
 #include "v4coloru.h"
+#include "v4math.h"
 #include "llstrider.h"
 #include "llpointer.h"
 #include "llglheaders.h"
@@ -212,6 +213,41 @@ protected:
 	void setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2, bool isAlpha = false);
 };
 
+class LLLightState
+{
+public:
+	LLLightState(S32 index);
+
+	void enable();
+	void disable();
+	void setDiffuse(const LLColor4& diffuse);
+	void setAmbient(const LLColor4& ambient);
+	void setSpecular(const LLColor4& specular);
+	void setPosition(const LLVector4& position);
+	void setConstantAttenuation(const F32& atten);
+	void setLinearAttenuation(const F32& atten);
+	void setQuadraticAttenuation(const F32& atten);
+	void setSpotExponent(const F32& exponent);
+	void setSpotCutoff(const F32& cutoff);
+	void setSpotDirection(const LLVector3& direction);
+
+protected:
+	S32 mIndex;
+	bool mEnabled;
+	LLColor4 mDiffuse;
+	LLColor4 mAmbient;
+	LLColor4 mSpecular;
+	LLVector4 mPosition;
+	LLVector3 mSpotDirection;
+
+	F32 mConstantAtten;
+	F32 mLinearAtten;
+	F32 mQuadraticAtten;
+
+	F32 mSpotExponent;
+	F32 mSpotCutoff;
+};
+
 class LLRender
 {
 	friend class LLTexUnit;
@@ -327,6 +363,8 @@ public:
 	void blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 		       eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor);
 
+	LLLightState* getLight(U32 index);
+
 	LLTexUnit* getTexUnit(U32 index);
 
 	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
@@ -363,6 +401,7 @@ private:
 	LLStrider<LLColor4U>		mColorsp;
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
+	std::vector<LLLightState*> mLightState;
 
 	eBlendFactor mCurrBlendColorSFactor;
 	eBlendFactor mCurrBlendColorDFactor;
