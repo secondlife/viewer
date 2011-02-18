@@ -2640,8 +2640,7 @@ bool LLAppViewer::initWindow()
 	LL_INFOS("AppInit") << "Initializing window..." << LL_ENDL;
 
 	// store setting in a global for easy access and modification
-	gHeadlessClient = gSavedSettings.getBOOL("DisableRendering") 
-				   || gSavedSettings.getBOOL("HeadlessClient");
+	gHeadlessClient = gSavedSettings.getBOOL("HeadlessClient");
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
