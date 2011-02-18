@@ -692,6 +692,20 @@ private:
 };
 
 /**
+ * Conventionally send a reply to a request event.
+ *
+ * @a reply is the LLSD reply event to send
+ * @a request is the corresponding LLSD request event
+ * @a replyKey is the key in the @a request event, conventionally ["reply"],
+ * whose value is the name of the LLEventPump on which to send the reply.
+ *
+ * Before sending the reply event, sendReply() copies the ["reqid"] item from
+ * the request to the reply.
+ */
+LL_COMMON_API bool sendReply(const LLSD& reply, const LLSD& request,
+                             const std::string& replyKey="reply");
+
+/**
  * Base class for LLListenerWrapper. See visit_and_connect() and llwrap(). We
  * provide virtual @c accept_xxx() methods, customization points allowing a
  * subclass access to certain data visible at LLEventPump::listen() time.

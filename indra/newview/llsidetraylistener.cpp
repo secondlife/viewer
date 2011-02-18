@@ -37,16 +37,12 @@ LLSideTrayListener::LLSideTrayListener(const Getter& getter):
 
 void LLSideTrayListener::getCollapsed(const LLSD& event) const
 {
-    LLReqID reqID(event);
-    LLSD reply(reqID.makeResponse());
-    reply["open"] = ! mGetter()->getCollapsed();
-    LLEventPumps::instance().obtain(event["reply"]).post(reply);
+    sendReply(LLSDMap("open", ! mGetter()->getCollapsed()), event);
 }
 
 void LLSideTrayListener::getTabs(const LLSD& event) const
 {
-    LLReqID reqID(event);
-    LLSD reply(reqID.makeResponse());
+    LLSD reply;
 
     LLSideTray* tray = mGetter();
     LLSD::Integer ord(0);
@@ -68,7 +64,7 @@ void LLSideTrayListener::getTabs(const LLSD& event) const
         reply[child->getName()] = info;
     }
 
-    LLEventPumps::instance().obtain(event["reply"]).post(reply);
+    sendReply(reply, event);
 }
 
 static LLSD getTabInfo(LLPanel* tab)
@@ -133,8 +129,7 @@ static LLSD getTabInfo(LLPanel* tab)
 
 void LLSideTrayListener::getPanels(const LLSD& event) const
 {
-    LLReqID reqID(event);
-    LLSD reply(reqID.makeResponse());
+    LLSD reply;
 
     LLSideTray* tray = mGetter();
     // Iterate through the attached tabs.
@@ -163,5 +158,5 @@ void LLSideTrayListener::getPanels(const LLSD& event) const
         reply[tab->getName()] = getTabInfo(tab).with("attached", false).with("ord", ord);
     }
 
-    LLEventPumps::instance().obtain(event["reply"]).post(reply);
+    sendReply(reply, event);
 }
