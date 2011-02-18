@@ -343,12 +343,6 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
 
-	if (!regionp || gNoRender)
-	{
-		return;
-	}
-
-
 	S32 size;
 	S8 type;
 
@@ -2163,10 +2157,6 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLUUID from_id;
 	BOOL from_group;
 	LLUUID to_id;
@@ -3936,7 +3926,14 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
-	MASK	key_mask = gKeyboard->currentMask(TRUE);
+
+	MASK	key_mask = MASK_NONE;
+	// *TODO: Create a headless gKeyboard DK 2011-02-18
+	if (gKeyboard)
+	{
+		key_mask = gKeyboard->currentMask(TRUE);
+	}
+
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{
 		control_flags &= ~(	AGENT_CONTROL_LBUTTON_DOWN |
@@ -4255,7 +4252,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	gSky.setSunPhase(phase);
 	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if (!gNoRender && !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()))
+	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
 	{
 		gSky.setSunDirection(sun_direction, sun_ang_velocity);
 	}
@@ -5517,21 +5514,12 @@ time_t								gLastDisplayedTime = 0;
 
 void handle_show_mean_events(void *)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLFloaterReg::showInstance("bumps");
 	//LLFloaterBump::showInstance();
 }
 
 void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_group)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	static const U32 max_collision_list_size = 20;
 	if (gMeanCollisionList.size() > max_collision_list_size)
 	{

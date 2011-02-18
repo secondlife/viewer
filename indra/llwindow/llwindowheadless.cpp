@@ -28,6 +28,7 @@
 #include "indra_constants.h"
 
 #include "llwindowheadless.h"
+#include "llgl.h"
 
 //
 // LLWindowHeadless

@@ -2612,10 +2612,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DisableRendering</key>
+    <key>HeadlessClient</key>
     <map>
       <key>Comment</key>
-      <string>Disable GL rendering and GUI (load testing)</string>
+      <string>Run in headless mode by disabling GL rendering, keyboard, etc</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

@@ -711,7 +711,7 @@ void send_stats()
 	// but that day is not today.
 
 	// Only send stats if the agent is connected to a region.
-	if (!gAgent.getRegion() || gNoRender)
+	if (!gAgent.getRegion())
 	{
 		return;
 	}
