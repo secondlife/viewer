@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>925015cb33630fd73db5dcb6817bf0a2</string>
+              <string>73785c200a5b4ef74a1230b028bb680d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.8-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/221588/arch/CYGWIN/installer/apr_suite-1.4.2-windows-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
