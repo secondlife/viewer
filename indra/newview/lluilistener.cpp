@@ -47,6 +47,12 @@ LLUIListener::LLUIListener():
         "as if from a user gesture on a menu -- or a button click.",
         &LLUIListener::call,
         LLSD().with("function", LLSD()));
+
+    add("getValue",
+        "For the UI control identified by the path in [\"path\"], return the control's\n"
+        "current value as [\"value\"] reply.",
+        &LLUIListener::getValue,
+        LLSD().with("path", LLSD()));
 }
 
 void LLUIListener::call(const LLSD& event) const
@@ -70,4 +76,29 @@ void LLUIListener::call(const LLSD& event) const
         // the first parameter.
         (*func)(NULL, event["parameter"]);
     }
+}
+
+const LLUICtrl* resolve_path(const LLUICtrl* base, const std::string path) 
+{
+    // *TODO: walk the path
+    return NULL;
+}
+
+void LLUIListener::getValue(const LLSD&event) const
+{
+    LLSD reply;
+    
+    const LLUICtrl* root = NULL; // *TODO: look this up
+    const LLUICtrl* ctrl = resolve_path(root, event["path"].asString());
+    
+    if (ctrl) 
+    {
+        reply["value"] = ctrl->getValue();
+    }
+    else
+    {
+        // *TODO: ??? return something indicating failure to resolve
+    }
+    
+    sendReply(reply, event, "reply");
 }
