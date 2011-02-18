@@ -1296,7 +1296,7 @@ bool LLAppViewer::mainLoop()
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
-			}			
+			}	
 		}
 		catch(std::bad_alloc)
 		{			
@@ -1778,6 +1778,8 @@ bool LLAppViewer::cleanup()
 	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
+
+	MEM_TRACK_RELEASE
 
     llinfos << "Goodbye!" << llendflush;
 
@@ -2471,15 +2473,23 @@ namespace {
 
 		if(data["required"].asBoolean())
 		{
-			apply_callback = &apply_update_ok_callback;
 			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
 			{
 				// The user never saw the progress bar.
+				apply_callback = &apply_update_ok_callback;
 				notification_name = "RequiredUpdateDownloadedVerboseDialog";
+			}
+			else if(LLStartUp::getStartupState() < STATE_WORLD_INIT)
+			{
+				// The user is logging in but blocked.
+				apply_callback = &apply_update_ok_callback;
+				notification_name = "RequiredUpdateDownloadedDialog";
 			}
 			else
 			{
-				notification_name = "RequiredUpdateDownloadedDialog";
+				// The user is already logged in; treat like an optional update.
+				apply_callback = &apply_update_callback;
+				notification_name = "DownloadBackgroundTip";
 			}
 		}
 		else

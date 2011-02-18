@@ -119,13 +119,15 @@
 			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Fortyd" name="Undo"/>
+		<menu_item_call label="Gendan" name="Redo"/>
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
-		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
@@ -266,7 +268,8 @@
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI (brugerflade)" name="UI">
-			<menu_item_call label="Test web browser" name="Web Browser Test"/>
+			<menu_item_call label="Media browser test" name="Web Browser Test"/>
+			<menu_item_call label="Browser med webindhold" name="Web Content Browser"/>
 			<menu_item_call label="Print info om valgt objekt" name="Print Selected Object Info"/>
 			<menu_item_call label="Hukommelse statistik" name="Memory Stats"/>
 			<menu_item_check label="Debug konsol for region" name="Region Debug Console"/>

@@ -198,9 +198,12 @@
 		label="Enabled"
 		layout="topleft"
 		left_pad="5"
-		name="music_enabled"
+		name="enable_music"
 		top_delta="2"
-		width="350"/>
+		width="350">
+		<check_box.commit_callback
+			function="Pref.updateMediaAutoPlayCheckbox"/>
+	</check_box>
 	<slider
 		control_name="AudioLevelMedia"
 		disabled_control="MuteAudio"
@@ -245,7 +248,10 @@
 		top_delta="2"
 		left_pad="5"
 		name="enable_media"
-		width="110"/>
+		width="110">
+		<check_box.commit_callback
+			function="Pref.updateMediaAutoPlayCheckbox"/>
+	</check_box>
 	<slider
 		control_name="AudioLevelVoice"
 		disabled_control="MuteAudio"

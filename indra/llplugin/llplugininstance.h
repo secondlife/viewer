@@ -56,7 +56,7 @@ public:
 	
 	// Load a plugin dll/dylib/so
 	// Returns 0 if successful, APR error code or error code returned from the plugin's init function on failure.
-	int load(std::string &plugin_file);
+	int load(const std::string& plugin_dir, std::string &plugin_file);
 	
 	// Sends a message to the plugin.
 	void sendMessage(const std::string &message);

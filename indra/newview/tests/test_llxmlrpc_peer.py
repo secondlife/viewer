@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file   test_llxmlrpc_peer.py
 @author Nat Goodspeed
