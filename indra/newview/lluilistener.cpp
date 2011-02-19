@@ -32,6 +32,7 @@
 #include "lluilistener.h"
 // STL headers
 // std headers
+#include <sstream>
 // external library headers
 // other Linden headers
 #include "llviewerwindow.h" // to get root view
@@ -80,45 +81,90 @@ void LLUIListener::call(const LLSD& event) const
     }
 }
 
+// Split string given a single character delimiter.
+// Note that this returns empty strings for leading, trailing, and adjacent
+// delimiters, such as "/foo/bar//baz/" -> ["", "foo", "bar", "", "baz", "" ]
+std::vector<std::string> split(const std::string& s, char delim)
+{
+	std::stringstream ss(s);
+	std::string item;
+	std::vector<std::string> items;
+	while (std::getline(ss, item, delim))
+	{
+		items.push_back(item);
+	}
+	return items;
+}
+
+// Walk the LLView tree to resolve a path
+// Paths can be discovered using Develop > XUI > Show XUI Paths
+//
+// A leading "/" indicates the root of the tree is the starting
+// position of the search, (otherwise the context node is used)
+//
+// Adjacent "//" mean that the next level of the search is done
+// recursively ("descendant" rather than "child").
+//
+// Return values: If no match is found, NULL is returned,
+// otherwise the matching LLView* is returned.
+//
+// Examples:
+//
+// "/" -> return the root view
+// "/foo" -> find "foo" as a direct child of the root
+// "foo" -> find "foo" as a direct child of the context node
+// "//foo" -> find the first "foo" child anywhere in the tree
+// "/foo/bar" -> find "foo" as direct child of the root, and
+//      "bar" as a direct child of "foo"
+// "//foo//bar/baz" -> find the first "foo" anywhere in the
+//      tree, the first "bar" anywhere under it, and "baz"
+//      as a direct child of that
+//
 const LLView* resolve_path(const LLView* context, const std::string path) 
 {
-	std::vector<std::string> parts;
-	const std::string delims("/");
-	LLStringUtilBase<char>::getTokens(path, parts, delims);
+	std::vector<std::string> parts = split(path, '/');
+	
+	if (parts.size() == 0)
+	{
+		return context;
+	}
+
+	std::vector<std::string>::iterator it = parts.begin();
+	
+	// leading / means "start at root"
+	if ((*it).length() == 0)
+	{
+		context = (LLView*)(gViewerWindow->getRootView());
+		it++;
+	}
 	
 	bool recurse = false;
-	for (std::vector<std::string>::iterator it = parts.begin();
-		 it != parts.end() && context; it++) 
+	for (; it != parts.end() && context; it++) 
     {
 		std::string part = *it;
-		
+
 		if (part.length() == 0) 
         {
-			// Allow "foo//bar" meaning "descendant named bar"
 			recurse = true;
         }
 		else
         {
 			const LLView* found = context->findChildView(part, recurse);
 			if (!found) 
-            {
 				return NULL;
-            }
-			else 
-            {
-				context = found;
-            }
+
+			context = found;
 			recurse = false;
         }
     }
 	
-    return NULL;
+    return context;
 }
 
 void LLUIListener::getValue(const LLSD&event) const
 {
-    LLSD reply;
-    
+    LLSD reply = LLSD::emptyMap();
+
     const LLView* root = (LLView*)(gViewerWindow->getRootView());
     const LLView* view = resolve_path(root, event["path"].asString());
     const LLUICtrl* ctrl(dynamic_cast<const LLUICtrl*>(view));
@@ -132,5 +178,5 @@ void LLUIListener::getValue(const LLSD&event) const
         // *TODO: ??? return something indicating failure to resolve
     }
     
-    sendReply(reply, event, "reply");
+    sendReply(reply, event);
 }
