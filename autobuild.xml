@@ -1131,18 +1131,6 @@
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>178a79f9af90b16f0a62430f9fe88f28</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-windows-20101001a.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
       </map>
       <key>ndofdev</key>
