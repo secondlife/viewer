@@ -174,9 +174,6 @@ class WindowsManifest(ViewerManifest):
             return ''.join(self.channel().split()) + '.exe'
 
     def test_msvcrt_and_copy_action(self, src, dst):
-        # Skip this test as of VS2010
-        return
-    
         # This is used to test a dll manifest.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
@@ -196,9 +193,6 @@ class WindowsManifest(ViewerManifest):
             print "Doesn't exist:", src
 
     def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
-        # Skip this test as of VS2010
-        return
-
         # This is used to test that no manifest for the msvcrt exists.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
@@ -225,22 +219,25 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
         
-    def enable_crt_manifest_check(self):
-        if self.is_packaging_viewer():
-           WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
+    ### DISABLED MANIFEST CHECKING for vs2010.  we may need to reenable this
+    # shortly.  If this hasn't been reenabled by the 2.9 viewer release then it
+    # should be deleted -brad
+    #def enable_crt_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #       WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
 
-    def enable_no_crt_manifest_check(self):
-        if self.is_packaging_viewer():
-            WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
+    #def enable_no_crt_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
 
-    def disable_manifest_check(self):
-        if self.is_packaging_viewer():
-            del WindowsManifest.copy_action
+    #def disable_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #        del WindowsManifest.copy_action
 
     def construct(self):
         super(WindowsManifest, self).construct()
 
-        self.enable_crt_manifest_check()
+        #self.enable_crt_manifest_check()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -251,7 +248,7 @@ class WindowsManifest(ViewerManifest):
                                'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
                   "slplugin.exe")
         
-        self.disable_manifest_check()
+        #self.disable_manifest_check()
 
         self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
 
@@ -259,7 +256,7 @@ class WindowsManifest(ViewerManifest):
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            self.enable_crt_manifest_check()
+            #self.enable_crt_manifest_check()
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -271,7 +268,7 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
-            self.disable_manifest_check()
+            #self.disable_manifest_check()
 
             # Get fmod dll, continue if missing
             try:
@@ -326,7 +323,7 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
 
-        self.enable_no_crt_manifest_check()
+        #self.enable_no_crt_manifest_check()
         
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -407,7 +404,7 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
 
-        self.disable_manifest_check()
+        #self.disable_manifest_check()
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
