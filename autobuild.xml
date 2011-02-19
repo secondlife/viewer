@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7bd61490e6290b1981538b744919afd</string>
+              <string>271349827b939406162ce42e42cd18e0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/221707/arch/CYGWIN/installer/freetype-2.4.4-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
