@@ -1433,19 +1433,13 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-    if(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map /MAPINFO:LINES")
-    else(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map")
-    endif(MSVC71)
-    
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ${release_flags}
+        LINK_FLAGS_RELEASE ""
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
