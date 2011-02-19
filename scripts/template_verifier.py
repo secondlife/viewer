@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file template_verifier.py
 @brief Message template compatibility verifier.
