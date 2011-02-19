@@ -1843,34 +1843,34 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		Do przodu
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		W lewo
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		W prawo
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Wróć
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Północ
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Południe
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		Zachód
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Wschód
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		W górę
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		W dół
 	</string>
 	<string name="Any Category">

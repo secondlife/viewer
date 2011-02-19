@@ -1121,6 +1121,22 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	LLWorld::getInstance()->shiftRegions(offset);
 }
 
+//debug code
+bool LLViewerObjectList::hasMapObjectInRegion(LLViewerRegion* regionp) 
+{
+	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
+	{
+		LLViewerObject* objectp = *iter;
+
+		if(objectp->isDead() || objectp->getRegion() == regionp)
+		{
+			return true ;
+		}
+	}
+
+	return false ;
+}
+
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
 	LLColor4 above_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnAboveWater" );
@@ -1139,6 +1155,9 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
 	{
 		LLViewerObject* objectp = *iter;
+
+		llassert_always(!objectp->isDead());
+
 		if (!objectp->getRegion() || objectp->isOrphaned() || objectp->isAttachment())
 		{
 			continue;
@@ -1426,7 +1445,7 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 	LLViewerObject *old_instance = findObject(id);
 	if (old_instance)
 	{
-		cleanupReferences(old_instance);
+		//cleanupReferences(old_instance);
 		old_instance->markDead();
 		
 		return createObject(pcode, regionp, id, old_instance->getLocalID(), LLHost());

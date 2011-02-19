@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_alpha_panel">
-	<panel name="avatar_alpha_color_panel">
-		<texture_picker label="Alpha - nedre" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
-		<texture_picker label="Alpha - øvre" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
-		<texture_picker label="Alpha - hoved" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
-		<texture_picker label="Alpha - øje" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
-		<texture_picker label="Alpha - hår" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
-	</panel>
+	<scroll_container name="avatar_alpha_color_panel_scroll">
+		<panel name="avatar_alpha_color_panel">
+			<texture_picker label="Nedre alpha" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øverste alpha" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Hovede alpha" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øje alpha" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Hår alpha" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
+		</panel>
+	</scroll_container>
 </panel>

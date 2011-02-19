@@ -53,7 +53,7 @@
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llfilepicker.h"
 #include "llnotifications.h"
-
+#include "lldir.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
@@ -1766,7 +1766,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			
 			media_source->setTarget(target);
 			
-			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
+			const std::string plugin_dir = gDirUtilp->getLLPluginDir();
+			if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}
@@ -1832,16 +1833,17 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// start by assuming the default CA file will be used
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
-	
-		// default turned off so pick up the user specified path
-		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
-		{
-			ca_path = gSavedSettings.getString("BrowserCAFilePath");
-		}
-		// set the path to the CA.pem file
-		media_source->addCertificateFilePath( ca_path );
+		// NOTE: Removed as per STORM-927 - SSL handshake failed - setting local self-signed certs like this 
+		//       seems to screw things up big time. For now, devs will need to add these certs locally and Qt will pick them up.
+//		// start by assuming the default CA file will be used
+//		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
+//		// default turned off so pick up the user specified path
+//		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
+//		{
+//			ca_path = gSavedSettings.getString("BrowserCAFilePath");
+//		}
+//		// set the path to the CA.pem file
+//		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		

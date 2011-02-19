@@ -39,6 +39,17 @@
          parameter="sort_by_recent" />         
     </menu_item_check>
     <menu_item_check
+     label="Sort Folders Always by Name"
+     layout="topleft"
+     name="sort_folders_by_name">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_folders_by_name" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_folders_by_name" />
+    </menu_item_check>
+    <menu_item_check
      label="Sort System Folders to Top"
      layout="topleft"
      name="sort_system_folders_to_top">

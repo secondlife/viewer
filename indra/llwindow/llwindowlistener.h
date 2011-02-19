@@ -1,10 +1,8 @@
-/**
- * @file   llagentlistener.h
- * @author Brad Kittenbrink
- * @date   2009-07-09
- * @brief  Event API for subset of LLViewerControl methods
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llwindowlistener.h
+ * @brief EventAPI interface for injecting input into LLWindow
+ *
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -26,30 +24,30 @@
  * $/LicenseInfo$
  */
 
-
-#ifndef LL_LLAGENTLISTENER_H
-#define LL_LLAGENTLISTENER_H
+#ifndef LL_LLWINDOWLISTENER_H
+#define LL_LLWINDOWLISTENER_H
 
 #include "lleventapi.h"
 
-class LLAgent;
-class LLSD;
+class LLKeyboard;
+class LLWindowCallbacks;
 
-class LLAgentListener : public LLEventAPI
+class LLWindowListener : public LLEventAPI
 {
 public:
-	LLAgentListener(LLAgent &agent);
+	LLWindowListener(LLWindowCallbacks * window, LLKeyboard * keyboard);
+
+	void keyDown(LLSD const & evt);
+	void keyUp(LLSD const & evt);
+	void mouseDown(LLSD const & evt);
+	void mouseUp(LLSD const & evt);
+	void mouseMove(LLSD const & evt);
+	void mouseScroll(LLSD const & evt);
 
 private:
-	void requestTeleport(LLSD const & event_data) const;
-	void requestSit(LLSD const & event_data) const;
-	void requestStand(LLSD const & event_data) const;
-	void resetAxes(const LLSD& event) const;
-	void getAxes(const LLSD& event) const;
-
-private:
-	LLAgent & mAgent;
+	LLWindowCallbacks * mWindow;
+	LLKeyboard * mKeyboard;
 };
 
-#endif // LL_LLAGENTLISTENER_H
 
+#endif // LL_LLWINDOWLISTENER_H

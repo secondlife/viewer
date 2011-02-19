@@ -6,7 +6,7 @@
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Effetti sonori" name="SFX Volume"/>
 	<slider label="Musica in streaming" name="Music Volume"/>
-	<check_box label="Abilitato" name="music_enabled"/>
+	<check_box label="Abilitato" name="enable_music"/>
 	<slider label="Multimediale" name="Media Volume"/>
 	<check_box label="Abilitato" name="enable_media"/>
 	<slider label="Chat vocale" name="Voice Volume"/>

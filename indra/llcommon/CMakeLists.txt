@@ -313,6 +313,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)
