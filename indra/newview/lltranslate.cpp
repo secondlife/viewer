@@ -39,7 +39,7 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 
-#include "reader.h"
+#include "json/reader.h"
 
 // These two are concatenated with the language specifiers to form a complete Google Translate URL
 const char* LLTranslate::m_GoogleURL = "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=";
