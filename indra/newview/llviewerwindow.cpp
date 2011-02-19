@@ -2973,7 +2973,13 @@ void LLViewerWindow::updateLayout()
 			}
 			// Update the location of the blue box tool popup
 			LLCoordGL select_center_screen;
-			gFloaterTools->updatePopup( select_center_screen, gKeyboard->currentMask(TRUE) );
+			MASK	mask = MASK_NONE;
+			// *TODO: Create a headless gKeyboard DK 2011-02-18
+			if (gKeyboard)
+			{
+				mask = gKeyboard->currentMask(TRUE);
+			}
+			gFloaterTools->updatePopup( select_center_screen, mask );
 		}
 		else
 		{
@@ -3099,7 +3105,13 @@ void LLViewerWindow::updateKeyboardFocus()
 		// sync all floaters with their focus state
 		gFloaterView->highlightFocusedFloater();
 		gSnapshotFloaterView->highlightFocusedFloater();
-		if ((gKeyboard->currentMask(TRUE) & MASK_CONTROL) == 0)
+		MASK	mask = MASK_NONE;
+		// *TODO: Create a headless gKeyboard DK 2011-02-18
+		if (gKeyboard)
+		{
+			mask = gKeyboard->currentMask(TRUE);
+		}
+		if ((mask & MASK_CONTROL) == 0)
 		{
 			// control key no longer held down, finish cycle mode
 			gFloaterView->setCycleMode(FALSE);
