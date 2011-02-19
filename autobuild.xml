@@ -860,9 +860,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a4d88f6ba42fa0acd47881f2d7ed7a7</string>
+              <string>a202ec58cef9097c94acfa958ed6da8d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/221594/arch/CYGWIN/installer/jpeglib-8c-windows-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1130,18 +1130,6 @@
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>178a79f9af90b16f0a62430f9fe88f28</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-windows-20101001a.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
           </map>
         </map>
       </map>
