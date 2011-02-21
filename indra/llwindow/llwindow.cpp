@@ -41,6 +41,7 @@
 #include "llkeyboard.h"
 #include "linked_lists.h"
 #include "llwindowcallbacks.h"
+#include "llwindowlistener.h"
 
 
 //
@@ -115,10 +116,15 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
 	  mHighSurrogate(0)
-{ }
+{
+	mListener = new LLWindowListener(callbacks, gKeyboard);
+}
 
 LLWindow::~LLWindow()
-{ }
+{
+	delete mListener;
+	mListener = NULL;
+}
 
 //virtual
 BOOL LLWindow::isValid()

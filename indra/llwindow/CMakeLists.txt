@@ -36,6 +36,7 @@ set(llwindow_SOURCE_FILES
     llkeyboard.cpp
     llwindowheadless.cpp
     llwindowcallbacks.cpp
+    llwindowlistener.cpp
     )
 
 set(llwindow_HEADER_FILES
@@ -44,6 +45,7 @@ set(llwindow_HEADER_FILES
     llkeyboard.h
     llwindowheadless.h
     llwindowcallbacks.h
+    llwindowlistener.h
     )
 
 set(viewer_SOURCE_FILES
