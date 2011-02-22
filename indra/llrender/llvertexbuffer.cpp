@@ -143,7 +143,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			}
 			else 
 			{	//was disabled
-				if (data_mask & mask[i])
+				if (data_mask & mask[i] && i > 0)
 				{ //needs to be enabled
 					glEnableClientState(array[i]);
 				}

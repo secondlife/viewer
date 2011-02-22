@@ -3818,6 +3818,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	else
 	{
 		model_mat = &(drawable->getRegion()->mRenderMatrix);
+		if (model_mat->isIdentity())
+		{
+			model_mat = NULL;
+		}
 	}
 
 	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;

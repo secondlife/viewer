@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 @file test_llmanifest.py
 @author Ryan Williams

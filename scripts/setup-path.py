@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file setup-path.py
 @brief Get the python library directory in the path, so we don't have

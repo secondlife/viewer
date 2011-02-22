@@ -1332,32 +1332,7 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		//Rebase the pelvis position if the avatar contains a pelvis offset
-		if ( mHasPelvisOffset )
-		{
-			LLVector3 returnVec( mDrawable->getPositionAgent() );	
-			if ( mLastPelvisToFoot > mPelvisToFoot )
-			{
-				F32 diff = mLastPelvisToFoot - mPelvisToFoot;
-				//1. Move the pelvis down by the difference of the old amount and the new pelvis to foot amount
-				returnVec[VZ] -= (diff);
-				//2. Now move the pelvis up by the new pelvis to foot amount
-				returnVec[VZ] += mPelvisToFoot;				
-			}
-			else
-			{
-				//1. Move the pelvis down by the old pelvis to foot amount
-				returnVec[VZ] -= (mLastPelvisToFoot);
-				//2. Now move the pelvis up by the new pelvis to foot amount
-				returnVec[VZ] += mPelvisToFoot;
-			}
-			//Return the fixed up pelvis position
-			return returnVec;
-		}
-		else
-		{
-			return mDrawable->getPositionAgent();
-		}
+		return mDrawable->getPositionAgent();
 	}
 	else
 	{
@@ -3498,15 +3473,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
-		if ( !mHasPelvisOffset )
-		{
-			root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		}
-		else
-		{
-			root_pos.mdV[VZ] -= (0.65f * mBodySize.mV[VZ]) - mPelvisToFoot;		
-		}
-	
+		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
 		if (newPosition != mRoot.getXform()->getWorldPosition())
