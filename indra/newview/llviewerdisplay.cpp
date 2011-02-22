@@ -616,10 +616,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				&& gSavedSettings.getBOOL("UseOcclusion") 
 				&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 
-		if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
-		{ //force occlusion on for all render types if doing deferred render
+		/*if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
+		{ //force occlusion on for all render types if doing deferred render (tighter shadow frustum)
 			LLPipeline::sUseOcclusion = 3;
-		}
+		}*/
 
 		LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
 		LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");

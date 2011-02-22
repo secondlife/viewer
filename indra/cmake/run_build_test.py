@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """\
 @file   run_build_test.py
 @author Nat Goodspeed
