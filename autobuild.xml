@@ -704,9 +704,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>320972cefe728e668b0dc6356eeda58f</string>
+              <string>627c51136e14e64c5d39933f3abd3bdf</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/google_breakpad-0.0.0-rev599-windows-20110128.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/220211/arch/CYGWIN/installer/google_breakpad-0.0.0-rev599-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
