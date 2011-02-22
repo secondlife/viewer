@@ -152,11 +152,10 @@ public:
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
 		
-	void preUpdate() ;
-	void postUpdate() const ;
 	void freeClientBuffer() ;
-	void dirty() {mDirty = TRUE;}
-
+	void allocateClientVertexBuffer() ;
+	void allocateClientIndexBuffer() ;
+	
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
 	// example:
@@ -221,8 +220,7 @@ protected:
 	S32		mOffsets[TYPE_MAX];
 	BOOL	mResized;		// if TRUE, client buffer has been resized and GL buffer has not
 	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
-	mutable BOOL    mDirty ;
-
+	
 	class DirtyRegion
 	{
 	public:
