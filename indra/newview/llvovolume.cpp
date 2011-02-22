@@ -2943,9 +2943,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 num_triangles = 0;
 
 	// per-prim costs
-	static const U32 ARC_PARTICLE_COST = 1;
-	static const U32 ARC_PARTICLE_MAX = 2048;
-	static const U32 ARC_TEXTURE_COST = 32;
+	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
+	static const U32 ARC_PARTICLE_MAX = 2048; // default values
+	static const U32 ARC_TEXTURE_COST = 32; // multiplier for texture resolution - performance tested
 
 	// per-prim multipliers
 	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
@@ -2955,9 +2955,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
 	static const F32 ARC_WEIGHTED_MESH = 1.2f; 
 
-	static const F32 ARC_PLANAR_COST = 1.2f; // 1.2x max
+	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
 	static const F32 ARC_ANIM_TEX_COST = 1.4f; // 1.4x max
-	static const F32 ARC_ALPHA_COST = 4.f; // 4x max
+	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
 	F32 shame = 0;
 

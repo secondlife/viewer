@@ -6307,6 +6307,11 @@ BOOL LLVOAvatar::getIsCloud()
 	{
 		return TRUE;
 	}
+
+	if (isTooComplex())
+	{
+		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -6399,6 +6404,16 @@ BOOL LLVOAvatar::isFullyLoaded() const
 		return TRUE;
 	else
 		return mFullyLoaded;
+}
+
+bool LLVOAvatar::isTooComplex() const
+{
+	if (gSavedSettings.getS32("RenderAvatarComplexityLimit") > 0 && mVisualComplexity >= gSavedSettings.getS32("RenderAvatarComplexityLimit"))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -8338,6 +8353,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 	}
 
 	setDebugText(llformat("%d", cost));
+	mVisualComplexity = cost;
 	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
 	F32 red = llmin((F32) cost/(F32)ARC_LIMIT, 1.f);
 	mText->setColor(LLColor4(red,green,0,1));
