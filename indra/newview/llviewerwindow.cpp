@@ -584,6 +584,11 @@ public:
 				addText(xpos, ypos, "Viewing scripted object beacons (red)");
 				ypos += y_inc;
 			}
+			if (LLPipeline::getRenderMOAPBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing MOAP beacons (white)");
+				ypos += y_inc;
+			}
 			else
 				if (LLPipeline::getRenderScriptedTouchBeacons(NULL))
 				{
