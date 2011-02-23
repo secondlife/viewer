@@ -267,7 +267,7 @@ private:
 
     LLAllocator mAlloc;
 
-	std::set<struct apr_dso_handle_t*> mPlugins;
+	std::map<apr_dso_handle_t*, boost::shared_ptr<LLAPRPool> > mPlugins;
 
 	LLFrameTimer mMemCheckTimer;
 	

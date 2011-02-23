@@ -82,8 +82,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 	error_msg.clear();
 
 	//********************************
-	LLAPRFile infile ;
-    infile.open(in_fname,LL_APR_RB);
+	LLAPRFile infile(in_fname, LL_APR_RB);
 	//********************************
 	if (!infile.getFileHandle())
 	{
@@ -233,8 +232,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 
 	S32 data_left = 0;
 
-	LLAPRFile infile ;
-	infile.open(in_fname,LL_APR_RB);
+	LLAPRFile infile(in_fname,LL_APR_RB);
 	if (!infile.getFileHandle())
 	{
 		llwarns << "Couldn't open temporary ogg file for writing: " << in_fname
@@ -242,8 +240,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 		return(LLVORBISENC_SOURCE_OPEN_ERR);
 	}
 
-	LLAPRFile outfile ;
-	outfile.open(out_fname,LL_APR_WPB);
+	LLAPRFile outfile(out_fname, LL_APR_WPB);
 	if (!outfile.getFileHandle())
 	{
 		llwarns << "Couldn't open upload sound file for reading: " << in_fname

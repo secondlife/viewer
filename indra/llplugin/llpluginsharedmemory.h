@@ -28,6 +28,8 @@
 #ifndef LL_LLPLUGINSHAREDMEMORY_H
 #define LL_LLPLUGINSHAREDMEMORY_H
 
+#include "llaprpool.h"
+
 class LLPluginSharedMemoryPlatformImpl;
 
 /**
@@ -108,6 +110,7 @@ private:
 	bool close(void);
 	bool unlink(void);
 	
+	LLAPRPool mPool;
 	std::string mName;
 	size_t mSize;
 	void *mMappedAddress;
