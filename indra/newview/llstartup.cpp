@@ -670,7 +670,7 @@ bool idle_startup()
 		{
 			gUserCredential = gLoginHandler.initializeLoginInfo();
 		}
-		// Previous initial√zeLoginInfo may have generated user credentials.  Re-check them.
+		// Previous initializeLoginInfo may have generated user credentials.  Re-check them.
 		if (gUserCredential.isNull())
 		{
 			show_connect_box = TRUE;
