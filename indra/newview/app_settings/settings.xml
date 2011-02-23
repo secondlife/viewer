@@ -8810,7 +8810,18 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-    <key>RenderVolumeLODFactor</key>
+	<key>RenderPreferStreamDraw</key>
+	<map>
+		<key>Comment</key>
+		<string>Use GL_STREAM_DRAW in place of GL_DYNAMIC_DRAW</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
+	<key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
       <string>Controls level of detail of primitives (multiplier for current screen area when calculated level of detail)</string>

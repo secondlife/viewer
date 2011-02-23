@@ -108,14 +108,16 @@ class LLModelInstance
 public:
 	LLPointer<LLModel> mModel;
 	LLPointer<LLModel> mLOD[5];
-	 
+	
+	std::string mLabel;
+
 	LLUUID mMeshID;
 
 	LLMatrix4 mTransform;
 	std::vector<LLImportMaterial> mMaterial;
 
-	LLModelInstance(LLModel* model, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
-		: mModel(model), mTransform(transform), mMaterial(materials)
+	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
+		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
 	}
 };
