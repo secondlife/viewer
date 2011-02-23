@@ -279,7 +279,7 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void consolidate();
+	
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();

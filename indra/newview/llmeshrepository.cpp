@@ -2981,7 +2981,7 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 	object_params["pos"] = ll_sd_from_vector3(position + mOrigin);
 	object_params["rotation"] = ll_sd_from_quaternion(quat_rotation);
 	object_params["scale"] = ll_sd_from_vector3(scale);
-	object_params["name"] = instance.mModel->getName();
+	object_params["name"] = instance.mLabel;
 
 	// load material from dae file
 	object_params["facelist"] = LLSD::emptyArray();
