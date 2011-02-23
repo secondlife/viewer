@@ -1,14 +1,5 @@
 <llsd>
   <map>
-    <key>CacheValidateCounter</key>
-        <map>
-        <key>Comment</key>
-            <string>Used to distribute cache validation</string>
-        <key>Type</key>
-            <string>U32</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
     <key>ChannelBottomPanelMargin</key>
         <map>
         <key>Comment</key>
@@ -35,15 +26,6 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-        </map>
-    <key>CurrentGrid</key>
-        <map>
-        <key>Comment</key>
-            <string>Currently Selected Grid</string>
-        <key>Type</key>
-            <string>String</string>
-        <key>Value</key>
-            <string>util.agni.lindenlab.com</string>
         </map>
     <key>DestinationGuideURL</key>
         <map>
@@ -108,15 +90,6 @@
         <key>Value</key>
             <string>http://interest.secondlife.com/static/viewer/howto/index.html</string>
         </map>
-    <key>LocalCacheVersion</key>
-        <map>
-        <key>Comment</key>
-            <string>Version number of cache</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>7</integer>
-        </map>
     <key>LocalFileSystemBrowsingEnabled</key>
         <map>
         <key>Comment</key>
@@ -125,24 +98,6 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-        </map>
-    <key>MigrateCacheDirectory</key>
-        <map>
-        <key>Comment</key>
-            <string>Check for old version of disk cache to migrate to current location</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>NumSessions</key>
-        <map>
-        <key>Comment</key>
-            <string>Number of successful logins to Second Life</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>2</integer>
         </map>
     <key>PreferredMaturity</key>
         <map>
@@ -153,24 +108,6 @@
         <key>Value</key>
             <integer>21</integer>
         </map>
-    <key>ProbeHardwareOnStartup</key>
-        <map>
-        <key>Comment</key>
-            <string>Query current hardware configuration on application startup</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>QAMode</key>
-        <map>
-        <key>Comment</key>
-            <string>Enable Testing Features.</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>1</boolean>
-        </map>
     <key>QuitAfterSecondsOfAFK</key>
         <map>
         <key>Comment</key>
@@ -180,114 +117,6 @@
         <key>Value</key>
             <real>600</real>
         </map>
-    <key>QuitOnLoginActivated</key>
-        <map>
-        <key>Comment</key>
-            <string>Quit if login page is activated (used when auto login is on and users must not be able to login manually)</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
-    <key>RenderAnisotropic</key>
-        <map>
-        <key>Comment</key>
-            <string>Render textures using anisotropic filtering</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>1</boolean>
-        </map>
-    <key>RenderAvatarCloth</key>
-        <map>
-        <key>Comment</key>
-            <string>Controls if avatars use wavy cloth</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>RenderAvatarLODFactor</key>
-        <map>
-        <key>Comment</key>
-            <string>Controls level of detail of avatars (multiplier for current screen area when calculated level of detail)</string>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>1</real>
-        </map>
-    <key>RenderDeferredSSAO</key>
-        <map>
-        <key>Comment</key>
-            <string>Execute screen space ambient occlusion shader in deferred renderer.</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>RenderDelayVBUpdate</key>
-        <map>
-        <key>Comment</key>
-            <string>Delay vertex buffer updates until just before rendering</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>RenderFarClip</key>
-        <map>
-        <key>Comment</key>
-            <string>Distance of far clip plane from camera (meters)</string>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>128</real>
-        </map>
-    <key>RenderParcelSelection</key>
-        <map>
-        <key>Comment</key>
-            <string>Display selected parcel outline</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>RenderQualityPerformance</key>
-        <map>
-        <key>Comment</key>
-            <string>Which graphics settings you&apos;ve chosen</string>
-        <key>Type</key>
-            <string>U32</string>
-        <key>Value</key>
-            <integer>2</integer>
-        </map>
-    <key>RenderShadowDetail</key>
-        <map>
-        <key>Comment</key>
-            <string>Detail of shadows.</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>RenderTerrainDetail</key>
-        <map>
-        <key>Comment</key>
-            <string>Detail applied to terrain texturing (0 = none, 1 or 2 = full)</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
-    <key>RenderTerrainLODFactor</key>
-        <map>
-        <key>Comment</key>
-            <string>Controls level of detail of terrain (multiplier for current screen area when calculated level of detail)</string>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>2</real>
-        </map>
     <key>RenderTrackerBeacon</key>
         <map>
         <key>Comment</key>
@@ -296,15 +125,6 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-        </map>
-    <key>RenderVolumeLODFactor</key>
-        <map>
-        <key>Comment</key>
-            <string>Controls level of detail of primitives (multiplier for current screen area when calculated level of detail)</string>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>1.125</real>
         </map>
     <key>ShowScriptErrors</key>
         <map>
@@ -333,15 +153,6 @@
         <key>Value</key>
             <string>minimal</string>
         </map>
-    <key>TextureMemory</key>
-        <map>
-        <key>Comment</key>
-            <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>256</integer>
-        </map>
     <key>UseExternalBrowser</key>
         <map>
         <key>Comment</key>
@@ -350,42 +161,6 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-        </map>
-    <key>VFSOldSize</key>
-        <map>
-        <key>Comment</key>
-            <string>[DO NOT MODIFY] Controls resizing of local file cache</string>
-        <key>Type</key>
-            <string>U32</string>
-        <key>Value</key>
-            <integer>102</integer>
-        </map>
-    <key>VectorizePerfTest</key>
-        <map>
-        <key>Comment</key>
-            <string>Test SSE/vectorization performance and choose fastest version.</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>VectorizeSkin</key>
-        <map>
-        <key>Comment</key>
-            <string>Enable vector operations for avatar skinning.</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>0</boolean>
-        </map>
-    <key>VertexShaderEnable</key>
-        <map>
-        <key>Comment</key>
-            <string>Enable/disable all GLSL shaders (debug)</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>1</boolean>
         </map>
     <key>VoiceCallsRejectAll</key>
         <map>
@@ -405,55 +180,6 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>WLSkyDetail</key>
-        <map>
-        <key>Comment</key>
-            <string>Controls vertex detail on the WindLight sky.  Lower numbers will give better performance and uglier skies.</string>
-        <key>Type</key>
-            <string>U32</string>
-        <key>Value</key>
-            <integer>48</integer>
-        </map>
-    <key>WindowFullScreen</key>
-        <map>
-        <key>Comment</key>
-            <string>SL viewer window full screen</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
-    <key>WindowHeight</key>
-        <map>
-        <key>Comment</key>
-            <string>SL viewer window height</string>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>642</integer>
-        </map>
-    <key>TextureMemory</key>
-      <map>
-        <key>Comment</key>
-        <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
-        <integer>512</integer>
-      </map>
-    <key>NoHardwareProbe</key>
-      <map>
-        <key>Comment</key>
-        <string>Disable hardware probe.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>1</integer>
-      </map>
       <key>ScriptsCanShowUI</key>
       <map>
         <key>Comment</key>
@@ -497,17 +223,6 @@
         <string>S32</string>
         <key>Value</key>
         <integer>1</integer>
-      </map>
-      <key>CacheSize</key>
-      <map>
-        <key>Comment</key>
-        <string>Controls amount of hard drive space reserved for local file caching in MB</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>U32</string>
-        <key>Value</key>
-        <integer>1024</integer>
       </map>
       <key>MediaControlFadeTime</key>
       <map>
