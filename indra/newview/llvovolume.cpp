@@ -1219,6 +1219,8 @@ BOOL LLVOVolume::calcLOD()
 		radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
 	}
 			
+	distance *= sDistanceFactor;
+
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
 	
 	if (distance < rampDist)
