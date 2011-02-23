@@ -383,6 +383,7 @@ void LLPipeline::init()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -5795,6 +5796,8 @@ void LLPipeline::resetVertexBuffers()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
+	LLVertexBuffer::sEnableVBOs = gSavedSettings.getBOOL("RenderVBOEnable");
 	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
 	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 
@@ -5851,24 +5854,6 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)
 	mSimplePool->pushBatches(type, mask);
 	glLoadMatrixd(gGLModelView);
 	gGLLastMatrix = NULL;		
-}
-
-void LLPipeline::setUseVBO(BOOL use_vbo)
-{
-	if (use_vbo != LLVertexBuffer::sEnableVBOs)
-	{
-		if (use_vbo)
-		{
-			llinfos << "Enabling VBO." << llendl;
-		}
-		else
-		{ 
-			llinfos << "Disabling VBO." << llendl;
-		}
-		
-		resetVertexBuffers();
-		LLVertexBuffer::initClass(use_vbo);
-	}
 }
 
 void apply_cube_face_rotation(U32 face)
