@@ -775,6 +775,7 @@ bool idle_startup()
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
+        show_debug_menus();
 
 		// Hide the splash screen
 		LLSplashScreen::hide();
