@@ -5856,10 +5856,6 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)
 	gGLLastMatrix = NULL;		
 }
 
-		LLVertexBuffer::initClass(use_vbo, gSavedSettings.getBOOL("RenderVBOMappingDisable"));
-	}
-}
-
 void LLPipeline::setDisableVBOMapping(BOOL no_vbo_mapping)
 {
 	if (LLVertexBuffer::sEnableVBOs && no_vbo_mapping != LLVertexBuffer::sDisableVBOMapping)
@@ -5875,31 +5871,6 @@ void LLPipeline::setDisableVBOMapping(BOOL no_vbo_mapping)
 		
 		resetVertexBuffers();
 		LLVertexBuffer::initClass(true, no_vbo_mapping);
-void apply_cube_face_rotation(U32 face)
-{
-	switch (face)
-	{
-		case 0: 
-			glRotatef(90.f, 0, 1, 0);
-			glRotatef(180.f, 1, 0, 0);
-		break;
-		case 2: 
-			glRotatef(-90.f, 1, 0, 0);
-		break;
-		case 4:
-			glRotatef(180.f, 0, 1, 0);
-			glRotatef(180.f, 0, 0, 1);
-		break;
-		case 1: 
-			glRotatef(-90.f, 0, 1, 0);
-			glRotatef(180.f, 1, 0, 0);
-		break;
-		case 3:
-			glRotatef(90, 1, 0, 0);
-		break;
-		case 5: 
-			glRotatef(180, 0, 0, 1);
-		break;
 	}
 }
 
