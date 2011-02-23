@@ -718,7 +718,7 @@
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
-        <string>LICENSES/googlemock.txt</string>
+        <string>LICENSES/gmock.txt</string>
         <key>name</key>
         <string>googlemock</string>
         <key>platforms</key>
@@ -752,9 +752,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec7f12a339ad8c5628db8f8f8fbfe77f</string>
+              <string>5aaee3bbdff61e6e3cd03c7e726aab48</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/221925/arch/CYGWIN/installer/gmock-1.5.0-windows-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1138,7 +1138,7 @@
         <key>license</key>
         <string>linden</string>
         <key>license_file</key>
-        <string>LICENSES/ndofdev.txt</string>
+        <string>LICENSES/libndofdev.txt</string>
         <key>name</key>
         <string>ndofdev</string>
         <key>platforms</key>
@@ -1172,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9d4f6c042c27fdab81e00238af7e55f0</string>
+              <string>3a4bec9562ed6ac53e85abcb1afc5fc0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev/rev/221922/arch/CYGWIN/installer/libndofdev-0.1-windows-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
