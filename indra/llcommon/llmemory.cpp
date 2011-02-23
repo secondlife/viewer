@@ -1271,7 +1271,7 @@ LLPrivateMemoryPool::LLPrivateMemoryPool(U32 max_size, bool threaded) :
 {
 	if(threaded)
 	{
-		mMutexp = new LLMutex(NULL) ;
+		mMutexp = new LLMutex ;
 	}
 
 	for(S32 i = 0 ; i < SUPER_ALLOCATION ; i++)
