@@ -572,7 +572,7 @@ void LLPrivateMemoryPool::LLMemoryBlock::init(char* buffer, U32 buffer_size, U32
 	mSlotSize = slot_size ;
 	mTotalSlots = buffer_size / mSlotSize ;	
 	
-	llassert_always(buffer_size / mSlotSize < 256) ; //max number is 256
+	llassert_always(mTotalSlots <= 256) ; //max number is 256
 	
 	mAllocatedSlots = 0 ;
 
