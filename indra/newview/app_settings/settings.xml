@@ -7046,7 +7046,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderAvatarLODFactor</key>
+  <key>RenderAvatarComplexityLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scens</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderAvatarLODFactor</key>
     <map>
       <key>Comment</key>
       <string>Controls level of detail of avatars (multiplier for current screen area when calculated level of detail)</string>
