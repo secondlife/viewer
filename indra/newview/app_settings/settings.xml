@@ -11473,7 +11473,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>3.0</integer>
+      <integer>3</integer>
     </map>
     <key>InterpolationPhaseOut</key>
     <map>
@@ -11484,7 +11484,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>1.0</integer>
+      <integer>1</integer>
     </map>
     <key>VerboseLogs</key>
     <map>
@@ -12365,6 +12365,28 @@
       <string>String</string>
       <key>Value</key>
       <string>name</string>
+    </map>
+    <key>SessionSettingsFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Settings that are a applied per session (not saved).</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>UserSessionSettingsFile</key>
+    <map>
+      <key>Comment</key>
+      <string>User settings that are a applied per session (not saved).</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
     </map>
 </map>
 </llsd>
