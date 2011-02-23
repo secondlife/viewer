@@ -338,10 +338,12 @@ void LLFloaterDayCycle::onStopAnimSky(void* userData)
 
 void LLFloaterDayCycle::onUseLindenTime(void* userData)
 {
-	LLFloaterWindLight* wl = LLFloaterWindLight::instance();
-	LLComboBox* box = wl->getChild<LLComboBox>("WLPresetsCombo");
-	box->selectByValue("");	
-
+	LLFloaterWindLight* wlfloater = LLFloaterReg::findTypedInstance<LLFloaterWindLight>("env_windlight");
+	if (wlfloater)
+	{
+		LLComboBox* box = wlfloater->getChild<LLComboBox>("WLPresetsCombo");
+		box->selectByValue("");	
+	}
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 }
 

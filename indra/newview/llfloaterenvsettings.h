@@ -46,17 +46,15 @@ class LLFloaterEnvSettings : public LLFloater
 public:
 
 	LLFloaterEnvSettings(const LLSD &key);
-	virtual ~LLFloaterEnvSettings();
-	
+	/*virtual*/ ~LLFloaterEnvSettings();
+	/*virtual*/	BOOL	postBuild();	
+
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
 	/// one and one instance only
-	static LLFloaterEnvSettings* instance();
-	
-	/// callback for the menus help button
-	static void onClickHelp(void* data);
-	
+	LLFloaterEnvSettings* instance();
+		
 	/// handle if time of day is changed
 	static void onChangeDayTime(LLUICtrl* ctrl, void* userData);
 
@@ -64,25 +62,19 @@ public:
 	static void onChangeCloudCoverage(LLUICtrl* ctrl, void* userData);
 
 	/// handle change in water fog density
-	static void onChangeWaterFogDensity(LLUICtrl* ctrl, void* userData);
-
-	/// handle change in under water fog density
-	static void onChangeUnderWaterFogMod(LLUICtrl* ctrl, void* userData);
+	static void onChangeWaterFogDensity(LLUICtrl* ctrl, void* expFloatControl);
 
 	/// handle change in water fog color
-	static void onChangeWaterColor(LLUICtrl* ctrl, void* userData);
+	static void onChangeWaterColor(LLUICtrl* ctrl, void* colorControl);
 
 	/// open the advanced sky settings menu
-	static void onOpenAdvancedSky(void* userData);
+	static void onOpenAdvancedSky(void* userData1, void* userData2);
 
 	/// open the advanced water settings menu
-	static void onOpenAdvancedWater(void* userData);
+	static void onOpenAdvancedWater(void* userData1, void* userData2);
 
 	/// sync time with the server
-	static void onUseEstateTime(void* userData);
-
-	/// sync time with local clock
-	static void onUseLocalTime(void* userData);
+	static void onUseEstateTime(void* userData1, void* userData2);
 
 	// opt-in for region Windlight settings
 	//static void onUseRegionEnvironment(LLUICtrl* ctrl, void* userData);
@@ -90,24 +82,11 @@ public:
 
 	//// menu management
 
-	/// enables or disable all controls
-	void setControlsEnabled(bool enable);
-
-	/// show off our menu
-	static void show();
-
-	/// return if the menu exists or not
-	static bool isOpen();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
-
 	/// sync up sliders with parameters
 	void syncMenu();
 
 private:
 	// one instance on the inside
-	static LLFloaterEnvSettings* sEnvSettings;
 
 	static void setOptIn(bool opt_in);
 };

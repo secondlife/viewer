@@ -1403,17 +1403,18 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
 
 void LLPanelRegionTerrainInfo::onOpenAdvancedSky(void* userData)
 {
-	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
+//	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
 }
 
 void LLPanelRegionTerrainInfo::onOpenAdvancedWater(void* userData)
 {
-	LLFloaterWater::instance()->show(LLEnvKey::SCOPE_REGION);
+//	LLFloaterWater::instance()->show(LLEnvKey::SCOPE_REGION);
 }
 
 
 void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 {
+#if 0
 	if(LLFloaterWindLight::isOpen())
 	{
 		// select the blank value in
@@ -1423,6 +1424,7 @@ void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 	}
 
 	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
+#endif
 }
 
 ///////////////////////////////////////////////////////
@@ -1431,29 +1433,36 @@ void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 // Handle commit of WL settings to region
 void LLPanelRegionTerrainInfo::onCommitRegionWL(void* userData)
 {
+#if 0	
 	LLEnvManager::getInstance()->commitSettings(LLEnvKey::SCOPE_REGION);
 	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
+#endif
 }
 
 // Handle cancel of WL settings for region
 void LLPanelRegionTerrainInfo::onCancelRegionWL(void* userData)
 {
+#if 0
 	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
+#endif
 }
 
 // Handle reversion of region WL settings to default
 void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
 {
+#if 0
 	LLEnvManager::instance().resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 	LLEnvManager::instance().startEditingScope(LLEnvKey::SCOPE_REGION);
+#endif
 }
 
 void LLPanelRegionTerrainInfo::cancelChanges()
 {
-	LLFloaterWindLight::instance()->closeFloater();
-	LLFloaterWater::instance()->closeFloater();
-	LLFloaterDayCycle::instance()->closeFloater();
-
+#if 0
+	LLFloaterWindLight::instance().closeFloater();
+	LLFloaterWater::instance().closeFloater();
+	LLFloaterDayCycle::instance().closeFloater();
+#endif
 	// disable commmit and cancel
 	LLPanelRegionTerrainInfo::instance()->setCommitControls(false);
 }

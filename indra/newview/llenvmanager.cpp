@@ -80,7 +80,7 @@ void LLEnvManager::changedRegion(bool interp)
 	mInterpNextChangeMessage = interp;
 	mPendingOutgoingMessage = false;
 
-	LLFloaterEnvSettings::instance()->closeFloater();
+	// TIGGGS LLFloaterEnvSettings::instance()->closeFloater();
 
 	resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 
@@ -179,8 +179,8 @@ void LLEnvManager::updateUIFromEditability()
 	// *TODO When the checkbox from LLFloaterEnvSettings is moved elsewhere, opening the local environment settings window should auto-display local settings
 	// Currently, disable all editing to ensure region settings are hidden from those that can't edit them (to preserve possibility of future tradable assets)
 	// Remove "!gSavedSettings.getBOOL(...)" when the desired behavior is implemented
-	LLFloaterEnvSettings::instance()->setControlsEnabled(canEdit(LLEnvKey::SCOPE_LOCAL) && !gSavedSettings.getBOOL("UseEnvironmentFromRegion"));
-	LLPanelRegionTerrainInfo::instance()->setEnvControls(canEdit(LLEnvKey::SCOPE_REGION));
+//	LLFloaterEnvSettings::instance()->setControlsEnabled(canEdit(LLEnvKey::SCOPE_LOCAL) && !gSavedSettings.getBOOL("UseEnvironmentFromRegion"));
+// 	LLPanelRegionTerrainInfo::instance()->setEnvControls(canEdit(LLEnvKey::SCOPE_REGION));
 	// enable estate UI iff canEdit(LLEnvKey::SCOPE_ESTATE), etc.
 }
 

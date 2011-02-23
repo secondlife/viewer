@@ -71,6 +71,10 @@ static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
 LLFloaterWindLight::LLFloaterWindLight(const LLSD &key) : LLFloater(key)
 {
+}
+
+BOOL LLFloaterWindLight::postBuild()
+{
 	sOriginalTitle = getTitle();
 	
 	// add the combo boxes
@@ -108,44 +112,16 @@ LLFloaterWindLight::LLFloaterWindLight(const LLSD &key) : LLFloater(key)
 
 	// load it up
 	initCallbacks();
+
+	return TRUE;
 }
 
 LLFloaterWindLight::~LLFloaterWindLight()
 {
 }
 
-void LLFloaterWindLight::initCallbacks(void) {
-
-	// help buttons
-	initHelpBtn("WLBlueHorizonHelp", "HelpBlueHorizon");
-	initHelpBtn("WLHazeHorizonHelp", "HelpHazeHorizon");
-	initHelpBtn("WLBlueDensityHelp", "HelpBlueDensity");
-	initHelpBtn("WLHazeDensityHelp", "HelpHazeDensity");
-
-	initHelpBtn("WLDensityMultHelp", "HelpDensityMult");
-	initHelpBtn("WLDistanceMultHelp", "HelpDistanceMult");
-	initHelpBtn("WLMaxAltitudeHelp", "HelpMaxAltitude");
-
-	initHelpBtn("WLSunlightColorHelp", "HelpSunlightColor");
-	initHelpBtn("WLAmbientHelp", "HelpSunAmbient");
-	initHelpBtn("WLSunGlowHelp", "HelpSunGlow");
-	initHelpBtn("WLTimeOfDayHelp", "HelpTimeOfDay");
-	initHelpBtn("WLEastAngleHelp", "HelpEastAngle");
-
-	initHelpBtn("WLSceneGammaHelp", "HelpSceneGamma");
-	initHelpBtn("WLStarBrightnessHelp", "HelpStarBrightness");
-
-	initHelpBtn("WLCloudColorHelp", "HelpCloudColor");
-	initHelpBtn("WLCloudDetailHelp", "HelpCloudDetail");
-	initHelpBtn("WLCloudDensityHelp", "HelpCloudDensity");
-	initHelpBtn("WLCloudCoverageHelp", "HelpCloudCoverage");
-
-	initHelpBtn("WLCloudScaleHelp", "HelpCloudScale");
-	initHelpBtn("WLCloudScrollXHelp", "HelpCloudScrollX");
-	initHelpBtn("WLCloudScrollYHelp", "HelpCloudScrollY");
-
-	initHelpBtn("WLClassicCloudsHelp", "HelpClassicClouds");
-
+void LLFloaterWindLight::initCallbacks(void) 
+{
 	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
 	// blue horizon
@@ -235,6 +211,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetCommitCallback("WLStarAlpha", onStarAlphaMoved, NULL);
 }
 
+#if 0
 void LLFloaterWindLight::onClickHelp(void* data)
 {
 	const std::string xml_alert = *(std::string*)data;
@@ -245,6 +222,7 @@ void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string&
 {
 	childSetAction(name, onClickHelp, new std::string(xml_alert));
 }
+#endif
 
 bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD& response)
 {
@@ -442,6 +420,7 @@ void LLFloaterWindLight::syncMenu()
 }
 
 
+#if 0
 // static
 LLFloaterWindLight* LLFloaterWindLight::instance()
 {
@@ -500,6 +479,7 @@ void LLFloaterWindLight::onClose(bool app_quitting)
 		sWindLight->setVisible(FALSE);
 	}
 }
+#endif
 
 // color control callbacks
 void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, void* userData)
