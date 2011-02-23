@@ -3935,12 +3935,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
-	MASK	key_mask = MASK_NONE;
-	// *TODO: Create a headless gKeyboard DK 2011-02-18
-	if (gKeyboard)
-	{
-		key_mask = gKeyboard->currentMask(TRUE);
-	}
+	MASK	key_mask = gKeyboard->currentMask(TRUE);
 
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{

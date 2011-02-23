@@ -2577,12 +2577,7 @@ void LLViewerWindow::updateUI()
 	S32 x = mCurrentMousePoint.mX;
 	S32 y = mCurrentMousePoint.mY;
 
-	MASK	mask = MASK_NONE;
-	// *TODO: Create a headless gKeyboard DK 2011-02-18
-	if (gKeyboard)
-	{
-		mask = gKeyboard->currentMask(TRUE);
-	}
+	MASK	mask = gKeyboard->currentMask(TRUE);
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 	{
@@ -2973,12 +2968,7 @@ void LLViewerWindow::updateLayout()
 			}
 			// Update the location of the blue box tool popup
 			LLCoordGL select_center_screen;
-			MASK	mask = MASK_NONE;
-			// *TODO: Create a headless gKeyboard DK 2011-02-18
-			if (gKeyboard)
-			{
-				mask = gKeyboard->currentMask(TRUE);
-			}
+			MASK	mask = gKeyboard->currentMask(TRUE);
 			gFloaterTools->updatePopup( select_center_screen, mask );
 		}
 		else
@@ -3105,12 +3095,7 @@ void LLViewerWindow::updateKeyboardFocus()
 		// sync all floaters with their focus state
 		gFloaterView->highlightFocusedFloater();
 		gSnapshotFloaterView->highlightFocusedFloater();
-		MASK	mask = MASK_NONE;
-		// *TODO: Create a headless gKeyboard DK 2011-02-18
-		if (gKeyboard)
-		{
-			mask = gKeyboard->currentMask(TRUE);
-		}
+		MASK	mask = gKeyboard->currentMask(TRUE);
 		if ((mask & MASK_CONTROL) == 0)
 		{
 			// control key no longer held down, finish cycle mode
@@ -3499,12 +3484,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	}
 
 	// shortcut queueing in mPicks and just update mLastPick in place
-	MASK	key_mask = MASK_NONE;
-	// *TODO: Create a headless gKeyboard DK 2011-02-18
-	if (gKeyboard)
-	{
-		key_mask = gKeyboard->currentMask(TRUE);
-	}
+	MASK	key_mask = gKeyboard->currentMask(TRUE);
 	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, TRUE, NULL);
 	mLastPick.fetchResults();
 

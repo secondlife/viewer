@@ -1,6 +1,6 @@
 /** 
- * @file llwindowheadless.cpp
- * @brief Headless implementation of LLWindow class
+ * @file llkeyboardheadless.cpp
+ * @brief Handler for assignable key bindings
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,30 +25,26 @@
  */
 
 #include "linden_common.h"
-#include "indra_constants.h"
-
-#include "llwindowheadless.h"
 #include "llkeyboardheadless.h"
+#include "llwindowcallbacks.h"
 
-//
-// LLWindowHeadless
-//
-LLWindowHeadless::LLWindowHeadless(LLWindowCallbacks* callbacks, const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
-							 U32 flags,  BOOL fullscreen, BOOL clear_background,
-							 BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth)
-	: LLWindow(callbacks, fullscreen, flags)
-{
-	// Initialize a headless keyboard.
-	gKeyboard = new LLKeyboardHeadless();
-	gKeyboard->setCallbacks(callbacks);
-}
+LLKeyboardHeadless::LLKeyboardHeadless()
+{ }
+
+void LLKeyboardHeadless::resetMaskKeys()
+{ }
 
 
-LLWindowHeadless::~LLWindowHeadless()
-{
-}
+BOOL LLKeyboardHeadless::handleKeyDown(const U16 key, const U32 mask)
+{ return FALSE; }
 
-void LLWindowHeadless::swapBuffers()
-{
-}
 
+BOOL LLKeyboardHeadless::handleKeyUp(const U16 key, const U32 mask)
+{ return FALSE; }
+
+MASK LLKeyboardHeadless::currentMask(BOOL for_mouse_event)
+{ return MASK_NONE; }
+
+void LLKeyboardHeadless::scanKeyboard()
+{ } 
+ 
