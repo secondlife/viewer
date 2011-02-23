@@ -1330,7 +1330,7 @@ U32 LLVOTree::getPartitionType() const
 }
 
 LLTreePartition::LLTreePartition()
-: LLSpatialPartition(0, FALSE, 0)
+: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW_ARB)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_TREE;
 	mPartitionType = LLViewerRegion::PARTITION_TREE;

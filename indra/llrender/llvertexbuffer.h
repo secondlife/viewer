@@ -92,6 +92,7 @@ public:
 	static S32	sWeight4Loc;
 
 	static BOOL	sUseStreamDraw;
+	static BOOL	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
