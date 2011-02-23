@@ -24,6 +24,10 @@
 				Saisissez une partie du nom du résident :
 			</text>
 			<button label="OK" label_selected="OK" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Nom" name="name"/>
+				<columns label="Nom d&apos;utilisateur" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="Amis" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -39,7 +43,10 @@
 				mètres
 			</text>
 			<button font="SansSerifSmall" label="Rafraîchir la liste" label_selected="Rafraîchir la liste" left_delta="10" name="Refresh" width="105"/>
-			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
+			<scroll_list bottom_delta="-169" height="159" name="NearMe">
+				<columns label="Nom" name="name"/>
+				<columns label="Nom d&apos;utilisateur" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

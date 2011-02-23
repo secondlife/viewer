@@ -27,7 +27,8 @@
      left="10"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
    <text
      type="string"
      length="1"
@@ -104,7 +105,7 @@
          layout="topleft"
          left="10"
          top_pad="2"
-         max_length="63"
+         max_length_bytes="63"
          name="pick_name"
          text_color="black"
          width="273" />

@@ -46,14 +46,20 @@
 				<text name="my_account_link" value="[[URL] マイアカウントに移動]"/>
 				<text name="title_partner_text" value="マイパートナー："/>
 				<panel name="partner_data_panel">
-					<name_box initial_value="（取得中）" name="partner_text" value="[FIRST] [LAST]"/>
+					<name_box initial_value="（取得中）" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] 編集]" width="100"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="変更を保存" name="save_btn"/>
-		<button label="キャンセル" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="変更を保存" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="取り消し" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

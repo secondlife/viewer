@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="BUILD TOOLS" title="" width="288">
+<floater name="toolbox floater" short_title="BUILD TOOLS" title="">
 	<floater.string name="status_rotate">
 		Arrastar as faixas coloridas para girar o objeto
 	</floater.string>
@@ -171,13 +171,13 @@
 				Criador:
 			</text>
 			<text name="Creator Name">
-				Thrax Linden
+				Mrs. Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Proprietário:
 			</text>
 			<text name="Owner Name">
-				Thrax Linden
+				Mrs. Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupo:

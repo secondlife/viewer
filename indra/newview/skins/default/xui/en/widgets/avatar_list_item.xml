@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <avatar_list_item
+ name_right_pad="5"
  height="0"
  layout="topleft"
  left="0"

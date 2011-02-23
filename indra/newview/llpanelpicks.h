@@ -76,6 +76,7 @@ public:
 	// returns the selected pick item
 	LLPickItem* getSelectedPickItem();
 	LLClassifiedItem* getSelectedClassifiedItem();
+	LLClassifiedItem* findClassifiedById(const LLUUID& classified_id);
 
 	//*NOTE top down approch when panel toggling is done only by 
 	// parent panels failed to work (picks related code was in my profile panel)
@@ -106,8 +107,10 @@ private:
 	void onPanelPickSave(LLPanel* panel);
 	void onPanelClassifiedSave(LLPanelClassifiedEdit* panel);
 	void onPanelClassifiedClose(LLPanelClassifiedInfo* panel);
+	void openPickEdit(const LLSD& params);
 	void onPanelPickEdit();
 	void onPanelClassifiedEdit();
+	void editClassified(const LLUUID&  classified_id);
 	void onClickMenuEdit();
 
 	bool onEnableMenuItem(const LLSD& user_data);
@@ -118,6 +121,7 @@ private:
 	void openPickInfo();
 	void openClassifiedInfo();
 	void openClassifiedInfo(const LLSD& params);
+	void openClassifiedEdit(const LLSD& params);
 	friend class LLPanelProfile;
 
 	void showAccordion(const std::string& name, bool show);
@@ -149,6 +153,7 @@ private:
 	LLPanelClassifiedInfo* mPanelClassifiedInfo;
 	LLPanelPickEdit* mPanelPickEdit;
 	LLToggleableMenu* mPlusMenu;
+	LLUICtrl* mNoItemsLabel;
 
 	// <classified_id, edit_panel>
 	typedef std::map<LLUUID, LLPanelClassifiedEdit*> panel_classified_edit_map_t;

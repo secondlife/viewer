@@ -399,84 +399,6 @@ void LLFace::updateCenterAgent()
 	}
 }
 
-void LLFace::renderForSelect(U32 data_mask)
-{
-	if(mDrawablep.isNull() || mVertexBuffer.isNull())
-	{
-		return;
-	}
-
-	LLSpatialGroup* group = mDrawablep->getSpatialGroup();
-	if (!group || group->isState(LLSpatialGroup::GEOM_DIRTY))
-	{
-		return;
-	}
-
-	if (mVObjp->mGLName)
-	{
-		S32 name = mVObjp->mGLName;
-
-		LLColor4U color((U8)(name >> 16), (U8)(name >> 8), (U8)name);
-#if 0 // *FIX: Postponing this fix until we have texcoord pick info...
-		if (mTEOffset != -1)
-		{
-			color.mV[VALPHA] = (U8)(getTextureEntry()->getColor().mV[VALPHA] * 255.f);
-		}
-#endif
-		glColor4ubv(color.mV);
-
-		if (!getPool())
-		{
-			switch (getPoolType())
-			{
-			case LLDrawPool::POOL_ALPHA:
-				gGL.getTexUnit(0)->bind(getTexture());
-				break;
-			default:
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				break;
-			}
-		}
-
-		mVertexBuffer->setBuffer(data_mask);
-#if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays("", data_mask);
-#endif
-		if (mTEOffset != -1)
-		{
-			// mask off high 4 bits (16 total possible faces)
-			color.mV[0] &= 0x0f;
-			color.mV[0] |= (mTEOffset & 0x0f) << 4;
-			glColor4ubv(color.mV);
-		}
-
-		if (mIndicesCount)
-		{
-			if (isState(GLOBAL))
-			{
-				if (mDrawablep->getVOVolume())
-				{
-					glPushMatrix();
-					glMultMatrixf((float*) mDrawablep->getRegion()->mRenderMatrix.mMatrix);
-					mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
-					glPopMatrix();
-				}
-				else
-				{
-					mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
-				}
-			}
-			else
-			{
-				glPushMatrix();
-				glMultMatrixf((float*)getRenderMatrix().mMatrix);
-				mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
-				glPopMatrix();
-			}
-		}
-	}
-}
-
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
 	if (mDrawablep->getSpatialGroup() == NULL)
@@ -1233,7 +1155,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		if (rebuild_tcoord)
 		{
 			LLVector2 tc = vf.mVertices[i].mTexCoord;
-		
+		   
 			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{
 				LLVector3 vec = vf.mVertices[i].mPosition; 
@@ -1409,7 +1331,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mTexExtents[0].setVec(0,0);
 		mTexExtents[1].setVec(1,1);
 		xform(mTexExtents[0], cos_ang, sin_ang, os, ot, ms, mt);
-		xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);		
+		xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);
+		
+		F32 es = vf.mTexCoordExtents[1].mV[0] - vf.mTexCoordExtents[0].mV[0] ;
+		F32 et = vf.mTexCoordExtents[1].mV[1] - vf.mTexCoordExtents[0].mV[1] ;
+		mTexExtents[0][0] *= es ;
+		mTexExtents[1][0] *= es ;
+		mTexExtents[0][1] *= et ;
+		mTexExtents[1][1] *= et ;
 	}
 
 	mLastVertexBuffer = mVertexBuffer;

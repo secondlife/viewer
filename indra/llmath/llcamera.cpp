@@ -703,6 +703,7 @@ void LLCamera::calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom)
 	mLocalPlanes[PLANE_BOTTOM].setVec( a, c, b); 
 
 	//calculate center and radius squared of frustum in world absolute coordinates
+	static LLVector3 const X_AXIS(1.f, 0.f, 0.f);
 	mFrustCenter = X_AXIS*mFarPlane*0.5f;
 	mFrustCenter = transformToAbsolute(mFrustCenter);
 	mFrustRadiusSquared = mFarPlane*0.5f;

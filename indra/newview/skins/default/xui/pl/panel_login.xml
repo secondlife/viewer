@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="real_url">
-		http://secondlife.com/app/login/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
@@ -11,7 +8,7 @@
 			<text name="username_text">
 				Użytkownik:
 			</text>
-			<line_editor label="Użytkownik" name="username_edit" tool_tip="[SECOND_LIFE] Użytkownik"/>
+			<combo_box name="username_combo" tool_tip="Nazwę użytkownika wybierasz przy rejestracji, np. bobsmith12 lub Steller Sunshine"/>
 			<text name="password_text">
 				Hasło:
 			</text>
@@ -31,7 +28,7 @@
 				Utwórz nowe konto
 			</text>
 			<text name="forgot_password_text">
-				Nie pamiętasz hasła?
+				Zapomniałeś swojej nazwy użytkownika lub hasła?
 			</text>
 			<text name="login_help">
 				Potrzebujesz pomocy z logowaniem się?

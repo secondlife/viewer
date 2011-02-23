@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<menu
+<toggleable_menu
  layout="topleft"
  name="Add Wearable Gear Menu">
     <menu_item_check
@@ -38,4 +38,4 @@
          function="AddWearable.Gear.Visible"
          parameter="by_type" />
     </menu_item_check>
-</menu>
+</toggleable_menu>

@@ -109,6 +109,8 @@ void LLTracker::stopTracking(void* userdata)
 // static virtual
 void LLTracker::drawHUDArrow()
 {
+	if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
+
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
 	/* tracking autopilot destination has been disabled 
@@ -155,7 +157,7 @@ void LLTracker::drawHUDArrow()
 // static 
 void LLTracker::render3D()
 {
-	if (!gFloaterWorldMap)
+	if (!gFloaterWorldMap || !gSavedSettings.getBOOL("RenderTrackerBeacon"))
 	{
 		return;
 	}
@@ -564,16 +566,16 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	std::string text;
 	text = llformat( "%.0f m", to_vec.magVec());
 
-	LLWString wstr;
-	wstr += utf8str_to_wstring(label);
-	wstr += '\n';
-	wstr += utf8str_to_wstring(text);
+	std::string str;
+	str += label;
+	str += '\n';
+	str += text;
 
 	hud_textp->setFont(LLFontGL::getFontSansSerif());
 	hud_textp->setZCompare(FALSE);
 	hud_textp->setColor(LLColor4(1.f, 1.f, 1.f, llmax(0.2f, llmin(1.f,(dist-FADE_DIST)/FADE_DIST))));
 
-	hud_textp->setString(wstr);
+	hud_textp->setString(str);
 	hud_textp->setVertAlignment(LLHUDText::ALIGN_VERT_CENTER);
 	hud_textp->setPositionAgent(pos_agent);
 }

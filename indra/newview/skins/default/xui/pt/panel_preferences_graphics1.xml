@@ -26,6 +26,7 @@ rápido
 		<text name="ShadersText">
 			Sombreadores:
 		</text>
+		<check_box initial_value="verdadeiro" label="Água transparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Bump de Mapeamento e Brilho" name="BumpShiny"/>
 		<check_box initial_value="true" label="Sombreadores básicos" name="BasicShaders" tool_tip="Desabilitar esta opção poderá impedir que alguns drivers de placa de vídeo a travem."/>
 		<check_box initial_value="true" label="Sombreadores Atmosféricos" name="WindLightUseAtmosShaders"/>

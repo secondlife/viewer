@@ -280,7 +280,6 @@ namespace tut
 		llmat_obj.setRows(llvec1, llvec2, llvec3);
 		llmat_obj.orthogonalize();
 
-		skip("Grr, LLMatrix3::orthogonalize test is failing.  Has it ever worked?");
 		ensure("LLMatrix3::orthogonalize failed ",
 		       is_approx_equal(0.19611613f, llmat_obj.mMatrix[0][0]) &&
 		       is_approx_equal(0.78446454f, llmat_obj.mMatrix[0][1]) &&

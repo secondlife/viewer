@@ -60,6 +60,7 @@ static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
 //
 // Bridge to support knowing when the inventory has changed.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class LLInventoryPanelObserver : public LLInventoryObserver
 {
 public:
@@ -73,9 +74,57 @@ protected:
 	LLInventoryPanel* mIP;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInvPanelComplObserver
+//
+// Calls specified callback when all specified items become complete.
+//
+// Usage:
+// observer = new LLInvPanelComplObserver(boost::bind(onComplete));
+// inventory->addObserver(observer);
+// observer->reset(); // (optional)
+// observer->watchItem(incomplete_item1_id);
+// observer->watchItem(incomplete_item2_id);
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLInvPanelComplObserver : public LLInventoryCompletionObserver
+{
+public:
+	typedef boost::function<void()> callback_t;
+
+	LLInvPanelComplObserver(callback_t cb)
+	:	mCallback(cb)
+	{
+	}
+
+	void reset();
+
+private:
+	/*virtual*/ void done();
+
+	/// Called when all the items are complete.
+	callback_t	mCallback;
+};
+
+void LLInvPanelComplObserver::reset()
+{
+	mIncomplete.clear();
+	mComplete.clear();
+}
+
+void LLInvPanelComplObserver::done()
+{
+	mCallback();
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryPanel
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :	
 	LLPanel(p),
 	mInventoryObserver(NULL),
+	mCompletionObserver(NULL),
 	mFolderRoot(NULL),
 	mScroller(NULL),
 	mSortOrderSetting(p.sort_order_setting),
@@ -152,6 +201,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
 
+	mCompletionObserver = new LLInvPanelComplObserver(boost::bind(&LLInventoryPanel::onItemsCompletion, this));
+	mInventory->addObserver(mCompletionObserver);
+
 	// Build view of inventory if we need default full hierarchy and inventory ready,
 	// otherwise wait for idle callback.
 	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mViewsInitialized)
@@ -189,7 +241,10 @@ LLInventoryPanel::~LLInventoryPanel()
 
 	// LLView destructor will take care of the sub-views.
 	mInventory->removeObserver(mInventoryObserver);
+	mInventory->removeObserver(mCompletionObserver);
 	delete mInventoryObserver;
+	delete mCompletionObserver;
+
 	mScroller = NULL;
 }
 
@@ -290,7 +345,10 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		const LLUUID& item_id = (*items_iter);
 		const LLInventoryObject* model_item = model->getObject(item_id);
 		LLFolderViewItem* view_item = mFolderRoot->getItemByID(item_id);
-		LLFolderViewFolder* view_folder = mFolderRoot->getFolderByID(item_id);
+
+		// LLFolderViewFolder is derived from LLFolderViewItem so dynamic_cast from item
+		// to folder is the fast way to get a folder without searching through folders tree.
+		LLFolderViewFolder* view_folder = dynamic_cast<LLFolderViewFolder*>(view_item);
 
 		//////////////////////////////
 		// LABEL Operation
@@ -651,6 +709,11 @@ void LLInventoryPanel::openStartFolderOrMyInventory()
 	}
 }
 
+void LLInventoryPanel::onItemsCompletion()
+{
+	if (mFolderRoot) mFolderRoot->updateMenu();
+}
+
 void LLInventoryPanel::openSelected()
 {
 	LLFolderViewItem* folder_item = mFolderRoot->getCurSelectedItem();
@@ -754,6 +817,19 @@ void LLInventoryPanel::clearSelection()
 
 void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& items, BOOL user_action)
 {
+	// Schedule updating the folder view context menu when all selected items become complete (STORM-373).
+	mCompletionObserver->reset();
+	for (std::deque<LLFolderViewItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
+	{
+		LLUUID id = (*it)->getListener()->getUUID();
+		LLViewerInventoryItem* inv_item = mInventory->getItem(id);
+
+		if (inv_item && !inv_item->isFinished())
+		{
+			mCompletionObserver->watchItem(id);
+		}
+	}
+
 	LLFolderView* fv = getRootFolder();
 	if (fv->needsAutoRename()) // auto-selecting a new user-created asset and preparing to rename
 	{
@@ -918,6 +994,8 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 {
 	S32 z_min = S32_MAX;
 	LLInventoryPanel* res = NULL;
+	LLFloater* active_inv_floaterp = NULL;
+
 	// A. If the inventory side panel is open, use that preferably.
 	if (is_inventorysp_active())
 	{
@@ -938,6 +1016,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 		{
 			res = inventorySP->getActivePanel();
 			z_min = gFloaterView->getZOrder(inv_floater);
+			active_inv_floaterp = inv_floater;
 		}
 		else
 		{
@@ -957,10 +1036,19 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 			{
 				res = iv->getPanel();
 				z_min = z_order;
+				active_inv_floaterp = iv;
 			}
 		}
 	}
-	if (res) return res;
+
+	if (res)
+	{
+		// Make sure the floater is not minimized (STORM-438).
+		if (active_inv_floaterp && active_inv_floaterp->isMinimized())
+			active_inv_floaterp->setMinimized(FALSE);
+
+		return res;
+	}
 		
 	// C. If no panels are open and we don't want to force open a panel, then just abort out.
 	if (!auto_open) return NULL;

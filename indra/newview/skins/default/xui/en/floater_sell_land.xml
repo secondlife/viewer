@@ -164,7 +164,7 @@
      left_delta="0"
      name="sell_to_agent"
      top_pad="4"
-     width="130" />
+     width="170" />
     <button
      height="20"
      label="Select"

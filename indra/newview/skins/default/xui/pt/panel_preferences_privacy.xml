@@ -7,20 +7,25 @@
 	<text name="cache_size_label_l">
 		(Locações, imagens, web, histórico de busca)
 	</text>
+	<check_box label="Mostrar nos resultados de busca" name="online_searchresults"/>
 	<check_box label="Apenas amigos e grupos sabem que estou online" name="online_visibility"/>
 	<check_box label="Apenas amigos e grupos podem me chamar ou enviar MI" name="voice_call_friends_only_check"/>
 	<check_box label="Desligar o microfone quando terminar chamadas" name="auto_disengage_mic_check"/>
-	<check_box label="Aceitar  cookies" name="cookies_enabled"/>
+	<check_box label="Mostrar meus marcos preferidos na página de login (menu &apos;Começar em&apos;:)" name="favorites_on_login_check"/>
 	<text name="Logs:">
-		Logs:
+		Registro de bate-papos:
 	</text>
 	<check_box label="Salvar logs de bate- papo das proximidades no meu computador" name="log_nearby_chat"/>
 	<check_box label="Salvar logs de MI no meu computador" name="log_instant_messages"/>
-	<check_box label="Adicionar timestamp" name="show_timestamps_check_im"/>
+	<check_box label="Anotar horas de cada linha de bate-papo" name="show_timestamps_check_im"/>
+	<check_box label="Anotar a data ao arquivo." name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Localização dos logs:
 	</text>
 	<line_editor left="278" name="log_path_string" right="-20"/>
 	<button label="Procurar" label_selected="Procurar" name="log_path_button" width="120"/>
 	<button label="Lista de bloqueados" name="block_list"/>
+	<text name="block_list_label">
+		(Pessoas ou objetos que você bloqueou)
+	</text>
 </panel>

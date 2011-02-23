@@ -26,6 +26,7 @@
 		<text name="ShadersText">
 			Overflader:
 		</text>
+		<check_box initial_value="sand" label="Gennemsigtig vand" name="TransparentWater"/>
 		<check_box initial_value="true" label="Glatte flader og skin" name="BumpShiny"/>
 		<check_box initial_value="true" label="Basale flader" name="BasicShaders" tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher."/>
 		<check_box initial_value="true" label="Atmosfæriske flader" name="WindLightUseAtmosShaders"/>

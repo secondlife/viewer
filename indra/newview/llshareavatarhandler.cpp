@@ -1,8 +1,8 @@
 /** 
- * @file lleventinfo.h
- * @brief LLEventInfo class definition
+ * @file llshareavatarhandler.cpp
+ * @brief slapp to handle sharing with an avatar
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,51 +24,36 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEVENTINFO_H
-#define LL_LLEVENTINFO_H
+#include "llviewerprecompiledheaders.h"
+#include "llcommandhandler.h"
+#include "llavataractions.h"
 
-#include <map>
-
-#include "v3dmath.h"
-#include "lluuid.h"
-
-class LLMessageSystem;
-
-class LLEventInfo
+class LLShareWithAvatarHandler : public LLCommandHandler
 {
-public:
-        LLEventInfo() :
-	mID(0),
-	mDuration(0),
-	mUnixTime(0),
-	mHasCover(FALSE),
-	mCover(0),
-	mEventFlags(0),
-	mSelected(FALSE)
-	{}
-
-	void unpack(LLMessageSystem *msg);
-
-	static void loadCategories(const LLSD& options);
-
-public:
-	std::string mName;
-	U32			mID;
-	std::string mDesc;
-	std::string mCategoryStr;
-	U32			mDuration;
-	std::string	mTimeStr;
-	LLUUID		mRunByID;
-	std::string	mSimName;
-	LLVector3d	mPosGlobal;
-	time_t		mUnixTime; // seconds from 1970
-	BOOL		mHasCover;
-	U32			mCover;
-	U32			mEventFlags;
-	BOOL		mSelected;
-
-	typedef std::map<U32, std::string> cat_map;
-	static	cat_map sCategories;
+public: 
+	// requires trusted browser to trigger
+	LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
+	{ 
+	}
+	
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		//Make sure we have some parameters
+		if (params.size() == 0)
+		{
+			return false;
+		}
+		
+		//Get the ID
+		LLUUID id;
+		if (!id.set( params[0], FALSE ))
+		{
+			return false;
+		}
+		
+		//instigate share with this avatar
+		LLAvatarActions::share( id );		
+		return true;
+	}
 };
-
-#endif // LL_LLEVENTINFO_H
+LLShareWithAvatarHandler gShareWithAvatar;

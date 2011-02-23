@@ -62,6 +62,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual S32 getSortField() const;
 	virtual void setSortField(S32 sortField);
+	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
 	virtual const LLPermissions& getPermissions() const;
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
 	virtual const LLUUID& getCreatorUUID() const;
@@ -157,7 +158,7 @@ public:
 	PermissionMask getPermissionMask() const;
 
 	// callback
-	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
+	void onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group);
 
 	// If this is a broken link, try to fix it and any other identical link.
 	BOOL regenerateLink();

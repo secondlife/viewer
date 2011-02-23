@@ -110,7 +110,17 @@
         <key>Value</key>
             <string>00000000-0000-0000-0000-000000000000</string>
     </map>
-
+    <key>LogFileNamewithDate</key>
+      <map>
+        <key>Comment</key>
+        <string>Add Date Stamp to chat and IM Logs with format chat-YYYY-MM-DD and 'IM file name'-YYYY-MM. To view old logs goto ..\Second Life\[login name]</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+      </map>
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid
     influence on previous versions of the viewer in case of settings are not used or default value
@@ -149,6 +159,17 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
+        </map>
+      <key>ShowFavoritesOnLogin</key>
+        <map>
+        <key>Comment</key>
+             <string>Determines whether favorites of last logged in user will be saved on exit from viewer and shown on login screen</string>
+        <key>Persist</key>
+             <integer>1</integer>
+        <key>Type</key>
+             <string>Boolean</string>
+        <key>Value</key>
+             <integer>0</integer>
         </map>
     <!-- End of back compatibility settings -->
     </map>

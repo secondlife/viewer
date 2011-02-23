@@ -178,10 +178,6 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 				generateGLTexture() ;
 			}
 
-			if(gGLManager.mDebugGPU)
-			{
-				LLGLState::dumpStates() ;
-			}
 			success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
 		}
 	}
@@ -221,11 +217,6 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 			LLViewerDynamicTexture *dynamicTexture = *iter;
 			if (dynamicTexture->needsRender())
 			{				
-				if(gGLManager.mDebugGPU)
-				{			
-					llinfos << "class type: " << (S32)dynamicTexture->getType() << llendl;
-				}
-
 				glClear(GL_DEPTH_BUFFER_BIT);
 				gDepthDirty = TRUE;
 								

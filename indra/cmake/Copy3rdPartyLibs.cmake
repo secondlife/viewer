@@ -55,25 +55,10 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_GOOGLE_PERFTOOLS)
 
-    if (FMOD_SDK_DIR)
-        set(fmod_files fmod.dll)
-    endif (FMOD_SDK_DIR)
-
-    #*******************************
-    # LLKDU
-    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
-    if(NOT EXISTS ${internal_llkdu_path})
-        if (EXISTS "${debug_src_dir}/llkdu.dll")
-            set(debug_llkdu_src "${debug_src_dir}/llkdu.dll")
-            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/llkdu.dll")
-        endif (EXISTS "${debug_src_dir}/llkdu.dll")
-
-        if (EXISTS "${release_src_dir}/llkdu.dll")
-            set(release_llkdu_src "${release_src_dir}/llkdu.dll")
-            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/llkdu.dll")
-            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/llkdu.dll")
-        endif (EXISTS "${release_src_dir}/llkdu.dll")
-    endif (NOT EXISTS ${internal_llkdu_path})
+    if (FMOD)
+      set(debug_files ${debug_files} fmod.dll)
+      set(release_files ${release_files} fmod.dll)
+    endif (FMOD)
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -81,6 +66,7 @@ if(WINDOWS)
 if (MSVC80)
     FIND_PATH(debug_msvc8_redist_path msvcr80d.dll
         PATHS
+		${MSVC_DEBUG_REDIST_PATH}
          [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\8.0\\Setup\\VC;ProductDir]/redist/Debug_NonRedist/x86/Microsoft.VC80.DebugCRT
         NO_DEFAULT_PATH
         NO_DEFAULT_PATH
@@ -105,6 +91,7 @@ if (MSVC80)
 
     FIND_PATH(release_msvc8_redist_path msvcr80.dll
         PATHS
+		${MSVC_REDIST_PATH}
          [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\8.0\\Setup\\VC;ProductDir]/redist/x86/Microsoft.VC80.CRT
         NO_DEFAULT_PATH
         NO_DEFAULT_PATH
@@ -173,21 +160,6 @@ elseif(DARWIN)
     # fmod is statically linked on darwin
     set(fmod_files "")
 
-    #*******************************
-    # LLKDU
-    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
-    if(NOT EXISTS ${internal_llkdu_path})
-        if (EXISTS "${debug_src_dir}/libllkdu.dylib")
-            set(debug_llkdu_src "${debug_src_dir}/libllkdu.dylib")
-            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/libllkdu.dylib")
-        endif (EXISTS "${debug_src_dir}/libllkdu.dylib")
-
-        if (EXISTS "${release_src_dir}/libllkdu.dylib")
-            set(release_llkdu_src "${release_src_dir}/libllkdu.dylib")
-            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/libllkdu.dylib")
-            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/libllkdu.dylib")
-        endif (EXISTS "${release_src_dir}/libllkdu.dylib")
-    endif (NOT EXISTS ${internal_llkdu_path})
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...
@@ -237,25 +209,10 @@ elseif(LINUX)
         libssl.so.0.9.7
        )
 
-    if (FMOD_SDK_DIR)
-        set(fmod_files "libfmod-3.75.so")
-    endif (FMOD_SDK_DIR)
+    if (FMOD)
+      set(release_files ${release_files} "libfmod-3.75.so")
+    endif (FMOD)
 
-    #*******************************
-    # LLKDU
-    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
-    if(NOT EXISTS ${internal_llkdu_path})
-        if (EXISTS "${debug_src_dir}/libllkdu.so")
-            set(debug_llkdu_src "${debug_src_dir}/libllkdu.so")
-            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/libllkdu.so")
-        endif (EXISTS "${debug_src_dir}/libllkdu.so")
-
-        if (EXISTS "${release_src_dir}/libllkdu.so")
-            set(release_llkdu_src "${release_src_dir}/libllkdu.so")
-            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/libllkdu.so")
-            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/libllkdu.so")
-        endif (EXISTS "${release_src_dir}/libllkdu.so")
-    endif(NOT EXISTS ${internal_llkdu_path})
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
@@ -356,41 +313,6 @@ if (FMOD_SDK_DIR)
         )
     set(all_targets ${all_targets} ${out_targets})
 endif (FMOD_SDK_DIR)
-
-#*******************************
-# LLKDU
-set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
-if(NOT EXISTS ${internal_llkdu_path})
-    if (EXISTS "${debug_llkdu_src}")
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${debug_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${debug_llkdu_src} ${debug_llkdu_dst}
-            DEPENDS ${debug_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_DEBUG}"
-            )
-        set(third_party_targets ${third_party_targets} $} ${debug_llkdu_dst})
-    endif (EXISTS "${debug_llkdu_src}")
-
-    if (EXISTS "${release_llkdu_src}")
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${release_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${release_llkdu_dst}
-            DEPENDS ${release_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELEASE}"
-            )
-        set(third_party_targets ${third_party_targets} ${release_llkdu_dst})
-
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${relwithdebinfo_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${relwithdebinfo_llkdu_dst}
-            DEPENDS ${release_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-            )
-        set(third_party_targets ${third_party_targets} ${relwithdebinfo_llkdu_dst})
-    endif (EXISTS "${release_llkdu_src}")
-
-endif (NOT EXISTS ${internal_llkdu_path})
-
 
 if(NOT STANDALONE)
   add_custom_target(

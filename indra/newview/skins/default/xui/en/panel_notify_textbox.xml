@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   height="220"
+   label="instant_message"
+   layout="topleft"
+   left="0"
+   name="panel_notify_textbox"
+   top="0"
+   width="305">
+  <string
+     name="message_max_lines_count"
+     value="7" />
+  <panel
+   bevel_style="none"
+   follows="left|right|top"
+   height="185"
+   label="info_panel"
+   layout="topleft"
+   left="0"
+   name="info_panel"
+   top="0"
+   width="305">    
+    <text_editor
+     bg_readonly_color="0.0 0.0 0.0 0"
+     enabled="false"
+     follows="left|right|top|bottom"
+     font="SansSerif"
+     height="110" 
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     name="text_editor_box"
+     read_only="true"
+     text_color="white"
+     text_readonly_color="white"
+     top="10"
+     width="285"
+     wrap="true"
+     parse_highlights="true"
+     parse_urls="true"/>
+    <text_editor
+     parse_urls="true"
+     enabled="true"
+     follows="all"
+     height="50"
+     layout="topleft"
+     left="10"
+     max_length="250"
+     name="message"
+     parse_highlights="true"
+     read_only="false"
+     top_pad="10"
+     type="string"
+     use_ellipses="true"
+     value="message"
+     width="285"
+     word_wrap="true"
+     parse_url="false" >
+    </text_editor>
+  </panel>
+  <panel
+     background_visible="false"
+     follows="left|right|bottom"
+     height="25" 
+     width="290"
+     label="control_panel"
+     layout="topleft"
+     left="10"
+     name="control_panel"
+     top_pad="0">
+    <!-- 
+	 Notes:
+	 This panel holds the Ignore button and possibly other buttons of notification.
+      -->
+    <button
+     top="0"
+     follows="top|left"
+     height="20"
+     label="Submit"
+     layout="topleft"
+     name="btn_submit"
+     width="70" />
+    <button
+     follows="top|right"
+     height="20"
+     label="Ignore"
+     layout="topleft"
+     left="215"
+     name="ignore_btn"
+     top="0"
+     width="70" />
+  </panel>
+</panel>

@@ -372,8 +372,8 @@ public:
 	
 	void onClickAddAccess();
 	void onClickAddBanned();
-	void callbackAvatarCBBanned(const std::vector<std::string>& names, const uuid_vec_t& ids);
-	void callbackAvatarCBAccess(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarCBBanned(const uuid_vec_t& ids);
+	void callbackAvatarCBAccess(const uuid_vec_t& ids);
 
 protected:
 	LLNameListCtrl*		mListAccess;

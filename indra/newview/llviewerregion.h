@@ -33,6 +33,7 @@
 
 #include "lldarray.h"
 #include "llwind.h"
+#include "llbbox.h"
 #include "llcloud.h"
 #include "llstat.h"
 #include "v3dmath.h"
@@ -50,7 +51,7 @@
 // Surface id's
 #define LAND  1
 #define WATER 2
-const U32	MAX_OBJECT_CACHE_ENTRIES = 10000;
+const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 
 
 class LLEventPoll;
@@ -73,6 +74,7 @@ public:
 	{
 		PARTITION_HUD=0,
 		PARTITION_TERRAIN,
+		PARTITION_VOIDWATER,
 		PARTITION_WATER,
 		PARTITION_TREE,
 		PARTITION_PARTICLE,
@@ -228,6 +230,11 @@ public:
 	void setCapability(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
+
+	// has region received its final (not seed) capability list?
+	bool capabilitiesReceived() const;
+	void setCapabilitiesReceived(bool received);
+
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
@@ -238,7 +245,7 @@ public:
     LLEventPump& getCapAPI() { return mCapabilityListener.getCapAPI(); }
 
     /// implements LLCapabilityProvider
-	virtual LLHost	getHost() const				{ return mHost; }
+	/*virtual*/ const LLHost& getHost() const;
 	const U64 		&getHandle() const 			{ return mHandle; }
 
 	LLSurface		&getLand() const			{ return *mLandp; }
@@ -268,9 +275,24 @@ public:
 
 	void getInfo(LLSD& info);
 
+	typedef enum
+	{
+		CACHE_MISS_TYPE_FULL = 0,
+		CACHE_MISS_TYPE_CRC,
+		CACHE_MISS_TYPE_NONE
+	} eCacheMissType;
+
+	typedef enum
+	{
+		CACHE_UPDATE_DUPE = 0,
+		CACHE_UPDATE_CHANGED,
+		CACHE_UPDATE_ADDED,
+		CACHE_UPDATE_REPLACED
+	} eCacheUpdateResult;
+
 	// handle a full update message
-	void cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
-	LLDataPacker *getDP(U32 local_id, U32 crc);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
+	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 
@@ -287,6 +309,8 @@ public:
 	std::string getHttpUrl() const { return mHttpUrl ;}
 
 	LLSpatialPartition* getSpatialPartition(U32 type);
+
+	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
 public:
 	struct CompareDistance
 	{
@@ -407,6 +431,7 @@ private:
 
 private:
 	bool	mAlive;					// can become false if circuit disconnects
+	bool	mCapabilitiesReceived;
 
 	//spatial partitions for objects in this region
 	std::vector<LLSpatialPartition*> mObjectPartition;

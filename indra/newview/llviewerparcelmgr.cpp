@@ -850,7 +850,7 @@ LLParcel* LLViewerParcelMgr::getCollisionParcel() const
 
 void LLViewerParcelMgr::render()
 {
-	if (mSelected && mRenderSelection)
+	if (mSelected && mRenderSelection && gSavedSettings.getBOOL("RenderParcelSelection"))
 	{
 		// Rendering is done in agent-coordinates, so need to supply
 		// an appropriate offset to the render code.
@@ -1784,8 +1784,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
-	    gSavedSettings.getBOOL("AudioStreamingMedia"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
@@ -2069,10 +2068,7 @@ void LLViewerParcelMgr::deedLandToGroup()
 	args["GROUP_NAME"] = group_name;
 	if(mCurrentParcel->getContributeWithDeed())
 	{
-		std::string first_name, last_name;
-		gCacheName->getName(mCurrentParcel->getOwnerID(), first_name, last_name);
-		args["FIRST_NAME"] = first_name;
-		args["LAST_NAME"] = last_name;
+		args["NAME"] = LLSLURL("agent", mCurrentParcel->getOwnerID(), "completename").getSLURLString();
 		LLNotificationsUtil::add("DeedLandToGroupWithContribution",args, LLSD(), deedAlertCB);
 	}
 	else

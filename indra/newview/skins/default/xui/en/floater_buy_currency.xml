@@ -20,6 +20,7 @@
      left="0"
      name="normal_background"
      top="17"
+     use_draw_context_alpha="false"
      width="350" />
    <text
      type="string"
@@ -114,7 +115,7 @@
     </text>
     <line_editor
      type="string"
-     max_length="10"
+     max_length_bytes="10"
      halign="right"
      font="SansSerifMedium"
      select_on_focus="true"
@@ -292,6 +293,7 @@ Re-enter amount to see the latest exchange rate.
      left="0"
      name="error_background"
      top="15"
+     use_draw_context_alpha="false"
      width="350"/>
     <text
      type="string"

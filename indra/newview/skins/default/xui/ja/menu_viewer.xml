@@ -94,7 +94,6 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="オプション" name="Options">
-			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
 			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
 			<menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects"/>
@@ -121,7 +120,6 @@
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
-		<menu_item_check label="アドバンスメニューを表示する" name="Show Advanced Menu"/>
 		<menu_item_call label="自分のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベークをする" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
@@ -169,7 +167,6 @@
 			<menu_item_check label="FRInfo のテスト" name="Test FRInfo"/>
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="マルチスレッド処理" name="Run Multiple Threads"/>
 		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
@@ -178,7 +175,6 @@
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
 			<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-			<menu_item_check label="アドバンスメニューを表示 - レガシーのショートカット" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_check label="飛行する" name="Fly"/>
 			<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
@@ -198,6 +194,7 @@
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
+			<menu_item_check label="アドバンスメニューを表示する" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="デバッグ設定を表示する" name="Debug Settings"/>
 		<menu_item_check label="開発メニューを表示する" name="Debug Mode"/>
@@ -263,16 +260,19 @@
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間オクルージョン" name="Object-Object Occlusion"/>
 			<menu_item_check label="フレームバッファオブジェクト" name="Framebuffer Objects"/>
-			<menu_item_check label="遅延レンダリング" name="Deferred Rendering"/>
-			<menu_item_check label="グローバルイルミネーション" name="Global Illumination"/>
+			<menu_item_check label="光と影" name="Lighting and Shadows"/>
+			<menu_item_check label="太陽・月・プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="SSAO と影の平滑化" name="SSAO and Shadow Smoothing"/>
+			<menu_item_check label="グローバルイルミネーション（試験段階）" name="Global Illumination"/>
 			<menu_item_check label="GL デバッグ" name="Debug GL"/>
 			<menu_item_check label="経路をデバッグ" name="Debug Pipeline"/>
-			<menu_item_check label="ファーストアルファ" name="Fast Alpha"/>
+			<menu_item_check label="自動アルファマスク（遅延）" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="自動アルファマスク（遅延なし）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
 			<menu_item_check label="テクスチャの検査" name="Audit Textures"/>
-			<menu_item_check label="テクスチャアトラス" name="Texture Atlas"/>
+			<menu_item_check label="テクスチャアトラス（試験段階）" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
 			<menu_item_check label="マウスオーバーで強調表示する" name="Hover Glow Objects"/>
@@ -309,7 +309,8 @@
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
 			<menu_item_call label="メモリ使用状況" name="Memory Stats"/>
-			<menu_item_check label="ダブルクリックした場所に自動操作で移動する" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="ダブルクリックで自動追跡を行う" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="ダブルクリックでテレポート" name="DoubleClick Teleport"/>
 			<menu_item_check label="SelectMgr のデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>

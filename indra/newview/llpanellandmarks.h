@@ -39,7 +39,9 @@
 
 class LLAccordionCtrlTab;
 class LLFolderViewItem;
+class LLMenuButton;
 class LLMenuGL;
+class LLToggleableMenu;
 class LLInventoryPanel;
 class LLPlacesInventoryPanel;
 
@@ -127,6 +129,14 @@ private:
 	void onCustomAction(const LLSD& command_name);
 
 	/**
+	 * Updates context menu depending on the selected items location.
+	 *
+	 * For items in Trash category the menu includes the "Restore Item"
+	 * context menu entry.
+	 */
+	void onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param);
+
+	/**
 	 * Determines if an item can be modified via context/gear menu.
 	 *
 	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
@@ -155,8 +165,9 @@ private:
 	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
 	LLPlacesInventoryPanel*		mMyInventoryPanel;
 	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
-	LLMenuGL*					mGearLandmarkMenu;
-	LLMenuGL*					mGearFolderMenu;
+	LLMenuButton*				mGearButton;
+	LLToggleableMenu*			mGearLandmarkMenu;
+	LLToggleableMenu*			mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;

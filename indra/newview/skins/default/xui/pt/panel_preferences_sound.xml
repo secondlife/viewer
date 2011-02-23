@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sons" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Botão do meio do mouse
+	</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" label="Silenciar ao minimizar" name="mute_when_minimized"/>
 	<slider label="Botões" name="UI Volume"/>
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Efeitos sonoros" name="SFX Volume"/>
 	<slider label="Streaming de música" name="Music Volume"/>
-	<check_box label="Ativado" name="music_enabled"/>
+	<check_box label="Ativado" name="enable_music"/>
 	<slider label="Mídia" name="Media Volume"/>
 	<check_box label="Ativado" name="enable_media"/>
 	<slider label="Bate-papo de voz" name="Voice Volume"/>
@@ -23,6 +26,11 @@
 		<radio_item label="Posição de câmera" name="0"/>
 		<radio_item label="Posição do avatar" name="1"/>
 	</radio_group>
+	<check_box label="Mover os lábios do avatar quando estiver falando" name="enable_lip_sync"/>
+	<check_box label="Tecla liga/desliga da minha voz:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Fora do modo de alternância, o microfone só transmite sua voz enquanto o botão estiver pressionado."/>
+	<line_editor label="Botão apertar e falar" name="modifier_combo"/>
+	<button label="Definir chave" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
 	<button label="Controles de entrada/saída" name="device_settings_btn" width="180"/>
 	<panel label="Configuração dos dispositivo" name="device_settings_panel">
 		<panel.string name="default_text">

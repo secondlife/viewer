@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Farben" name="colors_panel">
+	<text name="effects_color_textbox">
+		Meine Effekte (Auswahlstrahl):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+	<text name="font_colors">
+		Schriftfarben für Chat:
+	</text>
+	<text name="text_box1">
+		Ich
+	</text>
+	<text name="text_box2">
+		Andere
+	</text>
+	<text name="text_box3">
+		Objekte
+	</text>
+	<text name="text_box4">
+		System
+	</text>
+	<text name="text_box5">
+		Fehler
+	</text>
+	<text name="text_box7">
+		Eigentümer
+	</text>
+	<text name="text_box9">
+		URLs
+	</text>
+	<text name="bubble_chat">
+		Hintergrundfarbe für Avatarnamen (wirkt sich auch auf Blasen-Chat aus):
+	</text>
+	<color_swatch name="background" tool_tip="Farbe für Avatarnamen auswählen"/>
+	<slider label="Deckkraft:" name="bubble_chat_opacity" tool_tip="Deckkraft für Avatarnamen auswählen"/>
+	<text name="floater_opacity">
+		Floater-Deckkraft:
+	</text>
+	<slider label="Aktiv:" name="active"/>
+	<slider label="Inaktiv:" name="inactive"/>
+</panel>

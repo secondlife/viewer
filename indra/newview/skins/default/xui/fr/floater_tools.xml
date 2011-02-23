@@ -171,13 +171,13 @@
 				Créateur :
 			</text>
 			<text name="Creator Name">
-				Esbee Linden
+				Mrs. Esbee Linden (esbee.linden)
 			</text>
 			<text name="Owner:">
 				Propriétaire :
 			</text>
 			<text name="Owner Name">
-				Erica Linden
+				Mrs. Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Groupe :
@@ -189,7 +189,7 @@
 			<text name="label click action">
 				Cliquer pour :
 			</text>
-			<combo_box name="clickaction" width="178">
+			<combo_box name="clickaction">
 				<combo_box.item label="Toucher (par défaut)" name="Touch/grab(default)"/>
 				<combo_box.item label="S&apos;asseoir sur l&apos;objet" name="Sitonobject"/>
 				<combo_box.item label="Acheter l&apos;objet" name="Buyobject"/>
