@@ -1,5 +1,5 @@
 <llsd>
-    <map>
+  <map>
     <key>CacheValidateCounter</key>
         <map>
         <key>Comment</key>
@@ -596,17 +596,6 @@
       <string>String</string>
       <key>Value</key>
       <string>http://interest.secondlife.com/static/viewer/avatar</string>
-    </map>
-    <key>AutoLogin</key>
-    <map>
-      <key>Comment</key>
-      <string>Login automatically using last username/password combination</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
   </map>
 </llsd>
