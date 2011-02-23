@@ -83,7 +83,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string filename; 
 	std::string fullpath;
 	S32 result;
-	while (getNextFileInDir(dirname, mask, filename, FALSE))
+	while (getNextFileInDir(dirname, mask, filename))
 	{
 		fullpath = dirname;
 		fullpath += getDirDelimiter();
@@ -101,10 +101,18 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 		{
 			if (0 != LLFile::remove(fullpath))
 			{
+				retry_count++;
 				result = errno;
 				llwarns << "Problem removing " << fullpath << " - errorcode: "
 						<< result << " attempt " << retry_count << llendl;
-				ms_sleep(1000);
+
+				if(retry_count >= 5)
+				{
+					llwarns << "Failed to remove " << fullpath << llendl ;
+					return count ;
+				}
+
+				ms_sleep(100);
 			}
 			else
 			{
@@ -113,8 +121,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 					llwarns << "Successfully removed " << fullpath << llendl;
 				}
 				break;
-			}
-			retry_count++;
+			}			
 		}
 		count++;
 	}
@@ -382,11 +389,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_USER_SKIN:
-		prefix = getOSUserAppDir();
-		prefix += mDirDelimiter;
-		prefix += "user_settings";
-		prefix += mDirDelimiter;
-		prefix += "skins";
+		prefix = getUserSkinDir();
 		break;
 
 	case LL_PATH_SKINS:

@@ -31,6 +31,7 @@ import fnmatch
 import itertools
 import operator
 import os
+import re
 import sys
 import shlex
 import subprocess
@@ -45,8 +46,12 @@ class MissingModuleError(Exception):
         Exception.__init__(self, "Failed to find required modules: %r" % modules)
         self.modules = modules
 
-def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
-    print "generate_breakpad_symbols run with args: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
+    print "generate_breakpad_symbols run with args: %s" % str((configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+
+    if not re.match("release", configuration, re.IGNORECASE):
+        print "skipping breakpad symbol generation for non-release build."
+        return 0
 
     # split up list of viewer_exes
     # "'Second Life' SLPlugin" becomes ['Second Life', 'SLPlugin']
@@ -122,7 +127,7 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
     return 0
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 7:
         usage()
         sys.exit(1)
     sys.exit(main(*sys.argv[1:]))

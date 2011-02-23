@@ -665,7 +665,7 @@
 	<string name="xml_file">
 		XML bestand
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		RAW bestand
 	</string>
 	<string name="compressed_image_files">
@@ -1441,34 +1441,34 @@ Verwacht .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		Vooruit
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		Links
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		Rechts
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Achteruit
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Noord
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Zuid
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		West
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Oost
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		Omhoog
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		Omlaag
 	</string>
 	<string name="Any Category">
@@ -3211,7 +3211,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		U bent de enige gebruiker in deze sessie.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] is offline.
+		[NAME] is offline.
 	</string>
 	<string name="invite_message">
 		Klik de [BUTTON NAME] knop om deze voicechat te accepteren/verbinden.

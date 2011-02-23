@@ -21,7 +21,7 @@
 						<button label="Modifier" name="edit_btn" tool_tip="Modifier les informations du repère"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
+						<menu_button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">

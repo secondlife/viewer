@@ -36,17 +36,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="Aggiungi amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
-			<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
-			<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
-			<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
-			<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
-			<button label="▼" name="overflow_btn" tool_tip="Paga del denaro o condividi qualcosa dall&apos;inventario con il residente"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="Aggiungi come amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<menu_button label="▼" name="overflow_btn" tool_tip="Paga del denaro o condividi qualcosa dall&apos;inventario con il residente"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="Modifica profilo" name="edit_profile_btn" tool_tip="Modifica le tue informazioni personali"/>
-			<button label="Modifica aspetto fisico" name="edit_appearance_btn" tool_tip="Crea/modifica il tuo aspetto: parti del corpo, abiti ecc."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

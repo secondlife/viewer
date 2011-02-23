@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "lllandmarkactions.h"
+#include "llslurl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -179,6 +180,9 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 
 	populateFoldersList();
 
+	// Prevent the floater from losing focus (if the sidepanel is undocked).
+	setFocus(TRUE);
+
 	LLPanelPlaceInfo::setInfoType(type);
 }
 
@@ -246,13 +250,10 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 	//////////////////
 	if (pItem->getCreatorUUID().notNull())
 	{
-		std::string name;
+		// IDEVO
 		LLUUID creator_id = pItem->getCreatorUUID();
-		if (!gCacheName->getFullName(creator_id, name))
-		{
-			gCacheName->get(creator_id, FALSE,
-							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mCreator, _2, _3));
-		}
+		std::string name =
+			LLSLURL("agent", creator_id, "inspect").getSLURLString();
 		mCreator->setText(name);
 	}
 	else
@@ -269,20 +270,12 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 		if (perm.isGroupOwned())
 		{
 			LLUUID group_id = perm.getGroup();
-			if (!gCacheName->getGroupName(group_id, name))
-			{
-				gCacheName->get(group_id, TRUE,
-								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mOwner, _2, _3));
-			}
+			name = LLSLURL("group", group_id, "inspect").getSLURLString();
 		}
 		else
 		{
 			LLUUID owner_id = perm.getOwner();
-			if (!gCacheName->getFullName(owner_id, name))
-			{
-				gCacheName->get(owner_id, FALSE,
-								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mOwner, _2, _3));
-			}
+			name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 		}
 		mOwner->setText(name);
 	}
@@ -340,6 +333,9 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 		// when it was enabled/disabled we set the text once again.
 		mNotesEditor->setText(mNotesEditor->getText());
 	}
+
+	// Prevent the floater from losing focus (if the sidepanel is undocked).
+	setFocus(TRUE);
 }
 
 const std::string& LLPanelLandmarkInfo::getLandmarkTitle() const

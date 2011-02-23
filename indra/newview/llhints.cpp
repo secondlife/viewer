@@ -33,6 +33,7 @@
 #include "lltextbox.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
+#include "lliconctrl.h"
 #include "llsdparam.h"
 
 class LLHintPopup : public LLPanel
@@ -80,7 +81,8 @@ public:
 										up_arrow,
 										right_arrow,
 										down_arrow,
-										lower_left_arrow;
+										lower_left_arrow,
+										hint_image;
 				
 		Optional<S32>					left_arrow_offset,
 										up_arrow_offset,
@@ -96,6 +98,7 @@ public:
 			right_arrow("right_arrow"),
 			down_arrow("down_arrow"),
 			lower_left_arrow("lower_left_arrow"),
+			hint_image("hint_image"),
 			left_arrow_offset("left_arrow_offset"),
 			up_arrow_offset("up_arrow_offset"),
 			right_arrow_offset("right_arrow_offset"),
@@ -109,7 +112,14 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	void onClickClose() { hide(); LLNotifications::instance().cancel(mNotification); }
+	void onClickClose() 
+	{ 
+		if (!mHidden) 
+		{
+			hide(); 
+			LLNotifications::instance().cancel(mNotification);
+		}
+	}
 	void draw();
 	void hide() { if(!mHidden) {mHidden = true; mFadeTimer.reset();} }
 
@@ -159,7 +169,15 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 		mDirection = p.target_params.direction;
 		mTarget = p.target_params.target;
 	}
-	buildFromFile( "panel_hint.xml", NULL, p);
+	if (p.hint_image.isProvided())
+	{
+		buildFromFile("panel_hint_image.xml", NULL, p);
+		getChild<LLIconCtrl>("hint_image")->setImage(p.hint_image());
+	}
+	else
+	{
+		buildFromFile( "panel_hint.xml", NULL, p);
+	}
 }
 
 BOOL LLHintPopup::postBuild()
@@ -211,9 +229,16 @@ void LLHintPopup::draw()
 			else if (!targetp->isInVisibleChain()) 
 			{
 				// if target is invisible, don't draw, but keep alive in case widget comes back
+				// but do make it so that it allows mouse events to pass through
+				setEnabled(false);
+				setMouseOpaque(false);
 			}
 			else
 			{
+				// revert back enabled and mouse opaque state in case we disabled it before
+				setEnabled(true);
+				setMouseOpaque(true);
+
 				LLRect target_rect;
 				targetp->localRectToOtherView(targetp->getLocalRect(), &target_rect, getParent());
 

@@ -31,22 +31,30 @@
 #include <boost/regex.hpp>
 
 // default dummy callback that ignores any label updates from the server
-void LLUrlRegistryNullCallback(const std::string &url, const std::string &label)
+void LLUrlRegistryNullCallback(const std::string &url, const std::string &label, const std::string& icon)
 {
 }
 
 LLUrlRegistry::LLUrlRegistry()
 {
+	mUrlEntry.reserve(20);
+
 	// Urls are matched in the order that they were registered
 	registerUrl(new LLUrlEntryNoLink());
 	registerUrl(new LLUrlEntryIcon());
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
+	registerUrl(new LLUrlEntryAgentCompleteName());
+	registerUrl(new LLUrlEntryAgentDisplayName());
+	registerUrl(new LLUrlEntryAgentUserName());
+	// LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since 
+	// LLUrlEntryAgent is a less specific (catchall for agent urls)
 	registerUrl(new LLUrlEntryAgent());
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
+	registerUrl(new LLUrlEntryRegion());
 	registerUrl(new LLUrlEntryWorldMap());
 	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
@@ -71,10 +79,13 @@ LLUrlRegistry::~LLUrlRegistry()
 	}
 }
 
-void LLUrlRegistry::registerUrl(LLUrlEntryBase *url)
+void LLUrlRegistry::registerUrl(LLUrlEntryBase *url, bool force_front)
 {
 	if (url)
 	{
+		if (force_front)  // IDEVO
+			mUrlEntry.insert(mUrlEntry.begin(), url);
+		else
 		mUrlEntry.push_back(url);
 	}
 }
@@ -174,10 +185,9 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 						match_entry->getLabel(url, cb),
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
-						match_entry->getColor(),
+						match_entry->getStyle(),
 						match_entry->getMenuName(),
 						match_entry->getLocation(url),
-						match_entry->isLinkDisabled(),
 						match_entry->getID(url),
 						match_entry->underlineOnHoverOnly(url));
 		return true;
@@ -210,10 +220,9 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 						match.getLabel(),
 						match.getTooltip(),
 						match.getIcon(),
-						match.getColor(),
+						match.getStyle(),
 						match.getMenuName(),
 						match.getLocation(),
-						match.isLinkDisabled(),
 						match.getID(),
 						match.underlineOnHoverOnly());
 		return true;

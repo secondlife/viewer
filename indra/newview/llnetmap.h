@@ -38,6 +38,8 @@ class LLColor4U;
 class LLCoordGL;
 class LLImageRaw;
 class LLViewerTexture;
+class LLFloaterMap;
+class LLMenuGL;
 
 class LLNetMap : public LLUICtrl
 {
@@ -55,6 +57,7 @@ public:
 protected:
 	LLNetMap (const Params & p);
 	friend class LLUICtrlFactory;
+	friend class LLFloaterMap;
 
 public:
 	virtual ~LLNetMap();
@@ -70,7 +73,12 @@ public:
 	/*virtual*/ BOOL	handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask);
 	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	
+
+	/*virtual*/ BOOL 	postBuild();
+	/*virtual*/ BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
+
 	void			setScale( F32 scale );
 	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
@@ -86,13 +94,14 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
+	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
 	void			createObjectImage();
 
-private:
 	static bool		outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y, S32 slop);
 
+private:
 	bool			mUpdateNow;
 
 	LLUIColor		mBackgroundColor;
@@ -117,6 +126,16 @@ private:
 	LLUUID			mClosestAgentAtLastRightClick;
 
 	std::string		mToolTipMsg;
+
+public:
+	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };
+
+private:
+	void handleZoom(const LLSD& userdata);
+	void handleStopTracking (const LLSD& userdata);
+
+	LLMenuGL*		mPopupMenu;
+	uuid_vec_t		gmSelected;
 };
 
 

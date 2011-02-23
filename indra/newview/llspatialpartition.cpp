@@ -1555,7 +1555,9 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 {
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
-		if (earlyFail(camera, this))
+		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
+		if ((mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER && !gGLManager.mHasDepthClamp) ||
+			earlyFail(camera, this))
 		{
 			setOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			assert_states_valid(this);
@@ -1576,7 +1578,18 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 				{
 					buildOcclusion();
 				}
-
+				
+				// Depth clamp all water to avoid it being culled as a result of being
+				// behind the far clip plane, and in the case of edge water to avoid
+				// it being culled while still visible.
+				bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
+											(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
+											mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
+				if (use_depth_clamp)
+				{
+					glEnable(GL_DEPTH_CLAMP);
+				}
+				
 				glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
 				glVertexPointer(3, GL_FLOAT, 0, mOcclusionVerts);
 				if (camera->getOrigin().isExactlyZero())
@@ -1592,6 +1605,11 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 								GL_UNSIGNED_BYTE, get_box_fan_indices(camera, mBounds[0]));
 				}
 				glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+				
+				if (use_depth_clamp)
+				{
+					glDisable(GL_DEPTH_CLAMP);
+				}
 			}
 
 			setOcclusionState(LLSpatialGroup::QUERY_PENDING);
@@ -2560,6 +2578,49 @@ void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 	gGL.end();
 }
 
+void renderUpdateType(LLDrawable* drawablep)
+{
+	LLViewerObject* vobj = drawablep->getVObj();
+	if (!vobj || OUT_UNKNOWN == vobj->getLastUpdateType())
+	{
+		return;
+	}
+	LLGLEnable blend(GL_BLEND);
+	switch (vobj->getLastUpdateType())
+	{
+	case OUT_FULL:
+		glColor4f(0,1,0,0.5f);
+		break;
+	case OUT_TERSE_IMPROVED:
+		glColor4f(0,1,1,0.5f);
+		break;
+	case OUT_FULL_COMPRESSED:
+		if (vobj->getLastUpdateCached())
+		{
+			glColor4f(1,0,0,0.5f);
+		}
+		else
+		{
+			glColor4f(1,1,0,0.5f);
+		}
+		break;
+	case OUT_FULL_CACHED:
+		glColor4f(0,0,1,0.5f);
+		break;
+	default:
+		llwarns << "Unknown update_type " << vobj->getLastUpdateType() << llendl;
+		break;
+	};
+	S32 num_faces = drawablep->getNumFaces();
+	if (num_faces)
+	{
+		for (S32 i = 0; i < num_faces; ++i)
+		{
+			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+		}
+	}
+}
+
 
 void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 {
@@ -2591,9 +2652,10 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						gGL.color4f(0.5f,0.5f,0.5f,1.0f);
 						break;
 				case LLViewerObject::LL_VO_PART_GROUP:
-			case LLViewerObject::LL_VO_HUD_PART_GROUP:
+				case LLViewerObject::LL_VO_HUD_PART_GROUP:
 						gGL.color4f(0,0,1,1);
 						break;
+				case LLViewerObject::LL_VO_VOID_WATER:
 				case LLViewerObject::LL_VO_WATER:
 						gGL.color4f(0,0.5f,1,1);
 						break;
@@ -2999,6 +3061,10 @@ public:
 			{
 				renderRaycast(drawable);
 			}
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_UPDATE_TYPE))
+			{
+				renderUpdateType(drawable);
+			}
 
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());
 			
@@ -3161,6 +3227,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_OCCLUSION |
 									  LLPipeline::RENDER_DEBUG_LIGHTS |
 									  LLPipeline::RENDER_DEBUG_BATCH_SIZE |
+									  LLPipeline::RENDER_DEBUG_UPDATE_TYPE |
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |

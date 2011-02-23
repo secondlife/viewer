@@ -45,6 +45,7 @@ public:
 
 	// local initialization, called by the media manager when creating a source
 	virtual bool init(const std::string &launcher_filename, 
+					  const std::string &plugin_dir, 
 					  const std::string &plugin_filename, 
 					  bool debug);
 
@@ -84,6 +85,8 @@ public:
 	void setAutoScale(bool auto_scale);
 	
 	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
+	
+	void setOwner(LLPluginClassMediaOwner *owner) { mOwner = owner; };
 	
 	// Returns true if all of the texture parameters (depth, format, size, and texture size) are set up and consistent.
 	// This will initially be false, and will also be false for some time after setSize while the resize is processed.
@@ -159,6 +162,8 @@ public:
 	
 	void sendPickFileResponse(const std::string &file);
 
+	void sendAuthResponse(bool ok, const std::string &username, const std::string &password);
+
 	// Valid after a MEDIA_EVENT_CURSOR_CHANGED event
 	std::string getCursorName() const { return mCursorName; };
 
@@ -198,6 +203,8 @@ public:
 	void setBrowserUserAgent(const std::string& user_agent);
 	void proxyWindowOpened(const std::string &target, const std::string &uuid);
 	void proxyWindowClosed(const std::string &uuid);
+	void ignore_ssl_cert_errors(bool ignore);
+	void addCertificateFilePath(const std::string& path);
 	
 	// This is valid after MEDIA_EVENT_NAVIGATE_BEGIN or MEDIA_EVENT_NAVIGATE_COMPLETE
 	std::string	getNavigateURI() const { return mNavigateURI; };
@@ -231,7 +238,15 @@ public:
 	S32 getGeometryY() const { return mGeometryY; };
 	S32 getGeometryWidth() const { return mGeometryWidth; };
 	S32 getGeometryHeight() const { return mGeometryHeight; };
+	
+	// These are valid during MEDIA_EVENT_AUTH_REQUEST
+	std::string	getAuthURL() const { return mAuthURL; };
+	std::string	getAuthRealm() const { return mAuthRealm; };
 
+	// These are valid during MEDIA_EVENT_LINK_HOVERED
+	std::string	getHoverText() const { return mHoverText; };
+	std::string	getHoverLink() const { return mHoverLink; };
+	
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -369,6 +384,10 @@ protected:
 	S32				mGeometryY;
 	S32				mGeometryWidth;
 	S32				mGeometryHeight;
+	std::string		mAuthURL;
+	std::string		mAuthRealm;
+	std::string		mHoverText;
+	std::string		mHoverLink;
 	
 	/////////////////////////////////////////
 	// media_time class

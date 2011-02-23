@@ -422,9 +422,10 @@ void LLScrollContainer::draw()
 	// Draw background
 	if( mIsOpaque )
 	{
+		F32 alpha = getCurrentTransparency();
+
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4fv( mBackgroundColor.get().mV );
-		gl_rect_2d( mInnerRect );
+		gl_rect_2d(mInnerRect, mBackgroundColor.get() % alpha);
 	}
 	
 	// Draw mScrolledViews and update scroll bars.

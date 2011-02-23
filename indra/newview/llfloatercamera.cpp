@@ -40,6 +40,8 @@
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 #include "llslider.h"
+#include "llfirstuse.h"
+#include "llhints.h"
 
 static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item");
 
@@ -73,6 +75,8 @@ protected:
 	void	onZoomPlusHeldDown();
 	void	onZoomMinusHeldDown();
 	void	onSliderValueChanged();
+	void	onCameraTrack();
+	void	onCameraRotate();
 	F32		getOrbitRate(F32 time);
 
 private:
@@ -162,6 +166,8 @@ LLPanelCameraZoom::LLPanelCameraZoom()
 	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
 	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
 	mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
+	mCommitCallbackRegistrar.add("Camera.track", boost::bind(&LLPanelCameraZoom::onCameraTrack, this));
+	mCommitCallbackRegistrar.add("Camera.rotate", boost::bind(&LLPanelCameraZoom::onCameraRotate, this));
 }
 
 BOOL LLPanelCameraZoom::postBuild()
@@ -196,6 +202,18 @@ void LLPanelCameraZoom::onZoomMinusHeldDown()
 	F32 time = mMinusBtn->getHeldDownTime();
 	gAgentCamera.unlockView();
 	gAgentCamera.setOrbitOutKey(getOrbitRate(time));
+}
+
+void LLPanelCameraZoom::onCameraTrack()
+{
+	// EXP-202 when camera panning activated, remove the hint
+	LLFirstUse::viewPopup( false );
+}
+
+void LLPanelCameraZoom::onCameraRotate()
+{
+	// EXP-202 when camera rotation activated, remove the hint
+	LLFirstUse::viewPopup( false );
 }
 
 F32 LLPanelCameraZoom::getOrbitRate(F32 time)
@@ -294,6 +312,8 @@ LLFloaterCamera* LLFloaterCamera::findInstance()
 
 void LLFloaterCamera::onOpen(const LLSD& key)
 {
+	LLFirstUse::viewPopup();
+
 	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("camera_btn");
 
 	setDockControl(new LLDockControl(
@@ -336,6 +356,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
+	LLHints::registerHintTarget("view_popup", LLView::getHandle());
 }
 
 // virtual
@@ -343,6 +364,7 @@ BOOL LLFloaterCamera::postBuild()
 {
 	setIsChrome(TRUE);
 	setTitleVisible(TRUE); // restore title visibility after chrome applying
+	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
 	mZoom = findChild<LLPanelCameraZoom>(ZOOM);

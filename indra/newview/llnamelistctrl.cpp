@@ -30,6 +30,7 @@
 
 #include <boost/tokenizer.hpp>
 
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llfloaterreg.h"
 #include "llinventory.h"
@@ -38,6 +39,7 @@
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 #include "lltooltip.h"
+#include "lltrans.h"
 
 static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
@@ -52,7 +54,8 @@ void LLNameListCtrl::NameTypeNames::declareValues()
 
 LLNameListCtrl::Params::Params()
 :	name_column(""),
-	allow_calling_card_drop("allow_calling_card_drop", false)
+	allow_calling_card_drop("allow_calling_card_drop", false),
+	short_names("short_names", false)
 {
 	name = "name_list";
 }
@@ -61,7 +64,8 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 :	LLScrollListCtrl(p),
 	mNameColumnIndex(p.name_column.column_index),
 	mNameColumn(p.name_column.column_name),
-	mAllowCallingCardDrop(p.allow_calling_card_drop)
+	mAllowCallingCardDrop(p.allow_calling_card_drop),
+	mShortNames(p.short_names)
 {}
 
 // public
@@ -139,6 +143,30 @@ void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
 	S32 cur_index = getHighlightedItemInx();
 	if (cur_index != target_index)
 	{
+		bool is_mouse_over_name_cell = false;
+
+		S32 mouse_x, mouse_y;
+		LLUI::getMousePositionLocal(this, &mouse_x, &mouse_y);
+
+		S32 column_index = getColumnIndexFromOffset(mouse_x);
+		LLScrollListItem* hit_item = hitItem(mouse_x, mouse_y);
+		if (hit_item && column_index == mNameColumnIndex)
+		{
+			// Get the name cell which is currently under the mouse pointer.
+			LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
+			if (hit_cell)
+			{
+				is_mouse_over_name_cell = getCellRect(cur_index, column_index).pointInRect(mouse_x, mouse_y);
+			}
+		}
+
+		// If the tool tip is visible and the mouse is over the currently highlighted item's name cell,
+		// we should not reset the highlighted item index i.e. set mHighlightedItem = -1
+		// and should not increase the width of the text inside the cell because it may
+		// overlap the tool tip icon.
+		if (LLToolTipMgr::getInstance()->toolTipVisible() && is_mouse_over_name_cell)
+			return;
+
 		if(0 <= cur_index && cur_index < (S32)getItemList().size())
 		{
 			LLScrollListItem* item = getItemList()[cur_index];
@@ -292,10 +320,24 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 		break;
 	case INDIVIDUAL:
 		{
-			std::string name;
-			if (gCacheName->getFullName(id, name))
+			LLAvatarName av_name;
+			if (id.isNull())
 			{
-				fullname = name;
+				fullname = LLTrans::getString("AvatarNameNobody");
+			}
+			else if (LLAvatarNameCache::get(id, &av_name))
+			{
+				if (mShortNames)
+					fullname = av_name.mDisplayName;
+				else
+					fullname = av_name.getCompleteName();
+			}
+			else
+			{
+				// ...schedule a callback
+				LLAvatarNameCache::get(id,
+					boost::bind(&LLNameListCtrl::onAvatarNameCache,
+						this, _1, _2));
 			}
 			break;
 		}
@@ -350,34 +392,25 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	}
 }
 
-// public
-void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first, 
-							 const std::string& last, BOOL is_group)
+void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
+									   const LLAvatarName& av_name)
 {
-	//llinfos << "LLNameListCtrl::refresh " << id << " '" << first << " "
-	//	<< last << "'" << llendl;
-
-	std::string fullname;
-	if (!is_group)
-	{
-		fullname = first + " " + last;
-	}
+	std::string name;
+	if (mShortNames)
+		name = av_name.mDisplayName;
 	else
-	{
-		fullname = first;
-	}
+		name = av_name.getCompleteName();
 
-	// TODO: scan items for that ID, fix if necessary
 	item_list::iterator iter;
 	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getUUID() == id)
+		if (item->getUUID() == agent_id)
 		{
 			LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 			if (cell)
 			{
-				cell->setValue(fullname);
+				cell->setValue(name);
 			}
 		}
 	}
@@ -385,19 +418,6 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first,
 	dirtyColumns();
 }
 
-
-// static
-void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
-								const std::string& last, BOOL is_group)
-{
-	LLInstanceTrackerScopedGuard guard;
-	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
-	for (it = guard.beginInstances(); it != guard.endInstances(); ++it)
-	{
-		LLNameListCtrl& ctrl = *it;
-		ctrl.refresh(id, first, last, is_group);
-	}
-}
 
 void LLNameListCtrl::updateColumns()
 {

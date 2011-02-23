@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
+<toggleable_menu
          create_jump_keys="true"
          layout="topleft"
          mouse_opaque="false"
@@ -78,7 +78,7 @@
     <menu_item_call.on_click
      function="InspectAvatar.Freeze"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleFreezeEject"/>
+     function="InspectAvatar.VisibleFreeze"/>
   </menu_item_call>
   <menu_item_call
    label="Eject"
@@ -86,7 +86,23 @@
     <menu_item_call.on_click
      function="InspectAvatar.Eject"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleFreezeEject"/>
+     function="InspectAvatar.VisibleEject"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Kick"
+   name="kick">
+    <menu_item_call.on_click
+     function="InspectAvatar.Kick"/>
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableGod"/>
+  </menu_item_call>
+  <menu_item_call
+  label="CSR"
+  name="csr">
+    <menu_item_call.on_click
+     function="InspectAvatar.CSR" />
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableGod" />
   </menu_item_call>
   <menu_item_call
    label="Debug Textures"
@@ -124,4 +140,4 @@
     <menu_item_call.on_click
      function="InspectAvatar.Share"/>
   </menu_item_call>
-</menu>
+</toggleable_menu>

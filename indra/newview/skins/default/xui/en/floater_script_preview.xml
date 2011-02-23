@@ -55,7 +55,7 @@
      height="19"
      layout="topleft"
      left_delta="80"
-     max_length="127"
+     max_length_bytes="127"
      name="desc"
      top_delta="0"
      width="394" />

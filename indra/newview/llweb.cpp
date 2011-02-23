@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llfloatermediabrowser.h"
+#include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
 #include "lllogininstance.h"
 #include "llparcel.h"
@@ -95,11 +96,35 @@ void LLWeb::loadURL(const std::string& url, const std::string& target, const std
 	}
 }
 
+// static
+void LLWeb::loadWebURL(const std::string& url, const std::string& target, const std::string& uuid)
+{
+	if(target == "_internal")
+	{
+		// Force load in the internal browser, as if with a blank target.
+		loadWebURLInternal(url, "", uuid);
+	}
+	else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
+	{
+		loadURLExternal(url);
+	}
+	else
+	{
+		loadWebURLInternal(url, target, uuid);
+	}
+}
 
 // static
 void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
 	LLFloaterMediaBrowser::create(url, target, uuid);
+}
+
+// static
+// Explicitly open a Web URL using the Web content floater
+void LLWeb::loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
+{
+	LLFloaterWebContent::create(url, target, uuid);
 }
 
 
@@ -115,6 +140,13 @@ void LLWeb::loadURLExternal(const std::string& url, bool async, const std::strin
 {
 	// Act like the proxy window was closed, since we won't be able to track targeted windows in the external browser.
 	LLViewerMedia::proxyWindowClosed(uuid);
+	
+	if(gSavedSettings.getBOOL("DisableExternalBrowser"))
+	{
+		// Don't open an external browser under any circumstances.
+		llwarns << "Blocked attempt to open external browser." << llendl;
+		return;
+	}
 	
 	LLSD payload;
 	payload["url"] = url;

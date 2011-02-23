@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ can_close="false" 
+ height="300"
+ layout="topleft"
+ name="Display Name"
+ help_topic="display_name"
+ save_rect="false"
+ title="CHANGE DISPLAY NAME" 
+ width="445">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="40"
+     layout="topleft"
+     left="25"
+     name="info_text"
+     top="40"
+     use_ellipses="true"
+     width="380"
+     wrap="true">
+      The name you give your avatar is called your Display Name. You can change it once a week.
+    </text>
+	<text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="25"
+     layout="topleft"
+     left="25"
+	 text_color="EmphasisColor" 
+     name="lockout_text"
+     top="80"
+     use_ellipses="true"
+	 visible="false" 
+     width="410"
+     wrap="true">
+		You cannot change your Display Name until: [TIME].
+	</text>
+    <text
+      top_pad="10"
+      width="150"
+      height="20"
+      font="SansSerif"
+      name="set_name_label">
+      New Display Name:
+    </text>
+    <line_editor
+      width="330"
+      name="display_name_editor"
+      max_length_chars="31"
+      height="20"
+      top_pad="5"
+      left="50" />
+	<text
+       top_pad="15"
+       left="25"
+       width="300"
+       height="20"
+      font="SansSerif"
+    name="name_confirm_label">
+      Type your new name again to confirm:
+    </text>
+    <line_editor
+      width="330"
+      name="display_name_confirm"
+      max_length_chars="31"
+      height="20"
+      top_pad="5"
+      left="50" />
+    <button
+     height="23"
+     label="Save"
+     layout="topleft"
+     font="SansSerif"
+     left="35"
+     name="save_btn"
+     tool_tip="Save your new Display Name" 
+     top_pad="40"
+     width="120" />
+    <button
+     height="23"
+     label="Reset"
+     layout="topleft"
+     font="SansSerif"
+     left_pad="5"
+     name="reset_btn"
+     tool_tip="Make Display Name the same as Username"
+     width="120" />
+    <button
+     height="23"
+     label="Cancel"
+     font="SansSerif"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
+     width="120" />
+</floater>

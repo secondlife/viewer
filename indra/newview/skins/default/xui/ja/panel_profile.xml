@@ -40,17 +40,29 @@
 				</panel>
 			</scroll_container>
 		</layout_panel>
+	</layout_stack>
+	<layout_stack name="layout_verb_buttons">
 		<layout_panel name="profile_buttons_panel">
-			<button label="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
-			<button label="IM" name="im" tool_tip="インスタントメッセージを開きます"/>
-			<button label="コール" name="call" tool_tip="この住人にコールします"/>
-			<button label="地図" name="show_on_map_btn" tool_tip="住人を地図上で表示します"/>
-			<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
-			<button label="▼" name="overflow_btn" tool_tip="住人にお金を渡すか持ち物を共有します"/>
+			<layout_stack name="bottom_bar_ls">
+				<layout_panel name="add_friend_btn_lp">
+					<button label="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
+				</layout_panel>
+				<layout_panel name="im_btn_lp">
+					<button label="IM" name="im" tool_tip="インスタントメッセージを開きます"/>
+				</layout_panel>
+				<layout_panel name="call_btn_lp">
+					<button label="コール" name="call" tool_tip="この住人にコールする"/>
+				</layout_panel>
+				<layout_panel name="chat_btn_lp">
+					<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
+				</layout_panel>
+				<layout_panel name="overflow_btn_lp">
+					<menu_button label="▼" name="overflow_btn" tool_tip="住人にお金を渡すか持ち物を共有します"/>
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="プロフィールの編集" name="edit_profile_btn" tool_tip="個人的な情報を編集します"/>
-			<button label="容姿の編集" name="edit_appearance_btn" tool_tip="見た目を作成・編集します： （身体的データ、衣類など）"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

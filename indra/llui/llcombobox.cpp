@@ -52,8 +52,6 @@
 #include "lltooltip.h"
 
 // Globals
-S32 LLCOMBOBOX_HEIGHT = 0;
-S32 LLCOMBOBOX_WIDTH = 0;
 S32 MAX_COMBO_WIDTH = 500;
 
 static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_box");
@@ -96,6 +94,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
+	mTextChangedCallback(p.text_changed_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1),
 	mLabel(p.label)
@@ -486,7 +485,7 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		LLLineEditor::Params params = p.combo_editor;
 		params.rect(text_entry_rect);
 		params.default_text(LLStringUtil::null);
-		params.max_length_bytes(mMaxChars);
+		params.max_length.bytes(mMaxChars);
 		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
 		params.commit_on_focus_lost(false);
@@ -705,10 +704,10 @@ void LLComboBox::onItemSelected(const LLSD& data)
 		setLabel(getSelectedItemLabel());
 
 		if (mAllowTextEntry)
-		{
-			gFocusMgr.setKeyboardFocus(mTextEntry);
-			mTextEntry->selectAll();
-		}
+	{
+		gFocusMgr.setKeyboardFocus(mTextEntry);
+		mTextEntry->selectAll();
+	}
 	}
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	hideList();
@@ -771,7 +770,8 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 			return FALSE;
 		}
 		// if selection has changed, pop open list
-		else if (mList->getLastSelectedItem() != last_selected_item)
+		else if (mList->getLastSelectedItem() != last_selected_item ||
+				(key == KEY_DOWN || key == KEY_UP) && !mList->isEmpty())
 		{
 			showList();
 		}
@@ -835,6 +835,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 			mList->deselectAllItems();
 			mLastSelectedIndex = -1;
 		}
+		if (mTextChangedCallback != NULL)
+		{
+			(mTextChangedCallback)(line_editor, LLSD());
+		}
 		return;
 	}
 
@@ -878,6 +882,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 	{
 		// RN: presumably text entry
 		updateSelection();
+	}
+	if (mTextChangedCallback != NULL)
+	{
+		(mTextChangedCallback)(line_editor, LLSD());
 	}
 }
 

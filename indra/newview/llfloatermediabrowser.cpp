@@ -306,17 +306,14 @@ void LLFloaterMediaBrowser::setCurrentURL(const std::string& url)
 {
 	mCurrentURL = url;
 
-	// redirects will navigate momentarily to about:blank, don't add to history
-	if (mCurrentURL != "about:blank")
-	{
-		mAddressCombo->remove(mCurrentURL);
-		mAddressCombo->add(mCurrentURL);
-		mAddressCombo->selectByValue(mCurrentURL);
+	mAddressCombo->remove(mCurrentURL);
+	mAddressCombo->add(mCurrentURL);
+	mAddressCombo->selectByValue(mCurrentURL);
 
-		// Serialize url history
-		LLURLHistory::removeURL("browser", mCurrentURL);
-		LLURLHistory::addURL("browser", mCurrentURL);
-	}
+	// Serialize url history
+	LLURLHistory::removeURL("browser", mCurrentURL);
+	LLURLHistory::addURL("browser", mCurrentURL);
+
 	getChildView("back")->setEnabled(mBrowser->canNavigateBack());
 	getChildView("forward")->setEnabled(mBrowser->canNavigateForward());
 	getChildView("reload")->setEnabled(TRUE);
@@ -334,8 +331,15 @@ void LLFloaterMediaBrowser::onClickRefresh(void* user_data)
 {
 	LLFloaterMediaBrowser* self = (LLFloaterMediaBrowser*)user_data;
 
-	self->mAddressCombo->remove(0);
-	self->mBrowser->navigateTo(self->mCurrentURL);
+	if( self->mBrowser->getMediaPlugin() &&  self->mBrowser->getMediaPlugin()->pluginSupportsMediaBrowser())
+	{
+		bool ignore_cache = true;
+		self->mBrowser->getMediaPlugin()->browse_reload( ignore_cache );
+	}
+	else
+	{
+		self->mBrowser->navigateTo(self->mCurrentURL);
+	}
 }
 
 //static 

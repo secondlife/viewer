@@ -35,7 +35,7 @@
 	 visible="true"
 	 name="bottom_panel"
 	 width="312">
-     <button
+     <menu_button
        follows="bottom|left"
        tool_tip="Show additional options"
        height="25"

@@ -10,51 +10,6 @@
  top="1"
  width="517">
   <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left="30"
-   name="Mouselook:"
-   top="10"
-   width="300">
-    Mouselook:
-  </text>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_delta="50"
-   name=" Mouse Sensitivity"
-   top_pad="10"
-   width="150">
-    Mouse sensitivity
-  </text>
-  <slider
-   control_name="MouseSensitivity"
-   follows="left|top"
-   height="15"
-   initial_value="2"
-   layout="topleft"
-   show_text="false"
-   left_delta="150"
-   max_val="15"
-   name="mouse_sensitivity"
-   top_delta="0"
-   width="145" />
-  <check_box
-   control_name="InvertMouse"
-   height="16"
-   label="Invert"
-   layout="topleft"
-   left_pad="2"
-   name="invert_mouse"
-   top_delta="0"
-   width="128" />
-  <text
      type="string"
      length="1"
      follows="left|top"
@@ -63,7 +18,7 @@
      left="30"
      name="Network:"
      mouse_opaque="false"
-     top_pad="4"
+     top="10"
      width="300">
     Network:
   </text>
@@ -386,4 +341,41 @@
    name="web_proxy_port"
    top_delta="0"
    width="145" />
+  <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Software updates:"
+     mouse_opaque="false"
+     top_pad="5"
+     width="300">
+    Software updates:
+  </text>
+  <combo_box
+     control_name="UpdaterServiceSetting"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left_delta="50"
+	 top_pad="5"
+     name="updater_service_combobox"
+     width="300">
+        <combo_box.item
+         label="Install automatically"
+         name="Install_automatically"
+         value="3" />
+      <!--
+        <combo_box.item
+         label="Ask before installing"
+         name="Install_ask"
+         value="1" />
+      -->
+        <combo_box.item
+         label="Download and install updates manually"
+         name="Install_manual"
+         value="0" />
+  </combo_box>
 </panel>

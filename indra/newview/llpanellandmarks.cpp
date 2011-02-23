@@ -47,9 +47,11 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmarkactions.h"
+#include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
 #include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
 
@@ -69,6 +71,7 @@ static void collapse_all_folders(LLFolderView* root_folder);
 static void expand_all_folders(LLFolderView* root_folder);
 static bool has_expanded_folders(LLFolderView* root_folder);
 static bool has_collapsed_folders(LLFolderView* root_folder);
+static void toggle_restore_menu(LLMenuGL* menu, BOOL visible, BOOL enabled);
 
 /**
  * Functor counting expanded and collapsed folders in folder view tree to know
@@ -191,6 +194,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mLibraryInventoryPanel(NULL)
 	,	mCurrentSelectedList(NULL)
 	,	mListCommands(NULL)
+	,	mGearButton(NULL)
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
 {
@@ -517,9 +521,6 @@ void LLLandmarksPanel::setParcelID(const LLUUID& parcel_id)
 {
 	if (!parcel_id.isNull())
 	{
-        //ext-4655, defensive. remove now incase this gets called twice without a remove
-        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(parcel_id, this);
-        
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(parcel_id, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
 	}
@@ -685,7 +686,9 @@ void LLLandmarksPanel::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
 
-	mListCommands->childSetAction(OPTIONS_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
+	mGearButton = getChild<LLMenuButton>(OPTIONS_BUTTON_NAME);
+	mGearButton->setMouseDownCallback(boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
+
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
@@ -702,9 +705,12 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
-	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	mGearLandmarkMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+	mGearFolderMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
 
 	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::showActionMenu, this, mMenuAdd, ADD_BUTTON_NAME));
 }
@@ -722,7 +728,7 @@ void LLLandmarksPanel::updateListCommands()
 
 void LLLandmarksPanel::onActionsButtonClick()
 {
-	LLMenuGL* menu = mGearFolderMenu;
+	LLToggleableMenu* menu = mGearFolderMenu;
 
 	LLFolderViewItem* cur_item = NULL;
 	if(mCurrentSelectedList)
@@ -741,7 +747,7 @@ void LLLandmarksPanel::onActionsButtonClick()
 		}
 	}
 
-	showActionMenu(menu,OPTIONS_BUTTON_NAME);
+	mGearButton->setMenu(menu);
 }
 
 void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -750,7 +756,10 @@ void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_
 	{
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLView* spawning_view = getChild<LLView> (spawning_view_name);
+		menu->arrangeAndClear();
+
+		LLView* spawning_view = getChild<LLView>(spawning_view_name);
+
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
 		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
@@ -1074,6 +1083,60 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	{
 		doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1));
 	}
+	else if ("restore" == command_name && mCurrentSelectedList)
+	{
+		mCurrentSelectedList->doToSelected(userdata);
+	}
+}
+
+void LLLandmarksPanel::onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param)
+{
+	bool new_visibility = param["visibility"].asBoolean();
+
+	// We don't have to update items visibility if the menu is hiding.
+	if (!new_visibility) return;
+
+	BOOL are_any_items_in_trash = FALSE;
+	BOOL are_all_items_in_trash = TRUE;
+
+	LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : NULL;
+	if(root_folder_view)
+	{
+		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+
+		std::set<LLUUID> selected_uuids = root_folder_view->getSelectionList();
+
+		// Iterate through selected items to find out if any of these items are in Trash
+		// or all the items are in Trash category.
+		for (std::set<LLUUID>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+		{
+			LLFolderViewItem* item = root_folder_view->getItemByID(*iter);
+
+			// If no item is found it might be a folder id.
+			if (!item)
+			{
+				item = root_folder_view->getFolderByID(*iter);
+			}
+			if (!item) continue;
+
+			LLFolderViewEventListener* listenerp = item->getListener();
+			if(!listenerp) continue;
+
+			// Trash category itself should not be included because it can't be
+			// actually restored from trash.
+			are_all_items_in_trash &= listenerp->isItemInTrash() && *iter != trash_id;
+
+			// If there are any selected items in Trash including the Trash category itself
+			// we show "Restore Item" in context menu and hide other irrelevant items.
+			are_any_items_in_trash |= listenerp->isItemInTrash();
+		}
+	}
+
+	// Display "Restore Item" menu entry if at least one of the selected items
+	// is in Trash or the Trash category itself is among selected items.
+	// Hide other menu entries in this case.
+	// Enable this menu entry only if all selected items are in the Trash category.
+	toggle_restore_menu((LLMenuGL*)ctrl, are_any_items_in_trash, are_all_items_in_trash);
 }
 
 /*
@@ -1408,5 +1471,32 @@ static bool has_collapsed_folders(LLFolderView* root_folder)
 	}
 
 	return true;
+}
+
+// Displays "Restore Item" context menu entry while hiding
+// all other entries or vice versa.
+// Sets "Restore Item" enabled state.
+void toggle_restore_menu(LLMenuGL *menu, BOOL visible, BOOL enabled)
+{
+	if (!menu) return;
+
+	const LLView::child_list_t *list = menu->getChildList();
+	for (LLView::child_list_t::const_iterator itor = list->begin();
+		 itor != list->end();
+		 ++itor)
+	{
+		LLView *menu_item = (*itor);
+		std::string name = menu_item->getName();
+
+		if ("restore_item" == name)
+		{
+			menu_item->setVisible(visible);
+			menu_item->setEnabled(enabled);
+		}
+		else
+		{
+			menu_item->setVisible(!visible);
+		}
+	}
 }
 // EOF

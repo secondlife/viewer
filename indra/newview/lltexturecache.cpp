@@ -326,6 +326,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 	// First state / stage : find out if the file is local
 	if (mState == INIT)
 	{
+#if 0
 		std::string filename = mCache->getLocalFileName(mID);	
 		// Is it a JPEG2000 file? 
 		{
@@ -360,6 +361,11 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 		// Determine the next stage: if we found a file, then LOCAL else CACHE
 		mState = (local_size > 0 ? LOCAL : CACHE);
+
+		llassert_always(mState == CACHE) ;
+#else
+		mState = CACHE;
+#endif
 	}
 
 	// Second state / stage : if the file is local, load it and leave
@@ -1592,7 +1598,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	if (validate)
 	{
 		validate_idx = gSavedSettings.getU32("CacheValidateCounter");
-		U32 next_idx = (++validate_idx) % 256;
+		U32 next_idx = (validate_idx + 1) % 256;
 		gSavedSettings.setU32("CacheValidateCounter", next_idx);
 		LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Validating: " << validate_idx << LL_ENDL;
 	}
@@ -1858,8 +1864,22 @@ void LLTextureCache::removeCachedTexture(const LLUUID& id)
 //called after mHeaderMutex is locked.
 void LLTextureCache::removeEntry(S32 idx, Entry& entry, std::string& filename)
 {
+ 	bool file_maybe_exists = true;	// Always attempt to remove when idx is invalid.
+
 	if(idx >= 0) //valid entry
 	{
+		if (entry.mBodySize == 0)	// Always attempt to remove when mBodySize > 0.
+		{
+		  if (LLAPRFile::isExist(filename, getLocalAPRFilePool()))		// Sanity check. Shouldn't exist when body size is 0.
+		  {
+			  LL_WARNS("TextureCache") << "Entry has body size of zero but file " << filename << " exists. Deleting this file, too." << LL_ENDL;
+		  }
+		  else
+		  {
+			  file_maybe_exists = false;
+		  }
+		}
+
 		entry.mImageSize = -1;
 		entry.mBodySize = 0;
 		mHeaderIDMap.erase(entry.mID);
@@ -1869,7 +1889,10 @@ void LLTextureCache::removeEntry(S32 idx, Entry& entry, std::string& filename)
 		mFreeList.insert(idx);	
 	}
 
-	LLAPRFile::remove(filename, getLocalAPRFilePool());		
+	if (file_maybe_exists)
+	{
+		LLAPRFile::remove(filename, getLocalAPRFilePool());		
+	}
 }
 
 bool LLTextureCache::removeFromCache(const LLUUID& id)

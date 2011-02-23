@@ -54,7 +54,13 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
     <string
      name="no_groups_msg"
      value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
-    <filter_editor
+	<string
+	 name="MiniMapToolTipMsg"
+	 value="[REGION](Double-click to open Map, shift-drag to pan)"/>
+	<string
+	 name="AltMiniMapToolTipMsg"
+	 value="[REGION](Double-click to teleport, shift-drag to pan)"/>
+	<filter_editor
      follows="left|top|right"
      height="23"
      layout="topleft"
@@ -81,7 +87,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      width="317">
      	<panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -93,16 +99,26 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="nearby_panel"
          top="0"
          width="313">
-            <avatar_list
+			<net_map
+			 bg_color="NetMapBackgroundColor"
+			 follows="top|left|right"
+			 layout="topleft"
+			 left="3"
+			 mouse_opaque="false"
+			 name="Net Map"
+			 width="307"
+			 height="140"
+			 top="0"/>
+			<avatar_list
              allow_select="true"
-             follows="all"
-             height="356"
+             follows="top|left|bottom|right"
+             height="216"
              ignore_online_status="true"
              layout="topleft"
              left="3"
              multi_select="true"
              name="avatar_list"
-             top="0"
+             top="145"
              width="307" />
             <panel
              background_visible="true"
@@ -114,7 +130,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              name="bottom_panel"
              top_pad="0"
              width="313">
-             <button
+             <menu_button
              follows="bottom|left"
              height="25"
              image_hover_unselected="Toolbar_Left_Over"
@@ -155,7 +171,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -241,8 +257,9 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="options_gear_btn_panel"
+				       user_resize="false"
 				       width="32">
-				          <button
+				          <menu_button
 				           follows="bottom|left"
 				           tool_tip="Show additional options"
 				           height="25"
@@ -261,6 +278,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="add_btn_panel"
+				       user_resize="false"
 				       width="32">
 				          <button
 				           follows="bottom|left"
@@ -281,6 +299,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="dummy_panel"
+				       user_resize="false"
 				       width="212">
 				          <icon
 				           follows="bottom|left|right"
@@ -297,6 +316,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="trash_btn_panel"
+				       user_resize="false"
 				       width="31">
 				          <dnd_button
 				           follows="bottom|left"
@@ -307,7 +327,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				           image_unselected="Toolbar_Right_Off"
 				           left="0"
 				           layout="topleft"
-				           name="trash_btn"
+				           name="del_btn"
 				           tool_tip="Remove selected person from your Friends list"
 				           top="0"
 				           width="31"/>
@@ -372,7 +392,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -407,7 +427,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              name="bottom_panel"
              top_pad="0"
              width="313">
-               <button
+               <menu_button
                follows="bottom|left"
                tool_tip="Options"
                height="25"
@@ -457,7 +477,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
          background_opaque="true"
-         background_visible="true"
+       background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -490,7 +510,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              name="bottom_panel"
              top_pad="0"
              width="313">
-               <button
+               <menu_button
                follows="bottom|left"
                tool_tip="Options"
                height="25"
@@ -499,7 +519,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                image_selected="Toolbar_Left_Selected"
                image_unselected="Toolbar_Left_Off"
                layout="topleft"
-               left="3"
                name="recent_viewsort_btn"
                top="1"
                width="31" />

@@ -48,6 +48,7 @@ U32 LLVertexBuffer::sSetCount = 0;
 S32 LLVertexBuffer::sCount = 0;
 S32 LLVertexBuffer::sGLCount = 0;
 S32 LLVertexBuffer::sMappedCount = 0;
+BOOL LLVertexBuffer::sDisableVBOMapping = FALSE ;
 BOOL LLVertexBuffer::sEnableVBOs = TRUE;
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
@@ -213,6 +214,11 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 {
 	llassert(mRequestedNumVerts >= 0);
 
+	if(mDirty)
+	{
+		postUpdate() ;
+	}
+
 	if (start >= (U32) mRequestedNumVerts ||
 	    end >= (U32) mRequestedNumVerts)
 	{
@@ -252,6 +258,12 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
 	llassert(mRequestedNumIndices >= 0);
+
+	if(mDirty)
+	{
+		postUpdate() ;
+	}
+
 	if (indices_offset >= (U32) mRequestedNumIndices ||
 	    indices_offset + count > (U32) mRequestedNumIndices)
 	{
@@ -283,6 +295,12 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
 	llassert(mRequestedNumVerts >= 0);
+
+	if(mDirty)
+	{
+		postUpdate() ;
+	}
+
 	if (first >= (U32) mRequestedNumVerts ||
 	    first + count > (U32) mRequestedNumVerts)
 	{
@@ -306,9 +324,10 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 }
 
 //static
-void LLVertexBuffer::initClass(bool use_vbo)
+void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 {
 	sEnableVBOs = use_vbo;
+	sDisableVBOMapping = no_vbo_mapping ;
 	LLGLNamePool::registerPool(&sDynamicVBOPool);
 	LLGLNamePool::registerPool(&sDynamicIBOPool);
 	LLGLNamePool::registerPool(&sStreamVBOPool);
@@ -370,7 +389,8 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mFilthy(FALSE),
 	mEmpty(TRUE),
 	mResized(FALSE),
-	mDynamicSize(FALSE)
+	mDynamicSize(FALSE),
+	mDirty(FALSE)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_CONSTRUCTOR);
 	if (!sEnableVBOs)
@@ -568,6 +588,8 @@ void LLVertexBuffer::destroyGLBuffer()
 	{
 		if (useVBOs())
 		{
+			freeClientBuffer() ;
+
 			if (mMappedData || mMappedIndexData)
 			{
 				llerrs << "Vertex buffer destroyed while mapped!" << llendl;
@@ -595,11 +617,13 @@ void LLVertexBuffer::destroyGLIndices()
 	{
 		if (useVBOs())
 		{
+			freeClientBuffer() ;
+
 			if (mMappedData || mMappedIndexData)
 			{
 				llerrs << "Vertex buffer destroyed while mapped." << llendl;
 			}
-			releaseIndices();
+			releaseIndices();			
 		}
 		else
 		{
@@ -800,6 +824,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 
 	if (mResized && useVBOs())
 	{
+		freeClientBuffer() ;
 		setBuffer(0);
 	}
 }
@@ -823,6 +848,60 @@ BOOL LLVertexBuffer::useVBOs() const
 }
 
 //----------------------------------------------------------------------------
+void LLVertexBuffer::freeClientBuffer()
+{
+	if(useVBOs() && sDisableVBOMapping && (mMappedData || mMappedIndexData))
+	{
+		delete[] mMappedData ;
+		delete[] mMappedIndexData ;
+		mMappedData = NULL ;
+		mMappedIndexData = NULL ;
+	}
+}
+
+void LLVertexBuffer::preUpdate()
+{
+	if(!useVBOs() || !sDisableVBOMapping)
+	{
+		return ;
+	}
+
+	if(!mMappedData)
+	{
+		U32 size = getSize() ;
+		mMappedData = new U8[size];
+		memset(mMappedData, 0, size);
+	}
+
+	if(!mMappedIndexData)
+	{
+		U32 size = getIndicesSize();
+		mMappedIndexData = new U8[size];
+		memset(mMappedIndexData, 0, size);
+	}
+
+	mDirty = TRUE ;
+}
+
+void LLVertexBuffer::postUpdate() const
+{
+	if(!useVBOs() || !sDisableVBOMapping)
+	{
+		return ;
+	}
+
+	llassert_always(mMappedData && mMappedIndexData) ;
+
+	//release the existing buffers
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, 0, NULL, mUsage);
+	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, NULL, mUsage);
+
+	//update to the new buffers
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, getSize(), mMappedData, mUsage);
+	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, getIndicesSize(), mMappedIndexData, mUsage);
+
+	mDirty = FALSE ;
+}
 
 // Map for data access
 U8* LLVertexBuffer::mapBuffer(S32 access)
@@ -837,6 +916,12 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		llerrs << "LLVertexBuffer::mapBuffer() called on unallocated buffer." << llendl;
 	}
 		
+	if(useVBOs() && sDisableVBOMapping)
+	{
+		preUpdate() ;
+		return mMappedData ;
+	}
+
 	if (!mLocked && useVBOs())
 	{
 		{
@@ -905,7 +990,11 @@ void LLVertexBuffer::unmapBuffer()
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_UNMAP_BUFFER);
 	if (mMappedData || mMappedIndexData)
 	{
-		if (useVBOs() && mLocked)
+		if(sDisableVBOMapping && useVBOs())
+		{
+			return ;
+		}
+		else if (useVBOs() && mLocked)
 		{
 			stop_glerror();
 			glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
@@ -1151,13 +1240,13 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				}
 			}
 
-			if (mGLBuffer)
+			if (mGLBuffer && !sDisableVBOMapping)
 			{
 				stop_glerror();
 				glBufferDataARB(GL_ARRAY_BUFFER_ARB, getSize(), NULL, mUsage);
 				stop_glerror();
 			}
-			if (mGLIndices)
+			if (mGLIndices && !sDisableVBOMapping)
 			{
 				stop_glerror();
 				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, getIndicesSize(), NULL, mUsage);

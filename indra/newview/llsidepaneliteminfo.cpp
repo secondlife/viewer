@@ -68,10 +68,22 @@ private:
 
 void LLItemPropertiesObserver::changed(U32 mask)
 {
-	// if there's a change we're interested in.
-	if((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
+	const std::set<LLUUID>& mChangedItemIDs = gInventory.getChangedIDs();
+	std::set<LLUUID>::const_iterator it;
+
+	const LLUUID& item_id = mFloater->getItemID();
+
+	for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); it++)
 	{
-		mFloater->dirty();
+		// set dirty for 'item profile panel' only if changed item is the item for which 'item profile panel' is shown (STORM-288)
+		if (*it == item_id)
+		{
+			// if there's a change we're interested in.
+			if((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
+			{
+				mFloater->dirty();
+			}
+		}
 	}
 }
 
@@ -177,6 +189,16 @@ void LLSidepanelItemInfo::setObjectID(const LLUUID& object_id)
 void LLSidepanelItemInfo::setItemID(const LLUUID& item_id)
 {
 	mItemID = item_id;
+}
+
+const LLUUID& LLSidepanelItemInfo::getObjectID() const
+{
+	return mObjectID;
+}
+
+const LLUUID& LLSidepanelItemInfo::getItemID() const
+{
+	return mItemID;
 }
 
 void LLSidepanelItemInfo::reset()
@@ -315,11 +337,12 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
 	if (item->getCreatorUUID().notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(item->getCreatorUUID(), name);
+		LLUUID creator_id = item->getCreatorUUID();
+		std::string name =
+			LLSLURL("agent", creator_id, "completename").getSLURLString();
 		getChildView("BtnCreator")->setEnabled(TRUE);
 		getChildView("LabelCreatorTitle")->setEnabled(TRUE);
-		getChildView("LabelCreatorName")->setEnabled(TRUE);
+		getChildView("LabelCreatorName")->setEnabled(FALSE);
 		getChild<LLUICtrl>("LabelCreatorName")->setValue(name);
 	}
 	else
@@ -342,11 +365,12 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		}
 		else
 		{
-			gCacheName->getFullName(perm.getOwner(), name);
+			LLUUID owner_id = perm.getOwner();
+			name = LLSLURL("agent", owner_id, "completename").getSLURLString();
 		}
 		getChildView("BtnOwner")->setEnabled(TRUE);
 		getChildView("LabelOwnerTitle")->setEnabled(TRUE);
-		getChildView("LabelOwnerName")->setEnabled(TRUE);
+		getChildView("LabelOwnerName")->setEnabled(FALSE);
 		getChild<LLUICtrl>("LabelOwnerName")->setValue(name);
 	}
 	else

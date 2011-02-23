@@ -40,7 +40,9 @@ class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
 class LLFloaterInventoryFinder;
+class LLMenuButton;
 class LLMenuGL;
+class LLToggleableMenu;
 class LLFloater;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,12 +131,12 @@ private:
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
-	void onGearButtonClick();
 	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);
 	BOOL isActionEnabled(const LLSD& command_name);
+	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 	/**
@@ -143,8 +145,9 @@ protected:
 	void setUploadCostIfNeeded();
 private:
 	LLDragAndDropButton*		mTrashButton;
-	LLMenuGL*					mMenuGearDefault;
+	LLToggleableMenu*			mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
+	LLMenuButton*				mGearMenuButton;
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

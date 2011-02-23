@@ -26,6 +26,7 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
+#include "llmemtype.h"
 extern S32 gTotalDAlloc;
 extern S32 gTotalDAUse;
 extern S32 gDACount;
@@ -42,7 +43,7 @@ public:
 	// Return the resident set size of the current process, in bytes.
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
-
+	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
 	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
@@ -62,6 +63,51 @@ private:
 	static U32 sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
+
+//----------------------------------------------------------------------------
+#if MEM_TRACK_MEM
+class LLMutex ;
+class LL_COMMON_API LLMemTracker
+{
+private:
+	LLMemTracker() ;
+	~LLMemTracker() ;
+
+public:
+	static void release() ;
+	static LLMemTracker* getInstance() ;
+
+	void track(const char* function, const int line) ;
+	void preDraw(BOOL pause) ;
+	void postDraw() ;
+	const char* getNextLine() ;
+
+private:
+	static LLMemTracker* sInstance ;
+	
+	char**     mStringBuffer ;
+	S32        mCapacity ;
+	U32        mLastAllocatedMem ;
+	S32        mCurIndex ;
+	S32        mCounter;
+	S32        mDrawnIndex;
+	S32        mNumOfDrawn;
+	BOOL       mPaused;
+	LLMutex*   mMutexp ;
+};
+
+#define MEM_TRACK_RELEASE LLMemTracker::release() ;
+#define MEM_TRACK         LLMemTracker::getInstance()->track(__FUNCTION__, __LINE__) ;
+
+#else // MEM_TRACK_MEM
+
+#define MEM_TRACK_RELEASE
+#define MEM_TRACK
+
+#endif // MEM_TRACK_MEM
+
+//----------------------------------------------------------------------------
+
 
 //
 //class LLPrivateMemoryPool defines a private memory pool for an application to use, so the application does not
@@ -195,7 +241,7 @@ public:
 	void  dump() ;
 	U32   getTotalAllocatedSize() ;
 	U32   getTotalReservedSize() {return mReservedPoolSize;}
-
+	
 private:
 	void lock() ;
 	void unlock() ;	

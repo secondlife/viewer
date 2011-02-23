@@ -34,6 +34,7 @@
      mouse_opaque="true"
      left="5"
      top="2"
+     use_draw_context_alpha="false"
      width="20" />
    <text
      parse_urls="false"
@@ -62,7 +63,7 @@
     <button
      follows="right"
      height="20"
-     image_overlay="ForwardArrow_Off"
+     image_overlay="Web_Profile_Off"
      layout="topleft"
      left_pad="5"
      right="-3"

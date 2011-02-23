@@ -28,7 +28,9 @@
 
 #include "llfloatertopobjects.h"
 
+// library includes
 #include "message.h"
+#include "llavatarnamecache.h"
 #include "llfontgl.h"
 
 #include "llagent.h"
@@ -189,37 +191,53 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLSD element;
 
 		element["id"] = task_id;
-		element["object_name"] = name_buf;
-		element["owner_name"] = owner_buf;
-		element["columns"][0]["column"] = "score";
-		element["columns"][0]["value"] = llformat("%0.3f", score);
-		element["columns"][0]["font"] = "SANSSERIF";
+
+		LLSD columns;
+		columns[0]["column"] = "score";
+		columns[0]["value"] = llformat("%0.3f", score);
+		columns[0]["font"] = "SANSSERIF";
 		
-		element["columns"][1]["column"] = "name";
-		element["columns"][1]["value"] = name_buf;
-		element["columns"][1]["font"] = "SANSSERIF";
-		element["columns"][2]["column"] = "owner";
-		element["columns"][2]["value"] = owner_buf;
-		element["columns"][2]["font"] = "SANSSERIF";
-		element["columns"][3]["column"] = "location";
-		element["columns"][3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
-		element["columns"][3]["font"] = "SANSSERIF";
-		element["columns"][4]["column"] = "time";
-		element["columns"][4]["value"] = formatted_time((time_t)time_stamp);
-		element["columns"][4]["font"] = "SANSSERIF";
+		columns[1]["column"] = "name";
+		columns[1]["value"] = name_buf;
+		columns[1]["font"] = "SANSSERIF";
+		
+		// Owner names can have trailing spaces sent from server
+		LLStringUtil::trim(owner_buf);
+		
+		if (LLAvatarNameCache::useDisplayNames())
+		{
+			// ...convert hard-coded name from server to a username
+			// *TODO: Send owner_id from server and look up display name
+			owner_buf = LLCacheName::buildUsername(owner_buf);
+		}
+		else
+		{
+			// ...just strip out legacy "Resident" name
+			owner_buf = LLCacheName::cleanFullName(owner_buf);
+		}
+		columns[2]["column"] = "owner";
+		columns[2]["value"] = owner_buf;
+		columns[2]["font"] = "SANSSERIF";
+
+		columns[3]["column"] = "location";
+		columns[3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
+		columns[3]["font"] = "SANSSERIF";
+		columns[4]["column"] = "time";
+		columns[4]["value"] = formatted_time((time_t)time_stamp);
+		columns[4]["font"] = "SANSSERIF";
 
 		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
 			&& have_extended_data)
 		{
-			element["columns"][5]["column"] = "mono_time";
-			element["columns"][5]["value"] = llformat("%0.3f", mono_score);
-			element["columns"][5]["font"] = "SANSSERIF";
+			columns[5]["column"] = "mono_time";
+			columns[5]["value"] = llformat("%0.3f", mono_score);
+			columns[5]["font"] = "SANSSERIF";
 
-			element["columns"][6]["column"] = "URLs";
-			element["columns"][6]["value"] = llformat("%d", public_urls);
-			element["columns"][6]["font"] = "SANSSERIF";
+			columns[6]["column"] = "URLs";
+			columns[6]["value"] = llformat("%d", public_urls);
+			columns[6]["font"] = "SANSSERIF";
 		}
-		
+		element["columns"] = columns;
 		list->addElement(element);
 		
 		mObjectListData.append(element);

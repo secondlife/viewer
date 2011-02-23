@@ -253,10 +253,20 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FavoritesOnLogin"
+   type="alertmodal">    
+    Note: When you turn on this option, anyone who uses this computer can see your list of favorite locations.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
-Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to grant modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -279,7 +289,7 @@ Do you want to grant modify rights for the selected Residents?
    icon="alertmodal.tga"
    name="RevokeModifyRights"
    type="alertmodal">
-Do you want to revoke modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to revoke modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -441,6 +451,7 @@ Please invite members within 48 hours.
    icon="alertmodal.tga"
    name="LandBuyPass"
    type="alertmodal">
+   <tag>fail</tag>
 For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hours.  Buy a pass?
     <usetemplate
      name="okcancelbuttons"
@@ -716,7 +727,7 @@ You can not wear that item because it has not yet loaded. Please try again in a 
    name="MustHaveAccountToLogIn"
    type="alertmodal">
 Oops! Something was left blank.
-You need to enter both the First and Last name of your avatar.
+You need to enter the Username name of your avatar.
 
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <url
@@ -736,7 +747,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="InvalidCredentialFormat"
    type="alertmodal">
-You need to enter both the First and Last name of your avatar into the Username field, then login again.
+You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
 
@@ -905,6 +916,13 @@ Port settings take effect after you restart [APP_NAME].
    name="ChangeSkin"
    type="alertmodal">
 The new skin will appear after you restart [APP_NAME].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeLanguage"
+   type="alertmodal">
+Changing language will take effect after you restart [APP_NAME].
   </notification>
 
   <notification
@@ -1367,6 +1385,14 @@ Could not find &apos;data&apos; chunk in WAV header:
 
   <notification
    icon="alertmodal.tga"
+   name="SoundFileInvalidChunkSize"
+   type="alertmodal">
+Wrong chunk size in WAV file:
+[FILE]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
 Audio file is too long (10 second maximum):
@@ -1589,6 +1615,7 @@ If you continue to get this message, please check the [SUPPORT_SITE].
    icon="alertmodal.tga"
    name="blocked_tport"
    type="alertmodal">
+   <tag>fail</tag>
 Sorry, teleport is currently blocked. Try again in a moment.  If you still cannot teleport, please log out and log back in to resolve the problem.
   </notification>
   <notification
@@ -1601,42 +1628,49 @@ Sorry, but system was unable to locate landmark destination.
    icon="alertmodal.tga"
    name="timeout_tport"
    type="alertmodal">
+   <tag>fail</tag>
 Sorry, but system was unable to complete the teleport connection.  Try again in a moment.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="noaccess_tport"
    type="alertmodal">
+   <tag>fail</tag>
 Sorry, you do not have access to that teleport destination.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="missing_attach_tport"
    type="alertmodal">
+   <tag>fail</tag>
 Your attachments have not arrived yet. Try waiting for a few more seconds or log out and back in again before attempting to teleport.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="too_many_uploads_tport"
    type="alertmodal">
+   <tag>fail</tag>
 The asset queue in this region is currently clogged so your teleport request will not be able to succeed in a timely manner. Please try again in a few minutes or go to a less busy area.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="expired_tport"
    type="alertmodal">
+   <tag>fail</tag>
 Sorry, but the system was unable to complete your teleport request in a timely fashion. Please try again in a few minutes.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="expired_region_handoff"
    type="alertmodal">
+   <tag>fail</tag>
 Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
   </notification>
   <notification
    icon="alertmodal.tga"
    name="no_host"
    type="alertmodal">
+   <tag>fail</tag>
 Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
   </notification>
   <notification
@@ -2020,20 +2054,6 @@ You do not have permission to buy land for your active group.
   <notification
    icon="alertmodal.tga"
    label="Add Friend"
-   name="AddFriend"
-   type="alertmodal">
-Friends can give permissions to track each other on the map and receive online status updates.
-
-Offer friendship to [NAME]?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- label="Add Friend"
    name="AddFriendWithMessage"
    type="alertmodal">
 Friends can give permissions to track each other on the map and receive online status updates.
@@ -2069,7 +2089,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -2091,7 +2111,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -2114,7 +2134,7 @@ Would you be my friend?
       <button
        default="true"
        index="0"
-       name="Offer"
+       name="OK"
        text="OK"/>
       <button
        index="1"
@@ -2127,7 +2147,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
-Do you want to remove [FIRST_NAME] [LAST_NAME] from your Friends List?
+Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2380,7 +2400,7 @@ Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
    name="DeedLandToGroupWithContribution"
    type="alertmodal">
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
-The deed will include a simultaneous land contribution to the group from &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
@@ -2418,6 +2438,7 @@ Display settings have been set to recommended levels based on your system config
    icon="alertmodal.tga"
    name="AvatarMovedDesired"
    type="alertmodal">
+   <tag>fail</tag>
 Your desired location is not currently available.
 You have been moved into a nearby region.
   </notification>
@@ -2426,6 +2447,7 @@ You have been moved into a nearby region.
    icon="alertmodal.tga"
    name="AvatarMovedLast"
    type="alertmodal">
+   <tag>fail</tag>
 Your last location is not currently available.
 You have been moved into a nearby region.
   </notification>
@@ -2434,6 +2456,7 @@ You have been moved into a nearby region.
    icon="alertmodal.tga"
    name="AvatarMovedHome"
    type="alertmodal">
+   <tag>fail</tag>
 Your home location is not currently available.
 You have been moved into a nearby region.
 You may want to set a new home location.
@@ -2443,6 +2466,7 @@ You may want to set a new home location.
    icon="alertmodal.tga"
    name="ClothingLoading"
    type="alertmodal">
+   <tag>fail</tag>
 Your clothing is still downloading.
 You can use [SECOND_LIFE] normally and other people will see you correctly.
     <form name="form">
@@ -2470,6 +2494,7 @@ Return to [http://join.secondlife.com secondlife.com] to create a new account?
    icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
+   <tag>fail</tag>
 We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
 
 You can either check your Internet connection and try again in a few minutes, click Help to view the [SUPPORT_SITE], or click Teleport to attempt to teleport home.
@@ -2877,6 +2902,93 @@ Download to your Applications folder?
 
   <notification
    icon="alertmodal.tga"
+   name="FailedUpdateInstall"
+   type="alertmodal">
+An error occurred installing the viewer update.
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedRequiredUpdateInstall"
+   type="alertmodal">
+We were unable to install a required update. 
+You will be unable to log in until [APP_NAME] has been updated.
+
+Please download and install the latest viewer from
+http://secondlife.com/download.
+    <usetemplate
+     name="okbutton"
+     yestext="Quit"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UpdaterServiceNotRunning"
+   type="alertmodal">
+There is a required update for your Second Life Installation.
+
+You may download this update from http://www.secondlife.com/downloads
+or you can install it now.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Quit Second Life"
+     yestext="Download and install now"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="DownloadBackgroundTip"
+   type="notify">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="DownloadBackgroundDialog"
+ type="alertmodal">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedVerboseDialog"
+ type="alertmodal">
+We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="RequiredUpdateDownloadedDialog"
+ type="alertmodal">
+We must restart [APP_NAME] to install the update.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DeedObjectToGroup"
    type="alertmodal">
 Deeding this object will cause the group to:
@@ -3118,6 +3230,7 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="KickUser"
    type="alert">
+   <tag>win</tag>
 Kick this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3139,6 +3252,7 @@ An administrator has logged you off.
    icon="alert.tga"
    name="KickAllUsers"
    type="alert">
+   <tag>win</tag>
 Kick everyone currently on the grid with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3160,6 +3274,7 @@ An administrator has logged you off.
    icon="alert.tga"
    name="FreezeUser"
    type="alert">
+   <tag>win</tag>
 Freeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3181,6 +3296,7 @@ You have been frozen. You cannot move or chat. An administrator will contact you
    icon="alert.tga"
    name="UnFreezeUser"
    type="alert">
+   <tag>win</tag>
 Unfreeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3196,6 +3312,88 @@ You are no longer frozen.
        name="Cancel"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameSuccess"
+   type="alert">
+Hi [DISPLAY_NAME]!
+
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] in objects, scripts, search, etc.
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="SetDisplayNameBlocked"
+ type="alert">
+Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedLength"
+   type="alertmodal">
+Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+
+Please try a shorter name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedGeneric"
+   type="alertmodal">
+    Sorry, we could not set your display name.  Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameMismatch"
+   type="alertmodal">
+    The display names you entered do not match. Please re-enter.
+  </notification>
+
+  <!-- *NOTE: This should never happen -->
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameUpdateThresholdExceeded"
+   type="alertmodal">
+Sorry, you have to wait longer before you can change your display name.
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameSetBlocked"
+   type="alertmodal">
+ Sorry, we could not set your requested name because it contains a banned word.
+ 
+ Please try a different name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+ name="AgentDisplayNameSetInvalidUnicode"
+ type="alertmodal">
+    The display name you wish to set contains invalid characters.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+ name="AgentDisplayNameSetOnlyPunctuation"
+ type="alertmodal">
+    Your display name must contain letters other than punctuation.
+  </notification>
+
+
+  <notification
+   icon="notifytip.tga"
+   name="DisplayNameUpdate"
+   type="notifytip">
+    [OLD_NAME] ([SLID]) is now known as [NEW_NAME].
   </notification>
 
   <notification
@@ -3470,6 +3668,7 @@ Are you sure you want to change the Estate Covenant?
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked"
    type="alertmodal">
+   <tag>fail</tag>
 You are not allowed in that Region due to your maturity Rating. This may be a result of a lack of information validating your age.
 
 Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
@@ -3482,6 +3681,7 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked_KB"
    type="alertmodal">
+   <tag>fail</tag>
 You are not allowed in that region due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
@@ -3499,6 +3699,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
    icon="notifytip.tga"
    name="RegionEntryAccessBlocked_Notify"
    type="notifytip">
+   <tag>fail</tag>
 You are not allowed in that region due to your maturity Rating.
   </notification>
 
@@ -3506,6 +3707,7 @@ You are not allowed in that region due to your maturity Rating.
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked_Change"
    type="alertmodal">
+   <tag>fail</tag>
 You are not allowed in that Region due to your maturity Rating preference.
 
 To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
@@ -4422,6 +4624,7 @@ Would you like to automatically wear the clothing you are about to create?
    icon="alertmodal.tga"
    name="NotAgeVerified"
    type="alertmodal">
+   <tag>fail</tag>
 You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
 
 [_URL]
@@ -4515,14 +4718,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -4678,13 +4881,6 @@ You cannot remove protected categories.
 
   <notification
    icon="notifytip.tga"
-   name="OfferedCard"
-   type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
    name="UnableToBuyWhileDownloading"
    type="notifytip">
 Unable to buy while downloading object data.
@@ -4812,24 +5008,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="GroupVote"
-   type="notify">
-[NAME] has proposed to vote on:
-[MESSAGE]
-    <form name="form">
-      <button
-       index="0"
-       name="VoteNow"
-       text="Vote Now"/>
-      <button
-       index="1"
-       name="Later"
-       text="Later"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="SystemMessage"
    persist="true"
    type="notify">
@@ -4838,7 +5016,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="PaymentRecived"
+   name="PaymentReceived"
+   persist="true"
+   type="notify">
+[MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentSent"
    persist="true"
    type="notify">
 [MESSAGE]
@@ -4857,14 +5043,10 @@ Event Notification:
     <form name="form">
       <button
        index="0"
-       name="Teleport"
-       text="Teleport"/>
+       name="Details"
+       text="Details"/>
       <button
        index="1"
-       name="Description"
-       text="Description"/>
-      <button
-       index="2"
        name="Cancel"
        text="Cancel"/>
     </form>
@@ -4910,7 +5092,7 @@ If you want to view streaming media on parcels that support it you should go to 
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
     <unique>
-      <context key="[MIME_TYPE]"/>
+      <context>MIME_TYPE</context>
     </unique>
 
   </notification>
@@ -4940,7 +5122,7 @@ The objects you own on the selected parcel of land have been returned back to yo
    name="OtherObjectsReturned"
    persist="true"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
   </notification>
 
   <notification
@@ -4994,6 +5176,7 @@ You can be hurt here. If you die, you will be teleported to your home location.
    persist="true"
    type="notify"
    unique="true">
+   <tag>fail</tag>
 This area has flying disabled.
 You can&apos;t fly here.
   </notification>
@@ -5046,6 +5229,7 @@ This region is not running any scripts.
    name="NoOutsideScripts"
    persist="true"
    type="notify">
+   <tag>fail</tag>
 This land has outside scripts disabled.
 
 No scripts will work here except those belonging to the land owner.
@@ -5064,6 +5248,7 @@ You can only claim public land in the Region you&apos;re in.
    name="RegionTPAccessBlocked"
    persist="true"
    type="notify">
+   <tag>fail</tag>
 You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
 
 Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
@@ -5074,6 +5259,7 @@ Please go to the Knowledge Base for details on accessing areas with this maturit
 	name="URBannedFromRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You are banned from the region.
   </notification>
 
@@ -5082,6 +5268,7 @@ You are banned from the region.
 	name="NoTeenGridAccess"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Your account cannot connect to this teen grid region.
   </notification>
 
@@ -5090,6 +5277,7 @@ Your account cannot connect to this teen grid region.
 	name="ImproperPaymentStatus"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You do not have proper payment status to enter this region.
   </notification>
 
@@ -5098,6 +5286,7 @@ You do not have proper payment status to enter this region.
 	name="MustGetAgeRgion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You must be age-verified to enter this region.
   </notification>
 
@@ -5106,6 +5295,7 @@ You must be age-verified to enter this region.
 	name="MustGetAgeParcel"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You must be age-verified to enter this parcel.
   </notification>
 
@@ -5114,6 +5304,7 @@ You must be age-verified to enter this parcel.
 	name="NoDestRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No destination region found.
   </notification>
 
@@ -5122,6 +5313,7 @@ No destination region found.
 	name="NotAllowedInDest"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You are not allowed into the destination.
   </notification>
 
@@ -5130,6 +5322,7 @@ You are not allowed into the destination.
 	name="RegionParcelBan"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Cannot region cross into banned parcel. Try another way.
   </notification>
 
@@ -5138,6 +5331,7 @@ Cannot region cross into banned parcel. Try another way.
 	name="TelehubRedirect"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 You have been redirected to a telehub.
   </notification>
 
@@ -5146,6 +5340,7 @@ You have been redirected to a telehub.
 	name="CouldntTPCloser"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Could not teleport closer to destination.
   </notification>
 
@@ -5162,6 +5357,7 @@ Teleport cancelled.
 	name="FullRegionTryAgain"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 The region you are attempting to enter is currently full.
 Please try again in a few moments.
   </notification>
@@ -5171,6 +5367,7 @@ Please try again in a few moments.
 	name="GeneralFailure"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 General failure.
   </notification>
 
@@ -5179,6 +5376,7 @@ General failure.
 	name="RoutedWrongRegion"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Routed to wrong region. Please try again.
   </notification>
 
@@ -5187,6 +5385,7 @@ Routed to wrong region. Please try again.
 	name="NoValidAgentID"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid agent id.
   </notification>
 
@@ -5195,6 +5394,7 @@ No valid agent id.
 	name="NoValidSession"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid session id.
   </notification>
 
@@ -5203,6 +5403,7 @@ No valid session id.
 	name="NoValidCircuit"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid circuit code.
   </notification>
 
@@ -5211,6 +5412,7 @@ No valid circuit code.
 	name="NoValidTimestamp"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid timestamp.
   </notification>
 
@@ -5219,6 +5421,7 @@ No valid timestamp.
 	name="NoPendingConnection"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Unable to create pending connection.
   </notification>
 
@@ -5227,6 +5430,7 @@ Unable to create pending connection.
 	name="InternalUsherError"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Internal error attempting to connect agent usher.
   </notification>
 
@@ -5235,6 +5439,7 @@ Internal error attempting to connect agent usher.
 	name="NoGoodTPDestination"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Unable to find a good teleport destination in this region.
   </notification>
 
@@ -5243,6 +5448,7 @@ Unable to find a good teleport destination in this region.
 	name="InternalErrorRegionResolver"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 Internal error attempting to activate region resolver.
   </notification>
 
@@ -5251,6 +5457,7 @@ Internal error attempting to activate region resolver.
 	name="NoValidLanding"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 A valid landing point could not be found.
   </notification>
 
@@ -5259,6 +5466,7 @@ A valid landing point could not be found.
 	name="NoValidParcel"
    persist="true"
 	type="notify">
+   <tag>fail</tag>
 No valid parcel could be found.
   </notification>
 
@@ -5417,7 +5625,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    name="OfferFriendshipNoMessage"
    persist="true"
    type="notify">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
@@ -5466,7 +5674,7 @@ Friendship offer declined.
    name="OfferCallingCard"
    persist="true"
    type="notify">
-[FIRST] [LAST] is offering their calling card.
+[NAME] is offering their calling card.
 This will add a bookmark in your inventory so you can quickly IM this Resident.
     <form name="form">
       <button
@@ -5605,7 +5813,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
+[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5635,6 +5843,7 @@ Grant this request?
    name="FirstBalanceIncrease"
    persist="true"
    type="notify">
+   <tag>win</tag>
 You just received L$[AMOUNT].
 Your L$ balance is shown in the upper-right.
   </notification>
@@ -5812,7 +6021,7 @@ You may only select up to [MAX_SELECT] items from this list.
 [NAME] is inviting you to a Voice Chat call.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -5835,7 +6044,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByIM"
    persist="true"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
+[NAME] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5843,7 +6052,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByMoney"
    persist="true"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unblocked.
+[NAME] was given money and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5851,7 +6060,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByInventory"
    persist="true"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unblocked.
+[NAME] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5861,8 +6070,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a Voice Chat call with the group [GROUP].
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
-      <context key="GROUP"/>
+      <context>NAME</context>
+      <context>GROUP</context>
     </unique>
     <form name="form">
       <button
@@ -5887,7 +6096,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] has joined a voice chat call with a conference chat.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -5912,7 +6121,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 [NAME] is inviting you to a conference chat.
 Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
     <unique>
-      <context key="NAME"/>
+      <context>NAME</context>
     </unique>
     <form name="form">
       <button
@@ -5936,7 +6145,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    type="notifytip">
 The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -5954,7 +6163,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    type="notifytip">
 You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -5964,7 +6173,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -5974,7 +6183,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -5984,7 +6193,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 [VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -5994,7 +6203,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    type="notifytip">
 Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6054,6 +6263,7 @@ New Voice Morphs are available!
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
+   <tag>fail</tag>
 Only members of a certain group can visit this area.
   </notification>
 
@@ -6061,6 +6271,7 @@ Only members of a certain group can visit this area.
    icon="notifytip.tga"
    name="Cannot enter parcel: banned"
    type="notifytip">
+   <tag>fail</tag>
 Cannot enter parcel, you have been banned.
   </notification>
 
@@ -6068,6 +6279,7 @@ Cannot enter parcel, you have been banned.
    icon="notifytip.tga"
    name="Cannot enter parcel: not on access list"
    type="notifytip">
+   <tag>fail</tag>
 Cannot enter parcel, you are not on the access list.
   </notification>
 
@@ -6077,7 +6289,7 @@ Cannot enter parcel, you are not on the access list.
    type="notifytip">
 You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
@@ -6087,17 +6299,8 @@ You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
    type="notifytip">
 An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
     <unique>
-      <context key="VOICE_CHANNEL_NAME"/>
+      <context>VOICE_CHANNEL_NAME</context>
     </unique>
-  </notification>
-
-  <notification
-   duration="10"
-   icon="notifytip.tga"
-   name="ServerVersionChanged"
-   priority="high"
-   type="notifytip">
-You just entered a region using a different server version, which may affect performance. [[URL] View the release notes.]
   </notification>
 
   <notification
@@ -6113,6 +6316,7 @@ The SLurl you clicked on is not supported.
    name="BlockedSLURL"
    priority="high"
    type="notifytip">
+   <tag>win</tag>
 A SLurl was received from an untrusted browser and has been blocked for your security.
   </notification>
 
@@ -6218,7 +6422,7 @@ Select residents to share with.
    type="alertmodal">
 Are you sure you want to share the following items:
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 With the following Residents:
 
@@ -6312,13 +6516,9 @@ Avatar '[NAME]' left appearance mode.
    type="alertmodal">
 We're having trouble connecting using [PROTOCOL] [HOSTID].
 Please check your network and firewall setup.
-    <form name="form">
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-    </form>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -6331,13 +6531,9 @@ We're having trouble connecting to your voice server:
 
 Voice communications will not be available.
 Please check your network and firewall setup.
-    <form name="form">
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-    </form>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -6419,6 +6615,14 @@ Mute everyone?
   </notification>
 
   <notification
+  name="HintAvatarPicker"
+  label="Change your Look"
+  type="hint"
+  unique="true">
+    Would you like to try a new look? Click the button below to see more Avatars.
+  </notification>
+
+  <notification
     name="HintSidePanel"
     label="Side Panel"
     type="hint"
@@ -6432,6 +6636,32 @@ Mute everyone?
   type="hint"
   unique="true">
     To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
+  </notification>
+
+  <notification
+  name="HintDisplayName"
+  label="Display Name"
+  type="hint"
+  unique="true">
+    Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
+  </notification>
+
+  <notification
+  name="HintMoveArrows"
+  label="Move"
+  type="hint"
+  unique="true">
+    To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
+    <tag>custom_skin</tag>
+  </notification>
+
+  <notification
+  name="HintView"
+  label="View"
+  type="hint"
+  unique="true">
+    To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
+    <tag>custom_skin</tag>
   </notification>
 
   <notification
@@ -6450,7 +6680,7 @@ Mute everyone?
     Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
   </notification>
 
-  <notification
+   <notification
    icon="alertmodal.tga"
    name="LowMemory"
    type="alertmodal">
@@ -6463,7 +6693,7 @@ Mute everyone?
      type="alertmodal">
     SL will quit in 30 seconds due to out of memory.
   </notification>
-  
+
   <notification
   name="PopupAttempt"
   icon="Popup_Caution"
@@ -6472,12 +6702,29 @@ Mute everyone?
     <form name="form">
       <ignore name="ignore"
               control="MediaEnablePopups"
-              invert_control="false"
+              invert_control="true"
               text="Enable all pop-ups"/>
       <button default="true"
               index="0"
               name="open"
               text="Open pop-up window"/>
+    </form>
+  </notification>
+
+  <notification
+  name="AuthRequest"
+  type="browser">
+The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
+    <form name="form">
+      <input name="username" type="text" text="User Name"/>
+      <input name="password" type="password" text="Password    "/>
+      <button default="true"
+              index="0"
+              name="ok"
+              text="Submit"/>
+      <button index="1"
+              name="cancel"
+              text="Cancel"/>
     </form>
   </notification>
 

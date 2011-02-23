@@ -569,7 +569,7 @@ sold with objects
          name="US$6.00/month,billedannually" />
     </combo_box>
     <locate
-     height="10"
+     height="5"
      layout="topleft" />
     <icon
      follows="top|left"
@@ -590,7 +590,7 @@ sold with objects
      left="72"
      name="land_use_action"
      right="438"
-     top="284"
+     top="279"
      width="218"
      wrap="true">
         Increase your monthly land use fees to US$ 40/month.
@@ -610,7 +610,7 @@ sold with objects
 This parcel is 512 m² of land.
     </text>
     <locate
-     height="10"
+     height="5"
      layout="topleft" />
     <icon
      follows="top|left"
@@ -654,7 +654,7 @@ This parcel is 512 m² of land.
      left_delta="0"
      name="currency_action"
      top_pad="9"
-     width="90">
+     width="95">
         Buy additional L$
     </text>
     <locate

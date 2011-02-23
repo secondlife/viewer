@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
 	<string name="SpeakBtnToolTip" value="マイクのオン・オフ"/>
 	<string name="VoiceControlBtnToolTip" value="ボイスコントロールパネルの表示・非表示"/>
 	<layout_stack name="toolbar_stack">
@@ -12,28 +13,25 @@
 			<gesture_combo_list label="ジェスチャー" name="Gesture" tool_tip="ジェスチャーの表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
-			<button label="移動" name="movement_btn" tool_tip="移動コントロールの表示・非表示"/>
+			<bottomtray_button label="移動" name="movement_btn" tool_tip="移動コントロールの表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<button label="視界" name="camera_btn" tool_tip="カメラコントロールの表示・非表示"/>
+			<bottomtray_button label="視界" name="camera_btn" tool_tip="カメラコントロールの表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
-			<button label="" name="snapshots" tool_tip="スナップショットを撮ります"/>
-		</layout_panel>
-		<layout_panel name="sidebar_btn_panel">
-			<button label="サイドバー" name="sidebar_btn" tool_tip="サイドバーの表示・非表示"/>
+			<bottomtray_button label="" name="snapshots" tool_tip="スナップショットを撮ります"/>
 		</layout_panel>
 		<layout_panel name="build_btn_panel">
-			<button label="制作" name="build_btn" tool_tip="制作ツールの表示・非表示"/>
+			<bottomtray_button label="制作" name="build_btn" tool_tip="制作ツールの表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="search_btn_panel">
-			<button label="検索" name="search_btn" tool_tip="検索の表示・非表示"/>
+			<bottomtray_button label="検索" name="search_btn" tool_tip="検索の表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="world_map_btn_panel">
-			<button label="地図" name="world_map_btn" tool_tip="世界地図の表示・非表示"/>
+			<bottomtray_button label="地図" name="world_map_btn" tool_tip="世界地図の表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="mini_map_btn_panel">
-			<button label="ミニマップ" name="mini_map_btn" tool_tip="ミニマップの表示・非表示"/>
+			<bottomtray_button label="ミニマップ" name="mini_map_btn" tool_tip="ミニマップの表示・非表示"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Flyv" name="move_panel">
+	<slider label="Se vinkel" name="camera_fov"/>
+	<slider label="Distance" name="camera_offset_scale"/>
+	<text name="heading2">
+		Automatisk position for:
+	</text>
+	<check_box label="Byg/Redigér" name="edit_camera_movement" tool_tip="Benyt automatisk kamera positionering når edit modus aktiveres og forlades"/>
+	<check_box label="Udseende" name="appearance_camera_movement" tool_tip="Benyt automatisk kamera positionering i edit modus"/>
+	<check_box initial_value="sand" label="Sidepanel" name="appearance_sidebar_positioning" tool_tip="Benyt automatisk kamera positionering ved sidepanel"/>
+	<check_box label="Vis avatar i første-person" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Muse-følsomhed i første-person:
+	</text>
+	<check_box label="Omvend" name="invert_mouse"/>
+	<check_box label="Piletaster bevæger altid avatar" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Tryk to gange for at løbe" name="tap_tap_hold_to_run"/>
+	<check_box label="Dobbelt-klik for at:" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="Teleportere" name="radio_teleport"/>
+		<radio_item label="Auto-pilot" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Andre enheder" name="joystick_setup_button"/>
+</panel>

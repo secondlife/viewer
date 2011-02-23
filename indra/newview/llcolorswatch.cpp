@@ -53,6 +53,7 @@ LLColorSwatchCtrl::Params::Params()
 	alpha_background_image("alpha_background_image"),
 	border_color("border_color"),
     label_width("label_width", -1),
+	label_height("label_height", -1),
 	caption_text("caption_text"),
 	border("border")
 {
@@ -68,17 +69,20 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 	mOnCancelCallback(p.cancel_callback()),
 	mOnSelectCallback(p.select_callback()),
 	mBorderColor(p.border_color()),
-	mLabelWidth(p.label_width)
+	mLabelWidth(p.label_width),
+	mLabelHeight(p.label_height)
 {	
 	LLTextBox::Params tp = p.caption_text;
+	// use custom label height if it is provided
+	mLabelHeight = mLabelHeight != -1 ? mLabelHeight : BTN_HEIGHT_SMALL;
 	// label_width is specified, not -1
 	if(mLabelWidth!= -1)
 	{
-		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, mLabelWidth, 0 ));
+		tp.rect(LLRect( 0, mLabelHeight, mLabelWidth, 0 ));
 	}
 	else
 	{
-		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ));
+		tp.rect(LLRect( 0, mLabelHeight, getRect().getWidth(), 0 ));
 	}
 	
 	tp.initial_value(p.label());
@@ -88,7 +92,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 	LLRect border_rect = getLocalRect();
 	border_rect.mTop -= 1;
 	border_rect.mRight -=1;
-	border_rect.mBottom += BTN_HEIGHT_SMALL;
+	border_rect.mBottom += mLabelHeight;
 
 	LLViewBorder::Params params = p.border;
 	params.rect(border_rect);
@@ -181,6 +185,10 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 			llassert(getEnabled());
 			llassert(getVisible());
 
+			// Focus the widget now in order to return the focus
+			// after the color picker is closed.
+			setFocus(TRUE);
+
 			showPicker(FALSE);
 		}
 	}
@@ -191,10 +199,12 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
-	F32 alpha = getDrawContext().mAlpha;
+	// If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
+	F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
-	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
+	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
 	gl_rect_2d( border, mBorderColor.get(), FALSE );
 
 	LLRect interior = border;
@@ -203,19 +213,29 @@ void LLColorSwatchCtrl::draw()
 	// Check state
 	if ( mValid )
 	{
-		// Draw the color swatch
-		gl_rect_2d_checkerboard( interior );
-		gl_rect_2d(interior, mColor, TRUE);
-		LLColor4 opaque_color = mColor;
-		opaque_color.mV[VALPHA] = 1.f;
-		gGL.color4fv(opaque_color.mV);
-		if (mAlphaGradientImage.notNull())
+		if (!mColor.isOpaque())
 		{
-			gGL.pushMatrix();
+			// Draw checker board.
+			gl_rect_2d_checkerboard(interior, alpha);
+		}
+
+		// Draw the color swatch
+		gl_rect_2d(interior, mColor % alpha, TRUE);
+
+		if (!mColor.isOpaque())
+		{
+			// Draw semi-transparent center area in filled with mColor.
+			LLColor4 opaque_color = mColor;
+			opaque_color.mV[VALPHA] = alpha;
+			gGL.color4fv(opaque_color.mV);
+			if (mAlphaGradientImage.notNull())
 			{
-				mAlphaGradientImage->draw(interior, mColor);
+				gGL.pushMatrix();
+				{
+					mAlphaGradientImage->draw(interior, mColor % alpha);
+				}
+				gGL.popMatrix();
 			}
-			gGL.popMatrix();
 		}
 	}
 	else
@@ -303,7 +323,7 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 // This is called when the main floatercustomize panel is closed.
 // Since this class has pointers up to its parents, we need to cleanup
 // this class first in order to avoid a crash.
-void LLColorSwatchCtrl::onParentFloaterClosed()
+void LLColorSwatchCtrl::closeFloaterColorPicker()
 {
 	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (pickerp)

@@ -13,7 +13,7 @@
 		無料
 	</panel.string>
 	<panel name="group_info_top">
-		<text name="group_name" value="（ローディング...）"/>
+		<text_editor name="group_name" value="（ローディング...）"/>
 		<line_editor label="新しいグループの名前を入力してください" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
@@ -25,9 +25,15 @@
 				<accordion_tab name="group_land_tab" title="土地・資産"/>
 			</accordion>
 		</layout_panel>
-		<layout_panel name="button_row">
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
 			<button label="チャット" name="btn_chat"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
 			<button label="グループコール" name="btn_call" tool_tip="このグループにコールする"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
 			<button label="保存" label_selected="保存" name="btn_apply"/>
 			<button label="グループを作成" name="btn_create" tool_tip="新しいグループを作成"/>
 		</layout_panel>

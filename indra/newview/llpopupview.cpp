@@ -40,7 +40,8 @@ bool view_visible(LLView* viewp)
 }
 
 
-LLPopupView::LLPopupView()
+LLPopupView::LLPopupView(const LLPopupView::Params& p)
+: LLPanel(p)
 {
 	// register ourself as handler of UI popups
 	LLUI::setPopupFuncs(boost::bind(&LLPopupView::addPopup, this, _1), boost::bind(&LLPopupView::removePopup, this, _1), boost::bind(&LLPopupView::clearPopups, this));
@@ -137,64 +138,102 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 
 BOOL LLPopupView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true);
+	if (!handled)
 	{
-		return FALSE;
+		handled = LLPanel::handleMouseDown(x, y, mask);
 	}
-	return TRUE;
+	return handled;
 }
 
 BOOL LLPopupView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleMouseUp(x, y, mask);
+	}
+	return handled;
 }
 
 BOOL LLPopupView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true);
+	if (!handled)
 	{
-		return FALSE;
+		handled = LLPanel::handleMiddleMouseDown(x, y, mask);
 	}
-	return TRUE;
+	return handled;	
 }
 
 BOOL LLPopupView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleMiddleMouseUp(x, y, mask);
+	}
+	return handled;	
 }
 
 BOOL LLPopupView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true);
+	if (!handled)
 	{
-		return FALSE;
+		handled = LLPanel::handleRightMouseDown(x, y, mask);
 	}
-	return TRUE;
+	return handled;	
 }
 
 BOOL LLPopupView::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleRightMouseUp(x, y, mask);
+	}
+	return handled;	
 }
 
 BOOL LLPopupView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleDoubleClick, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleDoubleClick, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleDoubleClick(x, y, mask);
+	}
+	return handled;	
 }
 
 BOOL LLPopupView::handleHover(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleHover, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleHover, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleHover(x, y, mask);
+	}
+	return handled;	
 }
 
 BOOL LLPopupView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleScrollWheel, _1, _2, _3, clicks), view_visible_and_enabled, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleScrollWheel, _1, _2, _3, clicks), view_visible_and_enabled, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleScrollWheel(x, y, clicks);
+	}
+	return handled;	
 }
 
 BOOL LLPopupView::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleToolTip, _1, _2, _3, mask), view_visible, x, y, false);
+	BOOL handled = handleMouseEvent(boost::bind(&LLMouseHandler::handleToolTip, _1, _2, _3, mask), view_visible, x, y, false);
+	if (!handled)
+	{
+		handled = LLPanel::handleToolTip(x, y, mask);
+	}
+	return handled;
 }
 
 void LLPopupView::addPopup(LLView* popup)

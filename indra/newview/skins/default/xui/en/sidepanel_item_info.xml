@@ -56,7 +56,8 @@
      name="back_btn"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"
@@ -118,7 +119,7 @@
                  height="20"
                  layout="topleft"
                  left_delta="78"
-                 max_length="63"
+                 max_length_bytes="63"
                  name="LabelItemName"
                  top_delta="0"
                  width="210" />
@@ -141,7 +142,7 @@
                  height="23"
                  layout="topleft"
                  left_delta="78"
-                 max_length="127"
+                 max_length_bytes="127"
                  name="LabelItemDesc"
                  top_delta="-5"
                  width="210" />
@@ -174,8 +175,9 @@
          layout="topleft"
          left_pad="5"
                  name="LabelCreatorName"
-                 top_delta="6"
-                 width="140">
+       top_delta="6"
+       use_ellipses="true"
+       width="165">
           </text>
           <button
           follows="top|right"
@@ -217,7 +219,8 @@
             left_pad="5"
           name="LabelOwnerName"
           top_delta="6"
-          width="140">
+       use_ellipses="true"
+			 width="165">
           </text>
              <button
                  follows="top|right"

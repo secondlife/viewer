@@ -45,7 +45,13 @@
 		<button name="shop_btn_2" tool_tip="Besuchen Sie den Marktplatz. Sie können auch einen Teil Ihres Outfits auswählen, und dann hier klicken, um ähnliche Artikel anzuzeigen."/>
 	</panel>
 	<panel name="save_revert_button_bar">
-		<button label="Speichern" name="save_btn"/>
-		<button label="Änderungen rückgängig machen" name="revert_btn" tool_tip="Zur zuletzt gespeicherten Version zurücksetzen"/>
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Speichern" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Änderungen rückgängig machen" name="revert_btn" tool_tip="Zur zuletzt gespeicherten Version zurückkehren"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>
