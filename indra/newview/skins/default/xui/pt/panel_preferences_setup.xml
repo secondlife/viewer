@@ -39,5 +39,11 @@
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="O nome ou endereço IP do proxy da sua preferência"/>
 	<spinner label="Porta:" name="web_proxy_port"/>
-	<check_box initial_value="verdadeiro" label="Baixar e instalar atualizações [APP_NAME] automaticamente" name="updater_service_active"/>
+	<text name="Software updates:">
+		Atualizações de software:
+	</text>
+	<combo_box name="updater_service_combobox">
+		<combo_box.item label="Instalar automaticamente" name="Install_automatically"/>
+		<combo_box.item label="Baixar e instalar atualizações manualmente" name="Install_manual"/>
+	</combo_box>
 </panel>

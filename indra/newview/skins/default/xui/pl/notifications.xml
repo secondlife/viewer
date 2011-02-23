@@ -109,6 +109,10 @@ Wybierz pojedynczy obiekt i spróbuj jeszcze raz.
 		Osoby spoza listy znajomych, których rozmowy głosowe i IM są ignorowane, nie wiedzą o tym.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		Pamiętaj: kiedy wyłączysz tą opcję, każdy kto używa tego komputera, może zobaczyć Twoją listę ulubionych miejsc.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Udzielenie praw modyfikacji innemu Rezydentowi umożliwia modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów. Używaj tej opcji z rozwagą!
 Czy chcesz udzielić prawa do modyfikacji [NAME]?
@@ -383,6 +387,9 @@ Pamiętaj: Opcja ta wyczyszcza bufor danych.
 	<notification name="ChangeSkin">
 		Nowa skórka zostanie wczytana po restarcie aplikacji [APP_NAME].
 	</notification>
+	<notification name="ChangeLanguage">
+		Zmiana języka zadziała po restarcie [APP_NAME].
+	</notification>
 	<notification name="GoToAuctionPage">
 		Odwiedzić stronę internetową [SECOND_LIFE] żeby zobaczyć szczgóły aukcji lub zrobić ofertę?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
@@ -578,6 +585,10 @@ Oczekiwana - [VALIDS]
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		Brak bloku &apos;data&apos; w nagłówku pliku WAV:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Niewłaściwy rozmiar &quot;chunk&quot; w pliku WAV:
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -917,7 +928,7 @@ Zaproponować znajomość [NAME]?
 			<input name="message">
 				[DESC] (nowe)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
@@ -927,7 +938,7 @@ Zaproponować znajomość [NAME]?
 			<input name="message">
 				[DESC] (nowy)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
@@ -937,7 +948,7 @@ Zaproponować znajomość [NAME]?
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
@@ -1302,6 +1313,40 @@ Aktualizacja nie jest wymagana ale jest zalecana w celu poprawy prędkości i st
 
 Pobrać i zapisać w folderze Aplikacji?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		Podczas aktualizacji pojawił się błąd. Proszę pobrać i zainstalować najnowszego klienta z http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedRequiredUpdateInstall">
+		Nie można zainstalować wymaganej aktualizacji. Nie będzie można zalogować się dopóki [APP_NAME] nie zostanie zaktualizowana.
+				Proszę pobrać i zainstalować najnowszą wersję z http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="Rezygnuj"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		Istnieje obowiązkowa aktualizacja dla Second Life. Możesz ją pobrać z http://www.secondlife.com/downloads lub zainstalować teraz.
+		<usetemplate name="okcancelbuttons" notext="Opuść Second Life" yestext="Pobierz i zainstaluj teraz"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		Aktualizacja dla [APP_NAME] została pobrana.
+Wersja [VERSION] [[RELEASE_NOTES_FULL_URL] Informacja o tej aktualizacji]
+		<usetemplate name="okcancelbuttons" notext="Później..." yestext="Zainstaluj teraz i restartuj [APP_NAME]"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		Aktualizacja [APP_NAME] została pobrana.
+Wersja [VERSION] [[RELEASE_NOTES_FULL_URL] Informacja o aktualizacji]
+		<usetemplate name="okcancelbuttons" notext="Później..." yestext="Zainstaluj teraz i restartuj [APP_NAME]"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		Pobrano wymaganą aktualizację.
+Wersja [VERSION]
+
+W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Przekazanie tego obiektu spowoduje, że grupa:
@@ -2171,14 +2216,6 @@ Spróbuj wybrać mniejszy obszar.
 	<notification name="NoContentToSearch">
 		Proszę wybrać przynajmiej jeden z podanych rodzajów treści jaką zawiera region podczas wyszukiwania (&apos;General&apos;, &apos;Moderate&apos;, lub &apos;Adult&apos;).
 	</notification>
-	<notification name="GroupVote">
-		[NAME] zaprasza do głosowania nad propozycją:
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="Głosuj Teraz"/>
-			<button name="Later" text="Później"/>
-		</form>
-	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
@@ -2440,8 +2477,8 @@ Spróbuj ponowanie za kilka minut.
 		Propozycja znajomości została odrzucona.
 	</notification>
 	<notification name="OfferCallingCard">
-		[NAME] daje Tobie swoją wizytówkę.
-Wizytówka będzie znajdowała się w Szafie i umożliwi szybkie wysłanie IM do tego Rezydenta.
+		[NAME] oferuje swoją wizytówkę.
+Wizytówka w Twojej Szafie umożliwi szybki kontakt IM z tym Rezydentem.
 		<form name="form">
 			<button name="Accept" text="Zaakceptuj"/>
 			<button name="Decline" text="Odmów"/>
@@ -2740,9 +2777,7 @@ Awatar &apos;[NAME]&apos; opuścił edycję wyglądu.
 	<notification name="NoConnect">
 		Występuje problem z połączeniem [PROTOCOL] [HOSTID].
 Proszę sprawdź swoją sieć i ustawienia firewall.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		Występuje problem z Twoim połączniem głosowym:
@@ -2751,9 +2786,7 @@ Proszę sprawdź swoją sieć i ustawienia firewall.
 
 Komunikacja głosowa nie będzie dostępna.
 Proszę sprawdź swoją sieć i ustawienia firewall.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] sekund w Second Life)
@@ -2787,6 +2820,9 @@ Wyciszyć wszystkich?
 	<notification label="Odkrywaj Świat" name="HintDestinationGuide">
 		Destination Guide zawiera tysiące nowych miejsc do odkrycia. Wybierz lokalizację i teleportuj się aby rozpocząć zwiedzanie.
 	</notification>
+	<notification label="Zmień wygląd swojego awatara" name="HintAvatarPicker">
+		Czy chcesz inaczej wyglądać? Kliknij poniższy przycisk aby zobaczyć więcej przykładów awatarów.
+	</notification>
 	<notification label="Schowek" name="HintSidePanel">
 		Schowek umożliwia szybki dostęp do Twojej Szafy, ubrań, profili i innych w panelu bocznym.
 	</notification>
@@ -2795,6 +2831,12 @@ Wyciszyć wszystkich?
 	</notification>
 	<notification label="Wyświetlana nazwa" name="HintDisplayName">
 		Ustaw wyświetlaną nazwę, którą możesz zmieniać tutaj. Jest ona dodatkiem do unikatowej nazwy użytkownika, która nie może być zmieniona. Możesz zmienić sposób w jaki widzisz nazwy innych osób w Twoich Ustawieniach.
+	</notification>
+	<notification label="Ruch" name="HintMoveArrows">
+		Użyj przycisków ze strzałkami z klawiatury aby chodzić. Jeśli wciśniesz strzałkę &apos;do góry&apos; podwójnie, zaczniesz biec.
+	</notification>
+	<notification label="Widok" name="HintView">
+		To change your camera view, use the Orbit and Pan controls. Zresetuj widok poprzez wciśnięcie klawisza Esc lub chodzenie.
 	</notification>
 	<notification label="Szafa" name="HintInventory">
 		Sprawdź swoją Szafę aby znaleźć obiekty. Najnowsze obiekty mogą być łatwo odnalezione w zakładce Nowe obiekty.
@@ -2807,6 +2849,15 @@ Wyciszyć wszystkich?
 		<form name="form">
 			<ignore name="ignore" text="Zezwól na wyskakujące okienka"/>
 			<button name="open" text="Otwórz wyskakujące okno."/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		Strpna &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; w domenie &apos;[REALM]&apos; wymaga nazwy użytkownika i hasła.
+		<form name="form">
+			<input name="username" text="Nazwa użytkownika"/>
+			<input name="password" text="Hasło"/>
+			<button name="ok" text="Wyślij"/>
+			<button name="cancel" text="Anuluj"/>
 		</form>
 	</notification>
 	<global name="UnsupportedCPU">

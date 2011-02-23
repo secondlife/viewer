@@ -11,7 +11,7 @@
 			<text name="username_text">
 				Nom d&apos;utilisateur :
 			</text>
-			<line_editor label="bobsmith12 ou Steller Sunshine" name="username_edit" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
+			<combo_box name="username_combo" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
 			<text name="password_text">
 				Mot de passe :
 			</text>

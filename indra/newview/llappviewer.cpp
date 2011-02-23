@@ -2480,15 +2480,23 @@ namespace {
 
 		if(data["required"].asBoolean())
 		{
-			apply_callback = &apply_update_ok_callback;
 			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
 			{
 				// The user never saw the progress bar.
+				apply_callback = &apply_update_ok_callback;
 				notification_name = "RequiredUpdateDownloadedVerboseDialog";
+			}
+			else if(LLStartUp::getStartupState() < STATE_WORLD_INIT)
+			{
+				// The user is logging in but blocked.
+				apply_callback = &apply_update_ok_callback;
+				notification_name = "RequiredUpdateDownloadedDialog";
 			}
 			else
 			{
-				notification_name = "RequiredUpdateDownloadedDialog";
+				// The user is already logged in; treat like an optional update.
+				apply_callback = &apply_update_callback;
+				notification_name = "DownloadBackgroundTip";
 			}
 		}
 		else
@@ -3746,6 +3754,7 @@ void LLAppViewer::loadNameCache()
 	// display names cache
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	LL_INFOS("AvNameCache") << filename << LL_ENDL;
 	llifstream name_cache_stream(filename);
 	if(name_cache_stream.is_open())
 	{
