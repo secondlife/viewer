@@ -2716,7 +2716,10 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			setParticleSource(particle_parameters, getID());
+			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+			{
+				setParticleSource(particle_parameters, getID());
+			}
 		}
 	}
 }	
