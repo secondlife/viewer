@@ -1,4 +1,4 @@
-/** 
+	/** 
  * @file llappviewer.cpp
  * @brief The LLAppViewer class definitions
  *
@@ -1932,6 +1932,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 		it != end_it;
 		++it)
 	{
+		// skip settings groups that aren't the one we requested
 		if (it->name() != location_key) continue;
 
 		ELLPath path_index = (ELLPath)it->path_index();
@@ -1961,32 +1962,34 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			if (file_it->file_name_setting.isProvided() 
 				&& global_settings->controlExists(file_it->file_name_setting))
 			{
+				// try to find filename stored in file_name_setting control
 				full_settings_path = global_settings->getString(file_it->file_name_setting);
 			}
 			else
 			{
+				// by default, use specified file name
 				full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file_it->file_name());
 			}
 
-			if(!settings_group->loadFromFile(full_settings_path, set_defaults, file_it->persistent))
-			{
+			if(settings_group->loadFromFile(full_settings_path, set_defaults, file_it->persistent))
+			{	// success!
+				llinfos << "Loaded settings file " << full_settings_path << llendl;
+			}
+			else
+			{	// failed to load
 				if(file_it->required)
 				{
-					llwarns << "Error: Cannot load required settings file from: " 
-							<< full_settings_path << llendl;
+					llerrs << "Error: Cannot load required settings file from: " << full_settings_path << llendl;
 					return false;
 				}
 				else
 				{
+					// only complain if we actually have a filename at this point
 					if (!full_settings_path.empty())
 					{
 						llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
 					}
 				}
-			}
-			else
-			{
-				llinfos << "Loaded settings file " << full_settings_path << llendl;
 			}
 		}
 	}
