@@ -1964,6 +1964,11 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			{
 				// try to find filename stored in file_name_setting control
 				full_settings_path = global_settings->getString(file_it->file_name_setting);
+				if (!gDirUtilp->fileExists(full_settings_path))
+				{
+					// search in default path
+					full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, full_settings_path);
+				}
 			}
 			else
 			{
@@ -2160,11 +2165,12 @@ bool LLAppViewer::initConfiguration()
 			<< user_settings_filename << llendl;
 	}
 
+	// - load overrides from user_settings 
+	loadSettingsFromDirectory("User");
+
 	if (clp.hasOption("sessionsettings"))
 	{
-		std::string session_settings_filename = 
-			gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, 
-										   clp.getOption("sessionsettings")[0]);		
+		std::string session_settings_filename = clp.getOption("sessionsettings")[0];		
 		gSavedSettings.setString("SessionSettingsFile", session_settings_filename);
 		llinfos	<< "Using session settings filename: " 
 			<< session_settings_filename << llendl;
@@ -2173,9 +2179,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("usersessionsettings"))
 	{
-		std::string user_session_settings_filename = 
-			gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, 
-										   clp.getOption("usersessionsettings")[0]);		
+		std::string user_session_settings_filename = clp.getOption("usersessionsettings")[0];		
 		gSavedSettings.setString("UserSessionSettingsFile", user_session_settings_filename);
 		llinfos	<< "Using user session settings filename: " 
 			<< user_session_settings_filename << llendl;
@@ -2183,8 +2187,6 @@ bool LLAppViewer::initConfiguration()
 	}
 	loadSettingsFromDirectory("UserSession");
 
-	// - load overrides from user_settings 
-	loadSettingsFromDirectory("User");
 	// - apply command line settings 
 	clp.notify(); 
 
