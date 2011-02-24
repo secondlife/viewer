@@ -1263,13 +1263,16 @@ U16 LLPrivateMemoryPool::LLMemoryChunk::getPageLevel(U32 size)
 //--------------------------------------------------------------------
 const U32 CHUNK_SIZE = 4 << 20 ; //4 MB
 const U32 LARGE_CHUNK_SIZE = 4 * CHUNK_SIZE ; //16 MB
-LLPrivateMemoryPool::LLPrivateMemoryPool(U32 max_size, bool threaded) :
-	mMutexp(NULL),
-	mMaxPoolSize(max_size),
+LLPrivateMemoryPool::LLPrivateMemoryPool(S32 type) :
+	mMutexp(NULL),	
 	mReservedPoolSize(0),
-	mHashFactor(1)
+	mHashFactor(1),
+	mType(type)
 {
-	if(threaded)
+	const U32 MAX_POOL_SIZE = 256 * 1024 * 1024 ; //256 MB
+
+	mMaxPoolSize = MAX_POOL_SIZE ;
+	if(type == STATIC_THREADED || type == VOLATILE_THREADED)
 	{
 		mMutexp = new LLMutex ;
 	}
@@ -1735,22 +1738,35 @@ LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
 
 LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager() 
 {
+	mPoolList.resize(LLPrivateMemoryPool::MAX_TYPES) ;
+
+	for(S32 i = 0 ; i < LLPrivateMemoryPool::MAX_TYPES; i++)
+	{
+		mPoolList[i] = NULL ;
+	}
 }
 
 LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager() 
 {
-	//all private pools should be released by their owners before reaching here.
-	llassert_always(mPoolList.empty()) ;
-
 #if 0
-	if(!mPoolList.empty())
+	//all private pools should be released by their owners before reaching here.
+	for(S32 i = 0 ; i < LLPrivateMemoryPool::MAX_TYPES; i++)
 	{
-		for(std::set<LLPrivateMemoryPool*>::iterator iter = mPoolList.begin(); iter != mPoolList.end(); ++iter)
-		{
-			delete *iter;
-		}
-		mPoolList.clear() ;
+		llassert_always(!mPoolList[i]) ;
 	}
+	mPoolList.clear() ;
+
+#else
+	//forcefully release all memory
+	for(S32 i = 0 ; i < LLPrivateMemoryPool::MAX_TYPES; i++)
+	{
+		if(mPoolList[i])
+		{
+			delete mPoolList[i] ;
+			mPoolList[i] = NULL ;
+		}
+	}
+	mPoolList.clear() ;
 #endif
 }
 
@@ -1774,18 +1790,23 @@ void LLPrivateMemoryPoolManager::destroyClass()
 	}
 }
 
-LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(U32 max_size, bool threaded) 
+LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(S32 type) 
 {
-	LLPrivateMemoryPool* pool = new LLPrivateMemoryPool(max_size, threaded) ;
-	mPoolList.insert(pool) ;
+	if(!mPoolList[type])
+	{
+		mPoolList[type] = new LLPrivateMemoryPool(type) ;
+	}
 
-	return pool ;
+	return mPoolList[type] ;
 }
 
 void LLPrivateMemoryPoolManager::deletePool(LLPrivateMemoryPool* pool) 
 {
-	mPoolList.erase(pool) ;
-	delete pool;
+	if(pool->isEmpty())
+	{
+		mPoolList[pool->getType()] = NULL ;
+		delete pool;
+	}
 }
 
 //debug
@@ -1794,10 +1815,13 @@ void LLPrivateMemoryPoolManager::updateStatistics()
 	mTotalReservedSize = 0 ;
 	mTotalAllocatedSize = 0 ;
 
-	for(std::set<LLPrivateMemoryPool*>::iterator iter = mPoolList.begin(); iter != mPoolList.end(); ++iter)
+	for(U32 i = 0; i < mPoolList.size(); i++)
 	{
-		mTotalReservedSize += (*iter)->getTotalReservedSize() ;
-		mTotalAllocatedSize += (*iter)->getTotalAllocatedSize() ;
+		if(mPoolList[i])
+		{
+			mTotalReservedSize += mPoolList[i]->getTotalReservedSize() ;
+			mTotalAllocatedSize += mPoolList[i]->getTotalAllocatedSize() ;
+		}
 	}
 }
 
@@ -1840,15 +1864,13 @@ void LLPrivateMemoryPoolTester::destroy()
 	}
 }
 
-void LLPrivateMemoryPoolTester::run(bool threaded) 
+void LLPrivateMemoryPoolTester::run(S32 type) 
 {
-	const U32 max_pool_size = 1024 << 20 ;
-	
 	if(sPool)
 	{
 		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPool) ;
 	}
-	sPool = LLPrivateMemoryPoolManager::getInstance()->newPool(max_pool_size, threaded) ;
+	sPool = LLPrivateMemoryPoolManager::getInstance()->newPool(type) ;
 
 	//run the test
 	correctnessTest() ;

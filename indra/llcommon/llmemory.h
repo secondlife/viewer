@@ -231,7 +231,7 @@ public:
 	} ;
 
 private:
-	LLPrivateMemoryPool(U32 max_size, bool threaded) ;
+	LLPrivateMemoryPool(S32 type) ;
 	~LLPrivateMemoryPool() ;
 
 public:
@@ -241,7 +241,9 @@ public:
 	void  dump() ;
 	U32   getTotalAllocatedSize() ;
 	U32   getTotalReservedSize() {return mReservedPoolSize;}
-	
+	S32   getType() const {return mType; }
+	bool  isEmpty() const {return !mNumOfChunks; }
+
 private:
 	void lock() ;
 	void unlock() ;	
@@ -267,6 +269,15 @@ public:
 		SUPER_ALLOCATION      //allocation larger than 4MB.
 	};
 
+	enum
+	{
+		STATIC = 0 ,       //static pool(each alllocation stays for a long time) without threading support
+		VOLATILE,          //Volatile pool(each allocation stays for a very short time) without threading support
+		STATIC_THREADED,   //static pool with threading support
+		VOLATILE_THREADED, //volatile pool with threading support
+		MAX_TYPES
+	}; //pool types
+
 private:
 	LLMutex* mMutexp ;
 	U32  mMaxPoolSize;
@@ -276,6 +287,8 @@ private:
 	std::vector<LLMemoryChunk*> mChunkHashList ;
 	U16 mNumOfChunks ;
 	U16 mHashFactor ;
+
+	S32 mType ;
 };
 
 class LL_COMMON_API LLPrivateMemoryPoolManager
@@ -288,12 +301,12 @@ public:
 	static LLPrivateMemoryPoolManager* getInstance() ;
 	static void destroyClass() ;
 
-	LLPrivateMemoryPool* newPool(U32 max_size, bool threaded) ;
+	LLPrivateMemoryPool* newPool(S32 type) ;
 	void deletePool(LLPrivateMemoryPool* pool) ;
 
 private:
 	static LLPrivateMemoryPoolManager* sInstance ;
-	std::set<LLPrivateMemoryPool*> mPoolList ;
+	std::vector<LLPrivateMemoryPool*> mPoolList ;
 
 public:
 	//debug and statistics info.
@@ -316,7 +329,7 @@ public:
 	static LLPrivateMemoryPoolTester* getInstance() ;
 	static void destroy() ;
 
-	void run(bool threaded) ;	
+	void run(S32 type) ;	
 
 private:
 	void correctnessTest() ;

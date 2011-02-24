@@ -106,11 +106,9 @@ LLImageBase::~LLImageBase()
 //static 
 void LLImageBase::createPrivatePool() 
 {
-	const U32 MAX_POOL_SIZE = 512 * 1024 * 1024 ; //512 MB
-
 	if(!sPrivatePoolp)
 	{
-		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(MAX_POOL_SIZE, true) ;
+		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC_THREADED) ;
 	}
 }
 	
