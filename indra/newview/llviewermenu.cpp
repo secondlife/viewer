@@ -5788,6 +5788,44 @@ class LLShowAgentProfile : public view_listener_t
 	}
 };
 
+class LLToggleAgentProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLUUID agent_id;
+		if (userdata.asString() == "agent")
+		{
+			agent_id = gAgent.getID();
+		}
+		else if (userdata.asString() == "hit object")
+		{
+			LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+			if (objectp)
+			{
+				agent_id = objectp->getID();
+			}
+		}
+		else
+		{
+			agent_id = userdata.asUUID();
+		}
+
+		LLVOAvatar* avatar = find_avatar_from_object(agent_id);
+		if (avatar)
+		{
+			if (!LLAvatarActions::profileVisible(avatar->getID()))
+			{
+				LLAvatarActions::showProfile(avatar->getID());
+			}
+			else
+			{
+				LLAvatarActions::hideProfile(avatar->getID());
+			}
+		}
+		return true;
+	}
+};
+
 class LLLandEdit : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8184,6 +8222,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");

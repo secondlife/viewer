@@ -38,7 +38,9 @@
 #include "lltexteditor.h"
 
 // newview includes
+#include "llagent.h"
 #include "llagentcamera.h"
+#include "llavataractions.h"
 #include "llchiclet.h"
 #include "llfloatercamera.h"
 #include "llhints.h"
@@ -812,6 +814,7 @@ void LLBottomTray::draw()
 		LLRect rect = mLandingTab->calcScreenRect();
 		mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
 	}
+	getChild<LLButton>("show_profile_btn")->setToggleState(LLAvatarActions::profileVisible(gAgent.getID()));
 }
 
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
