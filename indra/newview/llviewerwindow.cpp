@@ -1877,9 +1877,7 @@ void LLViewerWindow::shutdownGL()
 	llinfos << "All textures and llimagegl images are destroyed!" << llendl ;
 
 	llinfos << "Cleaning up select manager" << llendl;
-	LLSelectMgr::getInstance()->cleanup();
-
-	LLVertexBuffer::cleanupClass();
+	LLSelectMgr::getInstance()->cleanup();	
 
 	llinfos << "Stopping GL during shutdown" << llendl;
 	if (!gNoRender)
@@ -1889,6 +1887,10 @@ void LLViewerWindow::shutdownGL()
 	}
 
 	gGL.shutdown();
+
+	LLVertexBuffer::cleanupClass();
+
+	llinfos << "LLVertexBuffer cleaned." << llendl ;
 }
 
 // shutdownViews() and shutdownGL() need to be called first

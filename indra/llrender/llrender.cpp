@@ -800,6 +800,7 @@ void LLRender::shutdown()
 	mTexUnits.clear();
 	delete mDummyTexUnit;
 	mDummyTexUnit = NULL;
+	mBuffer = NULL ;
 }
 
 void LLRender::refreshState(void)
