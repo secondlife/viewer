@@ -1052,7 +1052,7 @@ BOOL LLDrawable::isVisible() const
 //=======================================
 
 LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask)
-: LLSpatialPartition(data_mask, render_by_group, FALSE)
+: LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW_ARB)
 {
 	mDrawable = root;
 	root->setSpatialBridge(this);

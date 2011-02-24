@@ -58,6 +58,7 @@ BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
 BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
+BOOL LLVertexBuffer::sPreferStreamDraw = FALSE;
 S32	LLVertexBuffer::sWeight4Loc = -1;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
@@ -143,11 +144,11 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			}
 			else 
 			{	//was disabled
-				if (data_mask & mask[i])
+				if (data_mask & mask[i] && i > 0)
 				{ //needs to be enabled
 					glEnableClientState(array[i]);
 				}
-				else if (gDebugGL && glIsEnabled(array[i]))
+				else if (gDebugGL && i > 0 && glIsEnabled(array[i]))
 				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
 					if (gDebugSession)
 					{
@@ -427,9 +428,9 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 		mUsage = 0;
 	}
 	
-	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	if (mUsage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
 	{
-		mUsage = 0;
+		mUsage = GL_STREAM_DRAW_ARB;
 	}
 
 	//zero out offsets

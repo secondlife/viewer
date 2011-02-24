@@ -1653,7 +1653,7 @@ void LLModelLoader::run()
 									
 									std::vector<LLImportMaterial> materials;
 									materials.resize(model->getNumVolumeFaces());
-									mScene[transformation].push_back(LLModelInstance(model, transformation, materials));
+									mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
 									stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 								}
 							}
@@ -1944,7 +1944,8 @@ void LLModelLoader::processElement(daeElement* element)
 					mesh_scale *= transformation;
 					transformation = mesh_scale;
 
-					mScene[transformation].push_back(LLModelInstance(model, transformation, materials));
+					std::string label = getElementLabel(instance_geo);
+					mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
 
 					stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 				}
@@ -2613,188 +2614,6 @@ void LLModelPreview::generateNormals()
 	mVertexBuffer[which_lod].clear();
 	refresh();
 
-}
-
-void LLModelPreview::consolidate()
-{
-	std::map<LLImportMaterial, std::vector<LLModelInstance> > composite;
-
-	LLMatrix4 identity;
-
-	//bake out each node in current scene to composite
-	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
-	{ //for each transform in current scene
-		LLMatrix4 mat = iter->first;
-		glh::matrix4f inv_trans = glh::matrix4f((F32*) mat.mMatrix).inverse().transpose();
-		LLMatrix4 norm_mat(inv_trans.m);
-
-		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-		{ //for each instance with that transform
-			LLModelInstance& source_instance = *model_iter;
-			LLModel* source = source_instance.mModel;
-
-			if (!validate_model(source))
-			{
-				llerrs << "Invalid model found!" << llendl;
-			}
-
-			for (S32 i = 0; i < source->getNumVolumeFaces(); ++i)
-			{ //for each face in instance
-				const LLVolumeFace& src_face = source->getVolumeFace(i);
-				LLImportMaterial& source_material = source_instance.mMaterial[i];
-
-				//get model in composite that is composite for this material
-				LLModel* model = NULL;
-
-				if (composite.find(source_material) != composite.end())
-				{
-					model = composite[source_material].rbegin()->mModel;
-					if (model->getVolumeFace(0).mNumVertices + src_face.mNumVertices > 65535)
-					{
-						model = NULL;
-					}
-				}
-
-				if (model == NULL)
-				{  //no model found, make new model
-					std::vector<LLImportMaterial> materials;
-					materials.push_back(source_material);
-					LLVolumeParams volume_params;
-					volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-					model = new LLModel(volume_params, 0.f);
-					model->mLabel = source->mLabel;
-					model->setNumVolumeFaces(0);
-					composite[source_material].push_back(LLModelInstance(model, identity, materials));
-				}
-
-				model->appendFace(src_face, source->mMaterialList[i], mat, norm_mat);
-			}
-		}
-	}
-
-
-	//condense composite into as few LLModel instances as possible
-	LLModelLoader::model_list new_model;
-	std::vector<LLModelInstance> instance_list;
-
-	LLVolumeParams volume_params;
-	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-
-	std::vector<LLImportMaterial> empty_material;
-	LLModelInstance cur_instance(new LLModel(volume_params, 0.f), identity, empty_material);
-	cur_instance.mModel->setNumVolumeFaces(0);
-
-	BOOL first_transform = TRUE;
-
-	LLModelLoader::scene new_scene;
-	LLVector3 min,max;
-
-	for (std::map<LLImportMaterial, std::vector<LLModelInstance> >::iterator iter = composite.begin();
-		 iter != composite.end();
-		 ++iter)
-	{
-		std::map<LLImportMaterial, std::vector<LLModelInstance> >::iterator next_iter = iter; ++next_iter;
-
-		for (std::vector<LLModelInstance>::iterator instance_iter = iter->second.begin();
-			 instance_iter != iter->second.end();
-			 ++instance_iter)
-		{
-			LLModel* source = instance_iter->mModel;
-
-			if (instance_iter->mMaterial.size() != 1)
-			{
-				llerrs << "WTF?" << llendl;
-			}
-
-			if (source->getNumVolumeFaces() != 1)
-			{
-				llerrs << "WTF?" << llendl;
-			}
-
-			if (source->mMaterialList.size() != 1)
-			{
-				llerrs << "WTF?" << llendl;
-			}
-
-			cur_instance.mModel->addFace(source->getVolumeFace(0));
-			cur_instance.mMaterial.push_back(instance_iter->mMaterial[0]);
-			cur_instance.mModel->mMaterialList.push_back(source->mMaterialList[0]);
-
-			BOOL last_model = FALSE;
-
-			std::vector<LLModelInstance>::iterator next_instance = instance_iter; ++next_instance;
-
-			if (next_iter == composite.end() &&
-				next_instance == iter->second.end())
-			{
-				last_model = TRUE;
-			}
-
-			if (last_model || cur_instance.mModel->getNumVolumeFaces() >= MAX_MODEL_FACES)
-			{
-				cur_instance.mModel->mLabel = source->mLabel;
-
-				cur_instance.mModel->optimizeVolumeFaces();
-				cur_instance.mModel->normalizeVolumeFaces();
-
-				if (!validate_model(cur_instance.mModel))
-				{
-					llerrs << "Invalid model detected." << llendl;
-				}
-
-				new_model.push_back(cur_instance.mModel);
-
-				LLMatrix4 transformation = LLMatrix4();
-
-				// adjust the transformation to compensate for mesh normalization
-				LLVector3 mesh_scale_vector;
-				LLVector3 mesh_translation_vector;
-				cur_instance.mModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
-
-				LLMatrix4 mesh_translation;
-				mesh_translation.setTranslation(mesh_translation_vector);
-				mesh_translation *= transformation;
-				transformation = mesh_translation;
-
-				LLMatrix4 mesh_scale;
-				mesh_scale.initScale(mesh_scale_vector);
-				mesh_scale *= transformation;
-				transformation = mesh_scale;
-
-				cur_instance.mTransform = transformation;
-
-				new_scene[transformation].push_back(cur_instance);
-				stretch_extents(cur_instance.mModel, transformation, min, max, first_transform);
-
-				if (!last_model)
-				{
-					cur_instance = LLModelInstance(new LLModel(volume_params, 0.f), identity, empty_material);
-					cur_instance.mModel->setNumVolumeFaces(0);
-				}
-			}
-		}
-	}
-
-	mScene[mPreviewLOD] = new_scene;
-	mModel[mPreviewLOD] = new_model;
-	mVertexBuffer[mPreviewLOD].clear();
-
-	if (mPreviewLOD == LLModel::LOD_HIGH)
-	{
-		mBaseScene = new_scene;
-		mBaseModel = new_model;
-		clearGLODGroup();
-		mVertexBuffer[5].clear();
-	}
-
-	mPreviewTarget = (min+max)*0.5f;
-	mPreviewScale = (max-min)*0.5f;
-	setPreviewTarget(mPreviewScale.magVec()*2.f);
-
-	clearIncompatible(mPreviewLOD);
-
-	mResourceCost = calcResourceCost();
-	refresh();
 }
 
 void LLModelPreview::clearMaterials()

@@ -507,6 +507,11 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
 
+	if (pass == 0)
+	{ //make sure no stale colors are left over from a previous render
+		glColor4f(1,1,1,1);
+	}
+
 	if (LLPipeline::sImpostorRender)
 	{ //impostor render does not have impostors or rigid rendering
 		pass += 2;
@@ -1030,6 +1035,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 	sVertexProgram->bind();
 	
+	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	enable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
 
 	gGL.getTexUnit(0)->activate();
@@ -1041,6 +1047,8 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
 	sVertexProgram->unbind();
+
+	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
 	sShaderLevel = mVertexShaderLevel;
 
@@ -1125,8 +1133,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{ //don't draw foot shadows under water
 		return;
 	}
-
-    LLOverrideFaceColor color(this, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (pass == 0)
 	{
