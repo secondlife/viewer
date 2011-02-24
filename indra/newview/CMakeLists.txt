@@ -10,6 +10,7 @@ include(DirectX)
 include(OpenSSL)
 include(DragDrop)
 include(ELFIO)
+include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
@@ -1681,6 +1682,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
     ${WINDOWS_LIBRARIES}
+    ${EXPAT_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
     ${OPENSSL_LIBRARIES}

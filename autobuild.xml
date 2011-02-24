@@ -1478,7 +1478,7 @@
         <key>license</key>
         <string>xmlrpc-epi</string>
         <key>license_file</key>
-        <string>LICENSES/xmlrpc.txt</string>
+        <string>LICENSES/xmlrpc-epi.txt</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>platforms</key>
@@ -1512,9 +1512,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ea06e2f1c1ed59a2d2b6cdb6f459d1c0</string>
+              <string>5181d1a8f2516928ac064d72acf164a4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/222021/arch/CYGWIN/installer/xmlrpc_epi-0.54.1-windows-20110224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
