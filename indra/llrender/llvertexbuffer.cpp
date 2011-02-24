@@ -43,6 +43,7 @@ LLVBOPool LLVertexBuffer::sDynamicVBOPool;
 LLVBOPool LLVertexBuffer::sStreamIBOPool;
 LLVBOPool LLVertexBuffer::sDynamicIBOPool;
 
+LLPrivateMemoryPool* LLVertexBuffer::sPrivatePoolp = NULL ;
 U32 LLVertexBuffer::sBindCount = 0;
 U32 LLVertexBuffer::sSetCount = 0;
 S32 LLVertexBuffer::sCount = 0;
@@ -317,6 +318,11 @@ void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 	LLGLNamePool::registerPool(&sDynamicIBOPool);
 	LLGLNamePool::registerPool(&sStreamVBOPool);
 	LLGLNamePool::registerPool(&sStreamIBOPool);
+
+	if(!sPrivatePoolp)
+	{
+		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC) ;
+	}
 }
 
 //static 
@@ -345,6 +351,12 @@ void LLVertexBuffer::cleanupClass()
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_CLEANUP_CLASS);
 	unbind();
 	clientCopy(); // deletes GL buffers
+
+	if(sPrivatePoolp)
+	{
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPrivatePoolp) ;
+		sPrivatePoolp = NULL ;
+	}
 }
 
 void LLVertexBuffer::clientCopy(F64 max_time)
@@ -532,7 +544,7 @@ void LLVertexBuffer::createGLBuffer()
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
-		mMappedData = new U8[size];
+		mMappedData = (U8*)sPrivatePoolp->allocate(size);
 		memset(mMappedData, 0, size);
 	}
 }
@@ -562,7 +574,7 @@ void LLVertexBuffer::createGLIndices()
 	}
 	else
 	{
-		mMappedIndexData = new U8[size];
+		mMappedIndexData = (U8*)sPrivatePoolp->allocate(size);
 		memset(mMappedIndexData, 0, size);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
@@ -586,7 +598,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			delete [] mMappedData;
+			sPrivatePoolp->free(mMappedData) ;
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -615,7 +627,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			delete [] mMappedIndexData;
+			sPrivatePoolp->free(mMappedIndexData) ;
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -747,7 +759,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 				if (!useVBOs())
 				{
 					U8* old = mMappedData;
-					mMappedData = new U8[newsize];
+					mMappedData = (U8*)sPrivatePoolp->allocate(newsize);
 					if (old)
 					{	
 						memcpy(mMappedData, old, llmin(newsize, oldsize));
@@ -756,7 +768,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 							memset(mMappedData+oldsize, 0, newsize-oldsize);
 						}
 
-						delete [] old;
+						sPrivatePoolp->free(old);
 					}
 					else
 					{
@@ -784,7 +796,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 				{
 					//delete old buffer, keep GL buffer for now
 					U8* old = mMappedIndexData;
-					mMappedIndexData = new U8[new_index_size];
+					mMappedIndexData = (U8*)sPrivatePoolp->allocate(new_index_size);
 					
 					if (old)
 					{	
@@ -793,7 +805,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 						{
 							memset(mMappedIndexData+old_index_size, 0, new_index_size - old_index_size);
 						}
-						delete [] old;
+						sPrivatePoolp->free(old);
 					}
 					else
 					{
@@ -840,8 +852,8 @@ void LLVertexBuffer::freeClientBuffer()
 {
 	if(useVBOs() && sDisableVBOMapping && (mMappedData || mMappedIndexData))
 	{
-		delete[] mMappedData ;
-		delete[] mMappedIndexData ;
+		sPrivatePoolp->free(mMappedData) ;
+		sPrivatePoolp->free(mMappedIndexData) ;
 		mMappedData = NULL ;
 		mMappedIndexData = NULL ;
 	}
@@ -852,7 +864,7 @@ void LLVertexBuffer::allocateClientVertexBuffer()
 	if(!mMappedData)
 	{
 		U32 size = getSize() ;
-		mMappedData = new U8[size];
+		mMappedData = (U8*)sPrivatePoolp->allocate(size);
 		memset(mMappedData, 0, size);
 	}
 }
@@ -862,7 +874,7 @@ void LLVertexBuffer::allocateClientIndexBuffer()
 	if(!mMappedIndexData)
 	{
 		U32 size = getIndicesSize();
-		mMappedIndexData = new U8[size];
+		mMappedIndexData = (U8*)sPrivatePoolp->allocate(size);
 		memset(mMappedIndexData, 0, size);
 	}
 }

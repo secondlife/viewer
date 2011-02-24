@@ -69,7 +69,7 @@ protected:
 
 //============================================================================
 // base class
-
+class LLPrivateMemoryPool ;
 class LLVertexBuffer : public LLRefCount
 {
 public:
@@ -237,6 +237,9 @@ protected:
 	};
 
 	std::vector<DirtyRegion> mDirtyRegions; //vector of dirty regions to rebuild
+
+private:
+	static LLPrivateMemoryPool* sPrivatePoolp ;
 
 public:
 	static S32 sCount;
