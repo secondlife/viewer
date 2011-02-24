@@ -5792,15 +5792,7 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 }
 
 void LLPipeline::resetVertexBuffers()
-{
-	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
-	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
-	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
-	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
-	LLVertexBuffer::sEnableVBOs = gSavedSettings.getBOOL("RenderVBOEnable");
-	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
-	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
-
+{	
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -5840,8 +5832,16 @@ void LLPipeline::resetVertexBuffers()
 		llwarns << "VBO name pool cleanup failed." << llendl;
 	}
 
-	LLVertexBuffer::unbind();
-
+	LLVertexBuffer::unbind();	
+	
+	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
+	LLVertexBuffer::sEnableVBOs = gSavedSettings.getBOOL("RenderVBOEnable");
+	LLVertexBuffer::sDisableVBOMapping = LLVertexBuffer::sEnableVBOs && gSavedSettings.getBOOL("RenderVBOMappingDisable") ;
+	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
+	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 }
 
