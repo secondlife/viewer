@@ -426,9 +426,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b9fa0ef683657090ae66663863ebba74</string>
+              <string>d9a9a6ad86895353bcd63374a4c1a91d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/merov_fmod-autobuild/rev/219050/arch/CYGWIN/installer/fmod-3.75-windows-20110113.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/CYGWIN/installer/fmod-3.75-windows-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -956,9 +956,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c7b5596c27f511d4957abe35f7f8dee</string>
+              <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20110113.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
