@@ -603,13 +603,13 @@ void LLFloaterModelPreview::draw()
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop);
+			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop-1);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mBottom);
 			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mRight, mPreviewRect.mBottom);
+			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mBottom);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mRight, mPreviewRect.mTop);
+			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mTop-1);
 		}
 		gGL.end();
 
@@ -3617,7 +3617,7 @@ BOOL LLModelPreview::render()
 		gGL.pushMatrix();
 		glLoadIdentity();
 
-		gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
+		gGL.color4f(0.169f, 0.169f, 0.169f, 1.f);
 
 		gl_rect_2d_simple( width, height );
 

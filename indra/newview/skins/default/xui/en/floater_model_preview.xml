@@ -58,6 +58,9 @@
   <panel
     name="preview_panel"
     left="15"
+    bevel_style="none"
+    border_style="line"
+    border="true"
     width="290"
     height="290"
     follows="all"/>

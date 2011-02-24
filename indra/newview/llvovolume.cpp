@@ -1204,10 +1204,23 @@ BOOL LLVOVolume::calcLOD()
 
 	S32 cur_detail = 0;
 	
-	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
-	F32 distance = mDrawable->mDistanceWRTCamera; //llmin(mDrawable->mDistanceWRTCamera, MAX_LOD_DISTANCE);
-	distance *= sDistanceFactor;
+	F32 radius;
+	F32 distance;
+
+	if (mDrawable->isState(LLDrawable::RIGGED))
+	{
+		LLVOAvatar* avatar = getAvatar(); 
+		distance = avatar->mDrawable->mDistanceWRTCamera;
+		radius = avatar->getBinRadius();
+	}
+	else
+	{
+		distance = mDrawable->mDistanceWRTCamera;
+		radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
+	}
 			
+	distance *= sDistanceFactor;
+
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
 	
 	if (distance < rampDist)
