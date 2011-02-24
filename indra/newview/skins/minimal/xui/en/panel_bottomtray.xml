@@ -223,10 +223,10 @@
          min_height="28"
          min_width="65"
          mouse_opaque="false"
-         name="help_panel"
+         name="people_panel"
          top_delta="0"
          user_resize="false"
-         width="85">
+         width="105">
           <bottomtray_button
              can_drag="false"
             follows="left|right"
@@ -234,20 +234,52 @@
             image_pressed="PushButton_Press"
             image_pressed_selected="PushButton_Selected_Press"
             image_selected="PushButton_Selected_Press"
-            label="How To"
+            label="People"
             layout="topleft"
             left="0"
-            name="help_btn"
-            tool_tip="Shows help window"
+            name="show_people_button"
+            tool_tip="Shows people window"
             top="5"
             use_ellipses="true"
-            width="80">
+            width="100">
             <bottomtray_button.commit_callback
-              function="ShowHelp"
-             parameter="f1_help" />
+              function=""
+             parameter="" />
           </bottomtray_button>
         </layout_panel>
-
+      <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="65"
+         mouse_opaque="false"
+         name="profile_panel"
+         top_delta="0"
+         user_resize="false"
+         width="105">
+          <bottomtray_button
+             can_drag="false"
+            follows="left|right"
+            height="23"
+            image_pressed="PushButton_Press"
+            image_pressed_selected="PushButton_Selected_Press"
+            image_selected="PushButton_Selected_Press"
+            label="Profile"
+            layout="topleft"
+            left="0"
+            name="show_profile_btn"
+            tool_tip="Shows profile window"
+            is_toggle="true" 
+            top="5"
+            use_ellipses="true"
+            width="100">
+            <bottomtray_button.commit_callback
+              function="ToggleAgentProfile"
+              parameter="agent"/>
+          </bottomtray_button>
+        </layout_panel>
         <layout_panel
          follows="left|right"
          height="30"
