@@ -121,14 +121,7 @@
                     left="0"
                     mouse_opaque="false"
                     name="world_view_rect"
-                    width="500">
-                <icon name="sl_watermark"
-                      image_name="sl_logo.png"
-                      left="5"
-                      top="5"
-                      width="100"
-                      height="45"/>
-              </panel>
+                    width="500"/>
             </layout_panel>
             <layout_panel auto_resize="false"
                    min_height="33"

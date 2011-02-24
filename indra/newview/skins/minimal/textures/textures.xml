@@ -1,7 +1,5 @@
 ﻿
 <textures version="101">
   <texture name="Button_Separator" file_name="bottomtray/button_separator.png" preload="true" />
-  <texture name="login_teleport_background.jpg" preload="true"/>
   <texture name="arrow_keys.png"/>
-  <texture name="sl_logo.png"/>
 </textures>
