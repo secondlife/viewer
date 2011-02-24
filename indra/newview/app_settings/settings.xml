@@ -12371,7 +12371,7 @@
       <key>Comment</key>
       <string>Settings that are a applied per session (not saved).</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
@@ -12382,7 +12382,7 @@
       <key>Comment</key>
       <string>User settings that are a applied per session (not saved).</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
