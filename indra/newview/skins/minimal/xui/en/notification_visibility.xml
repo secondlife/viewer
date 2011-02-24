@@ -27,6 +27,7 @@
   <show tag="fail"/>
   <show type="hint"/>
   <show type="notifytoast"/>
+  <show name="ModeChange"/>
   <hide/>
 </notification_visibility>
 
