@@ -161,6 +161,16 @@
             </layout_panel>
           </layout_stack>
         </layout_panel>
+        <layout_panel auto_resize="false"
+                      follows="top|bottom"
+                      height="500"
+                      min_width="333"
+                      mouse_opaque="false"
+                      tab_stop="false"
+                      name="side_tray_container"
+                      user_resize="false"
+                      visible="false"
+                      width="333"/>
       </layout_stack>
       <debug_view follows="all"
                   left="0"
