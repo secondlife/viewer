@@ -214,7 +214,7 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
 
 std::string LLUICtrlFactory::getCurFileName() 
 { 
-	return mFileNames.empty() ? "" : gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + mFileNames.back(); 
+	return mFileNames.empty() ? "" : mFileNames.back(); 
 }
 
 
