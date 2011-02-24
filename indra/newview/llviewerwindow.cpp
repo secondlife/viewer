@@ -586,7 +586,7 @@ public:
 			}
 			if (LLPipeline::getRenderMOAPBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing MOAP beacons (white)");
+				addText(xpos, ypos, "Viewing media beacons (white)");
 				ypos += y_inc;
 			}
 			else
