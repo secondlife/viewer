@@ -6714,6 +6714,17 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
     </form>
   </notification>
 
+  <notification
+ name="ModeChange"
+ label=""
+ type="alertmodal"
+ unique="true">
+    Changing modes requires you to quit and restart.
+      <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+    </notification>
   
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
