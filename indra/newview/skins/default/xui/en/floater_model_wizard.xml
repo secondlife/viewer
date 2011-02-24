@@ -101,7 +101,7 @@
 		 height="388"
 		 top_pad="0"
 		 name="choose_file_panel"
-		 visible="false"
+		 visible="true"
 		 width="530"
 		 left="0">
 		<panel
@@ -196,7 +196,7 @@
 			 top_pad="0"
 			 name="preview_panel"
 			 bevel_style="none"
-			 border_style="line"
+			 highlight_light_color="0.09 0.09 0.09 1"
 			 border="true"
 			 height="150"
 			 follows="all"
@@ -395,7 +395,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				Model Preview:
 			</text>
 			<combo_box left_pad="5" top_delta="-2"  follows="left|top" list_position="below" height="18"
-	     name="preview_lod_combo" width="90" tool_tip="LOD to view in preview render">
+	     name="preview_lod_combo2" width="90" tool_tip="LOD to view in preview render">
 				<combo_item name="high">
 					High
 				</combo_item>
@@ -414,6 +414,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 top_pad="5"
 				 name="preview_panel"
 				 bevel_style="none"
+				 highlight_light_color="0.09 0.09 0.09 1"
 				 border_style="line"
 				 border="true"
 				 height="175"
@@ -600,7 +601,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="review_panel"
-		 visible="true"
+		 visible="false"
 		 width="530"
 		 left="0">
 		<panel
@@ -670,6 +671,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 top_pad="10"
 				 name="preview_panel"
 				 bevel_style="none"
+				 highlight_light_color="0.09 0.09 0.09 1"
 				 border_style="line"
 				 border="true"
 				 height="190"

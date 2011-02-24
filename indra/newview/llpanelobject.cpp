@@ -1178,13 +1178,13 @@ void LLPanelObject::getState( )
 			if (mCtrlSculptMirror)
 			{
 				mCtrlSculptMirror->set(sculpt_mirror);
-				mCtrlSculptMirror->setEnabled(editable && (sculpt_stitching != LL_SCULPT_TYPE_MESH));
+				mCtrlSculptMirror->setEnabled(editable);
 			}
 
 			if (mCtrlSculptInvert)
 			{
 				mCtrlSculptInvert->set(sculpt_invert);
-				mCtrlSculptInvert->setEnabled(editable && (!isMesh));
+				mCtrlSculptInvert->setEnabled(editable);
 			}
 
 			if (mLabelSculptType)

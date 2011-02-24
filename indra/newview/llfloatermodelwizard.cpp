@@ -485,6 +485,7 @@ BOOL LLFloaterModelWizard::postBuild()
 	getChild<LLUICtrl>("back")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickBack, this));
 	getChild<LLUICtrl>("next")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickNext, this));
 	getChild<LLUICtrl>("preview_lod_combo")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
+	getChild<LLUICtrl>("preview_lod_combo2")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
 	getChild<LLUICtrl>("accuracy_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onAccuracyPerformance, this, _2));
 	getChild<LLUICtrl>("upload")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onUpload, this));
 	getChild<LLUICtrl>("physics_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPhysicsChanged, this));
@@ -630,17 +631,17 @@ void LLFloaterModelWizard::draw()
 		
 		LLRect item_rect;
 		preview_panel->localRectToOtherView(preview_panel->getLocalRect(), &item_rect, this);
-		
+	
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(item_rect.mLeft, item_rect.mTop);
+			gGL.vertex2i(item_rect.mLeft, item_rect.mTop-1);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(item_rect.mLeft, item_rect.mBottom);
 			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(item_rect.mRight, item_rect.mBottom);
+			gGL.vertex2i(item_rect.mRight-1, item_rect.mBottom);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(item_rect.mRight, item_rect.mTop);
+			gGL.vertex2i(item_rect.mRight-1, item_rect.mTop-1);
 		}
 		gGL.end();
 		
