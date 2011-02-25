@@ -6,7 +6,6 @@
   <respond name="VoiceInviteAdHoc" response="Decline"/>
   <respond name="OfferFriendship" response="Decline"/>
   <respond name="OfferFriendshipNoMessage" response="Decline"/>
-  <respond name="TeleportOffered" response="Cancel"/>
   <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteGroup" response="Decline"/>
   <respond name="YouHaveBeenLoggedOut" response="Cancel_okcancelbuttons"/>
