@@ -29,7 +29,8 @@ set(cmake_SOURCE_FILES
     FindFMOD.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
-    FindMT.cmake
+# MT deprecated in VS2010
+#    FindMT.cmake
     FindMySQL.cmake
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake

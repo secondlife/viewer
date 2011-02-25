@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>925015cb33630fd73db5dcb6817bf0a2</string>
+              <string>73785c200a5b4ef74a1230b028bb680d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.8-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/221588/arch/CYGWIN/installer/apr_suite-1.4.2-windows-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -128,7 +128,7 @@
         <key>license</key>
         <string>c-ares</string>
         <key>license_file</key>
-        <string>LICENSES/ares.txt</string>
+        <string>LICENSES/c-ares.txt</string>
         <key>name</key>
         <string>ares</string>
         <key>platforms</key>
@@ -162,9 +162,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2318e9eef0ea020878759d974a5945df</string>
+              <string>1dcec6babd249a2597114d4ac226c461</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/CYGWIN/installer/ares-1.7.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de5559c2c497544b3d0da533390175dc</string>
+              <string>98be22c8833aa2bca184b9fa09fbb82b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/219456/arch/CYGWIN/installer/boost-1.45.0-windows-20110124.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -258,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f57a98c83ae6f62655c78f158ee93fc6</string>
+              <string>fea96aa2a7d513397317194f3d6c979b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219358/arch/CYGWIN/installer/curl-7.21.1-windows-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/220996/arch/CYGWIN/installer/curl-7.21.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -378,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2af1798aa38dce1b941ef8207f1beb50</string>
+              <string>e72db1bda49b205ebdf4945d4ed2b8f8</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221208/arch/CYGWIN/installer/expat-2.0.1-windows-20110215.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -426,9 +426,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b9fa0ef683657090ae66663863ebba74</string>
+              <string>d9a9a6ad86895353bcd63374a4c1a91d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/merov_fmod-autobuild/rev/219050/arch/CYGWIN/installer/fmod-3.75-windows-20110113.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/CYGWIN/installer/fmod-3.75-windows-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -474,9 +474,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88c29e73df61ff87c111d55d1b48f12c</string>
+              <string>825d5a9bafcc5bfe28dc4c1c4f87c576</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.4.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freeglut/rev/221064/arch/CYGWIN/installer/freeglut-2.6.0-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7bd61490e6290b1981538b744919afd</string>
+              <string>271349827b939406162ce42e42cd18e0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/221707/arch/CYGWIN/installer/freetype-2.4.4-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1135a4afc4328c68368f550ede28b4dd</string>
+              <string>e006635a741420a15f40bbdac13bd8d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.3.6-windows-freeglut-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glui/rev/221069/arch/CYGWIN/installer/glui-2.36-windows-20110214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -704,9 +704,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>506c870d37b3f7696171e4180c8bf821</string>
+              <string>627c51136e14e64c5d39933f3abd3bdf</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-windows-20110119.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/220211/arch/CYGWIN/installer/google_breakpad-0.0.0-rev599-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -718,7 +718,7 @@
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
-        <string>LICENSES/googlemock.txt</string>
+        <string>LICENSES/gmock.txt</string>
         <key>name</key>
         <string>googlemock</string>
         <key>platforms</key>
@@ -752,9 +752,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec7f12a339ad8c5628db8f8f8fbfe77f</string>
+              <string>212701468920519f3989677cea9ca4f1</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/222036/arch/CYGWIN/installer/gmock-1.5.0-windows-20110224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -860,9 +860,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a4d88f6ba42fa0acd47881f2d7ed7a7</string>
+              <string>a202ec58cef9097c94acfa958ed6da8d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/221594/arch/CYGWIN/installer/jpeglib-8c-windows-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -884,9 +884,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c10c28118c578d0674c1fbe59002d0ab</string>
+              <string>22c2ab6ef046c0c1f6cf674297f3e8ef</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/221698/arch/Darwin/installer/jsoncpp-0.5.0-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -896,9 +896,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e6b2fc7ad4e12d94d01cc49c22c6f67</string>
+              <string>20546118096e4828d9f29913ec7d954a</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/221698/arch/Linux/installer/jsoncpp-0.5.0-linux-20110219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -908,9 +908,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac06a8981cf7df3522362850ffb3a531</string>
+              <string>0959e349c4f7c0b33539269502486737</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20101011.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/221698/arch/CYGWIN/installer/jsoncpp-0.5.0-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -956,9 +956,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c7b5596c27f511d4957abe35f7f8dee</string>
+              <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20110113.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1004,9 +1004,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd0e68bde099def37c6a7527673aa672</string>
+              <string>735a955e6442733e2342ab12c1087488</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/221747/arch/CYGWIN/installer/libpng-1.5.1-windows-20110221.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1100,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5af0f88e298ea8b6041e29928f520eda</string>
+              <string>7865b9c3a5d9f9424af56d5d05b82de9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110113.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/alain_llqtwebkit/rev/220864/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110210.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1131,18 +1131,6 @@
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>178a79f9af90b16f0a62430f9fe88f28</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-windows-20101001a.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
       </map>
       <key>ndofdev</key>
@@ -1150,7 +1138,7 @@
         <key>license</key>
         <string>linden</string>
         <key>license_file</key>
-        <string>LICENSES/ndofdev.txt</string>
+        <string>LICENSES/libndofdev.txt</string>
         <key>name</key>
         <string>ndofdev</string>
         <key>platforms</key>
@@ -1184,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9d4f6c042c27fdab81e00238af7e55f0</string>
+              <string>3a4bec9562ed6ac53e85abcb1afc5fc0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev/rev/221922/arch/CYGWIN/installer/libndofdev-0.1-windows-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1198,7 +1186,7 @@
         <key>license</key>
         <string>ogg-vorbis</string>
         <key>license_file</key>
-        <string>LICENSES/ogg.txt</string>
+        <string>LICENSES/ogg-vorbis.txt</string>
         <key>name</key>
         <string>ogg-vorbis</string>
         <key>platforms</key>
@@ -1232,9 +1220,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61f4987290b90416fdba2cd4c4b2ecf3</string>
+              <string>c8fccf7eeb25fd45cb7e04399c0b83ee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.1.3-1.2.0-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/221801/arch/CYGWIN/installer/ogg_vorbis-1.1.3-1.2.0-windows-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1280,9 +1268,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c5862027b93eafceeaae9e4cef4cfa8</string>
+              <string>774c7f0a0312bee3054757a623e227bc</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8j-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1404,9 +1392,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>045618341689fdc3a5560b75a9890a78</string>
+              <string>52e49ab6937b09882389da0dbaec17f5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-sdk-windows-7.3-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-7.3-windows-20110127.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1490,7 +1478,7 @@
         <key>license</key>
         <string>xmlrpc-epi</string>
         <key>license_file</key>
-        <string>LICENSES/xmlrpc.txt</string>
+        <string>LICENSES/xmlrpc-epi.txt</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>platforms</key>
@@ -1524,9 +1512,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ea06e2f1c1ed59a2d2b6cdb6f459d1c0</string>
+              <string>5181d1a8f2516928ac064d72acf164a4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/222021/arch/CYGWIN/installer/xmlrpc_epi-0.54.1-windows-20110224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1572,9 +1560,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1015a07ce0aa9aeeadc6a126cdcdf9f</string>
+              <string>5852192646681817fc3c3a8c95e91c1e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20101001a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/CYGWIN/installer/zlib-1.2.5-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2330,7 +2318,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc80</string>
+          <string>build-vc100</string>
           <key>configurations</key>
           <map>
             <key>Debug</key>
@@ -2414,7 +2402,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2564,7 +2552,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=OFF</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DFMOD=TRUE</string>
@@ -2596,7 +2584,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=OFF</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DFMOD=TRUE</string>
