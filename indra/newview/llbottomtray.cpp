@@ -46,6 +46,7 @@
 #include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
+#include "llsidetray.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
@@ -815,6 +816,17 @@ void LLBottomTray::draw()
 		mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
 	}
 	getChild<LLButton>("show_profile_btn")->setToggleState(LLAvatarActions::profileVisible(gAgent.getID()));
+
+	LLPanel* panel = LLSideTray::getInstance()->getPanel("panel_people");
+	if (panel && panel->isInVisibleChain())
+	{
+		getChild<LLButton>("show_people_button")->setToggleState(true);
+	}
+	else
+	{
+		getChild<LLButton>("show_people_button")->setToggleState(false);
+	}
+
 }
 
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
