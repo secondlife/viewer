@@ -330,9 +330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d931e16a382aa3a5c99a8dea6b5f8391</string>
+              <string>031e6315a5c0829c9b9a2ec18aeb7ae3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-elfio/rev/222074/arch/Linux/installer/elfio-1.0.3-linux-20110225.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
