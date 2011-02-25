@@ -86,50 +86,6 @@ width="31" />
      name="location_combo"
      top_delta="0"
      width="360">
-      <add_landmark_button
-        width="0"
-        height="0"
-        visible="false"/>
-      <maturity_button
-        width="0"
-        height="0"
-        visible="false"/>
-      <for_sale_button
-        width="0"
-        height="0"
-        visible="false"/>
-      <voice_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <fly_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <push_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <build_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <scripts_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <damage_icon
-        width="0"
-        height="0"
-        visible="false"/>
-      <damage_text 
-        width="0"
-        max_length="0"
-        visible="false"/>
-      <info_button
-        width="0"
-        height="0"
-        visible="false"/>
     </location_input>
     <icon follows="right"
           height="20"
