@@ -12399,5 +12399,27 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AvatarInspectorTooltipDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying avatar inspector tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.35</real>
+    </map>
+    <key>ObjectInspectorTooltipDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying object inspector tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.35</real>
+    </map>
 </map>
 </llsd>

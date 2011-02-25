@@ -936,7 +936,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 			p.visible_time_near(6.f);
 			p.visible_time_far(3.f);
-			p.delay_time(0.35f);
+			p.delay_time(gSavedSettings.getF32("AvatarInspectorTooltipDelay"));
 			p.wrap(false);
 			
 			LLToolTipMgr::instance().show(p);
@@ -1054,7 +1054,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
-				p.delay_time(0.35f);
+				p.delay_time(gSavedSettings.getF32("ObjectInspectorTooltipDelay"));
 				p.wrap(false);
 				
 				LLToolTipMgr::instance().show(p);
