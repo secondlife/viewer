@@ -2,4 +2,7 @@
 <textures version="101">
   <texture name="Button_Separator" file_name="bottomtray/button_separator.png" preload="true" />
   <texture name="arrow_keys.png"/>
+  <texture name="bottomtray_close_off" file_name="bottomtray/close_off.png" preload="true" />
+  <texture name="bottomtray_close_over" file_name="bottomtray/close_over.png" preload="true" />
+  <texture name="bottomtray_close_press" file_name="bottomtray/close_press.png" preload="true" />
 </textures>

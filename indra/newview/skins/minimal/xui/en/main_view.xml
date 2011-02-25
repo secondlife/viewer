@@ -124,20 +124,20 @@
                    name="bottom_tray_container"
                    visible="false"/>
             <layout_panel auto_resize="false"
-                          height="195"
+                          height="200"
                           mouse_opaque="false"
                           user_resize="false"
                           name="avatar_picker_and_destination_guide_container"
                           visible="false">
               <panel top="0"
-                     height="195"
+                     height="200"
                      left="0"
                      background_visible="true" 
                      width="500"
                      follows="all">
                 <web_browser
                   top="0"
-                  height="195"
+                  height="200"
                   follows="all"
                   name="destination_guide_contents"
                   trusted_content="true"
@@ -145,12 +145,24 @@
                   start_url="http://interest.secondlife/viewer/guide"/>
                 <web_browser
                   top="0"
-                  height="195"
+                  height="200"
                   follows="all"
                   name="avatar_picker_contents"
                   visible="false"
                   trusted_content="true"
                   start_url="http://interest.secondlife/viewer/avatar"/>
+                <button
+                  name="close"
+                  width="22"
+                  height="23"
+                  right="-10" 
+                  top="2" 
+                  follows="top|right" 
+                  chrome="true" 
+                  tab_stop="false" 
+                  image_unselected="bottomtray_close_off"
+                  image_selected="bottomtray_close_press"
+                  />
               </panel>
             </layout_panel>
           </layout_stack>

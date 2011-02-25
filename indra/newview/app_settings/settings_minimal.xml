@@ -34,7 +34,7 @@
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
-            <string>http://interest.secondlife.com/viewer/guide</string>
+            <string>http://pdp48.lindenlab.com:8001/viewer/guide/</string>
         </map>
     <key>DisableExternalBrowser</key>
         <map>
@@ -279,7 +279,9 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://interest.secondlife.com/static/viewer/avatar</string>
+      <string>
+        http://pdp48.lindenlab.com:8001/static/viewer/avatar/index.html
+      </string>
     </map>
     <key>OpenSidePanelsInFloaters</key>
     <map>

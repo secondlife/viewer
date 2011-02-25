@@ -1298,6 +1298,8 @@ endif (WINDOWS)
 set(viewer_XUI_FILES
     skins/default/colors.xml
     skins/default/textures/textures.xml
+    skins/minimal/colors.xml
+    skins/minimal/textures/textures.xml
 
 
 

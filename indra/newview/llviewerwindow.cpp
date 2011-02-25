@@ -1777,6 +1777,7 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel_container->addChild(buttons_panel);
 
 	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
 	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (destinations)

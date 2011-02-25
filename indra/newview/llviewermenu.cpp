@@ -843,9 +843,9 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
-void LLDestinationAndAvatarShow(const LLSD& value)
+void toggle_destination_and_avatar_picker(const LLSD& show)
 {
-	S32 panel_idx = value.isDefined() ? value.asInteger() : -1;
+	S32 panel_idx = show.isDefined() ? show.asInteger() : -1;
 	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
 	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
@@ -870,6 +870,8 @@ void LLDestinationAndAvatarShow(const LLSD& value)
 		avatar_picker->setVisible(false);
 		break;
 	}
+
+	gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLUICtrl>("avatar_and_destination_btns")->setValue(show);
 };
 
 
@@ -8246,5 +8248,5 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
-	commit.add("DestinationAndAvatar.show", boost::bind(&LLDestinationAndAvatarShow, _2));
+	commit.add("DestinationAndAvatar.show", boost::bind(&toggle_destination_and_avatar_picker, _2));
 }
