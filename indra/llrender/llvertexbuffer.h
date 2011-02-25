@@ -94,7 +94,7 @@ public:
 	static BOOL	sUseStreamDraw;
 	static BOOL	sPreferStreamDraw;
 
-	static void initClass(bool use_vbo);
+	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
  	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
@@ -158,19 +158,24 @@ protected:
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
 	virtual BOOL	useVBOs() const;
-	void	unmapBuffer();
-		
+	void	unmapBuffer(S32 type);
+	void freeClientBuffer() ;
+	void allocateClientVertexBuffer() ;
+	void allocateClientIndexBuffer() ;
+
 public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
 	// map for data access
-	U8*		mapBuffer(S32 access = -1);
+	U8*		mapVertexBuffer(S32 type = -1, S32 access = -1);
+	U8*		mapIndexBuffer(S32 access = -1);
+
 	// set for rendering
-	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+	virtual void	setBuffer(U32 data_mask, S32 type = -1); 	// calls  setupVertexBuffer() if data_mask is not 0
 	// allocate buffer
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
-		
+			
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
 	// example:
@@ -190,7 +195,7 @@ public:
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0);
 	
 	BOOL isEmpty() const					{ return mEmpty; }
-	BOOL isLocked() const					{ return mLocked; }
+	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
@@ -233,14 +238,15 @@ protected:
 	U32		mGLIndices;		// GL IBO handle
 	U8*		mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	U8*		mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
-	BOOL	mLocked;			// if TRUE, buffer is being or has been written to in client memory
+	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
+	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
 	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
 	BOOL	mFilthy;		// if TRUE, entire buffer must be copied (used to prevent redundant dirty flags)
-	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.
-	S32		mOffsets[TYPE_MAX];
+	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
 	BOOL	mResized;		// if TRUE, client buffer has been resized and GL buffer has not
 	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
-	
+	S32		mOffsets[TYPE_MAX];
+
 	class DirtyRegion
 	{
 	public:
@@ -264,6 +270,7 @@ public:
 	static std::vector<U32> sDeleteList;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
+	static BOOL sDisableVBOMapping; //disable glMapBufferARB
 	static BOOL sEnableVBOs;
 	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
