@@ -27,7 +27,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc80
+  echo build-vc100
 }
 
 installer_Darwin()
