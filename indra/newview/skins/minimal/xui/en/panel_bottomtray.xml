@@ -240,11 +240,12 @@
             name="show_people_button"
             tool_tip="Shows people window"
             top="5"
+            is_toggle="true"
             use_ellipses="true"
             width="100">
             <bottomtray_button.commit_callback
-              function=""
-             parameter="" />
+              function="ShowSidetrayPanel"
+             parameter="panel_people" />
           </bottomtray_button>
         </layout_panel>
       <layout_panel

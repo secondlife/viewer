@@ -40,16 +40,7 @@
                   tab_stop="false" 
                   name="hud"
                   width="1024">
-      <layout_stack border_size="0"
-                    follows="all"
-                    height="500"
-                    left="0"
-                    mouse_opaque="false"
-                    name="hud_stack"
-                    orientation="horizontal"
-                    top="0"
-                    width="1024">
-        <layout_panel auto_resize="true"
+        <panel auto_resize="false"
                follows="all"
                height="500"
                layout="topleft"
@@ -57,7 +48,7 @@
                tab_stop="false"
                name="non_side_tray_view"
                user_resize="false"
-               width="500">
+               width="1024">
 
           <layout_stack border_size="0"
                         bottom="500"
@@ -160,18 +151,7 @@
               </panel>
             </layout_panel>
           </layout_stack>
-        </layout_panel>
-        <layout_panel auto_resize="false"
-                      follows="top|bottom"
-                      height="500"
-                      min_width="333"
-                      mouse_opaque="false"
-                      tab_stop="false"
-                      name="side_tray_container"
-                      user_resize="false"
-                      visible="false"
-                      width="333"/>
-      </layout_stack>
+        </panel>
       <debug_view follows="all"
                   left="0"
                   top="0"
@@ -181,6 +161,19 @@
                   width="1024"/>
     </layout_panel>
   </layout_stack>
+  <panel follows="top|bottom"
+         height="500"
+         mouse_opaque="false"
+         tab_stop="false"
+         name="hidden_side_tray"
+         visible="false"
+         width="333">
+    <panel
+      name="side_tray_container"
+      width="333"
+      height="500"/>
+  </panel>
+
   <panel top="0"
         follows="all"
         mouse_opaque="false"
