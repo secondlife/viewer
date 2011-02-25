@@ -341,19 +341,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 bool LLAvatarActions::profileVisible(const LLUUID& id)
 {
 	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
-	if (browser)
-	{
-		// PROFILES: open in webkit window
-		std::string full_name;
-		if (gCacheName->getFullName(id,full_name))
-		{
-			std::string agent_name = LLCacheName::buildUsername(full_name);
-			llinfos << "opening web profile for " << agent_name << llendl;		
-			std::string url = getProfileURL(agent_name);
-			return url == browser->getURL();
-		}
-	}
-	return false;
+	return browser && browser->isShown();
 }
 
 

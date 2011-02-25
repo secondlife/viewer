@@ -400,8 +400,3 @@ void LLFloaterWebContent::onPopExternal()
 		LLWeb::loadURLExternal( url );
 	};
 }
-
-std::string LLFloaterWebContent::getURL() const
-{
-	return mAddressCombo->getValue().asString();
-}
