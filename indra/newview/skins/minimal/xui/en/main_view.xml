@@ -176,6 +176,15 @@
                   width="1024"/>
     </layout_panel>
   </layout_stack>
+  <panel mouse_opaque="false"
+       follows="right|top"
+       name="status_bar_container"
+       tab_stop="false"
+       height="30"
+       left="-70"
+       top="0"
+       width="70"
+       visible="false"/>
   <panel follows="top|bottom"
          height="500"
          mouse_opaque="false"

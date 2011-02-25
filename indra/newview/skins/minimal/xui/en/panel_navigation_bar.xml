@@ -11,33 +11,11 @@
  width="600">
   <icon
 	 follows="all"
-	 image_name="NavBar_BG"
-	 mouse_opaque="false"
-	 name="bg_icon"
-	 scale_image="true"
-	 visible="true"
-	 left="0"
-	 top="0"
-	 height="26"
-	 width="600"/>
-  <icon
-	 follows="all"
 	 image_name="NavBar_BG_NoFav_Bevel"
 	 mouse_opaque="false"
 	 name="bg_icon_no_fav_bevel"
 	 scale_image="true"
-	 visible="false"
-	 left="0"
-	 top="0"
-	 height="26"
-	 width="600"/>
-  <icon
-	 follows="all"
-	 image_name="NavBar_BG_NoNav_Bevel"
-	 mouse_opaque="false"
-	 name="bg_icon_no_nav_bevel"
-	 scale_image="true"
-	 visible="false"
+	 visible="true"
 	 left="0"
 	 top="0"
 	 height="26"
