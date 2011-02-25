@@ -1703,9 +1703,6 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
-			
-			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
-
 		}
 
 		// We're successfully logged in.
