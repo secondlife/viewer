@@ -9,7 +9,7 @@
  name="navigation_bar"
  chrome="true"
  width="600">
-	<icon
+  <icon
 	 follows="all"
 	 image_name="NavBar_BG"
 	 mouse_opaque="false"
@@ -20,7 +20,7 @@
 	 top="0"
 	 height="26"
 	 width="600"/>
-	<icon
+  <icon
 	 follows="all"
 	 image_name="NavBar_BG_NoFav_Bevel"
 	 mouse_opaque="false"
@@ -31,7 +31,7 @@
 	 top="0"
 	 height="26"
 	 width="600"/>
-	<icon
+  <icon
 	 follows="all"
 	 image_name="NavBar_BG_NoNav_Bevel"
 	 mouse_opaque="false"
@@ -42,7 +42,7 @@
 	 top="0"
 	 height="26"
 	 width="600"/>
-	<panel
+  <panel
 	 background_visible="false"
 	 follows="left|top|right"
 	 top="3"
@@ -50,48 +50,71 @@
 	 layout="topleft"
 	 name="navigation_panel"
 	 width="600">
-	    <location_input
-	     follows="left|right|top"
-	     halign="right"
-	     height="23"
-	     label="Location"
-	     layout="topleft"
-	     left="7"
-	     max_chars="254"
-	     mouse_opaque="false"
-	     name="location_combo"
-       enabled="false"
-	     top="0"
-	     width="550">
-        <combo_editor
-          text_color="White"
-          background_image=""/>
-        <maturity_button
-          width="0"
-          height="0"/>
-        <info_button
-          width="0"
-          image_unselected=""
-          image_disabled="" 
-          visible="false"/>
-        <add_landmark_button
-          visible="false"/>
-        <combo_button
-          width="0"
-          image_unselected=""
-          visible="false"/>
-        <combo_list
-         mouse_wheel_opaque="true"/>
-	    </location_input>
-      <button
-        right="-5" 
-        top="2"
-        width="16"
-        height="16" 
-        follows="top|right" 
-        name="skylight_help"
-        image_unselected="Icon_Help_Foreground"
-        image_selected="Icon_Help_Press"
-        />
-	</panel>
+    <pull_button
+follows="left|top"
+direction="down"
+height="23"
+image_overlay="Arrow_Left_Off"
+image_bottom_pad="1"
+layout="topleft"
+left="10"
+name="back_btn"
+tool_tip="Go back to previous location"
+top="2"
+width="31" />
+    <pull_button
+     follows="left|top"
+     direction="down"
+     height="23"
+     image_overlay="Arrow_Right_Off"
+     image_bottom_pad="1"
+     layout="topleft"
+     left_pad="0"
+     name="forward_btn"
+     tool_tip="Go forward one location"
+     top_delta="0"
+     width="31" />
+    <location_input
+     follows="left|right|top"
+     halign="right"
+     height="23"
+     label="Location"
+     layout="topleft"
+     left_pad="7"
+     max_chars="254"
+     mouse_opaque="false"
+     name="location_combo"
+     top_delta="0"
+     width="360">
+      <maturity_button
+        width="0"
+        height="0"/>
+      <info_button
+        width="0"
+        image_unselected=""
+        image_disabled=""
+        visible="false"/>
+      <add_landmark_button
+        visible="false"/>
+    </location_input>
+    <icon follows="right"
+          height="20"
+          width="2"
+          left_pad="2"
+          image_name="Button_Separator"
+          name="separator"
+          top="2"/>
+    <button
+      right="-70"
+      top="2"
+      width="80"
+      height="22"
+      label="How To"
+      follows="top|right"
+      name="skylight_help">
+      <commit_callback
+        function="ShowHelp"
+        parameter="f1_help" />
+    </button>
+  </panel>
 </panel>

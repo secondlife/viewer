@@ -23,7 +23,7 @@
                 orientation="vertical"
                 top="0">
     <layout_panel auto_resize="false"
-                  height="0"
+                  height="30"
                   mouse_opaque="false"
                   name="nav_bar_container"
                   tab_stop="false"
@@ -112,6 +112,7 @@
                     left="0"
                     mouse_opaque="false"
                     name="world_view_rect"
+                     top="0" 
                     width="500"/>
             </layout_panel>
             <layout_panel auto_resize="false"
