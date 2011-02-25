@@ -5651,15 +5651,18 @@ class LLShowSidetrayPanel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		// Toggle the panel
-		if (!LLSideTray::getInstance()->isPanelActive(panel_name))
+
+		LLPanel* panel = LLSideTray::getInstance()->getPanel(panel_name);
+		if (panel)
 		{
-			// LLFloaterInventory::showAgentInventory();
-			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
-		}
-		else
-		{
-			LLSideTray::getInstance()->collapseSideBar();
+			if (panel->isInVisibleChain())
+			{
+				LLSideTray::getInstance()->hidePanel(panel_name);
+			}
+			else
+			{
+				LLSideTray::getInstance()->showPanel(panel_name);
+			}
 		}
 		return true;
 	}
