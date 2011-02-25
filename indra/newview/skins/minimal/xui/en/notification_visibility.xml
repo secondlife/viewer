@@ -9,7 +9,6 @@
   <respond name="TeleportOffered" response="Cancel"/>
   <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteGroup" response="Decline"/>
-  <respond name="ConfirmQuit" response="OK_okcancelignore"/>
   <respond name="YouHaveBeenLoggedOut" response="Cancel_okcancelbuttons"/>
   <hide name="HintInventory"/>
   <hide name="HintLindenDollar"/>
@@ -24,6 +23,7 @@
   <hide name="RegionEntryAccessBlocked"/>
   <show name="RegionRestartMinutes"/>
   <show name="RegionRestartSeconds"/>
+  <show name="ConfirmQuit"/>
   <show tag="fail"/>
   <show type="hint"/>
   <show type="notifytoast"/>
