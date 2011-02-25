@@ -163,8 +163,9 @@ No tutorial is currently available.
    icon="alertmodal.tga"
    name="LoginFailedNoNetwork"
    type="alertmodal">
-Could not connect to the [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
+    <tag>fail</tag>
+    Could not connect to the [SECOND_LIFE_GRID].
+    &apos;[DIAGNOSTIC]&apos;
 Make sure your Internet connection is working properly.
 	<usetemplate
      name="okbutton"
@@ -176,6 +177,7 @@ Make sure your Internet connection is working properly.
    name="MessageTemplateNotFound"
    type="alertmodal">
 Message Template [PATH] not found.
+   <tag>fail</tag>
 	<usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -689,6 +691,7 @@ There was a problem uploading a report screenshot due to the following reason: [
    icon="alertmodal.tga"
    name="MustAgreeToLogIn"
    type="alertmodal">
+   <tag>fail</tag>
 You must agree to the Terms of Service to continue logging into [SECOND_LIFE].
   </notification>
 
@@ -726,6 +729,7 @@ You can not wear that item because it has not yet loaded. Please try again in a 
    icon="alertmodal.tga"
    name="MustHaveAccountToLogIn"
    type="alertmodal">
+   <tag>fail</tag>
 Oops! Something was left blank.
 You need to enter the Username name of your avatar.
 
@@ -747,6 +751,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="InvalidCredentialFormat"
    type="alertmodal">
+   <tag>fail</tag>
 You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
