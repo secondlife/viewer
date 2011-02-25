@@ -132,7 +132,7 @@ public:
 		void setBuffer(char* buffer, U32 buffer_size) ;
 
 		char* allocate() ;
-		void  free(void* addr) ;
+		void  freeMem(void* addr) ;
 
 		bool empty() {return !mAllocatedSlots;}
 		bool isFull() {return mAllocatedSlots == mTotalSlots;}
@@ -180,7 +180,7 @@ public:
 		bool empty() ;
 		
 		char* allocate(U32 size) ;
-		void  free(void* addr) ;
+		void  freeMem(void* addr) ;
 
 		const char* getBuffer() const {return mBuffer;}
 		U32 getBufferSize() const {return mBufferSize;}
@@ -236,7 +236,7 @@ private:
 
 public:
 	char *allocate(U32 size) ;
-	void  free(void* addr) ;
+	void  freeMem(void* addr) ;
 	
 	void  dump() ;
 	U32   getTotalAllocatedSize() ;
@@ -339,6 +339,7 @@ private:
 	void test(U32 min_size, U32 max_size, U32 stride, U32 times, bool random_deletion, bool output_statistics) ;
 	void testAndTime(U32 size, U32 times) ;
 
+#if 0
 public:
 	void* operator new(size_t size)
 	{
@@ -346,7 +347,7 @@ public:
 	}
     void  operator delete(void* addr)
 	{
-		sPool->free(addr) ;
+		sPool->freeMem(addr) ;
 	}
 	void* operator new[](size_t size)
 	{
@@ -354,8 +355,9 @@ public:
 	}
     void  operator delete[](void* addr)
 	{
-		sPool->free(addr) ;
+		sPool->freeMem(addr) ;
 	}
+#endif
 
 private:
 	static LLPrivateMemoryPoolTester* sInstance;

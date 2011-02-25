@@ -140,7 +140,7 @@ void  LLImageBase::deleteMemory(void* p)
 {
 	if(sPrivatePoolp)
 	{
-		sPrivatePoolp->free(p) ;
+		sPrivatePoolp->freeMem(p) ;
 	}
 	else
 	{

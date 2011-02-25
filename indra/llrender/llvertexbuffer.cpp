@@ -598,7 +598,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			sPrivatePoolp->free(mMappedData) ;
+			sPrivatePoolp->freeMem(mMappedData) ;
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -627,7 +627,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			sPrivatePoolp->free(mMappedIndexData) ;
+			sPrivatePoolp->freeMem(mMappedIndexData) ;
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -768,7 +768,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 							memset(mMappedData+oldsize, 0, newsize-oldsize);
 						}
 
-						sPrivatePoolp->free(old);
+						sPrivatePoolp->freeMem(old);
 					}
 					else
 					{
@@ -805,7 +805,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 						{
 							memset(mMappedIndexData+old_index_size, 0, new_index_size - old_index_size);
 						}
-						sPrivatePoolp->free(old);
+						sPrivatePoolp->freeMem(old);
 					}
 					else
 					{
@@ -852,8 +852,8 @@ void LLVertexBuffer::freeClientBuffer()
 {
 	if(useVBOs() && sDisableVBOMapping && (mMappedData || mMappedIndexData))
 	{
-		sPrivatePoolp->free(mMappedData) ;
-		sPrivatePoolp->free(mMappedIndexData) ;
+		sPrivatePoolp->freeMem(mMappedData) ;
+		sPrivatePoolp->freeMem(mMappedIndexData) ;
 		mMappedData = NULL ;
 		mMappedIndexData = NULL ;
 	}

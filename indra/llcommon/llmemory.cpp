@@ -572,7 +572,7 @@ void LLPrivateMemoryPool::LLMemoryBlock::init(char* buffer, U32 buffer_size, U32
 	mSlotSize = slot_size ;
 	mTotalSlots = buffer_size / mSlotSize ;	
 	
-	llassert_always(mTotalSlots <= 256) ; //max number is 256
+	llassert_always(buffer_size / mSlotSize <= 256) ; //max number is 256
 	
 	mAllocatedSlots = 0 ;
 
@@ -669,7 +669,7 @@ char* LLPrivateMemoryPool::LLMemoryBlock::allocate()
 }
 
 //free a slot
-void  LLPrivateMemoryPool::LLMemoryBlock::free(void* addr) 
+void  LLPrivateMemoryPool::LLMemoryBlock::freeMem(void* addr) 
 {
 	//bit index
 	U32 idx = ((U32)addr - (U32)mBuffer - mDummySize * sizeof(U32)) / mSlotSize ;
@@ -850,14 +850,14 @@ char* LLPrivateMemoryPool::LLMemoryChunk::allocate(U32 size)
 	return p ;
 }
 
-void LLPrivateMemoryPool::LLMemoryChunk::free(void* addr)
+void LLPrivateMemoryPool::LLMemoryChunk::freeMem(void* addr)
 {	
 	U32 blk_idx = getPageIndex((U32)addr) ;
 	LLMemoryBlock* blk = (LLMemoryBlock*)(mMetaBuffer + blk_idx * sizeof(LLMemoryBlock)) ;
 	blk = blk->mSelf ;
 
 	bool was_full = blk->isFull() ;
-	blk->free(addr) ;
+	blk->freeMem(addr) ;
 	mAlloatedSize -= blk->getSlotSize() ;
 
 	if(blk->empty())
@@ -1349,7 +1349,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 	return p ;
 }
 
-void LLPrivateMemoryPool::free(void* addr)
+void LLPrivateMemoryPool::freeMem(void* addr)
 {
 	if(!addr)
 	{
@@ -1366,7 +1366,7 @@ void LLPrivateMemoryPool::free(void* addr)
 	}
 	else
 	{
-		chunk->free(addr) ;
+		chunk->freeMem(addr) ;
 
 		if(chunk->empty())
 		{
@@ -1929,7 +1929,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 				if(p[i][k])
 				{
 					llassert_always(*(U32*)p[i][k] == i && *((U32*)p[i][k] + 1) == k) ;
-					sPool->free(p[i][k]) ;
+					sPool->freeMem(p[i][k]) ;
 					total_allocated_size -= min_size + k * stride ;
 					p[i][k] = NULL ;
 				}
@@ -1950,7 +1950,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 			if(p[i][j])
 			{
 				llassert_always(*(U32*)p[i][j] == i && *((U32*)p[i][j] + 1) == j) ;
-				sPool->free(p[i][j]) ;
+				sPool->freeMem(p[i][j]) ;
 				total_allocated_size -= min_size + j * stride ;
 				p[i][j] = NULL ;
 			}
@@ -1984,7 +1984,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 	//de-allocation
 	for(U32 i = 0 ; i < times; i++)
 	{
-		sPool->free(p[i]) ;
+		sPool->freeMem(p[i]) ;
 		p[i] = NULL ;
 	}
 	llinfos << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << llendl ;
@@ -2019,7 +2019,7 @@ void LLPrivateMemoryPoolTester::correctnessTest()
 	
 	//edge case
 	char* p = sPool->allocate(0) ;
-	sPool->free(p) ;
+	sPool->freeMem(p) ;
 
 	//small sized
 	// [8 bytes, 2KB), each asks for 256 allocations and deallocations
