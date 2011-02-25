@@ -6,7 +6,7 @@
 	<slider label="風" name="Wind Volume"/>
 	<slider label="効果音" name="SFX Volume"/>
 	<slider label="ストリーミング音楽" name="Music Volume"/>
-	<check_box label="有効" name="music_enabled"/>
+	<check_box label="有効" name="enable_music"/>
 	<slider label="メディア" name="Media Volume"/>
 	<check_box label="有効" name="enable_media"/>
 	<slider label="ボイスチャット" name="Voice Volume"/>

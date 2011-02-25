@@ -26,6 +26,7 @@ viewer-development.show_changes_since = last_sprint
 
 # Build Settings
 viewer-development_coverity.coverity_product = viewer
+viewer-development_coverity.run_tests = false
 viewer-development.build_debug_release_separately = true
 
 # Notifications - to configure email notices, add a setting like this:
@@ -143,8 +144,8 @@ media.build_viewer_update_version_manager = false
 # oz
 # ================
 
-oz_viewer-autobuild2010.build_link_parallel = false
-oz_viewer-vs2010.build_link_parallel = false
+L-oz_viewer-autobuild.build_link_parallel=false
+L-oz_viewer-autobuildvs2010.build_link_parallel=false
 
 # ========================================
 # enus
