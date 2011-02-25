@@ -64,9 +64,10 @@ LLPluginClassMedia::~LLPluginClassMedia()
 	reset();
 }
 
-bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
+bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug)
 {	
 	LL_DEBUGS("Plugin") << "launcher: " << launcher_filename << LL_ENDL;
+	LL_DEBUGS("Plugin") << "dir: " << plugin_dir << LL_ENDL;
 	LL_DEBUGS("Plugin") << "plugin: " << plugin_filename << LL_ENDL;
 	
 	mPlugin = new LLPluginProcessParent(this);
@@ -77,7 +78,7 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
 	message.setValue("target", mTarget);
 	sendMessage(message);
 	
-	mPlugin->init(launcher_filename, plugin_filename, debug);
+	mPlugin->init(launcher_filename, plugin_dir, plugin_filename, debug);
 
 	return true;
 }

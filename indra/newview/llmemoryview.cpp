@@ -37,9 +37,11 @@
 #include <sstream>
 #include <boost/algorithm/string/split.hpp>
 
+#include "llmemory.h"
 
 LLMemoryView::LLMemoryView(const LLMemoryView::Params& p)
 :	LLView(p),
+	mPaused(FALSE),
 	//mDelay(120),
     mAlloc(NULL)
 {
@@ -59,6 +61,7 @@ BOOL LLMemoryView::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
+		mPaused = !mPaused;
 	}
 	return TRUE;
 }
@@ -148,13 +151,14 @@ void LLMemoryView::draw()
 
 	// cut off lines on bottom
 	U32 max_lines = U32((height - 2 * line_height) / line_height);
-    std::vector<LLWString>::const_iterator end = mLines.end();
+	y_pos = height - MARGIN_AMT - line_height;
+    y_off = 0.f;
+
+#if !MEM_TRACK_MEM
+	std::vector<LLWString>::const_iterator end = mLines.end();
     if(mLines.size() > max_lines) {
         end = mLines.begin() + max_lines;
     }
-
-	y_pos = height - MARGIN_AMT - line_height;
-    y_off = 0.f;
     for (std::vector<LLWString>::const_iterator i = mLines.begin(); i != end; ++i)
 	{
 		font->render(*i, 0, MARGIN_AMT, y_pos -  y_off,
@@ -168,6 +172,47 @@ void LLMemoryView::draw()
 			);
 		y_off += line_height;
 	}
+
+#else
+	LLMemTracker::getInstance()->preDraw(mPaused) ;
+
+	{
+		F32 x_pos = MARGIN_AMT ;
+		U32 lines = 0 ;
+		const char* str = LLMemTracker::getInstance()->getNextLine() ;
+		while(str != NULL)
+		{
+			lines++ ;
+			font->renderUTF8(str, 0, x_pos, y_pos -  y_off,
+				LLColor4::white,
+				LLFontGL::LEFT, 
+				LLFontGL::BASELINE,
+				LLFontGL::NORMAL,
+				LLFontGL::DROP_SHADOW,
+				S32_MAX,
+				target_width,
+				NULL, FALSE);
+		
+			str = LLMemTracker::getInstance()->getNextLine() ;
+			y_off += line_height;
+
+			if(lines >= max_lines)
+			{
+				lines = 0 ;
+				x_pos += 512.f ;
+				if(x_pos + 512.f > target_width)
+				{
+					break ;
+				}
+
+				y_pos = height - MARGIN_AMT - line_height;
+				y_off = 0.f;
+			}
+		}
+	}
+
+	LLMemTracker::getInstance()->postDraw() ;
+#endif
 
 #if MEM_TRACK_TYPE
 

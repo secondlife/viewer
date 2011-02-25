@@ -403,7 +403,7 @@ S32 LLTextureEntry::setOffsetT(F32 t)
 
 S32 LLTextureEntry::setRotation(F32 theta)
 {
-	if (mRotation != theta)
+	if (mRotation != theta && llfinite(theta))
 	{
 		mRotation = theta;
 		return TEM_CHANGE_TEXTURE;
