@@ -6,7 +6,6 @@
   <respond name="VoiceInviteAdHoc" response="Decline"/>
   <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteGroup" response="Decline"/>
-  <respond name="YouHaveBeenLoggedOut" response="Cancel_okcancelbuttons"/>
   <hide name="HintInventory"/>
   <hide name="HintLindenDollar"/>
   <hide name="HintMove"/>
@@ -22,6 +21,7 @@
   <show name="RegionRestartSeconds"/>
   <show name="ConfirmQuit"/>
   <show tag="fail"/>
+  <show tag="funds"/>
   <show type="hint"/>
   <show type="notifytoast"/>
   <show name="ModeChange"/>
