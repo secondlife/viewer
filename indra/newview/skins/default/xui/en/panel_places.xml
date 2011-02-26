@@ -176,7 +176,7 @@ background_visible="true"
 				left="0"
 				orientation="horizontal"
 				top="0"
-				width="120">
+				width="113">
 		
 					<layout_panel
 					follows="bottom|left|right"
@@ -214,9 +214,9 @@ background_visible="true"
 						<menu_button
 				         follows="bottom|left|right"
 				         height="23"
-                         image_disabled="ComboButton_UpOff"
-                         image_unselected="ComboButton_UpOff"
-                         image_selected="ComboButton_UpSelected"
+						 image_disabled="ComboButton_UpOff"
+						 image_unselected="ComboButton_UpOff"
+						 image_selected="ComboButton_UpSelected"
 				         layout="topleft"
 						 mouse_opaque="false"
 				         name="overflow_btn"
@@ -238,7 +238,7 @@ background_visible="true"
 				left="0"
 				orientation="horizontal"
 				top="0"
-				width="120">		
+				width="110">		
 					<layout_panel
 					follows="bottom|left|right"
 					height="23"
@@ -248,7 +248,7 @@ background_visible="true"
 					name="profile_btn_lp"
 				    user_resize="false" 
 				    auto_resize="true"
-					width="112">
+					width="102">
 						<button
 				         follows="bottom|left|right"
 				         height="23"
@@ -259,7 +259,7 @@ background_visible="true"
 				         left="1"
 				         tool_tip="Show place profile"
 				         top="0"
-				         width="111" />		
+				         width="101" />		
 					</layout_panel>
 				</layout_stack>
 		
@@ -274,7 +274,7 @@ background_visible="true"
 				left="0"
 				orientation="horizontal"
 				top="0"
-				width="120">
+				width="112">
 					<layout_panel
 					follows="bottom|left|right"
 					height="23"
@@ -285,7 +285,7 @@ background_visible="true"
 					top="0"
 				    user_resize="false" 
 				    auto_resize="true"
-					width="61">
+					width="51">
 						<button
 				         follows="bottom|left|right"
 				         height="23"
@@ -295,7 +295,7 @@ background_visible="true"
 				         name="close_btn"
 				         left="1"
 				         top="0"
-				         width="60" />	
+				         width="50" />	
 					</layout_panel>
 				</layout_stack>
 
