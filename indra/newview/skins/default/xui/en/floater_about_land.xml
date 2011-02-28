@@ -2078,7 +2078,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_allowed"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
             <panel
@@ -2128,7 +2128,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_banned"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
         </panel>
