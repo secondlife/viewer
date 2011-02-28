@@ -152,7 +152,7 @@ namespace tut
 	void host_object::test<9>()
 	{
 //		skip("setHostByName(\"google.com\"); getHostName() -> (e.g.) \"yx-in-f100.1e100.net\"");
-		std::string hostStr = "linux.org";		
+		std::string hostStr = "lindenlab.com";		
 		LLHost host;
 		host.setHostByName(hostStr);	
 

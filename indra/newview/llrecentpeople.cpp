@@ -33,7 +33,7 @@
 
 using namespace LLOldEvents;
 
-bool LLRecentPeople::add(const LLUUID& id)
+bool LLRecentPeople::add(const LLUUID& id, const LLSD& userdata)
 {
 	if (id == gAgent.getID())
 		return false;
@@ -42,10 +42,16 @@ bool LLRecentPeople::add(const LLUUID& id)
 
 	if (is_not_group_id)
 	{
-		LLDate date_added = LLDate::now();
+		// For each avaline call the id of caller is different even if
+		// the phone number is the same.
+		// To avoid duplication of avaline list items in the recent list
+		// of panel People, deleting id's with similar phone number.
+		const LLUUID& caller_id = getIDByPhoneNumber(userdata);
+		if (caller_id.notNull())
+			mPeople.erase(caller_id);
 
-		//[] instead of insert to replace existing id->date with new date value
-		mPeople[id] = date_added;
+		//[] instead of insert to replace existing id->llsd["date"] with new date value
+		mPeople[id] = userdata;
 		mChangedSignal();
 	}
 
@@ -64,13 +70,53 @@ void LLRecentPeople::get(uuid_vec_t& result) const
 		result.push_back((*pos).first);
 }
 
-const LLDate& LLRecentPeople::getDate(const LLUUID& id) const
+const LLDate LLRecentPeople::getDate(const LLUUID& id) const
 {
 	recent_people_t::const_iterator it = mPeople.find(id);
-	if (it!= mPeople.end()) return (*it).second;
+	if (it!= mPeople.end()) return it->second["date"].asDate();
 
 	static LLDate no_date = LLDate();
 	return no_date;
+}
+
+const LLSD& LLRecentPeople::getData(const LLUUID& id) const
+{
+	recent_people_t::const_iterator it = mPeople.find(id);
+
+	if (it != mPeople.end())
+		return it->second;
+
+	static LLSD no_data = LLSD();
+	return no_data;
+}
+
+bool LLRecentPeople::isAvalineCaller(const LLUUID& id) const
+{
+	recent_people_t::const_iterator it = mPeople.find(id);
+
+	if (it != mPeople.end())
+	{
+		const LLSD& user = it->second;		
+		return user["avaline_call"].asBoolean();
+	}
+
+	return false;
+}
+
+const LLUUID& LLRecentPeople::getIDByPhoneNumber(const LLSD& userdata)
+{
+	if (!userdata["avaline_call"].asBoolean())
+		return LLUUID::null;
+
+	for (recent_people_t::const_iterator it = mPeople.begin(); it != mPeople.end(); ++it)
+	{
+		const LLSD& user_info = it->second;
+		
+		if (user_info["call_number"].asString() == userdata["call_number"].asString())
+			return it->first;
+	}
+	
+	return LLUUID::null;
 }
 
 // virtual
