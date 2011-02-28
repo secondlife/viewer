@@ -123,7 +123,7 @@ public:
 
 	void normalizeVolumeFaces();
 	void optimizeVolumeFaces();
-
+	void offsetMesh( const LLVector3& pivotPoint );
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
 	std::vector<std::string> mMaterialList;
 

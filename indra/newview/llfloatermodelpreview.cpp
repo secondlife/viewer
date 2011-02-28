@@ -174,7 +174,6 @@ std::string lod_label_name[NUM_LOD+1] =
 	"I went off the end of the lod_label_name array.  Me so smart."
 };
 
-
 bool validate_face(const LLVolumeFace& face)
 {
 	for (U32 i = 0; i < face.mNumIndices; ++i)
@@ -1675,8 +1674,40 @@ void LLModelLoader::run()
 
 		processElement(scene);
 		
+		handlePivotPoint( root );
+		
 		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
 	}
+}
+
+void LLModelLoader::handlePivotPoint( daeElement* pRoot )
+{
+	//Import an optional pivot point - a pivot point is just a node in the visual scene named "AssetPivot"
+	//If no assetpivot is found then the asset will use the SL default
+	daeElement* pScene = pRoot->getDescendant("visual_scene");
+	if ( pScene )
+	{
+		daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
+		S32 childCount = children.getCount();
+		for (S32 i = 0; i < childCount; ++i)
+		{
+			domNode* pNode = daeSafeCast<domNode>(children[i]);
+			if ( pNode && isNodeAPivotPoint( pNode ) )
+			{
+				LLMatrix4 workingTransform;
+				daeSIDResolver nodeResolver( pNode, "./translate" );
+				domTranslate* pTranslate = daeSafeCast<domTranslate>( nodeResolver.getElement() );
+				//Translation via SID was successful
+				//todo#extract via element as well
+				if ( pTranslate )
+				{
+					extractTranslation( pTranslate, workingTransform );
+					mPreview->setModelPivot( workingTransform.getTranslation() );
+					mPreview->setHasPivot( true );
+				}					
+			}
+		}
+	} 
 }
 
 bool LLModelLoader::doesJointArrayContainACompleteRig( const std::vector<std::string> &jointListFromModel )
@@ -1752,6 +1783,25 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 	}
 
 	return false;
+}
+
+bool LLModelLoader::isNodeAPivotPoint( domNode* pNode )
+{
+	bool result = false;
+	
+	if ( pNode && pNode->getName() )
+	{
+		std::string name = pNode->getName();
+		if ( name == "AssetPivot" )
+		{
+			result = true;
+		}
+		else
+		{
+			result = false;
+		}
+	}	
+	return result;
 }
 
 void LLModelLoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
@@ -2185,6 +2235,9 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 
 	mFMP = fmp;
 
+	mHasPivot = false;
+	mModelPivot = LLVector3( 0.0f, 0.0f, 0.0f );
+	
 	glodInit();
 }
 
@@ -2292,6 +2345,28 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
+void LLModelPreview::alterModelsPivot( void )
+{
+	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
+	{
+		if ( *iter )
+		{
+			(*iter)->offsetMesh( mModelPivot );
+		}
+	}
+	
+	for ( int i=0;i<LLModel::NUM_LODS;++i )
+	{
+		for (LLModelLoader::model_list::iterator iter = mModel[i].begin(); iter != mModel[i].end(); ++iter)
+		{
+			if ( *iter )
+			{
+				(*iter)->offsetMesh( mModelPivot );
+			}
+		}
+	}
+}
+
 void LLModelPreview::rebuildUploadData()
 {
 	assert_main_thread();
@@ -2347,6 +2422,7 @@ void LLModelPreview::rebuildUploadData()
 			LLModelInstance instance = *model_iter;
 
 			LLModel* base_model = instance.mModel;
+			
 			if (base_model)
 			{
 				base_model->mRequestedLabel = requested_name;
@@ -3441,6 +3517,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 	U32 vertex_count = 0;
 	U32 mesh_count = 0;
 
+	
 	LLModelLoader::model_list* model = NULL;
 
 	if (lod < 0 || lod > 4)
@@ -4129,6 +4206,11 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 
+	if ( mp && mp->mModelPreview->mHasPivot )
+	{
+		mp->mModelPreview->alterModelsPivot();
+	}
+	
 	mp->mModelPreview->rebuildUploadData();
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
