@@ -114,6 +114,9 @@ public:
 	bool doesJointArrayContainACompleteRig( const std::vector<std::string> &modelJointList );
 	bool checkForCompleteRig(  const std::vector<std::string> &jointListFromModel );
 	
+	void handlePivotPoint( daeElement* pRoot );
+	bool isNodeAPivotPoint( domNode* pNode );
+	
 	void setLoadState( U32 state ) { mState = state; }
 	U32 getLoadState( void ) { return mState; }
 	
@@ -279,7 +282,7 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	
+	void alterModelsPivot( void );
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
@@ -287,7 +290,10 @@ public:
 	void updateStatusMessages();
 	void clearGLODGroup();
 	void onLODParamCommit(bool enforce_tri_limit);
-
+	const bool getModelPivot( void ) const { return mHasPivot; }
+	void setHasPivot( bool val ) { mHasPivot = val; }
+	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
+	
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
@@ -347,6 +353,9 @@ public:
 
 	details_signal_t mDetailsSignal;
 	model_loaded_signal_t mModelLoadedSignal;
+	
+	LLVector3	mModelPivot;
+	bool		mHasPivot;
 };
 
 

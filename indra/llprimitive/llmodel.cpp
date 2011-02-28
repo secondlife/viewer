@@ -810,6 +810,22 @@ BOOL LLModel::createVolumeFacesFromFile(const std::string& file_name)
 	return FALSE;
 }
 
+void LLModel::offsetMesh( const LLVector3& pivotPoint )
+{
+	LLVector4a pivot( pivotPoint[VX], pivotPoint[VY], pivotPoint[VZ] );
+	
+	for (std::vector<LLVolumeFace>::iterator faceIt = mVolumeFaces.begin(); faceIt != mVolumeFaces.end(); )
+	{
+		std::vector<LLVolumeFace>:: iterator currentFaceIt = faceIt++;
+		LLVolumeFace& face = *currentFaceIt;
+		LLVector4a *pos = (LLVector4a*) face.mPositions;
+		
+		for (U32 i=0; i<face.mNumVertices; ++i )
+		{
+			pos[i].add( pivot );
+		}
+	}
+}
 
 void LLModel::optimizeVolumeFaces()
 {
