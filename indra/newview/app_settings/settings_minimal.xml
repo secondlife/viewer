@@ -259,5 +259,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DoubleClickTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable double-click to teleport where allowed</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
   </map>
 </llsd>
