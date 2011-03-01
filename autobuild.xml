@@ -1301,6 +1301,18 @@
             <key>name</key>
             <string>linux</string>
           </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>04df406f3e5d04cf176660bdac66c3a1</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openal/rev/222391/arch/CYGWIN/installer/openal-1.12.854-1.1.0-windows-20110301.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
         </map>
         <key>version</key>
         <string>3ad86a1c</string>
