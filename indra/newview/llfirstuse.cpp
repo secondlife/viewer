@@ -104,13 +104,6 @@ void LLFirstUse::notUsingDestinationGuide(bool enable)
 	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "top"));
 }
 
-void LLFirstUse::notUsingAvatarPicker(bool enable)
-{
-	// not doing this yet
-	firstUseNotification("FirstNotUseAvatarPicker", enable, "HintAvatarPicker", LLSD(), LLSD().with("target", "avatar_picker_btn").with("direction", "top"));
-}
-
-
 // static
 void LLFirstUse::notUsingSidePanel(bool enable)
 {

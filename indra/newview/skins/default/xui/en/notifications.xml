@@ -6850,14 +6850,6 @@ Mute everyone?
   </notification>
 
   <notification
-  name="HintAvatarPicker"
-  label="Change your Look"
-  type="hint"
-  unique="true">
-    Would you like to try a new look? Click the button below to see more Avatars.
-  </notification>
-
-  <notification
     name="HintSidePanel"
     label="Side Panel"
     type="hint"

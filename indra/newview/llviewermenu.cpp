@@ -862,7 +862,6 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 		container->setVisible(true);
 		destinations->setVisible(false);
 		avatar_picker->setVisible(true);
-		LLFirstUse::notUsingAvatarPicker(false);
 		break;
 	default:
 		container->setVisible(false);

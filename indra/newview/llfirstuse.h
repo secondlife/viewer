@@ -87,7 +87,6 @@ public:
 	static void otherAvatarChatFirst(bool enable = true);
 	static void sit(bool enable = true);
 	static void notUsingDestinationGuide(bool enable = true);
-	static void notUsingAvatarPicker(bool enable = true);
 	static void notUsingSidePanel(bool enable = true);
 	static void notMoving(bool enable = true);
 	static void viewPopup(bool enable = true);

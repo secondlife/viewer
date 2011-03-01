@@ -12333,17 +12333,6 @@
       <key>Value</key>
       <real>1200.0</real>
     </map>
-    <key>AvatarPickerHintTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of seconds to wait before telling resident about avatar picker.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>600.0</real>
-    </map>
     <key>SidePanelHintTimeout</key>
     <map>
       <key>Comment</key>
