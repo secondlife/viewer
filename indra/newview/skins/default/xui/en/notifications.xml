@@ -104,6 +104,7 @@
 Your version of [APP_NAME] does not know how to display the notification it just received.  Please verify that you have the latest Viewer installed.
 
 Error details: The notification called &apos;[_NAME]&apos; was not found in notifications.xml.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -116,6 +117,7 @@ Error details: The notification called &apos;[_NAME]&apos; was not found in noti
 Floater error: Could not find the following controls:
 
 [CONTROLS]
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -126,6 +128,7 @@ Floater error: Could not find the following controls:
    name="TutorialNotFound"
    type="alertmodal">
 No tutorial is currently available.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -154,6 +157,7 @@ No tutorial is currently available.
    name="BadInstallation"
    type="alertmodal">
  An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -200,6 +204,7 @@ Save changes to current clothing/body part?
    name="CompileQueueSaveText"
    type="alertmodal">
 There was a problem uploading the text for a script due to the following reason: [REASON]. Please try again later.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -207,6 +212,7 @@ There was a problem uploading the text for a script due to the following reason:
    name="CompileQueueSaveBytecode"
    type="alertmodal">
 There was a problem uploading the compiled script due to the following reason: [REASON]. Please try again later.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -214,6 +220,7 @@ There was a problem uploading the compiled script due to the following reason: [
    name="WriteAnimationFail"
    type="alertmodal">
 There was a problem writing animation data.  Please try again later.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -221,6 +228,7 @@ There was a problem writing animation data.  Please try again later.
    name="UploadAuctionSnapshotFail"
    type="alertmodal">
 There was a problem uploading the auction snapshot due to the following reason: [REASON]
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -229,6 +237,7 @@ There was a problem uploading the auction snapshot due to the following reason: 
    type="alertmodal">
 Unable to view the contents of more than one item at a time.
 Please select only one object and try again.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -236,7 +245,8 @@ Please select only one object and try again.
    name="SaveClothingBodyChanges"
    type="alertmodal">
 Save all changes to clothing/body parts?
-    <usetemplate
+<tag>confirm</tag>
+<usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
      notext="Don&apos;t Save"
@@ -269,6 +279,7 @@ Save all changes to clothing/body parts?
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
 Do you want to grant modify rights for [NAME]?
+<tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -281,6 +292,7 @@ Do you want to grant modify rights for [NAME]?
    type="alertmodal">
 Granting modify rights to another Resident allows them to change ANY objects you may have in-world. Be VERY careful when handing out this permission.
 Do you want to grant modify rights for the selected Residents?
+<tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -292,6 +304,7 @@ Do you want to grant modify rights for the selected Residents?
    name="RevokeModifyRights"
    type="alertmodal">
 Do you want to revoke modify rights for [NAME]?
+<tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -303,6 +316,7 @@ Do you want to revoke modify rights for [NAME]?
    name="RevokeModifyRightsMultiple"
    type="alertmodal">
 Do you want to revoke modify rights for the selected Residents?
+<tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -315,7 +329,8 @@ Do you want to revoke modify rights for the selected Residents?
    type="alertmodal">
 Unable to create group.
 [MESSAGE]
-    <usetemplate
+<tag>fail</tag>
+  <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
@@ -326,7 +341,8 @@ Unable to create group.
    type="alertmodal">
 [NEEDS_APPLY_MESSAGE]
 [WANT_APPLY_MESSAGE]
-    <usetemplate
+<tag>confirm</tag>
+  <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
      notext="Ignore Changes"
@@ -338,7 +354,8 @@ Unable to create group.
    name="MustSpecifyGroupNoticeSubject"
    type="alertmodal">
 You must specify a subject to send a group notice.
-    <usetemplate
+<tag>fail</tag>
+  <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
@@ -351,6 +368,7 @@ You are about to add group members to the role of [ROLE_NAME].
 Members cannot be removed from that role.
 The members must resign from the role themselves.
 Are you sure you want to continue?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I add a new group Owner"
      name="okcancelignore"
@@ -396,6 +414,7 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
    type="alertmodal">
     You are about to drop your attachment.
     Are you sure you want to continue?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before dropping attachments"
      name="okcancelignore"
@@ -408,6 +427,7 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
    type="alertmodal">
 Joining this group costs L$[COST].
 Do you wish to proceed?
+    <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -421,6 +441,7 @@ Do you wish to proceed?
    type="alertmodal">
 You are joining group [NAME].
 Do you wish to proceed?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -434,6 +455,7 @@ Do you wish to proceed?
    type="alertmodal">
 Joining this group costs L$[COST].
 You do not have enough L$ to join this group.
+    <tag>fail</tag>
     <tag>funds</tag>
   </notification>
 
@@ -459,6 +481,7 @@ Please invite members within 48 hours.
    <tag>fail</tag>
 For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hours.  Buy a pass?
     <tag>funds</tag>
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -471,6 +494,7 @@ For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hour
    type="alertmodal">
 Sale price must be set to more than L$0 if selling to anyone.
 Please select an individual to sell to if selling for L$0.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -480,6 +504,7 @@ Please select an individual to sell to if selling for L$0.
    type="alertmodal">
 The selected [LAND_SIZE] m² land is being set for sale.
 Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NAME].
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -494,6 +519,7 @@ ATTENTION: Clicking &apos;sell to anyone&apos; makes your land available to the 
 
 The selected [LAND_SIZE] m² land is being set for sale.
 Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NAME].
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -509,6 +535,7 @@ Are you sure you want to return all objects shared with the group &apos;[NAME]&a
 *WARNING* This will delete the non-transferable objects deeded to the group!
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -522,6 +549,7 @@ Objects: [N]
 Are you sure you want to return all objects owned by the Resident &apos;[NAME]&apos; on this parcel of land back to their inventory?
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -535,6 +563,7 @@ Objects: [N]
 Are you sure you want to return all objects owned by you on this parcel of land back to your inventory?
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -551,6 +580,7 @@ Transferable objects deeded to a group will be returned to their previous owners
 *WARNING* This will delete the non-transferable objects deeded to the group!
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -567,6 +597,7 @@ Transferable objects deeded to a group will be returned to their previous owners
 *WARNING* This will delete the non-transferable objects deeded to the group!
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -578,6 +609,7 @@ Objects: [N]
    name="ReturnAllTopObjects"
    type="alertmodal">
 Are you sure you want to return all listed objects back to their owner&apos;s inventory?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -589,6 +621,7 @@ Are you sure you want to return all listed objects back to their owner&apos;s in
    name="DisableAllTopObjects"
    type="alertmodal">
 Are you sure you want to disable all objects in this region?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -602,6 +635,7 @@ Are you sure you want to disable all objects in this region?
 Return the objects on this parcel of land that are NOT shared with the group [NAME] back to their owners?
 
 Objects: [N]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -615,6 +649,7 @@ Objects: [N]
 Can not disable scripts.
 This entire region is damage enabled.
 Scripts must be allowed to run for weapons to work.
+  <tag>fail</tag>
   </notification>
 
 <notification
@@ -624,6 +659,7 @@ Scripts must be allowed to run for weapons to work.
 Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
 To place the media on only one face, choose Select Face and click on the desired face of that object then click Add.
+    <tag>confirm</tag>
     <usetemplate
       ignoretext="Media will be set on multiple selected faces"
       name="okcancelignore"
@@ -636,6 +672,7 @@ To place the media on only one face, choose Select Face and click on the desired
    name="MustBeInParcel"
    type="alertmodal">
 You must be standing inside the land parcel to set its Landing Point.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -643,6 +680,7 @@ You must be standing inside the land parcel to set its Landing Point.
    name="PromptRecipientEmail"
    type="alertmodal">
 Please enter a valid email address for the recipient(s).
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -650,6 +688,7 @@ Please enter a valid email address for the recipient(s).
    name="PromptSelfEmail"
    type="alertmodal">
 Please enter your email address.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -657,6 +696,7 @@ Please enter your email address.
    name="PromptMissingSubjMsg"
    type="alertmodal">
 Email snapshot with the default subject or message?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -746,6 +786,7 @@ Oops! Something was left blank.
 You need to enter the Username name of your avatar.
 
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
+    <tag>confirm</tag>
     <url
 	option="0"
 	name="url"
@@ -776,6 +817,7 @@ Classified ads appear in the &apos;Classified&apos; section of the Search direct
 Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
 You&apos;ll be asked for a price to pay when clicking Publish.
 Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="How to create a new Classified ad"
      name="okcancelignore"
@@ -789,6 +831,7 @@ Paying more makes your ad appear higher in the list, and also appear higher when
    type="alertmodal">
 Delete classified &apos;[NAME]&apos;?
 There is no reimbursement for fees paid.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -802,6 +845,7 @@ There is no reimbursement for fees paid.
    type="alertmodal">
 You have selected to delete the media associated with this face.
 Are you sure you want to continue?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete media from an object"
      name="okcancelignore"
@@ -814,6 +858,7 @@ Are you sure you want to continue?
    name="ClassifiedSave"
    type="alertmodal">
 Save changes to classified [NAME]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -826,6 +871,7 @@ Save changes to classified [NAME]?
    name="ClassifiedInsufficientFunds"
    type="alertmodal">
 Insufficient funds to create classified.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -836,6 +882,7 @@ Insufficient funds to create classified.
    name="DeleteAvatarPick"
    type="alertmodal">
 Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -847,6 +894,7 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
    name="DeleteOutfits"
    type="alertmodal">
     Delete the selected outfit?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -858,6 +906,7 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
    name="PromptGoToEventsPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] events web page?
+    <tag>confirm</tag>
     <url option="0" name="url">
 
 			http://secondlife.com/events/
@@ -873,6 +922,7 @@ Go to the [SECOND_LIFE] events web page?
    name="SelectProposalToView"
    type="alertmodal">
 Please select a proposal to view.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -880,6 +930,7 @@ Please select a proposal to view.
    name="SelectHistoryItemToView"
    type="alertmodal">
 Please select a history item to view.
+  <tag>fail</tag>
   </notification>
 
 <!--
@@ -946,9 +997,9 @@ Changing language will take effect after you restart [APP_NAME].
    icon="alertmodal.tga"
    name="GoToAuctionPage"
    type="alertmodal">
-Go to the [SECOND_LIFE] web page to see auction details or make a bid?
+    Go to the [SECOND_LIFE] web page to see auction details or make a bid?
+    <tag>confirm</tag>
     <url option="0" name="url">
-
 			http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
     </url>
     <usetemplate
@@ -962,6 +1013,7 @@ Go to the [SECOND_LIFE] web page to see auction details or make a bid?
    name="SaveChanges"
    type="alertmodal">
 Save Changes?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -1028,6 +1080,7 @@ There was a problem saving a notecard due to the following reason: [REASON].  Pl
 Could not undo all changes in your version of the script.
 Would you like to load the server&apos;s last saved version?
 (**Warning** This operation cannot be undone.)
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1103,6 +1156,7 @@ Unable to write file [[FILE]]
 Just so you know, your computer does not meet [APP_NAME]&apos;s minimum system requirements. You may experience poor performance. Unfortunately, the [SUPPORT_SITE] can't provide technical support for unsupported system configurations.
 
 Visit [_URL] for more information?
+    <tag>confirm</tag>
     <url option="0" name="url">
 
 			http://www.secondlife.com/corporate/sysreqs.php
@@ -1155,6 +1209,7 @@ The region [REGION] does not allow terraforming.
 You do not have permission to copy the following items:
 [ITEMS]
 and will lose it from your inventory if you give it away. Do you really want to offer these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -1199,6 +1254,7 @@ You do not have permission to transfer the selected items.
    type="alertmodal">
 You do not have permission to copy [COUNT] of the selected items. You will lose these items from your inventory.
 Do you really want to give these items?
+    <tag>confirm</tag>
   <tag>fail</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -1220,6 +1276,7 @@ You do not have permission to transfer the selected folder.
    type="alertmodal">
 Freeze this avatar?
 He or she will temporarily be unable to move, chat, or interact with the world.
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -1233,6 +1290,7 @@ He or she will temporarily be unable to move, chat, or interact with the world.
    type="alertmodal">
 Freeze [AVATAR_NAME]?
 He or she will temporarily be unable to move, chat, or interact with the world.
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -1245,6 +1303,7 @@ He or she will temporarily be unable to move, chat, or interact with the world.
    name="EjectAvatarFullname"
    type="alertmodal">
 Eject [AVATAR_NAME] from your land?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -1257,6 +1316,7 @@ Eject [AVATAR_NAME] from your land?
    name="EjectAvatarNoBan"
    type="alertmodal">
 Eject this avatar from your land?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1268,6 +1328,7 @@ Eject this avatar from your land?
    name="EjectAvatarFullnameNoBan"
    type="alertmodal">
 Eject [AVATAR_NAME] from your land?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1306,6 +1367,7 @@ Please move all objects to be acquired onto the same region.
 [EXTRA]
 
 Go to [_URL] for information on purchasing L$?
+    <tag>confirm</tag>
     <url option="0" name="url">
 
 			http://secondlife.com/app/currency/
@@ -1786,6 +1848,7 @@ Unable to force land ownership because selection spans multiple regions. Please 
    type="alertmodal">
 This parcel is up for auction. Forcing ownership will cancel the auction and potentially make some Residents unhappy if bidding has begun.
 Force ownership?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1981,6 +2044,7 @@ You are about to release [AREA] m² of land.
 Releasing this parcel will remove it from your land holdings, but will not grant any L$.
 
 Release this land?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2015,6 +2079,7 @@ Try selecting a part of the parcel.
 Dividing this land will split this parcel into two and each parcel can have its own settings. Some settings will be reset to defaults after the operation.
 
 Divide land?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2078,6 +2143,7 @@ Joining this land will create one large parcel out of all parcels intersecting t
 You will need to reset the name and options of the new parcel.
 
 Join land?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2089,6 +2155,7 @@ Join land?
    name="ConfirmNotecardSave"
    type="alertmodal">
 This notecard needs to be saved before the item can be copied or viewed. Save notecard?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2100,6 +2167,7 @@ This notecard needs to be saved before the item can be copied or viewed. Save no
    name="ConfirmItemCopy"
    type="alertmodal">
 Copy this item to your inventory?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2177,6 +2245,7 @@ You do not have permission to buy land for your active group.
 Friends can give permissions to track each other on the map and receive online status updates.
 
 Offer friendship to [NAME]?
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 Would you be my friend?
@@ -2200,6 +2269,7 @@ Would you be my friend?
  type="alertmodal"
  unique="true">
     Save what I'm wearing as a new Outfit:
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
         [DESC] (new)
@@ -2222,6 +2292,7 @@ Would you be my friend?
  name="SaveWearableAs"
  type="alertmodal">
     Save item to my inventory as:
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
         [DESC] (new)
@@ -2245,6 +2316,7 @@ Would you be my friend?
    name="RenameOutfit"
    type="alertmodal">
     New outfit name:
+    <tag>confirm</tag>
     <form name="form">
       <input name="new_name" type="text" width="300">
         [NAME]
@@ -2267,6 +2339,7 @@ Would you be my friend?
    type="alertmodal">
     <tag>friendship</tag>
 Do you want to remove [NAME] from your Friends List?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2279,6 +2352,7 @@ Do you want to remove [NAME] from your Friends List?
    type="alertmodal">
     <tag>friendship</tag>
 Do you want to remove multiple friends from your Friends list?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2292,6 +2366,7 @@ Do you want to remove multiple friends from your Friends list?
 Are you sure you want to delete all scripted objects owned by
 ** [AVATAR_NAME] **
 on all others land in this sim?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2305,6 +2380,7 @@ on all others land in this sim?
 Are you sure you want to DELETE ALL scripted objects owned by
 ** [AVATAR_NAME] **
 on ALL LAND in this sim?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2318,6 +2394,7 @@ on ALL LAND in this sim?
 Are you sure you want to DELETE ALL objects (scripted or not) owned by
 ** [AVATAR_NAME] **
 on ALL LAND in this sim?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2349,6 +2426,7 @@ Please enter a higher price.
 At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2362,6 +2440,7 @@ Are you sure you want to delete these items?
 At least one of the items you have selected is locked.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2375,6 +2454,7 @@ Are you sure you want to delete these items?
 At least one of the items you have selected is not copyable.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2388,6 +2468,7 @@ Are you sure you want to delete these items?
 You do not own least one of the items you have selected.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2402,6 +2483,7 @@ At least one object is locked.
 At least one object is not copyable.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2416,6 +2498,7 @@ At least one object is locked.
 You do not own least one object.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2430,6 +2513,7 @@ At least one object is not copyable.
 You do not own least one object.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2445,6 +2529,7 @@ At least one object is not copyable.
 You do not own least one object.
 
 Are you sure you want to delete these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="cancel"
@@ -2458,6 +2543,7 @@ Are you sure you want to delete these items?
 At least one object is locked.
 
 Are you sure you want to take these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2472,6 +2558,7 @@ You do not own all of the objects you are taking.
 If you continue, next owner permissions will be applied and possibly restrict your ability to modify or copy them.
 
 Are you sure you want to take these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2488,6 +2575,7 @@ If you continue, next owner permissions will be applied and possibly restrict yo
 However, you can take the current selection.
 
 Are you sure you want to take these items?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2512,6 +2600,7 @@ By deeding this parcel, the group will be required to have and maintain sufficie
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2527,6 +2616,7 @@ The deed will include a simultaneous land contribution to the group from &apos;[
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2608,6 +2698,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
 Return to [http://join.secondlife.com secondlife.com] to create a new account?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2705,6 +2796,7 @@ Extended Key Usage: [EXTENDEDKEYUSAGE]
 Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
 
 Would you like to trust this authority?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2775,6 +2867,7 @@ Please select only one object and try again.
    name="KickUsersFromRegion"
    type="alertmodal">
 Teleport all Residents in this region home?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2786,6 +2879,7 @@ Teleport all Residents in this region home?
    name="EstateObjectReturn"
    type="alertmodal">
 Are you sure you want to return objects owned by [USER_NAME]?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2825,6 +2919,7 @@ Upload started. It may take up to two minutes, depending on your connection spee
    name="ConfirmBakeTerrain"
    type="alertmodal">
 Do you really want to bake the current terrain, make it the center for terrain raise/lower limits and the default for the &apos;Revert&apos; tool?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2915,6 +3010,7 @@ Finished download of raw terrain file to:
 A new version of [APP_NAME] is available.
 [MESSAGE]
 You must download this update to use [APP_NAME].
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2928,6 +3024,7 @@ You must download this update to use [APP_NAME].
 An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2941,6 +3038,7 @@ This update is not required, but we suggest you install it to improve performanc
 An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2954,6 +3052,7 @@ This update is not required, but we suggest you install it to improve performanc
 A new version of [APP_NAME] is available.
 [MESSAGE]
 You must download this update to use [APP_NAME].
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2967,6 +3066,7 @@ You must download this update to use [APP_NAME].
 An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2980,6 +3080,7 @@ This update is not required, but we suggest you install it to improve performanc
 An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2995,6 +3096,7 @@ A new version of [APP_NAME] is available.
 You must download this update to use [APP_NAME].
 
 Download to your Applications folder?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -3010,6 +3112,7 @@ An updated version of [APP_NAME] is available.
 This update is not required, but we suggest you install it to improve performance and stability.
 
 Download to your Applications folder?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -3025,6 +3128,7 @@ An updated version of [APP_NAME] is available.
 This update is not required, but we suggest you install it to improve performance and stability.
 
 Download to your Applications folder?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -3052,6 +3156,7 @@ You will be unable to log in until [APP_NAME] has been updated.
 
 Please download and install the latest viewer from
 http://secondlife.com/download.
+  <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="Quit"/>
@@ -3065,6 +3170,7 @@ There is a required update for your Second Life Installation.
 
 You may download this update from http://www.secondlife.com/downloads
 or you can install it now.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Quit Second Life"
@@ -3077,6 +3183,7 @@ or you can install it now.
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
 Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Later..."
@@ -3089,6 +3196,7 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
  type="alertmodal">
 We have downloaded an update to your [APP_NAME] installation.
 Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Later..."
@@ -3103,6 +3211,7 @@ We have downloaded a required software update.
 Version [VERSION]
 
 We must restart [APP_NAME] to install the update.
+    <tag>confirm</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3113,6 +3222,7 @@ We must restart [APP_NAME] to install the update.
  name="RequiredUpdateDownloadedDialog"
  type="alertmodal">
 We must restart [APP_NAME] to install the update.
+    <tag>confirm</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3124,6 +3234,7 @@ We must restart [APP_NAME] to install the update.
    type="alertmodal">
 Deeding this object will cause the group to:
 * Receive L$ paid into the object
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I deed an object to a group"
      name="okcancelignore"
@@ -3136,6 +3247,7 @@ Deeding this object will cause the group to:
    name="WebLaunchExternalTarget"
    type="alertmodal">
 Do you want to open your Web browser to view this content?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to view a web page"
      name="okcancelignore"
@@ -3148,6 +3260,7 @@ Do you want to open your Web browser to view this content?
    name="WebLaunchJoinNow"
    type="alertmodal">
 Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to manage my account"
      name="okcancelignore"
@@ -3160,6 +3273,7 @@ Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
    name="WebLaunchSecurityIssues"
    type="alertmodal">
 Visit the [SECOND_LIFE] Wiki for details of how to report a security issue.
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to learn how to report a Security Issue"
      name="okcancelignore"
@@ -3172,6 +3286,7 @@ Visit the [SECOND_LIFE] Wiki for details of how to report a security issue.
    name="WebLaunchQAWiki"
    type="alertmodal">
 Visit the [SECOND_LIFE] QA Wiki.
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to view the QA Wiki"
      name="okcancelignore"
@@ -3184,6 +3299,7 @@ Visit the [SECOND_LIFE] QA Wiki.
    name="WebLaunchPublicIssue"
    type="alertmodal">
 Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and other issues.
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to use the Public Issue Tracker"
      name="okcancelignore"
@@ -3196,6 +3312,7 @@ Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and othe
    name="WebLaunchSupportWiki"
    type="alertmodal">
 Go to the Official Linden Blog, for the latest news and information.
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to view the blog"
      name="okcancelignore"
@@ -3208,6 +3325,7 @@ Go to the Official Linden Blog, for the latest news and information.
    name="WebLaunchLSLGuide"
    type="alertmodal">
 Do you want to open the Scripting Guide for help with scripting?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to view the Scripting Guide"
      name="okcancelignore"
@@ -3220,6 +3338,7 @@ Do you want to open the Scripting Guide for help with scripting?
    name="WebLaunchLSLWiki"
    type="alertmodal">
 Do you want to visit the LSL Portal for help with scripting?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to view the LSL Portal"
      name="okcancelignore"
@@ -3234,6 +3353,7 @@ Do you want to visit the LSL Portal for help with scripting?
 Are you sure you want to return the selected objects to their owners? Transferable deeded objects will be returned to their previous owners.
 
 *WARNING* No-transfer deeded objects will be deleted!
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I return objects to their owners"
      name="okcancelignore"
@@ -3247,6 +3367,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    type="alert">
 You are currently a member of the group [GROUP].
 Leave Group?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3258,6 +3379,7 @@ Leave Group?
    name="ConfirmKick"
    type="alert">
 Do you REALLY want to kick all Residents off the grid?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3269,6 +3391,7 @@ Do you REALLY want to kick all Residents off the grid?
    name="MuteLinden"
    type="alertmodal">
 Sorry, you cannot block a Linden.
+  <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3278,7 +3401,8 @@ Sorry, you cannot block a Linden.
    icon="alertmodal.tga"
    name="CannotStartAuctionAlreadyForSale"
    type="alertmodal">
-You cannot start an auction on a parcel which is already set for sale.  Disable the land sale if you are sure you want to start an auction.
+    You cannot start an auction on a parcel which is already set for sale.  Disable the land sale if you are sure you want to start an auction.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -3287,6 +3411,7 @@ You cannot start an auction on a parcel which is already set for sale.  Disable 
    name="MuteByNameFailed"
    type="alertmodal">
 You already have blocked this name.
+  <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3297,6 +3422,7 @@ You already have blocked this name.
    name="RemoveItemWarn"
    type="alert">
 Though permitted, deleting contents may damage the object. Do you want to delete that item?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3308,6 +3434,7 @@ Though permitted, deleting contents may damage the object. Do you want to delete
    name="CantOfferCallingCard"
    type="alert">
 Cannot offer a calling card at this time. Please try again in a moment.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3318,6 +3445,7 @@ Cannot offer a calling card at this time. Please try again in a moment.
    name="CantOfferFriendship"
    type="alert">
     <tag>friendship</tag>
+    <tag>fail</tag>
 Cannot offer friendship at this time. Please try again in a moment.
     <usetemplate
      name="okbutton"
@@ -3342,6 +3470,7 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
+    <tag>fail</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Decline"
@@ -3353,6 +3482,7 @@ You have reached your maximum number of groups. Please leave another group befor
    name="JoinedTooManyGroups"
    type="alert">
 You have reached your maximum number of groups. Please leave some group before joining or creating a new one.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3364,6 +3494,7 @@ You have reached your maximum number of groups. Please leave some group before j
    type="alert">
    <tag>win</tag>
 Kick this Resident with what message?
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 An administrator has logged you off.
@@ -3386,6 +3517,7 @@ An administrator has logged you off.
    type="alert">
    <tag>win</tag>
 Kick everyone currently on the grid with what message?
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 An administrator has logged you off.
@@ -3406,7 +3538,8 @@ An administrator has logged you off.
    icon="alert.tga"
    name="FreezeUser"
    type="alert">
-   <tag>win</tag>
+    <tag>win</tag>
+    <tag>confirm</tag>
 Freeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3429,6 +3562,7 @@ You have been frozen. You cannot move or chat. An administrator will contact you
    name="UnFreezeUser"
    type="alert">
    <tag>win</tag>
+    <tag>confirm</tag>
 Unfreeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
@@ -3460,6 +3594,7 @@ Just like in real life, it takes a while for everyone to learn about a new name.
  name="SetDisplayNameBlocked"
  type="alert">
 Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -3469,6 +3604,7 @@ Sorry, you cannot change your display name. If you feel this is in error, please
 Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
 
 Please try a shorter name.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -3476,6 +3612,7 @@ Please try a shorter name.
    name="SetDisplayNameFailedGeneric"
    type="alertmodal">
     Sorry, we could not set your display name.  Please try again later.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -3483,6 +3620,7 @@ Please try a shorter name.
    name="SetDisplayNameMismatch"
    type="alertmodal">
     The display names you entered do not match. Please re-enter.
+    <tag>fail</tag>
   </notification>
 
   <!-- *NOTE: This should never happen -->
@@ -3495,6 +3633,7 @@ Sorry, you have to wait longer before you can change your display name.
 See http://wiki.secondlife.com/wiki/Setting_your_display_name
 
 Please try again later.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -3504,6 +3643,7 @@ Please try again later.
  Sorry, we could not set your requested name because it contains a banned word.
  
  Please try a different name.
+ <tag>fail</tag>
   </notification>
 
   <notification
@@ -3511,6 +3651,7 @@ Please try again later.
  name="AgentDisplayNameSetInvalidUnicode"
  type="alertmodal">
     The display name you wish to set contains invalid characters.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -3518,6 +3659,7 @@ Please try again later.
  name="AgentDisplayNameSetOnlyPunctuation"
  type="alertmodal">
     Your display name must contain letters other than punctuation.
+    <tag>fail</tag>
   </notification>
 
 
@@ -3533,6 +3675,7 @@ Please try again later.
    name="OfferTeleport"
    type="alertmodal">
 Offer a teleport to your location with the following message?
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 Join me in [REGION]
@@ -3554,6 +3697,7 @@ Join me in [REGION]
    name="OfferTeleportFromGod"
    type="alertmodal">
 God summon Resident to your location?
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 Join me in [REGION]
@@ -3575,6 +3719,7 @@ Join me in [REGION]
    name="TeleportFromLandmark"
    type="alertmodal">
 Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm that I want to teleport to a landmark"
      name="okcancelignore"
@@ -3586,7 +3731,8 @@ Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
    icon="alertmodal.tga"
    name="TeleportToPick"
    type="alertmodal">
-Teleport to [PICK]?
+    Teleport to [PICK]?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm that I want to teleport to a location in Picks"
      name="okcancelignore"
@@ -3599,6 +3745,7 @@ Teleport to [PICK]?
    name="TeleportToClassified"
    type="alertmodal">
     Teleport to [CLASSIFIED]?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm that I want to teleport to a location in Classifieds"
      name="okcancelignore"
@@ -3611,6 +3758,7 @@ Teleport to [PICK]?
    name="TeleportToHistoryEntry"
    type="alertmodal">
 Teleport to [HISTORY_ENTRY]?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm that I want to teleport to a history location"
      name="okcancelignore"
@@ -3624,6 +3772,7 @@ Teleport to [HISTORY_ENTRY]?
    name="MessageEstate"
    type="alert">
 Type a short announcement which will be sent to everyone currently in your estate.
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text"/>
       <button
@@ -3648,6 +3797,7 @@ You are about to change a Linden owned estate (mainland, teen grid, orientation,
 This is EXTREMELY DANGEROUS because it can fundamentally affect the Resident experience.  On the mainland, it will change thousands of regions and make the spaceserver hiccup.
 
 Proceed?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3663,6 +3813,7 @@ You are about to change the access list for a Linden owned estate (mainland, tee
 
 This is DANGEROUS and should only be done to invoke the hack allowing objects/L$ to be transfered in/out of a grid.
 It will change thousands of regions and make the spaceserver hiccup.
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3675,6 +3826,7 @@ It will change thousands of regions and make the spaceserver hiccup.
    name="EstateAllowedAgentAdd"
    type="alert">
 Add to allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3688,6 +3840,7 @@ Add to allowed list for this estate only or for [ALL_ESTATES]?
    name="EstateAllowedAgentRemove"
    type="alert">
 Remove from allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3701,6 +3854,7 @@ Remove from allowed list for this estate only or for [ALL_ESTATES]?
    name="EstateAllowedGroupAdd"
    type="alert">
 Add to group allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3714,6 +3868,7 @@ Add to group allowed list for this estate only or for [ALL_ESTATES]?
    name="EstateAllowedGroupRemove"
    type="alert">
 Remove from group allowed list for this estate only or [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3727,6 +3882,7 @@ Remove from group allowed list for this estate only or [ALL_ESTATES]?
    name="EstateBannedAgentAdd"
    type="alert">
 Deny access for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3740,6 +3896,7 @@ Deny access for this estate only or for [ALL_ESTATES]?
    name="EstateBannedAgentRemove"
    type="alert">
 Remove this Resident from the ban list for  access for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3753,6 +3910,7 @@ Remove this Resident from the ban list for  access for this estate only or for [
    name="EstateManagerAdd"
    type="alert">
 Add estate manager for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3766,6 +3924,7 @@ Add estate manager for this estate only or for [ALL_ESTATES]?
    name="EstateManagerRemove"
    type="alert">
 Remove estate manager for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3779,6 +3938,7 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
    name="EstateKickUser"
    type="alert">
 Kick [EVIL_USER] from this estate?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3790,6 +3950,7 @@ Kick [EVIL_USER] from this estate?
    name="EstateChangeCovenant"
    type="alertmodal">
 Are you sure you want to change the Estate Covenant?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3814,6 +3975,7 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
    name="RegionEntryAccessBlocked_KB"
    type="alertmodal">
    <tag>fail</tag>
+    <tag>confirm</tag>
 You are not allowed in that region due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
@@ -3840,6 +4002,7 @@ You are not allowed in that region due to your maturity Rating.
    name="RegionEntryAccessBlocked_Change"
    type="alertmodal">
    <tag>fail</tag>
+    <tag>confirm</tag>
 You are not allowed in that Region due to your maturity Rating preference.
 
 To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
@@ -3885,6 +4048,7 @@ You cannot claim this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
   <tag>fail</tag>
+    <tag>confirm</tag>
     <url option="0" name="url">
 		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
@@ -3911,6 +4075,7 @@ You cannot claim this land due to your maturity Rating preference.
 
 You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
     <tag>fail</tag>
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelignore"
      yestext="Change Preference"
@@ -3938,6 +4103,7 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
 You cannot buy this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
+    <tag>confirm</tag>
   <tag>fail</tag>
     <url option="0" name="url">
 		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
@@ -3964,6 +4130,7 @@ You cannot buy this land due to your maturity Rating.
 You cannot buy this land due to your maturity Rating preference.
 
 You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+    <tag>confirm</tag>
     <tag>fail</tag>
     <usetemplate
      name="okcancelignore"
@@ -4050,6 +4217,7 @@ Asset ID for notecard is missing from database.
 Remember: Classified ad fees are non-refundable.
 
 Publish this classified now for L$[AMOUNT]?
+    <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4062,6 +4230,7 @@ Publish this classified now for L$[AMOUNT]?
    name="SetClassifiedMature"
    type="alertmodal">
 Does this classified contain Moderate content?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -4074,6 +4243,7 @@ Does this classified contain Moderate content?
    name="SetGroupMature"
    type="alertmodal">
 Does this group contain Moderate content?
+    <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -4087,6 +4257,7 @@ Does this group contain Moderate content?
    name="ConfirmRestart"
    type="alert">
 Do you really want to restart this region in 2 minutes?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4099,6 +4270,7 @@ Do you really want to restart this region in 2 minutes?
    name="MessageRegion"
    type="alert">
 Type a short announcement which will be sent to everyone in this region.
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text"/>
       <button
@@ -4131,6 +4303,7 @@ To enter Adult regions, Residents must be Account Verified, either by age-verifi
    type="alertmodal">
 This version of [APP_NAME] is not compatible with the Voice Chat feature in this region. In order for Voice Chat to function correctly you will need to update [APP_NAME].
   <tag>fail</tag>
+  <tag>voice</tag>
   </notification>
 
   <notification
@@ -4173,6 +4346,7 @@ You will be able to:
  Modify: [MODIFYPERM]
  Copy: [COPYPERM]
  Resell or Give Away: [RESELLPERM]
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4190,6 +4364,7 @@ You will be able to:
  Modify: [MODIFYPERM]
  Copy: [COPYPERM]
  Resell or Give Away: [RESELLPERM]
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4207,6 +4382,7 @@ You will be able to:
  Modify: [MODIFYPERM]
  Copy: [COPYPERM]
  Resell or Give Away: [RESELLPERM]
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4224,6 +4400,7 @@ You will be able to:
  Modify: [MODIFYPERM]
  Copy: [COPYPERM]
  Resell or Give Away: [RESELLPERM]
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4237,6 +4414,7 @@ You will be able to:
    type="alertmodal">
 Buy contents from [OWNER] for L$[PRICE]?
 They will be copied to your inventory.
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4250,6 +4428,7 @@ They will be copied to your inventory.
    type="alertmodal">
 Buy contents for L$[PRICE]?
 They will be copied to your inventory.
+  <tag>confirm</tag>
   <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4265,7 +4444,8 @@ This transaction will:
 [ACTION]
 
 Are you sure you want to proceed with this purchase?
-  <tag>funds</tag>
+    <tag>confirm</tag>
+    <tag>funds</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4281,7 +4461,8 @@ This transaction will:
 
 Are you sure you want to proceed with this purchase?
 Please re-enter your password and click OK.
-  <tag>funds</tag>
+    <tag>funds</tag>
+    <tag>confirm</tag>
     <form name="form">
       <input
        name="message"
@@ -4317,6 +4498,7 @@ You have selected &apos;no copy&apos; inventory items.
 These items will be moved to your inventory, not copied.
 
 Move the inventory item(s)?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Warn me before I move &apos;no-copy&apos; items from an object"
      name="okcancelignore"
@@ -4331,7 +4513,8 @@ Move the inventory item(s)?
 You have selected &apos;no copy&apos; inventory items.  These items will be moved to your inventory, not copied.
 Because this object is scripted, moving these items to your inventory may cause the script to malfunction.
 
-Move the inventory item(s)?
+Move the inventory item(s)?    
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Warn me before I move &apos;no-copy&apos; items which might break a scripted object"
      name="okcancelignore"
@@ -4363,6 +4546,7 @@ There are no items in this object that you are allowed to copy.
    name="WebLaunchAccountHistory"
    type="alertmodal">
 Go to your [http://secondlife.com/account/ Dashboard] to see your account history?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Launch my browser to see my account history"
      name="okcancelignore"
@@ -4376,6 +4560,7 @@ Go to your [http://secondlife.com/account/ Dashboard] to see your account histor
    type="alertmodal"
    unique="true">
 Are you sure you want to quit?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I quit"
      name="okcancelignore"
@@ -4389,6 +4574,7 @@ Are you sure you want to quit?
    type="alertmodal"
    unique="true">
     [QUESTION]
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before deleting items"
      name="okcancelignore"
@@ -4487,6 +4673,7 @@ The following required components are missing from [FLOATER]:
    type="alert">
 There is already an object attached to this point on your body.
 Do you want to replace it with the selected object?
+    <tag>confirm</tag>
     <form name="form">
       <ignore name="ignore"
        save_option="true"
@@ -4513,6 +4700,7 @@ Do you want to replace it with the selected object?
 You are in Busy Mode, which means you will not receive any items offered in exchange for this payment.
 
 Would you like to leave Busy Mode before completing this transaction?
+    <tag>confirm</tag>
     <form name="form">
       <ignore name="ignore"
        save_option="true"
@@ -4536,6 +4724,7 @@ Would you like to leave Busy Mode before completing this transaction?
    name="ConfirmDeleteProtectedCategory"
    type="alertmodal">
 The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders can cause instability.  Are you sure you want to delete it?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete a system folder"
      name="okcancelignore"
@@ -4548,6 +4737,7 @@ The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders 
    name="ConfirmEmptyTrash"
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Trash?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I empty the inventory Trash folder"
      name="okcancelignore"
@@ -4560,6 +4750,7 @@ Are you sure you want to permanently delete the contents of your Trash?
    name="ConfirmClearBrowserCache"
    type="alertmodal">
 Are you sure you want to delete your travel, web, and search history?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4571,6 +4762,7 @@ Are you sure you want to delete your travel, web, and search history?
    name="ConfirmClearCookies"
    type="alertmodal">
 Are you sure you want to clear your cookies?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4582,6 +4774,7 @@ Are you sure you want to clear your cookies?
    name="ConfirmClearMediaUrlList"
    type="alertmodal">
 Are you sure you want to clear your list of saved URLs?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4593,6 +4786,7 @@ Are you sure you want to clear your list of saved URLs?
    name="ConfirmEmptyLostAndFound"
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Lost And Found?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I empty the inventory Lost And Found folder"
      name="okcancelignore"
@@ -4619,6 +4813,7 @@ Link to this from a web page to give others easy access to this location, or try
    name="WLSavePresetAlert"
    type="alertmodal">
 Do you wish to overwrite the saved preset?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -4630,6 +4825,7 @@ Do you wish to overwrite the saved preset?
    name="WLDeletePresetAlert"
    type="alertmodal">
 Do you wish to delete [SKY]?
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -4668,6 +4864,7 @@ PostProcess Effect exists. Do you still wish overwrite it?
    name="NewSkyPreset"
    type="alert">
 Give me a name for the new sky.
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 New Preset
@@ -4697,6 +4894,7 @@ Preset already exists!
    name="NewWaterPreset"
    type="alert">
 Give me a name for the new water preset.
+    <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
 New Preset
@@ -4788,6 +4986,7 @@ Granting this request gives a script ongoing permission to take Linden dollars (
    name="AutoWearNewClothing"
    type="alertmodal">
 Would you like to automatically wear the clothing you are about to create?
+    <tag>confirm</tag>
     <usetemplate
      ignoretext="Wear the clothing I create while editing My Appearance"
      name="okcancelignore"
@@ -4803,6 +5002,7 @@ Would you like to automatically wear the clothing you are about to create?
 You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
 
 [_URL]
+    <tag>confirm</tag>
     <url option="0" name="url">
 
 	    https://secondlife.com/account/verification.php
@@ -4821,6 +5021,7 @@ You must be age-verified to visit this area.  Do you want to go to the [SECOND_L
 You must have payment information on file to visit this area.  Do you want to go to the [SECOND_LIFE] website and set this up?
 
 [_URL]
+    <tag>confirm</tag>
     <url option="0" name="url">
 
 			https://secondlife.com/account/
@@ -5405,6 +5606,7 @@ This area does not allow pushing. You can&apos;t push others here unless you own
    type="notify"
    unique="true">
 This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -5935,6 +6137,7 @@ Load web page [URL]?
 [MESSAGE]
 
 From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
+    <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -5983,6 +6186,7 @@ The item you are trying to wear uses a feature that your Viewer can&apos;t read.
 
 [QUESTIONS]
 Is this OK?
+  <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -6011,6 +6215,7 @@ An object named &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, owned by 
 If you do not trust this object and its creator, you should deny the request.
 
 Grant this request?
+  <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -6082,63 +6287,13 @@ Your L$ balance is shown in the upper-right.
    name="BuyLindenDollarSuccess"
    persist="true"
    type="notify">
+    <tag>funds</tag>
 Thank you for your payment!
 
 Your L$ balance will be updated when processing completes. If processing takes more than 20 mins, your transaction may be cancelled. In that case, the purchase amount will be credited to your US$ balance.
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
-
-<!--
-  <notification
-   icon="notify.tga"
-   name="FirstSit"
-   persist="true"
-   type="notify">
-You are sitting.
-Use your arrow keys (or AWSD) to look around.
-Click the &apos;Stand Up&apos; button to stand.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstMap"
-   persist="true"
-   type="notify">
-Click and drag the map to look around.
-Double-click to teleport.
-Use the controls on the right to find things and display different backgrounds.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstBuild"
-   persist="true"
-   type="notify">
-You have opened the Build Tools. Every object you see around you was created using these tools.
-  </notification>
--->
-
-<!--
-  <notification
-   icon="notify.tga"
-   name="FirstLeftClickNoHit"
-   persist="true"
-   type="notify">
-    Left-clicking interacts with special objects.
-    If the mouse pointer changes to a hand, you can interact with the object.
-    Right-click always shows a menu of things you can do.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstTeleport"
-   persist="true"
-   type="notify">
-You can only teleport to certain areas in this region. The arrow points to your specific destination. Click the arrow to dismiss it.
-  </notification>
-
--->
 
   <notification
    icon="notify.tga"
@@ -6151,30 +6306,6 @@ Some objects (like guns) require you to go into mouselook  to use them.
 Press &apos;M&apos; to do this.
   </notification>
 
-<!--
-  <notification
-   icon="notify.tga"
-   name="FirstAppearance"
-   persist="true"
-   type="notify">
-You are editing your Appearance.
-Use the arrow keys to look around.
-When you are done, press &apos;Save All&apos;.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstInventory"
-   persist="true"
-   type="notify">
-This is your Inventory, which contains items you own.
-
-* To wear something, drag it onto yourself.
-* To rez something inworld, drag it onto the ground.
-* To read a notecard, double-click it.
-  </notification>
--->
-
   <notification
    icon="notify.tga"
    name="FirstSandbox"
@@ -6184,47 +6315,6 @@ This is a sandbox area, and is meant to help Residents learn how to build.
 
 Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;Take&apos; to move your creation to your Inventory.
   </notification>
-
-<!--
-  <notification
-   icon="notify.tga"
-   name="FirstFlexible"
-   persist="true"
-   type="notify">
-This object is flexible. Flexis must be phantom and not physical.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstDebugMenus"
-   persist="true"
-   type="notify">
-You opened the Advanced menu.
-
-To toggle this menu,
-  Windows: Ctrl+Alt+D
-  Mac: &#8997;&#8984;D
-
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstSculptedPrim"
-   persist="true"
-   type="notify">
-You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
-  </notification>
--->
-
-  <!--
-  <notification
-   icon="notify.tga"
-   name="FirstMedia"
-   persist="true"
-   type="notify">
-    You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
-  </notification>
-  -->
 
   <notification
    icon="notifytip.tga"
@@ -6239,6 +6329,8 @@ You may only select up to [MAX_SELECT] items from this list.
    type="notify">
 [NAME] is inviting you to a Voice Chat call.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+    <tag>confirm</tag>
+    <tag>voice</tag>
     <unique>
       <context>NAME</context>
     </unique>
@@ -6288,6 +6380,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    type="notify">
 [NAME] has joined a Voice Chat call with the group [GROUP].
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+  <tag>confirm</tag>
+    <tag>voice</tag>
     <unique>
       <context>NAME</context>
       <context>GROUP</context>
@@ -6314,6 +6408,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    type="notify">
 [NAME] has joined a voice chat call with a conference chat.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+  <tag>confirm</tag>
+    <tag>voice</tag>
     <unique>
       <context>NAME</context>
     </unique>
@@ -6339,6 +6435,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    type="notify">
 [NAME] is inviting you to a conference chat.
 Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
+  <tag>confirm</tag>
+    <tag>voice</tag>
     <unique>
       <context>NAME</context>
     </unique>
@@ -6364,6 +6462,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    type="notifytip">
 The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
   <tag>fail</tag>
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6374,8 +6473,9 @@ The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum
    name="ProximalVoiceChannelFull"
    type="notifytip"
    unique="true">
-We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
-  <tag>fail</tag>
+    We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
+    <tag>fail</tag>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -6383,6 +6483,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    name="VoiceChannelDisconnected"
    type="notifytip">
 You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6393,6 +6494,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    name="VoiceChannelDisconnectedP2P"
    type="notifytip">
 [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6403,6 +6505,8 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    name="P2PCallDeclined"
    type="notifytip">
 [VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
+    <tag>voice</tag>
+    <tag>fail</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6413,6 +6517,8 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    name="P2PCallNoAnswer"
    type="notifytip">
 [VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
+    <tag>fail</tag>
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6423,7 +6529,8 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    name="VoiceChannelJoinFailed"
    type="notifytip">
 Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
-  <tag>fail</tag>
+    <tag>fail</tag>
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6436,6 +6543,8 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
    type="notifytip"
    unique="true">
 We are creating a voice channel for you. This may take up to one minute.
+  <tag>status</tag>
+  <tag>voice</tag>
   </notification>
 
   <notification
@@ -6448,6 +6557,7 @@ We are creating a voice channel for you. This may take up to one minute.
 One or more of your subscribed Voice Morphs has expired.
 [[URL] Click here] to renew your subscription.
   <tag>fail</tag>
+  <tag>voice</tag>
   </notification>
 
   <notification
@@ -6459,7 +6569,8 @@ One or more of your subscribed Voice Morphs has expired.
    unique="true">
 The active Voice Morph has expired, your normal voice settings have been applied.
 [[URL] Click here] to renew your subscription.
-  <tag>fail</tag>
+    <tag>fail</tag>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -6472,6 +6583,7 @@ The active Voice Morph has expired, your normal voice settings have been applied
 One or more of your Voice Morphs will expire in less than [INTERVAL] days.
 [[URL] Click here] to renew your subscription.
   <tag>fail</tag>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -6482,6 +6594,7 @@ One or more of your Voice Morphs will expire in less than [INTERVAL] days.
    type="notify"
    unique="true">
 New Voice Morphs are available!
+   <tag>voice</tag>
   </notification>
 
   <notification
@@ -6514,6 +6627,7 @@ Cannot enter parcel, you are not on the access list.
    type="notifytip">
 You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
   <tag>fail</tag>
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6525,6 +6639,7 @@ You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
    type="notifytip">
 An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
   <tag>fail</tag>
+    <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
@@ -6569,6 +6684,7 @@ They will be blocked for a few seconds for your security.
    name="ConfirmCloseAll"
    type="alertmodal">
 Are you sure you want to close all IMs?
+  <tag>confirm</tag>
     <usetemplate
      name="okcancelignore"
      notext="Cancel"
@@ -6616,6 +6732,7 @@ Your text chat has been muted by moderator.
  name="VoiceIsMutedByModerator"
  type="alertmodal">
 Your voice has been muted by moderator.
+    <tag>voice</tag>
         <usetemplate
          name="okbutton"
          yestext="OK"/>
@@ -6626,6 +6743,7 @@ Your voice has been muted by moderator.
    name="ConfirmClearTeleportHistory"
    type="alertmodal">
 Are you sure you want to delete your teleport history?
+  <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -6658,6 +6776,7 @@ Are you sure you want to share the following items:
 With the following Residents:
 
 [RESIDENTS]
+  <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -6676,6 +6795,7 @@ Items successfully shared.
    name="DeedToGroupFail"
    type="notifytip">
 Deed to group failed.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -6765,6 +6885,7 @@ We're having trouble connecting to your voice server:
 
 Voice communications will not be available.
 Please check your network and firewall setup.
+    <tag>voice</tag>
   <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -6800,6 +6921,8 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    name="ConfirmLeaveCall"
    type="alert">
 Are you sure you want to leave this call?
+    <tag>confirm</tag>
+    <tag>voice</tag>
     <usetemplate
      ignoretext="Confirm before I leave call"
      name="okcancelignore"
@@ -6817,6 +6940,8 @@ This will also cause all residents that later join the call to be
 muted, even after you have left the call.
 
 Mute everyone?
+    <tag>confirm</tag>
+    <tag>voice</tag>
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
@@ -6905,6 +7030,7 @@ Mute everyone?
   type="hint"
   unique="true">
     Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
+    <tag>funds</tag>
   </notification>
 
   <notification
@@ -6928,6 +7054,7 @@ Mute everyone?
   name="AuthRequest"
   type="browser">
 The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
+    <tag>confirm</tag>
     <form name="form">
       <input name="username" type="text" text="User Name"/>
       <input name="password" type="password" text="Password    "/>
@@ -6947,7 +7074,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  type="alertmodal"
  unique="true">
     Changing modes requires you to quit and restart.
-      <usetemplate
+    <tag>confirm</tag>
+    <usetemplate
    name="okcancelbuttons"
    yestext="Quit"
    notext="Don't Quit"/>
@@ -6959,6 +7087,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  type="alertmodal"
  unique="true">
     <tag>fail</tag>
+    <tag>confirm</tag>
     Creation and editing of Classifieds is only available in Standard mode. Would you like to logout and change modes?
     <usetemplate
    name="okcancelbuttons"
@@ -6972,6 +7101,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  type="alertmodal"
  unique="true">
     <tag>fail</tag>
+    <tag>confirm</tag>
     Group info and editing is only available in Standard mode. Would you like to logout and change modes?
     <usetemplate
    name="okcancelbuttons"
@@ -6985,6 +7115,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  type="alertmodal"
  unique="true">
     <tag>fail</tag>
+    <tag>confirm</tag>
     Creation and editing of Picks is only available in Standard mode. Would you like to logout and change modes?
     <usetemplate
    name="okcancelbuttons"
