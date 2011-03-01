@@ -21,6 +21,7 @@
   <show type="hint"/>
   <show type="notifytoast"/>
   <show name="ModeChange"/>
+  <show name-="YouHaveBeenLoggedOut"/>
   <hide/>
 </notification_visibility>
 
