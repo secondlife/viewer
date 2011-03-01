@@ -76,17 +76,52 @@ L$30,000
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
+  <icon
+   name="secure_browsing"
+   image_name="Lock"
+   left="0"
+   visible="false"
+   width="18"
+   height="18"
+   top="103"
+   tool_tip="Secure Browsing"
+   follows="left|top" />
    <text
    follows="all"
    font="SansSerifSmall"
    height="13"
    name="object_media_url"
-   width="220"
-   top_pad="0"
+   width="207"
+   left_pad="2"
+   top_delta="0"
    max_length = "50"
    use_ellipses="true">
    http://www.superdupertest.com
 </text>
+  <button
+   follows="top|left"
+   height="20"
+   label="Buy"
+   left="8"
+   name="buy_btn"
+   top="121"
+   width="80" />
+  <button
+   follows="top|left"
+   height="20"
+   label="Pay"
+   left_delta="0"
+   name="pay_btn"
+   top_delta="0"
+   width="80" />
+  <button
+   follows="top|left"
+   height="20"
+   label="Take Copy"
+   left_delta="0"
+   name="take_free_copy_btn"
+   top_delta="0"
+   width="80" />
   <button
    follows="top|left"
    height="20"
@@ -103,14 +138,33 @@ L$30,000
    name="sit_btn"
    top_delta="0"
    width="80" />
-  <icon
-   name="secure_browsing"
-   image_name="Lock"
-   left_delta="80"
-   visible="false"
-   width="18"
-   height="18"
+  <button
+   follows="top|left"
+   height="20"
+   label="Open"
+   left_delta="0"
+   name="open_btn"
    top_delta="0"
-   tool_tip="Secure Browsing"
-   follows="left|top" />
+   width="80" />
+
+ <!--  non-overlapping buttons here -->
+     <button
+     follows="top|left"
+     height="20"
+     label="More"
+     layout="topleft"
+     name="more_info_btn"
+     left_pad="10"
+     top_delta="0"
+     tab_stop="false"
+     width="80" />
+         <menu_button
+     follows="top|left"
+     height="20"
+     image_overlay="OptionsMenu_Off"
+     menu_filename="menu_inspect_object_gear.xml"
+     name="gear_btn"
+     right="-5"
+     top_delta="0"
+     width="35" />
 </floater>

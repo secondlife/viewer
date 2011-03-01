@@ -49,13 +49,13 @@
     follows="top|left"
     font="SansSerifBigLarge"
     height="21"
-     left="8"
-     name="user_name"
-     top="10"
-     text_color="White"
-     use_ellipses="true"
-     value="Grumpity ProductEngine"
-     width="190" />
+    left="8"
+    name="user_name"
+    top="10"
+    text_color="White"
+    use_ellipses="true"
+    value="Grumpity ProductEngine"
+    width="190" />
    <text
      follows="top|left"
      height="16"
@@ -127,6 +127,53 @@
 <!-- Overlapping buttons for default actions
     llinspectavatar.cpp makes visible the most likely default action 
 -->
+    <button
+     follows="top|left"
+     height="20"
+     label="Add Friend"
+     left="8"
+     top="135"
+     name="add_friend_btn"
+     width="90" />
+    <button
+     follows="top|left"
+     height="20"
+     label="IM"
+     left_delta="0"
+     top_delta="0"
+     name="im_btn"
+     width="80"
+     commit_callback.function="InspectAvatar.IM"/>
+	<button
+     follows="top|left"
+     height="20"
+     label="Profile"
+     layout="topleft"
+     name="view_profile_btn"
+     left_delta="96"
+     top_delta="0"
+     tab_stop="false"
+     width="80" />
+      <!--  gear buttons here -->
+  <menu_button
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     image_overlay="OptionsMenu_Off"
+     menu_filename="menu_inspect_avatar_gear.xml"
+     name="gear_btn"
+     right="-5"
+     top_delta="0"
+     width="35" />
+	<menu_button
+     follows="top|left"
+     height="20"
+     image_overlay="OptionsMenu_Off"
+     menu_filename="menu_inspect_self_gear.xml"
+     name="gear_self_btn"
+     right="-5"
+     top_delta="0"
+     width="35" />
   <panel 
     follows="top|left" 
     top="164" 
