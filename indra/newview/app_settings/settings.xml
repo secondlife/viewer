@@ -12421,5 +12421,38 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableClassifieds</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable creation of new classified ads</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableGroupInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing and editing of group info.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnablePicks</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable editing of picks</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>

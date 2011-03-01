@@ -631,7 +631,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 
 	bool tab_attached = isTabAttached(tab_name);
 
-	if (tab_attached && gSavedSettings.getBOOL("OpenSidePanelsInFloaters"))
+	if (tab_attached && LLUI::sSettingGroups["config"]->getBOOL("OpenSidePanelsInFloaters"))
 	{
 		tab->toggleTabDocked();
 		tab_attached = false;

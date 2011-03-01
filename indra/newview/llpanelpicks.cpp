@@ -83,6 +83,12 @@ public:
 	bool handle(const LLSD& params, const LLSD& query_map,
 		LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnablePicks"))
+		{
+			LLNotificationsUtil::add("NoPicks");
+			return false;
+		}
+
 		// handle app/classified/create urls first
 		if (params.size() == 1 && params[0].asString() == "create")
 		{
@@ -189,6 +195,12 @@ public:
 	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableClassifieds"))
+		{
+			LLNotificationsUtil::add("NoClassifieds");
+			return false;
+		}
+
 		// handle app/classified/create urls first
 		if (params.size() == 1 && params[0].asString() == "create")
 		{

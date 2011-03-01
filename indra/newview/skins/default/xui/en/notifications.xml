@@ -6952,7 +6952,46 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
     </notification>
-  
+
+  <notification
+ name="NoClassifieds"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    Creation and editing of Classifieds is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+    </notification>
+
+  <notification
+ name="NoGroupInfo"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    Group info and editing is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoPicks"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    Creation and editing of Picks is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
