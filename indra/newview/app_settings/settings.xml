@@ -1323,6 +1323,18 @@
       <integer>0</integer>
     </map>
 
+  <key>CameraFocusTransitionTime</key>
+  <map>
+    <key>Comment</key>
+    <string>How many seconds it takes the camera to transition between focal distances</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+
   <key>CameraFNumber</key>
   <map>
     <key>Comment</key>
