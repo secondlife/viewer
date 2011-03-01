@@ -165,6 +165,8 @@ do
   build_dir_stubs="$build_dir/win_setup/$variant"
   rm -rf "$build_dir"
   mkdir -p "$build_dir"
+  mkdir -p "$build_dir/tmp"
+  export TMP="$build_dir/tmp"
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
     if $build_link_parallel

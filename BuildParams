@@ -238,4 +238,12 @@ viewer-asset-delivery-metrics.build_server_tests = false
 #==============================================================================
 viewer-autobuild.build_link_parallel = false
 viewer-vs2010.build_link_parallel = false
+
+
+#==============================================================================
+# vs2010 debug - for TC debugging only 
+#==============================================================================
+viewer-vs2010.build_CYGWIN_Debug = false
+viewer-vs2010.build_CYGWIN_Release = false
+
 # eof
