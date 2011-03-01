@@ -13,16 +13,16 @@
  width="333">
     <string
      name="no_recent_people"
-     value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
+     value="No recent people. Looking for people to hang out with? Try the Destinations button below." />
     <string
      name="no_filtered_recent_people"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
+     value="Didn't find what you're looking for? Try the Destinations button below." />
     <string
      name="no_one_near"
-     value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
+     value="No one nearby. Looking for people to hang out with? Try the Destinations button below." />
     <string
      name="no_one_filtered_near"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
+     value="Didn't find what you're looking for? Try the Destinations button below." />
     <string
      name="no_friends_online"
      value="No friends online" />
