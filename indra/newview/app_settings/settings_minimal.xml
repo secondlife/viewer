@@ -81,15 +81,6 @@
         <key>Value</key>
             <integer>21</integer>
         </map>
-    <key>QuitAfterSecondsOfAFK</key>
-        <map>
-        <key>Comment</key>
-            <string>The duration allowed after being AFK before quitting.</string>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>600</real>
-        </map>
     <key>RenderTrackerBeacon</key>
         <map>
         <key>Comment</key>
