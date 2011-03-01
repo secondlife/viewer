@@ -9,13 +9,13 @@
  bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="148"
+ height="164"
  layout="topleft"
  name="inspect_avatar"
  single_instance="true"
  sound_flags="0"
  visible="true"
- width="228">
+ width="245">
   <!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
@@ -34,15 +34,38 @@
     </string>
   <text
      follows="top|left"
-     font="SansSerifLarge"
-     height="16"
+     font="SansSerif"
+     height="20"
+     left="8"
+     name="user_name_small"
+     top="7"
+     text_color="White"
+     use_ellipses="true"
+     word_wrap="true"
+    visible="false" 
+     value="Grumpity ProductEngine with a long name"
+     width="185" />
+   <text
+    follows="top|left"
+    font="SansSerifBigLarge"
+    height="21"
      left="8"
      name="user_name"
      top="10"
      text_color="White"
      use_ellipses="true"
      value="Grumpity ProductEngine"
-     width="175" />
+     width="190" />
+   <text
+     follows="top|left"
+     height="16"
+     left="8"
+     name="user_slid"
+     font="SansSerifSmallBold"
+     text_color="EmphasisColor"
+     value="james.linden"
+     width="185"
+     use_ellipses="true" />
     <text
      follows="top|left"
      height="16"
@@ -50,6 +73,7 @@
      name="user_subtitle"
      font="SansSerifSmall"
      text_color="White"
+     top_pad="0" 
      value="11 Months, 3 days old"
      width="175"
      use_ellipses="true" />
@@ -60,9 +84,9 @@
      name="user_details"
      right="-10"
      word_wrap="true"
-     top_pad="6"
+     top_pad="4"
      use_ellipses="true"
-     width="220">This is my second life description and I really think it is great.
+     width="220">This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
     </text>
     <slider
      follows="top|left"
@@ -76,7 +100,7 @@
      tool_tip="Voice volume"
      top_pad="0"
      value="0.5"
-     width="195" />
+     width="200" />
     <button
      follows="top|left"
      height="16"
@@ -105,7 +129,7 @@
 -->
   <panel 
     follows="top|left" 
-    top="148" 
+    top="164" 
     left="0" 
     height="60" 
     width="228" 
