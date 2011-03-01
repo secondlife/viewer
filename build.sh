@@ -141,6 +141,10 @@ fi
 # load autbuild provided shell functions and variables
 eval "$("$AUTOBUILD" source_environment)"
 
+# dump environment variables for debugging
+env|sort
+
+
 # Install packages.
 "$AUTOBUILD" install --skip-license-check
 
