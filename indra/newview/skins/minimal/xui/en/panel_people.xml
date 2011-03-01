@@ -16,13 +16,13 @@
      value="No recent people. Looking for people to hang out with? Try the Destinations button below." />
     <string
      name="no_filtered_recent_people"
-     value="Didn't find what you're looking for? Try the Destinations button below." />
+     value="No recent people with that name." />
     <string
      name="no_one_near"
      value="No one nearby. Looking for people to hang out with? Try the Destinations button below." />
     <string
      name="no_one_filtered_near"
-     value="Didn't find what you're looking for? Try the Destinations button below." />
+     value="No one nearby with that name." />
     <string
      name="no_friends_online"
      value="No friends online" />
@@ -31,12 +31,12 @@
      value="No friends" />
     <string
      name="no_friends_msg">
-         Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
-Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
+         Right-click on a Resident to add them as a friend.
+Looking for people to hang out with? Try the Destinations button below.
     </string>
     <string
      name="no_filtered_friends_msg">
-         Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search].
+      Didn't find what you're looking for? Try the Destinations button below..
     </string>
     <string
      name="people_filter_label"
