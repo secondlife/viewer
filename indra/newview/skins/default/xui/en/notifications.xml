@@ -5964,6 +5964,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
 [NAME_SLURL] has offered to teleport you to their location:
 
 [MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+    <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -6008,6 +6009,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    name="OfferFriendship"
    type="offer">
     <tag>friendship</tag>
+    <tag>confirm</tag>
 [NAME_SLURL] is offering friendship.
 
 [MESSAGE]
