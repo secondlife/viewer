@@ -2168,6 +2168,11 @@ bool LLAppViewer::initConfiguration()
 	// - load overrides from user_settings 
 	loadSettingsFromDirectory("User");
 
+	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
+	{
+		gSavedSettings.setString("SessionSettingsFile", "settings_minimal.xml");
+	}
+
 	if (clp.hasOption("sessionsettings"))
 	{
 		std::string session_settings_filename = clp.getOption("sessionsettings")[0];		
