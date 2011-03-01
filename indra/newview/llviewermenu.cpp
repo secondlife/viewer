@@ -4781,110 +4781,6 @@ class LLToolsSelectNextPart : public view_listener_t
 	}
 };
 
-// in order to link, all objects must have the same owner, and the
-// agent must have the ability to modify all of the objects. However,
-// we're not answering that question with this method. The question
-// we're answering is: does the user have a reasonable expectation
-// that a link operation should work? If so, return true, false
-// otherwise. this allows the handle_link method to more finely check
-// the selection and give an error message when the uer has a
-// reasonable expectation for the link to work, but it will fail.
-class LLToolsEnableLink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = false;
-		// check if there are at least 2 objects selected, and that the
-		// user can modify at least one of the selected objects.
-
-		// in component mode, can't link
-		if (!gSavedSettings.getBOOL("EditLinkedParts"))
-		{
-			if(LLSelectMgr::getInstance()->selectGetAllRootsValid() && LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() >= 2)
-			{
-				struct f : public LLSelectedObjectFunctor
-				{
-					virtual bool apply(LLViewerObject* object)
-					{
-						return object->permModify();
-					}
-				} func;
-				const bool firstonly = true;
-				new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
-			}
-		}
-		return new_value;
-	}
-};
-
-class LLToolsLink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
-		{
-			LLNotificationsUtil::add("UnableToLinkWhileDownloading");
-			return true;
-		}
-
-		S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
-		if (object_count > MAX_CHILDREN_PER_TASK + 1)
-		{
-			LLSD args;
-			args["COUNT"] = llformat("%d", object_count);
-			int max = MAX_CHILDREN_PER_TASK+1;
-			args["MAX"] = llformat("%d", max);
-			LLNotificationsUtil::add("UnableToLinkObjects", args);
-			return true;
-		}
-
-		if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() < 2)
-		{
-			LLNotificationsUtil::add("CannotLinkIncompleteSet");
-			return true;
-		}
-		if(!LLSelectMgr::getInstance()->selectGetRootsModify())
-		{
-			LLNotificationsUtil::add("CannotLinkModify");
-			return true;
-		}
-		LLUUID owner_id;
-		std::string owner_name;
-		if(!LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name))
-		{
-			// we don't actually care if you're the owner, but novices are
-			// the most likely to be stumped by this one, so offer the
-			// easiest and most likely solution.
-			LLNotificationsUtil::add("CannotLinkDifferentOwners");
-			return true;
-		}
-		LLSelectMgr::getInstance()->sendLink();
-		return true;
-	}
-};
-
-class LLToolsEnableUnlink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
-		bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
-			first_editable_object &&
-			!first_editable_object->isAttachment();
-		return new_value;
-	}
-};
-
-class LLToolsUnlink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLSelectMgr::getInstance()->sendDelink();
-		return true;
-	}
-};
-
-
 class LLToolsStopAllAnimations : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -7902,8 +7798,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
 	view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
 	view_listener_t::addMenu(new LLToolsSelectNextPart(), "Tools.SelectNextPart");
-	view_listener_t::addMenu(new LLToolsLink(), "Tools.Link");
-	view_listener_t::addMenu(new LLToolsUnlink(), "Tools.Unlink");
+	commit.add("Tools.Link", boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
+	commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
 	view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
 	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");	
@@ -7916,8 +7812,8 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
 	view_listener_t::addMenu(new LLToolsEnableSelectNextPart(), "Tools.EnableSelectNextPart");
-	view_listener_t::addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
-	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
+	enable.add("Tools.EnableLink", boost::bind(&LLSelectMgr::enableLinkObjects, LLSelectMgr::getInstance()));
+	enable.add("Tools.EnableUnlink", boost::bind(&LLSelectMgr::enableUnlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
