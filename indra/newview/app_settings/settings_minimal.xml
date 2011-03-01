@@ -232,5 +232,19 @@
       <key>Value</key>
       <real>0.1</real>
     </map>
+    <key>AFKTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>
+        Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+        Valid values are: 0, 120, 300, 600, 1800
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
   </map>
 </llsd>
