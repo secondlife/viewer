@@ -223,6 +223,13 @@
          name="popup_holder"
          class="popup_holder"
          width="1024">
+    <icon follows="right|bottom"
+      image_name="Resize_Corner"
+      right="-1"
+      name="resize_corner"
+      width="11"
+      bottom="-1"
+      height="11" />
   </panel>
   <view top="0"
         left="0"
