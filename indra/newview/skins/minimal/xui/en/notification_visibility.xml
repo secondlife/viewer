@@ -10,14 +10,8 @@
   <hide name="HintLindenDollar"/>
   <hide name="HintMove"/>
   <hide name="ClothingLoading"/>
-  <hide name="NotAgeVerified"/>
-  <hide name="RegionEntryAccessBlocked_Change"/>
   <hide name="LandBuyPass"/>
-  <hide name="LoginPacketNeverReceived"/>
-  <hide name="RegionEntryAccessBlocked_KB"/>
-  <hide name="RegionTPAccessBlocked"/>
-  <hide name="RegionEntryAccessBlocked"/>
-  <show name="TeleportOffered"/>
+  <hide tag="voice"/>
   <show name="RegionRestartMinutes"/>
   <show name="RegionRestartSeconds"/>
   <show tag="confirm"/>
