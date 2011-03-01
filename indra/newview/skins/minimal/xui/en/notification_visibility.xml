@@ -19,6 +19,7 @@
   <hide name="RegionEntryAccessBlocked"/>
   <show name="TeleportOffered"/>
   <show name="OfferTeleport"/>
+  <show name="WebLaunchExternalTarget"/>
   <show name="RegionRestartMinutes"/>
   <show name="RegionRestartSeconds"/>
   <show name="ConfirmQuit"/>
