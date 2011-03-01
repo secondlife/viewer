@@ -24,15 +24,9 @@
 	<text name="LabelCreatorTitle">
 		Ersteller:
 	</text>
-	<text name="LabelCreatorName">
-		Nicole Linden
-	</text>
 	<button label="Profil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Eigentümer:
-	</text>
-	<text name="LabelOwnerName">
-		Thrax Linden
 	</text>
 	<button label="Profil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">

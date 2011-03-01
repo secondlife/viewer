@@ -87,14 +87,8 @@
 			<text name="Owner:">
 				所有者：
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				グループ：
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="設定" label_selected="設定..." name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>

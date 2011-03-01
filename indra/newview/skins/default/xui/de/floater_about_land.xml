@@ -86,14 +86,8 @@
 			<text name="Owner:">
 				Eigentümer:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Gruppe:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Festlegen" label_selected="Einstellen..." name="Set..." width="90"/>
 			<check_box label="Übertragung an Gruppe zulassen" name="check deed" tool_tip="Ein Gruppen-Officer kann dieses Land der Gruppe übertragen. Das Land wird dann über die Landzuteilung der Gruppe verwaltet."/>
