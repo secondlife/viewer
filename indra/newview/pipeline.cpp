@@ -6173,26 +6173,39 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		//depth of field focal plane calculations
 
-		F32 subject_distance = 16.f;
-		if (LLViewerJoystick::getInstance()->getOverrideCamera())
-		{
-			//flycam mode, use mouse cursor as focus point
-			LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
-			subject_distance = (eye-gDebugRaycastIntersection).magVec();
+		static F32 current_distance = 16.f;
+		static F32 start_distance = 16.f;
+		static F32 transition_time = 1.f;
+
+		LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+		F32 target_distance = LLViewerCamera::getInstance()->getAtAxis() * (gDebugRaycastIntersection-eye);
+		
+		if (transition_time >= 1.f &&
+			fabsf(current_distance-target_distance)/current_distance > 0.01f)
+		{ //large shift happened, interpolate smoothly to new target distance
+			llinfos << "start" << llendl;
+			transition_time = 0.f;
+			start_distance = current_distance;
+		}
+		else if (transition_time < 1.f)
+		{ //currently in a transition, continue interpolating
+			transition_time += 1.f/gSavedSettings.getF32("CameraFocusTransitionTime")*gFrameIntervalSeconds;
+			if (transition_time >= 1.f)
+			{
+				llinfos << "stop" << llendl;
+			}
+			transition_time = llmin(transition_time, 1.f);
+
+			F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
+			current_distance = start_distance + (target_distance-start_distance)*t;
 		}
 		else
-		{
-			LLViewerObject* obj = gAgentCamera.getFocusObject();
-			if (obj)
-			{
-				LLVector3 focus = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
-				LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
-				subject_distance = (focus-eye).magVec();
-			}
+		{ //small or no change, just snap to target distance
+			current_distance = target_distance;
 		}
 
 		//convert to mm
-		subject_distance *= 1000.f;
+		F32 subject_distance = current_distance*1000.f;
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
 		const F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
 		
