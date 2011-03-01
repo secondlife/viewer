@@ -189,7 +189,7 @@
                            image_unselected="PushButton_Off"
                            scale_image="true"
                            font="SansSerifSmall"
-                           label="Avatars"
+                           label="My Avatar"
                            left="0"
                            height="23"
                            width="100"
