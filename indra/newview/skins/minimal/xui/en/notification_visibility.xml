@@ -22,6 +22,7 @@
   <show name="RegionRestartMinutes"/>
   <show name="RegionRestartSeconds"/>
   <show name="ConfirmQuit"/>
+  <show tag="friendship"/>
   <show tag="fail"/>
   <show tag="funds"/>
   <show type="hint"/>

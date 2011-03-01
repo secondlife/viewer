@@ -2173,6 +2173,7 @@ You do not have permission to buy land for your active group.
    label="Add Friend"
    name="AddFriendWithMessage"
    type="alertmodal">
+    <tag>friendship</tag>
 Friends can give permissions to track each other on the map and receive online status updates.
 
 Offer friendship to [NAME]?
@@ -2264,6 +2265,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
+    <tag>friendship</tag>
 Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
@@ -2275,6 +2277,7 @@ Do you want to remove [NAME] from your Friends List?
    icon="alertmodal.tga"
    name="RemoveMultipleFromFriends"
    type="alertmodal">
+    <tag>friendship</tag>
 Do you want to remove multiple friends from your Friends list?
     <usetemplate
      name="okcancelbuttons"
@@ -3314,6 +3317,7 @@ Cannot offer a calling card at this time. Please try again in a moment.
    icon="alert.tga"
    name="CantOfferFriendship"
    type="alert">
+    <tag>friendship</tag>
 Cannot offer friendship at this time. Please try again in a moment.
     <usetemplate
      name="okbutton"
@@ -4890,6 +4894,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
+    <tag>friendship</tag>
 [NAME] is Online
   </notification>
 
@@ -4897,6 +4902,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
+    <tag>friendship</tag>
 [NAME] is Offline
   </notification>
 
@@ -4904,6 +4910,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="AddSelfFriend"
    type="notifytip">
+    <tag>friendship</tag>
 Although you&apos;re very nice, you can&apos;t add yourself as a friend.
   </notification>
 
@@ -5798,6 +5805,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    icon="notify.tga"
    name="OfferFriendship"
    type="offer">
+    <tag>friendship</tag>
 [NAME_SLURL] is offering friendship.
 
 [MESSAGE]
@@ -5819,6 +5827,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    icon="notify.tga"
    name="FriendshipOffered"
    type="offer">
+    <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
   </notification>
 
@@ -5827,6 +5836,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    name="OfferFriendshipNoMessage"
    persist="true"
    type="notify">
+    <tag>friendship</tag>
 [NAME_SLURL] is offering friendship.
 
 (By default, you will be able to see each other&apos;s online status.)
@@ -5846,6 +5856,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    icon="notify.tga"
    name="FriendshipAccepted"
    type="offer">
+    <tag>friendship</tag>
 [NAME] accepted your friendship offer.
   </notification>
 
@@ -5854,6 +5865,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    name="FriendshipDeclined"
    persist="true"
    type="notify">
+    <tag>friendship</tag>
 [NAME] declined your friendship offer.
   </notification>
   
@@ -5861,6 +5873,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    type="offer">
+    <tag>friendship</tag>
 Friendship offer accepted.
   </notification>
 
@@ -5868,6 +5881,7 @@ Friendship offer accepted.
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    type="offer">
+    <tag>friendship</tag>
 Friendship offer declined.
   </notification>
   
