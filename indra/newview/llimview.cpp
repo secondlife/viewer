@@ -2719,6 +2719,15 @@ void LLIMMgr::inviteToSession(
 		{
 			LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 		}
+		
+		// Add the caller to the Recent List here (at this point 
+		// "incoming_call" floater is shown and the recipient can
+		// reject the call), because even if a recipient will reject
+		// the call, the caller should be added to the recent list
+		// anyway. STORM-507.
+		if(type == IM_SESSION_P2P_INVITE)
+			LLRecentPeople::instance().add(caller_id);
+		
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
 }
@@ -3174,10 +3183,6 @@ public:
 			//just like a normal IM
 			//this is just replicated code from process_improved_im
 			//and should really go in it's own function -jwolk
-			if (gNoRender)
-			{
-				return;
-			}
 			LLChat chat;
 
 			std::string message = message_params["message"].asString();
@@ -3254,11 +3259,6 @@ public:
 		} //end if invitation has instant message
 		else if ( input["body"].has("voice") )
 		{
-			if (gNoRender)
-			{
-				return;
-			}
-			
 			if(!LLVoiceClient::getInstance()->voiceEnabled() || !LLVoiceClient::getInstance()->isVoiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.

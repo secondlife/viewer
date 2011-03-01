@@ -2,6 +2,7 @@
 <floater
   name="region_debug_console"
   title="Region Debug"
+  can_resize="true"
   layout="topleft"
   min_height="300"
   min_width="300"
@@ -12,7 +13,7 @@
   left="10"
    type="string"
    length="1"
-   follows="left|top|right|bottom"
+   follows="left|right|bottom"
    font="Monospace"
    height="366"
    width="576"

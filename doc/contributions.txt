@@ -66,6 +66,7 @@ Aleric Inglewood
 	SNOW-626
 	SNOW-756
 	SNOW-764
+	SNOW-800
 	VWR-10001
 	VWR-10579
 	VWR-10759
@@ -85,17 +86,21 @@ Aleric Inglewood
 	VWR-24320
     VWR-24321
  	VWR-24354
+	VWR-24366
 	VWR-24519
 	SNOW-84
 	SNOW-477
 	SNOW-744
 	SNOW-766
 	STORM-163
+	STORM-955
+	STORM-960
 Ales Beaumont
 	VWR-9352
 	SNOW-240
 Alexandrea Fride
     STORM-255
+	STORM-960
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -373,20 +378,24 @@ JB Kraft
 Joghert LeSabre
 	VWR-64
 Jonathan Yap
+	STORM-435
 	STORM-523
 	STORM-596
 	STORM-615
 	STORM-616
+	STORM-643
 	STORM-679
 	STORM-723
 	STORM-726
 	STORM-737
-	STORM-869
 	STORM-785
 	STORM-812
+	STORM-829
+	STORM-844
+	STORM-869
 	VWR-17801
 	VWR-24347
-	STORM-844
+	STORM-975
 Kage Pixel
 	VWR-11
 Ken March
@@ -614,6 +623,7 @@ Robin Cornelius
 	SNOW-599
 	SNOW-747
 	STORM-422
+	STORM-960
 	VWR-2488
 	VWR-9557
 	VWR-10579
@@ -662,6 +672,8 @@ Sergen Davies
 	CT-321
 Shawn Kaufmat
 	SNOW-240
+Siana Gearz
+	STORM-960
 SignpostMarv Martin
 	VWR-153
 	VWR-154
@@ -769,6 +781,7 @@ Twisted Laws
 	STORM-466
 	STORM-467
 	STORM-844
+	STORM-643
 Vadim Bigbear
 	VWR-2681
 Vector Hastings

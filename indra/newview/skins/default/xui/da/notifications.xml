@@ -109,6 +109,10 @@ Vælg kun en genstand, og prøv igen.
 		&apos;Ikke-venner&apos; vil ikke vide, at du har valgt at ignorere deres opkald og personlige beskeder (IM)
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		Bemærk: Når du aktiverer dette valg, kan enhver der bruger denne computer se dine favorit lokationer.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Tildeling af ændre-rettigheder til andre beboere, tillader dem at ændre, slette eller tage ETHVERT objekt du måtte have. Vær MEGET forsigtig ved tildeling af denne rettighed.
 Ønsker du at give ændre-rettgheder til [NAME]?
@@ -416,7 +420,7 @@ Tilbyd venskab til [NAME]?
 			<input name="message">
 				[DESC] (ny)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
@@ -426,7 +430,7 @@ Tilbyd venskab til [NAME]?
 			<input name="message">
 				[DESC] (ny)
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
@@ -436,7 +440,7 @@ Tilbyd venskab til [NAME]?
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
@@ -598,9 +602,41 @@ Hent og installér venligst den nyeste version fra
 http://secondlife.com/download.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="DownloadBackground">
-		En opdateret version af [APP_NAME] er hentet.
-Den vil blive anvendt næste gang du genstarter [APP_NAME]
+	<notification name="FailedRequiredUpdateInstall">
+		Vi kunne ikke installere en påkrævet opdatering.
+Du kan ikke logge på før [APP_NAME] er blevet opdateret.
+
+Hent og installer venligst den nyeste klien fra
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="Afslut"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		Dette er en påkrævet opdatering af din Second Life installation.
+
+Du kan downloade opdateringen fra http://www.secondlife.com/downloads
+eller du kan installere den nu.
+		<usetemplate name="okcancelbuttons" notext="Afslut Second Life" yestext="Hent og installér nu"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		Vi har hentet en opdatering til din [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+		<usetemplate name="okcancelbuttons" notext="Senere..." yestext="Installér nu og genstart [APP_NAME]"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		Vi har hentet en opdatering til din [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+		<usetemplate name="okcancelbuttons" notext="Senere..." yestext="Installér nu og genstart [APP_NAME]"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		Vi har hentet en påkrævet opdatering.
+Version [VERSION]
+
+Du skal genstarte [APP_NAME] for at installere denne opdatering.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		Du skal genstarte [APP_NAME] for at installere opdateringen.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		<usetemplate ignoretext="Bekræft før jeg dedikerer et objekt til en gruppe" name="okcancelignore" notext="Cancel" yestext="Deed"/>
@@ -1122,14 +1158,6 @@ Prøv at vælge mindre stykker land.
 	</notification>
 	<notification name="NoContentToSearch">
 		Vælg venligst mindst en indholdstype for at søge (PG, Mature, or Adult).
-	</notification>
-	<notification name="GroupVote">
-		[NAME] har forslået at stemme for:
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="Stem nu"/>
-			<button name="Later" text="Senere"/>
-		</form>
 	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
@@ -1682,9 +1710,7 @@ Avatar &apos;[NAME]&apos; har forladt udseende modus.
 	<notification name="NoConnect">
 		Vi har problemer med at oprette forbindelse via [PROTOCOL] [HOSTID].
 Check venligst din netværks- og firewallsetup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		Vi har problemer med at oprette forbindelse til din stemme server:
@@ -1693,9 +1719,7 @@ Check venligst din netværks- og firewallsetup.
 
 Stemme kommunikation vil ikke være tilgængelig.
 Check venligst din netværks- og firewall setup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] sekunder i live )
@@ -1731,6 +1755,9 @@ Sluk for alles lyd?
 	<notification label="Undersøg verden" name="HintDestinationGuide">
 		Destinationsguiden indeholder tusinder af nye steder der kan opleves. Vælg venligst et sted og vælg Teleport for at komme derhen.
 	</notification>
+	<notification label="Ændre dit udseende" name="HintAvatarPicker">
+		Kunne du tænke dig at prøve et nyt udseende? Klik på knappen nedenfor for at se flere avatarer.
+	</notification>
 	<notification label="Side panel" name="HintSidePanel">
 		Få hurtig tilgang til din beholdning, sæt, profiler og andet i dette side panel.
 	</notification>
@@ -1739,6 +1766,12 @@ Sluk for alles lyd?
 	</notification>
 	<notification label="Visningsnavn" name="HintDisplayName">
 		Angiv dit konfigurérbare visningsnavn her. Dette er i tillæg til dit unikke brugernavn, som ikke kan ændres. Du kan ændre hvordan du ser andre beboeres navne i dine indstillinger.
+	</notification>
+	<notification label="Flyt" name="HintMoveArrows">
+		For at gå, brug piletasterne på tastaturet. Du kan løbe ved at trykke to gange på Pil-Op
+	</notification>
+	<notification label="Se" name="HintView">
+		For at ændre dit kamera-view, benyt kredsløbs og panoreringskontrollerne. Nulstil view ved at trykke Esc eller ved at gå.
 	</notification>
 	<notification label="Beholdning" name="HintInventory">
 		Undersøg din beholdning for at finde ting. Nyeste genstand findes lettes under fanen &quot;Nye ting&quot;
@@ -1751,6 +1784,15 @@ Sluk for alles lyd?
 		<form name="form">
 			<ignore name="ignore" text="Tillad alle pop-ups"/>
 			<button name="open" text="Åben pop-up vindue"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		Hjemmesiden på  &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; kræver et brugernavn og password.
+		<form name="form">
+			<input name="username" text="Brugernavn"/>
+			<input name="password" text="Password"/>
+			<button name="ok" text="Send"/>
+			<button name="cancel" text="Annullér"/>
 		</form>
 	</notification>
 	<global name="UnsupportedGLRequirements">

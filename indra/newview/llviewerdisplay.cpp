@@ -115,8 +115,7 @@ void display_startup()
 {
 	if (   !gViewerWindow->getActive()
 		|| !gViewerWindow->mWindow->getVisible() 
-		|| gViewerWindow->mWindow->getMinimized()
-		|| gNoRender )
+		|| gViewerWindow->mWindow->getMinimized() )
 	{
 		return; 
 	}
@@ -294,7 +293,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Logic for forcing window updates if we're in drone mode.
 	//
 
-	if (gNoRender) 
+	// *TODO: Investigate running display() during gHeadlessClient.  See if this early exit is needed DK 2011-02-18
+	if (gHeadlessClient) 
 	{
 #if LL_WINDOWS
 		static F32 last_update_time = 0.f;
@@ -647,8 +647,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		BOOL to_texture = !for_snapshot &&
-						gPipeline.canUseVertexShaders() &&
+		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 						LLPipeline::sRenderGlow;
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
@@ -709,7 +708,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
 
-		if (!for_snapshot)
+		//if (!for_snapshot)
 		{
 			LLMemType mt_gw(LLMemType::MTYPE_DISPLAY_GEN_REFLECTION);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
@@ -1043,8 +1042,7 @@ LLRect get_whole_screen_region()
 		S32 tile_height = llround((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
 		int tile_y = sub_region / num_horizontal_tiles;
 		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
-		glh::matrix4f mat;
-		
+			
 		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWorldViewHeightScaled() - (tile_y * tile_height), tile_width, tile_height);
 	}
 	return whole_screen;
@@ -1124,10 +1122,14 @@ void render_ui(F32 zoom_factor, int subfield)
 	LLMemType mt_ru(LLMemType::MTYPE_DISPLAY_RENDER_UI);
 	LLGLState::checkStates();
 	
-	glPushMatrix();
-	glLoadMatrixd(gGLLastModelView);
 	glh::matrix4f saved_view = glh_get_current_modelview();
-	glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+
+	if (!gSnapshot)
+	{
+		glPushMatrix();
+		glLoadMatrixd(gGLLastModelView);
+		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+	}
 	
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
@@ -1178,8 +1180,11 @@ void render_ui(F32 zoom_factor, int subfield)
 		LLVertexBuffer::unbind();
 	}
 
-	glh_set_current_modelview(saved_view);
-	glPopMatrix();
+	if (!gSnapshot)
+	{
+		glh_set_current_modelview(saved_view);
+		glPopMatrix();
+	}
 
 	if (gDisplaySwapBuffers)
 	{
@@ -1321,7 +1326,7 @@ void render_ui_2d()
 	// render outline for HUD
 	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)
 	{
-		glPushMatrix();
+		gGL.pushMatrix();
 		S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
 		S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
@@ -1330,7 +1335,7 @@ void render_ui_2d()
 		glScalef(zoom,zoom,1.f);
 		gGL.color4fv(LLColor4::white.mV);
 		gl_rect_2d(-half_width, half_height, half_width, -half_height, FALSE);
-		glPopMatrix();
+		gGL.popMatrix();
 		stop_glerror();
 	}
 	
@@ -1378,8 +1383,7 @@ void render_ui_2d()
 			gGL.setColorMask(true, false);
 
 			LLUI::sDirtyRect = t_rect;
-			
-	}
+		}
 
 		LLGLDisable cull(GL_CULL_FACE);
 		LLGLDisable blend(GL_BLEND);

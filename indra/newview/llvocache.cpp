@@ -651,7 +651,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	
 void LLVOCache::purgeEntries(U32 size)
 {
-	while(mHeaderEntryQueue.size() >= size)
+	while(mHeaderEntryQueue.size() > size)
 	{
 		header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ;
 		HeaderEntryInfo* entry = *iter ;			

@@ -143,6 +143,30 @@ void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
 	S32 cur_index = getHighlightedItemInx();
 	if (cur_index != target_index)
 	{
+		bool is_mouse_over_name_cell = false;
+
+		S32 mouse_x, mouse_y;
+		LLUI::getMousePositionLocal(this, &mouse_x, &mouse_y);
+
+		S32 column_index = getColumnIndexFromOffset(mouse_x);
+		LLScrollListItem* hit_item = hitItem(mouse_x, mouse_y);
+		if (hit_item && column_index == mNameColumnIndex)
+		{
+			// Get the name cell which is currently under the mouse pointer.
+			LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
+			if (hit_cell)
+			{
+				is_mouse_over_name_cell = getCellRect(cur_index, column_index).pointInRect(mouse_x, mouse_y);
+			}
+		}
+
+		// If the tool tip is visible and the mouse is over the currently highlighted item's name cell,
+		// we should not reset the highlighted item index i.e. set mHighlightedItem = -1
+		// and should not increase the width of the text inside the cell because it may
+		// overlap the tool tip icon.
+		if (LLToolTipMgr::getInstance()->toolTipVisible() && is_mouse_over_name_cell)
+			return;
+
 		if(0 <= cur_index && cur_index < (S32)getItemList().size())
 		{
 			LLScrollListItem* item = getItemList()[cur_index];

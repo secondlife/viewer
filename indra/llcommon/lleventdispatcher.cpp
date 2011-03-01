@@ -269,9 +269,10 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
 
 LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
 {
-    if (! (argsmap.isUndefined() || argsmap.isMap()))
+    if (! (argsmap.isUndefined() || argsmap.isMap() || argsmap.isArray()))
     {
-        LL_ERRS("LLSDArgsMapper") << _function << " map() needs a map, not " << argsmap << LL_ENDL;
+        LL_ERRS("LLSDArgsMapper") << _function << " map() needs a map or array, not "
+                                  << argsmap << LL_ENDL;
     }
     // Initialize the args array. Indexing a non-const LLSD array grows it
     // to appropriate size, but we don't want to resize this one on each
@@ -295,30 +296,57 @@ LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
     // holes. (Avoid std::vector<bool> which is known to be odd -- can we
     // iterate?)
     FilledVector filled(args.size());
-    // Walk the map.
-    for (LLSD::map_const_iterator mi(argsmap.beginMap()), mend(argsmap.endMap());
-         mi != mend; ++mi)
+
+    if (argsmap.isArray())
     {
-        // mi->first is a parameter-name string, with mi->second its
-        // value. Look up the name's position index in _indexes.
-        IndexMap::const_iterator ixit(_indexes.find(mi->first));
-        if (ixit == _indexes.end())
+        // Fill args from array. If there are too many args in passed array,
+        // ignore the rest.
+        LLSD::Integer size(argsmap.size());
+        if (size > args.size())
         {
-            // Allow for a map containing more params than were passed in
-            // our names array. Caller typically receives a map containing
-            // the function name, cruft such as reqid, etc. Ignore keys
-            // not defined in _indexes.
-            LL_DEBUGS("LLSDArgsMapper") << _function << " ignoring "
-                                        << mi->first << "=" << mi->second << LL_ENDL;
-            continue;
+            // We don't just use std::min() because we want to sneak in this
+            // warning if caller passes too many args.
+            LL_WARNS("LLSDArgsMapper") << _function << " needs " << args.size()
+                                       << " params, ignoring last " << (size - args.size())
+                                       << " of passed " << size << ": " << argsmap << LL_ENDL;
+            size = args.size();
         }
-        LLSD::Integer pos = ixit->second;
-        // Store the value at that position in the args array.
-        args[pos] = mi->second;
-        // Don't forget to record the fact that we've filled this
-        // position.
-        filled[pos] = 1;
+        for (LLSD::Integer i(0); i < size; ++i)
+        {
+            // Copy the actual argument from argsmap
+            args[i] = argsmap[i];
+            // Note that it's been filled
+            filled[i] = 1;
+        }
     }
+    else
+    {
+        // argsmap is in fact a map. Walk the map.
+        for (LLSD::map_const_iterator mi(argsmap.beginMap()), mend(argsmap.endMap());
+             mi != mend; ++mi)
+        {
+            // mi->first is a parameter-name string, with mi->second its
+            // value. Look up the name's position index in _indexes.
+            IndexMap::const_iterator ixit(_indexes.find(mi->first));
+            if (ixit == _indexes.end())
+            {
+                // Allow for a map containing more params than were passed in
+                // our names array. Caller typically receives a map containing
+                // the function name, cruft such as reqid, etc. Ignore keys
+                // not defined in _indexes.
+                LL_DEBUGS("LLSDArgsMapper") << _function << " ignoring "
+                                            << mi->first << "=" << mi->second << LL_ENDL;
+                continue;
+            }
+            LLSD::Integer pos = ixit->second;
+            // Store the value at that position in the args array.
+            args[pos] = mi->second;
+            // Don't forget to record the fact that we've filled this
+            // position.
+            filled[pos] = 1;
+        }
+    }
+
     // Fill any remaining holes from _defaults.
     LLSD unfilled(LLSD::emptyArray());
     for (LLSD::Integer i = 0, iend = args.size(); i < iend; ++i)
@@ -443,7 +471,8 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
     {
         LLSD array(LLSD::emptyArray());
         // Resize to number of arguments required
-        array[mArity - 1] = LLSD();
+        if (mArity)
+            array[mArity - 1] = LLSD();
         llassert_always(array.size() == mArity);
         meta["required"] = array;
         return meta;
@@ -523,9 +552,9 @@ void LLEventDispatcher::addArrayParamsDispatchEntry(const std::string& name,
                                                     const invoker_function& invoker,
                                                     LLSD::Integer arity)
 {
-    // Peculiar to me that boost::ptr_map() accepts std::auto_ptr but not dumb ptr
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new ArrayParamsDispatchEntry(desc, invoker, arity)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new ArrayParamsDispatchEntry(desc, invoker, arity))));
 }
 
 void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
@@ -534,16 +563,18 @@ void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
                                                   const LLSD& params,
                                                   const LLSD& defaults)
 {
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new MapParamsDispatchEntry(name, desc, invoker, params, defaults)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new MapParamsDispatchEntry(name, desc, invoker, params, defaults))));
 }
 
 /// Register a callable by name
 void LLEventDispatcher::add(const std::string& name, const std::string& desc,
                             const Callable& callable, const LLSD& required)
 {
-    mDispatch.insert(name, std::auto_ptr<DispatchEntry>(
-                         new LLSDDispatchEntry(desc, callable, required)));
+    mDispatch.insert(
+        DispatchMap::value_type(name, DispatchMap::mapped_type(
+                                    new LLSDDispatchEntry(desc, callable, required))));
 }
 
 void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const

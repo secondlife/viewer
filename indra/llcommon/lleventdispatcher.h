@@ -57,7 +57,7 @@ static const int& nil(nil_);
 #endif
 
 #include <string>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -112,6 +112,19 @@ public:
              const LLSD& required=LLSD());
 
     /**
+     * The case of a free function (or static method) accepting(const LLSD&)
+     * could also be intercepted by the arbitrary-args overload below. Ensure
+     * that it's directed to the Callable overload above instead.
+     */
+    void add(const std::string& name,
+             const std::string& desc,
+             void (*f)(const LLSD&),
+             const LLSD& required=LLSD())
+    {
+        add(name, desc, Callable(f), required);
+    }
+
+    /**
      * Special case: a subclass of this class can pass an unbound member
      * function pointer (of an LLEventDispatcher subclass) without explicitly
      * specifying the <tt>boost::bind()</tt> expression. The passed @a method
@@ -137,19 +150,6 @@ public:
         addMethod<CLASS>(name, desc, method, required);
     }
 
-/*==========================================================================*|
-    /// Convenience: for LLEventDispatcher, not every callable needs a
-    /// documentation string. The passed @a callable accepts a single LLSD
-    /// value, presumably containing other parameters.
-    template <typename CALLABLE>
-    void add(const std::string& name,
-             CALLABLE callable,
-             const LLSD& required=LLSD())
-    {
-        add(name, "", callable, required);
-    }
-|*==========================================================================*/
-
     //@}
 
     /// @name Register functions with arbitrary param lists
@@ -158,6 +158,10 @@ public:
     /**
      * Register a free function with arbitrary parameters. (This also works
      * for static class methods.)
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
@@ -170,6 +174,10 @@ public:
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * To cover cases such as a method on an LLSingleton we don't yet want to
      * instantiate, instead of directly storing an instance pointer, accept a
@@ -192,6 +200,10 @@ public:
      * Register a free function with arbitrary parameters. (This also works
      * for static class methods.)
      *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
+     *
      * Pass an LLSD::Array of parameter names, and optionally another
      * LLSD::Array of default parameter values, a la LLSDArgsMapper.
      *
@@ -209,6 +221,10 @@ public:
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
+     *
+     * @note This supports functions with up to about 6 parameters -- after
+     * that you start getting dismaying compile errors in which
+     * boost::fusion::joint_view is mentioned a surprising number of times.
      *
      * To cover cases such as a method on an LLSingleton we don't yet want to
      * instantiate, instead of directly storing an instance pointer, accept a
@@ -270,40 +286,35 @@ private:
     struct DispatchEntry
     {
         DispatchEntry(const std::string& desc);
+        virtual ~DispatchEntry() {} // suppress MSVC warning, sigh
 
         std::string mDesc;
 
         virtual void call(const std::string& desc, const LLSD& event) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
     };
-    typedef boost::ptr_map<std::string, DispatchEntry> DispatchMap;
+    // Tried using boost::ptr_map<std::string, DispatchEntry>, but ptr_map<>
+    // wants its value type to be "clonable," even just to dereference an
+    // iterator. I don't want to clone entries -- if I have to copy an entry
+    // around, I want it to continue pointing to the same DispatchEntry
+    // subclass object. However, I definitely want DispatchMap to destroy
+    // DispatchEntry if no references are outstanding at the time an entry is
+    // removed. This looks like a job for boost::shared_ptr.
+    typedef std::map<std::string, boost::shared_ptr<DispatchEntry> > DispatchMap;
 
 public:
     /// We want the flexibility to redefine what data we store per name,
     /// therefore our public interface doesn't expose DispatchMap iterators,
     /// or DispatchMap itself, or DispatchEntry. Instead we explicitly
     /// transform each DispatchMap item to NameDesc on dereferencing.
-    typedef boost::transform_iterator<NameDesc(*)(DispatchMap::value_type), DispatchMap::iterator> const_iterator;
+    typedef boost::transform_iterator<NameDesc(*)(const DispatchMap::value_type&), DispatchMap::const_iterator> const_iterator;
     const_iterator begin() const
     {
-        // Originally we used DispatchMap::const_iterator, which Just Worked
-        // when DispatchMap was a std::map. Now that it's a boost::ptr_map,
-        // using DispatchMap::const_iterator doesn't work so well: it
-        // dereferences to a pair<string, const T*>, whereas
-        // DispatchMap::value_type is just pair<string, T*>. Trying to pass a
-        // dereferenced iterator to the value_type didn't work because the
-        // compiler won't let you convert from const T* to plain T*. Changing
-        // our const_iterator definition above to be based on non-const
-        // DispatchMap::iterator works better, but of course we have to cast
-        // away the constness of mDispatch to use non-const iterator. (Sigh.)
-        return boost::make_transform_iterator(const_cast<DispatchMap&>(mDispatch).begin(),
-                                              makeNameDesc);
+        return boost::make_transform_iterator(mDispatch.begin(), makeNameDesc);
     }
     const_iterator end() const
     {
-        // see begin() comments
-        return boost::make_transform_iterator(const_cast<DispatchMap&>(mDispatch).end(),
-                                              makeNameDesc);
+        return boost::make_transform_iterator(mDispatch.end(), makeNameDesc);
     }
     //@}
 
@@ -333,7 +344,7 @@ private:
     std::string mDesc, mKey;
     DispatchMap mDispatch;
 
-    static NameDesc makeNameDesc(DispatchMap::value_type item)
+    static NameDesc makeNameDesc(const DispatchMap::value_type& item)
     {
         return NameDesc(item.first, item.second->mDesc);
     }

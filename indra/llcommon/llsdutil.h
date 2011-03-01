@@ -123,8 +123,10 @@ LL_COMMON_API BOOL compare_llsd_with_template(
  */
 LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::string& pfx="");
 
-/// Deep equality
-LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs);
+/// Deep equality. If you want to compare LLSD::Real values for approximate
+/// equality rather than bitwise equality, pass @a bits as for
+/// is_approx_equal_fraction().
+LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, unsigned bits=-1);
 
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.
@@ -163,6 +165,31 @@ public:
     LLSDArray():
         _data(LLSD::emptyArray())
     {}
+
+    /**
+     * Need an explicit copy constructor. Consider the following:
+     *
+     * @code
+     * LLSD array_of_arrays(LLSDArray(LLSDArray(17)(34))
+     *                               (LLSDArray("x")("y")));
+     * @endcode
+     *
+     * The coder intends to construct [[17, 34], ["x", "y"]].
+     *
+     * With the compiler's implicit copy constructor, s/he gets instead
+     * [17, 34, ["x", "y"]].
+     *
+     * The expression LLSDArray(17)(34) constructs an LLSDArray with those two
+     * values. The reader assumes it should be converted to LLSD, as we always
+     * want with LLSDArray, before passing it to the @em outer LLSDArray
+     * constructor! This copy constructor makes that happen.
+     */
+    LLSDArray(const LLSDArray& inner):
+        _data(LLSD::emptyArray())
+    {
+        _data.append(inner);
+    }
+
     LLSDArray(const LLSD& value):
         _data(LLSD::emptyArray())
     {
@@ -264,6 +291,39 @@ private:
 };
 
 /**
+ * Turns out that several target types could accept an LLSD param using any of
+ * a few different conversions, e.g. LLUUID's constructor can accept LLUUID or
+ * std::string. Therefore, the compiler can't decide which LLSD conversion
+ * operator to choose, even though to us it seems obvious. But that's okay, we
+ * can specialize LLSDParam for such target types, explicitly specifying the
+ * desired conversion -- that's part of what LLSDParam is all about. Turns out
+ * we have to do that enough to make it worthwhile generalizing. Use a macro
+ * because I need to specify one of the asReal, etc., explicit conversion
+ * methods as well as a type. If I'm overlooking a clever way to implement
+ * that using a template instead, feel free to reimplement.
+ */
+#define LLSDParam_for(T, AS)                    \
+template <>                                     \
+class LLSDParam<T>                              \
+{                                               \
+public:                                         \
+    LLSDParam(const LLSD& value):               \
+        _value(value.AS())                      \
+    {}                                          \
+                                                \
+    operator T() const { return _value; }       \
+                                                \
+private:                                        \
+    T _value;                                   \
+}
+
+LLSDParam_for(float,        asReal);
+LLSDParam_for(LLUUID,       asUUID);
+LLSDParam_for(LLDate,       asDate);
+LLSDParam_for(LLURI,        asURI);
+LLSDParam_for(LLSD::Binary, asBinary);
+
+/**
  * LLSDParam<const char*> is an example of the kind of conversion you can
  * support with LLSDParam beyond native LLSD conversions. Normally you can't
  * pass an LLSD object to a function accepting const char* -- but you can
@@ -308,22 +368,55 @@ public:
     }
 };
 
-/**
- * LLSDParam<float> resolves conversion ambiguity. g++ considers F64, S32 and
- * bool equivalent candidates for implicit conversion to float. (/me rolls eyes)
- */
-template <>
-class LLSDParam<float>
+namespace llsd
 {
-private:
-    float _value;
 
+/*****************************************************************************
+*   BOOST_FOREACH() helpers for LLSD
+*****************************************************************************/
+/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+class inArray
+{
 public:
-    LLSDParam(const LLSD& value):
-        _value(value.asReal())
+    inArray(const LLSD& array):
+        _array(array)
     {}
 
-    operator float() const { return _value; }
+    typedef LLSD::array_const_iterator const_iterator;
+    typedef LLSD::array_iterator iterator;
+
+    iterator begin() { return _array.beginArray(); }
+    iterator end()   { return _array.endArray(); }
+    const_iterator begin() const { return _array.beginArray(); }
+    const_iterator end()   const { return _array.endArray(); }
+
+private:
+    LLSD _array;
 };
+
+/// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
+typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
+
+/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+class inMap
+{
+public:
+    inMap(const LLSD& map):
+        _map(map)
+    {}
+
+    typedef LLSD::map_const_iterator const_iterator;
+    typedef LLSD::map_iterator iterator;
+
+    iterator begin() { return _map.beginMap(); }
+    iterator end()   { return _map.endMap(); }
+    const_iterator begin() const { return _map.beginMap(); }
+    const_iterator end()   const { return _map.endMap(); }
+
+private:
+    LLSD _map;
+};
+
+} // namespace llsd
 
 #endif // LL_LLSDUTIL_H
