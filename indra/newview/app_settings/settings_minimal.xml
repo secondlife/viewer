@@ -27,15 +27,6 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>DestinationGuideURL</key>
-        <map>
-        <key>Comment</key>
-            <string>Destination guide contents</string>
-        <key>Type</key>
-            <string>String</string>
-        <key>Value</key>
-            <string>http://pdp48.lindenlab.com:8001/viewer/guide/</string>
-        </map>
     <key>EnableGrab</key>
         <map>
         <key>Comment</key>
@@ -187,19 +178,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>AvatarPickerURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Avatar picker contents</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>
-        http://pdp48.lindenlab.com:8001/static/viewer/avatar/index.html
-      </string>
     </map>
     <key>OpenSidePanelsInFloaters</key>
     <map>
