@@ -55,8 +55,8 @@ public:
 	{
 		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableGroupInfo"))
 		{
-			LLNotificationsUtil::add("NoGroupInfo");
-			return false;
+			LLNotificationsUtil::add("NoGroupInfo", LLSD(), LLSD(), std::string("ConfirmQuit"));
+			return true;
 		}
 
 		if (tokens.size() < 1)
