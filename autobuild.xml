@@ -330,9 +330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d931e16a382aa3a5c99a8dea6b5f8391</string>
+              <string>031e6315a5c0829c9b9a2ec18aeb7ae3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-elfio/rev/222074/arch/Linux/installer/elfio-1.0.3-linux-20110225.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1380,9 +1380,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d47d121c8eaed4ac6d8253ceda23b5c9</string>
+              <string>320820c5a886f8daf366ba5fcd264b34</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pth/rev/222035/arch/Darwin/installer/pth-2.0.7-darwin-20110224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1658,29 +1658,6 @@
               <key>name</key>
               <string>OpenSourceRelWithDebInfo</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
-            <key>VCexpressRelWithDebInfo</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VCexpressRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1 WORKAROUND end -->
             <key>OpenSourceRelease</key>
             <map>
               <key>configure</key>
@@ -1812,6 +1789,27 @@
               </map>
               <key>name</key>
               <string>Release</string>
+            </map>
+            <key>VCexpressRelWithDebInfo</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DUNATTENDED:BOOL=OFF</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VCexpressRelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
@@ -2425,38 +2423,6 @@
               <key>name</key>
               <string>OpenSourceRelWithDebInfo</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
-            <key>VCexpressRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>"RelWithDebInfo|Win32"</string>
-                </array>
-                <key>command</key>
-                <string>vcbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/u</string>
-                  <string>SecondLife.sln</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VCexpressRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1 WORKAROUND end -->
             <key>OpenSourceRelease</key>
             <map>
               <key>build</key>
@@ -2638,6 +2604,36 @@
               </map>
               <key>name</key>
               <string>Release</string>
+            </map>
+            <key>VCexpressRelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>"RelWithDebInfo|Win32"</string>
+                </array>
+                <key>command</key>
+                <string>vcbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>/u</string>
+                  <string>SecondLife.sln</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 8 2005"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VCexpressRelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
