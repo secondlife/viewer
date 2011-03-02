@@ -67,6 +67,7 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
     ${UPDATER_INCLUDE_DIRS}
+    ${OPENAL_LIB_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
