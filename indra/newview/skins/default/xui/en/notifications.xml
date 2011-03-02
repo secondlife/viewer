@@ -6962,6 +6962,7 @@ Mute everyone?
 
   <notification
   name="HintSit"
+  
   label="Stand"
   type="hint"
   unique="true">

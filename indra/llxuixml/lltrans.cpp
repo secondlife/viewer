@@ -255,3 +255,8 @@ std::string LLTrans::getCountString(const std::string& language, const std::stri
 	std::string key = llformat("%s%s", xml_desc.c_str(), form);
 	return getString(key, args);
 }
+
+void LLTrans::setDefaultArg(const std::string& name, const std::string& value)
+{
+	sDefaultArgs[name] = value;
+}

@@ -31,6 +31,7 @@
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
 #include "llsecapi.h"
+#include "lltrans.h"
 #include "llweb.h"
 
                                                             
@@ -504,7 +505,9 @@ void LLGridManager::setGridChoice(const std::string& grid)
 		addGrid(grid_data);		
 	}
 	mGrid = grid;
-	gSavedSettings.setString("CurrentGrid", grid); 
+	gSavedSettings.setString("CurrentGrid", grid);
+	LLTrans::setDefaultArg("GRID", mGrid);
+
 	updateIsInProductionGrid();
 }
 
