@@ -86,7 +86,7 @@ public:
 	{
 		if (!LLUI::sSettingGroups["config"]->getBOOL("EnablePicks"))
 		{
-			LLNotificationsUtil::add("NoPicks", LLSD(), LLSD(), std::string("ConfirmQuit"));
+			LLNotificationsUtil::add("NoPicks", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;
 		}
 
@@ -198,7 +198,7 @@ public:
 	{
 		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableClassifieds"))
 		{
-			LLNotificationsUtil::add("NoClassifieds", LLSD(), LLSD(), std::string("ConfirmQuit"));
+			LLNotificationsUtil::add("NoClassifieds", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;
 		}
 
