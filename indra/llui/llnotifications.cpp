@@ -1217,12 +1217,14 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 {
 	LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
 	
-	if (!pNotif || !pNotif->hasUniquenessConstraints())
+	if (!pNotif)
 	{
 		return false;
 	}
 
-	// checks against existing unique notifications
+	// Update the existing unique notification with the data from this particular instance...
+	// This guarantees that duplicate notifications will be collapsed to the one
+	// most recently triggered
 	for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
 		existing_it != mUniqueNotifications.end();
 		++existing_it)
@@ -1235,7 +1237,7 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 			// of this unique notification and update it
 			existing_notification->updateFrom(pNotif);
 			// then delete the new one
-			pNotif->cancel();
+			cancel(pNotif);
 		}
 	}
 
@@ -1300,9 +1302,8 @@ void LLNotifications::createDefaultChannels()
 	// usage LLStopWhenHandled combiner in LLStandardSignal
 	LLNotifications::instance().getChannel("Unique")->
         connectAtFrontChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
-// failedUniquenessTest slot isn't necessary
-//	LLNotifications::instance().getChannel("Unique")->
-//        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
+	LLNotifications::instance().getChannel("Unique")->
+        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
 	LLNotifications::instance().getChannel("Ignore")->
 		connectFailedFilter(&handleIgnoredNotification);
 	LLNotifications::instance().getChannel("VisibilityRules")->
@@ -1578,7 +1579,7 @@ void LLNotifications::add(const LLNotificationPtr pNotif)
 
 void LLNotifications::cancel(LLNotificationPtr pNotif)
 {
-	if (pNotif == NULL) return;
+	if (pNotif == NULL || pNotif->isCancelled()) return;
 
 	LLNotificationSet::iterator it=mItems.find(pNotif);
 	if (it == mItems.end())
@@ -1680,7 +1681,6 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
 	{
 		// An empty type/tag/name string will match any notification, so only do the comparison when the string is non-empty in the rule.
-
 		lldebugs 
 			<< "notification \"" << n->getName() << "\" " 
 			<< "testing against " << ((*it)->mVisible?"show":"hide") << " rule, "
@@ -1728,7 +1728,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 				// Response property is empty.  Cancel this notification.
 				lldebugs << "cancelling notification " << n->getName() << llendl;
 
-				n->cancel();
+				cancel(n);
 			}
 			else
 			{
