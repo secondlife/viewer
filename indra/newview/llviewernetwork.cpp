@@ -506,7 +506,6 @@ void LLGridManager::setGridChoice(const std::string& grid)
 	}
 	mGrid = grid;
 	gSavedSettings.setString("CurrentGrid", grid);
-	LLTrans::setDefaultArg("GRID", mGrid);
 
 	updateIsInProductionGrid();
 }

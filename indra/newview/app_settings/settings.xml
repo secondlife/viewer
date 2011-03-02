@@ -617,7 +617,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/[GRID]/avatars.html</string>
+      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/agni/avatars.html</string>
     </map>
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
@@ -2566,7 +2566,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/[GRID]/guide.html</string>
+      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/agni/guide.html</string>
     </map>
   <key>DisableCameraConstraints</key>
     <map>
