@@ -920,7 +920,7 @@ BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
 		gAgent.teleportViaLocationLookAt(pos_global);
 	}
-	else 
+	else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
 	{
 		LLFloaterReg::showInstance("world_map");
 	}
