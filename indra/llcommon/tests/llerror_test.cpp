@@ -48,7 +48,10 @@ namespace
 {
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
+}
 	
+namespace tut
+{
 	class TestRecorder : public LLError::Recorder
 	{
 	public:
@@ -82,10 +85,7 @@ namespace
 		
 		bool mWantsTime;
 	};
-}
-	
-namespace tut
-{
+
 	struct ErrorTestData
 	{
 		TestRecorder mRecorder;
@@ -381,7 +381,7 @@ namespace
 	}
 	
 	typedef std::string (*LogFromFunction)(bool);
-	void testLogName(TestRecorder& recorder, LogFromFunction f,
+	void testLogName(tut::TestRecorder& recorder, LogFromFunction f,
 		const std::string& class_name = "")
 	{
 		recorder.clearMessages();
