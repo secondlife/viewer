@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if !LL_WINDOWS
+#error This header must not be included when compiling for any target other than Windows. Consider including lldir.h instead.
+#endif // !LL_WINDOWS
+
 #ifndef LL_LLDIR_WIN32_H
 #define LL_LLDIR_WIN32_H
 
@@ -47,8 +51,8 @@ public:
 	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
-	BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname);
-	
+	BOOL getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname);
+
 	void* mDirSearch_h;
 	llutf16string mCurrentDir;
 };

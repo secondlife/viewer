@@ -10,7 +10,7 @@
 		Einige der ausgewählten Einwohner sind bereits Gruppenmitglieder und haben aus diesem Grund keine Einladung erhalten.
 	</panel.string>
 	<text name="help_text">
-		Sie können mehrere Einwohner Ihre Gruppe einladen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
+		Sie können mehrere Einwohner in Ihre Gruppe einladen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
 	</text>
 	<button label="Einwohnerliste öffnen" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Namen."/>

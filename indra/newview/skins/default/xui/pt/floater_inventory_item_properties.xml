@@ -24,15 +24,9 @@
 	<text name="LabelCreatorTitle">
 		Criador:
 	</text>
-	<text name="LabelCreatorName">
-		Nicole Linden
-	</text>
 	<button label="Perfil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Dono:
-	</text>
-	<text name="LabelOwnerName">
-		Thrax Linden
 	</text>
 	<button label="Perfil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">

@@ -9,7 +9,7 @@
 	<slider label="Omgivelser" name="Wind Volume"/>
 	<slider label="Lyd effekter" name="SFX Volume"/>
 	<slider label="Musik" name="Music Volume"/>
-	<check_box label="Aktiveret" name="music_enabled"/>
+	<check_box label="Aktiveret" name="enable_music"/>
 	<slider label="Media" name="Media Volume"/>
 	<check_box label="Aktiveret" name="enable_media"/>
 	<slider label="Stemme chat" name="Voice Volume"/>

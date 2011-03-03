@@ -87,14 +87,8 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 			<text name="Owner:">
 				Proprietário:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Grupo:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Ajustar" name="Set..."/>
 			<check_box label="Permitir doação para o grupo" name="check deed" tool_tip="Oficiais do grupo podem doar esse terreno ao grupo, passando a administração para o gestor da ilha"/>

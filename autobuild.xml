@@ -1356,9 +1356,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>039c65405b2bea7c1bf67cfeb15a67fe</string>
+              <string>ca5765af55f798724d601720afdf6953</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/222548/arch/CYGWIN/installer/openjpeg-1.4-windows-20110302.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

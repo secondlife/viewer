@@ -88,14 +88,8 @@
 			<text name="Owner:">
 				Propriétaire :
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Groupe :
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Choisir" label_selected="Définir..." name="Set..."/>
 			<check_box label="Autoriser la cession au groupe" name="check deed" tool_tip="Un officier du groupe peut céder ce terrain à ce groupe, afin qu&apos;il soit pris en charge par l&apos;allocation de terrains du groupe."/>

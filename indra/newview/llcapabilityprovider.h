@@ -46,7 +46,7 @@ public:
     /**
      * Get host to which to send that capability request.
      */
-    virtual LLHost getHost() const = 0;
+    virtual const LLHost& getHost() const = 0;
     /**
      * Describe this LLCapabilityProvider for logging etc.
      */
