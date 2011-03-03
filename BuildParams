@@ -234,5 +234,17 @@ viewer-asset-delivery-metrics.email = monty@lindenlab.com
 viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
 
+#==============================================================================
+# autobuild viewers
+#==============================================================================
+viewer-autobuild.build_link_parallel = false
+viewer-vs2010.build_link_parallel = false
+
+
+#==============================================================================
+# vs2010 debug - for TC debugging only 
+#==============================================================================
+build_CYGWIN_Debug = false
+build_CYGWIN_Release = false
 
 # eof
