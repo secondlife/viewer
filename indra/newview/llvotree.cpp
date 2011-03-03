@@ -525,11 +525,11 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
 	{
 		mReferenceBuffer = NULL ;
-		mDrawable->getFace(0)->mVertexBuffer = NULL ;
+		mDrawable->getFace(0)->setVertexBuffer(NULL);
 		return TRUE ;
 	}
 
-	if (mReferenceBuffer.isNull() || mDrawable->getFace(0)->mVertexBuffer.isNull())
+	if (mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer())
 	{
 		const F32 SRR3 = 0.577350269f; // sqrt(1/3)
 		const F32 SRR2 = 0.707106781f; // sqrt(1/2)
@@ -863,7 +863,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 
 	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
 	{
-		mDrawable->getFace(0)->mVertexBuffer = mReferenceBuffer;
+		mDrawable->getFace(0)->setVertexBuffer(mReferenceBuffer);
 	}
 	else
 	{
@@ -921,8 +921,9 @@ void LLVOTree::updateMesh()
 	calcNumVerts(vert_count, index_count, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, mBranches);
 
 	LLFace* facep = mDrawable->getFace(0);
-	facep->mVertexBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-	facep->mVertexBuffer->allocateBuffer(vert_count, index_count, TRUE);
+	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+	buff->allocateBuffer(vert_count, index_count, TRUE);
+	facep->setVertexBuffer(buff);
 	
 	LLStrider<LLVector3> vertices;
 	LLStrider<LLVector3> normals;
@@ -930,16 +931,15 @@ void LLVOTree::updateMesh()
 	LLStrider<U16> indices;
 	U16 idx_offset = 0;
 
-	facep->mVertexBuffer->getVertexStrider(vertices);
-	facep->mVertexBuffer->getNormalStrider(normals);
-	facep->mVertexBuffer->getTexCoord0Strider(tex_coords);
-	facep->mVertexBuffer->getIndexStrider(indices);
+	buff->getVertexStrider(vertices);
+	buff->getNormalStrider(normals);
+	buff->getTexCoord0Strider(tex_coords);
+	buff->getIndexStrider(indices);
 
 	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
 	mReferenceBuffer->setBuffer(0);
-	facep->mVertexBuffer->setBuffer(0);
-
+	buff->setBuffer(0);
 }
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
