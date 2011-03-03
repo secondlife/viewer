@@ -1833,17 +1833,10 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// NOTE: Removed as per STORM-927 - SSL handshake failed - setting local self-signed certs like this 
-		//       seems to screw things up big time. For now, devs will need to add these certs locally and Qt will pick them up.
-//		// start by assuming the default CA file will be used
-//		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
-//		// default turned off so pick up the user specified path
-//		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
-//		{
-//			ca_path = gSavedSettings.getString("BrowserCAFilePath");
-//		}
-//		// set the path to the CA.pem file
-//		media_source->addCertificateFilePath( ca_path );
+		// the correct way to deal with certs it to load ours from CA.pem and append them to the ones
+		// Qt/WebKit loads from your system location.
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		
