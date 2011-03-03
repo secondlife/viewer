@@ -419,10 +419,6 @@ void LLBottomTray::setVisible(BOOL visible)
 	{
 		LLPanel::setVisible(visible);
 	}
-	if(visible)
-		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
-	else
-		gFloaterView->setSnapOffsetBottom(0);
 }
 
 S32 LLBottomTray::notifyParent(const LLSD& info)

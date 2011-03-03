@@ -71,6 +71,13 @@
                           user_resize="false" 
                           name="hud container"
                           width="500">
+              <view top="0"
+                    follows="all"
+                    height="500"
+                    left="0"
+                    mouse_opaque="false"
+                    name="floater_snap_region"
+                    width="500"/>
               <panel follows="left|top"
                      height="0"
                      left="0"

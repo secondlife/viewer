@@ -980,16 +980,7 @@ void LLSideTray::reflectCollapseChange()
 {
 	updateSidetrayVisibility();
 
-	if(mCollapsed)
-	{
-		gFloaterView->setSnapOffsetRight(0);
-		setFocus(FALSE);
-	}
-	else
-	{
-		gFloaterView->setSnapOffsetRight(getRect().getWidth());
-		setFocus(TRUE);
-	}
+	setFocus(!mCollapsed);
 
 	gFloaterView->refresh();
 }
