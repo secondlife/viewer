@@ -753,21 +753,6 @@ You need to enter either the Username or both the First and Last name of your av
 
   <notification
    icon="alertmodal.tga"
-   name="AddClassified"
-   type="alertmodal">
-Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://secondlife.com/community/classifieds secondlife.com] for one week.
-Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
-You&apos;ll be asked for a price to pay when clicking Publish.
-Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
-    <usetemplate
-     ignoretext="How to create a new Classified ad"
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="DeleteClassified"
    type="alertmodal">
 Delete classified &apos;[NAME]&apos;?
