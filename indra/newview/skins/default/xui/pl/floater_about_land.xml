@@ -87,14 +87,8 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Owner:">
 				Właściciel:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Grupa:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Ustaw" name="Set..."/>
 			<check_box label="Udostępnij przypisywanie na Grupę" name="check deed" tool_tip="Oficer Grupy ma prawo przepisać prawo własności Posiadłości na Grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków Grupy."/>

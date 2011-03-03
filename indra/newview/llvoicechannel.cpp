@@ -853,7 +853,7 @@ void LLVoiceChannelP2P::activate()
 		}
 
 		// Add the party to the list of people with which we've recently interacted.
-		LLRecentPeople::instance().add(mOtherUserID);
+		addToTheRecentPeopleList();
 
 		//Default mic is ON on initiating/joining P2P calls
 		if (!LLVoiceClient::getInstance()->getUserPTTState() && LLVoiceClient::getInstance()->getPTTIsToggle())
@@ -937,4 +937,26 @@ void LLVoiceChannelP2P::setState(EState state)
 	}
 
 	LLVoiceChannel::setState(state);
+}
+
+void LLVoiceChannelP2P::addToTheRecentPeopleList()
+{
+	bool avaline_call = LLIMModel::getInstance()->findIMSession(mSessionID)->isAvalineSessionType();
+	
+	if (avaline_call)
+	{
+		LLSD call_data;
+		std::string call_number = LLVoiceChannel::getSessionName();
+		
+		call_data["avaline_call"]	= true;
+		call_data["session_id"]		= mSessionID;
+		call_data["call_number"]	= call_number;
+		call_data["date"]			= LLDate::now();
+		
+		LLRecentPeople::instance().add(mOtherUserID, call_data);
+	}
+	else
+	{
+		LLRecentPeople::instance().add(mOtherUserID);
+	}
 }

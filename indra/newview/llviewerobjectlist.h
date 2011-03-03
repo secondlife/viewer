@@ -87,6 +87,7 @@ public:
 
 	void shiftObjects(const LLVector3 &offset);
 
+	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
 	void renderObjectsForMap(LLNetMap &netmap);
 	void renderObjectBounds(const LLVector3 &center);
 
@@ -160,7 +161,7 @@ public:
 								const U32 ip,
 								const U32 port); // Requires knowledge of message system info!
 
-	static BOOL removeFromLocalIDTable(const LLViewerObject &object);
+	static BOOL removeFromLocalIDTable(const LLViewerObject* objectp);
 	// Used ONLY by the orphaned object code.
 	static U64 getIndex(const U32 local_id, const U32 ip, const U32 port);
 

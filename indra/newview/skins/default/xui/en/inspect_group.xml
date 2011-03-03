@@ -28,10 +28,11 @@
      name="group_name"
      top="10"
      text_color="White"
+     translate="false"
      use_ellipses="true"
      width="175"
      word_wrap="false">
-    Grumpity&apos;s Grumpy Group of Moose
+    TestString PleaseIgnore
   </text>
   <text
    follows="all"

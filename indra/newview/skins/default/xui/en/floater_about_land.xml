@@ -220,9 +220,10 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
+             translate="false"
              use_ellipses="true" 
              width="360">
-                Leyla Linden
+                TestString PleaseIgnore
             </text>
              <button
      follows="right"
@@ -260,8 +261,10 @@
              left_pad="2"
              layout="topleft"
              name="GroupText"
+             translate="false"
              width="240">
-Leyla Linden               </text>
+                TestString PleaseIgnore
+            </text>
                  <button
      follows="right"
      height="23"
@@ -1905,7 +1908,7 @@ Only large parcels can be listed in search.
 			</panel.string>
       <panel.string
        name="allow_public_access">
-        Allow Public Access ([MATURITY])
+        Allow Public Access ([MATURITY]) (Note: Unchecking this will create ban lines)
       </panel.string>
             <panel.string
              name="estate_override">
@@ -1932,7 +1935,7 @@ Only large parcels can be listed in search.
              name="public_access"
              top_pad="5"
              label_text.valign="center"
-             label_text.v_pad="-7" 
+             label_text.v_pad="-2" 
              width="278" />
             <text
              type="string"
@@ -2078,7 +2081,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_allowed"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
             <panel
@@ -2128,7 +2131,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_banned"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
         </panel>
