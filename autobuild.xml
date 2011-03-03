@@ -1904,6 +1904,14 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -1935,6 +1943,14 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -1961,7 +1977,7 @@
                 <array>
                   <string>/build</string>
                   <string>"/cfg=Release|Win32"</string>
-		  <string>"/CL_ADD=/m:1"</string>
+		          <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -1969,6 +1985,14 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
