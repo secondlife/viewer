@@ -51,26 +51,7 @@ pre_build()
 {
   local variant="$1"
   begin_section "Pre$variant"
-<<<<<<< local
-  #export PATH="/cygdrive/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/:$PATH"
-  python develop.py \
-    --incredibuild \
-    --unattended \
-    -t $variant \
-    -G "$cmake_generator" \
-   configure \
-    -DGRID:STRING="$viewer_grid" \
-    -DVIEWER_CHANNEL:STRING="$viewer_channel" \
-    -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
-    -DINSTALL_PROPRIETARY:BOOL=ON \
-    -DRELEASE_CRASH_REPORTING:BOOL=ON \
-    -DLOCALIZESETUP:BOOL=ON \
-    -DPACKAGE:BOOL=ON \
-    -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
-    -DLL_TESTS:BOOL="$run_tests"
-=======
-  "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE
->>>>>>> other
+    "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE
   end_section "Pre$variant"
 }
 
