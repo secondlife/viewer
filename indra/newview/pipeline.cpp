@@ -5786,8 +5786,7 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);
-		facep->mVertexBuffer = NULL;
-		facep->mLastVertexBuffer = NULL;
+		facep->clearVertexBuffer();
 	}
 }
 
