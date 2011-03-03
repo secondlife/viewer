@@ -14,6 +14,7 @@
   <hide tag="voice"/>
   <show name="RegionRestartMinutes"/>
   <show name="RegionRestartSeconds"/>
+  <show name="PopupAttempt"/>
   <show tag="confirm"/>
   <show tag="friendship"/>
   <show tag="fail"/>
