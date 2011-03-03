@@ -259,10 +259,32 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableWorldMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening world map from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DoubleClickShowWorldMap</key>
     <map>
       <key>Comment</key>
       <string>Enable double-click to show world map from mini map</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableGroupChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming Group Chat Popups</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

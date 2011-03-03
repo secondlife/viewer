@@ -7126,6 +7126,20 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    notext="Don't Quit"/>
   </notification>
 
+  <notification
+ name="NoWorldMap"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Viewing of the world map is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+  
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
