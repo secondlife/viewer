@@ -1631,8 +1631,6 @@ if (WINDOWS)
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
-      check_message_template(package)
-
     endif (PACKAGE)
 endif (WINDOWS)
 
@@ -1711,7 +1709,6 @@ if (LINUX)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
     add_dependencies(package linux-crash-logger-target)
     add_dependencies(package linux-updater-target)
-    check_message_template(package)
   endif (PACKAGE)
 
   add_custom_command(
@@ -1774,7 +1771,6 @@ if (DARWIN)
 
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
-      check_message_template(package)
 
       add_custom_command(
         TARGET package POST_BUILD
@@ -1935,4 +1931,5 @@ if (LL_TESTS)
 
 endif (LL_TESTS)
 
+check_message_template(${VIEWER_BINARY_NAME})
 
