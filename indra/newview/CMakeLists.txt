@@ -10,6 +10,7 @@ include(DirectX)
 include(OpenSSL)
 include(DragDrop)
 include(ELFIO)
+include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
@@ -1433,19 +1434,13 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-    if(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map /MAPINFO:LINES")
-    else(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map")
-    endif(MSVC71)
-    
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ${release_flags}
+        LINK_FLAGS_RELEASE ""
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1488,15 +1483,12 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/Microsoft.VC80.DebugCRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr100d.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp100d.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
@@ -1690,6 +1682,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
     ${WINDOWS_LIBRARIES}
+    ${EXPAT_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
     ${OPENSSL_LIBRARIES}
