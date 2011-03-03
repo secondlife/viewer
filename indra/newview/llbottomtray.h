@@ -116,6 +116,7 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
+	void showSpeakButton(bool visible);
 
 	void toggleMovementControls();
 	void toggleCameraControls();
@@ -391,6 +392,11 @@ private:
 	bool setVisibleAndFitWidths(EResizeState object_type, bool visible);
 
 	/**
+	 * Get panel containing the given button.
+	 */
+	LLPanel* getButtonPanel(EResizeState button_type);
+
+	/**
 	 * Shows/hides panel with specified well button (IM or Notification)
 	 *
 	 * @param[in] object_type - type of well button to be processed.
@@ -410,6 +416,7 @@ private:
 	void processChatbarCustomization(S32 new_width);
 
 
+	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
 
 	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
@@ -424,6 +431,7 @@ private:
 	 * Contains order in which child buttons should be processed in show/hide, extend/shrink methods.
 	 */
 	resize_state_vec_t mButtonsProcessOrder;
+
 	/**
 	 * Contains order in which child buttons are shown.
 	 * It traces order of all bottomtray buttons that may change place via drag'n'drop and should
