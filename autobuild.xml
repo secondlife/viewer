@@ -1380,9 +1380,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>320820c5a886f8daf366ba5fcd264b34</string>
+              <string>2172379794217d0ffba0db09b2ac17bf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pth/rev/222035/arch/Darwin/installer/pth-2.0.7-darwin-20110224.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pth/rev/222617/arch/Darwin/installer/pth-2.0.7-darwin-20110303.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
