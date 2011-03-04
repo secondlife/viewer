@@ -59,6 +59,7 @@
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
+#include "llappviewer.h"
 //#include "llfirstuse.h"
 #include "llwindow.h"
 
@@ -1833,10 +1834,26 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// the correct way to deal with certs it to load ours from CA.pem and append them to the ones
-		// Qt/WebKit loads from your system location.
+
+		// HACK: This is absurd but it'll do for now until we can 
+		// find out what's wrong with Qt SSL certs
+#if (defined(LL_WINDOWS) )
+		// Always do this for Windows platforms
 		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
 		media_source->addCertificateFilePath( ca_path );
+#elif (defined(LL_DARWIN) )
+		// get Mac OS X version numbers
+		S32 os_major_version = LLAppViewer::instance()->getOSInfo().mMajorVer;
+		S32 os_minor_version = LLAppViewer::instance()->getOSInfo().mMinorVer;
+		llinfos << "OS version is " << os_major_version << " --- " << os_minor_version << llendl;
+
+		// Only do this for Leopard (10.5.x) - not Snow Leopard (10.6.x) 
+		if ( os_major_version == 5 )
+		{
+			std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+			media_source->addCertificateFilePath( ca_path );
+		}
+#endif
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		
