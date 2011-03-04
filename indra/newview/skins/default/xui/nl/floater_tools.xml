@@ -98,15 +98,9 @@
 			<text name="Creator:">
 				Maker:
 			</text>
-			<text name="Creator Name">
-				Thrax Linden
-			</text>
 			<button label="Profiel..." label_selected="Profiel..." name="button creator profile"/>
 			<text name="Owner:">
 				Eigenaar:
-			</text>
-			<text name="Owner Name">
-				Thrax Linden
 			</text>
 			<button label="Profiel..." label_selected="Profiel..." name="button owner profile"/>
 			<text name="Group:">

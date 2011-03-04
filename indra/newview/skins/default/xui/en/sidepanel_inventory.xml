@@ -37,7 +37,7 @@
 			 name="button_panel"
 			 left="9"
 			 top_pad="-2"
-			 width="313">
+			 width="308">
 			<layout_stack
      	         follows="bottom|left|right"
 		         height="23"
@@ -47,7 +47,7 @@
 		         left="0"
 		         orientation="horizontal"
 		         top="0"
-		         width="313">	
+		         width="308">	
 			    <layout_panel
 			         follows="bottom|left|right"
 			         height="23"
@@ -57,7 +57,7 @@
                      name="info_btn_lp"
                      user_resize="false" 
                      auto_resize="true"
-                     width="103">
+                     width="101">
                     <button
                          enabled="true"
                          follows="bottom|left|right"
@@ -68,62 +68,62 @@
                          name="info_btn"
                          tool_tip="Show object profile"
                          top="0"
-                         width="102" />
+                         width="100" />
 			    </layout_panel>
 			    <layout_panel
                      follows="bottom|left|right"
                      height="23"
                      layout="bottomleft"
-                     left_pad="3"			
+                     left_pad="1"			
                      mouse_opaque="false"
                      name="share_btn_lp"
                      user_resize="false" 
                      auto_resize="true"
-                     width="102">
+                     width="100">
                     <button
                          enabled="true"
                          follows="bottom|left|right"
                          height="23"
                          label="Share"
                          layout="topleft"
-                         left="0"
+                         left="1"
                          name="share_btn"
                          tool_tip="Share an inventory item"
                          top="0"
-                         width="102" />
+                         width="99" />
 			    </layout_panel>
 			    <layout_panel
                      follows="bottom|left|right"
                      height="23"
                      layout="bottomleft"
-                     left_pad="3"			
+                     left_pad="1"			
                      mouse_opaque="false"
                      name="shop_btn_lp"
                      user_resize="false" 
                      auto_resize="true"
-                     width="102">
+                     width="100">
                     <button
                          enabled="true"
                          follows="bottom|left|right"
                          height="23"
                          label="Shop"
                          layout="topleft"
-                         left="0"
+                         left="1"
                          name="shop_btn"
                          tool_tip="Open Marketplace webpage"
                          top="0"
-                         width="102" />
+                         width="99" />
                     <button
                          enabled="false"
                          follows="bottom|left|right"
                          height="23"
                          label="Wear"
                          layout="topleft"
-                         left="0"
+                         left="1"
                          name="wear_btn"
                          tool_tip="Wear seleceted outfit"
                          top="0"
-                         width="102" />
+                         width="99" />
                     <button
                          enabled="false"
                          follows="bottom|left|right"
@@ -131,20 +131,20 @@
                          label="Play"
                          layout="topleft"
                          name="play_btn"
-                         left="0"
+                         left="1"
                          top="0"
-                         width="102" />
+                         width="99" />
                     <button
                          enabled="false"
                          follows="bottom|left|right"
                          height="23"
                          label="Teleport"
                          layout="topleft"
-                         left="0"
+                         left="1"
                          name="teleport_btn"
                          tool_tip="Teleport to the selected area"
                          top="0"
-                         width="102" />
+                         width="99" />
 			    </layout_panel>
 			</layout_stack>
 		</panel>

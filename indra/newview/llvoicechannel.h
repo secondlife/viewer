@@ -191,6 +191,13 @@ protected:
 	virtual void setState(EState state);
 
 private:
+
+	/**
+	* Add the caller to the list of people with which we've recently interacted
+	*
+	**/
+	void addToTheRecentPeopleList();
+
 	std::string	mSessionHandle;
 	LLUUID		mOtherUserID;
 	BOOL		mReceivedCall;
