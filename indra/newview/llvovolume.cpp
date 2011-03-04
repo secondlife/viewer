@@ -1218,7 +1218,10 @@ BOOL LLVOVolume::calcLOD()
 		distance = mDrawable->mDistanceWRTCamera;
 		radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
 	}
-			
+	
+	//hold onto unmodified distance for debugging
+	F32 debug_distance = distance;
+	
 	distance *= sDistanceFactor;
 
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
@@ -1236,6 +1239,12 @@ BOOL LLVOVolume::calcLOD()
 
 	cur_detail = computeLODDetail(llround(distance, 0.01f), 
 									llround(radius, 0.01f));
+
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO))
+	{
+		setDebugText(llformat("%.2f:%.2f, %d", debug_distance, radius, cur_detail));
+	}
 
 	if (cur_detail != mLOD)
 	{
