@@ -393,6 +393,8 @@ private:
 
 	/**
 	 * Get panel containing the given button.
+	 *
+	 * @see mStateProcessedObjectMap
 	 */
 	LLPanel* getButtonPanel(EResizeState button_type);
 
@@ -415,13 +417,21 @@ private:
 	 */
 	void processChatbarCustomization(S32 new_width);
 
+	/// Get button name for debugging.
+	static std::string resizeStateToString(EResizeState state);
 
 	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
 
+	/**
+	 * Mapping of button types to the layout panels the buttons are wrapped in.
+	 *
+	 * Used by getButtonPanel().
+	 */
 	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
 	state_object_map_t mStateProcessedObjectMap;
 
+	/// Default (maximum) widths of the layout panels.
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
 
