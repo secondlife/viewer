@@ -281,7 +281,40 @@
               parameter="agent"/>
           </bottomtray_button>
         </layout_panel>
-        <layout_panel
+      <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="65"
+         mouse_opaque="false"
+         name="howto_panel"
+         top_delta="0"
+         user_resize="false"
+         width="105">
+        <bottomtray_button
+           can_drag="false"
+          follows="left|right"
+          height="23"
+          image_pressed="PushButton_Press"
+          image_pressed_selected="PushButton_Selected_Press"
+          image_selected="PushButton_Selected_Press"
+          label="How To"
+          layout="topleft"
+          left="0"
+          name="show_help_btn"
+          tool_tip="Open Second Life How To topics"
+          is_toggle="true"
+          top="5"
+          use_ellipses="true"
+          width="100">
+          <bottomtray_button.commit_callback
+            function="ToggleHelp"
+            parameter="f1_help" />
+          </bottomtray_button>
+      </layout_panel>
+      <layout_panel
          follows="left|right"
          height="30"
          layout="topleft"
