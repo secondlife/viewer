@@ -246,13 +246,25 @@ void LLDrawPoolAlpha::render(S32 pass)
 	if (deferred_render && pass == 1)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f);
+		gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 	}
+	else
+	{
+		mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
+		mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
+		mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
+		mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
+		gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-	mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
-	mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
-	mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
-	mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
-	gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+		if (LLPipeline::sImpostorRender)
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		}
+	}
 
 	renderAlpha(getVertexDataMask());
 
@@ -321,22 +333,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	BOOL light_enabled = TRUE;
 	S32 diffuse_channel = 0;
 
-	//BOOL is_particle = FALSE;
 	BOOL use_shaders = (LLPipeline::sUnderWaterRender && gPipeline.canUseVertexShaders())
 		|| gPipeline.canUseWindLightShadersOnObjects();
 	
-	// check to see if it's a particle and if it's "close"
-	{
-		if (LLPipeline::sImpostorRender)
-		{
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		}
-		else
-		{
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-		}
-	}
-
+	
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;

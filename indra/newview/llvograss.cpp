@@ -453,7 +453,7 @@ void LLVOGrass::plantBlades()
 	face->setTexture(getTEImage(0));
 	face->setState(LLFace::GLOBAL);
 	face->setSize(mNumBlades * 8, mNumBlades * 12);
-	face->mVertexBuffer = NULL;
+	face->setVertexBuffer(NULL);
 	face->setTEOffset(0);
 	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
 	

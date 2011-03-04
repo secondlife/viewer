@@ -511,7 +511,7 @@ int compare_int(const void *a, const void *b)
 U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 {
 	if (!mValid || !mMesh || !mFace || !mVisible || 
-		mFace->mVertexBuffer.isNull() ||
+		!mFace->getVertexBuffer() ||
 		mMesh->getNumFaces() == 0) 
 	{
 		return 0;
@@ -582,7 +582,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
-	mFace->mVertexBuffer->setBuffer(sRenderMask);
+	mFace->getVertexBuffer()->setBuffer(sRenderMask);
 
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
@@ -599,14 +599,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			}
 		}
 		
-		mFace->mVertexBuffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		mFace->getVertexBuffer()->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 	else
 	{
 		glPushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
-		mFace->mVertexBuffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		mFace->getVertexBuffer()->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 		glPopMatrix();
 	}
 	gPipeline.addTrianglesDrawn(count);
@@ -661,7 +661,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 
 	mFace = face;
 
-	if (mFace->mVertexBuffer.isNull())
+	if (!mFace->getVertexBuffer())
 	{
 		return;
 	}
@@ -693,7 +693,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 		if (num_verts)
 		{
 			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
-			face->mVertexBuffer->getIndexStrider(indicesp);
+			face->getVertexBuffer()->getIndexStrider(indicesp);
 
 			verticesp += mMesh->mFaceVertexOffset;
 			normalsp += mMesh->mFaceVertexOffset;
@@ -758,7 +758,7 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 	LLStrider<LLVector3> o_normals;
 
 	//get vertex and normal striders
-	LLVertexBuffer* buffer = mFace->mVertexBuffer;
+	LLVertexBuffer* buffer = mFace->getVertexBuffer();
 	buffer->getVertexStrider(o_vertices,  0);
 	buffer->getNormalStrider(o_normals,   0);
 
@@ -869,7 +869,7 @@ void LLViewerJointMesh::updateJointGeometry()
 		  && mMesh
 		  && mFace
 		  && mMesh->hasWeights()
-		  && mFace->mVertexBuffer.notNull()
+		  && mFace->getVertexBuffer()
 		  && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
 	{
 		return;

@@ -250,6 +250,11 @@ void LLFace::setWorldMatrix(const LLMatrix4 &mat)
 	llerrs << "Faces on this drawable are not independently modifiable\n" << llendl;
 }
 
+void LLFace::setPool(LLFacePool* pool)
+{
+	mDrawPoolp = pool;
+}
+
 void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
@@ -375,6 +380,8 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 		mVertexBuffer = NULL;
 		mLastVertexBuffer = NULL;
 	}
+
+	llassert(verify());
 }
 
 //============================================================================
@@ -579,23 +586,26 @@ void LLFace::printDebugInfo() const
 	llinfos << "II: " << mIndicesIndex << " Count:" << mIndicesCount << llendl;
 	llinfos << llendl;
 
-	poolp->printDebugInfo();
-
-	S32 pool_references = 0;
-	for (std::vector<LLFace*>::iterator iter = poolp->mReferences.begin();
-		 iter != poolp->mReferences.end(); iter++)
+	if (poolp)
 	{
-		LLFace *facep = *iter;
-		if (facep == this)
+		poolp->printDebugInfo();
+
+		S32 pool_references = 0;
+		for (std::vector<LLFace*>::iterator iter = poolp->mReferences.begin();
+			 iter != poolp->mReferences.end(); iter++)
 		{
-			llinfos << "Pool reference: " << pool_references << llendl;
-			pool_references++;
+			LLFace *facep = *iter;
+			if (facep == this)
+			{
+				llinfos << "Pool reference: " << pool_references << llendl;
+				pool_references++;
+			}
 		}
-	}
 
-	if (pool_references != 1)
-	{
-		llinfos << "Incorrect number of pool references!" << llendl;
+		if (pool_references != 1)
+		{
+			llinfos << "Incorrect number of pool references!" << llendl;
+		}
 	}
 
 #if 0
@@ -976,6 +986,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 								bool force_rebuild)
 {
 	LLFastTimer t(FTM_FACE_GET_GEOM);
+	llassert(verify());
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mNumVertices;
 	S32 num_indices = (S32) vf.mNumIndices;
@@ -1842,16 +1853,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 	BOOL ok = TRUE;
 
 	if( mVertexBuffer.isNull() )
-	{
-		if( mGeomCount )
-		{
-			// This happens before teleports as faces are torn down.
-			// Stop the crash in DEV-31893 with a null pointer check,
-			// but present this info.
-			// To clean up the log, the geometry could be cleared, or the
-			// face could otherwise be marked for no ::verify.
-			llinfos << "Face with no vertex buffer and " << mGeomCount << " mGeomCount" << llendl;
-		}
+	{ //no vertex buffer, face is implicitly valid
 		return TRUE;
 	}
 	
@@ -1859,7 +1861,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
 	{
 		ok = FALSE;
-		llinfos << "Face not within pool range!" << llendl;
+		llinfos << "Face references invalid vertices!" << llendl;
 	}
 
 	S32 indices_count = (S32)getIndicesCount();
@@ -1875,6 +1877,12 @@ BOOL LLFace::verify(const U32* indices_array) const
 		llinfos << "Face has bogus indices count" << llendl;
 	}
 	
+	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getNumIndices())
+	{
+		ok = FALSE;
+		llinfos << "Face references invalid indices!" << llendl;
+	}
+
 #if 0
 	S32 geom_start = getGeomStart();
 	S32 geom_count = mGeomCount;
@@ -2181,5 +2189,80 @@ BOOL LLFace::switchTexture()
 	}
 
 	return mUsingAtlas ;
+}
+
+
+void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
+{
+	mVertexBuffer = buffer;
+	llassert(verify());
+}
+
+void LLFace::clearVertexBuffer()
+{
+	mVertexBuffer = NULL;
+	mLastVertexBuffer = NULL;
+}
+
+//static
+U32 LLFace::getRiggedDataMask(U32 type)
+{
+	static const U32 rigged_data_mask[] = {
+		LLDrawPoolAvatar::RIGGED_SIMPLE_MASK,
+		LLDrawPoolAvatar::RIGGED_FULLBRIGHT_MASK,
+		LLDrawPoolAvatar::RIGGED_SHINY_MASK,
+		LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY_MASK,
+		LLDrawPoolAvatar::RIGGED_GLOW_MASK,
+		LLDrawPoolAvatar::RIGGED_ALPHA_MASK,
+		LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA_MASK,
+		LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP_MASK,						 
+		LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE_MASK,
+	};
+
+	llassert(type < sizeof(rigged_data_mask)/sizeof(U32));
+
+	return rigged_data_mask[type];
+}
+
+U32 LLFace::getRiggedVertexBufferDataMask() const
+{
+	U32 data_mask = 0;
+	for (U32 i = 0; i < mRiggedIndex.size(); ++i)
+	{
+		if (mRiggedIndex[i] > -1)
+		{
+			data_mask |= LLFace::getRiggedDataMask(i);
+		}
+	}
+
+	return data_mask;
+}
+
+S32 LLFace::getRiggedIndex(U32 type) const
+{
+	if (mRiggedIndex.empty())
+	{
+		return -1;
+	}
+
+	llassert(type < mRiggedIndex.size());
+
+	return mRiggedIndex[type];
+}
+
+void LLFace::setRiggedIndex(U32 type, S32 index)
+{
+	if (mRiggedIndex.empty())
+	{
+		mRiggedIndex.resize(LLDrawPoolAvatar::NUM_RIGGED_PASSES);
+		for (U32 i = 0; i < mRiggedIndex.size(); ++i)
+		{
+			mRiggedIndex[i] = -1;
+		}
+	}
+
+	llassert(type < mRiggedIndex.size());
+
+	mRiggedIndex[type] = index;
 }
 

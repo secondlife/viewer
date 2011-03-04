@@ -1486,8 +1486,7 @@ void LLSpatialGroup::destroyGL()
 		for (S32 j = 0; j < drawable->getNumFaces(); j++)
 		{
 			LLFace* facep = drawable->getFace(j);
-			facep->mVertexBuffer = NULL;
-			facep->mLastVertexBuffer = NULL;
+			facep->clearVertexBuffer();
 		}
 	}
 }
@@ -2433,7 +2432,9 @@ void pushVerts(LLSpatialGroup* group, U32 mask)
 
 void pushVerts(LLFace* face, U32 mask)
 {
-	LLVertexBuffer* buffer = face->mVertexBuffer;
+	llassert(face->verify());
+
+	LLVertexBuffer* buffer = face->getVertexBuffer();
 
 	if (buffer)
 	{
@@ -2580,7 +2581,7 @@ void renderOctree(LLSpatialGroup* group)
 				for (S32 j = 0; j < drawable->getNumFaces(); j++)
 				{
 					LLFace* face = drawable->getFace(j);
-					if (face->mVertexBuffer.notNull())
+					if (face->getVertexBuffer())
 					{
 						if (gFrameTimeSeconds - face->mLastUpdateTime < 0.5f)
 						{
@@ -2595,10 +2596,10 @@ void renderOctree(LLSpatialGroup* group)
 							continue;
 						}
 
-						face->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						face->getVertexBuffer()->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						//drawBox((face->mExtents[0] + face->mExtents[1])*0.5f,
 						//		(face->mExtents[1]-face->mExtents[0])*0.5f);
-						face->mVertexBuffer->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
+						face->getVertexBuffer()->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
 					}
 				}
 
@@ -3374,7 +3375,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 				{
 					LLFace* face = drawable->getFace(i);
-					LLVertexBuffer* buff = face->mVertexBuffer;
+					LLVertexBuffer* buff = face->getVertexBuffer();
 					if (buff)
 					{
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

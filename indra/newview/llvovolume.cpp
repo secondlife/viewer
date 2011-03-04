@@ -3689,7 +3689,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		(type == LLRenderPass::PASS_INVISIBLE) ||
 		(type == LLRenderPass::PASS_ALPHA && facep->isState(LLFace::FULLBRIGHT));
 	
-	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
+	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
 		llwarns << "Non fullbright face has no normals!" << llendl;
 		return;
@@ -3723,13 +3723,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
 
-	if (facep->mVertexBuffer.isNull())
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
 	if (idx >= 0 && 
-		draw_vec[idx]->mVertexBuffer == facep->mVertexBuffer &&
+		draw_vec[idx]->mVertexBuffer == facep->getVertexBuffer() &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
 		(LLPipeline::sTextureBindTest || draw_vec[idx]->mTexture == tex) &&
 #if LL_DARWIN
@@ -3756,7 +3751,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		U32 offset = facep->getIndicesStart();
 		U32 count = facep->getIndicesCount();
 		LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex, 
-			facep->mVertexBuffer, fullbright, bump); 
+			facep->getVertexBuffer(), fullbright, bump); 
 		draw_info->mGroup = group;
 		draw_info->mVSize = facep->getVirtualSize();
 		draw_vec.push_back(draw_info);
@@ -3896,16 +3891,22 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
+			LLFace* facep = drawablep->getFace(i);
+
+			//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
+			// batch, it will recover its vertex buffer reference from the spatial group
+			facep->setVertexBuffer(NULL);
+			
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
-			LLFace* facep = drawablep->getFace(i);
+			
+			
 
 			if (rigged) 
 			{
 				if (!facep->isState(LLFace::RIGGED))
-				{
-					facep->mVertexBuffer = NULL;
-					facep->mLastVertexBuffer = NULL;
+				{ //completely reset vertex buffer
+					facep->clearVertexBuffer();
 				}
 		
 				facep->setState(LLFace::RIGGED);
@@ -4063,14 +4064,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
-				facep->mVertexBuffer = NULL;
-				facep->mLastVertexBuffer = NULL;
+				facep->clearVertexBuffer();
 				continue;
 			}
 
 			cur_total += facep->getGeomCount();
 
-			if (facep->hasGeometry() && facep->mPixelArea > FORCE_CULL_AREA)
+			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
 				LLViewerTexture* tex = facep->getTexture();
@@ -4083,7 +4083,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					}
 				}
 
-				BOOL force_simple = (facep->mPixelArea < FORCE_SIMPLE_RENDER_AREA);
+				BOOL force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
 				U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 				if (type != LLDrawPool::POOL_ALPHA && force_simple)
 				{
@@ -4169,8 +4169,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			}
 			else
 			{	//face has no renderable geometry
-				facep->mVertexBuffer = NULL;
-				facep->mLastVertexBuffer = NULL;
+				facep->clearVertexBuffer();
 			}		
 		}
 
@@ -4251,7 +4250,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);
-					if (face && face->mVertexBuffer.notNull())
+					if (face && face->getVertexBuffer())
 					{
 						face->getGeometryVolume(*volume, face->getTEOffset(), 
 							vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
@@ -4303,9 +4302,10 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);
-					if (face && face->mVertexBuffer.notNull() && face->mVertexBuffer->isLocked())
+					LLVertexBuffer* buff = face->getVertexBuffer();
+					if (face && buff && buff->isLocked())
 					{
-						face->mVertexBuffer->setBuffer(0) ;
+						buff->setBuffer(0) ;
 					}
 				}
 			} 
@@ -4375,7 +4375,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		U32 index_count = facep->getIndicesCount();
 		U32 geom_count = facep->getGeomCount();
 
-		//sum up vertices needed for this texture
+		//sum up vertices needed for this render batch
 		std::vector<LLFace*>::iterator i = face_iter;
 		++i;
 		
@@ -4385,7 +4385,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			facep = *i;
 			
 			if (geom_count + facep->getGeomCount() > max_vertices)
-			{ //cut vertex buffers on geom count too big
+			{ //cut batches on geom count too big
 				break;
 			}
 
@@ -4413,7 +4413,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			buffer->allocateBuffer(geom_count, index_count, TRUE);
 		}
 		else 
-		{
+		{ //resize pre-existing buffer
 			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage)
 			{
 				buffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
@@ -4434,15 +4434,18 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		U16 index_offset = 0;
 
 		while (face_iter < i)
-		{
+		{ //update face indices for new buffer
 			facep = *face_iter;
-			facep->mIndicesIndex = indices_index;
-			facep->mGeomIndex = index_offset;
-			facep->mVertexBuffer = buffer;
+			facep->setIndicesIndex(indices_index);
+			facep->setGeomIndex(index_offset);
+			facep->setVertexBuffer(buffer);	
+			
 			{
+				//for debugging, set last time face was updated vs moved
 				facep->updateRebuildFlags();
+
 				if (!LLPipeline::sDelayVBUpdate)
-				{
+				{ //copy face geometry into vertex buffer
 					LLDrawable* drawablep = facep->getDrawable();
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					LLVolume* volume = vobj->getVolume();
@@ -4459,9 +4462,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 
 			index_offset += facep->getGeomCount();
-			indices_index += facep->mIndicesCount;
+			indices_index += facep->getIndicesCount();
 
-			BOOL force_simple = facep->mPixelArea < FORCE_SIMPLE_RENDER_AREA;
+
+			//append face to appropriate render batch
+
+			BOOL force_simple = facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA;
 			BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
 			if ((mask & LLVertexBuffer::MAP_NORMAL) == 0)
 			{ //paranoia check to make sure GL doesn't try to read non-existant normals
@@ -4628,7 +4634,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
-			if (facep->hasGeometry() && facep->mPixelArea > FORCE_CULL_AREA)
+			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
 			{
 				vertex_count += facep->getGeomCount();
 				index_count += facep->getIndicesCount();
@@ -4638,8 +4644,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			}
 			else
 			{
-				facep->mVertexBuffer = NULL;
-				facep->mLastVertexBuffer = NULL;
+				facep->clearVertexBuffer();
 			}
 		}
 	}
