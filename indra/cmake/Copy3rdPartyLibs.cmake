@@ -200,11 +200,11 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.3.7.dylib
+        libapr-1.0.dylib
         libapr-1.dylib
-        libaprutil-1.0.3.8.dylib
+        libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexpat.0.5.0.dylib
+        libexpat.1.5.2.dylib
         libexpat.dylib
         libllqtwebkit.dylib
         libndofdev.dylib

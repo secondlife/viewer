@@ -138,9 +138,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>577e89e72a6df485ee0c42ef7bfd8c34</string>
+              <string>e6caaeea16131e1f2343ecd7765e3147</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/Darwin/installer/ares-1.7.1-darwin-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a8b4bc2ea3dde26c2a7e1481f039864</string>
+              <string>d98078791ce345bf6168ce9ba53ca2d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/222752/arch/Darwin/installer/boost-1.45.0-darwin-20110304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -354,9 +354,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>594e0d61d115ab06ca11bc84d374d23a</string>
+              <string>180e03d0be1f1acfc3244e78742d7bef</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Darwin/installer/expat-2.0.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>753021e66345612b4fc77c711b426f11</string>
+              <string>3e7e133f1fa61d9acabdf01f5494209e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/222716/arch/Darwin/installer/freetype-2.4.4-darwin-20110304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>

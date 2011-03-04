@@ -636,9 +636,9 @@ class DarwinManifest(ViewerManifest):
                     dylibs[lib] = True
 
                 if dylibs["llcommon"]:
-                    for libfile in ("libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                    for libfile in ("libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
@@ -667,9 +667,9 @@ class DarwinManifest(ViewerManifest):
                     mac_updater_res_path = self.dst_path_of("mac-updater.app/Contents/Resources")
                     slplugin_res_path = self.dst_path_of("SLPlugin.app/Contents/Resources")
                     for libfile in ("libllcommon.dylib",
-                                    "libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                                    "libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     ):
                         target_lib = os.path.join('../../..', libfile)
