@@ -99,19 +99,6 @@ S32 normal_channel = -1;
 S32 specular_channel = -1;
 S32 cube_channel = -1;
 
-static const U32 rigged_data_mask[] = {
-	LLDrawPoolAvatar::RIGGED_SIMPLE_MASK,
-	LLDrawPoolAvatar::RIGGED_FULLBRIGHT_MASK,
-	LLDrawPoolAvatar::RIGGED_SHINY_MASK,
-	LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY_MASK,
-	LLDrawPoolAvatar::RIGGED_GLOW_MASK,
-	LLDrawPoolAvatar::RIGGED_ALPHA_MASK,
-	LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA_MASK,
-	LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP_MASK,						 
-	LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE_MASK,
-};
-
-
 static LLFastTimer::DeclareTimer FTM_SHADOW_AVATAR("Avatar Shadow");
 
 LLDrawPoolAvatar::LLDrawPoolAvatar() : 
@@ -1297,17 +1284,10 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		return;
 	}
 
-	LLVertexBuffer* buffer = face->mVertexBuffer;
+	LLVertexBuffer* buffer = face->getVertexBuffer();
 
-	U32 data_mask = 0;
-	for (U32 i = 0; i < face->mRiggedIndex.size(); ++i)
-	{
-		if (face->mRiggedIndex[i] > -1)
-		{
-			data_mask |= rigged_data_mask[i];
-		}
-	}
-
+	U32 data_mask = face->getRiggedVertexBufferDataMask();
+	
 	if (!buffer || 
 		buffer->getTypeMask() != data_mask ||
 		buffer->getRequestedVerts() != vol_face.mNumVertices)
@@ -1316,16 +1296,19 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		face->setIndicesIndex(0);
 		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices, true);
 
+
 		if (sShaderLevel > 0)
 		{
-			face->mVertexBuffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
+			buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
 		}
 		else
 		{
-			face->mVertexBuffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
+			buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
 		}
 
-		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), true);
+		buffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), true);
+
+		face->setVertexBuffer(buffer);
 
 		U16 offset = 0;
 		
@@ -1341,7 +1324,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		LLMatrix3 mat_normal(mat3);				
 
 		face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
-		buffer = face->mVertexBuffer;
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
@@ -1480,9 +1462,9 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		
 		stop_glerror();
 
-		U32 data_mask = rigged_data_mask[type];
+		U32 data_mask = LLFace::getRiggedDataMask(type);
 
-		LLVertexBuffer* buff = face->mVertexBuffer;
+		LLVertexBuffer* buff = face->getVertexBuffer();
 
 		if (buff)
 		{
@@ -1624,49 +1606,38 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
-	if (facep->mRiggedIndex.empty())
-	{
-		facep->mRiggedIndex.resize(LLDrawPoolAvatar::NUM_RIGGED_PASSES);
-		for (U32 i = 0; i < facep->mRiggedIndex.size(); ++i)
-		{
-			facep->mRiggedIndex[i] = -1;
-		}
-	}
-
 	if (type >= NUM_RIGGED_PASSES)
 	{
 		llerrs << "Invalid rigged face type." << llendl;
 	}
 
-	if (facep->mRiggedIndex[type] != -1)
+	if (facep->getRiggedIndex(type) != -1)
 	{
 		llerrs << "Tried to add a rigged face that's referenced elsewhere." << llendl;
 	}	
-
 	
-	facep->mRiggedIndex[type] = mRiggedFace[type].size();
-	facep->mDrawPoolp = this;
+	facep->setRiggedIndex(type, mRiggedFace[type].size());
+	facep->setPool(this);
 	mRiggedFace[type].push_back(facep);
 }
 
 void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 {
-	
-	facep->mDrawPoolp = NULL;
+	facep->setPool(NULL);
 
 	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
 	{
-		S32 index = facep->mRiggedIndex[i];
+		S32 index = facep->getRiggedIndex(i);
 		
 		if (index > -1)
 		{
 			if (mRiggedFace[i].size() > index && mRiggedFace[i][index] == facep)
 			{
-				facep->mRiggedIndex[i] = -1;
+				facep->setRiggedIndex(i,-1);
 				mRiggedFace[i].erase(mRiggedFace[i].begin()+index);
 				for (U32 j = index; j < mRiggedFace[i].size(); ++j)
 				{ //bump indexes down for faces referenced after erased face
-					mRiggedFace[i][j]->mRiggedIndex[i] = j;
+					mRiggedFace[i][j]->setRiggedIndex(i, j);
 				}
 			}
 			else

@@ -463,7 +463,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
 		facep->setGeomIndex(vertex_count);
 		facep->setIndicesIndex(index_count);
-		facep->mVertexBuffer = buffer;
+		facep->setVertexBuffer(buffer);
 		facep->setPoolType(LLDrawPool::POOL_ALPHA);
 		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
 		

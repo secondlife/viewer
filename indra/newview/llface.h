@@ -131,14 +131,14 @@ public:
 	LLDrawable*		getDrawable()		const	{ return mDrawablep; }
 	LLViewerObject*	getViewerObject()	const	{ return mVObjp; }
 	S32				getLOD()			const	{ return mVObjp.notNull() ? mVObjp->getLOD() : 0; }
-	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
 	S32				getTEOffset()				{ return mTEOffset; }
 	LLViewerTexture*	getTexture() const;
 
 	void			setViewerObject(LLViewerObject* object);
 	void			setPool(LLFacePool *pool, LLViewerTexture *texturep);
-	
+	void			setPool(LLFacePool* pool);
+
 	void			setDrawable(LLDrawable *drawable);
 	void			setTEOffset(const S32 te_offset);
 	
@@ -218,6 +218,16 @@ public:
 	void                  removeAtlas() ;
 	BOOL                  switchTexture() ;
 
+	//vertex buffer tracking
+	void setVertexBuffer(LLVertexBuffer* buffer);
+	void clearVertexBuffer(); //sets mVertexBuffer and mLastVertexBuffer to NULL
+	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
+	U32 getRiggedVertexBufferDataMask() const;
+	S32 getRiggedIndex(U32 type) const;
+	void setRiggedIndex(U32 type, S32 index);
+
+	static U32 getRiggedDataMask(U32 type);
+
 public: //aligned members
 	LLVector4a		mExtents[2];
 
@@ -235,8 +245,6 @@ public:
 	
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
-	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLVertexBuffer> mLastVertexBuffer;
 	F32			mLastUpdateTime;
 	F32			mLastSkinTime;
 	F32			mLastMoveTime;
@@ -244,10 +252,9 @@ public:
 	LLDrawInfo* mDrawInfo;
 
 private:
-	friend class LLGeometryManager;
-	friend class LLVolumeGeometryManager;
-	friend class LLDrawPoolAvatar;
-
+	LLPointer<LLVertexBuffer> mVertexBuffer;
+	LLPointer<LLVertexBuffer> mLastVertexBuffer;
+	
 	U32			mState;
 	LLFacePool*	mDrawPoolp;
 	U32			mPoolType;

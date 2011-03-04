@@ -166,16 +166,18 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	face->setSize(vertices_per_quad * num_quads,
 				  indices_per_quad * num_quads);
 	
-	if (face->mVertexBuffer.isNull())
+	LLVertexBuffer* buff = face->getVertexBuffer();
+	if (!buff)
 	{
-		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
-		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
+		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
+		face->setVertexBuffer(buff);
 	}
 	else
 	{
-		face->mVertexBuffer->resizeBuffer(face->getGeomCount(), face->getIndicesCount());
+		buff->resizeBuffer(face->getGeomCount(), face->getIndicesCount());
 	}
 		
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
@@ -229,7 +231,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
-	face->mVertexBuffer->setBuffer(0);
+	buff->setBuffer(0);
 
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
