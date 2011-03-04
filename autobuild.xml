@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a94538d064cd0a235b2a95389e7e8ee8</string>
+              <string>f8d98cbe78d5aafbc7aaabf840325aaf</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-0.0.0-windows-20110303.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
