@@ -165,6 +165,7 @@ public:
 		C_SHOPPING,
 		C_STAGE,
 		C_OTHER,
+		C_RENTAL,
 		C_COUNT,
 		C_ANY = -1		// only useful in queries
 	};

@@ -72,6 +72,7 @@ static const std::string PARCEL_CATEGORY_STRING[LLParcel::C_COUNT] =
     "shopping",
     "stage",
     "other",
+	"rental"
 };
 static const std::string PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
 {
@@ -89,6 +90,7 @@ static const std::string PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
     "Shopping",
     "Stage",
     "Other",
+	"Rental",
     "Any",	 // valid string for parcel searches
 };
 
