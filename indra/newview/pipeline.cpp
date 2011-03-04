@@ -6219,17 +6219,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (transition_time >= 1.f &&
 			fabsf(current_distance-target_distance)/current_distance > 0.01f)
 		{ //large shift happened, interpolate smoothly to new target distance
-			llinfos << "start" << llendl;
 			transition_time = 0.f;
 			start_distance = current_distance;
 		}
 		else if (transition_time < 1.f)
 		{ //currently in a transition, continue interpolating
 			transition_time += 1.f/gSavedSettings.getF32("CameraFocusTransitionTime")*gFrameIntervalSeconds;
-			if (transition_time >= 1.f)
-			{
-				llinfos << "stop" << llendl;
-			}
 			transition_time = llmin(transition_time, 1.f);
 
 			F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
