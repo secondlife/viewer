@@ -937,6 +937,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_FACE_AREA;
 	}
+	else if ("lod info" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_LOD_INFO;
+	}
 	else if ("build queue" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
