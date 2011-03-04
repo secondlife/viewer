@@ -321,6 +321,7 @@ public:
 		static const std::string beacon_scripted = LLTrans::getString("BeaconScripted");
 		static const std::string beacon_scripted_touch = LLTrans::getString("BeaconScriptedTouch");
 		static const std::string beacon_sound = LLTrans::getString("BeaconSound");
+		static const std::string beacon_media = LLTrans::getString("BeaconMedia");
 		static const std::string particle_hiding = LLTrans::getString("ParticleHiding");
 
 		// Draw the statistics in a light gray
