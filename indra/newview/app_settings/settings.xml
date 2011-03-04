@@ -12476,5 +12476,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>SearchFromAddressBar</key>
+    <map>
+      <key>Comment</key>
+      <string>Can enter search queries into navigation address bar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>
