@@ -316,6 +316,13 @@ public:
 		std::string rwind_vector_text;
 		std::string audio_text;
 
+		static const std::string beacon_particle = LLTrans::getString("BeaconParticle");
+		static const std::string beacon_physical = LLTrans::getString("BeaconPhysical");
+		static const std::string beacon_scripted = LLTrans::getString("BeaconScripted");
+		static const std::string beacon_scripted_touch = LLTrans::getString("BeaconScriptedTouch");
+		static const std::string beacon_sound = LLTrans::getString("BeaconSound");
+		static const std::string particle_hiding = LLTrans::getString("ParticleHiding");
+
 		// Draw the statistics in a light gray
 		// and in a thin font
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
@@ -566,33 +573,33 @@ public:
 		{
 			if (LLPipeline::getRenderParticleBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing particle beacons (blue)");
+				addText(xpos, ypos, beacon_particle);
 				ypos += y_inc;
 			}
 			if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
 			{
-				addText(xpos, ypos, "Hiding particles");
+				addText(xpos, ypos, particle_hiding);
 				ypos += y_inc;
 			}
 			if (LLPipeline::getRenderPhysicalBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing physical object beacons (green)");
+				addText(xpos, ypos, beacon_physical);
 				ypos += y_inc;
 			}
 			if (LLPipeline::getRenderScriptedBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing scripted object beacons (red)");
+				addText(xpos, ypos, beacon_scripted);
 				ypos += y_inc;
 			}
 			else
 				if (LLPipeline::getRenderScriptedTouchBeacons(NULL))
 				{
-					addText(xpos, ypos, "Viewing scripted object with touch function beacons (red)");
+					addText(xpos, ypos, beacon_scripted_touch);
 					ypos += y_inc;
 				}
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				addText(xpos, ypos, beacon_sound);
 				ypos += y_inc;
 			}
 		}
