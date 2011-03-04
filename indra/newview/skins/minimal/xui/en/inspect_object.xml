@@ -148,17 +148,7 @@ L$30,000
    width="80" />
 
  <!--  non-overlapping buttons here -->
-     <button
-     follows="top|left"
-     height="20"
-     label="More"
-     layout="topleft"
-     name="more_info_btn"
-     left_pad="10"
-     top_delta="0"
-     tab_stop="false"
-     width="80" />
-         <menu_button
+  <menu_button
      follows="top|left"
      height="20"
      image_overlay="OptionsMenu_Off"
