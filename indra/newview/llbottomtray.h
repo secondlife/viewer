@@ -469,6 +469,7 @@ protected:
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutPanel*		mChatBarContainer;
+	LLPanel*		mNearbyCharResizeHandlePanel;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLButton*			mCamButton;

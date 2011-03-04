@@ -72,9 +72,6 @@ BOOL LLBottomtrayButton::handleHover(S32 x, S32 y, MASK mask)
 		localPointToScreen(x, y, &screenX, &screenY);
 		LLBottomTray::getInstance()->onDraggableButtonHover(screenX, screenY);
 
-		// Reset cursor in case you move your mouse from the drag handle to a button.
-		getWindow()->setCursor(UI_CURSOR_ARROW);
-
 		return TRUE;
 	}
 	else
@@ -204,6 +201,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
 	mChatBarContainer(NULL),
+	mNearbyCharResizeHandlePanel(NULL),
 	mToolbarStack(NULL),
 	mMovementButton(NULL),
 	mResizeState(RS_NORESIZE),
@@ -554,6 +552,7 @@ BOOL LLBottomTray::postBuild()
 	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
 
 	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
+	mNearbyCharResizeHandlePanel = getChild<LLPanel>("chat_bar_resize_handle_panel");
 
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mMovementButton = getChild<LLButton>("movement_btn");
@@ -672,12 +671,20 @@ void LLBottomTray::onDraggableButtonHover(S32 x, S32 y)
 			gViewerWindow->getWindow()->setCursor(UI_CURSOR_NO);
 		}
 	}
+	else
+	{
+		// Reset cursor in case you move your mouse from the drag handle to a button.
+		getWindow()->setCursor(UI_CURSOR_ARROW);
+
+	}
 }
 
 bool LLBottomTray::isCursorOverDraggableArea(S32 x, S32 y)
 {
+	// Draggable area lasts from the nearby chat input resize handle
+	// to the chiclet area (exlusively).
 	bool result = getRect().pointInRect(x, y);
-	result = result && mNearbyChatBar->calcScreenRect().mRight < x;
+	result = result && mNearbyCharResizeHandlePanel->calcScreenRect().mRight < x;
 	result = result && mChicletPanel->calcScreenRect().mRight > x;
 	return result;
 }
