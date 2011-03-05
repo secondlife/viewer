@@ -1121,7 +1121,11 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 	{
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
-		if (iter != entries_list.end()) // bump not cached yet
+
+		if (iter != entries_list.end() ||
+			iter->second.isNull() ||
+			iter->second->getWidth() != src->getWidth() ||
+			iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 		{
 			LLPointer<LLImageRaw> dst_image = new LLImageRaw(src->getWidth(), src->getHeight(), 1);
 			U8* dst_data = dst_image->getData();
