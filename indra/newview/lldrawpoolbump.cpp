@@ -1126,7 +1126,9 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
 
 		if (iter == entries_list.end() ||
-			iter->second.isNull())
+			iter->second.isNull() ||
+                        iter->second->getWidth() != src->getWidth() ||
+                        iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 		{ //make sure an entry exists for this image
 			LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
 			raw->clear(0x77, 0x77, 0xFF, 0xFF);
