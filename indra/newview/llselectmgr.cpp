@@ -5468,7 +5468,10 @@ void pushWireframe(LLDrawable* drawable)
 		for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 		{
 			LLFace* face = drawable->getFace(i);
-			pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+			if (face->verify())
+			{
+				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+			}
 		}
 	}
 }
