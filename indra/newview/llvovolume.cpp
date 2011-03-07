@@ -4204,7 +4204,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
 	}
-
+	
 	genDrawInfo(group, simple_mask, simple_faces);
 	genDrawInfo(group, bump_mask, bump_faces);
 	genDrawInfo(group, fullbright_mask, fullbright_faces);
@@ -4423,9 +4423,10 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		}
 		else 
 		{ //resize pre-existing buffer
-			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage)
+			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage ||
+				buffer->getTypeMask() != mask)
 			{
-				buffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
+				buffer = createVertexBuffer(mask, 
 											group->mBufferUsage);
 				buffer->allocateBuffer(geom_count, index_count, TRUE);
 			}
