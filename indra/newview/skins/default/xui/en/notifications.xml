@@ -329,7 +329,8 @@ Do you want to revoke modify rights for the selected Residents?
    type="alertmodal">
 Unable to create group.
 [MESSAGE]
-<tag>fail</tag>
+    <tag>group</tag>
+    <tag>fail</tag>
   <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -341,7 +342,8 @@ Unable to create group.
    type="alertmodal">
 [NEEDS_APPLY_MESSAGE]
 [WANT_APPLY_MESSAGE]
-<tag>confirm</tag>
+    <tag>confirm</tag>
+    <tag>group</tag>
   <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -354,7 +356,8 @@ Unable to create group.
    name="MustSpecifyGroupNoticeSubject"
    type="alertmodal">
 You must specify a subject to send a group notice.
-<tag>fail</tag>
+  <tag>group</tag>
+  <tag>fail</tag>
   <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -368,6 +371,7 @@ You are about to add group members to the role of [ROLE_NAME].
 Members cannot be removed from that role.
 The members must resign from the role themselves.
 Are you sure you want to continue?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I add a new group Owner"
@@ -429,6 +433,7 @@ Joining this group costs L$[COST].
 Do you wish to proceed?
     <tag>confirm</tag>
     <tag>funds</tag>
+    <tag>group</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -441,6 +446,7 @@ Do you wish to proceed?
    type="alertmodal">
 You are joining group [NAME].
 Do you wish to proceed?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -455,6 +461,7 @@ Do you wish to proceed?
    type="alertmodal">
 Joining this group costs L$[COST].
 You do not have enough L$ to join this group.
+    <tag>group</tag>
     <tag>fail</tag>
     <tag>funds</tag>
   </notification>
@@ -466,6 +473,7 @@ You do not have enough L$ to join this group.
 Creating this group will cost L$100.
 Groups need more than one member, or they are deleted forever.
 Please invite members within 48 hours.
+    <tag>group</tag>
     <tag>funds</tag>
     <usetemplate
      canceltext="Cancel"
@@ -536,6 +544,7 @@ Are you sure you want to return all objects shared with the group &apos;[NAME]&a
 
 Objects: [N]
     <tag>confirm</tag>
+    <tag>group</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -636,6 +645,7 @@ Return the objects on this parcel of land that are NOT shared with the group [NA
 
 Objects: [N]
     <tag>confirm</tag>
+    <tag>group</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1341,6 +1351,7 @@ Eject [AVATAR_NAME] from your land?
    persist="true"
    type="notify">
 You ejected [AVATAR_NAME] from group [GROUP_NAME]
+    <tag>group</tag>
   </notification>
 
   <notification
@@ -1932,6 +1943,7 @@ No parcel selected.
    type="alertmodal">
 Unable to deed land:
 No Group selected.
+    <tag>group</tag>
   <tag>fail</tag>
   </notification>
 
@@ -2233,6 +2245,7 @@ Darn. You have been logged out of [SECOND_LIFE]
    type="alertmodal">
 Unable to buy land for the group:
 You do not have permission to buy land for your active group.
+    <tag>group</tag>
   <tag>fail</tag>
   </notification>
 
@@ -2600,6 +2613,7 @@ By deeding this parcel, the group will be required to have and maintain sufficie
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -2616,6 +2630,7 @@ The deed will include a simultaneous land contribution to the group from &apos;[
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -2953,6 +2968,7 @@ Exceeds the [MAX_AGENTS] [LIST_TYPE] limit by [NUM_EXCESS].
    name="MaxAllowedGroupsOnRegion"
    type="alertmodal">
 You can only have [MAX_GROUPS] Allowed Groups.
+    <tag>group</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3234,6 +3250,7 @@ We must restart [APP_NAME] to install the update.
    type="alertmodal">
 Deeding this object will cause the group to:
 * Receive L$ paid into the object
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I deed an object to a group"
@@ -3367,6 +3384,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    type="alert">
 You are currently a member of the group [GROUP].
 Leave Group?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3470,6 +3488,7 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
+    <tag>group</tag>
     <tag>fail</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3482,6 +3501,7 @@ You have reached your maximum number of groups. Please leave another group befor
    name="JoinedTooManyGroups"
    type="alert">
 You have reached your maximum number of groups. Please leave some group before joining or creating a new one.
+    <tag>group</tag>
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -3854,6 +3874,7 @@ Remove from allowed list for this estate only or for [ALL_ESTATES]?
    name="EstateAllowedGroupAdd"
    type="alert">
 Add to group allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
@@ -3868,6 +3889,7 @@ Add to group allowed list for this estate only or for [ALL_ESTATES]?
    name="EstateAllowedGroupRemove"
    type="alert">
 Remove from group allowed list for this estate only or [ALL_ESTATES]?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
@@ -4243,6 +4265,7 @@ Does this classified contain Moderate content?
    name="SetGroupMature"
    type="alertmodal">
 Does this group contain Moderate content?
+    <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
@@ -5089,6 +5112,7 @@ Replaced missing clothing/body part with default.
    persist="true"
    type="groupnotify">
 Topic: [SUBJECT], Message: [MESSAGE]
+    <tag>group</tag>
   </notification>
 
   <notification
@@ -5550,6 +5574,7 @@ The objects on the selected parcel of land owned by the Resident &apos;[NAME]&ap
 The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
 Transferable deeded objects have been returned to their previous owners.
 Non-transferable objects that are deeded to the group have been deleted.
+    <tag>group</tag>
   </notification>
 
   <notification
@@ -5940,6 +5965,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
    name="JoinGroup"
    persist="true"
    type="notify">
+    <tag>group</tag>
 [MESSAGE]
     <form name="form">
       <button
@@ -6253,6 +6279,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialogGroup"
    type="notify">
+    <tag>group</tag>
 [GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
@@ -6382,7 +6409,8 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    type="notify">
 [NAME] has joined a Voice Chat call with the group [GROUP].
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
-  <tag>confirm</tag>
+    <tag>group</tag>
+    <tag>confirm</tag>
     <tag>voice</tag>
     <unique>
       <context>NAME</context>
@@ -6604,6 +6632,7 @@ New Voice Morphs are available!
    name="Cannot enter parcel: not a group member"
    type="notifytip">
    <tag>fail</tag>
+    <tag>group</tag>
 Only members of a certain group can visit this area.
   </notification>
 
@@ -6661,7 +6690,7 @@ The SLurl you clicked on is not supported.
    name="BlockedSLURL"
    priority="high"
    type="notifytip">
-   <tag>win</tag>
+   <tag>security</tag>
 A SLurl was received from an untrusted browser and has been blocked for your security.
   </notification>
 
@@ -6670,6 +6699,7 @@ A SLurl was received from an untrusted browser and has been blocked for your sec
    name="ThrottledSLURL"
    priority="high"
    type="notifytip">
+   <tag>security</tag>
 Multiple SLurls were received from an untrusted browser within a short period.
 They will be blocked for a few seconds for your security.
   </notification>
@@ -6797,6 +6827,7 @@ Items successfully shared.
    name="DeedToGroupFail"
    type="notifytip">
 Deed to group failed.
+    <tag>group</tag>
   <tag>fail</tag>
   </notification>
 
@@ -6942,6 +6973,7 @@ This will also cause all residents that later join the call to be
 muted, even after you have left the call.
 
 Mute everyone?
+    <tag>group</tag>
     <tag>confirm</tag>
     <tag>voice</tag>
     <usetemplate
