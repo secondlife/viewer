@@ -692,9 +692,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>239e5be637bb6282a297a8636ef3c77e</string>
+              <string>21babc394dbf8572830f2e85adec7b9f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20110119a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/220211/arch/Darwin/installer/google_breakpad-0.0.0-rev599-darwin-20110202.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
