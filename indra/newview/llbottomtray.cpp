@@ -823,6 +823,12 @@ void LLBottomTray::draw()
 		getChild<LLButton>("show_people_button")->setToggleState(false);
 	}
 
+	LLFloater* help_browser = (LLFloaterReg::findInstance("help_browser"));
+	bool help_floater_visible = (help_browser && help_browser->isInVisibleChain());
+
+	getChild<LLButton>("show_help_btn")->setToggleState(help_floater_visible);
+
+
 }
 
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)

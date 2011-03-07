@@ -131,13 +131,13 @@
                    name="bottom_tray_container"
                    visible="false"/>
             <layout_panel auto_resize="false"
-                          height="200"
+                          height="215"
                           mouse_opaque="false"
                           user_resize="false"
                           name="avatar_picker_and_destination_guide_container"
                           visible="false">
               <panel top="0"
-                     height="200"
+                     height="215"
                      left="0"
                      background_visible="true" 
                      width="500"
