@@ -1332,9 +1332,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>972088359b9472a3baf4dda695cbda44</string>
+              <string>4be51c7cca7d84831e30b63279df7ae5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3.0-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/222548/arch/Darwin/installer/openjpeg-1.4-darwin-20110302.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
