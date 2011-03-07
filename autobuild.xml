@@ -836,9 +836,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d94de5a98492018144b95a8022ed4e44</string>
+              <string>71bd6efbf508e1f2e7d98a6195a93e9e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/222232/arch/Darwin/installer/jpeglib-8c-darwin-20110228.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -980,9 +980,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4aa623811aff42df702e8d3fdd848ac3</string>
+              <string>6fe1adf12d98bce9111f60ee762007b9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/221851/arch/Darwin/installer/libpng-1.5.1-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
