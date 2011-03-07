@@ -392,7 +392,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Definir" name="set_media_url"/>
-			<check_box label="Ocultar la URL del media" left="97" name="hide_media_url" tool_tip="Marcando esta opción esconderá en la información de esta parcela -a quien no esté autorizado a verla- la URL del media. Note que esto no está disponible para HTML."/>
 			<text name="Description:">
 				Descripción:
 			</text>
@@ -424,7 +423,6 @@ los media:
 			<text name="MusicURL:">
 				URL de música:
 			</text>
-			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Al marcar esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
 			<text name="Sound:">
 				Sonido:
 			</text>
