@@ -11,7 +11,7 @@
   <hide tag="voice"/>
 
   <!-- refers to preferences -->
-  <hide name="RegionEntryAccessBlocked"/>
+  <hide name="RegionEntryAccessBlocked_Change"/>
 
   <!-- hints pertaining to UI we don't show -->
   <hide name="FirstBalanceIncrease"/>
