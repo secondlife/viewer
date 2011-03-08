@@ -6202,12 +6202,22 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			{
 				focus_point = gDebugRaycastIntersection;
 			}
+			else if (gAgentCamera.cameraMouselook())
+			{
+				gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+											  NULL,
+											  &focus_point);
+			}
 			else
 			{
 				LLViewerObject* obj = gAgentCamera.getFocusObject();
 				if (obj)
 				{
 					focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
+				}
+				else
+				{
+					focus_point = gDebugRaycastIntersection;
 				}
 			}
 		}

@@ -146,24 +146,43 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
+	LLVector3 position = mPositionAgent;
+
+	if (mSourceObject)
+	{ //get intersection of eye through mPositionAgent to plane of source object
+		//using this position keeps the camera from focusing on some seemingly random 
+		//point several meters in front of the nametag
+		const LLVector3& p = mSourceObject->getPositionAgent();
+		const LLVector3& n = LLViewerCamera::getInstance()->getAtAxis();
+		const LLVector3& eye = LLViewerCamera::getInstance()->getOrigin();
+
+		LLVector3 ray = position-eye;
+		ray.normalize();
+
+		LLVector3 delta = p-position;
+		F32 dist = delta*n;
+		F32 dt =  dist/(ray*n);
+		position += ray*dt;
+	}
+
 	// scale screen size of borders down
 	//RN: for now, text on hud objects is never occluded
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
 	
-	LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	LLViewerCamera::getInstance()->getPixelVectors(position, y_pixel_vec, x_pixel_vec);
 
 	LLVector3 width_vec = mWidth * x_pixel_vec;
 	LLVector3 height_vec = mHeight * y_pixel_vec;
 	
 	LLCoordGL screen_pos;
-	LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
+	LLViewerCamera::getInstance()->projectPosAgentToScreen(position, screen_pos, FALSE);
 
 	LLVector2 screen_offset;
 	screen_offset = updateScreenPos(mPositionOffset);
 	
-	LLVector3 render_position = mPositionAgent  
+	LLVector3 render_position = position  
 			+ (x_pixel_vec * screen_offset.mV[VX])
 			+ (y_pixel_vec * screen_offset.mV[VY]);
 
