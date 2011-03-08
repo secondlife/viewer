@@ -245,7 +245,7 @@
          </joystick_track>
         </panel>
     </panel>
-    <panel
+   	<panel
      border="false"
      height="42"
      layout="topleft"
@@ -253,5 +253,32 @@
      top_pad="0"
      name="buttons"
      width="226">
-    </panel>
+		<button
+         height="23"
+         label=""
+         layout="topleft"
+         left="83"
+         is_toggle="true"
+         image_overlay="Cam_Avatar_Off"
+         image_selected="PushButton_Selected_Press"
+         name="presets_btn"
+         tab_stop="false"
+         tool_tip="Preset Views"
+         top="13"
+         width="25">
+		</button>
+		<button
+         height="23"
+         label=""
+         layout="topleft"
+         left_pad="1"
+         is_toggle="true"
+         image_overlay="PanOrbit_Off"
+         image_selected="PushButton_Selected_Press"
+         name="pan_btn"
+         tab_stop="false"
+         tool_tip="Orbit Zoom Pan"
+         width="25">
+		</button>
+	</panel>
 </floater>
