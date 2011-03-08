@@ -12487,5 +12487,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-</map>
+    <key>LogInventoryDecline</key>
+    <map>
+      <key>Comment</key>
+      <string>Log in system chat whenever an inventory offer is declined</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  </map>
 </llsd>
