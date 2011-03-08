@@ -245,7 +245,7 @@
          </joystick_track>
         </panel>
     </panel>
-   	<panel
+    <panel
      border="false"
      height="42"
      layout="topleft"
@@ -280,5 +280,5 @@
          tool_tip="Orbit Zoom Pan"
          width="25">
 		</button>
-	</panel>
+    </panel>
 </floater>

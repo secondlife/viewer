@@ -1,28 +1,28 @@
 <?xml version="1.0" ?>
 <notification_visibility>
   <respond name="UserGiveItem" response="Discard"/>
-  <respond name="JoinGroup" response="Decline"/>
+  <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteP2P" response="Decline"/>
   <respond name="VoiceInviteAdHoc" response="Decline"/>
-  <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteGroup" response="Decline"/>
+
+  <!-- group and voice are disabled features -->
+  <hide tag="group"/>
+  <hide tag="voice"/>
+
+  <!-- refers to preferences -->
+  <hide name="RegionEntryAccessBlocked"/>
+
+  <!-- hints pertaining to UI we don't show -->
+  <hide name="FirstBalanceIncrease"/>
+  <hide name="FirstInventory"/>
+  <hide name="HintSidePanel"/>
+  <hide name="HintMove"/>
+  <hide name="HintDisplayName"/>
   <hide name="HintInventory"/>
   <hide name="HintLindenDollar"/>
-  <hide name="HintMove"/>
-  <hide name="ClothingLoading"/>
-  <hide name="LandBuyPass"/>
-  <hide tag="voice"/>
-  <show name="RegionRestartMinutes"/>
-  <show name="RegionRestartSeconds"/>
-  <show name="PopupAttempt"/>
-  <show tag="confirm"/>
-  <show tag="friendship"/>
-  <show tag="fail"/>
-  <show tag="funds"/>
-  <show type="hint"/>
-  <show type="notifytoast"/>
-  <show name="ModeChange"/>
-  <show name="YouHaveBeenLoggedOut"/>
-  <hide/>
+
+  <!-- show everything else -->
+  <show/>
 </notification_visibility>
 

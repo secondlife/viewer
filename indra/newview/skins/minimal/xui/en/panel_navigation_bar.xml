@@ -63,7 +63,7 @@ width="31" />
      mouse_opaque="false"
      name="location_combo"
      top_delta="0"
-     width="360">
+     width="440">
     </location_input>
     <icon follows="right"
           height="20"
@@ -72,17 +72,5 @@ width="31" />
           image_name="Button_Separator"
           name="separator"
           top="2"/>
-    <button
-      right="-70"
-      top="2"
-      width="80"
-      height="22"
-      label="How To"
-      follows="top|right"
-      name="skylight_help">
-      <commit_callback
-        function="ShowHelp"
-        parameter="f1_help" />
-    </button>
   </panel>
 </panel>

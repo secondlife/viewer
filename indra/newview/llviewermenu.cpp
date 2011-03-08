@@ -5647,6 +5647,25 @@ class LLShowHelp : public view_listener_t
 	}
 };
 
+class LLToggleHelp : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloater* help_browser = (LLFloaterReg::findInstance("help_browser"));
+		if (help_browser && help_browser->isInVisibleChain())
+		{
+			help_browser->closeFloater();
+		}
+		else
+		{
+			std::string help_topic = userdata.asString();
+			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+			vhelp->showTopic(help_topic);
+		}
+		return true;
+	}
+};
+
 class LLShowSidetrayPanel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8224,6 +8243,7 @@ void initialize_menus()
 	commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
 	commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
+	view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");

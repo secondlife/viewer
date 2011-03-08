@@ -131,13 +131,13 @@
                    name="bottom_tray_container"
                    visible="false"/>
             <layout_panel auto_resize="false"
-                          height="200"
+                          height="215"
                           mouse_opaque="false"
                           user_resize="false"
                           name="avatar_picker_and_destination_guide_container"
                           visible="false">
               <panel top="0"
-                     height="200"
+                     height="215"
                      left="0"
                      background_visible="true" 
                      width="500"
@@ -148,16 +148,14 @@
                   follows="all"
                   name="destination_guide_contents"
                   trusted_content="true"
-                  visible="false"
-                  start_url="http://interest.secondlife/viewer/guide"/>
+                  visible="false"/>
                 <web_browser
                   top="0"
                   height="200"
                   follows="all"
                   name="avatar_picker_contents"
                   visible="false"
-                  trusted_content="true"
-                  start_url="http://interest.secondlife/viewer/avatar"/>
+                  trusted_content="true"/>
                 <button
                   name="close"
                   width="22"
