@@ -1500,9 +1500,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>994193ab308ac40994421ca411249b65</string>
+              <string>a3e0fb4b4a51b01690a99747a1cca531</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/222889/arch/Darwin/installer/xmlrpc_epi-0.54.1-darwin-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
