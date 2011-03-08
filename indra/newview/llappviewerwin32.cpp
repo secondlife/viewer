@@ -384,10 +384,8 @@ bool LLAppViewerWin32::initLogging()
 
 void LLAppViewerWin32::initConsole()
 {
-	llinfos << "Test before create_console" << llendl;
 	// pop up debug console
 	create_console();
-	llinfos << "Test after create_console" << llendl;
 	return LLAppViewer::initConsole();
 }
 
