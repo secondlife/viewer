@@ -1548,9 +1548,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d1b42e6c3fcfebe00c6b87a0228c0ab</string>
+              <string>49b8de20f3bb43537f51311894a72de1</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/Darwin/installer/zlib-1.2.5-darwin-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
