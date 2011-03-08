@@ -384,6 +384,24 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 	llassert(verify());
 }
 
+void LLFace::setGeomIndex(U16 idx) 
+{ 
+	if (mGeomIndex != idx)
+	{
+		mGeomIndex = idx; 
+		mVertexBuffer = NULL;
+	}
+}
+
+void LLFace::setIndicesIndex(S32 idx) 
+{ 
+	if (mIndicesIndex != idx)
+	{
+		mIndicesIndex = idx; 
+		mVertexBuffer = NULL;
+	}
+}
+	
 //============================================================================
 
 U16 LLFace::getGeometryAvatar(
@@ -1858,7 +1876,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 	}
 	
 	// First, check whether the face data fits within the pool's range.
-	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
+	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getRequestedVerts())
 	{
 		ok = FALSE;
 		llinfos << "Face references invalid vertices!" << llendl;
@@ -1877,7 +1895,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 		llinfos << "Face has bogus indices count" << llendl;
 	}
 	
-	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getNumIndices())
+	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getRequestedIndices())
 	{
 		ok = FALSE;
 		llinfos << "Face references invalid indices!" << llendl;

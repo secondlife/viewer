@@ -196,8 +196,8 @@ public:
 	BOOL		verify(const U32* indices_array = NULL) const;
 	void		printDebugInfo() const;
 
-	void		setGeomIndex(U16 idx) { mGeomIndex = idx; }
-	void		setIndicesIndex(S32 idx) { mIndicesIndex = idx; }
+	void		setGeomIndex(U16 idx); 
+	void		setIndicesIndex(S32 idx);
 	void		setDrawInfo(LLDrawInfo* draw_info);
 
 	F32         getTextureVirtualSize() ;
