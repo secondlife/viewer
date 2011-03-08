@@ -402,9 +402,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4521b86ff92c3843e47a58b38e76e667</string>
+              <string>61ead113e6479452e6b690c84b4e9d30</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20101004.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Darwin/installer/fmod-3.75-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -932,9 +932,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>408f1375f5a4d864cfb47b36c8ab6052</string>
+              <string>d91e1f483209cd3eba04135c6a59e829</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20110112.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
