@@ -185,6 +185,33 @@ public:
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLView* getRootView() { return sRootView; }
 	static void setRootView(LLView* view) { sRootView = view; }
+	/**
+	 * Walk the LLView tree to resolve a path
+	 * Paths can be discovered using Develop > XUI > Show XUI Paths
+	 *
+	 * A leading "/" indicates the root of the tree is the starting
+	 * position of the search, (otherwise the context node is used)
+	 *
+	 * Adjacent "//" mean that the next level of the search is done
+	 * recursively ("descendant" rather than "child").
+	 *
+	 * Return values: If no match is found, NULL is returned,
+	 * otherwise the matching LLView* is returned.
+	 *
+	 * Examples:
+	 *
+	 * "/" -> return the root view
+	 * "/foo" -> find "foo" as a direct child of the root
+	 * "foo" -> find "foo" as a direct child of the context node
+	 * "//foo" -> find the first "foo" child anywhere in the tree
+	 * "/foo/bar" -> find "foo" as direct child of the root, and
+	 *      "bar" as a direct child of "foo"
+	 * "//foo//bar/baz" -> find the first "foo" anywhere in the
+	 *      tree, the first "bar" anywhere under it, and "baz"
+	 *      as a direct child of that
+	 */
+	static const LLView* resolvePath(const LLView* context, const std::string& path);
+	static LLView* resolvePath(LLView* context, const std::string& path);
 	static std::string locateSkin(const std::string& filename);
 	static void setMousePositionScreen(S32 x, S32 y);
 	static void getMousePositionScreen(S32 *x, S32 *y);
