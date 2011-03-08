@@ -373,17 +373,19 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		// Must be after erase.
 		setLoaded();  // why is this here? -MG
 	}
-
-	// Clean up any legacy mutes
-	string_set_t::iterator legacy_it = mLegacyMutes.find(mute.mName);
-	if (legacy_it != mLegacyMutes.end())
+	else
 	{
-		// Database representation of legacy mute is UUID null.
-		LLMute mute(LLUUID::null, *legacy_it, LLMute::BY_NAME);
-		updateRemove(mute);
-		mLegacyMutes.erase(legacy_it);
-		// Must be after erase.
-		setLoaded(); // why is this here? -MG
+		// Clean up any legacy mutes
+		string_set_t::iterator legacy_it = mLegacyMutes.find(mute.mName);
+		if (legacy_it != mLegacyMutes.end())
+		{
+			// Database representation of legacy mute is UUID null.
+			LLMute mute(LLUUID::null, *legacy_it, LLMute::BY_NAME);
+			updateRemove(mute);
+			mLegacyMutes.erase(legacy_it);
+			// Must be after erase.
+			setLoaded(); // why is this here? -MG
+		}
 	}
 	
 	return found;
@@ -607,7 +609,8 @@ BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) c
 	}
 
 	// empty names can't be legacy-muted
-	if (name.empty()) return FALSE;
+	bool avatar = mute_object && mute_object->isAvatar();
+	if (name.empty() || avatar) return FALSE;
 
 	// Look in legacy pile
 	string_set_t::const_iterator legacy_it = mLegacyMutes.find(name);

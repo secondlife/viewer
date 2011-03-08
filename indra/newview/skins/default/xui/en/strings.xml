@@ -2370,6 +2370,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!--<string name="Shopping">Shopping</string>	-->
 	<string name="Stage">Stage</string>
 	<string name="Other">Other</string>
+	<string name="Rental">Rental</string>
 	<string name="Any">Any</string>
 	<string name="You">You</string>
 
