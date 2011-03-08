@@ -249,4 +249,4 @@
     <menu_item_call.on_visible
      function="IsGodCustomerService"/>
   </menu_item_call>
-</context_menu>
+</toggleable_menu>
