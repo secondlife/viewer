@@ -1076,9 +1076,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d3890220418a66607569fe406ebe24c7</string>
+              <string>0326cb770c7ff995cf822fb330ae9d0c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-darwin-20110113.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/223111/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110308.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
