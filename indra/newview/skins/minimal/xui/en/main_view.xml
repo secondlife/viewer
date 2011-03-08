@@ -148,16 +148,14 @@
                   follows="all"
                   name="destination_guide_contents"
                   trusted_content="true"
-                  visible="false"
-                  start_url="http://interest.secondlife/viewer/guide"/>
+                  visible="false"/>
                 <web_browser
                   top="0"
                   height="200"
                   follows="all"
                   name="avatar_picker_contents"
                   visible="false"
-                  trusted_content="true"
-                  start_url="http://interest.secondlife/viewer/avatar"/>
+                  trusted_content="true"/>
                 <button
                   name="close"
                   width="22"
