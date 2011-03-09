@@ -1148,9 +1148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d56bb37233e6f1308fb0a5b8e37a2429</string>
+              <string>674d37d2ba76a2df7f18c47bf50b5d03</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev/rev/223177/arch/Darwin/installer/libndofdev-0.1-darwin-20110308.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
