@@ -10,7 +10,6 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
-	<text name="user_name" value="Grumpity ProductEngine"/>
 	<text name="user_subtitle" value="11 Months, 3 days old"/>
 	<text name="user_details">
 		This is my second life description and I really think it is great.

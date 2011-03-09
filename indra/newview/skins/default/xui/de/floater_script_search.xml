@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script search" title="SKRIPT-SUCHE">
-	<check_box label="Groß-/Kleinschreibung irrelevant" name="case_text"/>
+	<check_box label="Groß-/Kleinschreibung ignorieren" name="case_text"/>
 	<button label="Suchen" label_selected="Suchen" name="search_btn"/>
 	<button label="Ersetzen" label_selected="Ersetzen" name="replace_btn"/>
 	<button label="Alle ersetzen" label_selected="Alle ersetzen" name="replace_all_btn"/>
