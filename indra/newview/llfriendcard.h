@@ -79,19 +79,6 @@ public:
 	 */
 	void syncFriendCardsFolders();
 
-	/*!
-	 * \brief
-	 * Collects folders' IDs with the buddies' IDs in the Inventory Calling Card/Friends folder.
-	 * 
-	 * \param folderBuddiesMap
-	 * map into collected data will be put. It will be cleared before adding new data.
-	 * 
-	 * Each item in the out map is a pair where first is an LLViewerInventoryCategory UUID,
-	 * second is a vector with UUID of Avatars from this folder.
-	 * 
-	 */
-	void collectFriendsLists(folderid_buddies_map_t& folderBuddiesMap) const;
-
 private:
 	typedef boost::function<void()> callback_t;
 
