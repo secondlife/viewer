@@ -1428,7 +1428,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 			if (attached_object && !attached_object->isHUDAttachment())
 			{
 				LLDrawable* drawable = attached_object->mDrawable;
-				if (drawable)
+				if (drawable && !drawable->isState(LLDrawable::RIGGED))
 				{
 					LLSpatialBridge* bridge = drawable->getSpatialBridge();
 					if (bridge)
