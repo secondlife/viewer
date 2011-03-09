@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if !LL_SOLARIS
+#error This header must not be included when compiling for any target other than Solaris. Consider including lldir.h instead.
+#endif // !LL_SOLARIS
+
 #ifndef LL_LLDIR_SOLARIS_H
 #define LL_LLDIR_SOLARIS_H
 
@@ -40,7 +44,7 @@ public:
 
 	/*virtual*/ void initAppDirs(const std::string &app_name,
 		const std::string& app_read_only_data_dir);
-public:	
+
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
@@ -50,7 +54,7 @@ private:
 	DIR *mDirp;
 	int mCurrentDirIndex;
 	int mCurrentDirCount;
-	std::string mCurrentDir;	
+	std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_SOLARIS_H

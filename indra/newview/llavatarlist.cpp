@@ -240,6 +240,9 @@ void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_i
 	LLAvalineListItem* item = new LLAvalineListItem(/*hide_number=*/false);
 	item->setAvatarId(item_id, session_id, true, false);
 	item->setName(item_name);
+	item->showLastInteractionTime(mShowLastInteractionTime);
+	item->showSpeakingIndicator(mShowSpeakingIndicator);
+	item->setOnline(false);
 
 	addItem(item, item_id);
 	mIDs.push_back(item_id);
@@ -286,9 +289,18 @@ void LLAvatarList::refresh()
 			{
 				// *NOTE: If you change the UI to show a different string,
 				// be sure to change the filter code below.
-				addNewItem(buddy_id, 
-					       av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
-						   LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+				if (LLRecentPeople::instance().isAvalineCaller(buddy_id))
+				{
+					const LLSD& call_data = LLRecentPeople::instance().getData(buddy_id);
+					addAvalineItem(buddy_id, call_data["session_id"].asUUID(), call_data["call_number"].asString());
+				}
+				else
+				{
+					addNewItem(buddy_id, 
+						av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
+						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+				}
+				
 				modified = true;
 				nadded++;
 			}
@@ -440,13 +452,28 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
-	if ( mContextMenu )
+	if ( mContextMenu && !isAvalineItemSelected())
 	{
 		uuid_vec_t selected_uuids;
 		getSelectedUUIDs(selected_uuids);
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
 	return handled;
+}
+
+bool LLAvatarList::isAvalineItemSelected()
+{
+	std::vector<LLPanel*> selected_items;
+	getSelectedItems(selected_items);
+	std::vector<LLPanel*>::iterator it = selected_items.begin();
+	
+	for(; it != selected_items.end(); ++it)
+	{
+		if (dynamic_cast<LLAvalineListItem*>(*it))
+			return true;
+	}
+
+	return false;
 }
 
 void LLAvatarList::setVisible(BOOL visible)

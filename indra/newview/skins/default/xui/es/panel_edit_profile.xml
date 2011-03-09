@@ -25,11 +25,7 @@
 				<text name="display_name_label" value="Nombre mostrado:"/>
 				<text name="solo_username_label" value="Nombre de usuario:"/>
 				<button name="set_name" tool_tip="Configurar nombre mostrado"/>
-				<text name="solo_user_name" value="Hamilton Hitchings"/>
-				<text name="user_name" value="Hamilton Hitchings"/>
-				<text name="user_name_small" value="Hamilton Hitchings"/>
 				<text name="user_label" value="Nombre de usuario:"/>
-				<text name="user_slid" value="hamilton.linden"/>
 				<panel name="lifes_images_panel">
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Pulsa para elegir una imagen"/>
 				</panel>
