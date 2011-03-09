@@ -58,9 +58,15 @@ public:
 	 * Add specified avatar to the list if it's not there already.
 	 *
 	 * @param id avatar to add.
+	 *
+	 * @param userdata additional information about last interaction party.
+	 *				   For example when last interaction party is not an avatar
+	 *				   but an avaline caller, additional info (such as phone
+	 *				   number, session id and etc.) should be added.
+	 *
 	 * @return false if the avatar is in the list already, true otherwise
 	 */
-	bool add(const LLUUID& id);
+	bool add(const LLUUID& id, const LLSD& userdata = LLSD().with("date", LLDate::now()));
 
 	/**
 	 * @param id avatar to search.
@@ -75,7 +81,25 @@ public:
 	 */
 	void get(uuid_vec_t& result) const;
 
-	const LLDate& getDate(const LLUUID& id) const;
+	/**
+	 * Returns last interaction time with specified participant
+	 *
+	 */
+	const LLDate getDate(const LLUUID& id) const;
+
+	/**
+	 * Returns data about specified participant
+	 *
+	 * @param id identifier of specific participant
+	 */
+	const LLSD& getData(const LLUUID& id) const;
+
+	/**
+	 * Checks whether specific participant is an avaline caller
+	 *
+	 * @param id identifier of specific participant
+	 */
+	bool isAvalineCaller(const LLUUID& id) const;
 
 	/**
 	 * Set callback to be called when the list changed.
@@ -92,7 +116,10 @@ public:
 	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 private:
-	typedef std::map<LLUUID, LLDate> recent_people_t;
+
+	const LLUUID& getIDByPhoneNumber(const LLSD& userdata);
+
+	typedef std::map<LLUUID, LLSD> recent_people_t;
 	recent_people_t		mPeople;
 	signal_t			mChangedSignal;
 };

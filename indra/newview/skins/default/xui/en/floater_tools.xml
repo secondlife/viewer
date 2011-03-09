@@ -248,30 +248,53 @@
 			function="BuildTool.commitRadioEdit"/>
     </radio_group>
     <check_box
-     left="10"
+     left="5"
      follows="left|top"
      height="28"
 	 control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts"
-     top_pad="2">
+     top_pad="-10">
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
 
-   <text
-   text_color="LtGray_50"
-   follows="top|left"
-   halign="left"
-   left="13"
-   name="RenderingCost"
-   tool_tip="Shows the rendering cost calculated for this object"
-   top_pad="0"
-   type="string"
-   width="100">
-   þ: [COUNT]
-   </text>
+   <button
+     follows="left|top"
+     height="23"
+     label="Link"
+     top_pad="2"
+     layout="topleft"
+     left="5"
+     name="link_btn"
+     width="50">
+	  <button.commit_callback
+	     function="BuildTool.LinkObjects"/>
+    </button>
+    <button
+     follows="left|top"
+     height="23"
+     label="Unlink"
+     layout="topleft"
+     left_pad="2"
+     name="unlink_btn"
+     width="50">
+	  <button.commit_callback
+	     function="BuildTool.UnlinkObjects"/>
+    </button>
+    <text
+	   text_color="LtGray_50"
+	   follows="top|left"
+	   halign="left"
+	   left_pad="3"
+	   name="RenderingCost"
+	   tool_tip="Shows the rendering cost calculated for this object"
+	   top_delta="11"
+	   type="string"
+	   width="100">
+	   þ: [COUNT]
+	   </text>
 	<check_box
      control_name="ScaleUniform"
      height="19"
@@ -299,7 +322,7 @@
      layout="topleft"
      left="143"
      name="checkbox stretch textures"
-     top_pad="7"
+     top_pad="-6"
      width="134" />
    <check_box
      control_name="SnapEnabled"
@@ -876,10 +899,11 @@
              layout="topleft"
              name="Creator Name"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Esbee Linden (esbee.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
             <text
              type="string"
@@ -903,10 +927,11 @@
              name="Owner Name"
              left_pad="0"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Erica "Moose" Linden (erica.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
            <text
              type="string"

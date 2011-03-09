@@ -45,11 +45,11 @@
          min_width="214"
          height="28" 
          mouse_opaque="false"
-		 name="chat_bar_layout_panel"
+         name="chat_bar_layout_panel"
          user_resize="true"
-         width="308" >
+         width="310" >
           <panel
-         name="chat_bar"
+            name="chat_bar"
             filename="panel_nearby_chat_bar.xml"
             left="0"
             height="28"
@@ -60,11 +60,30 @@
           />
         </layout_panel>
         <!--
-        There is resize bar between chatbar and Speak button. It has 2px width (is is set as 2*UIResizeBarOverlap)
+         This 5px Panel is an indicator of where the resize handle is.
+         The panel provides a gap between the resize handle icon and a button to the right.  
         -->
         <layout_panel
          auto_resize="false"
-         follows="right"
+         layout="topleft"
+         max_width="5" 
+         min_width="5"
+         name="chat_bar_resize_handle_panel"
+         user_resize="false"
+         width="5">
+            <icon
+             follows="top|right"
+             height="25"
+             image_name="ChatBarHandle"
+             layout="topleft"
+             left="-7"
+             name="resize_handle"
+             top="4"
+             width="5" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
          height="28"
          layout="topleft"
          min_height="28"
@@ -72,13 +91,13 @@
          mouse_opaque="false"
          name="speak_panel"
          top_delta="0"
-         user_resize="true"
-         width="110">
+         user_resize="false"
+         width="108">
             <talk_button
              follows="left|right"
              height="23"
              layout="topleft"
-             left="2"
+             left="0"
              name="talk"
              top="5"
              width="105">
