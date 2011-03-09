@@ -594,9 +594,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3bfca7ad2eb90ea33f3fd6f974ca394</string>
+              <string>2bb7adabbd1fe2c7f99ddc4240842cc4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glui/rev/221069/arch/Darwin/installer/glui-2.36-darwin-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
