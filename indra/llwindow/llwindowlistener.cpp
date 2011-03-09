@@ -100,7 +100,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 	}
 
 	// *TODO - figure out how to handle the mask
-	mKeyboard->handleTranslatedKeyDown(keycode, 0);
+	mKeyboard->handleTranslatedKeyUp(keycode, 0);
 }
 
 void LLWindowListener::mouseDown(LLSD const & evt)
