@@ -1405,7 +1405,7 @@ void replaceFormText(LLNotificationForm::Params& form, const std::string& patter
 	}
 }
 
-void addPathIfExists(std::string& new_path, std::vector<std::string>& paths)
+void addPathIfExists(const std::string& new_path, std::vector<std::string>& paths)
 {
 	if (gDirUtilp->fileExists(new_path))
 	{
