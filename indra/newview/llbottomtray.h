@@ -116,6 +116,7 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
+	void showSpeakButton(bool visible);
 
 	void toggleMovementControls();
 	void toggleCameraControls();
@@ -391,6 +392,13 @@ private:
 	bool setVisibleAndFitWidths(EResizeState object_type, bool visible);
 
 	/**
+	 * Get panel containing the given button.
+	 *
+	 * @see mStateProcessedObjectMap
+	 */
+	LLPanel* getButtonPanel(EResizeState button_type);
+
+	/**
 	 * Shows/hides panel with specified well button (IM or Notification)
 	 *
 	 * @param[in] object_type - type of well button to be processed.
@@ -409,12 +417,21 @@ private:
 	 */
 	void processChatbarCustomization(S32 new_width);
 
+	/// Get button name for debugging.
+	static std::string resizeStateToString(EResizeState state);
 
+	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
 
+	/**
+	 * Mapping of button types to the layout panels the buttons are wrapped in.
+	 *
+	 * Used by getButtonPanel().
+	 */
 	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
 	state_object_map_t mStateProcessedObjectMap;
 
+	/// Default (maximum) widths of the layout panels.
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
 
@@ -424,6 +441,7 @@ private:
 	 * Contains order in which child buttons should be processed in show/hide, extend/shrink methods.
 	 */
 	resize_state_vec_t mButtonsProcessOrder;
+
 	/**
 	 * Contains order in which child buttons are shown.
 	 * It traces order of all bottomtray buttons that may change place via drag'n'drop and should
@@ -451,6 +469,7 @@ protected:
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutPanel*		mChatBarContainer;
+	LLPanel*		mNearbyCharResizeHandlePanel;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLButton*			mCamButton;

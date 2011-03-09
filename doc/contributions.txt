@@ -156,6 +156,7 @@ Ann Congrejo
 	CT-193
 Ardy Lay
 	VWR-19499
+	VWR-24917
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -190,7 +191,7 @@ Blakar Ogre
 blino Nakamura
 	VWR-17
 Boroondas Gupte
-	CTS-320
+	OPEN-29
 	CTS-323
 	SNOW-278
 	SNOW-503
@@ -395,14 +396,18 @@ Jonathan Yap
 	STORM-829
 	STORM-844
 	STORM-953
+	STORM-954
 	STORM-960
 	STORM-869
 	STORM-974
 	STORM-975
+	STORM-977
 	STORM-979
 	STORM-980
+	STORM-1040
 	VWR-17801
 	VWR-24347
+	STORM-990
 Kage Pixel
 	VWR-11
 Ken March
@@ -791,6 +796,7 @@ Twisted Laws
 	STORM-467
 	STORM-844
 	STORM-643
+	STORM-954
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
@@ -831,6 +837,7 @@ WolfPup Lowenhar
 	STORM-102
 	STORM-103
 	STORM-143
+	STORM-236
 	STORM-255
 	STORM-256
 	STORM-288

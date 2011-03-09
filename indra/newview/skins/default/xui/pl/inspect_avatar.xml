@@ -10,8 +10,6 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
-	<text name="user_name_small" value="Grumpity ProductEngine with a long name"/>
-	<text name="user_slid" value="james.linden"/>
 	<text name="user_details">
 		To jest mój opis w Second Life.
 	</text>
