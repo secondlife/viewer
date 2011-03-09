@@ -863,10 +863,11 @@ class LLNotifications :
 
 	friend class LLSingleton<LLNotifications>;
 public:
-	// load notification descriptions from file; 
-	// OK to call more than once because it will reload
-	bool loadTemplates();  
-	
+	// load all notification descriptions from file
+	// calling more than once will overwrite existing templates
+	// but never delete a template
+	bool loadTemplates();
+
 	// load visibility rules from file; 
 	// OK to call more than once because it will reload
 	bool loadVisibilityRules();  
@@ -950,8 +951,6 @@ private:
 	LLNotificationChannelPtr pHistoryChannel;
 	LLNotificationChannelPtr pExpirationChannel;
 	
-	// put your template in
-	bool addTemplate(const std::string& name, LLNotificationTemplatePtr theTemplate);
 	TemplateMap mTemplates;
 
 	VisibilityRuleList mVisibilityRules;
