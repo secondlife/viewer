@@ -149,8 +149,7 @@ public:
 		LLXMLNodePtr& update_node);
 	static LLXMLNodePtr replaceNode(LLXMLNodePtr node, LLXMLNodePtr replacement_node);
 	
-	static bool getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
-								  const std::vector<std::string>& paths);
+	static bool getLayeredXMLNode(LLXMLNodePtr& root, const std::vector<std::string>& paths);
 	
 	
 	// Write standard XML file header:
