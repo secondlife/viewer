@@ -83,7 +83,78 @@ BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
 	return (LLFastTimer::sMetricLog && ((LLFastTimer::sLogName == name) || (LLFastTimer::sLogName == DEFAULT_METRIC_NAME)));
 }
 
+/*static*/ 
+LLSD LLMetricPerformanceTesterBasic::analyzeMetricPerformanceLog(std::istream& is)
+{
+	LLSD ret;
+	LLSD cur;
 	
+	while (!is.eof() && LLSDSerialize::fromXML(cur, is))
+	{
+		for (LLSD::map_iterator iter = cur.beginMap(); iter != cur.endMap(); ++iter)
+		{
+			std::string label = iter->first;
+			
+			LLMetricPerformanceTesterBasic* tester = LLMetricPerformanceTesterBasic::getTester(iter->second["Name"].asString()) ;
+			if(tester)
+			{
+				ret[label]["Name"] = iter->second["Name"] ;
+				
+				S32 num_of_metrics = tester->getNumberOfMetrics() ;
+				for(S32 index = 0 ; index < num_of_metrics ; index++)
+				{
+					ret[label][ tester->getMetricName(index) ] = iter->second[ tester->getMetricName(index) ] ;
+				}
+			}
+		}
+	}
+	
+	return ret;
+}
+
+/*static*/ 
+void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std::string target, std::string output)
+{
+	if(!LLMetricPerformanceTesterBasic::hasMetricPerformanceTesters())
+	{
+		return ;
+	}
+	
+	// Open baseline and current target, exit if one is inexistent
+	std::ifstream base_is(baseline.c_str());
+	std::ifstream target_is(target.c_str());
+	if (!base_is.is_open() || !target_is.is_open())
+	{
+		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		base_is.close();
+		target_is.close();
+		return;
+	}
+	
+	//analyze baseline
+	LLSD base = analyzeMetricPerformanceLog(base_is);
+	base_is.close();
+	
+	//analyze current
+	LLSD current = analyzeMetricPerformanceLog(target_is);
+	target_is.close();
+	
+	//output comparision
+	std::ofstream os(output.c_str());
+	
+	os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n"; 
+	for(LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin() ; 
+		iter != LLMetricPerformanceTesterBasic::sTesterMap.end() ; ++iter)
+	{
+		LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second) ;	
+		tester->analyzePerformance(&os, &base, &current) ;
+	}
+	
+	os.flush();
+	os.close();
+}
+
+
 //----------------------------------------------------------------------------------------------
 // LLMetricPerformanceTesterBasic : Tester instance methods
 //----------------------------------------------------------------------------------------------

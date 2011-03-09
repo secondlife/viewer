@@ -26,6 +26,7 @@
  */
 #include "linden_common.h"
 #include "llpointer.h"
+#include "lltimer.h"
 
 #include "llimage_libtest.h"
 
@@ -49,7 +50,12 @@ static const char USAGE[] = "\n"
 " --in <file1 .. file2>            list of image files to load and convert, patterns can be used\n"
 " --out <file1 .. file2> OR <type> list of image files to create (assumes same order as --in files)\n"
 "                                  OR 3 letters file type extension to convert each input file into\n"
+" --logmetrics <metric>            log performance metric and data for <metric>\n"
+" --analyzeperformance             create report comparing baseline with current for <metric> provided in --logmetrics\n"
 "\n";
+
+// true when all image loading is done. Used by metric logging thread to know when to stop the thread.
+static bool sAllDone = false;
 
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
@@ -202,15 +208,43 @@ void store_output_file(std::list<std::string> &output_filenames, std::list<std::
 	}
 }
 
+// Holds the metric gathering output in a thread safe way
+class LogThread : public LLThread
+{
+public:
+	std::string mFile;
+
+	LogThread(std::string& test_name) : LLThread("llimage_libtest log")
+	{
+		std::string file_name = test_name + std::string(".slp");
+		mFile = file_name;
+	}
+		
+	void run()
+	{
+		std::ofstream os(mFile.c_str());
+			
+		while (!sAllDone)
+		{
+			LLFastTimer::writeLog(os);
+			os.flush();
+			ms_sleep(32);
+		}
+		os.close();
+	}		
+};
+
 int main(int argc, char** argv)
 {
 	// List of input and output files
 	std::list<std::string> input_filenames;
 	std::list<std::string> output_filenames;
+	bool analyze_performance = false;
 
 	// Init whatever is necessary
 	ll_init_apr();
 	LLImage::initClass();
+	LogThread* fast_timer_log_thread = NULL;	// For performance and metric gathering
 
 	// Analyze command line arguments
 	for (int arg = 1; arg < argc; ++arg)
@@ -246,7 +280,34 @@ int main(int argc, char** argv)
 					break;
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
-		}		
+		}
+		else if (!strcmp(argv[arg], "--logmetrics"))
+		{
+			// '--logmetrics' needs to be specified with a named test metric argument
+			// Note: for the moment, only ImageCompressionTester has been tested
+			std::string test_name;
+			if ((arg + 1) < argc)
+			{
+				test_name = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (test_name[0] == '-'))
+			{
+				// We don't have an argument left in the arg list or the next argument is another option
+				std::cout << "No --logmetrics argument given, no perf data will be gathered" << std::endl;
+			}
+			else
+			{
+				LLFastTimer::sMetricLog = TRUE;
+				LLFastTimer::sLogName = test_name;
+				arg += 1;					// Skip that arg now we know it's a valid test name
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+			}
+		}
+		else if (!strcmp(argv[arg], "--analyzeperformance"))
+		{
+			analyze_performance = true;
+		}
 	}
 		
 	// Analyze the list of (input,output) files
@@ -256,6 +317,14 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	// Create the logging thread if required
+	if (LLFastTimer::sMetricLog)
+	{
+		LLFastTimer::sLogLock = new LLMutex(NULL);
+		fast_timer_log_thread = new LogThread(LLFastTimer::sLogName);
+		fast_timer_log_thread->start();
+	}
+	
 	// Perform action on each input file
 	std::list<std::string>::iterator in_file  = input_filenames.begin();
 	std::list<std::string>::iterator out_file = output_filenames.begin();
@@ -288,10 +357,26 @@ int main(int argc, char** argv)
 		// Output stats on each file
 	}
 	
-	// Output perf data if required by user
+	sAllDone = true;
+	
+	// Output perf data if requested by user
+	if (analyze_performance)
+	{
+		std::cout << "Analyzing performance" << std::endl;
+		
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+		
+		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
+	}
 	
 	// Cleanup and exit
 	LLImage::cleanupClass();
+	if (fast_timer_log_thread)
+	{
+		fast_timer_log_thread->shutdown();
+	}
 	
 	return 0;
 }

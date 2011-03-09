@@ -62,6 +62,8 @@ public:
 	 */
 	virtual void analyzePerformance(std::ofstream* os, LLSD* base, LLSD* current) ;
 
+	static void doAnalysisMetrics(std::string baseline, std::string target, std::string output) ;
+
 	/**
 	 * @return Returns the number of the test metrics in this tester instance.
 	 */
@@ -116,6 +118,7 @@ protected:
 private:
 	void preOutputTestResults(LLSD* sd) ;
 	void postOutputTestResults(LLSD* sd) ;
+	static LLSD analyzeMetricPerformanceLog(std::istream& is) ;
 
 	std::string mName ;							// Name of this tester instance
 	S32 mCount ;								// Current record count
