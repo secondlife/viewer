@@ -3899,6 +3899,17 @@
       <key>Value</key>
       <string>https://my.secondlife.com/[AGENT_NAME]</string>
     </map>
+	<key>WebProfileNonProductionURL</key>
+	<map>
+		<key>Comment</key>
+		<string>URL for Web Profiles on Non-Production grids</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
+	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
