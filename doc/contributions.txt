@@ -156,6 +156,7 @@ Ann Congrejo
 	CT-193
 Ardy Lay
 	VWR-19499
+	VWR-24917
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -402,8 +403,10 @@ Jonathan Yap
 	STORM-977
 	STORM-979
 	STORM-980
+	STORM-1040
 	VWR-17801
 	VWR-24347
+	STORM-990
 Kage Pixel
 	VWR-11
 Ken March
@@ -831,6 +834,7 @@ WolfPup Lowenhar
 	STORM-102
 	STORM-103
 	STORM-143
+	STORM-236
 	STORM-255
 	STORM-256
 	STORM-288
