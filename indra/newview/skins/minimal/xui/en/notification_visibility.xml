@@ -10,9 +10,6 @@
   <hide tag="group"/>
   <hide tag="voice"/>
 
-  <!-- refers to preferences -->
-  <hide name="RegionEntryAccessBlocked_Change"/>
-
   <!-- no spammy scripts -->
   <hide name="ScriptDialog"/>
 
