@@ -314,6 +314,7 @@ LLGLManager::LLGLManager() :
 
 	mHasMultitexture(FALSE),
 	mHasATIMemInfo(FALSE),
+	mHasNVXMemInfo(FALSE),
 	mNumTextureUnits(1),
 	mHasMipMapGeneration(FALSE),
 	mHasCompressedTextures(FALSE),
@@ -505,6 +506,12 @@ bool LLGLManager::initGL()
 
 		mVRAM = meminfo[0]/1024;
 	}
+	else if (mHasNVXMemInfo)
+	{
+		S32 dedicated_memory;
+		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
+		mVRAM = dedicated_memory/1024;
+	}
 
 	if (mHasMultitexture)
 	{
@@ -669,6 +676,7 @@ void LLGLManager::initExtensions()
 #else // LL_MESA_HEADLESS
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 	mHasMipMapGeneration = glh_init_extensions("GL_SGIS_generate_mipmap");
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
 	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
