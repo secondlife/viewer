@@ -62,6 +62,7 @@ set(llcommon_SOURCE_FILES
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
+    llinstancetracker.cpp
     llliveappconfig.cpp
     lllivefile.cpp
     lllog.cpp
