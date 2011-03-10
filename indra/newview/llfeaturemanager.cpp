@@ -729,6 +729,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("ATI");
 	}
+	if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
+	{
+		maskFeatures("ATIVramLT256");
+	}
 	if (gGLManager.mATIOldDriver)
 	{
 		maskFeatures("ATIOldDriver");
