@@ -25,61 +25,6 @@
      function="Object.EnableSit"/>
   </menu_item_call>
   <menu_item_call
-   label="Pay"
-   layout="topleft"
-   name="pay">
-    <menu_item_call.on_click
-     function="InspectObject.Pay"/>
-    <menu_item_call.on_visible
-     function="EnablePayObject" />
-  </menu_item_call>
-  <menu_item_call
-   label="Buy"
-   layout="topleft"
-   enabled="true" 
-   name="buy">
-    <menu_item_call.on_click
-     function="InspectObject.Buy"/>
-    <menu_item_call.on_visible
-     function="Object.VisibleBuy" />
-  </menu_item_call>
-  <menu_item_call
-   label="Take Copy"
-   layout="topleft"
-   name="take_copy">
-    <menu_item_call.on_click
-     function="InspectObject.TakeFreeCopy"/>
-    <menu_item_call.on_visible
-      function="Tools.EnableTakeCopy"/>
-  </menu_item_call>
-  <menu_item_call
-   label="Open"
-   layout="topleft"
-   name="open">
-    <menu_item_call.on_click
-     function="InspectObject.Open"/>
-    <menu_item_call.on_visible
-     function="Object.EnableOpen" />
-  </menu_item_call>
-  <menu_item_call
-   label="Wear"
-   layout="topleft"
-   name="wear">
-    <menu_item_call.on_click
-     function="Object.AttachToAvatar" />
-    <menu_item_call.on_visible
-     function="Object.EnableWear" />
-  </menu_item_call>  
-  <menu_item_call
-   label="Add"
-   layout="topleft"
-   name="add">
-    <menu_item_call.on_click
-     function="Object.AttachAddToAvatar" />
-    <menu_item_call.on_visible
-     function="Object.EnableWear" />
-  </menu_item_call>
-  <menu_item_call
    label="Report"
    layout="topleft"
    name="report">
@@ -102,13 +47,4 @@
     <menu_item_call.on_click
      function="InspectObject.ZoomIn" />
   </menu_item_call>    
-  <menu_item_call
-   label="Remove"
-   layout="topleft"
-   name="remove">
-      <menu_item_call.on_click
-       function="Object.Delete" />
-      <menu_item_call.on_visible
-       function="Object.EnableDelete" />
-  </menu_item_call>
 </toggleable_menu>
