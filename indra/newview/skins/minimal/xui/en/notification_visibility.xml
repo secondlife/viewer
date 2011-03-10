@@ -11,7 +11,10 @@
   <hide tag="voice"/>
 
   <!-- refers to preferences -->
-  <hide name="RegionEntryAccessBlocked"/>
+  <hide name="RegionEntryAccessBlocked_Change"/>
+
+  <!-- no spammy scripts -->
+  <hide name="ScriptDialog"/>
 
   <!-- hints pertaining to UI we don't show -->
   <hide name="FirstBalanceIncrease"/>

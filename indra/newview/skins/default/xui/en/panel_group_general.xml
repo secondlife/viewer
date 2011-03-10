@@ -21,7 +21,7 @@ Hover your mouse over the options for more help.
     </panel.string>
    <panel
       name="group_info_top"
-      follows="top|left"
+      follows="top|left|right"
       top="0"
       left="0"
       height="129"
@@ -43,7 +43,7 @@ Hover your mouse over the options for more help.
       font="SansSerifSmall"
       text_color="White_50"
       width="190"
-      follows="top|left"
+      follows="top|left|right"
       layout="topleft"
       mouse_opaque="false"
      type="string"
@@ -55,7 +55,7 @@ Hover your mouse over the options for more help.
       Founder:
     </text>
      <text
-      follows="left|top"
+      follows="left|top|right"
      height="16"
      layout="topleft"
      left_delta="-2"

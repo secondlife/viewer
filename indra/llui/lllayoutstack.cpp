@@ -563,7 +563,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	}
 
 	// update resize bars with new limits
-	LLResizeBar* last_resize_bar = NULL;
+	LLLayoutPanel* last_resizeable_panel = NULL;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
 		LLPanel* panelp = (*panel_it);
@@ -585,17 +585,17 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		BOOL resize_bar_enabled = panelp->getVisible() && (*panel_it)->mUserResize;
 		(*panel_it)->mResizeBar->setVisible(resize_bar_enabled);
 
-		if (resize_bar_enabled)
+		if ((*panel_it)->mUserResize || (*panel_it)->mAutoResize)
 		{
-			last_resize_bar = (*panel_it)->mResizeBar;
+			last_resizeable_panel = (*panel_it);
 		}
 	}
 
 	// hide last resize bar as there is nothing past it
 	// resize bars need to be in between two resizable panels
-	if (last_resize_bar)
+	if (last_resizeable_panel)
 	{
-		last_resize_bar->setVisible(FALSE);
+		last_resizeable_panel->mResizeBar->setVisible(FALSE);
 	}
 
 	// not enough room to fit existing contents

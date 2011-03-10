@@ -83,8 +83,9 @@
    left="45"
    name="user_name"
    text_color="LtGray"
+   translate="false"
    top="25"
-   value="Jack Linden"
+   value="TestString PleaseIgnore"
    visible="true"
    use_ellipses="true"
    width="258" /> 
@@ -118,8 +119,9 @@
    text_color="EmphasisColor"
    font="SansSerifBold"
    top_delta="-2"
+   translate="false"
    use_ellipses="true"
-   value="jack.linden"
+   value="teststring.pleaseignore"
    width="195" 
    wrap="true "/>
   <tab_container

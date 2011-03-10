@@ -1,2 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu/>
+<toggleable_menu
+ layout="topleft"
+ name="Self Pie">
+  <menu_item_call
+   label="Sit Down"
+   layout="topleft"
+   name="Sit Down Here">
+    <menu_item_call.on_click
+     function="Self.SitDown"
+     parameter="" />
+    <menu_item_call.on_enable
+     function="Self.EnableSitDown" />
+  </menu_item_call>
+  <menu_item_call
+   label="Stand Up"
+   layout="topleft"
+   name="Stand Up">
+    <menu_item_call.on_click
+     function="Self.StandUp"
+     parameter="" />
+    <menu_item_call.on_enable
+     function="Self.EnableStandUp" />
+  </menu_item_call>
+  <menu_item_call
+    label="My Friends"
+    layout="topleft"
+    name="Friends...">
+    <menu_item_call.on_click
+     function="SideTray.PanelPeopleTab"
+     parameter="friends_panel" />
+  </menu_item_call>
+  <menu_item_call
+    label="My Profile"
+    layout="topleft"
+    name="Profile...">
+    <menu_item_call.on_click
+     function="ShowAgentProfile"
+     parameter="agent" />
+  </menu_item_call>
+  <menu_item_call
+   label="Debug Textures"
+       name="Debug...">
+    <menu_item_call.on_click
+     function="Avatar.Debug" />
+    <menu_item_call.on_visible
+     function="IsGodCustomerService"/>
+  </menu_item_call>
+</toggleable_menu>
