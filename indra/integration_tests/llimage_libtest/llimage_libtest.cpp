@@ -46,12 +46,19 @@
 static const char USAGE[] = "\n"
 "usage:\tllimage_libtest [options]\n"
 "\n"
-" --help                           print this help\n"
-" --in <file1 .. file2>            list of image files to load and convert, patterns can be used\n"
-" --out <file1 .. file2> OR <type> list of image files to create (assumes same order as --in files)\n"
-"                                  OR 3 letters file type extension to convert each input file into\n"
-" --logmetrics <metric>            log performance metric and data for <metric>\n"
-" --analyzeperformance             create report comparing baseline with current for <metric> provided in --logmetrics\n"
+" -h, --help\n"
+"        Print this help\n"
+" -i, --input <file1 .. file2>\n"
+"        List of image files to load and convert, patterns can be used\n"
+" -o, --output <file1 .. file2> OR <type>\n"
+"        List of image files to create (assumes same order as for input files)\n"
+"        OR 3 letters file type extension to convert each input file into\n"
+" -log, --logmetrics <metric>\n"
+"        Log performance metric and data for <metric>\n"
+" -r, --analyzeperformance\n"
+"        Create report comparing baseline with current for <metric> provided in --logmetrics\n"
+" -s, --image-stats\n"
+"        Output stats for each input and output image\n"
 "\n";
 
 // true when all image loading is done. Used by metric logging thread to know when to stop the thread.
@@ -88,8 +95,20 @@ LLPointer<LLImageFormatted> create_image(const std::string &filename)
 	return image;
 }
 
+void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &filename)
+{
+	// Print out some statistical data on the image
+	std::cout << "Image stats for : " << filename << ", extension : " << image->getExtension() << std::endl;
+
+	std::cout << "    with : " << (int)(image->getWidth())       << ", height : " << (int)(image->getHeight())       << std::endl;
+	std::cout << "    comp : " << (int)(image->getComponents())  << ", levels : " << (int)(image->getDiscardLevel()) << std::endl;
+	std::cout << "    head : " << (int)(image->calcHeaderSize()) << ",   data : " << (int)(image->getDataSize())     << std::endl;
+
+	return;
+}
+
 // Load an image from file and return a raw (decompressed) instance of its data
-LLPointer<LLImageRaw> load_image(const std::string &src_filename)
+LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 
@@ -104,6 +123,11 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename)
 		return NULL;
 	}
 	
+	if (output_stats)
+	{
+		output_image_stats(image, src_filename);
+	}
+	
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 	if (!image->decode(raw_image, 0.0f))
 	{
@@ -114,7 +138,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename)
 }
 
 // Save a raw image instance into a file
-bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image)
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
 	
@@ -123,6 +147,11 @@ bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_imag
 		return false;
 	}
 	
+	if (output_stats)
+	{
+		output_image_stats(image, dest_filename);
+	}
+
 	return image->save(dest_filename);
 }
 
@@ -240,6 +269,7 @@ int main(int argc, char** argv)
 	std::list<std::string> input_filenames;
 	std::list<std::string> output_filenames;
 	bool analyze_performance = false;
+	bool image_stats = false;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -249,13 +279,13 @@ int main(int argc, char** argv)
 	// Analyze command line arguments
 	for (int arg = 1; arg < argc; ++arg)
 	{
-		if (!strcmp(argv[arg], "--help"))
+		if (!strcmp(argv[arg], "--help") || !strcmp(argv[arg], "-h"))
 		{
             // Send the usage to standard out
             std::cout << USAGE << std::endl;
 			return 0;
 		}
-		else if (!strcmp(argv[arg], "--in") && arg < argc-1)
+		else if ((!strcmp(argv[arg], "--input") || !strcmp(argv[arg], "-i")) && arg < argc-1)
 		{
 			std::string file_name = argv[arg+1];
 			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
@@ -268,7 +298,7 @@ int main(int argc, char** argv)
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
 		}
-		else if (!strcmp(argv[arg], "--out") && arg < argc-1)
+		else if ((!strcmp(argv[arg], "--output") || !strcmp(argv[arg], "-o")) && arg < argc-1)
 		{
 			std::string file_name = argv[arg+1];
 			while (file_name[0] != '-')		// if arg starts with '-', we consider it's not a file name but some other argument
@@ -281,7 +311,7 @@ int main(int argc, char** argv)
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
 		}
-		else if (!strcmp(argv[arg], "--logmetrics"))
+		else if (!strcmp(argv[arg], "--logmetrics") || !strcmp(argv[arg], "-log"))
 		{
 			// '--logmetrics' needs to be specified with a named test metric argument
 			// Note: for the moment, only ImageCompressionTester has been tested
@@ -304,9 +334,13 @@ int main(int argc, char** argv)
 					break;
 			}
 		}
-		else if (!strcmp(argv[arg], "--analyzeperformance"))
+		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-r"))
 		{
 			analyze_performance = true;
+		}
+		else if (!strcmp(argv[arg], "--image-stats") || !strcmp(argv[arg], "-s"))
+		{
+			image_stats = true;
 		}
 	}
 		
@@ -333,7 +367,7 @@ int main(int argc, char** argv)
 	for (; in_file != in_end; ++in_file)
 	{
 		// Load file
-		LLPointer<LLImageRaw> raw_image = load_image(*in_file);
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file, image_stats);
 		if (!raw_image)
 		{
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
@@ -343,7 +377,7 @@ int main(int argc, char** argv)
 		// Save file
 		if (out_file != out_end)
 		{
-			if (!save_image(*out_file, raw_image))
+			if (!save_image(*out_file, raw_image, image_stats))
 			{
 				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
 			}
@@ -353,8 +387,6 @@ int main(int argc, char** argv)
 			}
 			++out_file;
 		}
-
-		// Output stats on each file
 	}
 	
 	sAllDone = true;
