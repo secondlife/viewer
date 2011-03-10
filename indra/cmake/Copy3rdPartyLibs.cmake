@@ -245,7 +245,7 @@ elseif(LINUX)
         libatk-1.0.so
         libbreakpad_client.so.0
         libcrypto.so.0.9.7
-        libdb-4.2.so
+        libdb-5.1.so
         libexpat.so
         libexpat.so.1
         libgmock_main.so
