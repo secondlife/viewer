@@ -390,9 +390,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7c334794bba026685f967734ca963c85</string>
+              <string>9bd79781b58e556ab1c36084ec4a1c0c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Linux/installer/expat-2.0.1-linux-20110219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
