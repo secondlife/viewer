@@ -192,19 +192,20 @@ std::string gPoolNames[] =
 	// Correspond to LLDrawpool enum render type
 	"NONE",
 	"POOL_SIMPLE",
-	"POOL_TERRAIN",
+	"POOL_GROUND",
+	"POOL_FULLBRIGHT",
 	"POOL_BUMP",
-	"POOL_TREE",
+	"POOL_TERRAIN,"	
 	"POOL_SKY",
 	"POOL_WL_SKY",
-	"POOL_GROUND",
+	"POOL_TREE",
+	"POOL_GRASS",
 	"POOL_INVISIBLE",
 	"POOL_AVATAR",
+	"POOL_VOIDWATER",
 	"POOL_WATER",
-	"POOL_GRASS",
-	"POOL_FULLBRIGHT",
 	"POOL_GLOW",
-	"POOL_ALPHA",
+	"POOL_ALPHA"
 };
 
 void drawBox(const LLVector3& c, const LLVector3& r);
@@ -3972,6 +3973,8 @@ void LLPipeline::renderDebug()
 	glLoadMatrixd(gGLModelView);
 	gGL.setColorMask(true, false);
 
+	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
 	// Debug stuff.
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -3982,7 +3985,8 @@ void LLPipeline::renderDebug()
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if (hasRenderType(part->mDrawableType))
+				if ( hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES) ||
+					 !hud_only && hasRenderType(part->mDrawableType) )
 				{
 					part->renderDebug();
 				}

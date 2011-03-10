@@ -18,6 +18,9 @@
   <string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
   <string name="mesh_status_missing_lod">Missing required level of detail.</string>
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
+  <string name="decomposing">Analyzing...</string>
+  <string name="simplifying">Simplifying...</string>
+  
 
   <text left="15" bottom="25" follows="top|left" height="15" name="name_label">
     Name:
@@ -162,8 +165,8 @@
           Error Threshold
         </combo_item>
       </combo_box>
-      <spinner follows="top|left" name="lod_triangle_limit" left_pad="5" height="20" width="100" decimal_digits="0" enabled="true"/>
-      <spinner left_delta="0" bottom_delta="0"  follows="top|left" name="lod_error_threshold" min_val="0" max_val="100" height="20" width="100" decimal_digits="3" visible="false" enabled="true"/>
+      <spinner follows="top|left" name="lod_triangle_limit" increment="10" left_pad="5" height="20" width="100" decimal_digits="0" enabled="true"/>
+      <spinner left_delta="0" bottom_delta="0" increment="0.01"  follows="top|left" name="lod_error_threshold" min_val="0" max_val="100" height="20" width="100" decimal_digits="3" visible="false" enabled="true"/>
 
       <text follows="top|left" name="build_operator_text" left="45" top_pad="10" width="100" height="15">
         Build Operator:  

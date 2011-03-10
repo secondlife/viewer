@@ -773,11 +773,13 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 
 		if (stage == "Decompose")
 		{
+			sInstance->setStatusMessage(sInstance->getString("decomposing"));
 			sInstance->childSetVisible("Decompose", false);
 			sInstance->childSetVisible("decompose_cancel", true);
 		}
 		else if (stage == "Simplify")
 		{
+			sInstance->setStatusMessage(sInstance->getString("simplifying"));
 			sInstance->childSetVisible("Simplify", false);
 			sInstance->childSetVisible("simplify_cancel", true);
 		}
@@ -823,6 +825,8 @@ void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 		    DecompRequest* req = *iter;
 		    req->mContinue = 0;
 		}
+
+		sInstance->mCurRequest.clear();
 	}
 }
 
@@ -2231,6 +2235,11 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
 	mBuildOperator = GLOD_OPERATOR_EDGE_COLLAPSE;
 
+	for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
+	{
+		mRequestedTriangleCount[i] = 0;
+	}
+
 	mViewOption["show_textures"] = false;
 
 	mFMP = fmp;
@@ -2981,6 +2990,8 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 actual_verts = 0;
 		U32 submeshes = 0;
 
+		mRequestedTriangleCount[lod] = triangle_count;
+
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
 		stop_gloderror();
 
@@ -3462,7 +3473,7 @@ void LLModelPreview::updateStatusMessages()
 				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
-				limit->setValue(total_tris[mPreviewLOD]);
+				limit->setValue(mRequestedTriangleCount[mPreviewLOD]);
 
 				if (lod_mode == 0)
 				{
@@ -3470,6 +3481,7 @@ void LLModelPreview::updateStatusMessages()
 					threshold->setVisible(false);
 
 					limit->setMaxValue(mMaxTriangleLimit);
+					limit->setIncrement(mMaxTriangleLimit/32);
 				}
 				else
 				{
@@ -4301,10 +4313,13 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
 {
-	setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
-	if (LLFloaterModelPreview::sInstance)
+	if (mContinue)
 	{
-		LLFloaterModelPreview::sInstance->setStatusMessage(mStatusMessage);
+		setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
+		if (LLFloaterModelPreview::sInstance)
+		{
+			LLFloaterModelPreview::sInstance->setStatusMessage(mStatusMessage);
+		}
 	}
 
 	return mContinue;
@@ -4312,20 +4327,27 @@ S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32
 
 void LLFloaterModelPreview::DecompRequest::completed()
 { //called from the main thread
-	mModel->setConvexHullDecomposition(mHull);
-
-	if (sInstance)
+	if (mContinue)
 	{
-		if (mContinue)
-		{
-			if (sInstance->mModelPreview)
-			{
-				sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
-				sInstance->mModelPreview->mDirty = true;
-				LLFloaterModelPreview::sInstance->mModelPreview->refresh();
-			}
-		}
+		mModel->setConvexHullDecomposition(mHull);
 
-		sInstance->mCurRequest.erase(this);
+		if (sInstance)
+		{
+			if (mContinue)
+			{
+				if (sInstance->mModelPreview)
+				{
+					sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
+					sInstance->mModelPreview->mDirty = true;
+					LLFloaterModelPreview::sInstance->mModelPreview->refresh();
+				}
+			}
+
+			sInstance->mCurRequest.erase(this);
+		}
+	}
+	else if (sInstance)
+	{
+		llassert(sInstance->mCurRequest.find(this) == sInstance->mCurRequest.end());
 	}
 }
