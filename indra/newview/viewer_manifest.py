@@ -943,7 +943,6 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5")
-            self.path("libELFIO.so")
             self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
