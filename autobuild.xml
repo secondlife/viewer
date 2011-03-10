@@ -320,7 +320,7 @@
         <key>license</key>
         <string>AFL2.1</string>
         <key>license_file</key>
-        <string>LICENSES/dbusglib.txt</string>
+        <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
         <string>dbusglib</string>
         <key>platforms</key>
@@ -330,9 +330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb9734fb6ae797e3fa34af1a4ef1ee7d</string>
+              <string>94b058b9a81114dc4567bd78e4335425</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20101013.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbus_glib-0.76-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
