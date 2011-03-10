@@ -66,9 +66,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1bd5be9e91ae1ae4a1cfa7649890f72b</string>
+              <string>69ae3b1c9cdb0ebc0d0e1ac8413e3eb7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-sdl/rev/223253/arch/Linux/installer/SDL-1.2.14-linux-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -102,9 +102,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae785a90f124aa572515fc7b97efc671</string>
+              <string>ff62946c518a247c86e1066c1e9a5855</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/223260/arch/Linux/installer/apr_suite-1.4.2-linux-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -264,6 +264,30 @@
             </map>
             <key>name</key>
             <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>db</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/db.txt</string>
+        <key>name</key>
+        <string>db</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8f57c413e0786681cbcb9ed2fb8a6d37</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-db/rev/223263/arch/Linux/installer/db-5.1.25-linux-20110309.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
         </map>
       </map>
@@ -1977,7 +2001,7 @@
                 <array>
                   <string>/build</string>
                   <string>"/cfg=Release|Win32"</string>
-		          <string>"/CL_ADD=/m:1"</string>
+                  <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
