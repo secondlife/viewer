@@ -3902,6 +3902,26 @@ void LLSelectMgr::sendDelink()
 		return;
 	}
 
+	struct f : public LLSelectedObjectFunctor
+	{ //on delink, any modifyable object should
+		f() {}
+
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				if (object->getPhysicsShapeType() == LLViewerObject::PHYSICS_SHAPE_NONE)
+				{
+					object->setPhysicsShapeType(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+					object->updateFlags();
+				}
+			}
+			return true;
+		}
+	} sendfunc;
+	getSelection()->applyToObjects(&sendfunc);
+
+
 	// Delink needs to send individuals so you can unlink a single object from
 	// a linked set.
 	sendListToRegions(
