@@ -1692,7 +1692,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		No se ha aportado un contrato para este estado. El terreno de este estado lo vende el propietario del estado, no Linden Lab.  Por favor, contacta con ese propietario para informarte sobre la venta.
 	</string>
-	<string name="covenant_last_modified" value="Última modificación:"/>
+	<string name="covenant_last_modified" value="Última modificación: "/>
 	<string name="none_text" value="(no hay)"/>
 	<string name="never_text" value=" (nunca)"/>
 	<string name="GroupOwned">

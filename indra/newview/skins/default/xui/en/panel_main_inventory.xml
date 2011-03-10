@@ -46,7 +46,7 @@
    label="Filter Inventory"
    layout="topleft"
    left="10"
-   max_length="300"
+   max_length_chars="300"
    name="inventory search editor"
    top="18"
    width="303" />
