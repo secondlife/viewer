@@ -2698,12 +2698,10 @@ void LLViewerFetchedTexture::saveRawImage()
 	mLastReferencedSavedRawImageTime = sCurrentTime ;
 }
 
-void LLViewerFetchedTexture::forceToSaveRawImage(S32 desired_discard, bool from_callback) 
+void LLViewerFetchedTexture::forceToSaveRawImage(S32 desired_discard) 
 { 
 	if(!mForceToSaveRawImage || mDesiredSavedRawDiscardLevel < 0 || mDesiredSavedRawDiscardLevel > desired_discard)
 	{
-		llassert_always(from_callback || mBoostLevel == LLViewerTexture::BOOST_PREVIEW) ;
-
 		mForceToSaveRawImage = TRUE ;
 		mDesiredSavedRawDiscardLevel = desired_discard ;
 	
