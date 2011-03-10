@@ -1270,6 +1270,7 @@ LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelN
 void LLNotifications::initSingleton()
 {
 	loadTemplates();
+	loadVisibilityRules();
 	createDefaultChannels();
 }
 
