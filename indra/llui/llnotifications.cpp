@@ -1195,16 +1195,18 @@ bool LLNotifications::uniqueFilter(LLNotificationPtr pNotif)
 
 bool LLNotifications::uniqueHandler(const LLSD& payload)
 {
+	std::string cmd = payload["sigtype"];
+
 	LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
 	if (pNotif && pNotif->hasUniquenessConstraints()) 
 	{
-		if (payload["sigtype"].asString() == "add")
+		if (cmd == "add")
 		{
 			// not a duplicate according to uniqueness criteria, so we keep it
 			// and store it for future uniqueness checks
 			mUniqueNotifications.insert(std::make_pair(pNotif->getName(), pNotif));
 		}
-		else if (payload["sigtype"].asString() == "delete")
+		else if (cmd == "delete")
 		{
 			mUniqueNotifications.erase(pNotif->getName());
 		}
@@ -1217,7 +1219,9 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 {
 	LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
 	
-	if (!pNotif)
+	std::string cmd = payload["sigtype"];
+
+	if (!pNotif || cmd != "add")
 	{
 		return false;
 	}
