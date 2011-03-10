@@ -837,4 +837,14 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #define GL_DEPTH_CLAMP 0x864F
 #endif
 
+//GL_NVX_gpu_memory_info constants
+#ifndef GL_NVX_gpu_memory_info
+#define GL_NVX_gpu_memory_info
+#define	GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define	GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define	GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define	GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define	GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#endif
+
 #endif // LL_LLGLHEADERS_H
