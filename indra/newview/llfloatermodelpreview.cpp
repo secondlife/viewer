@@ -2235,6 +2235,11 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
 	mBuildOperator = GLOD_OPERATOR_EDGE_COLLAPSE;
 
+	for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
+	{
+		mRequestedTriangleCount[i] = 0;
+	}
+
 	mViewOption["show_textures"] = false;
 
 	mFMP = fmp;
@@ -2985,6 +2990,8 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 actual_verts = 0;
 		U32 submeshes = 0;
 
+		mRequestedTriangleCount[lod] = triangle_count;
+
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
 		stop_gloderror();
 
@@ -3466,7 +3473,7 @@ void LLModelPreview::updateStatusMessages()
 				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
-				limit->setValue(total_tris[mPreviewLOD]);
+				limit->setValue(mRequestedTriangleCount[mPreviewLOD]);
 
 				if (lod_mode == 0)
 				{
@@ -3474,6 +3481,7 @@ void LLModelPreview::updateStatusMessages()
 					threshold->setVisible(false);
 
 					limit->setMaxValue(mMaxTriangleLimit);
+					limit->setIncrement(mMaxTriangleLimit/32);
 				}
 				else
 				{

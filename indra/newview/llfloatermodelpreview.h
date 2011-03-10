@@ -331,6 +331,8 @@ public:
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
+	S32 mRequestedTriangleCount[LLModel::NUM_LODS];
+
 	
 	LLModelLoader* mModelLoader;
 
