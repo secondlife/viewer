@@ -11,7 +11,7 @@
   <hide tag="voice"/>
 
   <!-- no spammy scripts -->
-  <hide name="ScriptDialog"/>
+  <!-- <hide name="ScriptDialog"/> -->
 
   <!-- hints pertaining to UI we don't show -->
   <hide name="FirstBalanceIncrease"/>
