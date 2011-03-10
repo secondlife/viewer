@@ -2787,9 +2787,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		lod_mode = GLOD_TRIANGLE_BUDGET;
 		if (which_lod != -1)
 		{
-			//SH-632 take budget as supplied limit+1 to prevent GLOD from creating a smaller
-			//decimation when the given decimation is possible
-			limit = mFMP->childGetValue("lod_triangle_limit").asInteger(); //+1;
+			limit = mFMP->childGetValue("lod_triangle_limit").asInteger();
 		}
 	}
 	else
@@ -2948,13 +2946,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		start = end = which_lod;
 	}
-	else
-	{
-		//SH-632 -- incremenet triangle count to avoid removing any triangles from
-		//highest LoD when auto-generating LoD
-		triangle_count++;
-	}
-
 
 	mMaxTriangleLimit = base_triangle_count;
 
@@ -2998,14 +2989,24 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		glodGroupParameteri(mGroup, GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
 		stop_gloderror();
 
-		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count);
+		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
 		stop_gloderror();
 
-		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
+		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
 		stop_gloderror();
 
 		glodAdaptGroup(mGroup);
 		stop_gloderror();
+
+		if (lod_mode == GLOD_TRIANGLE_BUDGET)
+		{ //SH-632 Always adapt to 0 before adapting to actual desired amount, and always
+			//add 1 to desired amount to avoid decimating below desired amount
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
+			stop_gloderror();
+
+			glodAdaptGroup(mGroup);
+			stop_gloderror();
+		}
 
 		for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
 		{
