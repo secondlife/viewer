@@ -220,6 +220,8 @@ BOOL	LLFloaterTools::postBuild()
 	mRadioGroupEdit		= getChild<LLRadioGroup>("edit_radio_group");
 	mBtnGridOptions		= getChild<LLButton>("Options...");
 	mTitleMedia			= getChild<LLMediaCtrl>("title_media");
+	mBtnLink			= getChild<LLButton>("link_btn");
+	mBtnUnlink			= getChild<LLButton>("unlink_btn");
 	
 	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");	
 	getChild<LLUICtrl>("checkbox edit linked parts")->setValue((BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
@@ -315,6 +317,9 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mBtnRotateReset(NULL),
 	mBtnRotateRight(NULL),
 
+	mBtnLink(NULL),
+	mBtnUnlink(NULL),
+
 	mBtnDelete(NULL),
 	mBtnDuplicate(NULL),
 	mBtnDuplicateInPlace(NULL),
@@ -341,7 +346,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mNeedMediaTitle(TRUE)
 {
 	gFloaterTools = this;
-	
+
 	setAutoFocus(FALSE);
 	mFactoryMap["General"] = LLCallbackMap(createPanelPermissions, this);//LLPanelPermissions
 	mFactoryMap["Object"] = LLCallbackMap(createPanelObject, this);//LLPanelObject
@@ -365,6 +370,9 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCommitCallbackRegistrar.add("BuildTool.AddMedia",			boost::bind(&LLFloaterTools::onClickBtnAddMedia,this));
 	mCommitCallbackRegistrar.add("BuildTool.DeleteMedia",		boost::bind(&LLFloaterTools::onClickBtnDeleteMedia,this));
 	mCommitCallbackRegistrar.add("BuildTool.EditMedia",			boost::bind(&LLFloaterTools::onClickBtnEditMedia,this));
+
+	mCommitCallbackRegistrar.add("BuildTool.LinkObjects",		boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
+	mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",		boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 
 }
 
@@ -565,6 +573,12 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	mRadioGroupEdit->setVisible( edit_visible );
 	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
 	getChildView("RenderingCost")->setVisible( !linked_parts && (edit_visible || focus_visible || move_visible) && sShowObjectCost);
+
+	mBtnLink->setVisible(edit_visible);
+	mBtnUnlink->setVisible(edit_visible);
+
+	mBtnLink->setEnabled(LLSelectMgr::instance().enableLinkObjects());
+	mBtnUnlink->setEnabled(LLSelectMgr::instance().enableUnlinkObjects());
 
 	if (mCheckSelectIndividual)
 	{

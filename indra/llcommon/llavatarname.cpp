@@ -90,14 +90,16 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 std::string LLAvatarName::getCompleteName() const
 {
 	std::string name;
-	if (!mUsername.empty())
+	if (mUsername.empty() || mIsDisplayNameDefault)
+	// If the display name feature is off
+	// OR this particular display name is defaulted (i.e. based on user name),
+	// then display only the easier to read instance of the person's name.
 	{
-		name = mDisplayName + " (" + mUsername + ")";
+		name = mDisplayName;
 	}
 	else
 	{
-		// ...display names are off, legacy name is in mDisplayName
-		name = mDisplayName;
+		name = mDisplayName + " (" + mUsername + ")";
 	}
 	return name;
 }
