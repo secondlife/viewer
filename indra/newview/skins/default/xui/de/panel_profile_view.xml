@@ -10,10 +10,8 @@
 	<text name="solo_username_label" value="Benutzername:"/>
 	<text name="status" value="Online"/>
 	<text name="user_name_small" value="Dieser Name ist ein ganz außerordentlich langer Name"/>
-	<text name="user_name" value="Jack Linden"/>
 	<button name="copy_to_clipboard" tool_tip="In Zwischenablage kopieren"/>
 	<text name="user_label" value="Benutzername:"/>
-	<text name="user_slid" value="jack.linden"/>
 	<tab_container name="tabs" tab_min_width="60">
 		<panel label="PROFIL" name="panel_profile"/>
 		<panel label="AUSWAHL" name="panel_picks"/>
