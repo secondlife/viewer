@@ -773,11 +773,13 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 
 		if (stage == "Decompose")
 		{
+			sInstance->setStatusMessage(sInstance->getString("decomposing"));
 			sInstance->childSetVisible("Decompose", false);
 			sInstance->childSetVisible("decompose_cancel", true);
 		}
 		else if (stage == "Simplify")
 		{
+			sInstance->setStatusMessage(sInstance->getString("simplifying"));
 			sInstance->childSetVisible("Simplify", false);
 			sInstance->childSetVisible("simplify_cancel", true);
 		}
@@ -823,6 +825,8 @@ void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 		    DecompRequest* req = *iter;
 		    req->mContinue = 0;
 		}
+
+		sInstance->mCurRequest.clear();
 	}
 }
 
@@ -4301,10 +4305,13 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
 {
-	setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
-	if (LLFloaterModelPreview::sInstance)
+	if (mContinue)
 	{
-		LLFloaterModelPreview::sInstance->setStatusMessage(mStatusMessage);
+		setStatusMessage(llformat("%s: %d/%d", status, p1, p2));
+		if (LLFloaterModelPreview::sInstance)
+		{
+			LLFloaterModelPreview::sInstance->setStatusMessage(mStatusMessage);
+		}
 	}
 
 	return mContinue;
@@ -4312,20 +4319,27 @@ S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32
 
 void LLFloaterModelPreview::DecompRequest::completed()
 { //called from the main thread
-	mModel->setConvexHullDecomposition(mHull);
-
-	if (sInstance)
+	if (mContinue)
 	{
-		if (mContinue)
-		{
-			if (sInstance->mModelPreview)
-			{
-				sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
-				sInstance->mModelPreview->mDirty = true;
-				LLFloaterModelPreview::sInstance->mModelPreview->refresh();
-			}
-		}
+		mModel->setConvexHullDecomposition(mHull);
 
-		sInstance->mCurRequest.erase(this);
+		if (sInstance)
+		{
+			if (mContinue)
+			{
+				if (sInstance->mModelPreview)
+				{
+					sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
+					sInstance->mModelPreview->mDirty = true;
+					LLFloaterModelPreview::sInstance->mModelPreview->refresh();
+				}
+			}
+
+			sInstance->mCurRequest.erase(this);
+		}
+	}
+	else if (sInstance)
+	{
+		llassert(sInstance->mCurRequest.find(this) == sInstance->mCurRequest.end());
 	}
 }
