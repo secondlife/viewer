@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb7cbafb06b878adf423db314b1787df</string>
+              <string>a34e7fffdb94a6a4d8a2966b1f216da3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100929a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/223302/arch/Linux/installer/boost-1.45.0-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
