@@ -872,9 +872,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a059a32904c1c7f47804d744ac2d4925</string>
+              <string>fa1073ef1181f27e6bc01d571366070b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/222826/arch/Linux/installer/jpeglib-8c-linux-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
