@@ -22,6 +22,9 @@
   <hide name="HintInventory"/>
   <hide name="HintLindenDollar"/>
 
+  <!-- spam from servers, such as "Autopilot cancelled" -->
+  <hide name="SystemMessageTip"/>
+  
   <!-- show everything else -->
   <show/>
 </notification_visibility>
