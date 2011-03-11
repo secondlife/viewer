@@ -92,13 +92,13 @@ private:
 	void startCameraSteering();
 
 private:
-	BOOL				mMouseButtonDown;
-	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
+	bool				mMouseButtonDown;
+	bool				mMouseOutsideSlop;		// for this drag, has mouse moved outside slop region
 	S32					mMouseDownX;
 	S32					mMouseDownY;
 	S32					mMouseSteerX;
 	S32					mMouseSteerY;
-	F32					mLastYaw;
+	bool				mClockwise;					
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
