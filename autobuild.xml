@@ -438,9 +438,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>221ec16b66ea2b0d1acb3247ad984bc4</string>
+              <string>0c61d643db54d2e5999be8254569d8b3</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20100929.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Linux/installer/fmod-3.75-linux-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
