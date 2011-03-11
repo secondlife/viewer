@@ -1016,9 +1016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>adeeca61be1b8f47ce85660c8c20a904</string>
+              <string>0681ab7e1988dfdbdad7dd9edb7760ee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/221851/arch/Linux/installer/libpng-1.5.1-linux-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
