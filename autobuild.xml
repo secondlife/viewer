@@ -534,9 +534,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a13ec6354d3a8a4576efcce895a74ceb</string>
+              <string>9b58d1a9c15807a1301e42a313641010</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-2010-02-19a-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/223377/arch/Linux/installer/freetype-2.4.4-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
