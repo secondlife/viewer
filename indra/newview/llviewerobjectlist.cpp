@@ -1180,44 +1180,6 @@ void LLViewerObjectList::clearAllMapObjectsInRegion(LLViewerRegion* regionp)
 	}
 }
 
-//make sure the region is cleaned up.
-void LLViewerObjectList::clearAllMapObjectsInRegion(LLViewerRegion* regionp) 
-{
-	std::set<LLViewerObject*> dead_object_list ;
-	std::set<LLViewerObject*> region_object_list ;
-	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
-	{
-		LLViewerObject* objectp = *iter;
-
-		if(objectp->isDead())
-		{
-			dead_object_list.insert(objectp) ;			
-		}
-		else if(objectp->getRegion() == regionp)
-		{
-			region_object_list.insert(objectp) ;
-		}
-	}
-
-	if(dead_object_list.size() > 0)
-	{
-		llwarns << "There are " << dead_object_list.size() << " dead objects on the map!" << llendl ;
-
-		for(std::set<LLViewerObject*>::iterator iter = dead_object_list.begin(); iter != dead_object_list.end(); ++iter)
-		{
-			cleanupReferences(*iter) ;
-		}
-	}
-	if(region_object_list.size() > 0)
-	{
-		llwarns << "There are " << region_object_list.size() << " objects not removed from the deleted region!" << llendl ;
-
-		for(std::set<LLViewerObject*>::iterator iter = region_object_list.begin(); iter != region_object_list.end(); ++iter)
-		{
-			(*iter)->markDead() ;
-		}
-	}
-}
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
