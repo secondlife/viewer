@@ -3764,8 +3764,19 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	}
 	else
 	{
-		// This is likely just the initial logging in phase.
+		// This is initial log-in or a region crossing
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+
+		if(LLStartUp::getStartupState() < STATE_STARTED)
+		{	// This is initial log-in, not a region crossing:
+			// Set the camera looking ahead of the AV so send_agent_update() below 
+			// will report the correct location to the server.
+			LLVector3 look_at_point = look_at;
+			look_at_point = agent_pos + look_at_point.rotVec(gAgent.getQuat());
+
+			static LLVector3 up_direction(0.0f, 0.0f, 1.0f);
+			LLViewerCamera::getInstance()->lookAt(agent_pos, look_at_point, up_direction);
+		}
 	}
 
 	if ( LLTracker::isTracking(NULL) )

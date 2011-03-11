@@ -617,7 +617,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/agni/avatars.html</string>
+      <string></string>
     </map>
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
@@ -2566,7 +2566,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/agni/guide.html</string>
+      <string></string>
     </map>
   <key>DisableCameraConstraints</key>
     <map>
@@ -3899,6 +3899,17 @@
       <key>Value</key>
       <string>https://my.secondlife.com/[AGENT_NAME]</string>
     </map>
+	<key>WebProfileNonProductionURL</key>
+	<map>
+		<key>Comment</key>
+		<string>URL for Web Profiles on Non-Production grids</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
+	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -8462,6 +8473,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderVBOMappingDisable</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable VBO glMapBufferARB</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
   <key>RenderUseStreamVBO</key>
   <map>
     <key>Comment</key>
@@ -12509,5 +12531,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  </map>
+    <key>ClickToWalk</key>
+    <map>
+      <key>Comment</key>
+      <string>Click in world to walk to location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+</map>
 </llsd>

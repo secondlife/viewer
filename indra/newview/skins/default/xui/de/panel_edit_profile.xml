@@ -29,11 +29,7 @@
 				<text name="display_name_label" value="Anzeigename:"/>
 				<text name="solo_username_label" value="Benutzername:"/>
 				<button name="set_name" tool_tip="Anzeigenamen festlegen"/>
-				<text name="solo_user_name" value="Hamilton Hitchings"/>
-				<text name="user_name" value="Hamilton Hitchings"/>
-				<text name="user_name_small" value="Hamilton Hitchings"/>
 				<text name="user_label" value="Benutzername:"/>
-				<text name="user_slid" value="hamilton.linden"/>
 				<panel name="lifes_images_panel">
 					<panel name="second_life_image_panel">
 						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>

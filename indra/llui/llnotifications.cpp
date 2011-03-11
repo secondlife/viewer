@@ -1195,16 +1195,18 @@ bool LLNotifications::uniqueFilter(LLNotificationPtr pNotif)
 
 bool LLNotifications::uniqueHandler(const LLSD& payload)
 {
+	std::string cmd = payload["sigtype"];
+
 	LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
 	if (pNotif && pNotif->hasUniquenessConstraints()) 
 	{
-		if (payload["sigtype"].asString() == "add")
+		if (cmd == "add")
 		{
 			// not a duplicate according to uniqueness criteria, so we keep it
 			// and store it for future uniqueness checks
 			mUniqueNotifications.insert(std::make_pair(pNotif->getName(), pNotif));
 		}
-		else if (payload["sigtype"].asString() == "delete")
+		else if (cmd == "delete")
 		{
 			mUniqueNotifications.erase(pNotif->getName());
 		}
@@ -1217,7 +1219,9 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 {
 	LLNotificationPtr pNotif = LLNotifications::instance().find(payload["id"].asUUID());
 	
-	if (!pNotif)
+	std::string cmd = payload["sigtype"];
+
+	if (!pNotif || cmd != "add")
 	{
 		return false;
 	}
@@ -1310,17 +1314,6 @@ void LLNotifications::createDefaultChannels()
 		connectFailedFilter(&visibilityRuleMached);
 }
 
-bool LLNotifications::addTemplate(const std::string &name, 
-								  LLNotificationTemplatePtr theTemplate)
-{
-	if (mTemplates.count(name))
-	{
-		llwarns << "LLNotifications -- attempted to add template '" << name << "' twice." << llendl;
-		return false;
-	}
-	mTemplates[name] = theTemplate;
-	return true;
-}
 
 LLNotificationTemplatePtr LLNotifications::getTemplate(const std::string& name)
 {
@@ -1417,27 +1410,45 @@ void replaceFormText(LLNotificationForm::Params& form, const std::string& patter
 	}
 }
 
+void addPathIfExists(const std::string& new_path, std::vector<std::string>& paths)
+{
+	if (gDirUtilp->fileExists(new_path))
+	{
+		paths.push_back(new_path);
+	}
+}
+
 bool LLNotifications::loadTemplates()
 {
-	const std::string xml_filename = "notifications.xml";
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), xml_filename);
+	std::vector<std::string> search_paths;
+	
+	std::string skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
+	std::string localized_skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
 
+	addPathIfExists(gDirUtilp->getDefaultSkinDir() + skin_relative_path, search_paths);
+	addPathIfExists(gDirUtilp->getDefaultSkinDir() + localized_skin_relative_path, search_paths);
+	addPathIfExists(gDirUtilp->getSkinDir() + skin_relative_path, search_paths);
+	addPathIfExists(gDirUtilp->getSkinDir() + localized_skin_relative_path, search_paths);
+	addPathIfExists(gDirUtilp->getUserSkinDir() + skin_relative_path, search_paths);
+	addPathIfExists(gDirUtilp->getUserSkinDir() + localized_skin_relative_path, search_paths);
+
+	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;
-	BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	BOOL success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
 	
 	if (!success || root.isNull() || !root->hasName( "notifications" ))
 	{
-		llerrs << "Problem reading UI Notifications file: " << full_filename << llendl;
+		llerrs << "Problem reading UI Notifications file: " << base_filename << llendl;
 		return false;
 	}
 
 	LLNotificationTemplate::Notifications params;
 	LLXUIParser parser;
-	parser.readXUI(root, params, full_filename);
+	parser.readXUI(root, params, base_filename);
 
 	if(!params.validateBlock())
 	{
-		llerrs << "Problem reading UI Notifications file: " << full_filename << llendl;
+		llerrs << "Problem reading UI Notifications file: " << base_filename << llendl;
 		return false;
 	}
 
@@ -1484,7 +1495,7 @@ bool LLNotifications::loadTemplates()
 				replaceFormText(it->form_ref.form, "$ignoretext", it->form_ref.form_template.ignore_text);
 			}
 		}
-		addTemplate(it->name, LLNotificationTemplatePtr(new LLNotificationTemplate(*it)));
+		mTemplates[it->name] = LLNotificationTemplatePtr(new LLNotificationTemplate(*it));
 	}
 
 	return true;

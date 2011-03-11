@@ -127,7 +127,8 @@
        name="solo_user_name"
        text_color="white"
        top_delta="3"
-       value="Hamilton Hitchings"
+       translate="false"
+       value="TestString PleaseIgnore"
        use_ellipses="true"
        visible="false"
        width="275" />
@@ -140,7 +141,8 @@
        name="user_name"
        text_color="white"
        top_delta="0"
-       value="Hamilton Hitchings"
+       translate="false"
+       value="TestString PleaseIgnore"
        use_ellipses="true"
        visible="true"
        width="250" />
@@ -153,7 +155,8 @@
        name="user_name_small"
        text_color="white"
        top_delta="-4"
-       value="Hamilton Hitchings"
+       translate="false"
+       value="TestString PleaseIgnore"
        use_ellipses="true"
        visible="false"
        wrap="true"
@@ -177,8 +180,9 @@
        text_color="EmphasisColor"
         font="SansSerifBold"
        top_delta="-2"
+       translate="false"
        use_ellipses="true" 
-       value="hamilton.linden"
+       value="teststring.pleaseignore"
        wrap="true" 
        width="205" />
      <panel
