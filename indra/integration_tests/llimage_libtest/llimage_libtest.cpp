@@ -49,16 +49,18 @@ static const char USAGE[] = "\n"
 " -h, --help\n"
 "        Print this help\n"
 " -i, --input <file1 .. file2>\n"
-"        List of image files to load and convert, patterns can be used\n"
+"        List of image files to load and convert. Patterns with wild cards can be used.\n"
 " -o, --output <file1 .. file2> OR <type>\n"
 "        List of image files to create (assumes same order as for input files)\n"
-"        OR 3 letters file type extension to convert each input file into\n"
+"        OR 3 letters file type extension to convert each input file into.\n"
 " -log, --logmetrics <metric>\n"
-"        Log performance metric and data for <metric>\n"
+"        Log performance data for <metric>. Results in <metric>.slp\n"
+"        Note: so far, only ImageCompressionTester has been tested.\n"
 " -r, --analyzeperformance\n"
-"        Create report comparing baseline with current for <metric> provided in --logmetrics\n"
+"        Create a report comparing <metric>_baseline.slp with current <metric>.slp\n"
+"        Results in <metric>_report.csv"
 " -s, --image-stats\n"
-"        Output stats for each input and output image\n"
+"        Output stats for each input and output image.\n"
 "\n";
 
 // true when all image loading is done. Used by metric logging thread to know when to stop the thread.
@@ -259,6 +261,8 @@ public:
 			os.flush();
 			ms_sleep(32);
 		}
+		LLFastTimer::writeLog(os);
+		os.flush();
 		os.close();
 	}		
 };
@@ -344,12 +348,18 @@ int main(int argc, char** argv)
 		}
 	}
 		
-	// Analyze the list of (input,output) files
+	// Check arguments consistency. Exit with proper message if inconsistent.
 	if (input_filenames.size() == 0)
 	{
 		std::cout << "No input file, nothing to do -> exit" << std::endl;
 		return 0;
 	}
+	if (analyze_performance && !LLFastTimer::sMetricLog)
+	{
+		std::cout << "Cannot create perf report if no perf gathered (i.e. use argument -log <perf> with -r) -> exit" << std::endl;
+		return 0;
+	}
+	
 
 	// Create the logging thread if required
 	if (LLFastTimer::sMetricLog)
@@ -388,8 +398,13 @@ int main(int argc, char** argv)
 			++out_file;
 		}
 	}
-	
-	sAllDone = true;
+
+	// Stop the perf gathering system if needed
+	if (LLFastTimer::sMetricLog)
+	{
+		LLMetricPerformanceTesterBasic::deleteTester(LLFastTimer::sLogName);
+		sAllDone = true;
+	}
 	
 	// Output perf data if requested by user
 	if (analyze_performance)

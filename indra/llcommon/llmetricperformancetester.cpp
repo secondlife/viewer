@@ -63,7 +63,18 @@ BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* t
 	sTesterMap.insert(std::make_pair(name, tester));
 	return TRUE;
 }
-	
+
+/*static*/ 
+void LLMetricPerformanceTesterBasic::deleteTester(std::string name)
+{
+	name_tester_map_t::iterator tester = sTesterMap.find(name);
+	if (tester != sTesterMap.end())
+	{
+		delete tester->second;
+		sTesterMap.erase(tester);
+	}
+}
+
 /*static*/ 
 LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::string name) 
 {

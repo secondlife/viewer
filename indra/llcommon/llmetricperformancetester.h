@@ -138,6 +138,12 @@ public:
 	static LLMetricPerformanceTesterBasic* getTester(std::string name) ;
 	
 	/**
+	 * @return Delete the named tester from the list 
+	 * @param[in] name - Name of the tester instance to delete.
+	 */
+	static void deleteTester(std::string name);
+
+	/**
 	 * @return Returns TRUE if that metric *or* the default catch all metric has been requested to be logged
 	 * @param[in] name - Name of the tester queried.
 	 */
