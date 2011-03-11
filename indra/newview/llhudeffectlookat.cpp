@@ -416,7 +416,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	BOOL lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
 
 	// lookat position has moved a certain amount and we haven't just sent an update
-	lookAtChanged = lookAtChanged || ((dist_vec(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE) && 
+	lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE * MIN_DELTAPOS_FOR_UPDATE) && 
 		((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC)));
 
 	if (lookAtChanged)

@@ -1196,7 +1196,7 @@ void LLBVHLoader::optimize()
 				if (ki_prev == ki_last_good_pos)
 				{
 					joint->mNumPosKeys++;
-					if (dist_vec(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD)
+					if (dist_vec_squared(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD * POSITION_MOTION_THRESHOLD)
 					{
 						pos_changed = TRUE;
 					}
@@ -1209,12 +1209,12 @@ void LLBVHLoader::optimize()
 					LLVector3 current_pos(ki->mPos);
 					LLVector3 interp_pos = lerp(current_pos, last_good_pos, 1.f / (F32)numPosFramesConsidered);
 
-					if (dist_vec(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD)
+					if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD * POSITION_MOTION_THRESHOLD)
 					{
 						pos_changed = TRUE;
 					}
 
-					if (dist_vec(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD)
+					if (dist_vec_squared(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD * POSITION_KEYFRAME_THRESHOLD)
 					{
 						ki_prev->mIgnorePos = TRUE;
 						numPosFramesConsidered++;

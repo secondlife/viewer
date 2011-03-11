@@ -6577,12 +6577,14 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
 		{
 			obj_pos = (*it)->getObject()->getPositionEdit();
 			
-			F32 obj_dist = dist_vec(obj_pos, LLViewerCamera::getInstance()->getOrigin());
-			if (obj_dist < min_dist)
+			F32 obj_dist_squared = dist_vec_squared(obj_pos, LLViewerCamera::getInstance()->getOrigin());
+			if (obj_dist_squared < min_dist)
 			{
-				min_dist = obj_dist;
+				min_dist = obj_dist_squared;
 			}
 		}
+		// since the above uses squared values, take the square root.
+		min_dist = sqrt(min_dist);
 		
 		// factor the distance inside the displacement vector. This will get us
 		// equally visible movements for both close and far away selections.

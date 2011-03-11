@@ -334,8 +334,8 @@ void LLNetMap::draw()
 		//localMouse(&local_mouse_x, &local_mouse_y);
 		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
-		F32 closest_dist = F32_MAX;
-		F32 min_pick_dist = mDotRadius * MIN_PICK_SCALE; 
+		F32 closest_dist_squared = F32_MAX;
+		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
 
 		// Draw avatars
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
@@ -414,11 +414,11 @@ void LLNetMap::draw()
 					}
 				}
 
-				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 											  LLVector2(local_mouse_x,local_mouse_y));
-				if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+				if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 				{
-					closest_dist = dist_to_cursor;
+					closest_dist_squared = dist_to_cursor_squared;
 					mClosestAgentToCursor = regionp->mMapAvatarIDs.get(i);
 				}
 			}
@@ -455,9 +455,9 @@ void LLNetMap::draw()
 					  dot_width,
 					  dot_width);
 
-			F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 										  LLVector2(local_mouse_x,local_mouse_y));
-			if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 			{
 				mClosestAgentToCursor = gAgent.getID();
 			}
