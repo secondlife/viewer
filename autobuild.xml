@@ -968,9 +968,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9742279dfbe57be7a6aed12d60045459</string>
+              <string>fbf8a4f78dff986d7c16b3a0437e033e</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20110119.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/223538/arch/Linux/installer/kdu-6.4.1-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
