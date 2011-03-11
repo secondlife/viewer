@@ -8930,7 +8930,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125</real>
+    <real>2.0</real>
   </map>
   <key>MeshThreadCount</key>
   <map>
