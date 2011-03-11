@@ -406,7 +406,9 @@ Jonathan Yap
 	STORM-1040
 	VWR-17801
 	VWR-24347
+	STORM-975
 	STORM-990
+	STORM-1020
 Kage Pixel
 	VWR-11
 Ken March
