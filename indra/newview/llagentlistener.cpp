@@ -59,10 +59,19 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "Set the agent to a fixed orientation (optionally specify [\"lookat\"] = array of [x, y, z])",
         &LLAgentListener::resetAxes);
     add("getAxes",
+        "Obsolete - use getPosition instead\n"
         "Send information about the agent's orientation on [\"reply\"]:\n"
         "[\"euler\"]: map of {roll, pitch, yaw}\n"
         "[\"quat\"]:  array of [x, y, z, w] quaternion values",
         &LLAgentListener::getAxes,
+        LLSDMap("reply", LLSD()));
+    add("getPosition",
+        "Send information about the agent's position and orientation on [\"reply\"]:\n"
+        "[\"region\"]: array of region {x, y, z} position\n"
+        "[\"global\"]: array of global {x, y, z} position\n"
+        "[\"euler\"]: map of {roll, pitch, yaw}\n"
+        "[\"quat\"]:  array of [x, y, z, w] quaternion values",
+        &LLAgentListener::getPosition,
         LLSDMap("reply", LLSD()));
 }
 
@@ -136,6 +145,24 @@ void LLAgentListener::getAxes(const LLSD& event) const
     // The official query API for LLQuaternion's [x, y, z, w] values is its
     // public member mQ...
     sendReply(LLSDMap
+              ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
+              ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
+              event);
+}
+
+
+void LLAgentListener::getPosition(const LLSD& event) const
+{
+	LLVector3 region_pos(mAgent.getPositionAgent());
+	LLVector3 global_pos(mAgent.getPositionGlobal());
+    LLQuaternion quat(mAgent.getQuat());
+    F32 roll, pitch, yaw;
+    quat.getEulerAngles(&roll, &pitch, &yaw);
+    // The official query API for LLQuaternion's [x, y, z, w] values is its
+    // public member mQ...
+    sendReply(LLSDMap
+              ("region", llsd_copy_array(boost::begin(region_pos.mV), boost::end(region_pos.mV)))
+              ("global", llsd_copy_array(boost::begin(global_pos.mV), boost::end(global_pos.mV)))
               ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
               ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
               event);
