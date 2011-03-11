@@ -261,6 +261,7 @@ elseif(LINUX)
         libtcmalloc.so
         libuuid.so.1
         libssl.so.0.9.7
+        libfontconfig.so.1.4.4
        )
 
     if (FMOD)
