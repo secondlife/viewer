@@ -33,6 +33,7 @@
 
 class LLViewerObject;
 class LLObjectSelection;
+class LLHUDEffectBlob;
 
 class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 {
@@ -90,6 +91,8 @@ private:
 
 	void steerCameraWithMouse(S32 x, S32 y);
 	void startCameraSteering();
+	void stopCameraSteering();
+	bool inCameraSteerMode();
 
 private:
 	bool				mMouseButtonDown;
@@ -98,6 +101,8 @@ private:
 	S32					mMouseDownY;
 	S32					mMouseSteerX;
 	S32					mMouseSteerY;
+	LLHUDEffectBlob*	mAutoPilotDestination;
+	LLHUDEffectBlob*	mMouseSteerGrabPoint;
 	bool				mClockwise;					
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;

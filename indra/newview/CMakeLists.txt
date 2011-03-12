@@ -246,6 +246,7 @@ set(viewer_SOURCE_FILES
     llhudeffectlookat.cpp
     llhudeffectpointat.cpp
     llhudeffecttrail.cpp
+    llhudeffectblob.cpp
     llhudicon.cpp
     llhudmanager.cpp
     llhudnametag.cpp
@@ -786,6 +787,7 @@ set(viewer_HEADER_FILES
     llhudeffectlookat.h
     llhudeffectpointat.h
     llhudeffecttrail.h
+    llhudeffectblob.h
     llhudicon.h
     llhudmanager.h
     llhudnametag.h

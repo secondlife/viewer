@@ -42,6 +42,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "lltooltip.h"
+#include "llhudeffectblob.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llkeyboard.h"
@@ -81,6 +82,8 @@ LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
 	mMouseButtonDown( false ),
 	mMouseOutsideSlop( false ),
+	mMouseSteerX(-1),
+	mMouseSteerY(-1),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -529,14 +532,12 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		if (delta_x * delta_x + delta_y * delta_y > threshold * threshold)
 		{
 			startCameraSteering();
-			mMouseOutsideSlop = TRUE;
-			setMouseCapture(TRUE);
 		}
 	}
 
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
 
-	if (mMouseOutsideSlop)
+	if (inCameraSteerMode())
 	{
 		steerCameraWithMouse(x, y);
 		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
@@ -617,16 +618,23 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	bool media_handled_click = handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus();
 	bool mouse_moved = mMouseOutsideSlop;
-	mMouseOutsideSlop = false;
+	stopCameraSteering();
 	mMouseButtonDown = false;
 
 	if (!media_handled_click && click_action == CLICK_ACTION_NONE && !mouse_moved)
 	{
 		if (gSavedSettings.getBOOL("ClickToWalk")			// click to walk enabled
+			&& !gFocusMgr.getKeyboardFocus()				// focus is on world
 			&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
 			&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
 				|| mPick.mObjectID.notNull()))				// or on an object
 		{
+			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+			mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+			mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
+			mAutoPilotDestination->setColor(LLColor4U::white);
+			mAutoPilotDestination->setDuration(5.f);
+
 			handle_go_to();
 			return TRUE;
 		}
@@ -1297,11 +1305,21 @@ void LLToolPie::stopEditing()
 
 void LLToolPie::onMouseCaptureLost()
 {
-	mMouseOutsideSlop = false;
+	stopCameraSteering();
 	mMouseButtonDown = false;
 	handleMediaMouseUp();
 }
 
+void LLToolPie::stopCameraSteering()
+{
+	mMouseOutsideSlop = false;
+	mMouseSteerGrabPoint = NULL;
+}
+
+bool LLToolPie::inCameraSteerMode()
+{
+	return mMouseButtonDown && mMouseOutsideSlop;
+}
 
 // true if x,y outside small box around start_x,start_y
 BOOL LLToolPie::outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y)
@@ -1687,12 +1705,19 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 
 void LLToolPie::startCameraSteering()
 {
+	mMouseOutsideSlop = true;
+	setMouseCapture(TRUE);
+	
 	mMouseSteerX = mMouseDownX;
 	mMouseSteerY = mMouseDownY;
-	const LLVector3 camera_to_rotation_center = gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
-	const LLVector3 rotation_center_to_pick = gAgent.getPosAgentFromGlobal(mDragPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
+	const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
+	const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mDragPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
 
 	mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
+	mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+	mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
+	mMouseSteerGrabPoint->setColor(LLColor4U::white);
+	mMouseSteerGrabPoint->setDuration(1000.f);
 }
 
 void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
