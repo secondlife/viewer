@@ -3096,7 +3096,7 @@ F32 LLVOVolume::getStreamingCost()
 	return 0.f;
 }
 
-U32 LLVOVolume::getTriangleCount() const
+U32 LLVOVolume::getTriangleCount()
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
