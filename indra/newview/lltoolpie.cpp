@@ -79,8 +79,8 @@ static ECursorType cursor_from_parcel_media(U8 click_action);
 
 LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
-	mMouseButtonDown( FALSE ),
-	mMouseOutsideSlop( FALSE ),
+	mMouseButtonDown( false ),
+	mMouseOutsideSlop( false ),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -108,7 +108,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mPick.mKeyMask = mask;
 
 	mDragPick = mPick;
-	mMouseButtonDown = TRUE;
+	mMouseButtonDown = true;
 	
 	handleLeftClickPick();
 
@@ -310,6 +310,7 @@ BOOL LLToolPie::handleLeftClickPick()
 		)
 	{
 		gGrabTransientTool = this;
+		mMouseButtonDown = false;
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
 		return LLToolGrab::getInstance()->handleObjectHit( mPick );
 	}
@@ -327,7 +328,7 @@ BOOL LLToolPie::handleLeftClickPick()
 		// mouse already released
 		if (!mMouseButtonDown)
 		{
-			return TRUE;
+			return true;
 		}
 
 		while( object && object->isAttachment() && !object->flagHandleTouch())
@@ -339,9 +340,10 @@ BOOL LLToolPie::handleLeftClickPick()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgentAvatarp)
+		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
 		{
 			// we left clicked on avatar, switch to focus mode
+			mMouseButtonDown = false;
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
@@ -537,6 +539,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	if (mMouseOutsideSlop)
 	{
 		steerCameraWithMouse(x, y);
+		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 		return TRUE;
 	}
 
@@ -614,8 +617,8 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	bool media_handled_click = handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus();
 	bool mouse_moved = mMouseOutsideSlop;
-	mMouseOutsideSlop = FALSE;
-	mMouseButtonDown = FALSE;
+	mMouseOutsideSlop = false;
+	mMouseButtonDown = false;
 
 	if (!media_handled_click && click_action == CLICK_ACTION_NONE && !mouse_moved)
 	{
@@ -1294,8 +1297,8 @@ void LLToolPie::stopEditing()
 
 void LLToolPie::onMouseCaptureLost()
 {
-	mMouseOutsideSlop = FALSE;
-	mMouseButtonDown = FALSE;
+	mMouseOutsideSlop = false;
+	mMouseButtonDown = false;
 	handleMediaMouseUp();
 }
 
@@ -1698,7 +1701,8 @@ void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 
 	const LLVector3 pick_pos = gAgent.getPosAgentFromGlobal(mDragPick.mPosGlobal);
 	const LLVector3 rotation_center = gAgent.getFrameAgent().getOrigin();
-	const LLVector3 rotation_up_axis(gAgent.getReferenceUpVector());
+	// FIXME: get this to work with camera tilt (i.e. sitting on a rotating object)
+	const LLVector3 rotation_up_axis(LLVector3::z_axis);
 
 	LLVector3 pick_offset = pick_pos - rotation_center;
 	F32 up_distance = pick_offset * rotation_up_axis;
