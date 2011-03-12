@@ -489,6 +489,42 @@ public:
 				ypos += y_inc;
 			}
 
+			//show streaming cost/triangle count of known prims in current region OR selection
+			{
+				F32 cost = 0.f;
+				S32 count = 0;
+				const char* label = "Region";
+				if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 0)
+				{ //region
+					LLViewerRegion* region = gAgent.getRegion();
+					if (region)
+					{
+						for (U32 i = 0; i < gObjectList.getNumObjects(); ++i)
+						{
+							LLViewerObject* object = gObjectList.getObject(i);
+							if (object && 
+								object->getRegion() == region &&
+								object->getVolume())
+							{
+								cost += object->getStreamingCost();
+								count += object->getTriangleCount();
+							}
+						}
+					}
+				}
+				else
+				{
+					label = "Selection";
+					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost();
+					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount();
+				}
+					
+				addText(xpos,ypos, llformat("%s streaming cost: %.1f (%.1f KTris)",
+							label, cost, count/1000.f));
+				ypos += y_inc;
+			
+			}
+
 			addText(xpos, ypos, llformat("%d MB Vertex Data", LLVertexBuffer::sAllocatedBytes/(1024*1024)));
 			ypos += y_inc;
 
@@ -571,10 +607,6 @@ public:
 
 				ypos += y_inc;
 			}
-
-			addText(xpos, ypos, llformat("Selection Triangle Count: %.3f Ktris ", LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount()/1000.f));
-
-			ypos += y_inc;
 
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
