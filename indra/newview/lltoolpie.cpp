@@ -524,7 +524,7 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (!mMouseOutsideSlop && mMouseButtonDown)
+	if (!mMouseOutsideSlop && mMouseButtonDown && gSavedSettings.getBOOL("ClickToWalk"))
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;
@@ -1318,7 +1318,7 @@ void LLToolPie::stopCameraSteering()
 
 bool LLToolPie::inCameraSteerMode()
 {
-	return mMouseButtonDown && mMouseOutsideSlop;
+	return mMouseButtonDown && mMouseOutsideSlop && gSavedSettings.getBOOL("ClickToWalk");
 }
 
 // true if x,y outside small box around start_x,start_y
