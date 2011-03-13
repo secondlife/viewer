@@ -127,9 +127,9 @@
                          label="Wear"
                          layout="topleft"
                          name="wear_btn"
-                         left="0"
+                         left="1"
                          top="0"
-                         width="147" />
+                         width="146" />
 			    </layout_panel>
 			</layout_stack>
    </panel>
