@@ -48,7 +48,7 @@ const S32 PKT_SIZE = 57;
 // throttle
 const F32 MAX_SENDS_PER_SEC = 4.f;
 
-const F32 MIN_DELTAPOS_FOR_UPDATE = 0.05f;
+const F32 MIN_DELTAPOS_FOR_UPDATE_SQUARED = 0.05f * 0.05f;
 
 // timeouts
 // can't use actual F32_MAX, because we add this to the current frametime
@@ -244,7 +244,7 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 	BOOL targetTypeChanged = (target_type != mTargetType) ||
 		(object != mTargetObject);
 
-	BOOL targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE * MIN_DELTAPOS_FOR_UPDATE) && 
+	BOOL targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) && 
 		((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC));
 
 	if (targetTypeChanged || targetPosChanged)

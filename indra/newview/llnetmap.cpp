@@ -334,7 +334,7 @@ void LLNetMap::draw()
 		//localMouse(&local_mouse_x, &local_mouse_y);
 		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
-		F32 closest_dist_squared = F32_MAX;
+		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
 		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
 
 		// Draw avatars

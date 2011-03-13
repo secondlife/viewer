@@ -237,7 +237,7 @@ void LLManipScale::render()
 				}
 			}
 
-			if (range_squared > 0.00001f)
+			if (range_squared > 0.001f * 0.001f)
 			{
 				// range != zero
 				F32 fraction_of_fov = BOX_HANDLE_BASE_SIZE / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();

@@ -42,10 +42,10 @@ using namespace std;
 
 #define INCHES_TO_METERS 0.02540005f
 
-const F32 POSITION_KEYFRAME_THRESHOLD = 0.03f;
+const F32 POSITION_KEYFRAME_THRESHOLD_SQUARED = 0.03f * 0.03f;
 const F32 ROTATION_KEYFRAME_THRESHOLD = 0.01f;
 
-const F32 POSITION_MOTION_THRESHOLD = 0.001f;
+const F32 POSITION_MOTION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 const F32 ROTATION_MOTION_THRESHOLD = 0.001f;
 
 char gInFile[1024];		/* Flawfinder: ignore */
@@ -1196,7 +1196,7 @@ void LLBVHLoader::optimize()
 				if (ki_prev == ki_last_good_pos)
 				{
 					joint->mNumPosKeys++;
-					if (dist_vec_squared(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD * POSITION_MOTION_THRESHOLD)
+					if (dist_vec_squared(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
 					{
 						pos_changed = TRUE;
 					}
@@ -1209,12 +1209,12 @@ void LLBVHLoader::optimize()
 					LLVector3 current_pos(ki->mPos);
 					LLVector3 interp_pos = lerp(current_pos, last_good_pos, 1.f / (F32)numPosFramesConsidered);
 
-					if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD * POSITION_MOTION_THRESHOLD)
+					if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
 					{
 						pos_changed = TRUE;
 					}
 
-					if (dist_vec_squared(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD * POSITION_KEYFRAME_THRESHOLD)
+					if (dist_vec_squared(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD_SQUARED)
 					{
 						ki_prev->mIgnorePos = TRUE;
 						numPosFramesConsidered++;

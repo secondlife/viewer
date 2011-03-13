@@ -56,7 +56,7 @@ const S32 PKT_SIZE = 57;
 // throttle
 const F32 MAX_SENDS_PER_SEC = 4.f;
 
-const F32 MIN_DELTAPOS_FOR_UPDATE = 0.05f;
+const F32 MIN_DELTAPOS_FOR_UPDATE_SQUARED = 0.05f * 0.05f;
 const F32 MIN_TARGET_OFFSET_SQUARED = 0.0001f;
 
 
@@ -416,7 +416,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	BOOL lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
 
 	// lookat position has moved a certain amount and we haven't just sent an update
-	lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE * MIN_DELTAPOS_FOR_UPDATE) && 
+	lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) && 
 		((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC)));
 
 	if (lookAtChanged)
