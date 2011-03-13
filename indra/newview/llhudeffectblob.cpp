@@ -40,3 +40,7 @@ void LLHUDEffectBlob::render()
 {
 }
 
+void LLHUDEffectBlob::renderForTimer()
+{
+}
+
