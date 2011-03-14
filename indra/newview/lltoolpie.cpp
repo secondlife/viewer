@@ -111,7 +111,6 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mPick = gViewerWindow->pickImmediate(x, y, TRUE);
 	mPick.mKeyMask = mask;
 
-	mDragPick = mPick;
 	mMouseButtonDown = true;
 	mAbortClickToWalk = false;
 	
@@ -531,7 +530,9 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (!mMouseOutsideSlop && mMouseButtonDown && gSavedSettings.getBOOL("ClickToWalk"))
+	if (!mMouseOutsideSlop 
+		&& mMouseButtonDown 
+		&& gSavedSettings.getBOOL("ClickToWalk"))
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;
@@ -639,6 +640,21 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
 			|| mPick.mObjectID.notNull()))				// or on an object
 	{
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
+		{
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
+		}
+
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
+			// pretend we picked some point a bit in front of avatar
+			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
+		}
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
@@ -1716,25 +1732,53 @@ void LLToolPie::startCameraSteering()
 {
 	mMouseOutsideSlop = true;
 	mAbortClickToWalk = true;
-	setMouseCapture(TRUE);
-	
-	mMouseSteerX = mMouseDownX;
-	mMouseSteerY = mMouseDownY;
-	const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
-	const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mDragPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
 
-	mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
-	mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
-	mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
-	mMouseSteerGrabPoint->setColor(LLColor4U::white);
-	mMouseSteerGrabPoint->setDuration(1000.f);
+	if (gAgentCamera.getFocusOnAvatar())
+	{
+		mSteerPick = mPick;
+
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mSteerPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
+		{
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
+		}
+
+		// if clicking on own avatar...
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			// ...project pick point a few meters in front of avatar
+			mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
+		}
+
+		if (!mSteerPick.isValid())
+		{
+			mSteerPick.mPosGlobal = gAgent.getPosGlobalFromAgent(
+				LLViewerCamera::instance().getOrigin() + gViewerWindow->mouseDirectionGlobal(mSteerPick.mMousePt.mX, mSteerPick.mMousePt.mY) * 100.f);
+		}
+
+		setMouseCapture(TRUE);
+		
+		mMouseSteerX = mMouseDownX;
+		mMouseSteerY = mMouseDownY;
+		const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
+		const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
+
+		mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
+		mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
+		mMouseSteerGrabPoint->setColor(LLColor4U::white);
+		mMouseSteerGrabPoint->setDuration(1000.f);
+	}
 }
 
 void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 {
 	const F32 MIN_ROTATION_RADIUS_FRACTION = 0.2f;
 
-	const LLVector3 pick_pos = gAgent.getPosAgentFromGlobal(mDragPick.mPosGlobal);
+	const LLVector3 pick_pos = gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal);
 	const LLVector3 rotation_center = gAgent.getFrameAgent().getOrigin();
 	// FIXME: get this to work with camera tilt (i.e. sitting on a rotating object)
 	const LLVector3 rotation_up_axis(LLVector3::z_axis);
