@@ -84,6 +84,7 @@ LLToolPie::LLToolPie()
 	mMouseOutsideSlop( false ),
 	mMouseSteerX(-1),
 	mMouseSteerY(-1),
+	mAbortClickToWalk(false),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -112,6 +113,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	mDragPick = mPick;
 	mMouseButtonDown = true;
+	mAbortClickToWalk = false;
 	
 	handleLeftClickPick();
 
@@ -301,7 +303,12 @@ BOOL LLToolPie::handleLeftClickPick()
 	}
 
 	// put focus back "in world"
-	gFocusMgr.setKeyboardFocus(NULL);
+	if (gFocusMgr.getKeyboardFocus())
+	{
+		// don't click to walk on attempt to give focus to world
+		mAbortClickToWalk = true;
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
 
 	BOOL touchable = (object && object->flagHandleTouch()) 
 					 || (parent && parent->flagHandleTouch());
@@ -616,28 +623,28 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	LLViewerObject* obj = mPick.getObject();
 	U8 click_action = final_click_action(obj);
 
-	bool media_handled_click = handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus();
-	bool mouse_moved = mMouseOutsideSlop;
+	if (handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus())
+	{
+		mAbortClickToWalk = true;
+	}
 	stopCameraSteering();
 	mMouseButtonDown = false;
 
-	if (!media_handled_click && click_action == CLICK_ACTION_NONE && !mouse_moved)
+	if (click_action == CLICK_ACTION_NONE				// not doing 1-click action
+		&& gSavedSettings.getBOOL("ClickToWalk")		// click to walk enabled
+		&& !mAbortClickToWalk							// another behavior hasn't cancelled click to walk
+		&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
+		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
+			|| mPick.mObjectID.notNull()))				// or on an object
 	{
-		if (gSavedSettings.getBOOL("ClickToWalk")			// click to walk enabled
-			&& !gFocusMgr.getKeyboardFocus()				// focus is on world
-			&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
-			&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
-				|| mPick.mObjectID.notNull()))				// or on an object
-		{
-			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-			mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
-			mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
-			mAutoPilotDestination->setColor(LLColor4U::white);
-			mAutoPilotDestination->setDuration(5.f);
+		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
+		mAutoPilotDestination->setColor(LLColor4U::white);
+		mAutoPilotDestination->setDuration(5.f);
 
-			handle_go_to();
-			return TRUE;
-		}
+		handle_go_to();
+		return TRUE;
 	}
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	if (hasMouseCapture())
@@ -1706,6 +1713,7 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 void LLToolPie::startCameraSteering()
 {
 	mMouseOutsideSlop = true;
+	mAbortClickToWalk = true;
 	setMouseCapture(TRUE);
 	
 	mMouseSteerX = mMouseDownX;
@@ -1729,22 +1737,14 @@ void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 	// FIXME: get this to work with camera tilt (i.e. sitting on a rotating object)
 	const LLVector3 rotation_up_axis(LLVector3::z_axis);
 
-	LLVector3 pick_offset = pick_pos - rotation_center;
-	F32 up_distance = pick_offset * rotation_up_axis;
-	LLVector3 object_rotation_center = rotation_center + rotation_up_axis * up_distance;
+	LLVector3 object_rotation_center = rotation_center + parallel_component(pick_pos - rotation_center, rotation_up_axis);
 	F32 min_rotation_radius = MIN_ROTATION_RADIUS_FRACTION * dist_vec(rotation_center, LLViewerCamera::instance().getOrigin());;
 	F32 pick_distance_from_rotation_center = llclamp(dist_vec(pick_pos, object_rotation_center), min_rotation_radius, F32_MAX);
 
-	LLVector3 screen_rotation_up_axis = rotation_up_axis - projected_vec(rotation_up_axis, LLViewerCamera::instance().getAtAxis());
-	screen_rotation_up_axis.normalize();
-	LLVector3 screen_rotation_left_axis = screen_rotation_up_axis % LLViewerCamera::instance().getAtAxis();
-
-	LLVector3 mouse_ray = gViewerWindow->mouseDirectionGlobal(x, y);
-	mouse_ray = mouse_ray - projected_vec(mouse_ray, rotation_up_axis);
+	LLVector3 mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(x, y), rotation_up_axis);
 	mouse_ray.normalize();
 
-	LLVector3 old_mouse_ray = gViewerWindow->mouseDirectionGlobal(mMouseSteerX, mMouseSteerY);
-	old_mouse_ray = old_mouse_ray - projected_vec(old_mouse_ray, rotation_up_axis);
+	LLVector3 old_mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(mMouseSteerX, mMouseSteerY), rotation_up_axis);
 	old_mouse_ray.normalize();
 
 	LLVector3 camera_pos = gAgentCamera.getCameraPositionAgent();
@@ -1752,7 +1752,7 @@ void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 	LLVector3 adjusted_camera_pos = camera_pos + projected_vec(camera_to_rotation_center, rotation_up_axis);
 	LLVector3 rotation_fwd_axis = LLViewerCamera::instance().getAtAxis() - projected_vec(LLViewerCamera::instance().getAtAxis(), rotation_up_axis);
 	rotation_fwd_axis.normalize();
-	F64 pick_dist = dist_vec(pick_pos, adjusted_camera_pos);
+	F32 pick_dist = dist_vec(pick_pos, adjusted_camera_pos);
 
 	LLVector3 mouse_on_sphere;
 	bool mouse_hit_sphere = intersect_ray_with_sphere(adjusted_camera_pos + (mouse_ray * pick_dist * 1.1f),
@@ -1770,16 +1770,21 @@ void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 
 	if (mouse_hit_sphere)
 	{
+		// calculate rotation frame in screen space
+		LLVector3 screen_rotation_up_axis = orthogonal_component(rotation_up_axis, LLViewerCamera::instance().getAtAxis());
+		screen_rotation_up_axis.normalize();
+
+		LLVector3 screen_rotation_left_axis = screen_rotation_up_axis % LLViewerCamera::instance().getAtAxis();
 
 		LLVector3 rotation_furthest_pt = object_rotation_center + pick_distance_from_rotation_center * rotation_fwd_axis;
 		F32 mouse_lateral_distance = llclamp(((mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
 		F32 old_mouse_lateral_distance = llclamp(((old_mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
 
-		F32 yaw_angle = -1.f * asinf(mouse_lateral_distance);
-		F32 old_yaw_angle = -1.f * asinf(old_mouse_lateral_distance);
+		F32 yaw_angle = asinf(mouse_lateral_distance);
+		F32 old_yaw_angle = asinf(old_mouse_lateral_distance);
 
 		F32 delta_angle = yaw_angle - old_yaw_angle;
-		if (mClockwise) delta_angle *= -1.f;
+		if (!mClockwise) delta_angle *= -1.f;
 
 		gAgent.yaw(delta_angle);
 		mMouseSteerX = x;
