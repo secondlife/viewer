@@ -1584,9 +1584,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e2818075e89f0729e869a244eafbbf7</string>
+              <string>7b4cf3aa2c04937d0a20761516587896</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3dfsg-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/223739/arch/Linux/installer/zlib-1.2.5-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
