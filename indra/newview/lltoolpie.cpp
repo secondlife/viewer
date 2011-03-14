@@ -638,6 +638,21 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
 			|| mPick.mObjectID.notNull()))				// or on an object
 	{
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
+		{
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
+		}
+
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
+			// pretend we picked some point a bit in front of avatar
+			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
+		}
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
@@ -1715,25 +1730,23 @@ void LLToolPie::startCameraSteering()
 {
 	mSteerPick = mPick;
 
-	LLPointer<LLViewerObject> pick_object = mSteerPick.getObject();
 	// handle special cases of steering picks
-	if (pick_object)
+	LLViewerObject* avatar_object = mSteerPick.getObject();
+
+	// get pointer to avatar
+	while (avatar_object && !avatar_object->isAvatar())
 	{
-		LLViewerObject* avatar_object = pick_object;
-
-		// get pointer to avatar
-		while (avatar_object && !avatar_object->isAvatar())
-		{
-			avatar_object = (LLViewerObject*)avatar_object->getParent();
-		}
-
-		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
-		{
-			// project pick point a few meters in front of avatar
-			mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
-		}
+		avatar_object = (LLViewerObject*)avatar_object->getParent();
 	}
-	else if (!mSteerPick.isValid())
+
+	// if clicking on own avatar...
+	if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+	{
+		// ...project pick point a few meters in front of avatar
+		mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
+	}
+
+	if (!mSteerPick.isValid())
 	{
 		mSteerPick.mPosGlobal = gAgent.getPosGlobalFromAgent(
 			LLViewerCamera::instance().getOrigin() + gViewerWindow->mouseDirectionGlobal(mSteerPick.mMousePt.mX, mSteerPick.mMousePt.mY) * 100.f);
