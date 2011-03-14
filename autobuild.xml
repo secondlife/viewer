@@ -1536,9 +1536,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3580c3729a034adff005a234f3ce6e84</string>
+              <string>174ab797440157956eda7061dae37564</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/223735/arch/Linux/installer/xmlrpc_epi-0.54.1-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
