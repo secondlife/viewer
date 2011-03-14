@@ -1368,9 +1368,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c34975e8090d861c6e37ea606fd66940</string>
+              <string>fb2382014c79e0049746e4e29bd834f9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/223705/arch/Linux/installer/openjpeg-1.4-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
