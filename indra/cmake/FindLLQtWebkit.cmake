@@ -22,9 +22,9 @@ if (PKG_CONFIG_FOUND)
     else (LLQtWebkit_FIND_REQUIRED AND LLQtWebkit_FIND_VERSION)
         set(_PACKAGE_ARGS libllqtwebkit)
     endif (LLQtWebkit_FIND_REQUIRED AND LLQtWebkit_FIND_VERSION)
-    if (NOT "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_LESS "2.8")
+    if (NOT "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.2")
       # As virtually nobody will have a pkg-config file for this, do this check always quiet.
-      # Unfortunately cmake 2.8 or higher is required for pkg_check_modules to have a 'QUIET'.
+      # Unfortunately cmake 2.8.2 or higher is required for pkg_check_modules to have a 'QUIET'.
       set(_PACKAGE_ARGS ${_PACKAGE_ARGS} QUIET)
     endif ()
     pkg_check_modules(LLQTWEBKIT ${_PACKAGE_ARGS})
