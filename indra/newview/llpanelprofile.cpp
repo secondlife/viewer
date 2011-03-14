@@ -31,6 +31,7 @@
 #include "llavataractions.h"
 #include "llfloaterreg.h"
 #include "llcommandhandler.h"
+#include "llnotificationsutil.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
@@ -105,6 +106,12 @@ public:
 
 		if (verb == "pay")
 		{
+			if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAvatarPay"))
+			{
+				LLNotificationsUtil::add("NoAvatarPay", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+				return true;
+			}
+
 			LLAvatarActions::pay(avatar_id);
 			return true;
 		}

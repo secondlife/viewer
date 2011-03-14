@@ -7139,6 +7139,48 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
+
+  <notification
+ name="NoVoiceCall"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Voice calls are only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoAvatarShare"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Sharing is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+  
+  <notification
+ name="NoAvatarPay"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Paying other residents is only available in Standard mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
   
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
