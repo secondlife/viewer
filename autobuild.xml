@@ -1258,7 +1258,7 @@
         <key>license</key>
         <string>openSSL</string>
         <key>license_file</key>
-        <string>LICENSES/openSSL.txt</string>
+        <string>LICENSES/openssl.txt</string>
         <key>name</key>
         <string>openSSL</string>
         <key>platforms</key>
@@ -1280,9 +1280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>511cf1c200efe587552b8225dd361dbb</string>
+              <string>cc159598ef3fcd34fd33a8a0ef846165</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/223711/arch/Linux/installer/openssl-0.9.8q-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
