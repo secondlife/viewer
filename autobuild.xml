@@ -1112,9 +1112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c05a33ee8b6f253b5a744596dfc3707d</string>
+              <string>f53e2a255d4c4039203de3e4640a2d41</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/223655/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
