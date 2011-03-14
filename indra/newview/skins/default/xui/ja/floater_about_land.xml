@@ -87,14 +87,8 @@
 			<text name="Owner:">
 				所有者：
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				グループ：
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="設定" label_selected="設定..." name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
@@ -399,7 +393,6 @@
 				ホームページ：
 			</text>
 			<button label="設定" name="set_media_url"/>
-			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：
 			</text>
@@ -429,7 +422,6 @@
 			<text name="MusicURL:">
 				音楽 URL：
 			</text>
-			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽の URL が隠れます。"/>
 			<text name="Sound:">
 				サウンド：
 			</text>

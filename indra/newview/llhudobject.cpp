@@ -32,6 +32,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llhudeffectbeam.h"
+#include "llhudeffectblob.h"
 #include "llhudeffecttrail.h"
 #include "llhudeffectlookat.h"
 #include "llhudeffectpointat.h"
@@ -237,6 +238,8 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	case LL_HUD_EFFECT_POINTAT:
 		hud_objectp = new LLHUDEffectPointAt(type);
 		break;
+	case LL_HUD_EFFECT_BLOB:
+		hud_objectp = new LLHUDEffectBlob(type);
 	default:
 		llwarns << "Unknown type of hud effect:" << (U32) type << llendl;
 	}
