@@ -61,7 +61,7 @@
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
-            <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/howto/index.html</string>
+            <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/howto/index.html?topic=[TOPIC]</string>
         </map>
     <key>PreferredMaturity</key>
         <map>
@@ -270,6 +270,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableAvatarPay</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable paying other avatars from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableVoiceCall</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable voice calls from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableAvatarShare</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable sharing from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DoubleClickShowWorldMap</key>
     <map>
       <key>Comment</key>
@@ -323,7 +356,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-static-secondlife-com.s3.amazonaws.com/viewer/agni/avatars.html</string>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/avatars.html</string>
     </map>
     <key>LogInventoryDecline</key>
     <map>
@@ -346,6 +379,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>ClickToWalk</key>
+    <map>
+      <key>Comment</key>
+      <string>Click in world to walk to location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
   </map>
 </llsd>

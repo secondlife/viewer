@@ -10,11 +10,8 @@
   <hide tag="group"/>
   <hide tag="voice"/>
 
-  <!-- refers to preferences -->
-  <hide name="RegionEntryAccessBlocked_Change"/>
-
   <!-- no spammy scripts -->
-  <hide name="ScriptDialog"/>
+  <!-- <hide name="ScriptDialog"/> -->
 
   <!-- hints pertaining to UI we don't show -->
   <hide name="FirstBalanceIncrease"/>
@@ -25,6 +22,9 @@
   <hide name="HintInventory"/>
   <hide name="HintLindenDollar"/>
 
+  <!-- spam from servers, such as "Autopilot cancelled" -->
+  <hide name="SystemMessageTip"/>
+  
   <!-- show everything else -->
   <show/>
 </notification_visibility>

@@ -12498,6 +12498,39 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>EnableAvatarPay</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable paying other avatars from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableVoiceCall</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable voice calls from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableAvatarShare</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable sharing from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>SearchFromAddressBar</key>
     <map>
       <key>Comment</key>
@@ -12530,6 +12563,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>ClickToWalk</key>
+    <map>
+      <key>Comment</key>
+      <string>Click in world to walk to location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
 </map>
 </llsd>
