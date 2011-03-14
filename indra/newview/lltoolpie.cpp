@@ -530,7 +530,9 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (!mMouseOutsideSlop && mMouseButtonDown && gSavedSettings.getBOOL("ClickToWalk"))
+	if (!mMouseOutsideSlop 
+		&& mMouseButtonDown 
+		&& gSavedSettings.getBOOL("ClickToWalk"))
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;
@@ -1728,44 +1730,48 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 
 void LLToolPie::startCameraSteering()
 {
-	mSteerPick = mPick;
-
-	// handle special cases of steering picks
-	LLViewerObject* avatar_object = mSteerPick.getObject();
-
-	// get pointer to avatar
-	while (avatar_object && !avatar_object->isAvatar())
-	{
-		avatar_object = (LLViewerObject*)avatar_object->getParent();
-	}
-
-	// if clicking on own avatar...
-	if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
-	{
-		// ...project pick point a few meters in front of avatar
-		mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
-	}
-
-	if (!mSteerPick.isValid())
-	{
-		mSteerPick.mPosGlobal = gAgent.getPosGlobalFromAgent(
-			LLViewerCamera::instance().getOrigin() + gViewerWindow->mouseDirectionGlobal(mSteerPick.mMousePt.mX, mSteerPick.mMousePt.mY) * 100.f);
-	}
-
 	mMouseOutsideSlop = true;
 	mAbortClickToWalk = true;
-	setMouseCapture(TRUE);
-	
-	mMouseSteerX = mMouseDownX;
-	mMouseSteerY = mMouseDownY;
-	const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
-	const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
 
-	mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
-	mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
-	mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
-	mMouseSteerGrabPoint->setColor(LLColor4U::white);
-	mMouseSteerGrabPoint->setDuration(1000.f);
+	if (gAgentCamera.getFocusOnAvatar())
+	{
+		mSteerPick = mPick;
+
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mSteerPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
+		{
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
+		}
+
+		// if clicking on own avatar...
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			// ...project pick point a few meters in front of avatar
+			mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
+		}
+
+		if (!mSteerPick.isValid())
+		{
+			mSteerPick.mPosGlobal = gAgent.getPosGlobalFromAgent(
+				LLViewerCamera::instance().getOrigin() + gViewerWindow->mouseDirectionGlobal(mSteerPick.mMousePt.mX, mSteerPick.mMousePt.mY) * 100.f);
+		}
+
+		setMouseCapture(TRUE);
+		
+		mMouseSteerX = mMouseDownX;
+		mMouseSteerY = mMouseDownY;
+		const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
+		const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
+
+		mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
+		mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
+		mMouseSteerGrabPoint->setColor(LLColor4U::white);
+		mMouseSteerGrabPoint->setDuration(1000.f);
+	}
 }
 
 void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
