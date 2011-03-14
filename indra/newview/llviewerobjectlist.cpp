@@ -1546,6 +1546,7 @@ void LLViewerObjectList::clearAllMapObjectsInRegion(LLViewerRegion* regionp)
 	}
 }
 
+
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
 	LLColor4 above_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnAboveWater" );
@@ -1565,7 +1566,6 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	{
 		LLViewerObject* objectp = *iter;
 
-		//llassert_always(!objectp->isDead());
 		if(objectp->isDead())//some dead objects somehow not cleaned.
 		{
 			continue ;
