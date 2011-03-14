@@ -137,7 +137,7 @@ label="Remember password"
   name="mode_combo"
   width="110">
 <combo_box.item
-  label="Basic (Default)"
+  label="Basic"
   name="Basic"
   value="settings_minimal.xml" />
 <combo_box.item

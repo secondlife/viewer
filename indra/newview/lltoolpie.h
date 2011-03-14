@@ -108,7 +108,7 @@ private:
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
-	LLPickInfo			mDragPick;
+	LLPickInfo			mSteerPick;
 	LLPointer<LLViewerObject> mClickActionObject;
 	U8					mClickAction;
 	LLSafeHandle<LLObjectSelection> mLeftClickSelection;
