@@ -57,6 +57,7 @@ public:
 	virtual void		stopEditing();
 
 	virtual void		onMouseCaptureLost();
+	virtual void		handleSelect();
 	virtual void		handleDeselect();
 	virtual LLTool*		getOverrideTool(MASK mask);
 
@@ -101,8 +102,8 @@ private:
 	S32					mMouseDownY;
 	S32					mMouseSteerX;
 	S32					mMouseSteerY;
-	LLHUDEffectBlob*	mAutoPilotDestination;
-	LLHUDEffectBlob*	mMouseSteerGrabPoint;
+	LLPointer<LLHUDEffectBlob>	mAutoPilotDestination;
+	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
 	bool				mClockwise;			
 	bool				mAbortClickToWalk;
 	LLUUID				mMediaMouseCaptureID;

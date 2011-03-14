@@ -240,6 +240,7 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 		break;
 	case LL_HUD_EFFECT_BLOB:
 		hud_objectp = new LLHUDEffectBlob(type);
+		break;
 	default:
 		llwarns << "Unknown type of hud effect:" << (U32) type << llendl;
 	}
