@@ -75,7 +75,7 @@ public:
 	// these are static so that they can be used a callbacks
 	static ETrackingStatus getTrackingStatus() { return instance()->mTrackingStatus; }
 	static ETrackingLocationType getTrackedLocationType() { return instance()->mTrackingLocationType; }
-	static BOOL isTracking(void*) { return (BOOL) instance()->mTrackingStatus; }
+	static BOOL isTracking(void*) { return instance()->mTrackingStatus != TRACKING_NOTHING; }
 	static void stopTracking(void*);
 	static void clearFocus();
 	

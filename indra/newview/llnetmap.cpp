@@ -112,10 +112,6 @@ BOOL LLNetMap::postBuild()
 	registrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
 
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (mPopupMenu && !LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
-	}
 	return TRUE;
 }
 
@@ -510,13 +506,6 @@ void LLNetMap::draw()
 	gGL.popUIMatrix();
 
 	LLUICtrl::draw();
-
-	if (LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", true);
-	}
-	
-
 }
 
 void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -886,6 +875,7 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		mPopupMenu->buildDrawLabels();
 		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+		mPopupMenu->setItemEnabled("Stop Tracking", LLTracker::isTracking(0));
 		LLMenuGL::showPopup(this, mPopupMenu, x, y);
 	}
 	return TRUE;
