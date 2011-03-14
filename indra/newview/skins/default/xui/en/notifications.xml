@@ -7179,7 +7179,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  unique="true">
     <tag>fail</tag>
     <tag>confirm</tag>
-    Voice calls are only available in Standard mode. Would you like to logout and change modes?
+    Voice calls are only available in Advanced mode. Would you like to logout and change modes?
     <usetemplate
    name="okcancelbuttons"
    yestext="Quit"
@@ -7193,7 +7193,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  unique="true">
     <tag>fail</tag>
     <tag>confirm</tag>
-    Sharing is only available in Standard mode. Would you like to logout and change modes?
+    Sharing is only available in Advanced mode. Would you like to logout and change modes?
     <usetemplate
    name="okcancelbuttons"
    yestext="Quit"
@@ -7207,8 +7207,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
  unique="true">
     <tag>fail</tag>
     <tag>confirm</tag>
-    Paying other residents is only available in Standard mode. Would you like to logout and change modes?
-    <usetemplate
+	  Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
+	  <usetemplate
    name="okcancelbuttons"
    yestext="Quit"
    notext="Don't Quit"/>
