@@ -194,6 +194,7 @@ public:
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
 
+	float	mPelvisOffset;
 	// convex hull decomposition
 	S32 mDecompID;
 	convex_hull_decomposition mConvexHullDecomp;
