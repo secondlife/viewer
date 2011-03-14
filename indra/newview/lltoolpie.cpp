@@ -112,7 +112,6 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mPick.mKeyMask = mask;
 
 	mMouseButtonDown = true;
-	mAbortClickToWalk = false;
 	
 	handleLeftClickPick();
 
@@ -656,12 +655,16 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
 		}
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+		if(mAutoPilotDestination) { mAutoPilotDestination->markDead(); }
 		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
-		mAutoPilotDestination->setColor(LLColor4U::white);
-		mAutoPilotDestination->setDuration(5.f);
+		mAutoPilotDestination->setPixelSize(5);
+		mAutoPilotDestination->setColor(LLColor4U(50, 50, 200));
+		mAutoPilotDestination->setDuration(3.f);
 
 		handle_go_to();
+		mAbortClickToWalk = false;
+
 		return TRUE;
 	}
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
@@ -672,6 +675,8 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	LLToolMgr::getInstance()->clearTransientTool();
 	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
+
+	mAbortClickToWalk = false;
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -1292,6 +1297,10 @@ void LLToolPie::VisitHomePage(const LLPickInfo& info)
 	}
 }
 
+void LLToolPie::handleSelect()
+{
+	mAbortClickToWalk = true;	
+}
 
 void LLToolPie::handleDeselect()
 {
@@ -1338,7 +1347,6 @@ void LLToolPie::onMouseCaptureLost()
 void LLToolPie::stopCameraSteering()
 {
 	mMouseOutsideSlop = false;
-	mMouseSteerGrabPoint = NULL;
 }
 
 bool LLToolPie::inCameraSteerMode()
@@ -1767,10 +1775,12 @@ void LLToolPie::startCameraSteering()
 		const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
 
 		mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
-		mMouseSteerGrabPoint= (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
-		mMouseSteerGrabPoint->setPositionGlobal(mPick.mPosGlobal);
-		mMouseSteerGrabPoint->setColor(LLColor4U::white);
-		mMouseSteerGrabPoint->setDuration(1000.f);
+		if (mMouseSteerGrabPoint) { mMouseSteerGrabPoint->markDead(); }
+		mMouseSteerGrabPoint = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mMouseSteerGrabPoint->setPositionGlobal(mSteerPick.mPosGlobal);
+		mMouseSteerGrabPoint->setColor(LLColor4U(50, 50, 200));
+		mMouseSteerGrabPoint->setPixelSize(5);
+		mMouseSteerGrabPoint->setDuration(2.f);
 	}
 }
 
