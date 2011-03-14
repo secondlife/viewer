@@ -103,7 +103,8 @@ private:
 	S32					mMouseSteerY;
 	LLHUDEffectBlob*	mAutoPilotDestination;
 	LLHUDEffectBlob*	mMouseSteerGrabPoint;
-	bool				mClockwise;					
+	bool				mClockwise;			
+	bool				mAbortClickToWalk;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
