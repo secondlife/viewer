@@ -1419,22 +1419,21 @@ void LLTextureCache::readHeaderCache()
 					}
 				}
 			}
-			if (num_entries > sCacheMaxEntries)
+			if (num_entries - empty_entries > sCacheMaxEntries)
 			{
 				// Special case: cache size was reduced, need to remove entries
 				// Note: After we prune entries, we will call this again and create the LRU
-				U32 entries_to_purge = (num_entries-empty_entries) - sCacheMaxEntries;
+				U32 entries_to_purge = (num_entries - empty_entries) - sCacheMaxEntries;
 				llinfos << "Texture Cache Entries: " << num_entries << " Max: " << sCacheMaxEntries << " Empty: " << empty_entries << " Purging: " << entries_to_purge << llendl;
-				if (entries_to_purge > 0)
+				// We can exit the following loop with the given condition, since if we'd reach the end of the lru set we'd have:
+				// purge_list.size() = lru.size() = num_entries - empty_entries = entries_to_purge + sCacheMaxEntries >= entries_to_purge
+				// So, it's certain that iter will never reach lru.end() first.
+				std::set<lru_data_t>::iterator iter = lru.begin();
+				while (purge_list.size() < entries_to_purge)
 				{
-					for (std::set<lru_data_t>::iterator iter = lru.begin(); iter != lru.end(); ++iter)
-					{
-						purge_list.insert(iter->second);
-						if (purge_list.size() >= entries_to_purge)
-							break;
-					}
+					purge_list.insert(iter->second);
+					++iter;
 				}
-				llassert_always(purge_list.size() >= entries_to_purge);
 			}
 			else
 			{
