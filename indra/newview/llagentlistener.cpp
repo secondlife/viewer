@@ -45,14 +45,14 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
                "LLAgent listener to (e.g.) teleport, sit, stand, etc."),
     mAgent(agent)
 {
-	add("requestTeleport",
+    add("requestTeleport",
         "Teleport: [\"regionname\"], [\"x\"], [\"y\"], [\"z\"]\n"
         "If [\"skip_confirmation\"] is true, use LLURLDispatcher rather than LLCommandDispatcher.",
         &LLAgentListener::requestTeleport);
-	add("requestSit",
+    add("requestSit",
         "Ask to sit on the object specified in [\"obj_uuid\"]",
         &LLAgentListener::requestSit);
-	add("requestStand",
+    add("requestStand",
         "Ask to stand up",
         &LLAgentListener::requestStand);
     add("resetAxes",
@@ -73,55 +73,90 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"quat\"]:  array of [x, y, z, w] quaternion values",
         &LLAgentListener::getPosition,
         LLSDMap("reply", LLSD()));
+    add("startAutoPilot",
+        "Start the autopilot system using the following parameters:\n"
+        "[\"target_global\"]: array of target global {x, y, z} position\n"
+        "[\"stop_distance\"]: target maxiumum distance from target [default: autopilot guess]\n"
+        "[\"target_rotation\"]: array of [x, y, z, w] quaternion values [default: no target]\n"
+        "[\"rotation_threshold\"]: target maximum angle from target facing rotation [default: 0.03 radians]\n"
+        "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]",
+        //"[\"callback_pump\"]: pump to send success/failure and callback data to [default: none]\n"
+        //"[\"callback_data\"]: data to send back during a callback [default: none]",
+        &LLAgentListener::startAutoPilot);
+    add("getAutoPilot",
+        "Send information about current state of the autopilot system to [\"reply\"]:\n"
+        "[\"enabled\"]: boolean indicating whether or not autopilot is enabled\n"
+        "[\"target_global\"]: array of target global {x, y, z} position\n"
+        "[\"leader_id\"]: uuid of target autopilot is following\n"
+        "[\"stop_distance\"]: target maximum distance from target\n"
+        "[\"target_distance\"]: last known distance from target\n"
+        "[\"use_rotation\"]: boolean indicating if autopilot has a target facing rotation\n"
+        "[\"target_facing\"]: array of {x, y} target direction to face\n"
+        "[\"rotation_threshold\"]: target maximum angle from target facing rotation\n"
+        "[\"behavior_name\"]: name of the autopilot behavior",
+        &LLAgentListener::getAutoPilot,
+        LLSDMap("reply", LLSD()));
+    add("startFollowPilot",
+        "Follow [\"leader_id\"] using the autopilot system.",
+        &LLAgentListener::startFollowPilot);
+    add("setAutoPilotTarget",
+        "Update target for currently running autopilot:\n"
+        "[\"target_global\"]: array of target global {x, y, z} position",
+        &LLAgentListener::setAutoPilotTarget);
+    add("stopAutoPilot",
+        "Stop the autopilot system:\n"
+        "[\"user_cancel\"] indicates whether or not to act as though user canceled autopilot [default: false]",
+        &LLAgentListener::stopAutoPilot);
+
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
 {
-	if(event_data["skip_confirmation"].asBoolean())
-	{
-		LLSD params(LLSD::emptyArray());
-		params.append(event_data["regionname"]);
-		params.append(event_data["x"]);
-		params.append(event_data["y"]);
-		params.append(event_data["z"]);
-		LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, true);
-		// *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
-		// should we just compose LLCommandHandler and LLDispatchListener?
-	}
-	else
-	{
-		std::string url = LLSLURL(event_data["regionname"], 
-								  LLVector3(event_data["x"].asReal(), 
-											event_data["y"].asReal(), 
-											event_data["z"].asReal())).getSLURLString();
-		LLURLDispatcher::dispatch(url, NULL, false);
-	}
+    if(event_data["skip_confirmation"].asBoolean())
+    {
+        LLSD params(LLSD::emptyArray());
+        params.append(event_data["regionname"]);
+        params.append(event_data["x"]);
+        params.append(event_data["y"]);
+        params.append(event_data["z"]);
+        LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, true);
+        // *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
+        // should we just compose LLCommandHandler and LLDispatchListener?
+    }
+    else
+    {
+        std::string url = LLSLURL(event_data["regionname"], 
+                                  LLVector3(event_data["x"].asReal(), 
+                                            event_data["y"].asReal(), 
+                                            event_data["z"].asReal())).getSLURLString();
+        LLURLDispatcher::dispatch(url, NULL, false);
+    }
 }
 
 void LLAgentListener::requestSit(LLSD const & event_data) const
 {
-	//mAgent.getAvatarObject()->sitOnObject();
-	// shamelessly ripped from llviewermenu.cpp:handle_sit_or_stand()
-	// *TODO - find a permanent place to share this code properly.
-	LLViewerObject *object = gObjectList.findObject(event_data["obj_uuid"]);
+    //mAgent.getAvatarObject()->sitOnObject();
+    // shamelessly ripped from llviewermenu.cpp:handle_sit_or_stand()
+    // *TODO - find a permanent place to share this code properly.
+    LLViewerObject *object = gObjectList.findObject(event_data["obj_uuid"]);
 
-	if (object && object->getPCode() == LL_PCODE_VOLUME)
-	{
-		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, mAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_SessionID, mAgent.getSessionID());
-		gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
-		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
-		gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3(0,0,0));
+    if (object && object->getPCode() == LL_PCODE_VOLUME)
+    {
+        gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
+        gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+        gMessageSystem->addUUIDFast(_PREHASH_AgentID, mAgent.getID());
+        gMessageSystem->addUUIDFast(_PREHASH_SessionID, mAgent.getSessionID());
+        gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
+        gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
+        gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3(0,0,0));
 
-		object->getRegion()->sendReliableMessage();
-	}
+        object->getRegion()->sendReliableMessage();
+    }
 }
 
 void LLAgentListener::requestStand(LLSD const & event_data) const
 {
-	mAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+    mAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 void LLAgentListener::resetAxes(const LLSD& event) const
@@ -153,17 +188,69 @@ void LLAgentListener::getAxes(const LLSD& event) const
 
 void LLAgentListener::getPosition(const LLSD& event) const
 {
-	LLVector3 region_pos(mAgent.getPositionAgent());
-	LLVector3 global_pos(mAgent.getPositionGlobal());
-    LLQuaternion quat(mAgent.getQuat());
     F32 roll, pitch, yaw;
+    LLQuaternion quat(mAgent.getQuat());
     quat.getEulerAngles(&roll, &pitch, &yaw);
-    // The official query API for LLQuaternion's [x, y, z, w] values is its
-    // public member mQ...
     sendReply(LLSDMap
-              ("region", llsd_copy_array(boost::begin(region_pos.mV), boost::end(region_pos.mV)))
-              ("global", llsd_copy_array(boost::begin(global_pos.mV), boost::end(global_pos.mV)))
-              ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
+              ("region", ll_sd_from_vector3(mAgent.getPositionAgent()))
+              ("global", ll_sd_from_vector3d(mAgent.getPositionGlobal()))
+              ("quat", ll_sd_from_quaternion(quat))
               ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
               event);
 }
+
+
+void LLAgentListener::startAutoPilot(LLSD const & event) const
+{
+    LLQuaternion target_rotation_value;
+    LLQuaternion* target_rotation = NULL;
+    if (event.has("target_rotation"))
+    {
+        target_rotation_value = ll_quaternion_from_sd(event["target_rotation"]);
+        target_rotation = &target_rotation_value;
+    }
+    // *TODO: Use callback_pump and callback_data
+    F32 rotation_threshold = 0.03f;
+    if (event.has("rotation_threshold"))
+    {
+        rotation_threshold = event["rotation_threshold"].asReal();
+    }
+    mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event["target_global"]),
+                                event["behavior_name"],
+                                target_rotation,
+                                NULL, NULL,
+                                event["stop_distance"].asReal(),
+                                rotation_threshold);
+}
+
+void LLAgentListener::getAutoPilot(const LLSD& event) const
+{
+    sendReply(LLSDMap
+              ("enabled", (LLSD::Boolean) mAgent.getAutoPilot())
+              ("target_global", ll_sd_from_vector3d(mAgent.getAutoPilotTargetGlobal()))
+              ("leader_id", mAgent.getAutoPilotLeaderID())
+              ("stop_distance", mAgent.getAutoPilotStopDistance())
+              ("target_distance", mAgent.getAutoPilotTargetDist())
+              ("use_rotation", (LLSD::Boolean) mAgent.getAutoPilotUseRotation())
+              ("target_facing", ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing()))
+              ("rotation_threshold", mAgent.getAutoPilotRotationThreshold())
+              ("behavior_name", mAgent.getAutoPilotBehaviorName()),
+              event);
+}
+
+void LLAgentListener::startFollowPilot(LLSD const & event) const
+{
+    mAgent.startFollowPilot(event["leader_id"]);
+}
+
+void LLAgentListener::setAutoPilotTarget(LLSD const & event) const
+{
+    LLVector3d target_global(ll_vector3d_from_sd(event["target_global"]));
+    mAgent.setAutoPilotTargetGlobal(target_global);
+}
+
+void LLAgentListener::stopAutoPilot(LLSD const & event) const
+{
+    mAgent.stopAutoPilot(event["user_cancel"]);
+}
+

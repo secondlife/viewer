@@ -467,6 +467,14 @@ public:
 public:
 	BOOL			getAutoPilot() const				{ return mAutoPilot; }
 	LLVector3d		getAutoPilotTargetGlobal() const 	{ return mAutoPilotTargetGlobal; }
+	LLUUID			getAutoPilotLeaderID() const		{ return mLeaderID; }
+	F32				getAutoPilotStopDistance() const	{ return mAutoPilotStopDistance; }
+	F32				getAutoPilotTargetDist() const		{ return mAutoPilotTargetDist; }
+	BOOL			getAutoPilotUseRotation() const		{ return mAutoPilotUseRotation; }
+	LLVector3		getAutoPilotTargetFacing() const	{ return mAutoPilotTargetFacing; }
+	F32				getAutoPilotRotationThreshold() const	{ return mAutoPilotRotationThreshold; }
+	std::string		getAutoPilotBehaviorName() const	{ return mAutoPilotBehaviorName; }
+
 	void			startAutoPilotGlobal(const LLVector3d &pos_global, 
 										 const std::string& behavior_name = std::string(), 
 										 const LLQuaternion *target_rotation = NULL, 
@@ -474,7 +482,7 @@ public:
 										 F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
 	void 			startFollowPilot(const LLUUID &leader_id);
 	void			stopAutoPilot(BOOL user_cancel = FALSE);
-	void 			setAutoPilotGlobal(const LLVector3d &pos_global);
+	void 			setAutoPilotTargetGlobal(const LLVector3d &target_global);
 	void			autoPilot(F32 *delta_yaw); 			// Autopilot walking action, angles in radians
 	void			renderAutoPilotTarget();
 private:

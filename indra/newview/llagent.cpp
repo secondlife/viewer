@@ -1214,6 +1214,12 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 		return;
 	}
 	
+	// Are there any pending callbacks from previous auto pilot requests?
+	if (mAutoPilotFinishedCallback)
+	{
+		mAutoPilotFinishedCallback(dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
+	}
+
 	mAutoPilotFinishedCallback = finish_callback;
 	mAutoPilotCallbackData = callback_data;
 	mAutoPilotRotationThreshold = rot_threshold;
@@ -1262,22 +1268,8 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	}
 
 	mAutoPilot = TRUE;
-	mAutoPilotTargetGlobal = target_global;
+	setAutoPilotTargetGlobal(target_global);
 
-	// trace ray down to find height of destination from ground
-	LLVector3d traceEndPt = target_global;
-	traceEndPt.mdV[VZ] -= 20.f;
-
-	LLVector3d targetOnGround;
-	LLVector3 groundNorm;
-	LLViewerObject *obj;
-
-	LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
-	F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
-
-	// clamp z value of target to minimum height above ground
-	mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
-	mAutoPilotTargetDist = (F32)dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal);
 	if (target_rotation)
 	{
 		mAutoPilotUseRotation = TRUE;
@@ -1295,12 +1287,36 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 
 
 //-----------------------------------------------------------------------------
+// setAutoPilotTargetGlobal
+//-----------------------------------------------------------------------------
+void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
+{
+	if (mAutoPilot)
+	{
+		mAutoPilotTargetGlobal = target_global;
+
+		// trace ray down to find height of destination from ground
+		LLVector3d traceEndPt = target_global;
+		traceEndPt.mdV[VZ] -= 20.f;
+
+		LLVector3d targetOnGround;
+		LLVector3 groundNorm;
+		LLViewerObject *obj;
+
+		LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
+		F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
+
+		// clamp z value of target to minimum height above ground
+		mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
+		mAutoPilotTargetDist = (F32)dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // startFollowPilot()
 //-----------------------------------------------------------------------------
 void LLAgent::startFollowPilot(const LLUUID &leader_id)
 {
-	if (!mAutoPilot) return;
-
 	mLeaderID = leader_id;
 	if ( mLeaderID.isNull() ) return;
 
@@ -1338,6 +1354,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		if (mAutoPilotFinishedCallback)
 		{
 			mAutoPilotFinishedCallback(!user_cancel && dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
+			mAutoPilotFinishedCallback = NULL;
 		}
 		mLeaderID = LLUUID::null;
 
