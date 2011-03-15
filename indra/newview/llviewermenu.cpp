@@ -849,6 +849,8 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
 	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
+	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
 	switch(panel_idx)
 	{
@@ -857,20 +859,24 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 		destinations->setVisible(true);
 		avatar_picker->setVisible(false);
 		LLFirstUse::notUsingDestinationGuide(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(true);
 		break;
 	case 1:
 		container->setVisible(true);
 		destinations->setVisible(false);
 		avatar_picker->setVisible(true);
+		avatar_btn->setToggleState(true);
+		destination_btn->setToggleState(false);
 		break;
 	default:
 		container->setVisible(false);
 		destinations->setVisible(false);
 		avatar_picker->setVisible(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(false);
 		break;
 	}
-
-	gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLUICtrl>("avatar_and_destination_btns")->setValue(show);
 };
 
 
@@ -8163,5 +8169,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
-	commit.add("DestinationAndAvatar.show", boost::bind(&toggle_destination_and_avatar_picker, _2));
+	commit.add("Destination.show", boost::bind(&toggle_destination_and_avatar_picker, 0));
+	commit.add("Avatar.show", boost::bind(&toggle_destination_and_avatar_picker, 1));
 }

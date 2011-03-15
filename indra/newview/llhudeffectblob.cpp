@@ -28,8 +28,15 @@
 
 #include "llhudeffectblob.h"
 
-LLHUDEffectBlob::LLHUDEffectBlob(const U8 type) : LLHUDEffect(type)
+#include "llagent.h"
+#include "llviewercamera.h"
+#include "llrendersphere.h"
+
+LLHUDEffectBlob::LLHUDEffectBlob(const U8 type) 
+:	LLHUDEffect(type), 
+	mPixelSize(10)
 {
+	mTimer.start();
 }
 
 LLHUDEffectBlob::~LLHUDEffectBlob()
@@ -38,6 +45,31 @@ LLHUDEffectBlob::~LLHUDEffectBlob()
 
 void LLHUDEffectBlob::render()
 {
+	F32 time = mTimer.getElapsedTimeF32();
+	if (mDuration < time)
+	{
+		markDead();
+	}
+
+	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+
+	LLVector3 pixel_up, pixel_right;
+
+	LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
+
+	LLGLSPipelineAlpha gls_pipeline_alpha;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+	LLColor4U color = mColor;
+	color.mV[VALPHA] = clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
+	glColor4ubv(color.mV);
+
+	glPushMatrix();
+	glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+	F32 scale = pixel_up.magVec() * (F32)mPixelSize;
+	glScalef(scale, scale, scale);
+	gSphere.render(0);
+	glPopMatrix();
 }
 
 void LLHUDEffectBlob::renderForTimer()
