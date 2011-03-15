@@ -57,6 +57,7 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
+	, mPelvisOffset( 0.0f )
 {
 	mDecompID = -1;
 }
@@ -1497,6 +1498,7 @@ LLSD LLModel::writeModel(
 			}
 		}
 		
+		
 		if ( upload_joints && high->mAlternateBindMatrix.size() > 0 )
 		{
 			for (U32 i = 0; i < high->mJointList.size(); ++i)
@@ -1509,6 +1511,8 @@ LLSD LLModel::writeModel(
 					}
 				}
 			}
+
+			mdl["skin"]["pelvis_offset"] = high->mPelvisOffset;
 		}
 		
 	}

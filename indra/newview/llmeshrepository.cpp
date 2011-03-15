@@ -1162,7 +1162,12 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 				info.mAlternateBindMatrix.push_back(mat);
 			}
 		}
-		
+
+		if (skin.has("pelvis_offset"))
+		{
+			info.mPelvisOffset = skin["pelvis_offset"].asReal();
+		}
+
 		mSkinInfoQ.push(info);
 	}
 

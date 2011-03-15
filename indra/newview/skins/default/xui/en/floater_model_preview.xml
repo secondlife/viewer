@@ -388,6 +388,13 @@
       <check_box top_pad="5" name="upload_textures" height="15" follows="top|left" label="Textures"/>
       <check_box top_pad="5" name="upload_skin" height="15" follows="top|left" label="Skin weight"/>
       <check_box top_pad="5" left="20" name="upload_joints" height="15" follows="top|left" label="Joint positions"/>
+
+      <text left="10" top_pad="4" width="90" bottom="30" follows="top|left" height="15">
+        Pelvis Offset:
+      </text>
+
+      <spinner left="10" top_pad="4" height="20" follows="top|left" width="80" value="0.0" min_val="0.00" max_val="32.0" name="pelvis_offset"/>
+
     </panel>
   </tab_container>
   
