@@ -1677,8 +1677,8 @@ bool LLAppViewer::cleanup()
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
-	sTextureCache->shutdown();
 	sTextureFetch->shutdown();
+	sTextureCache->shutdown();	
 	sImageDecodeThread->shutdown();
 	
 	sTextureFetch->shutDownTextureCacheThread() ;
