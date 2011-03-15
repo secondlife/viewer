@@ -117,6 +117,11 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
 
 		object->getRegion()->sendReliableMessage();
 	}
+	else
+	{
+		llwarns << "LLAgent requestSit could not find the sit target " 
+			<< event_data["obj_uuid"].asUUID() << llendl;
+	}
 }
 
 void LLAgentListener::requestStand(LLSD const & event_data) const
