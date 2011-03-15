@@ -131,6 +131,7 @@ public:
 	std::vector<LLMatrix4> mAlternateBindMatrix;
 	
 	LLMatrix4 mBindShapeMatrix;
+	float mPelvisOffset;
 };
 
 class LLMeshDecomposition
