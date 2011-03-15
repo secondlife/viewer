@@ -1316,11 +1316,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <string>30b9b33fb9320d9b6634e0dbb013b4e7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openal/rev/223977/arch/Linux/installer/openal-1.12.854-1.1.0-linux-20110315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
