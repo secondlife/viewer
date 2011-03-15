@@ -61,7 +61,7 @@ void LLHUDEffectBlob::render()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	LLColor4U color = mColor;
-	color.mV[VALPHA] = clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
+	color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
 	glColor4ubv(color.mV);
 
 	glPushMatrix();
