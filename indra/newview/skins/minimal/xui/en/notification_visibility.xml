@@ -1,7 +1,5 @@
 <?xml version="1.0" ?>
 <notification_visibility>
-  <respond name="UserGiveItem" response="Discard"/>
-  <respond name="ObjectGiveItem" response="Discard"/>
   <respond name="VoiceInviteP2P" response="Decline"/>
   <respond name="VoiceInviteAdHoc" response="Decline"/>
   <respond name="VoiceInviteGroup" response="Decline"/>
