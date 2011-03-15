@@ -14,7 +14,7 @@ else (STANDALONE)
       debug json_vc100debug_libmt.lib
       optimized json_vc100_libmt)
   elseif (DARWIN)
-    set(JSONCPP_LIBRARIES libjson_linux-gcc-4.0.1_libmt.a)
+    set(JSONCPP_LIBRARIES libjson_darwin_libmt.a)
   elseif (LINUX)
     set(JSONCPP_LIBRARIES libjsoncpp.a)
   endif (WINDOWS)
