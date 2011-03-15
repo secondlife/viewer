@@ -1355,15 +1355,15 @@
                  parameter="character" />
             </menu_item_check>
             <menu_item_check
-             label="SurfacePath"
-             name="SurfacePath"
+             label="Surface Patch"
+             name="Surface Patch"
              shortcut="control|alt|shift|5">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
-                 parameter="surfacePath" />
+                 parameter="surfacePatch" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleRenderType"
-                 parameter="surfacePath" />
+                 parameter="surfacePatch" />
             </menu_item_check>
             <menu_item_check
              label="Sky"
