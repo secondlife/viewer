@@ -200,11 +200,11 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.3.7.dylib
+        libapr-1.0.dylib
         libapr-1.dylib
-        libaprutil-1.0.3.8.dylib
+        libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexpat.0.5.0.dylib
+        libexpat.1.5.2.dylib
         libexpat.dylib
         libllqtwebkit.dylib
         libndofdev.dylib
@@ -245,7 +245,7 @@ elseif(LINUX)
         libatk-1.0.so
         libbreakpad_client.so.0
         libcrypto.so.0.9.7
-        libdb-4.2.so
+        libdb-5.1.so
         libexpat.so
         libexpat.so.1
         libgmock_main.so
@@ -261,6 +261,7 @@ elseif(LINUX)
         libtcmalloc.so
         libuuid.so.1
         libssl.so.0.9.7
+        libfontconfig.so.1.4.4
        )
 
     if (FMOD)

@@ -574,7 +574,7 @@ class DarwinManifest(ViewerManifest):
             self.path("Info-SecondLife.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path("../packages/lib/release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+            self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -636,9 +636,9 @@ class DarwinManifest(ViewerManifest):
                     dylibs[lib] = True
 
                 if dylibs["llcommon"]:
-                    for libfile in ("libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                    for libfile in ("libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
@@ -667,9 +667,9 @@ class DarwinManifest(ViewerManifest):
                     mac_updater_res_path = self.dst_path_of("mac-updater.app/Contents/Resources")
                     slplugin_res_path = self.dst_path_of("SLPlugin.app/Contents/Resources")
                     for libfile in ("libllcommon.dylib",
-                                    "libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                                    "libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     ):
                         target_lib = os.path.join('../../..', libfile)
@@ -931,20 +931,25 @@ class Linux_i686Manifest(LinuxManifest):
         super(Linux_i686Manifest, self).construct()
 
         if self.prefix("../packages/lib/release", dst="lib"):
-            self.path("libapr-1.so.0")
-            self.path("libaprutil-1.so.0")
-            self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
-            self.path("libdb-4.2.so")
+            self.path("libapr-1.so.0.4.2")
+            self.path("libaprutil-1.so.0.3.10")
+            self.path("libbreakpad_client.so.0.0.0")
+            self.path("libdb-5.1.so")
             self.path("libcrypto.so.0.9.7")
-            self.path("libexpat.so.1")
+            self.path("libexpat.so.1.5.2")
             self.path("libssl.so.0.9.7")
             self.path("libuuid.so.1")
-            self.path("libSDL-1.2.so.0")
-            self.path("libELFIO.so")
-            self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
+            self.path("libSDL-1.2.so.0.11.3")
+            self.path("libdirectfb-1.4.so.5.0.4")
+            self.path("libfusion-1.4.so.5.0.4")
+            self.path("libdirect-1.4.so.5.0.4")
+            self.path("libopenjpeg.so.1.4.0")
+            self.path("libopenjpeg.so.1")
+            self.path("libopenjpeg.so")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
+            self.path("libfontconfig.so.1.4.4")
             try:
                     self.path("libfmod-3.75.so")
                     pass

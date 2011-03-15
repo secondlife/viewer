@@ -9,7 +9,6 @@ include(DBusGlib)
 include(DirectX)
 include(OpenSSL)
 include(DragDrop)
-include(ELFIO)
 include(EXPAT)
 include(FMOD)
 include(OPENAL)
@@ -45,7 +44,6 @@ include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${ELFIO_INCLUDE_DIR}
     ${JSONCPP_INCLUDE_DIRS}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -1685,7 +1683,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
-    ${ELFIO_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}

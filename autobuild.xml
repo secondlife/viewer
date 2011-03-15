@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a94538d064cd0a235b2a95389e7e8ee8</string>
+              <string>f8d98cbe78d5aafbc7aaabf840325aaf</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20101001a.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-0.0.0-windows-20110303.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -66,9 +66,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1bd5be9e91ae1ae4a1cfa7649890f72b</string>
+              <string>69ae3b1c9cdb0ebc0d0e1ac8413e3eb7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-sdl/rev/223253/arch/Linux/installer/SDL-1.2.14-linux-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -90,9 +90,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4e9cd47faf1e74e1a5bf386dc55dd47e</string>
+              <string>9868bfa0b6954e4884c49c6f30068c80</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/221588/arch/Darwin/installer/apr_suite-1.4.2-darwin-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -102,9 +102,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae785a90f124aa572515fc7b97efc671</string>
+              <string>ff62946c518a247c86e1066c1e9a5855</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/223260/arch/Linux/installer/apr_suite-1.4.2-linux-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -138,9 +138,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>577e89e72a6df485ee0c42ef7bfd8c34</string>
+              <string>e6caaeea16131e1f2343ecd7765e3147</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/Darwin/installer/ares-1.7.1-darwin-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -150,9 +150,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3bf8f0f3c960cc594b2315b986b948fb</string>
+              <string>0745872db83d45f4ab3bdc697d98e264</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/223275/arch/Linux/installer/ares-1.7.1-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a8b4bc2ea3dde26c2a7e1481f039864</string>
+              <string>d98078791ce345bf6168ce9ba53ca2d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/222752/arch/Darwin/installer/boost-1.45.0-darwin-20110304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb7cbafb06b878adf423db314b1787df</string>
+              <string>a34e7fffdb94a6a4d8a2966b1f216da3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100929a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/223302/arch/Linux/installer/boost-1.45.0-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>49d4ac6773a585ad13190746db1e6e85</string>
+              <string>65ca0a9b42de855ea574e454ec2e14c3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219379/arch/Linux/installer/curl-7.21.1-linux-20110121.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/220996/arch/Linux/installer/curl-7.21.1-linux-20110308.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -264,6 +264,30 @@
             </map>
             <key>name</key>
             <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>db</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/db.txt</string>
+        <key>name</key>
+        <string>db</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8f57c413e0786681cbcb9ed2fb8a6d37</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-db/rev/223263/arch/Linux/installer/db-5.1.25-linux-20110309.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
         </map>
       </map>
@@ -296,7 +320,7 @@
         <key>license</key>
         <string>AFL2.1</string>
         <key>license_file</key>
-        <string>LICENSES/dbusglib.txt</string>
+        <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
         <string>dbusglib</string>
         <key>platforms</key>
@@ -306,9 +330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb9734fb6ae797e3fa34af1a4ef1ee7d</string>
+              <string>94b058b9a81114dc4567bd78e4335425</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20101013.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbus_glib-0.76-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -354,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>594e0d61d115ab06ca11bc84d374d23a</string>
+              <string>180e03d0be1f1acfc3244e78742d7bef</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Darwin/installer/expat-2.0.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -366,9 +390,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7c334794bba026685f967734ca963c85</string>
+              <string>9bd79781b58e556ab1c36084ec4a1c0c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Linux/installer/expat-2.0.1-linux-20110219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -402,9 +426,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4521b86ff92c3843e47a58b38e76e667</string>
+              <string>61ead113e6479452e6b690c84b4e9d30</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20101004.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Darwin/installer/fmod-3.75-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -414,9 +438,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>221ec16b66ea2b0d1acb3247ad984bc4</string>
+              <string>0c61d643db54d2e5999be8254569d8b3</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20100929.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Linux/installer/fmod-3.75-linux-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -450,9 +474,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9ebba6e0a1730992fa0643566f4e23cf</string>
+              <string>d8b08b657247566bde5fd853c7622478</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fontconfig-2.2.3-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-fontconfig/rev/223389/arch/Linux/installer/fontconfig-2.8.0-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -498,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>753021e66345612b4fc77c711b426f11</string>
+              <string>c0eacb6348e032fbc69cfdc4bd215ee4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/222819/arch/Darwin/installer/freetype-2.4.4-darwin-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,9 +534,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a13ec6354d3a8a4576efcce895a74ceb</string>
+              <string>9b58d1a9c15807a1301e42a313641010</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-2010-02-19a-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/223377/arch/Linux/installer/freetype-2.4.4-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -594,9 +618,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3bfca7ad2eb90ea33f3fd6f974ca394</string>
+              <string>bd2f84ef8bd308570e2e532a371dc2ef</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glui/rev/221069/arch/Darwin/installer/glui-2.36-darwin-20110309.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -680,9 +704,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5937f12de19ce4fa394048f22557b6c5</string>
+              <string>21babc394dbf8572830f2e85adec7b9f</string>
               <key>url</key>
-              <string> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20110119.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/220211/arch/Darwin/installer/google_breakpad-0.0.0-rev599-darwin-20110202.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -692,9 +716,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>239e5be637bb6282a297a8636ef3c77e</string>
+              <string>204b02a9480c411232255798839431a2</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20110119a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/223427/arch/Linux/installer/google_breakpad-0.0.0-rev599-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -836,9 +860,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d94de5a98492018144b95a8022ed4e44</string>
+              <string>71bd6efbf508e1f2e7d98a6195a93e9e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/222232/arch/Darwin/installer/jpeglib-8c-darwin-20110228.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -848,9 +872,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a059a32904c1c7f47804d744ac2d4925</string>
+              <string>fa1073ef1181f27e6bc01d571366070b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/222826/arch/Linux/installer/jpeglib-8c-linux-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -932,9 +956,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>408f1375f5a4d864cfb47b36c8ab6052</string>
+              <string>d91e1f483209cd3eba04135c6a59e829</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20110112.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -944,9 +968,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9742279dfbe57be7a6aed12d60045459</string>
+              <string>fbf8a4f78dff986d7c16b3a0437e033e</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20110119.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/223538/arch/Linux/installer/kdu-6.4.1-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -980,9 +1004,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4aa623811aff42df702e8d3fdd848ac3</string>
+              <string>6fe1adf12d98bce9111f60ee762007b9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/221851/arch/Darwin/installer/libpng-1.5.1-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -992,9 +1016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>adeeca61be1b8f47ce85660c8c20a904</string>
+              <string>0681ab7e1988dfdbdad7dd9edb7760ee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/221851/arch/Linux/installer/libpng-1.5.1-linux-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1076,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d3890220418a66607569fe406ebe24c7</string>
+              <string>0326cb770c7ff995cf822fb330ae9d0c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-darwin-20110113.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/223111/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110308.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1088,9 +1112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c05a33ee8b6f253b5a744596dfc3707d</string>
+              <string>f53e2a255d4c4039203de3e4640a2d41</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/223655/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1148,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d56bb37233e6f1308fb0a5b8e37a2429</string>
+              <string>674d37d2ba76a2df7f18c47bf50b5d03</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev/rev/223177/arch/Darwin/installer/libndofdev-0.1-darwin-20110308.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1196,9 +1220,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>510c88fb183556b8c5fba25eb0c3d85e</string>
+              <string>57f32a1a670f06a4dc036eb1164ad9d7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/221801/arch/Darwin/installer/ogg_vorbis-1.1.3-1.2.0-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1208,9 +1232,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d4bda5baabfbfbd92ea7bd2a48c7fb8a</string>
+              <string>17c000ceef32c0623d038b4c73791bee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.2.0-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/222841/arch/Linux/installer/ogg_vorbis-1.1.3-1.2.0-linux-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1244,9 +1268,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9cf8e84cb91996616cf627ad18c85442</string>
+              <string>facee34b8bd57ad602157e65a5af1a49</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8l-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/Darwin/installer/openssl-0.9.8q-darwin-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1332,9 +1356,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>972088359b9472a3baf4dda695cbda44</string>
+              <string>4be51c7cca7d84831e30b63279df7ae5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3.0-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/222548/arch/Darwin/installer/openjpeg-1.4-darwin-20110302.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1344,9 +1368,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c34975e8090d861c6e37ea606fd66940</string>
+              <string>fb2382014c79e0049746e4e29bd834f9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/223705/arch/Linux/installer/openjpeg-1.4-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1356,9 +1380,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>039c65405b2bea7c1bf67cfeb15a67fe</string>
+              <string>ca5765af55f798724d601720afdf6953</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openjpeg/rev/222548/arch/CYGWIN/installer/openjpeg-1.4-windows-20110302.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1500,9 +1524,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>994193ab308ac40994421ca411249b65</string>
+              <string>a3e0fb4b4a51b01690a99747a1cca531</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/222889/arch/Darwin/installer/xmlrpc_epi-0.54.1-darwin-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1548,9 +1572,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d1b42e6c3fcfebe00c6b87a0228c0ab</string>
+              <string>49b8de20f3bb43537f51311894a72de1</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/Darwin/installer/zlib-1.2.5-darwin-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2369,7 +2393,15 @@
               <map>
                 <key>arguments</key>
                 <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
                   <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>command</key>
                 <string>devenv.com</string>
@@ -2459,7 +2491,15 @@
               <map>
                 <key>arguments</key>
                 <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
                   <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>command</key>
                 <string>devenv.com</string>
@@ -2589,7 +2629,7 @@
                 <array>
                   <string>/build</string>
                   <string>"/cfg=Release|Win32"</string>
-		  <string>"/CL_ADD=/m:1"</string>
+                  <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2612,7 +2652,15 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>"RelWithDebInfo|Win32"</string>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
                 </array>
                 <key>command</key>
                 <string>vcbuild.exe</string>
