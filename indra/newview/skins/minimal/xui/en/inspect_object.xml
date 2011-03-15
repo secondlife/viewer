@@ -101,22 +101,6 @@ L$30,000
   <button
    follows="top|left"
    height="20"
-   label="Buy"
-   left="8"
-   name="buy_btn"
-   top="121"
-   width="80" />
-  <button
-   follows="top|left"
-   height="20"
-   label="Pay"
-   left_delta="0"
-   name="pay_btn"
-   top_delta="0"
-   width="80" />
-  <button
-   follows="top|left"
-   height="20"
    label="Take Copy"
    left_delta="0"
    name="take_free_copy_btn"
