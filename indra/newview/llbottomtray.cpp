@@ -44,6 +44,7 @@
 #include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
+#include "llnearbychatbarlistener.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
@@ -550,6 +551,8 @@ BOOL LLBottomTray::postBuild()
 
 	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
 	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
+
+	mListener.reset(new LLNearbyChatBarListener(*mNearbyChatBar));
 
 	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 	mNearbyCharResizeHandlePanel = getChild<LLPanel>("chat_bar_resize_handle_panel");

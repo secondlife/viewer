@@ -39,6 +39,7 @@ class LLIMChiclet;
 class LLBottomTrayLite;
 class LLLayoutPanel;
 class LLMenuGL;
+class LLNearbyChatBarListener;
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBOTTOMTRAY_CPP
@@ -508,6 +509,9 @@ protected:
 	 * Image used to show position where dragged button will be dropped.
 	 */
 	LLUIImage* mImageDragIndication;
+
+	// We want only one LLNearbyChatBarListener object, so it's tied to this singleton
+	boost::shared_ptr<LLNearbyChatBarListener> mListener;
 };
 
 #endif // LL_LLBOTTOMPANEL_H
