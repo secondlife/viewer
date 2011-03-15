@@ -920,9 +920,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>20546118096e4828d9f29913ec7d954a</string>
+              <string>840cd9455638c0ea52c613cfddd07d5b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/221698/arch/Linux/installer/jsoncpp-0.5.0-linux-20110219.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/223959/arch/Linux/installer/jsoncpp-0.5.0-linux-20110315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1258,7 +1258,7 @@
         <key>license</key>
         <string>openSSL</string>
         <key>license_file</key>
-        <string>LICENSES/openSSL.txt</string>
+        <string>LICENSES/openssl.txt</string>
         <key>name</key>
         <string>openSSL</string>
         <key>platforms</key>
@@ -1280,9 +1280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>511cf1c200efe587552b8225dd361dbb</string>
+              <string>cc159598ef3fcd34fd33a8a0ef846165</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/223711/arch/Linux/installer/openssl-0.9.8q-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1536,9 +1536,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3580c3729a034adff005a234f3ce6e84</string>
+              <string>174ab797440157956eda7061dae37564</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-xmlrpc-epi/rev/223735/arch/Linux/installer/xmlrpc_epi-0.54.1-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1584,9 +1584,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e2818075e89f0729e869a244eafbbf7</string>
+              <string>7b4cf3aa2c04937d0a20761516587896</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3dfsg-linux-20100929.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/223739/arch/Linux/installer/zlib-1.2.5-linux-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
