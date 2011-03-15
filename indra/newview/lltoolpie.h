@@ -30,10 +30,10 @@
 #include "lltool.h"
 #include "lluuid.h"
 #include "llviewerwindow.h" // for LLPickInfo
+#include "llhudeffectblob.h" // for LLPointer<LLHudEffectBlob>, apparently
 
 class LLViewerObject;
 class LLObjectSelection;
-class LLHUDEffectBlob;
 
 class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 {

@@ -42,7 +42,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "lltooltip.h"
-#include "llhudeffectblob.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llkeyboard.h"
