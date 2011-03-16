@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  follows="left|top|right"
- height="580"
+ height="780"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -1340,9 +1340,8 @@ even though the user gets a free copy.
       <!-- Object tab -->
       <panel
          border="false"
-         follows="left|top|right|bottom"
+         follows="all"
          height="567"
-	 bg_color="Red"
          label="Object"
          layout="topleft"
          left_delta="0"
@@ -1354,32 +1353,6 @@ even though the user gets a free copy.
 	<panel.string name="None">None</panel.string>
 	<panel.string name="Prim">Prim</panel.string>
 	<panel.string name="Convex Hull">Convex Hull</panel.string>
-      <scroll_container
-         border="false"
-	 bg_color="FrogGreen"
-         follows="left|top|right|bottom"
-         height="567"
-         label="Object"
-         layout="topleft"
-         left_delta="0"
-         mouse_opaque="false"
-         help_topic="toolbox_object_tab"
-         name="Object_Scroll"
-         top="16"
-         width="295">
-      <panel
-         border="false"
-         follows="left|top_right|bottom"
-         height="567"
-	 bg_color="Yellow"
-         label="Object Scroll"
-         layout="topleft"
-         left_delta="0"
-         mouse_opaque="false"
-         help_topic="toolbox_object_tab"
-         name="Object Scroll"
-         top="16"
-         width="295">
             <check_box
              height="19"
              label="Locked"
@@ -2263,8 +2236,6 @@ even though the user gets a free copy.
                  value="Mesh" />
             </combo_box>
         </panel>
-      </scroll_container>
-    </panel>
         <panel
          border="false"
          follows="all"

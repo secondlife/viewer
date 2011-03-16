@@ -31,16 +31,27 @@
 #include "llavataractions.h"
 #include "llfloaterreg.h"
 #include "llcommandhandler.h"
+#include "llnotificationsutil.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
+#include "llviewernetwork.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 static const std::string PANEL_PROFILE = "panel_profile";
 
 std::string getProfileURL(const std::string& agent_name)
 {
-	std::string url = gSavedSettings.getString("WebProfileURL");
+	std::string url;
+
+	if (LLGridManager::getInstance()->isInProductionGrid())
+	{
+		url = gSavedSettings.getString("WebProfileURL");
+	}
+	else
+	{
+		url = gSavedSettings.getString("WebProfileNonProductionURL");
+	}
 	LLSD subs;
 	subs["AGENT_NAME"] = agent_name;
 	url = LLWeb::expandURLSubstitutions(url,subs);
@@ -105,6 +116,12 @@ public:
 
 		if (verb == "pay")
 		{
+			if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAvatarPay"))
+			{
+				LLNotificationsUtil::add("NoAvatarPay", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+				return true;
+			}
+
 			LLAvatarActions::pay(avatar_id);
 			return true;
 		}

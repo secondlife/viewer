@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<panel.string name="create_account_url">
+		http://join.secondlife.com/
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=pt
+	</panel.string>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="username_text">
+				Nome de usuário:
+			</text>
+			<combo_box name="username_combo" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 or Magia Solar"/>
+			<text name="password_text">
+				Senha:
+			</text>
+			<check_box label="Lembrar senha" name="remember_check"/>
+			<button label="conectar" name="connect_btn"/>
+			<text name="mode_selection_text">
+				Modo:
+			</text>
+			<combo_box name="mode_combo">
+				<combo_box.item label="Básico (padrão)" name="Basic"/>
+				<combo_box.item label="Avançado" name="Advanced"/>
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Cadastre-se
+			</text>
+			<text name="forgot_password_text">
+				Esqueceu seu nome ou senha?
+			</text>
+			<text name="login_help">
+				Precisa de ajuda ao conectar?
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

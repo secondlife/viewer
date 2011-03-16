@@ -211,7 +211,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
 	// to make needed escaping while copying and cutting url
-	this->removeChild(mTextEntry);
 	delete mTextEntry;
 
 	// Can't access old mTextEntry fields as they are protected, so lets build new params

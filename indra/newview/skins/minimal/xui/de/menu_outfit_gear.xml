@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Gear Outfit">
+	<menu_item_call label="Anziehen - Aktuelles Outfit ersetzen" name="wear"/>
+	<menu_item_call label="Anziehen - Aktuelles Outfit hinzufügen" name="wear_add"/>
+	<menu_item_call label="Ausziehen - Aus aktuellem Outfit entfernen" name="take_off"/>
+	<menu label="Neue Kleider" name="New Clothes">
+		<menu_item_call label="Neues Hemd" name="New Shirt"/>
+		<menu_item_call label="Neue Hose" name="New Pants"/>
+		<menu_item_call label="Neue Schuhe" name="New Shoes"/>
+		<menu_item_call label="Neue Socken" name="New Socks"/>
+		<menu_item_call label="Neue Jacke" name="New Jacket"/>
+		<menu_item_call label="Neuer Rock" name="New Skirt"/>
+		<menu_item_call label="Neue Handschuhe" name="New Gloves"/>
+		<menu_item_call label="Neues Unterhemd" name="New Undershirt"/>
+		<menu_item_call label="Neue Unterhose" name="New Underpants"/>
+		<menu_item_call label="Neues Alpha" name="New Alpha"/>
+		<menu_item_call label="Neue Tätowierung" name="New Tattoo"/>
+	</menu>
+	<menu label="Neue Körperteile" name="New Body Parts">
+		<menu_item_call label="Neue Form" name="New Shape"/>
+		<menu_item_call label="Neue Haut" name="New Skin"/>
+		<menu_item_call label="Neues Haar" name="New Hair"/>
+		<menu_item_call label="Neue Augen" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Outfit neu benennen" name="rename"/>
+	<menu_item_call label="Outfit löschen" name="delete_outfit"/>
+</menu>
