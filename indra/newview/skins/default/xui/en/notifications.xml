@@ -6607,6 +6607,20 @@ Mute everyone?
   </notification>
 
   <notification
+  name="HintSpeak"
+  label="Speak"
+  type="hint"
+  unique="true">
+Click the Speak button to turn your microphone off and on.
+
+Your microphone is on by default.
+
+Click on the up arrow to see the voice control panel.
+
+Hiding the Speak button will disable the voice feature.
+  </notification>
+
+  <notification
   name="HintDestinationGuide"
   label="Explore the World"
   type="hint"
