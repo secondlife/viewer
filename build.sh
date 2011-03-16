@@ -142,7 +142,16 @@ then
 fi
 
 # load autbuild provided shell functions and variables
-eval "$("$AUTOBUILD" source_environment)"
+if "$AUTOBUILD" source_environment > source_environment
+then
+  . source_environment
+else
+  # dump environment variables for debugging
+  env|sort
+  record_failure "autobuild source_environment failed"
+  cat source_environment >&3
+  exit 1
+fi
 
 # dump environment variables for debugging
 env|sort
