@@ -299,7 +299,7 @@ void LLDockControl::moveDockable()
 		break;
 	}
 
-	S32 max_available_height = rootRect.getHeight() - mDockTongueY - mDockTongue->getHeight();
+	S32 max_available_height = rootRect.getHeight() - (rootRect.mBottom -  mDockTongueY) - mDockTongue->getHeight();
 
 	// A floater should be shrunk so it doesn't cover a part of its docking tongue and
 	// there is a space between a dockable floater and a control to which it is docked.

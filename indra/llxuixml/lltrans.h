@@ -110,6 +110,8 @@ public:
 		return sDefaultArgs;
 	}
 
+	static void setDefaultArg(const std::string& name, const std::string& value);
+
 	// insert default args into an arg list
 	static void getArgs(LLStringUtil::format_map_t& args)
 	{

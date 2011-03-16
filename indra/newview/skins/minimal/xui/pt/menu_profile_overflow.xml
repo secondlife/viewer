@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="profile_overflow_menu">
+	<menu_item_call label="Mapa" name="show_on_map"/>
+	<menu_item_call label="Pagar" name="pay"/>
+	<menu_item_call label="Compartilhar" name="share"/>
+	<menu_item_call label="Bloquear" name="block"/>
+	<menu_item_call label="Desbloquear" name="unblock"/>
+	<menu_item_call label="Chutar" name="kick"/>
+	<menu_item_call label="Congelar" name="freeze"/>
+	<menu_item_call label="Descongelar" name="unfreeze"/>
+	<menu_item_call label="CSR" name="csr"/>
+</toggleable_menu>

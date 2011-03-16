@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<notifications>
+  <notification
+ icon="notify.tga"
+ name="UserGiveItem"
+ type="offer">
+    [NAME_SLURL] is offering you [ITEM_SLURL].  Using this item requires you to switch to Advanced mode where you will find the item in your Inventory. To switch to Advanced mode, quit and restart this application and change the mode setting on the login screen.
+    <form name="form">
+      <button
+       index="4"
+       name="Show"
+       text="Keep Item"/>
+      <button
+       index="1"
+       name="Discard"
+       text="Reject Item"/>
+      <button
+       index="2"
+       name="Mute"
+       text="Block User"/>
+    </form>
+  </notification>
+  <notification
+   icon="notify.tga"
+   name="ObjectGiveItem"
+   type="offer">
+    An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] is offering you [ITEM_SLURL].  Using this item requires you to switch to Advanced mode where you will find the item in your Inventory. To switch to Advanced mode, quit and restart this application and change the mode setting on the login screen.
+    <form name="form">
+      <button
+       index="0"
+       name="Keep"
+       text="Keep Item"/>
+      <button
+       index="1"
+       name="Discard"
+       text="Reject Item"/>
+      <button
+       index="2"
+       name="Mute"
+       text="Block Object"/>
+    </form>
+  </notification>
+
+</notifications>

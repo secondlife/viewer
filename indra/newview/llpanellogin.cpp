@@ -81,9 +81,6 @@ const S32 MAX_PASSWORD = 16;
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 
-// Helper for converting a user name into the canonical "Firstname Lastname" form.
-// For new accounts without a last name "Resident" is added as a last name.
-static std::string canonicalize_username(const std::string& name);
 
 class LLLoginRefreshHandler : public LLCommandHandler
 {
@@ -217,6 +214,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	updateLocationCombo(false);
 
+	gSavedSettings.getControl("SessionSettingsFile")->getSignal()->connect(boost::bind(&onModeChange));
+
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
 	server_choice_combo->setFocusLostCallback(boost::bind(onServerComboLostFocus, _1));
@@ -301,14 +300,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
 	{
-		std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-
-		// The account name in stored_favorites.xml has Resident last name even if user has
-		// a single word account name, so it can be compared case-insensitive with the
-		// user defined "firstname lastname".
-		S32 res = LLStringUtil::compareInsensitive(canonicalize_username(user_defined_name), iter->first);
-		if (res != 0) continue;
-
+		if(iter->first != getChild<LLComboBox>("username_combo")->getSimple()) continue;
 		combo->addSeparator();
 		LLSD user_llsd = iter->second;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
@@ -1167,27 +1159,25 @@ void LLPanelLogin::updateLoginPanelLinks()
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
 }
 
-std::string canonicalize_username(const std::string& name)
+//static
+void LLPanelLogin::onModeChange()
 {
-	std::string cname = name;
-	LLStringUtil::trim(cname);
+	LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&onModeChangeConfirm, _1, _2));
+}
 
-	// determine if the username is a first/last form or not.
-	size_t separator_index = cname.find_first_of(" ._");
-	std::string first = cname.substr(0, separator_index);
-	std::string last;
-	if (separator_index != cname.npos)
+//static
+void LLPanelLogin::onModeChangeConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch (option)
 	{
-		last = cname.substr(separator_index+1, cname.npos);
-		LLStringUtil::trim(last);
+	case 0:
+		LLAppViewer::instance()->requestQuit();
+		break;
+	case 1:
+		// do nothing
+		break;
+	default:
+		break;
 	}
-	else
-	{
-		// ...on Linden grids, single username users as considered to have
-		// last name "Resident"
-		last = "Resident";
-	}
-
-	// Username in traditional "firstname lastname" form.
-	return first + ' ' + last;
 }
