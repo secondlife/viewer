@@ -3,6 +3,12 @@
 project(winmm_shim)
 
 ### winmm_shim
+# *HACK - override msvcrt implementation (intialized on 00-Common) to be
+# statically linked for winmm.dll this relies on vc taking the last flag on
+# the command line
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MT")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 
 set(winmm_shim_SOURCE_FILES
     forwarding_api.cpp

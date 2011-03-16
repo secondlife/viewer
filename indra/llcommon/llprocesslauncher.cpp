@@ -103,7 +103,7 @@ int LLProcessLauncher::launch(void)
 	char *args2 = new char[args.size() + 1];
 	strcpy(args2, args.c_str());
 
-	if( ! CreateProcessA( NULL, args2, NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo ) )
+	if( ! CreateProcessA( NULL, args2, NULL, NULL, FALSE, 0, NULL, mWorkingDir.c_str(), &sinfo, &pinfo ) )
 	{
 		// TODO: do better than returning the OS-specific error code on failure...
 		result = GetLastError();

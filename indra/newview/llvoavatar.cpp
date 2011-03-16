@@ -761,6 +761,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mDebugExistenceTimer.reset();
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
+	mPelvisFixup = 0.0f;
 }
 
 //------------------------------------------------------------------------
@@ -3332,7 +3333,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		mTimeVisible.reset();
 	}
 
-
+	
 	//--------------------------------------------------------------------
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
@@ -3786,13 +3787,15 @@ void LLVOAvatar::updateHeadOffset()
 //------------------------------------------------------------------------
 // setPelvisOffset
 //------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount ) 
+void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount, F32 pelvisFixup ) 
 {
 	mHasPelvisOffset = hasOffset;
 	if ( mHasPelvisOffset )
 	{
+		//Store off last pelvis to foot value
 		mLastPelvisToFoot = mPelvisToFoot;
-		mPelvisOffset = offsetAmount;
+		mPelvisOffset	  = offsetAmount;
+		mPelvisFixup	  = pelvisFixup;
 	}
 }
 //------------------------------------------------------------------------
@@ -5882,7 +5885,8 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	// correctly, but putting this check in here to be safe.
 	if (attachmentID & ATTACHMENT_ADD)
 	{
-		llwarns << "Got an attachment with ATTACHMENT_ADD mask, removing ( attach pt:" << attachmentID << " )" << llendl;		attachmentID &= ~ATTACHMENT_ADD;
+		llwarns << "Got an attachment with ATTACHMENT_ADD mask, removing ( attach pt:" << attachmentID << " )" << llendl;
+		attachmentID &= ~ATTACHMENT_ADD;
 	}
 	
 	LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Attachment Pie">
+	<menu_item_call label="Toucher" name="Attachment Object Touch"/>
+	<menu_item_call label="Modifier" name="Edit..."/>
+	<menu_item_call label="Détacher" name="Detach"/>
+	<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
+	<menu_item_call label="Me lever" name="Stand Up"/>
+	<menu_item_call label="Changer de tenue" name="Change Outfit"/>
+	<menu_item_call label="Modifier ma tenue" name="Edit Outfit"/>
+	<menu_item_call label="Modifier ma silhouette" name="Edit My Shape"/>
+	<menu_item_call label="Mes amis" name="Friends..."/>
+	<menu_item_call label="Mes groupes" name="Groups..."/>
+	<menu_item_call label="Mon profil" name="Profile..."/>
+	<menu_item_call label="Déboguer les textures" name="Debug..."/>
+	<menu_item_call label="Lâcher" name="Drop"/>
+</context_menu>

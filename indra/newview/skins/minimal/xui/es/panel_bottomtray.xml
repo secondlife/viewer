@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
+	<string name="SpeakBtnToolTip" value="Activa/Desactiva el micrófono"/>
+	<string name="VoiceControlBtnToolTip" value="Muestra/Oculta el panel del control de voz"/>
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="gesture_panel">
+			<gesture_combo_list label="Gestos" name="Gesture" tool_tip="Muestra/Oculta los gestos"/>
+		</layout_panel>
+		<layout_panel name="cam_panel">
+			<bottomtray_button label="Visión" name="camera_btn" tool_tip="Muestra/Oculta los controles de la cámara"/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<radio_group name="avatar_and_destination_btns">
+				<radio_item name="destination_btn" value="0"/>
+				<radio_item name="avatar_btn" value="1"/>
+			</radio_group>
+		</layout_panel>
+		<layout_panel name="people_panel">
+			<bottomtray_button label="Gente" name="show_people_button" tool_tip="Muestra la ventana de gente"/>
+		</layout_panel>
+		<layout_panel name="profile_panel">
+			<bottomtray_button label="Perfil" name="show_profile_btn" tool_tip="Muestra la ventana del perfil"/>
+		</layout_panel>
+		<layout_panel name="howto_panel">
+			<bottomtray_button label="Indicaciones" name="show_help_btn" tool_tip="Abrir los temas sobre indicaciones de Second Life"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="Conversaciones"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Notificaciones"/>
+			</chiclet_notification>
+		</layout_panel>
+	</layout_stack>
+</panel>

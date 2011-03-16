@@ -294,6 +294,8 @@ public:
 	const bool getModelPivot( void ) const { return mHasPivot; }
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
+	const bool isRigValid( void ) const { return mRigValid; }
+	void setRigValid( bool rigValid ) { mRigValid = rigValid; }
 	
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
@@ -359,6 +361,10 @@ public:
 	
 	LLVector3	mModelPivot;
 	bool		mHasPivot;
+	
+	float		mPelvisZOffset;
+	
+	bool		mRigValid;
 };
 
 

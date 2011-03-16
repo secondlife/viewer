@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_opaque="true"
+ background_visible="true"
+ bg_opaque_color="MouseGray"
+ chrome="true"
+ follows="top|right"
+ height="30"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="status"
+ top="19"
+ tab_stop="false"
+ width="70">
+    <panel.string
+     name="packet_loss_tooltip">
+        Packet Loss
+    </panel.string>
+    <panel.string
+     name="bandwidth_tooltip">
+        Bandwidth
+    </panel.string>
+    <panel.string
+     name="time">
+        [hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="timeTooltip">
+        [weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+    </panel.string>
+	<panel.string
+     name="buycurrencylabel">
+        L$ [AMT]
+    </panel.string>
+     <button
+     follows="right|top"
+     height="16"
+     image_selected="Play_Off"
+     image_unselected="Pause_Off"
+     image_pressed="Pause_Press"
+     image_pressed_selected="Play_Press"
+     is_toggle="true"
+     left="15"
+     top="7"
+     name="media_toggle_btn"
+     tool_tip="Start/Stop All Media (Music, Video, Web pages)"
+     width="16" >
+    </button>
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_pressed="Audio_Press"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     left_pad="5"
+     top="8"
+     name="volume_btn"
+     tool_tip="Global Volume Control"
+     width="16" />
+</panel>

@@ -469,7 +469,7 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	{
 		return;
 	}
-
+	fp->mModelPreview->calcResourceCost();
 	fp->mModelPreview->refresh();
 }
 
@@ -495,7 +495,8 @@ void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
 	{
 		return;
 	}
-
+	
+	fp->mModelPreview->calcResourceCost();
 	fp->mModelPreview->refresh();
 	fp->mModelPreview->resetPreviewTarget();
 	fp->mModelPreview->clearBuffers();
@@ -1480,8 +1481,8 @@ void LLModelLoader::run()
 							//(which means we have all the joints that are required for an avatar versus
 							//a skinned asset attached to a node in a file that contains an entire skeleton,
 							//but does not use the skeleton).
-							
-							if ( !model->mJointList.empty() && doesJointArrayContainACompleteRig( model->mJointList ) ) 
+							mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mJointList ) );
+							if ( !model->mJointList.empty() && mPreview->isRigValid() ) 
 							{
 								mResetJoints = true;
 							}
@@ -2232,6 +2233,8 @@ LLColor4 LLModelLoader::getDaeColor(daeElement* element)
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+, mPelvisZOffset( 0.0f )
+, mRigValid( false )
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = 0.f;
@@ -2292,19 +2295,30 @@ U32 LLModelPreview::calcResourceCost()
 		}
 	}
 
+	//Upload skin is selected BUT the joints coming in from the asset
+	//were malformed.
+	if ( mFMP && mFMP->childGetValue("upload_skin").asBoolean() )
+	{
+		if ( !isRigValid() )
+		{
+			mFMP->childDisable("ok_btn");
+		}
+	}
+	
 	U32 cost = 0;
 	std::set<LLModel*> accounted;
 	U32 num_points = 0;
 	U32 num_hulls = 0;
 
 	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
-
+	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 32.0f;
+	
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
-
+		
 		if (accounted.find(instance.mModel) == accounted.end())
 		{
 			accounted.insert(instance.mModel);
@@ -2550,7 +2564,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	{
 		mFMP->childDisable("ok_btn");
 	}
-
+	
 	if (lod == mPreviewLOD)
 	{
 		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
@@ -3293,15 +3307,18 @@ void LLModelPreview::updateStatusMessages()
 
 	bool errorStateFromLoader = mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING ? true : false;
 
-	if ( upload_ok && !errorStateFromLoader )
+	bool skinAndRigOk = true;
+	bool uploadingSkin = mFMP->childGetValue("upload_skin").asBoolean();
+	if ( uploadingSkin && !isRigValid() )
+	{
+		skinAndRigOk = false;
+	}
+
+	if ( upload_ok && !errorStateFromLoader && skinAndRigOk )
 	{
 		mFMP->childEnable("ok_btn");
 	}
-	else
-	{
-		mFMP->childDisable("ok_btn");
-	}
-
+	
 	//add up physics triangles etc
 	S32 start = 0;
 	S32 end = mModel[LLModel::LOD_PHYSICS].size();
@@ -3746,6 +3763,7 @@ BOOL LLModelPreview::render()
 		{
 			LLModelInstance& instance = *model_iter;
 			LLModel* model = instance.mModel;
+			model->mPelvisOffset = mPelvisZOffset;
 			if (!model->mSkinWeights.empty())
 			{
 				has_skin_weights = true;

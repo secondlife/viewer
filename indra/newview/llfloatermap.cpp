@@ -83,8 +83,14 @@ LLFloaterMap::~LLFloaterMap()
 BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
-	mMap->setToolTipMsg(gSavedSettings.getBOOL("DoubleClickTeleport") ? 
-		getString("AltToolTipMsg") : getString("ToolTipMsg"));
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		mMap->setToolTipMsg(getString("AltToolTipMsg"));
+	}
+	else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
+	{
+		mMap->setToolTipMsg(getString("ToolTipMsg"));
+	}
 	sendChildToBack(mMap);
 	
 	mTextBoxNorth = getChild<LLTextBox> ("floater_map_north");
@@ -150,7 +156,7 @@ BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
 		gAgent.teleportViaLocationLookAt(pos_global);
 	}
-	else 
+	else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
 	{
 		LLFloaterReg::showInstance("world_map");
 	}
