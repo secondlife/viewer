@@ -346,7 +346,7 @@ void LLRadioGroup::setValue( const LLSD& value )
 		}
 		else
 		{
-			llwarns << "LLRadioGroup::setValue: value not found: " << value.asString() << llendl;
+			setSelectedIndex(-1, TRUE);
 		}
 	}
 }

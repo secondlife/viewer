@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Zoom Nah" name="Zoom Close"/>
+	<menu_item_call label="Zoom Mittel" name="Zoom Medium"/>
+	<menu_item_call label="Zoom Weit" name="Zoom Far"/>
+	<menu_item_call label="Zoom-Standard" name="Zoom Default"/>
+	<menu_item_check label="Karte drehen" name="Rotate Map"/>
+	<menu_item_check label="Automatisch zentrieren" name="Auto Center"/>
+	<menu_item_call label="Verfolgung abschalten" name="Stop Tracking"/>
+	<menu_item_call label="Weltkarte" name="World Map"/>
+</menu>

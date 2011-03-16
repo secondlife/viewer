@@ -149,7 +149,11 @@ const std::string LLDir::findFile(const std::string& filename, const std::vector
 	{
 		if (!search_path_iter->empty())
 		{
-			std::string filename_and_path = (*search_path_iter) + getDirDelimiter() + filename;
+			std::string filename_and_path = (*search_path_iter);
+			if (!filename.empty())
+			{
+				filename_and_path += getDirDelimiter() + filename;
+			}
 			if (fileExists(filename_and_path))
 			{
 				return filename_and_path;

@@ -70,6 +70,7 @@ static const std::string CLASSIFIED_NAME("classified_name");
 
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
+
 class LLPickHandler : public LLCommandHandler,
 					  public LLAvatarPropertiesObserver
 {
@@ -83,6 +84,12 @@ public:
 	bool handle(const LLSD& params, const LLSD& query_map,
 		LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnablePicks"))
+		{
+			LLNotificationsUtil::add("NoPicks", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		// handle app/classified/create urls first
 		if (params.size() == 1 && params[0].asString() == "create")
 		{
@@ -189,6 +196,12 @@ public:
 	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableClassifieds"))
+		{
+			LLNotificationsUtil::add("NoClassifieds", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		// handle app/classified/create urls first
 		if (params.size() == 1 && params[0].asString() == "create")
 		{
