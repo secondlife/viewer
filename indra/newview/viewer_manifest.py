@@ -938,7 +938,9 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libcrypto.so.0.9.8")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.0.9.8")
-            self.path("libuuid.so.1")
+            self.path("libuuid.so")
+            self.path("libuuid.so.16")
+            self.path("libuuid.so.16.0.22")
             self.path("libSDL-1.2.so.0.11.3")
             self.path("libdirectfb-1.4.so.5.0.4")
             self.path("libfusion-1.4.so.5.0.4")
@@ -947,7 +949,11 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenjpeg.so.1")
             self.path("libopenjpeg.so")
             self.path("libalut.so")
-            self.path("libopenal.so", "libopenal.so.1")
+            self.path("libalut.so.0")
+            self.path("libalut.so.0.0.0")
+            self.path("libopenal.so")
+            self.path("libopenal.so.1")
+            self.path("libopenal.so.1.12.854")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             self.path("libfontconfig.so.1.4.4")
             try:

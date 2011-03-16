@@ -639,12 +639,14 @@
           </map>
         </map>
       </map>
-      <key>google</key>
+      <key>google-perftools</key>
       <map>
         <key>license</key>
-        <string>mit</string>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/google-perftools.txt</string>
         <key>name</key>
-        <string>google</string>
+        <string>google-perftools</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -652,29 +654,13 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d9d1b6d32ee273df164f7b7d5f29848</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>cf513fc2eec4a414cc804cf408932a45</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-0.0.0-linux-20110114.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-perftools/rev/224046/arch/Linux/installer/google_perftools-1.7-linux-20110315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
-        </map>
-        <key>version</key>
-        <string>0.0.0</string>
-      </map>
-      <key>google-perftools</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/google.txt</string>
-        <key>name</key>
-        <string>google-perftools</string>
-        <key>platforms</key>
-        <map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -1052,9 +1038,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2b64ea42d54583ab82f4936ce6ea2a3c</string>
+              <string>873e8e99d29711df2efa30646dca1795</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libuuid/rev/223995/arch/Linux/installer/uuid-1.6.2-linux-20110315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1316,11 +1302,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <string>30b9b33fb9320d9b6634e0dbb013b4e7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openal/rev/223977/arch/Linux/installer/openal-1.12.854-1.1.0-linux-20110315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
