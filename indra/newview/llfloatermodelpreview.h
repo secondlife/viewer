@@ -359,6 +359,8 @@ public:
 	
 	LLVector3	mModelPivot;
 	bool		mHasPivot;
+	
+	float		mPelvisZOffset;
 };
 
 

@@ -469,7 +469,7 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	{
 		return;
 	}
-
+	fp->mModelPreview->calcResourceCost();
 	fp->mModelPreview->refresh();
 }
 
@@ -2232,6 +2232,7 @@ LLColor4 LLModelLoader::getDaeColor(daeElement* element)
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+, mPelvisZOffset( 0.0f )
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = 0.f;
@@ -2298,13 +2299,14 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_hulls = 0;
 
 	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
-
+	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 32.0f;
+	
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
 	{
 		LLModelInstance& instance = mUploadData[i];
-
+		
 		if (accounted.find(instance.mModel) == accounted.end())
 		{
 			accounted.insert(instance.mModel);
@@ -3746,6 +3748,7 @@ BOOL LLModelPreview::render()
 		{
 			LLModelInstance& instance = *model_iter;
 			LLModel* model = instance.mModel;
+			model->mPelvisOffset = mPelvisZOffset;
 			if (!model->mSkinWeights.empty())
 			{
 				has_skin_weights = true;
