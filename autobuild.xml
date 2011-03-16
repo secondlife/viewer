@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89b89ad923816317e1a3be963b406f27</string>
+              <string>aaea644191807f51051cefa2fac11069</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/219379/arch/Darwin/installer/curl-7.21.1-darwin-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/224181/arch/Darwin/installer/curl-7.21.1-darwin-20110316.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
