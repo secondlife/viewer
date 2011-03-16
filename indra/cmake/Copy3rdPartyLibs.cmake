@@ -257,8 +257,8 @@ elseif(LINUX)
         libopenal.so
         libopenjpeg.so
         libssl.so
-        libstacktrace.so
         libtcmalloc.so
+        libuuid.so.16
         libuuid.so.16.0.22
         libssl.so.0.9.8
         libfontconfig.so.1.4.4
