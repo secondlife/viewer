@@ -29,14 +29,11 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnearbychatbarlistener.h"
+#include "llnearbychatbar.h"
 
 #include "llagent.h"
 #include "llchat.h"
 
-
-// Ugly glue for llnearbychatbar.cpp utility function.  Avoids pulling in a bunch of UI
-// definitions.  Also needs to get cleaned up from llchatbar.cpp
-extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
 
 LLNearbyChatBarListener::LLNearbyChatBarListener(LLNearbyChatBar & chatbar)
@@ -82,6 +79,22 @@ void LLNearbyChatBarListener::sendChat(LLSD const & chat_data) const
 			type_o_chat = CHAT_TYPE_SHOUT;
 		}
 	}
-	send_chat_from_viewer(chat_text, type_o_chat, channel);
+
+	// Have to prepend /42 style channel numbers
+	std::string chat_to_send;
+	if (channel == 0)
+	{
+		chat_to_send = chat_text;
+	}
+	else
+	{
+		chat_to_send += "/";
+		chat_to_send += chat_data["channel"].asString();
+		chat_to_send += " ";
+		chat_to_send += chat_text;
+	}
+
+	// Send it as if it was typed in
+	mChatbar.sendChatFromViewer(chat_to_send, type_o_chat, (BOOL)(channel == 0));
 }
 
