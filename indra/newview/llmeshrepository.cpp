@@ -1167,7 +1167,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		{
 			info.mPelvisOffset = skin["pelvis_offset"].asReal();
 		}
-		llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
+		//llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
 		mSkinInfoQ.push(info);
 	}
 
