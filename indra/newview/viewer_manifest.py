@@ -931,12 +931,18 @@ class Linux_i686Manifest(LinuxManifest):
         super(Linux_i686Manifest, self).construct()
 
         if self.prefix("../packages/lib/release", dst="lib"):
+            self.path("libapr-1.so")
+            self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.2")
+            self.path("libaprutil-1.so")
+            self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.3.10")
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
             self.path("libdb-5.1.so")
+            self.path("libdb-5.so")
+            self.path("libdb.so")
             self.path("libcrypto.so.0.9.8")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.0.9.8")
