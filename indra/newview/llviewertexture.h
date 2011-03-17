@@ -465,7 +465,7 @@ public:
 	S32         getCachedRawImageLevel() const {return mCachedRawDiscardLevel;}
 	BOOL        isCachedRawImageReady() const {return mCachedRawImageReady ;}
 	BOOL        isRawImageValid()const { return mIsRawImageValid ; }	
-	void        forceToSaveRawImage(S32 desired_discard = 0, bool from_callback = false) ;
+	void        forceToSaveRawImage(S32 desired_discard = 0) ;
 	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 	void        destroySavedRawImage() ;
 	LLImageRaw* getSavedRawImage() ;

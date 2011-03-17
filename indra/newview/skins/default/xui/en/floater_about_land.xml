@@ -1649,16 +1649,6 @@ Only large parcels can be listed in search.
              name="set_media_url"
              width="70"
              top_delta="0"/>
-            <check_box
-             follows="top|left"
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             left="110"
-             name="hide_media_url"
-             tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             width="50"
-             top_pad="5"/>
             <text
              type="string"
              length="1"
@@ -1836,15 +1826,6 @@ Only large parcels can be listed in search.
              top_delta="0"
              right="-15"
              select_on_focus="true" />
-			<check_box
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             name="hide_music_url"
-			 tool_tip="Checking this option will hide the music url to any non-authorized viewers of this parcel information."
-			 left_delta="10"
-             top_pad="5"
-             width="292" /> 
             <text
              type="string"
              length="1"
