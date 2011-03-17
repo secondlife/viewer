@@ -119,27 +119,39 @@ fi
 # First three parts only, $revision will be appended automatically.
 build_viewer_update_version_manager_version=`python scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
 
-export autobuild_dir="$here/../../../autobuild/bin/"
-if [ -d "$autobuild_dir" ]
+if [ -z "$AUTOBUILD" ]
 then
-  export AUTOBUILD="$autobuild_dir"autobuild
-  if [ -x "$AUTOBUILD" ]
+  export autobuild_dir="$here/../../../autobuild/bin/"
+  if [ -d "$autobuild_dir" ]
   then
-    # *HACK - bash doesn't know how to pass real pathnames to native windows python
-    case "$arch" in
-    CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
-    esac
+    export AUTOBUILD="$autobuild_dir"autobuild
+    if [ -x "$AUTOBUILD" ]
+    then
+      # *HACK - bash doesn't know how to pass real pathnames to native windows python
+      case "$arch" in
+      CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
+      esac
+    else
+      record_failure "Not executable: $AUTOBUILD"
+      exit 1
+    fi
   else
-    record_failure "Not executable: $AUTOBUILD"
+    record_failure "Not found: $autobuild_dir"
     exit 1
   fi
-else
-  record_failure "Not found: $autobuild_dir"
-  exit 1
 fi
 
 # load autbuild provided shell functions and variables
-eval "$("$AUTOBUILD" source_environment)"
+if "$AUTOBUILD" source_environment > source_environment
+then
+  . source_environment
+else
+  # dump environment variables for debugging
+  env|sort
+  record_failure "autobuild source_environment failed"
+  cat source_environment >&3
+  exit 1
+fi
 
 # dump environment variables for debugging
 env|sort
@@ -166,7 +178,7 @@ do
   rm -rf "$build_dir"
   mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
-  export TMP="$build_dir/tmp"
+  #export TMP="$build_dir/tmp"
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
     if $build_link_parallel
