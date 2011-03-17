@@ -1315,25 +1315,25 @@ bool LLModelLoader::doLoadModel()
 						bool missingSkeletonOrScene = false;
 						
 						//If no skeleton, do a breadth-first search to get at specific joints
-							bool rootNode = false;
-							bool skeletonWithNoRootNode = false;
-							
-							//Need to test for a skeleton that does not have a root node
-							//This occurs when your instance controller does not have an associated scene 
-							if ( pSkeleton )
+						bool rootNode = false;
+						bool skeletonWithNoRootNode = false;
+						
+						//Need to test for a skeleton that does not have a root node
+						//This occurs when your instance controller does not have an associated scene 
+						if ( pSkeleton )
+						{
+							daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
+							if ( pSkeletonRootNode )
 							{
-								daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
-								if ( pSkeletonRootNode )
-								{
-									rootNode = true;
-								}
-								else 
-								{
-									skeletonWithNoRootNode = true;
-								}
-
+								rootNode = true;
 							}
-							if ( !pSkeleton || !rootNode )
+							else 
+							{
+								skeletonWithNoRootNode = true;
+							}
+
+						}
+						if ( !pSkeleton || !rootNode )
 						{
 							daeElement* pScene = root->getDescendant("visual_scene");
 							if ( !pScene )
