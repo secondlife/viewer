@@ -2531,6 +2531,7 @@
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
                 </array>
