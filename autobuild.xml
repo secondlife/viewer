@@ -1609,10 +1609,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1630,10 +1626,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1651,10 +1643,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1672,10 +1660,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1693,10 +1677,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1714,10 +1694,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1735,10 +1711,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1759,10 +1731,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1783,10 +1751,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1804,10 +1768,6 @@
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1852,6 +1812,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1878,6 +1842,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1904,6 +1872,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1930,6 +1902,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1956,6 +1932,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1982,6 +1962,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2008,6 +1992,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2041,6 +2029,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2076,6 +2068,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2111,6 +2107,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2136,6 +2136,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2161,6 +2165,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2186,6 +2194,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2211,6 +2223,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2236,6 +2252,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2261,6 +2281,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2286,6 +2310,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2313,6 +2341,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2361,10 +2393,22 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=OFF</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DFMOD=TRUE</string>
@@ -2379,15 +2423,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
                   <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>command</key>
                 <string>devenv.com</string>
@@ -2399,6 +2435,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2429,6 +2477,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2459,6 +2511,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2475,6 +2531,19 @@
             <map>
               <key>build</key>
               <map>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>devenv.com</string>
+                <key>options</key>
+                <array>
+                  <string>/build</string>
+                  <string>Debug</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
@@ -2487,16 +2556,6 @@
                   <string>--startup</string>
                   <string>secondlife-bin</string>
                 </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>Debug</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2527,6 +2586,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2557,6 +2620,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2587,6 +2654,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2620,6 +2699,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2636,6 +2727,16 @@
             <map>
               <key>build</key>
               <map>
+                <key>command</key>
+                <string>vcbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>/u</string>
+                  <string>SecondLife.sln</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
@@ -2648,16 +2749,6 @@
                   <string>--startup</string>
                   <string>secondlife-bin</string>
                 </array>
-                <key>command</key>
-                <string>vcbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/u</string>
-                  <string>SecondLife.sln</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
                 <key>options</key>
                 <array>
                   <string>-G</string>
