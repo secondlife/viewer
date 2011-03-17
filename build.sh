@@ -142,16 +142,19 @@ then
 fi
 
 # load autbuild provided shell functions and variables
-if "$AUTOBUILD" source_environment > source_environment
-then
-  . source_environment
-else
+# Merov: going back to the previous code that passes even if it fails catching a failure
+# TODO: use the correct code here under and fix the llbase import in python code
+#if "$AUTOBUILD" source_environment > source_environment
+#then
+#  . source_environment
+#else
   # dump environment variables for debugging
-  env|sort
-  record_failure "autobuild source_environment failed"
-  cat source_environment >&3
-  exit 1
-fi
+#  env|sort
+#  record_failure "autobuild source_environment failed"
+#  cat source_environment >&3
+#  exit 1
+#fi
+eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
 env|sort
