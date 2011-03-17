@@ -6032,9 +6032,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 			if ( pSkinData )
 			{
 				const int jointCnt = pSkinData->mJointNames.size();
-				//19 is a magic number derived from the master joint list
-				//TODO#  move that joint list into the bone controller and query 
-				bool fullRig = ( jointCnt>=19 ) ? true : false;
+				bool fullRig = ( jointCnt>=20 ) ? true : false;
 				if ( fullRig )
 				{
 					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							

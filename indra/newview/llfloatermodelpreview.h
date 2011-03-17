@@ -96,7 +96,9 @@ public:
 	LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview);
 
 	virtual void run();
-	
+	bool doLoadModel();
+	void loadModelCallback();
+
 	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
@@ -117,9 +119,8 @@ public:
 	void handlePivotPoint( daeElement* pRoot );
 	bool isNodeAPivotPoint( domNode* pNode );
 	
-	void setLoadState( U32 state ) { mState = state; }
-	U32 getLoadState( void ) { return mState; }
-	
+	void setLoadState(U32 state);
+
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 	std::deque<std::string> mMasterJointList;
@@ -302,7 +303,11 @@ public:
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
 	
+	void setLoadState( U32 state ) { mLoadState = state; }
+	U32 getLoadState() { return mLoadState; }
+		
  protected:
+	friend class LLModelLoader;
 	friend class LLFloaterModelPreview;
 	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
@@ -326,6 +331,7 @@ public:
 	U32			mResourceCost;
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
+	U32			mLoadState;
 
 	std::map<std::string, bool> mViewOption;
 

@@ -986,7 +986,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 // LLModelLoader
 //-----------------------------------------------------------------------------
 LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview)
-: LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mState(STARTING), mFirstTransform(TRUE), mResetJoints( FALSE )
+: LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE), mResetJoints( FALSE )
 {
 	mJointMap["mPelvis"] = "mPelvis";
 	mJointMap["mTorso"] = "mTorso";
@@ -1084,6 +1084,11 @@ LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* prev
 	mMasterJointList.push_front("mHipLeft");
 	mMasterJointList.push_front("mKneeLeft");
 	mMasterJointList.push_front("mFootLeft");
+
+	if (mPreview)
+	{
+		mPreview->setLoadState(STARTING);
+	}
 }
 
 void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform)
@@ -1151,152 +1156,165 @@ void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& 
 
 void LLModelLoader::run()
 {
+	if (!doLoadModel())
+	{
+		mPreview = NULL;
+	}
+
+	doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
+}
+
+bool LLModelLoader::doLoadModel()
+{
 	DAE dae;
 	domCOLLADA* dom = dae.open(mFilename);
 	
-	if (dom)
+	if (!dom)
 	{
-		daeDatabase* db = dae.getDatabase();
+		return false;
+	}
+
+	daeDatabase* db = dae.getDatabase();
+	
+	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
+	
+	daeDocument* doc = dae.getDoc(mFilename);
+	if (!doc)
+	{
+		llwarns << "can't find internal doc" << llendl;
+		return false;
+	}
+	
+	daeElement* root = doc->getDomRoot();
+	if (!root)
+	{
+		llwarns << "document has no root" << llendl;
+		return false;
+	}
+	
+	//get unit scale
+	mTransform.setIdentity();
+	
+	domAsset::domUnit* unit = daeSafeCast<domAsset::domUnit>(root->getDescendant(daeElement::matchType(domAsset::domUnit::ID())));
+	
+	if (unit)
+	{
+		F32 meter = unit->getMeter();
+		mTransform.mMatrix[0][0] = meter;
+		mTransform.mMatrix[1][1] = meter;
+		mTransform.mMatrix[2][2] = meter;
+	}
+	
+	//get up axis rotation
+	LLMatrix4 rotation;
+	
+	domUpAxisType up = UPAXISTYPE_Y_UP;  // default is Y_UP
+	domAsset::domUp_axis* up_axis =
+	daeSafeCast<domAsset::domUp_axis>(root->getDescendant(daeElement::matchType(domAsset::domUp_axis::ID())));
+	
+	if (up_axis)
+	{
+		up = up_axis->getValue();
+	}
+	
+	if (up == UPAXISTYPE_X_UP)
+	{
+		rotation.initRotation(0.0f, 90.0f * DEG_TO_RAD, 0.0f);
+	}
+	else if (up == UPAXISTYPE_Y_UP)
+	{
+		rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
+	}
+	
+	rotation *= mTransform;
+	mTransform = rotation;
+	
+	
+	for (daeInt idx = 0; idx < count; ++idx)
+	{ //build map of domEntities to LLModel
+		domMesh* mesh = NULL;
+		db->getElement((daeElement**) &mesh, idx, NULL, COLLADA_TYPE_MESH);
 		
-		daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
-		
-		daeDocument* doc = dae.getDoc(mFilename);
-		if (!doc)
+		if (mesh)
 		{
-			llwarns << "can't find internal doc" << llendl;
-			return;
-		}
-		
-		daeElement* root = doc->getDomRoot();
-		if (!root)
-		{
-			llwarns << "document has no root" << llendl;
-			return;
-		}
-		
-		//get unit scale
-		mTransform.setIdentity();
-		
-		domAsset::domUnit* unit = daeSafeCast<domAsset::domUnit>(root->getDescendant(daeElement::matchType(domAsset::domUnit::ID())));
-		
-		if (unit)
-		{
-			F32 meter = unit->getMeter();
-			mTransform.mMatrix[0][0] = meter;
-			mTransform.mMatrix[1][1] = meter;
-			mTransform.mMatrix[2][2] = meter;
-		}
-		
-		//get up axis rotation
-		LLMatrix4 rotation;
-		
-		domUpAxisType up = UPAXISTYPE_Y_UP;  // default is Y_UP
-		domAsset::domUp_axis* up_axis =
-		daeSafeCast<domAsset::domUp_axis>(root->getDescendant(daeElement::matchType(domAsset::domUp_axis::ID())));
-		
-		if (up_axis)
-		{
-			up = up_axis->getValue();
-		}
-		
-		if (up == UPAXISTYPE_X_UP)
-		{
-			rotation.initRotation(0.0f, 90.0f * DEG_TO_RAD, 0.0f);
-		}
-		else if (up == UPAXISTYPE_Y_UP)
-		{
-			rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
-		}
-		
-		rotation *= mTransform;
-		mTransform = rotation;
-		
-		
-		for (daeInt idx = 0; idx < count; ++idx)
-		{ //build map of domEntities to LLModel
-			domMesh* mesh = NULL;
-			db->getElement((daeElement**) &mesh, idx, NULL, COLLADA_TYPE_MESH);
+			LLPointer<LLModel> model = LLModel::loadModelFromDomMesh(mesh);
 			
-			if (mesh)
+			if (model.notNull() && validate_model(model))
 			{
-				LLPointer<LLModel> model = LLModel::loadModelFromDomMesh(mesh);
-				
-				if (model.notNull() && validate_model(model))
-				{
-					mModelList.push_back(model);
-					mModel[mesh] = model;
-				}
+				mModelList.push_back(model);
+				mModel[mesh] = model;
 			}
 		}
+	}
+	
+	count = db->getElementCount(NULL, COLLADA_TYPE_SKIN);
+	for (daeInt idx = 0; idx < count; ++idx)
+	{ //add skinned meshes as instances
+		domSkin* skin = NULL;
+		db->getElement((daeElement**) &skin, idx, NULL, COLLADA_TYPE_SKIN);
 		
-		count = db->getElementCount(NULL, COLLADA_TYPE_SKIN);
-		for (daeInt idx = 0; idx < count; ++idx)
-		{ //add skinned meshes as instances
-			domSkin* skin = NULL;
-			db->getElement((daeElement**) &skin, idx, NULL, COLLADA_TYPE_SKIN);
+		if (skin)
+		{
+			domGeometry* geom = daeSafeCast<domGeometry>(skin->getSource().getElement());
 			
-			if (skin)
+			if (geom)
 			{
-				domGeometry* geom = daeSafeCast<domGeometry>(skin->getSource().getElement());
-				
-				if (geom)
+				domMesh* mesh = geom->getMesh();
+				if (mesh)
 				{
-					domMesh* mesh = geom->getMesh();
-					if (mesh)
+					LLModel* model = mModel[mesh];
+					if (model)
 					{
-						LLModel* model = mModel[mesh];
-						if (model)
-						{
-							LLVector3 mesh_scale_vector;
-							LLVector3 mesh_translation_vector;
-							model->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+						LLVector3 mesh_scale_vector;
+						LLVector3 mesh_translation_vector;
+						model->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+						
+						LLMatrix4 normalized_transformation;
+						normalized_transformation.setTranslation(mesh_translation_vector);
+						
+						LLMatrix4 mesh_scale;
+						mesh_scale.initScale(mesh_scale_vector);
+						mesh_scale *= normalized_transformation;
+						normalized_transformation = mesh_scale;
+						
+						glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
+						inv_mat = inv_mat.inverse();
+						LLMatrix4 inverse_normalized_transformation(inv_mat.m);
+						
+						domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
+						
+						if (bind_mat)
+						{ //get bind shape matrix
+							domFloat4x4& dom_value = bind_mat->getValue();
 							
-							LLMatrix4 normalized_transformation;
-							normalized_transformation.setTranslation(mesh_translation_vector);
-							
-							LLMatrix4 mesh_scale;
-							mesh_scale.initScale(mesh_scale_vector);
-							mesh_scale *= normalized_transformation;
-							normalized_transformation = mesh_scale;
-							
-							glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
-							inv_mat = inv_mat.inverse();
-							LLMatrix4 inverse_normalized_transformation(inv_mat.m);
-							
-							domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
-							
-							if (bind_mat)
-							{ //get bind shape matrix
-								domFloat4x4& dom_value = bind_mat->getValue();
-								
-								for (int i = 0; i < 4; i++)
+							for (int i = 0; i < 4; i++)
+							{
+								for(int j = 0; j < 4; j++)
 								{
-									for(int j = 0; j < 4; j++)
-									{
-										model->mBindShapeMatrix.mMatrix[i][j] = dom_value[i + j*4];
-									}
+									model->mBindShapeMatrix.mMatrix[i][j] = dom_value[i + j*4];
 								}
-								
-								LLMatrix4 trans = normalized_transformation;
-								trans *= model->mBindShapeMatrix;
-								model->mBindShapeMatrix = trans;
-								
 							}
 							
+							LLMatrix4 trans = normalized_transformation;
+							trans *= model->mBindShapeMatrix;
+							model->mBindShapeMatrix = trans;
 							
-							//The joint transfom map that we'll populate below
-							std::map<std::string,LLMatrix4> jointTransforms;
-							jointTransforms.clear();
-							
-							//Some collada setup for accessing the skeleton
-							daeElement* pElement = 0;
-							dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
-							
-							//Try to get at the skeletal instance controller
-							domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
-							bool missingSkeletonOrScene = false;
-							
-							//If no skeleton, do a breadth-first search to get at specific joints
+						}
+						
+						
+						//The joint transfom map that we'll populate below
+						std::map<std::string,LLMatrix4> jointTransforms;
+						jointTransforms.clear();
+						
+						//Some collada setup for accessing the skeleton
+						daeElement* pElement = 0;
+						dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
+						
+						//Try to get at the skeletal instance controller
+						domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
+						bool missingSkeletonOrScene = false;
+						
+						//If no skeleton, do a breadth-first search to get at specific joints
 							bool rootNode = false;
 							bool skeletonWithNoRootNode = false;
 							
@@ -1316,125 +1334,143 @@ void LLModelLoader::run()
 
 							}
 							if ( !pSkeleton || !rootNode )
+						{
+							daeElement* pScene = root->getDescendant("visual_scene");
+							if ( !pScene )
 							{
-								daeElement* pScene = root->getDescendant("visual_scene");
-								if ( !pScene )
+								llwarns<<"No visual scene - unable to parse bone offsets "<<llendl;
+								missingSkeletonOrScene = true;
+							}
+							else
+							{
+								//Get the children at this level
+								daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
+								S32 childCount = children.getCount();
+								
+								//Process any children that are joints
+								//Not all children are joints, some code be ambient lights, cameras, geometry etc..
+								for (S32 i = 0; i < childCount; ++i)
 								{
-									llwarns<<"No visual scene - unable to parse bone offsets "<<llendl;
-									missingSkeletonOrScene = true;
-								}
-								else
-								{
-									//Get the children at this level
-									daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
-									S32 childCount = children.getCount();
-									
-									//Process any children that are joints
-									//Not all children are joints, some code be ambient lights, cameras, geometry etc..
-									for (S32 i = 0; i < childCount; ++i)
+									domNode* pNode = daeSafeCast<domNode>(children[i]);
+									if ( isNodeAJoint( pNode ) )
 									{
-										domNode* pNode = daeSafeCast<domNode>(children[i]);
-										if ( isNodeAJoint( pNode ) )
-										{
-											processJointNode( pNode, jointTransforms );
-										}
+										processJointNode( pNode, jointTransforms );
 									}
 								}
 							}
-							else
-								//Has Skeleton
+						}
+						else
+							//Has Skeleton
+						{
+							//Get the root node of the skeleton
+							daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
+							if ( pSkeletonRootNode )
 							{
-								//Get the root node of the skeleton
-								daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
-								if ( pSkeletonRootNode )
+								//Once we have the root node - start acccessing it's joint components
+								const int jointCnt = mJointMap.size();
+								std::map<std::string, std::string> :: const_iterator jointIt = mJointMap.begin();
+								
+								//Loop over all the possible joints within the .dae - using the allowed joint list in the ctor.
+								for ( int i=0; i<jointCnt; ++i, ++jointIt )
 								{
-									//Once we have the root node - start acccessing it's joint components
-									const int jointCnt = mJointMap.size();
-									std::map<std::string, std::string> :: const_iterator jointIt = mJointMap.begin();
+									//Build a joint for the resolver to work with
+									char str[64]={0};
+									sprintf(str,"./%s",(*jointIt).second.c_str() );
+									//llwarns<<"Joint "<< str <<llendl;
 									
-									//Loop over all the possible joints within the .dae - using the allowed joint list in the ctor.
-									for ( int i=0; i<jointCnt; ++i, ++jointIt )
-									{
-										//Build a joint for the resolver to work with
-										char str[64]={0};
-										sprintf(str,"./%s",(*jointIt).second.c_str() );
-										//llwarns<<"Joint "<< str <<llendl;
+									//Setup the resolver
+                                    daeSIDResolver resolver( pSkeletonRootNode, str );
+									
+                                    //Look for the joint
+                                    domNode* pJoint = daeSafeCast<domNode>( resolver.getElement() );
+                                    if ( pJoint )
+                                    {
+										//Pull out the translate id and store it in the jointTranslations map
+										daeSIDResolver jointResolver( pJoint, "./translate" );
+										domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
 										
-										//Setup the resolver
-                                        daeSIDResolver resolver( pSkeletonRootNode, str );
+										LLMatrix4 workingTransform;
 										
-                                        //Look for the joint
-                                        domNode* pJoint = daeSafeCast<domNode>( resolver.getElement() );
-                                        if ( pJoint )
-                                        {
-											//Pull out the translate id and store it in the jointTranslations map
-											daeSIDResolver jointResolver( pJoint, "./translate" );
-											domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
-											
-											LLMatrix4 workingTransform;
-											
-											//Translation via SID
-											if ( pTranslate )
+										//Translation via SID
+										if ( pTranslate )
+										{
+											extractTranslation( pTranslate, workingTransform );
+										}
+										else
+										{
+											//Translation via child from element
+											daeElement* pTranslateElement = getChildFromElement( pJoint, "translate" );
+											if ( pTranslateElement && pTranslateElement->typeID() != domTranslate::ID() )
 											{
-												extractTranslation( pTranslate, workingTransform );
+												llwarns<< "The found element is not a translate node" <<llendl;
+												missingSkeletonOrScene = true;
 											}
 											else
 											{
-												//Translation via child from element
-												daeElement* pTranslateElement = getChildFromElement( pJoint, "translate" );
-												if ( pTranslateElement && pTranslateElement->typeID() != domTranslate::ID() )
-												{
-													llwarns<< "The found element is not a translate node" <<llendl;
-													missingSkeletonOrScene = true;
-												}
-												else
-												{
-													extractTranslationViaElement( pTranslateElement, workingTransform );
-												}
+												extractTranslationViaElement( pTranslateElement, workingTransform );
 											}
-											
-											//Store the joint transform w/respect to it's name.
-											jointTransforms[(*jointIt).second.c_str()] = workingTransform;
-                                        }
-									}
-									
-									//If anything failed in regards to extracting the skeleton, joints or translation id,
-									//mention it
-									if ( missingSkeletonOrScene  )
-									{
-										llwarns<< "Partial jointmap found in asset - did you mean to just have a partial map?" << llendl;
-									}
-								}//got skeleton?
-							}
-							
-							
-							domSkin::domJoints* joints = skin->getJoints();
-							
-							domInputLocal_Array& joint_input = joints->getInput_array();
-							
-							for (size_t i = 0; i < joint_input.getCount(); ++i)
-							{
-								domInputLocal* input = joint_input.get(i);
-								xsNMTOKEN semantic = input->getSemantic();
+										}
+										
+										//Store the joint transform w/respect to it's name.
+										jointTransforms[(*jointIt).second.c_str()] = workingTransform;
+                                    }
+								}
 								
-								if (strcmp(semantic, COMMON_PROFILE_INPUT_JOINT) == 0)
-								{ //found joint source, fill model->mJointMap and model->mJointList
-									daeElement* elem = input->getSource().getElement();
+								//If anything failed in regards to extracting the skeleton, joints or translation id,
+								//mention it
+								if ( missingSkeletonOrScene  )
+								{
+									llwarns<< "Partial jointmap found in asset - did you mean to just have a partial map?" << llendl;
+								}
+							}//got skeleton?
+						}
+						
+						
+						domSkin::domJoints* joints = skin->getJoints();
+						
+						domInputLocal_Array& joint_input = joints->getInput_array();
+						
+						for (size_t i = 0; i < joint_input.getCount(); ++i)
+						{
+							domInputLocal* input = joint_input.get(i);
+							xsNMTOKEN semantic = input->getSemantic();
+							
+							if (strcmp(semantic, COMMON_PROFILE_INPUT_JOINT) == 0)
+							{ //found joint source, fill model->mJointMap and model->mJointList
+								daeElement* elem = input->getSource().getElement();
+								
+								domSource* source = daeSafeCast<domSource>(elem);
+								if (source)
+								{
 									
-									domSource* source = daeSafeCast<domSource>(elem);
-									if (source)
+									
+									domName_array* names_source = source->getName_array();
+									
+									if (names_source)
 									{
+										domListOfNames &names = names_source->getValue();
 										
-										
-										domName_array* names_source = source->getName_array();
-										
+										for (size_t j = 0; j < names.getCount(); ++j)
+										{
+											std::string name(names.get(j));
+											if (mJointMap.find(name) != mJointMap.end())
+											{
+												name = mJointMap[name];
+											}
+											model->mJointList.push_back(name);
+											model->mJointMap[name] = j;
+										}
+									}
+									else
+									{
+										domIDREF_array* names_source = source->getIDREF_array();
 										if (names_source)
 										{
-											domListOfNames &names = names_source->getValue();
+											xsIDREFS& names = names_source->getValue();
 											
 											for (size_t j = 0; j < names.getCount(); ++j)
 											{
-												std::string name(names.get(j));
+												std::string name(names.get(j).getID());
 												if (mJointMap.find(name) != mJointMap.end())
 												{
 													name = mJointMap[name];
@@ -1443,279 +1479,284 @@ void LLModelLoader::run()
 												model->mJointMap[name] = j;
 											}
 										}
+									}
+								}
+							}
+							else if (strcmp(semantic, COMMON_PROFILE_INPUT_INV_BIND_MATRIX) == 0)
+							{ //found inv_bind_matrix array, fill model->mInvBindMatrix
+								domSource* source = daeSafeCast<domSource>(input->getSource().getElement());
+								if (source)
+								{
+									domFloat_array* t = source->getFloat_array();
+									if (t)
+									{
+										domListOfFloats& transform = t->getValue();
+										S32 count = transform.getCount()/16;
+										
+										for (S32 k = 0; k < count; ++k)
+										{
+											LLMatrix4 mat;
+											
+											for (int i = 0; i < 4; i++)
+											{
+												for(int j = 0; j < 4; j++)
+												{
+													mat.mMatrix[i][j] = transform[k*16 + i + j*4];
+												}
+											}
+											
+											model->mInvBindMatrix.push_back(mat);
+										}
+									}
+								}
+							}
+						}
+						
+						//Now that we've parsed the joint array, let's determine if we have a full rig
+						//(which means we have all the joints that are required for an avatar versus
+						//a skinned asset attached to a node in a file that contains an entire skeleton,
+						//but does not use the skeleton).
+						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mJointList ) );
+							if ( !skeletonWithNoRootNode && !model->mJointList.empty() && mPreview->isRigValid() ) 
+						{
+							mResetJoints = true;
+						}
+						
+						if ( !missingSkeletonOrScene )
+						{
+							//Set the joint translations on the avatar - if it's a full mapping
+							//The joints are reset in the dtor
+							if ( mResetJoints )
+							{	
+								std::map<std::string, std::string> :: const_iterator masterJointIt = mJointMap.begin();
+								std::map<std::string, std::string> :: const_iterator masterJointItEnd = mJointMap.end();
+								for (;masterJointIt!=masterJointItEnd;++masterJointIt )
+								{
+									std::string lookingForJoint = (*masterJointIt).first.c_str();
+									
+									if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+									{
+										//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
+										LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+										LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
+										if ( pJoint )
+										{   
+											pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+										}
 										else
 										{
-											domIDREF_array* names_source = source->getIDREF_array();
-											if (names_source)
-											{
-												xsIDREFS& names = names_source->getValue();
-												
-												for (size_t j = 0; j < names.getCount(); ++j)
-												{
-													std::string name(names.get(j).getID());
-													if (mJointMap.find(name) != mJointMap.end())
-													{
-														name = mJointMap[name];
-													}
-													model->mJointList.push_back(name);
-													model->mJointMap[name] = j;
-												}
-											}
+											//Most likely an error in the asset.
+											llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
 										}
 									}
 								}
-								else if (strcmp(semantic, COMMON_PROFILE_INPUT_INV_BIND_MATRIX) == 0)
-								{ //found inv_bind_matrix array, fill model->mInvBindMatrix
-									domSource* source = daeSafeCast<domSource>(input->getSource().getElement());
-									if (source)
+							}
+						} //missingSkeletonOrScene
+						
+						//We need to construct the alternate bind matrix (which contains the new joint positions)
+						//in the same order as they were stored in the joint buffer. The joints associated
+						//with the skeleton are not stored in the same order as they are in the exported joint buffer.
+						//This remaps the skeletal joints to be in the same order as the joints stored in the model.
+						std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();
+						const int jointCnt = model->mJointList.size();
+						for ( int i=0; i<jointCnt; ++i, ++jointIt )
+						{
+							std::string lookingForJoint = (*jointIt).c_str();
+							//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
+							//and store it in the alternate bind matrix
+							if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+							{
+								LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+								LLMatrix4 newInverse = model->mInvBindMatrix[i];
+								newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
+								model->mAlternateBindMatrix.push_back( newInverse );
+							}
+							else
+							{
+								llwarns<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<llendl;
+							}
+						}
+						
+						//grab raw position array
+						
+						domVertices* verts = mesh->getVertices();
+						if (verts)
+						{
+							domInputLocal_Array& inputs = verts->getInput_array();
+							for (size_t i = 0; i < inputs.getCount() && model->mPosition.empty(); ++i)
+							{
+								if (strcmp(inputs[i]->getSemantic(), COMMON_PROFILE_INPUT_POSITION) == 0)
+								{
+									domSource* pos_source = daeSafeCast<domSource>(inputs[i]->getSource().getElement());
+									if (pos_source)
 									{
-										domFloat_array* t = source->getFloat_array();
-										if (t)
+										domFloat_array* pos_array = pos_source->getFloat_array();
+										if (pos_array)
 										{
-											domListOfFloats& transform = t->getValue();
-											S32 count = transform.getCount()/16;
+											domListOfFloats& pos = pos_array->getValue();
 											
-											for (S32 k = 0; k < count; ++k)
+											for (size_t j = 0; j < pos.getCount(); j += 3)
 											{
-												LLMatrix4 mat;
-												
-												for (int i = 0; i < 4; i++)
+												if (pos.getCount() <= j+2)
 												{
-													for(int j = 0; j < 4; j++)
-													{
-														mat.mMatrix[i][j] = transform[k*16 + i + j*4];
-													}
+													llerrs << "WTF?" << llendl;
 												}
 												
-												model->mInvBindMatrix.push_back(mat);
+												LLVector3 v(pos[j], pos[j+1], pos[j+2]);
+												
+												//transform from COLLADA space to volume space
+												v = v * inverse_normalized_transformation;
+												
+												model->mPosition.push_back(v);
 											}
 										}
 									}
 								}
 							}
-							
-							//Now that we've parsed the joint array, let's determine if we have a full rig
-							//(which means we have all the joints that are required for an avatar versus
-							//a skinned asset attached to a node in a file that contains an entire skeleton,
-							//but does not use the skeleton).
-							mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mJointList ) );
-							if ( !skeletonWithNoRootNode && !model->mJointList.empty() && mPreview->isRigValid() ) 
+						}
+						
+						//grab skin weights array
+						domSkin::domVertex_weights* weights = skin->getVertex_weights();
+						if (weights)
+						{
+							domInputLocalOffset_Array& inputs = weights->getInput_array();
+							domFloat_array* vertex_weights = NULL;
+							for (size_t i = 0; i < inputs.getCount(); ++i)
 							{
-								mResetJoints = true;
+								if (strcmp(inputs[i]->getSemantic(), COMMON_PROFILE_INPUT_WEIGHT) == 0)
+								{
+									domSource* weight_source = daeSafeCast<domSource>(inputs[i]->getSource().getElement());
+									if (weight_source)
+									{
+										vertex_weights = weight_source->getFloat_array();
+									}
+								}
 							}
 							
-							if ( !missingSkeletonOrScene )
+							if (vertex_weights)
 							{
-								//Set the joint translations on the avatar - if it's a full mapping
-								//The joints are reset in the dtor
-								if ( mResetJoints )
-								{	
-									std::map<std::string, std::string> :: const_iterator masterJointIt = mJointMap.begin();
-									std::map<std::string, std::string> :: const_iterator masterJointItEnd = mJointMap.end();
-									for (;masterJointIt!=masterJointItEnd;++masterJointIt )
-									{
-										std::string lookingForJoint = (*masterJointIt).first.c_str();
+								domListOfFloats& w = vertex_weights->getValue();
+								domListOfUInts& vcount = weights->getVcount()->getValue();
+								domListOfInts& v = weights->getV()->getValue();
+								
+								U32 c_idx = 0;
+								for (size_t vc_idx = 0; vc_idx < vcount.getCount(); ++vc_idx)
+								{ //for each vertex
+									daeUInt count = vcount[vc_idx];
+									
+									//create list of weights that influence this vertex
+									LLModel::weight_list weight_list;
+									
+									for (daeUInt i = 0; i < count; ++i)
+									{ //for each weight
+										daeInt joint_idx = v[c_idx++];
+										daeInt weight_idx = v[c_idx++];
 										
-										if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+										if (joint_idx == -1)
 										{
-											//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
-											LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
-											LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
-											if ( pJoint )
-											{   
-												pJoint->storeCurrentXform( jointTransform.getTranslation() );												
-											}
-											else
-											{
-												//Most likely an error in the asset.
-												llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
-											}
+											//ignore bindings to bind_shape_matrix
+											continue;
+										}
+										
+										F32 weight_value = w[weight_idx];
+										
+										weight_list.push_back(LLModel::JointWeight(joint_idx, weight_value));
+									}
+									
+									//sort by joint weight
+									std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
+									
+									std::vector<LLModel::JointWeight> wght;
+									
+									F32 total = 0.f;
+									
+									for (U32 i = 0; i < llmin((U32) 4, (U32) weight_list.size()); ++i)
+									{ //take up to 4 most significant weights
+										if (weight_list[i].mWeight > 0.f)
+										{
+											wght.push_back( weight_list[i] );
+											total += weight_list[i].mWeight;
 										}
 									}
-								}
-							} //missingSkeletonOrScene
-							
-							//We need to construct the alternate bind matrix (which contains the new joint positions)
-							//in the same order as they were stored in the joint buffer. The joints associated
-							//with the skeleton are not stored in the same order as they are in the exported joint buffer.
-							//This remaps the skeletal joints to be in the same order as the joints stored in the model.
-							std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();
-							const int jointCnt = model->mJointList.size();
-							for ( int i=0; i<jointCnt; ++i, ++jointIt )
-							{
-								std::string lookingForJoint = (*jointIt).c_str();
-								//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
-								//and store it in the alternate bind matrix
-								if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
-								{
-									LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
-									LLMatrix4 newInverse = model->mInvBindMatrix[i];
-									newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
-									model->mAlternateBindMatrix.push_back( newInverse );
-								}
-								else
-								{
-									llwarns<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<llendl;
-								}
-							}
-							
-							//grab raw position array
-							
-							domVertices* verts = mesh->getVertices();
-							if (verts)
-							{
-								domInputLocal_Array& inputs = verts->getInput_array();
-								for (size_t i = 0; i < inputs.getCount() && model->mPosition.empty(); ++i)
-								{
-									if (strcmp(inputs[i]->getSemantic(), COMMON_PROFILE_INPUT_POSITION) == 0)
-									{
-										domSource* pos_source = daeSafeCast<domSource>(inputs[i]->getSource().getElement());
-										if (pos_source)
+									
+									F32 scale = 1.f/total;
+									if (scale != 1.f)
+									{ //normalize weights
+										for (U32 i = 0; i < wght.size(); ++i)
 										{
-											domFloat_array* pos_array = pos_source->getFloat_array();
-											if (pos_array)
-											{
-												domListOfFloats& pos = pos_array->getValue();
-												
-												for (size_t j = 0; j < pos.getCount(); j += 3)
-												{
-													if (pos.getCount() <= j+2)
-													{
-														llerrs << "WTF?" << llendl;
-													}
-													
-													LLVector3 v(pos[j], pos[j+1], pos[j+2]);
-													
-													//transform from COLLADA space to volume space
-													v = v * inverse_normalized_transformation;
-													
-													model->mPosition.push_back(v);
-												}
-											}
+											wght[i].mWeight *= scale;
 										}
 									}
-								}
-							}
-							
-							//grab skin weights array
-							domSkin::domVertex_weights* weights = skin->getVertex_weights();
-							if (weights)
-							{
-								domInputLocalOffset_Array& inputs = weights->getInput_array();
-								domFloat_array* vertex_weights = NULL;
-								for (size_t i = 0; i < inputs.getCount(); ++i)
-								{
-									if (strcmp(inputs[i]->getSemantic(), COMMON_PROFILE_INPUT_WEIGHT) == 0)
-									{
-										domSource* weight_source = daeSafeCast<domSource>(inputs[i]->getSource().getElement());
-										if (weight_source)
-										{
-											vertex_weights = weight_source->getFloat_array();
-										}
-									}
+									
+									model->mSkinWeights[model->mPosition[vc_idx]] = wght;
 								}
 								
-								if (vertex_weights)
-								{
-									domListOfFloats& w = vertex_weights->getValue();
-									domListOfUInts& vcount = weights->getVcount()->getValue();
-									domListOfInts& v = weights->getV()->getValue();
-									
-									U32 c_idx = 0;
-									for (size_t vc_idx = 0; vc_idx < vcount.getCount(); ++vc_idx)
-									{ //for each vertex
-										daeUInt count = vcount[vc_idx];
-										
-										//create list of weights that influence this vertex
-										LLModel::weight_list weight_list;
-										
-										for (daeUInt i = 0; i < count; ++i)
-										{ //for each weight
-											daeInt joint_idx = v[c_idx++];
-											daeInt weight_idx = v[c_idx++];
-											
-											if (joint_idx == -1)
-											{
-												//ignore bindings to bind_shape_matrix
-												continue;
-											}
-											
-											F32 weight_value = w[weight_idx];
-											
-											weight_list.push_back(LLModel::JointWeight(joint_idx, weight_value));
-										}
-										
-										//sort by joint weight
-										std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
-										
-										std::vector<LLModel::JointWeight> wght;
-										
-										F32 total = 0.f;
-										
-										for (U32 i = 0; i < llmin((U32) 4, (U32) weight_list.size()); ++i)
-										{ //take up to 4 most significant weights
-											if (weight_list[i].mWeight > 0.f)
-											{
-												wght.push_back( weight_list[i] );
-												total += weight_list[i].mWeight;
-											}
-										}
-										
-										F32 scale = 1.f/total;
-										if (scale != 1.f)
-										{ //normalize weights
-											for (U32 i = 0; i < wght.size(); ++i)
-											{
-												wght[i].mWeight *= scale;
-											}
-										}
-										
-										model->mSkinWeights[model->mPosition[vc_idx]] = wght;
-									}
-									
-									//add instance to scene for this model
-									
-									LLMatrix4 transformation = mTransform;
-									// adjust the transformation to compensate for mesh normalization
-									
-									LLMatrix4 mesh_translation;
-									mesh_translation.setTranslation(mesh_translation_vector);
-									mesh_translation *= transformation;
-									transformation = mesh_translation;
-									
-									LLMatrix4 mesh_scale;
-									mesh_scale.initScale(mesh_scale_vector);
-									mesh_scale *= transformation;
-									transformation = mesh_scale;
-									
-									std::vector<LLImportMaterial> materials;
-									materials.resize(model->getNumVolumeFaces());
-									mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
-									stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
-								}
+								//add instance to scene for this model
+								
+								LLMatrix4 transformation = mTransform;
+								// adjust the transformation to compensate for mesh normalization
+								
+								LLMatrix4 mesh_translation;
+								mesh_translation.setTranslation(mesh_translation_vector);
+								mesh_translation *= transformation;
+								transformation = mesh_translation;
+								
+								LLMatrix4 mesh_scale;
+								mesh_scale.initScale(mesh_scale_vector);
+								mesh_scale *= transformation;
+								transformation = mesh_scale;
+								
+								std::vector<LLImportMaterial> materials;
+								materials.resize(model->getNumVolumeFaces());
+								mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
+								stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 							}
 						}
 					}
 				}
 			}
 		}
-		
-		daeElement* scene = root->getDescendant("visual_scene");
-		
-		if (!scene)
-		{
-			llwarns << "document has no visual_scene" << llendl;
-			setLoadState( ERROR_PARSING );
-			return;
-		}
-		setLoadState( DONE );
-
-		processElement(scene);
-		
-		handlePivotPoint( root );
-		
-		doOnIdleOneTime(boost::bind(&LLModelPreview::loadModelCallback,mPreview,mLod));
 	}
+	
+	daeElement* scene = root->getDescendant("visual_scene");
+	
+	if (!scene)
+	{
+		llwarns << "document has no visual_scene" << llendl;
+		setLoadState( ERROR_PARSING );
+		return false;
+	}
+	setLoadState( DONE );
+
+	processElement(scene);
+	
+	handlePivotPoint( root );
+	
+	return true;
+}
+
+void LLModelLoader::setLoadState(U32 state)
+{
+	if (mPreview)
+	{
+		mPreview->setLoadState(state);
+	}
+}
+
+void LLModelLoader::loadModelCallback()
+{
+	if (mPreview)
+	{
+		mPreview->loadModelCallback(mLod);
+		mPreview->mModelLoader = NULL;
+	}
+
+	while (!isStopped())
+	{ //wait until this thread is stopped before deleting self
+		apr_sleep(100);
+	}
+
+	delete this;
 }
 
 void LLModelLoader::handlePivotPoint( daeElement* pRoot )
@@ -2265,6 +2306,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mDirty = false;
 	mGenLOD = false;
 	mLoading = false;
+	mLoadState = LLModelLoader::STARTING;
 	mGroup = 0;
 	mBuildShareTolerance = 0.f;
 	mBuildQueueMode = GLOD_QUEUE_GREEDY;
@@ -2290,10 +2332,8 @@ LLModelPreview::~LLModelPreview()
 {
 	if (mModelLoader)
 	{
-		delete mModelLoader;
-		mModelLoader = NULL;
+		mModelLoader->mPreview = NULL;
 	}
-
 	//*HACK : *TODO : turn this back on when we understand why this crashes
 	//glodShutdown();
 }
@@ -2306,7 +2346,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	if (mFMP && mModelLoader)
 	{
-		if ( mModelLoader->getLoadState() != LLModelLoader::ERROR_PARSING )
+		if ( getLoadState() != LLModelLoader::ERROR_PARSING )
 		{
 			mFMP->childEnable("ok_btn");
 		}
@@ -2558,10 +2598,10 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	if (mModelLoader)
 	{
-		delete mModelLoader;
-		mModelLoader = NULL;
+		llwarns << "Incompleted model load operation pending." << llendl;
+		return;
 	}
-
+	
 	mLODFile[lod] = filename;
 
 	if (lod == LLModel::LOD_HIGH)
@@ -2577,7 +2617,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	setPreviewLOD(lod);
 
-	if ( mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING )
+	if ( getLoadState() == LLModelLoader::ERROR_PARSING )
 	{
 		mFMP->childDisable("ok_btn");
 	}
@@ -3322,7 +3362,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	bool errorStateFromLoader = mModelLoader->getLoadState() == LLModelLoader::ERROR_PARSING ? true : false;
+	bool errorStateFromLoader = getLoadState() == LLModelLoader::ERROR_PARSING ? true : false;
 
 	bool skinAndRigOk = true;
 	bool uploadingSkin = mFMP->childGetValue("upload_skin").asBoolean();

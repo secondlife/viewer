@@ -590,7 +590,7 @@ void LLFloaterModelWizard::refresh()
 	{
 		bool model_loaded = false;
 
-		if (mModelPreview && mModelPreview->mModelLoader && mModelPreview->mModelLoader->getLoadState() == LLModelLoader::DONE)
+		if (mModelPreview && mModelPreview->getLoadState() == LLModelLoader::DONE)
 		{
 			model_loaded = true;
 		}

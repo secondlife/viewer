@@ -3942,9 +3942,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
 							const int pelvisZOffset = pSkinData->mPelvisOffset;
-							//19 is a magic number derived from the master joint list
-							//TODO# move that joint list into the bone controller and query 
-							bool fullRig = (jointCnt>=19) ? true : false;
+							bool fullRig = (jointCnt>=20) ? true : false;
 							if ( fullRig )
 							{
 								for ( int i=0; i<jointCnt; ++i )
