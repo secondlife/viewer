@@ -220,6 +220,11 @@ void LLAgentListener::startAutoPilot(LLSD const & event) const
     {
         rotation_threshold = event["rotation_threshold"].asReal();
     }
+	if (event.has("fly"))
+	{
+		mAgent.setFlying(event["fly"].asBoolean());
+	}
+
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event["target_global"]),
                                 event["behavior_name"],
                                 target_rotation,
@@ -240,6 +245,7 @@ void LLAgentListener::getAutoPilot(const LLSD& event) const
               ("target_facing", ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing()))
               ("rotation_threshold", mAgent.getAutoPilotRotationThreshold())
               ("behavior_name", mAgent.getAutoPilotBehaviorName()),
+              ("fly", (LLSD::Boolean) mAgent.getFlying()),
               event);
 }
 
