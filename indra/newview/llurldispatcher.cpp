@@ -180,7 +180,7 @@ bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, bool right_mouse)
 	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(slurl.getRegion(),
 									  LLURLDispatcherImpl::regionNameCallback,
 									  slurl.getSLURLString(),
-									  false);	// don't teleport
+									  LLUI::sSettingGroups["config"]->getBOOL("SLURLTeleportDirectly"));	// don't teleport
 	return true;
 }
 

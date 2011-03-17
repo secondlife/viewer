@@ -1624,6 +1624,7 @@ void LLViewerWindow::initBase()
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
+	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
 	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 	
 
@@ -1785,6 +1786,7 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel_container->addChild(buttons_panel);
 
 	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
 	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (destinations)
@@ -2567,10 +2569,6 @@ void LLViewerWindow::updateUI()
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
 		{
 			LLFirstUse::notUsingDestinationGuide();
-		}
-		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("AvatarPickerHintTimeout"))
-		{
-			LLFirstUse::notUsingAvatarPicker();
 		}
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
 		{

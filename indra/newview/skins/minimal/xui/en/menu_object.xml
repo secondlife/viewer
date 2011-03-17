@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Object Pie">
+   <menu_item_call
+     enabled="false"
+     label="Sit Here"
+     name="Object Sit">
+        <menu_item_call.on_click
+         function="Object.SitOrStand" />
+        <menu_item_call.on_enable
+         function="Object.EnableSit" />
+   </menu_item_call>
+   <menu_item_call
+     enabled="false"
+     label="Stand Up"
+     name="Object Stand Up">
+        <menu_item_call.on_click
+         function="Object.SitOrStand" />
+        <menu_item_call.on_enable
+         function="Object.EnableStandUp" />
+   </menu_item_call>
+  <menu_item_call
+       label="Zoom In"
+       name="Zoom In">
+    <menu_item_call.on_click
+     function="Object.ZoomIn" />
+  </menu_item_call>
+  <menu_item_call
+    enabled="false"
+    label="Touch"
+    name="Object Touch">
+    <menu_item_call.on_click
+     function="Object.Touch" />
+    <menu_item_call.on_enable
+     function="Object.EnableTouch"
+     name="EnableTouch"
+     parameter="Touch" />
+  </menu_item_call>
+</context_menu>

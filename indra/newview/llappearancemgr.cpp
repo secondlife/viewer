@@ -2979,6 +2979,9 @@ public:
 			gAgent.setGenderChosen(TRUE);
 		}
 
+		// release avatar picker keyboard focus
+		gFocusMgr.setKeyboardFocus( NULL );
+
 		return true;
 	}
 };

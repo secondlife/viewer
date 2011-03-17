@@ -835,7 +835,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 	return num_saved;
 }
 
-U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values)
+U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values)
 {
 	std::string name;
 	LLSD settings;
@@ -908,8 +908,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			}
 			else if(existing_control->isPersisted())
 			{
-				
-				existing_control->setValue(control_map["Value"]);
+				existing_control->setValue(control_map["Value"], save_values);
 			}
 			// *NOTE: If not persisted and not setting defaults, 
 			// the value should not get loaded.

@@ -495,10 +495,10 @@ public:
 	// value is not defined.
 	S32 getZOrder(LLFloater* child);
 
-	void setSnapOffsetBottom(S32 offset) { mSnapOffsetBottom = offset; }
-	void setSnapOffsetRight(S32 offset) { mSnapOffsetRight = offset; }
+	void setFloaterSnapView(LLHandle<LLView> snap_view) {mSnapView = snap_view; }
 
 private:
+	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;

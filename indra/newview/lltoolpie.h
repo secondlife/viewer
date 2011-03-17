@@ -30,6 +30,7 @@
 #include "lltool.h"
 #include "lluuid.h"
 #include "llviewerwindow.h" // for LLPickInfo
+#include "llhudeffectblob.h" // for LLPointer<LLHudEffectBlob>, apparently
 
 class LLViewerObject;
 class LLObjectSelection;
@@ -56,6 +57,7 @@ public:
 	virtual void		stopEditing();
 
 	virtual void		onMouseCaptureLost();
+	virtual void		handleSelect();
 	virtual void		handleDeselect();
 	virtual LLTool*		getOverrideTool(MASK mask);
 
@@ -75,8 +77,8 @@ public:
 	
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
-	BOOL pickLeftMouseDownCallback();
-	BOOL pickRightMouseDownCallback();
+	BOOL handleLeftClickPick();
+	BOOL handleRightClickPick();
 	BOOL useClickAction		(MASK mask, LLViewerObject* object,LLViewerObject* parent);
 	
 	void showVisualContextMenuEffect();
@@ -88,12 +90,26 @@ private:
 	BOOL handleTooltipLand(std::string line, std::string tooltip_msg);
 	BOOL handleTooltipObject( LLViewerObject* hover_object, std::string line, std::string tooltip_msg);
 
+	void steerCameraWithMouse(S32 x, S32 y);
+	void startCameraSteering();
+	void stopCameraSteering();
+	bool inCameraSteerMode();
+
 private:
-	BOOL				mGrabMouseButtonDown;
-	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
+	bool				mMouseButtonDown;
+	bool				mMouseOutsideSlop;		// for this drag, has mouse moved outside slop region
+	S32					mMouseDownX;
+	S32					mMouseDownY;
+	S32					mMouseSteerX;
+	S32					mMouseSteerY;
+	LLPointer<LLHUDEffectBlob>	mAutoPilotDestination;
+	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
+	bool				mClockwise;			
+	bool				mAbortClickToWalk;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
+	LLPickInfo			mSteerPick;
 	LLPointer<LLViewerObject> mClickActionObject;
 	U8					mClickAction;
 	LLSafeHandle<LLObjectSelection> mLeftClickSelection;
