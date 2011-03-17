@@ -441,6 +441,8 @@ void LLNearbyChatScreenChannel::reshape			(S32 width, S32 height, BOOL called_fr
 //-----------------------------------------------------------------------------------------------
 //LLNearbyChatHandler
 //-----------------------------------------------------------------------------------------------
+boost::scoped_ptr<LLEventPump> LLNearbyChatHandler::sChatWatcher(new LLEventStream("LLChat"));
+
 LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& id)
 {
 	mType = type;
@@ -525,6 +527,19 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
  		LLFirstUse::otherAvatarChatFirst();
 	}
 
+	// Build data and send event on to LLEventStream
+	LLSD notification;
+	notification["message"] = chat_msg.mText;
+	notification["from"] = chat_msg.mFromName;
+	notification["from_id"] = chat_msg.mFromID;
+	notification["time"] = chat_msg.mTime;
+	notification["source"] = (S32)chat_msg.mSourceType;
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	
+	sChatWatcher->post(notification);
+
+
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
@@ -558,24 +573,13 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	}
 	*/
 
-	LLUUID id;
-	id.generate();
-
 	LLNearbyChatScreenChannel* channel = dynamic_cast<LLNearbyChatScreenChannel*>(mChannel);
-	
 
 	if(channel)
 	{
-		LLSD notification;
+		LLUUID id;
+		id.generate();
 		notification["id"] = id;
-		notification["message"] = chat_msg.mText;
-		notification["from"] = chat_msg.mFromName;
-		notification["from_id"] = chat_msg.mFromID;
-		notification["time"] = chat_msg.mTime;
-		notification["source"] = (S32)chat_msg.mSourceType;
-		notification["chat_type"] = (S32)chat_msg.mChatType;
-		notification["chat_style"] = (S32)chat_msg.mChatStyle;
-		
 		std::string r_color_name = "White";
 		F32 r_color_alpha = 1.0f; 
 		LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
@@ -585,7 +589,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
 		channel->addNotification(notification);	
 	}
-
 }
 
 void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
