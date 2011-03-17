@@ -2590,9 +2590,13 @@ void LLFloaterView::draw()
 
 LLRect LLFloaterView::getSnapRect() const
 {
-	LLRect snap_rect = getRect();
-	snap_rect.mBottom += mSnapOffsetBottom;
-	snap_rect.mRight  -= mSnapOffsetRight;
+	LLRect snap_rect = getLocalRect();
+
+	LLView* snap_view = mSnapView.get();
+	if (snap_view)
+	{
+		snap_view->localRectToOtherView(snap_view->getLocalRect(), &snap_rect, this);
+	}
 
 	return snap_rect;
 }

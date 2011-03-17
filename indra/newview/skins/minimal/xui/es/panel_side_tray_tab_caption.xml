@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="sidetray_tab_panel">
+	<text name="sidetray_tab_title" value="Panel lateral"/>
+	<button name="undock" tool_tip="Soltar"/>
+	<button name="dock" tool_tip="Fijar"/>
+	<button name="show_help" tool_tip="Ver ayuda"/>
+</panel>

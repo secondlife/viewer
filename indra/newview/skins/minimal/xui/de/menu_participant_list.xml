@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Participant List Context Menu">
+	<menu_item_check label="Nach Name sortieren" name="SortByName"/>
+	<menu_item_check label="Nach letzten Sprechern sortieren" name="SortByRecentSpeakers"/>
+	<menu_item_call label="Profil anzeigen" name="View Profile"/>
+	<menu_item_call label="Freund hinzufügen" name="Add Friend"/>
+	<menu_item_call label="IM" name="IM"/>
+	<menu_item_call label="Anrufen" name="Call"/>
+	<menu_item_call label="Teilen" name="Share"/>
+	<menu_item_call label="Bezahlen" name="Pay"/>
+	<menu_item_check label="Symbole für Personen anzeigen" name="View Icons"/>
+	<menu_item_check label="Voice ignorieren" name="Block/Unblock"/>
+	<menu_item_check label="Text ignorieren" name="MuteText"/>
+	<context_menu label="Moderator-Optionen" name="Moderator Options">
+		<menu_item_check label="Text-Chat zulassen" name="AllowTextChat"/>
+		<menu_item_call label="Diesen Teilnehmer stummschalten" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Stummschaltung für diesen Teilnehmer aufheben" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Alle stummschalten" name="ModerateVoiceMute"/>
+		<menu_item_call label="Alle freischalten" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</context_menu>
