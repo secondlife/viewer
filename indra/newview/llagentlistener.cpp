@@ -184,10 +184,13 @@ void LLAgentListener::getAxes(const LLSD& event) const
     quat.getEulerAngles(&roll, &pitch, &yaw);
     // The official query API for LLQuaternion's [x, y, z, w] values is its
     // public member mQ...
-    sendReply(LLSDMap
-              ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
-              ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
-              event);
+	LLSD reply = LLSD::emptyMap();
+	reply["quat"] = llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ));
+	reply["euler"] = LLSD::emptyMap();
+	reply["euler"]["roll"] = roll;
+	reply["euler"]["pitch"] = pitch;
+	reply["euler"]["yaw"] = yaw;
+    sendReply(reply, event);
 }
 
 
@@ -196,12 +199,17 @@ void LLAgentListener::getPosition(const LLSD& event) const
     F32 roll, pitch, yaw;
     LLQuaternion quat(mAgent.getQuat());
     quat.getEulerAngles(&roll, &pitch, &yaw);
-    sendReply(LLSDMap
-              ("region", ll_sd_from_vector3(mAgent.getPositionAgent()))
-              ("global", ll_sd_from_vector3d(mAgent.getPositionGlobal()))
-              ("quat", ll_sd_from_quaternion(quat))
-              ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
-              event);
+
+	LLSD reply = LLSD::emptyMap();
+	reply["quat"] = llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ));
+	reply["euler"] = LLSD::emptyMap();
+	reply["euler"]["roll"] = roll;
+	reply["euler"]["pitch"] = pitch;
+	reply["euler"]["yaw"] = yaw;
+    reply["region"] = ll_sd_from_vector3(mAgent.getPositionAgent());
+    reply["global"] = ll_sd_from_vector3d(mAgent.getPositionGlobal());
+
+	sendReply(reply, event);
 }
 
 
@@ -220,9 +228,15 @@ void LLAgentListener::startAutoPilot(LLSD const & event) const
     {
         rotation_threshold = event["rotation_threshold"].asReal();
     }
-	if (event.has("fly"))
+	
+	BOOL allow_flying = TRUE;
+	if (event.has("allow_flying"))
 	{
-		mAgent.setFlying(event["fly"].asBoolean());
+		allow_flying = (BOOL) event["allow_flying"].asBoolean();
+		if (!allow_flying)
+		{
+			mAgent.setFlying(FALSE);
+		}
 	}
 
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event["target_global"]),
@@ -230,23 +244,25 @@ void LLAgentListener::startAutoPilot(LLSD const & event) const
                                 target_rotation,
                                 NULL, NULL,
                                 event["stop_distance"].asReal(),
-                                rotation_threshold);
+                                rotation_threshold,
+								allow_flying);
 }
 
 void LLAgentListener::getAutoPilot(const LLSD& event) const
 {
-    sendReply(LLSDMap
-              ("enabled", (LLSD::Boolean) mAgent.getAutoPilot())
-              ("target_global", ll_sd_from_vector3d(mAgent.getAutoPilotTargetGlobal()))
-              ("leader_id", mAgent.getAutoPilotLeaderID())
-              ("stop_distance", mAgent.getAutoPilotStopDistance())
-              ("target_distance", mAgent.getAutoPilotTargetDist())
-              ("use_rotation", (LLSD::Boolean) mAgent.getAutoPilotUseRotation())
-              ("target_facing", ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing()))
-              ("rotation_threshold", mAgent.getAutoPilotRotationThreshold())
-              ("behavior_name", mAgent.getAutoPilotBehaviorName()),
-              ("fly", (LLSD::Boolean) mAgent.getFlying()),
-              event);
+	LLSD reply = LLSD::emptyMap();
+	reply["enabled"] = (LLSD::Boolean) mAgent.getAutoPilot();
+	reply["target_global"] = ll_sd_from_vector3d(mAgent.getAutoPilotTargetGlobal());
+	reply["leader_id"] = mAgent.getAutoPilotLeaderID();
+	reply["stop_distance"] = mAgent.getAutoPilotStopDistance();
+	reply["target_distance"] = mAgent.getAutoPilotTargetDist();
+	reply["use_rotation"] = (LLSD::Boolean) mAgent.getAutoPilotUseRotation();
+	reply["target_facing"] = ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing());
+	reply["rotation_threshold"] = mAgent.getAutoPilotRotationThreshold();
+	reply["behavior_name"] = mAgent.getAutoPilotBehaviorName();
+	reply["fly"] = (LLSD::Boolean) mAgent.getFlying();
+
+	sendReply(reply, event);
 }
 
 void LLAgentListener::startFollowPilot(LLSD const & event) const

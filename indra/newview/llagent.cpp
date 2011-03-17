@@ -198,6 +198,7 @@ LLAgent::LLAgent() :
 
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
+	mAutoPilotAllowFlying(TRUE),
 	mAutoPilotTargetGlobal(),
 	mAutoPilotStopDistance(1.f),
 	mAutoPilotUseRotation(FALSE),
@@ -1207,7 +1208,7 @@ BOOL LLAgent::getBusy() const
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
 //-----------------------------------------------------------------------------
-void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::string& behavior_name, const LLQuaternion *target_rotation, void (*finish_callback)(BOOL, void *),  void *callback_data, F32 stop_distance, F32 rot_threshold)
+void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::string& behavior_name, const LLQuaternion *target_rotation, void (*finish_callback)(BOOL, void *),  void *callback_data, F32 stop_distance, F32 rot_threshold, BOOL allow_flying)
 {
 	if (!isAgentAvatarValid())
 	{
@@ -1224,6 +1225,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	mAutoPilotCallbackData = callback_data;
 	mAutoPilotRotationThreshold = rot_threshold;
 	mAutoPilotBehaviorName = behavior_name;
+	mAutoPilotAllowFlying = allow_flying;
 
 	LLVector3d delta_pos( target_global );
 	delta_pos -= getPositionGlobal();
@@ -1251,14 +1253,23 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 		}
 	}
 
-	mAutoPilotFlyOnStop = getFlying();
+	if (mAutoPilotAllowFlying)
+	{
+		mAutoPilotFlyOnStop = getFlying();
+	}
+	else
+	{
+		mAutoPilotFlyOnStop = FALSE;
+	}
 
-	if (distance > 30.0)
+	if (distance > 30.0 && mAutoPilotAllowFlying)
 	{
 		setFlying(TRUE);
 	}
 
-	if ( distance > 1.f && heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
+	if ( distance > 1.f && 
+		mAutoPilotAllowFlying &&
+		heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
 		setFlying(TRUE);
 		// Do not force flying for "Sit" behavior to prevent flying after pressing "Stand"
@@ -1394,7 +1405,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		
 		if (!isAgentAvatarValid()) return;
 
-		if (gAgentAvatarp->mInAir)
+		if (gAgentAvatarp->mInAir && mAutoPilotAllowFlying)
 		{
 			setFlying(TRUE);
 		}

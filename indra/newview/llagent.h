@@ -479,7 +479,8 @@ public:
 										 const std::string& behavior_name = std::string(), 
 										 const LLQuaternion *target_rotation = NULL, 
 										 void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, 
-										 F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
+										 F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f,
+										 BOOL allow_flying = TRUE);
 	void 			startFollowPilot(const LLUUID &leader_id);
 	void			stopAutoPilot(BOOL user_cancel = FALSE);
 	void 			setAutoPilotTargetGlobal(const LLVector3d &target_global);
@@ -488,6 +489,7 @@ public:
 private:
 	BOOL			mAutoPilot;
 	BOOL			mAutoPilotFlyOnStop;
+	BOOL			mAutoPilotAllowFlying;
 	LLVector3d		mAutoPilotTargetGlobal;
 	F32				mAutoPilotStopDistance;
 	BOOL			mAutoPilotUseRotation;
