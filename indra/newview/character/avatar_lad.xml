@@ -3795,6 +3795,23 @@
     </param>
 
     <param
+     id="1091"
+     group="0"
+     name="Belly_Gravity"
+     label="Belly Gravity"
+     wearable="shape"
+     edit_group="driven"
+     label_min="Up"
+     label_max="Down"
+     value_default="0"
+     value_min="-2"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_morph />
+    </param>
+
+    <param
      id="626"
      sex="female"
      group="1"
@@ -4424,6 +4441,23 @@
           scale="-0.01 0.0 0.0"
           pos="0.01 0 0.0"/>
       </param_morph>
+    </param>
+
+    <param
+     id="1089"
+     group="0"
+     name="Butt_Gravity"
+     label="Butt Gravity"
+     wearable="shape"
+     edit_group="driven"
+     label_min="Separate"
+     label_max="Join"
+     value_default="0"
+     value_min="-2"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_morph />
     </param>
 
     <param
@@ -9349,6 +9383,48 @@ render_pass="bump">
       <param_driver>
         <driven
          id="1088" />
+	</param_driver>
+    </param>
+
+   <param
+     id="1090"
+     group="0"
+     name="Butt_Gravity_Driver"
+     label="Butt Gravity"
+     wearable="shape"
+     edit_group="shape_legs"
+     edit_group_order="7"
+     label_min="Less"
+     label_max="More"
+     value_default="0"
+     value_min="-2"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_driver>
+        <driven
+         id="1089" />
+	</param_driver>
+    </param>
+
+   <param
+     id="1092"
+     group="0"
+     name="Belly_Gravity_Driver"
+     label="Belly Gravity"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="14"
+     label_min="Less"
+     label_max="More"
+     value_default="0"
+     value_min="-2"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_driver>
+        <driven
+         id="1090" />
 	</param_driver>
     </param>
 

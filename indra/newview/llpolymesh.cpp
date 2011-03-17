@@ -602,12 +602,35 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				}
 
 				mMorphData.insert(morph_data);
-				/*
-				if (std::string(morphName) == "Breast_Gravity")
+
+				if (!strcmp(morphName, "Big_Belly_Torso"))
 				{
-					LLPolyMorphData *morph_data_clone = new LLPolyMorphData(std::string(morphName));
+					LLPolyMorphData* belly_data = new LLPolyMorphData(*morph_data);
+					belly_data->mName = std::string("Belly_Gravity");
+					for (U32 v=0; v < belly_data->mNumIndices; v++)
+					{
+						// llinfos << "Coord: " << v << "\t" << belly_data->mCoords[v] << llendl;
+						belly_data->mCoords[v][0] = 0;
+						belly_data->mCoords[v][1] = 0;
+						belly_data->mCoords[v][2] = 0.01F;
+					}
+					mMorphData.insert(belly_data);
 				}
-				*/
+
+				if (!strcmp(morphName, "Small_Butt"))
+				{
+					llinfos << "Reading small butt" << llendl;
+					LLPolyMorphData* butt_data = new LLPolyMorphData(*morph_data);
+					butt_data->mName = std::string("Butt_Gravity");
+					for (U32 v=0; v < butt_data->mNumIndices; v++)
+					{
+						// llinfos << "Coord: " << v << "\t" << butt_data->mCoords[v] << llendl;
+						butt_data->mCoords[v][0] = 0;
+						butt_data->mCoords[v][1] = 0;
+						butt_data->mCoords[v][2] = 0.01F;
+					}
+					mMorphData.insert(butt_data);
+				}
 			}
 
 			S32 numRemaps;

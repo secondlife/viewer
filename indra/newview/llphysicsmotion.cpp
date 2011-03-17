@@ -1,0 +1,559 @@
+/** 
+ * @file llphysicsmotion.cpp
+ * @brief Implementation of LLPhysicsMotion class.
+ *
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
+
+//-----------------------------------------------------------------------------
+// Header Files
+//-----------------------------------------------------------------------------
+#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
+
+#include "m3math.h"
+#include "v3dmath.h"
+
+#include "llphysicsmotion.h"
+#include "llcharacter.h"
+#include "llviewercontrol.h"
+#include "llviewervisualparam.h"
+#include "llvoavatarself.h"
+
+typedef std::map<std::string, std::string> controller_map_t;
+
+#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 0.f;
+
+inline F64 llsgn(const F64 a)
+{
+	if (a >= 0)
+		return 1;
+	return -1;
+}
+
+class LLPhysicsMotion
+{
+public:
+	LLPhysicsMotion(const std::string &param_user_name,
+			const std::string &param_driven_name,
+			const std::string &joint_name,
+			LLCharacter *character,
+			const LLVector3 &motion_direction_vec,
+			const controller_map_t &controllers) :
+		mParamUserName(param_user_name),
+		mParamDrivenName(param_driven_name),
+		mJointName(joint_name),
+		mMotionDirectionVec(motion_direction_vec),
+		mParamUser(NULL),
+		mParamDriven(NULL),
+
+		mParamControllers(controllers),
+		mCharacter(character),
+		mLastTime(0),
+		mPosition_local(0),
+		mVelocityJoint_local(0),
+		mPositionLastUpdate_local(0),
+		mPositionMin_local(0),
+		mPositionMax_local(0)
+	{
+		mJointState = new LLJointState;
+	}
+
+	BOOL initialize();
+
+	~LLPhysicsMotion() {}
+
+	BOOL onUpdate(F32 time);
+
+	LLPointer<LLJointState> getJointState() 
+	{
+		return mJointState;
+	}
+protected:
+	F32 getParamValue(const std::string& controller_key)
+	{
+		const controller_map_t::const_iterator& entry = mParamControllers.find(controller_key);
+		if (entry == mParamControllers.end())
+		{
+			return 1.0;
+		}
+		const std::string& param_name = (*entry).second.c_str();
+		return mCharacter->getVisualParamWeight(param_name.c_str());
+	}
+
+	F32 toLocal(const LLVector3 &world);
+	F32 calculateVelocity_local(const F32 time_delta);
+	F32 calculateAcceleration_local(F32 velocity_local,
+					const F32 time_delta);
+	
+private:
+	const std::string mParamDrivenName;
+	const std::string mParamUserName;
+	const LLVector3 mMotionDirectionVec;
+	const std::string mJointName;
+
+	F32 mPosition_local;
+	F32 mVelocityJoint_local; // How fast the joint is moving
+	F32 mAccelerationJoint_local; // Acceleration on the joint
+
+	F32 mVelocity_local; // How fast the param is moving
+	F32 mPositionLastUpdate_local;
+	F32 mPositionMin_local;
+	F32 mPositionMax_local;
+	LLVector3 mPosition_world;
+
+	LLViewerVisualParam *mParamUser;
+	LLViewerVisualParam *mParamDriven;
+	const controller_map_t mParamControllers;
+	
+	LLPointer<LLJointState> mJointState;
+	LLCharacter *mCharacter;
+
+	F32 mLastTime;
+				  
+};
+
+
+
+BOOL LLPhysicsMotion::initialize()
+{
+	if (!mJointState->setJoint(mCharacter->getJoint(mJointName.c_str())))
+		return FALSE;
+	mJointState->setUsage(LLJointState::ROT);
+
+	mParamUser = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamUserName.c_str());
+	mParamDriven = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDrivenName.c_str());
+	if ((mParamUser == NULL) || 
+	    (mParamDriven == NULL))
+	{
+		llinfos << "Failure reading in either of both of [ " << mParamUserName << " : " << mParamDrivenName << " ]" << llendl;
+		return FALSE;
+	}
+	mPositionMin_local = mParamDriven->getMinWeight();
+	mPositionMax_local = mParamDriven->getMaxWeight();
+
+	return TRUE;
+}
+
+LLPhysicsMotionController::LLPhysicsMotionController(const LLUUID &id) : 
+	LLMotion(id),
+	mCharacter(NULL)
+{
+	mName = "breast_motion";
+}
+
+LLPhysicsMotionController::~LLPhysicsMotionController()
+{
+	for (motion_vec_t::iterator iter = mMotions.begin();
+	     iter != mMotions.end();
+	     ++iter)
+	{
+		delete (*iter);
+	}
+}
+
+BOOL LLPhysicsMotionController::onActivate() 
+{ 
+	return TRUE; 
+}
+
+void LLPhysicsMotionController::onDeactivate() 
+{
+}
+
+LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter *character)
+{
+	mCharacter = character;
+
+	mMotions.clear();
+
+	controller_map_t controllers_cleavage;
+	controllers_cleavage["Mass"] = "Breast_Physics_Mass";
+	controllers_cleavage["Smoothing"] = "Breast_Physics_Smoothing";
+	controllers_cleavage["Gravity"] = "Breast_Physics_Gravity";
+	controllers_cleavage["Damping"] = "Breast_Physics_Side_Damping";
+	controllers_cleavage["Drag"] = "Breast_Physics_Side_Drag";
+	controllers_cleavage["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
+	controllers_cleavage["Spring"] = "Breast_Physics_Side_Spring";
+	controllers_cleavage["Gain"] = "Breast_Physics_Side_Gain";
+
+	LLPhysicsMotion *cleavage_motion = new LLPhysicsMotion("Breast_Female_Cleavage_Driver",
+							       "Breast_Female_Cleavage",
+							       "mChest",
+							       character,
+							       LLVector3(-1,0,0),
+							       controllers_cleavage);
+	if (!cleavage_motion->initialize())
+		return STATUS_FAILURE;
+	addMotion(cleavage_motion);
+
+	controller_map_t controllers_bounce;
+	controllers_bounce["Mass"] = "Breast_Physics_Mass";
+	controllers_bounce["Smoothing"] = "Breast_Physics_Smoothing";
+	controllers_bounce["Gravity"] = "Breast_Physics_Gravity";
+	controllers_bounce["Damping"] = "Breast_Physics_UpDown_Damping";
+	controllers_bounce["Drag"] = "Breast_Physics_UpDown_Drag";
+	controllers_bounce["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
+	controllers_bounce["Spring"] = "Breast_Physics_UpDown_Spring";
+	controllers_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
+
+	LLPhysicsMotion *bounce_motion = new LLPhysicsMotion("Breast_Gravity_Driver",
+							     "Breast_Gravity",
+							     "mChest",
+							     character,
+							     LLVector3(0,0,1),
+							     controllers_bounce);
+	if (!bounce_motion->initialize())
+		return STATUS_FAILURE;
+	addMotion(bounce_motion);
+
+	controller_map_t controllers_butt_bounce;
+	controllers_butt_bounce["Mass"] = "Breast_Physics_Mass";
+	controllers_butt_bounce["Smoothing"] = "Breast_Physics_Smoothing";
+	controllers_butt_bounce["Gravity"] = "Breast_Physics_Gravity";
+	controllers_butt_bounce["Damping"] = "Breast_Physics_Side_Damping";
+	controllers_butt_bounce["Drag"] = "Breast_Physics_Side_Drag";
+	controllers_butt_bounce["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
+	controllers_butt_bounce["Spring"] = "Breast_Physics_Side_Spring";
+	controllers_butt_bounce["Gain"] = "Breast_Physics_Side_Gain";
+
+	LLPhysicsMotion *butt_bounce_motion = new LLPhysicsMotion("Butt_Gravity_Driver",
+								  "Butt_Gravity",
+								  "mPelvis",
+								  character,
+								  LLVector3(0,0,-1),
+								  controllers_butt_bounce);
+	if (!butt_bounce_motion->initialize())
+		return STATUS_FAILURE;
+	addMotion(butt_bounce_motion);
+
+	controller_map_t controllers_belly_bounce;
+	controllers_belly_bounce["Mass"] = "Breast_Physics_Mass";
+	controllers_belly_bounce["Smoothing"] = "Breast_Physics_Smoothing";
+	controllers_belly_bounce["Gravity"] = "Breast_Physics_Gravity";
+	controllers_belly_bounce["Damping"] = "Breast_Physics_UpDown_Damping";
+	controllers_belly_bounce["Drag"] = "Breast_Physics_UpDown_Drag";
+	controllers_belly_bounce["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
+	controllers_belly_bounce["Spring"] = "Breast_Physics_UpDown_Spring";
+	controllers_belly_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
+
+	LLPhysicsMotion *belly_bounce_motion = new LLPhysicsMotion("Big_Belly_Torso",
+								  "Belly Size",
+								  "mChest",
+								  character,
+								   LLVector3(-0.005f,0,0),
+								  controllers_belly_bounce);
+	if (!belly_bounce_motion->initialize())
+		return STATUS_FAILURE;
+	addMotion(belly_bounce_motion);
+
+	return STATUS_SUCCESS;
+}
+
+void LLPhysicsMotionController::addMotion(LLPhysicsMotion *motion)
+{
+	addJointState(motion->getJointState());
+	mMotions.push_back(motion);
+}
+
+F32 LLPhysicsMotionController::getMinPixelArea() 
+{
+	return MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION;
+}
+
+// Local space means "parameter space".
+F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
+{
+	LLJoint *joint = mJointState->getJoint();
+	const LLQuaternion rotation_world = joint->getWorldRotation();
+	
+	LLVector3 dir_world = mMotionDirectionVec * rotation_world;
+	dir_world.normalize();
+	return world * dir_world * mMotionDirectionVec.length(); // dot product
+}
+
+F32 LLPhysicsMotion::calculateVelocity_local(const F32 time_delta)
+{
+	LLJoint *joint = mJointState->getJoint();
+	const LLVector3 position_world = joint->getWorldPosition();
+	const LLQuaternion rotation_world = joint->getWorldRotation();
+	const LLVector3 last_position_world = mPosition_world;
+	const LLVector3 velocity_world = (position_world-last_position_world) / time_delta;
+	const F32 velocity_local = toLocal(velocity_world);
+	return velocity_local;
+}
+
+F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local,
+						 const F32 time_delta)
+{
+	const F32 smoothing = getParamValue("Smoothing");
+	const F32 acceleration_local = velocity_local - mVelocityJoint_local;
+	
+	const F32 smoothed_acceleration_local = 
+		acceleration_local * 1.0/smoothing + 
+		mAccelerationJoint_local * (smoothing-1.0)/smoothing;
+	
+	return smoothed_acceleration_local;
+}
+
+BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
+{
+	// Skip if disabled globally.
+	if (!gSavedSettings.getBOOL("AvatarPhysics"))
+	{
+		return TRUE;
+	}
+	
+	if (mCharacter->getSex() != SEX_FEMALE) return TRUE;
+	
+	BOOL update_visuals = FALSE;
+	for (motion_vec_t::iterator iter = mMotions.begin();
+	     iter != mMotions.end();
+	     ++iter)
+	{
+		LLPhysicsMotion *motion = (*iter);
+		update_visuals |= motion->onUpdate(time);
+	}
+		
+	if (update_visuals)
+		mCharacter->updateVisualParams();
+	
+	return TRUE;
+}
+
+
+// Return TRUE if character has to update visual params.
+BOOL LLPhysicsMotion::onUpdate(F32 time)
+{
+	// static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
+	
+	if (!mParamUser || !mParamDriven)
+		return FALSE;
+
+	if (!mLastTime)
+	{
+		mLastTime = time;
+		return FALSE;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Get all parameters and settings
+	//
+
+	const F32 time_delta = time - mLastTime;
+	if (time_delta > 3.0 || time_delta <= 0.01)
+	{
+		mLastTime = time;
+		return FALSE;
+	}
+
+	// Higher LOD is better.  This controls the granularity
+	// and frequency of updates for the motions.
+	const F32 lod_factor = LLVOAvatar::sPhysicsLODFactor;
+	if (lod_factor == 0)
+	{
+		return TRUE;
+	}
+
+	F32 behavior_mass = getParamValue("Mass");
+	F32 behavior_gravity = getParamValue("Gravity");
+	F32 behavior_spring = getParamValue("Spring");
+	F32 behavior_gain = getParamValue("Gain");
+	F32 behavior_damping = getParamValue("Damping");
+	F32 behavior_maxspeed = getParamValue("MaxSpeed");
+	F32 behavior_drag = getParamValue("Drag");
+
+	F32 position_user_local = mParamUser->getWeight();
+	F32 position_current_local = mPosition_local;
+
+	//
+	// End parameters and settings
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Calculate velocity and acceleration in parameter space.
+	//
+	
+	const F32 velocity_joint_local = calculateVelocity_local(time_delta);
+	const F32 acceleration_joint_local = calculateAcceleration_local(velocity_joint_local, time_delta);
+
+	LLJoint *joint = mJointState->getJoint();
+
+	//
+	// End velocity and acceleration
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Calculate the total force 
+	//
+
+	// Spring force is a restoring force towards the original user-set breast position.
+	// F = kx
+	const F32 spring_length = position_current_local - position_user_local;
+	const F32 force_spring = -spring_length * behavior_spring;
+
+	// Acceleration is the force that comes from the change in velocity of the torso.
+	// F = ma
+	const F32 force_accel = behavior_gain * (acceleration_joint_local * behavior_mass);
+
+	// Gravity always points downward in world space.
+	// F = mg
+	const LLVector3 gravity_world(0,0,1);
+	const F32 force_gravity = behavior_gain * (toLocal(gravity_world) * behavior_gravity * behavior_mass);
+		
+	// Damping is a restoring force that opposes the current velocity.
+	// F = -kv
+	const F32 force_damping = -behavior_damping * mVelocity_local;
+		
+	// Drag is a force imparted by velocity (intuitively it is similar to wind resistance)
+	// F = .5kv^2
+	const F32 force_drag = .5*behavior_drag*velocity_joint_local*velocity_joint_local*llsgn(velocity_joint_local);
+
+	const F32 force_net = (force_accel + 
+			       force_gravity +
+			       force_spring + 
+			       force_damping + 
+			       force_drag);
+
+	//
+	// End total force
+	////////////////////////////////////////////////////////////////////////////////
+
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// Calculate new params
+	//
+
+	// Calculate the new acceleration based on the net force.
+	// a = F/m
+	const F32 acceleration_new_local = force_net / behavior_mass;
+	F32 velocity_new_local = mVelocity_local + acceleration_new_local;
+	velocity_new_local = llclamp(velocity_new_local, 
+				     -behavior_maxspeed*100.0f, behavior_maxspeed*100.0f);
+	
+	// Temporary debugging setting to cause all avatars to move, for profiling purposes.
+	if (gSavedSettings.getBOOL("AvatarPhysicsTest"))
+	{
+		velocity_new_local = sin(time*4.0)*5.0;
+	}
+	// Calculate the new parameters and clamp them to the min/max ranges.
+	F32 position_new_local = position_current_local + velocity_new_local*time_delta;
+	position_new_local = llclamp(position_new_local,
+				     mPositionMin_local, mPositionMax_local);
+	
+	// Set the new parameters.
+	// If the param is disabled, just set the param to the user value.
+	if (behavior_maxspeed == 0)
+	{
+		position_new_local = position_user_local;
+	}
+	mCharacter->setVisualParamWeight(mParamDriven,
+					 position_new_local,
+					 FALSE);
+		
+	//
+	// End calculate new params
+	////////////////////////////////////////////////////////////////////////////////
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// Conditionally update the visual params
+	//
+		
+	// Updating the visual params (i.e. what the user sees) is fairly expensive.
+	// So only update if the params have changed enough, and also take into account
+	// the graphics LOD settings.
+	
+	BOOL update_visuals = FALSE;
+
+	// For non-self, if the avatar is small enough visually, then don't update.
+	const F32 area_for_max_settings = 0.0;
+	const F32 area_for_min_settings = 1400.0;
+	const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
+	const F32 pixel_area = fsqrtf(mCharacter->getPixelArea());
+
+	const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
+	if ((pixel_area > area_for_this_setting) || is_self)
+	{
+		// If the parameter hasn't changed enough, then don't update.
+		const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local);
+		const F32 min_delta = (1.0-lod_factor)*(mPositionMax_local-mPositionMin_local)/2.0;
+		if (llabs(position_diff_local) > min_delta)
+		{
+			update_visuals = TRUE;
+			mPositionLastUpdate_local = position_new_local;
+		}
+	}
+
+	update_visuals = TRUE;
+	mPositionLastUpdate_local = position_new_local;
+
+	//
+	// End update visual params
+	////////////////////////////////////////////////////////////////////////////////
+
+	mVelocityJoint_local = velocity_joint_local;
+
+	mVelocity_local = velocity_new_local;
+	mAccelerationJoint_local = acceleration_joint_local;
+	mPosition_local = position_new_local;
+
+	mPosition_world = joint->getWorldPosition();
+	mLastTime = time;
+
+	/*
+	  if (mFileWrite != NULL && is_self)
+	  {
+	  fprintf(mFileWrite,"%f\t%f\t%f \t\t%f \t\t%f\t%f\t%f\t \t\t%f\t%f\t%f\t%f\t%f \t\t%f\t%f\t%f\n",
+	  position_new_local,
+	  velocity_new_local,
+	  acceleration_new_local,
+
+	  time_delta,
+
+	  mPosition_world[0],
+	  mPosition_world[1],
+	  mPosition_world[2],
+
+	  force_net,
+	  force_spring,
+	  force_accel,
+	  force_damping,
+	  force_drag,
+
+	  spring_length,
+	  velocity_joint_local,
+	  acceleration_joint_local
+	  );
+	  }
+	*/
+
+	return update_visuals;
+}
+	
