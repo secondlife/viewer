@@ -5,6 +5,7 @@ project(mac_updater)
 include(00-Common)
 include(OpenSSL)
 include(CURL)
+include(CARes)
 include(LLCommon)
 include(LLVFS)
 include(Linking)
@@ -12,6 +13,8 @@ include(Linking)
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
+    ${CARES_INCLUDE_DIRS}
     )
 
 set(mac_updater_SOURCE_FILES
@@ -53,6 +56,7 @@ target_link_libraries(mac-updater
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${CURL_LIBRARIES}
+    ${CARES_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     )
 

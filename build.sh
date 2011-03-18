@@ -22,12 +22,12 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo viewer-linux-i686-$(echo $1 | tr A-Z a-z)
+  echo build-linux-i686
 }
 
 build_dir_CYGWIN()
 {
-  echo build-vc80
+  echo build-vc100
 }
 
 installer_Darwin()
@@ -50,47 +50,18 @@ installer_CYGWIN()
 pre_build()
 {
   local variant="$1"
-  local build_dir="$2"
   begin_section "Pre$variant"
-  #export PATH="/cygdrive/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/:$PATH"
-  python develop.py \
-    --incredibuild \
-    --unattended \
-    -t $variant \
-    -G "$cmake_generator" \
-   configure \
-    -DGRID:STRING="$viewer_grid" \
-    -DVIEWER_CHANNEL:STRING="$viewer_channel" \
-    -DVIEWER_LOGIN_CHANNEL:STRING="$login_channel" \
-    -DINSTALL_PROPRIETARY:BOOL=ON \
-    -DRELEASE_CRASH_REPORTING:BOOL=ON \
-    -DLOCALIZESETUP:BOOL=ON \
-    -DPACKAGE:BOOL=ON \
-    -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
-    -DLL_TESTS:BOOL="$run_tests"
+    "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE
   end_section "Pre$variant"
 }
 
 build()
 {
   local variant="$1"
-  local build_dir="$2"
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    if python develop.py \
-      --incredibuild \
-      --unattended \
-      -t $variant \
-      -G "$cmake_generator" \
-      build package
-#     && \
-#      python develop.py \
-#        --incredibuild \
-#      --unattended \
-#      -t $variant \
-#      -G "$cmake_generator" \
-#      build package
+    if "$AUTOBUILD" build -c $variant
     then
       echo true >"$build_dir"/build_ok
     else
@@ -110,6 +81,7 @@ build_docs()
   end_section Docs
 }
 
+
 # Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
 if [ "x$arch" = x ]
 then
@@ -117,15 +89,11 @@ then
   if [ -x "$top/../buildscripts/hg/bin/build.sh" ]
   then
     exec "$top/../buildscripts/hg/bin/build.sh" "$top"
-  elif [ -r "$top/README" ]
-  then
-    cat "$top/README"
-    exit 1
   else
     cat <<EOF
 This script, if called in a development environment, requires that the branch
 independent build script repository be checked out next to this repository.
-This repository is located at http://hg.secondlife.com/buildscripts
+This repository is located at http://hg.lindenlab.com/parabuild/buildscripts
 EOF
     exit 1
   fi
@@ -138,7 +106,7 @@ eval '$build_'"$arch" || pass
 # File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
 if test -f scripts/update_version_files.py ; then
   begin_section UpdateVer
-  scripts/update_version_files.py \
+  python scripts/update_version_files.py \
           --channel="$viewer_channel" \
           --server_channel="$server_channel" \
           --revision=$revision \
@@ -149,10 +117,53 @@ fi
 
 # Now retrieve the version for use in the version manager
 # First three parts only, $revision will be appended automatically.
-build_viewer_update_version_manager_version=`scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
+build_viewer_update_version_manager_version=`python scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
+
+if [ -z "$AUTOBUILD" ]
+then
+  export autobuild_dir="$here/../../../autobuild/bin/"
+  if [ -d "$autobuild_dir" ]
+  then
+    export AUTOBUILD="$autobuild_dir"autobuild
+    if [ -x "$AUTOBUILD" ]
+    then
+      # *HACK - bash doesn't know how to pass real pathnames to native windows python
+      case "$arch" in
+      CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
+      esac
+    else
+      record_failure "Not executable: $AUTOBUILD"
+      exit 1
+    fi
+  else
+    record_failure "Not found: $autobuild_dir"
+    exit 1
+  fi
+fi
+
+# load autbuild provided shell functions and variables
+# Merov: going back to the previous code that passes even if it fails catching a failure
+# TODO: use the correct code here under and fix the llbase import in python code
+#if "$AUTOBUILD" source_environment > source_environment
+#then
+#  . source_environment
+#else
+  # dump environment variables for debugging
+#  env|sort
+#  record_failure "autobuild source_environment failed"
+#  cat source_environment >&3
+#  exit 1
+#fi
+eval "$("$AUTOBUILD" source_environment)"
+
+# dump environment variables for debugging
+env|sort
+
+
+# Install packages.
+"$AUTOBUILD" install --skip-license-check
 
 # Now run the build
-cd indra
 succeeded=true
 build_processes=
 last_built_variant=
@@ -169,59 +180,11 @@ do
   build_dir_stubs="$build_dir/win_setup/$variant"
   rm -rf "$build_dir"
   mkdir -p "$build_dir"
+  mkdir -p "$build_dir/tmp"
+  #export TMP="$build_dir/tmp"
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
-    if $build_coverity
-    then
-      mkdir -p "$build_dir/cvbuild"
-      coverity_config=`cygpath --windows "$coverity_dir/config/coverity_config.xml"`
-      coverity_tmpdir=`cygpath --windows "$build_dir/cvbuild"`
-      coverity_root=`cygpath --windows "$top/latest"`
-      case "$variant" in
-      Release)
-        begin_section Coverity
-        begin_section CovBuild
-        "$coverity_dir"/bin/cov-build\
-           --verbose 4 \
-           --config "$coverity_config"\
-           --dir "$coverity_tmpdir"\
-             python develop.py -t $variant -G "$cmake_generator" build "$coverity_product"\
-          >> "$build_log" 2>&1\
-         &&\
-        end_section CovBuild\
-         &&\
-        begin_section CovAnalyze\
-         &&\
-        "$coverity_dir"/bin/cov-analyze\
-           --security\
-           --concurrency\
-           --dir "$coverity_tmpdir"\
-          >> "$build_log" 2>&1\
-         &&\
-        end_section CovAnalyze\
-         &&\
-        begin_section CovCommit\
-         &&\
-        "$coverity_dir"/bin/cov-commit-defects\
-           --stream "$coverity_product"\
-           --dir "$coverity_tmpdir"\
-           --host "$coverity_server"\
-           --strip-path "$coverity_root"\
-           --target "$branch/$arch"\
-           --version "$revision"\
-           --description "$repo: $variant $revision"\
-           --user admin --password coverity\
-          >> "$build_log" 2>&1\
-          || record_failure "Coverity Build Failed"
-        # since any step could have failed, rely on the enclosing block to close any pending sub-blocks
-        end_section Coverity
-       ;;
-      esac
-      if test -r "$build_dir"/cvbuild/build-log.txt
-      then
-        upload_item log "$build_dir"/cvbuild/build-log.txt text/plain
-      fi
-    elif $build_link_parallel
+    if $build_link_parallel
     then
       begin_section BuildParallel
       ( build "$variant" "$build_dir" > "$build_dir/build.log" 2>&1 ) &
@@ -229,10 +192,7 @@ do
       end_section BuildParallel
     else
       begin_section "Build$variant"
-      build "$variant" "$build_dir" >> "$build_log" 2>&1
-      begin_section Tests
-      grep --line-buffered "^##teamcity" "$build_log"
-      end_section Tests
+      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | grep --line-buffered "^##teamcity"
       if `cat "$build_dir/build_ok"`
       then
         echo so far so good.
@@ -261,15 +221,13 @@ then
     begin_section "Build$variant"
     build_dir=`build_dir_$arch $variant`
     build_dir_stubs="$build_dir/win_setup/$variant"
+    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
     if `cat "$build_dir/build_ok"`
     then
       echo so far so good.
     else
       record_failure "Parallel build of \"$variant\" failed."
     fi
-    begin_section Tests
-    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
-    end_section Tests
     end_section "Build$variant"
   done
   end_section WaitParallel
@@ -290,7 +248,6 @@ then
       succeeded=$build_coverity
     else
       upload_item installer "$package" binary/octet-stream
-      upload_item quicklink "$package" binary/octet-stream
 
       # Upload crash reporter files.
       case "$last_built_variant" in
