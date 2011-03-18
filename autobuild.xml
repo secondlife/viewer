@@ -870,7 +870,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>22c2ab6ef046c0c1f6cf674297f3e8ef</string>
+              <string>de8b96120c274e052abb4f692861be46</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-darwin-20110131.tar.bz2</string>
             </map>
@@ -894,7 +894,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0959e349c4f7c0b33539269502486737</string>
+              <string>afff2018e6a887c281b072eecdd9343e</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110208.tar.bz2</string>
             </map>
