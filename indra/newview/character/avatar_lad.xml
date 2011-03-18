@@ -3795,10 +3795,10 @@
     </param>
 
     <param
-     id="1091"
+     id="1092"
      group="0"
-     name="Belly_Gravity"
-     label="Belly Gravity"
+     name="Big_Belly_Torso_Gravity"
+     label="Big Belly Torso Gravity"
      wearable="shape"
      edit_group="driven"
      label_min="Up"
@@ -4404,6 +4404,18 @@
      value_max="1">
       <param_morph />
     </param>
+
+    <param
+     id="1093"
+     group="1"
+     name="Big_Belly_Legs_Gravity"
+     wearable="shape"
+     edit_group="driven"
+     value_min="-2"
+     value_max="2">
+      <param_morph />
+    </param>
+
 
     <param
      id="151"
@@ -5168,6 +5180,19 @@
      edit_group="driven"
      cross_wearable="true"
      label="big belly skirt"
+     value_min="0"
+     value_max="1">
+      <param_morph />
+    </param>
+
+    <param
+     id="1094"
+     group="1"
+     name="skirt_belly_gravity"
+     wearable="skirt"
+     edit_group="driven"
+     cross_wearable="true"
+     label="big belly skirt gravity"
      value_min="0"
      value_max="1">
       <param_morph />
@@ -9407,27 +9432,6 @@ render_pass="bump">
 	</param_driver>
     </param>
 
-   <param
-     id="1092"
-     group="0"
-     name="Belly_Gravity_Driver"
-     label="Belly Gravity"
-     wearable="shape"
-     edit_group="shape_torso"
-     edit_group_order="14"
-     label_min="Less"
-     label_max="More"
-     value_default="0"
-     value_min="-2"
-     value_max="2"
-     camera_elevation=".3"
-     camera_distance=".8">
-      <param_driver>
-        <driven
-         id="1090" />
-	</param_driver>
-    </param>
-
     <param
      id="828"
      group="0"
@@ -10148,6 +10152,34 @@ render_pass="bump">
 
         <driven
          id="849" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1091"
+     group="0"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="14"
+     name="Belly_Gravity"
+     label="Belly Gravity"
+     label_min="Small"
+     label_max="Big"
+     value_min="0"
+     value_max="1"
+     value_default="0"
+     camera_distance="1.4"
+     camera_angle="30"
+     camera_elevation=".2">
+      <param_driver>
+        <driven
+         id="1092" />
+
+        <driven
+         id="1093" />
+
+        <driven
+         id="1094" />
       </param_driver>
     </param>
 

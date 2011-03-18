@@ -263,10 +263,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 	controllers_belly_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
 
 	LLPhysicsMotion *belly_bounce_motion = new LLPhysicsMotion("Big_Belly_Torso",
-								  "Belly Size",
+								  "Belly_Gravity",
 								  "mChest",
 								  character,
-								   LLVector3(-0.005f,0,0),
+								   LLVector3(0,0,.25f),
 								  controllers_belly_bounce);
 	if (!belly_bounce_motion->initialize())
 		return STATUS_FAILURE;
