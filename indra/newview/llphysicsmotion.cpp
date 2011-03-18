@@ -309,7 +309,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 								   "",
 								   "mChest",
 								   character,
-								   LLVector3(0,0,1),
+								   LLVector3(0,0,-1),
 								   controllers_belly_bounce);
 	if (!belly_bounce_motion->initialize())
 		return STATUS_FAILURE;
@@ -337,7 +337,7 @@ F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
 	
 	LLVector3 dir_world = mMotionDirectionVec * rotation_world;
 	dir_world.normalize();
-	return world * dir_world * mMotionDirectionVec.length(); // dot product
+	return world * dir_world;
 }
 
 F32 LLPhysicsMotion::calculateVelocity_local(const F32 time_delta)
@@ -625,7 +625,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	  }
 	*/
 
-	return TRUE;
+	return update_visuals;
 }
 
 // Range of new_value_local is assumed to be [0 , 1] normalized.

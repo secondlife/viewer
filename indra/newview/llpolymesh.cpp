@@ -605,54 +605,62 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 
 				if (!strcmp(morphName, "Big_Belly_Torso"))
 				{
-					LLPolyMorphData* belly_data = new LLPolyMorphData(*morph_data);
-					belly_data->mName = std::string("Big_Belly_Torso_Gravity");
-					for (U32 v=0; v < belly_data->mNumIndices; v++)
+					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
+					cloned_morph_data->mName = std::string("Big_Belly_Torso_Gravity");
+					for (U32 v=0; v < morph_data->mNumIndices; v++)
 					{
-						belly_data->mCoords[v][0] = 0;
-						belly_data->mCoords[v][1] = 0;
-						belly_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][0] = 0;
+						cloned_morph_data->mCoords[v][1] = 0;
+						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
+						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
-					mMorphData.insert(belly_data);
+					mMorphData.insert(cloned_morph_data);
 				}
 
 				if (!strcmp(morphName, "Big_Belly_Legs"))
 				{
-					LLPolyMorphData* belly_data = new LLPolyMorphData(*morph_data);
-					belly_data->mName = std::string("Big_Belly_Legs_Gravity");
-					for (U32 v=0; v < belly_data->mNumIndices; v++)
+					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
+					cloned_morph_data->mName = std::string("Big_Belly_Legs_Gravity");
+					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
-						belly_data->mCoords[v][0] = 0;
-						belly_data->mCoords[v][1] = 0;
-						belly_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][0] = 0;
+						cloned_morph_data->mCoords[v][1] = 0;
+						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
+						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
-					mMorphData.insert(belly_data);
+					mMorphData.insert(cloned_morph_data);
 				}
 
 				if (!strcmp(morphName, "skirt_belly"))
 				{
-					LLPolyMorphData* belly_data = new LLPolyMorphData(*morph_data);
-					belly_data->mName = std::string("skirt_belly_gravity");
-					for (U32 v=0; v < belly_data->mNumIndices; v++)
+					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
+					cloned_morph_data->mName = std::string("skirt_belly_gravity");
+					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
-						belly_data->mCoords[v][0] = 0;
-						belly_data->mCoords[v][1] = 0;
-						belly_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][0] = 0;
+						cloned_morph_data->mCoords[v][1] = 0;
+						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
+						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
-					mMorphData.insert(belly_data);
+					mMorphData.insert(cloned_morph_data);
 				}
 
 				if (!strcmp(morphName, "Small_Butt"))
 				{
-					LLPolyMorphData* butt_data = new LLPolyMorphData(*morph_data);
-					butt_data->mName = std::string("Butt_Gravity");
-					for (U32 v=0; v < butt_data->mNumIndices; v++)
+					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
+					cloned_morph_data->mName = std::string("Butt_Gravity");
+					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
-						butt_data->mCoords[v][0] = 0;
-						butt_data->mCoords[v][1] = 0;
-						butt_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][0] = 0;
+						cloned_morph_data->mCoords[v][1] = 0;
+						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
+						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
-					mMorphData.insert(butt_data);
+					mMorphData.insert(cloned_morph_data);
 				}
 			}
 
