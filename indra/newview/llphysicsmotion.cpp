@@ -64,7 +64,8 @@ inline F64 llsgn(const F64 a)
    by the actual params that the user sees and sets.  For example, in the old system,
    the user sets a param called breast bouyancy, which controls the Z value of the breasts.
    In our new system, the user still sets the breast bouyancy, but that param is redefined
-   as a driver param so that it affects ...
+   as a driver param so that affects a new temporary driven param that the bounce is applied
+   to.
 */
 
 class LLPhysicsMotion
@@ -521,9 +522,6 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 						       1.0f);
 
 	// Set the new param.
-	// 1. If the user has specified a param target, use that.
-	// 2. If the param is a driver param, set the param(s) that it drives.
-	// 3. Otherwise, set the param directly (don't do this if the param is a user-editable param!)
 	// If a specific param has been declared, then set that one.
 	// Otherwise, assume that the param is a driver param, and
 	// set the params that it drives.
@@ -534,6 +532,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	else
 	{
 		LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamUser);
+		llassert_always(driver_param);
 		if (driver_param)
 		{
 			for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
@@ -544,10 +543,6 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 				LLViewerVisualParam *driven_param = entry.mParam;
 				setParamValue(driven_param,position_new_local_clamped);
 			}
-		}
-		else
-		{
-			setParamValue(mParamUser,position_new_local_clamped);
 		}
 	}
 	

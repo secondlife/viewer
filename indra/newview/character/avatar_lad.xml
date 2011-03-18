@@ -4443,7 +4443,7 @@
     <param
      id="1089"
      group="0"
-     name="Butt_Physics_UpDown_Controller"
+     name="Butt_Physics_UpDown_Driven"
      wearable="shape"
      edit_group="driven"
      label_min="Separate"
@@ -9348,6 +9348,27 @@ render_pass="bump">
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
+    </param>
+
+    <param
+     id="1090"
+     group="0"
+     wearable="shape"
+     edit_group="shape_legs"
+     edit_group_order="14"
+     name="Butt_Physics_UpDown_Controller"
+     label="Butt Physics UpDown Controller"
+     label_min="Down"
+     label_max="Up"
+     value_min="-1"
+     value_max="1"
+     value_default="0"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_driver>
+        <driven
+         id="1089" />
+      </param_driver>
     </param>
 
    <param

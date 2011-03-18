@@ -611,7 +611,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
 						cloned_morph_data->mCoords[v][1] = 0;
-						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][2] = 0.05F;
 						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
 						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
@@ -626,7 +626,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
 						cloned_morph_data->mCoords[v][1] = 0;
-						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][2] = 0.05F;
 						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
 						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
@@ -641,7 +641,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
 						cloned_morph_data->mCoords[v][1] = 0;
-						cloned_morph_data->mCoords[v][2] = 0.01F;
+						cloned_morph_data->mCoords[v][2] = 0.05F;
 						cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
 						cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
 					}
@@ -651,7 +651,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				if (!strcmp(morphName, "Small_Butt"))
 				{
 					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
-					cloned_morph_data->mName = std::string("Butt_Physics_UpDown_Controller");
+					cloned_morph_data->mName = std::string("Butt_Physics_UpDown_Driven");
 					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
