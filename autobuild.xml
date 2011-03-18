@@ -1764,10 +1764,15 @@
               <key>name</key>
               <string>Release</string>
             </map>
+            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
             <key>VCexpressRelWithDebInfo</key>
             <map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -1781,6 +1786,53 @@
               <key>name</key>
               <string>VCexpressRelWithDebInfo</string>
             </map>
+            <!-- OPEN-1 WORKAROUND end -->
+            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
+            <key>VC10msbuildRelWithDebInfo</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DUNATTENDED:BOOL=OFF</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelWithDebInfo</string>
+            </map>
+            <!-- OPEN-1a WORKAROUND end -->
+            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
+            <key>VC10msbuildRelease</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
+                  <string>-DUNATTENDED:BOOL=OFF</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelease</string>
+            </map>
+            <!-- OPEN-1a Release WORKAROUND end -->            
           </map>
           <key>name</key>
           <string>common</string>
@@ -2724,10 +2776,15 @@
               <key>name</key>
               <string>Release</string>
             </map>
+            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
             <key>VCexpressRelWithDebInfo</key>
             <map>
               <key>build</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>"RelWithDebInfo|Win32"</string>
+                </array>
                 <key>command</key>
                 <string>vcbuild.exe</string>
                 <key>options</key>
@@ -2738,18 +2795,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2762,6 +2807,72 @@
               <key>name</key>
               <string>VCexpressRelWithDebInfo</string>
             </map>
+            <!-- OPEN-1 WORKAROUND end -->
+            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
+           <key>VC10msbuildRelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/t:build</string>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 10"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelWithDebInfo</string>
+            </map>
+           <!-- OPEN-1a WORKAROUND end -->
+            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
+           <key>VC10msbuildRelease</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                  <string>/t:build</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 10"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelease</string>
+            </map>
+           <!-- OPEN-1a WORKAROUND end -->
           </map>
           <key>name</key>
           <string>windows</string>
