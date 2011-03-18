@@ -291,30 +291,6 @@
           </map>
         </map>
       </map>
-      <key>dbghelp</key>
-      <map>
-        <key>license</key>
-        <string>MSDTW</string>
-        <key>license_file</key>
-        <string>LICENSES/dbghelp.txt</string>
-        <key>name</key>
-        <string>dbghelp</string>
-        <key>platforms</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>c5d28b13ce16a46f2e35eb133f7d92e8</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbghelp-6.11.1.404-windows-20101011.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>dbusglib</key>
       <map>
         <key>license</key>

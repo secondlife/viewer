@@ -1289,8 +1289,6 @@ if (WINDOWS)
     if (INTEL_MEMOPS_LIBRARY)
       list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
     endif (INTEL_MEMOPS_LIBRARY)
-
-    use_prebuilt_binary(dbghelp)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
@@ -1499,7 +1497,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
-      ${ARCH_PREBUILT_DIRS_RELEASE}/dbghelp.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
