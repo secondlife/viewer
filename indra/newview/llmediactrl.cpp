@@ -503,22 +503,6 @@ bool LLMediaCtrl::canNavigateForward()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::set404RedirectUrl( std::string redirect_url )
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect( 404, redirect_url );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLMediaCtrl::clr404RedirectUrl()
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect(404, "");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 void LLMediaCtrl::clearCache()
 {
 	if(mMediaSource)
