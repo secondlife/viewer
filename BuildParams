@@ -155,8 +155,7 @@ media.build_viewer_update_version_manager = false
 # oz
 # ================
 
-oz_viewer-devreview.build_debug_release_separately = true
-oz_
+viewer-devreview.build_debug_release_separately = true
 
 # ========================================
 # enus
@@ -197,7 +196,7 @@ viewer-autobuild2010.build_debug_release_separately = true
 viewer-autobuild2010.viewer_channel = "Project Viewer - VS2010"
 viewer-autobuild2010.login_channel = "Project Viewer - VS2010"
 viewer-autobuild2010.viewer_grid = agni
-viewer-autobuild.build_link_parallel = false
+viewer-autobuild2010.build_link_parallel = false
 
 #======================================== 
 # VS2010 
