@@ -1709,8 +1709,13 @@ void LLToolPie::showVisualContextMenuEffect()
 	effectp->setDuration(0.25f);
 }
 
+typedef enum e_near_far
+{
+	NEAR_INTERSECTION,
+	FAR_INTERSECTION
+} ENearFar;
 
-bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_dir, const LLVector3& sphere_center, F32 sphere_radius, LLVector3& intersection_pt)
+bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_dir, const LLVector3& sphere_center, F32 sphere_radius, e_near_far near_far, LLVector3& intersection_pt)
 {
 	// do ray/sphere intersection by solving quadratic equation
 	LLVector3 sphere_to_ray_start_vec = ray_pt - sphere_center;
@@ -1718,10 +1723,11 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 	F32 C = sphere_to_ray_start_vec.lengthSquared() - (sphere_radius * sphere_radius);
 
 	F32 discriminant = B*B - 4.f*C;
-	if (discriminant > 0.f)
+	if (discriminant >= 0.f)
 	{	// intersection detected, now find closest one
 		F32 t0 = (-B - sqrtf(discriminant)) / 2.f;
-		if (t0 > 0.f)
+
+		if (t0 > 0.f && near_far == NEAR_INTERSECTION)
 		{
 			intersection_pt = ray_pt + ray_dir * t0;
 		}
@@ -1732,8 +1738,10 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 		}
 		return true;
 	}
-
-	return false;
+	else
+	{	// no intersection
+		return false;
+	}
 }
 
 void LLToolPie::startCameraSteering()
@@ -1786,64 +1794,80 @@ void LLToolPie::startCameraSteering()
 
 void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
 {
-	const F32 MIN_ROTATION_RADIUS_FRACTION = 0.2f;
-
+	const LLViewerCamera& camera = LLViewerCamera::instance();
+	const LLCoordFrame& rotation_frame = gAgent.getFrameAgent();
 	const LLVector3 pick_pos = gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal);
-	const LLVector3 rotation_center = gAgent.getFrameAgent().getOrigin();
-	// FIXME: get this to work with camera tilt (i.e. sitting on a rotating object)
-	const LLVector3 rotation_up_axis(LLVector3::z_axis);
+	const LLVector3 pick_rotation_center = rotation_frame.getOrigin() + parallel_component(pick_pos - rotation_frame.getOrigin(), rotation_frame.getUpAxis());
+	const F32 MIN_ROTATION_RADIUS_FRACTION = 0.2f;
+	const F32 min_rotation_radius = MIN_ROTATION_RADIUS_FRACTION * dist_vec(pick_rotation_center, camera.getOrigin());;
+	const F32 pick_distance_from_rotation_center = llclamp(dist_vec(pick_pos, pick_rotation_center), min_rotation_radius, F32_MAX);
+	const LLVector3 camera_to_rotation_center = pick_rotation_center - camera.getOrigin();
+	const LLVector3 adjusted_camera_pos = LLViewerCamera::instance().getOrigin() + projected_vec(camera_to_rotation_center, rotation_frame.getUpAxis());
+	const F32 camera_distance_from_rotation_center = dist_vec(adjusted_camera_pos, pick_rotation_center);
 
-	LLVector3 object_rotation_center = rotation_center + parallel_component(pick_pos - rotation_center, rotation_up_axis);
-	F32 min_rotation_radius = MIN_ROTATION_RADIUS_FRACTION * dist_vec(rotation_center, LLViewerCamera::instance().getOrigin());;
-	F32 pick_distance_from_rotation_center = llclamp(dist_vec(pick_pos, object_rotation_center), min_rotation_radius, F32_MAX);
-
-	LLVector3 mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(x, y), rotation_up_axis);
+	LLVector3 mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(x, y), rotation_frame.getUpAxis());
 	mouse_ray.normalize();
 
-	LLVector3 old_mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(mMouseSteerX, mMouseSteerY), rotation_up_axis);
+	LLVector3 old_mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(mMouseSteerX, mMouseSteerY), rotation_frame.getUpAxis());
 	old_mouse_ray.normalize();
 
-	LLVector3 camera_pos = gAgentCamera.getCameraPositionAgent();
-	LLVector3 camera_to_rotation_center = object_rotation_center - camera_pos;
-	LLVector3 adjusted_camera_pos = camera_pos + projected_vec(camera_to_rotation_center, rotation_up_axis);
-	LLVector3 rotation_fwd_axis = LLViewerCamera::instance().getAtAxis() - projected_vec(LLViewerCamera::instance().getAtAxis(), rotation_up_axis);
-	rotation_fwd_axis.normalize();
-	F32 pick_dist = dist_vec(pick_pos, adjusted_camera_pos);
-
+	F32 yaw_angle;
+	F32 old_yaw_angle;
 	LLVector3 mouse_on_sphere;
-	bool mouse_hit_sphere = intersect_ray_with_sphere(adjusted_camera_pos + (mouse_ray * pick_dist * 1.1f),
-		-1.f * mouse_ray,
-		object_rotation_center,
-		pick_distance_from_rotation_center, 
-		mouse_on_sphere);
-
 	LLVector3 old_mouse_on_sphere;
-	intersect_ray_with_sphere(adjusted_camera_pos + (old_mouse_ray * pick_dist * 1.1f),
-		-1.f * old_mouse_ray,
-		object_rotation_center,
-		pick_distance_from_rotation_center,
-		old_mouse_on_sphere);
 
-	if (mouse_hit_sphere)
+	if (intersect_ray_with_sphere(
+			adjusted_camera_pos,
+			mouse_ray,
+			pick_rotation_center,
+			pick_distance_from_rotation_center, 
+			FAR_INTERSECTION,
+			mouse_on_sphere))
 	{
-		// calculate rotation frame in screen space
-		LLVector3 screen_rotation_up_axis = orthogonal_component(rotation_up_axis, LLViewerCamera::instance().getAtAxis());
-		screen_rotation_up_axis.normalize();
-
-		LLVector3 screen_rotation_left_axis = screen_rotation_up_axis % LLViewerCamera::instance().getAtAxis();
-
-		LLVector3 rotation_furthest_pt = object_rotation_center + pick_distance_from_rotation_center * rotation_fwd_axis;
-		F32 mouse_lateral_distance = llclamp(((mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
-		F32 old_mouse_lateral_distance = llclamp(((old_mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
-
-		F32 yaw_angle = asinf(mouse_lateral_distance);
-		F32 old_yaw_angle = asinf(old_mouse_lateral_distance);
-
-		F32 delta_angle = yaw_angle - old_yaw_angle;
-		if (!mClockwise) delta_angle *= -1.f;
-
-		gAgent.yaw(delta_angle);
-		mMouseSteerX = x;
-		mMouseSteerY = y;
+		LLVector3 mouse_sphere_offset = mouse_on_sphere - pick_rotation_center;
+		yaw_angle = atan2f(mouse_sphere_offset * rotation_frame.getLeftAxis(), mouse_sphere_offset * rotation_frame.getAtAxis());
 	}
+	else
+	{
+		yaw_angle = F_PI_BY_TWO + asinf(pick_distance_from_rotation_center / camera_distance_from_rotation_center);
+		if (mouse_ray * rotation_frame.getLeftAxis() < 0.f)
+		{
+			yaw_angle *= -1.f;
+		}
+	}
+
+	if (intersect_ray_with_sphere(
+			adjusted_camera_pos,
+			old_mouse_ray,
+			pick_rotation_center,
+			pick_distance_from_rotation_center,
+			FAR_INTERSECTION,
+			old_mouse_on_sphere))
+	{
+		LLVector3 mouse_sphere_offset = old_mouse_on_sphere - pick_rotation_center;
+		old_yaw_angle = atan2f(mouse_sphere_offset * rotation_frame.getLeftAxis(), mouse_sphere_offset * rotation_frame.getAtAxis());
+	}
+	else
+	{
+		old_yaw_angle = F_PI_BY_TWO + asinf(pick_distance_from_rotation_center / camera_distance_from_rotation_center);
+
+		if (mouse_ray * rotation_frame.getLeftAxis() < 0.f)
+		{
+			old_yaw_angle *= -1.f;
+		}
+	}
+
+	const F32 delta_angle = yaw_angle - old_yaw_angle;
+
+	if (mClockwise)
+	{
+		gAgent.yaw(delta_angle);
+	}
+	else
+	{
+		gAgent.yaw(-delta_angle);
+	}
+
+	mMouseSteerX = x;
+	mMouseSteerY = y;
 }
