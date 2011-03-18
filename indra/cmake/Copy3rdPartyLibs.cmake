@@ -47,7 +47,6 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        dbghelp.dll
         ssleay32.dll
         libeay32.dll
         )

@@ -306,10 +306,6 @@ class WindowsManifest(ViewerManifest):
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
 
-            # For use in crash reporting (generates minidumps)
-            if self.args['configuration'].lower() != 'debug':
-                self.path("dbghelp.dll")
-
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
