@@ -156,6 +156,7 @@ media.build_viewer_update_version_manager = false
 # ================
 
 oz_viewer-devreview.build_debug_release_separately = true
+oz_viewer-autobuild2010.build_debug_release_separately = true
 
 # ========================================
 # enus
