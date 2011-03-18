@@ -658,7 +658,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
 		mAutoPilotDestination->setPixelSize(5);
-		mAutoPilotDestination->setColor(LLColor4U(50, 50, 200));
+		mAutoPilotDestination->setColor(LLColor4U(170, 210, 190));
 		mAutoPilotDestination->setDuration(3.f);
 
 		handle_go_to();
@@ -1778,7 +1778,7 @@ void LLToolPie::startCameraSteering()
 		if (mMouseSteerGrabPoint) { mMouseSteerGrabPoint->markDead(); }
 		mMouseSteerGrabPoint = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mMouseSteerGrabPoint->setPositionGlobal(mSteerPick.mPosGlobal);
-		mMouseSteerGrabPoint->setColor(LLColor4U(50, 50, 200));
+		mMouseSteerGrabPoint->setColor(LLColor4U(170, 210, 190));
 		mMouseSteerGrabPoint->setPixelSize(5);
 		mMouseSteerGrabPoint->setDuration(2.f);
 	}
