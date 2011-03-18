@@ -46,6 +46,7 @@
 #include "llvoavatarself.h"
 
 typedef std::map<std::string, std::string> controller_map_t;
+typedef std::map<std::string, F32> default_controller_map_t;
 
 #define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 0.f;
 
@@ -56,19 +57,30 @@ inline F64 llsgn(const F64 a)
 	return -1;
 }
 
+/* 
+   At a high level, this works by setting temporary parameters that are not stored
+   in the avatar's list of params, and are not conveyed to other users.  We accomplish
+   this by creating some new temporary driven params inside avatar_lad that are then driven
+   by the actual params that the user sees and sets.  For example, in the old system,
+   the user sets a param called breast bouyancy, which controls the Z value of the breasts.
+   In our new system, the user still sets the breast bouyancy, but that param is redefined
+   as a driver param so that it affects ...
+*/
+
 class LLPhysicsMotion
 {
 public:
 	/*
 	  param_user_name: The param (if any) that the user sees and controls.  This is what
-	  the particular body part would look like without physics.  For example, it may be
+	  the particular property would look like without physics.  For example, it may be
 	  the breast gravity.  This param's value should will not be altered, and is only
 	  used as a reference point for the rest position of the body party.  This is usually
-	  a driver param and the param that physics is altering is the driven param.
-	  If this is left blank, that means that the physics is affecting a param that is
-	  not exposed to the user.
+	  a driver param and the param(s) that physics is altering are the driven params.
 
-	  param_driven_name: The param whose value is actually set by the physics.
+	  param_driven_name: The param whose value is actually set by the physics.  If you
+	  leave this blank (which should suffice normally), the physics will assume that
+	  param_user_name is a driver param and will set the params that the driver is
+	  in charge of (i.e. the "driven" params).
 
 	  joint_name: The joint that the body part is attached to.  The joint is
 	  used to determine the orientation (rotation) of the body part.
@@ -100,9 +112,7 @@ public:
 		mLastTime(0),
 		mPosition_local(0),
 		mVelocityJoint_local(0),
-		mPositionLastUpdate_local(0),
-		mPositionMin_local(0),
-		mPositionMax_local(0)
+		mPositionLastUpdate_local(0)
 	{
 		mJointState = new LLJointState;
 	}
@@ -123,17 +133,18 @@ protected:
 		const controller_map_t::const_iterator& entry = mParamControllers.find(controller_key);
 		if (entry == mParamControllers.end())
 		{
-			return 1.0;
+			return sDefaultController[controller_key];
 		}
 		const std::string& param_name = (*entry).second.c_str();
 		return mCharacter->getVisualParamWeight(param_name.c_str());
 	}
+	void setParamValue(LLViewerVisualParam *param,
+			   const F32 new_value_local);
 
 	F32 toLocal(const LLVector3 &world);
 	F32 calculateVelocity_local(const F32 time_delta);
 	F32 calculateAcceleration_local(F32 velocity_local,
 					const F32 time_delta);
-	
 private:
 	const std::string mParamDrivenName;
 	const std::string mParamUserName;
@@ -146,8 +157,6 @@ private:
 
 	F32 mVelocity_local; // How fast the param is moving
 	F32 mPositionLastUpdate_local;
-	F32 mPositionMin_local;
-	F32 mPositionMax_local;
 	LLVector3 mPosition_world;
 
 	LLViewerVisualParam *mParamUser;
@@ -158,10 +167,25 @@ private:
 	LLCharacter *mCharacter;
 
 	F32 mLastTime;
-				  
+	
+	static default_controller_map_t sDefaultController;
 };
 
+default_controller_map_t initDefaultController()
+{
+	default_controller_map_t controller;
+	controller["Mass"] = 2.0f;
+	controller["Smoothing"] = 2.0f;
+	controller["Gravity"] = 0.0f;
+	controller["Damping"] = .5f;
+	controller["Drag"] = 0.1f;
+	controller["MaxSpeed"] = 10.0f;
+	controller["Spring"] = 1.0f;
+	controller["Gain"] = 10.0f;
+	return controller;
+}
 
+default_controller_map_t LLPhysicsMotion::sDefaultController = initDefaultController();
 
 BOOL LLPhysicsMotion::initialize()
 {
@@ -170,15 +194,13 @@ BOOL LLPhysicsMotion::initialize()
 	mJointState->setUsage(LLJointState::ROT);
 
 	mParamUser = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamUserName.c_str());
-	mParamDriven = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDrivenName.c_str());
-	if ((mParamUser == NULL) || 
-	    (mParamDriven == NULL))
+	if (mParamDrivenName != "")
+		mParamDriven = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDrivenName.c_str());
+	if (mParamUser == NULL)
 	{
-		llinfos << "Failure reading in either of both of [ " << mParamUserName << " : " << mParamDrivenName << " ]" << llendl;
+		llinfos << "Failure reading in  [ " << mParamUserName << " ]" << llendl;
 		return FALSE;
 	}
-	mPositionMin_local = mParamDriven->getMinWeight();
-	mPositionMax_local = mParamDriven->getMaxWeight();
 
 	return TRUE;
 }
@@ -226,7 +248,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 	controllers_cleavage["Gain"] = "Breast_Physics_Side_Gain";
 
 	LLPhysicsMotion *cleavage_motion = new LLPhysicsMotion("Breast_Female_Cleavage_Driver",
-							       "Breast_Female_Cleavage",
+							       "",
 							       "mChest",
 							       character,
 							       LLVector3(-1,0,0),
@@ -246,7 +268,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 	controllers_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
 
 	LLPhysicsMotion *bounce_motion = new LLPhysicsMotion("Breast_Gravity_Driver",
-							     "Breast_Gravity",
+							     "",
 							     "mChest",
 							     character,
 							     LLVector3(0,0,1),
@@ -259,14 +281,13 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 	controllers_butt_bounce["Mass"] = "Breast_Physics_Mass";
 	controllers_butt_bounce["Smoothing"] = "Breast_Physics_Smoothing";
 	controllers_butt_bounce["Gravity"] = "Breast_Physics_Gravity";
-	controllers_butt_bounce["Damping"] = "Breast_Physics_Side_Damping";
-	controllers_butt_bounce["Drag"] = "Breast_Physics_Side_Drag";
-	controllers_butt_bounce["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
-	controllers_butt_bounce["Spring"] = "Breast_Physics_Side_Spring";
-	controllers_butt_bounce["Gain"] = "Breast_Physics_Side_Gain";
-
+	controllers_butt_bounce["Damping"] = "Breast_Physics_UpDown_Damping";
+	controllers_butt_bounce["Drag"] = "Breast_Physics_UpDown_Drag";
+	controllers_butt_bounce["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
+	controllers_butt_bounce["Spring"] = "Breast_Physics_UpDown_Spring";
+	controllers_butt_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
 	LLPhysicsMotion *butt_bounce_motion = new LLPhysicsMotion("Butt_Gravity_Driver",
-								  "Butt_Gravity",
+								  "",
 								  "mPelvis",
 								  character,
 								  LLVector3(0,0,-1),
@@ -284,13 +305,12 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 	controllers_belly_bounce["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
 	controllers_belly_bounce["Spring"] = "Breast_Physics_UpDown_Spring";
 	controllers_belly_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
-
-	LLPhysicsMotion *belly_bounce_motion = new LLPhysicsMotion("Big_Belly_Torso",
-								  "Belly_Gravity",
-								  "mChest",
-								  character,
-								   LLVector3(0,0,.25f),
-								  controllers_belly_bounce);
+	LLPhysicsMotion *belly_bounce_motion = new LLPhysicsMotion("Belly_Gravity",
+								   "",
+								   "mChest",
+								   character,
+								   LLVector3(0,0,1),
+								   controllers_belly_bounce);
 	if (!belly_bounce_motion->initialize())
 		return STATUS_FAILURE;
 	addMotion(belly_bounce_motion);
@@ -375,7 +395,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 {
 	// static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
 	
-	if (!mParamUser || !mParamDriven)
+	if (!mParamUser)
 		return FALSE;
 
 	if (!mLastTime)
@@ -403,16 +423,24 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		return TRUE;
 	}
 
-	F32 behavior_mass = getParamValue("Mass");
-	F32 behavior_gravity = getParamValue("Gravity");
-	F32 behavior_spring = getParamValue("Spring");
-	F32 behavior_gain = getParamValue("Gain");
-	F32 behavior_damping = getParamValue("Damping");
-	F32 behavior_maxspeed = getParamValue("MaxSpeed");
-	F32 behavior_drag = getParamValue("Drag");
+	LLJoint *joint = mJointState->getJoint();
 
+	const F32 behavior_mass = getParamValue("Mass");
+	const F32 behavior_gravity = getParamValue("Gravity");
+	const F32 behavior_spring = getParamValue("Spring");
+	const F32 behavior_gain = getParamValue("Gain");
+	const F32 behavior_damping = getParamValue("Damping");
+	const F32 behavior_maxspeed = getParamValue("MaxSpeed");
+	const F32 behavior_drag = getParamValue("Drag");
+
+	F32 position_current_local = mPosition_local; // Normalized [0,1] range
+
+	// Normalize the param position to be from [0,1].
+	// We have to use normalized values because there may be more than one driven param,
+	// and each of these driven params may have its own range.
+	// This means we'll do all our calculations in normalized [0,1] local coordinates.
 	F32 position_user_local = mParamUser->getWeight();
-	F32 position_current_local = mPosition_local;
+	position_user_local = (position_user_local - mParamUser->getMinWeight()) / (mParamUser->getMaxWeight() - mParamUser->getMinWeight());
 
 	//
 	// End parameters and settings
@@ -425,8 +453,6 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	
 	const F32 velocity_joint_local = calculateVelocity_local(time_delta);
 	const F32 acceleration_joint_local = calculateAcceleration_local(velocity_joint_local, time_delta);
-
-	LLJoint *joint = mJointState->getJoint();
 
 	//
 	// End velocity and acceleration
@@ -486,21 +512,46 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	{
 		velocity_new_local = sin(time*4.0)*5.0;
 	}
-	// Calculate the new parameters and clamp them to the min/max ranges.
-	F32 position_new_local = position_current_local + velocity_new_local*time_delta;
-	position_new_local = llclamp(position_new_local,
-				     mPositionMin_local, mPositionMax_local);
-	
-	// Set the new parameters.
-	// If the param is disabled, just set the param to the user value.
-	if (behavior_maxspeed == 0)
+	// Calculate the new parameters, or remain unchanged if max speed is 0.
+	const F32 position_new_local = (behavior_maxspeed != 0) ? 
+		(position_current_local + velocity_new_local*time_delta) :
+		position_user_local;
+
+	const F32 position_new_local_clamped = llclamp(position_new_local,
+						       0.0f,
+						       1.0f);
+
+	// Set the new param.
+	// 1. If the user has specified a param target, use that.
+	// 2. If the param is a driver param, set the param(s) that it drives.
+	// 3. Otherwise, set the param directly (don't do this if the param is a user-editable param!)
+	// If a specific param has been declared, then set that one.
+	// Otherwise, assume that the param is a driver param, and
+	// set the params that it drives.
+	if (mParamDriven)
 	{
-		position_new_local = position_user_local;
+		setParamValue(mParamDriven,position_new_local_clamped);
 	}
-	mCharacter->setVisualParamWeight(mParamDriven,
-					 position_new_local,
-					 FALSE);
-		
+	else
+	{
+		LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamUser);
+		if (driver_param)
+		{
+			for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
+			     iter != driver_param->mDriven.end();
+			     ++iter)
+			{
+				LLDrivenEntry &entry = (*iter);
+				LLViewerVisualParam *driven_param = entry.mParam;
+				setParamValue(driven_param,position_new_local_clamped);
+			}
+		}
+		else
+		{
+			setParamValue(mParamUser,position_new_local_clamped);
+		}
+	}
+	
 	//
 	// End calculate new params
 	////////////////////////////////////////////////////////////////////////////////
@@ -508,7 +559,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	////////////////////////////////////////////////////////////////////////////////
 	// Conditionally update the visual params
 	//
-		
+	
 	// Updating the visual params (i.e. what the user sees) is fairly expensive.
 	// So only update if the params have changed enough, and also take into account
 	// the graphics LOD settings.
@@ -520,22 +571,18 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	const F32 area_for_min_settings = 1400.0;
 	const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
 	const F32 pixel_area = fsqrtf(mCharacter->getPixelArea());
-
+	
 	const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
 	if ((pixel_area > area_for_this_setting) || is_self)
 	{
-		// If the parameter hasn't changed enough, then don't update.
-		const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local);
-		const F32 min_delta = (1.0-lod_factor)*(mPositionMax_local-mPositionMin_local)/2.0;
+		const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);
+		const F32 min_delta = (1.0f-lod_factor)*4.0f; // Magic number 2.0f, can change this if experimentally something works better.
 		if (llabs(position_diff_local) > min_delta)
 		{
 			update_visuals = TRUE;
 			mPositionLastUpdate_local = position_new_local;
 		}
 	}
-
-	update_visuals = TRUE;
-	mPositionLastUpdate_local = position_new_local;
 
 	//
 	// End update visual params
@@ -551,6 +598,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	mLastTime = time;
 
 	/*
+	  // Write out debugging info into a spreadsheet.
 	  if (mFileWrite != NULL && is_self)
 	  {
 	  fprintf(mFileWrite,"%f\t%f\t%f \t\t%f \t\t%f\t%f\t%f\t \t\t%f\t%f\t%f\t%f\t%f \t\t%f\t%f\t%f\n",
@@ -577,6 +625,19 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	  }
 	*/
 
-	return update_visuals;
+	return TRUE;
 }
-	
+
+// Range of new_value_local is assumed to be [0 , 1] normalized.
+void LLPhysicsMotion::setParamValue(LLViewerVisualParam *param,
+				    F32 new_value_normalized)
+{
+	const F32 value_min_local = param->getMinWeight();
+	const F32 value_max_local = param->getMaxWeight();
+
+	const F32 new_value_local = value_min_local + (value_max_local-value_min_local) * new_value_normalized;
+
+	mCharacter->setVisualParamWeight(param,
+					 new_value_local,
+					 FALSE);
+}
