@@ -1799,6 +1799,12 @@ void LLViewerWindow::initWorldUI()
 		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
 	}
 
+	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
+	{
+		toggle_destination_and_avatar_picker(0);
+	}
+
+	gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
 }
 
 // Destroy the UI
