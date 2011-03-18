@@ -3801,8 +3801,8 @@
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="-2"
-     value_max="2">
+     value_min="0"
+     value_max="1">
       <param_morph />
     </param>
 
@@ -4396,8 +4396,8 @@
      name="Belly_Legs_Physics_UpDown_Driven"
      wearable="shape"
      edit_group="driven"
-     value_min="-2"
-     value_max="2">
+     value_min="0"
+     value_max="1">
       <param_morph />
     </param>
 
