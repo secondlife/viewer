@@ -59,7 +59,30 @@ inline F64 llsgn(const F64 a)
 class LLPhysicsMotion
 {
 public:
-	LLPhysicsMotion(const std::string &param_user_name,
+	/*
+	  param_user_name: The param (if any) that the user sees and controls.  This is what
+	  the particular body part would look like without physics.  For example, it may be
+	  the breast gravity.  This param's value should will not be altered, and is only
+	  used as a reference point for the rest position of the body party.  This is usually
+	  a driver param and the param that physics is altering is the driven param.
+	  If this is left blank, that means that the physics is affecting a param that is
+	  not exposed to the user.
+
+	  param_driven_name: The param whose value is actually set by the physics.
+
+	  joint_name: The joint that the body part is attached to.  The joint is
+	  used to determine the orientation (rotation) of the body part.
+
+	  character: The avatar that this physics affects.
+
+	  motion_direction_vec: The direction (in world coordinates) that determines the
+	  motion.  For example, (0,0,1) is up-down, and means that up-down motion is what
+	  determines how this joint moves.
+
+	  controllers: The various settings (e.g. spring force, mass) that determine how
+	  the body part behaves.
+	*/
+	LLPhysicsMotion(const std::string &param_user_name, 
 			const std::string &param_driven_name,
 			const std::string &joint_name,
 			LLCharacter *character,
