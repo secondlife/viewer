@@ -248,6 +248,7 @@ then
       succeeded=$build_coverity
     else
       upload_item installer "$package" binary/octet-stream
+      upload_item quicklink "$package" binary/octet-stream
 
       # Upload crash reporter files.
       case "$last_built_variant" in
