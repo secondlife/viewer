@@ -2500,8 +2500,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Body Thin">Body Thin</string>
 
 <string name="Bow Legged">Bow Legged</string>
-<string name="Breast Buoyancy">Breast Buoyancy</string>
-<string name="Breast Cleavage">Breast Cleavage</string>
+<string name="Breast Physics Updown Controller">Breast Buoyancy</string>
+<string name="Breast Physics Side Controller">Breast Cleavage</string>
 <string name="Breast Size">Breast Size</string>
 <string name="Bridge Width">Bridge Width</string>
 <string name="Broad">Broad</string>
@@ -2526,6 +2526,18 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Breast Physics UpDown Damping">Breast UpDown Damping</string>
 <string name="Breast Physics UpDown Drag">Breast UpDown Drag</string>
 <string name="Breast Physics UpDown Max Speed">Breast UpDown Max Speed</string>
+
+<string name="Belly Physics UpDown Controller">Belly Updown Bounce</string>
+<string name="Belly Physics UpDown Spring">Belly Updown Spring</string>
+<string name="Belly Physics UpDown Gain">Belly Updown  Gain</string>
+<string name="Belly Physics UpDown Damping">Belly Updown Damping</string>
+<string name="Belly Physics UpDown Max Speed">Belly Updown Max Speed</string>
+
+<string name="Butt Physics UpDown Controller">Butt UpDown Bounce</string>
+<string name="Butt Physics UpDown Spring">Butt UpDown Spring</string>
+<string name="Butt Physics UpDown Gain">Butt UpDown Gain</string>
+<string name="Butt Physics UpDown Damping">Butt UpDown Damping</string>
+<string name="Butt Physics UpDown Max Speed">Butt UpDown Max Speed</string>
 
 <string name="Bushy Eyebrows">Bushy Eyebrows</string>
 <string name="Bushy Hair">Bushy Hair</string>

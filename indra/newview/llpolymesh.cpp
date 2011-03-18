@@ -606,7 +606,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				if (!strcmp(morphName, "Big_Belly_Torso"))
 				{
 					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
-					cloned_morph_data->mName = std::string("Big_Belly_Torso_Gravity");
+					cloned_morph_data->mName = std::string("Belly_Torso_Physics_UpDown_Driven");
 					for (U32 v=0; v < morph_data->mNumIndices; v++)
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
@@ -621,7 +621,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				if (!strcmp(morphName, "Big_Belly_Legs"))
 				{
 					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
-					cloned_morph_data->mName = std::string("Big_Belly_Legs_Gravity");
+					cloned_morph_data->mName = std::string("Belly_Legs_Physics_UpDown_Driven");
 					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
@@ -636,7 +636,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				if (!strcmp(morphName, "skirt_belly"))
 				{
 					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
-					cloned_morph_data->mName = std::string("skirt_belly_gravity");
+					cloned_morph_data->mName = std::string("Belly_Skirt_Physics_UpDown_Driven");
 					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
@@ -651,7 +651,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				if (!strcmp(morphName, "Small_Butt"))
 				{
 					LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*morph_data);
-					cloned_morph_data->mName = std::string("Butt_Gravity");
+					cloned_morph_data->mName = std::string("Butt_Physics_UpDown_Driven");
 					for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
 					{
 						cloned_morph_data->mCoords[v][0] = 0;
