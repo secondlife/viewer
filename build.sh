@@ -27,7 +27,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc80
+  echo build-vc100
 }
 
 installer_Darwin()
@@ -51,7 +51,7 @@ pre_build()
 {
   local variant="$1"
   begin_section "Pre$variant"
-  "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON
+    "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE
   end_section "Pre$variant"
 }
 
@@ -106,7 +106,7 @@ eval '$build_'"$arch" || pass
 # File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
 if test -f scripts/update_version_files.py ; then
   begin_section UpdateVer
-  scripts/update_version_files.py \
+  python scripts/update_version_files.py \
           --channel="$viewer_channel" \
           --server_channel="$server_channel" \
           --revision=$revision \
@@ -117,29 +117,48 @@ fi
 
 # Now retrieve the version for use in the version manager
 # First three parts only, $revision will be appended automatically.
-build_viewer_update_version_manager_version=`scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
+build_viewer_update_version_manager_version=`python scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
 
-export autobuild_dir="$here/../../../autobuild/bin/"
-if [ -d "$autobuild_dir" ]
+if [ -z "$AUTOBUILD" ]
 then
-  export AUTOBUILD="$autobuild_dir"autobuild
-  if [ -x "$AUTOBUILD" ]
+  export autobuild_dir="$here/../../../autobuild/bin/"
+  if [ -d "$autobuild_dir" ]
   then
-    # *HACK - bash doesn't know how to pass real pathnames to native windows python
-    case "$arch" in
-    CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
-    esac
+    export AUTOBUILD="$autobuild_dir"autobuild
+    if [ -x "$AUTOBUILD" ]
+    then
+      # *HACK - bash doesn't know how to pass real pathnames to native windows python
+      case "$arch" in
+      CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
+      esac
+    else
+      record_failure "Not executable: $AUTOBUILD"
+      exit 1
+    fi
   else
-    record_failure "Not executable: $AUTOBUILD"
+    record_failure "Not found: $autobuild_dir"
     exit 1
   fi
-else
-  record_failure "Not found: $autobuild_dir"
-  exit 1
 fi
 
 # load autbuild provided shell functions and variables
+# Merov: going back to the previous code that passes even if it fails catching a failure
+# TODO: use the correct code here under and fix the llbase import in python code
+#if "$AUTOBUILD" source_environment > source_environment
+#then
+#  . source_environment
+#else
+  # dump environment variables for debugging
+#  env|sort
+#  record_failure "autobuild source_environment failed"
+#  cat source_environment >&3
+#  exit 1
+#fi
 eval "$("$AUTOBUILD" source_environment)"
+
+# dump environment variables for debugging
+env|sort
+
 
 # Install packages.
 "$AUTOBUILD" install --skip-license-check
@@ -161,6 +180,8 @@ do
   build_dir_stubs="$build_dir/win_setup/$variant"
   rm -rf "$build_dir"
   mkdir -p "$build_dir"
+  mkdir -p "$build_dir/tmp"
+  #export TMP="$build_dir/tmp"
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
     if $build_link_parallel

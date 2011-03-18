@@ -9,6 +9,7 @@ else (LINUX)
 endif (LINUX)
 
 if (OPENAL)
+  set(OPENAL_LIB_INCLUDE_DIRS "${LIBS_PREBUILT_DIR}/include/AL")
   if (STANDALONE)
     include(FindPkgConfig)
     include(FindOpenAL)
@@ -17,10 +18,17 @@ if (OPENAL)
   else (STANDALONE)
     use_prebuilt_binary(openal_soft)
   endif (STANDALONE)
-  set(OPENAL_LIBRARIES 
-    openal
-    alut
+  if(WINDOWS)
+    set(OPENAL_LIBRARIES 
+      OpenAL32
+      alut
     )
+  else()
+    set(OPENAL_LIBRARIES 
+      openal
+      alut
+    )
+  endif()
 endif (OPENAL)
 
 if (OPENAL)

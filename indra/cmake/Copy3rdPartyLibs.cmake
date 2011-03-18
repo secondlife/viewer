@@ -37,6 +37,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        ssleay32.dll
+        libeay32.dll
         )
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -46,6 +48,8 @@ if(WINDOWS)
         libaprutil-1.dll
         libapriconv-1.dll
         dbghelp.dll
+        ssleay32.dll
+        libeay32.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
@@ -119,6 +123,62 @@ if (MSVC80)
         set(third_party_targets ${third_party_targets} ${out_targets})
           
     endif (EXISTS ${release_msvc8_redist_path})
+elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
+    FIND_PATH(debug_msvc10_redist_path msvcr100d.dll
+        PATHS
+        ${MSVC_DEBUG_REDIST_PATH}
+         [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\Setup\\VC;ProductDir]/redist/Debug_NonRedist/x86/Microsoft.VC100.DebugCRT
+        NO_DEFAULT_PATH
+        NO_DEFAULT_PATH
+        )
+
+    if(EXISTS ${debug_msvc10_redist_path})
+        set(debug_msvc10_files
+            msvcr100d.dll
+            msvcp100d.dll
+            )
+
+        copy_if_different(
+            ${debug_msvc10_redist_path}
+            "${SHARED_LIB_STAGING_DIR_DEBUG}"
+            out_targets
+            ${debug_msvc10_files}
+            )
+        set(third_party_targets ${third_party_targets} ${out_targets})
+
+    endif ()
+
+    FIND_PATH(release_msvc10_redist_path msvcr100.dll
+        PATHS
+        ${MSVC_REDIST_PATH}
+         [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\Setup\\VC;ProductDir]/redist/x86/Microsoft.VC100.CRT
+        NO_DEFAULT_PATH
+        NO_DEFAULT_PATH
+        )
+
+    if(EXISTS ${release_msvc10_redist_path})
+        set(release_msvc10_files
+            msvcr100.dll
+            msvcp100.dll
+            )
+
+        copy_if_different(
+            ${release_msvc10_redist_path}
+            "${SHARED_LIB_STAGING_DIR_RELEASE}"
+            out_targets
+            ${release_msvc10_files}
+            )
+        set(third_party_targets ${third_party_targets} ${out_targets})
+
+        copy_if_different(
+            ${release_msvc10_redist_path}
+            "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
+            out_targets
+            ${release_msvc10_files}
+            )
+        set(third_party_targets ${third_party_targets} ${out_targets})
+          
+    endif ()
 endif (MSVC80)
 
 elseif(DARWIN)
@@ -140,11 +200,11 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.3.7.dylib
+        libapr-1.0.dylib
         libapr-1.dylib
-        libaprutil-1.0.3.8.dylib
+        libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexpat.0.5.0.dylib
+        libexpat.1.5.2.dylib
         libexpat.dylib
         libllqtwebkit.dylib
         libndofdev.dylib
@@ -184,8 +244,8 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libbreakpad_client.so.0
-        libcrypto.so.0.9.7
-        libdb-4.2.so
+        libcrypto.so.0.9.8
+        libdb-5.1.so
         libexpat.so
         libexpat.so.1
         libgmock_main.so
@@ -197,10 +257,11 @@ elseif(LINUX)
         libopenal.so
         libopenjpeg.so
         libssl.so
-        libstacktrace.so
         libtcmalloc.so
-        libuuid.so.1
-        libssl.so.0.9.7
+        libuuid.so.16
+        libuuid.so.16.0.22
+        libssl.so.0.9.8
+        libfontconfig.so.1.4.4
        )
 
     if (FMOD)

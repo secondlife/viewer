@@ -59,7 +59,7 @@ namespace tut
 		~TestRecorder() { LLError::removeRecorder(this); }
 		
 		void recordMessage(LLError::ELevel level,
-							const std::string& message)
+						   const std::string& message)
 		{
 			mMessages.push_back(message);
 		}
@@ -69,12 +69,12 @@ namespace tut
 		
 		void setWantsTime(bool t)	{ mWantsTime = t; }
 		bool wantsTime()			{ return mWantsTime; }
-
+		
 		std::string message(int n)
 		{
 			std::ostringstream test_name;
 			test_name << "testing message " << n << ", not enough messages";
-
+			
 			tut::ensure(test_name.str(), n < countMessages());
 			return mMessages[n];
 		}

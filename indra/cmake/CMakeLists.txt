@@ -20,7 +20,6 @@ set(cmake_SOURCE_FILES
     CSharpMacros.cmake
     DBusGlib.cmake
     DirectX.cmake
-    ELFIO.cmake
     EXPAT.cmake
     FindAPR.cmake
     FindBerkeleyDB.cmake
@@ -29,7 +28,6 @@ set(cmake_SOURCE_FILES
     FindFMOD.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
-    FindMT.cmake
     FindMySQL.cmake
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake

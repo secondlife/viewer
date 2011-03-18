@@ -393,7 +393,6 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				URL mediów:
 			</text>
 			<button label="Ustaw" name="set_media_url"/>
-			<check_box label="Ukryj URL mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym Rezydentom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
 			</text>
@@ -422,7 +421,6 @@ Mediów:
 			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
 		</panel>
 		<panel label="DŹWIĘK" name="land_audio_panel">
-			<check_box label="Ukryj URL muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym Użytkownikom"/>
 			<check_box label="Rozmowy dozwolone" name="parcel_enable_voice_channel"/>
 			<check_box label="Rozmowy dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Ogranicz komunikację głosową w tej Posiadłości." name="parcel_enable_voice_channel_local"/>

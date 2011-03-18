@@ -145,6 +145,7 @@ media.build_viewer_update_version_manager = false
 # ================
 
 L-oz_viewer-autobuild.build_link_parallel=false
+L-oz_viewer-autobuildvs2010.build_link_parallel=false
 
 # ========================================
 # enus
@@ -179,7 +180,18 @@ viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
 
 #==============================================================================
-# viewer-autobuild
+# autobuild viewers
 #==============================================================================
 viewer-autobuild.build_link_parallel = false
+
+#======================================== 
+# VS2010 
+#======================================== 
+viewer-vs2010.viewer_channel = "Project Viewer - VS2010"
+viewer-vs2010.login_channel = "Project Viewer - VS2010"
+viewer-vs2010.viewer_grid = agni
+viewer-vs2010.build_debug_release_separately = true
+viewer-vs2010.build_viewer_update_version_manager = false
+viewer-vs2010.build_link_parallel = false
+
 # eof

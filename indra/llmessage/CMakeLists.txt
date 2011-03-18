@@ -10,6 +10,7 @@ include(LLMath)
 include(LLMessage)
 include(LLVFS)
 include(LLAddBuildTest)
+include(Python)
 include(Tut)
 include(Python)
 
