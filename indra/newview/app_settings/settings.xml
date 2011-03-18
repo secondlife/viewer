@@ -12586,5 +12586,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>WebContentFloaterErrorURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to navigate to if the Web content floater hits a page with a 400-499 HTTP status code</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/404.html</string>
+    </map>
 </map>
 </llsd>

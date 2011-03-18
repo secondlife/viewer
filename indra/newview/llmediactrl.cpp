@@ -503,22 +503,6 @@ bool LLMediaCtrl::canNavigateForward()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::set404RedirectUrl( std::string redirect_url )
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect( 404, redirect_url );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLMediaCtrl::clr404RedirectUrl()
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect(404, "");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 void LLMediaCtrl::clearCache()
 {
 	if(mMediaSource)
@@ -973,6 +957,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+		};
+		break;
+
+		case MEDIA_EVENT_NAVIGATE_ERROR_PAGE:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE" << LL_ENDL;
 		};
 		break;
 

@@ -492,6 +492,15 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
+	void onNavigateErrorPage(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_error_page");
+		message.setValueS32("status_code", event.getIntValue());
+		sendMessage(message);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
 	void onLocationChange(const EventType& event)
 	{
 		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
@@ -1224,15 +1233,6 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "browse_back")
 			{
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_BACK );
-			}
-			else if(message_name == "set_status_redirect")
-			{
-				int code = message_in.getValueS32("code");
-				std::string url = message_in.getValue("url");
-				if ( 404 == code )	// browser lib only supports 404 right now
-				{
-					LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
-				};
 			}
 			else if(message_name == "set_user_agent")
 			{

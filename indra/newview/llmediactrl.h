@@ -113,10 +113,6 @@ public:
 
 		void setTarget(const std::string& target);
 
-		// set/clear URL to visit when a 404 page is reached
-		void set404RedirectUrl( std::string redirect_url );
-		void clr404RedirectUrl();
-		
 		// Clear the browser cache when the instance gets loaded
 		void clearCache();
 
