@@ -397,7 +397,6 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Choisir" name="set_media_url"/>
-			<check_box label="Masquer l&apos;URL" left="97" name="hide_media_url" tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL du média. Cette option n&apos;est pas disponible pour les fichiers HTML."/>
 			<text name="Description:">
 				Description :
 			</text>
@@ -429,7 +428,6 @@ texture :
 				URL de la 
 musique :
 			</text>
-			<check_box label="Masquer l&apos;URL" name="hide_music_url" tool_tip="Si vous cochez cette option, l&apos;URL de musique sera masquée et invisible pour tous les utilisateurs non autorisés des informations de cette parcelle."/>
 			<text name="Sound:">
 				Son :
 			</text>

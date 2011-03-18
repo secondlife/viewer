@@ -775,6 +775,7 @@ bool idle_startup()
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
+		show_debug_menus();
 
 		// Hide the splash screen
 		LLSplashScreen::hide();
@@ -1703,9 +1704,6 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
-			
-			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
-
 		}
 
 		// We're successfully logged in.

@@ -84,10 +84,12 @@ Aleric Inglewood
 	VWR-24315
 	VWR-24317
 	VWR-24320
-    VWR-24321
+	VWR-24321
+	VWR-24337
  	VWR-24354
 	VWR-24366
 	VWR-24519
+	VWR-24520
 	SNOW-84
 	SNOW-477
 	SNOW-744
@@ -156,6 +158,7 @@ Ann Congrejo
 	CT-193
 Ardy Lay
 	VWR-19499
+	VWR-24917
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -236,6 +239,7 @@ Coaldust Numbers
     VWR-1095
 Cron Stardust
 	VWR-10579
+	VWR-25120
 Cypren Christenson
 	STORM-417
 Dale Glass
@@ -402,8 +406,17 @@ Jonathan Yap
 	STORM-977
 	STORM-979
 	STORM-980
+	STORM-1040
 	VWR-17801
 	VWR-24347
+	STORM-975
+	STORM-990
+	STORM-844
+	STORM-643
+	STORM-1020
+	STORM-1064
+	STORM-960
+	STORM-953
 Kage Pixel
 	VWR-11
 Ken March
@@ -420,6 +433,7 @@ Kitty Barnett
 	STORM-288
 	STORM-799
 	STORM-800
+	STORM-1001
     VWR-24217
 Kunnis Basiat
 	VWR-82
@@ -826,11 +840,14 @@ Whoops Babii
 Wilton Lundquist
 	VWR-7682
 WolfPup Lowenhar
+	OPEN-1
+	OPEN-37
 	SNOW-622
 	SNOW-772
 	STORM-102
 	STORM-103
 	STORM-143
+	STORM-236
 	STORM-255
 	STORM-256
 	STORM-288

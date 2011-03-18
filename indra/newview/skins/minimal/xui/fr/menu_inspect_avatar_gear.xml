@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Voir le profil" name="view_profile"/>
+	<menu_item_call label="Devenir amis" name="add_friend"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="Téléporter" name="teleport"/>
+	<menu_item_call label="Ignorer" name="block"/>
+	<menu_item_call label="Ne plus ignorer" name="unblock"/>
+	<menu_item_call label="Signaler" name="report"/>
+	<menu_item_call label="Figer" name="freeze"/>
+	<menu_item_call label="Expulser" name="eject"/>
+	<menu_item_call label="Éjecter" name="kick"/>
+	<menu_item_call label="Représentant de l&apos;Assistance client" name="csr"/>
+	<menu_item_call label="Déboguer les textures" name="debug"/>
+	<menu_item_call label="Situer sur la carte" name="find_on_map"/>
+	<menu_item_call label="Zoomer en avant" name="zoom_in"/>
+</toggleable_menu>
