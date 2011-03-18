@@ -51,7 +51,7 @@ pre_build()
 {
   local variant="$1"
   begin_section "Pre$variant"
-    "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE -DVIEWER_CHANNEL:STRING="$viewer_channel"
+    "$AUTOBUILD" configure -c $variant -- -DPACKAGE:BOOL=ON -DRELEASE_CRASH_REPORTING:BOOL=ON -DUSE_PRECOMPILED_HEADERS=FALSE "-DVIEWER_CHANNEL:STRING=\"$viewer_channel\"" "-DVIEWER_LOGIN_CHANNEL:STRING=\"$viewer_login_channel\""
   end_section "Pre$variant"
 }
 
