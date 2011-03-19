@@ -79,8 +79,11 @@ static ECursorType cursor_from_parcel_media(U8 click_action);
 
 LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
-	mGrabMouseButtonDown( FALSE ),
-	mMouseOutsideSlop( FALSE ),
+	mMouseButtonDown( false ),
+	mMouseOutsideSlop( false ),
+	mMouseSteerX(-1),
+	mMouseSteerY(-1),
+	mAbortClickToWalk(false),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -99,12 +102,17 @@ BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktyp
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	mMouseOutsideSlop = FALSE;
+	mMouseDownX = x;
+	mMouseDownY = y;
+
 	//left mouse down always picks transparent
 	mPick = gViewerWindow->pickImmediate(x, y, TRUE);
 	mPick.mKeyMask = mask;
-	mGrabMouseButtonDown = TRUE;
+
+	mMouseButtonDown = true;
 	
-	pickLeftMouseDownCallback();
+	handleLeftClickPick();
 
 	return TRUE;
 }
@@ -119,7 +127,7 @@ BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	// claim not handled so UI focus stays same
 	
-	pickRightMouseDownCallback();
+	handleRightClickPick();
 	
 	return FALSE;
 }
@@ -136,7 +144,7 @@ BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
 }
 
 // True if you selected an object.
-BOOL LLToolPie::pickLeftMouseDownCallback()
+BOOL LLToolPie::handleLeftClickPick()
 {
 	S32 x = mPick.mMousePt.mX;
 	S32 y = mPick.mMousePt.mY;
@@ -292,7 +300,12 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 	}
 
 	// put focus back "in world"
-	gFocusMgr.setKeyboardFocus(NULL);
+	if (gFocusMgr.getKeyboardFocus())
+	{
+		// don't click to walk on attempt to give focus to world
+		mAbortClickToWalk = true;
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
 
 	BOOL touchable = (object && object->flagHandleTouch()) 
 					 || (parent && parent->flagHandleTouch());
@@ -304,6 +317,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		)
 	{
 		gGrabTransientTool = this;
+		mMouseButtonDown = false;
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
 		return LLToolGrab::getInstance()->handleObjectHit( mPick );
 	}
@@ -319,9 +333,9 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 	if (!gSavedSettings.getBOOL("LeftClickShowMenu"))
 	{
 		// mouse already released
-		if (!mGrabMouseButtonDown)
+		if (!mMouseButtonDown)
 		{
-			return TRUE;
+			return true;
 		}
 
 		while( object && object->isAttachment() && !object->flagHandleTouch())
@@ -333,9 +347,10 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgentAvatarp)
+		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
 		{
 			// we left clicked on avatar, switch to focus mode
+			mMouseButtonDown = false;
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
@@ -513,7 +528,28 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
+	if (!mMouseOutsideSlop 
+		&& mMouseButtonDown 
+		&& gSavedSettings.getBOOL("ClickToWalk"))
+	{
+		S32 delta_x = x - mMouseDownX;
+		S32 delta_y = y - mMouseDownY;
+		S32 threshold = gSavedSettings.getS32("DragAndDropDistanceThreshold");
+		if (delta_x * delta_x + delta_y * delta_y > threshold * threshold)
+		{
+			startCameraSteering();
+		}
+	}
+
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
+
+	if (inCameraSteerMode())
+	{
+		steerCameraWithMouse(x, y);
+		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
+		return TRUE;
+	}
+
 	// perform a separate pick that detects transparent objects since they respond to 1-click actions
 	LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
 
@@ -584,39 +620,62 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* obj = mPick.getObject();
-
-	handleMediaMouseUp();
-
 	U8 click_action = final_click_action(obj);
-	if (click_action != CLICK_ACTION_NONE)
+
+	// let media have first pass at click
+	if (handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus())
 	{
-		switch(click_action)
+		mAbortClickToWalk = true;
+	}
+	stopCameraSteering();
+	mMouseButtonDown = false;
+
+	if (click_action == CLICK_ACTION_NONE				// not doing 1-click action
+		&& gSavedSettings.getBOOL("ClickToWalk")		// click to walk enabled
+		&& !gAgent.getFlying()							// don't auto-navigate while flying until that works
+		&& !mAbortClickToWalk							// another behavior hasn't cancelled click to walk
+		&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
+		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
+			|| mPick.mObjectID.notNull()))				// or on an object
+	{
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
 		{
-			// NOTE: mClickActionBuyEnabled flag enables/disables BUY action but setting cursor to default is okay
-		case CLICK_ACTION_BUY:
-			// NOTE: mClickActionPayEnabled flag enables/disables PAY action but setting cursor to default is okay
-		case CLICK_ACTION_PAY:
-		case CLICK_ACTION_OPEN:
-		case CLICK_ACTION_ZOOM:
-		case CLICK_ACTION_PLAY:
-		case CLICK_ACTION_OPEN_MEDIA:
-			// Because these actions open UI dialogs, we won't change
-			// the cursor again until the next hover and GL pick over
-			// the world.  Keep the cursor an arrow, assuming that 
-			// after the user moves off the UI, they won't be on the
-			// same object anymore.
-			gViewerWindow->setCursor(UI_CURSOR_ARROW);
-			// Make sure the hover-picked object is ignored.
-			//gToolTipView->resetLastHoverObject();
-			break;
-		default:
-			break;
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
 		}
+
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
+			// pretend we picked some point a bit in front of avatar
+			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
+		}
+		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+		if(mAutoPilotDestination) { mAutoPilotDestination->markDead(); }
+		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
+		mAutoPilotDestination->setPixelSize(5);
+		mAutoPilotDestination->setColor(LLColor4U(50, 50, 200));
+		mAutoPilotDestination->setDuration(3.f);
+
+		handle_go_to();
+		mAbortClickToWalk = false;
+
+		return TRUE;
+	}
+	gViewerWindow->setCursor(UI_CURSOR_ARROW);
+	if (hasMouseCapture())
+	{
+		setMouseCapture(FALSE);
 	}
 
-	mGrabMouseButtonDown = FALSE;
 	LLToolMgr::getInstance()->clearTransientTool();
 	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
+
+	mAbortClickToWalk = false;
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -936,7 +995,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 			p.visible_time_near(6.f);
 			p.visible_time_far(3.f);
-			p.delay_time(0.35f);
+			p.delay_time(gSavedSettings.getF32("AvatarInspectorTooltipDelay"));
 			p.wrap(false);
 			
 			LLToolTipMgr::instance().show(p);
@@ -1054,7 +1113,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
-				p.delay_time(0.35f);
+				p.delay_time(gSavedSettings.getF32("ObjectInspectorTooltipDelay"));
 				p.wrap(false);
 				
 				LLToolTipMgr::instance().show(p);
@@ -1237,6 +1296,10 @@ void LLToolPie::VisitHomePage(const LLPickInfo& info)
 	}
 }
 
+void LLToolPie::handleSelect()
+{
+	mAbortClickToWalk = true;	
+}
 
 void LLToolPie::handleDeselect()
 {
@@ -1275,10 +1338,20 @@ void LLToolPie::stopEditing()
 
 void LLToolPie::onMouseCaptureLost()
 {
-	mMouseOutsideSlop = FALSE;
+	stopCameraSteering();
+	mMouseButtonDown = false;
 	handleMediaMouseUp();
 }
 
+void LLToolPie::stopCameraSteering()
+{
+	mMouseOutsideSlop = false;
+}
+
+bool LLToolPie::inCameraSteerMode()
+{
+	return mMouseButtonDown && mMouseOutsideSlop && gSavedSettings.getBOOL("ClickToWalk");
+}
 
 // true if x,y outside small box around start_x,start_y
 BOOL LLToolPie::outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y)
@@ -1444,8 +1517,6 @@ bool LLToolPie::handleMediaMouseUp()
 		
 		mMediaMouseCaptureID.setNull();	
 
-		setMouseCapture(FALSE);
-
 		result = true;		
 	}	
 	
@@ -1508,7 +1579,7 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 
 
 // True if we handled the event.
-BOOL LLToolPie::pickRightMouseDownCallback()
+BOOL LLToolPie::handleRightClickPick()
 {
 	S32 x = mPick.mMousePt.mX;
 	S32 y = mPick.mMousePt.mY;
@@ -1630,10 +1701,148 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 
 void LLToolPie::showVisualContextMenuEffect()
 {
-		// VEFFECT: ShowPie
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-		effectp->setPositionGlobal(mPick.mPosGlobal);
-		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-		effectp->setDuration(0.25f);
+	// VEFFECT: ShowPie
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
+	effectp->setPositionGlobal(mPick.mPosGlobal);
+	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+	effectp->setDuration(0.25f);
+}
 
+
+bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_dir, const LLVector3& sphere_center, F32 sphere_radius, LLVector3& intersection_pt)
+{
+	// do ray/sphere intersection by solving quadratic equation
+	LLVector3 sphere_to_ray_start_vec = ray_pt - sphere_center;
+	F32 B = 2.f * ray_dir * sphere_to_ray_start_vec;
+	F32 C = sphere_to_ray_start_vec.lengthSquared() - (sphere_radius * sphere_radius);
+
+	F32 discriminant = B*B - 4.f*C;
+	if (discriminant > 0.f)
+	{	// intersection detected, now find closest one
+		F32 t0 = (-B - sqrtf(discriminant)) / 2.f;
+		if (t0 > 0.f)
+		{
+			intersection_pt = ray_pt + ray_dir * t0;
+		}
+		else
+		{
+			F32 t1 = (-B + sqrtf(discriminant)) / 2.f;
+			intersection_pt = ray_pt + ray_dir * t1;
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void LLToolPie::startCameraSteering()
+{
+	mMouseOutsideSlop = true;
+	mAbortClickToWalk = true;
+
+	if (gAgentCamera.getFocusOnAvatar())
+	{
+		mSteerPick = mPick;
+
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mSteerPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
+		{
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
+		}
+
+		// if clicking on own avatar...
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
+		{
+			// ...project pick point a few meters in front of avatar
+			mSteerPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * 3.0;
+		}
+
+		if (!mSteerPick.isValid())
+		{
+			mSteerPick.mPosGlobal = gAgent.getPosGlobalFromAgent(
+				LLViewerCamera::instance().getOrigin() + gViewerWindow->mouseDirectionGlobal(mSteerPick.mMousePt.mX, mSteerPick.mMousePt.mY) * 100.f);
+		}
+
+		setMouseCapture(TRUE);
+		
+		mMouseSteerX = mMouseDownX;
+		mMouseSteerY = mMouseDownY;
+		const LLVector3 camera_to_rotation_center	= gAgent.getFrameAgent().getOrigin() - LLViewerCamera::instance().getOrigin();
+		const LLVector3 rotation_center_to_pick		= gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal) - gAgent.getFrameAgent().getOrigin();
+
+		mClockwise = camera_to_rotation_center * rotation_center_to_pick < 0.f;
+		if (mMouseSteerGrabPoint) { mMouseSteerGrabPoint->markDead(); }
+		mMouseSteerGrabPoint = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+		mMouseSteerGrabPoint->setPositionGlobal(mSteerPick.mPosGlobal);
+		mMouseSteerGrabPoint->setColor(LLColor4U(50, 50, 200));
+		mMouseSteerGrabPoint->setPixelSize(5);
+		mMouseSteerGrabPoint->setDuration(2.f);
+	}
+}
+
+void LLToolPie::steerCameraWithMouse(S32 x, S32 y)
+{
+	const F32 MIN_ROTATION_RADIUS_FRACTION = 0.2f;
+
+	const LLVector3 pick_pos = gAgent.getPosAgentFromGlobal(mSteerPick.mPosGlobal);
+	const LLVector3 rotation_center = gAgent.getFrameAgent().getOrigin();
+	// FIXME: get this to work with camera tilt (i.e. sitting on a rotating object)
+	const LLVector3 rotation_up_axis(LLVector3::z_axis);
+
+	LLVector3 object_rotation_center = rotation_center + parallel_component(pick_pos - rotation_center, rotation_up_axis);
+	F32 min_rotation_radius = MIN_ROTATION_RADIUS_FRACTION * dist_vec(rotation_center, LLViewerCamera::instance().getOrigin());;
+	F32 pick_distance_from_rotation_center = llclamp(dist_vec(pick_pos, object_rotation_center), min_rotation_radius, F32_MAX);
+
+	LLVector3 mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(x, y), rotation_up_axis);
+	mouse_ray.normalize();
+
+	LLVector3 old_mouse_ray = orthogonal_component(gViewerWindow->mouseDirectionGlobal(mMouseSteerX, mMouseSteerY), rotation_up_axis);
+	old_mouse_ray.normalize();
+
+	LLVector3 camera_pos = gAgentCamera.getCameraPositionAgent();
+	LLVector3 camera_to_rotation_center = object_rotation_center - camera_pos;
+	LLVector3 adjusted_camera_pos = camera_pos + projected_vec(camera_to_rotation_center, rotation_up_axis);
+	LLVector3 rotation_fwd_axis = LLViewerCamera::instance().getAtAxis() - projected_vec(LLViewerCamera::instance().getAtAxis(), rotation_up_axis);
+	rotation_fwd_axis.normalize();
+	F32 pick_dist = dist_vec(pick_pos, adjusted_camera_pos);
+
+	LLVector3 mouse_on_sphere;
+	bool mouse_hit_sphere = intersect_ray_with_sphere(adjusted_camera_pos + (mouse_ray * pick_dist * 1.1f),
+		-1.f * mouse_ray,
+		object_rotation_center,
+		pick_distance_from_rotation_center, 
+		mouse_on_sphere);
+
+	LLVector3 old_mouse_on_sphere;
+	intersect_ray_with_sphere(adjusted_camera_pos + (old_mouse_ray * pick_dist * 1.1f),
+		-1.f * old_mouse_ray,
+		object_rotation_center,
+		pick_distance_from_rotation_center,
+		old_mouse_on_sphere);
+
+	if (mouse_hit_sphere)
+	{
+		// calculate rotation frame in screen space
+		LLVector3 screen_rotation_up_axis = orthogonal_component(rotation_up_axis, LLViewerCamera::instance().getAtAxis());
+		screen_rotation_up_axis.normalize();
+
+		LLVector3 screen_rotation_left_axis = screen_rotation_up_axis % LLViewerCamera::instance().getAtAxis();
+
+		LLVector3 rotation_furthest_pt = object_rotation_center + pick_distance_from_rotation_center * rotation_fwd_axis;
+		F32 mouse_lateral_distance = llclamp(((mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
+		F32 old_mouse_lateral_distance = llclamp(((old_mouse_on_sphere - rotation_furthest_pt) * screen_rotation_left_axis) / pick_distance_from_rotation_center, -1.f, 1.f);
+
+		F32 yaw_angle = asinf(mouse_lateral_distance);
+		F32 old_yaw_angle = asinf(old_mouse_lateral_distance);
+
+		F32 delta_angle = yaw_angle - old_yaw_angle;
+		if (!mClockwise) delta_angle *= -1.f;
+
+		gAgent.yaw(delta_angle);
+		mMouseSteerX = x;
+		mMouseSteerY = y;
+	}
 }
