@@ -96,7 +96,7 @@
      left="10"
      max_val="2"
      name="gamma"
-     top_pad="7"
+     top_pad="11"
      width="262" />
     <text
      type="string"

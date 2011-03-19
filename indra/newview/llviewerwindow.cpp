@@ -316,6 +316,14 @@ public:
 		std::string rwind_vector_text;
 		std::string audio_text;
 
+		static const std::string beacon_particle = LLTrans::getString("BeaconParticle");
+		static const std::string beacon_physical = LLTrans::getString("BeaconPhysical");
+		static const std::string beacon_scripted = LLTrans::getString("BeaconScripted");
+		static const std::string beacon_scripted_touch = LLTrans::getString("BeaconScriptedTouch");
+		static const std::string beacon_sound = LLTrans::getString("BeaconSound");
+		static const std::string beacon_media = LLTrans::getString("BeaconMedia");
+		static const std::string particle_hiding = LLTrans::getString("ParticleHiding");
+
 		// Draw the statistics in a light gray
 		// and in a thin font
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
@@ -572,7 +580,7 @@ public:
 
 			if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
 			{
-				addText(xpos, ypos, "Hiding particles");
+				addText(xpos, ypos, particle_hiding);
 				ypos += y_inc;
 			}
 
@@ -590,13 +598,13 @@ public:
 
 			if (LLPipeline::getRenderScriptedBeacons(NULL))
 			{
-				addText(xpos, ypos, "Viewing scripted object beacons (red)");
+				addText(xpos, ypos, beacon_scripted);
 				ypos += y_inc;
 			}
 			else
 				if (LLPipeline::getRenderScriptedTouchBeacons(NULL))
 				{
-					addText(xpos, ypos, "Viewing scripted object with touch function beacons (red)");
+					addText(xpos, ypos, beacon_scripted_touch);
 					ypos += y_inc;
 				}
 
@@ -1626,6 +1634,7 @@ void LLViewerWindow::initBase()
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
+	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
 	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 	
 
@@ -1787,6 +1796,7 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel_container->addChild(buttons_panel);
 
 	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
+	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
 	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (destinations)
@@ -2569,10 +2579,6 @@ void LLViewerWindow::updateUI()
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
 		{
 			LLFirstUse::notUsingDestinationGuide();
-		}
-		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("AvatarPickerHintTimeout"))
-		{
-			LLFirstUse::notUsingAvatarPicker();
 		}
 		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
 		{

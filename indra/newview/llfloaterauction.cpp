@@ -351,8 +351,8 @@ void LLFloaterAuction::doResetParcel()
 		body["media_height"] = (S32) 0;
 		body["auto_scale"] = (S32) 0;
 		body["media_loop"] = (S32) 0;
-		body["obscure_media"] = (S32) 0;
-		body["obscure_music"] = (S32) 0;
+		body["obscure_media"] = (S32) 0; // OBSOLETE - no longer used
+		body["obscure_music"] = (S32) 0; // OBSOLETE - no longer used
 		body["media_id"] = LLUUID::null;
 		body["group_id"] = MAINTENANCE_GROUP_ID;	// Use maintenance group
 		body["pass_price"] = (S32) 10;		// Defaults to $10

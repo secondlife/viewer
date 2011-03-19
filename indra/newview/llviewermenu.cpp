@@ -843,33 +843,49 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
-void LLDestinationAndAvatarShow(const LLSD& value)
+void toggle_destination_and_avatar_picker(const LLSD& show)
 {
-	S32 panel_idx = value.isDefined() ? value.asInteger() : -1;
+	S32 panel_idx = show.isDefined() ? show.asInteger() : -1;
 	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
 	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
+	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
 	switch(panel_idx)
 	{
 	case 0:
-		container->setVisible(true);
-		destinations->setVisible(true);
-		avatar_picker->setVisible(false);
-		LLFirstUse::notUsingDestinationGuide(false);
+		if (!destinations->getVisible())
+		{
+			container->setVisible(true);
+			destinations->setVisible(true);
+			avatar_picker->setVisible(false);
+			LLFirstUse::notUsingDestinationGuide(false);
+			avatar_btn->setToggleState(false);
+			destination_btn->setToggleState(true);
+			return;
+		}
 		break;
 	case 1:
-		container->setVisible(true);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(true);
-		LLFirstUse::notUsingAvatarPicker(false);
+		if (!avatar_picker->getVisible())
+		{	
+			container->setVisible(true);
+			destinations->setVisible(false);
+			avatar_picker->setVisible(true);
+			avatar_btn->setToggleState(true);
+			destination_btn->setToggleState(false);
+			return;
+		}
 		break;
 	default:
-		container->setVisible(false);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(false);
 		break;
 	}
+
+	container->setVisible(false);
+	destinations->setVisible(false);
+	avatar_picker->setVisible(false);
+	avatar_btn->setToggleState(false);
+	destination_btn->setToggleState(false);
 };
 
 
@@ -2835,7 +2851,7 @@ class LLObjectMute : public view_listener_t
 		}
 		
 		LLMute mute(id, name, type);
-		if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
+		if (LLMuteList::getInstance()->isMuted(mute.mID))
 		{
 			LLMuteList::getInstance()->remove(mute);
 		}
@@ -4781,110 +4797,6 @@ class LLToolsSelectNextPart : public view_listener_t
 	}
 };
 
-// in order to link, all objects must have the same owner, and the
-// agent must have the ability to modify all of the objects. However,
-// we're not answering that question with this method. The question
-// we're answering is: does the user have a reasonable expectation
-// that a link operation should work? If so, return true, false
-// otherwise. this allows the handle_link method to more finely check
-// the selection and give an error message when the uer has a
-// reasonable expectation for the link to work, but it will fail.
-class LLToolsEnableLink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = false;
-		// check if there are at least 2 objects selected, and that the
-		// user can modify at least one of the selected objects.
-
-		// in component mode, can't link
-		if (!gSavedSettings.getBOOL("EditLinkedParts"))
-		{
-			if(LLSelectMgr::getInstance()->selectGetAllRootsValid() && LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() >= 2)
-			{
-				struct f : public LLSelectedObjectFunctor
-				{
-					virtual bool apply(LLViewerObject* object)
-					{
-						return object->permModify();
-					}
-				} func;
-				const bool firstonly = true;
-				new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
-			}
-		}
-		return new_value;
-	}
-};
-
-class LLToolsLink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
-		{
-			LLNotificationsUtil::add("UnableToLinkWhileDownloading");
-			return true;
-		}
-
-		S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
-		if (object_count > MAX_CHILDREN_PER_TASK + 1)
-		{
-			LLSD args;
-			args["COUNT"] = llformat("%d", object_count);
-			int max = MAX_CHILDREN_PER_TASK+1;
-			args["MAX"] = llformat("%d", max);
-			LLNotificationsUtil::add("UnableToLinkObjects", args);
-			return true;
-		}
-
-		if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() < 2)
-		{
-			LLNotificationsUtil::add("CannotLinkIncompleteSet");
-			return true;
-		}
-		if(!LLSelectMgr::getInstance()->selectGetRootsModify())
-		{
-			LLNotificationsUtil::add("CannotLinkModify");
-			return true;
-		}
-		LLUUID owner_id;
-		std::string owner_name;
-		if(!LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name))
-		{
-			// we don't actually care if you're the owner, but novices are
-			// the most likely to be stumped by this one, so offer the
-			// easiest and most likely solution.
-			LLNotificationsUtil::add("CannotLinkDifferentOwners");
-			return true;
-		}
-		LLSelectMgr::getInstance()->sendLink();
-		return true;
-	}
-};
-
-class LLToolsEnableUnlink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
-		bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
-			first_editable_object &&
-			!first_editable_object->isAttachment();
-		return new_value;
-	}
-};
-
-class LLToolsUnlink : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLSelectMgr::getInstance()->sendDelink();
-		return true;
-	}
-};
-
-
 class LLToolsStopAllAnimations : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5646,20 +5558,42 @@ class LLShowHelp : public view_listener_t
 	}
 };
 
+class LLToggleHelp : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloater* help_browser = (LLFloaterReg::findInstance("help_browser"));
+		if (help_browser && help_browser->isInVisibleChain())
+		{
+			help_browser->closeFloater();
+		}
+		else
+		{
+			std::string help_topic = userdata.asString();
+			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+			vhelp->showTopic(help_topic);
+		}
+		return true;
+	}
+};
+
 class LLShowSidetrayPanel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		// Toggle the panel
-		if (!LLSideTray::getInstance()->isPanelActive(panel_name))
+
+		LLPanel* panel = LLSideTray::getInstance()->getPanel(panel_name);
+		if (panel)
 		{
-			// LLFloaterInventory::showAgentInventory();
-			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
-		}
-		else
-		{
-			LLSideTray::getInstance()->collapseSideBar();
+			if (panel->isInVisibleChain())
+			{
+				LLSideTray::getInstance()->hidePanel(panel_name);
+			}
+			else
+			{
+				LLSideTray::getInstance()->showPanel(panel_name);
+			}
 		}
 		return true;
 	}
@@ -5783,6 +5717,44 @@ class LLShowAgentProfile : public view_listener_t
 		if (avatar)
 		{
 			LLAvatarActions::showProfile(avatar->getID());
+		}
+		return true;
+	}
+};
+
+class LLToggleAgentProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLUUID agent_id;
+		if (userdata.asString() == "agent")
+		{
+			agent_id = gAgent.getID();
+		}
+		else if (userdata.asString() == "hit object")
+		{
+			LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+			if (objectp)
+			{
+				agent_id = objectp->getID();
+			}
+		}
+		else
+		{
+			agent_id = userdata.asUUID();
+		}
+
+		LLVOAvatar* avatar = find_avatar_from_object(agent_id);
+		if (avatar)
+		{
+			if (!LLAvatarActions::profileVisible(avatar->getID()))
+			{
+				LLAvatarActions::showProfile(avatar->getID());
+			}
+			else
+			{
+				LLAvatarActions::hideProfile(avatar->getID());
+			}
 		}
 		return true;
 	}
@@ -7912,8 +7884,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
 	view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
 	view_listener_t::addMenu(new LLToolsSelectNextPart(), "Tools.SelectNextPart");
-	view_listener_t::addMenu(new LLToolsLink(), "Tools.Link");
-	view_listener_t::addMenu(new LLToolsUnlink(), "Tools.Unlink");
+	commit.add("Tools.Link", boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
+	commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
 	view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
 	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");	
@@ -7926,8 +7898,8 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
 	view_listener_t::addMenu(new LLToolsEnableSelectNextPart(), "Tools.EnableSelectNextPart");
-	view_listener_t::addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
-	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
+	enable.add("Tools.EnableLink", boost::bind(&LLSelectMgr::enableLinkObjects, LLSelectMgr::getInstance()));
+	enable.add("Tools.EnableUnlink", boost::bind(&LLSelectMgr::enableUnlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
@@ -8192,8 +8164,10 @@ void initialize_menus()
 	commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
 	commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
+	view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
@@ -8214,5 +8188,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
-	commit.add("DestinationAndAvatar.show", boost::bind(&LLDestinationAndAvatarShow, _2));
+	commit.add("Destination.show", boost::bind(&toggle_destination_and_avatar_picker, 0));
+	commit.add("Avatar.show", boost::bind(&toggle_destination_and_avatar_picker, 1));
 }
