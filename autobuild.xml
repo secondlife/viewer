@@ -2478,7 +2478,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2546,7 +2546,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2588,7 +2588,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2622,7 +2622,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2656,7 +2656,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2774,7 +2774,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
