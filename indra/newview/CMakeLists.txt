@@ -9,7 +9,7 @@ include(DBusGlib)
 include(DirectX)
 include(OpenSSL)
 include(DragDrop)
-include(ELFIO)
+include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
@@ -44,11 +44,11 @@ include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${ELFIO_INCLUDE_DIR}
     ${JSONCPP_INCLUDE_DIRS}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
+    ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
@@ -66,6 +66,7 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
     ${UPDATER_INCLUDE_DIRS}
+    ${OPENAL_LIB_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -1291,8 +1292,6 @@ if (WINDOWS)
     if (INTEL_MEMOPS_LIBRARY)
       list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
     endif (INTEL_MEMOPS_LIBRARY)
-
-    use_prebuilt_binary(dbghelp)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
@@ -1434,19 +1433,13 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-    if(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map /MAPINFO:LINES")
-    else(MSVC71)
-        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map")
-    endif(MSVC71)
-    
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ${release_flags}
+        LINK_FLAGS_RELEASE ""
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1489,15 +1482,12 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp80.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Microsoft.VC80.CRT.manifest
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp80d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/Microsoft.VC80.DebugCRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp100.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr100d.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp100d.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
@@ -1509,7 +1499,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
-      ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
@@ -1691,8 +1680,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
     ${WINDOWS_LIBRARIES}
+    ${EXPAT_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
-    ${ELFIO_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
@@ -1849,7 +1838,9 @@ if (PACKAGE)
   if (WINDOWS)
     set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-windows.tar.bz2")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
+    # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
+    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
+    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
     set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
   endif (WINDOWS)
@@ -1883,7 +1874,7 @@ if (PACKAGE)
       "${VIEWER_DIST_DIR}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
-      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+      "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
       "${VIEWER_SYMBOL_FILE}"
     DEPENDS generate_breakpad_symbols.py
         VERBATIM)
