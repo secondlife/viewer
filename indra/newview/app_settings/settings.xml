@@ -8276,7 +8276,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.81</real>
+      <real>9999</real>
     </map>
     <key>RenderGlowResolutionPow</key>
     <map>
