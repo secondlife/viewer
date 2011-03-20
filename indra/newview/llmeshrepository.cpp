@@ -3532,7 +3532,7 @@ void LLPhysicsDecomp::run()
 	
 	if (!stages)
 	{
-		//num_stages = decomp->getStages(&stages);
+		num_stages = decomp->getStages(&stages);
 	}
 
 	for (S32 i = 0; i < num_stages; i++)
@@ -3554,9 +3554,9 @@ void LLPhysicsDecomp::run()
 			S32& id = *(mCurRequest->mDecompID);
 			if (id == -1)
 			{
-				//decomp->genDecomposition(id);
+				decomp->genDecomposition(id);
 			}
-			//decomp->bindDecomposition(id);
+			decomp->bindDecomposition(id);
 
 			if (mCurRequest->mStage == "single_hull")
 			{
@@ -3569,7 +3569,7 @@ void LLPhysicsDecomp::run()
 		}
 	}
 
-	//decomp->quitThread();
+	decomp->quitThread();
 	
 	if (mSignal->isLocked())
 	{ //let go of mSignal's associated mutex

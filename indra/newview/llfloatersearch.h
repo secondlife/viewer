@@ -53,6 +53,8 @@ public:
 	/// see search() for details on the key parameter.
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	/*virtual*/ void onClose(bool app_quitting);
+
 	/// perform a search with the specific search term.
 	/// The key should be a map that can contain the following keys:
 	///  - "id": specifies the text phrase to search for

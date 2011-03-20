@@ -66,7 +66,7 @@ LLModel::~LLModel()
 {
 	if (mDecompID >= 0)
 	{
-//		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
+		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
 	}
 }
 

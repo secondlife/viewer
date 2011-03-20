@@ -1898,7 +1898,7 @@ BOOL LLVolume::generate()
 	// Split is a parameter to LLProfile::generate that tesselates edges on the profile 
 	// to prevent lighting and texture interpolation errors on triangles that are 
 	// stretched due to twisting or scaling on the path.  
-	S32 split = 0;//(S32) ((mDetail)*0.66f);
+	S32 split = (S32) ((mDetail)*0.66f);
 	
 	if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_LINE &&
 		(mParams.getPathParams().getScale().mV[0] != 1.0f ||

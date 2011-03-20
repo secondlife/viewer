@@ -306,9 +306,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a20e73f2e7d6a032ff25a5161b1b7394</string>
+            <string>9c9b629b62bf874d550c430ad678dc04</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-linux-20100527.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/Linux/installer/curl-7.21.1-linux-20101215.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
