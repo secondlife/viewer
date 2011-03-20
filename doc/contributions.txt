@@ -411,8 +411,12 @@ Jonathan Yap
 	VWR-24347
 	STORM-975
 	STORM-990
+	STORM-844
+	STORM-643
 	STORM-1020
 	STORM-1064
+	STORM-960
+	STORM-953
 Kage Pixel
 	VWR-11
 Ken March
@@ -836,6 +840,8 @@ Whoops Babii
 Wilton Lundquist
 	VWR-7682
 WolfPup Lowenhar
+	OPEN-1
+	OPEN-37
 	SNOW-622
 	SNOW-772
 	STORM-102
