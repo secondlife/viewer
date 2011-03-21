@@ -588,7 +588,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	if ((pixel_area > area_for_this_setting) || is_self)
 	{
 		const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);
-		const F32 min_delta = (1.0f-lod_factor)*4.0f; // Magic number 2.0f, can change this if experimentally something works better.
+		const F32 min_delta = (1.01f-lod_factor)*0.75f; // 75% is just an experimental magic number.
 		if (llabs(position_diff_local) > min_delta)
 		{
 			update_visuals = TRUE;
