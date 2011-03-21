@@ -238,85 +238,103 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 
 	mMotions.clear();
 
-	controller_map_t controllers_cleavage;
-	controllers_cleavage["Mass"] = "Breast_Physics_Mass";
-	controllers_cleavage["Smoothing"] = "Breast_Physics_Smoothing";
-	controllers_cleavage["Gravity"] = "Breast_Physics_Gravity";
-	controllers_cleavage["Damping"] = "Breast_Physics_Side_Damping";
-	controllers_cleavage["Drag"] = "Breast_Physics_Side_Drag";
-	controllers_cleavage["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
-	controllers_cleavage["Spring"] = "Breast_Physics_Side_Spring";
-	controllers_cleavage["Gain"] = "Breast_Physics_Side_Gain";
+	controller_map_t controller_breast_inout;
+	controller_breast_inout["Mass"] = "Breast_Physics_Mass";
+	controller_breast_inout["Smoothing"] = "Breast_Physics_Smoothing";
+	controller_breast_inout["Gravity"] = "Breast_Physics_Gravity";
+	controller_breast_inout["Damping"] = "Breast_Physics_Side_Damping";
+	controller_breast_inout["Drag"] = "Breast_Physics_Side_Drag";
+	controller_breast_inout["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
+	controller_breast_inout["Spring"] = "Breast_Physics_Side_Spring";
+	controller_breast_inout["Gain"] = "Breast_Physics_Side_Gain";
 
-	LLPhysicsMotion *cleavage_motion = new LLPhysicsMotion("Breast_Physics_Side_Controller",
-							       "",
-							       "mChest",
-							       character,
-							       LLVector3(-1,0,0),
-							       controllers_cleavage);
-	if (!cleavage_motion->initialize())
+	LLPhysicsMotion *motion_breast_inout = new LLPhysicsMotion("Breast_Physics_Side_Controller",
+								   "",
+								   "mChest",
+								   character,
+								   LLVector3(-1,0,0),
+								   controller_breast_inout);
+	if (!motion_breast_inout->initialize())
 		return STATUS_FAILURE;
-	addMotion(cleavage_motion);
+	addMotion(motion_breast_inout);
 
-	controller_map_t controllers_bounce;
-	controllers_bounce["Mass"] = "Breast_Physics_Mass";
-	controllers_bounce["Smoothing"] = "Breast_Physics_Smoothing";
-	controllers_bounce["Gravity"] = "Breast_Physics_Gravity";
-	controllers_bounce["Damping"] = "Breast_Physics_UpDown_Damping";
-	controllers_bounce["Drag"] = "Breast_Physics_UpDown_Drag";
-	controllers_bounce["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
-	controllers_bounce["Spring"] = "Breast_Physics_UpDown_Spring";
-	controllers_bounce["Gain"] = "Breast_Physics_UpDown_Gain";
+	controller_map_t controller_breast_updown;
+	controller_breast_updown["Mass"] = "Breast_Physics_Mass";
+	controller_breast_updown["Smoothing"] = "Breast_Physics_Smoothing";
+	controller_breast_updown["Gravity"] = "Breast_Physics_Gravity";
+	controller_breast_updown["Damping"] = "Breast_Physics_UpDown_Damping";
+	controller_breast_updown["Drag"] = "Breast_Physics_UpDown_Drag";
+	controller_breast_updown["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
+	controller_breast_updown["Spring"] = "Breast_Physics_UpDown_Spring";
+	controller_breast_updown["Gain"] = "Breast_Physics_UpDown_Gain";
 
-	LLPhysicsMotion *bounce_motion = new LLPhysicsMotion("Breast_Physics_UpDown_Controller",
-							     "",
-							     "mChest",
-							     character,
-							     LLVector3(0,0,1),
-							     controllers_bounce);
-	if (!bounce_motion->initialize())
+	LLPhysicsMotion *motion_breast_updown = new LLPhysicsMotion("Breast_Physics_UpDown_Controller",
+								    "",
+								    "mChest",
+								    character,
+								    LLVector3(0,0,1),
+								    controller_breast_updown);
+	if (!motion_breast_updown->initialize())
 	{
 		llassert_always(FALSE);
 		return STATUS_FAILURE;
 	}
-	addMotion(bounce_motion);
+	addMotion(motion_breast_updown);
 
-	controller_map_t controllers_butt_bounce;
-	controllers_butt_bounce["Damping"] = "Butt_Physics_Updown_Damping";
-	controllers_butt_bounce["MaxSpeed"] = "Butt_Physics_Updown_Max_Velocity";
-	controllers_butt_bounce["Spring"] = "Butt_Physics_Updown_Spring";
-	controllers_butt_bounce["Gain"] = "Butt_Physics_Updown_Gain";
-	LLPhysicsMotion *butt_bounce_motion = new LLPhysicsMotion("Butt_Physics_UpDown_Controller",
+	controller_map_t controller_butt_updown;
+	controller_butt_updown["Damping"] = "Butt_Physics_Updown_Damping";
+	controller_butt_updown["MaxSpeed"] = "Butt_Physics_Updown_Max_Velocity";
+	controller_butt_updown["Spring"] = "Butt_Physics_Updown_Spring";
+	controller_butt_updown["Gain"] = "Butt_Physics_Updown_Gain";
+	LLPhysicsMotion *motion_butt_updown = new LLPhysicsMotion("Butt_Physics_UpDown_Controller",
 								  "",
 								  "mPelvis",
 								  character,
-								  LLVector3(0,0,-1),
-								  controllers_butt_bounce);
-	if (!butt_bounce_motion->initialize())
+								  LLVector3(0,0,1),
+								  controller_butt_updown);
+	if (!motion_butt_updown->initialize())
 	{
 		llassert_always(FALSE);
 		return STATUS_FAILURE;
 	}
-	addMotion(butt_bounce_motion);
+	addMotion(motion_butt_updown);
 
-	controller_map_t controllers_belly_bounce;
-	controllers_belly_bounce["Damping"] = "Belly_Physics_Updown_Damping";
-	controllers_belly_bounce["MaxSpeed"] = "Belly_Physics_Updown_Max_Velocity";
-	controllers_belly_bounce["Spring"] = "Belly_Physics_Updown_Spring";
-	controllers_belly_bounce["Gain"] = "Belly_Physics_Updown_Gain";
-	LLPhysicsMotion *belly_bounce_motion = new LLPhysicsMotion("Belly_Physics_UpDown_Controller",
+	controller_map_t controller_butt_leftright;
+	controller_butt_leftright["Damping"] = "Butt_Physics_Updown_Damping";
+	controller_butt_leftright["MaxSpeed"] = "Butt_Physics_Updown_Max_Velocity";
+	controller_butt_leftright["Spring"] = "Butt_Physics_Updown_Spring";
+	controller_butt_leftright["Gain"] = "Butt_Physics_Updown_Gain";
+	LLPhysicsMotion *motion_butt_leftright = new LLPhysicsMotion("Butt_Physics_LeftRight_Controller",
+								     "",
+								     "mPelvis",
+								     character,
+								     LLVector3(0,1,0),
+								     controller_butt_leftright);
+	if (!motion_butt_leftright->initialize())
+	{
+		llassert_always(FALSE);
+		return STATUS_FAILURE;
+	}
+	addMotion(motion_butt_leftright);
+
+	controller_map_t controller_belly_updown;
+	controller_belly_updown["Damping"] = "Belly_Physics_Updown_Damping";
+	controller_belly_updown["MaxSpeed"] = "Belly_Physics_Updown_Max_Velocity";
+	controller_belly_updown["Spring"] = "Belly_Physics_Updown_Spring";
+	controller_belly_updown["Gain"] = "Belly_Physics_Updown_Gain";
+	LLPhysicsMotion *motion_belly_updown = new LLPhysicsMotion("Belly_Physics_UpDown_Controller",
 								   "",
 								   "mChest",
 								   character,
 								   LLVector3(0,0,-1),
-								   controllers_belly_bounce);
-	if (!belly_bounce_motion->initialize())
+								   controller_belly_updown);
+	if (!motion_belly_updown->initialize())
 	{
 		llassert_always(FALSE);
 		return STATUS_FAILURE;
 	}
-	addMotion(belly_bounce_motion);
-
+	addMotion(motion_belly_updown);
+	
 	return STATUS_SUCCESS;
 }
 

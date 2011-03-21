@@ -2534,6 +2534,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Belly Physics UpDown Max Speed">Belly Updown Max Speed</string>
 
 <string name="Butt Physics UpDown Controller">Butt UpDown Bounce</string>
+<string name="Butt Physics LeftRight Controller">Butt LeftRight Bounce</string>
 <string name="Butt Physics UpDown Spring">Butt UpDown Spring</string>
 <string name="Butt Physics UpDown Gain">Butt UpDown Gain</string>
 <string name="Butt Physics UpDown Damping">Butt UpDown Damping</string>

@@ -4457,6 +4457,22 @@
     </param>
 
     <param
+     id="1090"
+     group="0"
+     name="Butt_Physics_LeftRight_Driven"
+     wearable="shape"
+     edit_group="driven"
+     label_min="Separate"
+     label_max="Join"
+     value_default="0"
+     value_min="-2"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_morph />
+    </param>
+
+    <param
      id="152"
      group="1"
      name="Muscular_Legs"
@@ -9351,7 +9367,7 @@ render_pass="bump">
     </param>
 
     <param
-     id="1090"
+     id="1104"
      group="0"
      wearable="shape"
      edit_group="shape_legs"
@@ -9368,6 +9384,27 @@ render_pass="bump">
       <param_driver>
         <driven
          id="1089" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1105"
+     group="0"
+     wearable="shape"
+     edit_group="shape_legs"
+     edit_group_order="15"
+     name="Butt_Physics_LeftRight_Controller"
+     label="Butt Physics LeftRight Controller"
+     label_min="Down"
+     label_max="Up"
+     value_min="-1"
+     value_max="1"
+     value_default="0"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_driver>
+        <driven
+         id="1090" />
       </param_driver>
     </param>
 
