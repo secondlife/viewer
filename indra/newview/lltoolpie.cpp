@@ -83,7 +83,7 @@ LLToolPie::LLToolPie()
 	mMouseOutsideSlop( false ),
 	mMouseSteerX(-1),
 	mMouseSteerY(-1),
-	mAbortClickToWalk(false),
+	mBlockClickToWalk(false),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -303,7 +303,7 @@ BOOL LLToolPie::handleLeftClickPick()
 	if (gFocusMgr.getKeyboardFocus())
 	{
 		// don't click to walk on attempt to give focus to world
-		mAbortClickToWalk = true;
+		mBlockClickToWalk = true;
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
@@ -625,7 +625,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	// let media have first pass at click
 	if (handleMediaMouseUp() || LLViewerMediaFocus::getInstance()->getFocus())
 	{
-		mAbortClickToWalk = true;
+		mBlockClickToWalk = true;
 	}
 	stopCameraSteering();
 	mMouseButtonDown = false;
@@ -633,7 +633,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	if (click_action == CLICK_ACTION_NONE				// not doing 1-click action
 		&& gSavedSettings.getBOOL("ClickToWalk")		// click to walk enabled
 		&& !gAgent.getFlying()							// don't auto-navigate while flying until that works
-		&& !mAbortClickToWalk							// another behavior hasn't cancelled click to walk
+		&& !mBlockClickToWalk							// another behavior hasn't cancelled click to walk
 		&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
 		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
 			|| mPick.mObjectID.notNull()))				// or on an object
@@ -658,11 +658,11 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
 		mAutoPilotDestination->setPixelSize(5);
-		mAutoPilotDestination->setColor(LLColor4U(50, 50, 200));
+		mAutoPilotDestination->setColor(LLColor4U(170, 210, 190));
 		mAutoPilotDestination->setDuration(3.f);
 
 		handle_go_to();
-		mAbortClickToWalk = false;
+		mBlockClickToWalk = false;
 
 		return TRUE;
 	}
@@ -675,7 +675,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	LLToolMgr::getInstance()->clearTransientTool();
 	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 
-	mAbortClickToWalk = false;
+	mBlockClickToWalk = false;
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -1298,7 +1298,8 @@ void LLToolPie::VisitHomePage(const LLPickInfo& info)
 
 void LLToolPie::handleSelect()
 {
-	mAbortClickToWalk = true;	
+	// tool is reselected when app gets focus, etc.
+	mBlockClickToWalk = true;	
 }
 
 void LLToolPie::handleDeselect()
@@ -1738,7 +1739,7 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 void LLToolPie::startCameraSteering()
 {
 	mMouseOutsideSlop = true;
-	mAbortClickToWalk = true;
+	mBlockClickToWalk = true;
 
 	if (gAgentCamera.getFocusOnAvatar())
 	{
@@ -1777,7 +1778,7 @@ void LLToolPie::startCameraSteering()
 		if (mMouseSteerGrabPoint) { mMouseSteerGrabPoint->markDead(); }
 		mMouseSteerGrabPoint = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
 		mMouseSteerGrabPoint->setPositionGlobal(mSteerPick.mPosGlobal);
-		mMouseSteerGrabPoint->setColor(LLColor4U(50, 50, 200));
+		mMouseSteerGrabPoint->setColor(LLColor4U(170, 210, 190));
 		mMouseSteerGrabPoint->setPixelSize(5);
 		mMouseSteerGrabPoint->setDuration(2.f);
 	}

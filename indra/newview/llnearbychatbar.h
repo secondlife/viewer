@@ -72,6 +72,8 @@ public:
 	virtual void	hideList();
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
+	virtual void	draw();
+
 	S32				getCurrentIndex() const;
 	void			onItemSelected(const LLSD& data);
 	void			sortByName(bool ascending = true);
