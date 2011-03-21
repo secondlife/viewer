@@ -825,7 +825,6 @@ void LLPipeline::releaseGLBuffers()
 		mGlow[i].release();
 	}
 
-	gBumpImageList.destroyGL();
 	LLVOAvatar::resetImpostors();
 }
 
@@ -948,8 +947,6 @@ void LLPipeline::createGLBuffers()
 			addDeferredAttachments(mGIMap);
 		}
 	}
-
-	gBumpImageList.restoreGL();
 }
 
 void LLPipeline::restoreGL() 

@@ -646,6 +646,8 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 		break;
 	}
 
+	llassert(bump);
+
 	if (bump)
 	{
 		if (channel == -2)
@@ -660,7 +662,7 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 
 		return TRUE;
 	}
-	
+
 	return FALSE;
 }
 
@@ -1000,25 +1002,28 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 		}
 
 		bump_image_map_t::iterator iter = entries_list->find(src_image->getID());
-		if (iter != entries_list->end())
+		if (iter != entries_list->end() && iter->second.notNull())
 		{
 			bump = iter->second;
 		}
 		else
 		{
 			LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
-			raw->clear(0x77, 0x77, 0x77, 0xFF);
+			raw->clear(0x77, 0x77, 0xFF, 0xFF);
 
 			(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
-			(*entries_list)[src_image->getID()]->setExplicitFormat(GL_ALPHA8, GL_ALPHA);			
-
-			// Note: this may create an LLImageGL immediately
-			src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
-			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
 			bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
+		}
 
-//			bump_total++;
-//			llinfos << "*** Creating " << (void*)bump << " " << bump_total << llendl;
+		if (!src_image->hasCallbacks())
+		{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
+			if (src_image->getWidth() != bump->getWidth() ||
+				src_image->getHeight() != bump->getHeight() ||
+				(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
+			{
+				src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
+				src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
+			}
 		}
 	}
 
@@ -1122,10 +1127,18 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
 
-		if (iter != entries_list.end() ||
-			iter->second.isNull() ||
-			iter->second->getWidth() != src->getWidth() ||
-			iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
+		if (iter == entries_list.end() ||
+			iter->second.isNull())
+		{ //make sure an entry exists for this image
+			LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
+			raw->clear(0x77, 0x77, 0xFF, 0xFF);
+
+			entries_list[src_vi->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+			iter = entries_list.find(src_vi->getID());
+		}
+
+		//if (iter->second->getWidth() != src->getWidth() ||
+		//	iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 		{
 			LLPointer<LLImageRaw> dst_image = new LLImageRaw(src->getWidth(), src->getHeight(), 1);
 			U8* dst_data = dst_image->getData();
@@ -1251,17 +1264,9 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				bump->setExplicitFormat(GL_RGBA, GL_RGBA);
 				bump->createGLTexture(0, nrm_image);
 			}
-
-			
+		
 			iter->second = bump; // derefs (and deletes) old image
 			//---------------------------------------------------
-		}
-		else
-		{
-			// entry should have been added in LLBumpImageList::getImage().
-
-			// Not a legit assertion - the bump texture could have been flushed by the bump image manager
-			//llassert(0);
 		}
 	}
 }
