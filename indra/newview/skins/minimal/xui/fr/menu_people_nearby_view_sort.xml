@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_group_plus">
+	<menu_item_check label="Trier par intervenants récents" name="sort_by_recent_speakers"/>
+	<menu_item_check label="Trier par nom" name="sort_name"/>
+	<menu_item_check label="Trier par distance" name="sort_distance"/>
+	<menu_item_check label="Afficher les icônes des résidents" name="view_icons"/>
+	<menu_item_call label="Afficher les résidents et les objets interdits" name="show_blocked_list"/>
+</menu>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<panel.string name="StatBarDaysOfWeek">
+		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+	</panel.string>
+	<panel.string name="StatBarMonthsOfYear">
+		January:February:March:April:May:June:July:August:September:October:November:December
+	</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Perte de paquets
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Bande passante
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt] [sday, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		[AMT] L$
+	</panel.string>
+	<panel name="balance_bg">
+		<text name="balance" tool_tip="Cliquer sur ce bouton pour actualiser votre solde en L$." value="20 L$"/>
+		<button label="ACHETER L$" name="buyL" tool_tip="Cliquer pour acheter plus de L$"/>
+	</panel>
+	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">
+		00h00 PST
+	</text>
+	<button name="media_toggle_btn" tool_tip="Arrêter tous les médias (musique, vidéo, pages web)"/>
+	<button name="volume_btn" tool_tip="Contrôle du volume global"/>
+</panel>

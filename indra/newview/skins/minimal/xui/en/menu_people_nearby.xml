@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Avatar Context Menu">
+	<menu_item_call
+     label="View Profile"
+     layout="topleft"
+     name="View Profile">
+		<menu_item_call.on_click
+         function="Avatar.Profile" />
+	</menu_item_call>
+	<menu_item_call
+     label="Add Friend"
+     layout="topleft"
+     name="Add Friend">
+		<menu_item_call.on_click
+         function="Avatar.AddFriend" />
+		<menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_add" />
+	</menu_item_call>
+	<menu_item_call
+     label="Remove Friend"
+     layout="topleft"
+     name="Remove Friend">
+		<menu_item_call.on_click
+         function="Avatar.RemoveFriend" />
+		<menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_delete" />
+	</menu_item_call>
+	<menu_item_call
+     label="IM"
+     layout="topleft"
+     name="IM">
+		<menu_item_call.on_click
+         function="Avatar.IM" />
+	</menu_item_call>
+	<menu_item_check
+     label="Block/Unblock"
+     layout="topleft"
+     name="Block/Unblock">
+		<menu_item_check.on_click
+         function="Avatar.BlockUnblock" />
+		<menu_item_check.on_check
+         function="Avatar.CheckItem"
+         parameter="is_blocked" />
+		<menu_item_check.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_block" />
+	</menu_item_check>
+	<menu_item_call
+    label="Offer Teleport"
+    name="teleport">
+		<menu_item_call.on_click
+		 function="Avatar.OfferTeleport"/>
+		<menu_item_call.on_enable
+		function="Avatar.EnableItem"
+		parameter="can_offer_teleport"/>
+	</menu_item_call>
+</context_menu>

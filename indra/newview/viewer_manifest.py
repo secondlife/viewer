@@ -332,7 +332,7 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst="llplugin"):
+        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
             self.path("winmm.dll")
             self.end_prefix()
 
@@ -803,7 +803,7 @@ class DarwinManifest(ViewerManifest):
                 self.run_command('SetFile -a V %r' % pathname)
 
             # Create the alias file (which is a resource file) from the .r
-            self.run_command('rez %r -o %r' %
+            self.run_command('Rez %r -o %r' %
                              (self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
                               os.path.join(volpath, "Applications")))
 

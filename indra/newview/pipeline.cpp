@@ -6851,7 +6851,6 @@ void LLPipeline::renderDeferredLighting()
 		{
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
-			LLHUDObject::renderAll();
 			gObjectList.resetObjectBeacons();
 		}
 	}
