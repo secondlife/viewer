@@ -1,8 +1,7 @@
 Linden Lab would like to acknowledge source code contributions from the
 following residents. The Second Life resident name is given below,
 along with the issue identifier corresponding to the patches we've
-received from them. To see more about these contributions, visit the
-browsable version: http://wiki.secondlife.com/wiki/Source_contributions
+received from them.
 
 Able Whitman
 	VWR-650
@@ -411,8 +410,12 @@ Jonathan Yap
 	VWR-24347
 	STORM-975
 	STORM-990
+	STORM-844
+	STORM-643
 	STORM-1020
 	STORM-1064
+	STORM-960
+	STORM-953
 Kage Pixel
 	VWR-11
 Ken March
@@ -573,6 +576,9 @@ Nicholaz Beresford
 	VWR-2412
 	VWR-2682
 	VWR-2684
+Nicky Perian
+	OPEN-1
+	OPEN-1087
 Nounouch Hapmouche
 	VWR-238
 Patric Mills
@@ -836,6 +842,8 @@ Whoops Babii
 Wilton Lundquist
 	VWR-7682
 WolfPup Lowenhar
+	OPEN-1
+	OPEN-37
 	SNOW-622
 	SNOW-772
 	STORM-102
