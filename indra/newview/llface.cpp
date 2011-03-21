@@ -1729,6 +1729,7 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 	t.load3(camera->getOrigin().mV);
 	lookAt.setSub(center, t);
 	F32 dist = lookAt.getLength3().getF32();
+	dist = llmax(dist-size.getLength3().getF32(), 0.f);
 	lookAt.normalize3fast() ;	
 
 	//get area of circle around node
