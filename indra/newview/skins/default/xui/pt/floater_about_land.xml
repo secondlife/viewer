@@ -392,7 +392,6 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Definir..." label_selected="Definir..." name="set_media_url"/>
-			<check_box label="Esconder a URL da mídia" left="97" name="hide_media_url" tool_tip="Ativando esta opção, a URL da mídia se ocultará para quaisquer visualizadores não autorizados a ver esta informação do lote. Notar que isto não está disponível para tipos HTML."/>
 			<text name="Description:">
 				Descrição:
 			</text>
@@ -424,7 +423,6 @@ Mídia:
 			<text name="MusicURL:">
 				URL de música:
 			</text>
-			<check_box label="Ocultar URL" name="hide_music_url" tool_tip="Selecionar esta opção oculta o URL de música a visitantes não autorizados aos dados do terreno."/>
 			<text name="Sound:">
 				Som:
 			</text>

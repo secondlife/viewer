@@ -9,6 +9,18 @@
  visible="false"
  width="128">
     <menu_item_check
+         label="Voice Enabled"
+         layout="topleft"
+         name="EnableVoiceChat">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="EnableVoiceChat" /> 
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="EnableVoiceChat" />
+    </menu_item_check>
+    <menu_item_separator/>
+    <menu_item_check
          label="Gesture button"
          layout="topleft"
          name="ShowGestureButton">

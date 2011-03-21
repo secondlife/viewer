@@ -156,6 +156,7 @@ Ann Congrejo
 	CT-193
 Ardy Lay
 	VWR-19499
+	VWR-24917
 Argent Stonecutter
 	VWR-68
 Armin Weatherwax
@@ -831,6 +832,7 @@ WolfPup Lowenhar
 	STORM-102
 	STORM-103
 	STORM-143
+	STORM-236
 	STORM-255
 	STORM-256
 	STORM-288
