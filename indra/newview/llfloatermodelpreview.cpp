@@ -90,6 +90,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llradiogroup.h"
+#include "llsdserialize.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
@@ -2561,6 +2562,71 @@ void LLModelPreview::rebuildUploadData()
 
 }
 
+void LLModelPreview::saveUploadData(bool save_skinweights, bool save_joint_positions)
+{
+	if (!mLODFile[LLModel::LOD_HIGH].empty())
+	{
+		std::string filename = mLODFile[LLModel::LOD_HIGH];
+		
+		std::string::size_type i = filename.rfind(".");
+		if (i != std::string::npos)
+		{
+			filename.replace(i, filename.size()-1, ".slm");
+			saveUploadData(filename, save_skinweights, save_joint_positions);
+		}
+	}
+}
+
+void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions)
+{
+	std::set<LLPointer<LLModel> > meshes;
+	std::map<LLModel*, std::string> mesh_binary;
+
+	LLModel::hull empty_hull;
+
+	LLSD data;
+
+	S32 mesh_id = 0;
+
+	//build list of unique models and initialize local id
+	for (U32 i = 0; i < mUploadData.size(); ++i)
+	{
+		LLModelInstance& instance = mUploadData[i];
+		
+		if (meshes.find(instance.mModel) == meshes.end())
+		{
+			instance.mModel->mLocalID = mesh_id++;
+			meshes.insert(instance.mModel);
+
+			std::stringstream str;
+
+			LLModel::convex_hull_decomposition& decomp =
+				instance.mLOD[LLModel::LOD_PHYSICS].notNull() ? 
+				instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp : 
+				instance.mModel->mConvexHullDecomp;
+
+			LLModel::writeModel(str, 
+				instance.mLOD[LLModel::LOD_PHYSICS], 
+				instance.mLOD[LLModel::LOD_HIGH], 
+				instance.mLOD[LLModel::LOD_MEDIUM], 
+				instance.mLOD[LLModel::LOD_LOW], 
+				instance.mLOD[LLModel::LOD_IMPOSTOR], 
+				decomp, 
+				empty_hull, save_skinweights, save_joint_positions);
+
+			data["mesh"][instance.mModel->mLocalID] = str.str();
+		}
+
+		data["instance"][i] = instance.asLLSD();
+	}
+
+	llofstream out(filename, std::ios_base::out | std::ios_base::binary);
+	LLSDSerialize::toBinary(data, out);
+	out.flush();
+	out.close();
+}
+
+
 
 void LLModelPreview::clearModel(S32 lod)
 {
@@ -4317,8 +4383,13 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	
 	mp->mModelPreview->rebuildUploadData();
 
+	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
+	bool upload_joint_positions = mp->childGetValue("upload_joints").asBoolean();
+
+	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
+
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
-						  mp->childGetValue("upload_textures").asBoolean(), mp->childGetValue("upload_skin"), mp->childGetValue("upload_joints"));
+						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions);
 
 	mp->closeFloater(false);
 }

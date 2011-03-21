@@ -101,6 +101,8 @@ public:
 	{ 
 		mDiffuseColor.set(1,1,1,1);
 	}
+
+	LLSD asLLSD();
 };
 
 class LLModelInstance 
@@ -120,6 +122,8 @@ public:
 		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
 	}
+
+	LLSD asLLSD();
 };
 
 class LLMeshSkinInfo 

@@ -3584,3 +3584,30 @@ void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+LLSD LLModelInstance::asLLSD()
+{	
+	LLSD ret;
+
+	ret["mesh_id"] = mModel->mLocalID;
+	ret["label"] = mLabel;
+	ret["transform"] = mTransform.getValue();
+	
+	for (U32 i = 0; i < mMaterial.size(); ++i)
+	{
+		ret["material"][i] = mMaterial[i].asLLSD();
+	}
+
+	return ret;
+}
+
+LLSD LLImportMaterial::asLLSD()
+{
+	LLSD ret;
+
+	ret["diffuse"]["filename"] = mDiffuseMapFilename;
+	ret["diffuse"]["label"] = mDiffuseMapLabel;
+	ret["diffuse"]["color"] = mDiffuseColor.getValue();
+	ret["fullbright"] = mFullbright;
+	
+	return ret;
+}

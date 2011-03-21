@@ -288,6 +288,8 @@ public:
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
+	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
+	void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_poisitions);
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	void clearGLODGroup();
@@ -332,7 +334,7 @@ public:
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 	U32			mLoadState;
-
+	
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)
