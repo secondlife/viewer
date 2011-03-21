@@ -160,6 +160,7 @@ void LLPluginProcessParent::errorState(void)
 void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug)
 {	
 	mProcess.setExecutable(launcher_filename);
+	mProcess.setWorkingDirectory(plugin_dir);
 	mPluginFile = plugin_filename;
 	mPluginDir = plugin_dir;
 	mCPUUsage = 0.0f;
