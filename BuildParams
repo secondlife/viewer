@@ -48,6 +48,12 @@ viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
 
+viewer-pre-beta.viewer_channel = "Second Life Beta Viewer"
+viewer-pre-beta.login_channel = "Second Life Beta Viewer"
+viewer-pre-beta.build_debug_release_separately = true
+viewer-pre-beta.build_viewer_update_version_manager = true
+
+
 # ========================================
 # Viewer Release
 # ========================================
@@ -62,14 +68,6 @@ viewer-pre-release.login_channel = "Second Life Release"
 viewer-pre-release.build_debug_release_separately = true
 viewer-pre-release.build_viewer_update_version_manager = true
 #viewer-pre-release.release-viewer.jira = DRTVWR-13
-
-# ========================================
-# aimee
-# ========================================
-
-viewer-development-import.build_debug_release_separately = true
-viewer-development-fixes.build_debug_release_separately = true
-viewer-development-tweaks.build_debug_release_separately = true
 
 # =======================================
 # brad
@@ -158,55 +156,10 @@ media.build_viewer_update_version_manager = false
 # oz
 # ================
 
-oz_viewer-review1_coverity.coverity_product = viewer
-
-oz_viewer-review1.build_Linux = true
-oz_viewer-review1_debug.build_Linux = false
-oz_viewer-review1_coverity.build_Linux = false
-
-oz_viewer-review1.build_Darwin = true
-oz_viewer-review1_debug.build_Darwin = false
-oz_viewer-review1_coverity.build_Darwin = false
-
-oz_viewer-review1.build_CYGWIN = true
-oz_viewer-review1.build_CYGWIN_Debug = false
-oz_viewer-review1.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review1.build_CYGWIN_Release = true
-oz_viewer-review1_debug.build_CYGWIN_Debug = true
-oz_viewer-review1_debug.build_CYGWIN_RelWithDebInfo = true
-oz_viewer-review1_debug.build_CYGWIN_Release = false
-oz_viewer-review1_coverity.build_coverity = true
-oz_viewer-review1_coverity.build_CYGWIN_Debug = false
-oz_viewer-review1_coverity.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review1_coverity.build_CYGWIN_Release = false
-
-oz_viewer-review2_coverity.coverity_product = viewer
-
-oz_viewer-review2.build_Linux = true
-oz_viewer-review2_debug.build_Linux = false
-oz_viewer-review2_coverity.build_Linux = false
-
-oz_viewer-review2.build_Darwin = true
-oz_viewer-review2_debug.build_Darwin = false
-oz_viewer-review2_coverity.build_Darwin = false
-
-oz_viewer-review2.build_CYGWIN = true
-oz_viewer-review2.build_CYGWIN_Debug = false
-oz_viewer-review2.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review2.build_CYGWIN_Release = true
-oz_viewer-review2_debug.build_CYGWIN_Debug = true
-oz_viewer-review2_debug.build_CYGWIN_RelWithDebInfo = true
-oz_viewer-review2_debug.build_CYGWIN_Release = false
-oz_viewer-review2_coverity.build_coverity = true
-oz_viewer-review2_coverity.build_CYGWIN_Debug = false
-oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review2_coverity.build_CYGWIN_Release = false
-
-# ========================================
-# tofu
-# ========================================
-
-tofu_viewer-development-staging.email = tofu.linden@lindenlab.com
+oz_viewer-devreview.build_debug_release_separately = true
+oz-project-1.build_debug_release_separately = true
+oz-project-2.build_debug_release_separately = true
+oz-project-3.build_debug_release_separately = true
 
 # ========================================
 # enus
