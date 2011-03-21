@@ -38,12 +38,15 @@
 #include "lltexteditor.h"
 
 // newview includes
+#include "llagent.h"
 #include "llagentcamera.h"
+#include "llavataractions.h"
 #include "llchiclet.h"
 #include "llfloatercamera.h"
 #include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
+#include "llsidetray.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
@@ -418,10 +421,6 @@ void LLBottomTray::setVisible(BOOL visible)
 	{
 		LLPanel::setVisible(visible);
 	}
-	if(visible)
-		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
-	else
-		gFloaterView->setSnapOffsetBottom(0);
 }
 
 S32 LLBottomTray::notifyParent(const LLSD& info)
@@ -849,6 +848,24 @@ void LLBottomTray::draw()
 		LLRect rect = mLandingTab->calcScreenRect();
 		mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
 	}
+	getChild<LLButton>("show_profile_btn")->setToggleState(LLAvatarActions::profileVisible(gAgent.getID()));
+
+	LLPanel* panel = LLSideTray::getInstance()->getPanel("panel_people");
+	if (panel && panel->isInVisibleChain())
+	{
+		getChild<LLButton>("show_people_button")->setToggleState(true);
+	}
+	else
+	{
+		getChild<LLButton>("show_people_button")->setToggleState(false);
+	}
+
+	LLFloater* help_browser = (LLFloaterReg::findInstance("help_browser"));
+	bool help_floater_visible = (help_browser && help_browser->isInVisibleChain());
+
+	getChild<LLButton>("show_help_btn")->setToggleState(help_floater_visible);
+
+
 }
 
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)

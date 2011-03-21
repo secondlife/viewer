@@ -338,7 +338,7 @@ void LLView::removeChild(LLView* child)
 	}
 	else
 	{
-		llerrs << "LLView::removeChild called with non-child" << llendl;
+		llwarns << child->getName() << "is not a child of " << getName() << llendl;
 	}
 	updateBoundingRect();
 }
@@ -1958,7 +1958,7 @@ void LLView::centerWithin(const LLRect& bounds)
 	translate( left - getRect().mLeft, bottom - getRect().mBottom );
 }
 
-BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view) const
+BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, const LLView* other_view) const
 {
 	const LLView* cur_view = this;
 	const LLView* root_view = NULL;
@@ -2001,7 +2001,7 @@ BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LL
 	return FALSE;
 }
 
-BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, LLView* other_view ) const
+BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, const LLView* other_view ) const
 {
 	LLRect cur_rect = local;
 	const LLView* cur_view = this;

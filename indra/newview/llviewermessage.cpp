@@ -1199,7 +1199,6 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		// Highlight item
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
-			!(asset_type == LLAssetType::AT_CALLINGCARD) && // don't open if it's a calling card
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
@@ -1463,15 +1462,18 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
-				open_agent_offer->startFetch();
-				if(catp || (itemp && itemp->isFinished()))
+				if (gSavedSettings.getBOOL("ShowOfferedInventory"))
 				{
-					open_agent_offer->done();
-				}
-				else
-				{
-					opener = open_agent_offer;
+					LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
+					open_agent_offer->startFetch();
+					if(catp || (itemp && itemp->isFinished()))
+					{
+						open_agent_offer->done();
+					}
+					else
+					{
+						opener = open_agent_offer;
+					}
 				}
 			}
 			break;
@@ -1715,15 +1717,18 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
 			// send the message
 			msg->sendReliable(mHost);
+
+			if (gSavedSettings.getBOOL("LogInventoryDecline"))
 			{
 				LLStringUtil::format_map_t log_message_args;
 				log_message_args["DESC"] = mDesc;
 				log_message_args["NAME"] = mFromName;
 				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
+
+				LLSD args;
+				args["MESSAGE"] = log_message;
+				LLNotificationsUtil::add("SystemMessage", args);
 			}
-			LLSD args;
-			args["MESSAGE"] = log_message;
-			LLNotificationsUtil::add("SystemMessage", args);
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
 			{

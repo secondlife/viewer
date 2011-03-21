@@ -894,23 +894,29 @@ BOOL LLNetMap::handleClick(S32 x, S32 y, MASK mask)
 BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	LLVector3d pos_global = viewPosToGlobal(x, y);
-	
-	// If we're not tracking a beacon already, double-click will set one 
-	if (!LLTracker::isTracking(NULL))
+
+	bool double_click_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
+	bool double_click_show_world_map = gSavedSettings.getBOOL("DoubleClickShowWorldMap");
+
+	if (double_click_teleport || double_click_show_world_map)
 	{
-		LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
-		if (world_map)
+		// If we're not tracking a beacon already, double-click will set one 
+		if (!LLTracker::isTracking(NULL))
 		{
-			world_map->trackLocation(pos_global);
+			LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
+			if (world_map)
+			{
+				world_map->trackLocation(pos_global);
+			}
 		}
 	}
-	
-	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+
+	if (double_click_teleport)
 	{
 		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
 		gAgent.teleportViaLocationLookAt(pos_global);
 	}
-	else 
+	else if (double_click_show_world_map)
 	{
 		LLFloaterReg::showInstance("world_map");
 	}
