@@ -193,8 +193,8 @@ LLFontGL* LLFontGL::getFontDefault()
 	return NULL; 
 }
 
-char* _PREHASH_AgentData = "AgentData";
-char* _PREHASH_AgentID = "AgentID";
+char* _PREHASH_AgentData = const_cast<char*>("AgentData");
+char* _PREHASH_AgentID   = const_cast<char*>("AgentID");
 
 LLHost LLHost::invalid(INVALID_PORT,INVALID_HOST_IP_ADDRESS);
 

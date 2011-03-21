@@ -412,6 +412,7 @@ set(viewer_SOURCE_FILES
     llsidepaneliteminfo.cpp
     llsidepaneltaskinfo.cpp
     llsidetray.cpp
+    llsidetraylistener.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
@@ -947,6 +948,7 @@ set(viewer_HEADER_FILES
     llsidepaneliteminfo.h
     llsidepaneltaskinfo.h
     llsidetray.h
+    llsidetraylistener.h
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h

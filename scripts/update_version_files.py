@@ -1,8 +1,30 @@
-#!/usr/bin/python
-#
-# Update all of the various files in the repository to a new version number,
-# instead of having to figure it out by hand
-#
+#!/usr/bin/env python
+"""\
+@file   update_version_files.py
+@brief  Update all of the various files in the repository to a new version number,
+instead of having to figure it out by hand
+
+$LicenseInfo:firstyear=2010&license=viewerlgpl$
+Second Life Viewer Source Code
+Copyright (C) 2010-2011, Linden Research, Inc.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation;
+version 2.1 of the License only.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+$/LicenseInfo$
+"""
 
 import sys
 import os.path
@@ -37,9 +59,6 @@ add_indra_lib_path()
 import getopt, os, re, commands
 from indra.util import llversion
 
-svn = os.path.expandvars("${SVN}")
-if not svn or svn == "${SVN}": svn = "svn"
-
 def usage():
     print "Usage:"
     print sys.argv[0] + """ [options]
@@ -68,7 +87,7 @@ Options:
    Print this message and exit.
 
 Common Uses:
-   # Update server and viewer build numbers to the current SVN revision:
+   # Update server and viewer build numbers to the current hg revision:
    update_version_files.py
 
    # Update build numbers unless we are on a release branch:
@@ -80,7 +99,7 @@ Common Uses:
    # Update just the viewer version number explicitly:
    update_version_files.py --viewer --version=1.18.1.6     
 
-   # Update just the server build number to the current SVN revision:
+   # Update just the server build number to the current hg revision:
    update_version_files.py --server
                                
    # Update the viewer channel
@@ -152,9 +171,7 @@ re_map['indra/newview/English.lproj/InfoPlist.strings'] = \
       'CFBundleGetInfoString = "Second Life version %(VER_MAJOR)s.%(VER_MINOR)s.%(VER_PATCH)s.%(VER_BUILD)s'))
 
 
-version_re      = re.compile('(\d+).(\d+).(\d+).(\d+)')
-svn_branch_re   = re.compile('^URL:\s+\S+/([^/\s]+)$', re.MULTILINE)
-svn_revision_re = re.compile('^Last Changed Rev: (\d+)$', re.MULTILINE)
+version_re = re.compile('(\d+).(\d+).(\d+).(\d+)')
 
 def main():
     script_path = os.path.dirname(__file__)
@@ -249,13 +266,7 @@ def main():
             server_version = new_version
     else:
 
-        if llversion.using_svn():
-            if new_revision:
-                revision = new_revision
-            else:
-                revision = llversion.get_svn_revision()
-            branch = llversion.get_svn_branch()
-        elif llversion.using_hg():
+        if llversion.using_hg():
             if new_revision:
                 revision = new_revision
             else:
@@ -327,5 +338,6 @@ def main():
             print "File %(filename)s not present, skipping..." % locals()
     return 0
 
-main()
+if __name__ == '__main__':
+    sys.exit(main())
 

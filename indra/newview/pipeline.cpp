@@ -1227,10 +1227,6 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 U32 LLPipeline::addObject(LLViewerObject *vobj)
 {
 	LLMemType mt_ao(LLMemType::MTYPE_PIPELINE_ADD_OBJECT);
-	if (gNoRender)
-	{
-		return 0;
-	}
 
 	if (gSavedSettings.getBOOL("RenderDelayCreation"))
 	{
@@ -5313,7 +5309,25 @@ void LLPipeline::setUseVBO(BOOL use_vbo)
 		}
 		
 		resetVertexBuffers();
-		LLVertexBuffer::initClass(use_vbo);
+		LLVertexBuffer::initClass(use_vbo, gSavedSettings.getBOOL("RenderVBOMappingDisable"));
+	}
+}
+
+void LLPipeline::setDisableVBOMapping(BOOL no_vbo_mapping)
+{
+	if (LLVertexBuffer::sEnableVBOs && no_vbo_mapping != LLVertexBuffer::sDisableVBOMapping)
+	{
+		if (no_vbo_mapping)
+		{
+			llinfos << "Disabling VBO glMapBufferARB." << llendl;
+		}
+		else
+		{ 
+			llinfos << "Enabling VBO glMapBufferARB." << llendl;
+		}
+		
+		resetVertexBuffers();
+		LLVertexBuffer::initClass(true, no_vbo_mapping);
 	}
 }
 
