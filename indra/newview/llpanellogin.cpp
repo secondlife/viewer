@@ -214,6 +214,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	updateLocationCombo(false);
 
+	gSavedSettings.getControl("SessionSettingsFile")->getSignal()->connect(boost::bind(&onModeChange));
+
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
 	server_choice_combo->setFocusLostCallback(boost::bind(onServerComboLostFocus, _1));
@@ -1155,4 +1157,27 @@ void LLPanelLogin::updateLoginPanelLinks()
 	// is static.
 	sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+}
+
+//static
+void LLPanelLogin::onModeChange()
+{
+	LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&onModeChangeConfirm, _1, _2));
+}
+
+//static
+void LLPanelLogin::onModeChangeConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch (option)
+	{
+	case 0:
+		LLAppViewer::instance()->requestQuit();
+		break;
+	case 1:
+		// do nothing
+		break;
+	default:
+		break;
+	}
 }

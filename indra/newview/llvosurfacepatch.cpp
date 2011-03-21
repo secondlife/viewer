@@ -890,7 +890,7 @@ void LLVOSurfacePatch::dirtyGeom()
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		mDrawable->getFace(0)->mVertexBuffer = NULL;
+		mDrawable->getFace(0)->setVertexBuffer(NULL);
 		mDrawable->movePartition();
 	}
 }
@@ -1119,7 +1119,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 
 		facep->setIndicesIndex(indices_index);
 		facep->setGeomIndex(index_offset);
-		facep->mVertexBuffer = buffer;
+		facep->setVertexBuffer(buffer);
 
 		LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
 		patchp->getGeometry(vertices, normals, colors, texcoords, texcoords2, indices);

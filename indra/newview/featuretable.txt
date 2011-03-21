@@ -1,4 +1,4 @@
-version 26
+version 27
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -464,6 +464,10 @@ RenderAvatarCloth			0	0
 list ATI
 RenderUseStreamVBO			1	0
 RenderAvatarVP				1	0
+
+// Disable vertex buffer objects by default for ATI cards with little video memory
+list ATIVramLT256
+RenderVBOEnable				1	0
 
 /// Tweaked NVIDIA
 

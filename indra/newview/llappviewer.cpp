@@ -1,4 +1,4 @@
-/** 
+	/** 
  * @file llappviewer.cpp
  * @brief The LLAppViewer class definitions
  *
@@ -339,6 +339,46 @@ void init_default_trans_args()
 const char *VFS_DATA_FILE_BASE = "data.db2.x.";
 const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
+
+struct SettingsFile : public LLInitParam::Block<SettingsFile>
+{
+	Mandatory<std::string>	name;
+	Optional<std::string>	file_name;
+	Optional<bool>			required,
+							persistent;
+	Optional<std::string>	file_name_setting;
+
+	SettingsFile()
+	:	name("name"),
+		file_name("file_name"),
+		required("required", false),
+		persistent("persistent", true),
+		file_name_setting("file_name_setting")
+	{}
+};
+
+struct SettingsGroup : public LLInitParam::Block<SettingsGroup>
+{
+	Mandatory<std::string>	name;
+	Mandatory<S32>			path_index;
+	Multiple<SettingsFile>	files;
+
+	SettingsGroup()
+	:	name("name"),
+		path_index("path_index"),
+		files("file")
+	{}
+};
+
+struct SettingsFiles : public LLInitParam::Block<SettingsFiles>
+{
+	Multiple<SettingsGroup>	groups;
+
+	SettingsFiles()
+	: groups("group")
+	{}
+};
+
 static std::string gWindowTitle;
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
@@ -596,7 +636,8 @@ LLAppViewer::LLAppViewer() :
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
 	mFastTimerLogThread(NULL),
-	mUpdater(new LLUpdaterService())
+	mUpdater(new LLUpdaterService()),
+	mSettingsLocationList(NULL)
 {
 	if(NULL != sInstance)
 	{
@@ -612,6 +653,8 @@ LLAppViewer::LLAppViewer() :
 
 LLAppViewer::~LLAppViewer()
 {
+	delete mSettingsLocationList;
+
 	LLLoginInstance::instance().setUpdaterService(0);
 	
 	destroyMainloopTimeout();
@@ -1712,8 +1755,8 @@ bool LLAppViewer::cleanup()
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
-	sTextureCache->shutdown();
 	sTextureFetch->shutdown();
+	sTextureCache->shutdown();	
 	sImageDecodeThread->shutdown();
 	
 	sTextureFetch->shutDownTextureCacheThread() ;
@@ -1922,85 +1965,80 @@ bool LLAppViewer::initLogging()
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 					    bool set_defaults)
 {	
-	// Find and vet the location key.
-	if(!mSettingsLocationList.has(location_key))
+	if (!mSettingsLocationList)
 	{
-		llerrs << "Requested unknown location: " << location_key << llendl;
-		return false;
+		llerrs << "Invalid settings location list" << llendl;
 	}
 
-	LLSD location = mSettingsLocationList.get(location_key);
+	LLControlGroup* global_settings = LLControlGroup::getInstance(sGlobalSettingsName);  
+	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
+		it != end_it;
+		++it)
+	{
+		// skip settings groups that aren't the one we requested
+		if (it->name() != location_key) continue;
 
-	if(!location.has("PathIndex"))
-	{
-		llerrs << "Settings location is missing PathIndex value. Settings cannot be loaded." << llendl;
-		return false;
-	}
-	ELLPath path_index = (ELLPath)(location.get("PathIndex").asInteger());
-	if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
-	{
-		llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
-		return false;
-	}
+		ELLPath path_index = (ELLPath)it->path_index();
+		if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
+		{
+			llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
+			return false;
+		}
 
-	// Iterate through the locations list of files.
-	LLSD files = location.get("Files");
-	for(LLSD::map_iterator itr = files.beginMap(); itr != files.endMap(); ++itr)
-	{
-		std::string settings_group = (*itr).first;
-		llinfos << "Attempting to load settings for the group " << settings_group 
+		LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
+		for (file_it = it->files.begin(), end_file_it = it->files.end();
+			file_it != end_file_it;
+			++file_it)
+		{
+			llinfos << "Attempting to load settings for the group " << file_it->name()
 			    << " - from location " << location_key << llendl;
 
-		if(!LLControlGroup::getInstance(settings_group))
-		{
-			llwarns << "No matching settings group for name " << settings_group << llendl;
-			continue;
-		}
-
-		LLSD file = (*itr).second;
-
-		std::string full_settings_path;
-		if(file.has("NameFromSetting"))
-		{
-			std::string custom_name_setting = file.get("NameFromSetting");
-			// *NOTE: Regardless of the group currently being lodaed,
-			// this setting is always read from the Global settings.
-			if(LLControlGroup::getInstance(sGlobalSettingsName)->controlExists(custom_name_setting))
+			LLControlGroup* settings_group = LLControlGroup::getInstance(file_it->name);
+			if(!settings_group)
 			{
-				std::string file_name = 
-					LLControlGroup::getInstance(sGlobalSettingsName)->getString(custom_name_setting);
-				full_settings_path = file_name;
+				llwarns << "No matching settings group for name " << file_it->name() << llendl;
+				continue;
 			}
-		}
 
-		if(full_settings_path.empty())
-		{
-			std::string file_name = file.get("Name");
-			full_settings_path = gDirUtilp->getExpandedFilename(path_index, file_name);
-		}
+			std::string full_settings_path;
 
-		int requirement = 0;
-		if(file.has("Requirement"))
-		{
-			requirement = file.get("Requirement").asInteger();
-		}
-		
-		if(!LLControlGroup::getInstance(settings_group)->loadFromFile(full_settings_path, set_defaults))
-		{
-			if(requirement == 1)
+			if (file_it->file_name_setting.isProvided() 
+				&& global_settings->controlExists(file_it->file_name_setting))
 			{
-				llwarns << "Error: Cannot load required settings file from: " 
-						<< full_settings_path << llendl;
-				return false;
+				// try to find filename stored in file_name_setting control
+				full_settings_path = global_settings->getString(file_it->file_name_setting);
+				if (!gDirUtilp->fileExists(full_settings_path))
+				{
+					// search in default path
+					full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, full_settings_path);
+				}
 			}
 			else
 			{
-				llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+				// by default, use specified file name
+				full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file_it->file_name());
 			}
-		}
-		else
-		{
-			llinfos << "Loaded settings file " << full_settings_path << llendl;
+
+			if(settings_group->loadFromFile(full_settings_path, set_defaults, file_it->persistent))
+			{	// success!
+				llinfos << "Loaded settings file " << full_settings_path << llendl;
+			}
+			else
+			{	// failed to load
+				if(file_it->required)
+				{
+					llerrs << "Error: Cannot load required settings file from: " << full_settings_path << llendl;
+					return false;
+				}
+				else
+				{
+					// only complain if we actually have a filename at this point
+					if (!full_settings_path.empty())
+					{
+						llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+					}
+				}
+			}
 		}
 	}
 
@@ -2010,18 +2048,25 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 											 const std::string& file)
 {
-	if(mSettingsLocationList.has(location_key))
+	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
+		it != end_it;
+		++it)
 	{
-		LLSD location = mSettingsLocationList.get(location_key);
-		if(location.has("Files"))
+		if (it->name() == location_key)
 		{
-			LLSD files = location.get("Files");
-			if(files.has(file) && files[file].has("Name"))
+			LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
+			for (file_it = it->files.begin(), end_file_it = it->files.end();
+				file_it != end_file_it;
+				++file_it)
 			{
-				return files.get(file).get("Name").asString();
+				if (file_it->name() == file)
+				{
+					return file_it->file_name;
+				}
 			}
 		}
 	}
+
 	return std::string();
 }
 
@@ -2034,14 +2079,29 @@ bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	LLControlGroup settings_control("SettingsFiles");
-	llinfos << "Loading settings file list " << settings_file_list << llendl;
-	if (0 == settings_control.loadFromFile(settings_file_list))
+	//LLControlGroup settings_control("SettingsFiles");
+	//llinfos << "Loading settings file list " << settings_file_list << llendl;
+	//if (0 == settings_control.loadFromFile(settings_file_list))
+	//{
+ //       llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
+	//}
+
+	LLXMLNodePtr root;
+	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
+	if (!success)
 	{
         llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
 	}
 
-	mSettingsLocationList = settings_control.getLLSD("Locations");
+	mSettingsLocationList = new SettingsFiles();
+
+	LLXUIParser parser;
+	parser.readXUI(root, *mSettingsLocationList, settings_file_list);
+
+	if (!mSettingsLocationList->validateBlock())
+	{
+        llerrs << "Invalid settings file list " << settings_file_list << llendl;
+	}
 		
 	// The settings and command line parsing have a fragile
 	// order-of-operation:
@@ -2152,6 +2212,32 @@ bool LLAppViewer::initConfiguration()
 
 	// - load overrides from user_settings 
 	loadSettingsFromDirectory("User");
+
+	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
+	{
+		gSavedSettings.setString("SessionSettingsFile", "settings_minimal.xml");
+		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
+	}
+
+	if (clp.hasOption("sessionsettings"))
+	{
+		std::string session_settings_filename = clp.getOption("sessionsettings")[0];		
+		gSavedSettings.setString("SessionSettingsFile", session_settings_filename);
+		llinfos	<< "Using session settings filename: " 
+			<< session_settings_filename << llendl;
+	}
+	loadSettingsFromDirectory("Session");
+
+	if (clp.hasOption("usersessionsettings"))
+	{
+		std::string user_session_settings_filename = clp.getOption("usersessionsettings")[0];		
+		gSavedSettings.setString("UserSessionSettingsFile", user_session_settings_filename);
+		llinfos	<< "Using user session settings filename: " 
+			<< user_session_settings_filename << llendl;
+
+	}
+	loadSettingsFromDirectory("UserSession");
+
 	// - apply command line settings 
 	clp.notify(); 
 
@@ -3272,6 +3358,20 @@ static bool finish_quit(const LLSD& notification, const LLSD& response)
 	return false;
 }
 static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_quit);
+
+static bool switch_standard_skin_and_quit(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		gSavedSettings.setString("SessionSettingsFile", "");
+		LLAppViewer::instance()->requestQuit();
+	}
+	return false;
+}
+
+static LLNotificationFunctorRegistration standard_skin_quit_reg("SwitchToStandardSkinAndQuit", switch_standard_skin_and_quit);
 
 void LLAppViewer::userQuit()
 {

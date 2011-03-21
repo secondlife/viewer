@@ -6,7 +6,6 @@
 	<string name="status_offline">
 		Offline
 	</string>
-	<text_editor name="user_name" value="(Caricamento in corso...)"/>
 	<text name="status" value="Online"/>
 	<tab_container name="tabs">
 		<panel label="PROFILO" name="panel_profile"/>

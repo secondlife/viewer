@@ -123,7 +123,7 @@ public:
 
 	void normalizeVolumeFaces();
 	void optimizeVolumeFaces();
-
+	void offsetMesh( const LLVector3& pivotPoint );
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
 	std::vector<std::string> mMaterialList;
 
@@ -194,6 +194,7 @@ public:
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
 
+	float	mPelvisOffset;
 	// convex hull decomposition
 	S32 mDecompID;
 	convex_hull_decomposition mConvexHullDecomp;

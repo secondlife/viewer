@@ -761,6 +761,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mDebugExistenceTimer.reset();
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
+	mPelvisFixup = 0.0f;
 }
 
 //------------------------------------------------------------------------
@@ -1428,7 +1429,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 			if (attached_object && !attached_object->isHUDAttachment())
 			{
 				LLDrawable* drawable = attached_object->mDrawable;
-				if (drawable)
+				if (drawable && !drawable->isState(LLDrawable::RIGGED))
 				{
 					LLSpatialBridge* bridge = drawable->getSpatialBridge();
 					if (bridge)
@@ -2016,26 +2017,29 @@ void LLVOAvatar::updateMeshData()
 
 			bool terse_update = false;
 
-			if(facep->mVertexBuffer.isNull())
+			facep->setGeomIndex(0);
+			facep->setIndicesIndex(0);
+		
+			LLVertexBuffer* buff = facep->getVertexBuffer();
+			if(!facep->getVertexBuffer())
 			{
-				facep->mVertexBuffer = new LLVertexBufferAvatar();
-				facep->mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
+				buff = new LLVertexBufferAvatar();
+				buff->allocateBuffer(num_vertices, num_indices, TRUE);
+				facep->setVertexBuffer(buff);
 			}
 			else
 			{
-				if (facep->mVertexBuffer->getRequestedIndices() == num_indices &&
-					facep->mVertexBuffer->getRequestedVerts() == num_vertices)
+				if (buff->getRequestedIndices() == num_indices &&
+					buff->getRequestedVerts() == num_vertices)
 				{
 					terse_update = true;
 				}
 				else
 				{
-				facep->mVertexBuffer->resizeBuffer(num_vertices, num_indices) ;
+					buff->resizeBuffer(num_vertices, num_indices);
+				}
 			}
-			}
-		
-			facep->setGeomIndex(0);
-			facep->setIndicesIndex(0);
+			
 		
 			// This is a hack! Avatars have their own pool, so we are detecting
 			//   the case of more than one avatar in the pool (thus > 0 instead of >= 0)
@@ -2050,7 +2054,7 @@ void LLVOAvatar::updateMeshData()
 			}
 
 			stop_glerror();
-			facep->mVertexBuffer->setBuffer(0);
+			buff->setBuffer(0);
 
 			if(!f_num)
 			{
@@ -3332,7 +3336,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		mTimeVisible.reset();
 	}
 
-
+	
 	//--------------------------------------------------------------------
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
@@ -3786,13 +3790,15 @@ void LLVOAvatar::updateHeadOffset()
 //------------------------------------------------------------------------
 // setPelvisOffset
 //------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount ) 
+void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount, F32 pelvisFixup ) 
 {
 	mHasPelvisOffset = hasOffset;
 	if ( mHasPelvisOffset )
 	{
+		//Store off last pelvis to foot value
 		mLastPelvisToFoot = mPelvisToFoot;
-		mPelvisOffset = offsetAmount;
+		mPelvisOffset	  = offsetAmount;
+		mPelvisFixup	  = pelvisFixup;
 	}
 }
 //------------------------------------------------------------------------
@@ -4009,7 +4015,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 	LLFace* face = mDrawable->getFace(0);
 
-	bool needs_rebuild = !face || face->mVertexBuffer.isNull() || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY);
+	bool needs_rebuild = !face || !face->getVertexBuffer() || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY);
 
 	if (needs_rebuild || mDirtyMesh)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
@@ -4044,7 +4050,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			mNeedsSkin = FALSE;
 			mLastSkinTime = gFrameTimeSeconds;
 
-			LLVertexBuffer* vb = mDrawable->getFace(0)->mVertexBuffer;
+			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
 			if (vb)
 			{
 				vb->setBuffer(0);
@@ -5882,7 +5888,8 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	// correctly, but putting this check in here to be safe.
 	if (attachmentID & ATTACHMENT_ADD)
 	{
-		llwarns << "Got an attachment with ATTACHMENT_ADD mask, removing ( attach pt:" << attachmentID << " )" << llendl;		attachmentID &= ~ATTACHMENT_ADD;
+		llwarns << "Got an attachment with ATTACHMENT_ADD mask, removing ( attach pt:" << attachmentID << " )" << llendl;
+		attachmentID &= ~ATTACHMENT_ADD;
 	}
 	
 	LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
@@ -8168,7 +8175,7 @@ BOOL LLVOAvatar::updateLOD()
 	BOOL res = updateJointLODs();
 
 	LLFace* facep = mDrawable->getFace(0);
-	if (facep->mVertexBuffer.isNull())
+	if (!facep->getVertexBuffer())
 	{
 		dirtyMesh(2);
 	}

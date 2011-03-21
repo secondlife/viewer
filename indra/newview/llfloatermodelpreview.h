@@ -96,7 +96,9 @@ public:
 	LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview);
 
 	virtual void run();
-	
+	bool doLoadModel();
+	void loadModelCallback();
+
 	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
@@ -114,9 +116,11 @@ public:
 	bool doesJointArrayContainACompleteRig( const std::vector<std::string> &modelJointList );
 	bool checkForCompleteRig(  const std::vector<std::string> &jointListFromModel );
 	
-	void setLoadState( U32 state ) { mState = state; }
-	U32 getLoadState( void ) { return mState; }
+	void handlePivotPoint( daeElement* pRoot );
+	bool isNodeAPivotPoint( domNode* pNode );
 	
+	void setLoadState(U32 state);
+
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 	std::deque<std::string> mMasterJointList;
@@ -180,6 +184,7 @@ protected:
 	friend class LLPhysicsDecomp;
 	
 	static void		onImportScaleCommit(LLUICtrl*, void*);
+	static void		onPelvisOffsetCommit(LLUICtrl*, void*);
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
@@ -279,7 +284,7 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void consolidate();
+	void alterModelsPivot( void );
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
@@ -287,13 +292,22 @@ public:
 	void updateStatusMessages();
 	void clearGLODGroup();
 	void onLODParamCommit(bool enforce_tri_limit);
-
+	const bool getModelPivot( void ) const { return mHasPivot; }
+	void setHasPivot( bool val ) { mHasPivot = val; }
+	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
+	const bool isRigValid( void ) const { return mRigValid; }
+	void setRigValid( bool rigValid ) { mRigValid = rigValid; }
+	
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
 	
+	void setLoadState( U32 state ) { mLoadState = state; }
+	U32 getLoadState() { return mLoadState; }
+		
  protected:
+	friend class LLModelLoader;
 	friend class LLFloaterModelPreview;
 	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
@@ -317,6 +331,7 @@ public:
 	U32			mResourceCost;
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
+	U32			mLoadState;
 
 	std::map<std::string, bool> mViewOption;
 
@@ -325,6 +340,8 @@ public:
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
+	S32 mRequestedTriangleCount[LLModel::NUM_LODS];
+
 	
 	LLModelLoader* mModelLoader;
 
@@ -347,6 +364,13 @@ public:
 
 	details_signal_t mDetailsSignal;
 	model_loaded_signal_t mModelLoadedSignal;
+	
+	LLVector3	mModelPivot;
+	bool		mHasPivot;
+	
+	float		mPelvisZOffset;
+	
+	bool		mRigValid;
 };
 
 

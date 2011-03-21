@@ -57,6 +57,7 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
+	, mPelvisOffset( 0.0f )
 {
 	mDecompID = -1;
 }
@@ -810,6 +811,22 @@ BOOL LLModel::createVolumeFacesFromFile(const std::string& file_name)
 	return FALSE;
 }
 
+void LLModel::offsetMesh( const LLVector3& pivotPoint )
+{
+	LLVector4a pivot( pivotPoint[VX], pivotPoint[VY], pivotPoint[VZ] );
+	
+	for (std::vector<LLVolumeFace>::iterator faceIt = mVolumeFaces.begin(); faceIt != mVolumeFaces.end(); )
+	{
+		std::vector<LLVolumeFace>:: iterator currentFaceIt = faceIt++;
+		LLVolumeFace& face = *currentFaceIt;
+		LLVector4a *pos = (LLVector4a*) face.mPositions;
+		
+		for (U32 i=0; i<face.mNumVertices; ++i )
+		{
+			pos[i].add( pivot );
+		}
+	}
+}
 
 void LLModel::optimizeVolumeFaces()
 {
@@ -1481,6 +1498,7 @@ LLSD LLModel::writeModel(
 			}
 		}
 		
+		
 		if ( upload_joints && high->mAlternateBindMatrix.size() > 0 )
 		{
 			for (U32 i = 0; i < high->mJointList.size(); ++i)
@@ -1493,6 +1511,8 @@ LLSD LLModel::writeModel(
 					}
 				}
 			}
+
+			mdl["skin"]["pelvis_offset"] = high->mPelvisOffset;
 		}
 		
 	}

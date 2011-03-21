@@ -119,7 +119,6 @@ public:
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
-	void setUseVBO(BOOL use_vbo);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
@@ -448,6 +447,7 @@ public:
 		RENDER_DEBUG_UPDATE_TYPE		= 0x0800000,
 		RENDER_DEBUG_PHYSICS_SHAPES     = 0x1000000,
 		RENDER_DEBUG_NORMALS	        = 0x2000000,
+		RENDER_DEBUG_LOD_INFO	        = 0x4000000,
 	};
 
 public:

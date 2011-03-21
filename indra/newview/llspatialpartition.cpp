@@ -252,11 +252,15 @@ U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 }
 
 
+static LLFastTimer::DeclareTimer FTM_BUILD_OCCLUSION("Build Occlusion");
+
 void LLSpatialGroup::buildOcclusion()
 {
 	if (mOcclusionVerts.isNull())
 	{
-		mOcclusionVerts = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_DYNAMIC_DRAW_ARB);
+
+		mOcclusionVerts = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 
+			LLVertexBuffer::sUseStreamDraw ? mBufferUsage : 0); //if GL has a hard time with VBOs, don't use them for occlusion culling.
 		mOcclusionVerts->allocateBuffer(8, 64, true);
 	
 		LLStrider<U16> idx;
@@ -275,40 +279,47 @@ void LLSpatialGroup::buildOcclusion()
 
 	LLStrider<LLVector3> pos;
 	
-	mOcclusionVerts->getVertexStrider(pos);
-
-	LLVector4a* v = (LLVector4a*) pos.get();
-
-	const LLVector4a& c = mBounds[0];
-	const LLVector4a& s = r;
-	
-	static const LLVector4a octant[] =
 	{
-		LLVector4a(-1.f, -1.f, -1.f),
-		LLVector4a(-1.f, -1.f, 1.f),
-		LLVector4a(-1.f, 1.f, -1.f),
-		LLVector4a(-1.f, 1.f, 1.f),
+		LLFastTimer t(FTM_BUILD_OCCLUSION);
+		mOcclusionVerts->getVertexStrider(pos);
+	}
 
-		LLVector4a(1.f, -1.f, -1.f),
-		LLVector4a(1.f, -1.f, 1.f),
-		LLVector4a(1.f, 1.f, -1.f),
-		LLVector4a(1.f, 1.f, 1.f),
-	};
-
-	//vertex positions are encoded so the 3 bits of their vertex index 
-	//correspond to their axis facing, with bit position 3,2,1 matching
-	//axis facing x,y,z, bit set meaning positive facing, bit clear 
-	//meaning negative facing
-	
-	for (S32 i = 0; i < 8; ++i)
 	{
-		LLVector4a p;
-		p.setMul(s, octant[i]);
-		p.add(c);
-		v[i] = p;
+		LLVector4a* v = (LLVector4a*) pos.get();
+
+		const LLVector4a& c = mBounds[0];
+		const LLVector4a& s = r;
+		
+		static const LLVector4a octant[] =
+		{
+			LLVector4a(-1.f, -1.f, -1.f),
+			LLVector4a(-1.f, -1.f, 1.f),
+			LLVector4a(-1.f, 1.f, -1.f),
+			LLVector4a(-1.f, 1.f, 1.f),
+
+			LLVector4a(1.f, -1.f, -1.f),
+			LLVector4a(1.f, -1.f, 1.f),
+			LLVector4a(1.f, 1.f, -1.f),
+			LLVector4a(1.f, 1.f, 1.f),
+		};
+
+		//vertex positions are encoded so the 3 bits of their vertex index 
+		//correspond to their axis facing, with bit position 3,2,1 matching
+		//axis facing x,y,z, bit set meaning positive facing, bit clear 
+		//meaning negative facing
+		
+		for (S32 i = 0; i < 8; ++i)
+		{
+			LLVector4a p;
+			p.setMul(s, octant[i]);
+			p.add(c);
+			v[i] = p;
+		}
 	}
 	
-	mOcclusionVerts->setBuffer(0);
+	{
+		mOcclusionVerts->setBuffer(0);
+	}
 
 	clearState(LLSpatialGroup::OCCLUSION_DIRTY);
 }
@@ -1189,7 +1200,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	mOctreeNode(node),
 	mSpatialPartition(part),
 	mVertexBuffer(NULL), 
-	mBufferUsage(GL_STATIC_DRAW_ARB),
+	mBufferUsage(part->mBufferUsage),
 	mDistance(0.f),
 	mDepth(0.f),
 	mLastUpdateDistance(-1.f), 
@@ -1475,8 +1486,7 @@ void LLSpatialGroup::destroyGL()
 		for (S32 j = 0; j < drawable->getNumFaces(); j++)
 		{
 			LLFace* facep = drawable->getFace(j);
-			facep->mVertexBuffer = NULL;
-			facep->mLastVertexBuffer = NULL;
+			facep->clearVertexBuffer();
 		}
 	}
 }
@@ -1616,6 +1626,10 @@ void LLSpatialGroup::checkOcclusion()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PUSH_OCCLUSION_VERTS("Push Occlusion");
+static LLFastTimer::DeclareTimer FTM_SET_OCCLUSION_STATE("Occlusion State");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
+
 void LLSpatialGroup::doOcclusion(LLCamera* camera)
 {
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
@@ -1623,6 +1637,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
 		if (earlyFail(camera, this))
 		{
+			LLFastTimer t(FTM_OCCLUSION_EARLY_FAIL);
 			setOcclusionState(LLSpatialGroup::DISCARD_QUERY);
 			assert_states_valid(this);
 			clearOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
@@ -1664,41 +1679,47 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
 
-					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+					{
+						LLFastTimer t(FTM_PUSH_OCCLUSION_VERTS);
+						glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
 					
-					mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-					if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
-					{
-						LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
-						if (camera->getOrigin().isExactlyZero())
-						{ //origin is invalid, draw entire box
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
+						{
+							LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
+							if (camera->getOrigin().isExactlyZero())
+							{ //origin is invalid, draw entire box
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+							}
+							else
+							{
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+							}
 						}
 						else
 						{
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+							if (camera->getOrigin().isExactlyZero())
+							{ //origin is invalid, draw entire box
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+							}
+							else
+							{
+								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+							}
 						}
-					}
-					else
-					{
-						if (camera->getOrigin().isExactlyZero())
-						{ //origin is invalid, draw entire box
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
-						}
-						else
-						{
-							mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
-						}
-					}
 
-					glEndQueryARB(mode);
+						glEndQueryARB(mode);
+					}
 				}
 
-				setOcclusionState(LLSpatialGroup::QUERY_PENDING);
-				clearOcclusionState(LLSpatialGroup::DISCARD_QUERY);
+				{
+					LLFastTimer t(FTM_SET_OCCLUSION_STATE);
+					setOcclusionState(LLSpatialGroup::QUERY_PENDING);
+					clearOcclusionState(LLSpatialGroup::DISCARD_QUERY);
+				}
 			}
 		}
 	}
@@ -2411,7 +2432,9 @@ void pushVerts(LLSpatialGroup* group, U32 mask)
 
 void pushVerts(LLFace* face, U32 mask)
 {
-	LLVertexBuffer* buffer = face->mVertexBuffer;
+	llassert(face->verify());
+
+	LLVertexBuffer* buffer = face->getVertexBuffer();
 
 	if (buffer)
 	{
@@ -2558,7 +2581,7 @@ void renderOctree(LLSpatialGroup* group)
 				for (S32 j = 0; j < drawable->getNumFaces(); j++)
 				{
 					LLFace* face = drawable->getFace(j);
-					if (face->mVertexBuffer.notNull())
+					if (face->getVertexBuffer())
 					{
 						if (gFrameTimeSeconds - face->mLastUpdateTime < 0.5f)
 						{
@@ -2573,10 +2596,10 @@ void renderOctree(LLSpatialGroup* group)
 							continue;
 						}
 
-						face->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						face->getVertexBuffer()->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						//drawBox((face->mExtents[0] + face->mExtents[1])*0.5f,
 						//		(face->mExtents[1]-face->mExtents[0])*0.5f);
-						face->mVertexBuffer->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
+						face->getVertexBuffer()->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
 					}
 				}
 
@@ -3352,7 +3375,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 				{
 					LLFace* face = drawable->getFace(i);
-					LLVertexBuffer* buff = face->mVertexBuffer;
+					LLVertexBuffer* buff = face->getVertexBuffer();
 					if (buff)
 					{
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

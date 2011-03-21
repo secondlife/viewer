@@ -149,6 +149,9 @@ public:
 	// This is probably a UI abuse.
 	void			setLabel(const LLStringExplicit& name);
 
+	// Updates the combobox label to match the selected list item.
+	void			updateLabel();
+
 	BOOL			remove(const std::string& name);	// remove item "name", return TRUE if found and removed
 	
 	BOOL			setCurrentByIndex( S32 index );

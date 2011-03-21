@@ -134,6 +134,8 @@ public:
 	LLRadioGroup*	mRadioGroupEdit;
 
 	LLCheckBoxCtrl	*mCheckSelectIndividual;
+	LLButton*		mBtnLink;
+	LLButton*		mBtnUnlink;
 
 	LLCheckBoxCtrl*	mCheckSnapToGrid;
 	LLButton*		mBtnGridOptions;

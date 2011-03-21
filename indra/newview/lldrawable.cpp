@@ -708,7 +708,14 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		LLVOVolume* volume = getVOVolume();
 		if (volume)
 		{
-			pos.set(getPositionGroup().getF32ptr());
+			if (getSpatialGroup())
+			{
+				pos.set(getPositionGroup().getF32ptr());
+			}
+			else
+			{
+				pos = getPositionAgent();
+			}
 			
 			if (isState(LLDrawable::HAS_ALPHA))
 			{
@@ -820,8 +827,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 			
 			if (!volume && facep->hasGeometry())
 			{
-				facep->mVertexBuffer = NULL;
-				facep->mLastVertexBuffer = NULL;
+				facep->clearVertexBuffer();
 			}
 		}
 		
@@ -935,6 +941,18 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
 	}*/
+
+	if (mSpatialGroupp != groupp && getVOVolume())
+	{ //NULL out vertex buffer references for volumes on spatial group change to maintain
+		//requirement that every face vertex buffer is either NULL or points to a vertex buffer
+		//contained by its drawable's spatial group
+		for (S32 i = 0; i < getNumFaces(); ++i)
+		{
+			LLFace* facep = getFace(i);
+			facep->clearVertexBuffer();
+		}
+	}
+
 	mSpatialGroupp = groupp;
 }
 
@@ -1052,7 +1070,7 @@ BOOL LLDrawable::isVisible() const
 //=======================================
 
 LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask)
-: LLSpatialPartition(data_mask, render_by_group, FALSE)
+: LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW_ARB)
 {
 	mDrawable = root;
 	root->setSpatialBridge(this);

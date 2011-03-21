@@ -75,6 +75,7 @@
 #include "lltool.h"
 #include "lltoolmgr.h"
 #include "llviewercamera.h"
+#include "llviewermediafocus.h"
 #include "llviewertexturelist.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -191,19 +192,20 @@ std::string gPoolNames[] =
 	// Correspond to LLDrawpool enum render type
 	"NONE",
 	"POOL_SIMPLE",
-	"POOL_TERRAIN",
+	"POOL_GROUND",
+	"POOL_FULLBRIGHT",
 	"POOL_BUMP",
-	"POOL_TREE",
+	"POOL_TERRAIN,"	
 	"POOL_SKY",
 	"POOL_WL_SKY",
-	"POOL_GROUND",
+	"POOL_TREE",
+	"POOL_GRASS",
 	"POOL_INVISIBLE",
 	"POOL_AVATAR",
+	"POOL_VOIDWATER",
 	"POOL_WATER",
-	"POOL_GRASS",
-	"POOL_FULLBRIGHT",
 	"POOL_GLOW",
-	"POOL_ALPHA",
+	"POOL_ALPHA"
 };
 
 void drawBox(const LLVector3& c, const LLVector3& r);
@@ -383,6 +385,7 @@ void LLPipeline::init()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -2740,7 +2743,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
-		if (drawablep->isVisible())
+		//if (drawablep->isVisible()) isVisible() check here is redundant, if it wasn't visible, it wouldn't be here
 		{
 			if (!drawablep->isActive())
 			{
@@ -3967,6 +3970,8 @@ void LLPipeline::renderDebug()
 	glLoadMatrixd(gGLModelView);
 	gGL.setColorMask(true, false);
 
+	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
 	// Debug stuff.
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -3977,7 +3982,8 @@ void LLPipeline::renderDebug()
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if (hasRenderType(part->mDrawableType))
+				if ( hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES) ||
+					 !hud_only && hasRenderType(part->mDrawableType) )
 				{
 					part->renderDebug();
 				}
@@ -5785,19 +5791,12 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);
-		facep->mVertexBuffer = NULL;
-		facep->mLastVertexBuffer = NULL;
+		facep->clearVertexBuffer();
 	}
 }
 
 void LLPipeline::resetVertexBuffers()
-{
-	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
-	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
-	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
-	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
-	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
-
+{	
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -5837,8 +5836,16 @@ void LLPipeline::resetVertexBuffers()
 		llwarns << "VBO name pool cleanup failed." << llendl;
 	}
 
-	LLVertexBuffer::unbind();
-
+	LLVertexBuffer::unbind();	
+	
+	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
+	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
+	LLVertexBuffer::sEnableVBOs = gSavedSettings.getBOOL("RenderVBOEnable");
+	LLVertexBuffer::sDisableVBOMapping = LLVertexBuffer::sEnableVBOs && gSavedSettings.getBOOL("RenderVBOMappingDisable") ;
+	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
+	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 }
 
@@ -5851,24 +5858,6 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)
 	mSimplePool->pushBatches(type, mask);
 	glLoadMatrixd(gGLModelView);
 	gGLLastMatrix = NULL;		
-}
-
-void LLPipeline::setUseVBO(BOOL use_vbo)
-{
-	if (use_vbo != LLVertexBuffer::sEnableVBOs)
-	{
-		if (use_vbo)
-		{
-			llinfos << "Enabling VBO." << llendl;
-		}
-		else
-		{ 
-			llinfos << "Disabling VBO." << llendl;
-		}
-		
-		resetVertexBuffers();
-		LLVertexBuffer::initClass(use_vbo);
-	}
 }
 
 void apply_cube_face_rotation(U32 face)
@@ -6175,7 +6164,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	
 	LLVertexBuffer::unbind();
 
-	if (LLPipeline::sRenderDeferred)
+	if (LLPipeline::sRenderDeferred && !LLViewerCamera::getInstance()->cameraUnderWater())
 	{
 		LLGLSLShader* shader = &gDeferredPostProgram;
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
@@ -6188,29 +6177,88 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		//depth of field focal plane calculations
 
-		F32 subject_distance = 16.f;
-		if (LLViewerJoystick::getInstance()->getOverrideCamera())
+		static F32 current_distance = 16.f;
+		static F32 start_distance = 16.f;
+		static F32 transition_time = 1.f;
+
+		LLVector3 focus_point;
+
+		LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
+		if (obj && obj->mDrawable && obj->isSelected())
 		{
-			//flycam mode, use mouse cursor as focus point
-			LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
-			subject_distance = (eye-gDebugRaycastIntersection).magVec();
-		}
-		else
-		{
-			LLViewerObject* obj = gAgentCamera.getFocusObject();
-			if (obj)
+			S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
+			if (obj && obj->mDrawable)
 			{
-				LLVector3 focus = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
-				LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
-				subject_distance = (focus-eye).magVec();
+				LLFace* face = obj->mDrawable->getFace(face_idx);
+				if (face)
+				{
+					focus_point = face->getPositionAgent();
+				}
+			}
+		}
+		
+		if (focus_point.isExactlyZero())
+		{
+			if (LLViewerJoystick::getInstance()->getOverrideCamera())
+			{
+				focus_point = gDebugRaycastIntersection;
+			}
+			else if (gAgentCamera.cameraMouselook())
+			{
+				gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+											  NULL,
+											  &focus_point);
+			}
+			else
+			{
+				LLViewerObject* obj = gAgentCamera.getFocusObject();
+				if (obj)
+				{
+					focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
+				}
+				else
+				{
+					focus_point = gDebugRaycastIntersection;
+				}
 			}
 		}
 
+		LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+		F32 target_distance = 16.f;
+		if (!focus_point.isExactlyZero())
+		{
+			target_distance = LLViewerCamera::getInstance()->getAtAxis() * (focus_point-eye);
+		}
+
+		if (transition_time >= 1.f &&
+			fabsf(current_distance-target_distance)/current_distance > 0.01f)
+		{ //large shift happened, interpolate smoothly to new target distance
+			transition_time = 0.f;
+			start_distance = current_distance;
+		}
+		else if (transition_time < 1.f)
+		{ //currently in a transition, continue interpolating
+			transition_time += 1.f/gSavedSettings.getF32("CameraFocusTransitionTime")*gFrameIntervalSeconds;
+			transition_time = llmin(transition_time, 1.f);
+
+			F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
+			current_distance = start_distance + (target_distance-start_distance)*t;
+		}
+		else
+		{ //small or no change, just snap to target distance
+			current_distance = target_distance;
+		}
+
 		//convert to mm
-		subject_distance *= 1000.f;
+		F32 subject_distance = current_distance*1000.f;
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
-		const F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
-		
+		F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
+
+		if (LLToolMgr::getInstance()->inBuildMode())
+		{ //squish focal length when in build mode so DoF doesn't make editing objects difficult
+			default_focal_length = 5.f;
+		}
+
 		F32 fov = LLViewerCamera::getInstance()->getView();
 		
 		const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
@@ -7469,7 +7517,6 @@ void LLPipeline::renderDeferredLighting()
 		{
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
-			LLHUDObject::renderAll();
 			gObjectList.resetObjectBeacons();
 		}
 	}

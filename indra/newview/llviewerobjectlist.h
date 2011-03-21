@@ -104,6 +104,7 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
+	void clearAllMapObjectsInRegion(LLViewerRegion* regionp) ;
 	void renderObjectsForMap(LLNetMap &netmap);
 	void renderObjectBounds(const LLVector3 &center);
 
@@ -197,8 +198,7 @@ protected:
 
 	vobj_list_t mMapObjects;
 
-	typedef std::map<LLUUID, LLPointer<LLViewerObject> > vo_map;
-	vo_map mDeadObjects;	// Need to keep multiple entries per UUID
+	std::set<LLUUID> mDeadObjects;	
 
 	std::map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
 

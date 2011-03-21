@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_ladmark_gear">
+	<menu_item_call label="Teletransportar" name="teleport"/>
+	<menu_item_call label="Mais informações" name="more_info"/>
+	<menu_item_call label="Mostrar no mapa" name="show_on_map"/>
+	<menu_item_call label="Adicionar marco" name="add_landmark"/>
+	<menu_item_call label="Adicionar pasta" name="add_folder"/>
+	<menu_item_call label="Cortar" name="cut"/>
+	<menu_item_call label="Copiar marco" name="copy_landmark"/>
+	<menu_item_call label="Copiar SLurl" name="copy_slurl"/>
+	<menu_item_call label="Colar" name="paste"/>
+	<menu_item_call label="Renomear" name="rename"/>
+	<menu_item_call label="Excluir" name="delete"/>
+	<menu_item_call label="Expandir todas as pastas" name="expand_all"/>
+	<menu_item_call label="Recolher todas as pastas" name="collapse_all"/>
+	<menu_item_check label="Ordenar por data" name="sort_by_date"/>
+	<menu_item_call label="Criar destaque" name="create_pick"/>
+</menu>
