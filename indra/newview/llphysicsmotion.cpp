@@ -523,7 +523,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	const F32 acceleration_new_local = force_net / behavior_mass;
 	F32 velocity_new_local = mVelocity_local + acceleration_new_local;
 	velocity_new_local = llclamp(velocity_new_local, 
-				     -behavior_maxspeed*100.0f, behavior_maxspeed*100.0f);
+				     -behavior_maxspeed, behavior_maxspeed);
 	
 	// Temporary debugging setting to cause all avatars to move, for profiling purposes.
 	if (gSavedSettings.getBOOL("AvatarPhysicsTest"))
@@ -534,6 +534,12 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	const F32 position_new_local = (behavior_maxspeed != 0) ? 
 		(position_current_local + velocity_new_local*time_delta) :
 		position_user_local;
+
+	// Zero out the velocity if the param is being pushed beyond its limits.
+	if (position_new_local < 0 || position_new_local > 1)
+	{
+		velocity_new_local = 0;
+	}
 
 	const F32 position_new_local_clamped = llclamp(position_new_local,
 						       0.0f,

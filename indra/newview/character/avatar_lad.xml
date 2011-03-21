@@ -3801,7 +3801,7 @@
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="0"
+     value_min="-1"
      value_max="1">
       <param_morph />
     </param>
@@ -4396,7 +4396,7 @@
      name="Belly_Legs_Physics_UpDown_Driven"
      wearable="shape"
      edit_group="driven"
-     value_min="0"
+     value_min="-1"
      value_max="1">
       <param_morph />
     </param>
@@ -9141,9 +9141,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default=".2"
+     value_default=".1"
      value_min=".1"
-     value_max=".5"
+     value_max="1"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -9267,9 +9267,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default=".1"
+     value_default="0"
      value_min="0"
-     value_max=".1"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -9358,9 +9358,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default=".1"
+     value_default="0"
      value_min="0"
-     value_max=".1"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -10261,9 +10261,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default=".1"
+     value_default="0"
      value_min="0"
-     value_max=".1"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
@@ -10329,9 +10329,9 @@ render_pass="bump">
      edit_group="physics"
      label_min="Less"
      label_max="More"
-     value_default=".1"
+     value_default="0"
      value_min="0"
-     value_max=".1"
+     value_max="10"
      camera_elevation=".3"
      camera_distance=".8">
 	 <param_driver />
