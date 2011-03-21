@@ -5192,7 +5192,7 @@
      wearable="skirt"
      edit_group="driven"
      cross_wearable="true"
-     value_min="0"
+     value_min="-1"
      value_max="1">
       <param_morph />
     </param>
