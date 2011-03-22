@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0eacb6348e032fbc69cfdc4bd215ee4</string>
+              <string>f93758faf1d06f1427e0ecb846b17d48</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.4.4-darwin-20110307.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/224777/arch/Darwin/installer/freetype-2.3.9-darwin-20110322.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
