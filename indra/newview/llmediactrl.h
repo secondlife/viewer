@@ -63,6 +63,7 @@ public:
 
 		Optional<std::string>	initial_mime_type;
 		Optional<std::string>	media_id;
+		Optional<std::string>	error_page_url;
 		
 		Params();
 	};
@@ -112,6 +113,9 @@ public:
 		std::string getHomePageUrl();
 
 		void setTarget(const std::string& target);
+
+		void setErrorPageURL(const std::string& url);
+		const std::string& getErrorPageURL();
 
 		// Clear the browser cache when the instance gets loaded
 		void clearCache();
@@ -175,6 +179,7 @@ public:
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
+		std::string mErrorPageURL;
 		std::string mTarget;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;

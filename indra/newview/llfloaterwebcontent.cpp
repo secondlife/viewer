@@ -328,12 +328,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		const std::string link = self->getHoverLink();
 		mStatusBarText->setText( link );
 	}
-	else if(event == MEDIA_EVENT_NAVIGATE_ERROR_PAGE )
-	{
-		std::string redirect_url = gSavedSettings.getString("WebContentFloaterErrorURL");
-		mWebBrowser->navigateTo(redirect_url, "text/html");
-		set_current_url(redirect_url);
-	}
 }
 
 void LLFloaterWebContent::set_current_url(const std::string& url)

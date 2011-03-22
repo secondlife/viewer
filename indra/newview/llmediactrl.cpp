@@ -73,6 +73,7 @@ LLMediaCtrl::Params::Params()
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
+	error_page_url("error_page_url"),
 	media_id("media_id"),
 	trusted_content("trusted_content", false),
 	focus_on_click("focus_on_click", true)
@@ -102,6 +103,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
 	mHomePageMimeType(p.initial_mime_type),
+	mErrorPageURL(p.error_page_url),
 	mTrusted(p.trusted_content),
 	mWindowShade(NULL),
 	mHoverTextChanged(false)
@@ -610,6 +612,16 @@ void LLMediaCtrl::setTarget(const std::string& target)
 	}
 }
 
+void LLMediaCtrl::setErrorPageURL(const std::string& url)
+{
+	mErrorPageURL = url;
+}
+
+const std::string& LLMediaCtrl::getErrorPageURL()
+{
+	return mErrorPageURL;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned int blue)
@@ -963,6 +975,10 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_NAVIGATE_ERROR_PAGE:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE" << LL_ENDL;
+			if ( mErrorPageURL.length() > 0 )
+			{
+				navigateTo(mErrorPageURL, "text/html");
+			};
 		};
 		break;
 

@@ -12597,10 +12597,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>WebContentFloaterErrorURL</key>
+    <key>GenericErrorPageURL</key>
     <map>
       <key>Comment</key>
-      <string>URL to navigate to if the Web content floater hits a page with a 400-499 HTTP status code</string>
+      <string>URL to set as a property on LLMediaControl to navigate to if the a page completes with a 400-499 HTTP status code</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
