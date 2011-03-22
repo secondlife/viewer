@@ -47,14 +47,15 @@ private:
     void resetAxes(const LLSD& event) const;
     void getAxes(const LLSD& event) const;
     void getPosition(const LLSD& event) const;
-    void startAutoPilot(const LLSD& event) const;
+    void startAutoPilot(const LLSD& event);
     void getAutoPilot(const LLSD& event) const;
-    void startFollowPilot(const LLSD& event) const;
+    void startFollowPilot(const LLSD& event);
     void setAutoPilotTarget(const LLSD& event) const;
     void stopAutoPilot(const LLSD& event) const;
 
 private:
-    LLAgent & mAgent;
+    LLAgent &	mAgent;
+	LLUUID		mFollowTarget;
 };
 
 #endif // LL_LLAGENTLISTENER_H

@@ -31,6 +31,7 @@
 #include "llagentlistener.h"
 
 #include "llagent.h"
+#include "llvoavatar.h"
 #include "llcommandhandler.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
@@ -79,7 +80,8 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"stop_distance\"]: target maxiumum distance from target [default: autopilot guess]\n"
         "[\"target_rotation\"]: array of [x, y, z, w] quaternion values [default: no target]\n"
         "[\"rotation_threshold\"]: target maximum angle from target facing rotation [default: 0.03 radians]\n"
-        "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]",
+        "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]"
+        "[\"allow_flying\"]: allow flying during autopilot [default: True]",
         //"[\"callback_pump\"]: pump to send success/failure and callback data to [default: none]\n"
         //"[\"callback_data\"]: data to send back during a callback [default: none]",
         &LLAgentListener::startAutoPilot);
@@ -97,7 +99,10 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         &LLAgentListener::getAutoPilot,
         LLSDMap("reply", LLSD()));
     add("startFollowPilot",
-        "Follow [\"leader_id\"] using the autopilot system.",
+		"[\"leader_id\"]: uuid of target to follow using the autopilot system (optional with avatar_name)\n"
+		"[\"avatar_name\"]: avatar name to follow using the autopilot system (optional with leader_id)\n"
+        "[\"allow_flying\"]: allow flying during autopilot [default: True]\n"
+        "[\"stop_distance\"]: target maxiumum distance from target [default: autopilot guess]",
         &LLAgentListener::startFollowPilot);
     add("setAutoPilotTarget",
         "Update target for currently running autopilot:\n"
@@ -213,7 +218,7 @@ void LLAgentListener::getPosition(const LLSD& event) const
 }
 
 
-void LLAgentListener::startAutoPilot(LLSD const & event) const
+void LLAgentListener::startAutoPilot(LLSD const & event)
 {
     LLQuaternion target_rotation_value;
     LLQuaternion* target_rotation = NULL;
@@ -239,11 +244,20 @@ void LLAgentListener::startAutoPilot(LLSD const & event) const
 		}
 	}
 
+	F32 stop_distance = 0.f;
+	if (event.has("stop_distance"))
+	{
+		stop_distance = event["stop_distance"].asReal();
+	}
+
+	// Clear follow target, this is doing a path
+	mFollowTarget.setNull();
+
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event["target_global"]),
                                 event["behavior_name"],
                                 target_rotation,
                                 NULL, NULL,
-                                event["stop_distance"].asReal(),
+                                stop_distance,
                                 rotation_threshold,
 								allow_flying);
 }
@@ -251,11 +265,29 @@ void LLAgentListener::startAutoPilot(LLSD const & event) const
 void LLAgentListener::getAutoPilot(const LLSD& event) const
 {
 	LLSD reply = LLSD::emptyMap();
-	reply["enabled"] = (LLSD::Boolean) mAgent.getAutoPilot();
+	
+	LLSD::Boolean enabled = mAgent.getAutoPilot();
+	reply["enabled"] = enabled;
+	
 	reply["target_global"] = ll_sd_from_vector3d(mAgent.getAutoPilotTargetGlobal());
+	
 	reply["leader_id"] = mAgent.getAutoPilotLeaderID();
+	
 	reply["stop_distance"] = mAgent.getAutoPilotStopDistance();
+
 	reply["target_distance"] = mAgent.getAutoPilotTargetDist();
+	if (!enabled &&
+		mFollowTarget.notNull())
+	{	// Get an actual distance from the target object we were following
+		LLViewerObject * target = gObjectList.findObject(mFollowTarget);
+		if (target)
+		{	// Found the target AV, return the actual distance to them as well as their ID
+			LLVector3 difference = target->getPositionRegion() - mAgent.getPositionAgent();
+			reply["target_distance"] = difference.length();
+			reply["leader_id"] = mFollowTarget;
+		}
+	}
+
 	reply["use_rotation"] = (LLSD::Boolean) mAgent.getAutoPilotUseRotation();
 	reply["target_facing"] = ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing());
 	reply["rotation_threshold"] = mAgent.getAutoPilotRotationThreshold();
@@ -265,19 +297,76 @@ void LLAgentListener::getAutoPilot(const LLSD& event) const
 	sendReply(reply, event);
 }
 
-void LLAgentListener::startFollowPilot(LLSD const & event) const
+void LLAgentListener::startFollowPilot(LLSD const & event)
 {
-    mAgent.startFollowPilot(event["leader_id"]);
+	LLUUID target_id;
+
+	BOOL allow_flying = TRUE;
+	if (event.has("allow_flying"))
+	{
+		allow_flying = (BOOL) event["allow_flying"].asBoolean();
+	}
+
+	if (event.has("leader_id"))
+	{
+		target_id = event["leader_id"];
+	}
+	else if (event.has("avatar_name"))
+	{	// Find the avatar with matching name
+		std::string target_name = event["avatar_name"].asString();
+
+		if (target_name.length() > 0)
+		{
+			S32 num_objects = gObjectList.getNumObjects();
+			S32 cur_index = 0;
+			while (cur_index < num_objects)
+			{
+				LLViewerObject * cur_object = gObjectList.getObject(cur_index++);
+				if (cur_object &&
+					cur_object->asAvatar() &&
+					cur_object->asAvatar()->getFullname() == target_name)
+				{	// Found avatar with matching name, extract id and break out of loop
+					target_id = cur_object->getID();
+					break;
+				}
+			}
+		}
+	}
+
+	F32 stop_distance = 0.f;
+	if (event.has("stop_distance"))
+	{
+		stop_distance = event["stop_distance"].asReal();
+	}
+
+	if (target_id.notNull())
+	{
+		if (!allow_flying)
+		{
+			mAgent.setFlying(FALSE);
+		}
+		mFollowTarget = target_id;	// Save follow target so we can report distance later
+
+	    mAgent.startFollowPilot(target_id, allow_flying, stop_distance);
+	}
 }
 
 void LLAgentListener::setAutoPilotTarget(LLSD const & event) const
 {
-    LLVector3d target_global(ll_vector3d_from_sd(event["target_global"]));
-    mAgent.setAutoPilotTargetGlobal(target_global);
+	if (event.has("target_global"))
+	{
+		LLVector3d target_global(ll_vector3d_from_sd(event["target_global"]));
+		mAgent.setAutoPilotTargetGlobal(target_global);
+	}
 }
 
 void LLAgentListener::stopAutoPilot(LLSD const & event) const
 {
-    mAgent.stopAutoPilot(event["user_cancel"]);
+	BOOL user_cancel = FALSE;
+	if (event.has("user_cancel"))
+	{
+		user_cancel = event["user_cancel"].asBoolean();
+	}
+    mAgent.stopAutoPilot(user_cancel);
 }
 

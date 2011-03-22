@@ -481,7 +481,7 @@ public:
 										 void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, 
 										 F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f,
 										 BOOL allow_flying = TRUE);
-	void 			startFollowPilot(const LLUUID &leader_id);
+	void 			startFollowPilot(const LLUUID &leader_id, BOOL allow_flying = TRUE, F32 stop_distance = 0.5f);
 	void			stopAutoPilot(BOOL user_cancel = FALSE);
 	void 			setAutoPilotTargetGlobal(const LLVector3d &target_global);
 	void			autoPilot(F32 *delta_yaw); 			// Autopilot walking action, angles in radians

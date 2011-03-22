@@ -1326,7 +1326,7 @@ void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
 //-----------------------------------------------------------------------------
 // startFollowPilot()
 //-----------------------------------------------------------------------------
-void LLAgent::startFollowPilot(const LLUUID &leader_id)
+void LLAgent::startFollowPilot(const LLUUID &leader_id, BOOL allow_flying, F32 stop_distance)
 {
 	mLeaderID = leader_id;
 	if ( mLeaderID.isNull() ) return;
@@ -1338,7 +1338,14 @@ void LLAgent::startFollowPilot(const LLUUID &leader_id)
 		return;
 	}
 
-	startAutoPilotGlobal(object->getPositionGlobal());
+	startAutoPilotGlobal(object->getPositionGlobal(), 
+						 std::string(),	// behavior_name
+						 NULL,			// target_rotation
+						 NULL,			// finish_callback
+						 NULL,			// callback_data
+						 stop_distance,
+						 0.03f,			// rotation_threshold
+						 allow_flying);
 }
 
 
