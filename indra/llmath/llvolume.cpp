@@ -2162,7 +2162,7 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 	LLSD header;
 	{
-		if (!LLSDSerialize::deserialize(header, is, 1024*1024*1024))
+		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
 		{
 			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
 			return FALSE;
@@ -2174,34 +2174,18 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 		"lowest_lod",
 		"low_lod",
 		"medium_lod",
-		"high_lod"
+		"high_lod",
+		"physics_shape",
 	};
 
-	S32 lod = llclamp((S32) mDetail, 0, 3);
+	const S32 MODEL_LODS = 5;
 
-	while (lod < 4 && 
-		(header[nm[lod]]["offset"].asInteger() == -1 || 
-		header[nm[lod]]["size"].asInteger() == 0 ))
-	{
-		++lod;
-	}
+	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
 
-	if (lod >= 4)
-	{
-		lod = llclamp((S32) mDetail, 0, 3);
-
-		while (lod >= 0 && 
-				(header[nm[lod]]["offset"].asInteger() == -1 ||
-				header[nm[lod]]["size"].asInteger() == 0) )
-		{
-			--lod;
-		}
-
-		if (lod < 0)
-		{
-			llwarns << "Mesh header missing LOD offsets.  Not a valid mesh asset!" << llendl;
-			return FALSE;
-		}
+	if (header[nm[lod]]["offset"].asInteger() == -1 || 
+		header[nm[lod]]["size"].asInteger() == 0 )
+	{ //cannot load requested LOD
+		return FALSE;
 	}
 
 	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);

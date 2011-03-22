@@ -76,6 +76,7 @@ public:
 	LLMatrix4 mTransform;
 	BOOL mFirstTransform;
 	LLVector3 mExtents[2];
+	bool mTrySLM;
 
 	std::map<daeElement*, LLPointer<LLModel> > mModel;
 	
@@ -97,6 +98,7 @@ public:
 
 	virtual void run();
 	bool doLoadModel();
+	bool loadFromSLM(const std::string& filename);
 	void loadModelCallback();
 
 	void loadTextures() ; //called in the main thread.

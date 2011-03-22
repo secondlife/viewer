@@ -82,6 +82,7 @@
 #include "llvoavatarself.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
 #include "llviewerregion.h"
@@ -1088,7 +1089,14 @@ LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* prev
 
 	if (mPreview)
 	{
+		//only try to load from slm if viewer is configured to do so and this is the 
+		//initial model load (not an LoD or physics shape)
+		mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mPreview->mBaseModel.empty();
 		mPreview->setLoadState(STARTING);
+	}
+	else
+	{
+		mTrySLM = false;
 	}
 }
 
@@ -1167,6 +1175,38 @@ void LLModelLoader::run()
 
 bool LLModelLoader::doLoadModel()
 {
+	//first, look for a .slm file of the same name that was modified later
+	//than the .dae
+
+	if (mTrySLM)
+	{
+		std::string filename = mFilename;
+			
+		std::string::size_type i = filename.rfind(".");
+		if (i != std::string::npos)
+		{
+			filename.replace(i, filename.size()-1, ".slm");
+			llstat slm_status;
+			if (LLFile::stat(filename, &slm_status) == 0)
+			{ //slm file exists
+				llstat dae_status;
+				if (LLFile::stat(mFilename, &dae_status) != 0 ||
+					dae_status.st_mtime < slm_status.st_mtime)
+				{
+					if (loadFromSLM(filename))
+					{ //slm successfully loaded, if this fails, fall through and
+						//try loading from dae
+
+						mLod = -1; //successfully loading from an slm implicitly sets all 
+									//LoDs
+						return true;
+					}
+				}
+			}	
+		}
+	}
+
+	//no suitable slm exists, load from the .dae file
 	DAE dae;
 	domCOLLADA* dom = dae.open(mFilename);
 	
@@ -1742,6 +1782,91 @@ void LLModelLoader::setLoadState(U32 state)
 	{
 		mPreview->setLoadState(state);
 	}
+}
+
+bool LLModelLoader::loadFromSLM(const std::string& filename)
+{ 
+	//only need to populate mScene with data from slm
+	llstat stat;
+
+	if (LLFile::stat(filename, &stat))
+	{ //file does not exist
+		return false;
+	}
+
+	S32 file_size = (S32) stat.st_size;
+	
+	llifstream ifstream(filename, std::ifstream::in | std::ifstream::binary);
+	LLSD data;
+	LLSDSerialize::fromBinary(data, ifstream, file_size);
+	ifstream.close();
+
+	//build model list for each LoD
+	model_list model[LLModel::NUM_LODS];
+
+	LLSD& mesh = data["mesh"];
+
+	LLVolumeParams volume_params;
+	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+
+	for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
+	{
+		for (U32 i = 0; i < mesh.size(); ++i)
+		{
+			std::stringstream str(mesh[i].asString());
+			LLPointer<LLModel> loaded_model = new LLModel(volume_params, (F32) lod);
+			if (loaded_model->createVolumeFacesFromStream(str))
+			{
+				loaded_model->mLocalID = i;
+				model[lod].push_back(loaded_model);
+			}
+			else
+			{
+				llassert(model[lod].empty());
+			}
+		}
+	}	
+
+	if (model[LLModel::LOD_HIGH].empty())
+	{ //failed to load high lod
+		return false;
+	}
+
+	//load instance list
+	model_instance_list instance_list;
+
+	LLSD& instance = data["instance"];
+
+	for (U32 i = 0; i < instance.size(); ++i)
+	{
+		//deserialize instance list
+		instance_list.push_back(LLModelInstance(instance[i]));
+
+		//match up model instance pointers
+		S32 idx = instance_list[i].mLocalMeshID;
+
+		for (U32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
+		{
+			if (!model[lod].empty())
+			{
+				instance_list[i].mLOD[lod] = model[lod][idx];
+			}
+		}
+
+		instance_list[i].mModel = model[LLModel::LOD_HIGH][idx];
+	}
+
+
+	//convert instance_list to mScene
+	mFirstTransform = TRUE;
+	for (U32 i = 0; i < instance_list.size(); ++i)
+	{
+		LLModelInstance& cur_instance = instance_list[i];
+		mScene[cur_instance.mTransform].push_back(cur_instance);
+		stretch_extents(cur_instance.mModel, cur_instance.mTransform, mExtents[0], mExtents[1], mFirstTransform);
+	}
+
+	return true;
 }
 
 void LLModelLoader::loadModelCallback()
@@ -2614,6 +2739,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 				decomp, 
 				empty_hull, save_skinweights, save_joint_positions);
 
+			
 			data["mesh"][instance.mModel->mLocalID] = str.str();
 		}
 
@@ -2625,8 +2751,6 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 	out.flush();
 	out.close();
 }
-
-
 
 void LLModelPreview::clearModel(S32 lod)
 {
@@ -2769,39 +2893,93 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	}
 
 	mModelLoader->loadTextures() ;
-	mModel[lod] = mModelLoader->mModelList;
-	mScene[lod] = mModelLoader->mScene;
-	mVertexBuffer[lod].clear();
 
-	if (lod == LLModel::LOD_PHYSICS)
-	{
-		mPhysicsMesh.clear();
-	}
+	if (lod == -1)
+	{ //populate all LoDs from model loader scene
+		mBaseModel.clear();
+		mBaseScene.clear();
 
-	setPreviewLOD(lod);
+		for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
+		{ //for each LoD
 
+			//clear scene and model info
+			mScene[lod].clear();
+			mModel[lod].clear();
+			mVertexBuffer[lod].clear();
+			
+			if (mModelLoader->mScene.begin()->second[0].mLOD[lod].notNull())
+			{ //if this LoD exists in the loaded scene
 
-	if (lod == LLModel::LOD_HIGH)
-	{ //save a copy of the highest LOD for automatic LOD manipulation
-		if (mBaseModel.empty())
-		{ //first time we've loaded a model, auto-gen LoD
-			mGenLOD = true;
+				//copy scene to current LoD
+				mScene[lod] = mModelLoader->mScene;
+			
+				//touch up copied scene to look like current LoD
+				for (LLModelLoader::scene::iterator iter = mScene[lod].begin(); iter != mScene[lod].end(); ++iter)
+				{
+					LLModelLoader::model_instance_list& list = iter->second;
+
+					for (LLModelLoader::model_instance_list::iterator list_iter = list.begin(); list_iter != list.end(); ++list_iter)
+					{	
+						//override displayed model with current LoD
+						list_iter->mModel = list_iter->mLOD[lod];
+
+						//add current model to current LoD's model list (LLModel::mLocalID makes a good vector index)
+						S32 idx = list_iter->mModel->mLocalID;
+
+						if (mModel[lod].size() <= idx)
+						{ //stretch model list to fit model at given index
+							mModel[lod].resize(idx+1);
+						}
+
+						mModel[lod][idx] = list_iter->mModel;	
+					}
+				}
+			}
 		}
 
-		mBaseModel = mModel[lod];
-		clearGLODGroup();
+		//copy high lod to base scene for LoD generation
+		mBaseScene = mScene[LLModel::LOD_HIGH];
+		mBaseModel = mModel[LLModel::LOD_HIGH];
 
-		mBaseScene = mScene[lod];
-		mVertexBuffer[5].clear();
-	}
-
-	clearIncompatible(lod);
-
-	mDirty = true;
-
-	if (lod == LLModel::LOD_HIGH)
-	{
+		mDirty = true;
 		resetPreviewTarget();
+	}
+	else
+	{ //only replace given LoD
+		mModel[lod] = mModelLoader->mModelList;
+		mScene[lod] = mModelLoader->mScene;
+		mVertexBuffer[lod].clear();
+
+		if (lod == LLModel::LOD_PHYSICS)
+		{
+			mPhysicsMesh.clear();
+		}
+
+		setPreviewLOD(lod);
+
+
+		if (lod == LLModel::LOD_HIGH)
+		{ //save a copy of the highest LOD for automatic LOD manipulation
+			if (mBaseModel.empty())
+			{ //first time we've loaded a model, auto-gen LoD
+				mGenLOD = true;
+			}
+
+			mBaseModel = mModel[lod];
+			clearGLODGroup();
+
+			mBaseScene = mScene[lod];
+			mVertexBuffer[5].clear();
+		}
+
+		clearIncompatible(lod);
+
+		mDirty = true;
+
+		if (lod == LLModel::LOD_HIGH)
+		{
+			resetPreviewTarget();
+		}
 	}
 
 	mLoading = false;
