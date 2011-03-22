@@ -3584,6 +3584,19 @@ void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+LLModelInstance::LLModelInstance(LLSD& data)
+{
+	mLocalMeshID = data["mesh_id"].asInteger();
+	mLabel = data["label"].asString();
+	mTransform.setValue(data["transform"]);
+
+	for (U32 i = 0; i < data["material"].size(); ++i)
+	{
+		mMaterial.push_back(LLImportMaterial(data["material"][i]));
+	}
+}
+
+
 LLSD LLModelInstance::asLLSD()
 {	
 	LLSD ret;
@@ -3599,6 +3612,15 @@ LLSD LLModelInstance::asLLSD()
 
 	return ret;
 }
+
+LLImportMaterial::LLImportMaterial(LLSD& data)
+{
+	mDiffuseMapFilename = data["diffuse"]["filename"].asString();
+	mDiffuseMapLabel = data["diffuse"]["label"].asString();
+	mDiffuseColor.setValue(data["diffuse"]["color"]);
+	mFullbright = data["fullbright"].asBoolean();
+}
+
 
 LLSD LLImportMaterial::asLLSD()
 {
