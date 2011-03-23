@@ -101,6 +101,10 @@ public:
 	{ 
 		mDiffuseColor.set(1,1,1,1);
 	}
+
+	LLImportMaterial(LLSD& data);
+
+	LLSD asLLSD();
 };
 
 class LLModelInstance 
@@ -112,6 +116,7 @@ public:
 	std::string mLabel;
 
 	LLUUID mMeshID;
+	S32 mLocalMeshID;
 
 	LLMatrix4 mTransform;
 	std::vector<LLImportMaterial> mMaterial;
@@ -119,7 +124,12 @@ public:
 	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
 		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
+		mLocalMeshID = -1;
 	}
+
+	LLModelInstance(LLSD& data);
+
+	LLSD asLLSD();
 };
 
 class LLMeshSkinInfo 
@@ -131,6 +141,7 @@ public:
 	std::vector<LLMatrix4> mAlternateBindMatrix;
 	
 	LLMatrix4 mBindShapeMatrix;
+	float mPelvisOffset;
 };
 
 class LLMeshDecomposition

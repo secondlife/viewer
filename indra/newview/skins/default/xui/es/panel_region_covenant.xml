@@ -27,8 +27,8 @@
 	</text_editor>
 	<button label="Cambiar" name="reset_covenant"/>
 	<text name="covenant_help_text">
-		Los cambios en el contrato se mostrarán en todas las parcelas
-      del estado.
+		Los cambios en el contrato se mostrarán en todas las parcelas 
+del estado.
 	</text>
 	<text bottom_delta="-31" name="covenant_instructions">
 		Arrastra y suelta una nota para cambiar el contrato de este estado.
@@ -73,7 +73,8 @@
 		El terreno comprado en esta región no se podrá revender.
 	</string>
 	<string name="can_change">
-		El terreno comprado en esta región se podrá unir o subdividir.
+		El terreno comprado en esta región se podrá unir o 
+subdividir.
 	</string>
 	<string name="can_not_change">
 		El terreno comprado en esta región no se podrá unir ni

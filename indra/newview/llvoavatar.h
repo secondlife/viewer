@@ -292,13 +292,14 @@ protected:
 public:
 	void				updateHeadOffset();
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
-	void				setPelvisOffset( bool hasOffset, const LLVector3& translation ) ;
+	void				setPelvisOffset( bool hasOffset, const LLVector3& translation, F32 offset ) ;
 	bool				hasPelvisOffset( void ) { return mHasPelvisOffset; }
 	void				postPelvisSetRecalc( void );
 
 	bool				mHasPelvisOffset;
 	LLVector3			mPelvisOffset;
 	F32					mLastPelvisToFoot;
+	F32					mPelvisFixup;
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;

@@ -248,46 +248,71 @@
 			function="BuildTool.commitRadioEdit"/>
     </radio_group>
     <check_box
-     left="10"
+     left="5"
      follows="left|top"
      height="28"
 	 control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts"
-     top_pad="2">
+     top_pad="-10">
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
 
-   <text
-   text_color="LtGray_50"
-   follows="top|left"
-   halign="left"
-   left="13"
-   name="RenderingCost"
-   tool_tip="Shows the rendering cost calculated for this object"
-   top_pad="0"
-   type="string"
-   width="100">
-   þ: [COUNT]
-   </text>
-	<check_box
+   <button
+     follows="left|top"
+     height="23"
+     label="Link"
+     top_pad="2"
+     layout="topleft"
+     left="5"
+     name="link_btn"
+     width="50">
+	  <button.commit_callback
+	     function="BuildTool.LinkObjects"/>
+    </button>
+    <button
+     follows="left|top"
+     height="23"
+     label="Unlink"
+     layout="topleft"
+     left_pad="2"
+     name="unlink_btn"
+     width="50">
+	  <button.commit_callback
+	     function="BuildTool.UnlinkObjects"/>
+    </button>
+    <text
+	   text_color="LtGray_50"
+	   follows="top|left"
+	   halign="left"
+	   left_pad="3"
+	   name="RenderingCost"
+	   tool_tip="Shows the rendering cost calculated for this object"
+	   top_delta="11"
+	   type="string"
+	   width="100">
+	   þ: [COUNT]
+	   </text>
+    <check_box
      control_name="ScaleUniform"
      height="19"
      label=""
      layout="topleft"
      left="143"
      name="checkbox uniform"
-	 top="50"
+     top="50"
      width="20" />
     <text
      height="19"
      label="Stretch Both Sides"
-     left="163"
+     left_delta="20"
      name="checkbox uniform label"
-     top="55"
+     top_delta="2"
      width="120"
+     layout="topleft"
+     follows="top|left"
      wrap="true">
      	Stretch Both Sides
     </text>
@@ -299,7 +324,8 @@
      layout="topleft"
      left="143"
      name="checkbox stretch textures"
-     top_pad="7"
+     top_pad="-6"
+     follows="left|top"
      width="134" />
    <check_box
      control_name="SnapEnabled"
@@ -338,9 +364,10 @@
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
      layout="topleft"
+     follows="top|left"
      name="Options..."
      tool_tip="See more grid options"
-     top_delta="0"
+     top_pad="-22"
      right="-10"
      width="18"
      height="23" >
@@ -768,10 +795,10 @@
      type="string"
      length="1"
      height="10"
-     follows="left"
+     follows="left|top"
      halign="right"
      layout="topleft"
-	 top_delta="0"
+     top_delta="0"
      right="-8"
      name="linked_set_cost"
      tool_tip="Cost of currently selected linked sets as [prims],[physics complexity]" 
@@ -795,7 +822,7 @@
     text_color="LtGray_50"
      type="string"
      length="1"
-     follows="left"
+     follows="left|top"
      halign="right"
      layout="topleft"
 	 top_delta="0"
@@ -960,10 +987,11 @@
              layout="topleft"
              name="Creator Name"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Esbee Linden (esbee.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
             <text
              type="string"
@@ -987,10 +1015,11 @@
              name="Owner Name"
              left_pad="0"
              top_delta="0"
+             translate="false"
              width="190"
              word_wrap="true"
              use_ellipses="true">
-                Mrs. Erica "Moose" Linden (erica.linden)
+                TestString PleaseIgnore (please.ignore)
             </text>
            <text
              type="string"
@@ -1565,7 +1594,7 @@ even though the user gets a free copy.
              max_val="28"
              name="Physics Gravity"
              top_pad="10"
-             width="128" />
+             width="132" />
 
             <check_box
              height="19"
@@ -1575,7 +1604,7 @@ even though the user gets a free copy.
              name="Physics Material Override"
              tool_tip="Override Material"
              top_pad="10"
-             width="121" />
+             width="132" />
 
             <spinner
              follows="left|top"
@@ -1590,7 +1619,7 @@ even though the user gets a free copy.
              min_val="0"
              name="Physics Friction"
              top_pad="4"
-             width="128" />
+             width="132" />
 
             <spinner
              follows="left|top"
@@ -1605,7 +1634,7 @@ even though the user gets a free copy.
              min_val="1"
              name="Physics Density"
              top_pad="4"
-             width="128" />
+             width="132" />
 
             <spinner
              follows="left|top"
@@ -1620,7 +1649,7 @@ even though the user gets a free copy.
              min_val="0"
              name="Physics Restitution"
              top_pad="4"
-             width="128" />
+             width="132" />
 
 
 

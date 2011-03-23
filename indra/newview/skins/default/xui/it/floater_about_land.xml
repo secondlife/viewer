@@ -87,15 +87,11 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<text name="Owner:">
 				Proprietario:
 			</text>
-			<text left="119" name="OwnerText" width="227">
-				Leyla Linden
-			</text>
+			<text left="119" name="OwnerText" width="227"/>
 			<text name="Group:">
 				Gruppo:
 			</text>
-			<text left="119" name="GroupText" width="227">
-				Leyla Linden
-			</text>
+			<text left="119" name="GroupText" width="227"/>
 			<button label="Imposta" name="Set..."/>
 			<check_box label="Permetti cessione al gruppo" left="119" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
 			<button label="Cedi" name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
@@ -401,7 +397,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Imposta" name="set_media_url"/>
-			<check_box label="Nascondi indirizzo URL Media" left="94" name="hide_media_url" tool_tip="Abilitando questa opzione nasconderai l&apos;indirizzo url dei media a tutte le persone non autorizzate a vedere le informazioni del terreno. Nota che questo non è disponibile per contenuto di tipo HTML."/>
 			<text name="Description:">
 				Descrizione:
 			</text>
@@ -433,7 +428,6 @@ Media:
 			<text name="MusicURL:">
 				URL musica:
 			</text>
-			<check_box label="Nascondi URL" name="hide_music_url" tool_tip="Questa opzione consente di nascondere l&apos;url della musica a chi non è autorizzato a visionare le informazioni di questo parcel."/>
 			<text name="Sound:">
 				Audio:
 			</text>

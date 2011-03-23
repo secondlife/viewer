@@ -194,6 +194,7 @@ public:
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
 
+	float	mPelvisOffset;
 	// convex hull decomposition
 	S32 mDecompID;
 	convex_hull_decomposition mConvexHullDecomp;
@@ -203,6 +204,9 @@ public:
 	LLVector3 mCenterOfHullCenters;
 	std::vector<LLVector3> mHullCenter;
 	U32 mHullPoints;
+
+	//ID for storing this model in a .slm file
+	S32 mLocalID;
 
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);

@@ -3096,7 +3096,7 @@ F32 LLVOVolume::getStreamingCost()
 	return 0.f;
 }
 
-U32 LLVOVolume::getTriangleCount() const
+U32 LLVOVolume::getTriangleCount()
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
@@ -3941,6 +3941,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
+							const int pelvisZOffset = pSkinData->mPelvisOffset;
 							bool fullRig = (jointCnt>=20) ? true : false;
 							if ( fullRig )
 							{
@@ -3961,7 +3962,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 											pJoint->storeCurrentXform( jointPos );																																
 											if ( !pAvatarVO->hasPelvisOffset() )
 											{										
-												pAvatarVO->setPelvisOffset( true, jointPos );
+												pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
 												//Trigger to rebuild viewer AV
 												pelvisGotSet = true;											
 											}										

@@ -47,6 +47,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterpay.h"
+#include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
 #include "llgiveinventory.h"
 #include "llinventorybridge.h"
@@ -315,7 +316,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 			std::string agent_name = LLCacheName::buildUsername(full_name);
 			llinfos << "opening web profile for " << agent_name << llendl;		
 			std::string url = getProfileURL(agent_name);
-			LLWeb::loadWebURLInternal(url);
+			LLWeb::loadWebURLInternal(url, "", id.asString());
 		}
 		else
 		{
@@ -333,6 +334,24 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
 		}
 #endif
+	}
+}
+
+//static 
+bool LLAvatarActions::profileVisible(const LLUUID& id)
+{
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	return browser && browser->isShown();
+}
+
+
+//static 
+void LLAvatarActions::hideProfile(const LLUUID& id)
+{
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	if (browser)
+	{
+		browser->closeFloater();
 	}
 }
 

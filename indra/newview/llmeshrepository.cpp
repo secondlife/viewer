@@ -1162,7 +1162,12 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 				info.mAlternateBindMatrix.push_back(mat);
 			}
 		}
-		
+
+		if (skin.has("pelvis_offset"))
+		{
+			info.mPelvisOffset = skin["pelvis_offset"].asReal();
+		}
+		//llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
 		mSkinInfoQ.push(info);
 	}
 
@@ -3100,9 +3105,7 @@ F32 LLMeshRepository::getStreamingCost(const LLSD& header, F32 radius)
 	F32 dlowest = llmin(radius/0.06f, 256.f);
 	F32 dlow = llmin(radius/0.24f, 256.f);
 	F32 dmid = llmin(radius/1.0f, 256.f);
-	F32 dhigh = 0.f;
-
-
+	
 	F32 bytes_lowest = header["lowest_lod"]["size"].asReal()/1024.f;
 	F32 bytes_low = header["low_lod"]["size"].asReal()/1024.f;
 	F32 bytes_mid = header["medium_lod"]["size"].asReal()/1024.f;
@@ -3128,14 +3131,35 @@ F32 LLMeshRepository::getStreamingCost(const LLSD& header, F32 radius)
 		bytes_lowest = bytes_low;
 	}
 
-	F32 cost = 0.f;
-	cost += llmax(256.f-dlowest, 1.f)/32.f*bytes_lowest;
-	cost += llmax(dlowest-dlow, 1.f)/32.f*bytes_low;
-	cost += llmax(dlow-dmid, 1.f)/32.f*bytes_mid;
-	cost += llmax(dmid-dhigh, 1.f)/32.f*bytes_high;
+	F32 max_area = 65536.f;
+	F32 min_area = 1.f;
 
-	cost *= gSavedSettings.getF32("MeshStreamingCostScaler");
-	return cost;
+	F32 high_area = llmin(F_PI*dmid*dmid, max_area);
+	F32 mid_area = llmin(F_PI*dlow*dlow, max_area);
+	F32 low_area = llmin(F_PI*dlowest*dlowest, max_area);
+	F32 lowest_area = max_area;
+
+	lowest_area -= low_area;
+	low_area -= mid_area;
+	mid_area -= high_area;
+
+	high_area = llclamp(high_area, min_area, max_area);
+	mid_area = llclamp(mid_area, min_area, max_area);
+	low_area = llclamp(low_area, min_area, max_area);
+	lowest_area = llclamp(lowest_area, min_area, max_area);
+
+	F32 total_area = high_area + mid_area + low_area + lowest_area;
+	high_area /= total_area;
+	mid_area /= total_area;
+	low_area /= total_area;
+	lowest_area /= total_area;
+
+	F32 weighted_avg = bytes_high*high_area +
+					   bytes_mid*mid_area +
+					   bytes_low*low_area +
+					  bytes_lowest*lowest_area;
+
+	return weighted_avg * gSavedSettings.getF32("MeshStreamingCostScaler");
 }
 
 
@@ -3560,3 +3584,52 @@ void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+LLModelInstance::LLModelInstance(LLSD& data)
+{
+	mLocalMeshID = data["mesh_id"].asInteger();
+	mLabel = data["label"].asString();
+	mTransform.setValue(data["transform"]);
+
+	for (U32 i = 0; i < data["material"].size(); ++i)
+	{
+		mMaterial.push_back(LLImportMaterial(data["material"][i]));
+	}
+}
+
+
+LLSD LLModelInstance::asLLSD()
+{	
+	LLSD ret;
+
+	ret["mesh_id"] = mModel->mLocalID;
+	ret["label"] = mLabel;
+	ret["transform"] = mTransform.getValue();
+	
+	for (U32 i = 0; i < mMaterial.size(); ++i)
+	{
+		ret["material"][i] = mMaterial[i].asLLSD();
+	}
+
+	return ret;
+}
+
+LLImportMaterial::LLImportMaterial(LLSD& data)
+{
+	mDiffuseMapFilename = data["diffuse"]["filename"].asString();
+	mDiffuseMapLabel = data["diffuse"]["label"].asString();
+	mDiffuseColor.setValue(data["diffuse"]["color"]);
+	mFullbright = data["fullbright"].asBoolean();
+}
+
+
+LLSD LLImportMaterial::asLLSD()
+{
+	LLSD ret;
+
+	ret["diffuse"]["filename"] = mDiffuseMapFilename;
+	ret["diffuse"]["label"] = mDiffuseMapLabel;
+	ret["diffuse"]["color"] = mDiffuseColor.getValue();
+	ret["fullbright"] = mFullbright;
+	
+	return ret;
+}

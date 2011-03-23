@@ -102,7 +102,7 @@ void main()
 		
 		float fd = depth*0.5f;
 		
-		while (sc > 1.0)
+		while (sc > 0.5)
 		{
 			dofSample(diff,w, fd, sc,sc);
 			dofSample(diff,w, fd, -sc,sc);

@@ -1,5 +1,4 @@
 # -*- cmake -*-
-
 project(llplugintest)
 
 include(00-Common)
