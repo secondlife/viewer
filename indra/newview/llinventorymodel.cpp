@@ -631,6 +631,12 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 		return mask;
 	}
 
+	// We're hiding mesh types
+	if (item->getType() == LLAssetType::AT_MESH)
+	{
+		return mask;
+	}
+
 	LLViewerInventoryItem* old_item = getItem(item->getUUID());
 	LLPointer<LLViewerInventoryItem> new_item;
 	if(old_item)
@@ -1272,6 +1278,12 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 	//llinfos << "LLInventoryModel::addCategory()" << llendl;
 	if(category)
 	{
+		// We aren't displaying the Meshes folder
+		if (category->mPreferredType == LLFolderType::FT_MESH)
+		{
+			return;
+		}
+
 		// try to localize default names first. See EXT-8319, EXT-7051.
 		category->localizeName();
 
