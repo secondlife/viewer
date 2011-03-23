@@ -157,6 +157,16 @@ BOOL LLGestureComboList::handleKeyHere(KEY key, MASK mask)
 	return handled; 		
 }
 
+void LLGestureComboList::draw()
+{
+	LLUICtrl::draw();
+
+	if(mButton->getToggleState())
+	{
+		showList();
+	}
+}
+
 void LLGestureComboList::showList()
 {
 	LLRect rect = mList->getRect();
@@ -180,6 +190,7 @@ void LLGestureComboList::showList()
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
+	sendChildToFront(mList);
 	LLUI::addPopup(mList);
 }
 

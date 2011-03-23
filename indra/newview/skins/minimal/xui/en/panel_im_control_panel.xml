@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="false"
+ height="300"
+ name="panel_im_control_panel"
+ width="150">
+    <avatar_icon
+     follows="left|top"
+     height="105"
+     left_delta="20"
+     name="avatar_icon"
+     top="-5"
+     width="114"/>
+    <layout_stack
+     mouse_opaque="false"
+     border_size="0"
+     clip="false"
+     follows="all"
+     height="183"
+     layout="topleft"
+     left="5"
+     name="button_stack"
+     orientation="vertical"
+     top_pad="5"
+     width="145">
+    </layout_stack>
+</panel>

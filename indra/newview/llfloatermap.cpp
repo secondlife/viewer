@@ -42,7 +42,6 @@
 #include "llviewercamera.h"
 #include "lldraghandle.h"
 #include "lltextbox.h"
-#include "llviewermenu.h"
 #include "llfloaterworldmap.h"
 #include "llagent.h"
 
@@ -63,7 +62,6 @@ const S32 MAP_PADDING_BOTTOM = 0;
 
 LLFloaterMap::LLFloaterMap(const LLSD& key) 
 	: LLFloater(key),
-	  mPopupMenu(NULL),
 	  mTextBoxEast(NULL),
 	  mTextBoxNorth(NULL),
 	  mTextBoxWest(NULL),
@@ -83,8 +81,14 @@ LLFloaterMap::~LLFloaterMap()
 BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
-	mMap->setToolTipMsg(gSavedSettings.getBOOL("DoubleClickTeleport") ? 
-		getString("AltToolTipMsg") : getString("ToolTipMsg"));
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		mMap->setToolTipMsg(getString("AltToolTipMsg"));
+	}
+	else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
+	{
+		mMap->setToolTipMsg(getString("ToolTipMsg"));
+	}
 	sendChildToBack(mMap);
 	
 	mTextBoxNorth = getChild<LLTextBox> ("floater_map_north");
@@ -95,17 +99,6 @@ BOOL LLFloaterMap::postBuild()
 	mTextBoxNorthEast = getChild<LLTextBox> ("floater_map_northeast");
 	mTextBoxSouthWest = getChild<LLTextBox> ("floater_map_southwest");
 	mTextBoxNorthWest = getChild<LLTextBox> ("floater_map_northwest");
-
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	
-	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
-	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
-
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (mPopupMenu && !LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
-	}
 
 	stretchMiniMap(getRect().getWidth() - MAP_PADDING_LEFT - MAP_PADDING_RIGHT
 		,getRect().getHeight() - MAP_PADDING_TOP - MAP_PADDING_BOTTOM);
@@ -150,20 +143,9 @@ BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
 		gAgent.teleportViaLocationLookAt(pos_global);
 	}
-	else 
+	else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
 	{
 		LLFloaterReg::showInstance("world_map");
-	}
-	return TRUE;
-}
-
-BOOL LLFloaterMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (mPopupMenu)
-	{
-		mPopupMenu->buildDrawLabels();
-		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, mPopupMenu, x, y);
 	}
 	return TRUE;
 }
@@ -238,11 +220,6 @@ void LLFloaterMap::draw()
 		getDragHandle()->setMouseOpaque(TRUE);
 	}
 	
-	if (LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", true);
-	}
-	
 	LLFloater::draw();
 }
 
@@ -309,14 +286,6 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 	}
 }
 
-void LLFloaterMap::handleStopTracking (const LLSD& userdata)
-{
-	if (mPopupMenu)
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
-		LLTracker::stopTracking ((void*)LLTracker::isTracking(NULL));
-	}
-}
 void	LLFloaterMap::setMinimized(BOOL b)
 {
 	LLFloater::setMinimized(b);

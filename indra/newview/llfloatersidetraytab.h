@@ -42,6 +42,8 @@ class LLFloaterSideTrayTab : public LLFloater
 public:
 	LLFloaterSideTrayTab(const LLSD& key, const Params& params = getDefaultParams());
 	~LLFloaterSideTrayTab();
+
+	void onClose(bool app_quitting);
 };
 
 #endif // LL_LLFLOATERSIDETRAYTAB_H

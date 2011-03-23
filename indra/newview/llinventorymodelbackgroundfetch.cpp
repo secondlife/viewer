@@ -182,7 +182,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 	{
 		// If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
 		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents2");   
-		if (!url.empty()) 
+		if (gSavedSettings.getBOOL("UseHTTPInventory") && !url.empty()) 
 		{
 			bulkFetch(url);
 			return;
