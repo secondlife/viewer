@@ -156,6 +156,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ansariel Hiller
+	STORM-1101
 Ardy Lay
 	VWR-19499
 	VWR-24917
@@ -413,6 +415,7 @@ Jonathan Yap
 	STORM-990
 	STORM-1020
 	STORM-1064
+	STORM-1101
 Kage Pixel
 	VWR-11
 Ken March
