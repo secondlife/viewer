@@ -28,6 +28,7 @@
 #define LL_LLWINDOWLISTENER_H
 
 #include "lleventapi.h"
+#include <boost/function.hpp>
 
 class LLKeyboard;
 class LLWindowCallbacks;
@@ -35,7 +36,8 @@ class LLWindowCallbacks;
 class LLWindowListener : public LLEventAPI
 {
 public:
-	LLWindowListener(LLWindowCallbacks * window, LLKeyboard * keyboard);
+	typedef boost::function<LLKeyboard*()> KeyboardGetter;
+	LLWindowListener(LLWindowCallbacks * window, const KeyboardGetter& kbgetter);
 
 	void keyDown(LLSD const & evt);
 	void keyUp(LLSD const & evt);
@@ -46,7 +48,7 @@ public:
 
 private:
 	LLWindowCallbacks * mWindow;
-	LLKeyboard * mKeyboard;
+	KeyboardGetter mKbGetter;
 };
 
 
