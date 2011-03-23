@@ -205,6 +205,9 @@ public:
 	std::vector<LLVector3> mHullCenter;
 	U32 mHullPoints;
 
+	//ID for storing this model in a .slm file
+	S32 mLocalID;
+
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);
 	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);

@@ -76,6 +76,7 @@ public:
 	LLMatrix4 mTransform;
 	BOOL mFirstTransform;
 	LLVector3 mExtents[2];
+	bool mTrySLM;
 
 	std::map<daeElement*, LLPointer<LLModel> > mModel;
 	
@@ -97,6 +98,7 @@ public:
 
 	virtual void run();
 	bool doLoadModel();
+	bool loadFromSLM(const std::string& filename);
 	void loadModelCallback();
 
 	void loadTextures() ; //called in the main thread.
@@ -288,6 +290,8 @@ public:
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
+	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
+	void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_poisitions);
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
 	void clearGLODGroup();
@@ -332,7 +336,7 @@ public:
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 	U32			mLoadState;
-
+	
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)

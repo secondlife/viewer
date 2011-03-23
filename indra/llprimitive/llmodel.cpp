@@ -60,6 +60,7 @@ LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	, mPelvisOffset( 0.0f )
 {
 	mDecompID = -1;
+	mLocalID = -1;
 }
 
 LLModel::~LLModel()

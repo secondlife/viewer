@@ -646,8 +646,6 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 		break;
 	}
 
-	llassert(bump);
-
 	if (bump)
 	{
 		if (channel == -2)

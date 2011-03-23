@@ -5523,6 +5523,17 @@
     <key>Value</key>
     <real>1</real>
   </map>
+  <key>MeshImportUseSLM</key>
+  <map>
+    <key>Comment</key>
+    <string>Use cached copy of last upload for a dae if available instead of loading dae file from scratch.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
   <key>MigrateCacheDirectory</key>
     <map>
       <key>Comment</key>
