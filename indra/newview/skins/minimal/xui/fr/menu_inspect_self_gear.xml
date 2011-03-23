@@ -1,10 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu name="Gear Menu">
-	<menu_item_call label="M&apos;asseoir" name="sit_down_here"/>
-	<menu_item_call label="Me lever" name="stand_up"/>
-	<menu_item_call label="Changer de tenue" name="change_outfit"/>
-	<menu_item_call label="Mon profil" name="my_profile"/>
-	<menu_item_call label="Mes amis" name="my_friends"/>
-	<menu_item_call label="Mes groupes" name="my_groups"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
+	<menu_item_call label="Me lever" name="Stand Up"/>
+	<menu_item_call label="Mes amis" name="Friends..."/>
+	<menu_item_call label="Mon profil" name="Profile..."/>
 	<menu_item_call label="Déboguer les textures" name="Debug..."/>
-</menu>
+</toggleable_menu>

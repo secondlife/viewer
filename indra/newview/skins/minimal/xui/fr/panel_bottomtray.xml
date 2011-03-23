@@ -11,10 +11,10 @@
 			<bottomtray_button label="Affichage" name="camera_btn" tool_tip="Affiche/Masque le contrôle de la caméra"/>
 		</layout_panel>
 		<layout_panel name="avatar_and_destinations_panel">
-			<radio_group name="avatar_and_destination_btns">
-				<radio_item name="destination_btn" value="0"/>
-				<radio_item name="avatar_btn" value="1"/>
-			</radio_group>
+			<bottomtray_button label="Destinations" name="destination_btn" tool_tip="Afficher la fenêtre des personnes."/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<bottomtray_button label="Mon avatar" name="avatar_btn"/>
 		</layout_panel>
 		<layout_panel name="people_panel">
 			<bottomtray_button label="Personnes" name="show_people_button" tool_tip="Afficher la fenêtre des personnes."/>
