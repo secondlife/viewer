@@ -7105,7 +7105,78 @@
   <key>RenderAvatarComplexityLimit</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scens</string>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderComplexityColorMin</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityColorMid</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityColorMax</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Only color objects higher than render threshold</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderComplexityStaticMax</key>
+    <map>
+      <key>Comment</key>
+      <string>Sets a static max value for scaling of RenderComplexity 
+        display (-1 for dynamic scaling)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
