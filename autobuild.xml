@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f93758faf1d06f1427e0ecb846b17d48</string>
+              <string>c0eacb6348e032fbc69cfdc4bd215ee4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/224777/arch/Darwin/installer/freetype-2.3.9-darwin-20110322.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.4.4-darwin-20110307.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df9a3c0a572b1f18dce32f5a3caba0ea</string>
+              <string>271349827b939406162ce42e42cd18e0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/224777/arch/CYGWIN/installer/freetype-2.3.9-windows-20110322.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.4.4-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
