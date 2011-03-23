@@ -2704,6 +2704,11 @@ void LLModelPreview::saveUploadData(bool save_skinweights, bool save_joint_posit
 
 void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions)
 {
+	if (!gSavedSettings.getBOOL("MeshImportUseSLM"))
+	{
+		return;
+	}
+
 	std::set<LLPointer<LLModel> > meshes;
 	std::map<LLModel*, std::string> mesh_binary;
 
