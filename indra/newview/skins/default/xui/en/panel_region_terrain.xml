@@ -115,6 +115,40 @@
      name="apply_btn"
      top="135"
      width="90" />
+    <combo_box
+     height="23"
+     layout="topleft"
+     left="50"
+     name="SkyPresetsCombo"
+     top="165"
+     width="150" />
+    <combo_box
+     height="23"
+     layout="topleft"
+     left="200"
+     name="WaterPresetsCombo"
+     top="165"
+     width="150" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Apply"
+     layout="topleft"
+     left="370"
+     name="wes_apply_btn"
+     top="165"
+     width="90" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Edit Environment"
+     layout="topleft"
+     left="370"
+     name="env_editor_btn"
+     top="195"
+     width="120" />
     <view_border
      bevel_style="none"
      follows="top|left"

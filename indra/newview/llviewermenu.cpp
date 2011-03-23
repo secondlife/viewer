@@ -993,6 +993,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
 	}
+	else if ("" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY;
+	}
 	else
 	{
 		return 0;

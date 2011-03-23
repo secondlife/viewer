@@ -2792,6 +2792,40 @@ void renderUpdateType(LLDrawable* drawablep)
 	}
 }
 
+void renderComplexityDisplay(LLDrawable* drawablep)
+{
+	LLViewerObject* vobj = drawablep->getVObj();
+	if (!vobj)
+	{
+		return;
+	}
+
+	LLVOVolume *voVol = dynamic_cast<LLVOVolume*>(vobj);
+
+	if (!voVol)
+	{
+		return;
+	}
+
+	LLVOVolume::texture_cost_t textures;
+	F32 cost = (F32) voVol->getRenderCost(textures) / (F32) LLVOVolume::getRenderComplexityMax();
+	
+	LLGLEnable blend(GL_BLEND);
+
+	F32 red = cost;
+	F32 green = 1.0f - cost;
+
+	glColor4f(red,green,0,0.5f);
+
+	S32 num_faces = drawablep->getNumFaces();
+	if (num_faces)
+	{
+		for (S32 i = 0; i < num_faces; ++i)
+		{
+			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+		}
+	}	
+}
 
 void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 {
@@ -3905,6 +3939,10 @@ public:
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_UPDATE_TYPE))
 			{
 				renderUpdateType(drawable);
+			}
+			if(gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY))
+			{
+				renderComplexityDisplay(drawable);
 			}
 
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());

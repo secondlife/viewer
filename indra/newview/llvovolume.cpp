@@ -87,6 +87,8 @@ F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
+S32 LLVOVolume::mRenderComplexity_last = 0;
+S32 LLVOVolume::mRenderComplexity_current = 0;
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
@@ -3206,6 +3208,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		shame += num_particles * part_size * ARC_PARTICLE_COST;
 	}
 
+	if (shame > mRenderComplexity_current)
+	{
+		mRenderComplexity_current = (S32)shame;
+	}
+
 	return (U32)shame;
 }
 
@@ -3223,7 +3230,14 @@ F32 LLVOVolume::getStreamingCost()
 	return 0.f;
 }
 
-U32 LLVOVolume::getTriangleCount()
+//static 
+void LLVOVolume::updateRenderComplexity()
+{
+	mRenderComplexity_last = mRenderComplexity_current;
+	mRenderComplexity_current = 0;
+}
+
+U32 LLVOVolume::getTriangleCount() const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
@@ -4068,7 +4082,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
-							const int pelvisZOffset = pSkinData->mPelvisOffset;
+							const int pelvisZOffset = (int)pSkinData->mPelvisOffset;
 							bool fullRig = (jointCnt>=20) ? true : false;
 							if ( fullRig )
 							{

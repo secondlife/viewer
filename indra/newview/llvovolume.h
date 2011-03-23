@@ -132,7 +132,7 @@ public:
 				typedef std::map<LLUUID, S32> texture_cost_t;
 				U32 	getRenderCost(texture_cost_t &textures) const;
 	/*virtual*/	F32		getStreamingCost();
-	/*virtual*/ U32		getTriangleCount();
+	/*virtual*/ U32		getTriangleCount() const;
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
@@ -320,11 +320,19 @@ protected:
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
 
+	// stats tracking for render complexity
+	static S32 mRenderComplexity_last;
+	static S32 mRenderComplexity_current;
+
 	void requestMediaDataUpdate(bool isNew);
 	void cleanUpMediaImpls();
 	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
 	void removeMediaImpl(S32 texture_index) ;
 public:
+
+	static S32 getRenderComplexityMax() {return mRenderComplexity_last;}
+	static void updateRenderComplexity();
+
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
 private:
