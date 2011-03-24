@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notifications>
+	<notification name="UserGiveItem">
+		[NAME_SLURL] vous offre [ITEM_SLURL]. Pour utiliser cet article, vous devez passer en mode Avancé. L&apos;article se trouve dans votre inventaire. Pour changer de mode, quittez l&apos;application, redémarrez-la, puis sélectionnez un autre mode sur l&apos;écran de connexion.
+		<form name="form">
+			<button name="Show" text="Garder l&apos;article"/>
+			<button name="Discard" text="Refuser l&apos;article"/>
+			<button name="Mute" text="Ignorer l&apos;utilisateur"/>
+		</form>
+	</notification>
+	<notification name="ObjectGiveItem">
+		Un objet nommé &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; appartenant à [NAME_SLURL] vous offre [ITEM_SLURL]. Pour utiliser cet article, vous devez passer en mode Avancé. L&apos;article se trouve dans votre inventaire. Pour changer de mode, quittez l&apos;application, redémarrez-la, puis sélectionnez un autre mode sur l&apos;écran de connexion.
+		<form name="form">
+			<button name="Keep" text="Garder l&apos;article"/>
+			<button name="Discard" text="Refuser l&apos;article"/>
+			<button name="Mute" text="Ignorer l&apos;objet"/>
+		</form>
+	</notification>
+</notifications>

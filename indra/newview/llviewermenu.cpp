@@ -846,9 +846,13 @@ class LLAdvancedCheckFeature : public view_listener_t
 void toggle_destination_and_avatar_picker(const LLSD& show)
 {
 	S32 panel_idx = show.isDefined() ? show.asInteger() : -1;
-	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
+	LLView* container = gViewerWindow->getRootView()->findChildView("avatar_picker_and_destination_guide_container");
+	if (!container) return;
+
 	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	if (!destinations || !avatar_picker) return;
+
 	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
 	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
@@ -863,7 +867,6 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 			LLFirstUse::notUsingDestinationGuide(false);
 			avatar_btn->setToggleState(false);
 			destination_btn->setToggleState(true);
-			return;
 		}
 		break;
 	case 1:
@@ -874,18 +877,17 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 			avatar_picker->setVisible(true);
 			avatar_btn->setToggleState(true);
 			destination_btn->setToggleState(false);
-			return;
 		}
 		break;
 	default:
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(false);
 		break;
 	}
-
-	container->setVisible(false);
-	destinations->setVisible(false);
-	avatar_picker->setVisible(false);
-	avatar_btn->setToggleState(false);
-	destination_btn->setToggleState(false);
+	gSavedSettings.setS32("DestinationsAndAvatarsVisibility", panel_idx);
 };
 
 
