@@ -434,6 +434,8 @@ Kitty Barnett
 Kunnis Basiat
 	VWR-82
 	VWR-102
+Lance Corrimal
+	VWR-25269
 Latif Khalifa
 	VWR-5370
 Lisa Lowe
