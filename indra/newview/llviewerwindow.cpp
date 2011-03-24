@@ -1801,11 +1801,8 @@ void LLViewerWindow::initWorldUI()
 		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
 	}
 
-	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-	{
-		toggle_destination_and_avatar_picker(0);
-		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
-	}
+	// show destinations by default
+	toggle_destination_and_avatar_picker(gSavedSettings.getS32("DestinationsAndAvatarsVisibility"));
 }
 
 // Destroy the UI

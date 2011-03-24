@@ -12608,5 +12608,16 @@
       <key>Value</key>
       <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/404.html</string>
     </map>
+    <key>DestinationsAndAvatarsVisibility</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether destination panel or avatar picker are open (0=destination guide, 1=avatar picker, default=nothing)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
 </map>
 </llsd>

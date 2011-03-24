@@ -402,5 +402,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DestinationsAndAvatarsVisibility</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether destination panel or avatar picker are open (0=destination guide, 1=avatar picker, default=nothing)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   </map>
 </llsd>
