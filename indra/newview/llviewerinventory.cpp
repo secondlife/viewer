@@ -89,6 +89,7 @@ public:
 		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
 		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
 		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+		mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
 		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
 		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");

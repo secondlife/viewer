@@ -51,7 +51,7 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLWearable *wearable, LLView *data);
+	static void editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
 
 	void fetchInventory();
 	void inventoryFetched();
@@ -59,7 +59,7 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
-	void showWearableEditPanel(LLWearable *wearable = NULL);
+	void showWearableEditPanel(LLWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
@@ -72,7 +72,7 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 
-	void togglMyOutfitsPanel(BOOL visible);
+	void toggleMyOutfitsPanel(BOOL visible);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
 	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 

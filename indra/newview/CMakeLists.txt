@@ -380,6 +380,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llphysicsmotion.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
     llpopupview.cpp
@@ -915,6 +916,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llphysicsmotion.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
     llpolymesh.h
