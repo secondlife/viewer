@@ -1179,7 +1179,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	LLSD decomp;
 
 	if (data_size > 0)
-	{
+	{ 
 		std::string res_str((char*) data, data_size);
 
 		std::istringstream stream(res_str);

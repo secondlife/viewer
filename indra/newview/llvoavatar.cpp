@@ -1333,7 +1333,17 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		return mDrawable->getPositionAgent();
+		if ( !mHasPelvisOffset )
+		{
+			return mDrawable->getPositionAgent();
+		}
+		else
+		{
+			//Apply a pelvis fixup (as defined by the avs skin)
+			LLVector3 pos = mDrawable->getPositionAgent();
+			pos[VZ] += mPelvisFixup;
+			return pos;
+		}
 	}
 	else
 	{
@@ -3808,6 +3818,14 @@ void LLVOAvatar::postPelvisSetRecalc( void )
 	mRoot.updateWorldMatrixChildren();	
 	dirtyMesh();
 	updateHeadOffset();
+}
+//------------------------------------------------------------------------
+// pelisPoke
+//------------------------------------------------------------------------
+void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
+{	
+	mHasPelvisOffset  = true;
+	mPelvisFixup	  = pelvisFixupAmount;	
 }
 //------------------------------------------------------------------------
 // updateVisibility()
