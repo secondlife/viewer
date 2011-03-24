@@ -867,7 +867,6 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 			LLFirstUse::notUsingDestinationGuide(false);
 			avatar_btn->setToggleState(false);
 			destination_btn->setToggleState(true);
-			return;
 		}
 		break;
 	case 1:
@@ -878,18 +877,17 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 			avatar_picker->setVisible(true);
 			avatar_btn->setToggleState(true);
 			destination_btn->setToggleState(false);
-			return;
 		}
 		break;
 	default:
-		break;
-	}
-
 	container->setVisible(false);
 	destinations->setVisible(false);
 	avatar_picker->setVisible(false);
 	avatar_btn->setToggleState(false);
 	destination_btn->setToggleState(false);
+		break;
+	}
+	gSavedSettings.setS32("DestinationsAndAvatarsVisibility", panel_idx);
 };
 
 

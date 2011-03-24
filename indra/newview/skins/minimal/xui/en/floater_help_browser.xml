@@ -8,12 +8,12 @@
  min_height="360"
  left="645"
  top="10" 
- min_width="300"
+ min_width="345"
  name="floater_help_browser"
  save_rect="true"
  single_instance="true"
  title="HOW TO"
- width="300">
+ width="335">
     <floater.string
      name="loading_text">
         Loading...
@@ -29,14 +29,14 @@
      orientation="vertical" 
      name="stack1"
      top="20"
-     width="290">
+     width="325">
         <layout_panel
          layout="topleft"
          left_delta="0"
          top_delta="0"
          name="external_controls"
          user_resize="false"
-         width="280">
+         width="325">
             <web_browser
               trusted_content="true" 
              bottom="-5"
@@ -46,7 +46,7 @@
              name="browser"
              top="0"
              height="300"
-             width="280" />
+             width="325" />
         </layout_panel>
     </layout_stack>
 </floater>

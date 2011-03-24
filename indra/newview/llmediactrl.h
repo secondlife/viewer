@@ -63,6 +63,7 @@ public:
 
 		Optional<std::string>	initial_mime_type;
 		Optional<std::string>	media_id;
+		Optional<std::string>	error_page_url;
 		
 		Params();
 	};
@@ -113,10 +114,9 @@ public:
 
 		void setTarget(const std::string& target);
 
-		// set/clear URL to visit when a 404 page is reached
-		void set404RedirectUrl( std::string redirect_url );
-		void clr404RedirectUrl();
-		
+		void setErrorPageURL(const std::string& url);
+		const std::string& getErrorPageURL();
+
 		// Clear the browser cache when the instance gets loaded
 		void clearCache();
 
@@ -179,6 +179,7 @@ public:
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;
+		std::string mErrorPageURL;
 		std::string mTarget;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;
