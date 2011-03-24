@@ -40,6 +40,7 @@
 #include "llviewerregion.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "lltoolgrab.h"
 
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
@@ -56,6 +57,11 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("requestStand",
         "Ask to stand up",
         &LLAgentListener::requestStand);
+    add("requestTouch",
+		"[\"obj_uuid\"]: id of object to touch, use this or [\"position\"] to indicate the object to touch"
+		"[\"position\"]: region position {x, y, z} where to find closest object to touch"
+		"[\"face\"]: optional object face number to touch[Default: 0]",
+        &LLAgentListener::requestTouch);
     add("resetAxes",
         "Set the agent to a fixed orientation (optionally specify [\"lookat\"] = array of [x, y, z])",
         &LLAgentListener::resetAxes);
@@ -168,6 +174,75 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 {
     mAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
+
+void LLAgentListener::requestTouch(LLSD const & event_data) const
+{
+	LLViewerObject *object = NULL;
+	
+	if (event_data.has("obj_uuid"))
+	{
+		object = gObjectList.findObject(event_data["obj_uuid"]);
+	}
+	else if (event_data.has("position"))
+	{
+		LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+
+		// Find the object closest to that position
+		F32 min_distance = 10000.0f;		// Start big
+		S32 num_objects = gObjectList.getNumObjects();
+		S32 cur_index = 0;
+		while (cur_index < num_objects)
+		{
+			LLViewerObject * cur_object = gObjectList.getObject(cur_index++);
+			if (cur_object)
+			{	// Calculate distance from the target position
+				LLVector3 target_diff = cur_object->getPositionRegion() - target_position;
+				F32 distance_to_target = target_diff.length();
+				if (distance_to_target < min_distance)
+				{	// Found an object closer
+					min_distance = distance_to_target;
+					object = cur_object;
+				}
+			}
+		}
+	}
+
+	S32 face = 0;
+	if (event_data.has("face"))
+	{
+		face = event_data["face"].asInteger();
+	}
+
+    if (object && object->getPCode() == LL_PCODE_VOLUME)
+    {
+		// Fake enough pick info to get it to (hopefully) work
+		LLPickInfo pick;
+		pick.mObjectFace = face;
+
+		/*
+		These values are sent to the simulator, but face seems to be easiest to use
+
+		pick.mUVCoords	 "UVCoord"
+		pick.mSTCoords	"STCoord"	
+		pick.mObjectFace	"FaceIndex"
+		pick.mIntersection	"Position"
+		pick.mNormal	"Normal"
+		pick.mBinormal	"Binormal"
+		*/
+
+		// A touch is a sketchy message sequence ... send a grab, immediately
+		// followed by un-grabbing, crossing fingers and hoping packets arrive in
+		// the correct order
+		send_ObjectGrab_message(object, pick, LLVector3::zero);
+		send_ObjectDeGrab_message(object, pick);
+    }
+	else
+	{
+		llwarns << "LLAgent requestTouch could not find the touch target " 
+			<< event_data["obj_uuid"].asUUID() << llendl;
+	}
+}
+
 
 void LLAgentListener::resetAxes(const LLSD& event) const
 {
