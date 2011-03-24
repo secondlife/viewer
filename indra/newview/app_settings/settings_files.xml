@@ -1,148 +1,64 @@
-<llsd>
-  <map>
-    <key>Locations</key>
-    <map>
-      <!--
-      The Locations LLSD block specifies the usage pattern of 
-      the settings file types
-      Each location is represented by a LLSD containing the following values:
-      PathIndex = hard coded path indicies.
-      Files = map of files to load
-        Each file can have:
-        Requirement = level of necessity for loading. 
-          0 ( or Req. no key) = do not load
-          1 = required, fail if not found
-        NameFromSetting = Use the given setting to specify the name. Not valid for
-                          "Default"
-      -->
-      <key>Comment</key>
-      <string>List location from which to load files, and the rules about loading those files.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>LLSD</string>
-      <key>Value</key>
-      <map>
-        <key>Default</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>2</integer>
-          <key>Files</key>
-          <map>
-            <key>Global</key>
-            <map>
-              <key>Name</key>
-              <string>settings.xml</string>
-              <key>Requirement</key>
-              <integer>1</integer>
-            </map>
-            <key>PerAccount</key>
-            <map>
-              <key>Name</key>
-              <string>settings_per_account.xml</string>
-              <key>Requirement</key>
-              <integer>1</integer>
-            </map>
-            <key>CrashSettings</key>
-            <map>
-              <key>Name</key>
-              <string>settings_crash_behavior.xml</string>
-              <key>Requirement</key>
-              <integer>1</integer>
-            </map>
-            <key>Warnings</key>
-            <map>
-              <key>Name</key>
-              <string>ignorable_dialogs.xml</string>
-              <key>Requirement</key>
-              <integer>1</integer>
-            </map>
-          </map>
-        </map>
-        <key>User</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>1</integer>
-          <key>Files</key>
-          <map>
-            <key>Global</key>
-            <map>
-              <key>Name</key>
-              <string>settings.xml</string>
-              <key>NameFromSetting</key>
-              <string>ClientSettingsFile</string>
-            </map>
-            <key>CrashSettings</key>
-            <map>
-              <key>Name</key>
-              <string>settings_crash_behavior.xml</string>
-            </map>
-            <key>Warnings</key>
-            <map>
-              <key>Name</key>
-              <string>ignorable_dialogs.xml</string>
-              <key>NameFromSetting</key>
-              <string>WarningSettingsFile</string>
-            </map>
-          </map>
-        </map>
-        <key>Account</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>3</integer>
-          <key>Files</key>
-          <map>
-            <key>PerAccount</key>
-            <map>
-              <key>Name</key>
-              <string>settings_per_account.xml</string>
-              <key>NameFromSetting</key>
-              <string>PerAccountSettingsFile</string>
-            </map>
-          </map>
-        </map>
-        <key>DefaultSkin</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>17</integer>
-          <key>Files</key>
-          <map>
-            <key>Skinning</key>
-            <map>
-              <key>Name</key>
-              <string>colors.xml</string>
-            </map>
-          </map>
-        </map>
-        <key>CurrentSkin</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>10</integer>
-          <key>Files</key>
-          <map>
-            <key>Skinning</key>
-            <map>
-              <key>Name</key>
-              <string>colors.xml</string>
-            </map>
-          </map>
-        </map>
-        <key>UserSkin</key>
-        <map>
-          <key>PathIndex</key>
-          <integer>14</integer>
-          <key>Files</key>
-          <map>
-            <key>Skinning</key>
-            <map>
-              <key>Name</key>
-              <string>colors.xml</string>
-              <key>NameFromSetting</key>
-              <string>SkinningSettingsFile</string>
-            </map>
-          </map>
-        </map>
-      </map>
-    </map>
-  </map>
-</llsd>
+<settings_files>
+  <group name="Default"
+         path_index="2">
+    <file name="Global"
+          file_name="settings.xml"
+          required="true"/>
+    <file name="PerAccount"
+          file_name="settings_per_account.xml"
+          required="true"/>
+    <file name="CrashSettings"
+          file_name="settings_crash_behavior.xml"
+          required="true"/>
+    <file name="Warnings"
+          file_name="ignorable_dialogs.xml"
+          required="true"/>
+  </group>
+  <group name="User"
+         path_index="1">
+    <file name="Global"
+          file_name="settings.xml"
+          file_name_setting="ClientSettingsFile"/>
+    <file name="CrashSettings"
+          file_name="settings_crash_behavior"/>
+    <file name="Warnings"
+          file_name="ignorable_dialogs.xml"
+          file_name_setting="WarningSettingsFile"/>
+  </group>
+  <group name="Account"
+         path_index="3">
+    <file name="PerAccount"
+          file_name="settings_per_account.xml"
+          file_name_setting="PerAccountSettingsFile"/>
+  </group>
+  <group name="Session"
+         path_index="2">
+      <file name="Global"
+            file_name="session.xml" 
+            file_name_setting="SessionSettingsFile"
+            persistent="false"/>
+  </group>
+  <group name="UserSession"
+         path_index="1">
+    <file name="Global"
+          file_name="session.xml" 
+          file_name_setting="UserSessionSettingsFile"
+          persistent="false"/>
+  </group>
+  <group name="DefaultSkin"
+         path_index="17">
+    <file name="Skinning"
+          file_name="colors.xml"/>
+  </group>
+  <group name="CurrentSkin"
+         path_index="10">
+    <file name="Skinning"
+          file_name="colors.xml"/>
+  </group>
+  <group name="UserSkin"
+         path_index="14">
+    <file name="Skinning"
+          file_name="colors.xml"
+          file_name_setting="SkinningSettingsFile"/>
+  </group>
+</settings_files>

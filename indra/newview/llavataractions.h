@@ -93,6 +93,8 @@ public:
 	 * Show avatar profile.
 	 */
 	static void showProfile(const LLUUID& id);
+	static void hideProfile(const LLUUID& id);
+	static bool profileVisible(const LLUUID& id);
 
 	/**
 	 * Show avatar on world map.

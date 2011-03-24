@@ -247,6 +247,7 @@ set(viewer_SOURCE_FILES
     llhudeffectlookat.cpp
     llhudeffectpointat.cpp
     llhudeffecttrail.cpp
+    llhudeffectblob.cpp
     llhudicon.cpp
     llhudmanager.cpp
     llhudnametag.cpp
@@ -788,6 +789,7 @@ set(viewer_HEADER_FILES
     llhudeffectlookat.h
     llhudeffectpointat.h
     llhudeffecttrail.h
+    llhudeffectblob.h
     llhudicon.h
     llhudmanager.h
     llhudnametag.h
@@ -1300,21 +1302,19 @@ endif (WINDOWS)
 set(viewer_XUI_FILES
     skins/default/colors.xml
     skins/default/textures/textures.xml
+    skins/minimal/colors.xml
+    skins/minimal/textures/textures.xml
 
 
 
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
 
 file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en/widgets/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
-
-file(GLOB SILVER_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/*.xml)
-list(APPEND viewer_XUI_FILES ${SILVER_XUI_FILE_GLOB_LIST})
 
 # Cannot append empty lists in CMake, wait until we have files here.
 #file(GLOB SILVER_WIDGET_FILE_GLOB_LIST
@@ -1345,6 +1345,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_per_account.xml
+    app_settings/settings_minimal.xml
     app_settings/std_bump.ini
     app_settings/trees.xml
     app_settings/ultra_graphics.xml

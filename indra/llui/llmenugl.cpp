@@ -1936,9 +1936,15 @@ bool LLMenuGL::scrollItems(EScrollingDirection direction)
 	{
 		item_list_t::reverse_iterator first_visible_item_iter = mItems.rend();
 
+		// Need to scroll through number of actual existing items in menu.
+		// Otherwise viewer will hang for a time needed to scroll U32_MAX
+		// times in std::advance(). STORM-659.
+		size_t nitems = mItems.size();
+		U32 scrollable_items = nitems < mMaxScrollableItems ? nitems : mMaxScrollableItems;
+
 		// Advance by mMaxScrollableItems back from the end of the list
 		// to make the last item visible.
-		std::advance(first_visible_item_iter, mMaxScrollableItems);
+		std::advance(first_visible_item_iter, scrollable_items);
 		mFirstVisibleItem = *first_visible_item_iter;
 		break;
 	}

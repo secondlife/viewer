@@ -35,7 +35,7 @@
 // system includes
 #include <boost/tokenizer.hpp>
 
-#define THROTTLE_PERIOD    15    // required secs between throttled commands
+#define THROTTLE_PERIOD    5    // required secs between throttled commands
 
 static LLCommandDispatcherListener sCommandDispatcherListener;
 
