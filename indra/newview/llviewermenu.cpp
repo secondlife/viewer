@@ -6402,12 +6402,12 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else if (action == "start")
 		{
 			name = "start_queue";
-			msg = "Running";
+			msg = "SetRunning";
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
-			msg = "RunningNot";
+			msg = "SetRunningNot";
 		}
 		LLUUID id; id.generate();
 		
