@@ -1140,6 +1140,8 @@ void LLPanelObject::getState( )
 
 	if (selected_item == MI_SCULPT)
 	{
+
+
         LLUUID id;
 		LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 
@@ -1169,10 +1171,12 @@ void LLPanelObject::getState( )
 			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
 			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
 			
+			mComboBaseType->setEnabled(!isMesh);
+			
 			if (mCtrlSculptType)
 			{
 				mCtrlSculptType->setCurrentByIndex(sculpt_stitching);
-				mCtrlSculptType->setEnabled(editable);
+				mCtrlSculptType->setEnabled(editable && !isMesh);
 			}
 
 			if (mCtrlSculptMirror)
@@ -1924,6 +1928,7 @@ void LLPanelObject::refresh()
 	}
 	
 	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
+					   gAgent.getRegion() &&
 					   !gAgent.getRegion()->getCapability("GetMesh").empty();
 
 	getChildView("label physicsshapetype")->setVisible(enable_mesh);
@@ -1940,15 +1945,14 @@ void LLPanelObject::refresh()
 	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
 	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
 
-	LLComboBox* sculpt_combo = getChild<LLComboBox>("sculpt type control");
-	BOOL found = sculpt_combo->itemExists("Mesh");
+	BOOL found = mCtrlSculptType->itemExists("Mesh");
 	if (enable_mesh && !found)
 	{
-		sculpt_combo->add("Mesh");
+		mCtrlSculptType->add("Mesh");
 	}
 	else if (!enable_mesh && found)
 	{
-		sculpt_combo->remove("Mesh");
+		mCtrlSculptType->remove("Mesh");
 	}
 }
 
