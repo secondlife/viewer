@@ -19,7 +19,6 @@
              function="CheckControl"
              parameter="EnableVoiceChat" />
     </menu_item_check>
-    <menu_item_separator/>
     <menu_item_check
          label="Gesture button"
          layout="topleft"
