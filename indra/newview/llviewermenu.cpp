@@ -880,11 +880,11 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 		}
 		break;
 	default:
-	container->setVisible(false);
-	destinations->setVisible(false);
-	avatar_picker->setVisible(false);
-	avatar_btn->setToggleState(false);
-	destination_btn->setToggleState(false);
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(false);
 		break;
 	}
 	gSavedSettings.setS32("DestinationsAndAvatarsVisibility", panel_idx);
