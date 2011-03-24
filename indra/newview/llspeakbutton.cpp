@@ -183,6 +183,5 @@ void LLSpeakButton::onMouseUp_SpeakBtn()
 {
 	bool down = false;
 	LLVoiceClient::getInstance()->inputUserControlState(down);
-	LLFirstUse::speak(false);
 }
 
