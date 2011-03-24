@@ -88,9 +88,16 @@ bool translate_init(std::string comma_delim_path_list,
 	std::vector<std::string> paths;
 	LLStringUtil::getTokens(comma_delim_path_list, paths, ","); // split over ','
 
+	for(std::vector<std::string>::iterator it = paths.begin(), end_it = paths.end();
+		it != end_it;
+		++it)
+	{
+		(*it) = gDirUtilp->findSkinnedFilename(*it, base_xml_name);
+	}
+
 	// suck the translation xml files into memory
 	LLXMLNodePtr root;
-	bool success = LLXMLNode::getLayeredXMLNode(base_xml_name, root, paths);
+	bool success = LLXMLNode::getLayeredXMLNode(root, paths);
 	if (!success)
 	{
 		// couldn't load string table XML

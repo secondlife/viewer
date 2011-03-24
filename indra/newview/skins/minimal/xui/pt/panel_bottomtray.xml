@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
+	<string name="SpeakBtnToolTip" value="Liga e desliga o microfone"/>
+	<string name="VoiceControlBtnToolTip" value="Mostra/oculta os controles de voz"/>
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="gesture_panel">
+			<gesture_combo_list label="Gesto" name="Gesture" tool_tip="Mostra/oculta os gestos"/>
+		</layout_panel>
+		<layout_panel name="cam_panel">
+			<bottomtray_button label="Exibir" name="camera_btn" tool_tip="Mostra/oculta os controles da câmera"/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<bottomtray_button label="Destinos" name="destination_btn" tool_tip="Exibe janela de pessoas"/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<bottomtray_button label="Meu avatar" name="avatar_btn"/>
+		</layout_panel>
+		<layout_panel name="people_panel">
+			<bottomtray_button label="Pessoas" name="show_people_button" tool_tip="Exibe as pessoas"/>
+		</layout_panel>
+		<layout_panel name="profile_panel">
+			<bottomtray_button label="Perfil" name="show_profile_btn" tool_tip="Exibe o perfil"/>
+		</layout_panel>
+		<layout_panel name="howto_panel">
+			<bottomtray_button label="Como..." name="show_help_btn" tool_tip="Abrir &quot;Como...&quot; do Second Life"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="Conversas"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Notificações"/>
+			</chiclet_notification>
+		</layout_panel>
+	</layout_stack>
+</panel>

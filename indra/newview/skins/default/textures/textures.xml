@@ -115,6 +115,7 @@ with the same filename but different name
   
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
+  <texture name="ChatBarHandle" file_name="bottomtray/ChatBarHandle.png" preload="false" />
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
   <texture name="DownArrow_Off" file_name="icons/DownArrow_Off.png" preload="false" />
   <texture name="Dragbar" file_name="windows/Dragbar.png" preload="false" scale.left="35" scale.top="5" scale.right="29" scale.bottom="5" />
@@ -672,4 +673,5 @@ with the same filename but different name
 
   <texture name="Yellow_Gradient" file_name="windows/yellow_gradient.png"/>
   <texture name="Popup_Caution" file_name="icons/pop_up_caution.png"/>
+  <texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.png"/>
 </textures>

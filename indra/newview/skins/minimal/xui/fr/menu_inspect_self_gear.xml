@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
+	<menu_item_call label="Me lever" name="Stand Up"/>
+	<menu_item_call label="Mes amis" name="Friends..."/>
+	<menu_item_call label="Mon profil" name="Profile..."/>
+	<menu_item_call label="Déboguer les textures" name="Debug..."/>
+</toggleable_menu>
