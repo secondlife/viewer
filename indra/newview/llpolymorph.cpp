@@ -59,6 +59,37 @@ LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
 	mMesh = NULL;
 }
 
+LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
+	mName(rhs.mName),
+	mNumIndices(rhs.mNumIndices),
+	mTotalDistortion(rhs.mTotalDistortion),
+	mAvgDistortion(rhs.mAvgDistortion),
+	mMaxDistortion(rhs.mMaxDistortion),
+	mVertexIndices(NULL),
+	mCoords(NULL),
+	mNormals(NULL),
+	mBinormals(NULL),
+	mTexCoords(NULL)
+{
+	const S32 numVertices = mNumIndices;
+
+	mCoords = new LLVector3[numVertices];
+	mNormals = new LLVector3[numVertices];
+	mBinormals = new LLVector3[numVertices];
+	mTexCoords = new LLVector2[numVertices];
+	mVertexIndices = new U32[numVertices];
+	
+	for (S32 v=0; v < numVertices; v++)
+	{
+		mCoords[v] = rhs.mCoords[v];
+		mNormals[v] = rhs.mNormals[v];
+		mBinormals[v] = rhs.mBinormals[v];
+		mTexCoords[v] = rhs.mTexCoords[v];
+		mVertexIndices[v] = rhs.mVertexIndices[v];
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // ~LLPolyMorphData()
 //-----------------------------------------------------------------------------

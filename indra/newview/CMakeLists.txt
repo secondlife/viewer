@@ -96,7 +96,6 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
-    llbreastmotion.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
@@ -380,6 +379,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llphysicsmotion.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
     llpopupview.cpp
@@ -637,7 +637,6 @@ set(viewer_HEADER_FILES
     llbottomtray.h
     llbox.h
     llbreadcrumbview.h
-    llbreastmotion.h
     llbuycurrencyhtml.h
     llcallbacklist.h
     llcallfloater.h
@@ -916,6 +915,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llphysicsmotion.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
     llpolymesh.h
