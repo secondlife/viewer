@@ -856,38 +856,36 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
 	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
-	switch(panel_idx)
-	{
-	case 0:
-		if (!destinations->getVisible())
-		{
-			container->setVisible(true);
-			destinations->setVisible(true);
-			avatar_picker->setVisible(false);
-			LLFirstUse::notUsingDestinationGuide(false);
-			avatar_btn->setToggleState(false);
-			destination_btn->setToggleState(true);
-		}
-		break;
-	case 1:
-		if (!avatar_picker->getVisible())
-		{	
-			container->setVisible(true);
-			destinations->setVisible(false);
-			avatar_picker->setVisible(true);
-			avatar_btn->setToggleState(true);
-			destination_btn->setToggleState(false);
-		}
-		break;
-	default:
+	if (panel_idx == 0
+		&& !destinations->getVisible())
+	{	// opening destinations guide
+		container->setVisible(true);
+		destinations->setVisible(true);
+		avatar_picker->setVisible(false);
+		LLFirstUse::notUsingDestinationGuide(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(true);
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 0);
+	}
+	else if (panel_idx == 1 
+		&& !avatar_picker->getVisible())
+	{	// opening avatar picker
+		container->setVisible(true);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(true);
+		avatar_btn->setToggleState(true);
+		destination_btn->setToggleState(false);
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 1);
+	}
+	else
+	{	// toggling off dest guide or avatar picker
 		container->setVisible(false);
 		destinations->setVisible(false);
 		avatar_picker->setVisible(false);
 		avatar_btn->setToggleState(false);
 		destination_btn->setToggleState(false);
-		break;
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", -1);
 	}
-	gSavedSettings.setS32("DestinationsAndAvatarsVisibility", panel_idx);
 };
 
 
