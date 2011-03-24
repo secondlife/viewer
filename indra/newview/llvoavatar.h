@@ -295,6 +295,7 @@ public:
 	void				setPelvisOffset( bool hasOffset, const LLVector3& translation, F32 offset ) ;
 	bool				hasPelvisOffset( void ) { return mHasPelvisOffset; }
 	void				postPelvisSetRecalc( void );
+	void				setPelvisOffset( F32 pelvixFixupAmount );
 
 	bool				mHasPelvisOffset;
 	LLVector3			mPelvisOffset;

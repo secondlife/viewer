@@ -393,7 +393,7 @@
         Pelvis Offset:
       </text>
 
-      <spinner left="10" top_pad="4" height="20" follows="top|left" width="80" value="0.0" min_val="0.00" max_val="32.0" name="pelvis_offset"/>
+      <spinner left="10" top_pad="4" height="20" follows="top|left" width="80" value="0.0" min_val="0.00" max_val="8.0" name="pelvis_offset"/>
 
     </panel>
   </tab_container>
