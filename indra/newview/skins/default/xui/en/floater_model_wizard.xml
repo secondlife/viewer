@@ -49,6 +49,24 @@
 	 top="32"
 	 left="210"
 	 height="32"
+	 name="physics2_btn"
+	 label="3. Physics"
+	 tab_stop="false"
+	 enabled="false"
+	 border="false"
+	 image_unselected="BreadCrumbBtn_Middle_Off"
+	 image_selected="BreadCrumbBtn_Middle_Press"
+	 image_hover_unselected="BreadCrumbBtn_Middle_Over"
+	 image_disabled="BreadCrumbBtn_Middle_Disabled"
+	 image_disabled_selected="BreadCrumbBtn_Middle_Disabled"
+	 width="110">
+		<button.commit_callback
+		function="Wizard.Physics2"/>
+	</button>
+	<button
+	 top="32"
+	 left="210"
+	 height="32"
 	 name="physics_btn"
 	 label="3. Physics"
 	 tab_stop="false"
@@ -101,7 +119,7 @@
 		 height="388"
 		 top_pad="0"
 		 name="choose_file_panel"
-		 visible="true"
+		 visible="false"
 		 width="530"
 		 left="0">
 		<panel
@@ -504,8 +522,6 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		</panel>
 	</panel>
 
-
-
 	<panel
 		 height="388"
 		 top_delta="0"
@@ -596,6 +612,134 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
     </panel>
 	</panel>
 
+	<panel
+		 height="388"
+		 top_delta="0"
+		 name="physics2_panel"
+		 visible="true"
+		 width="530"
+		 left="0">
+		<panel
+		 height="20"
+		 top_pad="20"
+		 name="header_panel"
+		 width="500"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true"
+		 left="20">
+			<text
+			 width="200"
+			 left="10"
+			 name="header_text"
+			 top="2"
+			 height="10"
+			 font="SansSerifBig"
+			 layout="topleft">
+				Physics
+			</text>
+		</panel>
+		<text
+		 top_pad="14"
+		 width="460"
+		 height="50"
+		 font="SansSerifSmall"
+		 layout="topleft"
+		 name="description"
+		 word_wrap="true"
+		 left_delta="0">
+			Preview the physics shpae below then click Next to continue.  To modify the physics shape, click the Back button.
+		</text>
+		<panel
+			 top_delta="40"
+			 left="15"
+			 height="265"
+			 width="500"
+			 name="content"
+			 bg_opaque_color="DkGray2"
+			 background_visible="true"
+			 background_opaque="true">
+			<text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
+				Model Preview:
+			</text>
+			<combo_box left_pad="5" top_delta="-5"  follows="left|top" list_position="below" height="22"
+			   name="preview_lod_combo3" width="90" tool_tip="LOD to view in preview render">
+				<combo_item name="high">
+					High
+				</combo_item>
+				<combo_item name="medium">
+					Medium
+				</combo_item>
+				<combo_item name="lowest">
+					Lowest
+				</combo_item>
+				<combo_item name="low">
+					Low
+				</combo_item>
+			</combo_box>
+			<panel
+					   left="10"
+					   top_pad="10"
+					   name="preview_panel"
+					   bevel_style="none"
+					   highlight_light_color="0.09 0.09 0.09 1"
+					   border_style="line"
+					   border="true"
+					   height="190"
+					   follows="all"
+					   width="190">
+			</panel>
+			<text
+						 top_pad="8"
+						 width="130"
+						 height="14"
+						 left="10"
+						 text_color="White"
+						 word_wrap="true">
+				Dimensions (meters):
+			</text>
+			<text
+			 top_pad="0"
+			 width="160"
+			 height="15"
+			 font="SansSerifSmallBold"
+			 text_color="White"
+			 name="dimensions"
+			 left_delta="0">
+				X:         Y:         Z:
+			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_dividers"
+			 left_delta="41">
+				|               |
+			</text>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_x"
+			 left_delta="-25"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_y"
+			 left_delta="46"/>
+			<text
+			 top_delta="0"
+			 width="160"
+			 height="15"
+			 name="dimension_z"
+			 left_delta="46"/>
+			<text top="140" width="180" text_color="White" left="240" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
+			<text top_delta="26" width="180" text_color="White" left_delta="0" name="physics cost"  height="20">Physics Cost:           [COST]</text>
+			<text top_delta="26" width="180" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
+
+		</panel>
+	</panel>
 
 	<panel
 		 height="388"

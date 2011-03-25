@@ -4518,8 +4518,11 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		mFMP->childSetTextArg("lod_table_footer", "[DETAIL]", mFMP->getString(lod_name[mPreviewLOD]));
 		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
 
-		// the wizard has two lod drop downs
+		// the wizard has three lod drop downs
 		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
+		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
+		
+		LLComboBox* combo_box3 = mFMP->getChild<LLComboBox>("preview_lod_combo3");
 		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
 
 		LLColor4 highlight_color = LLUIColorTable::instance().getColor("MeshImportTableHighlightColor");
