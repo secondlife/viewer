@@ -307,10 +307,12 @@ BOOL LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
 BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	if (LLPanel::handleRightMouseDown(x, y, mask)) return TRUE;
-	convertInputCoords(x, y);
+
+	S32 media_x = x, media_y = y;
+	convertInputCoords(media_x, media_y);
 
 	if (mMediaSource)
-		mMediaSource->mouseDown(x, y, mask, 1);
+		mMediaSource->mouseDown(media_x, media_y, mask, 1);
 	
 	gFocusMgr.setMouseCapture( this );
 

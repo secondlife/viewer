@@ -4,8 +4,7 @@
   <menu_item_call
    label="Cut"
    layout="topleft"
-   name="Cut"
-   shortcut="control|X">
+   name="Cut">
     <menu_item_call.on_click
      function="Edit.Cut" />
     <menu_item_call.on_enable
@@ -14,8 +13,7 @@
   <menu_item_call
    label="Copy"
    layout="topleft"
-   name="Copy"
-   shortcut="control|C">
+   name="Copy">
     <menu_item_call.on_click
      function="Edit.Copy" />
     <menu_item_call.on_enable
@@ -24,8 +22,7 @@
   <menu_item_call
    label="Paste"
    layout="topleft"
-   name="Paste"
-   shortcut="control|V">
+   name="Paste">
     <menu_item_call.on_click
      function="Edit.Paste" />
     <menu_item_call.on_enable
