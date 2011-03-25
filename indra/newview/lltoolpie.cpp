@@ -528,7 +528,26 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (!mMouseOutsideSlop 
+	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	LLViewerObject *parent = NULL;
+	LLViewerObject *object = mHoverPick.getObject();
+	if (object)
+	{
+		parent = object->getRootEdit();
+	}
+
+	// Show screen-space highlight glow effect
+	bool show_highlight = false;
+
+	if (handleMediaHover(mHoverPick))
+	{
+		// *NOTE: If you think the hover glow conflicts with the media outline, you
+		// could disable it here.
+		show_highlight = true;
+		// cursor set by media object
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	else if (!mMouseOutsideSlop 
 		&& mMouseButtonDown 
 		&& gSavedSettings.getBOOL("ClickToWalk"))
 	{
@@ -538,71 +557,58 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		if (delta_x * delta_x + delta_y * delta_y > threshold * threshold)
 		{
 			startCameraSteering();
+			steerCameraWithMouse(x, y);
+			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
+		}
+		else
+		{
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		}
 	}
-
-	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
-
-	if (inCameraSteerMode())
+	else if (inCameraSteerMode())
 	{
 		steerCameraWithMouse(x, y);
 		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
-		return TRUE;
-	}
-
-	// perform a separate pick that detects transparent objects since they respond to 1-click actions
-	LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
-
-	// Show screen-space highlight glow effect
-	bool show_highlight = false;
-	LLViewerObject *parent = NULL;
-	LLViewerObject *object = mHoverPick.getObject();
-
-	if (object)
-	{
-		parent = object->getRootEdit();
-	}
-
-	LLViewerObject* click_action_object = click_action_pick.getObject();
-	if (handleMediaHover(mHoverPick))
-	{
-		// *NOTE: If you think the hover glow conflicts with the media outline, you
-		// could disable it here.
-		show_highlight = true;
-		// cursor set by media object
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	else if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
-	{
-		show_highlight = true;
-		ECursorType cursor = cursorFromObject(click_action_object);
-		gViewerWindow->setCursor(cursor);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	
-	else if ((object && !object->isAvatar() && object->usePhysics()) 
-			 || (parent && !parent->isAvatar() && parent->usePhysics()))
-	{
-		show_highlight = true;
-		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	else if ( (object && object->flagHandleTouch()) 
-			  || (parent && parent->flagHandleTouch()))
-	{
-		show_highlight = true;
-		gViewerWindow->setCursor(UI_CURSOR_HAND);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else
 	{
-		gViewerWindow->setCursor(UI_CURSOR_ARROW);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+		// perform a separate pick that detects transparent objects since they respond to 1-click actions
+		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
 
-		if(!object)
+		LLViewerObject* click_action_object = click_action_pick.getObject();
+
+		if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
 		{
-			LLViewerMediaFocus::getInstance()->clearHover();
+			show_highlight = true;
+			ECursorType cursor = cursorFromObject(click_action_object);
+			gViewerWindow->setCursor(cursor);
+			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 		}
+		
+		else if ((object && !object->isAvatar() && object->usePhysics()) 
+				 || (parent && !parent->isAvatar() && parent->usePhysics()))
+		{
+			show_highlight = true;
+			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
+			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+		}
+		else if ( (object && object->flagHandleTouch()) 
+				  || (parent && parent->flagHandleTouch()))
+		{
+			show_highlight = true;
+			gViewerWindow->setCursor(UI_CURSOR_HAND);
+			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+		}
+		else
+		{
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
+			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+		}
+	}
+
+	if(!object)
+	{
+		LLViewerMediaFocus::getInstance()->clearHover();
 	}
 
 	static LLCachedControl<bool> enable_highlight(
@@ -1430,6 +1436,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 		{
 			// Make sure keyboard focus is set to the media focus object.
 			gFocusMgr.setKeyboardFocus(LLViewerMediaFocus::getInstance());
+			LLEditMenuHandler::gEditMenuHandler = LLViewerMediaFocus::instance().getFocusedMediaImpl();
 			
 			media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(TRUE));
 			mMediaMouseCaptureID = mep->getMediaID();

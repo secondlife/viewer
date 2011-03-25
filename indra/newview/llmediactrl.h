@@ -34,6 +34,7 @@
 
 class LLViewBorder;
 class LLUICtrlFactory;
+class LLContextMenu;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -195,6 +196,7 @@ public:
 		bool mClearCache;
 		class LLWindowShade* mWindowShade;
 		bool mHoverTextChanged;
+		LLContextMenu* mContextMenu;
 };
 
 #endif // LL_LLMediaCtrl_H

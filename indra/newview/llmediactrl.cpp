@@ -44,6 +44,7 @@
 #include "llslurl.h"
 #include "lluictrlfactory.h"	// LLDefaultChildRegistry
 #include "llkeyboard.h"
+#include "llviewermenu.h"
 
 // linden library includes
 #include "llfocusmgr.h"
@@ -106,7 +107,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mErrorPageURL(p.error_page_url),
 	mTrusted(p.trusted_content),
 	mWindowShade(NULL),
-	mHoverTextChanged(false)
+	mHoverTextChanged(false),
+	mContextMenu(NULL)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -151,6 +153,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 LLMediaCtrl::~LLMediaCtrl()
 {
+	delete mContextMenu;
 
 	if (mMediaSource)
 	{
@@ -318,6 +321,12 @@ BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		setFocus( TRUE );
 	}
 
+	if (mContextMenu)
+	{
+		mContextMenu->show(x, y);
+		LLMenuGL::showPopup(this, mContextMenu, x, y);
+	}
+
 	return TRUE;
 }
 
@@ -380,6 +389,8 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
+	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
 	return TRUE;
 }

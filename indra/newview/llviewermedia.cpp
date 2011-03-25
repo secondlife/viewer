@@ -2543,23 +2543,7 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
 		if( MASK_CONTROL & mask )
 		{
-			if( 'C' == key )
-			{
-				mMediaSource->copy();
-				result = true;
-			}
-			else
-			if( 'V' == key )
-			{
-				mMediaSource->paste();
-				result = true;
-			}
-			else
-			if( 'X' == key )
-			{
-				mMediaSource->cut();
-				result = true;
-			}
+			result = true;
 		}
 		
 		if(!result)

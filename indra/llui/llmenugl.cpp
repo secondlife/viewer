@@ -3099,9 +3099,6 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
 	menu->translateIntoRectWithExclusion( menu_region_rect, mouse_rect, FALSE );
 	menu->getParent()->sendChildToFront(menu);
-
-
-
 }
 
 ///============================================================================
