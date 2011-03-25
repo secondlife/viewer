@@ -1873,8 +1873,7 @@ void LLModelLoader::loadModelCallback()
 {
 	if (mPreview)
 	{
-		mPreview->loadModelCallback(mLod);
-		mPreview->mModelLoader = NULL;
+		mPreview->loadModelCallback(mLod);	
 	}
 
 	while (!isStopped())
@@ -2494,8 +2493,13 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_hulls = 0;
 
 	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
-	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 32.0f;
+	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 8.0f;
 	
+	//if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
+	//{
+	//	gAgentAvatarp->setPelvisOffset( mPelvisZOffset );
+	//}
+
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;
 	for (U32 i = 0; i < mUploadData.size(); ++i)
@@ -2990,8 +2994,12 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 void LLModelPreview::resetPreviewTarget()
 {
-	mPreviewTarget = (mModelLoader->mExtents[0] + mModelLoader->mExtents[1]) * 0.5f;
-	mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
+	if ( mModelLoader )
+	{
+		mPreviewTarget = (mModelLoader->mExtents[0] + mModelLoader->mExtents[1]) * 0.5f;
+		mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
+	}
+
 	setPreviewTarget(mPreviewScale.magVec()*2.f);
 }
 
