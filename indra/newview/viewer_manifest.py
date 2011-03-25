@@ -958,6 +958,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenal.so")
             self.path("libopenal.so.1")
             self.path("libopenal.so.1.12.854")
+            self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             self.path("libfontconfig.so.1.4.4")
             try:
                     self.path("libfmod-3.75.so")
@@ -974,7 +975,7 @@ class Linux_i686Manifest(LinuxManifest):
             if self.prefix(src="../packages/lib/release", dst="lib"):
                     self.path("libortp.so")
                     self.path("libsndfile.so.1")
-                    self.path("libvivoxoal.so.1")
+                    #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
