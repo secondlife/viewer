@@ -1037,18 +1037,29 @@ void LLFloaterUIPreview::onClickEditFloater()
 			cmd_override = bin + " " + args;
 		}
 	}
-	if (!mExternalEditor.setCommand("LL_XUI_EDITOR", cmd_override))
+
+	LLExternalEditor::EErrorCode status = mExternalEditor.setCommand("LL_XUI_EDITOR", cmd_override);
+	if (status != LLExternalEditor::EC_SUCCESS)
 	{
-		std::string warning = "Select an editor by setting the environment variable LL_XUI_EDITOR "
-			"or the ExternalEditor setting or specifying its path in the \"Editor Path\" field.";
+		std::string warning;
+
+		if (status == LLExternalEditor::EC_NOT_SPECIFIED) // Use custom message for this error.
+		{
+			warning = getString("ExternalEditorNotSet");
+		}
+		else
+		{
+			warning = LLExternalEditor::getErrorMessage(status);
+		}
+
 		popupAndPrintWarning(warning);
 		return;
 	}
 
 	// Run the editor.
-	if (!mExternalEditor.run(file_path))
+	if (mExternalEditor.run(file_path) != LLExternalEditor::EC_SUCCESS)
 	{
-		popupAndPrintWarning("Failed to run editor");
+		popupAndPrintWarning(LLExternalEditor::getErrorMessage(status));
 		return;
 	}
 }

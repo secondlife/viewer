@@ -3310,6 +3310,14 @@ Abuse Report</string>
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+ 
+ <!-- External editor status codes -->
+ <string name="ExternalEditorNotSet">Select an editor using the ExternalEditor setting.</string>
+ <string name="ExternalEditorNotFound">Cannot find the external editor you specified.
+Try enclosing path to the editor with double quotes.
+(e.g. "/path to my/editor" "%s")</string>
+ <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
+ <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
 
   <!-- Key names begin -->
   <string name="Esc">Esc</string>
