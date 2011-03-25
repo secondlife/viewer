@@ -326,7 +326,7 @@
 	 layout="topleft"
 	 left="30"
 	 name="inworld_typing_rg_label"
-	 top_pad="6"
+	 top_pad="1"
 	 width="400">
        Pressing letter keys:
    </text>
@@ -348,9 +348,9 @@
          width="150" />
         <radio_item
          label="Affects movement (i.e. WASD)"
-         left_pad="0"
+         left="0"
          layout="topleft"
-         top_delta="0" 
+         top="18" 
          height="16" 
          name="radio_move"
          value="0"
@@ -365,7 +365,7 @@
      layout="topleft"
      left="30"
      name="title_afk_text"
-     top_pad="4" 
+     top_pad="15" 
      width="190">
     	Away timeout:
     </text>
@@ -408,7 +408,7 @@
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="5"
+     top_pad="3"
      width="240">
        Busy mode response:
     </text>
