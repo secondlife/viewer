@@ -28,7 +28,7 @@
 
 #include "apr_pools.h"
 #include "apr_dso.h"
-
+#include "llhttpstatuscodes.h"
 #include "llmeshrepository.h"
 
 #include "llagent.h"
@@ -291,16 +291,20 @@ public:
 		}
 		else
 		{
-			llwarns << status << ": " << reason << llendl;
-			llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
+			llwarns << status << ": " << reason << llendl;			
 			
-			if (status == 499)
+			if (status == HTTP_INTERNAL_ERROR)
 			{
+				llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
 				mThread->uploadModel(mData);
 			}
-			else if (status == 400)
+			else if (status == HTTP_BAD_REQUEST)
 			{
 				llwarns << "Status 400 received from server, giving up." << llendl;
+			}
+			else if (status == HTTP_NOT_FOUND)
+			{
+				llwarns <<"Status 404 received, server is disconnected, giving up." << llendl ;
 			}
 			else
 			{
@@ -1381,7 +1385,8 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
 										bool upload_skin, bool upload_joints)
-: LLThread("mesh upload")
+: LLThread("mesh upload"),
+	mDiscarded(FALSE)
 {
 	mInstanceList = data;
 	mUploadTextures = upload_textures;
@@ -1475,8 +1480,26 @@ void LLMeshUploadThread::preStart()
 	}
 }
 
+void LLMeshUploadThread::discard()
+{
+	LLMutexLock lock(mMutex) ;
+	mDiscarded = TRUE ;
+}
+
+BOOL LLMeshUploadThread::isDiscarded()
+{
+	LLMutexLock lock(mMutex) ;
+	return mDiscarded ;
+}
+
 void LLMeshUploadThread::run()
 {
+	if(isDiscarded())
+	{
+		mFinished = true;
+		return ;
+	}
+	
 	mCurlRequest = new LLCurlRequest();	
 
 	std::set<LLViewerTexture* > textures;
@@ -1605,7 +1628,7 @@ void LLMeshUploadThread::run()
 	
 		tcount = llmin(count+PUSH_PER_PROCESS, 100);
 
-		while (!mInstanceQ.empty() && count < tcount)
+		while (!mInstanceQ.empty() && count < tcount && !isDiscarded())
 		{ //create any objects waiting for upload
 			count++;
 			object_asset["objects"].append(createObject(mInstanceQ.front()));
@@ -1614,7 +1637,7 @@ void LLMeshUploadThread::run()
 			
 		mCurlRequest->process();
 			
-		done = mInstanceQ.empty() && mConfirmedQ.empty() && mUploadQ.empty();
+		done = isDiscarded() || (mInstanceQ.empty() && mConfirmedQ.empty() && mUploadQ.empty());
 	}
 	while (!done || mCurlRequest->getQueued() > 0);
 
@@ -1629,7 +1652,10 @@ void LLMeshUploadThread::run()
 		object_asset["permissions"] = object_asset["objects"][0]["permissions"];
 	}
 
-	LLHTTPClient::post(url, object_asset, new LLHTTPClient::Responder());
+	if(!isDiscarded())
+	{
+		LLHTTPClient::post(url, object_asset, new LLHTTPClient::Responder());
+	}
 
 	mFinished = true;
 }
@@ -2131,6 +2157,12 @@ void LLMeshRepository::init()
 void LLMeshRepository::shutdown()
 {
 	llinfos << "Shutting down mesh repository." << llendl;
+
+	for (U32 i = 0; i < mUploads.size(); ++i)
+	{
+		llinfos << "Discard the pending mesh uploads " << llendl;
+		mUploads[i]->discard() ; //discard the uploading requests.
+	}
 
 	mThread->mSignal->signal();
 	
@@ -2750,6 +2782,11 @@ S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
 
 void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 {
+	if(isDiscarded())
+	{
+		return ;
+	}
+
 	//write model file to memory buffer
 	std::stringstream ostr;
 
@@ -2808,6 +2845,11 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 
 void LLMeshUploadThread::sendCostRequest(LLTextureUploadData& data)
 {
+	if(isDiscarded())
+	{
+		return ;
+	}
+
 	if (data.mTexture && data.mTexture->getDiscardLevel() >= 0)
 	{
 		LLSD asset_resources = LLSD::emptyMap();
@@ -2840,6 +2882,11 @@ void LLMeshUploadThread::sendCostRequest(LLTextureUploadData& data)
 
 void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 {
+	if(isDiscarded())
+	{
+		return ;
+	}
+
 	if (!data.mRSVP.empty())
 	{
 		std::stringstream ostr;
@@ -2872,6 +2919,11 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 
 void LLMeshUploadThread::doUploadTexture(LLTextureUploadData& data)
 {
+	if(isDiscarded())
+	{
+		return ;
+	}
+
 	if (!data.mRSVP.empty())
 	{
 		std::stringstream ostr;
