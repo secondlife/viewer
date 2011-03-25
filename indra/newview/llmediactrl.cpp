@@ -153,8 +153,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 LLMediaCtrl::~LLMediaCtrl()
 {
-	delete mContextMenu;
-
 	if (mMediaSource)
 	{
 		mMediaSource->remObserver( this );
