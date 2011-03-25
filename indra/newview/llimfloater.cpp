@@ -56,6 +56,7 @@
 #include "llrootview.h"
 #include "llspeakers.h"
 #include "llsidetray.h"
+#include "llviewerchat.h"
 
 
 static const S32 RECT_PADDING_NOT_INIT = -1;
@@ -891,6 +892,7 @@ void LLIMFloater::updateChatHistoryStyle()
 
 void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
+	LLFontGL* font = LLViewerChat::getChatFont();
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
 		 iter != inst_list.end(); ++iter)
@@ -899,6 +901,7 @@ void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
 		if (floater)
 		{
 			floater->updateChatHistoryStyle();
+			floater->mInputEditor->setFont(font);
 		}
 	}
 
