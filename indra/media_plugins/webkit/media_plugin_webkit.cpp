@@ -528,6 +528,11 @@ private:
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
 		message.setValue("uri", event.getEventUri());
+#if LLQTWEBKIT_API_VERSION >= 7
+		message.setValue("nav_type", event.getNavigationType());
+#else
+		message.setValue("nav_type", "clicked");
+#endif
 		sendMessage(message);
 	}
 	

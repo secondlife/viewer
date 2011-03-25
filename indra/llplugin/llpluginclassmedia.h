@@ -226,6 +226,9 @@ public:
 	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF or MEDIA_EVENT_CLICK_LINK_NOFOLLOW
 	std::string getClickURL() const { return mClickURL; };
 
+	// This is valid after MEDIA_EVENT_CLICK_LINK_NOFOLLOW
+	std::string getClickNavType() const { return mClickNavType; };
+
 	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
 	std::string getClickTarget() const { return mClickTarget; };
 
@@ -380,6 +383,7 @@ protected:
 	int				mProgressPercent;
 	std::string		mLocation;
 	std::string		mClickURL;
+	std::string		mClickNavType;
 	std::string		mClickTarget;
 	std::string		mClickUUID;
 	S32				mGeometryX;

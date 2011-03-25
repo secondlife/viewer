@@ -2984,7 +2984,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
-			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
+			std::string nav_type = plugin->getClickNavType();
+			LLURLDispatcher::dispatch(url, nav_type, NULL, mTrustedBrowser);
 		}
 		break;
 		case MEDIA_EVENT_CLICK_LINK_HREF:

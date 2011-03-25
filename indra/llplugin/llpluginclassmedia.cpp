@@ -144,6 +144,7 @@ void LLPluginClassMedia::reset()
 	mStatusText.clear();
 	mProgressPercent = 0;	
 	mClickURL.clear();
+	mClickNavType.clear();
 	mClickTarget.clear();
 	mClickUUID.clear();
 	mStatusCode = 0;
@@ -1025,6 +1026,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		else if(message_name == "click_nofollow")
 		{
 			mClickURL = message.getValue("uri");
+			mClickNavType = message.getValue("nav_type");
 			mClickTarget.clear();
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
 		}
