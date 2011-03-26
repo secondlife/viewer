@@ -223,7 +223,15 @@ void store_output_file(std::list<std::string> &output_filenames, std::list<std::
 		{
 			dir = gDirUtilp->getDirName(*in_file);
 			name = gDirUtilp->getBaseFileName(*in_file,true);
-			std::string file_name = dir + delim + name + "." + exten;
+			std::string file_name;
+			if (!dir.empty())
+			{
+				file_name = dir + delim + name + "." + exten;
+			}
+			else
+			{
+				file_name = name + "." + exten;
+			}
 			output_filenames.push_back(file_name);
 		}
 	}
