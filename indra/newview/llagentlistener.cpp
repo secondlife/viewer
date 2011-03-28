@@ -52,7 +52,8 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "If [\"skip_confirmation\"] is true, use LLURLDispatcher rather than LLCommandDispatcher.",
         &LLAgentListener::requestTeleport);
     add("requestSit",
-        "Ask to sit on the object specified in [\"obj_uuid\"]",
+		"[\"obj_uuid\"]: id of object to sit on, use this or [\"position\"] to indicate the sit target"
+		"[\"position\"]: region position {x, y, z} where to find closest object to sit on",
         &LLAgentListener::requestSit);
     add("requestStand",
         "Ask to stand up",
@@ -149,7 +150,17 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     //mAgent.getAvatarObject()->sitOnObject();
     // shamelessly ripped from llviewermenu.cpp:handle_sit_or_stand()
     // *TODO - find a permanent place to share this code properly.
-    LLViewerObject *object = gObjectList.findObject(event_data["obj_uuid"]);
+
+	LLViewerObject *object = NULL;
+	if (event_data.has("obj_uuid"))
+	{
+		object = gObjectList.findObject(event_data["obj_uuid"]);
+	}
+	else if (event_data.has("position"))
+	{
+		LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+		object = findObjectClosestTo(target_position);
+	}
 
     if (object && object->getPCode() == LL_PCODE_VOLUME)
     {
@@ -165,8 +176,8 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     }
 	else
 	{
-		llwarns << "LLAgent requestSit could not find the sit target " 
-			<< event_data["obj_uuid"].asUUID() << llendl;
+		llwarns << "LLAgent requestSit could not find the sit target: " 
+			<< event_data << llendl;
 	}
 }
 
@@ -174,6 +185,34 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 {
     mAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
+
+
+LLViewerObject * LLAgentListener::findObjectClosestTo( const LLVector3 & position ) const
+{
+	LLViewerObject *object = NULL;
+
+	// Find the object closest to that position
+	F32 min_distance = 10000.0f;		// Start big
+	S32 num_objects = gObjectList.getNumObjects();
+	S32 cur_index = 0;
+	while (cur_index < num_objects)
+	{
+		LLViewerObject * cur_object = gObjectList.getObject(cur_index++);
+		if (cur_object)
+		{	// Calculate distance from the target position
+			LLVector3 target_diff = cur_object->getPositionRegion() - position;
+			F32 distance_to_target = target_diff.length();
+			if (distance_to_target < min_distance)
+			{	// Found an object closer
+				min_distance = distance_to_target;
+				object = cur_object;
+			}
+		}
+	}
+
+	return object;
+}
+
 
 void LLAgentListener::requestTouch(LLSD const & event_data) const
 {
@@ -186,25 +225,7 @@ void LLAgentListener::requestTouch(LLSD const & event_data) const
 	else if (event_data.has("position"))
 	{
 		LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
-
-		// Find the object closest to that position
-		F32 min_distance = 10000.0f;		// Start big
-		S32 num_objects = gObjectList.getNumObjects();
-		S32 cur_index = 0;
-		while (cur_index < num_objects)
-		{
-			LLViewerObject * cur_object = gObjectList.getObject(cur_index++);
-			if (cur_object)
-			{	// Calculate distance from the target position
-				LLVector3 target_diff = cur_object->getPositionRegion() - target_position;
-				F32 distance_to_target = target_diff.length();
-				if (distance_to_target < min_distance)
-				{	// Found an object closer
-					min_distance = distance_to_target;
-					object = cur_object;
-				}
-			}
-		}
+		object = findObjectClosestTo(target_position);
 	}
 
 	S32 face = 0;

@@ -34,6 +34,8 @@
 
 class LLAgent;
 class LLSD;
+class LLViewerObject; 
+class LLVector3d;
 
 class LLAgentListener : public LLEventAPI
 {
@@ -53,6 +55,8 @@ private:
     void startFollowPilot(const LLSD& event);
     void setAutoPilotTarget(const LLSD& event) const;
     void stopAutoPilot(const LLSD& event) const;
+
+	LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
 
 private:
     LLAgent &	mAgent;
