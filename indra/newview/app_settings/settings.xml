@@ -12364,7 +12364,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>120.0</real>
     </map>
     <key>DestinationGuideHintTimeout</key>
     <map>
