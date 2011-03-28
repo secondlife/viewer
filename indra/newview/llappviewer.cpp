@@ -2459,7 +2459,7 @@ bool LLAppViewer::initConfiguration()
 	// out of different directories
 
 	if (LLStartUp::getStartSLURL().isValid() &&
-		!(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
+		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
 	{
 		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
 		{
