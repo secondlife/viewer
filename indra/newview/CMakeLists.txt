@@ -1688,6 +1688,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
+if (OPENAL)
+    target_link_libraries(${VIEWER_BINARY_NAME}
+        ${OPENAL_LIBRARIES}
+        )
+endif()
+
 if (USE_KDU)
     target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLKDU_LIBRARIES}
