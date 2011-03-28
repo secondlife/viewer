@@ -389,7 +389,11 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 		gAgentAvatarp->resetJointPositions();
 	}
 
-	delete mModelPreview;
+	
+	if ( mModelPreview )
+	{
+		delete mModelPreview;
+	}
 
 	if (mGLName)
 	{
@@ -1556,7 +1560,7 @@ bool LLModelLoader::doLoadModel()
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).
 						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mJointList ) );
-							if ( !skeletonWithNoRootNode && !model->mJointList.empty() && mPreview->isRigValid() ) 
+						if ( !skeletonWithNoRootNode && !model->mJointList.empty() && mPreview->isRigValid() ) 
 						{
 							mResetJoints = true;
 						}
@@ -1878,8 +1882,6 @@ void LLModelLoader::loadModelCallback()
 	{ //wait until this thread is stopped before deleting self
 		apr_sleep(100);
 	}
-
-	delete this;
 }
 
 void LLModelLoader::handlePivotPoint( daeElement* pRoot )
@@ -2454,7 +2456,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 LLModelPreview::~LLModelPreview()
 {
 	if (mModelLoader)
-	{
+	{	
+		delete mModelLoader;
 		mModelLoader->mPreview = NULL;
 	}
 	//*HACK : *TODO : turn this back on when we understand why this crashes
