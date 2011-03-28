@@ -2869,7 +2869,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	// close callback 
 	if (p.close_callback.isProvided())
 	{
-		mCloseSignal.connect(initCommitCallback(p.close_callback));
+		setCloseCallback(initCommitCallback(p.close_callback));
 	}
 }
 
@@ -2877,6 +2877,11 @@ boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_
 { 
 	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
 	return mMinimizeSignal->connect(cb); 
+}
+
+boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::slot_type& cb )
+{
+	return mCloseSignal.connect(cb);
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
