@@ -37,7 +37,7 @@
 #include "llavatarnamecache.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
@@ -668,6 +668,8 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		mAutoPilotDestination->setDuration(3.f);
 
 		handle_go_to();
+		LLFirstUse::notMoving(false);
+
 		mBlockClickToWalk = false;
 
 		return TRUE;
@@ -1753,6 +1755,7 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 
 void LLToolPie::startCameraSteering()
 {
+	LLFirstUse::notMoving(false);
 	mMouseOutsideSlop = true;
 	mBlockClickToWalk = true;
 
