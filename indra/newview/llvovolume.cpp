@@ -3941,7 +3941,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
-							const int pelvisZOffset = pSkinData->mPelvisOffset;
+							const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 							bool fullRig = (jointCnt>=20) ? true : false;
 							if ( fullRig )
 							{
