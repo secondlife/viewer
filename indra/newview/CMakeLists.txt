@@ -232,6 +232,7 @@ set(viewer_SOURCE_FILES
     llfolderviewitem.cpp
     llfollowcam.cpp
     llfriendcard.cpp
+    llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
     llglsandbox.cpp
@@ -776,6 +777,7 @@ set(viewer_HEADER_FILES
     llfolderviewitem.h
     llfollowcam.h
     llfriendcard.h
+    llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
     llgroupactions.h

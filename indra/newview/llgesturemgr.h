@@ -37,6 +37,7 @@
 #include "llviewerinventory.h"
 
 class LLMultiGesture;
+class LLGestureListener;
 class LLGestureStep;
 class LLUUID;
 class LLVFS;
@@ -172,6 +173,9 @@ private:
 	callback_map_t mCallbackMap;
 	std::vector<LLMultiGesture*> mPlaying;	
 	BOOL mValid;
+
+	// LLEventHost interface
+	boost::shared_ptr<LLGestureListener> mListener;
 };
 
 #endif
