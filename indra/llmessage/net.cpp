@@ -50,6 +50,7 @@
 #include "lltimer.h"
 #include "indra_constants.h"
 
+#include "llsocks5.h"
 
 // Globals
 #if LL_WINDOWS
@@ -189,6 +190,90 @@ U32 ip_string_to_u32(const char* ip_string)
 
 #if LL_WINDOWS
  
+int tcp_handshake(S32 handle, char * dataout, int outlen, char * datain, int maxinlen)
+{
+	int result;
+	result = send(handle, dataout, outlen, 0);
+	if (result != outlen)
+	{
+		S32 err = WSAGetLastError();
+		llwarns << "Error sending data to proxy control channel, number of bytes sent were " << result << " error code was " << err << llendl;
+		return -1;
+	}
+
+	result = recv(handle, datain, maxinlen, 0);
+	if (result != maxinlen)
+	{
+		S32 err = WSAGetLastError();
+		llwarns << "Error receiving data from proxy control channel, number of bytes received were " << result << " error code was " << err << llendl;
+		return -1;
+	}
+
+	return 0;
+}
+
+S32 tcp_open_channel(LLHost host)
+{
+	// Open a TCP channel
+	// Jump through some hoops to ensure that if the request hosts is down
+	// or not reachable connect() does not block
+
+	S32 handle;
+	handle = socket(AF_INET, SOCK_STREAM, 0);
+	if (!handle)
+	{
+		llwarns << "Error opening TCP control socket, socket() returned " << handle << llendl;
+		return -1;
+	}
+
+	struct sockaddr_in address;
+	address.sin_port        = htons(host.getPort());
+	address.sin_family      = AF_INET;
+	address.sin_addr.s_addr = host.getAddress();
+
+	// Non blocking 
+	WSAEVENT hEvent=WSACreateEvent();
+	WSAEventSelect(handle, hEvent, FD_CONNECT) ;
+	connect(handle, (struct sockaddr*)&address, sizeof(address)) ;
+	// Wait fot 5 seconds, if we can't get a TCP channel open in this
+	// time frame then there is something badly wrong.
+	WaitForSingleObject(hEvent, 1000*5); // 5 seconds time out
+
+	WSANETWORKEVENTS netevents;
+	WSAEnumNetworkEvents(handle,hEvent,&netevents);
+
+	// Check the async event status to see if we connected
+	if ((netevents.lNetworkEvents & FD_CONNECT) == FD_CONNECT)
+	{
+		if (netevents.iErrorCode[FD_CONNECT_BIT] != 0)
+		{
+			llwarns << "Unable to open TCP channel, WSA returned an error code of " << netevents.iErrorCode[FD_CONNECT_BIT] << llendl;
+			WSACloseEvent(hEvent);
+			return -1;
+		}
+
+		// Now we are connected disable non blocking
+		// we don't need support an async interface as
+		// currently our only consumer (socks5) will make one round
+		// of packets then just hold the connection open
+		WSAEventSelect(handle, hEvent, NULL) ;
+		unsigned long NonBlock = 0;
+		ioctlsocket(handle, FIONBIO, &NonBlock);
+
+		return handle;
+	}
+
+	llwarns << "Unable to open TCP channel, Timeout is the host up?" << netevents.iErrorCode[FD_CONNECT_BIT] << llendl;
+	return -1;
+}
+
+void tcp_close_channel(S32 handle)
+{
+	llinfos << "Closing TCP channel" << llendl;
+	shutdown(handle, SD_BOTH);
+	closesocket(handle);
+}
+
 S32 start_net(S32& socket_out, int& nPort) 
 {			
 	// Create socket, make non-blocking
@@ -384,6 +469,77 @@ BOOL send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, i
 //////////////////////////////////////////////////////////////////////////////////////////
 
 #else
+
+
+int tcp_handshake(S32 handle, char * dataout, int outlen, char * datain, int maxinlen)
+{
+	if (send(handle, dataout, outlen, 0) != outlen)
+	{
+		llwarns << "Error sending data to proxy control channel" << llendl;
+		return -1;
+	}
+
+	if (recv(handle, datain, maxinlen, 0) != maxinlen)
+	{
+		llwarns << "Error receiving data to proxy control channel" << llendl;		
+		return -1;
+	}
+
+	return 0;
+}
+
+S32 tcp_open_channel(LLHost host)
+{
+	S32 handle;
+	handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (!handle)
+	{
+		llwarns << "Error opening TCP control socket, socket() returned " << handle << llendl;
+		return -1;
+	}
+
+	struct sockaddr_in address;
+	address.sin_port        = htons(host.getPort());
+	address.sin_family      = AF_INET;
+	address.sin_addr.s_addr = host.getAddress();
+
+	// Set the socket to non blocking for the connect()
+	int flags = fcntl(handle, F_GETFL, 0);
+	fcntl(handle, F_SETFL, flags | O_NONBLOCK);
+
+	S32 error = connect(handle, (sockaddr*)&address, sizeof(address));
+	if (error && (errno != EINPROGRESS))
+	{
+			llwarns << "Unable to open TCP channel, error code: " << errno << llendl;
+			return -1;
+	}
+
+	struct timeval timeout;
+	timeout.tv_sec  = 5; // Maximum time to wait for the connect() to complete
+	timeout.tv_usec = 0;
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(handle, &fds);
+
+	// See if we have connectde or time out after 5 seconds
+	U32 rc = select(sizeof(fds)*8, NULL, &fds, NULL, &timeout);	
+	
+	if (rc != 1) // we require exactly one descriptor to be set
+	{
+			llwarns << "Unable to open TCP channel" << llendl;
+			return -1;
+	}
+
+	// Return the socket to blocking operations
+	fcntl(handle, F_SETFL, flags);
+
+	return handle;
+}
+
+void tcp_close_channel(S32 handle)
+{
+	close(handle);
+}
 
 //  Create socket, make non-blocking
 S32 start_net(S32& socket_out, int& nPort)
