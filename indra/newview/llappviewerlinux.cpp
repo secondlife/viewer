@@ -233,7 +233,7 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 	std::string url = slurl;
 	LLMediaCtrl* web = NULL;
 	const bool trusted_browser = false;
-	if (LLURLDispatcher::dispatch(url, web, "", trusted_browser))
+	if (LLURLDispatcher::dispatch(url, "", web, trusted_browser))
 	{
 		// bring window to foreground, as it has just been "launched" from a URL
 		// todo: hmm, how to get there from here?

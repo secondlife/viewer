@@ -500,7 +500,7 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 		
 		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
-		LLURLDispatcher::dispatch(url, web, "", trusted_browser);
+		LLURLDispatcher::dispatch(url, "", web, trusted_browser);
 	}
 	
 	return(result);
