@@ -322,8 +322,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	childDisable("upload_skin");
 	childDisable("upload_joints");
 
-	childDisable("pelvis_offset");
-
 	childDisable("ok_btn");
 
 	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
@@ -2493,12 +2491,12 @@ U32 LLModelPreview::calcResourceCost()
 	U32 num_hulls = 0;
 
 	F32 debug_scale = mFMP ? mFMP->childGetValue("import_scale").asReal() : 1.f;
-	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 8.0f;
+	mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
 	
-	//if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
-	//{
-	//	gAgentAvatarp->setPelvisOffset( mPelvisZOffset );
-	//}
+	if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
+	{
+		gAgentAvatarp->setPelvisOffset( mPelvisZOffset );
+	}
 
 	F32 streaming_cost = 0.f;
 	F32 physics_cost = 0.f;

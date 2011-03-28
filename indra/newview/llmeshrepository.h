@@ -405,11 +405,12 @@ public:
 	S32				mPendingConfirmations;
 	S32				mPendingUploads;
 	S32				mPendingCost;
-	bool			mFinished;
 	LLVector3		mOrigin;
+	bool			mFinished;	
 	bool			mUploadTextures;
 	bool			mUploadSkin;
 	bool			mUploadJoints;
+	BOOL            mDiscarded ;
 
 	LLHost			mHost;
 	std::string		mUploadObjectAssetCapability;
@@ -445,7 +446,8 @@ public:
 	bool finished() { return mFinished; }
 	virtual void run();
 	void preStart();
-	
+	void discard() ;
+	BOOL isDiscarded();
 };
 
 class LLMeshRepository
