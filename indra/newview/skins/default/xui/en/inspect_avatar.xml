@@ -40,10 +40,11 @@
      name="user_name_small"
      top="7"
      text_color="White"
+     translate="false"
      use_ellipses="true"
      word_wrap="true"
     visible="false" 
-     value="Grumpity ProductEngine with a long name"
+     value="TestString PleaseIgnore"
      width="185" />
    <text
     follows="top|left"
@@ -53,8 +54,9 @@
     name="user_name"
     top="10"
     text_color="White"
+    translate="false"
     use_ellipses="true"
-    value="Grumpity ProductEngine"
+    value="TestString PleaseIgnore"
     width="190" />
    <text
      follows="top|left"
@@ -63,7 +65,8 @@
      name="user_slid"
      font="SansSerifSmallBold"
      text_color="EmphasisColor"
-     value="james.linden"
+     translate="false"
+     value="teststring.pleaseignore"
      width="185"
      use_ellipses="true" />
     <text

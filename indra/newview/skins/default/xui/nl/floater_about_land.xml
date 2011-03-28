@@ -23,9 +23,7 @@
 			<text name="Owner:">
 				Eigenaar:
 			</text>
-			<text name="OwnerText" left="102" width="242">
-				Leyla Linden
-			</text>
+			<text name="OwnerText" left="102" width="242"/>
 			<button label="Profiel" name="Profile..."/>
 			<text name="Group:">
 				Groep:
@@ -427,8 +425,6 @@ hebt geklikt.)
 			</text>
 			<check_box label="Automatisch schalen" name="media_auto_scale" tool_tip="Het aanvinken van deze optie zal de inhoud voor dit perceel automatisch schalen. Het kan enigszins trager zijn en de visuele kwaliteit kan iets lager zijn, maar er zal geen andere textuurschaling of uitlijning nodig zijn."/>
 			<check_box label="Herhaal media" name="media_loop" tool_tip="Speel media af in een lus. Wanneer de media klaar is met afspelen zal het herstarten vanaf het begin."/>
-			<check_box label="Verberg media URL" name="hide_media_url" tool_tip="Het aanvinken van deze optie zal de media URL verbergen voor alle niet-geautoriseerde bekijkers van de perceelinformatie. Let op: dit is niet beschikbaar voor HTML types."/>
-			<check_box label="Verberg muziek URL" name="hide_music_url" tool_tip="Het aanvinken van deze optie zal de muziek URL verbergen voor alle niet-geautoriseerde bekijkers van de perceelinformatie."/>
 			<text name="media_size" tool_tip="Grootte om webmedia weer te geven, laat op 0 staan voor standaard." width="120">
 				Media grootte:
 			</text>
