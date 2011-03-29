@@ -193,7 +193,7 @@
         </menu_item_call>
     </context_menu>
      <menu_item_call
-     label="Change Outfit"
+     label="My Appearance"
      layout="topleft"
      name="Chenge Outfit">
         <menu_item_call.on_click
