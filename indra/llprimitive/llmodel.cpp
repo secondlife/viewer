@@ -775,43 +775,6 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 	return FALSE;
 }
 
-
-BOOL LLModel::createVolumeFacesFromFile(const std::string& file_name)
-{
-	DAE dae;
-	domCOLLADA* dom = dae.open(file_name);
-	if (dom)
-	{
-		daeDatabase* db = dae.getDatabase();
-
-		daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
-		
-		mVolumeFaces.clear();
-		mMaterialList.clear();
-
-		for (daeInt idx = 0; idx < count; ++idx)
-		{
-			domMesh* mesh = NULL;
-
-			db->getElement((daeElement**) &mesh, idx, NULL, COLLADA_TYPE_MESH);
-			
-			if (mesh)
-			{
-				addVolumeFacesFromDomMesh(mesh);
-			}
-		}
-
-		if (getNumVolumeFaces() > 0)
-		{
-			optimizeVolumeFaces();
-			normalizeVolumeFaces();
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 void LLModel::offsetMesh( const LLVector3& pivotPoint )
 {
 	LLVector4a pivot( pivotPoint[VX], pivotPoint[VY], pivotPoint[VZ] );
@@ -1352,16 +1315,6 @@ std::string LLModel::getElementLabel(daeElement *element)
 }
 
 //static 
-LLModel* LLModel::loadModelFromDae(std::string filename)
-{
-	LLVolumeParams volume_params;
-	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-	LLModel* ret = new LLModel(volume_params, 0.f); 
-	ret->createVolumeFacesFromFile(filename);
-	return ret;
-}
-
-//static 
 LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 {
 	LLVolumeParams volume_params;
@@ -1473,49 +1426,7 @@ LLSD LLModel::writeModel(
 
 	if (skinning)
 	{ //write skinning block
-		if (high->mJointList.size() != high->mInvBindMatrix.size())
-		{
-			llerrs << "WTF?" << llendl;
-		}
-
-		for (U32 i = 0; i < high->mJointList.size(); ++i)
-		{
-			mdl["skin"]["joint_names"][i] = high->mJointList[i];
-
-			for (U32 j = 0; j < 4; j++)
-			{
-				for (U32 k = 0; k < 4; k++)
-				{
-					mdl["skin"]["inverse_bind_matrix"][i][j*4+k] = high->mInvBindMatrix[i].mMatrix[j][k]; 
-				}
-			}
-		}
-
-		for (U32 i = 0; i < 4; i++)
-		{
-			for (U32 j = 0; j < 4; j++)
-			{
-				mdl["skin"]["bind_shape_matrix"][i*4+j] = high->mBindShapeMatrix.mMatrix[i][j];
-			}
-		}
-		
-		
-		if ( upload_joints && high->mAlternateBindMatrix.size() > 0 )
-		{
-			for (U32 i = 0; i < high->mJointList.size(); ++i)
-			{
-				for (U32 j = 0; j < 4; j++)
-				{
-					for (U32 k = 0; k < 4; k++)
-					{
-						mdl["skin"]["alt_inverse_bind_matrix"][i][j*4+k] = high->mAlternateBindMatrix[i].mMatrix[j][k]; 
-					}
-				}
-			}
-
-			mdl["skin"]["pelvis_offset"] = high->mPelvisOffset;
-		}
-		
+		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints);
 	}
 
 	if (!decomp.empty() || !base_hull.empty())
@@ -1897,12 +1808,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 	return header;
 }
 
-//static 
-LLModel* LLModel::loadModelFromAsset(std::string filename, S32 lod)
-{
-	return NULL;
-}
-
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
 	weight_map::iterator iter = mSkinWeights.find(pos);
@@ -1999,4 +1904,232 @@ void LLModel::setConvexHullDecomposition(
 	mCenterOfHullCenters *= 1.f / mHullPoints;
 }
 
+bool LLModel::loadModel(std::istream& is)
+{
+	mSculptLevel = -1;  // default is an error occured
+
+	LLSD header;
+	{
+		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
+		{
+			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			return false;
+		}
+	}
+	
+	std::string nm[] = 
+	{
+		"lowest_lod",
+		"low_lod",
+		"medium_lod",
+		"high_lod",
+		"physics_shape",
+	};
+
+	const S32 MODEL_LODS = 5;
+
+	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
+
+	if (header[nm[lod]]["offset"].asInteger() == -1 || 
+		header[nm[lod]]["size"].asInteger() == 0 )
+	{ //cannot load requested LOD
+		return false;
+	}
+
+	bool has_skin = header["skin"]["offset"].asInteger() >=0 &&
+					header["skin"]["size"].asInteger() > 0;
+
+	if (lod == LLModel::LOD_HIGH)
+	{ //try to load skin info and decomp info
+		std::ios::pos_type cur_pos = is.tellg();
+		loadSkinInfo(header, is);
+		is.seekg(cur_pos);
+		loadDecomposition(header, is);
+		is.seekg(cur_pos);
+	}
+
+	
+
+	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
+
+	if (unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger()))
+	{
+		if (has_skin)
+		{ 
+			//build out mSkinWeight from face info
+			for (S32 i = 0; i < getNumVolumeFaces(); ++i)
+			{
+				const LLVolumeFace& face = getVolumeFace(i);
+
+				if (face.mWeights)
+				{
+					for (S32 j = 0; j < face.mNumVertices; ++j)
+					{
+						LLVector4a& w = face.mWeights[j];
+
+						std::vector<JointWeight> wght;
+
+						for (S32 k = 0; k < 4; ++k)
+						{
+							S32 idx = (S32) w[k];
+							F32 f = w[k] - idx;
+							if (f > 0.f)
+							{
+								wght.push_back(JointWeight(idx, f));
+							}
+						}
+
+						if (!wght.empty())
+						{
+							LLVector3 pos(face.mPositions[j].getF32ptr());
+							mSkinWeights[pos] = wght;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	return false;
+
+}
+
+
+bool LLModel::loadSkinInfo(LLSD& header, std::istream &is)
+{
+	S32 offset = header["skin"]["offset"].asInteger();
+	S32 size = header["skin"]["size"].asInteger();
+
+	if (offset >= 0 && size > 0)
+	{
+		is.seekg(offset, std::ios_base::cur);
+
+		LLSD skin_data;
+
+		if (unzip_llsd(skin_data, is, size))
+		{
+			mSkinInfo.fromLLSD(skin_data);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
+{
+	return true;
+}
+
+
+LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin)
+{
+	fromLLSD(skin);
+}
+
+void LLMeshSkinInfo::fromLLSD(LLSD& skin)
+{
+	if (skin.has("joint_names"))
+	{
+		for (U32 i = 0; i < skin["joint_names"].size(); ++i)
+		{
+			mJointNames.push_back(skin["joint_names"][i]);
+		}
+	}
+
+	if (skin.has("inverse_bind_matrix"))
+	{
+		for (U32 i = 0; i < skin["inverse_bind_matrix"].size(); ++i)
+		{
+			LLMatrix4 mat;
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					mat.mMatrix[j][k] = skin["inverse_bind_matrix"][i][j*4+k].asReal();
+				}
+			}
+
+			mInvBindMatrix.push_back(mat);
+		}
+	}
+
+	if (skin.has("bind_shape_matrix"))
+	{
+		for (U32 j = 0; j < 4; j++)
+		{
+			for (U32 k = 0; k < 4; k++)
+			{
+				mBindShapeMatrix.mMatrix[j][k] = skin["bind_shape_matrix"][j*4+k].asReal();
+			}
+		}
+	}
+
+	if (skin.has("alt_inverse_bind_matrix"))
+	{
+		for (U32 i = 0; i < skin["alt_inverse_bind_matrix"].size(); ++i)
+		{
+			LLMatrix4 mat;
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					mat.mMatrix[j][k] = skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
+				}
+			}
+			
+			mAlternateBindMatrix.push_back(mat);
+		}
+	}
+
+	if (skin.has("pelvis_offset"))
+	{
+		mPelvisOffset = skin["pelvis_offset"].asReal();
+	}
+}
+
+LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
+{
+	LLSD ret;
+
+	for (U32 i = 0; i < mJointNames.size(); ++i)
+	{
+		ret["joint_names"][i] = mJointNames[i];
+
+		for (U32 j = 0; j < 4; j++)
+		{
+			for (U32 k = 0; k < 4; k++)
+			{
+				ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k]; 
+			}
+		}
+	}
+
+	for (U32 i = 0; i < 4; i++)
+	{
+		for (U32 j = 0; j < 4; j++)
+		{
+			ret["bind_shape_matrix"][i*4+j] = mBindShapeMatrix.mMatrix[i][j];
+		}
+	}
+		
+	if ( include_joints && mAlternateBindMatrix.size() > 0 )
+	{
+		for (U32 i = 0; i < mJointNames.size(); ++i)
+		{
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k]; 
+				}
+			}
+		}
+
+		ret["pelvis_offset"] = mPelvisOffset;
+	}
+
+	return ret;
+}
 

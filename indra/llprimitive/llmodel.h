@@ -36,6 +36,25 @@ class domMesh;
 
 #define MAX_MODEL_FACES 8
 
+
+class LLMeshSkinInfo 
+{
+public:
+	LLUUID mMeshID;
+	std::vector<std::string> mJointNames;
+	std::vector<LLMatrix4> mInvBindMatrix;
+	std::vector<LLMatrix4> mAlternateBindMatrix;
+	std::map<std::string, U32> mJointMap;
+
+	LLMeshSkinInfo() { }
+	LLMeshSkinInfo(LLSD& data);
+	void fromLLSD(LLSD& data);
+	LLSD asLLSD(bool include_joints) const;
+	LLMatrix4 mBindShapeMatrix;
+	float mPelvisOffset;
+};
+
+
 class LLModel : public LLVolume
 {
 public:
@@ -58,6 +77,9 @@ public:
 	LLModel(LLVolumeParams& params, F32 detail);
 	~LLModel();
 
+	bool loadModel(std::istream& is);
+	bool loadSkinInfo(LLSD& header, std::istream& is);
+	bool loadDecomposition(LLSD& header, std::istream& is);
 	static LLSD writeModel(
 		std::string filename,
 		LLModel* physics,
@@ -98,8 +120,6 @@ public:
 		LLSD& mdl,
 		BOOL nowrite = FALSE);
 
-	static LLModel* loadModelFromAsset(std::string filename, S32 lod);
-	static LLModel* loadModelFromDae(std::string filename);
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
 	static std::string getElementLabel(daeElement* element);
 	std::string getName() const;
@@ -177,17 +197,8 @@ public:
 	//get list of weight influences closest to given position
 	weight_list& getJointInfluences(const LLVector3& pos);
 
-	//should always be true that mJointList[mJointMap["foo"]] == "foo"
-
-	//map of joint names to joint index
-	std::map<std::string, U32> mJointMap;
-
-	//list of joint names
-	std::vector<std::string> mJointList;
-
-	LLMatrix4 mBindShapeMatrix;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
+	LLMeshSkinInfo mSkinInfo;
+	
 	std::string mRequestedLabel; // name requested in UI, if any.
 	std::string mLabel; // name computed from dae.
 
@@ -210,7 +221,6 @@ public:
 
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);
-	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromDomMesh(domMesh *mesh);
 };
 
