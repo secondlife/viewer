@@ -2520,8 +2520,8 @@ U32 LLModelPreview::calcResourceCost()
 
 			LLModel::convex_hull_decomposition& decomp =
 			instance.mLOD[LLModel::LOD_PHYSICS] ?
-			instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp :
-			instance.mModel->mConvexHullDecomp;
+			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
+			instance.mModel->mPhysics.mHull;
 
 			LLSD ret = LLModel::writeModel(
 										   "",
@@ -2739,8 +2739,8 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 
 			LLModel::convex_hull_decomposition& decomp =
 				instance.mLOD[LLModel::LOD_PHYSICS].notNull() ? 
-				instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp : 
-				instance.mModel->mConvexHullDecomp;
+				instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull : 
+				instance.mModel->mPhysics.mHull;
 
 			LLModel::writeModel(str, 
 				instance.mLOD[LLModel::LOD_PHYSICS], 
@@ -2993,13 +2993,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		mScene[lod] = mModelLoader->mScene;
 		mVertexBuffer[lod].clear();
 
-		if (lod == LLModel::LOD_PHYSICS)
-		{
-			mPhysicsMesh.clear();
-		}
-
 		setPreviewLOD(lod);
-
 
 		if (lod == LLModel::LOD_HIGH)
 		{ //save a copy of the highest LOD for automatic LOD manipulation
@@ -3121,11 +3115,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	if (mBaseModel.empty())
 	{
 		return;
-	}
-
-	if (which_lod == LLModel::LOD_PHYSICS)
-	{ //clear physics mesh map
-		mPhysicsMesh.clear();
 	}
 
 	LLVertexBuffer::unbind();
@@ -3676,7 +3665,7 @@ void LLModelPreview::updateStatusMessages()
 		LLModel* model = mModel[LLModel::LOD_PHYSICS][i];
 		S32 cur_submeshes = model->getNumVolumeFaces();
 
-		LLModel::convex_hull_decomposition& decomp = model->mConvexHullDecomp;
+		LLModel::convex_hull_decomposition& decomp = model->mPhysics.mHull;
 
 		if (!decomp.empty())
 		{
@@ -4313,12 +4302,17 @@ BOOL LLModelPreview::render()
 					{
 						LLMutexLock(decomp->mMutex);
 
-						std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > >::iterator iter =
-							mPhysicsMesh.find(model);
-						if (iter != mPhysicsMesh.end())
+						LLModel::Decomposition& physics = model->mPhysics;
+
+						if (physics.mMesh.empty())
+						{ //build vertex buffer for physics mesh
+							gMeshRepo.buildPhysicsMesh(physics);
+						}
+							
+						if (!physics.mMesh.empty())
 						{ //render hull instead of mesh
 							render_mesh = false;
-							for (U32 i = 0; i < iter->second.size(); ++i)
+							for (U32 i = 0; i < physics.mMesh.size(); ++i)
 							{
 								if (explode > 0.f)
 								{
@@ -4337,15 +4331,9 @@ BOOL LLModelPreview::render()
 									hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
 								}
 
-								LLVertexBuffer* buff = iter->second[i];
-								if (buff)
-								{
-									buff->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL);
-
-									glColor4ubv(hull_colors[i].mV);
-									buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-								}
-
+								glColor4ubv(hull_colors[i].mV);
+								LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
+								
 								if (explode > 0.f)
 								{
 									gGL.popMatrix();
@@ -4724,7 +4712,6 @@ void LLFloaterModelPreview::DecompRequest::completed()
 			{
 				if (sInstance->mModelPreview)
 				{
-					sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
 					sInstance->mModelPreview->mDirty = true;
 					LLFloaterModelPreview::sInstance->mModelPreview->refresh();
 				}

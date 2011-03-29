@@ -358,8 +358,7 @@ public:
 	U32 mGroup;
 	std::map<LLPointer<LLModel>, U32> mObject;
 	U32 mMaxTriangleLimit;
-	std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > > mPhysicsMesh;
-
+	
 	LLMeshUploadThread::instance_list mUploadData;
 	std::set<LLViewerFetchedTexture* > mTextureSet;
 

@@ -485,7 +485,6 @@ void LLFloaterModelWizard::DecompRequest::completed()
 	{
 		if (sInstance->mModelPreview)
 		{
-			sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
 			sInstance->mModelPreview->mDirty = true;
 			LLFloaterModelWizard::sInstance->mModelPreview->refresh();
 		}
