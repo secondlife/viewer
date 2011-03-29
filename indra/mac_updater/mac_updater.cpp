@@ -1230,20 +1230,14 @@ void *updatethreadproc(void*)
 	// Move work directory to the trash
 	if(tempDir[0] != 0)
 	{
-//		chdir("/");
-//		FSDeleteObjects(tempDirRef);
-
 		llinfos << "Moving work directory to the trash." << llendl;
 
-		err = FSMoveObject(&tempDirRef, &trashFolderRef, NULL);
+		FSRef trashRef;
+		OSStatus err = FSMoveObjectToTrashSync(&tempDirRef, &trashRef, 0); 
 		if(err != noErr) {
 			llwarns << "failed to move files to trash, (error code " <<
 				err << ")" << llendl;
 		}
-
-//		snprintf(temp, sizeof(temp), "rm -rf '%s'", tempDir);
-//		printf("%s\n", temp);
-//		system(temp);
 	}
 	
 	if(!gCancelled  && !gFailure && (target[0] != 0))
