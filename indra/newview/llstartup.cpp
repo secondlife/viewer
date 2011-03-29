@@ -749,8 +749,6 @@ bool idle_startup()
 			}     
 			LLPanelLogin::giveFocus();
 
-			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
-
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else

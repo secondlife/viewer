@@ -66,6 +66,7 @@ public:
 	LLViewerObject*		getClickActionObject() { return mClickActionObject; }
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
 	void 				resetSelection();
+	void				blockClickToWalk() { mBlockClickToWalk = true; }
 	
 	static void			selectionPropertiesReceived();
 
@@ -105,7 +106,7 @@ private:
 	LLPointer<LLHUDEffectBlob>	mAutoPilotDestination;
 	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
 	bool				mClockwise;			
-	bool				mAbortClickToWalk;
+	bool				mBlockClickToWalk;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;

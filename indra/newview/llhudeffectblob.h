@@ -28,6 +28,7 @@
 #define LL_LLHUDEFFECTBLOB_H
 
 #include "llhudeffect.h"
+#include "lluiimage.h"
 
 class LLHUDEffectBlob : public LLHUDEffect
 {
@@ -45,6 +46,7 @@ protected:
 private:
 	S32				mPixelSize;
 	LLFrameTimer	mTimer;
+	LLPointer<LLUIImage> mImage;
 };
 
 #endif // LL_LLHUDEFFECTBLOB_H
