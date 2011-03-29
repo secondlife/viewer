@@ -2143,56 +2143,6 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
 	return retval;
 }
 
-BOOL LLVolume::createVolumeFacesFromFile(const std::string& file_name)
-{
-	std::ifstream is;
-	
-	is.open(file_name.c_str(), std::ifstream::in | std::ifstream::binary);
-
-	BOOL success = createVolumeFacesFromStream(is);
-	
-	is.close();
-
-	return success;
-}
-
-BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
-{
-	mSculptLevel = -1;  // default is an error occured
-
-	LLSD header;
-	{
-		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
-		{
-			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
-			return FALSE;
-		}
-	}
-	
-	std::string nm[] = 
-	{
-		"lowest_lod",
-		"low_lod",
-		"medium_lod",
-		"high_lod",
-		"physics_shape",
-	};
-
-	const S32 MODEL_LODS = 5;
-
-	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
-
-	if (header[nm[lod]]["offset"].asInteger() == -1 || 
-		header[nm[lod]]["size"].asInteger() == 0 )
-	{ //cannot load requested LOD
-		return FALSE;
-	}
-
-	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
-
-	return unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger());
-}
-
 bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
 	//input stream is now pointing at a zlib compressed block of LLSD

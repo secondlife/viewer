@@ -389,7 +389,11 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 		gAgentAvatarp->resetJointPositions();
 	}
 
+	
+	if ( mModelPreview )
+	{
 	delete mModelPreview;
+	}
 
 	if (mGLName)
 	{
@@ -1326,17 +1330,19 @@ bool LLModelLoader::doLoadModel()
 						{ //get bind shape matrix
 							domFloat4x4& dom_value = bind_mat->getValue();
 							
+							LLMeshSkinInfo& skin_info = model->mSkinInfo;
+
 							for (int i = 0; i < 4; i++)
 							{
 								for(int j = 0; j < 4; j++)
 								{
-									model->mBindShapeMatrix.mMatrix[i][j] = dom_value[i + j*4];
+									skin_info.mBindShapeMatrix.mMatrix[i][j] = dom_value[i + j*4];
 								}
 							}
 							
 							LLMatrix4 trans = normalized_transformation;
-							trans *= model->mBindShapeMatrix;
-							model->mBindShapeMatrix = trans;
+							trans *= skin_info.mBindShapeMatrix;
+							skin_info.mBindShapeMatrix = trans;
 							
 						}
 						
@@ -1475,7 +1481,7 @@ bool LLModelLoader::doLoadModel()
 							xsNMTOKEN semantic = input->getSemantic();
 							
 							if (strcmp(semantic, COMMON_PROFILE_INPUT_JOINT) == 0)
-							{ //found joint source, fill model->mJointMap and model->mJointList
+							{ //found joint source, fill model->mJointMap and model->mSkinInfo.mJointNames
 								daeElement* elem = input->getSource().getElement();
 								
 								domSource* source = daeSafeCast<domSource>(elem);
@@ -1496,8 +1502,8 @@ bool LLModelLoader::doLoadModel()
 											{
 												name = mJointMap[name];
 											}
-											model->mJointList.push_back(name);
-											model->mJointMap[name] = j;
+											model->mSkinInfo.mJointNames.push_back(name);
+											model->mSkinInfo.mJointMap[name] = j;
 										}
 									}
 									else
@@ -1514,8 +1520,8 @@ bool LLModelLoader::doLoadModel()
 												{
 													name = mJointMap[name];
 												}
-												model->mJointList.push_back(name);
-												model->mJointMap[name] = j;
+												model->mSkinInfo.mJointNames.push_back(name);
+												model->mSkinInfo.mJointMap[name] = j;
 											}
 										}
 									}
@@ -1544,7 +1550,7 @@ bool LLModelLoader::doLoadModel()
 												}
 											}
 											
-											model->mInvBindMatrix.push_back(mat);
+											model->mSkinInfo.mInvBindMatrix.push_back(mat);
 										}
 									}
 								}
@@ -1555,8 +1561,8 @@ bool LLModelLoader::doLoadModel()
 						//(which means we have all the joints that are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).
-						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mJointList ) );
-							if ( !skeletonWithNoRootNode && !model->mJointList.empty() && mPreview->isRigValid() ) 
+						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mSkinInfo.mJointNames ) );
+						if ( !skeletonWithNoRootNode && !model->mSkinInfo.mJointNames.empty() && mPreview->isRigValid() ) 
 						{
 							mResetJoints = true;
 						}
@@ -1596,8 +1602,8 @@ bool LLModelLoader::doLoadModel()
 						//in the same order as they were stored in the joint buffer. The joints associated
 						//with the skeleton are not stored in the same order as they are in the exported joint buffer.
 						//This remaps the skeletal joints to be in the same order as the joints stored in the model.
-						std::vector<std::string> :: const_iterator jointIt  = model->mJointList.begin();
-						const int jointCnt = model->mJointList.size();
+						std::vector<std::string> :: const_iterator jointIt  = model->mSkinInfo.mJointNames.begin();
+						const int jointCnt = model->mSkinInfo.mJointNames.size();
 						for ( int i=0; i<jointCnt; ++i, ++jointIt )
 						{
 							std::string lookingForJoint = (*jointIt).c_str();
@@ -1606,9 +1612,9 @@ bool LLModelLoader::doLoadModel()
 							if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
 							{
 								LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
-								LLMatrix4 newInverse = model->mInvBindMatrix[i];
+								LLMatrix4 newInverse = model->mSkinInfo.mInvBindMatrix[i];
 								newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
-								model->mAlternateBindMatrix.push_back( newInverse );
+								model->mSkinInfo.mAlternateBindMatrix.push_back( newInverse );
 							}
 							else
 							{
@@ -1813,10 +1819,15 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		{
 			std::stringstream str(mesh[i].asString());
 			LLPointer<LLModel> loaded_model = new LLModel(volume_params, (F32) lod);
-			if (loaded_model->createVolumeFacesFromStream(str))
+			if (loaded_model->loadModel(str))
 			{
 				loaded_model->mLocalID = i;
 				model[lod].push_back(loaded_model);
+
+				if (lod == LLModel::LOD_HIGH && !loaded_model->mSkinInfo.mJointNames.empty())
+				{ //check to see if rig is valid
+					mPreview->setRigValid( doesJointArrayContainACompleteRig( loaded_model->mSkinInfo.mJointNames ) );
+				}
 			}
 			else
 			{
@@ -1878,8 +1889,6 @@ void LLModelLoader::loadModelCallback()
 	{ //wait until this thread is stopped before deleting self
 		apr_sleep(100);
 	}
-
-	delete this;
 }
 
 void LLModelLoader::handlePivotPoint( daeElement* pRoot )
@@ -2455,6 +2464,7 @@ LLModelPreview::~LLModelPreview()
 {
 	if (mModelLoader)
 	{
+		delete mModelLoader;
 		mModelLoader->mPreview = NULL;
 	}
 	//*HACK : *TODO : turn this back on when we understand why this crashes
@@ -2510,8 +2520,8 @@ U32 LLModelPreview::calcResourceCost()
 
 			LLModel::convex_hull_decomposition& decomp =
 			instance.mLOD[LLModel::LOD_PHYSICS] ?
-			instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp :
-			instance.mModel->mConvexHullDecomp;
+			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
+			instance.mModel->mPhysics.mHull;
 
 			LLSD ret = LLModel::writeModel(
 										   "",
@@ -2729,8 +2739,8 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 
 			LLModel::convex_hull_decomposition& decomp =
 				instance.mLOD[LLModel::LOD_PHYSICS].notNull() ? 
-				instance.mLOD[LLModel::LOD_PHYSICS]->mConvexHullDecomp : 
-				instance.mModel->mConvexHullDecomp;
+				instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull : 
+				instance.mModel->mPhysics.mHull;
 
 			LLModel::writeModel(str, 
 				instance.mLOD[LLModel::LOD_PHYSICS], 
@@ -2901,6 +2911,9 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		mBaseModel.clear();
 		mBaseScene.clear();
 
+		bool skin_weights = false;
+		bool joint_positions = false;
+
 		for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
 		{ //for each LoD
 
@@ -2934,8 +2947,36 @@ void LLModelPreview::loadModelCallback(S32 lod)
 						}
 
 						mModel[lod][idx] = list_iter->mModel;	
+						if (!list_iter->mModel->mSkinWeights.empty())
+						{
+							skin_weights = true;
+
+							if (!list_iter->mModel->mSkinInfo.mAlternateBindMatrix.empty())
+							{
+								joint_positions = true;
+							}
+						}
 					}
 				}
+			}
+		}
+
+		if (mFMP)
+		{
+			LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) mFMP;
+
+			if (skin_weights)
+			{ //enable uploading/previewing of skin weights if present in .slm file
+				fmp->enableViewOption("show_skin_weight");
+				mViewOption["show_skin_weight"] = true;
+				fmp->childSetValue("upload_skin", true);
+			}
+
+			if (joint_positions)
+			{ 
+				fmp->enableViewOption("show_joint_positions");
+				mViewOption["show_joint_positions"] = true;
+				fmp->childSetValue("upload_joints", true);
 			}
 		}
 
@@ -2952,13 +2993,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		mScene[lod] = mModelLoader->mScene;
 		mVertexBuffer[lod].clear();
 
-		if (lod == LLModel::LOD_PHYSICS)
-		{
-			mPhysicsMesh.clear();
-		}
-
 		setPreviewLOD(lod);
-
 
 		if (lod == LLModel::LOD_HIGH)
 		{ //save a copy of the highest LOD for automatic LOD manipulation
@@ -3080,11 +3115,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	if (mBaseModel.empty())
 	{
 		return;
-	}
-
-	if (which_lod == LLModel::LOD_PHYSICS)
-	{ //clear physics mesh map
-		mPhysicsMesh.clear();
 	}
 
 	LLVertexBuffer::unbind();
@@ -3415,11 +3445,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 			//of an open problem).
 			target_model->mPosition = base->mPosition;
 			target_model->mSkinWeights = base->mSkinWeights;
-			target_model->mJointMap = base->mJointMap;
-			target_model->mJointList = base->mJointList;
-			target_model->mInvBindMatrix = base->mInvBindMatrix;
-			target_model->mBindShapeMatrix = base->mBindShapeMatrix;
-			target_model->mAlternateBindMatrix = base->mAlternateBindMatrix;
+			target_model->mSkinInfo = base->mSkinInfo;
 			//copy material list
 			target_model->mMaterialList = base->mMaterialList;
 
@@ -3639,7 +3665,7 @@ void LLModelPreview::updateStatusMessages()
 		LLModel* model = mModel[LLModel::LOD_PHYSICS][i];
 		S32 cur_submeshes = model->getNumVolumeFaces();
 
-		LLModel::convex_hull_decomposition& decomp = model->mConvexHullDecomp;
+		LLModel::convex_hull_decomposition& decomp = model->mPhysics.mHull;
 
 		if (!decomp.empty())
 		{
@@ -4276,12 +4302,17 @@ BOOL LLModelPreview::render()
 					{
 						LLMutexLock(decomp->mMutex);
 
-						std::map<LLPointer<LLModel>, std::vector<LLPointer<LLVertexBuffer> > >::iterator iter =
-							mPhysicsMesh.find(model);
-						if (iter != mPhysicsMesh.end())
+						LLModel::Decomposition& physics = model->mPhysics;
+
+						if (physics.mMesh.empty())
+						{ //build vertex buffer for physics mesh
+							gMeshRepo.buildPhysicsMesh(physics);
+						}
+							
+						if (!physics.mMesh.empty())
 						{ //render hull instead of mesh
 							render_mesh = false;
-							for (U32 i = 0; i < iter->second.size(); ++i)
+							for (U32 i = 0; i < physics.mMesh.size(); ++i)
 							{
 								if (explode > 0.f)
 								{
@@ -4300,14 +4331,8 @@ BOOL LLModelPreview::render()
 									hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
 								}
 
-								LLVertexBuffer* buff = iter->second[i];
-								if (buff)
-								{
-									buff->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL);
-
 									glColor4ubv(hull_colors[i].mV);
-									buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-								}
+								LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
 
 								if (explode > 0.f)
 								{
@@ -4391,12 +4416,12 @@ BOOL LLModelPreview::render()
 
 							//build matrix palette
 							LLMatrix4 mat[64];
-							for (U32 j = 0; j < model->mJointList.size(); ++j)
+							for (U32 j = 0; j < model->mSkinInfo.mJointNames.size(); ++j)
 							{
-								LLJoint* joint = avatar->getJoint(model->mJointList[j]);
+								LLJoint* joint = avatar->getJoint(model->mSkinInfo.mJointNames[j]);
 								if (joint)
 								{
-									mat[j] = model->mInvBindMatrix[j];
+									mat[j] = model->mSkinInfo.mInvBindMatrix[j];
 									mat[j] *= joint->getWorldMatrix();
 								}
 							}
@@ -4437,7 +4462,7 @@ BOOL LLModelPreview::render()
 								//VECTORIZE THIS
 								LLVector3 v(face.mPositions[j].getF32ptr());
 
-								v = v * model->mBindShapeMatrix;
+								v = v * model->mSkinInfo.mBindShapeMatrix;
 								v = v * final_mat;
 
 								position[j] = v;
@@ -4687,7 +4712,6 @@ void LLFloaterModelPreview::DecompRequest::completed()
 			{
 				if (sInstance->mModelPreview)
 				{
-					sInstance->mModelPreview->mPhysicsMesh[mModel] = mHullMesh;
 					sInstance->mModelPreview->mDirty = true;
 					LLFloaterModelPreview::sInstance->mModelPreview->refresh();
 				}

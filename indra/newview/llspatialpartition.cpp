@@ -2961,31 +2961,21 @@ S32 get_physics_detail(const LLVolumeParams& volume_params, const LLVector3& sca
 void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLColor4& line_color)
 {
 	LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
-	const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+	LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 
 	const LLVector3 center(0,0,0);
 	const LLVector3 size(0.25f,0.25f,0.25f);
 
 	if (decomp)
 	{		
-		LLVertexBuffer* buff = decomp->mBaseHullMesh;
-
-		if (buff && buff->getNumVerts() > 0)
+		if (!decomp->mBaseHullMesh.empty())
 		{
-			buff->setBuffer(data_mask);
-
-		/*	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glColor4fv(line_color.mV);
-			buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
-
-			{
-				glColor4fv(color.mV);
-				buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-			}
+			glColor4fv(color.mV);
+			LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions, decomp->mBaseHullMesh.mNormals);
 		}
 		else
 		{
+			gMeshRepo.buildPhysicsMesh(*decomp);
 			gGL.color3f(0,1,1);
 			drawBoxOutline(center, size);
 		}
@@ -2998,19 +2988,16 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 	}
 }
 
-void render_hull(LLVertexBuffer* buff, U32 data_mask, const LLColor4& color, const LLColor4& line_color)
+void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColor4& line_color)
 {
-	buff->setBuffer(data_mask);
-
 	glColor4fv(color.mV);
-	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
-
+	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
 	glColor4fv(line_color.mV);
-	buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -3075,7 +3062,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
 	{
 		LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
-		const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+		LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 			
 		if (decomp)
 		{ //render a physics based mesh
@@ -3084,27 +3071,33 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 			if (!decomp->mHull.empty())
 			{ //decomposition exists, use that
-				for (U32 i = 0; i < decomp->mHull.size(); ++i)
+
+				if (decomp->mMesh.empty())
+				{
+					gMeshRepo.buildPhysicsMesh(*decomp);
+				}
+
+				for (U32 i = 0; i < decomp->mMesh.size(); ++i)
 				{		
-					render_hull(decomp->mMesh[i], data_mask, color, line_color);
+					render_hull(decomp->mMesh[i], color, line_color);
 				}
 			}
-			else if (decomp->mPhysicsShapeMesh.notNull() && decomp->mPhysicsShapeMesh->getNumVerts() > 0)
+			else if (!decomp->mPhysicsShapeMesh.empty())
 			{ 
 				//decomp has physics mesh, render that mesh
 				glColor4fv(color.mV);
-				pushBufferVerts(decomp->mPhysicsShapeMesh, data_mask);
-				
+				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
+								
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glColor4fv(line_color.mV);
-				pushBufferVerts(decomp->mPhysicsShapeMesh, data_mask);
+				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			else
 			{ //no mesh or decomposition, render base hull
 				renderMeshBaseHull(volume, data_mask, color, line_color);
 
-				if (decomp->mPhysicsShapeMesh.isNull())
+				if (decomp->mPhysicsShapeMesh.empty())
 				{
 					//attempt to fetch physics shape mesh if available
 					gMeshRepo.fetchPhysicsShape(mesh_id);
