@@ -12,6 +12,10 @@
  title="XUI PREVIEW TOOL"
  translate="false"
  width="750">
+    <string name="ExternalEditorNotSet">
+Select an editor by setting the environment variable LL_XUI_EDITOR
+or the ExternalEditor setting
+or specifying its path in the "Editor Path" field.</string>
     <panel
      bottom="640"
      follows="left|top|right|bottom"

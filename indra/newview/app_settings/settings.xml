@@ -3198,7 +3198,7 @@
     <key>FirstRunThisInstall</key>
     <map>
       <key>Comment</key>
-      <string>Specifies that you have not run the viewer since you installed the latest update</string>
+      <string>Specifies that you have not run the viewer since you performed a clean install</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3206,7 +3206,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstSelectedDisabledPopups</key>
+  <key>FirstLoginThisInstall</key>
+  <map>
+    <key>Comment</key>
+    <string>Specifies that you have not logged in with the viewer since you performed a clean install</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstSelectedDisabledPopups</key>
     <map>
       <key>Comment</key>
       <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>

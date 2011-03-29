@@ -64,6 +64,8 @@
 		<radio_item label="Choisir une face" name="radio select face"/>
 	</radio_group>
 	<check_box label="Modification liée" name="checkbox edit linked parts"/>
+	<button label="Lien" name="link_btn"/>
+	<button label="Annuler le lien" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Affiche le coût du rendu calculé pour cet objet">
 		þ : [COUNT]
 	</text>

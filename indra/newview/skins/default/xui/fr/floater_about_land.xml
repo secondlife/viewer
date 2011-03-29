@@ -248,7 +248,7 @@ ou divisé.
 			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Afficher" label_selected="Afficher" name="ShowGroup" />
+			<button label="Afficher" label_selected="Afficher" name="ShowGroup"/>
 			<button label="Retour" label_selected="Renvoyer..." name="ReturnGroup..." tool_tip="Renvoyer les objets à leurs propriétaires."/>
 			<text name="Owned by others:">
 				Appartenant à d&apos;autres :
@@ -336,7 +336,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Options du terrain :
 			</text>
 			<check_box label="Sécurisé (pas de dégâts)" name="check safe" tool_tip="Si cette option est cochée, le terrain est sécurisé et il n&apos;y pas de risques de dommages causés par des combats. Si elle est décochée, des dommages causés par les combats peuvent avoir lieu."/>
-			<check_box  label="Pas de bousculades" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
+			<check_box label="Pas de bousculades" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
 			<check_box label="Afficher le lieu dans la recherche (30 L$/semaine)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="Toutes catégories" name="item0"/>
@@ -351,6 +351,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Parcs et Nature" name="item9"/>
 				<combo_box.item label="Résidentiel" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Location" name="item13"/>
 				<combo_box.item label="Autre" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -365,6 +366,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Parcs et Nature" name="item9"/>
 				<combo_box.item label="Résidentiel" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Location" name="item13"/>
 				<combo_box.item label="Autre" name="item12"/>
 			</combo_box>
 			<check_box label="Contenu Modéré" name="MatureCheck" tool_tip=""/>
@@ -444,7 +446,7 @@ musique :
 				(défini par le domaine
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Autoriser l&apos;accès public ([MATURITY])
+				Autoriser l&apos;accès public ([MATURITY]) (Remarque : des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée)
 			</panel.string>
 			<panel.string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.
