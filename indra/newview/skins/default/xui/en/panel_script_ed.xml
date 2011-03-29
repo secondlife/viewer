@@ -28,6 +28,10 @@
      name="Title">
         Script: [NAME]
     </panel.string>
+    <panel.string
+     name="external_editor_not_set">
+        Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
+    </panel.string>
     <menu_bar
      bg_visible="false"
      follows="left|top"
