@@ -9,7 +9,7 @@
  visible="false"
  width="128">
     <menu_item_check
-         label="Voice Enabled"
+         label="Speak Button"
          layout="topleft"
          name="EnableVoiceChat">
            <menu_item_check.on_click
@@ -19,7 +19,6 @@
              function="CheckControl"
              parameter="EnableVoiceChat" />
     </menu_item_check>
-    <menu_item_separator/>
     <menu_item_check
          label="Gesture button"
          layout="topleft"
