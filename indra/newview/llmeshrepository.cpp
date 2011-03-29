@@ -1111,66 +1111,9 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 	}
 	
 	{
-		LLMeshSkinInfo info;
+		LLMeshSkinInfo info(skin);
 		info.mMeshID = mesh_id;
 
-		if (skin.has("joint_names"))
-		{
-			for (U32 i = 0; i < skin["joint_names"].size(); ++i)
-			{
-				info.mJointNames.push_back(skin["joint_names"][i]);
-			}
-		}
-
-		if (skin.has("inverse_bind_matrix"))
-		{
-			for (U32 i = 0; i < skin["inverse_bind_matrix"].size(); ++i)
-			{
-				LLMatrix4 mat;
-				for (U32 j = 0; j < 4; j++)
-				{
-					for (U32 k = 0; k < 4; k++)
-					{
-						mat.mMatrix[j][k] = skin["inverse_bind_matrix"][i][j*4+k].asReal();
-					}
-				}
-
-				info.mInvBindMatrix.push_back(mat);
-			}
-		}
-
-		if (skin.has("bind_shape_matrix"))
-		{
-			for (U32 j = 0; j < 4; j++)
-			{
-				for (U32 k = 0; k < 4; k++)
-				{
-					info.mBindShapeMatrix.mMatrix[j][k] = skin["bind_shape_matrix"][j*4+k].asReal();
-				}
-			}
-		}
-
-		if (skin.has("alt_inverse_bind_matrix"))
-		{
-			for (U32 i = 0; i < skin["alt_inverse_bind_matrix"].size(); ++i)
-			{
-				LLMatrix4 mat;
-				for (U32 j = 0; j < 4; j++)
-				{
-					for (U32 k = 0; k < 4; k++)
-					{
-						mat.mMatrix[j][k] = skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
-					}
-				}
-				
-				info.mAlternateBindMatrix.push_back(mat);
-			}
-		}
-
-		if (skin.has("pelvis_offset"))
-		{
-			info.mPelvisOffset = skin["pelvis_offset"].asReal();
-		}
 		//llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
 		mSkinInfoQ.push(info);
 	}

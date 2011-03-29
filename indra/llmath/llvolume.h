@@ -1048,8 +1048,6 @@ protected:
 	BOOL generate();
 	void createVolumeFaces();
 public:
-	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
-	virtual BOOL createVolumeFacesFromStream(std::istream& is);
 	virtual bool unpackVolumeFaces(std::istream& is, S32 size);
 
 	virtual void makeTetrahedron();
