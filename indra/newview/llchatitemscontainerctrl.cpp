@@ -213,17 +213,6 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 		{
 			LLStyle::Params style_params_name;
 
-			std::string href;
-
-			if (mSourceType == CHAT_SOURCE_AGENT)
-			{
-				href = LLSLURL("agent", mFromID, "about").getSLURLString();
-			}
-			else
-			{
-				href = LLSLURL("object", mFromID, "inspect").getSLURLString();
-			}
-
 			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 			style_params_name.color(user_name_color);
 
@@ -232,7 +221,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
-			style_params_name.link_href = href;
+			style_params_name.link_href = notification["sender_slurl"].asString();
 			style_params_name.is_link = true;
 
 			msg_text->appendText(str_sender, FALSE, style_params_name);

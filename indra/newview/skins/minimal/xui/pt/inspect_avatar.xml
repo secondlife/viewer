@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[IDADE]
+	</string>
+	<string name="Details">
+		[PERFIL_SL]
+	</string>
+	<text name="user_details">
+		This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
+	</text>
+	<slider name="volume_slider" tool_tip="Volume de Voz" value="0.5"/>
+	<button label="Adicionar amigo" name="add_friend_btn"/>
+	<button label="MI" name="im_btn"/>
+	<button label="Perfil" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Disabilitar Voz" name="disable_voice"/>
+		<button label="Habilitar Voz" name="enable_voice"/>
+	</panel>
+</floater>

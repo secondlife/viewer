@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="25"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background"
+ can_close="false"
+ can_minimize="false"
+ height="150"
+ layout="topleft"
+ name="inspect_object"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="228">
+  <string name="Creator">By [CREATOR]</string>
+  <string name="CreatorAndOwner">
+By [CREATOR]
+Owner [OWNER]
+  </string>
+  <string name="Price">L$[AMOUNT]</string>
+  <string name="PriceFree">Free!</string>
+  <string name="Touch">Touch</string>
+  <string name="Sit">Sit</string>
+  <text
+     parse_urls="false"
+     follows="all"
+     font="SansSerifLarge"
+     height="30"
+     left="8"
+     name="object_name"
+     text_color="White"
+     top="6"
+     use_ellipses="true"
+     word_wrap="true"
+     width="220" />
+  <text
+   follows="all"
+   height="50"
+   left="8"
+   name="object_creator"
+   top_pad="6"
+   use_ellipses="true"
+   width="220">
+    by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+  </text>
+  <text
+   follows="all"
+   font="SansSerifSmall"
+   font.style="BOLD"
+   height="14"
+   halign="right"
+   right="-5"
+   name="price_text"
+   text_color="white"
+   top="60"
+   font_shadow="none"
+   width="60">
+L$30,000
+  </text>
+  <text
+   clip_partial="true"
+   follows="all"
+   font="SansSerifSmall"
+   height="25"
+   left="8"
+   name="object_description"
+   top="76"
+   use_ellipses="true"
+   width="220"
+   word_wrap="true">
+  </text>
+  <!-- Overlapping buttons for all default actions.  Show "Buy" if
+  for sale, "Sit" if can sit, etc. -->
+  <icon
+   name="secure_browsing"
+   image_name="Lock"
+   left="0"
+   visible="false"
+   width="18"
+   height="18"
+   top="103"
+   tool_tip="Secure Browsing"
+   follows="left|top" />
+   <text
+   follows="all"
+   font="SansSerifSmall"
+   height="13"
+   name="object_media_url"
+   width="207"
+   left_pad="2"
+   top_delta="0"
+   max_length = "50"
+   use_ellipses="true">
+   http://www.superdupertest.com
+</text>
+  <button
+   follows="top|left"
+   height="20"
+   label="Take Copy"
+   left_delta="0"
+   name="take_free_copy_btn"
+   top_delta="0"
+   width="80" />
+  <button
+   follows="top|left"
+   height="20"
+   label="Touch"
+   left_delta="0"
+   name="touch_btn"
+   top_delta="0"
+   width="80" />
+  <button
+   follows="top|left"
+   height="20"
+   label="Sit"
+   left_delta="0"
+   name="sit_btn"
+   top_delta="0"
+   width="80" />
+  <button
+   follows="top|left"
+   height="20"
+   label="Open"
+   left_delta="0"
+   name="open_btn"
+   top_delta="0"
+   width="80" />
+
+ <!--  non-overlapping buttons here -->
+  <menu_button
+     follows="top|left"
+     height="20"
+     image_overlay="OptionsMenu_Off"
+     menu_filename="menu_inspect_object_gear.xml"
+     name="gear_btn"
+     right="-5"
+     top_delta="0"
+     width="35" />
+</floater>

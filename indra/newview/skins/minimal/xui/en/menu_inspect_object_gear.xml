@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu
+   create_jump_keys="true"
+   layout="topleft"
+   mouse_opaque="false"
+   visible="false"
+   name="Gear Menu">
+  <menu_item_call
+   label="Touch"
+   layout="topleft"
+   enabled="true"
+   name="touch">    
+    <menu_item_call.on_click
+     function="InspectObject.Touch"/>
+    <menu_item_call.on_visible
+     function="Object.EnableTouch" />
+  </menu_item_call>
+  <menu_item_call
+  label="Sit"
+  layout="topleft"
+  name="sit">
+    <menu_item_call.on_click
+     function="InspectObject.Sit"/>
+    <menu_item_call.on_visible
+     function="Object.EnableSit"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Report"
+   layout="topleft"
+   name="report">
+    <menu_item_call.on_click
+     function="Object.ReportAbuse" />
+  </menu_item_call>
+  <menu_item_call
+   label="Block"
+   layout="topleft"
+   name="block">
+    <menu_item_call.on_click
+     function="Object.Mute" />
+    <menu_item_call.on_visible
+     function="Object.EnableMute" />
+  </menu_item_call>
+  <menu_item_call
+    label="Zoom In"
+    layout="topleft"
+   name="zoom_in">
+    <menu_item_call.on_click
+     function="InspectObject.ZoomIn" />
+  </menu_item_call>    
+</toggleable_menu>

@@ -32,7 +32,7 @@
 	<check_box initial_value="true" label="Activar plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Activar Javascript" name="browser_javascript_enabled"/>
-	<check_box initial_value="falso" label="Permitir ventanas emergentes de navegadores de medios" name="media_popup_enabled"/>
+	<check_box initial_value="falso" label="Permitir las ventanas emergentes en el navegador" name="media_popup_enabled"/>
 	<check_box initial_value="false" label="Activar web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Localización del proxy:

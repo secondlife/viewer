@@ -30,6 +30,7 @@
 
 // newview includes
 #include "lltransientfloatermgr.h"
+#include "llsidetray.h"
 
 LLFloaterSideTrayTab::LLFloaterSideTrayTab(const LLSD& key, const Params& params)
 :	LLFloater(key, params)
@@ -42,4 +43,9 @@ LLFloaterSideTrayTab::LLFloaterSideTrayTab(const LLSD& key, const Params& params
 LLFloaterSideTrayTab::~LLFloaterSideTrayTab()
 {
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::GLOBAL, this);
+}
+
+void LLFloaterSideTrayTab::onClose(bool app_quitting)
+{
+	LLSideTray::getInstance()->setTabDocked(getName(), true);
 }

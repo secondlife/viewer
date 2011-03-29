@@ -261,6 +261,24 @@
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 
+    <key>sessionsettings</key>
+    <map>
+      <key>desc</key>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration overrides.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- Special case. Mapped to settings procedurally. -->
+    </map>
+
+    <key>usersessionsettings</key>
+    <map>
+      <key>desc</key>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration user overrides.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- Special case. Mapped to settings procedurally. -->
+    </map>
+    
     <key>login</key>
     <map>
       <key>desc</key>

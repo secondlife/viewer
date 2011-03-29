@@ -98,6 +98,8 @@ private:
 	static void onServerComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
 	static void updateStartSLURL();
+	static void onModeChange();
+	static void onModeChangeConfirm(const LLSD& notification, const LLSD& response);
 	
 	static void updateLoginPanelLinks();
 
