@@ -531,6 +531,7 @@ BOOL LLFloaterModelWizard::postBuild()
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelWizard::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelLoadedCallback(boost::bind(&LLFloaterModelWizard::modelLoadedCallback, this));
+	mModelPreview->mViewOption["show_textures"] = true;
 
 	center();
 

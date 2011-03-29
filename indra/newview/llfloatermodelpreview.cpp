@@ -4218,9 +4218,9 @@ BOOL LLModelPreview::render()
 						glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
 						if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
 						{
-							gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
 							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
 							{
+								gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
 								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap.get());
 							}
 						}
