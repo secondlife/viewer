@@ -1,10 +1,9 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llimage_libtest.h
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,19 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#ifndef LLIMAGE_LIBTEST_H
+#define LLIMAGE_LIBTEST_H
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
-
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 6;
-const S32 LL_VERSION_PATCH = 3;
-const S32 LL_VERSION_BUILD = 0;
-
-const char * const LL_CHANNEL = "Second Life Developer";
-
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
 
 #endif

@@ -474,6 +474,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 
 LLImageCompressionTester::~LLImageCompressionTester()
 {
+	outputTestResults();
 	LLImageJ2C::sTesterp = NULL;
 }
 

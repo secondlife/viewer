@@ -72,9 +72,9 @@ Fehlerdetails: The notification called &apos;[_NAME]&apos; was not found in noti
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
-		Eine Verbindung zum [SECOND_LIFE_GRID] konnte nicht hergestellt werden.
-&apos;[DIAGNOSTIC]&apos;
-Bitte vergewissern Sie sich, dass Ihre Internetverbindung funktioniert.
+		Verbindung nicht möglich zum [SECOND_LIFE_GRID].
+    &apos;[DIAGNOSTIC]&apos;
+Stellen Sie sicher, dass Ihre Internetverbindung funktioniert.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
@@ -339,13 +339,6 @@ Sie benötigen ein Konto, um [SECOND_LIFE] betreten zu können. Möchten Sie jet
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Sie müssen entweder den Benutzernamen oder den Vor- und Nachnamen Ihres Avatars in das Feld „Benutzername“ eingeben und die Anmeldung dann erneut versuchen.
-	</notification>
-	<notification name="AddClassified">
-		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
-Füllen Sie Ihre Anzeige aus und klicken Sie auf &apos;Veröffentlichen...&apos;, um sie zum Verzeichnis hinzuzufügen.
-Sie werden gebeten für die Anzeige zu bezahlen, wenn Sie auf &apos;Veröffentlichen&apos; klicken.
-Wenn Sie mehr bezahlen, erscheint Ihre Anzeige weiter oben in der Liste, ebenso wenn ein Benutzer nach Ihren Suchbegriffen sucht.
-		<usetemplate ignoretext="So wird eine neue Anzeige erstellt" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Anzeige „[NAME]“ löschen?
@@ -2768,11 +2761,11 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 		Wählen Sie Einwohner aus, für die Sie das Objekt freigeben möchten.
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		Möchten Sie diese Objekte wirklich für andere freigeben:
+		Möchten Sie wirklich die folgenden Objekte:
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-Für folgende Einwohner:
+für folgende Einwohner freigeben:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -2863,9 +2856,6 @@ Alle stummschalten?
 	<notification label="Welt erkunden" name="HintDestinationGuide">
 		Im Reiseführer finden Sie Tausende von interessanten Orten. Wählen Sie einfach einen Ort aus und klicken Sie auf „Teleportieren“.
 	</notification>
-	<notification label="Aussehen ändern" name="HintAvatarPicker">
-		Möchten Sie einen neuen Look ausprobieren? Klicken Sie auf die Schaltfläche unten, um mehr Avatare zu sehen.
-	</notification>
 	<notification label="Seitenleiste" name="HintSidePanel">
 		In der Seitenleiste können Sie schnell auf Ihr Inventar, Ihre Outfits, Ihre Profile u. ä. zugreifen.
 	</notification>
@@ -2902,6 +2892,38 @@ Alle stummschalten?
 			<button name="ok" text="Senden"/>
 			<button name="cancel" text="Abbrechen"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Zum Wechsel des Modus müssen Sie das Programm beenden und neu starten.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		Die Erstellung und Bearbeitung von Anzeigen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		Die Erstellung und Bearbeitung von Gruppen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		Die Erstellung und Bearbeitung von Auswahlen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		Die Anzeige der Weltkarte ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Voice-Anrufe sind nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Die Freigabe ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		Die Bezahlung anderer Einwohner ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
