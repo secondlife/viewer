@@ -1881,24 +1881,29 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 void LLModel::setConvexHullDecomposition(
 	const LLModel::convex_hull_decomposition& decomp)
 {
-	mConvexHullDecomp = decomp;
+	mPhysics.mHull = decomp;
+	mPhysics.mMesh.clear();
+	updateHullCenters();
+}
 
-	mHullCenter.resize(mConvexHullDecomp.size());
+void LLModel::updateHullCenters()
+{
+	mHullCenter.resize(mPhysics.mHull.size());
 	mHullPoints = 0;
 	mCenterOfHullCenters.clear();
 
-	for (U32 i = 0; i < decomp.size(); ++i)
+	for (U32 i = 0; i < mPhysics.mHull.size(); ++i)
 	{
 		LLVector3 cur_center;
 
-		for (U32 j = 0; j < decomp[i].size(); ++j)
+		for (U32 j = 0; j < mPhysics.mHull[i].size(); ++j)
 		{
-			cur_center += decomp[i][j];
+			cur_center += mPhysics.mHull[i][j];
 		}
 		mCenterOfHullCenters += cur_center;
-		cur_center *= 1.f/decomp[i].size();
+		cur_center *= 1.f/mPhysics.mHull[i].size();
 		mHullCenter[i] = cur_center;
-		mHullPoints += decomp[i].size();
+		mHullPoints += mPhysics.mHull[i].size();
 	}
 
 	mCenterOfHullCenters *= 1.f / mHullPoints;
@@ -1944,11 +1949,14 @@ bool LLModel::loadModel(std::istream& is)
 		std::ios::pos_type cur_pos = is.tellg();
 		loadSkinInfo(header, is);
 		is.seekg(cur_pos);
+	}
+
+	if (lod == LLModel::LOD_PHYSICS)
+	{
+		std::ios::pos_type cur_pos = is.tellg();
 		loadDecomposition(header, is);
 		is.seekg(cur_pos);
 	}
-
-	
 
 	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
 
@@ -2019,6 +2027,22 @@ bool LLModel::loadSkinInfo(LLSD& header, std::istream &is)
 
 bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 {
+	S32 offset = header["decomposition"]["offset"].asInteger();
+	S32 size = header["decomposition"]["size"].asInteger();
+
+	if (offset >= 0 && size > 0)
+	{
+		is.seekg(offset, std::ios_base::cur);
+
+		LLSD data;
+
+		if (unzip_llsd(data, is, size))
+		{
+			mPhysics.fromLLSD(data);
+			updateHullCenters();
+		}
+	}
+
 	return true;
 }
 
@@ -2131,5 +2155,106 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
 	}
 
 	return ret;
+}
+
+LLModel::Decomposition::Decomposition(LLSD& data)
+{
+	fromLLSD(data);
+}
+
+void LLModel::Decomposition::fromLLSD(LLSD& decomp)
+{
+	if (decomp.has("HullList"))
+	{
+		// updated for const-correctness. gcc is picky about this type of thing - Nyx
+		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
+		const LLSD::Binary& position = decomp["Position"].asBinary();
+
+		U16* p = (U16*) &position[0];
+
+		mHull.resize(hulls.size());
+
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		min.setValue(decomp["Min"]);
+		max.setValue(decomp["Max"]);
+		range = max-min;
+
+		for (U32 i = 0; i < hulls.size(); ++i)
+		{
+			U16 count = (hulls[i] == 0) ? 256 : hulls[i];
+			
+			for (U32 j = 0; j < count; ++j)
+			{
+				mHull[i].push_back(LLVector3(
+					(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
+					(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
+					(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+				p += 3;
+			}		 
+
+		}
+	}
+
+	if (decomp.has("Hull"))
+	{
+		const LLSD::Binary& position = decomp["Hull"].asBinary();
+
+		U16* p = (U16*) &position[0];
+
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		min.setValue(decomp["Min"]);
+		max.setValue(decomp["Max"]);
+		range = max-min;
+
+		U16 count = position.size()/6;
+		
+		for (U32 j = 0; j < count; ++j)
+		{
+			mBaseHull.push_back(LLVector3(
+				(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
+				(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
+				(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+			p += 3;
+		}		 
+	}
+	else
+	{
+		//empty base hull mesh to indicate decomposition has been loaded
+		//but contains no base hull
+		mBaseHullMesh.clear();;
+	}
+
+}
+
+void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
+{
+	if (!rhs)
+	{
+		return;
+	}
+
+	if (mMeshID != rhs->mMeshID)
+	{
+		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+	}
+
+	if (mBaseHull.empty())
+	{ //take base hull and decomposition from rhs
+		mHull = rhs->mHull;
+		mBaseHull = rhs->mBaseHull;
+		mMesh = rhs->mMesh;
+		mBaseHullMesh = rhs->mBaseHullMesh;
+	}
+
+	if (mPhysicsShapeMesh.empty())
+	{ //take physics shape mesh from rhs
+		mPhysicsShapeMesh = rhs->mPhysicsShapeMesh;
+	}
 }
 

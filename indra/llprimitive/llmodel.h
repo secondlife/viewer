@@ -27,6 +27,7 @@
 #ifndef LL_LLMODEL_H
 #define LL_LLMODEL_H
 
+#include "llpointer.h"
 #include "llvolume.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -53,7 +54,6 @@ public:
 	LLMatrix4 mBindShapeMatrix;
 	float mPelvisOffset;
 };
-
 
 class LLModel : public LLVolume
 {
@@ -208,9 +208,10 @@ public:
 	float	mPelvisOffset;
 	// convex hull decomposition
 	S32 mDecompID;
-	convex_hull_decomposition mConvexHullDecomp;
+	
 	void setConvexHullDecomposition(
 		const convex_hull_decomposition& decomp);
+	void updateHullCenters();
 
 	LLVector3 mCenterOfHullCenters;
 	std::vector<LLVector3> mHullCenter;
@@ -218,6 +219,44 @@ public:
 
 	//ID for storing this model in a .slm file
 	S32 mLocalID;
+
+	class PhysicsMesh
+	{
+	public:
+		std::vector<LLVector3> mPositions;
+		std::vector<LLVector3> mNormals;
+
+		void clear()
+		{
+			mPositions.clear();
+			mNormals.clear();
+		}
+
+		bool empty() const
+		{
+			return mPositions.empty();
+		}
+	};
+
+	class Decomposition
+	{
+	public:
+		Decomposition() { }
+		Decomposition(LLSD& data);
+		void fromLLSD(LLSD& data);
+		
+		void merge(const Decomposition* rhs);
+
+		LLUUID mMeshID;
+		LLModel::convex_hull_decomposition mHull;
+		LLModel::hull mBaseHull;
+
+		std::vector<LLModel::PhysicsMesh> mMesh;
+		LLModel::PhysicsMesh mBaseHullMesh;
+		LLModel::PhysicsMesh mPhysicsShapeMesh;
+	};
+
+	Decomposition mPhysics;
 
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);
