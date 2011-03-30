@@ -318,7 +318,7 @@ public:
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	const LLSD& getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -434,7 +434,7 @@ public:
 	static U32 sCacheBytesWritten;
 	static U32 sPeakKbps;
 	
-	static F32 getStreamingCost(const LLSD& header, F32 radius);
+	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1);
 
 	LLMeshRepository();
 
@@ -452,6 +452,7 @@ public:
 	void notifyDecompositionReceived(LLModel::Decomposition* info);
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+	static S32 getActualMeshLOD(LLSD& header, S32 lod);
 	U32 calcResourceCost(LLSD& header);
 	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
@@ -462,7 +463,7 @@ public:
 	void buildHull(const LLVolumeParams& params, S32 detail);
 	void buildPhysicsMesh(LLModel::Decomposition& decomp);
 
-	const LLSD& getMeshHeader(const LLUUID& mesh_id);
+	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
 			bool upload_skin, bool upload_joints);

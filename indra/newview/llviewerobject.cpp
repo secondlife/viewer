@@ -3134,7 +3134,7 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost()
+F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
 	return 0.f;
 }
