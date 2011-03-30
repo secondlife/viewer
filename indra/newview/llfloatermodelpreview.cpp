@@ -111,6 +111,8 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 
+const F32 MAXIMUM_PIVOT_OFFSET = 64.0f;
+
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
@@ -1913,8 +1915,19 @@ void LLModelLoader::handlePivotPoint( daeElement* pRoot )
 				if ( pTranslate )
 				{
 					extractTranslation( pTranslate, workingTransform );
-					mPreview->setModelPivot( workingTransform.getTranslation() );
-					mPreview->setHasPivot( true );
+					LLVector3 pivotTrans = workingTransform.getTranslation();
+					if ( pivotTrans[VX] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VX] < -MAXIMUM_PIVOT_OFFSET || 
+						 pivotTrans[VY] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VY] < -MAXIMUM_PIVOT_OFFSET || 
+						 pivotTrans[VZ] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VZ] < -MAXIMUM_PIVOT_OFFSET ) 
+					{
+						llwarns<<"Asset Pivot Node contains an offset that is too large - values should be within (-"<<MAXIMUM_PIVOT_OFFSET<<","<<MAXIMUM_PIVOT_OFFSET<<")."<<llendl;
+						mPreview->setHasPivot( false );
+					}
+					else
+					{
+						mPreview->setModelPivot( pivotTrans );
+						mPreview->setHasPivot( true );					
+					}
 				}					
 			}
 		}
