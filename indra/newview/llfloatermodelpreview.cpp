@@ -2535,6 +2535,15 @@ U32 LLModelPreview::calcResourceCost()
 			instance.mLOD[LLModel::LOD_PHYSICS] ?
 			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
 			instance.mModel->mPhysics.mHull;
+			
+			//update instance skin info for each lod 
+			for ( int j=0; j<LLModel::NUM_LODS; ++j )
+			{	
+				if ( instance.mLOD[j] )
+				{
+					instance.mLOD[j]->mSkinInfo.mPelvisOffset = mPelvisZOffset;
+				}
+			}
 
 			LLSD ret = LLModel::writeModel(
 										   "",
