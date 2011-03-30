@@ -2536,7 +2536,7 @@ U32 LLModelPreview::calcResourceCost()
 			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
 			instance.mModel->mPhysics.mHull;
 			
-			//update instance skin info for each lod 
+			//update instance skin info for each lods pelvisZoffset 
 			for ( int j=0; j<LLModel::NUM_LODS; ++j )
 			{	
 				if ( instance.mLOD[j] )
