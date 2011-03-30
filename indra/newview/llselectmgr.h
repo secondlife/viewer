@@ -278,14 +278,14 @@ public:
 	LLSelectNode* findNode(LLViewerObject* objectp);
 
 	// count members
-	S32 getObjectCount(BOOL mesh_adjust = FALSE);
+	S32 getObjectCount();
 	F32 getSelectedObjectCost();
 	F32 getSelectedLinksetCost();
 	F32 getSelectedPhysicsCost();
 	F32 getSelectedLinksetPhysicsCost();
 	S32 getSelectedObjectRenderCost();
 	
-	F32 getSelectedObjectStreamingCost();
+	F32 getSelectedObjectStreamingCost(S32* total_bytes = NULL, S32* visible_bytes = NULL);
 	U32 getSelectedObjectTriangleCount();
 
 	S32 getTECount();

@@ -1535,8 +1535,6 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 
 S32 LLMeshRepoThread::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod) 
 { //only ever called from main thread
-	lod = llclamp(lod, 0, 3);
-
 	LLMutexLock lock(mHeaderMutex);
 	mesh_header_map::iterator iter = mMeshHeader.find(mesh_params.getSculptID());
 
@@ -1544,40 +1542,48 @@ S32 LLMeshRepoThread::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 	{
 		LLSD& header = iter->second;
 
-		if (header.has("404"))
-		{
-			return -1;
-		}
-
-		if (header[header_lod[lod]]["size"].asInteger() > 0)
-		{
-			return lod;
-		}
-
-		//search down to find the next available lower lod
-		for (S32 i = lod-1; i >= 0; --i)
-		{
-			if (header[header_lod[i]]["size"].asInteger() > 0)
-			{
-				return i;
-			}
-		}
-
-		//search up to find then ext available higher lod
-		for (S32 i = lod+1; i < 4; ++i)
-		{
-			if (header[header_lod[i]]["size"].asInteger() > 0)
-			{
-				return i;
-			}
-		}
-
-		//header exists and no good lod found, treat as 404
-		header["404"] = 1;
-		return -1;
+		return LLMeshRepository::getActualMeshLOD(header, lod);
 	}
 
 	return lod;
+}
+
+//static
+S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
+{
+	lod = llclamp(lod, 0, 3);
+
+	if (header.has("404"))
+	{
+		return -1;
+	}
+
+	if (header[header_lod[lod]]["size"].asInteger() > 0)
+	{
+		return lod;
+	}
+
+	//search down to find the next available lower lod
+	for (S32 i = lod-1; i >= 0; --i)
+	{
+		if (header[header_lod[i]]["size"].asInteger() > 0)
+		{
+			return i;
+		}
+	}
+
+	//search up to find then ext available higher lod
+	for (S32 i = lod+1; i < 4; ++i)
+	{
+		if (header[header_lod[i]]["size"].asInteger() > 0)
+		{
+			return i;
+		}
+	}
+
+	//header exists and no good lod found, treat as 404
+	header["404"] = 1;
+	return -1;
 }
 
 U32 LLMeshRepoThread::getResourceCost(const LLUUID& mesh_id)
@@ -2514,12 +2520,12 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 	return mesh.has("physics_shape") && mesh["physics_shape"].has("size") && (mesh["physics_shape"]["size"].asInteger() > 0);
 }
 
-const LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
+LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
 	return mThread->getMeshHeader(mesh_id);
 }
 
-const LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
+LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 {
 	static LLSD dummy_ret;
 	if (mesh_id.notNull())
@@ -2577,12 +2583,10 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 	//write model file to memory buffer
 	std::stringstream ostr;
 
-	LLModel::convex_hull_decomposition& decomp =
+	LLModel::Decomposition& decomp =
 		data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-		data.mModel[LLModel::LOD_PHYSICS]->mPhysics.mHull : 
-		data.mBaseModel->mPhysics.mHull;
-
-	LLModel::hull dummy_hull;
+		data.mModel[LLModel::LOD_PHYSICS]->mPhysics : 
+		data.mBaseModel->mPhysics;
 
 	LLSD header = LLModel::writeModel(
 		ostr,
@@ -2592,7 +2596,6 @@ void LLMeshUploadThread::sendCostRequest(LLMeshUploadData& data)
 		data.mModel[LLModel::LOD_LOW],
 		data.mModel[LLModel::LOD_IMPOSTOR], 
 		decomp,
-		dummy_hull,
 		mUploadSkin,
 		mUploadJoints,
 		true);
@@ -2678,10 +2681,12 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 	{
 		std::stringstream ostr;
 
-		LLModel::convex_hull_decomposition& decomp =
+		LLModel::Decomposition& decomp =
 			data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-			data.mModel[LLModel::LOD_PHYSICS]->mPhysics.mHull : 
-			data.mBaseModel->mPhysics.mHull;
+			data.mModel[LLModel::LOD_PHYSICS]->mPhysics : 
+			data.mBaseModel->mPhysics;
+
+		decomp.mBaseHull = mHullMap[data.mBaseModel];
 
 		LLModel::writeModel(
 			ostr,  
@@ -2691,7 +2696,6 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 			data.mModel[LLModel::LOD_LOW],
 			data.mModel[LLModel::LOD_IMPOSTOR], 
 			decomp,
-			mHullMap[data.mBaseModel],
 			mUploadSkin,
 			mUploadJoints);
 
@@ -2939,16 +2943,35 @@ void LLMeshRepository::uploadError(LLSD& args)
 }
 
 //static
-F32 LLMeshRepository::getStreamingCost(const LLSD& header, F32 radius)
+F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod)
 {
-	F32 dlowest = llmin(radius/0.06f, 256.f);
-	F32 dlow = llmin(radius/0.24f, 256.f);
-	F32 dmid = llmin(radius/1.0f, 256.f);
+	F32 dlowest = llmin(radius/0.03f, 256.f);
+	F32 dlow = llmin(radius/0.06f, 256.f);
+	F32 dmid = llmin(radius/0.24f, 256.f);
 	
 	F32 bytes_lowest = header["lowest_lod"]["size"].asReal()/1024.f;
 	F32 bytes_low = header["low_lod"]["size"].asReal()/1024.f;
 	F32 bytes_mid = header["medium_lod"]["size"].asReal()/1024.f;
 	F32 bytes_high = header["high_lod"]["size"].asReal()/1024.f;
+
+	if (bytes)
+	{
+		*bytes = 0;
+		*bytes += header["lowest_lod"]["size"].asInteger();
+		*bytes += header["low_lod"]["size"].asInteger();
+		*bytes += header["medium_lod"]["size"].asInteger();
+		*bytes += header["high_lod"]["size"].asInteger();
+	}
+
+
+	if (bytes_visible)
+	{
+		lod = LLMeshRepository::getActualMeshLOD(header, lod);
+		if (lod >= 0 && lod <= 3)
+		{
+			*bytes_visible = header[header_lod[lod]]["size"].asInteger();
+		}
+	}
 
 	if (bytes_high == 0.f)
 	{

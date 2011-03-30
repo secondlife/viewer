@@ -493,6 +493,10 @@ public:
 			{
 				F32 cost = 0.f;
 				S32 count = 0;
+				S32 object_count = 0;
+				S32 total_bytes = 0;
+				S32 visible_bytes = 0;
+
 				const char* label = "Region";
 				if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 0)
 				{ //region
@@ -506,8 +510,13 @@ public:
 								object->getRegion() == region &&
 								object->getVolume())
 							{
-								cost += object->getStreamingCost();
+								object_count++;
+								S32 bytes = 0;	
+								S32 visible = 0;
+								cost += object->getStreamingCost(&bytes, &visible);
 								count += object->getTriangleCount();
+								total_bytes += bytes;
+								visible_bytes += visible;
 							}
 						}
 					}
@@ -515,12 +524,16 @@ public:
 				else
 				{
 					label = "Selection";
-					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost();
+					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost(&total_bytes, &visible_bytes);
 					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount();
+					object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 				}
 					
-				addText(xpos,ypos, llformat("%s streaming cost: %.1f (%.1f KTris)",
-							label, cost, count/1000.f));
+				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
+				ypos += y_inc;
+
+				addText(xpos, ypos, llformat("    %.1f KTris, %.1f/%.1f KB, %d objects",
+										count/1024.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}
