@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notifications>
+	<notification name="UserGiveItem">
+		[NAME_SLURL] bietet Ihnen [ITEM_SLURL] an. Zur Verwendung dieses Artikels müssen Sie in den erweiterten Modus umschalten, wo Sie den Artikel in Ihrem Inventar finden werden. Um in den erweiterten Modus umzuschalten, beenden Sie die Anwendung, starten Sie sie neu und ändern Sie die Moduseinstellung auf dem Anmeldebildschirm.
+		<form name="form">
+			<button name="Show" text="Artikel behalten"/>
+			<button name="Discard" text="Artikel ablehnen"/>
+			<button name="Mute" text="Benutzer blockieren"/>
+		</form>
+	</notification>
+	<notification name="ObjectGiveItem">
+		Ein Objekt namens &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, das [NAME_SLURL] gehört, bietet Ihnen [ITEM_SLURL] an. Zur Verwendung dieses Artikels müssen Sie in den erweiterten Modus umschalten, wo Sie den Artikel in Ihrem Inventar finden werden. Um in den erweiterten Modus umzuschalten, beenden Sie die Anwendung, starten Sie sie neu und ändern Sie die Moduseinstellung auf dem Anmeldebildschirm.
+		<form name="form">
+			<button name="Keep" text="Artikel behalten"/>
+			<button name="Discard" text="Artikel ablehnen"/>
+			<button name="Mute" text="Objekt blockieren"/>
+		</form>
+	</notification>
+</notifications>

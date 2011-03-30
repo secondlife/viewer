@@ -236,6 +236,22 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 	}
 }
 
+//static
+void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
+{
+	U32 count = pos.size();
+	llassert(norm.size() >= pos.size());
+
+	unbind();
+	
+	setupClientArrays(MAP_VERTEX | MAP_NORMAL);
+
+	glVertexPointer(3, GL_FLOAT, 0, pos[0].mV);
+	glNormalPointer(GL_FLOAT, 0, norm[0].mV);
+
+	glDrawArrays(sGLMode[mode], 0, count);
+}
+
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
 	if (start >= (U32) mRequestedNumVerts ||

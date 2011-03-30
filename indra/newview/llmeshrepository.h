@@ -132,34 +132,6 @@ public:
 	LLSD asLLSD();
 };
 
-class LLMeshSkinInfo 
-{
-public:
-	LLUUID mMeshID;
-	std::vector<std::string> mJointNames;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
-	
-	LLMatrix4 mBindShapeMatrix;
-	float mPelvisOffset;
-};
-
-class LLMeshDecomposition
-{
-public:
-	LLMeshDecomposition() { }
-
-	void merge(const LLMeshDecomposition* rhs);
-
-	LLUUID mMeshID;
-	LLModel::convex_hull_decomposition mHull;
-	LLModel::hull mBaseHull;
-
-	std::vector<LLPointer<LLVertexBuffer> > mMesh;
-	LLPointer<LLVertexBuffer> mBaseHullMesh;
-	LLPointer<LLVertexBuffer> mPhysicsShapeMesh;
-};
-
 class LLPhysicsDecomp : public LLThread
 {
 public:
@@ -178,7 +150,7 @@ public:
 				
 		//output state
 		std::string mStatusMessage;
-		std::vector<LLPointer<LLVertexBuffer> > mHullMesh;
+		std::vector<LLModel::PhysicsMesh> mHullMesh;
 		LLModel::convex_hull_decomposition mHull;
 		
 		//status message callback, called from decomposition thread
@@ -313,7 +285,7 @@ public:
 	std::set<LLUUID> mPhysicsShapeRequests;
 
 	//queue of completed Decomposition info requests
-	std::queue<LLMeshDecomposition*> mDecompositionQ;
+	std::queue<LLModel::Decomposition*> mDecompositionQ;
 
 	//queue of requested headers
 	std::queue<HeaderRequest> mHeaderReqQ;
@@ -405,11 +377,12 @@ public:
 	S32				mPendingConfirmations;
 	S32				mPendingUploads;
 	S32				mPendingCost;
-	bool			mFinished;
 	LLVector3		mOrigin;
+	bool			mFinished;	
 	bool			mUploadTextures;
 	bool			mUploadSkin;
 	bool			mUploadJoints;
+	BOOL            mDiscarded ;
 
 	LLHost			mHost;
 	std::string		mUploadObjectAssetCapability;
@@ -445,7 +418,8 @@ public:
 	bool finished() { return mFinished; }
 	virtual void run();
 	void preStart();
-	
+	void discard() ;
+	BOOL isDiscarded();
 };
 
 class LLMeshRepository
@@ -475,17 +449,19 @@ public:
 	void notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume);
 	void notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod);
 	void notifySkinInfoReceived(LLMeshSkinInfo& info);
-	void notifyDecompositionReceived(LLMeshDecomposition* info);
+	void notifyDecompositionReceived(LLModel::Decomposition* info);
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	U32 calcResourceCost(LLSD& header);
 	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
-	const LLMeshDecomposition* getDecomposition(const LLUUID& mesh_id);
+	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
 	
 	void buildHull(const LLVolumeParams& params, S32 detail);
+	void buildPhysicsMesh(LLModel::Decomposition& decomp);
+
 	const LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
@@ -499,7 +475,7 @@ public:
 	typedef std::map<LLUUID, LLMeshSkinInfo> skin_map;
 	skin_map mSkinMap;
 
-	typedef std::map<LLUUID, LLMeshDecomposition*> decomposition_map;
+	typedef std::map<LLUUID, LLModel::Decomposition*> decomposition_map;
 	decomposition_map mDecompositionMap;
 
 	LLMutex*					mMeshMutex;
