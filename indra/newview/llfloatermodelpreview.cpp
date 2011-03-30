@@ -386,7 +386,8 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	sInstance = NULL;
 
 	const LLModelLoader *model_loader = mModelPreview->mModelLoader;
-	if (model_loader && model_loader->mResetJoints)
+	
+	if ( mModelPreview && mModelPreview->getResetJointFlag() )
 	{
 		gAgentAvatarp->resetJointPositions();
 	}
@@ -394,7 +395,7 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	
 	if ( mModelPreview )
 	{
-	delete mModelPreview;
+		delete mModelPreview;
 	}
 
 	if (mGLName)
@@ -992,7 +993,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 // LLModelLoader
 //-----------------------------------------------------------------------------
 LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview)
-: LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE), mResetJoints( FALSE )
+: LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE)
 {
 	mJointMap["mPelvis"] = "mPelvis";
 	mJointMap["mTorso"] = "mTorso";
@@ -1566,14 +1567,14 @@ bool LLModelLoader::doLoadModel()
 						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mSkinInfo.mJointNames ) );
 						if ( !skeletonWithNoRootNode && !model->mSkinInfo.mJointNames.empty() && mPreview->isRigValid() ) 
 						{
-							mResetJoints = true;
+							mPreview->setResetJointFlag( true );
 						}
 						
 						if ( !missingSkeletonOrScene )
 						{
 							//Set the joint translations on the avatar - if it's a full mapping
 							//The joints are reset in the dtor
-							if ( mResetJoints )
+							if ( mPreview->getResetJointFlag() )
 							{	
 								std::map<std::string, std::string> :: const_iterator masterJointIt = mJointMap.begin();
 								std::map<std::string, std::string> :: const_iterator masterJointItEnd = mJointMap.end();
@@ -2438,6 +2439,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
 , mPelvisZOffset( 0.0f )
 , mRigValid( false )
+, mResetJoints( false )
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = 0.f;
@@ -2535,6 +2537,15 @@ U32 LLModelPreview::calcResourceCost()
 			instance.mLOD[LLModel::LOD_PHYSICS] ?
 			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
 			instance.mModel->mPhysics.mHull;
+			
+			//update instance skin info for each lods pelvisZoffset 
+			for ( int j=0; j<LLModel::NUM_LODS; ++j )
+			{	
+				if ( instance.mLOD[j] )
+				{
+					instance.mLOD[j]->mSkinInfo.mPelvisOffset = mPelvisZOffset;
+				}
+			}
 
 			LLSD ret = LLModel::writeModel(
 										   "",
