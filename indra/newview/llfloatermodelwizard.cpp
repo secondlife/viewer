@@ -581,7 +581,7 @@ void LLFloaterModelWizard::onUpload()
 	mModelPreview->rebuildUploadData();
 	
 	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale, 
-						  childGetValue("upload_textures").asBoolean(), childGetValue("upload_skin"), childGetValue("upload_joints"));
+						  true, false, false);
 	
 	setState(UPLOAD);
 	
