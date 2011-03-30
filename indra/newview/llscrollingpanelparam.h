@@ -28,8 +28,7 @@
 #ifndef LL_SCROLLINGPANELPARAM_H
 #define LL_SCROLLINGPANELPARAM_H
 
-#include "llpanel.h"
-#include "llscrollingpanellist.h"
+#include "llscrollingpanelparambase.h"
 
 class LLViewerJointMesh;
 class LLViewerVisualParam;
@@ -38,11 +37,11 @@ class LLVisualParamHint;
 class LLViewerVisualParam;
 class LLJoint;
 
-class LLScrollingPanelParam : public LLScrollingPanel
+class LLScrollingPanelParam : public LLScrollingPanelParamBase
 {
 public:
 	LLScrollingPanelParam( const LLPanel::Params& panel_params,
-						   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp );
+			       LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints = TRUE );
 	virtual ~LLScrollingPanelParam();
 
 	virtual void		draw();
@@ -50,7 +49,6 @@ public:
 	virtual void		updatePanel(BOOL allow_modify);
 
 	static void			onSliderMouseDown(LLUICtrl* ctrl, void* userdata);
-	static void			onSliderMoved(LLUICtrl* ctrl, void* userdata);
 	static void			onSliderMouseUp(LLUICtrl* ctrl, void* userdata);
 
 	static void			onHintMinMouseDown(void* userdata);
@@ -74,7 +72,6 @@ public:
 	const static S32 PARAM_HINT_HEIGHT;
 
 public:
-	LLViewerVisualParam* mParam;
 	LLPointer<LLVisualParamHint>	mHintMin;
 	LLPointer<LLVisualParamHint>	mHintMax;
 	static S32 			sUpdateDelayFrames;
@@ -82,9 +79,7 @@ public:
 protected:
 	LLTimer				mMouseDownTimer;	// timer for how long mouse has been held down on a hint.
 	F32					mLastHeldTime;
-
 	BOOL mAllowModify;
-	LLWearable *mWearable;
 }; 
 
 #endif

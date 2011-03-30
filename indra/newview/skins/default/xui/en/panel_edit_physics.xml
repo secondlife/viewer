@@ -34,14 +34,43 @@
 		<accordion_tab
 			layout="topleft"
             fit_panel="false"
-			min_height="150"
-			name="physics_main_tab"
-			title="Physics">
+			min_height="50"
+			name="physics_breasts_tab"
+			title="Breasts">
 			<scrolling_panel_list
 				follows="all"
                 layout="topleft"
 				left="0"
-				name="physics_main_param_list"
+				name="physics_breasts_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+            fit_panel="false"
+			min_height="50"
+			name="physics_belly_tab"
+			title="Belly">
+			<scrolling_panel_list
+				follows="all"
+                layout="topleft"
+				left="0"
+				name="physics_belly_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+
+		<accordion_tab
+			layout="topleft"
+            fit_panel="false"
+			min_height="50"
+			name="physics_butt_tab"
+			title="Butt">
+			<scrolling_panel_list
+				follows="all"
+                layout="topleft"
+				left="0"
+				name="physics_butt_param_list"
 				top="0"
 				width="303" />
 		</accordion_tab>

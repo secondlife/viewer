@@ -403,6 +403,7 @@ set(viewer_SOURCE_FILES
     llscreenchannel.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
+    llscrollingpanelparambase.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
     llsecapi.cpp
@@ -941,6 +942,7 @@ set(viewer_HEADER_FILES
     llscreenchannel.h
     llscriptfloater.h
     llscrollingpanelparam.h
+    llscrollingpanelparambase.h
     llsearchcombobox.h
     llsearchhistory.h
     llsecapi.h

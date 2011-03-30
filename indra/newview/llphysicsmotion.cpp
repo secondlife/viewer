@@ -448,8 +448,16 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	const F32 behavior_spring = getParamValue("Spring");
 	const F32 behavior_gain = getParamValue("Gain");
 	const F32 behavior_damping = getParamValue("Damping");
-	const F32 behavior_maxspeed = getParamValue("MaxSpeed");
 	const F32 behavior_drag = getParamValue("Drag");
+	const BOOL physics_test = gSavedSettings.getBOOL("AvatarPhysicsTest");
+	
+	F32 behavior_maxspeed = getParamValue("MaxSpeed");
+	if (physics_test)
+		behavior_maxspeed = 100.0f;
+	/*
+	if (behavior_maxspeed == 0)
+		return FALSE;
+	*/
 
 	F32 position_current_local = mPosition_local; // Normalized [0,1] range
 
@@ -526,9 +534,9 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 				     -behavior_maxspeed, behavior_maxspeed);
 	
 	// Temporary debugging setting to cause all avatars to move, for profiling purposes.
-	if (gSavedSettings.getBOOL("AvatarPhysicsTest"))
+	if (physics_test)
 	{
-		velocity_new_local = sin(time*4.0)*5.0;
+		velocity_new_local = sin(time*4.0);
 	}
 	// Calculate the new parameters, or remain unchanged if max speed is 0.
 	const F32 position_new_local = (behavior_maxspeed != 0) ? 
