@@ -96,6 +96,36 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 }
 
 /**
+ * Class LLFindAgentCallingCard
+ *
+ * An inventory collector functor for checking that agent's own calling card
+ * exists within the Calling Cards category and its sub-folders.
+ */
+class LLFindAgentCallingCard : public LLInventoryCollectFunctor
+{
+public:
+	LLFindAgentCallingCard() : mIsAgentCallingCardFound(false) {}
+	virtual ~LLFindAgentCallingCard() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	bool isAgentCallingCardFound() { return mIsAgentCallingCardFound; }
+
+private:
+	bool mIsAgentCallingCardFound;
+};
+
+bool LLFindAgentCallingCard::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (mIsAgentCallingCardFound) return true;
+
+	if (item && item->getType() == LLAssetType::AT_CALLINGCARD && item->getCreatorUUID() == gAgentID)
+	{
+		mIsAgentCallingCardFound = true;
+	}
+
+	return mIsAgentCallingCardFound;
+}
+
+/**
  * Class for fetching initial friend cards data
  *
  * Implemented to fix an issue when Inventory folders are in incomplete state.
@@ -449,32 +479,22 @@ void LLFriendCardsManager::syncFriendsFolder()
 	LLAvatarTracker::instance().copyBuddyList(all_buddies);
 
 	// 1. Check if own calling card exists
+	const LLUUID calling_cards_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-
-	LLUUID friends_all_folder_id = findFriendAllSubfolderUUIDImpl();
-	gInventory.collectDescendents(friends_all_folder_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
-
-	bool own_callingcard_found = false;
-	LLInventoryModel::item_array_t::const_iterator it;
-	for (it = items.begin(); it != items.end(); ++it)
-	{
-		if ((*it)->getCreatorUUID() == gAgentID)
-		{
-			own_callingcard_found = true;
-			break;
-		}
-	}
+	LLFindAgentCallingCard collector;
+	gInventory.collectDescendentsIf(calling_cards_folder_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, collector);
 
 	// Create own calling card if it was not found in Friends/All folder
-	if (!own_callingcard_found)
+	if (!collector.isAgentCallingCardFound())
 	{
 		LLAvatarName av_name;
 		LLAvatarNameCache::get( gAgentID, &av_name );
 
 		create_inventory_item(gAgentID,
 							  gAgent.getSessionID(),
-							  friends_all_folder_id,
+							  calling_cards_folder_id,
 							  LLTransactionID::tnull,
 							  av_name.getCompleteName(),
 							  gAgentID.asString(),
