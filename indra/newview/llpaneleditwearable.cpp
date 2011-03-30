@@ -1415,7 +1415,16 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			LLWearable *wearable = this->getWearable();
+			LLScrollingPanelParamBase *panel_param = NULL;
+			if (wearable && wearable->getType() == LLWearableType::WT_PHYSICS) // Hack to show a different panel for physics.  Should generalize this later.
+			{
+				panel_param = new LLScrollingPanelParamBase( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			}
+			else
+			{
+				panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			}
 			height = panel_list->addPanel( panel_param );
 		}
 	}
