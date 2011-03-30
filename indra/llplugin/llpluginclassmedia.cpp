@@ -144,8 +144,10 @@ void LLPluginClassMedia::reset()
 	mStatusText.clear();
 	mProgressPercent = 0;	
 	mClickURL.clear();
+	mClickNavType.clear();
 	mClickTarget.clear();
 	mClickUUID.clear();
+	mStatusCode = 0;
 	
 	// media_time class
 	mCurrentTime = 0.0f;
@@ -1024,8 +1026,14 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		else if(message_name == "click_nofollow")
 		{
 			mClickURL = message.getValue("uri");
+			mClickNavType = message.getValue("nav_type");
 			mClickTarget.clear();
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
+		}
+		else if(message_name == "navigate_error_page")
+		{
+			mStatusCode = message.getValueS32("status_code");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_ERROR_PAGE);
 		}
 		else if(message_name == "cookie_set")
 		{
@@ -1189,16 +1197,6 @@ void LLPluginClassMedia::browse_forward()
 void LLPluginClassMedia::browse_back()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "browse_back");
-	sendMessage(message);
-}
-
-void LLPluginClassMedia::set_status_redirect(int code, const std::string &url)
-{
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_status_redirect");
-
-	message.setValueS32("code", code);
-	message.setValue("url", url);
-
 	sendMessage(message);
 }
 

@@ -57,6 +57,7 @@
 #include "llviewercontrol.h"
 #include "llfloatermediabrowser.h"
 #include "llweb.h"
+#include "llhints.h"
 
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
@@ -323,6 +324,8 @@ BOOL LLNavigationBar::postBuild()
 	// we'll be notified on teleport history changes
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
+
+	LLHints::registerHintTarget("nav_bar", LLView::getHandle());
 
 	return TRUE;
 }

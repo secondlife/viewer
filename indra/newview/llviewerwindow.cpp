@@ -915,7 +915,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					{
 						if (drop)
 						{
-							LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), NULL, true );
+							LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), "clicked", NULL, true );
 							return LLWindowCallbacks::DND_MOVE;
 						}
 						return LLWindowCallbacks::DND_COPY;
@@ -1306,7 +1306,7 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 		std::string url = (const char*)data;
 		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
-		if (LLURLDispatcher::dispatch(url, web, trusted_browser))
+		if (LLURLDispatcher::dispatch(url, "clicked", web, trusted_browser))
 		{
 			// bring window to foreground, as it has just been "launched" from a URL
 			mWindow->bringToFront();
@@ -1791,19 +1791,18 @@ void LLViewerWindow::initWorldUI()
 	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (destinations)
 	{
+		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
 		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
 	}
 
 	if (avatar_picker)
 	{
+		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
 		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
 	}
 
-	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-	{
-		toggle_destination_and_avatar_picker(0);
-		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
-	}
+	// show destinations by default
+	toggle_destination_and_avatar_picker(gSavedSettings.getS32("DestinationsAndAvatarsVisibility"));
 }
 
 // Destroy the UI

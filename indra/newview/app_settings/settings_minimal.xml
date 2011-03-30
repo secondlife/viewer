@@ -61,7 +61,7 @@
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
-            <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/howto/index.html?topic=[TOPIC]</string>
+            <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/howto/index.html?topic=[TOPIC]</string>
         </map>
     <key>PreferredMaturity</key>
         <map>
@@ -345,7 +345,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/guide.html</string>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/guide.html</string>
     </map>
     <key>AvatarPickerURL</key>
     <map>
@@ -356,7 +356,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/damballah/avatars.html</string>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/avatars.html</string>
     </map>
     <key>LogInventoryDecline</key>
     <map>
