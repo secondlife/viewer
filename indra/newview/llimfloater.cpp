@@ -267,7 +267,9 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
-	
+
+	LLFontGL* font = LLViewerChat::getChatFont();
+	mInputEditor->setFont(font);	
 	
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
