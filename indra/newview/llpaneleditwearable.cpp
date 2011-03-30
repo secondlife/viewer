@@ -95,7 +95,9 @@ enum ESubpart {
 	SUBPART_SKIRT,
 	SUBPART_ALPHA,
 	SUBPART_TATTOO,
-	SUBPART_PHYSICS
+	SUBPART_PHYSICS_BREASTS,
+	SUBPART_PHYSICS_BELLY,
+	SUBPART_PHYSICS_BUTT
  };
 
 using namespace LLVOAvatarDefines;
@@ -234,7 +236,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	addEntry(LLWearableType::WT_SKIRT, 		new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA, 		new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
 	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
-	addEntry(LLWearableType::WT_PHYSICS, 	new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text",0,0,1, SUBPART_PHYSICS));
+	addEntry(LLWearableType::WT_PHYSICS, 	new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text",0,0,3, SUBPART_PHYSICS_BREASTS, SUBPART_PHYSICS_BELLY, SUBPART_PHYSICS_BUTT));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
@@ -305,7 +307,9 @@ LLEditWearableDictionary::Subparts::Subparts()
 	addEntry(SUBPART_UNDERPANTS, new SubpartEntry(SUBPART_UNDERPANTS, "mPelvis", "underpants", "underpants_main_param_list", "underpants_main_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
 	addEntry(SUBPART_ALPHA, new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha", "alpha_main_param_list", "alpha_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
 	addEntry(SUBPART_TATTOO, new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", "tattoo_main_param_list", "tattoo_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
-	addEntry(SUBPART_PHYSICS, new SubpartEntry(SUBPART_PHYSICS, "mTorso", "physics", "physics_main_param_list", "physics_main_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(-1.f, 0.15f, 0.3f),SEX_FEMALE));
+	addEntry(SUBPART_PHYSICS_BREASTS, new SubpartEntry(SUBPART_PHYSICS_BREASTS, "mTorso", "physics_breasts", "physics_breasts_param_list", "physics_breasts_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
+	addEntry(SUBPART_PHYSICS_BELLY, new SubpartEntry(SUBPART_PHYSICS_BELLY, "mTorso", "physics_belly", "physics_belly_param_list", "physics_belly_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
+	addEntry(SUBPART_PHYSICS_BUTT, new SubpartEntry(SUBPART_PHYSICS_BUTT, "mTorso", "physics_butt", "physics_butt_param_list", "physics_butt_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
 }
 
 LLEditWearableDictionary::SubpartEntry::SubpartEntry(ESubpart part,
