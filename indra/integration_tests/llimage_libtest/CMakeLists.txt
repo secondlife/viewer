@@ -6,19 +6,15 @@ project (llimage_libtest)
 
 include(00-Common)
 include(LLCommon)
-include(Linking)
-include(LLSharedLibs)
 include(LLImage)
 include(LLImageJ2COJ) 
 include(LLKDU)
-include(LLMath)
 include(LLVFS)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
     )
 
 set(llimage_libtest_SOURCE_FILES
@@ -127,5 +123,3 @@ endif (WINDOWS)
 # *NOTE: This could be removed, or only built by TeamCity, if the build
 # and link times become too long.
 add_dependencies(viewer llimage_libtest)
-
-ll_deploy_sharedlibs_command(llimage_libtest) 
