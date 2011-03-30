@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
 add_subdirectory(llui_libtest)
-if (LLIMAGE_LIBTEST)
+IF (LLIMAGE_LIBTEST)
+  MESSAGE(STATUS "Build llimage_libtest")
   add_subdirectory(llimage_libtest)
-endif (LLIMAGE_LIBTEST)
+ELSE (LLIMAGE_LIBTEST)
+  MESSAGE(STATUS "Skip llimage_libtest")
+ENDIF (LLIMAGE_LIBTEST)
