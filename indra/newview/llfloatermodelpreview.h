@@ -126,7 +126,6 @@ public:
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 	std::deque<std::string> mMasterJointList;
-	bool mResetJoints;
 };
 
 class LLFloaterModelPreview : public LLFloater
@@ -310,6 +309,9 @@ public:
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
 		
+	void setResetJointFlag( bool state ) { mResetJoints = state; }
+	bool getResetJointFlag( void ) { return mResetJoints; }
+
  protected:
 	friend class LLModelLoader;
 	friend class LLFloaterModelPreview;
@@ -336,7 +338,7 @@ public:
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 	U32			mLoadState;
-	
+	bool		mResetJoints;
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)
