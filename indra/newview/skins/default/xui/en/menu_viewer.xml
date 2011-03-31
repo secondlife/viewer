@@ -41,7 +41,7 @@
              parameter="agent" />
         </menu_item_call>
         <menu_item_call
-         label="Change Outfit"
+         label="My Appearance"
          name="ChangeOutfit">
             <menu_item_call.on_click
              function="CustomizeAvatar" />
